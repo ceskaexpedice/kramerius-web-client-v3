@@ -67,7 +67,8 @@
               "buildTarget": "cdk-client:build:production"
             },
             "development": {
-              "buildTarget": "cdk-client:build:development"
+              "buildTarget": "cdk-client:build:development",
+              "hmr": false
             }
           },
           "defaultConfiguration": "development"
@@ -98,5 +99,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "e791cde0-513a-4cb8-86ad-d78e3601d0b5"
   }
 }
