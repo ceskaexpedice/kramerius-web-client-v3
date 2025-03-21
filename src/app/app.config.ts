@@ -1,8 +1,12 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { InjectionToken } from '@angular/core';
 
-import { routes } from './app.routes';
-
-export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+export const ENVIRONMENT = {
+  production: false,
+  apiUrl: 'https://dev-api.example.com',
+  enableDebug: true,
+  availableLanguages: ['cs', 'en', 'sk', 'pl'],
+  defaultLanguage: 'cs'
 };
+
+export const API_URL = new InjectionToken<string>('API_URL');
+export const DEFAULT_LANGUAGE = new InjectionToken<string>('DEFAULT_LANGUAGE');
