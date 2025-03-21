@@ -1,0 +1,44 @@
+<!--<div class="lang-switcher-pos">-->
+
+<!--  <div class="selected" (click)="clickedIcon()">-->
+
+<!--    <div class="icon-lang">-->
+<!--      <img [src]="currentLanguage().icon" [alt]="currentLanguage().name" />-->
+<!--    </div>-->
+
+<!--    <div class="arrow">-->
+<!--      <i class="fa fa-angle-down arrow-icon" [class.arrow-icon&#45;&#45;rotated]="expanded"></i>-->
+<!--    </div>-->
+
+<!--  </div>-->
+
+<!--  <div class="available-languages" [class.available-languages&#45;&#45;hidden]="!expanded">-->
+
+<!--    <div class="lang" *ngFor="let lang of languages" (click)="changeLang(lang.code)">-->
+<!--      <img [src]="lang.icon" [alt]="lang.name" />-->
+<!--    </div>-->
+
+<!--  </div>-->
+
+<!--</div>-->
+
+<div class="lang-switcher-pos">
+  <!-- Vybraný jazyk -->
+  <div class="selected" (click)="clickedIcon()">
+    <div class="icon-lang">
+      <img [src]="currentLanguage().icon" [alt]="currentLanguage().name" />
+    </div>
+    <div class="arrow">
+      <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded"></i>
+    </div>
+  </div>
+
+  <!-- Dropdown s jazykmi -->
+  <div class="available-languages" [class.available-languages--hidden]="!expanded">
+    <div class="languages-grid">
+      <div class="lang" *ngFor="let lang of languages" (click)="changeLang(lang.code)">
+        <img [src]="lang.icon" [alt]="lang.name" />
+      </div>
+    </div>
+  </div>
+</div>

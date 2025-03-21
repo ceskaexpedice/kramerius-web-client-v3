@@ -32,6 +32,8 @@
               }
             ],
             "styles": [
+              "node_modules/font-awesome/css/font-awesome.min.css",
+              "public/styles/main.scss",
               "src/styles.scss"
             ],
             "scripts": []
