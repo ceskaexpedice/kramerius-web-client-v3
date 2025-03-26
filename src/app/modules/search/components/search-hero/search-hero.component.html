@@ -1,0 +1,29 @@
+<section class="search-hero">
+  <h1>Prozkoumejte největší českou digitální knihovnu</h1>
+  <p>
+    Hledáte historické knihy, noviny, mapy nebo rukopisy? Digitální knihovna vám otevírá brány k bohaté sbírce digitalizovaných dokumentů – ať už volně dostupných, nebo chráněných autorským právem.
+  </p>
+
+  <div class="search-row">
+    <input
+      type="text"
+      [(ngModel)]="query"
+      placeholder="Hledat ve všech dokumentech"
+    />
+
+    <button type="button" class="icon-button">
+      <i class="fa fa-search"></i>
+    </button>
+
+    <button class="outlined">
+      Pokročilé hledání
+    </button>
+  </div>
+
+  <div class="tags-row">
+    <span class="tag">Oborová</span>
+    <span class="tag">Historické mapy</span>
+    <span class="tag">Hudebniny</span>
+    <span class="tag">Ilustrované noviny</span>
+  </div>
+</section>

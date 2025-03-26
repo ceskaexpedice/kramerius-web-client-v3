@@ -1,0 +1,23 @@
+<section class="carousel-wrapper">
+
+  <div class="carousel-content-wrapper">
+
+    <div class="carousel-content" #scrollContainer>
+      <ng-content></ng-content>
+    </div>
+
+  </div>
+
+  <div class="carousel-actions">
+
+    <button class="nav left" (click)="scrollLeft()" [disabled]="!canScrollLeft">
+      <i class="fa fa-chevron-left"></i>
+    </button>
+
+    <button class="nav right" (click)="scrollRight()" [disabled]="!canScrollRight">
+      <i class="fa fa-chevron-right"></i>
+    </button>
+
+  </div>
+
+</section>

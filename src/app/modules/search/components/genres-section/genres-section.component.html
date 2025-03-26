@@ -1,0 +1,12 @@
+<section class="genres-section">
+  <h3>Žánry</h3>
+
+  <div class="genres-grid">
+    <app-category-item
+      *ngFor="let genre of genres"
+      [icon]="genre.icon"
+      [label]="genre.label"
+      [count]="genre.count"
+    ></app-category-item>
+  </div>
+</section>
