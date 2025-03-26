@@ -18,6 +18,7 @@ import {AppMissingTranslationService} from './shared/translation/app-missing-tra
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import {FooterComponent} from './core/layout/footer/footer.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './i18n/', '.json');
@@ -38,17 +39,18 @@ export function HttpLoaderFactory(http: HttpClient) {
       },
       parser: {
         provide: TranslateParser,
-        useClass: PercentageSignTranslateParser
+        useClass: PercentageSignTranslateParser,
       },
       missingTranslationHandler: {
         provide: MissingTranslationHandler,
-        useExisting: AppMissingTranslationService
-      }
+        useExisting: AppMissingTranslationService,
+      },
     }),
     StoreModule.forRoot({}, {}),
     EffectsModule.forRoot([]),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: ENVIRONMENT.production }),
+    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,
+    FooterComponent,
   ],
   providers: [
     provideHttpClient(),
