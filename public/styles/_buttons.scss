@@ -1,0 +1,26 @@
+button {
+  background: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+button.outlined {
+  background: none;
+  border: 1px solid var(--color-primary);
+}
+
+button.icon-button {
+  padding: 10px 12px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+}
