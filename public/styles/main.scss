@@ -1,5 +1,8 @@
 @use './variables';
 @use './mixins';
+@use "./_typography";
+@use "./_forms";
+@use "./_buttons";
 
 body {
   margin: 0;
