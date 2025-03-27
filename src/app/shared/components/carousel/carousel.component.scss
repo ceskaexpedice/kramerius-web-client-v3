@@ -5,6 +5,7 @@
 
   .carousel-content-wrapper {
     position: relative;
+    overflow: hidden; // zabránime zobrazovaniu scroll pretečenia
   }
 
   .carousel-content {
@@ -24,14 +25,15 @@
     gap: 5px;
   }
 
-  .nav {
-    background: white;
-    border: 1px solid var(--color-border-light);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
+}
+
+.carousel-content-wrapper.edge-to-edge {
+  margin-left: calc(-1 * var(--search-page-padding));
+  margin-right: calc(-1 * var(--search-page-padding));
+  overflow: hidden;
+}
+
+.carousel-content-wrapper.edge-to-edge .carousel-content {
+  padding-left: var(--search-page-padding);
+  padding-right: var(--search-page-padding);
 }

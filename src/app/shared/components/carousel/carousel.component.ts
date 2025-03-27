@@ -1,9 +1,10 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
-import {NgIf} from '@angular/common';
+import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {NgClass, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-carousel',
   imports: [
+    NgClass,
   ],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.scss'
@@ -14,6 +15,9 @@ export class CarouselComponent {
   canScrollRight = true;
 
   @ViewChild('scrollContainer', { static: true }) scrollContainer!: ElementRef<HTMLDivElement>;
+
+  @Input() edgeToEdge = false;
+
 
   scrollLeft() {
     const firstItem = this.scrollContainer.nativeElement.querySelector('.item-card');

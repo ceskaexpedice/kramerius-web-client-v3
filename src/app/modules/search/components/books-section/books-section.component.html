@@ -4,13 +4,16 @@
     <a href="#" class="show-all">{{'filters.btn_show_more' | translate}} →</a>
   </div>
 
-  <app-carousel *ngIf="books$ | async as books">
-    <app-item-card
-      *ngFor="let item of books"
-      [uuid]="item.uuid"
-      [title]="item.title"
-      [subtitle]="item.year"
-      [link]="'/detail/' + item.title"
-    ></app-item-card>
-  </app-carousel>
+  <div class="carousel-wrapper">
+    <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
+      <app-item-card
+        *ngFor="let item of books"
+        [uuid]="item.uuid"
+        [title]="item.title"
+        [subtitle]="item.year"
+        [link]="'/detail/' + item.title"
+      ></app-item-card>
+    </app-carousel>
+  </div>
+
 </section>
