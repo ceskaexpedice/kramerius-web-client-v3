@@ -17,6 +17,8 @@ import {EffectsModule} from '@ngrx/effects';
 import {PeriodicalsEffects} from '../../state/search/periodicals/periodicals.effects';
 import {BooksEffects} from '../../state/search/books/books.effects';
 import {booksReducer} from '../../state/search/books/books.reducer';
+import {GenresEffects} from '../../state/search/genres/genres.effects';
+import {genresReducer} from '../../state/search/genres/genres.reducer';
 
 const routes: Routes = [
   {
@@ -30,7 +32,8 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes), InstitutionsSectionComponent, AuthorsSectionComponent, BooksSectionComponent, GenresSectionComponent, PeriodicalsSectionComponent, MapSectionComponent, DocumentTypesSectionComponent, ImagesSectionComponent, HeaderComponent, SearchHeroComponent,
     StoreModule.forFeature('periodicals', periodicalsReducer),
     StoreModule.forFeature('books', booksReducer),
-    EffectsModule.forFeature([PeriodicalsEffects, BooksEffects])
+    StoreModule.forFeature('genres', genresReducer),
+    EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects])
   ],
 })
 export class SearchPageModule {

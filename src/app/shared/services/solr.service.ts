@@ -36,5 +36,19 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params });
   }
 
+  getGenres(): Observable<any> {
+    const params = {
+      q: '*:*',
+      rows: 0,
+      facet: true,
+      'facet.field': 'genres.facet',
+      'facet.limit': 100,
+      'facet.sort': 'count',
+      wt: 'json'
+    }
+
+    return this.http.get<any>(this.API_URL, { params });
+  }
+
   // ďalšie metódy: getBooks(), getGenres(), getAuthors() atď.
 }

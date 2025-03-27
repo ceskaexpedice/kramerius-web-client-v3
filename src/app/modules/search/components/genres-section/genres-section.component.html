@@ -1,11 +1,11 @@
 <section class="genres-section">
   <h3>{{ 'browse.category.genres' | translate }}</h3>
 
-  <div class="genres-grid">
+  <div class="genres-grid" *ngIf="genres$ | async as genres">
     <app-category-item
-      *ngFor="let genre of genres"
+      *ngFor="let genre of genres?.slice(0, 16)"
       [icon]="genre.icon"
-      [label]="genre.label"
+      [label]="genre.name"
       [count]="genre.count"
     ></app-category-item>
   </div>
