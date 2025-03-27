@@ -1,10 +1,9 @@
-import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-carousel',
   imports: [
-    NgIf,
   ],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.scss'

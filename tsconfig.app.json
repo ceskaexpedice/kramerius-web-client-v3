@@ -11,5 +11,14 @@
   ],
   "include": [
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "src/**/*.spec.ts",
+    "node_modules",
+    "dist",
+    "out-tsc",
+    "e2e",
+    "ngrx-entity"
   ]
 }
