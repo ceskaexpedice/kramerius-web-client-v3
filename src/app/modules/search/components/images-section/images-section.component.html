@@ -1,1 +1,31 @@
-<p>images-section works!</p>
+<section class="search-by-image-section">
+
+  <div class="search-by-image-section__content">
+
+    <h2>Prozkoumejte obrázky podle názvu</h2>
+
+    <button class="main">
+      Hledat obrázek
+
+      <span class="arrow">→</span>
+    </button>
+
+    <div class="search-tags">
+      <span class="tag">Kůň</span>
+      <span class="tag">Belgický hřebec</span>
+      <span class="tag">Kůň polský</span>
+      <span class="tag">Kůň bavorský</span>
+      <span class="tag">Klisna</span>
+      <span class="tag">Hřebec</span>
+      <span class="tag">…</span>
+    </div>
+
+  </div>
+
+  <div class="search-by-image-section__images">
+    <div class="image-container" [style.background-image]="'url(img/search-by-image-3.png)'"></div>
+    <div class="image-container" [style.background-image]="'url(img/search-by-image-2.png)'"></div>
+    <div class="image-container" [style.background-image]="'url(img/search-by-image-1.png)'"></div>
+  </div>
+
+</section>

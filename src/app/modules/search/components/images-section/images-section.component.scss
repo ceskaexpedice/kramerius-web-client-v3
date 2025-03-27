@@ -1,0 +1,93 @@
+@use 'mixins' as *;
+
+.search-by-image-section {
+  background-color: var(--color-container-bg);
+  border-radius: var(--base-border-radius);
+  padding: var(--base-padding);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 300px;
+
+  & > div {
+    padding: 0 3rem;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap);
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    button.main {
+      width: fit-content;
+    }
+
+    .search-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .tag {
+        background: #f2f4f7;
+        padding: 5px 10px;
+        border-radius: 16px;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  &__images {
+    flex: 2;
+    display: flex;
+    gap: 10px;
+    height: 100%;
+    align-items: center;
+
+    .image-container {
+      width: 100%;
+      flex: 1;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      aspect-ratio: 1/1;
+      box-shadow: 0 3px 18.6px 0 rgba(#000, 0.2);
+
+      &:nth-child(1) {
+        height: 60%;
+      }
+
+      &:nth-child(2) {
+        height: 100%;
+      }
+
+      &:nth-child(3) {
+        height: 60%;
+      }
+    }
+  }
+}
+
+// add mixin for responsive design
+@include respond('md') {
+  .search-by-image-section {
+    flex-direction: column;
+    height: 400px;
+    gap: 3rem;
+
+    &__content {
+      order: 2;
+    }
+
+    &__images {
+      order: 1;
+    }
+  }
+}

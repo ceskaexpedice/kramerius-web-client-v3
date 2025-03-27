@@ -42,7 +42,7 @@ export class SolrService {
       rows: 0,
       facet: true,
       'facet.field': 'genres.facet',
-      'facet.limit': 100,
+      'facet.limit': 20,
       'facet.sort': 'count',
       wt: 'json'
     }
