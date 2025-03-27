@@ -1,0 +1,21 @@
+.light-custom-scrollbar {
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #dfe5ec;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #dfe5ec transparent;
+}
