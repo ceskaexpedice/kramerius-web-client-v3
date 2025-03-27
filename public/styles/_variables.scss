@@ -10,11 +10,17 @@
 
   --color-border-default: #8099B3;
   --color-border-light: #DFE5EC;
+  --color-border-main: #BFCCD9;
 
   --color-container-bg: #fff;
 
   --color-main-button-bg: #BFCCD9;
+  --color-light-button-bg: #fff;
+  --color-light-button-text: #292b2e;
+
   --color-tag-bg: #fff;
+
+  --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
 }
 
 :root.dark {

@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import {NgForOf} from '@angular/common';
 import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-genres-section',
   imports: [
     NgForOf,
     CategoryItemComponent,
+    TranslatePipe,
   ],
   templateUrl: './genres-section.component.html',
   styleUrl: './genres-section.component.scss'

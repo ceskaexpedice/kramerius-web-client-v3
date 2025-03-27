@@ -14,4 +14,12 @@ export class ItemCardComponent {
   @Input() title!: string;
   @Input() subtitle?: string;
   @Input() link: string | null = null;
+
+  @Input() showFavoriteButton: boolean = true;
+
+  toggleFavorite() {
+    // Implement this method
+    if (!this.showFavoriteButton) return;
+  }
+
 }

@@ -13,6 +13,9 @@
     overflow-x: auto;
     scroll-behavior: smooth;
     padding-bottom: 10px;
+    // Hide scrollbar
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   .carousel-actions {

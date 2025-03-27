@@ -5,6 +5,7 @@ import {ItemCardComponent} from '../../../../shared/components/item-card/item-ca
 import {Store} from '@ngrx/store';
 import {selectPeriodicals, selectPeriodicalsLoading} from '../../../../state/search/periodicals/periodicals.selectors';
 import {loadPeriodicals} from '../../../../state/search/periodicals/periodicals.actions';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-periodicals-section',
@@ -14,6 +15,7 @@ import {loadPeriodicals} from '../../../../state/search/periodicals/periodicals.
     ItemCardComponent,
     NgIf,
     AsyncPipe,
+    TranslatePipe,
   ],
   templateUrl: './periodicals-section.component.html',
   styleUrls: ['./periodicals-section.component.scss', '../search-section.scss'],

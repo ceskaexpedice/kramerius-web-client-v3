@@ -1,17 +1,15 @@
-<a *ngIf="link; else nonClickable" [href]="link" class="item-card">
-  <img [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb'" [alt]="title" />
-  <div class="content">
+<div class="item-card">
+
+  <div class="item-card__image" [style.background-image]="'url(https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb)'" [title]="title">
+
+    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton" (click)="toggleFavorite()">
+      <i class="fa fa-heart-o"></i>
+    </button>
+
+  </div>
+
+  <div class="item-card__content">
     <div class="title">{{ title }}</div>
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
   </div>
-</a>
-
-<ng-template #nonClickable>
-  <div class="item-card">
-    <img [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb'" [alt]="title" />
-    <div class="content">
-      <div class="title">{{ title }}</div>
-      <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
-    </div>
-  </div>
-</ng-template>
+</div>

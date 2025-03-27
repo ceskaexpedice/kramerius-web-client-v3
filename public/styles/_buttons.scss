@@ -6,16 +6,6 @@ button {
   font-size: 14px;
 }
 
-button.primary {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-button.outlined {
-  background: none;
-  border: 1px solid var(--color-primary);
-}
-
 button.icon-button {
   padding: 10px 12px;
   background: var(--color-primary);
@@ -23,4 +13,23 @@ button.icon-button {
   border-radius: 4px;
   cursor: pointer;
   color: #fff;
+}
+
+button.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+button.light {
+  background: var(--color-light-button-bg);
+  color: var(--color-light-button-text);
+}
+
+button.outlined {
+  background: none;
+  border: 1px solid var(--color-primary);
+}
+
+button.rounded {
+  border-radius: 50%;
 }
