@@ -36,7 +36,12 @@
               "public/styles/main.scss",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "public/styles"
+              ]
+            }
           },
           "configurations": {
             "production": {

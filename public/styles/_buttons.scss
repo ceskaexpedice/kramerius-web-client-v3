@@ -4,6 +4,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  border: none;
 }
 
 button.icon-button {
@@ -25,9 +26,25 @@ button.light {
   color: var(--color-light-button-text);
 }
 
+button.main {
+  background: var(--color-main-button-bg);
+  color: var(--color-text);
+}
+
 button.outlined {
   background: none;
   border: 1px solid var(--color-primary);
+}
+
+button.outlined-dark {
+  background: none;
+  border: 1px solid var(--color-text-darker);
+  color: var(--color-text-darker);
+
+  &:disabled {
+    color: var(--color-main-button-bg);
+    border-color: var(--color-main-button-bg);
+  }
 }
 
 button.rounded {
