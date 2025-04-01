@@ -1,4 +1,4 @@
-export interface GenreItem {
+export interface FacetItem {
   name: string;
   count: number;
 }

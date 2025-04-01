@@ -1,7 +1,7 @@
-<section class="genres-section">
+<section class="facet-grid-section">
   <h3>{{ 'browse.category.genres' | translate }}</h3>
 
-  <div class="genres-grid" *ngIf="genres$ | async as genres">
+  <div class="facet-grid" *ngIf="genres$ | async as genres">
     <app-category-item
       *ngFor="let genre of genres?.slice(0, 16)"
       [icon]="genre.icon"

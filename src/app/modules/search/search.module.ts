@@ -19,6 +19,9 @@ import {BooksEffects} from '../../state/search/books/books.effects';
 import {booksReducer} from '../../state/search/books/books.reducer';
 import {GenresEffects} from '../../state/search/genres/genres.effects';
 import {genresReducer} from '../../state/search/genres/genres.reducer';
+import {DocumentTypesEffects} from '../../state/search/document-types/document-types.effects';
+import {documentTypesReducer} from '../../state/search/document-types/document-types.reducer';
+import {FooterComponent} from '../../core/layout/footer/footer.component';
 
 const routes: Routes = [
   {
@@ -33,7 +36,8 @@ const routes: Routes = [
     StoreModule.forFeature('periodicals', periodicalsReducer),
     StoreModule.forFeature('books', booksReducer),
     StoreModule.forFeature('genres', genresReducer),
-    EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects])
+    StoreModule.forFeature('document-types', documentTypesReducer),
+    EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects]), FooterComponent,
   ],
 })
 export class SearchPageModule {

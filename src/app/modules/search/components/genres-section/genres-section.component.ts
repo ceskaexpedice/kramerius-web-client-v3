@@ -18,7 +18,7 @@ import {loadGenres} from '../../../../state/search/genres/genres.actions';
     AsyncPipe,
   ],
   templateUrl: './genres-section.component.html',
-  styleUrl: './genres-section.component.scss'
+  styleUrls: ['./genres-section.component.scss', '../search-section.scss']
 })
 export class GenresSectionComponent implements OnInit {
 
