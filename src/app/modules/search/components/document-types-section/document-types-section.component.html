@@ -1,1 +1,12 @@
-<p>document-types-section works!</p>
+<section class="facet-grid-section">
+  <h3>{{ 'search.doctypes' | translate }}</h3>
+
+  <div class="facet-grid" *ngIf="documentTypes$ | async as documentTypes">
+    <app-category-item
+      *ngFor="let genre of documentTypes?.slice(0, 16)"
+      [icon]="genre.icon"
+      [label]="genre.name"
+      [count]="genre.count"
+    ></app-category-item>
+  </div>
+</section>

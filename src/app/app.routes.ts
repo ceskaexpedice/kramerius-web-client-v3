@@ -10,5 +10,9 @@ export const routes: Routes = [
     path: 'search',
     loadChildren: () =>
       import('./modules/search/search.module').then(m => m.SearchPageModule)
+  },
+  {
+    path: 'search-results',
+    loadChildren: () => import('./modules/search-results-page/search-results-page.module').then(m => m.SearchResultsPageModule)
   }
 ];

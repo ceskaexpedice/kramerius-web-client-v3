@@ -1,11 +1,35 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {Store} from '@ngrx/store';
+import {selectGenres, selectGenresLoading} from '../../../../state/search/genres/genres.selectors';
+import {loadGenres} from '../../../../state/search/genres/genres.actions';
+import {
+  selectDocumentTypes,
+  selectDocumentTypesLoading,
+} from '../../../../state/search/document-types/document-types.selectors';
+import {loadDocumentTypes} from '../../../../state/search/document-types/document-types.actions';
 
 @Component({
   selector: 'app-document-types-section',
-  imports: [],
+  imports: [
+    AsyncPipe,
+    CategoryItemComponent,
+    NgForOf,
+    NgIf,
+    TranslatePipe,
+  ],
   templateUrl: './document-types-section.component.html',
-  styleUrl: './document-types-section.component.scss'
+  styleUrls: ['./document-types-section.component.scss', '../search-section.scss']
 })
 export class DocumentTypesSectionComponent {
+  private store = inject(Store);
 
+  documentTypes$ = this.store.select(selectDocumentTypes);
+  loading$ = this.store.select(selectDocumentTypesLoading);
+
+  ngOnInit(): void {
+    this.store.dispatch(loadDocumentTypes());
+  }
 }

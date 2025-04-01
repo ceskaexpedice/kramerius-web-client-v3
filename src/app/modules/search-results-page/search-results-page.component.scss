@@ -1,0 +1,14 @@
+.search-results-page {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  background-color: transparent;
+
+  .results-content {
+    flex: 1;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+}
