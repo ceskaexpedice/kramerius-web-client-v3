@@ -1,1 +1,25 @@
-<p>filter-sidebar works!</p>
+<div class="filter-sidebar">
+  <h3>Filter</h3>
+  <ng-container *ngIf="facets$ | async as facets">
+
+    <ng-container *ngFor="let facetKey of facetKeys">
+      <div *ngIf="facets[facetKey] && facets[facetKey].length">
+        <h4>{{ facetLabels[facetKey] || facetKey }}</h4>
+        <ul>
+          <li *ngFor="let facet of facets[facetKey]">
+            <label>
+              <input
+                type="checkbox"
+                [value]="facet.name"
+                [checked]="selectedFilters.includes(facetKey + ':' + facet.name)"
+                (change)="onToggleFacet(facetKey + ':' + facet.name)"
+              />
+              {{ facet.name }} ({{ facet.count }})
+            </label>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

@@ -4,11 +4,16 @@
 
   <div class="results-content">
 
-    <ng-content>
+    <div class="search-results">
+      <ng-container *ngIf="results$ | async as results">
+        <div *ngFor="let doc of results" class="result-card">
+          <h3>{{ doc.title }}</h3>
+          <p *ngIf="doc.date">Rok vydania: {{ doc.date }}</p>
+          <p *ngIf="doc.model">Typ: {{ doc.model }}</p>
+        </div>
+      </ng-container>
+    </div>
 
-      test
-
-    </ng-content>
   </div>
 
 </div>

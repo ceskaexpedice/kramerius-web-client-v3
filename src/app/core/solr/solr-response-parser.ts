@@ -57,4 +57,31 @@ export class SolrResponseParser {
     return { name: value, count };
   }
 
+  static parseAllFacets(fields: any): { [key: string]: FacetItem[] } {
+    const parsed: { [key: string]: FacetItem[] } = {};
+
+    for (const key in fields) {
+      const raw = fields[key];
+      parsed[key] = [];
+
+      for (let i = 0; i < raw.length; i += 2) {
+        parsed[key].push({ name: raw[i], count: raw[i + 1] });
+      }
+    }
+
+    return parsed;
+  }
+
+  static parseFacet(data: any[]): { name: string; count: number }[] {
+    const items: { name: string; count: number }[] = [];
+
+    for (let i = 0; i < data.length; i += 2) {
+      const name = data[i];
+      const count = data[i + 1];
+      items.push({ name, count });
+    }
+
+    return items;
+  }
+
 }
