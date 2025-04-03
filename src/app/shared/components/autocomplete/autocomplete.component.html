@@ -1,0 +1,36 @@
+<div class="autocomplete">
+
+  <div class="autocomplete-field">
+
+    <div class="autocomplete-input">
+
+      <input
+        type="text"
+        [value]="inputTerm()"
+        (input)="onInputChange($event)"
+        [placeholder]="'Hledat ve všech dokumentech' | translate"
+      />
+
+      <span class="input--icons">
+
+        <i class="fa fa-question-circle-o input--icon"></i>
+
+        <i class="fa fa-microphone input--icon"></i>
+
+      </span>
+
+    </div>
+
+    <button type="button" class="icon-button submit-btn" (click)="search()">
+      <i class="fa fa-search"></i>
+    </button>
+
+  </div>
+
+  <ul *ngIf="suggestions().length > 0">
+    <li *ngFor="let suggestion of suggestions()" (click)="onSelectSuggestion(suggestion)">
+      {{ suggestion }}
+    </li>
+  </ul>
+
+</div>
