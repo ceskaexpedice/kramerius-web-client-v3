@@ -9,7 +9,7 @@
   </div>
 
   <div class="item-card__content">
-    <div class="title">{{ title }}</div>
+    <div class="title">{{ title.length > 50 ? (title.slice(0, 50) + '...') : title }}</div>
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
   </div>
 </div>
