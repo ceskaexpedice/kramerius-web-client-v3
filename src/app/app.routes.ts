@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
 
+export enum APP_ROUTES_ENUM {
+  SEARCH = 'search',
+  SEARCH_RESULTS = 'search-results',
+}
+
 export const routes: Routes = [
   {
     path: '',
