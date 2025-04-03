@@ -19,14 +19,15 @@
   .search-row {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     gap: 8px;
     max-width: 600px;
     margin: 0 auto 24px;
 
-    input {
+    app-autocomplete {
       flex: 1;
     }
+
   }
 
   .tags-row {

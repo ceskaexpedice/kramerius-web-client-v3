@@ -1,21 +1,26 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {SearchService} from '../../../../shared/services/search.service';
+import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-search-hero',
   imports: [
     FormsModule,
+    AutocompleteComponent,
   ],
   templateUrl: './search-hero.component.html',
   styleUrl: './search-hero.component.scss'
 })
+
 export class SearchHeroComponent {
+
+  searchService = inject(SearchService)
 
   query = '';
 
   onSearch() {
-    console.log('Hľadám:', this.query);
-    // TODO: emitovať alebo presmerovať na výsledky
+    this.searchService.search(this.query);
   }
 
 }

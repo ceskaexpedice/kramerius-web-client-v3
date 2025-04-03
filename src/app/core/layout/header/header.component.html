@@ -1,13 +1,15 @@
 <header class="app-header">
+
   <div class="app-header__left">
-    <a routerLink="/" class="logo">
+
+    <a routerLink="/" class="logo" (click)="logoClicked()">
       <img src="assets/img/logo.svg" alt="Česká digitální knihovna" />
     </a>
 
-    <div *ngIf="showSearchBar" class="search-bar">
-      <input type="text" placeholder="Hledat ve všech dokumentech">
-    </div>
+  </div>
 
+  <div *ngIf="showSearchBar" class="search-bar">
+    <app-autocomplete></app-autocomplete>
   </div>
 
   <nav class="app-header__right">

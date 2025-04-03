@@ -3,6 +3,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
+  gap: 5%;
+
+  .search-bar {
+    flex: 1;
+  }
 
   &__left {
     display: flex;

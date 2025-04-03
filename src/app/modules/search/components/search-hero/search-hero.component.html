@@ -5,15 +5,8 @@
   </p>
 
   <div class="search-row">
-    <input
-      type="text"
-      [(ngModel)]="query"
-      placeholder="Hledat ve všech dokumentech"
-    />
 
-    <button type="button" class="icon-button">
-      <i class="fa fa-search"></i>
-    </button>
+    <app-autocomplete></app-autocomplete>
 
     <button class="outlined">
       Pokročilé hledání

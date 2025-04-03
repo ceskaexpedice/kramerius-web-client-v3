@@ -3,6 +3,8 @@ import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {NgIf} from '@angular/common';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
+import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +12,7 @@ import {NgIf} from '@angular/common';
   imports: [
     LangPickerComponent,
     NgIf,
+    AutocompleteComponent,
   ],
   styleUrl: './header.component.scss',
 })
@@ -18,6 +21,10 @@ export class HeaderComponent {
 
   get showSearchBar(): boolean {
     return this.router.url !== '/search';
+  }
+
+  logoClicked() {
+    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
   }
 
 }
