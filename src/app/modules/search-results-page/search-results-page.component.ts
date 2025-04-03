@@ -21,7 +21,7 @@ export class SearchResultsPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const query = params['q'] || '*:*';
+      const query = params['query'] || '*:*';
       const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
       this.store.dispatch(loadSearchResults({ query, filters }));
     });

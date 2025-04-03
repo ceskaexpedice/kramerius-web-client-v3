@@ -1,0 +1,55 @@
+.record-item-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-container-bg);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s;
+  cursor: pointer;
+
+  .record-item-card__inner {
+    padding: var(--base-padding);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+  }
+
+  .record-item-card__image {
+    height: 230px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border: 1px solid var(--color-border-main);
+    border-radius: var(--base-border-radius);
+
+    .badge.model {
+      position: absolute;
+      bottom: 10px;
+      left: 0px;
+      background: var(--color-container-bg);
+      color: var(--color-text-darker);
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 0 4px 4px 0;
+    }
+  }
+
+  .record-item-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+    }
+  }
+}

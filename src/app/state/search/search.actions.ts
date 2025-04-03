@@ -1,5 +1,4 @@
 import { createAction, props } from '@ngrx/store';
-import {SearchResultResponse} from '../../modules/models/search-result-response';
 import {FacetItem} from '../../modules/models/facet-item';
 
 export const loadSearchResults = createAction(

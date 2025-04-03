@@ -1,0 +1,33 @@
+<div class="record-item-card">
+
+  <div class="record-item-card__inner">
+
+    <div class="record-item-card__image"
+      [style.background-image]="'url(https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + record.pid + '/image/thumb)'"
+    >
+
+      <span class="badge model">{{ modelLabel[record.model] || record.model }}</span>
+
+    </div>
+
+    <div class="record-item-card__content">
+
+      <div class="title" [title]="record.title">{{ record.title.length > 35 ? (record.title.slice(0, 35) + '...') : record.title }}</div>
+
+      <div class="subtitle" *ngIf="record.authors && record.authors?.length">
+        {{ record.authors.join(', ').length > 35 ? (record.authors.join(', ').slice(0, 35) + '...') : record.authors.join(', ') }}
+      </div>
+
+      <div class="subtitle" *ngIf="record.date">
+        {{ record.date }}
+      </div>
+
+      <div class="access-label" [ngClass]="getAccessClass(record.access)">
+        {{ getAccessLabel(record.access) }}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

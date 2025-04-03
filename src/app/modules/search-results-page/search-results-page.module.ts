@@ -15,6 +15,7 @@ import {GenresEffects} from '../../state/search/genres/genres.effects';
 import {DocumentTypesEffects} from '../../state/search/document-types/document-types.effects';
 import {SearchEffects} from '../../state/search/search.effects';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 
 const routes: Routes = [
   {
@@ -25,19 +26,20 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SearchResultsPageComponent],
-  imports: [
-    RouterModule.forChild(routes),
-    FilterSidebarComponent,
-    StoreModule.forFeature('periodicals', periodicalsReducer),
-    StoreModule.forFeature('books', booksReducer),
-    StoreModule.forFeature('genres', genresReducer),
-    StoreModule.forFeature('document-types', documentTypesReducer),
-    StoreModule.forFeature('search-results', searchResultsReducer),
-    EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]),
-    NgIf,
-    AsyncPipe,
-    NgForOf,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		FilterSidebarComponent,
+		StoreModule.forFeature('periodicals', periodicalsReducer),
+		StoreModule.forFeature('books', booksReducer),
+		StoreModule.forFeature('genres', genresReducer),
+		StoreModule.forFeature('document-types', documentTypesReducer),
+		StoreModule.forFeature('search-results', searchResultsReducer),
+		EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]),
+		NgIf,
+		AsyncPipe,
+		NgForOf,
+		RecordItemComponent,
+	],
 })
 
 export class SearchResultsPageModule {

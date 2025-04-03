@@ -1,8 +1,9 @@
-:host {
+.filter-sidebar {
   display: block;
   background-color: var(--color-container-bg);
   padding: 1.5rem;
   width: 300px;
   height: 100%;
   font-family: inherit;
+  overflow-y: auto;
 }

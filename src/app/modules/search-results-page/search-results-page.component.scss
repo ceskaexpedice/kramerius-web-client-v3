@@ -12,3 +12,10 @@
     gap: 24px;
   }
 }
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 230px);
+  gap: 16px;
+  justify-content: center;
+}

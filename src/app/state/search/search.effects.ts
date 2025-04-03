@@ -5,6 +5,7 @@ import {forkJoin, of } from 'rxjs';
 import {SolrService} from '../../core/solr/solr.service';
 import * as SearchActions from './search.actions';
 import {SolrResponseParser} from '../../core/solr/solr-response-parser';
+import {parseSearchDocument} from '../../modules/models/search-document';
 
 @Injectable()
 export class SearchEffects {
@@ -14,20 +15,24 @@ export class SearchEffects {
     this.actions$.pipe(
       ofType(SearchActions.loadSearchResults),
       switchMap(({ query, filters }) => {
-        const activeFacetKeys = filters.map(f => f.split(':')[0]); // ['authors', 'languages', ...]
+        const activeFacetKeys = filters.map(f => f.split(':')[0]);
 
         return forkJoin({
           resultsRes: this.solr.search(query, filters),
           facetsRes: this.solr.getFacetsWithout(query, filters, activeFacetKeys)
         }).pipe(
-          switchMap(({ resultsRes, facetsRes }) => [
-            SearchActions.loadSearchResultsSuccess({
-              results: resultsRes.response?.docs ?? []
-            }),
-            SearchActions.loadFacetsSuccess({
-              facets: SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {})
-            })
-          ]),
+          switchMap(({ resultsRes, facetsRes }) => {
+            const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
+              parseSearchDocument(doc)
+            );
+
+            return [
+              SearchActions.loadSearchResultsSuccess({ results: parsedResults }),
+              SearchActions.loadFacetsSuccess({
+                facets: SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {})
+              })
+            ];
+          }),
           catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
         );
       })

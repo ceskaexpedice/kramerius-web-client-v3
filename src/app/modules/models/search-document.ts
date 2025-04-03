@@ -8,6 +8,8 @@ export interface SearchDocument {
   accessibility: string;
   licenses?: string[];
   containsLicenses?: string[];
+
+  access: string;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -19,5 +21,6 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   model: doc.model,
   accessibility: doc.accessibility,
   licenses: doc.licenses,
-  containsLicenses: doc.contains_licenses
+  containsLicenses: doc.contains_licenses,
+  access: doc.access
 });
