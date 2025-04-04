@@ -5,6 +5,14 @@
   padding: 16px 24px;
   gap: 5%;
 
+  &.transparent {
+    background-color: transparent;
+  }
+
+  &.light {
+    background-color: var(--color-container-bg);
+  }
+
   .search-bar {
     flex: 1;
   }

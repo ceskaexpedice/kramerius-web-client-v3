@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {selectFacets} from '../../../../state/search/search.selectors';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
-import * as SearchActions from '../../../../state/search/search.actions';
+import {CheckboxComponent} from '../../../../shared/components/checkbox/checkbox.component';
+import {RadioButtonComponent} from '../../../../shared/components/radio-button/radio-button.component';
+import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
 
 @Component({
   selector: 'app-filter-sidebar',
@@ -11,6 +13,9 @@ import * as SearchActions from '../../../../state/search/search.actions';
     AsyncPipe,
     NgIf,
     NgForOf,
+    CheckboxComponent,
+    RadioButtonComponent,
+    RangeSliderComponent,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
@@ -61,4 +66,6 @@ export class FilterSidebarComponent {
       queryParamsHandling: 'merge'
     });
   }
+
+  selectedOption = signal('option1');
 }

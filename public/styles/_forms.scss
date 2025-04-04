@@ -4,3 +4,9 @@ input {
   border: 1px solid var(--color-border-light);
   border-radius: 4px;
 }
+
+.form-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
