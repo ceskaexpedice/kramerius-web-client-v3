@@ -1,4 +1,4 @@
-<header class="app-header" [ngClass]="getTheme()">
+<header class="app-header" [ngClass]="headerType">
 
   <div class="app-header__left">
 
@@ -9,14 +9,19 @@
   </div>
 
   <div *ngIf="showSearchBar" class="search-bar">
-    <app-autocomplete></app-autocomplete>
+
+    <app-autocomplete [inputTheme]="inputTheme"></app-autocomplete>
+
   </div>
 
   <nav class="app-header__right">
+
     <a routerLink="/folders">Sbirky</a>
     <a routerLink="/about">O projektu</a>
     <a routerLink="/login">Přihlásit</a>
 
     <app-lang-picker></app-lang-picker>
+
   </nav>
+
 </header>

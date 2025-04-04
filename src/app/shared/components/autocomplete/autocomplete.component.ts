@@ -1,5 +1,5 @@
-import {Component, effect, inject, OnInit, signal} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
+import {Component, effect, inject, Input, OnInit, signal} from '@angular/core';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {SolrService} from '../../../core/solr/solr.service';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import {SearchService} from '../../services/search.service';
     NgForOf,
     ReactiveFormsModule,
     TranslatePipe,
+    NgClass,
   ],
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
@@ -23,6 +24,8 @@ export class AutocompleteComponent implements OnInit {
 
   private solrService = inject(SolrService)
   private searchService = inject(SearchService);
+
+  @Input('inputTheme') inputTheme: string = 'light';
 
   constructor(
   ) {
