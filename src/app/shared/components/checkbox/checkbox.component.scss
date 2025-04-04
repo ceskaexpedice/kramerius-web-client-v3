@@ -1,0 +1,25 @@
+:host {
+  display: inline-flex;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: var(--color-light-button-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 1px solid var(--color-border-main);
+
+  &.checked {
+    background-color: var(--color-dark);
+    border-color: var(--color-dark);
+  }
+
+  svg {
+    pointer-events: none;
+  }
+}
