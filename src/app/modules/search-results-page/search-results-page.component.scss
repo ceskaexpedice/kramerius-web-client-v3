@@ -3,17 +3,31 @@
   min-height: 100%;
   width: 100%;
   background-color: transparent;
+  margin-top: 2px;
 
   .results-content {
     flex: 1;
-    padding: 32px;
+    //padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    //gap: 24px;
+    margin-left: 2px;
+  }
+}
+
+.search-results-tabs {
+  display: flex;
+  width: 100%;
+  background-color: var(--color-container-bg);
+  gap: 20px;
+
+  & > * {
+    padding: 15px 20px;
   }
 }
 
 .search-results-grid {
+  padding-top: 50px;
   display: grid;
   grid-template-columns: repeat(auto-fill, 230px);
   gap: 16px;
