@@ -1,0 +1,22 @@
+.radio {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-border-main);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+  &.selected {
+    border-color: var(--color-dark);
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-dark);
+    border-radius: 50%;
+  }
+}
