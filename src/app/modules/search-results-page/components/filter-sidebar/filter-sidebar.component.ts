@@ -46,12 +46,7 @@ export class FilterSidebarComponent {
   ) {
     this.route.queryParams.subscribe(params => {
       const fq = params['fq'];
-      const query = params['q'] || '*:*';
-      const filters = Array.isArray(fq) ? fq : fq ? [fq] : [];
-
-      this.selectedFilters = filters;
-
-      this.store.dispatch(SearchActions.loadSearchResults({ query, filters }));
+      this.selectedFilters = Array.isArray(fq) ? fq : fq ? [fq] : [];
     });
   }
 
