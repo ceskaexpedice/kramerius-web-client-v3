@@ -1,0 +1,47 @@
+<div class="range-slider">
+  <div class="sliders">
+    <input
+      type="range"
+      [min]="min"
+      [max]="max"
+      [value]="from()"
+      (input)="onFromInput($any($event.target).valueAsNumber)"
+    />
+    <input
+      type="range"
+      [min]="min"
+      [max]="max"
+      [value]="to()"
+      (input)="onToInput($any($event.target).valueAsNumber)"
+    />
+    <div
+      class="slider-track"
+      [style.left.%]="getProgressLeft()"
+      [style.right.%]="getProgressRight()"
+    ></div>
+  </div>
+
+  <div class="inputs">
+    <div>
+      <input
+        type="number"
+        [min]="min"
+        [max]="max"
+        [value]="from()"
+        (input)="onFromInput($any($event.target).valueAsNumber)"
+      />
+    </div>
+
+    <div class="separator">-</div>
+
+    <div>
+      <input
+        type="number"
+        [min]="min"
+        [max]="max"
+        [value]="to()"
+        (input)="onToInput($any($event.target).valueAsNumber)"
+      />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+.range-slider {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sliders {
+  position: relative;
+  height: 8px;
+  background: var(--color-bg);
+  border-radius: 4px;
+
+  input[type='range'] {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    background: none;
+    pointer-events: none;
+    z-index: 2;
+    border: none;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      pointer-events: all;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-container-bg);
+      cursor: pointer;
+      border: 1px solid var(--color-primary);
+      z-index: 3;
+    }
+
+    &::-moz-range-thumb {
+      pointer-events: all;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-container-bg);
+      cursor: pointer;
+      border: 1px solid var(--color-primary);
+      z-index: 3;
+    }
+  }
+
+  .slider-track {
+    position: absolute;
+    height: 8px;
+    background: var(--color-primary);
+    z-index: 1;
+    border-radius: 4px;
+  }
+}
+
+.inputs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
