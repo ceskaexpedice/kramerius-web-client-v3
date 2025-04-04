@@ -1,11 +1,8 @@
-import { Component, Input, Output, EventEmitter, signal, HostListener } from '@angular/core';
-import {NgForOf, NgStyle} from '@angular/common';
+import { Component, signal } from '@angular/core';
 
 @Component({
   selector: 'app-range-slider',
   imports: [
-    NgStyle,
-    NgForOf,
   ],
   templateUrl: './range-slider.component.html',
   styleUrl: './range-slider.component.scss'
