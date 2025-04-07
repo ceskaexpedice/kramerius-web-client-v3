@@ -123,7 +123,8 @@ export class SolrService {
       ...SolrQueryBuilder.facetFields([facetField]),
       ...SolrQueryBuilder.sortByCreated(true),
       wt: 'json',
-      ...SolrQueryBuilder.pagination(0, 0)
+      ...SolrQueryBuilder.pagination(0, 0),
+      'fq': 'accessibility:public'
     };
 
     let params = this.createHttpParams(rawParams);
@@ -143,7 +144,7 @@ export class SolrService {
   private buildParams(query: string, filters: string[], start: number, rows: number, includeFacets = true): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
 
-    const filterQueries: string[] = [];
+    const filterQueries: string[] = ['accessibility:public'];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const escapedValues = values.map(v => `"${v}"`);
@@ -167,7 +168,7 @@ export class SolrService {
 
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
-
+    
     if (filterQueries.length > 0) {
       params = params.append('fq', filterQueries.join(' AND '));
     }
@@ -182,7 +183,7 @@ export class SolrService {
   ): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
 
-    const taggedFilters: string[] = [];
+    const taggedFilters: string[] = ['{!tag=accessibility}accessibility:public'];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const escapedValues = values.map(v => `"${v}"`);
@@ -221,7 +222,7 @@ export class SolrService {
       'defType': 'edismax',
       'qf': 'title.search',
       'fl': 'pid,title.search',
-      'fq': 'model:monograph OR model:periodical',
+      'fq': ['accessibility:public', 'model:monograph OR model:periodical'],
       'rows': '50',
       'wt': 'json',
       'bq': ['model:monograph^5', 'model:periodical^5']
