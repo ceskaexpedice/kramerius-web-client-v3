@@ -216,8 +216,7 @@ export class SolrService {
   }
 
   getAutocompleteSuggestions(term: string): Observable<string[]> {
-    const url = `https://api.kramerius.mzk.cz/search/api/client/v7.0/search`;
-    const query: Record<string, string | string[]> = {
+    const rawParams = {
       'q': `${term}*`,
       'defType': 'edismax',
       'qf': 'title.search',
@@ -228,17 +227,9 @@ export class SolrService {
       'bq': ['model:monograph^5', 'model:periodical^5']
     };
 
-    let params = new HttpParams();
-    for (const key in query) {
-      const val = query[key];
-      if (Array.isArray(val)) {
-        val.forEach(v => params = params.append(key, v));
-      } else {
-        params = params.set(key, val);
-      }
-    }
+    const params = this.createHttpParams(rawParams);
 
-    return this.http.get<any>(url, { params }).pipe(
+    return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs?.map((doc: { [key: string]: any }) => doc['title.search']) ?? [])
     );
   }
