@@ -1,36 +1,60 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import {catchError, map, switchMap} from 'rxjs/operators';
-import {forkJoin, of } from 'rxjs';
-import {SolrService} from '../../core/solr/solr.service';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { SolrService } from '../../core/solr/solr.service';
 import * as SearchActions from './search.actions';
-import {SolrResponseParser} from '../../core/solr/solr-response-parser';
-import {parseSearchDocument} from '../../modules/models/search-document';
+import { SolrResponseParser } from '../../core/solr/solr-response-parser';
+import { parseSearchDocument } from '../../modules/models/search-document';
+import { Store } from '@ngrx/store';
+import * as SearchSelectors from './search.selectors';
 
 @Injectable()
 export class SearchEffects {
-  constructor(private actions$: Actions, private solr: SolrService) {}
+  constructor(
+    private actions$: Actions,
+    private solr: SolrService,
+    private store: Store
+  ) {}
 
   loadSearchResults$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SearchActions.loadSearchResults),
-      switchMap(({ query, filters }) => {
-        const activeFacetKeys = filters.map(f => f.split(':')[0]);
+      withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
+      switchMap(([{ query, filters }, currentFacets]) => {
+        const facetFields = [
+          'authors.facet',
+          'languages.facet',
+          'genres.facet',
+          'keywords.facet',
+          'geographic_names.facet',
+          'publishers.facet',
+          'publication_places.facet'
+        ];
 
         return forkJoin({
           resultsRes: this.solr.search(query, filters),
-          facetsRes: this.solr.getFacetsWithout(query, filters, activeFacetKeys)
+          facetsRes: this.solr.getFacetsWithOrOperator(query, filters, facetFields)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
               parseSearchDocument(doc)
             );
 
+            // new facets
+            const newFacets = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
+
+            // merge facets
+            const mergedFacets = { ...currentFacets };
+            Object.entries(newFacets).forEach(([key, values]) => {
+              if (values.length > 0) {
+                mergedFacets[key] = values;
+              }
+            });
+
             return [
               SearchActions.loadSearchResultsSuccess({ results: parsedResults }),
-              SearchActions.loadFacetsSuccess({
-                facets: SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {})
-              })
+              SearchActions.loadFacetsSuccess({ facets: mergedFacets })
             ];
           }),
           catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
@@ -42,7 +66,8 @@ export class SearchEffects {
   loadFacet$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SearchActions.loadFacet),
-      switchMap(({ query, filters, facet }) =>
+      withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
+      switchMap(([{ query, filters, facet }, currentFacets]) =>
         this.solr.loadFacet(query, filters, facet).pipe(
           map(response => {
             const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);

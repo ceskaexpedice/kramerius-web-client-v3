@@ -138,6 +138,26 @@ export class SolrService {
   }
 
   private buildParams(query: string, filters: string[], start: number, rows: number, includeFacets = true): HttpParams {
+    // Rozdelíme filtre podľa facet polí
+    const filtersByField = new Map<string, string[]>();
+    
+    filters.forEach(filter => {
+      const [field, value] = filter.split(':');
+      if (!filtersByField.has(field)) {
+        filtersByField.set(field, []);
+      }
+      filtersByField.get(field)?.push(value);
+    });
+
+    // Vytvoríme jeden fq parameter s AND/OR operátormi
+    const filterQueries: string[] = [];
+    filtersByField.forEach((values, field) => {
+      if (values.length > 0) {
+        const escapedValues = values.map(v => `"${v}"`);
+        filterQueries.push(`(${field}:${escapedValues.join(` OR ${field}:`)})`);
+      }
+    });
+
     const rawParams = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
@@ -174,9 +194,11 @@ export class SolrService {
     });
 
     params = params.set('q', query || '*:*');
-    filters.forEach(fq => {
-      params = params.append('fq', fq);
-    });
+    
+    // Pridáme všetky filtre ako jeden fq parameter
+    if (filterQueries.length > 0) {
+      params = params.append('fq', filterQueries.join(' AND '));
+    }
 
     return params;
   }
@@ -207,6 +229,67 @@ export class SolrService {
     return this.http.get<any>(url, { params }).pipe(
       map(res => res.response?.docs?.map((doc: { [key: string]: any }) => doc['title.search']) ?? [])
     );
+  }
+
+  getFacetsWithOrOperator(
+    query: string,
+    filters: string[],
+    facetFields: string[]
+  ): Observable<SearchResultResponse> {
+    // Rozdelíme filtre podľa facet polí
+    const filtersByField = new Map<string, string[]>();
+    
+    filters.forEach(filter => {
+      const [field, value] = filter.split(':');
+      if (!filtersByField.has(field)) {
+        filtersByField.set(field, []);
+      }
+      filtersByField.get(field)?.push(value);
+    });
+  
+    // Pre každé pole facetu vytvoríme tag
+    const taggedFilters: string[] = [];
+    filtersByField.forEach((values, field) => {
+      if (values.length > 0) {
+        // Použijeme tag pre každú skupinu filtrov
+        taggedFilters.push(`{!tag=${field}}${field}:(${values.join(' OR ')})`);
+      }
+    });
+  
+    const rawParams = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.baseFilters(),
+      ...SolrQueryBuilder.fieldsToReturn([]),
+      wt: 'json',
+      ...SolrQueryBuilder.pagination(0, 0)
+    };
+  
+    let params = new HttpParams();
+    Object.entries(rawParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(v => {
+          params = params.append(key, v.toString());
+        });
+      } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        params = params.set(key, value.toString());
+      }
+    });
+  
+    // Pridáme facet polia s exclude tagmi
+    facetFields.forEach(field => {
+      params = params.append('facet.field', `{!ex=${field}}${field}`);
+    });
+  
+    params = params.set('q', query || '*:*');
+    params = params.set('facet', 'true');
+    params = params.set('facet.mincount', '1');
+  
+    // Pridáme tagged filtre
+    taggedFilters.forEach(filter => {
+      params = params.append('fq', filter);
+    });
+  
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 }
 

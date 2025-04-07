@@ -55,10 +55,21 @@ export class FilterSidebarComponent {
     });
   }
 
-  onToggleFacet(value: string) {
-    const newFilters = this.selectedFilters.includes(value)
-      ? this.selectedFilters.filter(f => f !== value)
-      : [...this.selectedFilters, value];
+  onToggleFacet(facetKey: string, value: string) {
+    const facetPrefix = facetKey + ':';
+    const fullValue = facetPrefix + value;
+
+    // find all filters for this facet
+    const currentFacetFilters = this.selectedFilters.filter(f => f.startsWith(facetPrefix));
+    let newFilters: string[];
+
+    if (currentFacetFilters.includes(fullValue)) {
+      // Delete this facet
+      newFilters = this.selectedFilters.filter(f => f !== fullValue);
+    } else {
+      // add new filter (or operator in same facet)
+      newFilters = [...this.selectedFilters, fullValue];
+    }
 
     this.router.navigate([], {
       relativeTo: this.route,
