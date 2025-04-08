@@ -22,6 +22,7 @@ import {RangeSliderComponent} from '../../../../shared/components/range-slider/r
 })
 export class FilterSidebarComponent {
   facetKeys: string[] = [
+    'model',
     'authors.facet',
     'languages.facet',
     'genres.facet',
@@ -32,6 +33,7 @@ export class FilterSidebarComponent {
   ];
 
   facetLabels: { [key: string]: string } = {
+    'model': 'Typ',
     'authors.facet': 'Autori',
     'languages.facet': 'Jazyk',
     'genres.facet': 'Žáner',

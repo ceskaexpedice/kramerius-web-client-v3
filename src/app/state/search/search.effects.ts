@@ -23,6 +23,7 @@ export class SearchEffects {
       withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
       switchMap(([{ query, filters }, currentFacets]) => {
         const facetFields = [
+          'model',
           'authors.facet',
           'languages.facet',
           'genres.facet',

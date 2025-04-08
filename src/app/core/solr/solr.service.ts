@@ -15,6 +15,7 @@ import {SearchResultResponse} from '../../modules/models/search-result-response'
 export class SolrService {
   private readonly API_URL = 'https://api.kramerius.mzk.cz/search/api/client/v7.0/search';
   private readonly DEFAULT_FACET_FIELDS = [
+    'model',
     'keywords.facet',
     'languages.facet',
     'physical_locations.facet',
@@ -168,7 +169,7 @@ export class SolrService {
 
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
-    
+
     if (filterQueries.length > 0) {
       params = params.append('fq', filterQueries.join(' AND '));
     }
