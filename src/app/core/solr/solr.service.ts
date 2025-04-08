@@ -24,7 +24,7 @@ export class SolrService {
     'publishers.facet',
     'publication_places.facet',
     'own_model_path',
-    'genres.facet'
+    'genres.facet',
   ];
 
   constructor(private http: HttpClient) {}

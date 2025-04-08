@@ -8,6 +8,7 @@ import { SolrResponseParser } from '../../core/solr/solr-response-parser';
 import { parseSearchDocument } from '../../modules/models/search-document';
 import { Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
+import { FacetItem } from '../../modules/models/facet-item';
 
 @Injectable()
 export class SearchEffects {
@@ -30,7 +31,8 @@ export class SearchEffects {
           'keywords.facet',
           'geographic_names.facet',
           'publishers.facet',
-          'publication_places.facet'
+          'publication_places.facet',
+          'physical_locations.facet'
         ];
 
         return forkJoin({
@@ -45,8 +47,8 @@ export class SearchEffects {
             // new facets
             const newFacets = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
 
-            // merge facets
-            const mergedFacets = { ...currentFacets };
+            // replace facets completely
+            const mergedFacets: { [key: string]: FacetItem[] } = {};
             Object.entries(newFacets).forEach(([key, values]) => {
               if (values.length > 0) {
                 mergedFacets[key] = values;

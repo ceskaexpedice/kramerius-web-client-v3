@@ -29,7 +29,8 @@ export class FilterSidebarComponent {
     'keywords.facet',
     'geographic_names.facet',
     'publishers.facet',
-    'publication_places.facet'
+    'publication_places.facet',
+    'physical_locations.facet',
   ];
 
   facetLabels: { [key: string]: string } = {
@@ -40,7 +41,8 @@ export class FilterSidebarComponent {
     'keywords.facet': 'Kľúčové slovo',
     'geographic_names.facet': 'Geografický názov',
     'publishers.facet': 'Nakladateľ',
-    'publication_places.facet': 'Miesto vydania'
+    'publication_places.facet': 'Miesto vydania',
+    'physical_locations.facet': 'Fyzická lokalita',
   };
 
   facets$ = this.store.select(selectFacets);
