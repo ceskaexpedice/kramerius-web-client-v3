@@ -23,7 +23,13 @@ export const loadSearchResultsFailure = createAction(
 
 export const loadFacet = createAction(
   '[SearchResults] Load Facet',
-  props<{ query: string; filters: string[]; facet: string }>()
+  props<{ 
+    query: string; 
+    filters: string[]; 
+    facet: string;
+    contains?: string;
+    ignoreCase?: boolean;
+  }>()
 );
 
 export const loadFacetSuccess = createAction(

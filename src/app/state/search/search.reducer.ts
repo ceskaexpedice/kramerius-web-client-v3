@@ -3,21 +3,21 @@ import {FacetItem} from '../../modules/models/facet-item';
 import * as SearchActions from './search.actions';
 import {SolrResponseParser} from '../../core/solr/solr-response-parser';
 
-export interface SearchResultState {
+export interface SearchState {
   results: any[];
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
   error: any;
 }
 
-export const initialState: SearchResultState = {
+export const initialState: SearchState = {
   results: [],
   facets: {},
   loading: false,
   error: null,
 };
 
-export const searchResultsReducer = createReducer(
+export const searchReducer = createReducer(
   initialState,
 
   on(SearchActions.loadSearchResults, state => ({

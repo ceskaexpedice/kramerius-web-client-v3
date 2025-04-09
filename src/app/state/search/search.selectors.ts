@@ -1,24 +1,29 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { SearchResultState } from './search.reducer';
+import { createSelector } from '@ngrx/store';
+import { SearchState } from './search.reducer';
 
-export const selectSearchResultState = createFeatureSelector<SearchResultState>('search-results');
+export const selectSearchState = (state: any) => state['search-results'];
 
 export const selectSearchResults = createSelector(
-  selectSearchResultState,
-  state => state.results
+  selectSearchState,
+  (state: SearchState) => state.results
 );
 
 export const selectFacets = createSelector(
-  selectSearchResultState,
-  state => state.facets
+  selectSearchState,
+  (state: SearchState) => state.facets
 );
 
 export const selectSearchResultsLoading = createSelector(
-  selectSearchResultState,
+  selectSearchState,
   state => state.loading
 );
 
 export const selectSearchResultsError = createSelector(
-  selectSearchResultState,
+  selectSearchState,
   state => state.error
+);
+
+export const selectFacetItems = (facetKey: string) => createSelector(
+  selectFacets,
+  (facets) => facets[facetKey] || []
 );

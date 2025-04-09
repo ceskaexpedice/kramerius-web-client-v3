@@ -22,8 +22,8 @@ import {genresReducer} from '../../state/search/genres/genres.reducer';
 import {DocumentTypesEffects} from '../../state/search/document-types/document-types.effects';
 import {documentTypesReducer} from '../../state/search/document-types/document-types.reducer';
 import {FooterComponent} from '../../core/layout/footer/footer.component';
-import {searchResultsReducer} from '../../state/search/search.reducer';
 import {SearchEffects} from '../../state/search/search.effects';
+import {searchReducer} from '../../state/search/search.reducer';
 
 const routes: Routes = [
   {
@@ -39,7 +39,7 @@ const routes: Routes = [
     StoreModule.forFeature('books', booksReducer),
     StoreModule.forFeature('genres', genresReducer),
     StoreModule.forFeature('document-types', documentTypesReducer),
-    StoreModule.forFeature('search-results', searchResultsReducer),
+    StoreModule.forFeature('search-results', searchReducer),
     EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]), FooterComponent,
   ],
 })

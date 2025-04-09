@@ -77,6 +77,13 @@ export class SolrQueryBuilder {
     };
   }
 
+  static facetContains(contains: string, ignoreCase: boolean = true): Record<string, any> {
+    return {
+      'facet.contains': contains,
+      'facet.contains.ignoreCase': ignoreCase ? 'true' : 'false'
+    };
+  }
+
   static fieldsToReturn(fields: string[]): Record<string, any> {
     return {
       fl: fields.join(',')

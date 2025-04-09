@@ -70,8 +70,8 @@ export class SearchEffects {
     this.actions$.pipe(
       ofType(SearchActions.loadFacet),
       withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
-      switchMap(([{ query, filters, facet }, currentFacets]) =>
-        this.solr.loadFacet(query, filters, facet).pipe(
+      switchMap(([{ query, filters, facet, contains, ignoreCase }, currentFacets]) =>
+        this.solr.loadFacet(query, filters, facet, contains, ignoreCase).pipe(
           map(response => {
             const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);
             return SearchActions.loadFacetSuccess({ facet, items: parsed });

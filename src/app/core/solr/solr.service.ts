@@ -114,10 +114,16 @@ export class SolrService {
     return filtersByField;
   }
 
-  loadFacet(query: string, filters: string[], facetField: string): Observable<any> {
+  loadFacet(
+    query: string,
+    filters: string[],
+    facetField: string,
+    contains?: string,
+    ignoreCase?: boolean
+  ): Observable<any> {
     const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
 
-    const rawParams = {
+    let rawParams = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.fieldsToReturn([]),
@@ -127,6 +133,13 @@ export class SolrService {
       ...SolrQueryBuilder.pagination(0, 0),
       'fq': 'accessibility:public'
     };
+
+    if (contains) {
+      rawParams = {
+        ...SolrQueryBuilder.facetContains(contains, ignoreCase),
+        ...rawParams
+      }
+    }
 
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
