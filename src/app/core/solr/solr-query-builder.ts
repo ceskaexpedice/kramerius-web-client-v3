@@ -17,7 +17,7 @@ export class SolrQueryBuilder {
 
   static baseFilters(): any {
     return {
-      fq: `(level: 0)`
+      fq: `(level: 0) AND (accessibility:public)`
     };
   }
 

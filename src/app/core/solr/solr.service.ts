@@ -130,8 +130,7 @@ export class SolrService {
       ...SolrQueryBuilder.facetFields([facetField]),
       ...SolrQueryBuilder.sortByCreated(true),
       wt: 'json',
-      ...SolrQueryBuilder.pagination(0, 0),
-      'fq': 'accessibility:public'
+      ...SolrQueryBuilder.pagination(0, 0)
     };
 
     if (contains) {
@@ -147,6 +146,7 @@ export class SolrService {
       params = params.append('fq', fq);
     });
 
+
     return this.http.get<any>(this.API_URL, { params });
   }
 
@@ -158,7 +158,7 @@ export class SolrService {
   private buildParams(query: string, filters: string[], start: number, rows: number, includeFacets = true): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
 
-    const filterQueries: string[] = ['accessibility:public'];
+    const filterQueries: string[] = [];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const escapedValues = values.map(v => `"${v}"`);
@@ -197,7 +197,7 @@ export class SolrService {
   ): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
 
-    const taggedFilters: string[] = ['{!tag=accessibility}accessibility:public'];
+    const taggedFilters: string[] = [];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const escapedValues = values.map(v => `"${v}"`);
