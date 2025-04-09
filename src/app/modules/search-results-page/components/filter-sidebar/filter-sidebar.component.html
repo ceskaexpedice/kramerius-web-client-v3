@@ -21,17 +21,20 @@
       <div *ngIf="facets[facetKey] && facets[facetKey].length">
         <h4>{{ facetLabels[facetKey] || facetKey }}</h4>
         <ul>
-          <li *ngFor="let facet of facets[facetKey]">
+          <li *ngFor="let facet of facets[facetKey] | slice:0:10">
             <label class="form-control">
-              <app-checkbox 
+              <app-checkbox
                 [model]="selectedFilters.includes(facetKey + ':' + facet.name)"
                 (modelChange)="onToggleFacet(facetKey, facet.name)">
               </app-checkbox>
-              {{ facet.name.length > 15 ? (facet.name.slice(0, 15) + '...') : facet.name }} 
+              {{ facet.name.length > 15 ? (facet.name.slice(0, 15) + '...') : facet.name }}
               ({{ facet.count }})
             </label>
           </li>
         </ul>
+        <button (click)="openFilterDialog(facetKey, facetLabels[facetKey], facets[facetKey])">
+          {{ 'Show all' | translate }}
+        </button>
       </div>
 
       <hr>

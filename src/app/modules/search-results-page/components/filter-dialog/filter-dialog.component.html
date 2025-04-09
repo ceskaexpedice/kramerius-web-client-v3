@@ -1,0 +1,26 @@
+<h2>{{ data.facetLabel }}</h2>
+
+<div class="search-input">
+  <input
+    type="text"
+    [formControl]="searchControl"
+    placeholder="Hľadať v zozname..."
+  />
+</div>
+
+<div class="facet-list">
+  <div *ngIf="loading()" class="loading">
+    Načítavam...
+  </div>
+  <label *ngFor="let item of items()" class="facet-item">
+    <mat-checkbox
+      [checked]="isSelected(item.name)"
+      (change)="toggle(item.name)"
+    ></mat-checkbox>
+    {{ item.name }} ({{ item.count }})
+  </label>
+</div>
+
+<div class="footer">
+  <button mat-button (click)="close()">Zavrieť</button>
+</div>
