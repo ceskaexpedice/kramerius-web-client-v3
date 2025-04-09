@@ -9,9 +9,15 @@ export class SolrQueryBuilder {
     };
   }
 
+  // static baseFilters(): any {
+  //   return {
+  //     fq: `(model:monograph OR model:periodical OR (model:collection AND collection.is_standalone:true) OR model:graphic OR model:map OR model:sheetmusic OR model:soundrecording OR model:archive OR model:manuscript OR model:convolute OR model:monographunit)`
+  //   };
+  // }
+
   static baseFilters(): any {
     return {
-      fq: `(model:monograph OR model:periodical OR (model:collection AND collection.is_standalone:true) OR model:graphic OR model:map OR model:sheetmusic OR model:soundrecording OR model:archive OR model:manuscript OR model:convolute OR model:monographunit)`
+      fq: `(level: 0)`
     };
   }
 
