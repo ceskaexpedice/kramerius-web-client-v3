@@ -8,6 +8,10 @@
   />
 </div>
 
+<div *ngFor="let selectedItem of selected()">
+  {{selectedItem}}
+</div>
+
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
     Načítavam...

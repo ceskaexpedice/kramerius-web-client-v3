@@ -31,6 +31,7 @@ export class FilterDialogComponent implements OnInit {
   public data = inject(MAT_DIALOG_DATA) as {
     facetKey: string;
     facetLabel: string;
+    items: FacetItem[];
   };
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
@@ -101,11 +102,12 @@ export class FilterDialogComponent implements OnInit {
 
   private loadInitialFacets() {
     this.loading.set(true);
-    this.store.dispatch(SearchActions.loadFacet({
-      query: this.route.snapshot.queryParams['q'] || '*:*',
-      filters: this.getCurrentFilters(),
-      facet: this.data.facetKey
-    }));
+    // this.store.dispatch(SearchActions.loadFacet({
+    //   query: this.route.snapshot.queryParams['q'] || '*:*',
+    //   filters: this.getCurrentFilters(),
+    //   facet: this.data.facetKey
+    // }));
+    this.items.set(this.data.items);
   }
 
   private initSelectedFromUrl() {
