@@ -9,8 +9,9 @@ import {MatButton} from '@angular/material/button';
 import {debounceTime, distinctUntilChanged, of} from 'rxjs';
 import {switchMap, map} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import { SolrService } from '../../../../core/solr/solr.service';
-import { SolrResponseParser } from '../../../../core/solr/solr-response-parser';
+import { Store } from '@ngrx/store';
+import * as SearchActions from '../../../../state/search/search.actions';
+import * as SearchSelectors from '../../../../state/search/search.selectors';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -33,18 +34,30 @@ export class FilterDialogComponent implements OnInit {
   };
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
-  private solr = inject(SolrService);
+  private store = inject(Store);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   readonly searchControl = new FormControl('');
   readonly selected = signal<Set<string>>(new Set());
-  readonly items = signal<FacetItem[]>([]);
   readonly loading = signal(false);
+  readonly items = signal<FacetItem[]>([]);
+  readonly allItems = signal<FacetItem[]>([]);
 
-  ngOnInit() {
-    this.initSelectedFromUrl();
-    this.loadInitialFacets();
+  constructor() {
+    // Sledujeme zmeny v store a aktualizujeme items
+    effect(() => {
+      const sub = this.store.select(SearchSelectors.selectFacetItems(this.data.facetKey))
+        .subscribe(facets => {
+          if (facets) {
+            this.allItems.set(facets);
+            this.items.set(facets);
+            this.loading.set(false);
+          }
+        });
+
+      return () => sub.unsubscribe();
+    });
 
     effect(() => {
       const sub = this.searchControl.valueChanges
@@ -53,25 +66,18 @@ export class FilterDialogComponent implements OnInit {
           distinctUntilChanged(),
           switchMap(term => {
             if (!term || term.length < 2) {
-              this.loadInitialFacets();
+              this.items.set(this.allItems());
               return of(null);
             }
 
             this.loading.set(true);
-            return this.solr.loadFacet(
-              this.route.snapshot.queryParams['q'] || '*:*',
-              this.getCurrentFilters(),
-              this.data.facetKey,
-              term,
-              true
-            ).pipe(
-              map((response: any) => {
-                const facets = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[this.data.facetKey] || []);
-                this.items.set(facets);
-                this.loading.set(false);
-                return facets;
-              })
+            // Filtrujeme lokálne
+            const filteredItems = this.allItems().filter(item =>
+              this.normalizeString(item.name).includes(this.normalizeString(term))
             );
+            this.items.set(filteredItems);
+            this.loading.set(false);
+            return of(null);
           })
         )
         .subscribe();
@@ -80,28 +86,51 @@ export class FilterDialogComponent implements OnInit {
     });
   }
 
+  ngOnInit() {
+    this.initSelectedFromUrl();
+    this.loadInitialFacets();
+  }
+
+  private normalizeString(str: string): string {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Odstráni diakritiku
+      .replace(/[^a-z0-9]/g, ''); // Ponechá len písmená a čísla
+  }
+
   private loadInitialFacets() {
     this.loading.set(true);
-    this.solr.loadFacet(
-      this.route.snapshot.queryParams['q'] || '*:*',
-      this.getCurrentFilters(),
-      this.data.facetKey
-    ).subscribe(response => {
-      const facets = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[this.data.facetKey] || []);
-      this.items.set(facets);
-      this.loading.set(false);
-    });
+    this.store.dispatch(SearchActions.loadFacet({
+      query: this.route.snapshot.queryParams['q'] || '*:*',
+      filters: this.getCurrentFilters(),
+      facet: this.data.facetKey
+    }));
   }
 
   private initSelectedFromUrl() {
     const fq = this.route.snapshot.queryParams['fq'];
     const active = Array.isArray(fq) ? fq : fq ? [fq] : [];
 
-    const selected = new Set(
-      active
-        .filter(f => f.startsWith(this.data.facetKey + ':'))
-        .map(f => f.split(':')[1])
-    );
+    const selected = new Set<string>();
+
+    active.forEach(filter => {
+      if (filter.startsWith(this.data.facetKey + ':')) {
+        // Odstránime facetKey a zátvorky
+        const value = filter.substring(this.data.facetKey.length + 1);
+        if (value.startsWith('(') && value.endsWith(')')) {
+          // Máme OR operátor v zátvorkách
+          const values = value
+            .slice(1, -1) // Odstránime vonkajšie zátvorky
+            .split(' OR ')
+            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1')); // Odstránime úvodzovky
+          values.forEach((v: string) => selected.add(v));
+        } else {
+          // Jednoduchá hodnota
+          selected.add(value.replace(/^"(.*)"$/, '$1'));
+        }
+      }
+    });
 
     this.selected.set(selected);
   }
@@ -127,9 +156,13 @@ export class FilterDialogComponent implements OnInit {
       f => !f.startsWith(this.data.facetKey + ':')
     );
 
+    // Pridáme každú hodnotu ako samostatný fq parameter bez úvodzoviek
+    const selectedValues = Array.from(this.selected());
+    const facetFilters = selectedValues.map(value => `${this.data.facetKey}:${value}`);
+
     const updated = [
       ...otherFilters,
-      ...Array.from(this.selected()).map(v => `${this.data.facetKey}:${v}`)
+      ...facetFilters
     ];
 
     this.router.navigate([], {
@@ -145,6 +178,30 @@ export class FilterDialogComponent implements OnInit {
 
   private getCurrentFilters(): string[] {
     const fq = this.route.snapshot.queryParams['fq'];
-    return Array.isArray(fq) ? fq : fq ? [fq] : [];
+    const allFilters = Array.isArray(fq) ? fq : fq ? [fq] : [];
+
+    // Zoskupíme filtre pre aktuálny facet s OR operátorom
+    const otherFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
+    const facetFilters = allFilters.filter(f => f.startsWith(this.data.facetKey + ':'));
+
+    if (facetFilters.length > 0) {
+      // Extrahujeme hodnoty zo všetkých facet filtrov
+      const values = facetFilters.map(f => {
+        const value = f.substring(this.data.facetKey.length + 1);
+        if (value.startsWith('(') && value.endsWith(')')) {
+          return value
+            .slice(1, -1)
+            .split(' OR ')
+            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1'));
+        }
+        return [value.replace(/^"(.*)"$/, '$1')];
+      }).flat();
+
+      // Vytvoríme jeden filter s OR operátorom
+      const facetFilter = `${this.data.facetKey}:(${values.map((v: string) => `"${v}"`).join(' OR ')})`;
+      return [...otherFilters, facetFilter];
+    }
+
+    return otherFilters;
   }
 }
