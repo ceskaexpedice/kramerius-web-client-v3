@@ -1,0 +1,13 @@
+<label class="form-control">
+
+  <mat-checkbox
+    [checked]="checked"
+    [disabled]="disabled"
+    (change)="toggled.emit()"
+  >
+    {{ truncateLabel ? (label.length > 15 ? (label.slice(0, 15) + '...') : label) : label }}
+
+    <span class="count">({{ count }})</span>
+  </mat-checkbox>
+
+</label>

@@ -1,43 +1,10 @@
 <div class="filter-sidebar">
 
-  <app-radio-button
-    [value]="'option1'"
-    [groupValue]="selectedOption()"
-    (groupValueChange)="selectedOption.set($event)">
-  </app-radio-button>
-
-  <app-radio-button
-    [value]="'option2'"
-    [groupValue]="selectedOption()"
-    (groupValueChange)="selectedOption.set($event)">
-  </app-radio-button>
-
-  <app-range-slider></app-range-slider>
-
   <ng-container *ngIf="facets$ | async as facets">
 
     <ng-container *ngFor="let facetKey of facetKeys">
 
-      <div *ngIf="facets[facetKey] && facets[facetKey].length">
-        <h4>{{ facetLabels[facetKey] || facetKey }}</h4>
-        <ul>
-          <li *ngFor="let facet of facets[facetKey] | slice:0:10">
-            <label class="form-control">
-              <app-checkbox
-                [model]="selectedFilters.includes(facetKey + ':' + facet.name)"
-                (modelChange)="onToggleFacet(facetKey, facet.name)">
-              </app-checkbox>
-              {{ facet.name.length > 15 ? (facet.name.slice(0, 15) + '...') : facet.name }}
-              ({{ facet.count }})
-            </label>
-          </li>
-        </ul>
-        <button (click)="openFilterDialog(facetKey, facetLabels[facetKey], facets[facetKey])">
-          {{ 'Show all' | translate }}
-        </button>
-      </div>
-
-      <hr>
+      <app-filter-category [selected]="selectedFilters" *ngIf="facets[facetKey] && facets[facetKey].length" [facetKey]="facetKey" [label]="facetLabels[facetKey] || facetKey" [items]="facets[facetKey]" [showShowMoreButton]="true" (toggle)="onToggleFacet($event)"></app-filter-category>
 
     </ng-container>
 

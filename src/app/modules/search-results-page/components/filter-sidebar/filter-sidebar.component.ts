@@ -1,15 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import {selectFacets} from '../../../../state/search/search.selectors';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AsyncPipe, NgForOf, NgIf, SlicePipe} from '@angular/common';
-import {CheckboxComponent} from '../../../../shared/components/checkbox/checkbox.component';
-import {RadioButtonComponent} from '../../../../shared/components/radio-button/radio-button.component';
-import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
-import {FacetItem} from '../../../models/facet-item';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
-import {FilterDialogComponent} from '../filter-dialog/filter-dialog.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import {FilterCategoryComponent} from '../../../../shared/components/filter-category/filter-category.component';
 
 @Component({
   selector: 'app-filter-sidebar',
@@ -17,11 +12,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     AsyncPipe,
     NgIf,
     NgForOf,
-    CheckboxComponent,
-    RadioButtonComponent,
-    RangeSliderComponent,
-    SlicePipe,
-    TranslatePipe,
+    FilterCategoryComponent,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
@@ -57,8 +48,7 @@ export class FilterSidebarComponent {
   constructor(
     private store: Store,
     private route: ActivatedRoute,
-    private router: Router,
-    private dialog: MatDialog
+    private router: Router
   ) {
     this.route.queryParams.subscribe(params => {
       const fq = params['fq'];
@@ -66,12 +56,10 @@ export class FilterSidebarComponent {
     });
   }
 
-  onToggleFacet(facetKey: string, value: string) {
-    const facetPrefix = facetKey + ':';
-    const fullValue = facetPrefix + value;
-
+  onToggleFacet(fullValue: string) {
     // find all filters for this facet
-    const currentFacetFilters = this.selectedFilters.filter(f => f.startsWith(facetPrefix));
+    const facetKey = fullValue.split(':')[0];
+    const currentFacetFilters = this.selectedFilters.filter(f => f.startsWith(facetKey + ':'));
     let newFilters: string[];
 
     if (currentFacetFilters.includes(fullValue)) {
@@ -89,30 +77,4 @@ export class FilterSidebarComponent {
     });
   }
 
-  openFilterDialog(facetKey: string, facetLabel: string, items: FacetItem[]) {
-    const selected = this.selectedFilters
-      .filter(f => f.startsWith(facetKey + ':'))
-      .map(f => f.split(':')[1]);
-
-    const dialogRef = this.dialog.open(FilterDialogComponent, {
-      width: '600px',
-      data: { facetKey, facetLabel, items, selected }
-    });
-
-    dialogRef.afterClosed().subscribe((selectedValues: string[]) => {
-      if (selectedValues) {
-        const newFilters = [
-          ...this.selectedFilters.filter(f => !f.startsWith(facetKey + ':')),
-          ...selectedValues.map(v => `${facetKey}:${v}`)
-        ];
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { fq: newFilters },
-          queryParamsHandling: 'merge'
-        });
-      }
-    });
-  }
-
-  selectedOption = signal('option1');
 }

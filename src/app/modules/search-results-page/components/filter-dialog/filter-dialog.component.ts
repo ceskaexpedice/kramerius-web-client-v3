@@ -2,16 +2,15 @@ import {Component, computed, effect, inject, Inject, OnInit, signal} from '@angu
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
-import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
+import {NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton} from '@angular/material/button';
 import {debounceTime, distinctUntilChanged, of} from 'rxjs';
 import {switchMap, map} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import { Store } from '@ngrx/store';
-import * as SearchActions from '../../../../state/search/search.actions';
 import * as SearchSelectors from '../../../../state/search/search.selectors';
+import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -22,6 +21,7 @@ import * as SearchSelectors from '../../../../state/search/search.selectors';
     MatButton,
     ReactiveFormsModule,
     NgIf,
+    SelectedTagsComponent,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -178,32 +178,19 @@ export class FilterDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  private getCurrentFilters(): string[] {
-    const fq = this.route.snapshot.queryParams['fq'];
-    const allFilters = Array.isArray(fq) ? fq : fq ? [fq] : [];
+  get selectedArray(): string[] {
+    return Array.from(this.selected());
+  }
 
-    // Zoskupíme filtre pre aktuálny facet s OR operátorom
-    const otherFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
-    const facetFilters = allFilters.filter(f => f.startsWith(this.data.facetKey + ':'));
+  unselectFilter(filter: string) {
+    const next = new Set(this.selected());
+    next.delete(filter);
+    this.selected.set(next);
+    this.updateUrl();
+  }
 
-    if (facetFilters.length > 0) {
-      // Extrahujeme hodnoty zo všetkých facet filtrov
-      const values = facetFilters.map(f => {
-        const value = f.substring(this.data.facetKey.length + 1);
-        if (value.startsWith('(') && value.endsWith(')')) {
-          return value
-            .slice(1, -1)
-            .split(' OR ')
-            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1'));
-        }
-        return [value.replace(/^"(.*)"$/, '$1')];
-      }).flat();
-
-      // Vytvoríme jeden filter s OR operátorom
-      const facetFilter = `${this.data.facetKey}:(${values.map((v: string) => `"${v}"`).join(' OR ')})`;
-      return [...otherFilters, facetFilter];
-    }
-
-    return otherFilters;
+  unselectAllFilters() {
+    this.selected.set(new Set());
+    this.updateUrl();
   }
 }

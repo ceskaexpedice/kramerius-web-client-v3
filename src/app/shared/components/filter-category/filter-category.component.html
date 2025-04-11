@@ -1,0 +1,11 @@
+<div>
+  <h4>{{label}}</h4>
+
+  <app-filter-item *ngFor="let facet of items | slice:0:10" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+
+  <button *ngIf="showShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
+    {{ 'Show all' | translate }}
+  </button>
+</div>
+
+<hr>

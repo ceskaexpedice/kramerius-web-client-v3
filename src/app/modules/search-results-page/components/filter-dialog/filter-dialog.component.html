@@ -8,9 +8,7 @@
   />
 </div>
 
-<div *ngFor="let selectedItem of selected()">
-  {{selectedItem}}
-</div>
+<app-selected-tags [items]="selectedArray" (remove)="unselectFilter($event)" (clearAll)="unselectAllFilters()"></app-selected-tags>
 
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">

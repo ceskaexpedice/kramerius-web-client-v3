@@ -8,6 +8,7 @@
   --color-primary: #717C88;
   --color-secondary: #f1f3f4;
   --color-tertiary: #8099B3;
+  --color-text-disable: #9fb2c6;
 
   --color-border-default: #8099B3;
   --color-border-light: #DFE5EC;
@@ -25,6 +26,8 @@
   --color-dark-input-text: #4c6580;
 
   --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+
+  --font-size-small: 14px;
 }
 
 :root.dark {
