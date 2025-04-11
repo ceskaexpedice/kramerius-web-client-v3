@@ -8,6 +8,11 @@ export const selectSearchResults = createSelector(
   (state: SearchState) => state.results
 );
 
+export const selectSearchResultsTotalCount = createSelector(
+  selectSearchState,
+  (state: SearchState) => state.totalCount
+);
+
 export const selectFacets = createSelector(
   selectSearchState,
   (state: SearchState) => state.facets

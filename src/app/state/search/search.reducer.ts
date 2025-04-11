@@ -5,6 +5,7 @@ import {SolrResponseParser} from '../../core/solr/solr-response-parser';
 
 export interface SearchState {
   results: any[];
+  totalCount: number;
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
   error: any;
@@ -12,6 +13,7 @@ export interface SearchState {
 
 export const initialState: SearchState = {
   results: [],
+  totalCount: 0,
   facets: {},
   loading: false,
   error: null,
@@ -26,9 +28,10 @@ export const searchReducer = createReducer(
     error: null,
   })),
 
-  on(SearchActions.loadSearchResultsSuccess, (state, {results}) => ({
+  on(SearchActions.loadSearchResultsSuccess, (state, {results, totalCount}) => ({
     ...state,
     results,
+    totalCount
   })),
 
   on(SearchActions.loadFacetsSuccess, (state, {facets}) => ({

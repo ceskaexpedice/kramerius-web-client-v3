@@ -10,6 +10,8 @@
 
 <app-selected-tags [items]="selectedArray" (remove)="unselectFilter($event)" (clearAll)="unselectAllFilters()"></app-selected-tags>
 
+Vysledky: {{ totalCount$ | async }}
+
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
     Načítavam...

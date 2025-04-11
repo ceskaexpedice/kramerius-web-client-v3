@@ -56,7 +56,7 @@ export class SearchEffects {
             });
 
             return [
-              SearchActions.loadSearchResultsSuccess({ results: parsedResults }),
+              SearchActions.loadSearchResultsSuccess({ results: parsedResults, totalCount: resultsRes.response.numFound }),
               SearchActions.loadFacetsSuccess({ facets: mergedFacets })
             ];
           }),

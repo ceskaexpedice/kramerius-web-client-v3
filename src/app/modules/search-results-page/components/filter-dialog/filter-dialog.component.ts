@@ -2,15 +2,16 @@ import {Component, computed, effect, inject, Inject, OnInit, signal} from '@angu
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton} from '@angular/material/button';
-import {debounceTime, distinctUntilChanged, of} from 'rxjs';
+import {debounceTime, distinctUntilChanged, Observable, of} from 'rxjs';
 import {switchMap, map} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SearchSelectors from '../../../../state/search/search.selectors';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
+import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -22,6 +23,7 @@ import {SelectedTagsComponent} from '../../../../shared/components/selected-tags
     ReactiveFormsModule,
     NgIf,
     SelectedTagsComponent,
+    AsyncPipe,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -33,6 +35,8 @@ export class FilterDialogComponent implements OnInit {
     facetLabel: string;
     items: FacetItem[];
   };
+
+  totalCount$: Observable<number>;
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private store = inject(Store);
@@ -46,6 +50,8 @@ export class FilterDialogComponent implements OnInit {
   readonly allItems = signal<FacetItem[]>([]);
 
   constructor() {
+    this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
+
     // Sledujeme zmeny v store a aktualizujeme items
     effect(() => {
       const sub = this.store.select(SearchSelectors.selectFacetItems(this.data.facetKey))

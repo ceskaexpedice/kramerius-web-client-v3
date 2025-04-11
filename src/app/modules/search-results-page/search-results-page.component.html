@@ -18,6 +18,8 @@
 
     <app-selected-tags></app-selected-tags>
 
+    Vysledky: {{ totalCount$ | async }}
+
     <div class="search-results-grid">
 
       <ng-container *ngIf="results$ | async as results">

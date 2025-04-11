@@ -3,12 +3,12 @@ import {FacetItem} from '../../modules/models/facet-item';
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',
-  props<{ query: string; filters: string[] }>()
+  props<{ query: string; filters: string[], page: number }>()
 );
 
 export const loadSearchResultsSuccess = createAction(
   '[SearchResults] Load Success',
-  props<{ results: any[] }>() // len výsledky
+  props<{ results: any[], totalCount: number }>() // len výsledky
 );
 
 export const loadFacetsSuccess = createAction(
@@ -23,9 +23,9 @@ export const loadSearchResultsFailure = createAction(
 
 export const loadFacet = createAction(
   '[SearchResults] Load Facet',
-  props<{ 
-    query: string; 
-    filters: string[]; 
+  props<{
+    query: string;
+    filters: string[];
     facet: string;
     contains?: string;
     ignoreCase?: boolean;
