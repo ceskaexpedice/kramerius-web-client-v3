@@ -150,19 +150,21 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params });
   }
 
-  search(query: string, filters: string[] = [], start = 0, rows = 60): Observable<SearchResultResponse> {
-    const params = this.buildParams(query, filters, start, rows, true);
+  search(query: string, filters: string[] = [], facetOperators: { [field: string]: 'AND' | 'OR' } = {}, start = 0, rows = 60): Observable<SearchResultResponse> {
+    const params = this.buildParams(query, filters, facetOperators, start, rows, true);
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  private buildParams(query: string, filters: string[], start: number, rows: number, includeFacets = true): HttpParams {
+  private buildParams(query: string, filters: string[], facetOperators: { [field: string]: 'AND' | 'OR' }, start: number, rows: number, includeFacets = true): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
 
     const filterQueries: string[] = [];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
+        // we need if in url is field_operator=AND or field_operator=OR
+        const operator = facetOperators[field] ?? 'OR';
         const escapedValues = values.map(v => `"${v}"`);
-        filterQueries.push(`(${field}:${escapedValues.join(` OR ${field}:`)})`);
+        filterQueries.push(`(${field}:${escapedValues.join(` ${operator} ${field}:`)})`);
       }
     });
 
@@ -193,15 +195,17 @@ export class SolrService {
   getFacetsWithOrOperator(
     query: string,
     filters: string[],
-    facetFields: string[] = this.DEFAULT_FACET_FIELDS
+    facetFields: string[] = this.DEFAULT_FACET_FIELDS,
+    facetOperators: { [field: string]: 'AND' | 'OR' } = {}
   ): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
 
     const taggedFilters: string[] = [];
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
+        const operator = facetOperators[field] ?? 'OR';
         const escapedValues = values.map(v => `"${v}"`);
-        taggedFilters.push(`{!tag=${field}}${field}:(${escapedValues.join(` OR ${field}:`)})`);
+        taggedFilters.push(`{!tag=${field}}${field}:(${escapedValues.join(`${operator} ${field}:`)})`);
       }
     });
 

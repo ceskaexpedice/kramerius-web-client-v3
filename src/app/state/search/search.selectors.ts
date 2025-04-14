@@ -1,5 +1,6 @@
 import { createSelector } from '@ngrx/store';
 import { SearchState } from './search.reducer';
+import {selectRouterQueryParams} from '../router/router.selectors';
 
 export const selectSearchState = (state: any) => state['search-results'];
 
@@ -31,4 +32,20 @@ export const selectSearchResultsError = createSelector(
 export const selectFacetItems = (facetKey: string) => createSelector(
   selectFacets,
   (facets) => facets[facetKey] || []
+);
+
+export const selectFacetOperators = createSelector(
+  selectRouterQueryParams,
+  (params): { [field: string]: 'AND' | 'OR' } => {
+    const operators: { [field: string]: 'AND' | 'OR' } = {};
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (key.endsWith('_operator') && (value === 'AND' || value === 'OR')) {
+        const field = key.replace('_operator', '');
+        operators[field] = value;
+      }
+    });
+
+    return operators;
+  }
 );

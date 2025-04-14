@@ -12,6 +12,7 @@ import { Store } from '@ngrx/store';
 import * as SearchSelectors from '../../../../state/search/search.selectors';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
 import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
+import {SearchService} from '../../../../shared/services/search.service';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -37,11 +38,13 @@ export class FilterDialogComponent implements OnInit {
   };
 
   totalCount$: Observable<number>;
+  useOrOperator = signal(true);
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private store = inject(Store);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private searchService = inject(SearchService);
 
   readonly searchControl = new FormControl('');
   readonly selected = signal<Set<string>>(new Set());
@@ -52,7 +55,6 @@ export class FilterDialogComponent implements OnInit {
   constructor() {
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
 
-    // Sledujeme zmeny v store a aktualizujeme items
     effect(() => {
       const sub = this.store.select(SearchSelectors.selectFacetItems(this.data.facetKey))
         .subscribe(facets => {
@@ -78,7 +80,7 @@ export class FilterDialogComponent implements OnInit {
             }
 
             this.loading.set(true);
-            // Filtrujeme lokálne
+
             const filteredItems = this.allItems().filter(item =>
               this.normalizeString(item.name).includes(this.normalizeString(term))
             );
@@ -98,21 +100,21 @@ export class FilterDialogComponent implements OnInit {
     this.loadInitialFacets();
   }
 
+  setOperator(operator: 'OR' | 'AND') {
+    this.useOrOperator.set(operator === 'OR');
+    this.updateUrl();
+  }
+
   private normalizeString(str: string): string {
     return str
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Odstráni diakritiku
-      .replace(/[^a-z0-9]/g, ''); // Ponechá len písmená a čísla
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
   }
 
   private loadInitialFacets() {
     this.loading.set(true);
-    // this.store.dispatch(SearchActions.loadFacet({
-    //   query: this.route.snapshot.queryParams['q'] || '*:*',
-    //   filters: this.getCurrentFilters(),
-    //   facet: this.data.facetKey
-    // }));
     this.items.set(this.data.items);
   }
 
@@ -121,26 +123,30 @@ export class FilterDialogComponent implements OnInit {
     const active = Array.isArray(fq) ? fq : fq ? [fq] : [];
 
     const selected = new Set<string>();
+    let useOr = true;
 
     active.forEach(filter => {
       if (filter.startsWith(this.data.facetKey + ':')) {
-        // Odstránime facetKey a zátvorky
+
         const value = filter.substring(this.data.facetKey.length + 1);
         if (value.startsWith('(') && value.endsWith(')')) {
-          // Máme OR operátor v zátvorkách
+
           const values = value
-            .slice(1, -1) // Odstránime vonkajšie zátvorky
+            .slice(1, -1)
             .split(' OR ')
-            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1')); // Odstránime úvodzovky
+            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1'));
           values.forEach((v: string) => selected.add(v));
+          useOr = true;
         } else {
-          // Jednoduchá hodnota
+
           selected.add(value.replace(/^"(.*)"$/, '$1'));
+          useOr = false;
         }
       }
     });
 
     this.selected.set(selected);
+    this.useOrOperator.set(useOr);
   }
 
   isSelected(value: string): boolean {
@@ -159,25 +165,12 @@ export class FilterDialogComponent implements OnInit {
   }
 
   updateUrl() {
-    const fq = this.route.snapshot.queryParams['fq'];
-    const otherFilters = (Array.isArray(fq) ? fq : fq ? [fq] : []).filter(
-      f => !f.startsWith(this.data.facetKey + ':')
+    this.searchService.updateFilters(
+      this.route,
+      this.data.facetKey,
+      Array.from(this.selected()),
+      this.useOrOperator()
     );
-
-    // Pridáme každú hodnotu ako samostatný fq parameter bez úvodzoviek
-    const selectedValues = Array.from(this.selected());
-    const facetFilters = selectedValues.map(value => `${this.data.facetKey}:${value}`);
-
-    const updated = [
-      ...otherFilters,
-      ...facetFilters
-    ];
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { fq: updated },
-      queryParamsHandling: 'merge'
-    });
   }
 
   close() {

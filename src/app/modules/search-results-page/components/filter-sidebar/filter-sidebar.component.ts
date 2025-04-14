@@ -3,8 +3,8 @@ import {selectFacets} from '../../../../state/search/search.selectors';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
-import {MatDialog} from '@angular/material/dialog';
 import {FilterCategoryComponent} from '../../../../shared/components/filter-category/filter-category.component';
+import {SearchService} from '../../../../shared/services/search.service';
 
 @Component({
   selector: 'app-filter-sidebar',
@@ -48,7 +48,7 @@ export class FilterSidebarComponent {
   constructor(
     private store: Store,
     private route: ActivatedRoute,
-    private router: Router
+    private searchService: SearchService
   ) {
     this.route.queryParams.subscribe(params => {
       const fq = params['fq'];
@@ -57,24 +57,6 @@ export class FilterSidebarComponent {
   }
 
   onToggleFacet(fullValue: string) {
-    // find all filters for this facet
-    const facetKey = fullValue.split(':')[0];
-    const currentFacetFilters = this.selectedFilters.filter(f => f.startsWith(facetKey + ':'));
-    let newFilters: string[];
-
-    if (currentFacetFilters.includes(fullValue)) {
-      // Delete this facet
-      newFilters = this.selectedFilters.filter(f => f !== fullValue);
-    } else {
-      // add new filter (or operator in same facet)
-      newFilters = [...this.selectedFilters, fullValue];
-    }
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { fq: newFilters },
-      queryParamsHandling: 'merge'
-    });
+    this.searchService.toggleFilter(this.route, fullValue);
   }
-
 }

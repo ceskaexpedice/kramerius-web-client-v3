@@ -1,11 +1,24 @@
 <div>
-  <h4>{{label}}</h4>
+  <div class="category--header">
 
-  <app-filter-item *ngFor="let facet of items | slice:0:10" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+    <h4>{{label}}</h4>
 
-  <button *ngIf="showShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
-    {{ 'Show all' | translate }}
-  </button>
+    <button class="icon-button outlined-dark xs" (click)="toggleExpanded()">
+      {{expanded ? '-' : '+'}}
+    </button>
+
+  </div>
+
+  <ng-container *ngIf="expanded">
+
+    <app-filter-item *ngFor="let facet of items | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+
+    <button *ngIf="showShowMoreButton && items.length > maxItems" (click)="openFilterDialog(facetKey, label, items)">
+      {{ 'Show all' | translate }}
+    </button>
+
+  </ng-container>
+
 </div>
 
 <hr>

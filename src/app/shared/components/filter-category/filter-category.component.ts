@@ -8,6 +8,7 @@ import {
 } from '../../../modules/search-results-page/components/filter-dialog/filter-dialog.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
+import {SearchService} from '../../services/search.service';
 
 @Component({
   selector: 'app-filter-category',
@@ -22,6 +23,9 @@ import {MatDialog} from '@angular/material/dialog';
   styleUrl: './filter-category.component.scss'
 })
 export class FilterCategoryComponent {
+  maxItems = 10;
+  expanded = true;
+
   @Input() label!: string;
   @Input() facetKey!: string;
   @Input() items: FacetItem[] = [];
@@ -34,12 +38,17 @@ export class FilterCategoryComponent {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private searchService: SearchService
   ) {
   }
 
   isSelected(value: string) {
     return this.selected.includes(`${this.facetKey}:${value}`);
+  }
+
+  toggleExpanded() {
+    this.expanded = !this.expanded;
   }
 
   onToggle(value: string) {
@@ -58,15 +67,11 @@ export class FilterCategoryComponent {
 
     dialogRef.afterClosed().subscribe((selectedValues: string[]) => {
       if (selectedValues) {
-        const newFilters = [
-          ...this.selected.filter(f => !f.startsWith(facetKey + ':')),
-          ...selectedValues.map(v => `${facetKey}:${v}`)
-        ];
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { fq: newFilters },
-          queryParamsHandling: 'merge'
-        });
+        this.searchService.updateFilters(
+          this.route,
+          facetKey,
+          selectedValues
+        );
       }
     });
   }

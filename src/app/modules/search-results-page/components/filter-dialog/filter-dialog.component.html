@@ -8,9 +8,17 @@
   />
 </div>
 
-<app-selected-tags [items]="selectedArray" (remove)="unselectFilter($event)" (clearAll)="unselectAllFilters()"></app-selected-tags>
+
+<div class="operator-buttons">
+  <button mat-button [class.active]="useOrOperator()" (click)="setOperator('OR')">Všetky</button>
+  <button mat-button [class.active]="!useOrOperator()" (click)="setOperator('AND')">Niektoré</button>
+</div>
 
 Vysledky: {{ totalCount$ | async }}
+
+<hr>
+
+<app-selected-tags [items]="selectedArray" (remove)="unselectFilter($event)" (clearAll)="unselectAllFilters()"></app-selected-tags>
 
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
