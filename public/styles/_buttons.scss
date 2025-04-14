@@ -16,6 +16,16 @@ button.icon-button {
   color: #fff;
 }
 
+button.sm {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+button.xs {
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
 button.primary {
   background: var(--color-primary);
   color: #fff;
