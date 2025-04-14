@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
-import {MatChip} from '@angular/material/chips';
+import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatButton} from '@angular/material/button';
 
 @Component({
@@ -10,6 +10,7 @@ import {MatButton} from '@angular/material/button';
     MatChip,
     NgForOf,
     MatButton,
+    MatChipsModule
   ],
   templateUrl: './selected-tags.component.html',
   styleUrl: './selected-tags.component.scss'
