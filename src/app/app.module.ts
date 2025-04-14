@@ -19,6 +19,7 @@ import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {FooterComponent} from './core/layout/footer/footer.component';
+import {routerReducer, StoreRouterConnectingModule} from '@ngrx/router-store';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './i18n/', '.json');
@@ -46,8 +47,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         useExisting: AppMissingTranslationService,
       },
     }),
-    StoreModule.forRoot({}, {}),
+    StoreModule.forRoot({
+      router: routerReducer
+    }, {}),
     EffectsModule.forRoot([]),
+    StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,
     FooterComponent,
