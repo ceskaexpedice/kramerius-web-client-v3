@@ -4,6 +4,7 @@
     [checked]="checked"
     [disabled]="disabled"
     (change)="toggled.emit()"
+    color="tertiary"
   >
     {{ truncateLabel ? (label.length > 15 ? (label.slice(0, 15) + '...') : label) : label }}
 

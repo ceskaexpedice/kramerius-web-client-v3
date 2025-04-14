@@ -1,7 +1,5 @@
-
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
-@use '@angular/material' as mat;
+@use './_theme-colors';
+@use './material';
 @use './variables';
 @use './sizes';
 @use './mixins';
@@ -10,18 +8,6 @@
 @use "./_forms";
 @use "./_buttons";
 @use "./_badge";
-
-html {
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
-}
 
 body {
   margin: 0;
