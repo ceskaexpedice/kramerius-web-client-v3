@@ -1,7 +1,7 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, signal, effect} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, map} from 'rxjs';
+import {Observable, map, filter} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
@@ -15,15 +15,25 @@ import {loadSearchResults} from '../../state/search/search.actions';
   providedIn: 'root'
 })
 export class SearchService {
+  private _page = signal(1);
+  private _pageSize = signal(25);
+  private _totalCount = signal(0);
 
   results$: Observable<SearchDocument[]>;
   totalCount$: Observable<number>;
-
-  page = signal(1);
-  pageSize = signal(25);
-  totalCount = signal(0);
-
   activeFilters$: Observable<string[]>;
+
+  get page() {
+    return this._page();
+  }
+
+  get pageSize() {
+    return this._pageSize();
+  }
+
+  get totalCount() {
+    return this._totalCount();
+  }
 
   constructor(
     private router: Router,
@@ -34,23 +44,28 @@ export class SearchService {
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
+    effect(() => {
+      const subscription = this.totalCount$
+        .pipe(
+          filter((count) => count !== undefined && count !== null) // Ensure valid values
+        )
+        .subscribe((count) => {
+          this._totalCount.set(count);
+        });
+
+      return () => subscription.unsubscribe();
+    });
+
     this.route.queryParams.subscribe((params: any) => {
       const query = params['query'] || '*:*';
       const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
-      this.store.dispatch(loadSearchResults({ query, filters, page: this.currentPage, pageCount: this.pageSize() }));
+      this.store.dispatch(loadSearchResults({
+        query,
+        filters,
+        page: this.page,
+        pageCount: this.pageSize
+      }));
     });
-  }
-
-  get currentPage(): number {
-    return this.page();
-  }
-
-  get currentPageSize(): number {
-    return this.pageSize();
-  }
-
-  get currentTotalCount(): number {
-    return this.totalCount();
   }
 
   search(query: string): void {
@@ -154,26 +169,28 @@ export class SearchService {
   }
 
   goToPage(page: number) {
-    this.page.set(page);
+    console.log('page', page);
+    this._page.set(page);
     this.loadSearchResults();
   }
 
   changePageSize(size: number) {
-    this.pageSize.set(size);
-    this.page.set(1); // Reset to first page
+    this._pageSize.set(size);
+    this._page.set(1);
     this.loadSearchResults();
   }
 
   private loadSearchResults() {
     const query = this.route.snapshot.queryParams['query'] || '*:*';
     const filters = this.route.snapshot.queryParams['fq'] || [];
-    const page = (this.page() - 1) * this.pageSize();
+    const page = (this.page - 1) * this.pageSize;
+    console.log('page', page);
 
     this.store.dispatch(loadSearchResults({
       query,
       filters,
       page,
-      pageCount: this.pageSize()
+      pageCount: this.pageSize
     }));
   }
 

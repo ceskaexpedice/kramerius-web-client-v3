@@ -23,7 +23,7 @@
       clearButtonPosition="right">
     </app-selected-tags>
 
-    Vysledky: {{ searchService.totalCount() }}
+    Vysledky: {{ searchService.totalCount }}
 
     <div class="search-results-grid">
 
@@ -37,7 +37,7 @@
 
     <app-paginator
       [page]="searchService.page"
-      [totalPages]="searchService.totalCount"
+      [totalCount]="searchService.totalCount"
       [pageSize]="searchService.pageSize"
       [pageSizeOptions]="[25, 50, 100]"
       (pageChange)="searchService.goToPage($event)"

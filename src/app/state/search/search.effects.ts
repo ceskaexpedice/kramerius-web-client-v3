@@ -39,7 +39,7 @@ export class SearchEffects {
         ];
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page * 60, 60),
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount),
           facetsRes: this.solr.getFacetsWithOrOperator(query, filters, facetFields, facetOperators)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {
@@ -126,6 +126,7 @@ export class SearchEffects {
       ofType(SearchActions.loadFacet),
       withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
       switchMap(([{ query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
+        console.log('ide sem')
         return this.solr.loadFacet(query, filters, facet, contains, ignoreCase, facetLimit, facetOffset).pipe(
           map(response => {
             const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);

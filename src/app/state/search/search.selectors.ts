@@ -11,7 +11,7 @@ export const selectSearchResults = createSelector(
 
 export const selectSearchResultsTotalCount = createSelector(
   selectSearchState,
-  (state: SearchState) => state.totalCount
+  (state: SearchState) => state?.totalCount ?? 0
 );
 
 export const selectFacets = createSelector(

@@ -2,13 +2,8 @@ import { createAction, props } from '@ngrx/store';
 import {FacetItem} from '../../modules/models/facet-item';
 
 export const loadSearchResults = createAction(
-  '[Search] Load Search Results',
-  props<{
-    query: string;
-    filters: string[];
-    page: number;
-    pageCount: number;
-  }>()
+  '[SearchResults] Load',
+  props<{ query: string; filters: string[], page: number, pageCount: number }>()
 );
 
 export const loadSearchResultsSuccess = createAction(
