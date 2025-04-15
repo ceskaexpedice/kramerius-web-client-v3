@@ -16,7 +16,9 @@ export const selectSearchResultsTotalCount = createSelector(
 
 export const selectFacets = createSelector(
   selectSearchState,
-  (state: SearchState) => state.facets
+  (state: SearchState) => {
+    return state.facets
+  }
 );
 
 export const selectSearchResultsLoading = createSelector(
@@ -47,5 +49,24 @@ export const selectFacetOperators = createSelector(
     });
 
     return operators;
+  }
+);
+
+export const selectActiveFilters = createSelector(
+  selectRouterQueryParams,
+  (state) => {
+    let filters: string[] = [];
+    console.log('state', state);
+    if (state.fq) {
+      const isArray = Array.isArray(state.fq);
+
+      if (isArray) {
+        filters = state.fq;
+      } else if (typeof state.fq === 'string') {
+        filters = [state.fq];
+      }
+
+    }
+    return filters;
   }
 );

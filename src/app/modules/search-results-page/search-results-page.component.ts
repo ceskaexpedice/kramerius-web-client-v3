@@ -1,10 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {loadSearchResults} from '../../state/search/search.actions';
-import {Store} from '@ngrx/store';
-import {Observable} from 'rxjs';
-import {SearchDocument} from '../models/search-document';
-import {selectSearchResults, selectSearchResultsTotalCount} from '../../state/search/search.selectors';
+import {SearchService} from '../../shared/services/search.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -13,21 +8,15 @@ import {selectSearchResults, selectSearchResultsTotalCount} from '../../state/se
   styleUrl: './search-results-page.component.scss'
 })
 export class SearchResultsPageComponent implements OnInit {
-  results$: Observable<SearchDocument[]>;
-  totalCount$: Observable<number>;
-  page = 0;
 
-  constructor(private route: ActivatedRoute, private store: Store) {
-    this.results$ = this.store.select(selectSearchResults);
-    this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
+
+  constructor(
+    public searchService: SearchService
+  ) {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const query = params['query'] || '*:*';
-      const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
-      this.store.dispatch(loadSearchResults({ query, filters, page: this.page }));
-    });
+
   }
 
 }

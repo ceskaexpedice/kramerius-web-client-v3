@@ -1,0 +1,24 @@
+<div class="paginator">
+
+  <div class="pages">
+
+    <ng-container *ngFor="let p of [1, 2, 3, totalPages()]">
+      <button [class.active]="p === page()" (click)="goToPage(p)">
+        {{ p }}
+      </button>
+
+    </ng-container>
+
+    <button (click)="goToPage(page() - 1)" [disabled]="page() === 1">←</button>
+
+    <button (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()">→</button>
+
+  </div>
+
+  <div class="page-size" *ngIf="showPageSizeOptions">
+    Počet výsledků na straně:
+    <select [value]="pageSize()" (change)="changePageSize($event)">
+      <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+    </select>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+.paginator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+
+  .pages {
+    display: flex;
+    gap: 0.25rem;
+
+    button {
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border: none;
+      background: #f0f2f5;
+      cursor: pointer;
+
+      &.active {
+        background: #005bbd;
+        color: white;
+        font-weight: bold;
+      }
+
+      &:disabled {
+        background: #e0e0e0;
+        cursor: default;
+      }
+    }
+
+    span {
+      padding: 0.5rem 0.75rem;
+      color: #888;
+    }
+  }
+
+  .page-size {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    select {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+  }
+}

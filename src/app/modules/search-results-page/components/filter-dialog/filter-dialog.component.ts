@@ -11,8 +11,9 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SearchSelectors from '../../../../state/search/search.selectors';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
-import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
+import {selectFacets, selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
 import {SearchService} from '../../../../shared/services/search.service';
+import {loadFacet} from '../../../../state/search/search.actions';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -44,7 +45,7 @@ export class FilterDialogComponent implements OnInit {
   private store = inject(Store);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private searchService = inject(SearchService);
+  public searchService = inject(SearchService);
 
   readonly searchControl = new FormControl('');
   readonly selected = signal<Set<string>>(new Set());
@@ -52,8 +53,13 @@ export class FilterDialogComponent implements OnInit {
   readonly items = signal<FacetItem[]>([]);
   readonly allItems = signal<FacetItem[]>([]);
 
+  allFacetsByType$: Observable<any>;
+
   constructor() {
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
+    this.allFacetsByType$ = this.store.select(selectFacets);
+
+    this.store.dispatch(loadFacet({query: '*:*', filters: [], facet: this.data.facetKey, facetLimit: -1, facetOffset: 0}));
 
     effect(() => {
       const sub = this.store.select(SearchSelectors.selectFacetItems(this.data.facetKey))
@@ -175,21 +181,5 @@ export class FilterDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
-  }
-
-  get selectedArray(): string[] {
-    return Array.from(this.selected());
-  }
-
-  unselectFilter(filter: string) {
-    const next = new Set(this.selected());
-    next.delete(filter);
-    this.selected.set(next);
-    this.updateUrl();
-  }
-
-  unselectAllFilters() {
-    this.selected.set(new Set());
-    this.updateUrl();
   }
 }

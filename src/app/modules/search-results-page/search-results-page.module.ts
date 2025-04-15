@@ -17,6 +17,7 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 import {searchReducer} from '../../state/search/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
+import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 
 const routes: Routes = [
   {
@@ -41,6 +42,7 @@ const routes: Routes = [
     NgForOf,
     RecordItemComponent,
     SelectedTagsComponent,
+    PaginatorComponent,
   ],
 })
 

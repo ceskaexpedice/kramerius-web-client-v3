@@ -119,7 +119,9 @@ export class SolrService {
     filters: string[],
     facetField: string,
     contains?: string,
-    ignoreCase?: boolean
+    ignoreCase?: boolean,
+    facetLimit?: number,
+    facetOffset?: number,
   ): Observable<any> {
     const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
 
@@ -146,16 +148,23 @@ export class SolrService {
       params = params.append('fq', fq);
     });
 
+    if (facetLimit) {
+      params = params.set('facet.limit', facetLimit.toString());
+    }
+
+    if (facetOffset) {
+      params = params.set('facet.offset', facetOffset.toString());
+    }
 
     return this.http.get<any>(this.API_URL, { params });
   }
 
-  search(query: string, filters: string[] = [], facetOperators: { [field: string]: 'AND' | 'OR' } = {}, start = 0, rows = 60): Observable<SearchResultResponse> {
-    const params = this.buildParams(query, filters, facetOperators, start, rows, true);
+  search(query: string, filters: string[] = [], facetOperators: { [field: string]: 'AND' | 'OR' } = {}, page = 0, pageCount = 60): Observable<SearchResultResponse> {
+    const params = this.buildParams(query, filters, facetOperators, page, pageCount, true);
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  private buildParams(query: string, filters: string[], facetOperators: { [field: string]: 'AND' | 'OR' }, start: number, rows: number, includeFacets = true): HttpParams {
+  private buildParams(query: string, filters: string[], facetOperators: { [field: string]: 'AND' | 'OR' }, page: number, pageCount: number, includeFacets = true): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
 
     const filterQueries: string[] = [];
@@ -178,7 +187,7 @@ export class SolrService {
       ]),
       ...(includeFacets ? SolrQueryBuilder.facetFields(this.DEFAULT_FACET_FIELDS) : {}),
       ...SolrQueryBuilder.sortByCreated(true),
-      ...SolrQueryBuilder.pagination(start, rows),
+      ...SolrQueryBuilder.pagination(page, pageCount),
       wt: 'json'
     };
 

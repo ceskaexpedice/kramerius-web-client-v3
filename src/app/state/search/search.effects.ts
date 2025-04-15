@@ -25,7 +25,7 @@ export class SearchEffects {
         this.store.select(SearchSelectors.selectFacets),
         this.store.select(SearchSelectors.selectFacetOperators)
       ),
-      switchMap(([{ query, filters, page }, currentFacets, facetOperators]) => {
+      switchMap(([{ query, filters, page, pageCount }, currentFacets, facetOperators]) => {
         const facetFields = [
           'model',
           'authors.facet',
@@ -125,14 +125,14 @@ export class SearchEffects {
     this.actions$.pipe(
       ofType(SearchActions.loadFacet),
       withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
-      switchMap(([{ query, filters, facet, contains, ignoreCase }, currentFacets]) =>
-        this.solr.loadFacet(query, filters, facet, contains, ignoreCase).pipe(
+      switchMap(([{ query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
+        return this.solr.loadFacet(query, filters, facet, contains, ignoreCase, facetLimit, facetOffset).pipe(
           map(response => {
             const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);
             return SearchActions.loadFacetSuccess({ facet, items: parsed });
           }),
           catchError(error => of(SearchActions.loadFacetFailure({ facet, error })))
-        )
+        )}
       )
     )
   );

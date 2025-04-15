@@ -16,19 +16,33 @@
       </div>
     </div>
 
-    <app-selected-tags></app-selected-tags>
+    <app-selected-tags
+      [items]="(searchService.activeFilters$ | async) || []"
+      (remove)="searchService.removeFilter($event)"
+      (clearAll)="searchService.clearAllFilters()"
+      clearButtonPosition="right">
+    </app-selected-tags>
 
-    Vysledky: {{ totalCount$ | async }}
+    Vysledky: {{ searchService.totalCount() }}
 
     <div class="search-results-grid">
 
-      <ng-container *ngIf="results$ | async as results">
+      <ng-container *ngIf="searchService.results$ | async as results">
 
           <app-record-item *ngFor="let doc of results" [record]="doc"></app-record-item>
 
       </ng-container>
 
     </div>
+
+    <app-paginator
+      [page]="searchService.page"
+      [totalPages]="searchService.totalCount"
+      [pageSize]="searchService.pageSize"
+      [pageSizeOptions]="[25, 50, 100]"
+      (pageChange)="searchService.goToPage($event)"
+      (pageSizeChange)="searchService.changePageSize($event)"
+    ></app-paginator>
 
   </div>
 
