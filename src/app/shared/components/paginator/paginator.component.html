@@ -1,13 +1,13 @@
 <div class="paginator" *ngIf="pages().length > 0">
   <div class="pages">
-    <button (click)="goToPage(page - 1)" [disabled]="page === 1">←</button>
-
     <ng-container *ngFor="let p of pages()">
       <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">
         {{ p }}
       </button>
       <span *ngIf="p === -1">...</span>
     </ng-container>
+
+    <button (click)="goToPage(page - 1)" [disabled]="page === 1">←</button>
 
     <button (click)="goToPage(page + 1)" [disabled]="page === lastPage()">→</button>
   </div>

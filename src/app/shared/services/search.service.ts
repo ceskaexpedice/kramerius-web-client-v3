@@ -10,6 +10,7 @@ import {
 } from '../../state/search/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../state/search/search.actions';
+import {FacetItem} from '../../modules/models/facet-item';
 
 @Injectable({
   providedIn: 'root'
@@ -192,6 +193,12 @@ export class SearchService {
       page,
       pageCount: this.pageSize
     }));
+  }
+
+  isSelectedFacetItem(itemName: string): Observable<boolean> {
+    return this.activeFilters$.pipe(
+      map((filters: string[]) => filters.includes(itemName))
+    );
   }
 
 }

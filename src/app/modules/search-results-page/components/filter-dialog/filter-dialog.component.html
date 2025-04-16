@@ -26,12 +26,21 @@ Vysledky: {{ totalCount$ | async }}
   </div>
   <label *ngFor="let item of items()" class="facet-item">
     <mat-checkbox
-      [checked]="isSelected(item.name)"
+      [checked]="isSelectedFacetItem(item) | async"
       (change)="toggle(item.name)"
     ></mat-checkbox>
     {{ item.name }} ({{ item.count }})
   </label>
 </div>
+
+<app-paginator
+  [page]="page"
+  [totalCount]="totalCount"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[25, 50, 100]"
+  (pageChange)="goToPage($event)"
+  [showPageSizeOptions]="false"
+></app-paginator>
 
 <div class="footer">
   <button mat-button (click)="close()">Zavrieť</button>

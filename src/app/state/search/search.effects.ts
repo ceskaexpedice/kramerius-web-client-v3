@@ -70,57 +70,6 @@ export class SearchEffects {
     )
   );
 
-  // loadSearchResults$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(SearchActions.loadSearchResults),
-  //     withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
-  //     switchMap(([{ query, filters }, currentFacets]) => {
-  //       const facetFields = [
-  //         'model',
-  //         'authors.facet',
-  //         'languages.facet',
-  //         'genres.facet',
-  //         'keywords.facet',
-  //         'geographic_names.facet',
-  //         'publishers.facet',
-  //         'publication_places.facet',
-  //         'physical_locations.facet'
-  //       ];
-  //
-  //       console.log('query', query);
-  //       console.log('filters', filters);
-  //
-  //       return forkJoin({
-  //         resultsRes: this.solr.search(query, filters),
-  //         facetsRes: this.solr.getFacetsWithOrOperator(query, filters, facetFields)
-  //       }).pipe(
-  //         switchMap(({ resultsRes, facetsRes }) => {
-  //           const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
-  //             parseSearchDocument(doc)
-  //           );
-  //
-  //           // new facets
-  //           const newFacets = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
-  //
-  //           // replace facets completely
-  //           const mergedFacets: { [key: string]: FacetItem[] } = {};
-  //           Object.entries(newFacets).forEach(([key, values]) => {
-  //             if (values.length > 0) {
-  //               mergedFacets[key] = values;
-  //             }
-  //           });
-  //
-  //           return [
-  //             SearchActions.loadSearchResultsSuccess({ results: parsedResults, totalCount: resultsRes.response.numFound }),
-  //             SearchActions.loadFacetsSuccess({ facets: mergedFacets })
-  //           ];
-  //         }),
-  //         catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
-  //       );
-  //     })
-  //   )
-  // );
-
   loadFacet$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SearchActions.loadFacet),

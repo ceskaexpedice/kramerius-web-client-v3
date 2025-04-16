@@ -1,19 +1,21 @@
-import {Component, computed, effect, inject, Inject, OnInit, signal} from '@angular/core';
+import {Component, effect, inject, OnInit, signal} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton} from '@angular/material/button';
-import {debounceTime, distinctUntilChanged, Observable, of} from 'rxjs';
-import {switchMap, map} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
+import {debounceTime, distinctUntilChanged, first, Observable, of} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
+import {ActivatedRoute} from '@angular/router';
 import { Store } from '@ngrx/store';
-import * as SearchSelectors from '../../../../state/search/search.selectors';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
-import {selectFacets, selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
+import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
 import {SearchService} from '../../../../shared/services/search.service';
-import {loadFacet} from '../../../../state/search/search.actions';
+import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
+import {SolrService} from '../../../../core/solr/solr.service';
+import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
+import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -26,12 +28,13 @@ import {loadFacet} from '../../../../state/search/search.actions';
     NgIf,
     SelectedTagsComponent,
     AsyncPipe,
+    PaginatorComponent,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
   styleUrl: './filter-dialog.component.scss'
 })
-export class FilterDialogComponent implements OnInit {
+export class FilterDialogComponent extends BasePaginatorComponent implements OnInit {
   public data = inject(MAT_DIALOG_DATA) as {
     facetKey: string;
     facetLabel: string;
@@ -43,36 +46,22 @@ export class FilterDialogComponent implements OnInit {
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private store = inject(Store);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
   public searchService = inject(SearchService);
+  private solrService = inject(SolrService);
 
   readonly searchControl = new FormControl('');
   readonly selected = signal<Set<string>>(new Set());
   readonly loading = signal(false);
   readonly items = signal<FacetItem[]>([]);
-  readonly allItems = signal<FacetItem[]>([]);
-
-  allFacetsByType$: Observable<any>;
 
   constructor() {
+
+    super();
+
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
-    this.allFacetsByType$ = this.store.select(selectFacets);
 
-    this.store.dispatch(loadFacet({query: '*:*', filters: [], facet: this.data.facetKey, facetLimit: -1, facetOffset: 0}));
-
-    effect(() => {
-      const sub = this.store.select(SearchSelectors.selectFacetItems(this.data.facetKey))
-        .subscribe(facets => {
-          if (facets) {
-            this.allItems.set(facets);
-            this.items.set(facets);
-            this.loading.set(false);
-          }
-        });
-
-      return () => sub.unsubscribe();
-    });
+    this.loadFacets(false);
 
     effect(() => {
       const sub = this.searchControl.valueChanges
@@ -80,18 +69,15 @@ export class FilterDialogComponent implements OnInit {
           debounceTime(300),
           distinctUntilChanged(),
           switchMap(term => {
-            if (!term || term.length < 2) {
-              this.items.set(this.allItems());
+
+            // TODO: Implement search logic
+
+            if (term && term.length > 0 && term.length < 2) {
               return of(null);
             }
 
-            this.loading.set(true);
+            this.loadFacets(true);
 
-            const filteredItems = this.allItems().filter(item =>
-              this.normalizeString(item.name).includes(this.normalizeString(term))
-            );
-            this.items.set(filteredItems);
-            this.loading.set(false);
             return of(null);
           })
         )
@@ -102,61 +88,12 @@ export class FilterDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initSelectedFromUrl();
-    this.loadInitialFacets();
+    this.loadFacets()
   }
 
   setOperator(operator: 'OR' | 'AND') {
     this.useOrOperator.set(operator === 'OR');
     this.updateUrl();
-  }
-
-  private normalizeString(str: string): string {
-    return str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, '');
-  }
-
-  private loadInitialFacets() {
-    this.loading.set(true);
-    this.items.set(this.data.items);
-  }
-
-  private initSelectedFromUrl() {
-    const fq = this.route.snapshot.queryParams['fq'];
-    const active = Array.isArray(fq) ? fq : fq ? [fq] : [];
-
-    const selected = new Set<string>();
-    let useOr = true;
-
-    active.forEach(filter => {
-      if (filter.startsWith(this.data.facetKey + ':')) {
-
-        const value = filter.substring(this.data.facetKey.length + 1);
-        if (value.startsWith('(') && value.endsWith(')')) {
-
-          const values = value
-            .slice(1, -1)
-            .split(' OR ')
-            .map((v: string) => v.trim().replace(/^"(.*)"$/, '$1'));
-          values.forEach((v: string) => selected.add(v));
-          useOr = true;
-        } else {
-
-          selected.add(value.replace(/^"(.*)"$/, '$1'));
-          useOr = false;
-        }
-      }
-    });
-
-    this.selected.set(selected);
-    this.useOrOperator.set(useOr);
-  }
-
-  isSelected(value: string): boolean {
-    return this.selected().has(value);
   }
 
   toggle(value: string) {
@@ -181,5 +118,45 @@ export class FilterDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+  }
+
+  override goToPage(page: number) {
+    this.page = page;
+    this.loadFacets(true);
+  }
+
+  loadFacets(paginator: boolean = true) {
+    this.loading.set(true);
+
+    let page = this.page;
+    let facetLimit = this.pageSize || -1;
+    let facetOffset = (page - 1) * facetLimit;
+
+    if (!paginator) {
+      facetLimit = -1;
+      facetOffset = 0;
+    }
+
+    this.solrService
+      .loadFacet( '*:*', [], this.data.facetKey, this.searchControl.value || '', true, facetLimit, facetOffset)
+      .pipe(first())
+      .subscribe({
+        next: v => {
+          // if without paginator, set only totalCount from response
+          const parsed = SolrResponseParser.parseFacet(v.facet_counts.facet_fields?.[this.data.facetKey] || []);
+
+          if (!paginator) {
+            this.totalCount = parsed.length;
+          } else {
+            this.items.set(parsed);
+          }
+
+          this.loading.set(false);
+        }
+      })
+  }
+
+  isSelectedFacetItem(item: FacetItem): Observable<boolean> {
+    return this.searchService.isSelectedFacetItem(`${this.data.facetKey}:${item.name}`);
   }
 }
