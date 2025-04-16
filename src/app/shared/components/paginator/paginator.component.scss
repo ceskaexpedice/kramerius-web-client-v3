@@ -12,18 +12,12 @@
       padding: 0.5rem 0.75rem;
       border-radius: 6px;
       border: none;
-      background: #f0f2f5;
+      background: transparent;
       cursor: pointer;
 
       &.active {
-        background: #005bbd;
-        color: white;
+        background: var(--color-light-badge-bg);
         font-weight: bold;
-      }
-
-      &:disabled {
-        background: #e0e0e0;
-        cursor: default;
       }
     }
 

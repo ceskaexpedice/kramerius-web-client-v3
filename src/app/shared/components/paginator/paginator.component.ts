@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
+import {MatButton} from '@angular/material/button';
 
 @Component({
   selector: 'app-paginator',
-  imports: [NgForOf, NgIf],
+  imports: [NgForOf, NgIf, MatButton],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.scss'
 })

@@ -7,9 +7,9 @@
       <span *ngIf="p === -1">...</span>
     </ng-container>
 
-    <button (click)="goToPage(page - 1)" [disabled]="page === 1">←</button>
+    <button mat-button class="outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">←</button>
 
-    <button (click)="goToPage(page + 1)" [disabled]="page === lastPage()">→</button>
+    <button mat-button class="outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage()">→</button>
   </div>
 
   <div class="page-size" *ngIf="showPageSizeOptions">
