@@ -9,6 +9,7 @@ import {
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SearchService} from '../../services/search.service';
+import {expandCollapseAnimation} from '../../animations/expand-collapse.animation';
 
 @Component({
   selector: 'app-filter-category',
@@ -20,7 +21,8 @@ import {SearchService} from '../../services/search.service';
     TranslatePipe,
   ],
   templateUrl: './filter-category.component.html',
-  styleUrl: './filter-category.component.scss'
+  styleUrl: './filter-category.component.scss',
+  animations: [expandCollapseAnimation]
 })
 export class FilterCategoryComponent {
   maxItems = 10;
