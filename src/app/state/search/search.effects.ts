@@ -47,14 +47,27 @@ export class SearchEffects {
               parseSearchDocument(doc)
             );
 
-            const newFacets = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
+            const facetsFromSearch = SolrResponseParser.parseAllFacets(resultsRes.facet_counts?.facet_fields ?? {});
+            const facetsFromOperator = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
+
             const mergedFacets: { [key: string]: FacetItem[] } = {};
 
-            Object.entries(newFacets).forEach(([key, values]) => {
-              if (values.length > 0) {
-                mergedFacets[key] = values;
+            for (const [facetKey, operatorValues] of Object.entries(facetsFromOperator)) {
+              const searchValues = facetsFromSearch[facetKey] ?? [];
+              const operatorMap = new Map(operatorValues.map(item => [item.name, item.count]));
+              const merged = [...operatorValues];
+
+              // add missing values
+              for (const item of searchValues) {
+                if (!operatorMap.has(item.name)) {
+                  merged.push(item);
+                }
               }
-            });
+
+              if (merged.length > 0) {
+                mergedFacets[facetKey] = merged;
+              }
+            }
 
             return [
               SearchActions.loadSearchResultsSuccess({
