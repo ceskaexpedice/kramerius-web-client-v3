@@ -9,7 +9,7 @@ import {
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SearchService} from '../../services/search.service';
-import {expandCollapseAnimation} from '../../animations/expand-collapse.animation';
+import {expandCollapseAnimation} from '../../animations';
 
 @Component({
   selector: 'app-filter-category',
