@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Observable} from 'rxjs';
 import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {SolrResponseParser} from './solr-response-parser';
 import {map} from 'rxjs/operators';
-import { SolrQueryBuilder } from './solr-query-builder';
+import {SolrQueryBuilder} from './solr-query-builder';
 import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
 import {SearchResultResponse} from '../../modules/models/search-result-response';
+import {SolrSortDirections, SolrSortFields} from './solr-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +34,7 @@ export class SolrService {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.filterByModel('periodical'),
-      ...SolrQueryBuilder.sortByCreated(true),
+      ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100),
       ...SolrQueryBuilder.start(0)
     };
@@ -49,7 +50,7 @@ export class SolrService {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.filterByModel('monograph'),
-      ...SolrQueryBuilder.sortByCreated(true),
+      ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100)
     };
 
@@ -122,6 +123,7 @@ export class SolrService {
     ignoreCase?: boolean,
     facetLimit?: number,
     facetOffset?: number,
+    sortBy?: SolrSortFields
   ): Observable<any> {
     const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
 
@@ -130,8 +132,7 @@ export class SolrService {
       ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.fieldsToReturn([]),
       ...SolrQueryBuilder.facetFields([facetField]),
-      ...SolrQueryBuilder.sortByCreated(true),
-      wt: 'json',
+      ...SolrQueryBuilder.facetSortBy(sortBy),
       ...SolrQueryBuilder.pagination(0, 0)
     };
 
@@ -186,7 +187,7 @@ export class SolrService {
         'licenses', 'contains_licenses', 'licenses_of_ancestors'
       ]),
       ...(includeFacets ? SolrQueryBuilder.facetFields(this.DEFAULT_FACET_FIELDS) : {}),
-      ...SolrQueryBuilder.sortByCreated(true),
+      ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.pagination(page, pageCount),
       wt: 'json'
     };

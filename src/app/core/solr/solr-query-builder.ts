@@ -1,4 +1,5 @@
 import {SolrFields} from './solr-fields';
+import {SolrSortDirections, SolrSortFields} from './solr-helpers';
 
 export class SolrQueryBuilder {
 
@@ -27,9 +28,15 @@ export class SolrQueryBuilder {
     };
   }
 
-  static sortByCreated(desc: boolean = true): any {
+  static sortBy(field = SolrSortFields.createdAt, direction = SolrSortDirections.desc): any {
     return {
-      sort: `${SolrFields.createdAt} ${desc ? 'desc' : 'asc'}`
+      sort: `${field} ${direction}`
+    };
+  }
+
+  static facetSortBy(field = SolrSortFields.createdAt): any {
+    return {
+      'facet.sort': `${field}`
     };
   }
 

@@ -8,7 +8,7 @@ import {MatButton} from '@angular/material/button';
 import {debounceTime, distinctUntilChanged, first, Observable, of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
-import { Store } from '@ngrx/store';
+import {Store} from '@ngrx/store';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
 import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
 import {SearchService} from '../../../../shared/services/search.service';
@@ -16,6 +16,7 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
 import {SolrService} from '../../../../core/solr/solr.service';
 import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
+import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -43,6 +44,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   totalCount$: Observable<number>;
   useOrOperator = signal(true);
+  sortBy = signal<SolrSortFields>(SolrSortFields.count);
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private store = inject(Store);
@@ -138,7 +140,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     }
 
     this.solrService
-      .loadFacet( '*:*', [], this.data.facetKey, this.searchControl.value || '', true, facetLimit, facetOffset)
+      .loadFacet( '*:*', [], this.data.facetKey, this.searchControl.value || '', true, facetLimit, facetOffset, this.sortBy())
       .pipe(first())
       .subscribe({
         next: v => {
@@ -159,4 +161,11 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {
     return this.searchService.isSelectedFacetItem(`${this.data.facetKey}:${item.name}`);
   }
+
+  setSort(sort: SolrSortFields) {
+    this.sortBy.set(sort);
+    this.loadFacets();
+  }
+
+  protected readonly SolrSortFields = SolrSortFields;
 }

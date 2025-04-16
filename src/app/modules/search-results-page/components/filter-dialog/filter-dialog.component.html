@@ -8,11 +8,20 @@
   />
 </div>
 
+<div class="filters--container">
 
-<div class="operator-buttons">
-  <button mat-button [class.active]="useOrOperator()" (click)="setOperator('OR')">Všetky</button>
-  <button mat-button [class.active]="!useOrOperator()" (click)="setOperator('AND')">Niektoré</button>
+  <div class="operator-buttons">
+    <button mat-button [class.active]="useOrOperator()" (click)="setOperator('OR')">Všetky</button>
+    <button mat-button [class.active]="!useOrOperator()" (click)="setOperator('AND')">Niektoré</button>
+  </div>
+
+  <div class="operator-buttons">
+    <button mat-button [class.active]="sortBy() === SolrSortFields.count" (click)="setSort(SolrSortFields.count)">Podľa výskytu</button>
+    <button mat-button [class.active]="sortBy() === SolrSortFields.title" (click)="setSort(SolrSortFields.title)">Abecedne</button>
+  </div>
+
 </div>
+
 
 Vysledky: {{ totalCount$ | async }}
 

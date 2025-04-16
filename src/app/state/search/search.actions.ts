@@ -31,6 +31,7 @@ export const loadFacet = createAction(
     ignoreCase?: boolean;
     facetLimit?: number;
     facetOffset?: number;
+    sortBy?: 'count' | 'name';
   }>()
 );
 
