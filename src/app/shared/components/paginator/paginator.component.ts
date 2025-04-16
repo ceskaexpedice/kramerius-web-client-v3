@@ -26,34 +26,33 @@ export class PaginatorComponent implements OnChanges {
   }
 
   private generatePages(): void {
-    const totalPages = Math.ceil(this.totalCount / this.pageSize);
+    const totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
     const pages: number[] = [];
 
-    if (totalPages <= 7) {
+    const last = totalPages;
+
+    if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
+    } else if (this.page <= 2) {
+      pages.push(1, 2, 3);
+      pages.push(-1); // ...
+      pages.push(last);
+    } else if (this.page === 3) {
+      pages.push(1, 2, 3, 4);
+      pages.push(-1);
+      pages.push(last);
+    } else if (this.page >= last - 2) {
+      pages.push(1);
+      pages.push(-1);
+      pages.push(last - 3, last - 2, last - 1, last);
     } else {
-      if (this.page <= 3) {
-        for (let i = 1; i <= 3; i++) {
-          pages.push(i);
-        }
-        pages.push(-1); // Ellipsis
-        pages.push(totalPages);
-      } else if (this.page >= totalPages - 2) {
-        pages.push(1);
-        pages.push(-1); // Ellipsis
-        for (let i = totalPages - 2; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push(-1); // Ellipsis
-        pages.push(this.page);
-        pages.push(this.page + 1);
-        pages.push(-1); // Ellipsis
-        pages.push(totalPages);
-      }
+      pages.push(1);
+      pages.push(-1);
+      pages.push(this.page - 1, this.page, this.page + 1);
+      pages.push(-1);
+      pages.push(last);
     }
 
     this.pages.set(pages);

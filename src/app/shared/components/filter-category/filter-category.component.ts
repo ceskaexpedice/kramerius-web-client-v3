@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
 import {NgForOf, NgIf, SlicePipe} from '@angular/common';
 import {FilterItemComponent} from '../filter-item/filter-item.component';
 import {FacetItem} from '../../../modules/models/facet-item';
@@ -24,7 +24,7 @@ import {expandCollapseAnimation} from '../../animations/expand-collapse.animatio
   styleUrl: './filter-category.component.scss',
   animations: [expandCollapseAnimation]
 })
-export class FilterCategoryComponent {
+export class FilterCategoryComponent implements OnChanges {
   maxItems = 10;
   expanded = true;
 
@@ -37,12 +37,44 @@ export class FilterCategoryComponent {
   @Output() toggle = new EventEmitter<string>();
   @Output() showMore = new EventEmitter<void>();
 
+  visibleItems = signal<FacetItem[]>([]);
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private dialog: MatDialog,
     private searchService: SearchService
   ) {
+  }
+
+  ngOnChanges() {
+    this.updateVisibleItems();
+  }
+
+  private updateVisibleItems() {
+    const allItems = [...this.items];
+
+    const selectedValues = this.selected
+      .filter(f => f.startsWith(this.facetKey + ':'))
+      .map(f => f.split(':')[1]);
+
+    const selectedSet = new Set(selectedValues);
+
+    // Add missing items
+    selectedValues.forEach(val => {
+      if (!allItems.find(item => item.name === val)) {
+        allItems.push({ name: val, count: 0 });
+      }
+    });
+
+    // Sort, selected first
+    const sorted = allItems.sort((a, b) => {
+      const aSelected = selectedSet.has(a.name) ? -1 : 0;
+      const bSelected = selectedSet.has(b.name) ? -1 : 0;
+      return aSelected - bSelected;
+    });
+
+    this.visibleItems.set(sorted);
   }
 
   isSelected(value: string) {
