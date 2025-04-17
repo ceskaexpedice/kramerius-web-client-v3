@@ -123,7 +123,8 @@ export class SolrService {
     ignoreCase?: boolean,
     facetLimit?: number,
     facetOffset?: number,
-    sortBy?: SolrSortFields
+    sortBy?: SolrSortFields,
+    minCount: number = 1
   ): Observable<any> {
     const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
 
@@ -131,7 +132,7 @@ export class SolrService {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.fieldsToReturn([]),
-      ...SolrQueryBuilder.facetFields([facetField]),
+      ...SolrQueryBuilder.facetFields([facetField], minCount),
       ...SolrQueryBuilder.facetSortBy(sortBy),
       ...SolrQueryBuilder.pagination(0, 0)
     };

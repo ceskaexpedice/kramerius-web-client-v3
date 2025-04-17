@@ -76,10 +76,10 @@ export class SolrQueryBuilder {
     return this.facetByField('model');
   }
 
-  static facetFields(fields: string[]): Record<string, any> {
+  static facetFields(fields: string[], minCount = 1): Record<string, any> {
     return {
       facet: 'true',
-      'facet.mincount': '1',
+      'facet.mincount': `${minCount}`,
       'facet.field': fields
     };
   }
