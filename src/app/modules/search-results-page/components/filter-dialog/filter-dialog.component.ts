@@ -5,8 +5,8 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton} from '@angular/material/button';
-import {debounceTime, distinctUntilChanged, first, Observable, of} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, first, firstValueFrom, Observable, of, take} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
@@ -56,6 +56,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   readonly selected = signal<Set<string>>(new Set());
   readonly loading = signal(false);
   readonly items = signal<FacetItem[]>([]);
+
+  allItems = signal<FacetItem[]>([]);
 
   constructor() {
 
@@ -139,23 +141,39 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       facetOffset = 0;
     }
 
-    this.solrService
-      .loadFacet( '*:*', [], this.data.facetKey, this.searchControl.value || '', true, facetLimit, facetOffset, this.sortBy())
-      .pipe(first())
+    this.searchService.activeFilters$
+      .pipe(
+        take(1),
+        map(filters => filters.filter(f => !f.startsWith(this.data.facetKey + ':'))),
+        switchMap(filteredFilters =>
+          this.solrService.loadFacet(
+            '*:*',
+            filteredFilters,
+            this.data.facetKey,
+            this.searchControl.value || '',
+            true,
+            facetLimit,
+            facetOffset,
+            this.sortBy()
+          )
+        )
+      )
       .subscribe({
         next: v => {
-          // if without paginator, set only totalCount from response
-          const parsed = SolrResponseParser.parseFacet(v.facet_counts.facet_fields?.[this.data.facetKey] || []);
+          const parsed = SolrResponseParser.parseFacet(
+            v.facet_counts.facet_fields?.[this.data.facetKey] || []
+          );
 
           if (!paginator) {
             this.totalCount = parsed.length;
+            this.allItems.set(parsed);
           } else {
             this.items.set(parsed);
           }
 
           this.loading.set(false);
         }
-      })
+      });
   }
 
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {
