@@ -1,25 +1,28 @@
 .search-results-page {
-  display: flex;
-  min-height: 100%;
-  width: 100%;
-  background-color: transparent;
-  margin-top: 2px;
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+
+  .search-results-page--inner {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding-top: var(--small-gap);
+    gap: var(--small-gap);
+  }
 
   .results-content {
     flex: 1;
-    //padding: 32px;
     display: flex;
     flex-direction: column;
-    //gap: 24px;
-    margin-left: 2px;
+    overflow-y: auto;
   }
 }
 
 .search-results-tabs {
   display: flex;
-  width: 100%;
-  background-color: var(--color-container-bg);
   gap: 20px;
+  background-color: var(--color-container-bg);
 
   & > * {
     padding: 15px 20px;
@@ -27,9 +30,10 @@
 }
 
 .search-results-grid {
-  padding-top: 50px;
   display: grid;
   grid-template-columns: repeat(auto-fill, 230px);
   gap: 16px;
   justify-content: center;
+  padding: 16px 0;
+  flex-grow: 1;
 }
