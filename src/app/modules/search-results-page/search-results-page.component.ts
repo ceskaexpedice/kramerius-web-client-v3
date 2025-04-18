@@ -17,6 +17,8 @@ export class SearchResultsPageComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.searchService.ensurePageDefaults();
+
   }
 
 }

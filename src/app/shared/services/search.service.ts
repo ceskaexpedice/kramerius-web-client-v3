@@ -10,7 +10,6 @@ import {
 } from '../../state/search/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../state/search/search.actions';
-import {FacetItem} from '../../modules/models/facet-item';
 
 @Injectable({
   providedIn: 'root'
@@ -60,13 +59,43 @@ export class SearchService {
     this.route.queryParams.subscribe((params: any) => {
       const query = params['query'] || '*:*';
       const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
+      const page = Number(params['page']) || 1;
+      const pageSize = Number(params['pageSize']) || 25;
+
+      this._page.set(page);
+      this._pageSize.set(pageSize);
+
       this.store.dispatch(loadSearchResults({
         query,
         filters,
-        page: this.page,
-        pageCount: this.pageSize
+        page,
+        pageCount: pageSize
       }));
     });
+  }
+
+  ensurePageDefaults(): void {
+    const params = this.route.snapshot.queryParams;
+    const queryParams: any = {};
+    let updateNeeded = false;
+
+    if (!params['page']) {
+      queryParams['page'] = this._page();
+      updateNeeded = true;
+    }
+
+    if (!params['pageSize']) {
+      queryParams['pageSize'] = this._pageSize();
+      updateNeeded = true;
+    }
+
+    if (updateNeeded) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: 'merge'
+      });
+    }
   }
 
   search(query: string): void {
@@ -118,10 +147,8 @@ export class SearchService {
     let newFilters: string[];
 
     if (currentFacetFilters.includes(fullValue)) {
-      // Odstránime filter
       newFilters = currentFilters.filter(f => f !== fullValue);
     } else {
-      // Pridáme filter
       newFilters = [...currentFilters, fullValue];
     }
 
@@ -165,34 +192,31 @@ export class SearchService {
     );
   }
 
-  isSelectedFilter() {
-
-  }
-
   goToPage(page: number) {
-    console.log('page', page);
     this._page.set(page);
-    this.loadSearchResults();
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page,
+        pageSize: this.pageSize
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   changePageSize(size: number) {
     this._pageSize.set(size);
     this._page.set(1);
-    this.loadSearchResults();
-  }
 
-  private loadSearchResults() {
-    const query = this.route.snapshot.queryParams['query'] || '*:*';
-    const filters = this.route.snapshot.queryParams['fq'] || [];
-    const page = (this.page - 1) * this.pageSize;
-    console.log('page', page);
-
-    this.store.dispatch(loadSearchResults({
-      query,
-      filters,
-      page,
-      pageCount: this.pageSize
-    }));
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: 1,
+        pageSize: size
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   isSelectedFacetItem(itemName: string): Observable<boolean> {
