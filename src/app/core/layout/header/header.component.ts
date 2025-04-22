@@ -6,6 +6,7 @@ import {NgClass, NgIf} from '@angular/common';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
 import {HeaderType} from './header-types';
+import {SettingsService} from '../../../modules/settings/settings.service';
 
 @Component({
   selector: 'app-header',
@@ -22,7 +23,10 @@ export class HeaderComponent {
 
   headerType: HeaderType = "transparent";
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private settingsService: SettingsService
+  ) {
 
     this.checkHeaderType();
 
@@ -48,6 +52,10 @@ export class HeaderComponent {
 
   get inputTheme(): string {
     return this.headerType === 'light' ? 'dark' : 'light';
+  }
+
+  openSettings() {
+    this.settingsService.openSettingsDialog();
   }
 
 }

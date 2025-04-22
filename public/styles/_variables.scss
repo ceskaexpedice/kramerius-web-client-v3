@@ -34,4 +34,29 @@
 }
 
 :root.dark {
+  // Dark mode variables
+  --color-bg: #263340;
+  --color-dark: #fff;
+
+  --color-text: #fff;
+  --color-text-darker: #fff;
+  --color-primary: #717C88;
+  --color-secondary: #1E1E2F;
+
+  --color-tertiary: #8099B3;
+  --color-text-disable: #9fb2c6;
+  --color-border-default: #8099B3;
+  --color-border-light: #8099B3;
+  --color-border-main: #8099B3;
+  --color-container-bg: #1E1E2F;
+  --color-main-button-bg: #8099B3;
+  --color-light-button-bg: #1E1E2F;
+  --color-light-button-text: #fff;
+  --color-light-badge-bg: #1E1E2F;
+  --color-tag-bg: #1E1E2F;
+  --color-dark-input-text: #fff;
+  --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+  --font-size-small: 14px;
+  --header-height: 71px;
+  --small-gap: 2px;
 }
