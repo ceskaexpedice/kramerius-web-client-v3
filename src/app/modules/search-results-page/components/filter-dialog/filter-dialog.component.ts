@@ -43,7 +43,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   };
 
   totalCount$: Observable<number>;
-  useOrOperator = signal(true);
+  useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
