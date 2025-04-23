@@ -1,11 +1,9 @@
 <div>
   <div class="category--header">
 
-    <h4>{{label}}</h4>
+    <h4>{{label | translate}}</h4>
 
-    <button class="icon-button outlined-dark xs" (click)="toggleExpanded()">
-      {{expanded ? '-' : '+'}}
-    </button>
+    <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
 
   </div>
 
