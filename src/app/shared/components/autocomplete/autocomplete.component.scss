@@ -1,72 +1,47 @@
+@use '@angular/material' as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:root {
+  @include mat.autocomplete-overrides((
+    background-color: orange,
+  ));
+}
+
 .autocomplete {
-  position: relative;
   width: 100%;
+  display: flex;
+  justify-content: center;
+
+  form {
+    width: 100%;
+  }
 
   .autocomplete-field {
-    display: flex;
     width: 100%;
-    overflow: hidden;
+    background-color: var(--color-bg-light);
+    border-radius: 14px;
 
     input {
-      width: 100%;
-      padding: 10px 14px;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
+      font-size: 16px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--color-text-secondary);
     }
-
-    button.submit-btn {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      flex-shrink: 0;
-    }
-  }
-
-  .autocomplete-input {
-    flex: 1;
-    position: relative;
-
-    &.dark input {
-      background: var(--color-bg-light);
-      color: var(--color-text-light);
-      border: 1px solid var(--color-bg-light);
-    }
-  }
-
-  .input--icon {
-    cursor: pointer;
   }
 
   .input--icons {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: var(--color-primary)
-  }
+    gap: 8px;
 
-  ul {
-    position: absolute;
-    z-index: 1000;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--color-bg-base);
-    max-height: 400px;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-
-    li {
-      padding: 10px 14px;
+    .input--icon {
+      color: var(--color-text-light);
       cursor: pointer;
 
       &:hover {
-        background: #f5f5f5;
+        color: var(--color-text-secondary);
       }
     }
   }

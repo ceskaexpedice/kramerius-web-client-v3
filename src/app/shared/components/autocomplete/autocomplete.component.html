@@ -1,36 +1,42 @@
-<div class="autocomplete">
+<div class="autocomplete" [ngClass]="inputTheme">
 
-  <div class="autocomplete-field">
+  <form (submit)="$event.preventDefault(); search()">
 
-    <div class="autocomplete-input" [ngClass]="inputTheme">
-
+    <mat-form-field class="autocomplete-field" appearance="fill">
       <input
+        matInput
         type="text"
-        [value]="inputTerm()"
-        (input)="onInputChange($event)"
-        [placeholder]="'Hledat ve všech dokumentech' | translate"
+        [formControl]="searchControl"
+        [matAutocomplete]="auto"
+        (keyup.enter)="search()"
+        [placeholder]="'Hledat ve veřejných dokumentech' | translate"
       />
 
-      <span class="input--icons">
+      <div matSuffix class="input--icons">
 
-        <i class="fa fa-question-circle-o input--icon"></i>
+        <i class="icon-question input--icon"></i>
 
-        <i class="fa fa-microphone input--icon"></i>
+        <i class="icon-microphone-2 input--icon"></i>
 
-      </span>
+        <button type="button" class="icon-button primary" (click)="search()">
+          <i class="icon-search-normal"></i>
+        </button>
 
-    </div>
+      </div>
 
-    <button type="button" class="icon-button submit-btn" (click)="search()">
-      <i class="fa fa-search"></i>
-    </button>
 
-  </div>
 
-  <ul *ngIf="suggestions().length > 0">
-    <li *ngFor="let suggestion of suggestions()" (click)="onSelectSuggestion(suggestion)">
-      {{ suggestion }}
-    </li>
-  </ul>
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        autoActiveFirstOption
+        (optionSelected)="onOptionSelected($event)"
+      >
+        @for (option of filteredOptions | async; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+  </form>
 
 </div>
