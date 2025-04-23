@@ -9,8 +9,7 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import {HttpClient, provideHttpClient} from '@angular/common/http';
+import {HttpBackend, provideHttpClient} from '@angular/common/http';
 import {ENVIRONMENT} from './app.config';
 import {HeaderComponent} from './core/layout/header/header.component';
 import {PercentageSignTranslateParser} from './shared/translation/percentage-sign-translate-parser';
@@ -21,10 +20,7 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {FooterComponent} from './core/layout/footer/footer.component';
 import {routerReducer, StoreRouterConnectingModule} from '@ngrx/router-store';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './i18n/', '.json');
-}
+import {HttpLoaderFactory} from './shared/translation/translate-http-loader';
 
 @NgModule({
   declarations: [
@@ -38,7 +34,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
+        deps: [HttpBackend],
       },
       parser: {
         provide: TranslateParser,
