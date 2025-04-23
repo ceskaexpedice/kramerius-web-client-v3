@@ -16,7 +16,10 @@
 
   <nav class="app-header__right">
 
-    <a (click)="openSettings()">Nastaveni</a>
+    <button class="icon-button outlined light" (click)="openSettings()">
+      <i class="icon-settings"></i>
+    </button>
+
     <a routerLink="/about">O projektu</a>
     <a routerLink="/login">Přihlásit</a>
 

@@ -1,35 +1,61 @@
-import { Component } from '@angular/core';
-import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
-import {TranslatePipe} from '@ngx-translate/core';
-import {Router} from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Router, NavigationEnd, RouterLink} from '@angular/router';
+import { Subscription, filter } from 'rxjs';
+import { APP_ROUTES_ENUM } from '../../../app.routes';
+import { HeaderType } from './header-types';
+import { SettingsService } from '../../../modules/settings/settings.service';
+import { AppSettingsThemeEnum } from '../../../modules/settings/settings.model';
 import {NgClass, NgIf} from '@angular/common';
-import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
-import {HeaderType} from './header-types';
-import {SettingsService} from '../../../modules/settings/settings.service';
+import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   imports: [
-    LangPickerComponent,
+    NgClass,
     NgIf,
     AutocompleteComponent,
-    NgClass,
+    LangPickerComponent,
+    RouterLink,
   ],
-  styleUrl: './header.component.scss',
+  styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
+  headerType: HeaderType = 'transparent';
+  private routerSubscription?: Subscription;
+  private themeSubscription?: Subscription;
 
-  headerType: HeaderType = "transparent";
+  // Track the application's current theme
+  currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
 
   constructor(
     private router: Router,
     private settingsService: SettingsService
-  ) {
+  ) {}
 
-    this.checkHeaderType();
+  ngOnInit() {
+    // Listen for route changes to update header type
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updateHeaderType();
+      });
 
+    // Subscribe to app theme changes
+    this.themeSubscription = this.settingsService.settings$.subscribe(settings => {
+      this.currentAppTheme = settings.theme;
+      // This ensures header appearance updates when app theme changes
+      this.updateHeaderType();
+    });
+
+    // Initial check
+    this.updateHeaderType();
+  }
+
+  ngOnDestroy() {
+    this.routerSubscription?.unsubscribe();
+    this.themeSubscription?.unsubscribe();
   }
 
   get showSearchBar(): boolean {
@@ -40,22 +66,26 @@ export class HeaderComponent {
     this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
   }
 
-  checkHeaderType() {
-
+  updateHeaderType() {
     if (this.showSearchBar) {
       this.headerType = 'light';
     } else {
       this.headerType = 'transparent';
     }
-
   }
 
   get inputTheme(): string {
-    return this.headerType === 'light' ? 'dark' : 'light';
+    // If header is transparent, the input theme should be based on the app theme
+    if (this.headerType === 'transparent') {
+      return this.currentAppTheme === AppSettingsThemeEnum.DARK ? 'light' : 'dark';
+    }
+
+    // If header is light, use dark input theme regardless of app theme
+    return 'dark';
   }
+
 
   openSettings() {
     this.settingsService.openSettingsDialog();
   }
-
 }
