@@ -15,6 +15,8 @@ import {loadSearchResults} from '../../state/search/search.actions';
   providedIn: 'root'
 })
 export class SearchService {
+  private initialized = false;
+
   private _page = signal(1);
   private _pageSize = signal(25);
   private _totalCount = signal(0);
@@ -44,10 +46,11 @@ export class SearchService {
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
+    // Keep the effect for totalCount as is
     effect(() => {
       const subscription = this.totalCount$
         .pipe(
-          filter((count) => count !== undefined && count !== null) // Ensure valid values
+          filter((count) => count !== undefined && count !== null)
         )
         .subscribe((count) => {
           this._totalCount.set(count);
@@ -55,51 +58,51 @@ export class SearchService {
 
       return () => subscription.unsubscribe();
     });
-
-    this.route.queryParams.subscribe((params: any) => {
-      const query = params['query'] || '*:*';
-      const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
-      const page = Number(params['page']) || 1;
-      const pageSize = Number(params['pageSize']) || 25;
-
-      this._page.set(page);
-      this._pageSize.set(pageSize);
-
-      this.store.dispatch(loadSearchResults({
-        query,
-        filters,
-        page,
-        pageCount: pageSize
-      }));
-    });
-  }
-
-  ensurePageDefaults(): void {
-    const params = this.route.snapshot.queryParams;
-    const queryParams: any = {};
-    let updateNeeded = false;
-
-    if (!params['page']) {
-      queryParams['page'] = this._page();
-      updateNeeded = true;
-    }
-
-    if (!params['pageSize']) {
-      queryParams['pageSize'] = this._pageSize();
-      updateNeeded = true;
-    }
-
-    if (updateNeeded) {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams,
-        queryParamsHandling: 'merge'
-      });
-    }
   }
 
   search(query: string): void {
-    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], { queryParams: { query } });
+    this.initialize();
+    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
+      queryParams: {
+        query,
+        page: this._page(),
+        pageSize: this._pageSize()
+      }
+    });
+  }
+
+  initialize(): void {
+    if (this.initialized) {
+      return;
+    }
+
+    this.route.queryParams.subscribe((params: any) => {
+      this.dispatchSearch(params);
+    });
+
+    this.initialized = true;
+  }
+
+  private dispatchSearch(params: any): void {
+    // Only dispatch if we have actual params
+    if (Object.keys(params).length === 0) {
+      return;
+    }
+
+    const query = params['query'] || '*:*';
+    const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
+    const page = Number(params['page']) || this._page();
+    const pageSize = Number(params['pageSize']) || this._pageSize();
+
+    this._page.set(page);
+    this._pageSize.set(pageSize);
+
+    this.store.dispatch(loadSearchResults({
+      query,
+      filters,
+      page,
+      pageCount: pageSize
+    }));
   }
 
   updateFilters(route: ActivatedRoute, facetKey: string, selectedValues: string[], useOrOperator: boolean = true): void {

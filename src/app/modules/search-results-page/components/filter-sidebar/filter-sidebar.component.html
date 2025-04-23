@@ -4,7 +4,13 @@
 
     <ng-container *ngFor="let facetKey of facetKeys">
 
-      <app-filter-category [selected]="selectedFilters" *ngIf="facets[facetKey] && facets[facetKey].length" [facetKey]="facetKey" [label]="facetLabels[facetKey] || facetKey" [items]="facets[facetKey]" [showShowMoreButton]="true" (toggle)="onToggleFacet($event)"></app-filter-category>
+      <app-filter-category [selected]="selectedFilters"
+                           *ngIf="facets[facetKey] && facets[facetKey].length"
+                           [facetKey]="facetKey"
+                           [label]="facetKey"
+                           [items]="facets[facetKey]"
+                           [showShowMoreButton]="true"
+                           (toggle)="onToggleFacet($event)"></app-filter-category>
 
     </ng-container>
 

@@ -25,7 +25,6 @@ import {expandCollapseAnimation} from '../../animations';
   animations: [expandCollapseAnimation]
 })
 export class FilterCategoryComponent implements OnChanges {
-  maxItems = 10;
   expanded = true;
 
   @Input() label!: string;
@@ -38,6 +37,18 @@ export class FilterCategoryComponent implements OnChanges {
   @Output() showMore = new EventEmitter<void>();
 
   visibleItems = signal<FacetItem[]>([]);
+
+  // Get max items based on facetKey
+  get maxItems(): number {
+    return this.facetKey === 'model' ? Infinity : 5;
+  }
+
+  // Get whether to show the "Show all" button
+  get shouldShowMoreButton(): boolean {
+    // Don't show for 'model' facetKey, and only show if we have more items than maxItems
+    return this.facetKey !== 'model' && this.showShowMoreButton && this.items.length > this.maxItems;
+  }
+
 
   constructor(
     private router: Router,

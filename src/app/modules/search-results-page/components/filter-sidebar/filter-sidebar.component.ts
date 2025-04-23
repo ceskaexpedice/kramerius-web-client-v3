@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterCategoryComponent} from '../../../../shared/components/filter-category/filter-category.component';
 import {SearchService} from '../../../../shared/services/search.service';
+import {facetKeys} from '../../const/facets';
 
 @Component({
   selector: 'app-filter-sidebar',
@@ -18,29 +19,7 @@ import {SearchService} from '../../../../shared/services/search.service';
   styleUrl: './filter-sidebar.component.scss'
 })
 export class FilterSidebarComponent {
-  facetKeys: string[] = [
-    'model',
-    'authors.facet',
-    'languages.facet',
-    'genres.facet',
-    'keywords.facet',
-    'geographic_names.facet',
-    'publishers.facet',
-    'publication_places.facet',
-    'physical_locations.facet',
-  ];
-
-  facetLabels: { [key: string]: string } = {
-    'model': 'Typ',
-    'authors.facet': 'Autori',
-    'languages.facet': 'Jazyk',
-    'genres.facet': 'Žáner',
-    'keywords.facet': 'Kľúčové slovo',
-    'geographic_names.facet': 'Geografický názov',
-    'publishers.facet': 'Nakladateľ',
-    'publication_places.facet': 'Miesto vydania',
-    'physical_locations.facet': 'Fyzická lokalita',
-  };
+  facetKeys: string[] = facetKeys;
 
   facets$ = this.store.select(selectFacets);
   selectedFilters: string[] = [];
