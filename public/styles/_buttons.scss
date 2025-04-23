@@ -32,13 +32,13 @@ button.primary {
 }
 
 button.light {
-  background: var(--color-light-button-bg);
-  color: var(--color-light-button-text);
+  background: var(--color-secondary);
+  color: var(--color-text-btn-secondary-default);
 }
 
 button.main {
-  background: var(--color-main-button-bg);
-  color: var(--color-text);
+  background: var(--color-bg-contrast);
+  color: var(--color-text-secondary);
 }
 
 button.outlined {
@@ -48,12 +48,12 @@ button.outlined {
 
 button.outlined-dark {
   background: none;
-  border: 1px solid var(--color-text-darker);
-  color: var(--color-text-darker);
+  border: 1px solid var(--color-text-base);
+  color: var(--color-text-base);
 
   &:disabled {
-    color: var(--color-main-button-bg);
-    border-color: var(--color-main-button-bg);
+    color: var(--color-bg-contrast);
+    border-color: var(--color-bg-contrast);
   }
 }
 

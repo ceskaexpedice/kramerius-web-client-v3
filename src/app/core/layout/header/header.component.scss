@@ -11,7 +11,7 @@
   }
 
   &.light {
-    background-color: var(--color-container-bg);
+    background-color: var(--color-bg-base);
   }
 
   .search-bar {
@@ -34,7 +34,7 @@
     gap: 20px;
 
     a {
-      color: var(--color-text);
+      color: var(--color-text-secondary);
       text-decoration: none;
       font-weight: 500;
       font-size: 14px;

@@ -1,7 +1,7 @@
 @use 'mixins' as *;
 
 .search-by-image-section {
-  background-color: var(--color-container-bg);
+  background-color: var(--color-bg-base);
   border-radius: var(--base-border-radius);
   padding: var(--base-padding);
   display: flex;

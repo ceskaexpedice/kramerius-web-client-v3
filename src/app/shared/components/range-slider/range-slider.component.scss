@@ -8,7 +8,7 @@
 .sliders {
   position: relative;
   height: 8px;
-  background: var(--color-bg);
+  background: var(--color-bg-light);
   border-radius: 4px;
 
   input[type='range'] {
@@ -29,7 +29,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: var(--color-container-bg);
+      background: var(--color-bg-base);
       cursor: pointer;
       border: 1px solid var(--color-primary);
       z-index: 3;
@@ -40,7 +40,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: var(--color-container-bg);
+      background: var(--color-bg-base);
       cursor: pointer;
       border: 1px solid var(--color-primary);
       z-index: 3;

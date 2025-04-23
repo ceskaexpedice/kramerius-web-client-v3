@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 200px;
   height: 365px;
-  background: var(--color-container-bg);
+  background: var(--color-bg-base);
   border: 1px solid transparent;
   border-radius: var(--base-border-radius);
   overflow: hidden;
@@ -14,7 +14,7 @@
 
   &:hover {
     box-shadow: var(--item-card-shadow);
-    border: 1px solid var(--color-border-main);
+    border: 1px solid var(--color-border-contrast);
 
     .item-card__content {
       text-decoration: underline;

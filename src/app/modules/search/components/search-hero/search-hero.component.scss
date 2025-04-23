@@ -6,13 +6,13 @@
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 16px;
-    color: var(--color-text);
+    color: var(--color-text-secondary);
   }
 
   p {
     max-width: 800px;
     margin: 0 auto 32px;
-    color: var(--color-text);
+    color: var(--color-text-secondary);
     font-size: 16px;
   }
 
@@ -38,10 +38,10 @@
 
     .tag {
       padding: 6px 12px;
-      background-color: var(--color-tag-bg);
+      background-color: var(--color-secondary);
       border-radius: 5px;
       font-size: 13px;
-      color: var(--color-text);
+      color: var(--color-text-secondary);
     }
   }
 }
