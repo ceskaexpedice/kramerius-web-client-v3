@@ -1,0 +1,43 @@
+<div
+  class="select-wrapper"
+  #wrapper
+  (click)="toggle()"
+  [attr.aria-expanded]="open()"
+  role="button"
+  tabindex="0"
+  (keydown.enter)="toggle()"
+  (keydown.space)="toggle()"
+  (keydown.arrowdown)="focusFirst()"
+>
+  <span>{{ displayFn(value) }}</span>
+  <i class="icon-arrow-{{ open() ? 'up' : 'down' }}-1"></i>
+</div>
+
+<div
+  *ngIf="open()"
+  class="options"
+  [class.above]="showAbove"
+  role="listbox"
+  [attr.aria-activedescendant]="'option-' + focusedIndex"
+>
+  <div
+    class="option"
+    *ngFor="let option of options; let i = index; trackBy: trackByFn"
+    [attr.id]="'option-' + i"
+    [class.selected]="option === value"
+    [class.focused]="focusedIndex === i"
+    (click)="select(option)"
+    (mouseenter)="focusedIndex = i"
+    role="option"
+    [attr.aria-selected]="option === value"
+  >
+    {{ displayFn(option) }}
+    <i *ngIf="option === value" class="icon-tick-circle"></i>
+  </div>
+
+  <div aria-live="polite" class="visually-hidden">
+    {{ displayFn(value) }}
+  </div>
+
+</div>
+
