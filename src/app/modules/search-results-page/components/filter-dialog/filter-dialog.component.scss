@@ -3,6 +3,8 @@
   padding: 24px;
   max-height: 80vh;
   overflow: auto;
+  background-color: var(--color-bg-base);
+  border-radius: 16px;
 }
 
 .search-input {

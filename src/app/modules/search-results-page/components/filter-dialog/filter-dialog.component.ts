@@ -5,12 +5,11 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatButton} from '@angular/material/button';
-import {debounceTime, distinctUntilChanged, filter, first, firstValueFrom, Observable, of, take} from 'rxjs';
+import {debounceTime, distinctUntilChanged, Observable, of, take} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
-import {selectSearchResultsTotalCount} from '../../../../state/search/search.selectors';
 import {SearchService} from '../../../../shared/services/search.service';
 import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
 import {SolrService} from '../../../../core/solr/solr.service';
@@ -18,6 +17,10 @@ import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {TranslatePipe} from '@ngx-translate/core';
+import {
+  ToggleButtonGroupComponent
+} from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
+import {PaginatorInfoComponent} from '../../../../shared/components/paginator-info/paginator-info.component';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -32,6 +35,8 @@ import {TranslatePipe} from '@ngx-translate/core';
     AsyncPipe,
     PaginatorComponent,
     TranslatePipe,
+    ToggleButtonGroupComponent,
+    PaginatorInfoComponent,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -44,7 +49,16 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     items: FacetItem[];
   };
 
-  totalCount$: Observable<number>;
+  operatorOptions = [
+    { label: 'Všetky', value: 'OR' },
+    { label: 'Niektoré', value: 'AND' }
+  ];
+
+  sortOptions = [
+    { label: 'Podľa výskytu', value: SolrSortFields.count },
+    { label: 'Abecedne', value: SolrSortFields.title }
+  ];
+
   useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
 
@@ -64,8 +78,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   constructor() {
 
     super();
-
-    this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
 
     this.loadFacets(false);
 
@@ -97,8 +109,9 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.loadFacets()
   }
 
-  setOperator(operator: 'OR' | 'AND') {
-    this.useOrOperator.set(operator === 'OR');
+  setOperator(operator: any) {
+    const op = operator as 'OR' | 'AND';
+    this.useOrOperator.set(op === 'OR');
     this.updateUrl();
   }
 
@@ -186,6 +199,4 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.sortBy.set(sort);
     this.loadFacets();
   }
-
-  protected readonly SolrSortFields = SolrSortFields;
 }
