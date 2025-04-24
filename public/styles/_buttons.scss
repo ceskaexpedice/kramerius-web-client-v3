@@ -175,6 +175,63 @@ button.tertiary {
   }
 }
 
+// LINK
+button.link {
+  background: transparent;
+
+  &.primary {
+    color: var(--color-primary);
+
+    &:hover {
+      background-color: transparent;
+      color: var(--color-primary-hover);
+    }
+
+    &:active {
+      color: var(--color-primary-pressed);
+    }
+
+    &:disabled {
+      color: var(--color-text-btn-primary-disable);
+      cursor: not-allowed;
+    }
+  }
+
+  &.light {
+    color: var(--color-text-btn-secondary-default);
+
+    &:hover {
+      color: var(--color-text-btn-secondary-hover);
+    }
+
+    &:active {
+      color: var(--color-text-btn-secondary-pressed);
+    }
+
+    &:disabled {
+      color: var(--color-text-btn-secondary-disable);
+      cursor: not-allowed;
+    }
+  }
+
+  &.dark {
+    color: var(--color-text-base);
+
+    &:hover {
+      color: var(--color-text-base-hover);
+    }
+
+    &:active {
+      color: var(--color-text-base-pressed);
+    }
+
+    &:disabled {
+      color: var(--color-bg-contrast);
+      cursor: not-allowed;
+    }
+  }
+}
+
 // OUTLINED
 button.outlined {
   background: transparent;
@@ -197,6 +254,48 @@ button.outlined {
     &:disabled {
       border-color: var(--color-border-primary-disabled);
       color: var(--color-text-btn-primary-disable);
+      cursor: not-allowed;
+    }
+  }
+
+  &.secondary {
+    border-color: var(--color-border-secondary-default);
+    color: var(--color-text-btn-secondary-default);
+
+    &:hover {
+      border-color: var(--color-border-secondary-hover);
+      color: var(--color-text-btn-secondary-hover);
+    }
+
+    &:active {
+      border-color: var(--color-border-secondary-pressed);
+      color: var(--color-text-btn-secondary-pressed);
+    }
+
+    &:disabled {
+      border-color: var(--color-border-secondary-disabled);
+      color: var(--color-text-btn-secondary-disable);
+      cursor: not-allowed;
+    }
+  }
+
+  &.tertiary {
+    border-color: var(--color-border-tertiary-default);
+    color: var(--color-text-btn-tertiary-default);
+
+    &:hover {
+      border-color: var(--color-border-tertiary-hover);
+      color: var(--color-text-btn-tertiary-hover);
+    }
+
+    &:active {
+      border-color: var(--color-border-tertiary-pressed);
+      color: var(--color-text-btn-tertiary-pressed);
+    }
+
+    &:disabled {
+      border-color: var(--color-border-tertiary-disabled);
+      color: var(--color-text-btn-tertiary-disable);
       cursor: not-allowed;
     }
   }

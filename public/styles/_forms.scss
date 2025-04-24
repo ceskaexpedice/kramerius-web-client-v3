@@ -10,16 +10,3 @@ input {
   align-items: center;
   gap: 10px;
 }
-
-.autocomplete .mdc-line-ripple {
-  display: none;
-}
-
-.autocomplete .mat-mdc-text-field-wrapper {
-  background-color: var(--color-bg-base);
-  border-radius: 14px;
-}
-
-.autocomplete .mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
