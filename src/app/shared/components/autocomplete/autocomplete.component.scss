@@ -1,48 +1,51 @@
-@use '@angular/material' as mat;
-
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
-:root {
-  @include mat.autocomplete-overrides((
-    background-color: orange,
-  ));
-}
-
 .autocomplete {
+  position: relative;
   width: 100%;
-  display: flex;
-  justify-content: center;
-
-  form {
-    width: 100%;
-  }
 
   .autocomplete-field {
+    position: relative;
     width: 100%;
-    background-color: var(--color-bg-light);
-    border-radius: 14px;
 
-    input {
-      font-size: 16px;
-      padding: 0;
-      border: none;
-      background: transparent;
-      outline: none;
-      color: var(--color-text-secondary);
-    }
-  }
+    .autocomplete-input {
+      width: 100%;
+      position: relative;
 
-  .input--icons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .input--icon {
-      color: var(--color-text-light);
-      cursor: pointer;
-
-      &:hover {
-        color: var(--color-text-secondary);
+      input {
+        width: 100%;
+        padding: 14px 100px 14px 14px;
+        border-radius: var(--base-border-radius);
+        background: var(--color-bg-base);
+        color: var(--color-text-light);
       }
+
+      &.dark input {
+        background: var(--color-bg-light);
+        border: 1px solid var(--color-bg-light);
+        color: var(--color-text-light);
+      }
+
+      .input--icons {
+        position: absolute;
+        top: 50%;
+        right: 55px;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--color-icon-tertiary-default);
+        z-index: 2;
+      }
+    }
+
+    .submit-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      border-top-right-radius: var(--base-border-radius);
+      border-bottom-right-radius: var(--base-border-radius);
+      padding: 0 16px;
+      z-index: 2;
     }
   }
 }

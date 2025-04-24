@@ -1,42 +1,42 @@
-<div class="autocomplete" [ngClass]="inputTheme">
+<div class="autocomplete">
 
-  <form (submit)="$event.preventDefault(); search()">
+  <div class="autocomplete-field">
 
-    <mat-form-field class="autocomplete-field" appearance="fill">
+    <div class="autocomplete-input" [ngClass]="inputTheme">
+
       <input
-        matInput
         type="text"
-        [formControl]="searchControl"
+        [value]="inputTerm()"
+        (input)="onInputChange($event)"
         [matAutocomplete]="auto"
-        (keyup.enter)="search()"
-        [placeholder]="'Hledat ve veřejných dokumentech' | translate"
+        [placeholder]="'Hledat ve všech dokumentech' | translate"
       />
 
-      <div matSuffix class="input--icons">
+      <span class="input--icons">
 
         <i class="icon-question input--icon"></i>
 
         <i class="icon-microphone-2 input--icon"></i>
 
-        <button type="button" class="icon-button primary" (click)="search()">
-          <i class="icon-search-normal"></i>
-        </button>
+      </span>
 
-      </div>
+    </div>
 
+    <button type="button" class="icon-button submit-btn" (click)="search()">
+      <i class="icon-search-normal"></i>
+    </button>
 
+  </div>
 
-      <mat-autocomplete
-        #auto="matAutocomplete"
-        autoActiveFirstOption
-        (optionSelected)="onOptionSelected($event)"
-      >
-        @for (option of filteredOptions | async; track option) {
-          <mat-option [value]="option">{{ option }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-
-  </form>
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    autoActiveFirstOption
+    (optionSelected)="onSelectSuggestion($event)"
+  >
+    @for (option of suggestions(); track option) {
+      <mat-option [value]="option">{{ option }}</mat-option>
+    }
+  </mat-autocomplete>
 
 </div>
+
