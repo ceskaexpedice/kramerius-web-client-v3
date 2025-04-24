@@ -9,6 +9,8 @@
         <div class="search-results-tabs__item">Vše</div>
         <div class="search-results-tabs__item">Obrázky</div>
         <div class="search-results-tabs__item">Periodika</div>
+
+        Vysledky: {{ searchService.totalCount }}
       </div>
 
       <app-selected-tags
@@ -17,8 +19,6 @@
         (clearAll)="searchService.clearAllFilters()"
         clearButtonPosition="right">
       </app-selected-tags>
-
-      Vysledky: {{ searchService.totalCount }}
 
       <div class="search-results-grid">
         <ng-container *ngIf="searchService.results$ | async as results">

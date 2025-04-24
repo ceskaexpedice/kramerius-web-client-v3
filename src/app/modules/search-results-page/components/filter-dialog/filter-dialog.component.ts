@@ -17,6 +17,7 @@ import {SolrService} from '../../../../core/solr/solr.service';
 import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -30,6 +31,7 @@ import {SolrSortFields} from '../../../../core/solr/solr-helpers';
     SelectedTagsComponent,
     AsyncPipe,
     PaginatorComponent,
+    TranslatePipe,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',

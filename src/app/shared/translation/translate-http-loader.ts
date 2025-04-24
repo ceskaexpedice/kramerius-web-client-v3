@@ -7,5 +7,7 @@ export function HttpLoaderFactory(handler: HttpBackend) {
     'i18n/constants/',
     'i18n/codetables/',
     'i18n/shared/',
+    'i18n/languages/',
+    'i18n/physical_locations/',
   ]);
 }

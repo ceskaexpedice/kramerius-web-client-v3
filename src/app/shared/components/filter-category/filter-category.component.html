@@ -11,8 +11,10 @@
 
     <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
 
-    <button *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
-      {{ 'Show all' | translate }}
+    <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
+      {{ 'show-more' | translate }}
+
+      <i class="icon-arrow-right-1"></i>
     </button>
 
   </div>

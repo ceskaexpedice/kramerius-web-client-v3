@@ -1,4 +1,13 @@
+.form-control label {
+  color: var(--color-text-light);
+  font-size: var(--font-size-small);
+  line-height: 20px;
+  font-weight: 500;
+}
+
 .count {
   color: var(--color-text-disable);
   font-size: var(--font-size-small);
+  line-height: 20px;
+  margin-left: 5px;
 }
