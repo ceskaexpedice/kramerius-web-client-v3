@@ -1,11 +1,9 @@
 import {
   Component,
   signal,
-  computed,
   EventEmitter,
   Output,
   Input,
-  HostListener,
   ElementRef,
   ViewChild,
   AfterViewInit

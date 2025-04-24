@@ -18,6 +18,7 @@ import {RecordItemComponent} from '../../shared/components/record-item/record-it
 import {searchReducer} from '../../state/search/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
+import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
 
 const routes: Routes = [
   {
@@ -43,6 +44,7 @@ const routes: Routes = [
     RecordItemComponent,
     SelectedTagsComponent,
     PaginatorComponent,
+    PaginatorInfoComponent,
   ],
 })
 

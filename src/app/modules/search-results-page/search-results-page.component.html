@@ -10,7 +10,11 @@
         <div class="search-results-tabs__item">Obrázky</div>
         <div class="search-results-tabs__item">Periodika</div>
 
-        Vysledky: {{ searchService.totalCount }}
+        <app-paginator-info
+          [page]="searchService.page"
+          [pageSize]="searchService.pageSize"
+          [totalCount]="searchService.totalCount">
+        </app-paginator-info>
       </div>
 
       <app-selected-tags
