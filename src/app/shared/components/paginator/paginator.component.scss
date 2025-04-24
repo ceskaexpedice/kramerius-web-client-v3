@@ -7,24 +7,20 @@
   .pages {
     display: flex;
     gap: 0.25rem;
+    align-items: baseline;
 
     button {
       padding: 0.5rem 0.75rem;
       border-radius: 6px;
-      border: none;
-      background: transparent;
       cursor: pointer;
+      color: var(--color-text-btn-tertiary-default);
 
       &.active {
-        background: var(--color-bg-light);
+        background: var(--color-bg-base);
         font-weight: bold;
       }
     }
 
-    span {
-      padding: 0.5rem 0.75rem;
-      color: #888;
-    }
   }
 
   .page-size {

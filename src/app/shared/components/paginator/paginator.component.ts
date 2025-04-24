@@ -1,10 +1,11 @@
 import {Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
+import {SelectComponent} from '../select/select.component';
 
 @Component({
   selector: 'app-paginator',
-  imports: [NgForOf, NgIf, MatButton],
+  imports: [NgForOf, NgIf, SelectComponent],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.scss'
 })
@@ -68,10 +69,7 @@ export class PaginatorComponent implements OnChanges {
     }
   }
 
-  changePageSize(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const newSize = Number(target.value);
-
+  changePageSize(newSize: number): void {
     if (newSize !== this.pageSize) {
       this.pageSize = newSize;
       this.pageSizeChange.emit(newSize);

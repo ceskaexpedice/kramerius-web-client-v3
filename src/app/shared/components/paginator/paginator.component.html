@@ -7,15 +7,26 @@
       <span *ngIf="p === -1">...</span>
     </ng-container>
 
-    <button mat-button class="outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">←</button>
+    <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">
+      <i class="icon-arrow-left"></i>
+    </button>
 
-    <button mat-button class="outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage()">→</button>
+    <button class="button tertiary outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage()">
+      <i class="icon-arrow-right"></i>
+    </button>
   </div>
 
   <div class="page-size" *ngIf="showPageSizeOptions">
     Počet výsledků na straně:
-    <select [value]="pageSize" (change)="changePageSize($event)">
-      <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-    </select>
+
+    <app-select
+      [options]="[25, 50, 100, 200, 500]"
+      [value]="pageSize"
+      (valueChange)="changePageSize($event)">
+    </app-select>
+<!--    -->
+<!--    <select [value]="pageSize" (change)="changePageSize($event)">-->
+<!--      <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>-->
+<!--    </select>-->
   </div>
 </div>
