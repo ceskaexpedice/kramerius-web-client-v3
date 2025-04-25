@@ -10,7 +10,10 @@
   (keydown.arrowdown)="focusFirst()"
 >
   <span>{{ displayFn(value) }}</span>
-  <i class="icon-arrow-{{ open() ? 'up' : 'down' }}-1"></i>
+  <i
+    class="icon-arrow-down-1 arrow-icon"
+    [class.open]="open()"
+  ></i>
 </div>
 
 <div

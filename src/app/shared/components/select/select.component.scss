@@ -15,6 +15,7 @@
   justify-content: space-between;
   user-select: none;
   outline: none;
+  font-weight: bold;
 
   &:focus {
     box-shadow: 0 0 0 2px var(--color-primary-outline);
@@ -53,11 +54,20 @@
   }
 
   &.focused {
-    background-color: var(--color-bg-light);
+    //background-color: var(--color-bg-light);
   }
 
   &:hover {
     background-color: var(--color-bg-light);
+  }
+}
+
+.arrow-icon {
+  transition: transform 0.3s ease;
+  display: inline-flex;
+
+  &.open {
+    transform: rotate(180deg);
   }
 }
 

@@ -6,18 +6,18 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  AfterViewInit
+  AfterViewInit, OnDestroy,
 } from '@angular/core';
-import { NgIf, NgForOf } from '@angular/common';
+import {NgIf, NgForOf} from '@angular/common';
 
 @Component({
   selector: 'app-select',
   standalone: true,
   imports: [NgIf, NgForOf],
   templateUrl: './select.component.html',
-  styleUrl: './select.component.scss'
+  styleUrl: './select.component.scss',
 })
-export class SelectComponent<T = any> implements AfterViewInit {
+export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => o != null ? String(o) : '-';
   @Input() value: T | null = null;
@@ -27,9 +27,10 @@ export class SelectComponent<T = any> implements AfterViewInit {
   showAbove = false;
   focusedIndex = -1;
 
-  @ViewChild('wrapper', { static: false }) wrapperRef?: ElementRef;
+  @ViewChild('wrapper', {static: false}) wrapperRef?: ElementRef;
 
-  constructor(private hostRef: ElementRef) {}
+  constructor(private hostRef: ElementRef) {
+  }
 
   ngAfterViewInit() {
     new ResizeObserver(() => this.checkPosition()).observe(document.body);
@@ -93,7 +94,7 @@ export class SelectComponent<T = any> implements AfterViewInit {
 
     const wrapperEl = this.wrapperRef.nativeElement as HTMLElement;
     const rect = wrapperEl.getBoundingClientRect();
-    const dropdownHeight = this.options.length * 40; // približná výška jednej položky (40px)
+    const dropdownHeight = this.options.length * 40;
 
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
