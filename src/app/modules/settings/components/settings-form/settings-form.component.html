@@ -1,5 +1,7 @@
 <mat-checkbox
   [checked]="settings.theme === AppSettingsThemeEnum.DARK"
   (change)="settings.toggleLightDarkMode()">
-  {{ 'dark-theme' | translate }}
+  <label>
+    {{ 'dark-theme' | translate }}
+  </label>
 </mat-checkbox>

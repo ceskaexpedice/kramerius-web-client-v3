@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  padding: 24px;
+  max-height: 80vh;
+  overflow: auto;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-light);
+  border-radius: 16px;
+}
+
+label {
+  color: var(--color-text-light);
+}
