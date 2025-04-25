@@ -25,7 +25,14 @@ html {
 :root {
   --mat-sys-corner-extra-large: 0;
 }
-//
-//.mat-mdc-dialog-surface {
-//  background-color: transparent !important;
-//}
+
+.mat-mdc-dialog-surface {
+  background-color: transparent !important;
+}
+
+.mat-mdc-standard-chip .mdc-evolution-chip__action--primary::before {
+  border: none !important;
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  border-style: unset !important;
+}

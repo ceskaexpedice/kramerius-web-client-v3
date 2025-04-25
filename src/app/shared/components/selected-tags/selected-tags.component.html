@@ -1,20 +1,24 @@
 <div class="chip-wrapper" *ngIf="items.length">
   <button mat-button *ngIf="clearButtonPosition === 'left'" (click)="clearAll.emit()">
-    Zmazať všetko
+    {{ 'delete-all' | translate }}
   </button>
 
   <div class="chip-list">
 
     <mat-chip *ngFor="let item of items" removable (removed)="remove.emit(item)">
-      {{ item }}
-      <button matChipRemove [attr.aria-label]="'remove ' + item">
-        x
+
+      <label>
+        {{ item }}
+      </label>
+
+      <button matChipRemove [attr.aria-label]="'remove ' + item" class="remove-button">
+        <i class="icon-x"></i>
       </button>
     </mat-chip>
 
   </div>
 
   <button mat-button *ngIf="clearButtonPosition === 'right'" (click)="clearAll.emit()">
-    Zmazať všetko
+    {{ 'delete-all' | translate }}
   </button>
 </div>

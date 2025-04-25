@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatButton} from '@angular/material/button';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-selected-tags',
@@ -10,7 +11,8 @@ import {MatButton} from '@angular/material/button';
     MatChip,
     NgForOf,
     MatButton,
-    MatChipsModule
+    MatChipsModule,
+    TranslatePipe,
   ],
   templateUrl: './selected-tags.component.html',
   styleUrl: './selected-tags.component.scss'
