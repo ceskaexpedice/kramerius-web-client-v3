@@ -1,9 +1,10 @@
 .pagination-info {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
   margin: 10px 0;
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-light);
 }
 
 .results-range {
