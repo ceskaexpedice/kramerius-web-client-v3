@@ -117,7 +117,7 @@ export class SearchService {
     this.store.dispatch(loadSearchResults({
       query,
       filters,
-      page,
+      page: page-1,
       pageCount: pageSize,
       sortBy,
       sortDirection

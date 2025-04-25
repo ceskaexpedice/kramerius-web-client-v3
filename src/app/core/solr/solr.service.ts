@@ -125,10 +125,9 @@ export class SolrService {
     facetOffset?: number,
     sortBy?: SolrSortFields,
     minCount: number = 1,
-    facetOperators: { [key: string]: 'AND' | 'OR' } = {}
+    existingOperators?: Record<string, string>
   ): Observable<any> {
-    // Filter out filters for the current facet field to avoid excluding them
-    const facetPrefix = facetField.split('.')[0];
+    // Filter out filters for the current facet field
     const filtered = filters.filter(f => !f.startsWith(`${facetField}:`));
 
     // Group the remaining filters by field
@@ -154,19 +153,16 @@ export class SolrService {
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
 
-    // Add filters properly grouped by field with the correct operator
+    // Add filters with proper operators
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
-        // Get the operator for this field, default to OR
-        const operator = facetOperators[field] || 'OR';
+        // Get the operator from existing operators or default to OR
+        const operator = existingOperators && existingOperators[field] === 'AND' ? 'AND' : 'OR';
 
-        // For multiple values of the same field, construct query with the right operator
         const escapedValues = values.map(v => `"${v}"`);
         if (values.length === 1) {
-          // Single value
           params = params.append('fq', `${field}:${escapedValues[0]}`);
         } else {
-          // Multiple values - construct with the right operator
           params = params.append('fq', `${field}:(${escapedValues.join(` ${operator} `)})`);
         }
       }

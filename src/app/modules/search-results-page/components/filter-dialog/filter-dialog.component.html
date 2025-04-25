@@ -18,9 +18,10 @@
 
   <app-toggle-button-group
     [options]="operatorOptions"
-    [value]="useOrOperator() ? 'OR' : 'AND'"
+    [value]="pendingOperator()"
     (valueChange)="setOperator($event)"
   />
+
 
 </div>
 
@@ -59,5 +60,6 @@
 ></app-paginator>
 
 <div class="footer">
-  <button mat-button (click)="close()">Zavrieť</button>
+  <button mat-button (click)="applyFilter()">Použiť</button>
+<!--  <button mat-button (click)="close()">Zavrieť</button>-->
 </div>
