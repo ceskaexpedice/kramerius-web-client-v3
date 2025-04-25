@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {SelectComponent} from '../../../../shared/components/select/select.component';
+import {SearchService} from '../../../../shared/services/search.service';
+import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-results-sort',
@@ -12,18 +14,26 @@ import {SelectComponent} from '../../../../shared/components/select/select.compo
 export class ResultsSortComponent {
 
   sortOptions = [
-    { label: 'Relevance', value: 'relevance' },
-    { label: 'Date', value: 'date' },
-    { label: 'Newest first', value: 'newest' },
-    { label: 'Oldest first', value: 'oldest' },
-    { label: 'Alphabetical', value: 'alphabetical' },
+    { label: 'Relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
+    { label: 'Alphabetical', value: SolrSortFields.title, direction: SolrSortDirections.asc },
+    { label: 'Newest first', value: SolrSortFields.dateMax, direction: SolrSortDirections.desc },
+    { label: 'Oldest first', value: SolrSortFields.dateMin, direction: SolrSortDirections.asc },
   ]
 
-  selectedSortOption = this.sortOptions[0];
+// Computed signal for the selected option
+  selectedSortOption = computed(() => {
+    const sortBy = this.searchService.sortBy();
+    const sortDirection = this.searchService.sortDirection();
+
+    return this.sortOptions.find(option =>
+      option.value === sortBy && option.direction === sortDirection
+    ) || this.sortOptions[0]; // Default to first option if no match
+  });
+
+  public searchService = inject(SearchService);
 
   onSortChange(event: any) {
-    console.log('Selected sort option:', event);
-    this.selectedSortOption = event;
+    this.searchService.changeSortBy(event.value, event.direction);
   }
 
   sortOptionDisplayFn = (option: any) => option ? option.label : '';

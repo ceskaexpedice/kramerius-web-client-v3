@@ -1,7 +1,11 @@
 export enum SolrSortFields  {
   createdAt = 'created',
-  title = 'index',
-  count = 'count'
+  title = 'title.sort',
+  count = 'count',
+  index = 'index',
+  dateMin = 'date.min',
+  dateMax = 'date.max',
+  relevance = 'score'
 }
 
 export enum SolrSortDirections {

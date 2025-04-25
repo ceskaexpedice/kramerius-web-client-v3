@@ -10,6 +10,7 @@ import {
 } from '../../state/search/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../state/search/search.actions';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,8 @@ export class SearchService {
   private _page = signal(1);
   private _pageSize = signal(25);
   private _totalCount = signal(0);
+  private _sortBy = signal(SolrSortFields.relevance);
+  private _sortDirection = signal(SolrSortDirections.desc);
 
   results$: Observable<SearchDocument[]>;
   totalCount$: Observable<number>;
@@ -35,6 +38,14 @@ export class SearchService {
 
   get totalCount() {
     return this._totalCount();
+  }
+
+  get sortBy() {
+    return this._sortBy;
+  }
+
+  get sortDirection() {
+    return this._sortDirection;
   }
 
   constructor(
@@ -66,7 +77,9 @@ export class SearchService {
       queryParams: {
         query,
         page: this._page(),
-        pageSize: this._pageSize()
+        pageSize: this._pageSize(),
+        sortBy: this._sortBy(),
+        sortDirection: this._sortDirection()
       }
     });
   }
@@ -93,15 +106,21 @@ export class SearchService {
     const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
+    const sortBy = params['sortBy'] || this._sortBy();
+    const sortDirection = params['sortDirection'] || this._sortDirection();
 
     this._page.set(page);
     this._pageSize.set(pageSize);
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
 
     this.store.dispatch(loadSearchResults({
       query,
       filters,
       page,
-      pageCount: pageSize
+      pageCount: pageSize,
+      sortBy,
+      sortDirection
     }));
   }
 
@@ -217,6 +236,20 @@ export class SearchService {
       queryParams: {
         page: 1,
         pageSize: size
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        sortBy,
+        sortDirection
       },
       queryParamsHandling: 'merge'
     });

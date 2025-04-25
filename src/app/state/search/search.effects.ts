@@ -25,7 +25,7 @@ export class SearchEffects {
         this.store.select(SearchSelectors.selectFacets),
         this.store.select(SearchSelectors.selectFacetOperators)
       ),
-      switchMap(([{ query, filters, page, pageCount }, currentFacets, facetOperators]) => {
+      switchMap(([{ query, filters, page, pageCount, sortBy, sortDirection }, currentFacets, facetOperators]) => {
         const facetFields = [
           'model',
           'authors.facet',
@@ -39,7 +39,7 @@ export class SearchEffects {
         ];
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount),
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection),
           facetsRes: this.solr.getFacetsWithOrOperator(query, filters, facetFields, facetOperators)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {

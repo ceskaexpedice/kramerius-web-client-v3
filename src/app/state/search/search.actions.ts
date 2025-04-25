@@ -1,9 +1,10 @@
 import { createAction, props } from '@ngrx/store';
 import {FacetItem} from '../../modules/models/facet-item';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',
-  props<{ query: string; filters: string[], page: number, pageCount: number }>()
+  props<{ query: string; filters: string[], page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>()
 );
 
 export const loadSearchResultsSuccess = createAction(
