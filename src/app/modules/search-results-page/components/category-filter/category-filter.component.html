@@ -1,0 +1,20 @@
+<div class="category-filter--container">
+
+  <div class="tabs-left">
+
+    <div
+      *ngFor="let tab of tabs"
+      class="category-filter--container--item"
+      [class.active]="value === tab.value"
+      (click)="selectTab(tab.value)"
+    >
+      {{ tab.label | translate }}
+    </div>
+
+  </div>
+
+  <div class="content-right">
+    <ng-content select="[actions]"></ng-content>
+  </div>
+
+</div>
