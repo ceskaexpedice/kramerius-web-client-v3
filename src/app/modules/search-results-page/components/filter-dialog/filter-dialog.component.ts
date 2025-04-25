@@ -194,7 +194,20 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       facetOffset = 0;
     }
 
-    // First, get the selected values
+    // Get the current route params to extract operators
+    const params = this.route.snapshot.queryParams;
+
+    // Build a facet operators map
+    const facetOperators: { [key: string]: 'AND' | 'OR' } = {};
+
+    // Look for all fields with _operator suffix in the URL
+    Object.keys(params).forEach(key => {
+      if (key.endsWith('_operator')) {
+        const facetKey = key.replace('_operator', '');
+        facetOperators[facetKey] = params[key] as 'AND' | 'OR';
+      }
+    });
+
     this.searchService.activeFilters$
       .pipe(
         take(1),
@@ -209,8 +222,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
           // Filters excluding the current facet
           const filteredFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
 
-          // If we're using alphabetical sorting, we need to ensure selected items are included
-          // So we'll make a request with no limit to get all items when using alphabetical sort
+          // If we're using alphabetical sorting with selected items, get all items
           const needsAllItems = this.sortBy() === SolrSortFields.title && selectedValues.size > 0;
 
           return this.solrService.loadFacet(
@@ -219,9 +231,11 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
             this.data.facetKey,
             this.searchControl.value || '',
             true,
-            needsAllItems ? -1 : facetLimit,  // Get all items if needed
-            needsAllItems ? 0 : facetOffset,  // No offset if getting all items
-            this.sortBy()
+            needsAllItems ? -1 : facetLimit,
+            needsAllItems ? 0 : facetOffset,
+            this.sortBy(),
+            1,  // minCount
+            facetOperators  // Pass the facet operators
           ).pipe(
             map(response => ({
               response,

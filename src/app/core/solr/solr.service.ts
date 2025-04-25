@@ -115,52 +115,6 @@ export class SolrService {
     return filtersByField;
   }
 
-  // loadFacet(
-  //   query: string,
-  //   filters: string[],
-  //   facetField: string,
-  //   contains?: string,
-  //   ignoreCase?: boolean,
-  //   facetLimit?: number,
-  //   facetOffset?: number,
-  //   sortBy?: SolrSortFields,
-  //   minCount: number = 1
-  // ): Observable<any> {
-  //   const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
-  //
-  //   let rawParams = {
-  //     ...SolrQueryBuilder.baseParams(),
-  //     ...SolrQueryBuilder.baseFilters(),
-  //     ...SolrQueryBuilder.fieldsToReturn([]),
-  //     ...SolrQueryBuilder.facetFields([facetField], minCount),
-  //     ...SolrQueryBuilder.facetSortBy(sortBy),
-  //     ...SolrQueryBuilder.pagination(0, 0)
-  //   };
-  //
-  //   if (contains) {
-  //     rawParams = {
-  //       ...SolrQueryBuilder.facetContains(contains, ignoreCase),
-  //       ...rawParams
-  //     }
-  //   }
-  //
-  //   let params = this.createHttpParams(rawParams);
-  //   params = params.set('q', query || '*:*');
-  //   filtered.forEach(fq => {
-  //     params = params.append('fq', fq);
-  //   });
-  //
-  //   if (facetLimit) {
-  //     params = params.set('facet.limit', facetLimit.toString());
-  //   }
-  //
-  //   if (facetOffset) {
-  //     params = params.set('facet.offset', facetOffset.toString());
-  //   }
-  //
-  //   return this.http.get<any>(this.API_URL, { params });
-  // }
-
   loadFacet(
     query: string,
     filters: string[],
@@ -170,9 +124,12 @@ export class SolrService {
     facetLimit?: number,
     facetOffset?: number,
     sortBy?: SolrSortFields,
-    minCount: number = 1
+    minCount: number = 1,
+    facetOperators: { [key: string]: 'AND' | 'OR' } = {}
   ): Observable<any> {
-    const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
+    // Filter out filters for the current facet field to avoid excluding them
+    const facetPrefix = facetField.split('.')[0];
+    const filtered = filters.filter(f => !f.startsWith(`${facetField}:`));
 
     // Group the remaining filters by field
     const filtersByField = this.groupFiltersByField(filtered);
@@ -197,17 +154,20 @@ export class SolrService {
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
 
-    // Add filters properly grouped by field
+    // Add filters properly grouped by field with the correct operator
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
-        // For multiple values of the same field, construct OR query
+        // Get the operator for this field, default to OR
+        const operator = facetOperators[field] || 'OR';
+
+        // For multiple values of the same field, construct query with the right operator
         const escapedValues = values.map(v => `"${v}"`);
         if (values.length === 1) {
           // Single value
           params = params.append('fq', `${field}:${escapedValues[0]}`);
         } else {
-          // Multiple values - construct OR query
-          params = params.append('fq', `${field}:(${escapedValues.join(' OR ')})`);
+          // Multiple values - construct with the right operator
+          params = params.append('fq', `${field}:(${escapedValues.join(` ${operator} `)})`);
         }
       }
     });

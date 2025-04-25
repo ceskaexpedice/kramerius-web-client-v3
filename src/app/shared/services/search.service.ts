@@ -125,38 +125,45 @@ export class SearchService {
   }
 
   updateFilters(route: ActivatedRoute, facetKey: string, selectedValues: string[], useOrOperator: boolean = true): void {
-    const fq = route.snapshot.queryParams['fq'];
+    // Get current query params to preserve all operators for other facets
+    const currentParams = route.snapshot.queryParams;
+
+    // Extract current filters
+    const fq = currentParams['fq'];
     const otherFilters = (Array.isArray(fq) ? fq : fq ? [fq] : []).filter(
       f => !f.startsWith(facetKey + ':')
     );
 
+    // Create new facet filters
     let facetFilters: string[] = [];
-
     if (selectedValues.length > 0) {
-
       facetFilters = selectedValues.map(value => `${facetKey}:${value}`);
-
     }
 
+    // Combine all filters
     const updated = [
       ...otherFilters,
       ...facetFilters
     ];
 
-    const queryParams: any = { fq: updated };
+    // Start with current params to preserve existing operators
+    const queryParams: any = {
+      ...currentParams,
+      fq: updated
+    };
 
-    // if useOrOperator is true, add to url param facetKey_operator=AND
+    // Set the operator for the current facet
     if (useOrOperator) {
       queryParams[`${facetKey}_operator`] = 'AND';
     } else {
-      // delete the operator param if it exists
       queryParams[`${facetKey}_operator`] = 'OR';
     }
 
+    // Navigate with the updated params
     this.router.navigate([], {
       relativeTo: route,
       queryParams,
-      queryParamsHandling: 'merge'
+      // Don't use queryParamsHandling: 'merge' here since we're already preserving params
     });
   }
 
