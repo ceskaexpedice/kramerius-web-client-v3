@@ -79,6 +79,12 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
     super();
 
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      const operatorParam = params[`${this.data.facetKey}_operator`];
+      this.useOrOperator.set(operatorParam !== 'AND');
+    });
+
+
     this.loadFacets(false);
 
     effect(() => {
@@ -112,19 +118,51 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   setOperator(operator: any) {
     const op = operator as 'OR' | 'AND';
     this.useOrOperator.set(op === 'OR');
-    this.updateUrl();
+
+    // Get current selected values and update with new operator
+    this.getSelectedValues().pipe(take(1)).subscribe(values => {
+      this.updateFilters(values, op === 'OR');
+    });
   }
 
+
   toggle(value: string) {
-    const next = new Set(this.selected());
-    if (next.has(value)) {
-      next.delete(value);
-    } else {
-      next.add(value);
-    }
-    this.selected.set(next);
-    this.updateUrl();
+    // Get current selected values from activeFilters$
+    this.getSelectedValues().pipe(take(1)).subscribe(currentValues => {
+      let newValues: string[];
+
+      if (currentValues.includes(value)) {
+        // Remove the value if it's already selected
+        newValues = currentValues.filter(v => v !== value);
+      } else {
+        // Add the value if it's not selected
+        newValues = [...currentValues, value];
+      }
+
+      // Update filters with the new values
+      this.updateFilters(newValues, this.useOrOperator());
+    });
   }
+
+  updateFilters(values: string[], useOrOperator: boolean) {
+    this.searchService.updateFilters(
+      this.route,
+      this.data.facetKey,
+      values,
+      useOrOperator
+    );
+  }
+
+  // Helper method to extract selected values for this facet
+  private getSelectedValues(): Observable<string[]> {
+    return this.searchService.activeFilters$.pipe(
+      map(filters => filters
+        .filter(f => f.startsWith(this.data.facetKey + ':'))
+        .map(f => f.split(':')[1])
+      )
+    );
+  }
+
 
   updateUrl() {
     this.searchService.updateFilters(
@@ -156,40 +194,173 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       facetOffset = 0;
     }
 
+    // First, get the selected values
     this.searchService.activeFilters$
       .pipe(
         take(1),
-        map(filters => filters.filter(f => !f.startsWith(this.data.facetKey + ':'))),
-        switchMap(filteredFilters =>
-          this.solrService.loadFacet(
+        switchMap(allFilters => {
+          // Extract selected values for this facet
+          const selectedValues = new Set(
+            allFilters
+              .filter(f => f.startsWith(this.data.facetKey + ':'))
+              .map(f => f.split(':')[1])
+          );
+
+          // Filters excluding the current facet
+          const filteredFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
+
+          // If we're using alphabetical sorting, we need to ensure selected items are included
+          // So we'll make a request with no limit to get all items when using alphabetical sort
+          const needsAllItems = this.sortBy() === SolrSortFields.title && selectedValues.size > 0;
+
+          return this.solrService.loadFacet(
             '*:*',
             filteredFilters,
             this.data.facetKey,
             this.searchControl.value || '',
             true,
-            facetLimit,
-            facetOffset,
+            needsAllItems ? -1 : facetLimit,  // Get all items if needed
+            needsAllItems ? 0 : facetOffset,  // No offset if getting all items
             this.sortBy()
-          )
-        )
+          ).pipe(
+            map(response => ({
+              response,
+              selectedValues,
+              needsAllItems
+            }))
+          );
+        })
       )
       .subscribe({
-        next: v => {
+        next: ({ response, selectedValues, needsAllItems }) => {
+          // Parse the facet results
           const parsed = SolrResponseParser.parseFacet(
-            v.facet_counts.facet_fields?.[this.data.facetKey] || []
+            response.facet_counts.facet_fields?.[this.data.facetKey] || []
           );
 
-          if (!paginator) {
-            this.totalCount = parsed.length;
-            this.allItems.set(parsed);
+          if (needsAllItems) {
+            // If we got all items (for alphabetical sorting), we need to:
+            // 1. Split selected and non-selected items
+            const selectedItems = parsed.filter(item => selectedValues.has(item.name));
+            const nonSelectedItems = parsed.filter(item => !selectedValues.has(item.name));
+
+            // 2. Maintain API sort order within each group
+            const allSorted = [...selectedItems, ...nonSelectedItems];
+
+            // 3. Apply pagination manually
+            if (paginator) {
+              const start = (page - 1) * this.pageSize;
+              const end = start + this.pageSize;
+              this.items.set(allSorted.slice(start, end));
+              this.totalCount = allSorted.length;
+            } else {
+              this.items.set(allSorted);
+              this.allItems.set(allSorted);
+              this.totalCount = allSorted.length;
+            }
           } else {
-            this.items.set(parsed);
+            // For count-based sorting or when there are no selected items,
+            // the API will return items in the correct order already
+            // We just need to sort to move selected items to the top
+            const sortedItems = [...parsed].sort((a, b) => {
+              const aSelected = selectedValues.has(a.name);
+              const bSelected = selectedValues.has(b.name);
+
+              if (aSelected && !bSelected) return -1;
+              if (!aSelected && bSelected) return 1;
+
+              // If both have the same selection status, maintain API sort order
+              return 0;
+            });
+
+            if (!paginator) {
+              this.totalCount = parsed.length;
+              this.allItems.set(sortedItems);
+            } else {
+              this.items.set(sortedItems);
+            }
           }
 
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Error loading facets:', err);
           this.loading.set(false);
         }
       });
   }
+
+  // loadFacets(paginator: boolean = true) {
+  //   this.loading.set(true);
+  //
+  //   let page = this.page;
+  //   let facetLimit = this.pageSize || -1;
+  //   let facetOffset = (page - 1) * facetLimit;
+  //
+  //   if (!paginator) {
+  //     facetLimit = -1;
+  //     facetOffset = 0;
+  //   }
+  //
+  //   this.searchService.activeFilters$
+  //     .pipe(
+  //       take(1),
+  //       // Get all filters and extract selected values for this facet
+  //       switchMap(allFilters => {
+  //         const selectedValues = new Set(
+  //           allFilters
+  //             .filter(f => f.startsWith(this.data.facetKey + ':'))
+  //             .map(f => f.split(':')[1])
+  //         );
+  //
+  //         const filteredFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
+  //
+  //         return this.solrService.loadFacet(
+  //           '*:*',
+  //           filteredFilters,
+  //           this.data.facetKey,
+  //           this.searchControl.value || '',
+  //           true,
+  //           facetLimit,
+  //           facetOffset,
+  //           this.sortBy()
+  //         ).pipe(
+  //           map(response => ({
+  //             response,
+  //             selectedValues
+  //           }))
+  //         );
+  //       })
+  //     )
+  //     .subscribe({
+  //       next: ({ response, selectedValues }) => {
+  //         const parsed = SolrResponseParser.parseFacet(
+  //           response.facet_counts.facet_fields?.[this.data.facetKey] || []
+  //         );
+  //
+  //         // Sort the items so that selected items come first
+  //         const sortedItems = [...parsed].sort((a, b) => {
+  //           const aSelected = selectedValues.has(a.name);
+  //           const bSelected = selectedValues.has(b.name);
+  //
+  //           if (aSelected && !bSelected) return -1;
+  //           if (!aSelected && bSelected) return 1;
+  //
+  //           // If both are selected or both are not selected, maintain the original order
+  //           return 0;
+  //         });
+  //
+  //         if (!paginator) {
+  //           this.totalCount = parsed.length;
+  //           this.allItems.set(sortedItems);
+  //         } else {
+  //           this.items.set(sortedItems);
+  //         }
+  //
+  //         this.loading.set(false);
+  //       }
+  //     });
+  // }
 
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {
     return this.searchService.isSelectedFacetItem(`${this.data.facetKey}:${item.name}`);

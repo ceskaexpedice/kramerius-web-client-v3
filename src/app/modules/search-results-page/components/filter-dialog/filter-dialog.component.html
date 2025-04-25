@@ -43,7 +43,7 @@
       [checked]="isSelectedFacetItem(item) | async"
       (change)="toggle(item.name)"
     ></mat-checkbox>
-    {{ item.name }} ({{ item.count }})
+    {{ item.name | translate }} ({{ item.count }})
   </label>
 </div>
 

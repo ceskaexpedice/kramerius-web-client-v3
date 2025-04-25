@@ -115,6 +115,52 @@ export class SolrService {
     return filtersByField;
   }
 
+  // loadFacet(
+  //   query: string,
+  //   filters: string[],
+  //   facetField: string,
+  //   contains?: string,
+  //   ignoreCase?: boolean,
+  //   facetLimit?: number,
+  //   facetOffset?: number,
+  //   sortBy?: SolrSortFields,
+  //   minCount: number = 1
+  // ): Observable<any> {
+  //   const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
+  //
+  //   let rawParams = {
+  //     ...SolrQueryBuilder.baseParams(),
+  //     ...SolrQueryBuilder.baseFilters(),
+  //     ...SolrQueryBuilder.fieldsToReturn([]),
+  //     ...SolrQueryBuilder.facetFields([facetField], minCount),
+  //     ...SolrQueryBuilder.facetSortBy(sortBy),
+  //     ...SolrQueryBuilder.pagination(0, 0)
+  //   };
+  //
+  //   if (contains) {
+  //     rawParams = {
+  //       ...SolrQueryBuilder.facetContains(contains, ignoreCase),
+  //       ...rawParams
+  //     }
+  //   }
+  //
+  //   let params = this.createHttpParams(rawParams);
+  //   params = params.set('q', query || '*:*');
+  //   filtered.forEach(fq => {
+  //     params = params.append('fq', fq);
+  //   });
+  //
+  //   if (facetLimit) {
+  //     params = params.set('facet.limit', facetLimit.toString());
+  //   }
+  //
+  //   if (facetOffset) {
+  //     params = params.set('facet.offset', facetOffset.toString());
+  //   }
+  //
+  //   return this.http.get<any>(this.API_URL, { params });
+  // }
+
   loadFacet(
     query: string,
     filters: string[],
@@ -127,6 +173,9 @@ export class SolrService {
     minCount: number = 1
   ): Observable<any> {
     const filtered = SolrQueryBuilder.filterExcluding(filters, facetField.split('.')[0]);
+
+    // Group the remaining filters by field
+    const filtersByField = this.groupFiltersByField(filtered);
 
     let rawParams = {
       ...SolrQueryBuilder.baseParams(),
@@ -144,29 +193,43 @@ export class SolrService {
       }
     }
 
+    // Create params and set query
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
-    filtered.forEach(fq => {
-      params = params.append('fq', fq);
+
+    // Add filters properly grouped by field
+    filtersByField.forEach((values, field) => {
+      if (values.length > 0) {
+        // For multiple values of the same field, construct OR query
+        const escapedValues = values.map(v => `"${v}"`);
+        if (values.length === 1) {
+          // Single value
+          params = params.append('fq', `${field}:${escapedValues[0]}`);
+        } else {
+          // Multiple values - construct OR query
+          params = params.append('fq', `${field}:(${escapedValues.join(' OR ')})`);
+        }
+      }
     });
 
-    if (facetLimit) {
+    // Set facet pagination parameters
+    if (facetLimit != null) {
       params = params.set('facet.limit', facetLimit.toString());
     }
 
-    if (facetOffset) {
+    if (facetOffset != null) {
       params = params.set('facet.offset', facetOffset.toString());
     }
 
     return this.http.get<any>(this.API_URL, { params });
   }
 
-  search(query: string, filters: string[] = [], facetOperators: { [field: string]: 'AND' | 'OR' } = {}, page = 0, pageCount = 60): Observable<SearchResultResponse> {
-    const params = this.buildParams(query, filters, facetOperators, page, pageCount, true);
+  search(query: string, filters: string[] = [], facetOperators: { [field: string]: 'AND' | 'OR' } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections): Observable<SearchResultResponse> {
+    const params = this.buildParams(query, filters, facetOperators, page, pageCount, true, sortBy, sortDirection);
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  private buildParams(query: string, filters: string[], facetOperators: { [field: string]: 'AND' | 'OR' }, page: number, pageCount: number, includeFacets = true): HttpParams {
+  private buildParams(query: string, filters: string[], facetOperators: { [field: string]: 'AND' | 'OR' }, page: number, pageCount: number, includeFacets = true, sortBy = SolrSortFields.createdAt, sortDirection = SolrSortDirections.desc): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
 
     const filterQueries: string[] = [];
@@ -188,7 +251,7 @@ export class SolrService {
         'licenses', 'contains_licenses', 'licenses_of_ancestors'
       ]),
       ...(includeFacets ? SolrQueryBuilder.facetFields(this.DEFAULT_FACET_FIELDS) : {}),
-      ...SolrQueryBuilder.sortBy(),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount),
       wt: 'json'
     };
