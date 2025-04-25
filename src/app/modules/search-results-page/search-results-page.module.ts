@@ -19,6 +19,8 @@ import {searchReducer} from '../../state/search/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
+import {CategoryFilterComponent} from './components/category-filter/category-filter.component';
+import {ResultsSortComponent} from './components/results-sort/results-sort.component';
 
 const routes: Routes = [
   {
@@ -45,6 +47,8 @@ const routes: Routes = [
     SelectedTagsComponent,
     PaginatorComponent,
     PaginatorInfoComponent,
+    CategoryFilterComponent,
+    ResultsSortComponent,
   ],
 })
 

@@ -5,17 +5,27 @@
 
     <div class="results-content">
 
-      <div class="search-results-tabs">
-        <div class="search-results-tabs__item">Vše</div>
-        <div class="search-results-tabs__item">Obrázky</div>
-        <div class="search-results-tabs__item">Periodika</div>
+      <div class="results-content--filters">
 
-        <app-paginator-info
-          [page]="searchService.page"
-          [pageSize]="searchService.pageSize"
-          [totalCount]="searchService.totalCount">
-        </app-paginator-info>
+        <app-category-filter>
+
+          <div actions>
+            <app-paginator-info
+              [page]="searchService.page"
+              [pageSize]="searchService.pageSize"
+              [totalCount]="searchService.totalCount">
+            </app-paginator-info>
+          </div>
+
+        </app-category-filter>
+
+        <app-results-sort></app-results-sort>
+
       </div>
+
+
+
+
 
       <app-selected-tags
         [items]="(searchService.activeFilters$ | async) || []"

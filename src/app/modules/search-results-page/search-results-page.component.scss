@@ -19,13 +19,15 @@
   }
 }
 
-.search-results-tabs {
+.results-content--filters {
   display: flex;
-  gap: 20px;
-  background-color: var(--color-bg-base);
+  width: 100%;
+  align-items: center;
+  gap: 1px;
 
-  & > * {
-    padding: 15px 20px;
+  & > :first-child {
+    flex: 1;
+    min-width: 0;
   }
 }
 
