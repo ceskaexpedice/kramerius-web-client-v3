@@ -75,6 +75,31 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     return operatorChanged || this.pendingSelection().size > 0;
   });
 
+  pendingFilterTags = computed(() => {
+    return Array.from(this.pendingSelection()).map(value =>
+      `${this.data.facetKey}:${value}`
+    );
+  });
+
+  removePendingTag(tag: string) {
+    // Extract just the value part (after the colon)
+    const value = tag.split(':')[1];
+
+    // Create a new Set without this value
+    const pendingSet = new Set(this.pendingSelection());
+    pendingSet.delete(value);
+
+    // Update the pending selection
+    this.pendingSelection.set(pendingSet);
+  }
+
+  clearPendingTags() {
+    // Clear all pending selections
+    this.pendingSelection.set(new Set());
+  }
+
+
+
   useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
 

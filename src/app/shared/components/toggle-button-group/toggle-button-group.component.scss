@@ -1,6 +1,6 @@
 .toggle-group {
   display: inline-flex;
-  background-color: #f5f8fa;
+  background-color: var(--color-bg-light);
   border-radius: 8px;
   padding: 2px;
   gap: 2px;
@@ -13,11 +13,11 @@
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  color: #4a5970;
+  color: var(--color-text-light);
 
   &.active {
-    background-color: white;
-    color: black;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-base);
     font-weight: 600;
   }
 

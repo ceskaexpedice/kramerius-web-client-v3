@@ -33,7 +33,14 @@
 
 <hr>
 
-<app-selected-tags [items]="(searchService.getFiltersByFacet(data.facetKey) | async) || []" (remove)="searchService.removeFilter($event)" (clearAll)="searchService.clearAllFilters()"></app-selected-tags>
+<app-selected-tags
+  [items]="pendingFilterTags()"
+  (remove)="removePendingTag($event)"
+  (clearAll)="clearPendingTags()">
+</app-selected-tags>
+
+
+<!--<app-selected-tags [items]="(searchService.getFiltersByFacet(data.facetKey) | async) || []" (remove)="searchService.removeFilter($event)" (clearAll)="searchService.clearAllFilters()"></app-selected-tags>-->
 
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
