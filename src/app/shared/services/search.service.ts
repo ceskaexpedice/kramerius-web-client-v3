@@ -11,6 +11,7 @@ import {
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../state/search/search.actions';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {QueryParamsService} from '../../core/services/QueryParamsManager';
 
 @Injectable({
   providedIn: 'root'
@@ -28,45 +29,26 @@ export class SearchService {
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
-  get page() {
-    return this._page();
-  }
-
-  get pageSize() {
-    return this._pageSize();
-  }
-
-  get totalCount() {
-    return this._totalCount();
-  }
-
-  get sortBy() {
-    return this._sortBy;
-  }
-
-  get sortDirection() {
-    return this._sortDirection;
-  }
+  get page() { return this._page(); }
+  get pageSize() { return this._pageSize(); }
+  get totalCount() { return this._totalCount(); }
+  get sortBy() { return this._sortBy; }
+  get sortDirection() { return this._sortDirection; }
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private store: Store,
+    private queryParamsService: QueryParamsService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
-    // Keep the effect for totalCount as is
     effect(() => {
       const subscription = this.totalCount$
-        .pipe(
-          filter((count) => count !== undefined && count !== null)
-        )
-        .subscribe((count) => {
-          this._totalCount.set(count);
-        });
-
+        .pipe(filter(count => count !== undefined && count !== null))
+        .subscribe(count => this._totalCount.set(count));
       return () => subscription.unsubscribe();
     });
   }
@@ -85,25 +67,18 @@ export class SearchService {
   }
 
   initialize(): void {
-    if (this.initialized) {
-      return;
-    }
+    if (this.initialized) return;
 
-    this.route.queryParams.subscribe((params: any) => {
-      this.dispatchSearch(params);
-    });
-
+    this.route.queryParams.subscribe(this.dispatchSearch.bind(this));
     this.initialized = true;
   }
 
   private dispatchSearch(params: any): void {
     // Only dispatch if we have actual params
-    if (Object.keys(params).length === 0) {
-      return;
-    }
+    if (Object.keys(params).length === 0) return;
 
     const query = params['query'] || '*:*';
-    const filters = Array.isArray(params['fq']) ? params['fq'] : [params['fq']].filter(Boolean);
+    const filters = this.queryParamsService.getFilters(params);
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();
@@ -117,119 +92,62 @@ export class SearchService {
     this.store.dispatch(loadSearchResults({
       query,
       filters,
-      page: page-1,
+      page: page - 1,
       pageCount: pageSize,
       sortBy,
       sortDirection
     }));
   }
 
-  updateFilters(route: ActivatedRoute, facetKey: string, selectedValues: string[], useOrOperator: boolean = true): void {
-    // Get current query params to preserve all operators for other facets
-    const currentParams = route.snapshot.queryParams;
-
-    // Extract current filters
-    const fq = currentParams['fq'];
-    const otherFilters = (Array.isArray(fq) ? fq : fq ? [fq] : []).filter(
-      f => !f.startsWith(facetKey + ':')
-    );
-
-    // Create new facet filters
-    let facetFilters: string[] = [];
-    if (selectedValues.length > 0) {
-      facetFilters = selectedValues.map(value => `${facetKey}:${value}`);
-    }
-
-    // Combine all filters
-    const updated = [
-      ...otherFilters,
-      ...facetFilters
-    ];
-
-    // Start with current params to preserve existing operators
-    const queryParams: any = {
-      ...currentParams,
-      fq: updated
-    };
-
-    // Set the operator for the current facet
-    if (useOrOperator) {
-      queryParams[`${facetKey}_operator`] = 'AND';
-    } else {
-      queryParams[`${facetKey}_operator`] = 'OR';
-    }
-
-    // Navigate with the updated params
-    this.router.navigate([], {
-      relativeTo: route,
-      queryParams,
-      // Don't use queryParamsHandling: 'merge' here since we're already preserving params
-    });
+  updateFilters(
+    route: ActivatedRoute,
+    facetKey: string,
+    selectedValues: string[],
+    useAndOperator: boolean = false
+  ): void {
+    const operator = useAndOperator ? 'AND' : 'OR';
+    this.queryParamsService.updateFilters(route, facetKey, selectedValues, operator);
   }
 
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
-    const facetKey = fullValue.split(':')[0];
-    const fq = route.snapshot.queryParams['fq'];
-    const currentFilters = Array.isArray(fq) ? fq : fq ? [fq] : [];
-    const currentFacetFilters = currentFilters.filter(f => f.startsWith(facetKey + ':'));
+    const [facetKey, value] = fullValue.split(':');
+    const params = route.snapshot.queryParams;
+    const currentValues = this.queryParamsService.getFiltersByFacet(params, facetKey);
 
-    let newFilters: string[];
+    // Check if the value is already selected
+    const isSelected = currentValues.includes(value);
 
-    if (currentFacetFilters.includes(fullValue)) {
-      newFilters = currentFilters.filter(f => f !== fullValue);
-    } else {
-      newFilters = [...currentFilters, fullValue];
-    }
+    // Update the values list
+    const newValues = isSelected
+      ? currentValues.filter(v => v !== value)
+      : [...currentValues, value];
 
-    this.router.navigate([], {
-      relativeTo: route,
-      queryParams: { fq: newFilters },
-      queryParamsHandling: 'merge'
-    });
+    // Get the current operator
+    const operator = this.queryParamsService.getOperatorForFacet(params, facetKey);
+
+    // Update the filters
+    this.queryParamsService.updateFilters(route, facetKey, newValues, operator);
   }
 
   removeFilter(filter: string) {
-    const currentParams = this.route.snapshot.queryParams;
-    const fq = currentParams['fq'];
-    const filters = Array.isArray(fq) ? fq : fq ? [fq] : [];
-
-    const updatedFilters = filters.filter(f => f !== filter);
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { ...currentParams, fq: updatedFilters },
-      queryParamsHandling: 'merge'
-    });
+    this.queryParamsService.removeFilter(this.route, filter);
   }
 
   clearAllFilters() {
-    const currentParams = this.route.snapshot.queryParams;
-    const { fq, ...otherParams } = currentParams;
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: otherParams
-    });
+    this.queryParamsService.clearAllFilters(this.route);
   }
 
   getFiltersByFacet(facet: string): Observable<string[]> {
-    // here are all filters
-    const filters = this.activeFilters$;
-    // here are only filters for the facet
-    return filters.pipe(
-      map((filters: any) => filters.filter((filter: any) => filter.startsWith(facet + ':')))
+    return this.activeFilters$.pipe(
+      map(filters => filters.filter(filter => filter.startsWith(facet + ':')))
     );
   }
 
   goToPage(page: number) {
     this._page.set(page);
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {
-        page,
-        pageSize: this.pageSize
-      },
+      queryParams: { page, pageSize: this.pageSize },
       queryParamsHandling: 'merge'
     });
   }
@@ -237,13 +155,9 @@ export class SearchService {
   changePageSize(size: number) {
     this._pageSize.set(size);
     this._page.set(1);
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {
-        page: 1,
-        pageSize: size
-      },
+      queryParams: { page: 1, pageSize: size },
       queryParamsHandling: 'merge'
     });
   }
@@ -251,21 +165,16 @@ export class SearchService {
   changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {
-        sortBy,
-        sortDirection
-      },
+      queryParams: { sortBy, sortDirection },
       queryParamsHandling: 'merge'
     });
   }
 
   isSelectedFacetItem(itemName: string): Observable<boolean> {
     return this.activeFilters$.pipe(
-      map((filters: string[]) => filters.includes(itemName))
+      map(filters => filters.includes(itemName))
     );
   }
-
 }

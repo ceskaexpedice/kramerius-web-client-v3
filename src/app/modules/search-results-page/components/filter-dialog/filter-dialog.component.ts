@@ -21,6 +21,8 @@ import {
   ToggleButtonGroupComponent
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
 import {PaginatorInfoComponent} from '../../../../shared/components/paginator-info/paginator-info.component';
+import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
+import {FilterService} from '../../../../core/services/FilterUtilities';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -89,17 +91,22 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   allItems = signal<FacetItem[]>([]);
 
-  constructor() {
+  constructor(
+    private filterService: FilterService,
+    private queryParamsService: QueryParamsService,
+  ) {
 
     super();
 
+    // Initialize from URL params
     this.route.queryParams.pipe(take(1)).subscribe(params => {
-      const operatorParam = params[`${this.data.facetKey}_operator`];
-      this.useOrOperator.set(operatorParam !== 'AND');
+      const operator = this.queryParamsService.getOperatorForFacet(params, this.data.facetKey);
+      this.pendingOperator.set(operator);
+      this.useOrOperator.set(operator !== 'AND');
     });
 
-
     this.loadFacets(false);
+
 
     effect(() => {
       const sub = this.searchControl.valueChanges
@@ -128,18 +135,11 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   ngOnInit() {
     this.loadFacets();
 
-    // Initialize from current URL params
-    const params = this.route.snapshot.queryParams;
-    const operatorParam = params[`${this.data.facetKey}_operator`];
-
-    // Set initial operator state
-    // If operatorParam is 'AND', set pendingOperator to 'AND', otherwise default to 'OR'
-    this.pendingOperator.set(operatorParam === 'AND' ? 'AND' : 'OR');
-
-    // Initialize pending selection from current state
-    this.getSelectedValues().pipe(take(1)).subscribe(values => {
-      this.pendingSelection.set(new Set(values));
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      const selectedValues = this.queryParamsService.getFiltersByFacet(params, this.data.facetKey);
+      this.pendingSelection.set(new Set(selectedValues));
     });
+
   }
 
 
@@ -152,20 +152,21 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     // Convert the Set to an array
     const selectedValues = Array.from(this.pendingSelection());
 
-    // Get the operator value - note the values are now reversed from your original code
-    const useAndOperator = this.pendingOperator() !== 'OR'; // true if 'OR', false if 'AND'
+    // Get the operator value
+    const operator = this.pendingOperator();
 
-    // Apply all changes at once
-    this.searchService.updateFilters(
+    // Update filters with the chosen operator
+    this.queryParamsService.updateFilters(
       this.route,
       this.data.facetKey,
       selectedValues,
-      useAndOperator
+      operator
     );
 
     // Close the dialog
     this.close();
   }
+
 
   toggle(value: string) {
     const pendingSet = new Set(this.pendingSelection());
@@ -220,31 +221,19 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   loadFacets(paginator: boolean = true) {
     this.loading.set(true);
 
-    let page = this.page;
-    let facetLimit = this.pageSize || -1;
-    let facetOffset = (page - 1) * facetLimit;
-
-    if (!paginator) {
-      facetLimit = -1;
-      facetOffset = 0;
-    }
+    const page = this.page;
+    const facetLimit = paginator ? (this.pageSize || -1) : -1;
+    const facetOffset = paginator ? (page - 1) * facetLimit : 0;
 
     // Extract existing operators from URL
-    const existingOperators: Record<string, string> = {};
     const params = this.route.snapshot.queryParams;
-
-    Object.keys(params).forEach(key => {
-      if (key.endsWith('_operator')) {
-        const field = key.replace('_operator', '');
-        existingOperators[field] = params[key];
-      }
-    });
+    const existingOperators = this.queryParamsService.getOperators(params);
 
     this.searchService.activeFilters$
       .pipe(
         take(1),
         switchMap(allFilters => {
-          // Extract selected values for this facet
+          // Extract selected values
           const selectedValues = new Set(
             allFilters
               .filter(f => f.startsWith(this.data.facetKey + ':'))
@@ -252,7 +241,9 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
           );
 
           // Filters excluding the current facet
-          const filteredFilters = allFilters.filter(f => !f.startsWith(this.data.facetKey + ':'));
+          const filteredFilters = allFilters.filter(
+            f => !f.startsWith(this.data.facetKey + ':')
+          );
 
           return this.solrService.loadFacet(
             '*:*',
@@ -279,15 +270,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
             response.facet_counts.facet_fields?.[this.data.facetKey] || []
           );
 
-          // Move selected items to the top, maintaining API sort within each group
-          const sortedItems = [...parsed].sort((a, b) => {
-            const aSelected = selectedValues.has(a.name);
-            const bSelected = selectedValues.has(b.name);
-
-            if (aSelected && !bSelected) return -1;
-            if (!aSelected && bSelected) return 1;
-            return 0;
-          });
+          // Sort with selected items at the top
+          const sortedItems = this.filterService.sortWithSelectedOnTop(parsed, selectedValues);
 
           if (!paginator) {
             this.totalCount = parsed.length;
@@ -304,6 +288,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
         }
       });
   }
+
 
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {
     return this.searchService.isSelectedFacetItem(`${this.data.facetKey}:${item.name}`)

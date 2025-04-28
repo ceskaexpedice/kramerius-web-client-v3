@@ -9,6 +9,7 @@ import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
 import {SearchResultResponse} from '../../modules/models/search-result-response';
 import {SolrSortDirections, SolrSortFields} from './solr-helpers';
+import {FilterService} from '../services/FilterUtilities';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,7 @@ export class SolrService {
     'genres.facet',
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private filterService: FilterService) {}
 
   getPeriodicals(): Observable<PeriodicalItem[]> {
     const paramsObject = {
@@ -131,7 +132,7 @@ export class SolrService {
     const filtered = filters.filter(f => !f.startsWith(`${facetField}:`));
 
     // Group the remaining filters by field
-    const filtersByField = this.groupFiltersByField(filtered);
+    const filtersByField = this.filterService.groupFiltersByField(filtered);
 
     let rawParams = {
       ...SolrQueryBuilder.baseParams(),
@@ -158,13 +159,8 @@ export class SolrService {
       if (values.length > 0) {
         // Get the operator from existing operators or default to OR
         const operator = existingOperators && existingOperators[field] === 'AND' ? 'AND' : 'OR';
-
-        const escapedValues = values.map(v => `"${v}"`);
-        if (values.length === 1) {
-          params = params.append('fq', `${field}:${escapedValues[0]}`);
-        } else {
-          params = params.append('fq', `${field}:(${escapedValues.join(` ${operator} `)})`);
-        }
+        const filterQuery = this.filterService.buildFilterQuery(field, values, operator);
+        params = params.append('fq', filterQuery);
       }
     });
 
