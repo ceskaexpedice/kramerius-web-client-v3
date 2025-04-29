@@ -53,6 +53,15 @@ export class SearchService {
     });
   }
 
+  getFiltersWithOperators(): Observable<Record<string, string>> {
+    return this.route.queryParams.pipe(
+      map(params => {
+        // Get all operators from query parameters
+        return this.queryParamsService.getOperators(params);
+      })
+    );
+  }
+
   search(query: string): void {
     this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
@@ -131,6 +140,14 @@ export class SearchService {
 
   removeFilter(filter: string) {
     this.queryParamsService.removeFilter(this.route, filter);
+  }
+
+  removeFieldFilters(field: string) {
+    this.queryParamsService.removeFieldFilters(this.route, field);
+  }
+
+  resetOperator(field: string) {
+    this.queryParamsService.resetOperator(this.route, field);
   }
 
   clearAllFilters() {

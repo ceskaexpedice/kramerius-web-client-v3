@@ -25,7 +25,9 @@
 
       <app-selected-tags
         [items]="(searchService.activeFilters$ | async) || []"
+        [operators]="(searchService.getFiltersWithOperators() | async) || {}"
         (remove)="searchService.removeFilter($event)"
+        (removeOperator)="searchService.resetOperator($event)"
         (clearAll)="searchService.clearAllFilters()"
         clearButtonPosition="right">
       </app-selected-tags>

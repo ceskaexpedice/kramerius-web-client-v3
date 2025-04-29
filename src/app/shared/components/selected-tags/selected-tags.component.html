@@ -1,24 +1,41 @@
-<div class="chip-wrapper" *ngIf="items.length">
-  <button mat-button *ngIf="clearButtonPosition === 'left'" (click)="clearAll.emit()">
-    {{ 'delete-all' | translate }}
-  </button>
+<div class="selected-tags" *ngIf="items.length > 0">
+  <div class="tags-wrapper">
+    <button *ngIf="clearButtonPosition === 'left'"
+            mat-button
+            class="clear-button"
+            (click)="clearAll.emit()">
+      Vymazať všetko
+    </button>
 
-  <div class="chip-list">
+    <mat-chip-set>
+      <!-- Loop through each unique field -->
+      <ng-container *ngFor="let field of uniqueFields">
+        <!-- Add operator chip for the field (only for AND) -->
+        <mat-chip
+          (removed)="removeOperator.emit(field)"
+          *ngIf="getOperatorForField(field)"
+          class="operator-chip">
+          {{ field }}: {{ getOperatorForField(field) }}
+          <button matChipRemove>×</button>
+        </mat-chip>
 
-    <mat-chip *ngFor="let item of items" removable (removed)="remove.emit(item)">
+        <!-- Add all filter chips for this field -->
+        <ng-container *ngFor="let item of getItemsForField(field)">
+          <mat-chip
+            (removed)="remove.emit(item)"
+            class="filter-chip">
+            {{ item | translate }}
+            <button matChipRemove>×</button>
+          </mat-chip>
+        </ng-container>
+      </ng-container>
+    </mat-chip-set>
 
-      <label>
-        {{ item }}
-      </label>
-
-      <button matChipRemove [attr.aria-label]="'remove ' + item" class="remove-button">
-        <i class="icon-x"></i>
-      </button>
-    </mat-chip>
-
+    <button *ngIf="clearButtonPosition === 'right'"
+            mat-button
+            class="clear-button"
+            (click)="clearAll.emit()">
+      Vymazať všetko
+    </button>
   </div>
-
-  <button mat-button *ngIf="clearButtonPosition === 'right'" (click)="clearAll.emit()">
-    {{ 'delete-all' | translate }}
-  </button>
 </div>

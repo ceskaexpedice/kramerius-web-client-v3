@@ -114,6 +114,45 @@ export class QueryParamsService {
   }
 
   /**
+   * Reset operator for a field to default (OR)
+   */
+  resetOperator(route: ActivatedRoute, field: string): void {
+    const currentParams = route.snapshot.queryParams;
+
+    // Create a copy of params without the field's operator
+    const newParams = { ...currentParams };
+    delete newParams[`${field}_operator`];
+
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: newParams
+    });
+  }
+
+
+  /**
+   * Remove all filters for a specific field
+   */
+  removeFieldFilters(route: ActivatedRoute, field: string): void {
+    const currentParams = route.snapshot.queryParams;
+    const filters = this.getFilters(currentParams);
+    const updatedFilters = filters.filter(f => !f.startsWith(field + ':'));
+
+    // Create a copy of params without the field's operator
+    const newParams = { ...currentParams };
+    delete newParams[`${field}_operator`];
+
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: {
+        ...newParams,
+        fq: updatedFilters.length > 0 ? updatedFilters : null
+      }
+    });
+  }
+
+
+  /**
    * Clear all filters
    */
   clearAllFilters(route: ActivatedRoute): void {
