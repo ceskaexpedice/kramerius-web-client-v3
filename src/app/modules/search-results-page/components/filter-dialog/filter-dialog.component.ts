@@ -65,16 +65,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   pendingSelection = signal<Set<string>>(new Set());
   pendingOperator = signal<'AND' | 'OR'>('OR'); // Default to OR
 
-// Track if there are any pending changes
-  hasPendingChanges = computed(() => {
-    // Check if operator changed
-    const currentOperator = this.useOrOperator() ? 'OR' : 'AND';
-    const operatorChanged = this.pendingOperator() !== currentOperator;
-
-    // Check if selection changed
-    return operatorChanged || this.pendingSelection().size > 0;
-  });
-
   pendingFilterTags = computed(() => {
     return Array.from(this.pendingSelection()).map(value =>
       `${this.data.facetKey}:${value}`
@@ -97,8 +87,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     // Clear all pending selections
     this.pendingSelection.set(new Set());
   }
-
-
 
   useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
@@ -140,8 +128,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
           distinctUntilChanged(),
           switchMap(term => {
 
-            // TODO: Implement search logic
-
             if (term && term.length > 0 && term.length < 2) {
               return of(null);
             }
@@ -158,20 +144,20 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   }
 
   ngOnInit() {
-    this.loadFacets();
-
     this.route.queryParams.pipe(take(1)).subscribe(params => {
+      // Initialize operator
+      const operator = this.queryParamsService.getOperatorForFacet(params, this.data.facetKey);
+      this.pendingOperator.set(operator);
+      this.useOrOperator.set(operator !== 'AND');
+
+      // Initialize selection
       const selectedValues = this.queryParamsService.getFiltersByFacet(params, this.data.facetKey);
       this.pendingSelection.set(new Set(selectedValues));
+
+      // Now load facets after setting both operator and selection
+      this.loadFacetsWithPendingChanges(false);
     });
-
   }
-
-
-  setOperator(operator: string) {
-    this.pendingOperator.set(operator as 'AND' | 'OR');
-  }
-
 
   applyFilter() {
     // Convert the Set to an array
@@ -192,48 +178,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.close();
   }
 
-
-  toggle(value: string) {
-    const pendingSet = new Set(this.pendingSelection());
-
-    if (pendingSet.has(value)) {
-      pendingSet.delete(value);
-    } else {
-      pendingSet.add(value);
-    }
-
-    this.pendingSelection.set(pendingSet);
-  }
-
-  updateFilters(values: string[], useOrOperator: boolean) {
-    this.searchService.updateFilters(
-      this.route,
-      this.data.facetKey,
-      values,
-      useOrOperator
-    );
-  }
-
-  // Helper method to extract selected values for this facet
-  private getSelectedValues(): Observable<string[]> {
-    return this.searchService.activeFilters$.pipe(
-      map(filters => filters
-        .filter(f => f.startsWith(this.data.facetKey + ':'))
-        .map(f => f.split(':')[1])
-      )
-    );
-  }
-
-
-  updateUrl() {
-    this.searchService.updateFilters(
-      this.route,
-      this.data.facetKey,
-      Array.from(this.selected()),
-      this.useOrOperator()
-    );
-  }
-
   close() {
     this.dialogRef.close();
   }
@@ -243,14 +187,14 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.loadFacets(true);
   }
 
-  loadFacets(paginator: boolean = true) {
+  loadFacetsWithPendingChanges(paginator: boolean = true) {
     this.loading.set(true);
 
     const page = this.page;
-    const facetLimit = paginator ? (this.pageSize || -1) : -1;
-    const facetOffset = paginator ? (page - 1) * facetLimit : 0;
+    const facetLimit = paginator ? this.pageSize : -1;
+    const facetOffset = paginator ? (page - 1) * this.pageSize : 0;
 
-    // Extract existing operators from URL
+    // Get existing operators from URL (for other facets)
     const params = this.route.snapshot.queryParams;
     const existingOperators = this.queryParamsService.getOperators(params);
 
@@ -258,33 +202,32 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       .pipe(
         take(1),
         switchMap(allFilters => {
-          // Extract selected values
-          const selectedValues = new Set(
+          // Get all currently selected values for highlighting
+          const activeSelections = new Set(
             allFilters
               .filter(f => f.startsWith(this.data.facetKey + ':'))
               .map(f => f.split(':')[1])
           );
 
-          // Filters excluding the current facet
-          const filteredFilters = allFilters.filter(
-            f => !f.startsWith(this.data.facetKey + ':')
-          );
-
-          return this.solrService.loadFacet(
+          // Use the new method with pending selection and operator
+          return this.solrService.loadFacetWithPendingChanges(
             '*:*',
-            filteredFilters,
+            allFilters,
             this.data.facetKey,
-            this.searchControl.value || '',
-            true,
-            facetLimit,
-            facetOffset,
-            this.sortBy(),
-            1,
-            existingOperators
+            this.pendingSelection(),
+            this.pendingOperator(),
+            existingOperators,
+            {
+              searchTerm: this.searchControl.value || '',
+              limit: facetLimit,
+              offset: facetOffset,
+              sortBy: this.sortBy(),
+              minCount: 1
+            }
           ).pipe(
             map(response => ({
               response,
-              selectedValues
+              selectedValues: activeSelections
             }))
           );
         })
@@ -299,9 +242,14 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
           const sortedItems = this.filterService.sortWithSelectedOnTop(parsed, selectedValues);
 
           if (!paginator) {
+            // When loading all items (for total count)
             this.totalCount = parsed.length;
             this.allItems.set(sortedItems);
+
+            // Now load the paginated items
+            this.loadFacetsWithPendingChanges(true);
           } else {
+            // When loading paginated items
             this.items.set(sortedItems);
           }
 
@@ -314,18 +262,30 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       });
   }
 
+  loadFacets(paginator: boolean = true) {
+    this.loadFacetsWithPendingChanges(paginator);
+  }
+
+  setOperator(operator: string) {
+    this.pendingOperator.set(operator as 'AND' | 'OR');
+    this.loadFacetsWithPendingChanges();
+  }
+
+  toggle(value: string) {
+    const pendingSet = new Set(this.pendingSelection());
+
+    if (pendingSet.has(value)) {
+      pendingSet.delete(value);
+    } else {
+      pendingSet.add(value);
+    }
+
+    this.pendingSelection.set(pendingSet);
+    this.loadFacetsWithPendingChanges();
+  }
 
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {
-    return this.searchService.isSelectedFacetItem(`${this.data.facetKey}:${item.name}`)
-      .pipe(
-        map(isCurrentlySelected => {
-          // Check if this item has a pending change
-          const isPendingSelected = this.pendingSelection().has(item.name);
-
-          // Return the pending state
-          return isPendingSelected;
-        })
-      );
+    return of(this.pendingSelection().has(item.name));
   }
 
   setSort(sort: SolrSortFields) {
