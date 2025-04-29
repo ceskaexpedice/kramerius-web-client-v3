@@ -40,41 +40,26 @@ export class SearchEffects {
 
         return forkJoin({
           resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection),
-          facetsRes: this.solr.getFacetsWithOrOperator(query, filters, facetFields, facetOperators)
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, facetFields, facetOperators)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
               parseSearchDocument(doc)
             );
 
-            const facetsFromSearch = SolrResponseParser.parseAllFacets(resultsRes.facet_counts?.facet_fields ?? {});
-            const facetsFromOperator = SolrResponseParser.parseAllFacets(facetsRes.facet_counts?.facet_fields ?? {});
-
-            const mergedFacets: { [key: string]: FacetItem[] } = {};
-
-            for (const [facetKey, operatorValues] of Object.entries(facetsFromOperator)) {
-              const searchValues = facetsFromSearch[facetKey] ?? [];
-              const operatorMap = new Map(operatorValues.map(item => [item.name, item.count]));
-              const merged = [...operatorValues];
-
-              // add missing values
-              for (const item of searchValues) {
-                if (!operatorMap.has(item.name)) {
-                  merged.push(item);
-                }
-              }
-
-              if (merged.length > 0) {
-                mergedFacets[facetKey] = merged;
-              }
-            }
+            // Use special handling for the facets
+            const facets = this.handleFacetsWithOperators(
+              resultsRes.facet_counts?.facet_fields ?? {},
+              facetsRes.facet_counts?.facet_fields ?? {},
+              facetOperators
+            );
 
             return [
               SearchActions.loadSearchResultsSuccess({
                 results: parsedResults,
                 totalCount: resultsRes.response.numFound
               }),
-              SearchActions.loadFacetsSuccess({ facets: mergedFacets })
+              SearchActions.loadFacetsSuccess({ facets })
             ];
           }),
           catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
@@ -82,6 +67,44 @@ export class SearchEffects {
       })
     )
   );
+
+// Helper method to process facets according to their operators
+  private handleFacetsWithOperators(
+    searchFacets: Record<string, any[]>,
+    operatorFacets: Record<string, any[]>,
+    facetOperators: Record<string, 'AND' | 'OR'>
+  ): Record<string, FacetItem[]> {
+    const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
+    const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
+    const result: Record<string, FacetItem[]> = {};
+
+    // Process each facet field
+    for (const [facetKey, values] of Object.entries(parsedOperatorFacets)) {
+      const operator = facetOperators[facetKey] ?? 'OR';
+
+      if (operator === 'OR') {
+        // For OR, use the values from operatorFacets (with tag/exclude)
+        result[facetKey] = values;
+      } else {
+        // For AND, use the values from searchFacets (without tag/exclude)
+        result[facetKey] = parsedSearchFacets[facetKey] || [];
+      }
+
+      // Make sure we don't miss any values that might only be in one response
+      if (operator === 'AND' && values.length > 0) {
+        const existingMap = new Map(result[facetKey].map(item => [item.name, item]));
+
+        // Add any missing values from operatorFacets
+        for (const item of values) {
+          if (!existingMap.has(item.name)) {
+            result[facetKey].push(item);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
 
   loadFacet$ = createEffect(() =>
     this.actions$.pipe(

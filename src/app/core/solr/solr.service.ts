@@ -132,13 +132,12 @@ export class SolrService {
     const filtered = filters.filter(f => !f.startsWith(`${facetField}:`));
 
     // Group the remaining filters by field
-    const filtersByField = this.filterService.groupFiltersByField(filtered);
+    const filtersByField = this.groupFiltersByField(filtered);
 
     let rawParams = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.fieldsToReturn([]),
-      ...SolrQueryBuilder.facetFields([facetField], minCount),
       ...SolrQueryBuilder.facetSortBy(sortBy),
       ...SolrQueryBuilder.pagination(0, 0)
     };
@@ -153,16 +152,11 @@ export class SolrService {
     // Create params and set query
     let params = this.createHttpParams(rawParams);
     params = params.set('q', query || '*:*');
+    params = params.set('facet', 'true');
+    params = params.set('facet.mincount', minCount.toString());
 
-    // Add filters with proper operators
-    filtersByField.forEach((values, field) => {
-      if (values.length > 0) {
-        // Get the operator from existing operators or default to OR
-        const operator = existingOperators && existingOperators[field] === 'AND' ? 'AND' : 'OR';
-        const filterQuery = this.filterService.buildFilterQuery(field, values, operator);
-        params = params.append('fq', filterQuery);
-      }
-    });
+    // Add the facet field
+    params = params.append('facet.field', facetField);
 
     // Set facet pagination parameters
     if (facetLimit != null) {
@@ -172,6 +166,21 @@ export class SolrService {
     if (facetOffset != null) {
       params = params.set('facet.offset', facetOffset.toString());
     }
+
+    // Add filters with proper operators
+    filtersByField.forEach((values, field) => {
+      if (values.length > 0) {
+        // Get the operator from existing operators or default to OR
+        const operator = existingOperators && existingOperators[field] === 'AND' ? 'AND' : 'OR';
+        const escapedValues = values.map(v => `"${v}"`);
+
+        if (values.length === 1) {
+          params = params.append('fq', `${field}:${escapedValues[0]}`);
+        } else {
+          params = params.append('fq', `${field}:(${escapedValues.join(` ${operator} `)})`);
+        }
+      }
+    });
 
     return this.http.get<any>(this.API_URL, { params });
   }
@@ -218,7 +227,7 @@ export class SolrService {
     return params;
   }
 
-  getFacetsWithOrOperator(
+  getFacetsWithOperators(
     query: string,
     filters: string[],
     facetFields: string[] = this.DEFAULT_FACET_FIELDS,
@@ -231,7 +240,14 @@ export class SolrService {
       if (values.length > 0) {
         const operator = facetOperators[field] ?? 'OR';
         const escapedValues = values.map(v => `"${v}"`);
-        taggedFilters.push(`{!tag=${field}}${field}:(${escapedValues.join(`${operator} ${field}:`)})`);
+
+        // Only apply tagging for OR operators - AND operators don't need it
+        if (operator === 'OR') {
+          taggedFilters.push(`{!tag=${field}}${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
+        } else {
+          // For AND, use regular filter (no tag)
+          taggedFilters.push(`${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
+        }
       }
     });
 
@@ -245,8 +261,18 @@ export class SolrService {
 
     let params = this.createHttpParams(rawParams);
 
+    // Only apply exclude tag for facets with OR operator
     facetFields.forEach(field => {
-      params = params.append('facet.field', `{!ex=${field}}${field}`);
+      const operator = facetOperators[field] ?? 'OR';
+      const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
+
+      if (operator === 'OR' && hasFilter) {
+        // If OR operator and has a filter, exclude the filter when counting
+        params = params.append('facet.field', `{!ex=${field}}${field}`);
+      } else {
+        // For AND or no filter, use normal facet
+        params = params.append('facet.field', field);
+      }
     });
 
     params = params.set('q', query || '*:*');
