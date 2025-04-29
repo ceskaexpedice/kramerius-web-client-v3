@@ -74,7 +74,7 @@ export class AutocompleteComponent implements OnInit {
   }
 
   search() {
-    const query = this.inputTerm() || '';
+    const query = this.inputTerm() ? `titles.search:${this.inputTerm()}` : '';
 
     this.searchService.search(query);
   }
