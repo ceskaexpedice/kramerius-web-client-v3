@@ -329,7 +329,8 @@ export class SolrService {
     let params = this.createHttpParams(paramsObject);
 
     // Set query
-    params = params.set('q', query || '*:*');
+    const finalQuery = query?.trim() ? `titles.search:"${SolrQueryBuilder.escapeSolrQuery(query)}"` : '*:*';
+    params = params.set('q', finalQuery);
 
     // Group filters by field and create filter queries
     const filtersByField = this.groupFiltersByField(filters);
@@ -373,7 +374,8 @@ export class SolrService {
     let params = this.createHttpParams(paramsObject);
 
     // Set query
-    params = params.set('q', query || '*:*');
+    const finalQuery = query?.trim() ? `titles.search:"${SolrQueryBuilder.escapeSolrQuery(query)}"` : '*:*';
+    params = params.set('q', finalQuery);
 
     // Group filters by field
     const filtersByField = this.groupFiltersByField(filters);
@@ -422,14 +424,11 @@ export class SolrService {
    */
   getAutocompleteSuggestions(term: string): Observable<string[]> {
     const paramsObject = {
-      'q': `${term}*`,
-      'defType': 'edismax',
-      'qf': 'title.search',
+      'q': `title.search:${term}*`,
       'fl': 'pid,title.search',
-      'fq': ['accessibility:public', 'model:monograph OR model:periodical'],
+      'fq': ['accessibility:public'],
       'rows': '50',
       'wt': 'json',
-      'bq': ['model:monograph^5', 'model:periodical^5']
     };
 
     const params = this.createHttpParams(paramsObject);

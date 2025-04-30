@@ -121,4 +121,10 @@ export class SolrQueryBuilder {
     return filters.filter(fq => !fq.startsWith(excludePrefix + ':'));
   }
 
+  static escapeSolrQuery(input: string): string {
+    // Escape special characters for Solr query syntax
+    const specialChars = /([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\])/g;
+    return input.replace(specialChars, '\\$1');
+  }
+
 }
