@@ -24,7 +24,7 @@
       </div>
 
       <app-selected-tags
-        [items]="(searchService.activeFilters$ | async) || []"
+        [items]="(searchService.selectedTags | async) || []"
         [operators]="(searchService.getFiltersWithOperators() | async) || {}"
         [showOperators]="true"
         [translateItems]="true"

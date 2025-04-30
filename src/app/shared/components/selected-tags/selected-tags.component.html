@@ -1,20 +1,45 @@
 <div class="selected-tags" *ngIf="items.length > 0">
-    <mat-chip-set>
-      <button *ngIf="clearButtonPosition === 'left'"
-              mat-button
-              class="clear-button"
-              (click)="clearAll.emit()">
-        {{'delete-all' | translate}}
-      </button>
+  <mat-chip-set>
+    <button *ngIf="clearButtonPosition === 'left'"
+            mat-button
+            class="clear-button"
+            (click)="clearAll.emit()">
+      {{'delete-all' | translate}}
+    </button>
 
-      <ng-container *ngFor="let field of uniqueFields">
+    <ng-container *ngFor="let field of uniqueFields">
 
-        <mat-chip
-          *ngIf="showOperators && getOperatorForField(field)"
-          (removed)="removeGroup.emit(field)"
-          class="operator-chip">
+      <mat-chip
+        *ngIf="showOperators && getOperatorForField(field)"
+        (removed)="removeGroup.emit(field)"
+        class="operator-chip">
 
-          {{ field }}: {{ getOperatorForField(field) }}
+        {{ field }}: {{ getOperatorForField(field) }}
+
+        <button matChipRemove>
+          <i class="icon-x"></i>
+        </button>
+
+      </mat-chip>
+
+      <ng-container *ngFor="let item of getItemsForField(field)">
+
+        <mat-chip (removed)="remove.emit(item)" class="filter-chip"
+                  [matTooltip]="getOriginalValue(item).length > maxTagLength ? getOriginalValue(item) : ''">
+
+          <ng-container *ngIf="translateItems; else rawValue">
+            <ng-container *ngIf="showFieldNames && field !== 'default'; else valueOnly">
+              {{ getValue(item) | translate }}
+            </ng-container>
+            <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
+          </ng-container>
+
+          <ng-template #rawValue>
+            <ng-container *ngIf="showFieldNames && field !== 'default'; else rawOnly">
+              {{ getValue(item) }}
+            </ng-container>
+            <ng-template #rawOnly>{{ getValue(item) }}</ng-template>
+          </ng-template>
 
           <button matChipRemove>
             <i class="icon-x"></i>
@@ -22,43 +47,19 @@
 
         </mat-chip>
 
-        <ng-container *ngFor="let item of getItemsForField(field)">
-
-          <mat-chip (removed)="remove.emit(item)" class="filter-chip">
-
-            <ng-container *ngIf="translateItems; else rawValue">
-              <ng-container *ngIf="showFieldNames && field !== 'default'; else valueOnly">
-                {{ getValue(item) | translate }}
-              </ng-container>
-              <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
-            </ng-container>
-
-            <ng-template #rawValue>
-              <ng-container *ngIf="showFieldNames && field !== 'default'; else rawOnly">
-                {{ getValue(item) }}
-              </ng-container>
-              <ng-template #rawOnly>{{ getValue(item) }}</ng-template>
-            </ng-template>
-
-            <button matChipRemove>
-              <i class="icon-x"></i>
-            </button>
-
-          </mat-chip>
-
-        </ng-container>
-
       </ng-container>
 
-      <button *ngIf="clearButtonPosition === 'right'"
-              mat-button
-              class="clear-button"
-              (click)="clearAll.emit()">
-        {{'delete-all' | translate}}
+    </ng-container>
 
-        <i class="icon-trash"></i>
+    <button *ngIf="clearButtonPosition === 'right'"
+            mat-button
+            class="clear-button"
+            (click)="clearAll.emit()">
+      {{'delete-all' | translate}}
 
-      </button>
+      <i class="icon-trash"></i>
 
-    </mat-chip-set>
+    </button>
+
+  </mat-chip-set>
 </div>

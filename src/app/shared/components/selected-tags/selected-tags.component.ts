@@ -3,6 +3,7 @@ import {NgForOf, NgIf} from '@angular/common';
 import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatButton} from '@angular/material/button';
 import {TranslatePipe} from '@ngx-translate/core';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-selected-tags',
@@ -13,6 +14,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     MatButton,
     MatChipsModule,
     TranslatePipe,
+    MatTooltip,
   ],
   templateUrl: './selected-tags.component.html',
   styleUrl: './selected-tags.component.scss'
@@ -24,6 +26,7 @@ export class SelectedTagsComponent {
   @Input() showOperators: boolean = true;
   @Input() showFieldNames: boolean = true;
   @Input() translateItems: boolean = true;
+  @Input() maxTagLength: number = 30;
 
   @Output() remove = new EventEmitter<string>();
   @Output() removeGroup = new EventEmitter<string>();
@@ -51,7 +54,16 @@ export class SelectedTagsComponent {
   }
 
   getValue(item: string): string {
-    return item.includes(':') ? item.split(':')[1] : item;
+    const value = item.includes(':') ? item.split(':')[1] : item;
+
+    if (value.length > this.maxTagLength) {
+      return value.substring(0, this.maxTagLength - 3) + '...';
+    }
+
+    return value;
   }
 
+  getOriginalValue(item: string): string {
+    return item.includes(':') ? item.split(':')[1] : item;
+  }
 }
