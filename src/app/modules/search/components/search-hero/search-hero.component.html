@@ -6,7 +6,16 @@
 
   <div class="search-row">
 
-    <app-autocomplete></app-autocomplete>
+    <app-autocomplete
+      [inputTheme]="'light'"
+      [placeholder]="'Search...'"
+      [minTermLength]="2"
+      [initialValue]="searchService.inputSearchTerm"
+      [getSuggestions]="searchService.getSuggestionsFn"
+      (search)="searchService.onSearch($event)"
+      (submit)="searchService.onSubmit($event)"
+      (suggestionSelected)="searchService.onSuggestionSelected($event)">
+    </app-autocomplete>
 
     <button class="outlined">
       Pokročilé hledání

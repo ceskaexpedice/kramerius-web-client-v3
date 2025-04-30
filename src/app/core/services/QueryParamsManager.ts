@@ -96,6 +96,16 @@ export class QueryParamsService {
     });
   }
 
+  removeSearchTerm(route: ActivatedRoute): void {
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: {
+        query: null
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   /**
    * Remove a single filter
    */

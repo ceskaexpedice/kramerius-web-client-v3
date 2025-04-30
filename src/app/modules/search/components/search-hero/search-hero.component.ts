@@ -17,10 +17,4 @@ export class SearchHeroComponent {
 
   searchService = inject(SearchService)
 
-  query = '';
-
-  onSearch() {
-    this.searchService.search(this.query);
-  }
-
 }

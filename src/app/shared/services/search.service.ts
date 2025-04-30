@@ -1,7 +1,7 @@
 import {Injectable, signal, effect} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, map, filter} from 'rxjs';
+import {Observable, map, filter, combineLatest, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
@@ -12,6 +12,7 @@ import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../state/search/search.actions';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
+import {SolrService} from '../../core/solr/solr.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 export class SearchService {
   private initialized = false;
 
+  private _searchTerm = signal('');
   private _page = signal(1);
   private _pageSize = signal(25);
   private _totalCount = signal(0);
@@ -29,17 +31,55 @@ export class SearchService {
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
+  get searchTerm() { return this._searchTerm(); }
   get page() { return this._page(); }
   get pageSize() { return this._pageSize(); }
   get totalCount() { return this._totalCount(); }
   get sortBy() { return this._sortBy; }
   get sortDirection() { return this._sortDirection; }
 
+  inputSearchTerm = '';
+
+  get selectedTags(): Observable<string[]> {
+    // return activeFilters$ and _searchTerm
+    return combineLatest([
+      this.activeFilters$,
+      of(this.searchTerm)
+    ]).pipe(
+      map(([filters, term]) => {
+        if (term && term.trim().length > 0) {
+          return [...filters, `search:${term}`];
+        }
+        return filters;
+      })
+    );
+  }
+
+  getSuggestionsFn = (term: string): Observable<string[]> => {
+    console.log('[SearchService] getting suggestions for:', term);
+    return this.solrService.getAutocompleteSuggestions(term);
+  }
+
+  onSearch(term: string | null): void {
+    const query = (term && term.length > 0) ? `${term}` : '';
+    this.search(query);
+  }
+
+  onSubmit(term: string): void {
+    this.onSearch(term);
+  }
+
+  onSuggestionSelected(suggestion: string): void {
+    this.search(suggestion);
+  }
+
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private store: Store,
-    private queryParamsService: QueryParamsService
+    private queryParamsService: QueryParamsService,
+    private solrService: SolrService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
@@ -86,13 +126,14 @@ export class SearchService {
     // Only dispatch if we have actual params
     if (Object.keys(params).length === 0) return;
 
-    const query = params['query'] || '*:*';
+    const query = params['query'] || '';
     const filters = this.queryParamsService.getFilters(params);
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();
     const sortDirection = params['sortDirection'] || this._sortDirection();
 
+    this._searchTerm.set(query);
     this._page.set(page);
     this._pageSize.set(pageSize);
     this._sortBy.set(sortBy);
@@ -139,7 +180,14 @@ export class SearchService {
   }
 
   removeFilter(filter: string) {
-    this.queryParamsService.removeFilter(this.route, filter);
+    console.log('[SearchService] remove filter', filter);
+    if (filter.startsWith('search:')) {
+      console.log('ide sem??')
+      this.queryParamsService.removeSearchTerm(this.route);
+      this._searchTerm.set('');
+    } else {
+      this.queryParamsService.removeFilter(this.route, filter);
+    }
   }
 
   removeFieldFilters(field: string) {

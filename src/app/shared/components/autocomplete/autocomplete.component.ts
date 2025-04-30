@@ -1,12 +1,11 @@
-import {Component, inject, Input, OnInit, signal, effect} from '@angular/core';
-import {NgClass} from '@angular/common';
+import {Component, Input, OnInit, OnDestroy, signal, effect, EventEmitter, Output} from '@angular/core';
+import {NgClass, NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
-import {SolrService} from '../../../core/solr/solr.service';
 import {TranslatePipe} from '@ngx-translate/core';
-import {SearchService} from '../../services/search.service';
 import {MatAutocompleteModule, MatAutocompleteSelectedEvent, MatOption} from '@angular/material/autocomplete';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
 
 @Component({
   selector: 'app-autocomplete',
@@ -17,46 +16,84 @@ import {MatInputModule} from '@angular/material/input';
     TranslatePipe,
     MatAutocompleteModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    NgIf,
   ],
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
 })
-export class AutocompleteComponent implements OnInit {
+export class AutocompleteComponent implements OnInit, OnDestroy {
   inputTerm = signal('');
   suggestions = signal<string[]>([]);
   isLoading = signal(false);
 
-  private solrService = inject(SolrService)
-  private searchService = inject(SearchService);
+  private justSelected = false;
 
-  @Input('inputTheme') inputTheme: string = 'light';
+  private termChangeSubject = new EventEmitter<string>();
+  private subscription: Subscription | null = null;
 
-  constructor(
-  ) {
+  @Input() inputTheme: string = 'light';
+  @Input() placeholder: string = '';
+  @Input() minTermLength: number = 2;
+  @Input() initialValue: string = '';
+  @Input() debounceTime: number = 400;
+
+  @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
+
+  @Output() search = new EventEmitter<string>();
+  @Output() submit = new EventEmitter<string>();
+  @Output() termChange = new EventEmitter<string>();
+  @Output() suggestionSelected = new EventEmitter<string>();
+
+  constructor() {
+    this.subscription = this.termChangeSubject.pipe(
+      debounceTime(this.debounceTime),
+      switchMap(term => {
+        if (!term || term.length < this.minTermLength) {
+          return of([]);
+        }
+
+        if (this.justSelected) {
+          this.justSelected = false;
+          return of(this.suggestions());
+        }
+
+        this.isLoading.set(true);
+
+        return this.getSuggestions(term);
+      })
+    ).subscribe({
+      next: (suggestions: string[]) => {
+        this.suggestions.set(suggestions);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error fetching suggestions:', err);
+        this.suggestions.set([]);
+        this.isLoading.set(false);
+      }
+    });
 
     effect(() => {
       const term = this.inputTerm();
-      if (!term || term.length < 2) {
-        this.suggestions.set([]);
-        return;
+      this.termChange.emit(term);
+
+      if (!this.justSelected) {
+        this.termChangeSubject.emit(term);
       }
-
-      this.isLoading.set(true);
-      const sub = this.solrService.getAutocompleteSuggestions(term).subscribe({
-        next: (res: any) => {
-          this.suggestions.set(res);
-          this.isLoading.set(false);
-        },
-        error: () => this.isLoading.set(false),
-      });
-
-      return () => sub.unsubscribe();
     });
-
   }
 
   ngOnInit() {
+    if (this.initialValue) {
+      this.inputTerm.set(this.initialValue);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   onInputChange(event: Event) {
@@ -68,14 +105,17 @@ export class AutocompleteComponent implements OnInit {
     const option: MatOption = event.option;
     const value = option.value;
 
-    this.inputTerm.set(value);
+    this.justSelected = true;
 
-    this.search();
+    this.inputTerm.set(value);
+    this.suggestionSelected.emit(value);
   }
 
-  search() {
-    const query = this.inputTerm() ? `${this.inputTerm()}` : '';
+  onSearch() {
+    this.search.emit(this.inputTerm());
+  }
 
-    this.searchService.search(query);
+  onSubmit() {
+    this.submit.emit(this.inputTerm());
   }
 }

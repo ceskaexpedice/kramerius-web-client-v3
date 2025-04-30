@@ -10,7 +10,16 @@
 
   <div *ngIf="showSearchBar" class="search-bar">
 
-    <app-autocomplete [inputTheme]="inputTheme"></app-autocomplete>
+    <app-autocomplete
+      [inputTheme]="'dark'"
+      [placeholder]="'Search...'"
+      [minTermLength]="2"
+      [initialValue]="searchService.inputSearchTerm"
+      [getSuggestions]="searchService.getSuggestionsFn"
+      (search)="searchService.onSearch($event)"
+      (submit)="searchService.onSubmit($event)"
+      (suggestionSelected)="searchService.onSuggestionSelected($event)">
+    </app-autocomplete>
 
   </div>
 

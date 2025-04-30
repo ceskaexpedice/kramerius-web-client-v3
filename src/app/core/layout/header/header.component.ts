@@ -8,6 +8,7 @@ import { AppSettingsThemeEnum } from '../../../modules/settings/settings.model';
 import {NgClass, NgIf} from '@angular/common';
 import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
 import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
+import {SearchService} from '../../../shared/services/search.service';
 
 @Component({
   selector: 'app-header',
@@ -31,7 +32,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    public searchService: SearchService
   ) {}
 
   ngOnInit() {
