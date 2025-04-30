@@ -133,9 +133,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       this.useOrOperator.set(operator !== 'AND');
     });
 
-    this.loadFacets(false);
-
-
     effect(() => {
       const sub = this.searchControl.valueChanges
         .pipe(
@@ -170,8 +167,11 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       this.pendingSelection.set(new Set(selectedValues));
 
       // Now load facets after setting both operator and selection
-      this.loadFacetsWithPendingChanges(false);
+      //this.loadFacetsWithPendingChanges(false);
     });
+
+    this.loadFacets(false);
+
   }
 
   applyFilter() {
