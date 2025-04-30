@@ -4,27 +4,34 @@
             mat-button
             class="clear-button"
             (click)="clearAll.emit()">
-      Vymazať všetko
+      {{'delete-all' | translate}}
     </button>
 
     <mat-chip-set>
-      <!-- Loop through each unique field -->
       <ng-container *ngFor="let field of uniqueFields">
-        <!-- Add operator chip for the field (only for AND) -->
+        <!-- Operátor pre skupinu (ak povolený a je AND) -->
         <mat-chip
-          (removed)="removeOperator.emit(field)"
-          *ngIf="getOperatorForField(field)"
+          *ngIf="showOperators && getOperatorForField(field)"
+          (removed)="removeGroup.emit(field)"
           class="operator-chip">
           {{ field }}: {{ getOperatorForField(field) }}
           <button matChipRemove>×</button>
         </mat-chip>
 
-        <!-- Add all filter chips for this field -->
         <ng-container *ngFor="let item of getItemsForField(field)">
-          <mat-chip
-            (removed)="remove.emit(item)"
-            class="filter-chip">
-            {{ item | translate }}
+          <mat-chip (removed)="remove.emit(item)" class="filter-chip">
+            <ng-container *ngIf="translateItems; else rawValue">
+              <ng-container *ngIf="showFieldNames && field !== 'default'; else valueOnly">
+                {{ getValue(item) | translate }}
+              </ng-container>
+              <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
+            </ng-container>
+            <ng-template #rawValue>
+              <ng-container *ngIf="showFieldNames && field !== 'default'; else rawOnly">
+                {{ getValue(item) }}
+              </ng-container>
+              <ng-template #rawOnly>{{ getValue(item) }}</ng-template>
+            </ng-template>
             <button matChipRemove>×</button>
           </mat-chip>
         </ng-container>
@@ -35,7 +42,7 @@
             mat-button
             class="clear-button"
             (click)="clearAll.emit()">
-      Vymazať všetko
+      {{'delete-all' | translate}}
     </button>
   </div>
 </div>

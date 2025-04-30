@@ -35,10 +35,14 @@
 
 <app-selected-tags
   [items]="pendingFilterTags()"
+  [operators]="pendingOperators()"
+  [showOperators]="true"
+  [translateItems]="true"
   (remove)="removePendingTag($event)"
-  (clearAll)="clearPendingTags()">
+  (removeGroup)="clearPendingOperator()"
+  (clearAll)="clearPendingTags()"
+  clearButtonPosition="left">
 </app-selected-tags>
-
 
 <!--<app-selected-tags [items]="(searchService.getFiltersByFacet(data.facetKey) | async) || []" (remove)="searchService.removeFilter($event)" (clearAll)="searchService.clearAllFilters()"></app-selected-tags>-->
 

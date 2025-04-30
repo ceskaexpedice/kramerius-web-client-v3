@@ -26,10 +26,12 @@
       <app-selected-tags
         [items]="(searchService.activeFilters$ | async) || []"
         [operators]="(searchService.getFiltersWithOperators() | async) || {}"
+        [showOperators]="true"
+        [translateItems]="true"
         (remove)="searchService.removeFilter($event)"
-        (removeOperator)="searchService.resetOperator($event)"
+        (removeGroup)="searchService.resetOperator($event)"
         (clearAll)="searchService.clearAllFilters()"
-        clearButtonPosition="right">
+        clearButtonPosition="left">
       </app-selected-tags>
 
       <div class="search-results-grid">

@@ -8,7 +8,6 @@ import {MatButton} from '@angular/material/button';
 import {debounceTime, distinctUntilChanged, Observable, of, take} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
-import {Store} from '@ngrx/store';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
 import {SearchService} from '../../../../shared/services/search.service';
 import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
@@ -61,15 +60,27 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     { label: 'Abecedne', value: SolrSortFields.title }
   ];
 
-  // Track pending changes (items to add/remove)
   pendingSelection = signal<Set<string>>(new Set());
-  pendingOperator = signal<'AND' | 'OR'>('OR'); // Default to OR
+  pendingOperator = signal<'AND' | 'OR'>('OR');
 
   pendingFilterTags = computed(() => {
     return Array.from(this.pendingSelection()).map(value =>
       `${this.data.facetKey}:${value}`
     );
   });
+
+  pendingOperators = computed(() => {
+    const field = this.data.facetKey;
+    const operator = this.pendingOperator();
+
+    if (operator) {
+      return { [field]: operator };
+    }
+
+    return {};
+  });
+
+
 
   removePendingTag(tag: string) {
     // Extract just the value part (after the colon)
@@ -88,11 +99,15 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.pendingSelection.set(new Set());
   }
 
+  clearPendingOperator() {
+    this.pendingOperator.set('OR');
+    this.loadFacetsWithPendingChanges();
+  }
+
   useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
 
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
-  private store = inject(Store);
   private route = inject(ActivatedRoute);
   public searchService = inject(SearchService);
   private solrService = inject(SolrService);
