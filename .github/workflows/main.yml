@@ -1,0 +1,168 @@
+---
+name: Main workflow
+# This workflow requires following secrets to be set at
+# https://github.com/ -> project -> /settings/secrets/actions
+# - GHCR_TOKEN
+# - SSH_PRIVATE_KEY
+# - DOCKER_HOST_URI
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - dev
+      - dev*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set ENVIRONMENT variable for ng build
+        run: |
+          echo "ENVIRONMENT=development" >> $GITHUB_ENV
+        if: github.ref == 'refs/heads/dev'
+
+      - name: Set env variables
+        run: |
+          REF=$(echo $GITHUB_REF_NAME | grep -oE '([a-z0-9\-]*?)$')
+          echo "REF=$REF"
+          echo "REF=$REF" >> $GITHUB_ENV
+          echo "REF=$REF" >> variables.sh
+          echo "TAG=ghcr.io/${GITHUB_REPOSITORY,,}-$REF" \
+            | tee --append $GITHUB_ENV variables.sh
+
+      - name: Debug env
+        run: env
+
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build the Docker image
+        run: >
+          docker build
+          --tag $TAG:latest
+          --tag $TAG:$(date +%Y%m%d%H%M)
+          --build-arg ENVIRONMENT=${ENVIRONMENT}
+          --file Dockerfile .
+
+      - name: Push image to GHCR
+        run: >
+          docker push $TAG:latest
+
+      # Upload REF variables
+      - name: Upload REF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: variables
+          path: variables.sh
+
+  destroy:
+    name: destroy
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: variables
+          path: variables
+
+      - name: Source artifact variables
+        shell: bash
+        run: |
+          ls -al variables
+          cat variables/variables.sh
+          source variables/variables.sh
+          echo "REF=$REF" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Configure SSH
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> $GITHUB_ENV
+
+      - name: Remove existing container
+        shell: bash
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ secrets.DOCKER_HOST_URI }}" "docker rm -f cdk_klient_dev || true"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.DOCKER_HOST_URI }}" "docker image rm --force ${TAG} || true"
+
+  deploy:
+    name: deploy
+    needs: destroy
+    runs-on: ubuntu-latest
+    environment: staging
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is
+    # ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download and source(set) REF variables get from the last part of GITHUB_REF_NAME
+      - name: Download REF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: variables
+          path: variables
+
+      - name: Source artifact variables
+        shell: bash
+        run: |
+          source variables/variables.sh
+          echo "REF=$REF" >> $GITHUB_ENV
+          echo ref: $REF
+
+      # Install the latest version of Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Configure SSH
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          # Export SSH_AUTH_SOCK to the workflow env
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> $GITHUB_ENV
+
+      - name: Configure Terraform variables
+        run: |
+          REF=$(echo $GITHUB_REF_NAME | grep -oE '([a-z0-9\-]*?)$')
+          echo "REF=$REF"
+          echo "REF=$REF" >> $GITHUB_ENV
+          echo "TF_VAR_docker_host_uri=${{ secrets.DOCKER_HOST_URI }}" >> $GITHUB_ENV
+          # yamllint disable-line rule:line-length
+          echo "TF_VAR_docker_image=ghcr.io/${GITHUB_REPOSITORY,,}-$REF:latest"  >> $GITHUB_ENV
+          echo "TF_VAR_ghcr_token=${{ secrets.GHCR_TOKEN }}" >> $GITHUB_ENV
+          echo "TF_VAR_ghcr_username=${{ github.actor }}" >> $GITHUB_ENV
+          echo "TF_VAR_deploy_domain=cdk.app.trinera.cloud" >> $GITHUB_ENV
+          echo "TF_VAR_docker_container_name=cdk_klient_$REF" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Debug env
+        run: env
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
