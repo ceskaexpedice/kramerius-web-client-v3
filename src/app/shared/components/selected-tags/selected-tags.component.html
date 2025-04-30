@@ -14,7 +14,9 @@
         (removed)="removeGroup.emit(field)"
         class="operator-chip">
 
-        {{ field }}: {{ getOperatorForField(field) }}
+        <label>
+          {{ field }}: {{ getOperatorForField(field) }}
+        </label>
 
         <button matChipRemove>
           <i class="icon-x"></i>
@@ -28,16 +30,16 @@
                   [matTooltip]="getOriginalValue(item).length > maxTagLength ? getOriginalValue(item) : ''">
 
           <ng-container *ngIf="translateItems; else rawValue">
-            <ng-container *ngIf="showFieldNames && field !== 'default'; else valueOnly">
+            <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
               {{ getValue(item) | translate }}
-            </ng-container>
+            </label>
             <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
           </ng-container>
 
           <ng-template #rawValue>
-            <ng-container *ngIf="showFieldNames && field !== 'default'; else rawOnly">
+            <label *ngIf="showFieldNames && field !== 'default'; else rawOnly">
               {{ getValue(item) }}
-            </ng-container>
+            </label>
             <ng-template #rawOnly>{{ getValue(item) }}</ng-template>
           </ng-template>
 
