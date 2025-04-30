@@ -31,7 +31,7 @@ jobs:
           echo "REF=$REF"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "REF=$REF" >> variables.sh
-          echo "TAG=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$REF" \
+          echo "TAG=ghcr.io/${GITHUB_REPOSITORY,,}-$REF" \
             | tee --append $GITHUB_ENV variables.sh
 
       - name: Debug env
@@ -144,7 +144,7 @@ jobs:
           echo "REF=$REF" >> $GITHUB_ENV
           echo "TF_VAR_docker_host_uri=${{ secrets.DOCKER_HOST_URI }}" >> $GITHUB_ENV
           # yamllint disable-line rule:line-length
-          echo "TF_VAR_docker_image=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$REF:latest" >> $GITHUB_ENV
+          echo "TF_VAR_docker_image=ghcr.io/${GITHUB_REPOSITORY,,}-$REF:latest"  >> $GITHUB_ENV
           echo "TF_VAR_ghcr_token=${{ secrets.GHCR_TOKEN }}" >> $GITHUB_ENV
           echo "TF_VAR_ghcr_username=${{ github.actor }}" >> $GITHUB_ENV
           echo "TF_VAR_deploy_domain=cdk.app.trinera.cloud" >> $GITHUB_ENV
