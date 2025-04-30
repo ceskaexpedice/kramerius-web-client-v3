@@ -29,7 +29,6 @@ import {FilterService} from '../../../../core/services/FilterUtilities';
     FormsModule,
     NgForOf,
     MatCheckbox,
-    MatButton,
     ReactiveFormsModule,
     NgIf,
     SelectedTagsComponent,
@@ -51,8 +50,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   };
 
   operatorOptions = [
-    { label: 'Všetky', value: 'AND' },
-    { label: 'Niektoré', value: 'OR' }
+    { label: 'AND', value: 'AND' },
+    { label: 'OR', value: 'OR' }
   ];
 
   sortOptions = [

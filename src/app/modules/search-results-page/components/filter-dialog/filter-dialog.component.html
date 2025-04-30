@@ -1,4 +1,10 @@
-<h2>{{ data.facetLabel | translate }}</h2>
+<h2>
+  {{ data.facetLabel | translate }}
+
+  <button class="button link tertiary icon-button close-button" (click)="close()">
+    <i class="icon-x"></i>
+  </button>
+</h2>
 
 <div class="search-input">
   <input
@@ -22,7 +28,6 @@
     (valueChange)="setOperator($event)"
   />
 
-
 </div>
 
 <app-paginator-info
@@ -30,8 +35,6 @@
   [pageSize]="pageSize"
   [totalCount]="totalCount">
 </app-paginator-info>
-
-<hr>
 
 <app-selected-tags
   [items]="pendingFilterTags()"
@@ -41,10 +44,10 @@
   (remove)="removePendingTag($event)"
   (removeGroup)="clearPendingOperator()"
   (clearAll)="clearPendingTags()"
-  clearButtonPosition="left">
+  clearButtonPosition="right">
 </app-selected-tags>
 
-<!--<app-selected-tags [items]="(searchService.getFiltersByFacet(data.facetKey) | async) || []" (remove)="searchService.removeFilter($event)" (clearAll)="searchService.clearAllFilters()"></app-selected-tags>-->
+<hr>
 
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
@@ -61,16 +64,16 @@
 
 <hr>
 
-<app-paginator
-  [page]="page"
-  [totalCount]="totalCount"
-  [pageSize]="pageSize"
-  [pageSizeOptions]="[25, 50, 100]"
-  (pageChange)="goToPage($event)"
-  [showPageSizeOptions]="false"
-></app-paginator>
-
 <div class="footer">
-  <button mat-button (click)="applyFilter()">Použiť</button>
+  <app-paginator
+    [page]="page"
+    [totalCount]="totalCount"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[25, 50, 100]"
+    (pageChange)="goToPage($event)"
+    [showPageSizeOptions]="false"
+  ></app-paginator>
+
+  <button class="button primary" (click)="applyFilter()">Použiť</button>
 <!--  <button mat-button (click)="close()">Zavrieť</button>-->
 </div>
