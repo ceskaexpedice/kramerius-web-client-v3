@@ -180,9 +180,7 @@ export class SearchService {
   }
 
   removeFilter(filter: string) {
-    console.log('[SearchService] remove filter', filter);
     if (filter.startsWith('search:')) {
-      console.log('ide sem??')
       this.queryParamsService.removeSearchTerm(this.route);
       this._searchTerm.set('');
     } else {
@@ -199,6 +197,8 @@ export class SearchService {
   }
 
   clearAllFilters() {
+    this.queryParamsService.removeSearchTerm(this.route);
+    this._searchTerm.set('');
     this.queryParamsService.clearAllFilters(this.route);
   }
 

@@ -172,6 +172,8 @@ export class QueryParamsService {
     const newParams = { ...currentParams };
     delete newParams['fq'];
 
+    newParams['query'] = null; // Clear search term
+
     // Remove all operator params
     Object.keys(newParams).forEach(key => {
       if (key.endsWith('_operator')) {
