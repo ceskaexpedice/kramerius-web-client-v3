@@ -13,7 +13,7 @@ label {
 .toggle-group {
   display: inline-flex;
   background-color: var(--color-bg-light);
-  border-radius: 8px;
+  border-radius: var(--base-border-radius);
   padding: 2px;
   gap: 2px;
   flex-wrap: wrap;
