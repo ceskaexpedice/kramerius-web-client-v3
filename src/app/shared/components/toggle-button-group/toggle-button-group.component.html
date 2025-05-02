@@ -1,4 +1,8 @@
-<div class="toggle-group" role="group">
+<label *ngIf="showLabel">
+  {{ label | translate}}
+</label>
+
+<div class="toggle-group" [ngClass]="size" role="group">
   <button
     *ngFor="let option of options"
     type="button"
@@ -6,6 +10,8 @@
     [class.active]="option.value === value"
     (click)="select(option)"
   >
+    <i *ngIf="option.icon" [ngClass]="option.icon" [style.color]="'var(' + option.iconColor + ')'"></i>
+
     {{ option.label }}
   </button>
 </div>
