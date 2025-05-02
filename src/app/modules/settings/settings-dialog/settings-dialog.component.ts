@@ -15,6 +15,8 @@ import {
 } from '../components/settings-experimental-section/settings-experimental-section.component';
 import {SettingsGdprSectionComponent} from '../components/settings-gdpr-section/settings-gdpr-section.component';
 import {SettingsContentComponent} from '../components/settings-content/settings-content.component';
+import {SettingsService} from '../settings.service';
+import {Settings} from '../settings.model';
 
 @Component({
   selector: 'app-settings-dialog',
@@ -29,10 +31,13 @@ import {SettingsContentComponent} from '../components/settings-content/settings-
 export class SettingsDialogComponent {
 
   private dialogRef = inject(MatDialogRef<SettingsDialogComponent>);
+  private settingsService = inject(SettingsService);
+
+  localSettings = signal<Settings>(this.settingsService.getSettingsCopy());
 
   save() {
-    console.log('Ukladám...', {
-    });
+    this.settingsService.settings = this.localSettings();
+    this.dialogRef.close();
   }
 
   close() {

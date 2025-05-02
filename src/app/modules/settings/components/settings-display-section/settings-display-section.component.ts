@@ -1,8 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {MatCheckbox} from '@angular/material/checkbox';
-import {TranslatePipe} from '@ngx-translate/core';
-import {SettingsService} from '../../settings.service';
-import {AppSettingsThemeEnum} from '../../settings.model';
+import {Component, Input, OnInit} from '@angular/core';
+import {AppSettingsThemeEnum, Settings} from '../../settings.model';
 import {
   ToggleButtonGroupComponent, ToggleOption,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
@@ -10,20 +7,15 @@ import {
 @Component({
   selector: 'app-settings-display-section',
   imports: [
-    MatCheckbox,
-    TranslatePipe,
     ToggleButtonGroupComponent,
   ],
   templateUrl: './settings-display-section.component.html',
   styleUrl: './settings-display-section.component.scss'
 })
 export class SettingsDisplaySectionComponent implements OnInit {
+  @Input() settings!: Settings;
 
   options: ToggleOption<AppSettingsThemeEnum>[] = [];
-
-  public settings = inject(SettingsService);
-
-  protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;
 
   ngOnInit() {
     this.generateToggleButtons();
@@ -31,9 +23,9 @@ export class SettingsDisplaySectionComponent implements OnInit {
 
   generateToggleButtons() {
     this.options = [
-      { label: 'Svetlý režim', value: AppSettingsThemeEnum.LIGHT },
-      { label: 'Tmavý režim', value: AppSettingsThemeEnum.DARK },
-      { label: 'Systémový', value: AppSettingsThemeEnum.SYSTEM },
+      { label: 'Svetlý režim', value: AppSettingsThemeEnum.LIGHT, icon: 'icon-sun', iconColor: '--icon-sun-color' },
+      { label: 'Tmavý režim', value: AppSettingsThemeEnum.DARK, icon: 'icon-moon', iconColor: '--icon-moon-color' },
+      { label: 'Systémový', value: AppSettingsThemeEnum.SYSTEM, icon: 'icon-monitor' },
     ];
   }
 

@@ -1,4 +1,4 @@
-import {Component, signal} from '@angular/core';
+import {Component, Input, signal} from '@angular/core';
 import {NgForOf, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 import {SettingsDisplaySectionComponent} from '../settings-display-section/settings-display-section.component';
 import {
@@ -11,13 +11,13 @@ import {
 } from '../settings-user-preferences-section/settings-user-preferences-section.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FormsModule} from '@angular/forms';
+import {Settings} from '../../settings.model';
 
 @Component({
   selector: 'app-settings-content',
 	imports: [
     FormsModule,
     NgForOf,
-    NgIf,
     TranslatePipe,
     NgSwitchCase,
     NgSwitch,
@@ -32,6 +32,8 @@ import {FormsModule} from '@angular/forms';
 })
 export class SettingsContentComponent {
 
+  @Input() settings!: Settings;
+
   sections = [
     { key: 'display', label: 'Zobrazení', icon: 'icon-light-dark' },
     { key: 'reading', label: 'Předčítání', icon: 'icon-volume-high' },
@@ -41,7 +43,6 @@ export class SettingsContentComponent {
   ];
 
   activeSection = signal<string>('display');
-  selectedDisplayMode = signal<string>('auto');
 
   setSection(key: string) {
     this.activeSection.set(key);

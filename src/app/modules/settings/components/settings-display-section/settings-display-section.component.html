@@ -1,7 +1,14 @@
-<app-toggle-button-group
-  [options]="options"
-  [value]="settings.theme"
-  (valueChange)="onThemeChange($event)"
->
+<div class="toggle-buttons--container">
 
-</app-toggle-button-group>
+  <app-toggle-button-group
+    [options]="options"
+    [value]="settings.theme"
+    [label]="'display-mode'"
+    [showLabel]="true"
+    (valueChange)="onThemeChange($event)"
+    [size]="'lg'"
+  >
+
+  </app-toggle-button-group>
+
+</div>

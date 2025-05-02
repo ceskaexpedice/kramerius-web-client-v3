@@ -94,6 +94,9 @@
   --color-icon-tertiary-hover: #394C60;
   --color-icon-tertiary-pressed: #263340;
   --color-icon-tertiary-disabled: #4c6580;
+
+  --icon-sun-color: #FF9500;
+  --icon-moon-color: #9FB2C6;
 }
 
 :root.dark {
@@ -192,4 +195,7 @@
   --color-icon-tertiary-hover: #bfccd9;
   --color-icon-tertiary-pressed: #dfe5ec;
   --color-icon-tertiary-disabled: #4c6580;
+
+  --icon-sun-color: #9FB2C6;
+  --icon-moon-color: #5E5CE6;
 }

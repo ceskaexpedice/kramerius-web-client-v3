@@ -4,9 +4,9 @@
   overflow: hidden;
 
   .sidebar {
-    width: 220px;
-    border-right: 1px solid #ddd;
-    padding: 1rem 0;
+    flex: 1;
+    border-right: 1px solid var(--color-border-light);
+    padding: var(--spacing-x6) var(--spacing-x6) var(--spacing-x6) 0;
 
     ul {
       list-style: none;
@@ -43,6 +43,11 @@
       }
     }
   }
+}
+
+.content {
+  padding: 36px 24px;
+  flex: 3;
 }
 
 label {

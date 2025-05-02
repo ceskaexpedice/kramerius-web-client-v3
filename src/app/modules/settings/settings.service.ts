@@ -1,10 +1,7 @@
 import {AppSettingsThemeEnum, Settings} from './settings.model';
-import {SettingsFormComponent} from './components/settings-form/settings-form.component';
 import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Injectable} from '@angular/core';
-import {FacetItem} from '../models/facet-item';
-import {FilterDialogComponent} from '../search-results-page/components/filter-dialog/filter-dialog.component';
 import {SettingsDialogComponent} from './settings-dialog/settings-dialog.component';
 
 @Injectable({
@@ -22,6 +19,10 @@ export class SettingsService {
 
   get settings(): Settings {
     return this._settings.value;
+  }
+
+  getSettingsCopy(): Settings {
+    return { ...this._settings.value };
   }
 
   set settings(settings: Settings) {
@@ -56,7 +57,7 @@ export class SettingsService {
 
   openSettingsDialog(): void {
     const dialogRef = this.dialog.open(SettingsDialogComponent, {
-      width: '600px',
+      width: '80vw',
     });
 
     dialogRef.afterClosed().subscribe(() => {

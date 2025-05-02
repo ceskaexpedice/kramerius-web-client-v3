@@ -13,19 +13,20 @@
   padding: 5px;
 }
 
+hr {
+  margin: 0;
+}
+
 .settings-dialog {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  max-width: 800px;
-  max-height: 600px;
   background-color: var(--color-bg-base);
 
   .footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 1rem;
-    gap: 1rem;
+    justify-content: center;
+    margin-top: var(--spacing-x3);
+    gap: var(--spacing-x4);
   }
 }

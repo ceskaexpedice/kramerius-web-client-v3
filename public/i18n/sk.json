@@ -30,5 +30,6 @@
   "physical_locations.facet": "Miesto uloženia",
   "show-more": "Zobraziť viac",
   "results": "Výsledky",
-  "delete-all": "Zmazať všetko"
+  "delete-all": "Zmazať všetko",
+  "display-mode": "Režim vzhľadu"
 }
