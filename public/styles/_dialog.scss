@@ -1,0 +1,28 @@
+h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-base);
+  line-height: 32px;
+  margin: 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.close-button {
+  font-size: 24px;
+  padding: 5px;
+}
+
+.footer {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+hr {
+  margin: 10px 0 ;
+}
+

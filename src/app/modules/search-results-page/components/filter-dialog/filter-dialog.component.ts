@@ -115,7 +115,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   readonly items = signal<FacetItem[]>([]);
 
   allItems = signal<FacetItem[]>([]);
-
   searchTerm = signal('');
 
   private searchTermSubject = new Subject<string>();
