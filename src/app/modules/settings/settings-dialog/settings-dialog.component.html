@@ -1,0 +1,21 @@
+<h2>
+  {{ 'settings' | translate }}
+
+  <button class="button link tertiary icon-button close-button" (click)="close()">
+    <i class="icon-x"></i>
+  </button>
+</h2>
+
+<hr>
+
+<div class="settings-dialog">
+
+  <app-settings-content></app-settings-content>
+
+  <hr>
+
+  <div class="footer">
+    <button class="button outlined secondary" (click)="close()">Zrušit</button>
+    <button class="button primary" (click)="save()">Uložit</button>
+  </div>
+</div>

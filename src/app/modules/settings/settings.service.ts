@@ -3,6 +3,9 @@ import {SettingsFormComponent} from './components/settings-form/settings-form.co
 import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Injectable} from '@angular/core';
+import {FacetItem} from '../models/facet-item';
+import {FilterDialogComponent} from '../search-results-page/components/filter-dialog/filter-dialog.component';
+import {SettingsDialogComponent} from './settings-dialog/settings-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -52,8 +55,11 @@ export class SettingsService {
   }
 
   openSettingsDialog(): void {
-    this.dialog.open(SettingsFormComponent, {
-      width: '600px'
+    const dialogRef = this.dialog.open(SettingsDialogComponent, {
+      width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
     });
   }
 
