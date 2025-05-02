@@ -35,11 +35,11 @@ export class SettingsContentComponent {
   @Input() settings!: Settings;
 
   sections = [
-    { key: 'display', label: 'Zobrazení', icon: 'icon-light-dark' },
-    { key: 'reading', label: 'Předčítání', icon: 'icon-volume-high' },
-    { key: 'preferences', label: 'Uživatelské preference', icon: 'icon-setting-4' },
-    { key: 'experimental', label: 'Experimentální funkce', icon: 'icon-code' },
-    { key: 'gdpr', label: 'Ochrana osobních údajů', icon: 'icon-shield-tick' },
+    { key: 'display', label: 'settings-section-display', icon: 'icon-light-dark' },
+    { key: 'reading', label: 'settings-section-reading', icon: 'icon-volume-high' },
+    { key: 'preferences', label: 'settings-section-user-preferences', icon: 'icon-setting-4' },
+    { key: 'experimental', label: 'settings-section-experimental', icon: 'icon-code' },
+    { key: 'gdpr', label: 'settings-section-gdpr', icon: 'icon-shield-tick' },
   ];
 
   activeSection = signal<string>('display');

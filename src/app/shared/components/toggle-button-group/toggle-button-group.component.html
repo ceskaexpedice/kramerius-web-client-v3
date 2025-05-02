@@ -12,6 +12,6 @@
   >
     <i *ngIf="option.icon" [ngClass]="option.icon" [style.color]="'var(' + option.iconColor + ')'"></i>
 
-    {{ option.label }}
+    {{ option.label | translate }}
   </button>
 </div>

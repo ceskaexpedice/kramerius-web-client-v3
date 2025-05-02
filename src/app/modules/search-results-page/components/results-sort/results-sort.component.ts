@@ -14,10 +14,10 @@ import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-hel
 export class ResultsSortComponent {
 
   sortOptions = [
-    { label: 'Relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
-    { label: 'Alphabetical', value: SolrSortFields.title, direction: SolrSortDirections.asc },
-    { label: 'Newest first', value: SolrSortFields.dateMax, direction: SolrSortDirections.desc },
-    { label: 'Oldest first', value: SolrSortFields.dateMin, direction: SolrSortDirections.asc },
+    { label: 'sort-relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
+    { label: 'sort-alphabetical', value: SolrSortFields.title, direction: SolrSortDirections.asc },
+    { label: 'sort-date-newest', value: SolrSortFields.dateMax, direction: SolrSortDirections.desc },
+    { label: 'sort-date-oldest', value: SolrSortFields.dateMin, direction: SolrSortDirections.asc },
   ]
 
 // Computed signal for the selected option

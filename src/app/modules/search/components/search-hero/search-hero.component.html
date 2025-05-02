@@ -1,14 +1,14 @@
 <section class="search-hero">
-  <h1>Prozkoumejte největší českou digitální knihovnu</h1>
+  <h1>{{'search-hero-section-title' | translate}}</h1>
   <p>
-    Hledáte historické knihy, noviny, mapy nebo rukopisy? Digitální knihovna vám otevírá brány k bohaté sbírce digitalizovaných dokumentů – ať už volně dostupných, nebo chráněných autorským právem.
+    {{'search-hero-section-subtitle' | translate}}
   </p>
 
   <div class="search-row">
 
     <app-autocomplete
       [inputTheme]="'light'"
-      [placeholder]="'Search...'"
+      [placeholder]="'search-input-placeholder' | translate"
       [minTermLength]="2"
       [initialValue]="searchService.inputSearchTerm"
       [getSuggestions]="searchService.getSuggestionsFn"
@@ -18,7 +18,7 @@
     </app-autocomplete>
 
     <button class="outlined">
-      Pokročilé hledání
+      {{'advanced-search' | translate}}
     </button>
   </div>
 

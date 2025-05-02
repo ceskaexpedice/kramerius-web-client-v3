@@ -2,10 +2,11 @@ import {Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges
 import {NgForOf, NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {SelectComponent} from '../select/select.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-paginator',
-  imports: [NgForOf, NgIf, SelectComponent],
+  imports: [NgForOf, NgIf, SelectComponent, TranslatePipe],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.scss'
 })

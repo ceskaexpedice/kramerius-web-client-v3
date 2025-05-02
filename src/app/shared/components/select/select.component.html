@@ -9,7 +9,7 @@
   (keydown.space)="toggle()"
   (keydown.arrowDown)="focusFirst()"
 >
-  <span>{{ displayFn(value) }}</span>
+  <span>{{ displayFn(value) | translate }}</span>
   <i
     class="icon-arrow-down-1 arrow-icon"
     [class.open]="open()"
@@ -34,12 +34,12 @@
     role="option"
     [attr.aria-selected]="option === value"
   >
-    {{ displayFn(option) }}
+    {{ displayFn(option) | translate }}
     <i *ngIf="option === value" class="icon-tick-circle"></i>
   </div>
 
   <div aria-live="polite" class="visually-hidden">
-    {{ displayFn(value) }}
+    {{ displayFn(value) | translate }}
   </div>
 
 </div>

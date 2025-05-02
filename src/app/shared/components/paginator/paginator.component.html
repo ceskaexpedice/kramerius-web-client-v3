@@ -17,7 +17,7 @@
   </div>
 
   <div class="page-size" *ngIf="showPageSizeOptions">
-    Počet výsledků na straně:
+    {{'paginator-page-size' | translate}}:
 
     <app-select
       [options]="pageSizeOptions"

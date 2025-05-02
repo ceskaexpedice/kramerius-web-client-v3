@@ -31,5 +31,32 @@
   "show-more": "Zobraziť viac",
   "results": "Výsledky",
   "delete-all": "Zmazať všetko",
-  "display-mode": "Režim vzhľadu"
+  "display-mode": "Režim vzhľadu",
+
+  "about-project": "O projekte",
+  "log-in": "Prihlásiť",
+  "settings": "Nastavenia",
+  "settings-section-display": "Zobrazenie",
+  "settings-section-reading": "Predčítanie",
+  "settings-section-user-preferences": "Užívateľské nastavenia",
+  "settings-section-experimental": "Experimentálne funkcie",
+  "settings-section-gdpr": "Ochrana osobných údajov",
+  "display-light-mode": "Svetlý režim",
+  "display-dark-mode": "Tmavý režim",
+  "display-system-mode": "Systémový",
+  "cancel": "Zrušiť",
+  "close": "Zavrieť",
+  "save": "Uložiť",
+  "advanced-search": "Pokročilé vyhľadávanie",
+
+  "btn_show_more": "Zobraziť viac",
+  "search-input-placeholder": "Hľadať vo verejných dokumentoch",
+  "search-hero-section-title": "Preskúmajte najväčšiu českú digitálnu knižnicu",
+  "search-hero-section-subtitle": "Hľadáte historické knihy, noviny, mapy alebo rukopisy? Digitálna knižnica vám otvára brány k bohatej zbierke digitalizovaných dokumentov - či už voľne dostupných alebo chránených autorskými právami.",
+
+  "sort-relevance": "Relevancia",
+  "sort-alphabetical": "Abecedne",
+  "sort-date-newest": "Dátum (najnovšie)",
+  "sort-date-oldest": "Dátum (najstaršie)",
+  "paginator-page-size": "Počet výsledkov na stránku"
 }

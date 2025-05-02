@@ -5,7 +5,7 @@
     <app-category-item
       *ngFor="let genre of documentTypes?.slice(0, 16)"
       [icon]="genre.icon"
-      [label]="genre.name"
+      [label]="genre.name | translate"
       [count]="genre.count"
     ></app-category-item>
   </div>

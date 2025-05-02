@@ -12,7 +12,7 @@
 
     <app-autocomplete
       [inputTheme]="'dark'"
-      [placeholder]="'Search...'"
+      [placeholder]="'search-input-placeholder' | translate"
       [minTermLength]="2"
       [initialValue]="searchService.inputSearchTerm"
       [getSuggestions]="searchService.getSuggestionsFn"
@@ -25,8 +25,8 @@
 
   <nav class="app-header__right">
 
-    <a routerLink="/about">O projektu</a>
-    <a routerLink="/login">Přihlásit</a>
+    <a routerLink="/about">{{'about-project' | translate}}</a>
+    <a routerLink="/login">{{'log-in' | translate}}</a>
 
     <button class="icon-button outlined light" (click)="openSettings()">
       <i class="icon-settings"></i>

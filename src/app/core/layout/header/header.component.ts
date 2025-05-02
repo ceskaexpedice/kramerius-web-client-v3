@@ -9,6 +9,7 @@ import {NgClass, NgIf} from '@angular/common';
 import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
 import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
 import {SearchService} from '../../../shared/services/search.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +20,7 @@ import {SearchService} from '../../../shared/services/search.service';
     AutocompleteComponent,
     LangPickerComponent,
     RouterLink,
+    TranslatePipe,
   ],
   styleUrl: './header.component.scss'
 })

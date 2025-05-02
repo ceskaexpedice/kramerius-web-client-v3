@@ -9,11 +9,12 @@ import {
   AfterViewInit, OnDestroy,
 } from '@angular/core';
 import {NgIf, NgForOf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgIf, NgForOf],
+  imports: [NgIf, NgForOf, TranslatePipe],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })

@@ -6,6 +6,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
 import {InputComponent} from '../input/input.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-autocomplete',
@@ -17,6 +18,7 @@ import {InputComponent} from '../input/input.component';
     MatInputModule,
     NgIf,
     InputComponent,
+    TranslatePipe,
   ],
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
