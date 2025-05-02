@@ -16,7 +16,6 @@
 
   <mat-autocomplete
     #auto="matAutocomplete"
-    autoActiveFirstOption
     (optionSelected)="onSelectSuggestion($event)"
   >
     @for (option of suggestions(); track $index) {
