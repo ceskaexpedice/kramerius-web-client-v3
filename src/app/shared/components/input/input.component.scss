@@ -1,0 +1,46 @@
+.input-field {
+  position: relative;
+  width: 100%;
+
+  .input-container {
+    width: 100%;
+    position: relative;
+
+    input {
+      width: 100%;
+      padding: 14px 100px 14px 14px;
+      border-radius: var(--base-border-radius);
+      background: var(--color-bg-base);
+      color: var(--color-text-light);
+    }
+
+    &.dark input {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-bg-light);
+      color: var(--color-text-light);
+    }
+
+    .input--icons {
+      position: absolute;
+      top: 50%;
+      right: 55px;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0px;
+      color: var(--color-icon-tertiary-default);
+      z-index: 2;
+    }
+  }
+
+  .submit-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    border-top-right-radius: var(--base-border-radius);
+    border-bottom-right-radius: var(--base-border-radius);
+    padding: 0 16px;
+    z-index: 2;
+  }
+}

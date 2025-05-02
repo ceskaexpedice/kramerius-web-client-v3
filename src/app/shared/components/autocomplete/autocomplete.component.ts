@@ -1,23 +1,22 @@
 import {Component, Input, OnInit, OnDestroy, signal, effect, EventEmitter, Output} from '@angular/core';
-import {NgClass, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
-import {TranslatePipe} from '@ngx-translate/core';
 import {MatAutocompleteModule, MatAutocompleteSelectedEvent, MatOption} from '@angular/material/autocomplete';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
+import {InputComponent} from '../input/input.component';
 
 @Component({
   selector: 'app-autocomplete',
   standalone: true,
   imports: [
-    NgClass,
     ReactiveFormsModule,
-    TranslatePipe,
     MatAutocompleteModule,
     MatFormFieldModule,
     MatInputModule,
     NgIf,
+    InputComponent,
   ],
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
@@ -96,9 +95,8 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     }
   }
 
-  onInputChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.inputTerm.set(input.value);
+  onInputValueChange(value: string) {
+    this.inputTerm.set(value);
   }
 
   onSelectSuggestion(event: MatAutocompleteSelectedEvent) {

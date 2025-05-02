@@ -1,11 +1,10 @@
-import {Component, effect, inject, OnInit, signal, computed} from '@angular/core';
+import {Component, effect, inject, OnInit, signal, computed,} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
-import {MatButton} from '@angular/material/button';
-import {debounceTime, distinctUntilChanged, Observable, of, take} from 'rxjs';
+import {debounceTime, Observable, of, take, Subject} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
@@ -22,6 +21,7 @@ import {
 import {PaginatorInfoComponent} from '../../../../shared/components/paginator-info/paginator-info.component';
 import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
 import {FilterService} from '../../../../core/services/FilterUtilities';
+import {InputComponent} from '../../../../shared/components/input/input.component';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -37,6 +37,7 @@ import {FilterService} from '../../../../core/services/FilterUtilities';
     TranslatePipe,
     ToggleButtonGroupComponent,
     PaginatorInfoComponent,
+    InputComponent,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -79,8 +80,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     return {};
   });
 
-
-
   removePendingTag(tag: string) {
     // Extract just the value part (after the colon)
     const value = tag.split(':')[1];
@@ -111,12 +110,19 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   public searchService = inject(SearchService);
   private solrService = inject(SolrService);
 
-  readonly searchControl = new FormControl('');
   readonly selected = signal<Set<string>>(new Set());
   readonly loading = signal(false);
   readonly items = signal<FacetItem[]>([]);
 
   allItems = signal<FacetItem[]>([]);
+
+  searchTerm = signal('');
+
+  private searchTermSubject = new Subject<string>();
+
+  onSearchTermChange(term: string) {
+    this.searchTerm.set(term);
+  }
 
   constructor(
     private filterService: FilterService,
@@ -132,25 +138,20 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       this.useOrOperator.set(operator !== 'AND');
     });
 
+    // Sleduj signal a debounci
     effect(() => {
-      const sub = this.searchControl.valueChanges
-        .pipe(
-          debounceTime(300),
-          distinctUntilChanged(),
-          switchMap(term => {
+      const term = this.searchTerm();
+      this.searchTermSubject.next(term);
+    });
 
-            if (term && term.length > 0 && term.length < 2) {
-              return of(null);
-            }
-
-            this.loadFacets(true);
-
-            return of(null);
-          })
-        )
-        .subscribe();
-
-      return () => sub.unsubscribe();
+    this.searchTermSubject.pipe(
+      debounceTime(300)
+    ).subscribe((term: string) => {
+      console.log('term', term);
+      if (term.length === 0 || term.length >= 2) {
+        this.page = 1;
+        this.loadFacets();
+      }
     });
   }
 
@@ -232,7 +233,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
             this.pendingOperator(),
             existingOperators,
             {
-              searchTerm: this.searchControl.value || '',
+              searchTerm: this.searchTerm() || '',
               limit: facetLimit,
               offset: facetOffset,
               sortBy: this.sortBy(),

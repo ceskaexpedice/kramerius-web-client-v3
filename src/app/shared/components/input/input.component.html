@@ -1,0 +1,62 @@
+<div class="input-field">
+  <div class="input-container" [ngClass]="theme">
+    <ng-container *ngIf="autocomplete; else noAutocomplete">
+      <input
+        type="text"
+        #inputElement
+        [placeholder]="placeholder | translate"
+        [(ngModel)]="value"
+        (ngModelChange)="valueChange.emit($event)"
+        (keyup.enter)="onEnter()"
+        [matAutocomplete]="autocomplete"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+      />
+    </ng-container>
+
+    <ng-template #noAutocomplete>
+      <input
+        type="text"
+        #inputElement
+        [placeholder]="placeholder | translate"
+        [(ngModel)]="value"
+        (ngModelChange)="valueChange.emit($event)"
+        (keyup.enter)="onEnter()"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+      />
+    </ng-template>
+
+    <span class="input--icons" *ngIf="showMicButton || showHelpButton || showClearButton">
+      <button
+        class="icon-button button link tertiary"
+        *ngIf="showMicButtonActual"
+        type="button">
+        <i class="icon-microphone-2 input--icon"></i>
+      </button>
+
+      <button
+        class="icon-button button link tertiary"
+        *ngIf="showClearButton"
+        type="button"
+        (mousedown)="clearInput($event)">
+        <i class="icon-x input--icon"></i>
+      </button>
+
+      <button
+        class="icon-button button link tertiary"
+        *ngIf="showHelpButton"
+        type="button">
+        <i class="icon-question input--icon"></i>
+      </button>
+    </span>
+  </div>
+
+  <button
+    *ngIf="showSubmitButton"
+    type="button"
+    class="icon-button submit-btn"
+    (click)="onSubmitClick()">
+    <i class="{{submitIcon}}"></i>
+  </button>
+</div>

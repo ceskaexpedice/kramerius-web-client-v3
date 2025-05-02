@@ -1,33 +1,18 @@
 <div class="autocomplete">
 
-  <div class="autocomplete-field">
-
-    <div class="autocomplete-input" [ngClass]="inputTheme">
-
-      <input
-        type="text"
-        [placeholder]="placeholder | translate"
-        [value]="inputTerm()"
-        (input)="onInputChange($event)"
-        (keyup.enter)="onSearch()"
-        [matAutocomplete]="auto"
-      />
-
-      <span class="input--icons">
-
-        <i class="icon-question input--icon"></i>
-
-        <i class="icon-microphone-2 input--icon"></i>
-
-      </span>
-
-    </div>
-
-    <button type="button" class="icon-button submit-btn" (click)="onSubmit()">
-      <i class="icon-search-normal"></i>
-    </button>
-
-  </div>
+  <app-input
+    [theme]="inputTheme"
+    [placeholder]="placeholder"
+    [initialValue]="inputTerm()"
+    [autocomplete]="auto"
+    [showMicButton]="true"
+    [showHelpButton]="true"
+    [showSubmitButton]="true"
+    [submitIcon]="'icon-search-normal'"
+    (valueChange)="onInputValueChange($event)"
+    (enter)="onSearch()"
+    (submit)="onSubmit()">
+  </app-input>
 
   <mat-autocomplete
     #auto="matAutocomplete"
@@ -35,7 +20,9 @@
     (optionSelected)="onSelectSuggestion($event)"
   >
     @for (option of suggestions(); track $index) {
-      <mat-option [value]="option">{{ option }}</mat-option>
+      <mat-option [value]="option">
+        <label>{{ option }}</label>
+      </mat-option>
     }
   </mat-autocomplete>
 

@@ -36,3 +36,15 @@ html {
   border-radius: 0 !important;
   border-style: unset !important;
 }
+
+div.mat-mdc-autocomplete-panel {
+  background-color: var(--color-bg-base) !important;
+  border-radius: var(--base-border-radius) !important;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid var(--color-primary) !important;
+  margin-top: 4px !important;
+}
+
+.mat-mdc-option {
+  padding: var(--spacing-x2) var(--spacing-x4) !important;
+}

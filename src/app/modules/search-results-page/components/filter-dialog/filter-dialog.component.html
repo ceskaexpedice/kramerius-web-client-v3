@@ -6,11 +6,18 @@
   </button>
 </h2>
 
+
+
 <div class="search-input">
-  <input
-    type="text"
-    [formControl]="searchControl"
-    placeholder="Hľadať v zozname..."
+  <app-input
+    [placeholder]="'Hľadať v zozname...'"
+    [theme]="'light'"
+    [initialValue]="searchTerm()"
+    [showMicButton]="true"
+    [showHelpButton]="true"
+    [showSubmitButton]="true"
+    [changeMicToClearOnFocus]="true"
+    (valueChange)="onSearchTermChange($event)"
   />
 </div>
 
