@@ -1,7 +1,7 @@
 import {Component, OnInit, EventEmitter, Output, signal, Input, ElementRef, ViewChild} from '@angular/core';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
-import {MatAutocomplete, MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {FormsModule} from '@angular/forms';
 
 @Component({
@@ -37,6 +37,8 @@ export class InputComponent implements OnInit {
   value: string = '';
   isFocused = false;
 
+  @ViewChild(MatAutocompleteTrigger) autocompleteTrigger!: MatAutocompleteTrigger;
+
   ngOnInit() {
     if (this.initialValue) {
       this.value = this.initialValue;
@@ -53,6 +55,10 @@ export class InputComponent implements OnInit {
 
   onEnter() {
     this.enter.emit(this.value);
+
+    if (this.autocomplete && this.autocompleteTrigger) {
+      this.autocompleteTrigger.closePanel();
+    }
   }
 
   onSubmitClick() {

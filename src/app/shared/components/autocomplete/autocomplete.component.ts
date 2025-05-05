@@ -1,7 +1,11 @@
-import {Component, Input, OnInit, OnDestroy, signal, effect, EventEmitter, Output} from '@angular/core';
+import {Component, Input, OnInit, OnDestroy, signal, effect, EventEmitter, Output, ViewChild} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
-import {MatAutocompleteModule, MatAutocompleteSelectedEvent, MatOption} from '@angular/material/autocomplete';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+  MatOption,
+} from '@angular/material/autocomplete';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
