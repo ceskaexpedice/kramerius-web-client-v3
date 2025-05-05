@@ -39,5 +39,10 @@
   "sort-date-oldest": "Datum (nejstarší)",
   "paginator-page-size": "Počet výsledků na stránku",
   "search-images-by-title": "Prozkoumat obrázky podle názvu",
-  "search-image-button": "Hledat obrázky"
+  "search-image-button": "Hledat obrázky",
+
+  "filter-all": "Vše",
+  "filter-images": "Obrázky",
+  "filter-periodicals": "Periodika",
+  "filter-maps": "Mapy"
 }

@@ -39,5 +39,10 @@
   "sort-date-oldest": "Date (oldest)",
   "paginator-page-size": "Number of results per page",
   "search-images-by-title": "Explore images by title",
-  "search-image-button": "Search images"
+  "search-image-button": "Search images",
+
+  "filter-all": "All",
+  "filter-images": "Images",
+  "filter-periodicals": "Periodicals",
+  "filter-maps": "Maps"
 }

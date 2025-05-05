@@ -39,5 +39,10 @@
   "sort-date-oldest": "Data (najstarsze)",
   "paginator-page-size": "Liczba wyników na stronę",
   "search-images-by-title": "Przeglądaj obrazy według tytułu",
-  "search-image-button": "Szukaj obrazów"
+  "search-image-button": "Szukaj obrazów",
+
+  "filter-all": "Wszystko",
+  "filter-images": "Obrazy",
+  "filter-periodicals": "Czasopisma",
+  "filter-maps": "Mapy"
 }

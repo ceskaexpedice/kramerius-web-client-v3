@@ -17,9 +17,10 @@ export class CategoryFilterComponent {
   @Output() valueChange = new EventEmitter<string>();
 
   readonly tabs = [
-    { label: 'Vše', value: 'all' },
-    { label: 'Obrázky', value: 'images' },
-    { label: 'Periodika', value: 'periodicals' }
+    { label: 'filter-all', value: 'all' },
+    { label: 'filter-images', value: 'images' },
+    { label: 'filter-periodicals', value: 'periodicals' },
+    { label: 'filter-maps', value: 'maps' }
   ];
 
   selectTab(value: string) {
