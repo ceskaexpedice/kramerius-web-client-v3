@@ -123,8 +123,23 @@ export class SolrQueryBuilder {
 
   static escapeSolrQuery(input: string): string {
     // Escape special characters for Solr query syntax
-    const specialChars = /([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\])/g;
-    return input.replace(specialChars, '\\$1');
+    // const specialChars = /([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\])/g;
+    // return input.replace(specialChars, '\\$1');
+
+    return input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
+
+  }
+
+  static buildQueryFromInput(input: string, operator: 'AND' | 'OR' = 'AND', field: string = 'titles.search'): string {
+    const trimmed = input.trim();
+    if (!trimmed) return '*:*';
+
+    const words = trimmed.split(/\s+/).map((term, i, arr) => {
+      const escaped = this.escapeSolrQuery(term);
+      return i === arr.length - 1 ? `${escaped}*` : escaped;
+    });
+
+    return `${field}:(${words.join(` ${operator} `)})`;
   }
 
 }

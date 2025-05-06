@@ -329,7 +329,7 @@ export class SolrService {
     let params = this.createHttpParams(paramsObject);
 
     // Set query
-    const finalQuery = query?.trim() ? `titles.search:"${SolrQueryBuilder.escapeSolrQuery(query)}"` : '*:*';
+    const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
     params = params.set('q', finalQuery);
 
     // Group filters by field and create filter queries
@@ -374,7 +374,7 @@ export class SolrService {
     let params = this.createHttpParams(paramsObject);
 
     // Set query
-    const finalQuery = query?.trim() ? `titles.search:"${SolrQueryBuilder.escapeSolrQuery(query)}"` : '*:*';
+    const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
     params = params.set('q', finalQuery);
 
     // Group filters by field
@@ -423,8 +423,9 @@ export class SolrService {
    * Get autocomplete suggestions for a search term
    */
   getAutocompleteSuggestions(term: string): Observable<string[]> {
+    const query = SolrQueryBuilder.buildQueryFromInput(term);
     const paramsObject = {
-      'q': `title.search:${term}*`,
+      'q': query,
       'fl': 'pid,title.search',
       'fq': ['accessibility:public'],
       'rows': '50',

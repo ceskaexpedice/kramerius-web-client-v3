@@ -11,6 +11,7 @@ import {MatInputModule} from '@angular/material/input';
 import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
 import {InputComponent} from '../input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {catchError} from 'rxjs/operators';
 
 @Component({
   selector: 'app-autocomplete',
@@ -65,16 +66,17 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
         this.isLoading.set(true);
 
-        return this.getSuggestions(term);
+        // Use catchError to handle API errors without terminating the stream
+        return this.getSuggestions(term).pipe(
+          catchError(err => {
+            console.error('Error fetching suggestions:', err);
+            return of([]); // Return empty array but keep the stream alive
+          })
+        );
       })
     ).subscribe({
       next: (suggestions: string[]) => {
         this.suggestions.set(suggestions);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Error fetching suggestions:', err);
-        this.suggestions.set([]);
         this.isLoading.set(false);
       }
     });
