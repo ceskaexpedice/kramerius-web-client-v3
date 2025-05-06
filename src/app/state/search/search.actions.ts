@@ -9,7 +9,7 @@ export const loadSearchResults = createAction(
 
 export const loadSearchResultsSuccess = createAction(
   '[SearchResults] Load Success',
-  props<{ results: any[], totalCount: number }>() // len výsledky
+  props<{ results: any[], totalCount: number }>()
 );
 
 export const loadFacetsSuccess = createAction(

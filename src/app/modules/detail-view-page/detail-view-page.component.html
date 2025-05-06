@@ -1,0 +1,12 @@
+<div *ngIf="loading$ | async">Načítavam...</div>
+<div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+<ng-container *ngIf="document$ | async as doc">
+  <h1>{{ doc.titlesSearch }}</h1>
+  <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>
+  <p><strong>Model:</strong> {{ doc.model }}</p>
+
+  <br>
+
+  {{doc | json}}
+</ng-container>

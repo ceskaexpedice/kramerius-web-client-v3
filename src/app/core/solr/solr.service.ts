@@ -352,6 +352,19 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
+  getDetailItem(pid: string): Observable<any> {
+    const params = new HttpParams({
+      fromObject: {
+        q: `pid:"${pid}"`,
+        ...SolrQueryBuilder.rows(1)
+      }
+    });
+
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs[0] ?? null)
+    );
+  }
+
   /**
    * Get facets with proper operators (OR/AND)
    */

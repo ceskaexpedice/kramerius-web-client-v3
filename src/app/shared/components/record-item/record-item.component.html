@@ -1,4 +1,4 @@
-<div class="record-item-card">
+<div class="record-item-card" (click)="onRecordClick($event, record)">
 
   <div class="record-item-card__inner">
 
@@ -6,7 +6,7 @@
       [style.background-image]="'url(https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + record.pid + '/image/thumb)'"
     >
 
-      <span class="badge model">{{ (modelLabel[record.model] || record.model) | translate }}</span>
+      <span class="badge model">{{ record.model | translate }}</span>
 
     </div>
 
@@ -22,8 +22,8 @@
         {{ record.date }}
       </div>
 
-      <div class="access-label" [ngClass]="getAccessClass(record.access)">
-        {{ getAccessLabel(record.access) }}
+      <div class="access-label" [ngClass]="record.access">
+        {{ record.access }}
       </div>
 
     </div>

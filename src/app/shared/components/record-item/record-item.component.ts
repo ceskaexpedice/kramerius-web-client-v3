@@ -1,7 +1,9 @@
-import {Component, Input} from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
 import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 
 @Component({
   selector: 'app-record-item',
@@ -17,31 +19,11 @@ export class RecordItemComponent {
 
   @Input() record: SearchDocument = {} as SearchDocument;
 
-  modelLabel: Record<string, string> = {
-    periodical: 'Periodikum',
-    monograph: 'Kniha',
-    article: 'Článok',
-    // ... ďalšie typy podľa potreby
-  };
+  router = inject(Router);
 
-  getAccessLabel(access: string): string {
-    switch (access) {
-      case 'public':
-        return 'Verejné';
-      case 'login':
-        return 'Po prihlásení';
-      case 'protected':
-        return 'V knižovni';
-      default:
-        return '';
-    }
-  }
-
-  getAccessClass(access: string): string {
-    return {
-      public: 'access-public',
-      login: 'access-login',
-      protected: 'access-library',
-    }[access] || '';
+  onRecordClick(e: Event, record: SearchDocument): void {
+    e.stopPropagation();
+    // redirect to detail view with ?uuid=record.uuId
+    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW], { queryParams: { uuid: record.pid } });
   }
 }

@@ -3,21 +3,26 @@ import { Routes } from '@angular/router';
 export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
   SEARCH_RESULTS = 'search-results',
+  DETAIL_VIEW = 'detail-view',
 }
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'search',
+    redirectTo: APP_ROUTES_ENUM.SEARCH,
     pathMatch: 'full',
   },
   {
-    path: 'search',
+    path: APP_ROUTES_ENUM.SEARCH,
     loadChildren: () =>
       import('./modules/search/search.module').then(m => m.SearchPageModule)
   },
   {
-    path: 'search-results',
+    path: APP_ROUTES_ENUM.SEARCH_RESULTS,
     loadChildren: () => import('./modules/search-results-page/search-results-page.module').then(m => m.SearchResultsPageModule)
+  },
+  {
+    path: APP_ROUTES_ENUM.DETAIL_VIEW,
+    loadChildren: () => import('./modules/detail-view-page/detail-view-page.module').then(m => m.DetailViewPageModule)
   }
 ];
