@@ -118,7 +118,13 @@ export class SearchService {
   initialize(): void {
     if (this.initialized) return;
 
-    this.route.queryParams.subscribe(this.dispatchSearch.bind(this));
+    this.route.queryParams.subscribe(params => {
+      const currentRoute = this.router.url.split('?')[0];
+      if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+        this.dispatchSearch(params);
+      }
+    });
+
     this.initialized = true;
   }
 

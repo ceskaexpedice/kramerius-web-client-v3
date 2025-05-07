@@ -365,6 +365,40 @@ export class SolrService {
     );
   }
 
+  getPeriodicalVolumes(pid: string): Observable<any[]> {
+    const query = SolrQueryBuilder.buildBooleanQuery([
+      `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
+      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
+      `(model:periodicalvolume)`
+    ]);
+    const params = {
+      q: query,
+      fl: 'date.str, pid',
+      rows: '10000',
+      sort: 'date.min asc',
+      wt: 'json'
+    };
+
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs ?? [])
+    );
+  }
+
+  getChildrenByModel(parentPid: string, model: string): Observable<any[]> {
+    const query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND (model:${model})`;
+    const params = {
+      q: query,
+      fl: 'pid,accessibility,model,title.search,date.str',
+      rows: '10000',
+      sort: 'date.min asc',
+      wt: 'json'
+    };
+
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs ?? [])
+    );
+  }
+
   /**
    * Get facets with proper operators (OR/AND)
    */

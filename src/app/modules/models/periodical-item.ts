@@ -15,3 +15,13 @@ export interface PeriodicalItem {
   modified?: string;
   hasTiles?: boolean;
 }
+
+export interface PeriodicalItemYear {
+  year: string;
+  exists: boolean;
+}
+
+export interface AvailableYear {
+  year: string;
+  pid: string;
+}

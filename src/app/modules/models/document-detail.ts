@@ -1,9 +1,11 @@
+import {DocumentTypeEnum} from '../constants/document-type';
+
 export interface DocumentDetail {
   pid: string;
   title: string;
   titlesSearch: string[];
   accessibility: string;
-  model: string;
+  model: DocumentTypeEnum;
   rootPid?: string;
   rootTitle?: string;
   rootModel?: string;

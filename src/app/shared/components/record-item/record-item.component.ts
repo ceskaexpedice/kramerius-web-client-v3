@@ -4,6 +4,7 @@ import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
+import {RecordHandlerService} from '../../services/record-handler.service';
 
 @Component({
   selector: 'app-record-item',
@@ -17,6 +18,8 @@ import {APP_ROUTES_ENUM} from '../../../app.routes';
 })
 export class RecordItemComponent {
 
+  recordHandler = inject(RecordHandlerService);
+
   @Input() record: SearchDocument = {} as SearchDocument;
 
   router = inject(Router);
@@ -24,6 +27,6 @@ export class RecordItemComponent {
   onRecordClick(e: Event, record: SearchDocument): void {
     e.stopPropagation();
     // redirect to detail view with ?uuid=record.uuId
-    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW], { queryParams: { uuid: record.pid } });
+    this.recordHandler.handleDocumentClick(record)
   }
 }

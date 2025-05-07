@@ -4,6 +4,7 @@ export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
   SEARCH_RESULTS = 'search-results',
   DETAIL_VIEW = 'detail-view',
+  PERIODICAL_VIEW = 'periodical-view'
 }
 
 export const routes: Routes = [
@@ -24,5 +25,9 @@ export const routes: Routes = [
   {
     path: APP_ROUTES_ENUM.DETAIL_VIEW,
     loadChildren: () => import('./modules/detail-view-page/detail-view-page.module').then(m => m.DetailViewPageModule)
+  },
+  {
+    path: APP_ROUTES_ENUM.PERIODICAL_VIEW,
+    loadChildren: () => import('./modules/periodical-view-page/periodical-view-page.module').then(m => m.PeriodicalViewPageModule)
   }
 ];

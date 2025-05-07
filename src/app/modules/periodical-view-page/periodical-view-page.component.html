@@ -1,0 +1,25 @@
+<div class="search-results-page">
+  <div class="search-results-page--inner">
+
+    <app-filter-sidebar></app-filter-sidebar>
+
+    <div class="results-content">
+
+      <div *ngIf="loading$ | async">Načítavam...</div>
+      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+      <div class="years--container" *ngIf="periodicalYears$ | async as years">
+        <div
+          class="year"
+          *ngFor="let y of years"
+          [class.disabled]="!y.exists"
+          (click)="y.exists && selectYear(y.year)">
+          {{ y.year }}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
