@@ -440,7 +440,7 @@ export class SolrService {
     const paramsObject = {
       'q': query,
       'fl': 'pid,title.search',
-      'fq': ['accessibility:public'],
+      'fq': ['accessibility:public', 'level:0'],
       'rows': '50',
       'wt': 'json',
     };
