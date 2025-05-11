@@ -27,6 +27,7 @@
       <ng-container *ngFor="let item of getItemsForField(field)">
 
         <mat-chip (removed)="remove.emit(item)" class="filter-chip"
+                  [class.and-operator]="getOperatorForField(field) === 'AND'"
                   [matTooltip]="getOriginalValue(item).length > maxTagLength ? getOriginalValue(item) : ''">
 
           <ng-container *ngIf="translateItems; else rawValue">

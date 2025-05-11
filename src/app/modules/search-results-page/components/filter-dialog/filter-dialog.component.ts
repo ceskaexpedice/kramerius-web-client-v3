@@ -263,7 +263,12 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
             this.allItems.set(sortedItems);
 
             // Now load the paginated items
-            this.loadFacetsWithPendingChanges(true);
+            if (this.pageSize < parsed.length) {
+              this.loadFacetsWithPendingChanges(true);
+            } else {
+              this.items.set(sortedItems);
+            }
+
           } else {
             // When loading paginated items
             this.items.set(sortedItems);
@@ -284,8 +289,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   setOperator(operator: string) {
     this.pendingOperator.set(operator as 'AND' | 'OR');
+    this.page = 1;
     this.loadFacetsWithPendingChanges(false);
-    this.loadFacetsWithPendingChanges();
   }
 
   toggle(value: string) {

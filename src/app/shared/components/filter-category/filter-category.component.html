@@ -1,7 +1,13 @@
 <div>
   <div class="category--header">
 
-    <h4>{{label | translate}}</h4>
+    <h4>
+
+      {{label | translate}}
+
+      <span *ngIf="hasAndOperator" class="and-indicator">AND</span>
+
+    </h4>
 
     <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
 
