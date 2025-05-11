@@ -117,6 +117,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   allItems = signal<FacetItem[]>([]);
   searchTerm = signal('');
 
+  override pageSize = 100;
+
   private searchTermSubject = new Subject<string>();
 
   onSearchTermChange(term: string) {
@@ -282,6 +284,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   setOperator(operator: string) {
     this.pendingOperator.set(operator as 'AND' | 'OR');
+    this.loadFacetsWithPendingChanges(false);
     this.loadFacetsWithPendingChanges();
   }
 
@@ -295,6 +298,12 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     }
 
     this.pendingSelection.set(pendingSet);
+
+    // if operator is AND, we need to loadFacetsWithPendingChanges with false
+    if (this.pendingOperator() === 'AND') {
+      this.loadFacetsWithPendingChanges(false);
+    }
+
     this.loadFacetsWithPendingChanges();
   }
 
