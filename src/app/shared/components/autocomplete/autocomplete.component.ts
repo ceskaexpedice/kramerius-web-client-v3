@@ -1,4 +1,15 @@
-import {Component, Input, OnInit, OnDestroy, signal, effect, EventEmitter, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  signal,
+  effect,
+  EventEmitter,
+  Output,
+  ViewChild,
+  Signal, WritableSignal,
+} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {
@@ -29,7 +40,6 @@ import {catchError} from 'rxjs/operators';
   styleUrl: './autocomplete.component.scss',
 })
 export class AutocompleteComponent implements OnInit, OnDestroy {
-  inputTerm = signal('');
   suggestions = signal<string[]>([]);
   isLoading = signal(false);
 
@@ -45,6 +55,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() debounceTime: number = 400;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
+  @Input() inputTerm: WritableSignal<string> = signal('');
 
   @Output() search = new EventEmitter<string>();
   @Output() submit = new EventEmitter<string>();
@@ -76,7 +87,16 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (suggestions: string[]) => {
-        this.suggestions.set(suggestions);
+        const term = this.inputTerm().toLowerCase();
+        const unique = Array.from(new Set(suggestions));
+
+        const sorted = unique
+          .map(s => ({ s, index: s.toLowerCase().indexOf(term) }))
+          .filter(item => item.index !== -1)
+          .sort((a, b) => a.index - b.index)
+          .map(item => item.s);
+
+        this.suggestions.set(sorted);
         this.isLoading.set(false);
       }
     });
@@ -84,6 +104,10 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     effect(() => {
       const term = this.inputTerm();
       this.termChange.emit(term);
+
+      if (term === '') {
+        this.justSelected = false;
+      }
 
       if (!this.justSelected) {
         this.termChangeSubject.emit(term);
@@ -123,5 +147,12 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.submit.emit(this.inputTerm());
+  }
+
+  highlight(text: string, term: string): string {
+    if (!term) return text;
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return text.replace(regex, '<span class="text-bold">$1</span>');
   }
 }
