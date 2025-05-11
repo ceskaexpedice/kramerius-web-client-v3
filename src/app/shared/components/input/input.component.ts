@@ -7,7 +7,7 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext,
+  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef,
 } from '@angular/core';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -52,8 +52,9 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   private envInjector = inject(EnvironmentInjector);
 
-
   @ViewChild(MatAutocompleteTrigger) autocompleteTrigger!: MatAutocompleteTrigger;
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     if (this.initialValue) {
@@ -69,12 +70,12 @@ export class InputComponent implements OnInit, AfterViewInit {
           if (this.value !== newValue) {
             this.value = newValue;
             this.inputModel?.control?.setValue(newValue, { emitEvent: false });
+            this.cdr.detectChanges(); // Force change detection
           }
         });
       });
     }
   }
-
 
   onInputChange(val: string) {
     this.value = val;
