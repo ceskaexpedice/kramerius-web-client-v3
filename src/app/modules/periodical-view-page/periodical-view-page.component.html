@@ -8,6 +8,8 @@
       <div *ngIf="loading$ | async">Načítavam...</div>
       <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
 
+      <mat-calendar [(selected)]="selected"></mat-calendar>
+
       <div class="years--container" *ngIf="periodicalYears$ | async as years">
         <div
           class="year"

@@ -7,6 +7,8 @@ import {periodicalDetailReducer} from '../../state/periodical-detail/periodical-
 import {PeriodicalDetailEffects} from '../../state/periodical-detail/periodical-detail.effects';
 import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
 
 const routes: Routes = [
   {
@@ -18,16 +20,18 @@ const routes: Routes = [
   declarations: [
     PeriodicalViewPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
-    EffectsModule.forFeature([PeriodicalDetailEffects]),
-    AsyncPipe,
-    JsonPipe,
-    NgIf,
-    NgForOf,
-    FilterSidebarComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
+		EffectsModule.forFeature([PeriodicalDetailEffects]),
+		AsyncPipe,
+		JsonPipe,
+		NgIf,
+		NgForOf,
+		FilterSidebarComponent,
+    MatDatepickerModule,
+    MatNativeDateModule
+	],
 })
 
 export class PeriodicalViewPageModule {}
