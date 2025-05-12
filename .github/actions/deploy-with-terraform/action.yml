@@ -1,0 +1,62 @@
+---
+name: 'Deploy with Terraform'
+description: 'Deploy docker container using Terraform'
+inputs:
+  TERRAFORM_DOCKER_IMAGE:
+    description: 'Docker image to use'
+    required: true
+  TERRAFORM_DOCKER_CONTAINER_NAME:
+    description: 'Docker container name to assign'
+    required: true
+  TERRAFORM_DEPLOY_DOMAIN:
+    description: 'Domain name where application will be available'
+    required: true
+  TERRAFORM_DOCKER_HOST_URI:
+    required: true
+  TERRAFORM_GHCR_TOKEN:
+    required: true
+  TERRAFORM_GHCR_USERNAME:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Remove existing containers
+      shell: bash
+      run: |
+        ssh -o StrictHostKeyChecking=no "${{ inputs.TERRAFORM_DOCKER_HOST_URI }}" "docker rm -f ${{ inputs.TERRAFORM_DOCKER_CONTAINER_NAME }} || true"
+        ssh -o StrictHostKeyChecking=no "${{ inputs.TERRAFORM_DOCKER_HOST_URI }}" "docker rmi -f ${{ inputs.TERRAFORM_DOCKER_IMAGE }} || true"
+
+    # Install the latest version of Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Configure Terraform variables
+      shell: bash
+      run: |
+        echo "TF_VAR_docker_host_uri=${{ inputs.TERRAFORM_DOCKER_HOST_URI }}" >> $GITHUB_ENV
+        echo "TF_VAR_docker_image=${{ inputs.TERRAFORM_DOCKER_IMAGE }}:latest" >> $GITHUB_ENV
+        echo "TF_VAR_ghcr_token=${{ inputs.TERRAFORM_GHCR_TOKEN }}" >> $GITHUB_ENV
+        echo "TF_VAR_ghcr_username=${{ inputs.TERRAFORM_GHCR_USERNAME }}" >> $GITHUB_ENV
+        echo "TF_VAR_deploy_domain=${{ inputs.TERRAFORM_DEPLOY_DOMAIN }}" >> $GITHUB_ENV
+        echo "TF_VAR_docker_container_name=${{ inputs.TERRAFORM_DOCKER_CONTAINER_NAME }}" >> $GITHUB_ENV
+
+    - name: Terraform Init
+      shell: bash
+      run: terraform init
+
+    # - name: Debug env
+    #   run: env
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      shell: bash
+      run: terraform fmt -check
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      shell: bash
+      run: terraform plan
+
+    - name: Terraform Apply
+      shell: bash
+      run: terraform apply -auto-approve -input=false
