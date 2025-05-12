@@ -1,4 +1,4 @@
-import {Component, model} from '@angular/core';
+import {Component, inject, model, signal} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {
   selectAvailablePeriodicalYears,
@@ -7,7 +7,7 @@ import {
   selectPeriodicalYears,
 } from '../../state/periodical-detail/periodical-detail.selectors';
 import {loadPeriodical, loadPeriodicalYears} from '../../state/periodical-detail/periodical-detail.actions';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
 
@@ -18,39 +18,40 @@ import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
   styleUrl: './periodical-view-page.component.scss'
 })
 export class PeriodicalViewPageComponent {
+  private store = inject(Store);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  selected = model<Date | null>(null);
+  availableYears: AvailableYear[] = [];
+  viewMode = signal<'timeline' | 'grid-years' | 'calendar' | 'grid-issues'>('timeline');
 
-  periodicalYears$: Observable<PeriodicalItemYear[]> = this.store.select(selectPeriodicalYears);
-  availableYears$: Observable<AvailableYear[]> = this.store.select(selectAvailablePeriodicalYears);
+  selectedYear = signal<string | null>(null);
+
+  years$ = this.store.select(selectPeriodicalYears);
+  availableYears$ = this.store.select(selectAvailablePeriodicalYears);
   loading$ = this.store.select(selectPeriodicalLoading);
   error$ = this.store.select(selectPeriodicalError);
 
-  availableYears: AvailableYear[] = [];
-
-  constructor(
-    private store: Store,
-    private router: Router
-  ) {}
-
-  ngOnInit() {
-    this.store.dispatch(loadPeriodical());
-
-    this.availableYears$.subscribe(data => {
-      this.availableYears = data;
-    });
+  constructor() {
+    this.availableYears$.subscribe(data => (this.availableYears = data));
   }
 
-  selectYear(year: string) {
-    const match = this.availableYears.find(y => y.year === year);
-    if (match) {
-      this.router.navigate([], {
-        queryParams: { uuid: match.pid },
-        queryParamsHandling: 'merge',
-      });
+  ngOnInit() {
+    this.store.dispatch(loadPeriodicalYears());
+  }
 
-      this.store.dispatch(loadPeriodical());
-    }
+  onSelectYear(year: string) {
+    this.selectedYear.set(year);
+    this.viewMode.set('calendar');
+  }
+
+  changeView(mode: 'timeline' | 'grid-years' | 'calendar' | 'grid-issues') {
+    this.viewMode.set(mode);
+  }
+
+  getSelectedPid(): string | null {
+    const year = this.selectedYear();
+    return this.availableYears.find(y => y.year === year)?.pid || null;
   }
 
 }

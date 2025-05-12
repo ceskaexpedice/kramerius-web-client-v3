@@ -1,0 +1,6 @@
+<p>periodical-years-grid works!</p>
+<div class="years-grid">
+  <div class="year-box" *ngFor="let year of years" (click)="selectYear.emit(year.year)">
+    {{ year.year }}
+  </div>
+</div>

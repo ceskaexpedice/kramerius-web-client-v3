@@ -9,6 +9,16 @@ import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
+import {
+  PeriodicalYearsTimelineComponent
+} from './components/periodical-years-timeline/periodical-years-timeline.component';
+import {PeriodicalYearsGridComponent} from './components/periodical-years-grid/periodical-years-grid.component';
+import {
+  PeriodicalYearIssuesCalendarComponent
+} from './components/periodical-year-issues-calendar/periodical-year-issues-calendar.component';
+import {
+  PeriodicalYearIssuesGridComponent
+} from './components/periodical-year-issues-grid/periodical-year-issues-grid.component';
 
 const routes: Routes = [
   {
@@ -20,18 +30,22 @@ const routes: Routes = [
   declarations: [
     PeriodicalViewPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
-		EffectsModule.forFeature([PeriodicalDetailEffects]),
-		AsyncPipe,
-		JsonPipe,
-		NgIf,
-		NgForOf,
-		FilterSidebarComponent,
+  imports: [
+    RouterModule.forChild(routes),
+    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
+    EffectsModule.forFeature([PeriodicalDetailEffects]),
+    AsyncPipe,
+    JsonPipe,
+    NgIf,
+    NgForOf,
+    FilterSidebarComponent,
     MatDatepickerModule,
-    MatNativeDateModule
-	],
+    MatNativeDateModule,
+    PeriodicalYearsTimelineComponent,
+    PeriodicalYearsGridComponent,
+    PeriodicalYearIssuesCalendarComponent,
+    PeriodicalYearIssuesGridComponent,
+  ],
 })
 
 export class PeriodicalViewPageModule {}

@@ -1,0 +1,6 @@
+<p>periodical-years-timeline works!</p>
+<div class="years-timeline">
+  <div class="year-tick" *ngFor="let year of years" (click)="selectYear.emit(year.year)">
+    {{ year.year }}
+  </div>
+</div>
