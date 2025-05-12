@@ -8,6 +8,7 @@
     [showMicButton]="true"
     [showHelpButton]="true"
     [showSubmitButton]="true"
+    [signalInput]="inputTerm"
     [submitIcon]="'icon-search-normal'"
     (valueChange)="onInputValueChange($event)"
     (enter)="onSearch()"
@@ -20,7 +21,7 @@
   >
     @for (option of suggestions(); track $index) {
       <mat-option [value]="option">
-        <label>{{ option }}</label>
+        <label [innerHTML]="highlight(option, inputTerm())"></label>
       </mat-option>
     }
   </mat-autocomplete>

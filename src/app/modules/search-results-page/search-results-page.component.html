@@ -26,7 +26,7 @@
       <app-selected-tags
         [items]="(searchService.selectedTags | async) || []"
         [operators]="(searchService.getFiltersWithOperators() | async) || {}"
-        [showOperators]="true"
+        [showOperators]="false"
         [translateItems]="true"
         (remove)="searchService.removeFilter($event)"
         (removeGroup)="searchService.resetOperator($event)"

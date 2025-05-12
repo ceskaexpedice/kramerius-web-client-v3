@@ -22,6 +22,7 @@ export class FilterSidebarComponent {
   facetKeys: string[] = facetKeys;
 
   facets$ = this.store.select(selectFacets);
+  operators$ = this.searchService.getFiltersWithOperators();
   selectedFilters: string[] = [];
 
   constructor(

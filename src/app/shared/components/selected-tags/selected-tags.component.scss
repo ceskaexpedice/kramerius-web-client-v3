@@ -38,3 +38,7 @@ mat-chip {
   font-size: 14px;
   padding: 4px 8px;
 }
+
+.filter-chip.and-operator {
+  border-right: 3px solid var(--color-primary);
+}

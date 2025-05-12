@@ -32,6 +32,7 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() items: FacetItem[] = [];
   @Input() selected: string[] = [];
   @Input() showShowMoreButton = false;
+  @Input() operators: Record<string, string> = {};
 
   @Output() toggle = new EventEmitter<string>();
   @Output() showMore = new EventEmitter<void>();
@@ -49,6 +50,9 @@ export class FilterCategoryComponent implements OnChanges {
     return this.facetKey !== 'model' && this.showShowMoreButton && this.items.length > this.maxItems;
   }
 
+  get hasAndOperator(): boolean {
+    return this.operators[this.facetKey] === 'AND';
+  }
 
   constructor(
     private router: Router,

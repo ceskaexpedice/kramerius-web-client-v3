@@ -1,7 +1,7 @@
 import {Component, effect, inject, OnInit, signal, computed,} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
-import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {debounceTime, Observable, of, take, Subject} from 'rxjs';
@@ -105,6 +105,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   useOrOperator = signal(false);
   sortBy = signal<SolrSortFields>(SolrSortFields.count);
 
+  private searchTermInitialized = false;
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private route = inject(ActivatedRoute);
   public searchService = inject(SearchService);
@@ -116,6 +117,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   allItems = signal<FacetItem[]>([]);
   searchTerm = signal('');
+
+  override pageSize = 100;
 
   private searchTermSubject = new Subject<string>();
 
@@ -137,16 +140,20 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       this.useOrOperator.set(operator !== 'AND');
     });
 
-    // Sleduj signal a debounci
     effect(() => {
       const term = this.searchTerm();
+
+      if (!this.searchTermInitialized) {
+        this.searchTermInitialized = true;
+        return;
+      }
+
       this.searchTermSubject.next(term);
     });
 
     this.searchTermSubject.pipe(
       debounceTime(300)
     ).subscribe((term: string) => {
-      console.log('term', term);
       if (term.length === 0 || term.length >= 2) {
         this.page = 1;
         this.loadFacets();
@@ -261,7 +268,12 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
             this.allItems.set(sortedItems);
 
             // Now load the paginated items
-            this.loadFacetsWithPendingChanges(true);
+            if (this.pageSize < parsed.length) {
+              this.loadFacetsWithPendingChanges(true);
+            } else {
+              this.items.set(sortedItems);
+            }
+
           } else {
             // When loading paginated items
             this.items.set(sortedItems);
@@ -282,7 +294,12 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   setOperator(operator: string) {
     this.pendingOperator.set(operator as 'AND' | 'OR');
-    this.loadFacetsWithPendingChanges();
+    this.page = 1;
+
+    // load facets with pending changes only if there is some selection
+    if (this.pendingSelection().size > 0) {
+      this.loadFacetsWithPendingChanges(false);
+    }
   }
 
   toggle(value: string) {
@@ -295,7 +312,13 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     }
 
     this.pendingSelection.set(pendingSet);
-    this.loadFacetsWithPendingChanges();
+
+    // if operator is AND, we need to loadFacetsWithPendingChanges with false
+    if (this.pendingOperator() === 'AND') {
+      this.loadFacetsWithPendingChanges(false);
+    } else {
+      this.loadFacetsWithPendingChanges();
+    }
   }
 
   isSelectedFacetItem(item: FacetItem): Observable<boolean> {

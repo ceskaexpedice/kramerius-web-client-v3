@@ -1,4 +1,4 @@
-import {Injectable, signal, effect} from '@angular/core';
+import {Injectable, signal, effect, Signal, WritableSignal} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, map, filter, combineLatest, of} from 'rxjs';
@@ -21,6 +21,7 @@ export class SearchService {
   private initialized = false;
 
   private _searchTerm = signal('');
+  private _submittedTerm = signal('');
   private _page = signal(1);
   private _pageSize = signal(25);
   private _totalCount = signal(0);
@@ -31,7 +32,8 @@ export class SearchService {
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
-  get searchTerm() { return this._searchTerm(); }
+  get submittedTerm() { return this._submittedTerm(); }
+  get searchTerm() { return this._searchTerm; }
   get page() { return this._page(); }
   get pageSize() { return this._pageSize(); }
   get totalCount() { return this._totalCount(); }
@@ -41,10 +43,9 @@ export class SearchService {
   inputSearchTerm = '';
 
   get selectedTags(): Observable<string[]> {
-    // return activeFilters$ and _searchTerm
     return combineLatest([
       this.activeFilters$,
-      of(this.searchTerm)
+      of(this.submittedTerm)
     ]).pipe(
       map(([filters, term]) => {
         if (term && term.trim().length > 0) {
@@ -62,6 +63,7 @@ export class SearchService {
 
   onSearch(term: string | null): void {
     const query = (term && term.length > 0) ? `${term}` : '';
+    this._submittedTerm.set(query);
     this.search(query);
   }
 
@@ -70,9 +72,9 @@ export class SearchService {
   }
 
   onSuggestionSelected(suggestion: string): void {
+    this._submittedTerm.set(suggestion);
     this.search(suggestion);
   }
-
 
   constructor(
     private router: Router,
@@ -111,7 +113,8 @@ export class SearchService {
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
         sortDirection: this._sortDirection()
-      }
+      },
+      queryParamsHandling: 'merge'
     });
   }
 
@@ -140,6 +143,7 @@ export class SearchService {
     const sortDirection = params['sortDirection'] || this._sortDirection();
 
     this._searchTerm.set(query);
+    this._submittedTerm.set(query);
     this._page.set(page);
     this._pageSize.set(pageSize);
     this._sortBy.set(sortBy);
@@ -189,6 +193,7 @@ export class SearchService {
     if (filter.startsWith('search:')) {
       this.queryParamsService.removeSearchTerm(this.route);
       this._searchTerm.set('');
+      this._submittedTerm.set('');
     } else {
       this.queryParamsService.removeFilter(this.route, filter);
     }
@@ -204,6 +209,7 @@ export class SearchService {
 
   clearAllFilters() {
     this.queryParamsService.removeSearchTerm(this.route);
+    this._submittedTerm.set('');
     this._searchTerm.set('');
     this.queryParamsService.clearAllFilters(this.route);
   }

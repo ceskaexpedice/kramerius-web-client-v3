@@ -46,7 +46,7 @@
 <app-selected-tags
   [items]="pendingFilterTags()"
   [operators]="pendingOperators()"
-  [showOperators]="true"
+  [showOperators]="false"
   [translateItems]="true"
   (remove)="removePendingTag($event)"
   (removeGroup)="clearPendingOperator()"

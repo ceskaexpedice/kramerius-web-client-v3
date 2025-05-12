@@ -2,6 +2,13 @@
 <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
 
 <ng-container *ngIf="document$ | async as doc">
+
+
+  <img
+    [src]="`https://api.kramerius.mzk.cz/search/api/client/v7.0/items/${doc.pid}/image/thumb`"
+    alt="Náhľad dokumentu"
+    class="app-document-thumbnail">
+
   <h1>{{ doc.titlesSearch }}</h1>
   <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>
   <p><strong>Model:</strong> {{ doc.model }}</p>

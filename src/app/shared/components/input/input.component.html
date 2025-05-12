@@ -4,9 +4,10 @@
       <input
         type="text"
         #inputElement
+        #inputModel="ngModel"
         [placeholder]="placeholder | translate"
         [(ngModel)]="value"
-        (ngModelChange)="valueChange.emit($event)"
+        (ngModelChange)="onInputChange($event)"
         (keyup.enter)="onEnter()"
         [matAutocomplete]="autocomplete"
         (focus)="onFocus()"
@@ -18,9 +19,10 @@
       <input
         type="text"
         #inputElement
+        #inputModel="ngModel"
         [placeholder]="placeholder | translate"
         [(ngModel)]="value"
-        (ngModelChange)="valueChange.emit($event)"
+        (ngModelChange)="onInputChange($event)"
         (keyup.enter)="onEnter()"
         (focus)="onFocus()"
         (blur)="onBlur()"
