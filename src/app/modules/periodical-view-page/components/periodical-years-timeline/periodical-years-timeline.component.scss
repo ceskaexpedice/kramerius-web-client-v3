@@ -1,0 +1,26 @@
+.years-timeline {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items:  center;
+  flex-wrap: wrap;
+}
+
+.year-tick {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-border-contrast);
+  padding:  10px 15px;
+}
+
+.year-tick {
+  cursor: pointer;
+  padding: 0.5rem;
+  &.disabled {
+    color: rgba(128, 128, 128, 0.28);
+    pointer-events: none;
+  }
+}

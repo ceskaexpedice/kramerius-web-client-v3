@@ -1,0 +1,22 @@
+.years-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items:  center;
+  flex-wrap: wrap;
+}
+
+.year-box {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.year-box {
+  cursor: pointer;
+  padding: 0.5rem;
+  &.disabled {
+    color: rgba(128, 128, 128, 0.28);
+    pointer-events: none;
+  }
+}

@@ -34,3 +34,8 @@ export const selectPeriodicalUuid = createSelector(
   selectRouterQueryParams,
   params => params['uuid']
 );
+
+export const selectPeriodicalChildren = createSelector(
+	selectPeriodicalDocument,
+	(doc) => doc?.children ?? []
+);

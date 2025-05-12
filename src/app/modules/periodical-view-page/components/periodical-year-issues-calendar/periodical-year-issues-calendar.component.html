@@ -1,3 +1,23 @@
-<p>periodical-year-issues-calendar works!</p>
-<mat-calendar [(selected)]="selectedDate"></mat-calendar>
-<p>Kalendár pre rok {{ year }} (pid: {{ pid }})</p>
+
+<h2>Kalendár pre rok {{ year }}</h2>
+
+<div class="calendar-legend">
+  <div class="legend-item">
+    <span class="has-issue-dot"></span>
+    <span>Dostupné vydania</span>
+  </div>
+</div>
+
+<div class="months-calendar-container">
+  <div class="month-calendar" *ngFor="let month of months; let i = index">
+    <h3>{{ monthNames[i] }}</h3>
+    <mat-calendar
+      [dateClass]="dateClass"
+      [startAt]="getMonthDate(i)"
+      [startView]="'month'"
+      [minDate]="getMonthMinDate(i)"
+      [maxDate]="getMonthMaxDate(i)"
+      (selectedChange)="onDateSelected($event)">
+    </mat-calendar>
+  </div>
+</div>

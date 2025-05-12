@@ -1,53 +1,55 @@
 <div class="search-results-page">
-  <div class="search-results-page--inner">
+	<div class="search-results-page--inner">
 
-    <app-filter-sidebar></app-filter-sidebar>
+		<app-filter-sidebar></app-filter-sidebar>
 
-    <div class="results-content">
+		<div class="results-content">
 
-      <div *ngIf="loading$ | async">Načítavam...</div>
-      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+			<div *ngIf="loading$ | async">Načítavam...</div>
+			<div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
 
-      <!-- Výber roka -->
-      <ng-container *ngIf="!selectedYear()">
-        <div class="view-toggle">
-          <button (click)="changeView('timeline')">Časová os</button>
-          <button (click)="changeView('grid-years')">Mriežka</button>
-        </div>
+			<!-- Výber roka -->
+			<ng-container *ngIf="!selectedYear()">
+				<div class="view-toggle">
+					<button (click)="changeView('timeline')">Časová os</button>
+					<button (click)="changeView('grid-years')">Mriežka</button>
+				</div>
 
-        <app-periodical-years-timeline
-          *ngIf="viewMode() === 'timeline'"
-          [years]="(years$ | async) || []"
-          (selectYear)="onSelectYear($event)">
-        </app-periodical-years-timeline>
+				<app-periodical-years-timeline
+						*ngIf="viewMode() === 'timeline'"
+						[years]="periodicalYears"
+						(selectYear)="onSelectYear($event)">
+				</app-periodical-years-timeline>
 
-        <app-periodical-years-grid
-          *ngIf="viewMode() === 'grid-years'"
-          [years]="(years$ | async) || []"
-          (selectYear)="onSelectYear($event)">
-        </app-periodical-years-grid>
-      </ng-container>
+				<app-periodical-years-grid
+						*ngIf="viewMode() === 'grid-years'"
+						[years]="periodicalYears"
+						(selectYear)="onSelectYear($event)">
+				</app-periodical-years-grid>
+			</ng-container>
 
-      <ng-container *ngIf="selectedYear() as year">
-        <div class="view-toggle">
-          <button (click)="changeView('calendar')">Kalendár</button>
-          <button (click)="changeView('grid-issues')">Mriežka</button>
-        </div>
+			<ng-container *ngIf="selectedYear() as year">
+				<button *ngIf="selectedYear()" (click)="goBackToYears()">Späť na roky</button>
 
-        <app-periodical-year-issues-calendar
-          *ngIf="viewMode() === 'calendar'"
-          [year]="year"
-          [pid]="getSelectedPid() || ''">
-        </app-periodical-year-issues-calendar>
+				<div class="view-toggle">
+					<button (click)="changeView('calendar')">Kalendár</button>
+					<button (click)="changeView('grid-issues')">Mriežka</button>
+				</div>
 
-        <app-periodical-year-issues-grid
-          *ngIf="viewMode() === 'grid-issues'"
-          [year]="year"
-          [pid]="getSelectedPid() || ''">
-        </app-periodical-year-issues-grid>
-      </ng-container>
+				<app-periodical-year-issues-calendar
+						*ngIf="viewMode() === 'calendar'"
+						[year]="year"
+						[pid]="getSelectedPid() || ''">
+				</app-periodical-year-issues-calendar>
 
-    </div>
+				<app-periodical-year-issues-grid
+						*ngIf="viewMode() === 'grid-issues'"
+						[year]="year"
+						[pid]="getSelectedPid() || ''">
+				</app-periodical-year-issues-grid>
+			</ng-container>
 
-  </div>
+		</div>
+
+	</div>
 </div>

@@ -4,7 +4,7 @@ export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
   SEARCH_RESULTS = 'search-results',
   DETAIL_VIEW = 'detail-view',
-  PERIODICAL_VIEW = 'periodical-view'
+  PERIODICAL_VIEW = 'periodical'
 }
 
 export const routes: Routes = [

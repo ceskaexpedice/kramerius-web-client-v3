@@ -26,42 +26,51 @@ export class PeriodicalDetailEffects {
       ofType(loadPeriodical),
       withLatestFrom(this.store.select(selectPeriodicalUuid)),
       switchMap(([_, pid]) =>
-        combineLatest([
-          this.solr.getDetailItem(pid),
-          this.solr.getPeriodicalVolumes(pid)
-        ]).pipe(
-          map(([document, volumes]) => {
-            const start = document['date_range_start.year'];
-            const end = document['date_range_end.year'];
+        this.solr.getDetailItem(pid).pipe(
+          switchMap((document) => {
+            const model = document.model;
 
-            if (typeof start !== 'number' || typeof end !== 'number') {
-              throw new Error('Invalid year range in document');
+            if (model === 'periodical') {
+              return this.solr.getPeriodicalVolumes(pid).pipe(
+                map(volumes => {
+                  const start = document['date_range_start.year'];
+                  const end = document['date_range_end.year'];
+
+                  const availableYears = volumes
+                    .map((vol: any) => ({
+                      year: vol['date.str'],
+                      pid: vol['pid']
+                    }))
+                    .filter((v): v is { year: string; pid: string } => !!v.year && !!v.pid);
+
+                  const existingYearSet = new Set(availableYears.map(v => v.year));
+                  const years = [];
+                  for (let y = start; y <= end; y++) {
+                    years.push({
+                      year: y.toString(),
+                      exists: existingYearSet.has(y.toString())
+                    });
+                  }
+
+                  return loadPeriodicalSuccess({ document, years, availableYears });
+                })
+              );
+            } else if (model === 'periodicalvolume') {
+              return this.solr.getPeriodicalItems(pid).pipe(
+                map((items) =>
+                  loadPeriodicalSuccess({
+                    document: {
+                      ...document,
+                      children: items
+                    },
+                    years: [],
+                    availableYears: []
+                  })
+                )
+              );
+            } else {
+              return of(loadPeriodicalFailure({ error: 'Unsupported model' }));
             }
-
-            console.log('volumes', volumes);
-
-            const availableYears = volumes
-              .map((vol: any) => ({
-                year: vol['date.str'],
-                pid: vol['pid']
-              }))
-              .filter((v): v is { year: string; pid: string } => !!v.year && !!v.pid);
-
-            const existingYearSet = new Set(availableYears.map(v => v.year));
-            const years = [];
-            for (let y = start; y <= end; y++) {
-              const yearStr = y.toString();
-              years.push({
-                year: yearStr,
-                exists: existingYearSet.has(yearStr)
-              });
-            }
-
-            return loadPeriodicalSuccess({
-              document,
-              years,
-              availableYears
-            });
           }),
           catchError(error => of(loadPeriodicalFailure({ error })))
         )

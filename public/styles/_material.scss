@@ -52,3 +52,9 @@ div.mat-mdc-autocomplete-panel {
 .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-multiple) {
   background-color: transparent !important;
 }
+
+.has-issue .mat-calendar-body-cell-content {
+  background-color: #1976d2; // alebo iná zvýrazňujúca farba
+  color: white;
+  border-radius: 50%;
+}
