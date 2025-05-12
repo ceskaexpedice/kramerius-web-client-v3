@@ -11,6 +11,6 @@ export class AppComponent {
   
   ngOnInit() {
     //TODO: remove this for production. This is just for testing CI pipeline
-    console.log('AppComponent ngOnInit, branch: dev');
+    console.log('AppComponent ngOnInit, branch: main');
   }
 }
