@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
-import {FacetItem} from '../../modules/models/facet-item';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {FacetItem} from '../../models/facet-item';
+import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',

@@ -10,7 +10,7 @@ import {
   loadPeriodicalYears, loadPeriodicalYearsFailure,
   loadPeriodicalYearsSuccess,
 } from './periodical-detail.actions';
-import {SolrService} from '../../core/solr/solr.service';
+import {SolrService} from '../../../core/solr/solr.service';
 import {Store} from '@ngrx/store';
 
 @Injectable()

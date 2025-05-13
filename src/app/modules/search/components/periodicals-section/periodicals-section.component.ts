@@ -3,8 +3,8 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {CarouselComponent} from '../../../../shared/components/carousel/carousel.component';
 import {ItemCardComponent} from '../../../../shared/components/item-card/item-card.component';
 import {Store} from '@ngrx/store';
-import {selectPeriodicals, selectPeriodicalsLoading} from '../../../../state/search/periodicals/periodicals.selectors';
-import {loadPeriodicals} from '../../../../state/search/periodicals/periodicals.actions';
+import {selectPeriodicals, selectPeriodicalsLoading} from '../../state/periodicals/periodicals.selectors';
+import {loadPeriodicals} from '../../state/periodicals/periodicals.actions';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({

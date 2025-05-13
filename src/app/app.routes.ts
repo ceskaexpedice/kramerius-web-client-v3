@@ -28,6 +28,6 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.PERIODICAL_VIEW,
-    loadChildren: () => import('./modules/periodical-view-page/periodical-view-page.module').then(m => m.PeriodicalViewPageModule)
+    loadChildren: () => import('./modules/periodical/periodical-page.module').then(m => m.PeriodicalPageModule)
   }
 ];

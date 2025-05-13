@@ -1,10 +1,10 @@
 import {NgModule} from '@angular/core';
-import {PeriodicalViewPageComponent} from './periodical-view-page.component';
+import {PeriodicalPageComponent} from './periodical-page.component';
 import {RouterModule, Routes} from '@angular/router';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
-import {periodicalDetailReducer} from '../../state/periodical-detail/periodical-detail.reducer';
-import {PeriodicalDetailEffects} from '../../state/periodical-detail/periodical-detail.effects';
+import {periodicalDetailReducer} from './state/periodical-detail.reducer';
+import {PeriodicalDetailEffects} from './state/periodical-detail.effects';
 import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -22,13 +22,13 @@ import {
 
 const routes: Routes = [
   {
-    path: '', component: PeriodicalViewPageComponent
+    path: '', component: PeriodicalPageComponent
   }
 ]
 
 @NgModule({
   declarations: [
-    PeriodicalViewPageComponent
+    PeriodicalPageComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -48,4 +48,4 @@ const routes: Routes = [
   ],
 })
 
-export class PeriodicalViewPageModule {}
+export class PeriodicalPageModule {}

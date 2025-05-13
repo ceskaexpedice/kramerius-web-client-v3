@@ -7,8 +7,8 @@ import {
   loadPeriodicalYearsFailure,
   loadPeriodicalYearsSuccess,
 } from './periodical-detail.actions';
-import {SearchDocument} from '../../modules/models/search-document';
-import {AvailableYear, PeriodicalItemYear} from '../../modules/models/periodical-item';
+import {SearchDocument} from '../../models/search-document';
+import {AvailableYear, PeriodicalItemYear} from '../../models/periodical-item';
 
 export interface PeriodicalDetailState {
   document: any;

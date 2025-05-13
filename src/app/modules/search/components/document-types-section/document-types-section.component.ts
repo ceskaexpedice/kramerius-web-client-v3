@@ -3,13 +3,13 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Store} from '@ngrx/store';
-import {selectGenres, selectGenresLoading} from '../../../../state/search/genres/genres.selectors';
-import {loadGenres} from '../../../../state/search/genres/genres.actions';
+import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
+import {loadGenres} from '../../state/genres/genres.actions';
 import {
   selectDocumentTypes,
   selectDocumentTypesLoading,
-} from '../../../../state/search/document-types/document-types.selectors';
-import {loadDocumentTypes} from '../../../../state/search/document-types/document-types.actions';
+} from '../../state/document-types/document-types.selectors';
+import {loadDocumentTypes} from '../../state/document-types/document-types.actions';
 
 @Component({
   selector: 'app-document-types-section',

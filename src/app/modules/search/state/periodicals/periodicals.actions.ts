@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import {PeriodicalItem} from '../../../modules/models/periodical-item';
+import {PeriodicalItem} from '../../../models/periodical-item';
 
 export const loadPeriodicals = createAction('[Periodicals] Load');
 export const loadPeriodicalsSuccess = createAction('[Periodicals] Load Success', props<{ data: PeriodicalItem[] }>());

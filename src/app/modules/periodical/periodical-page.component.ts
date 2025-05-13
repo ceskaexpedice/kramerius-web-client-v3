@@ -5,10 +5,10 @@ import {
   selectPeriodicalError,
   selectPeriodicalLoading,
   selectPeriodicalYears,
-} from '../../state/periodical-detail/periodical-detail.selectors';
-import {loadPeriodical, loadPeriodicalYears} from '../../state/periodical-detail/periodical-detail.actions';
+} from './state/periodical-detail.selectors';
+import {loadPeriodical} from './state/periodical-detail.actions';
 import {ActivatedRoute, Router} from '@angular/router';
-import {distinctUntilChanged, filter, Observable, take} from 'rxjs';
+import {distinctUntilChanged, filter, take} from 'rxjs';
 import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
 import {map, tap} from 'rxjs/operators';
 import {ViewMode} from './models/view-mode.enum';
@@ -16,10 +16,10 @@ import {ViewMode} from './models/view-mode.enum';
 @Component({
   selector: 'app-periodical-view-page',
   standalone: false,
-  templateUrl: './periodical-view-page.component.html',
-  styleUrl: './periodical-view-page.component.scss'
+  templateUrl: './periodical-page.component.html',
+  styleUrl: './periodical-page.component.scss'
 })
-export class PeriodicalViewPageComponent {
+export class PeriodicalPageComponent {
   private store = inject(Store);
   private router = inject(Router);
   private route = inject(ActivatedRoute);

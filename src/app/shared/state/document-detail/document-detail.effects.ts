@@ -3,10 +3,10 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
 import { of } from 'rxjs';
 import * as DocumentDetailActions from './document-detail.actions';
-import {SolrService} from '../../core/solr/solr.service';
+import {SolrService} from '../../../core/solr/solr.service';
 import {Store} from '@ngrx/store';
 import * as DocumentDetailSelectors from './document-detail.selectors';
-import {parseDocumentDetail} from '../../modules/models/document-detail';
+import {parseDocumentDetail} from '../../../modules/models/document-detail';
 
 @Injectable()
 export class DocumentDetailEffects {

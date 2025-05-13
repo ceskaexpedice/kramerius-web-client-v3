@@ -1,11 +1,10 @@
 import {Component, inject, Input} from '@angular/core';
 import {MatCalendar} from '@angular/material/datepicker';
-import {Observable, of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {DateAdapter} from '@angular/material/core';
 import {NgForOf} from '@angular/common';
 import {Store} from '@ngrx/store';
-import {selectPeriodicalChildren} from '../../../../state/periodical-detail/periodical-detail.selectors';
+import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 

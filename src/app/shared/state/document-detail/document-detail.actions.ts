@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import {DocumentDetail} from '../../modules/models/document-detail';
+import {DocumentDetail} from '../../../modules/models/document-detail';
 
 export const loadDocumentDetail = createAction(
   '[DocumentDetail] Load'

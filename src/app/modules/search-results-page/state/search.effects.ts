@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
-import { SolrService } from '../../core/solr/solr.service';
+import { SolrService } from '../../../core/solr/solr.service';
 import * as SearchActions from './search.actions';
-import { SolrResponseParser } from '../../core/solr/solr-response-parser';
-import { parseSearchDocument } from '../../modules/models/search-document';
+import { SolrResponseParser } from '../../../core/solr/solr-response-parser';
+import { parseSearchDocument } from '../../models/search-document';
 import {Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
-import { FacetItem } from '../../modules/models/facet-item';
+import { FacetItem } from '../../models/facet-item';
 
 @Injectable()
 export class SearchEffects {

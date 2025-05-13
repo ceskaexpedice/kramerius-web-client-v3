@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import {AvailableYear, PeriodicalItemYear} from '../../modules/models/periodical-item';
+import {AvailableYear, PeriodicalItemYear} from '../../models/periodical-item';
 
 export const loadPeriodical = createAction('[Periodical] Load');
 

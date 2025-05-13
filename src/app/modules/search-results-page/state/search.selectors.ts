@@ -1,6 +1,6 @@
 import { createSelector } from '@ngrx/store';
 import { SearchState } from './search.reducer';
-import {selectRouterQueryParams} from '../router/router.selectors';
+import {selectRouterQueryParams} from '../../../shared/state/router/router.selectors';
 
 export const selectSearchState = (state: any) => state['search-results'];
 

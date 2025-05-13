@@ -7,9 +7,9 @@ import {
   selectActiveFilters,
   selectSearchResults,
   selectSearchResultsTotalCount,
-} from '../../state/search/search.selectors';
+} from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
-import {loadSearchResults} from '../../state/search/search.actions';
+import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';

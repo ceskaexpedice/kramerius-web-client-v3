@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {selectFacets} from '../../../../state/search/search.selectors';
+import {selectFacets} from '../../state/search.selectors';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';

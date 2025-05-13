@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {PeriodicalDetailState} from './periodical-detail.reducer';
-import {selectRouterQueryParams} from '../router/router.selectors';
+import {selectRouterQueryParams} from '../../../shared/state/router/router.selectors';
 
 export const selectPeriodicalDetailState =
   createFeatureSelector<PeriodicalDetailState>('periodical-detail');

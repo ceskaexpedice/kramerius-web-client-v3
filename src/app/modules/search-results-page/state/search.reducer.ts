@@ -1,7 +1,7 @@
 import {createReducer, on} from '@ngrx/store';
-import {FacetItem} from '../../modules/models/facet-item';
+import {FacetItem} from '../../models/facet-item';
 import * as SearchActions from './search.actions';
-import {SolrResponseParser} from '../../core/solr/solr-response-parser';
+import {SolrResponseParser} from '../../../core/solr/solr-response-parser';
 
 export interface SearchState {
   results: any[];
