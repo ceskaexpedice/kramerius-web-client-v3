@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
   SEARCH_RESULTS = 'search-results',
-  DETAIL_VIEW = 'detail-view',
+  DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical'
 }
 

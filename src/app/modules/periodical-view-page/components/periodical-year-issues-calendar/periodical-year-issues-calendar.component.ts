@@ -6,6 +6,8 @@ import {DateAdapter} from '@angular/material/core';
 import {NgForOf} from '@angular/common';
 import {Store} from '@ngrx/store';
 import {selectPeriodicalChildren} from '../../../../state/periodical-detail/periodical-detail.selectors';
+import {Router} from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -33,7 +35,11 @@ export class PeriodicalYearIssuesCalendarComponent {
     'Júl', 'August', 'September', 'Október', 'November', 'December'
   ];
 
+  issueMap = new Map<string, string>(); // "YYYY-MM-DD" => pid
+
   private store = inject(Store);
+  private router = inject(Router);
+
   children$ = this.store.select(selectPeriodicalChildren);
 
   constructor(
@@ -46,17 +52,33 @@ export class PeriodicalYearIssuesCalendarComponent {
     this.selectedDate = new Date(this.yearNum, 0, 1);
 
     this.children$.subscribe(items => {
-      this.availableDates = items
-        .map((i: any) => this.parseDate(i['date.str']))
-        .filter((date: any): date is Date => !!date && date.getFullYear() === this.yearNum);
+      const map = new Map<string, string>();
+      items.forEach((item: any) => {
+        const date = this.parseDate(item['date.str']);
+        if (date && item.pid) {
+          const key = this.formatDateKey(date);
+          map.set(key, item.pid);
+        }
+      });
+      this.issueMap = map;
+
+      // Pre dateClass
+      this.availableDates = Array.from(map.keys()).map(d => new Date(d));
     });
+  }
+
+  formatDateKey(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   parseDate(dateStr: string): Date | null {
     const [day, month, year] = dateStr.split('.').map(part => parseInt(part, 10));
     if (!day || !month || !year) return null;
 
-    return new Date(year, month - 1, day); // mesiace sú 0-based
+    return new Date(year, month - 1, day);
   }
 
   // Get a date object for the first day of a specific month
@@ -83,9 +105,18 @@ export class PeriodicalYearIssuesCalendarComponent {
     ) ? 'has-issue' : '';
   };
 
-  onDateSelected(date: any) {
-    // Handle date selection - perhaps navigate to the issue detail
-    console.log('Selected date:', date);
+  onDateSelected(date: Date | null) {
+    if (!date) return;
+
+    const key = this.formatDateKey(date);
+    const pid = this.issueMap.get(key);
+
+    if (pid) {
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW], {
+        queryParams: { page: pid },
+        queryParamsHandling: 'merge',
+      });
+    }
   }
 
 
