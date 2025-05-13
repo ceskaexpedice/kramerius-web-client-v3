@@ -19,6 +19,8 @@ import {
 import {
   PeriodicalYearIssuesGridComponent
 } from './components/periodical-year-issues-grid/periodical-year-issues-grid.component';
+import {PeriodicalFilterService} from './services/periodical-filter.service';
+import {PeriodicalFiltersComponent} from './components/periodical-filters/periodical-filters.component';
 
 const routes: Routes = [
   {
@@ -45,7 +47,12 @@ const routes: Routes = [
     PeriodicalYearsGridComponent,
     PeriodicalYearIssuesCalendarComponent,
     PeriodicalYearIssuesGridComponent,
+    PeriodicalFiltersComponent,
   ],
+  providers: [
+    { provide: 'FilterService', useClass: PeriodicalFilterService }
+  ]
+
 })
 
 export class PeriodicalPageModule {}

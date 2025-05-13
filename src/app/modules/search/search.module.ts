@@ -24,6 +24,7 @@ import {documentTypesReducer} from './state/document-types/document-types.reduce
 import {FooterComponent} from '../../core/layout/footer/footer.component';
 import {SearchEffects} from '../search-results-page/state/search.effects';
 import {searchReducer} from '../search-results-page/state/search.reducer';
+import {SearchService} from '../../shared/services/search.service';
 
 const routes: Routes = [
   {
@@ -42,6 +43,9 @@ const routes: Routes = [
     StoreModule.forFeature('search-results', searchReducer),
     EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]), FooterComponent,
   ],
+  providers: [
+    { provide: 'FilterService', useClass: SearchService }
+  ]
 })
 export class SearchPageModule {
 }

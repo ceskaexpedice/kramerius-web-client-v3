@@ -21,6 +21,8 @@ import {PaginatorComponent} from '../../shared/components/paginator/paginator.co
 import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
 import {CategoryFilterComponent} from './components/category-filter/category-filter.component';
 import {ResultsSortComponent} from './components/results-sort/results-sort.component';
+import {SearchFiltersComponent} from './components/search-filters/search-filters.component';
+import {SearchService} from '../../shared/services/search.service';
 
 const routes: Routes = [
   {
@@ -49,7 +51,11 @@ const routes: Routes = [
     PaginatorInfoComponent,
     CategoryFilterComponent,
     ResultsSortComponent,
+    SearchFiltersComponent,
   ],
+  providers: [
+    { provide: 'FilterService', useClass: SearchService }
+  ]
 })
 
 export class SearchResultsPageModule {

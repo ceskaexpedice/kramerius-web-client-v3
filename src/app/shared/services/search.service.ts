@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, map, filter, combineLatest, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
-  selectActiveFilters,
+  selectActiveFilters, selectFacets,
   selectSearchResults,
   selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
@@ -13,11 +13,12 @@ import {loadSearchResults} from '../../modules/search-results-page/state/search.
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
+import {FilterService} from './filter.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SearchService {
+export class SearchService implements FilterService {
   private initialized = false;
 
   private _searchTerm = signal('');
@@ -93,6 +94,10 @@ export class SearchService {
         .subscribe(count => this._totalCount.set(count));
       return () => subscription.unsubscribe();
     });
+  }
+
+  getFacets(): Observable<any> {
+    return this.store.select(selectFacets);
   }
 
   getFiltersWithOperators(): Observable<Record<string, string>> {
