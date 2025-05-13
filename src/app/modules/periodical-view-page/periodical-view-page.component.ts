@@ -11,6 +11,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {distinctUntilChanged, filter, Observable, take} from 'rxjs';
 import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
 import {map, tap} from 'rxjs/operators';
+import {ViewMode} from './models/view-mode.enum';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -131,4 +132,5 @@ export class PeriodicalViewPageComponent {
   }
 
 
+  protected readonly ViewMode = ViewMode;
 }
