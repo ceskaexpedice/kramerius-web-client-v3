@@ -10,5 +10,11 @@ export const selectRouterQueryParams = createSelector(
 
 export const selectRouterParams = createSelector(
   selectRouter,
-  router => router?.state?.root?.params || {}
+  router => {
+    let state = router?.state?.root;
+    while (state?.firstChild) {
+      state = state.firstChild;
+    }
+    return state?.params || {};
+  }
 );

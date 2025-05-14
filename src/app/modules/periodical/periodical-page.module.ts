@@ -24,7 +24,7 @@ import {PeriodicalFiltersComponent} from './components/periodical-filters/period
 
 const routes: Routes = [
   {
-    path: '', component: PeriodicalPageComponent
+    path: ':uuid', component: PeriodicalPageComponent
   }
 ]
 

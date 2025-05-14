@@ -9,7 +9,7 @@ import {AsyncPipe, JsonPipe, NgIf} from '@angular/common';
 
 const routes: Routes = [
   {
-    path: '', component: DetailViewPageComponent
+    path: ':uuid', component: DetailViewPageComponent
   }
 ]
 

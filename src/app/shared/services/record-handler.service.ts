@@ -30,16 +30,14 @@ export class RecordHandlerService {
    * Navigate to the document detail view.
    */
   private navigateToDetail(pid: string): void {
-    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW], { queryParams: { uuid: pid } });
+    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
   }
 
   /**
    * Navigate to the year selection page for a periodical.
    */
   private navigateToPeriodical(pid: string): void {
-    this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW], {
-      queryParams: { uuid: pid }
-    });
+    this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
   }
 
   /**

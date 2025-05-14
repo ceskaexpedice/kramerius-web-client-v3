@@ -65,6 +65,8 @@ export class SearchService implements FilterService {
   onSearch(term: string | null): void {
     const query = (term && term.length > 0) ? `${term}` : '';
     this._submittedTerm.set(query);
+    // reset page to 1
+    this._page.set(1);
     this.search(query);
   }
 

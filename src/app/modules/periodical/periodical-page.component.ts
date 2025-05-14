@@ -12,6 +12,7 @@ import {distinctUntilChanged, filter, take} from 'rxjs';
 import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
 import {map, tap} from 'rxjs/operators';
 import {ViewMode} from './models/view-mode.enum';
+import {APP_ROUTES_ENUM} from '../../app.routes';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -47,15 +48,15 @@ export class PeriodicalPageComponent {
   }
 
   ngOnInit() {
-    this.route.queryParams
-        .pipe(
-            map(params => params['uuid']),
-            filter(Boolean),
-            distinctUntilChanged()
-        )
-        .subscribe(uuid => {
-          this.store.dispatch(loadPeriodical());
-        });
+    this.route.params
+      .pipe(
+        map(params => params['uuid']),
+        filter(Boolean),
+        distinctUntilChanged()
+      )
+      .subscribe(uuid => {
+        this.store.dispatch(loadPeriodical());
+      });
 
     this.document$
         .pipe(filter(doc => !!doc))
@@ -101,12 +102,7 @@ export class PeriodicalPageComponent {
     const match = this.availableYears.find(y => y.year === year);
     if (!match) return;
 
-    this.router.navigate([], {
-      queryParams: { uuid: match.pid },
-      queryParamsHandling: 'merge'
-    });
-
-    this.store.dispatch(loadPeriodical());
+    this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, match.pid]);
   }
 
   changeView(mode: 'timeline' | 'grid-years' | 'calendar' | 'grid-issues') {
@@ -122,11 +118,7 @@ export class PeriodicalPageComponent {
     this.store.select(selectPeriodicalDocument).pipe(take(1)).subscribe(doc => {
       const rootPid = doc?.['root.pid'];
       if (rootPid) {
-        this.router.navigate([], {
-          queryParams: { uuid: rootPid },
-          queryParamsHandling: 'merge'
-        });
-        this.store.dispatch(loadPeriodical());
+        this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, rootPid]);
       }
     });
   }

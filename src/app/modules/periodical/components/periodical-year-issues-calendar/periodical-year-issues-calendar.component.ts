@@ -111,10 +111,7 @@ export class PeriodicalYearIssuesCalendarComponent {
     const pid = this.issueMap.get(key);
 
     if (pid) {
-      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW], {
-        queryParams: { page: pid },
-        queryParamsHandling: 'merge',
-      });
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
     }
   }
 

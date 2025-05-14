@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { DocumentDetailState } from './document-detail.reducer';
-import {selectRouterQueryParams} from '../router/router.selectors';
+import {selectRouterParams} from '../router/router.selectors';
 
 export const selectDocumentDetailState = createFeatureSelector<DocumentDetailState>('document-detail');
 
@@ -9,6 +9,6 @@ export const selectDocumentDetailLoading = createSelector(selectDocumentDetailSt
 export const selectDocumentDetailError = createSelector(selectDocumentDetailState, state => state.error);
 
 export const selectDocumentDetailUuid = createSelector(
-  selectRouterQueryParams,
+  selectRouterParams,
   (params) => params['uuid']
 );
