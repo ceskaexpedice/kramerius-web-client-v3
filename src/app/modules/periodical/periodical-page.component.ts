@@ -1,16 +1,16 @@
-import {Component, inject, model, signal} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {
-  selectAvailablePeriodicalYears, selectPeriodicalDocument,
+  selectAvailableYears,
+  selectPeriodicalDocument,
   selectPeriodicalError,
   selectPeriodicalLoading,
-  selectPeriodicalYears,
 } from './state/periodical-detail.selectors';
 import {loadPeriodical} from './state/periodical-detail.actions';
 import {ActivatedRoute, Router} from '@angular/router';
 import {distinctUntilChanged, filter, take} from 'rxjs';
-import {AvailableYear, PeriodicalItemYear} from '../models/periodical-item';
-import {map, tap} from 'rxjs/operators';
+import {PeriodicalItemYear} from '../models/periodical-item';
+import {map} from 'rxjs/operators';
 import {ViewMode} from './models/view-mode.enum';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 
@@ -25,96 +25,65 @@ export class PeriodicalPageComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  document$ = this.store.select(selectPeriodicalDocument);
-  availableYears: AvailableYear[] = [];
-  periodicalYears: PeriodicalItemYear[] = []; // New property to store generated years
-  viewMode = signal<'timeline' | 'grid-years' | 'calendar' | 'grid-issues'>('timeline');
-
+  // Signals
+  viewMode = signal<ViewMode>(ViewMode.Timeline);
   selectedYear = signal<string | null>(null);
 
-  years$ = this.store.select(selectPeriodicalYears);
-  availableYears$ = this.store.select(selectAvailablePeriodicalYears);
+  // State
+  document$ = this.store.select(selectPeriodicalDocument);
+  availableYears$ = this.store.select(selectAvailableYears);
   loading$ = this.store.select(selectPeriodicalLoading);
   error$ = this.store.select(selectPeriodicalError);
 
+  availableYears: PeriodicalItemYear[] = [];
+  periodicalYears: PeriodicalItemYear[] = [];
+
   constructor() {
     this.availableYears$.pipe(
-        tap(data => {
-          this.availableYears = data;
-          // Generate PeriodicalItemYear objects from availableYears
-          this.generateYearsFromAvailable();
-        })
+      filter(data => !!data),
+      map(data => {
+        this.availableYears = data;
+        this.generateYearsFromAvailable();
+      })
     ).subscribe();
   }
 
-  ngOnInit() {
-    this.route.params
-      .pipe(
-        map(params => params['uuid']),
-        filter(Boolean),
-        distinctUntilChanged()
-      )
-      .subscribe(uuid => {
-        this.store.dispatch(loadPeriodical());
-      });
+  ngOnInit(): void {
+    this.route.params.pipe(
+      map(params => params['uuid']),
+      filter(Boolean),
+      distinctUntilChanged()
+    ).subscribe((uuid: string) => {
+      this.store.dispatch(loadPeriodical({ uuid }));
+    });
 
-    this.document$
-        .pipe(filter(doc => !!doc))
-        .subscribe(doc => {
-          const model = doc.model;
-
-          if (model === 'periodical') {
-            this.viewMode.set('timeline');
-            this.selectedYear.set(null);
-          } else if (model === 'periodicalvolume') {
-            const dateStr = doc['date.str'];
-            if (dateStr) {
-              this.selectedYear.set(dateStr);
-              this.viewMode.set('calendar');
-            }
-          }
-        });
-
-    this.availableYears$
-        .pipe(tap(data => {
-          this.availableYears = data;
-          this.generateYearsFromAvailable();
-        }))
-        .subscribe();
+    this.document$.pipe(
+      filter(Boolean)
+    ).subscribe(doc => {
+      const model = doc.model;
+      if (model === 'periodical') {
+        this.viewMode.set(ViewMode.Timeline);
+        this.selectedYear.set(null);
+      } else if (model === 'periodicalvolume') {
+        const dateStr = doc['date.str'];
+        this.selectedYear.set(dateStr ?? null);
+        this.viewMode.set(ViewMode.Calendar);
+      }
+    });
   }
 
-  // New method to generate PeriodicalItemYear objects from availableYears
-  private generateYearsFromAvailable() {
-    if (this.availableYears.length > 0) {
-      const years = this.availableYears.map(year => ({
-        year: year.year,
-        exists: true
-      }));
-
-      // Sort years in ascending order
-      years.sort((a, b) => parseInt(a.year) - parseInt(b.year));
-
-      this.periodicalYears = years;
-    }
-  }
-
-  onSelectYear(year: string) {
-    const match = this.availableYears.find(y => y.year === year);
-    if (!match) return;
-
-    this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, match.pid]);
-  }
-
-  changeView(mode: 'timeline' | 'grid-years' | 'calendar' | 'grid-issues') {
+  changeView(mode: ViewMode): void {
     this.viewMode.set(mode);
   }
 
-  getSelectedPid(): string | null {
-    const year = this.selectedYear();
-    return this.availableYears.find(y => y.year === year)?.pid || null;
+  onSelectYear(year: string): void {
+    const match = this.availableYears.find(y => y.year === year);
+    if (match) {
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, match.pid]);
+    }
   }
 
-  goBackToYears() {
+  goBackToYears(): void {
     this.store.select(selectPeriodicalDocument).pipe(take(1)).subscribe(doc => {
       const rootPid = doc?.['root.pid'];
       if (rootPid) {
@@ -123,6 +92,22 @@ export class PeriodicalPageComponent {
     });
   }
 
+  getSelectedPid(): string | null {
+    const year = this.selectedYear();
+    return this.availableYears.find(y => y.year === year)?.pid ?? null;
+  }
+
+  private generateYearsFromAvailable(): void {
+    const years = this.availableYears.map(year => ({
+      year: year.year,
+      exists: true,
+      pid: year.pid,
+      accessibility: year.accessibility
+    }));
+
+    years.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+    this.periodicalYears = years;
+  }
 
   protected readonly ViewMode = ViewMode;
 }

@@ -14,14 +14,21 @@ export interface PeriodicalItem {
   created?: string;
   modified?: string;
   hasTiles?: boolean;
+
+  model?: string;
+  'root.pid'?: string;
+  'date.str'?: string;
+  children?: PeriodicalItemChild[];
+}
+
+export interface PeriodicalItemChild {
+  'date.str': string;
+  pid: string;
 }
 
 export interface PeriodicalItemYear {
   year: string;
   exists: boolean;
-}
-
-export interface AvailableYear {
-  year: string;
   pid: string;
+  accessibility: string;
 }

@@ -1,5 +1,11 @@
-<p>periodical-year-issues-grid works!</p>
-<div class="issues-grid">
-  <p>Zoznam čísel z roku {{ year }} pre pid: {{ pid }}</p>
-  <!-- Tu sa neskôr zobrazia issues (mesiace / dni) -->
+<div  class="grid--container">
+
+  <app-item-card
+    *ngFor="let item of children$ | async; trackBy: trackByPid"
+    [uuid]="item.pid"
+    [title]="item['date.str']"
+    [showFavoriteButton]="false"
+    (click)="onDateSelected(item)"
+  ></app-item-card>
+
 </div>

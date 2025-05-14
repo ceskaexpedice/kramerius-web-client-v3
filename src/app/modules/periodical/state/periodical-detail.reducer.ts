@@ -1,19 +1,15 @@
 import { createReducer, on } from '@ngrx/store';
-import * as PeriodicalDetailActions from './periodical-detail.actions';
 import {
   loadPeriodical, loadPeriodicalFailure,
-  loadPeriodicalSuccess,
-  loadPeriodicalYears,
-  loadPeriodicalYearsFailure,
-  loadPeriodicalYearsSuccess,
+  loadPeriodicalSuccess
 } from './periodical-detail.actions';
-import {SearchDocument} from '../../models/search-document';
-import {AvailableYear, PeriodicalItemYear} from '../../models/periodical-item';
+import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../models/periodical-item';
 
 export interface PeriodicalDetailState {
-  document: any;
+  document: PeriodicalItem | null;
   years: PeriodicalItemYear[];
-  availableYears: AvailableYear[];
+  availableYears: PeriodicalItemYear[];
+  children: PeriodicalItemChild[];
   loading: boolean;
   error: any;
 }
@@ -22,23 +18,21 @@ export const initialState: PeriodicalDetailState = {
   document: null,
   years: [],
   availableYears: [],
+  children: [],
   loading: false,
-  error: null,
+  error: null
 };
 
 export const periodicalDetailReducer = createReducer(
   initialState,
   on(loadPeriodical, state => ({ ...state, loading: true })),
-  on(loadPeriodicalSuccess, (state, { document, years, availableYears }) => ({
+  on(loadPeriodicalSuccess, (state, { document, years, availableYears, children }) => ({
     ...state,
     loading: false,
     document,
     years,
-    availableYears
+    availableYears,
+    children: children || []
   })),
-  on(loadPeriodicalFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  }))
+  on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error }))
 );

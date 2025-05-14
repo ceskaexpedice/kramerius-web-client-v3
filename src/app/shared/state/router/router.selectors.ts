@@ -3,6 +3,14 @@ import { RouterReducerState } from '@ngrx/router-store';
 
 export const selectRouter = createFeatureSelector<RouterReducerState<any>>('router');
 
+function getDeepestChild(route: any): any {
+  if (!route) return null;
+  while (route?.firstChild) {
+    route = route.firstChild;
+  }
+  return route;
+}
+
 export const selectRouterQueryParams = createSelector(
   selectRouter,
   router => router?.state?.root?.queryParams || {}
@@ -11,10 +19,7 @@ export const selectRouterQueryParams = createSelector(
 export const selectRouterParams = createSelector(
   selectRouter,
   router => {
-    let state = router?.state?.root;
-    while (state?.firstChild) {
-      state = state.firstChild;
-    }
-    return state?.params || {};
+    const deepest = getDeepestChild(router?.state?.root);
+    return deepest?.params || {};
   }
 );

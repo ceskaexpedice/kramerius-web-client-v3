@@ -1,41 +1,10 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {PeriodicalDetailState} from './periodical-detail.reducer';
-import {selectRouterParams} from '../../../shared/state/router/router.selectors';
 
-export const selectPeriodicalDetailState =
-  createFeatureSelector<PeriodicalDetailState>('periodical-detail');
-
-export const selectPeriodicalDocument = createSelector(
-  selectPeriodicalDetailState,
-  state => state.document
-);
-
-export const selectPeriodicalYears = createSelector(
-  selectPeriodicalDetailState,
-  state => state.years
-);
-
-export const selectAvailablePeriodicalYears = createSelector(
-  selectPeriodicalDetailState,
-  state => state.availableYears
-);
-
-export const selectPeriodicalLoading = createSelector(
-  selectPeriodicalDetailState,
-  state => state.loading
-);
-
-export const selectPeriodicalError = createSelector(
-  selectPeriodicalDetailState,
-  state => state.error
-);
-
-export const selectPeriodicalUuid = createSelector(
-  selectRouterParams,
-  params => params['uuid']
-);
-
-export const selectPeriodicalChildren = createSelector(
-	selectPeriodicalDocument,
-	(doc) => doc?.children ?? []
-);
+export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical');
+export const selectPeriodicalDocument = createSelector(selectPeriodicalState, state => state.document);
+export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state.children || []);
+export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state.years);
+export const selectAvailableYears = createSelector(selectPeriodicalState, state => state.availableYears);
+export const selectPeriodicalLoading = createSelector(selectPeriodicalState, state => state.loading);
+export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state.error);

@@ -373,7 +373,7 @@ export class SolrService {
     ]);
     const params = {
       q: query,
-      fl: 'date.str, pid',
+      fl: 'date.str, pid, accessibility',
       rows: '10000',
       sort: 'date.min asc',
       wt: 'json'
@@ -392,7 +392,7 @@ export class SolrService {
     ]);
     const params = {
       q: query,
-      fl: 'date.str, pid',
+      fl: 'date.str, pid, accessibility',
       rows: '10000',
       sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
       wt: 'json'

@@ -1,7 +1,5 @@
 import {Component, inject, Input} from '@angular/core';
 import {MatCalendar} from '@angular/material/datepicker';
-import {HttpClient} from '@angular/common/http';
-import {DateAdapter} from '@angular/material/core';
 import {NgForOf} from '@angular/common';
 import {Store} from '@ngrx/store';
 import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
@@ -42,8 +40,6 @@ export class PeriodicalYearIssuesCalendarComponent {
   children$ = this.store.select(selectPeriodicalChildren);
 
   constructor(
-    private dateAdapter: DateAdapter<Date>,
-    private http: HttpClient
   ) {}
 
   ngOnInit() {

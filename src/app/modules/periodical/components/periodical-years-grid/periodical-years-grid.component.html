@@ -1,5 +1,9 @@
-<div class="years-grid">
-  <div class="year-box" *ngFor="let year of years" (click)="selectYear.emit(year.year)">
-    {{ year.year }}
-  </div>
+<div class="grid--container">
+  <app-item-card
+    *ngFor="let year of years"
+    [title]="year.year"
+    [uuid]="year.pid"
+    [showFavoriteButton]="false"
+    (click)="selectYear.emit(year.year)"
+  ></app-item-card>
 </div>
