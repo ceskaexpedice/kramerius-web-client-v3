@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {PeriodicalItemYear} from '../../../models/periodical-item';
-import {NgForOf} from '@angular/common';
+import {NgClass, NgForOf} from '@angular/common';
 
 @Component({
   selector: 'app-periodical-years-timeline',
@@ -8,7 +8,7 @@ import {NgForOf} from '@angular/common';
     NgForOf,
   ],
   templateUrl: './periodical-years-timeline.component.html',
-  styleUrl: './periodical-years-timeline.component.scss'
+  styleUrls: ['./periodical-years-timeline.component.scss', '../periodical-base.scss']
 })
 export class PeriodicalYearsTimelineComponent {
   @Input() years: PeriodicalItemYear[] = [];

@@ -1,10 +1,12 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, signal} from '@angular/core';
 import {MatCalendar} from '@angular/material/datepicker';
 import {NgForOf} from '@angular/common';
 import {Store} from '@ngrx/store';
 import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
+import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -12,10 +14,20 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
     MatCalendar,
     NgForOf,
   ],
+  providers: [
+    {
+      provide: MAT_DATE_LOCALE,
+      useFactory: (translate: TranslateService) => translate.currentLang,
+      deps: [TranslateService],
+    },
+  ],
   templateUrl: './periodical-year-issues-calendar.component.html',
   styleUrl: './periodical-year-issues-calendar.component.scss'
 })
 export class PeriodicalYearIssuesCalendarComponent {
+  private readonly _adapter = inject<DateAdapter<unknown, unknown>>(DateAdapter);
+  private readonly translate = inject<TranslateService>(TranslateService);
+
   @Input() year!: string;
   @Input() pid!: string;
 
@@ -32,7 +44,7 @@ export class PeriodicalYearIssuesCalendarComponent {
     'Júl', 'August', 'September', 'Október', 'November', 'December'
   ];
 
-  issueMap = new Map<string, string>(); // "YYYY-MM-DD" => pid
+  issueMap = signal<Map<string, { pid: string; accessibility: string }>>(new Map());
 
   private store = inject(Store);
   private router = inject(Router);
@@ -47,19 +59,24 @@ export class PeriodicalYearIssuesCalendarComponent {
     this.selectedDate = new Date(this.yearNum, 0, 1);
 
     this.children$.subscribe(items => {
-      const map = new Map<string, string>();
+      const map = new Map<string, { pid: string, accessibility: string }>();
       items.forEach((item: any) => {
         const date = this.parseDate(item['date.str']);
         if (date && item.pid) {
           const key = this.formatDateKey(date);
-          map.set(key, item.pid);
+          map.set(key, { pid: item.pid, accessibility: item.accessibility || 'private' });
         }
       });
-      this.issueMap = map;
-
-      // Pre dateClass
-      this.availableDates = Array.from(map.keys()).map(d => new Date(d));
+      this.issueMap.set(map);
     });
+
+    // Locale z ngx-translate
+    this.setDateLocale(this.translate.currentLang);
+    this.translate.onLangChange.subscribe(e => this.setDateLocale(e.lang));
+  }
+
+  private setDateLocale(lang: string) {
+    this._adapter.setLocale(lang);
   }
 
   formatDateKey(date: Date): string {
@@ -93,21 +110,21 @@ export class PeriodicalYearIssuesCalendarComponent {
 
   // Custom date class function to highlight dates with issues
   dateClass = (date: Date): string => {
-    return this.availableDates.some(d =>
-      d.getFullYear() === date.getFullYear() &&
-      d.getMonth() === date.getMonth() &&
-      d.getDate() === date.getDate()
-    ) ? 'has-issue' : '';
+    const key = this.formatDateKey(date);
+    const data = this.issueMap().get(key);
+    if (!data) return '';
+
+    return `has-issue accessibility-${data.accessibility}`;
   };
 
   onDateSelected(date: Date | null) {
     if (!date) return;
 
     const key = this.formatDateKey(date);
-    const pid = this.issueMap.get(key);
+    const entry = this.issueMap().get(key);
 
-    if (pid) {
-      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+    if (entry?.pid) {
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, entry.pid]);
     }
   }
 

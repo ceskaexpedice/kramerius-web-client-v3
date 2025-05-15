@@ -1,0 +1,7 @@
+<div class="accessibility-badge--container" [ngClass]="'accessibility-' + accessibility">
+
+  <span>{{ 'accessibility-label-' + accessibility | translate }}</span>
+
+  <i [class]="accessibility === DocumentAccessibilityEnum.PUBLIC ? 'icon-eye' : 'icon-lock-1'"></i>
+
+</div>

@@ -4,6 +4,8 @@
     [title]="year.year"
     [uuid]="year.pid"
     [showFavoriteButton]="false"
+    [showAccessibilityBadge]="true"
+    [accessibility]="year.accessibility"
     (click)="selectYear.emit(year.year)"
   ></app-item-card>
 </div>

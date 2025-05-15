@@ -1,3 +1,16 @@
 .text-bold {
   font-weight: bold;
 }
+
+.accessibility-public {
+  background-color: var(--accessibility-public-bg) !important;
+  color: var(--accessibility-public-text-color) !important;
+  --accessibility-bg: var(--accessibility-public-bg);
+}
+
+.accessibility-private {
+  background-color: var(--accessibility-private-bg) !important;
+  color: var(--accessibility-private-text-color) !important;
+  --accessibility-bg: var(--accessibility-private-bg);
+}
+

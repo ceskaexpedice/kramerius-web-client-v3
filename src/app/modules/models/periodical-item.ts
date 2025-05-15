@@ -1,8 +1,10 @@
+import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+
 export interface PeriodicalItem {
   uuid: string;
   title: string;
   dateRange: string;
-  accessibility: string;
+  accessibility: DocumentAccessibilityEnum;
   licenses: string[];
   publishers?: string[];
   publicationPlaces?: string[];
@@ -30,5 +32,5 @@ export interface PeriodicalItemYear {
   year: string;
   exists: boolean;
   pid: string;
-  accessibility: string;
+  accessibility: DocumentAccessibilityEnum;
 }

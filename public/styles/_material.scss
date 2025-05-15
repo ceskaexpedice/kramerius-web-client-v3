@@ -54,7 +54,14 @@ div.mat-mdc-autocomplete-panel {
 }
 
 .has-issue .mat-calendar-body-cell-content {
-  background-color: #1976d2; // alebo iná zvýrazňujúca farba
-  color: white;
-  border-radius: 50%;
+  border-radius: var(--spacing-x2);
+}
+
+.mat-calendar-body-cell-content {
+  color: var(--color-text-btn-tertiary-default) !important;
+  border-radius: var(--spacing-x2) !important;
+}
+
+.custom-label .mat-calendar-body-label {
+  visibility: hidden !important;
 }

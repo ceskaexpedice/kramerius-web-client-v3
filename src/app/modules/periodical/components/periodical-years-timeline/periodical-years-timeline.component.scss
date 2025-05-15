@@ -6,21 +6,41 @@
   flex-wrap: wrap;
 }
 
-.year-tick {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
+.year-item--container {
+  position: relative;
+  overflow: hidden;
+  padding: 8px;
+  background-color: white;
+  border-radius: 4px;
   border: 1px solid var(--color-border-contrast);
-  padding:  10px 15px;
-}
-
-.year-tick {
   cursor: pointer;
-  padding: 0.5rem;
-  &.disabled {
-    color: rgba(128, 128, 128, 0.28);
-    pointer-events: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--accessibility-bg);
+    transform: scale(0);
+    transform-origin: center;
+    transition: transform 0.2s ease;
+    z-index: 0;
   }
+
+  &:hover::before {
+    transform: scale(1);
+  }
+
+  .year-item {
+    position: relative;
+    z-index: 1;
+    padding: 2px 8px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 28px;
+    color: var(--color-text-base);
+    background-color: var(--accessibility-bg);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
 }
