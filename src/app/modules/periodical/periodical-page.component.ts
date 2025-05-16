@@ -13,6 +13,8 @@ import {PeriodicalItemYear} from '../models/periodical-item';
 import {map} from 'rxjs/operators';
 import {ViewMode} from './models/view-mode.enum';
 import {APP_ROUTES_ENUM} from '../../app.routes';
+import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {CalendarGridControl} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -24,6 +26,7 @@ export class PeriodicalPageComponent {
   private store = inject(Store);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private recordHandler = inject(RecordHandlerService);
 
   // Signals
   viewMode = signal<ViewMode>(ViewMode.Timeline);
@@ -44,7 +47,6 @@ export class PeriodicalPageComponent {
     this.availableYears$.pipe(
       filter(data => !!data),
       map(data => {
-        console.log('Available years:', data);
         this.availableYears = data;
         this.generateYearsFromAvailable();
       })
@@ -76,19 +78,19 @@ export class PeriodicalPageComponent {
     });
   }
 
-  showCalendarView() {
-    if (this.selectedYear()) {
-      this.changeView(ViewMode.Calendar);
+  setView(view: CalendarGridControl) {
+    if (view === 'calendar') {
+      if (this.selectedYear()) {
+        this.changeView(ViewMode.Calendar);
+      } else {
+        this.changeView(ViewMode.Timeline);
+      }
     } else {
-      this.changeView(ViewMode.Timeline);
-    }
-  }
-
-  showGridView() {
-    if (this.selectedYear()) {
-      this.changeView(ViewMode.GridIssues);
-    } else {
-      this.changeView(ViewMode.GridYears);
+      if (this.selectedYear()) {
+        this.changeView(ViewMode.GridIssues);
+      } else {
+        this.changeView(ViewMode.GridYears);
+      }
     }
   }
 
@@ -175,7 +177,11 @@ export class PeriodicalPageComponent {
   }
 
   goBackClicked() {
-    window.history.back();
+    if (this.selectedYear()) {
+      this.goBackToYears();
+    } else {
+      this.recordHandler.navigateFromPeriodicalToSearchResults();
+    }
   }
 
 }

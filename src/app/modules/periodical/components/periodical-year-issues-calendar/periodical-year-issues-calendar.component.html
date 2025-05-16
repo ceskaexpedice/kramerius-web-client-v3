@@ -1,7 +1,4 @@
-
-<h2>Kalendár pre rok {{ year }}</h2>
-
-<div class="months-calendar-container">
+<div class="months-calendar-container" *ngIf="shouldShowCalendars()">
   <div class="month-calendar" *ngFor="let month of months; let i = index">
     <h3>{{ monthNames[i] }}</h3>
     <mat-calendar

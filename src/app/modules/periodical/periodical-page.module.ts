@@ -23,6 +23,9 @@ import {PeriodicalFilterService} from './services/periodical-filter.service';
 import {PeriodicalFiltersComponent} from './components/periodical-filters/periodical-filters.component';
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
+import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
+import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 const routes: Routes = [
   {
@@ -52,6 +55,9 @@ const routes: Routes = [
     PeriodicalFiltersComponent,
     ActionToolbarComponent,
     RecordTypeTabsComponent,
+    ToolbarHeaderComponent,
+    YearNavigatorComponent,
+    ToolbarControlsComponent,
   ],
   providers: [
     { provide: 'FilterService', useClass: PeriodicalFilterService }

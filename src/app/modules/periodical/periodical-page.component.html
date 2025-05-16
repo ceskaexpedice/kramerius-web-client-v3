@@ -11,30 +11,31 @@
 
         <div left>
 
-          <button class="icon-button button link primary" (click)="goBackClicked()">
-            <i class="icon-arrow-left"></i>
-          </button>
-
-          <h2>{{ (document$ | async)?.['root.title'] }}</h2>
+          <app-toolbar-header
+            [title]="(document$ | async)?.['root.title'] || ''"
+            (goBack)="goBackClicked()"></app-toolbar-header>
 
         </div>
 
         <div center *ngIf="selectedYear() as year">
-          <button (click)="goToPreviousYear()">
-            <i class="icon-arrow-left"></i>
-          </button>
-          <h2>{{ year }}</h2>
-          <button (click)="goToNextYear()">
-            <i class="icon-arrow-right"></i>
-          </button>
+
+          <app-year-navigator
+            [year]="year"
+            (goToPreviousYear)="goToPreviousYear()"
+            (goToNextYear)="goToNextYear()"
+          ></app-year-navigator>
+
         </div>
 
         <div right>
 
-          <div class="view-toggle">
-            <button (click)="showCalendarView()">Kalendár</button>
-            <button (click)="showGridView()">Mriežka</button>
-          </div>
+          <app-toolbar-controls
+            [showCalendarGridControls]="true"
+            [showFavorites]="true"
+            [showShare]="true"
+            [showQuote]="true"
+            (calendarGridClicked)="setView($event)"
+          ></app-toolbar-controls>
 
         </div>
 

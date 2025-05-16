@@ -3,19 +3,25 @@ import {Router} from '@angular/router';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {SearchDocument} from '../../modules/models/search-document';
+import {SearchService} from './search.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordHandlerService {
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private searchService: SearchService
+  ) {}
 
   /**
    * Handle navigation based on the document type.
    */
   handleDocumentClick(document: SearchDocument): void {
     const model = document.model;
+
+    this.searchService.backupCurrentSearchUrl();
 
     switch (model) {
       case DocumentTypeEnum.periodical:
@@ -38,6 +44,15 @@ export class RecordHandlerService {
    */
   private navigateToPeriodical(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
+  }
+
+  navigateFromPeriodicalToSearchResults(): void {
+    const returnUrl = this.searchService.getBackupSearchUrl();
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS]);
+    }
   }
 
   /**

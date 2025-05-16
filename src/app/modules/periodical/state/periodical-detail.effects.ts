@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
-import {of} from 'rxjs';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { of } from 'rxjs';
 import {
   loadPeriodical,
-  loadPeriodicalFailure, loadPeriodicalSuccess
+  loadPeriodicalFailure,
+  loadPeriodicalSuccess
 } from './periodical-detail.actions';
-import {SolrService} from '../../../core/solr/solr.service';
-import {selectAvailableYears} from './periodical-detail.selectors';
-import {Store} from '@ngrx/store';
+import { SolrService } from '../../../core/solr/solr.service';
+import { selectAvailableYears } from './periodical-detail.selectors';
+import { Store } from '@ngrx/store';
+import {PeriodicalItemYear} from '../../models/periodical-item';
+import {DocumentAccessibilityEnum} from '../../constants/document-accessibility';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -27,20 +30,9 @@ export class PeriodicalDetailEffects {
             if (document.model === 'periodical') {
               return this.solr.getPeriodicalVolumes(uuid).pipe(
                 map(volumes => {
-                  const availableYears = volumes
-                    .map(v => ({ year: v['date.str'], pid: v['pid'], exists: true, accessibility: v['accessibility'] }))
-                    .filter(v => v.year && v.pid);
-
-                  const start = parseInt(document['date_range_start.year'], 10);
-                  const end = parseInt(document['date_range_end.year'], 10);
-                  const yearList = Array.from({ length: end - start + 1 }, (_, i) => ({
-                    year: (start + i).toString(),
-                    exists: availableYears.some(v => v.year === (start + i).toString()),
-                    pid: availableYears.find(v => v.year === (start + i).toString())?.pid || null,
-                    accessibility: availableYears.find(v => v.year === (start + i).toString())?.accessibility || null
-                  }));
-
-                  return loadPeriodicalSuccess({ document, years: yearList, availableYears });
+                  const availableYears = this.mapAvailableYears(volumes);
+                  const years = this.buildYearList(document, availableYears);
+                  return loadPeriodicalSuccess({ document, years, availableYears });
                 })
               );
             }
@@ -48,14 +40,36 @@ export class PeriodicalDetailEffects {
             if (document.model === 'periodicalvolume') {
               return this.solr.getPeriodicalItems(uuid).pipe(
                 withLatestFrom(this.store.select(selectAvailableYears)),
-                map(([children, previousAvailableYears]) =>
-                  loadPeriodicalSuccess({
-                    document,
-                    years: [],
-                    availableYears: previousAvailableYears || [],
-                    children
-                  })
-                )
+                switchMap(([children, previousAvailableYears]) => {
+                  if (previousAvailableYears && previousAvailableYears.length > 0) {
+                    return of(loadPeriodicalSuccess({
+                      document,
+                      years: [],
+                      availableYears: previousAvailableYears,
+                      children
+                    }));
+                  }
+
+                  const rootPid = document['root.pid'];
+                  if (!rootPid) {
+                    return of(loadPeriodicalFailure({ error: 'Missing root.pid for periodicalvolume' }));
+                  }
+
+                  return this.solr.getPeriodicalVolumes(rootPid).pipe(
+                    map(volumes => {
+                      const availableYears = this.mapAvailableYears(volumes);
+                      return loadPeriodicalSuccess({
+                        document,
+                        years: [],
+                        availableYears,
+                        children
+                      });
+                    }),
+                    catchError(error =>
+                      of(loadPeriodicalFailure({ error: 'Failed to load parent periodical volumes: ' + error }))
+                    )
+                  );
+                })
               );
             }
 
@@ -66,4 +80,32 @@ export class PeriodicalDetailEffects {
       )
     )
   );
+
+  private mapAvailableYears(volumes: any[]): PeriodicalItemYear[] {
+    return volumes
+      .filter(v => !!v['date.str'] && !!v['pid'] && !!v['accessibility'])
+      .map(v => ({
+        year: v['date.str'],
+        pid: v['pid'],
+        exists: true as const,
+        accessibility: v['accessibility'] as DocumentAccessibilityEnum
+      }));
+  }
+
+  private buildYearList(document: any, availableYears: PeriodicalItemYear[]): PeriodicalItemYear[] {
+    const start = parseInt(document['date_range_start.year'], 10);
+    const end = parseInt(document['date_range_end.year'], 10);
+
+    return Array.from({ length: end - start + 1 }, (_, i) => {
+      const year = (start + i).toString();
+      const found = availableYears.find(y => y.year === year);
+
+      return {
+        year,
+        pid: found?.pid ?? '',
+        exists: true,
+        accessibility: found?.accessibility ?? DocumentAccessibilityEnum.PRIVATE
+      };
+    });
+  }
 }

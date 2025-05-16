@@ -1,18 +1,30 @@
-import {Component, inject, Input, signal} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  QueryList,
+  signal,
+  SimpleChanges,
+  ViewChildren,
+} from '@angular/core';
 import {MatCalendar} from '@angular/material/datepicker';
-import {NgForOf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {Store} from '@ngrx/store';
 import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
   imports: [
     MatCalendar,
     NgForOf,
+    NgIf,
   ],
   providers: [
     {
@@ -24,110 +36,104 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './periodical-year-issues-calendar.component.html',
   styleUrl: './periodical-year-issues-calendar.component.scss'
 })
-export class PeriodicalYearIssuesCalendarComponent {
-  private readonly _adapter = inject<DateAdapter<unknown, unknown>>(DateAdapter);
-  private readonly translate = inject<TranslateService>(TranslateService);
+export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
+  private store = inject(Store);
+  private router = inject(Router);
+  private adapter = inject(DateAdapter);
+  private translate = inject(TranslateService);
 
   @Input() year!: string;
   @Input() pid!: string;
 
+  yearNum = 0;
   selectedDate: Date | null = null;
-  availableDates: Date[] = [];
-  yearNum: number = 0;
+  shouldShowCalendars = signal(true);
 
-  // Array for 12 months (0-11)
-  months = Array(12).fill(0).map((_, i) => i);
+  issueMap = signal(new Map<string, { pid: string; accessibility: string }>());
 
-  // Month names in Slovak
+  months = Array.from({ length: 12 }, (_, i) => i);
   monthNames = [
     'Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún',
-    'Júl', 'August', 'September', 'Október', 'November', 'December'
+    'Júl', 'August', 'September', 'Október', 'November', 'December',
   ];
 
-  issueMap = signal<Map<string, { pid: string; accessibility: string }>>(new Map());
+  @ViewChildren(MatCalendar) calendars!: QueryList<MatCalendar<Date>>;
 
-  private store = inject(Store);
-  private router = inject(Router);
+  constructor() {
+    // Init date locale
+    this.adapter.setLocale(this.translate.currentLang);
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(e => this.adapter.setLocale(e.lang));
 
-  children$ = this.store.select(selectPeriodicalChildren);
-
-  constructor(
-  ) {}
-
-  ngOnInit() {
-    this.yearNum = parseInt(this.year);
-    this.selectedDate = new Date(this.yearNum, 0, 1);
-
-    this.children$.subscribe(items => {
-      const map = new Map<string, { pid: string, accessibility: string }>();
-      items.forEach((item: any) => {
-        const date = this.parseDate(item['date.str']);
-        if (date && item.pid) {
-          const key = this.formatDateKey(date);
-          map.set(key, { pid: item.pid, accessibility: item.accessibility || 'private' });
-        }
+    // Listen to children and populate map
+    this.store.select(selectPeriodicalChildren)
+      .pipe(takeUntilDestroyed())
+      .subscribe(items => {
+        this.updateIssueMap(items);
       });
-      this.issueMap.set(map);
-    });
-
-    // Locale z ngx-translate
-    this.setDateLocale(this.translate.currentLang);
-    this.translate.onLangChange.subscribe(e => this.setDateLocale(e.lang));
   }
 
-  private setDateLocale(lang: string) {
-    this._adapter.setLocale(lang);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['year'] && this.year) {
+      this.yearNum = parseInt(this.year, 10);
+      this.selectedDate = new Date(this.yearNum, 0, 1);
+    }
+  }
+
+  private updateIssueMap(items: any[]): void {
+    const map = new Map<string, { pid: string; accessibility: string }>();
+
+    for (const item of items) {
+      const date = this.parseDate(item['date.str']);
+      if (!date || !item.pid) continue;
+
+      const key = this.formatDateKey(date);
+      map.set(key, {
+        pid: item.pid,
+        accessibility: item.accessibility || 'private'
+      });
+    }
+
+    this.issueMap.set(map);
+
+    this.shouldShowCalendars.set(false);
+
+    setTimeout(() => {
+      this.shouldShowCalendars.set(true);
+    }, 0);
+  }
+
+  // Utility: parse date from DD.MM.YYYY
+  parseDate(str: string): Date | null {
+    const [day, month, year] = str.split('.').map(Number);
+    return day && month && year ? new Date(year, month - 1, day) : null;
   }
 
   formatDateKey(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
   }
 
-  parseDate(dateStr: string): Date | null {
-    const [day, month, year] = dateStr.split('.').map(part => parseInt(part, 10));
-    if (!day || !month || !year) return null;
-
-    return new Date(year, month - 1, day);
-  }
-
-  // Get a date object for the first day of a specific month
   getMonthDate(monthIndex: number): Date {
     return new Date(this.yearNum, monthIndex, 1);
   }
 
-  // Get min date for a specific month (first day of the month)
   getMonthMinDate(monthIndex: number): Date {
     return new Date(this.yearNum, monthIndex, 1);
   }
 
-  // Get max date for a specific month (last day of the month)
   getMonthMaxDate(monthIndex: number): Date {
     return new Date(this.yearNum, monthIndex + 1, 0);
   }
 
-  // Custom date class function to highlight dates with issues
   dateClass = (date: Date): string => {
-    const key = this.formatDateKey(date);
-    const data = this.issueMap().get(key);
-    if (!data) return '';
-
-    return `has-issue accessibility-${data.accessibility}`;
+    const data = this.issueMap().get(this.formatDateKey(date));
+    return data ? `has-issue accessibility-${data.accessibility}` : '';
   };
 
-  onDateSelected(date: Date | null) {
+  onDateSelected(date: Date | null): void {
     if (!date) return;
-
-    const key = this.formatDateKey(date);
-    const entry = this.issueMap().get(key);
-
-    if (entry?.pid) {
-      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, entry.pid]);
-    }
+    const data = this.issueMap().get(this.formatDateKey(date));
+    if (data?.pid) this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, data.pid]);
   }
-
-
-
 }

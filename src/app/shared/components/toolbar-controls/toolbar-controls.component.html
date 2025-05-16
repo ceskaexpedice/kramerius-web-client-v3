@@ -1,0 +1,40 @@
+<div class="toolbar-controls">
+
+  <ng-container *ngIf="showCalendarGridControls">
+
+    <div class="toggle--container">
+
+      <div
+        class="view-toggle"
+        [class.active]="activeCalendarGridControl === 'calendar'"
+        (click)="setViewMode('calendar')">
+        <i class="icon-calendar"></i> Kalendář
+      </div>
+
+      <div
+        class="view-toggle"
+        [class.active]="activeCalendarGridControl === 'grid'"
+        (click)="setViewMode('grid')">
+        <i class="icon-grid-1"></i> Mřížka
+      </div>
+
+    </div>
+
+  </ng-container>
+
+  <!-- Favorite Icon -->
+  <button class="icon-button link tertiary" *ngIf="showFavorites" (click)="onFavorite()">
+    <i class="icon-heart"></i>
+  </button>
+
+  <!-- Share Icon -->
+  <button class="icon-button link tertiary" *ngIf="showShare" (click)="onShare()">
+    <i class="icon-share"></i>
+  </button>
+
+  <!-- Quote Icon -->
+  <button class="icon-button link tertiary" *ngIf="showQuote" (click)="onQuote()">
+    <i class="icon-quote-down"></i>
+  </button>
+
+</div>

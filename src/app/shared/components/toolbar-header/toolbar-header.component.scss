@@ -1,0 +1,13 @@
+.toolbar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+h2 {
+  margin: 0;
+  font-weight: normal;
+  font-size: 22px;
+  line-height: 36px;
+  color: var(--color-text-base);
+}

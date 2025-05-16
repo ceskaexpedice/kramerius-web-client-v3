@@ -1,0 +1,66 @@
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: var(--toolbar-height);
+  overflow: hidden;
+
+  > * {
+    border-left: 1px solid var(--color-border-light);
+  }
+
+  > *:first-child {
+    border-left: none;
+  }
+}
+
+.toggle--container {
+  display: flex;
+  align-items: center;
+}
+
+.view-toggle {
+  position: relative;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x5) var(--spacing-x4);
+  cursor: pointer;
+
+  &.active {
+    color: var(--color-text-base);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 0;
+      height: 2px;
+      width: 100%;
+      background-color: var(--color-text-base);
+    }
+  }
+}
+
+.icon-button {
+  height: 100%;
+  aspect-ratio: 1/1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  &.link.tertiary {
+    border-radius: 0;
+    color: var(--color-primary);
+    border-left: 1px solid var(--color-border-light);
+  }
+
+  &:first-child {
+    border-left: none;
+  }
+}

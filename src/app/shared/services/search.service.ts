@@ -19,6 +19,7 @@ import {FilterService} from './filter.service';
   providedIn: 'root'
 })
 export class SearchService implements FilterService {
+  private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
   private initialized = false;
 
   private _searchTerm = signal('');
@@ -260,5 +261,18 @@ export class SearchService implements FilterService {
     return this.activeFilters$.pipe(
       map(filters => filters.includes(itemName))
     );
+  }
+
+  backupCurrentSearchUrl(): void {
+    const currentUrl = this.router.url;
+    sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
+  }
+
+  getBackupSearchUrl(): string | null {
+    return sessionStorage.getItem(this.SEARCH_BACKUP_KEY);
+  }
+
+  clearBackupSearchUrl(): void {
+    sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
 }
