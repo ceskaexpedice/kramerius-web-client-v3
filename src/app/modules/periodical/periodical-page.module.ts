@@ -21,6 +21,8 @@ import {
 } from './components/periodical-year-issues-grid/periodical-year-issues-grid.component';
 import {PeriodicalFilterService} from './services/periodical-filter.service';
 import {PeriodicalFiltersComponent} from './components/periodical-filters/periodical-filters.component';
+import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
+import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
 
 const routes: Routes = [
   {
@@ -48,6 +50,8 @@ const routes: Routes = [
     PeriodicalYearIssuesCalendarComponent,
     PeriodicalYearIssuesGridComponent,
     PeriodicalFiltersComponent,
+    ActionToolbarComponent,
+    RecordTypeTabsComponent,
   ],
   providers: [
     { provide: 'FilterService', useClass: PeriodicalFilterService }

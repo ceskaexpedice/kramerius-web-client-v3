@@ -6,11 +6,6 @@
   background-color: var(--color-bg-base);
 }
 
-.tabs-left {
-  display: flex;
-  gap: 20px;
-}
-
 .category-filter--container--item {
   padding: 20px 16px;
   cursor: pointer;
@@ -20,10 +15,4 @@
     font-weight: 600;
     color: var(--color-text-btn-secondary-pressed);
   }
-}
-
-.content-right {
-  display: flex;
-  gap: 20px;
-  align-items: center;
 }

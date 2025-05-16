@@ -19,6 +19,7 @@ export interface PeriodicalItem {
 
   model?: string;
   'root.pid'?: string;
+  'root.title'?: string;
   'date.str'?: string;
   children?: PeriodicalItemChild[];
 }

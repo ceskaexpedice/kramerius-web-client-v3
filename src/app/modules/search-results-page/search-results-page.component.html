@@ -9,17 +9,31 @@
 
       <div class="results-content--filters">
 
-        <app-category-filter>
+        <app-action-toolbar>
+          <div left>
+            <app-record-type-tabs></app-record-type-tabs>
+          </div>
 
-          <div actions>
+          <div right>
             <app-paginator-info
               [page]="searchService.page"
               [pageSize]="searchService.pageSize"
               [totalCount]="searchService.totalCount">
             </app-paginator-info>
           </div>
+        </app-action-toolbar>
 
-        </app-category-filter>
+<!--        <app-action-toolbar>-->
+
+<!--          <div actions>-->
+<!--            <app-paginator-info-->
+<!--              [page]="searchService.page"-->
+<!--              [pageSize]="searchService.pageSize"-->
+<!--              [totalCount]="searchService.totalCount">-->
+<!--            </app-paginator-info>-->
+<!--          </div>-->
+
+<!--        </app-action-toolbar>-->
 
         <app-results-sort></app-results-sort>
 

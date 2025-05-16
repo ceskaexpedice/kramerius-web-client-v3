@@ -31,7 +31,7 @@ export const periodicalDetailReducer = createReducer(
     loading: false,
     document,
     years,
-    availableYears,
+    availableYears: availableYears.length > 0 ? availableYears : state.availableYears,
     children: children || []
   })),
   on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error }))

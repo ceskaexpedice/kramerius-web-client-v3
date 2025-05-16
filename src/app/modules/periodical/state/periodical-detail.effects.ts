@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import {catchError, map, switchMap} from 'rxjs/operators';
+import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
 import {of} from 'rxjs';
 import {
   loadPeriodical,
   loadPeriodicalFailure, loadPeriodicalSuccess
 } from './periodical-detail.actions';
 import {SolrService} from '../../../core/solr/solr.service';
+import {selectAvailableYears} from './periodical-detail.selectors';
+import {Store} from '@ngrx/store';
 
 @Injectable()
 export class PeriodicalDetailEffects {
   constructor(
     private actions$: Actions,
-    private solr: SolrService
+    private solr: SolrService,
+    private store: Store
   ) {}
 
   loadPeriodical$ = createEffect(() =>
@@ -44,7 +47,15 @@ export class PeriodicalDetailEffects {
 
             if (document.model === 'periodicalvolume') {
               return this.solr.getPeriodicalItems(uuid).pipe(
-                map(children => loadPeriodicalSuccess({ document, years: [], availableYears: [], children }))
+                withLatestFrom(this.store.select(selectAvailableYears)),
+                map(([children, previousAvailableYears]) =>
+                  loadPeriodicalSuccess({
+                    document,
+                    years: [],
+                    availableYears: previousAvailableYears || [],
+                    children
+                  })
+                )
               );
             }
 

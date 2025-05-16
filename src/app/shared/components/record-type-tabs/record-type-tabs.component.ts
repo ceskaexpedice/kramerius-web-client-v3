@@ -1,17 +1,17 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {TranslatePipe} from '@ngx-translate/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgForOf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-category-filter',
+  selector: 'app-record-type-tabs',
   imports: [
-    TranslatePipe,
     NgForOf,
+    TranslatePipe,
   ],
-  templateUrl: './category-filter.component.html',
-  styleUrl: './category-filter.component.scss'
+  templateUrl: './record-type-tabs.component.html',
+  styleUrl: './record-type-tabs.component.scss'
 })
-export class CategoryFilterComponent {
+export class RecordTypeTabsComponent {
 
   @Input() value: string = 'all';
   @Output() valueChange = new EventEmitter<string>();

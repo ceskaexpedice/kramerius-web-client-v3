@@ -19,10 +19,11 @@ import {searchReducer} from './state/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
-import {CategoryFilterComponent} from './components/category-filter/category-filter.component';
 import {ResultsSortComponent} from './components/results-sort/results-sort.component';
 import {SearchFiltersComponent} from './components/search-filters/search-filters.component';
 import {SearchService} from '../../shared/services/search.service';
+import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
+import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
 
 const routes: Routes = [
   {
@@ -49,9 +50,10 @@ const routes: Routes = [
     SelectedTagsComponent,
     PaginatorComponent,
     PaginatorInfoComponent,
-    CategoryFilterComponent,
     ResultsSortComponent,
     SearchFiltersComponent,
+    ActionToolbarComponent,
+    RecordTypeTabsComponent,
   ],
   providers: [
     { provide: 'FilterService', useClass: SearchService }
