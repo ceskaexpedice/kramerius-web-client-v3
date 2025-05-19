@@ -1,0 +1,74 @@
+<div class="search-results-page">
+	<div class="search-results-page--inner">
+
+    <app-filter-sidebar>
+      <app-periodical-filters></app-periodical-filters>
+    </app-filter-sidebar>
+
+		<div class="results-content">
+
+      <app-action-toolbar>
+
+        <div left>
+
+          <app-toolbar-header
+            [title]="(document$ | async)?.['root.title'] || ''"
+            (goBack)="goBackClicked()"></app-toolbar-header>
+
+        </div>
+
+        <div center *ngIf="selectedYear() as year">
+
+          <app-year-navigator
+            [year]="year"
+            (goToPreviousYear)="goToPreviousYear()"
+            (goToNextYear)="goToNextYear()"
+          ></app-year-navigator>
+
+        </div>
+
+        <div right>
+
+          <app-toolbar-controls
+            [showCalendarGridControls]="true"
+            [showFavorites]="true"
+            [showShare]="true"
+            [showQuote]="true"
+            (calendarGridClicked)="setView($event)"
+          ></app-toolbar-controls>
+
+        </div>
+
+      </app-action-toolbar>
+
+			<div *ngIf="loading$ | async">Načítavam...</div>
+			<div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+      <app-periodical-years-timeline
+        *ngIf="viewMode() === ViewMode.Timeline"
+        [years]="periodicalYears"
+        (selectYear)="onSelectYear($event)">
+      </app-periodical-years-timeline>
+
+      <app-periodical-years-grid
+        *ngIf="viewMode() === ViewMode.GridYears"
+        [years]="periodicalYears"
+        (selectYear)="onSelectYear($event)">
+      </app-periodical-years-grid>
+
+      <app-periodical-year-issues-calendar
+        *ngIf="viewMode() === ViewMode.Calendar"
+        [year]="selectedYear() || ''"
+        [pid]="getSelectedPid() || ''">
+      </app-periodical-year-issues-calendar>
+
+      <app-periodical-year-issues-grid
+        *ngIf="viewMode() === ViewMode.GridIssues"
+        [year]="selectedYear() || ''"
+        [pid]="getSelectedPid() || ''">
+      </app-periodical-year-issues-grid>
+
+		</div>
+
+	</div>
+</div>

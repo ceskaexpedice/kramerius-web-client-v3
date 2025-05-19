@@ -44,5 +44,7 @@
   "filter-all": "All",
   "filter-images": "Images",
   "filter-periodicals": "Periodicals",
-  "filter-maps": "Maps"
+  "filter-maps": "Maps",
+  "accessibility-label-public": "Public",
+  "accessibility-label-private": "After login"
 }

@@ -1,20 +1,5 @@
 <div class="filter-sidebar">
 
-  <ng-container *ngIf="facets$ | async as facets">
-    <ng-container *ngIf="operators$ | async as operators">
-      <ng-container *ngFor="let facetKey of facetKeys">
-        <app-filter-category
-          [selected]="selectedFilters"
-          *ngIf="facets[facetKey]?.length"
-          [facetKey]="facetKey"
-          [label]="facetKey"
-          [items]="facets[facetKey]"
-          [operators]="operators"
-          [showShowMoreButton]="true"
-          (toggle)="onToggleFacet($event)">
-        </app-filter-category>
-      </ng-container>
-    </ng-container>
-  </ng-container>
+  <ng-content></ng-content>
 
 </div>

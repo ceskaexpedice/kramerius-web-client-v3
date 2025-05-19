@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import {loadDocumentDetail} from '../../state/document-detail/document-detail.actions';
+import {loadDocumentDetail} from '../../shared/state/document-detail/document-detail.actions';
 import {Store} from '@ngrx/store';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
   selectDocumentDetailLoading,
-} from '../../state/document-detail/document-detail.selectors';
+} from '../../shared/state/document-detail/document-detail.selectors';
 
 @Component({
   selector: 'app-detail-view-page',

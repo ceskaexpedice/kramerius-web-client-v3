@@ -3,10 +3,10 @@ import {CarouselComponent} from '../../../../shared/components/carousel/carousel
 import {ItemCardComponent} from '../../../../shared/components/item-card/item-card.component';
 import {AsyncPipe, NgForOf, NgIf, TitleCasePipe} from '@angular/common';
 import {Store} from '@ngrx/store';
-import {selectPeriodicals, selectPeriodicalsLoading} from '../../../../state/search/periodicals/periodicals.selectors';
-import {loadPeriodicals} from '../../../../state/search/periodicals/periodicals.actions';
-import {selectBooks, selectBooksLoading} from '../../../../state/search/books/books.selectors';
-import {loadBooks} from '../../../../state/search/books/books.actions';
+import {selectPeriodicals, selectPeriodicalsLoading} from '../../state/periodicals/periodicals.selectors';
+import {loadPeriodicals} from '../../state/periodicals/periodicals.actions';
+import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors';
+import {loadBooks} from '../../state/books/books.actions';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({

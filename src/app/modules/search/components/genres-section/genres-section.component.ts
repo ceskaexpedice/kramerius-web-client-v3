@@ -3,10 +3,10 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Store} from '@ngrx/store';
-import {selectBooks, selectBooksLoading} from '../../../../state/search/books/books.selectors';
-import {loadBooks} from '../../../../state/search/books/books.actions';
-import {selectGenres, selectGenresLoading} from '../../../../state/search/genres/genres.selectors';
-import {loadGenres} from '../../../../state/search/genres/genres.actions';
+import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors';
+import {loadBooks} from '../../state/books/books.actions';
+import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
+import {loadGenres} from '../../state/genres/genres.actions';
 
 @Component({
   selector: 'app-genres-section',

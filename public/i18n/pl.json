@@ -44,5 +44,7 @@
   "filter-all": "Wszystko",
   "filter-images": "Obrazy",
   "filter-periodicals": "Czasopisma",
-  "filter-maps": "Mapy"
+  "filter-maps": "Mapy",
+  "accessibility-label-public": "Publiczny",
+  "accessibility-label-private": "Po zalogowaniu"
 }

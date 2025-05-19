@@ -97,6 +97,10 @@
 
   --icon-sun-color: #FF9500;
   --icon-moon-color: #9FB2C6;
+  --accessibility-public-bg: #dff1c3;
+  --accessibility-public-text-color: #294400;
+  --accessibility-private-bg: #faeac8;
+  --accessibility-private-text-color: #422400;
 }
 
 :root.dark {
@@ -198,4 +202,8 @@
 
   --icon-sun-color: #9FB2C6;
   --icon-moon-color: #5E5CE6;
+  --accessibility-public-bg: #dff1c3;
+  --accessibility-public-text-color: #294400;
+  --accessibility-private-bg: #faeac8;
+  --accessibility-private-text-color: #422400;
 }

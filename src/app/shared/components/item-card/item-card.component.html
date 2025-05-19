@@ -1,15 +1,20 @@
 <div class="item-card">
-
-  <div class="item-card__image" [style.background-image]="'url(https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb)'" [title]="title">
+  <div class="item-card__image-container">
+    <img
+      class="item-card__image"
+      [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb'"
+      [alt]="title"
+      loading="lazy"
+    />
 
     <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton" (click)="toggleFavorite()">
       <i class="fa fa-heart-o"></i>
     </button>
-
   </div>
 
   <div class="item-card__content">
     <div class="title">{{ title.length > 50 ? (title.slice(0, 50) + '...') : title }}</div>
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+    <app-accessibility-badge *ngIf="showAccessibilityBadge" [accessibility]="accessibility"></app-accessibility-badge>
   </div>
 </div>

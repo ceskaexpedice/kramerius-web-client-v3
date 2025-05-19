@@ -44,5 +44,7 @@
   "filter-all": "Vše",
   "filter-images": "Obrázky",
   "filter-periodicals": "Periodika",
-  "filter-maps": "Mapy"
+  "filter-maps": "Mapy",
+  "accessibility-label-public": "Veřejné",
+  "accessibility-label-private": "Po přihlášení"
 }

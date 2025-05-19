@@ -1,0 +1,12 @@
+<div  class="grid--container">
+
+  <app-item-card
+    *ngFor="let item of children$ | async; trackBy: trackByPid"
+    [uuid]="item.pid"
+    [title]="item['date.str']"
+    [showFavoriteButton]="false"
+    [showAccessibilityBadge]="true"
+    (click)="onDateSelected(item)"
+  ></app-item-card>
+
+</div>

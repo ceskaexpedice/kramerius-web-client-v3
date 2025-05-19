@@ -1,30 +1,36 @@
-<div>
-  <div class="category--header">
+<ng-container *ngIf="visibleItems().length > 0">
 
-    <h4>
+  <div>
+    <div class="category--header">
 
-      {{label | translate}}
+      <h4>
 
-      <span *ngIf="hasAndOperator" class="and-indicator">AND</span>
+        {{label | translate}}
 
-    </h4>
+        <span *ngIf="hasAndOperator" class="and-indicator">AND</span>
 
-    <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
+      </h4>
+
+      <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
+
+    </div>
+
+    <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
+
+      <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+
+      <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
+        {{ 'show-more' | translate }}
+
+        <i class="icon-arrow-right-1"></i>
+      </button>
+
+    </div>
 
   </div>
 
-  <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
+  <hr>
 
-    <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+</ng-container>
 
-    <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
-      {{ 'show-more' | translate }}
 
-      <i class="icon-arrow-right-1"></i>
-    </button>
-
-  </div>
-
-</div>
-
-<hr>

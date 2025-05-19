@@ -4,20 +4,22 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, map, filter, combineLatest, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
-  selectActiveFilters,
+  selectActiveFilters, selectFacets,
   selectSearchResults,
   selectSearchResultsTotalCount,
-} from '../../state/search/search.selectors';
+} from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
-import {loadSearchResults} from '../../state/search/search.actions';
+import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
+import {FilterService} from './filter.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SearchService {
+export class SearchService implements FilterService {
+  private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
   private initialized = false;
 
   private _searchTerm = signal('');
@@ -64,6 +66,8 @@ export class SearchService {
   onSearch(term: string | null): void {
     const query = (term && term.length > 0) ? `${term}` : '';
     this._submittedTerm.set(query);
+    // reset page to 1
+    this._page.set(1);
     this.search(query);
   }
 
@@ -95,6 +99,10 @@ export class SearchService {
     });
   }
 
+  getFacets(): Observable<any> {
+    return this.store.select(selectFacets);
+  }
+
   getFiltersWithOperators(): Observable<Record<string, string>> {
     return this.route.queryParams.pipe(
       map(params => {
@@ -121,7 +129,13 @@ export class SearchService {
   initialize(): void {
     if (this.initialized) return;
 
-    this.route.queryParams.subscribe(this.dispatchSearch.bind(this));
+    this.route.queryParams.subscribe(params => {
+      const currentRoute = this.router.url.split('?')[0];
+      if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+        this.dispatchSearch(params);
+      }
+    });
+
     this.initialized = true;
   }
 
@@ -247,5 +261,18 @@ export class SearchService {
     return this.activeFilters$.pipe(
       map(filters => filters.includes(itemName))
     );
+  }
+
+  backupCurrentSearchUrl(): void {
+    const currentUrl = this.router.url;
+    sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
+  }
+
+  getBackupSearchUrl(): string | null {
+    return sessionStorage.getItem(this.SEARCH_BACKUP_KEY);
+  }
+
+  clearBackupSearchUrl(): void {
+    sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
 }
