@@ -3,6 +3,7 @@ import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Injectable} from '@angular/core';
 import {SettingsDialogComponent} from './settings-dialog/settings-dialog.component';
+import {LocalStorageService} from '../../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,10 @@ export class SettingsService {
   private _settings = new BehaviorSubject<Settings>(this.loadInitialSettings());
   settings$ = this._settings.asObservable();
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private localStorage: LocalStorageService
+  ) {
     this.applyTheme(this._settings.value.theme);
   }
 
@@ -71,11 +75,11 @@ export class SettingsService {
   }
 
   private saveToStorage(settings: Settings): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
+    this.localStorage.set(this.STORAGE_KEY, JSON.stringify(settings));
   }
 
   private loadInitialSettings(): Settings {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
+    const saved = this.localStorage.get<any>(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
