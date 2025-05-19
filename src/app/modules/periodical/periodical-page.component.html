@@ -1,74 +1,76 @@
 <div class="search-results-page">
-	<div class="search-results-page--inner">
+  <div class="search-results-page--inner">
 
     <app-filter-sidebar>
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-		<div class="results-content">
+    <div class="results-content">
 
+      <!-- Action Toolbar -->
       <app-action-toolbar>
 
         <div left>
-
           <app-toolbar-header
             [title]="(document$ | async)?.['root.title'] || ''"
-            (goBack)="goBackClicked()"></app-toolbar-header>
-
+            (goBack)="goBackClicked()">
+          </app-toolbar-header>
         </div>
 
         <div center *ngIf="selectedYear() as year">
-
           <app-year-navigator
             [year]="year"
             (goToPreviousYear)="goToPreviousYear()"
-            (goToNextYear)="goToNextYear()"
-          ></app-year-navigator>
-
+            (goToNextYear)="goToNextYear()">
+          </app-year-navigator>
         </div>
 
         <div right>
-
           <app-toolbar-controls
             [showCalendarGridControls]="true"
             [showFavorites]="true"
             [showShare]="true"
             [showQuote]="true"
-            (calendarGridClicked)="setView($event)"
-          ></app-toolbar-controls>
-
+            [activeCalendarGridControl]="activeCalendarGridControl()"
+            (calendarGridClicked)="setView($event)">
+          </app-toolbar-controls>
         </div>
 
       </app-action-toolbar>
 
-			<div *ngIf="loading$ | async">Načítavam...</div>
-			<div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+      <!-- Content rendering based on view mode -->
+      <ng-container *ngIf="viewMode() as mode">
 
-      <app-periodical-years-timeline
-        *ngIf="viewMode() === ViewMode.Timeline"
-        [years]="periodicalYears"
-        (selectYear)="onSelectYear($event)">
-      </app-periodical-years-timeline>
+        <app-periodical-years-timeline
+          *ngIf="mode === ViewMode.Timeline"
+          [years]="periodicalYears"
+          (selectYear)="onSelectYear($event)">
+        </app-periodical-years-timeline>
 
-      <app-periodical-years-grid
-        *ngIf="viewMode() === ViewMode.GridYears"
-        [years]="periodicalYears"
-        (selectYear)="onSelectYear($event)">
-      </app-periodical-years-grid>
+        <app-periodical-years-grid
+          *ngIf="mode === ViewMode.GridYears"
+          [years]="periodicalYears"
+          (selectYear)="onSelectYear($event)">
+        </app-periodical-years-grid>
 
-      <app-periodical-year-issues-calendar
-        *ngIf="viewMode() === ViewMode.Calendar"
-        [year]="selectedYear() || ''"
-        [pid]="getSelectedPid() || ''">
-      </app-periodical-year-issues-calendar>
+        <app-periodical-year-issues-calendar
+          *ngIf="mode === ViewMode.Calendar"
+          [year]="selectedYear() || ''"
+          [pid]="getSelectedPid() || ''">
+        </app-periodical-year-issues-calendar>
 
-      <app-periodical-year-issues-grid
-        *ngIf="viewMode() === ViewMode.GridIssues"
-        [year]="selectedYear() || ''"
-        [pid]="getSelectedPid() || ''">
-      </app-periodical-year-issues-grid>
+        <app-periodical-year-issues-grid
+          *ngIf="mode === ViewMode.GridIssues"
+          [year]="selectedYear() || ''"
+          [pid]="getSelectedPid() || ''">
+        </app-periodical-year-issues-grid>
 
-		</div>
+      </ng-container>
 
-	</div>
+      <!-- Loading and error states -->
+      <div *ngIf="loading$ | async">Načítavam...</div>
+      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+    </div>
+  </div>
 </div>
