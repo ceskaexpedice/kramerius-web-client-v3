@@ -37,11 +37,11 @@ h3 {
   }
 
   .month-calendar {
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-bright);
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    background-color: var(--color-bg-base);
 
     /* Make the calendar smaller to fit in the grid */
     ::ng-deep .mat-calendar {
