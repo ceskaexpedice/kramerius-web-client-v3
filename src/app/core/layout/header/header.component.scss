@@ -16,6 +16,12 @@
 
   .search-bar {
     flex: 1;
+    display: flex;
+    gap: 20px;
+
+    & > :first-child {
+      flex: 1;
+    }
   }
 
   &__left {

@@ -103,7 +103,7 @@ export class SearchService implements FilterService {
     return this.store.select(selectFacets);
   }
 
-  getFiltersWithOperators(): Observable<Record<string, string>> {
+  getFiltersWithOperators(): Observable<Record<string, 'AND' | 'OR'>> {
     return this.route.queryParams.pipe(
       map(params => {
         // Get all operators from query parameters

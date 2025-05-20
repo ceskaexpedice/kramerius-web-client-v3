@@ -46,5 +46,10 @@
   "filter-periodicals": "Periodiká",
   "filter-maps": "Mapy",
   "accessibility-label-public": "Verejné",
-  "accessibility-label-private": "Po prihlásení"
+  "accessibility-label-private": "Po prihlásení",
+
+  "active-filters": "Aktívne filtre",
+  "not-selected-yet": "Ešte nevybraté",
+  "search": "Hľadať",
+  "advanced-search-description": "Vyberte filter, zadajte výraz alebo hodnotu a vyberte operátor AND alebo OR"
 }

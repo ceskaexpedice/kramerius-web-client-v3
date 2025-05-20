@@ -96,6 +96,44 @@ export class QueryParamsService {
     });
   }
 
+  /**
+   * Update all filters and operators at once (for advanced search)
+   */
+  updateMultipleFilters(
+    route: ActivatedRoute,
+    filtersByFacet: Record<string, string[]>,
+    operators: Record<string, 'AND' | 'OR'>
+  ): void {
+    const currentParams = route.snapshot.queryParams;
+
+    const fq: string[] = [];
+    Object.entries(filtersByFacet).forEach(([facetKey, values]) => {
+      values.forEach(value => {
+        fq.push(`${facetKey}:${value}`);
+      });
+    });
+
+    const queryParams: any = {
+      ...currentParams,
+      fq: fq.length > 0 ? fq : null
+    };
+
+    Object.entries(operators).forEach(([facetKey, operator]) => {
+      queryParams[`${facetKey}_operator`] = operator;
+    });
+
+    Object.keys(queryParams).forEach(key => {
+      if (queryParams[key] === null || (Array.isArray(queryParams[key]) && queryParams[key].length === 0)) {
+        delete queryParams[key];
+      }
+    });
+
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams
+    });
+  }
+
   removeSearchTerm(route: ActivatedRoute): void {
     this.router.navigate([], {
       relativeTo: route,

@@ -10,6 +10,7 @@ import {AutocompleteComponent} from '../../../shared/components/autocomplete/aut
 import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
 import {SearchService} from '../../../shared/services/search.service';
 import {TranslatePipe} from '@ngx-translate/core';
+import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 
 @Component({
   selector: 'app-header',
@@ -35,7 +36,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private settingsService: SettingsService,
-    public searchService: SearchService
+    public searchService: SearchService,
+    private advancedSearch: AdvancedSearchService
   ) {}
 
   ngOnInit() {
@@ -91,5 +93,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   openSettings() {
     this.settingsService.openSettingsDialog();
+  }
+
+  openAdvancedSearch() {
+    this.advancedSearch.openDialog();
   }
 }

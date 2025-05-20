@@ -46,5 +46,10 @@
   "filter-periodicals": "Czasopisma",
   "filter-maps": "Mapy",
   "accessibility-label-public": "Publiczny",
-  "accessibility-label-private": "Po zalogowaniu"
+  "accessibility-label-private": "Po zalogowaniu",
+
+  "active-filters": "Aktywne filtry",
+  "not-selected-yet": "Jeszcze nie wybrane",
+  "search": "Szukaj",
+  "advanced-search-description": "Wybierz filtr, wpisz termin lub wartość i wybierz operator AND lub OR"
 }

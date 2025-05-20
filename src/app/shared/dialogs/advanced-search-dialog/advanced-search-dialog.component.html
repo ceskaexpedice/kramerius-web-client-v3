@@ -1,0 +1,56 @@
+<h2>
+  {{ 'advanced-search' | translate }}
+  <button class="button link tertiary icon-button close-button" (click)="close()">
+    <i class="icon-x"></i>
+  </button>
+</h2>
+
+<hr>
+
+<div class="advanced-search-dialog">
+  <div class="advanced-search-dialog--container">
+
+    <!-- Left: Active Filters -->
+    <div class="active--filters filters-section">
+      <h6>{{ 'active-filters' | translate }}</h6>
+      <div class="filters--content">
+        <ng-container *ngIf="advancedSearchService.filters().length > 0; else noFilters">
+          <app-selected-tags
+            [items]="advancedSearchService.filters()"
+            [operators]="advancedSearchService.operators()"
+            [showOperators]="false"
+            [translateItems]="true"
+            (remove)="removePendingTag($event)"
+            (removeGroup)="clearPendingOperator($event)"
+            [showClearAll]="false"
+            (clearAll)="clearAllPending()"
+            clearButtonPosition="left"
+          ></app-selected-tags>
+        </ng-container>
+
+        <ng-template #noFilters>
+          <div class="empty-filters">
+            <i class="icon-slash"></i>
+            <span>{{ 'not-selected-yet' | translate }}</span>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Right: Filter Groups -->
+    <div class="filters filters-section">
+      <p class="filters--description">{{ 'advanced-search-description' | translate }}</p>
+      <div class="filters--content">
+        <!-- Filters UI goes here -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr />
+
+<div class="footer">
+  <button class="button outlined tertiary" (click)="close()">{{ 'cancel' | translate }}</button>
+  <button class="button primary" (click)="submit()">{{ 'search' | translate }}</button>
+</div>

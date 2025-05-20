@@ -46,5 +46,10 @@
   "filter-periodicals": "Periodicals",
   "filter-maps": "Maps",
   "accessibility-label-public": "Public",
-  "accessibility-label-private": "After login"
+  "accessibility-label-private": "After login",
+
+  "active-filters": "Active filters",
+  "not-selected-yet": "Not selected yet",
+  "search": "Search",
+  "advanced-search-description": "Select a filter, enter a term or value, and choose the AND or OR operator"
 }

@@ -22,6 +22,10 @@
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
+    <button class="outlined" (click)="openAdvancedSearch()">
+      {{'advanced-search' | translate}}
+    </button>
+
   </div>
 
   <nav class="app-header__right">
