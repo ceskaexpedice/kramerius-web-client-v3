@@ -20,6 +20,8 @@ export class ResultsSortComponent {
     { label: 'sort-date-oldest', value: SolrSortFields.dateMin, direction: SolrSortDirections.asc },
   ]
 
+  public searchService = inject(SearchService);
+
 // Computed signal for the selected option
   selectedSortOption = computed(() => {
     const sortBy = this.searchService.sortBy();
@@ -30,7 +32,6 @@ export class ResultsSortComponent {
     ) || this.sortOptions[0]; // Default to first option if no match
   });
 
-  public searchService = inject(SearchService);
 
   onSortChange(event: any) {
     this.searchService.changeSortBy(event.value, event.direction);

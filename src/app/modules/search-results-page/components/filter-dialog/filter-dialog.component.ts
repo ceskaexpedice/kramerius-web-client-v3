@@ -1,10 +1,10 @@
-import {Component, effect, inject, OnInit, signal, computed,} from '@angular/core';
+import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCheckbox} from '@angular/material/checkbox';
-import {debounceTime, Observable, of, take, Subject} from 'rxjs';
+import {debounceTime, Observable, of, Subject, take} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
@@ -13,10 +13,10 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
 import {SolrService} from '../../../../core/solr/solr.service';
 import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
-import {SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {SolrOperators, SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
-  ToggleButtonGroupComponent
+  ToggleButtonGroupComponent,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
 import {PaginatorInfoComponent} from '../../../../shared/components/paginator-info/paginator-info.component';
 import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
@@ -51,8 +51,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   };
 
   operatorOptions = [
-    { label: 'AND', value: 'AND' },
-    { label: 'OR', value: 'OR' }
+    { label: SolrOperators.and, value: SolrOperators.and },
+    { label: SolrOperators.or, value: SolrOperators.or }
   ];
 
   sortOptions = [
@@ -61,7 +61,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   ];
 
   pendingSelection = signal<Set<string>>(new Set());
-  pendingOperator = signal<'AND' | 'OR'>('OR');
+  pendingOperator = signal<SolrOperators>(SolrOperators.or);
 
   pendingFilterTags = computed(() => {
     return Array.from(this.pendingSelection()).map(value =>
@@ -98,7 +98,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   }
 
   clearPendingOperator() {
-    this.pendingOperator.set('OR');
+    this.pendingOperator.set(SolrOperators.or);
     this.loadFacetsWithPendingChanges();
   }
 
@@ -293,7 +293,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   }
 
   setOperator(operator: string) {
-    this.pendingOperator.set(operator as 'AND' | 'OR');
+    this.pendingOperator.set(operator as SolrOperators);
     this.page = 1;
 
     // load facets with pending changes only if there is some selection

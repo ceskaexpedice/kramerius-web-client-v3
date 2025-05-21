@@ -1,64 +1,93 @@
-import {computed, inject, Injectable, Signal, signal} from '@angular/core';
-import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import {AdvancedFilterDefinition} from '../dialogs/advanced-search-dialog/advanced-filters';
+import {SolrOperators} from '../../core/solr/solr-helpers';
 
-export interface FilterGroup {}
+export interface FilterGroup {
+  filters: AdvancedFilterDefinition[];
+  operator: SolrOperators;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdvancedSearchService {
+  private pendingFiltersSignal = signal<string[]>([]);
+  private pendingOperatorsSignal = signal<Record<string, SolrOperators>>({});
 
-  private pendingFilters = signal<string[]>([]);
-  private pendingOperators = signal<Record<string, 'AND' | 'OR'>>({});
+  private filterGroupsSignal = signal<FilterGroup[]>([]);
 
-  filters = computed(() => this.pendingFilters());
-  operators = computed(() => this.pendingOperators());
+  filters = computed(() => this.pendingFiltersSignal());
+  operators = computed(() => this.pendingOperatorsSignal());
+  pendingGroups = computed(() => this.filterGroupsSignal());
 
-  dialog = inject(MatDialog);
+  private dialog = inject(MatDialog);
 
-  constructor() { }
+  constructor() {}
 
+  // Legacy (active filters)
   setPendingFilters(filters: string[]) {
-    this.pendingFilters.set(filters);
+    this.pendingFiltersSignal.set(filters);
   }
 
-  setPendingOperators(ops: Record<string, 'AND' | 'OR'>) {
-    this.pendingOperators.set(ops);
+  setPendingOperators(ops: Record<string, SolrOperators>) {
+    this.pendingOperatorsSignal.set(ops);
   }
 
   clear() {
-    this.pendingFilters.set([]);
-    this.pendingOperators.set({});
+    this.pendingFiltersSignal.set([]);
+    this.pendingOperatorsSignal.set({});
+    this.filterGroupsSignal.set([]);
   }
 
   getFilters() {
-    return this.pendingFilters();
+    return this.pendingFiltersSignal();
   }
 
   getOperators() {
-    return this.pendingOperators();
+    return this.pendingOperatorsSignal();
   }
 
-  // actions
+  // Dialog control
   openDialog(): void {
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
       width: '80vw',
-      height: '80vh',
-      // data: { filters: this.currentFilter }
+      height: '80vh'
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
+        // handle results here if needed
       }
     });
   }
 
+  // Group logic
   addGroup(): void {
-
+    const current = this.filterGroupsSignal();
+    this.filterGroupsSignal.set([...current, { filters: [], operator: SolrOperators.and }]);
   }
 
   removeGroup(index: number): void {
+    const current = [...this.filterGroupsSignal()];
+    current.splice(index, 1);
+    this.filterGroupsSignal.set(current);
+  }
 
+  updateGroupFilters(index: number, filters: AdvancedFilterDefinition[]): void {
+    const current = [...this.filterGroupsSignal()];
+    if (current[index]) {
+      current[index] = { ...current[index], filters };
+      this.filterGroupsSignal.set(current);
+    }
+  }
+
+  updateGroupOperator(index: number, operator: SolrOperators): void {
+    const current = [...this.filterGroupsSignal()];
+    if (current[index]) {
+      current[index] = { ...current[index], operator };
+      this.filterGroupsSignal.set(current);
+    }
   }
 }

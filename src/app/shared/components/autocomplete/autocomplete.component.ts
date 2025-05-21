@@ -53,6 +53,9 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() minTermLength: number = 2;
   @Input() initialValue: string = '';
   @Input() debounceTime: number = 400;
+  @Input() showMicrophoneButton: boolean = true;
+  @Input() showHelpButton: boolean = true;
+  @Input() showSubmitButton: boolean = true;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');
@@ -129,6 +132,10 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
   onInputValueChange(value: string) {
     this.inputTerm.set(value);
+
+    if (!this.showSubmitButton) {
+      this.onSubmit();
+    }
   }
 
   onSelectSuggestion(event: MatAutocompleteSelectedEvent) {

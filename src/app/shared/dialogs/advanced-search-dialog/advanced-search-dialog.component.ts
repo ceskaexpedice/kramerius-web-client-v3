@@ -1,13 +1,16 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {MatDialogRef} from '@angular/material/dialog';
 import {TranslatePipe} from '@ngx-translate/core';
-import {NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {SelectedTagsComponent} from '../../components/selected-tags/selected-tags.component';
 import {SearchService} from '../../services/search.service';
 import {AdvancedSearchService} from '../../services/advanced-search.service';
 import {take} from 'rxjs';
 import {QueryParamsService} from '../../../core/services/QueryParamsManager';
 import {ActivatedRoute} from '@angular/router';
+import {
+  AdvancedSearchFilterGroupComponent
+} from './components/advanced-search-filter-group/advanced-search-filter-group.component';
 
 @Component({
   selector: 'app-advanced-search-dialog',
@@ -15,6 +18,8 @@ import {ActivatedRoute} from '@angular/router';
     TranslatePipe,
     SelectedTagsComponent,
     NgIf,
+    AdvancedSearchFilterGroupComponent,
+    NgForOf,
   ],
   templateUrl: './advanced-search-dialog.component.html',
   styleUrl: './advanced-search-dialog.component.scss'
@@ -35,6 +40,11 @@ export class AdvancedSearchDialogComponent implements OnInit {
         this.advancedSearchService.setPendingOperators(operators);
       });
     });
+
+    if (this.advancedSearchService.pendingGroups().length === 0) {
+      this.advancedSearchService.addGroup();
+    }
+
   }
 
   removePendingTag(tag: string) {

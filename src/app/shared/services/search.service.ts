@@ -1,16 +1,17 @@
-import {Injectable, signal, effect, Signal, WritableSignal} from '@angular/core';
+import {effect, Injectable, signal} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, map, filter, combineLatest, of} from 'rxjs';
+import {combineLatest, filter, map, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
-  selectActiveFilters, selectFacets,
+  selectActiveFilters,
+  selectFacets,
   selectSearchResults,
   selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
 import {FilterService} from './filter.service';
@@ -103,7 +104,7 @@ export class SearchService implements FilterService {
     return this.store.select(selectFacets);
   }
 
-  getFiltersWithOperators(): Observable<Record<string, 'AND' | 'OR'>> {
+  getFiltersWithOperators(): Observable<Record<string, SolrOperators>> {
     return this.route.queryParams.pipe(
       map(params => {
         // Get all operators from query parameters
@@ -173,7 +174,7 @@ export class SearchService implements FilterService {
     selectedValues: string[],
     useAndOperator: boolean = false
   ): void {
-    const operator = useAndOperator ? 'AND' : 'OR';
+    const operator = useAndOperator ? SolrOperators.and : SolrOperators.or;
     this.queryParamsService.updateFilters(route, facetKey, selectedValues, operator);
   }
 

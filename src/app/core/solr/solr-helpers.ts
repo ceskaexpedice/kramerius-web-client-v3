@@ -12,3 +12,8 @@ export enum SolrSortDirections {
   asc = 'asc',
   desc = 'desc'
 }
+
+export enum SolrOperators {
+  and = 'AND',
+  or = 'OR'
+}

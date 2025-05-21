@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import {ActivatedRoute, Params, Router } from "@angular/router";
+import {SolrOperators} from '../solr/solr-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -35,13 +36,13 @@ export class QueryParamsService {
   /**
    * Extract all operators from URL
    */
-  getOperators(params: Params): Record<string, 'AND' | 'OR'> {
-    const operators: Record<string, 'AND' | 'OR'> = {};
+  getOperators(params: Params): Record<string, SolrOperators> {
+    const operators: Record<string, SolrOperators> = {};
 
     Object.keys(params).forEach(key => {
       if (key.endsWith('_operator')) {
         const field = key.replace('_operator', '');
-        operators[field] = params[key] === 'AND' ? 'AND' : 'OR';
+        operators[field] = params[key] === SolrOperators.and ? SolrOperators.and : SolrOperators.or;
       }
     });
 
@@ -51,9 +52,9 @@ export class QueryParamsService {
   /**
    * Get operator for a specific facet
    */
-  getOperatorForFacet(params: Params, facetKey: string): 'AND' | 'OR' {
+  getOperatorForFacet(params: Params, facetKey: string): SolrOperators {
     const operatorParam = params[`${facetKey}_operator`];
-    return operatorParam === 'AND' ? 'AND' : 'OR';
+    return operatorParam === SolrOperators.and ? SolrOperators.and : SolrOperators.or;
   }
 
   /**
@@ -63,7 +64,7 @@ export class QueryParamsService {
     route: ActivatedRoute,
     facetKey: string,
     selectedValues: string[],
-    operator: 'AND' | 'OR'
+    operator: SolrOperators
   ): void {
     const currentParams = route.snapshot.queryParams;
     const otherFilters = this.getFiltersExcludingFacet(currentParams, facetKey);
@@ -102,7 +103,7 @@ export class QueryParamsService {
   updateMultipleFilters(
     route: ActivatedRoute,
     filtersByFacet: Record<string, string[]>,
-    operators: Record<string, 'AND' | 'OR'>
+    operators: Record<string, SolrOperators>
   ): void {
     const currentParams = route.snapshot.queryParams;
 

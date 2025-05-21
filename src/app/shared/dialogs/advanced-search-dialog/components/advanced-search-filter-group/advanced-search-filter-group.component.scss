@@ -1,0 +1,60 @@
+.filter-group {
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background-color: var(--color-bg-subtle);
+  position: relative;
+
+  .filter-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .group-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+
+    .add-button,
+    .remove-group {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-text-light);
+      cursor: pointer;
+
+      i {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .group-operator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .operator-button {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg-base);
+      color: var(--color-text-base);
+      cursor: pointer;
+
+      &.active {
+        background-color: var(--color-primary);
+        color: #fff;
+      }
+    }
+  }
+}

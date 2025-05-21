@@ -1,0 +1,26 @@
+<div class="filter-row">
+
+  <app-select
+    [options]="filterTypes"
+    [value]="selectedFilterTypeOption()"
+    [displayFn]="filterTypeDisplayFn"
+    (valueChange)="onFilterTypeChange($event.key)">
+  </app-select>
+
+  <ng-container [ngSwitch]="filter.key">
+
+    <app-autocomplete
+      *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
+      [initialValue]="filter.value"
+      [placeholder]="filter.key"
+      [showHelpButton]="false"
+      [showMicrophoneButton]="false"
+      [showSubmitButton]="false"
+      (search)="emitChange()"
+      [getSuggestions]="getSuggestionsFn"
+    ></app-autocomplete>
+
+  </ng-container>
+
+  <button (click)="remove.emit()" class="remove-button">✕</button>
+</div>

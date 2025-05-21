@@ -41,7 +41,23 @@
     <div class="filters filters-section">
       <p class="filters--description">{{ 'advanced-search-description' | translate }}</p>
       <div class="filters--content">
-        <!-- Filters UI goes here -->
+
+        <advanced-search-filter-group
+          *ngFor="let group of advancedSearchService.pendingGroups(); let i = index"
+          [filters]="group.filters"
+          [operator]="group.operator"
+          (filtersChange)="advancedSearchService.updateGroupFilters(i, $event)"
+          (operatorChange)="advancedSearchService.updateGroupOperator(i, $event)"
+          (removeGroup)="advancedSearchService.removeGroup(i)"
+        ></advanced-search-filter-group>
+
+        <div class="add-group">
+          <button class="button link primary" (click)="advancedSearchService.addGroup()">
+            <i class="icon-plus"></i>
+            {{ 'add-group' | translate }}
+          </button>
+        </div>
+
       </div>
     </div>
 

@@ -1,0 +1,35 @@
+<div class="filter-group">
+  <div class="filter-items">
+    <advanced-search-filter-row
+      *ngFor="let filter of filters; let i = index"
+      [filter]="filter"
+      (filterChange)="updateFilter(i, $event)"
+      (remove)="removeFilter(i)">
+    </advanced-search-filter-row>
+  </div>
+
+  <div class="group-actions">
+    <button class="button link tertiary add-button" (click)="addFilter()">
+      <i class="icon-add"></i>
+    </button>
+
+    <button class="button link tertiary remove-group" (click)="removeGroup.emit()">
+      <i class="icon-trash"></i>
+    </button>
+  </div>
+
+  <div class="group-operator">
+    <button
+      class="operator-button"
+      [class.active]="operator === SolrOperators.and"
+      (click)="setOperator(SolrOperators.and)">
+      {{SolrOperators.and}}
+    </button>
+    <button
+      class="operator-button"
+      [class.active]="operator === SolrOperators.or"
+      (click)="setOperator(SolrOperators.or)">
+      {{ SolrOperators.or }}
+    </button>
+  </div>
+</div>
