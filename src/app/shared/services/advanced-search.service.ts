@@ -3,6 +3,7 @@ import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog
 import { MatDialog } from '@angular/material/dialog';
 import {AdvancedFilterDefinition} from '../dialogs/advanced-search-dialog/advanced-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
+import {SolrService} from '../../core/solr/solr.service';
 
 export interface FilterGroup {
   filters: AdvancedFilterDefinition[];
@@ -15,12 +16,14 @@ export interface FilterGroup {
 export class AdvancedSearchService {
   private pendingFiltersSignal = signal<string[]>([]);
   private pendingOperatorsSignal = signal<Record<string, SolrOperators>>({});
+  private mainOperatorSignal = signal<SolrOperators>(SolrOperators.and);
 
   private filterGroupsSignal = signal<FilterGroup[]>([]);
 
   filters = computed(() => this.pendingFiltersSignal());
   operators = computed(() => this.pendingOperatorsSignal());
   pendingGroups = computed(() => this.filterGroupsSignal());
+  mainOperator = computed(() => this.mainOperatorSignal());
 
   private dialog = inject(MatDialog);
 
@@ -33,6 +36,12 @@ export class AdvancedSearchService {
 
   setPendingOperators(ops: Record<string, SolrOperators>) {
     this.pendingOperatorsSignal.set(ops);
+  }
+
+  toggleMainOperator() {
+    this.mainOperatorSignal.set(
+      this.mainOperatorSignal() === SolrOperators.and ? SolrOperators.or : SolrOperators.and
+    );
   }
 
   clear() {
@@ -72,7 +81,12 @@ export class AdvancedSearchService {
   removeGroup(index: number): void {
     const current = [...this.filterGroupsSignal()];
     current.splice(index, 1);
+
     this.filterGroupsSignal.set(current);
+
+    if (current.length === 0) {
+      this.addGroup();
+    }
   }
 
   updateGroupFilters(index: number, filters: AdvancedFilterDefinition[]): void {
