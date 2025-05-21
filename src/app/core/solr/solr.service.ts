@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {SolrResponseParser} from './solr-response-parser';
 import {map} from 'rxjs/operators';
@@ -10,6 +10,7 @@ import {FacetItem} from '../../modules/models/facet-item';
 import {SearchResultResponse} from '../../modules/models/search-result-response';
 import {SolrSortDirections, SolrSortFields} from './solr-helpers';
 import {FilterService} from '../services/FilterUtilities';
+import {AdvancedFilterKey} from '../../shared/dialogs/advanced-search-dialog/advanced-filters';
 
 @Injectable({
   providedIn: 'root'
@@ -502,6 +503,22 @@ export class SolrService {
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs?.map((doc: { [key: string]: any }) => doc['title.search']) ?? [])
+    );
+  }
+
+  getSuggestionsByFacetKey(solrField: string, term: string): Observable<string[]> {
+    return this.loadFacet(
+      '*:*',
+      [],
+      solrField,
+      term,
+      true,
+      20,
+      0,
+      SolrSortFields.count,
+      1
+    ).pipe(
+      map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
     );
   }
 }
