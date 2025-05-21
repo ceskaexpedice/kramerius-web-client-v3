@@ -9,8 +9,9 @@ import {take} from 'rxjs';
 import {QueryParamsService} from '../../../core/services/QueryParamsManager';
 import {ActivatedRoute} from '@angular/router';
 import {
-  AdvancedSearchFilterGroupComponent
+  AdvancedSearchFilterGroupComponent,
 } from './components/advanced-search-filter-group/advanced-search-filter-group.component';
+import {SolrOperators} from '../../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-advanced-search-dialog',
@@ -63,18 +64,27 @@ export class AdvancedSearchDialogComponent implements OnInit {
   }
 
   submit() {
-    const filters = this.advancedSearchService.getFilters();
-    const operators = this.advancedSearchService.getOperators();
+    const groups = this.advancedSearchService.pendingGroups();
 
     const filtersByFacet: Record<string, string[]> = {};
+    const operators: Record<string, SolrOperators> = {};
 
-    filters.forEach(f => {
-      const [facet, value] = f.split(':');
-      if (!filtersByFacet[facet]) {
-        filtersByFacet[facet] = [];
+    for (const group of groups) {
+      for (const filter of group.filters) {
+        if (!filter.value?.trim()) continue;
+
+        const field = filter.solrField;
+        if (!field) continue;
+
+        if (!filtersByFacet[field]) {
+          filtersByFacet[field] = [];
+        }
+
+        filtersByFacet[field].push(filter.value);
+
+        operators[field] = group.operator;
       }
-      filtersByFacet[facet].push(value);
-    });
+    }
 
     this.queryParamsService.updateMultipleFilters(
       this.route,
@@ -82,27 +92,8 @@ export class AdvancedSearchDialogComponent implements OnInit {
       operators
     );
 
-    this.dialogRef.close();
+    this.close();
   }
-
-  // applyFilter() {
-  //   // Convert the Set to an array
-  //   const selectedValues = Array.from(this.advancedSearchService.filters());
-  //
-  //   // Get the operator value
-  //   const operator = this.pendingOperator();
-  //
-  //   // Update filters with the chosen operator
-  //   this.queryParamsService.updateFilters(
-  //     this.route,
-  //     this.data.facetKey,
-  //     selectedValues,
-  //     operator
-  //   );
-  //
-  //   // Close the dialog
-  //   this.close();
-  // }
 
   close() {
     this.dialogRef.close();

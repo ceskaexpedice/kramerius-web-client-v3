@@ -72,6 +72,9 @@ hr {
 
 .filters--content {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .empty-filters {
@@ -88,4 +91,62 @@ hr {
   gap: var(--spacing-x4);
   border-top: 1px solid var(--color-border-light);
   padding: 15px 0;
+}
+
+.group-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  gap: 10px;
+}
+
+.group-row--filters {
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100% - 60px);
+  gap: 16px;
+  flex: 1;
+}
+
+.filter-group-operator {
+  width: 50px;
+  min-width: 50px;
+  flex: 0 0 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .operator-toggle {
+    height: 100%;
+    width: 100%;
+    font-size: 13px;
+    color: var(--color-text-on-color);
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: var(--spacing-x2);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    &:active {
+      background-color: var(--color-primary-pressed);
+    }
+  }
+}
+
+.filter-group-box {
+  flex: 1;
+}
+
+.add-group {
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 10px 14px;
+  max-width: calc(100% - 60px);
+
+  &.full-width {
+    max-width: 100%;
+  }
 }

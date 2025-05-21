@@ -42,19 +42,36 @@
       <p class="filters--description">{{ 'advanced-search-description' | translate }}</p>
       <div class="filters--content">
 
-        <advanced-search-filter-group
-          *ngFor="let group of advancedSearchService.pendingGroups(); let i = index"
-          [filters]="group.filters"
-          [operator]="group.operator"
-          (filtersChange)="advancedSearchService.updateGroupFilters(i, $event)"
-          (operatorChange)="advancedSearchService.updateGroupOperator(i, $event)"
-          (removeGroup)="advancedSearchService.removeGroup(i)"
-        ></advanced-search-filter-group>
+          <div class="group-row">
 
-        <div class="add-group">
-          <button class="button link primary" (click)="advancedSearchService.addGroup()">
-            <i class="icon-plus"></i>
-            {{ 'add-group' | translate }}
+            <div class="group-row--filters">
+
+              <advanced-search-filter-group
+                *ngFor="let group of advancedSearchService.pendingGroups(); let i = index"
+                class="filter-group-box"
+                [filters]="group.filters"
+                [operator]="group.operator"
+                (filtersChange)="advancedSearchService.updateGroupFilters(i, $event)"
+                (operatorChange)="advancedSearchService.updateGroupOperator(i, $event)"
+                (removeGroup)="advancedSearchService.removeGroup(i)"
+              ></advanced-search-filter-group>
+
+            </div>
+
+            <div class="filter-group-operator" *ngIf="advancedSearchService.pendingGroups().length > 1">
+              <button class="operator-toggle" (click)="advancedSearchService.toggleMainOperator()">
+                {{advancedSearchService.mainOperator()}}
+              </button>
+            </div>
+          </div>
+
+        <div
+          class="add-group"
+          [class.full-width]="advancedSearchService.pendingGroups().length > 1"
+        >
+          <button class="button link primary with-icon" (click)="advancedSearchService.addGroup()">
+            <i class="icon-add-square"></i>
+            {{ 'add-group-button-label' | translate }}
           </button>
         </div>
 

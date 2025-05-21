@@ -1,35 +1,30 @@
 <div class="filter-group">
-  <div class="filter-items">
-    <advanced-search-filter-row
-      *ngFor="let filter of filters; let i = index"
-      [filter]="filter"
-      (filterChange)="updateFilter(i, $event)"
-      (remove)="removeFilter(i)">
-    </advanced-search-filter-row>
-  </div>
+  <div class="group-content">
+    <div class="filter-items">
+      <advanced-search-filter-row
+        *ngFor="let filter of filters; let i = index"
+        [filter]="filter"
+        (filterChange)="updateFilter(i, $event)"
+        (remove)="removeFilter(i)">
+      </advanced-search-filter-row>
+    </div>
 
-  <div class="group-actions">
-    <button class="button link tertiary add-button" (click)="addFilter()">
-      <i class="icon-add"></i>
-    </button>
+    <div class="group-actions">
+      <button class="button link primary with-icon" (click)="addFilter()">
+        <i class="icon-add-square"></i>
+        {{ 'next-condition-button-label' | translate }}
+      </button>
 
-    <button class="button link tertiary remove-group" (click)="removeGroup.emit()">
-      <i class="icon-trash"></i>
-    </button>
+      <button class="button link primary with-icon" *ngIf="filters.length > 1" (click)="removeGroup.emit()">
+        <i class="icon-trash"></i>
+        {{ 'remove-group-button-label' | translate }}
+      </button>
+    </div>
   </div>
 
   <div class="group-operator">
-    <button
-      class="operator-button"
-      [class.active]="operator === SolrOperators.and"
-      (click)="setOperator(SolrOperators.and)">
-      {{SolrOperators.and}}
-    </button>
-    <button
-      class="operator-button"
-      [class.active]="operator === SolrOperators.or"
-      (click)="setOperator(SolrOperators.or)">
-      {{ SolrOperators.or }}
+    <button class="operator-toggle" (click)="toggleOperator()">
+      {{ operator }}
     </button>
   </div>
 </div>

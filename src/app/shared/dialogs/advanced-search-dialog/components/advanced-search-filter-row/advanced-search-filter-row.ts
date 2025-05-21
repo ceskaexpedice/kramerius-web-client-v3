@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, computed} from '@angular/core';
+import {Component, Input, Output, EventEmitter, computed, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -9,7 +9,8 @@ import {
 } from '../../advanced-filters';
 import {AutocompleteComponent} from '../../../../components/autocomplete/autocomplete.component';
 import {SelectComponent} from '../../../../components/select/select.component';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
+import {SolrService} from '../../../../../core/solr/solr.service';
 
 @Component({
   selector: 'advanced-search-filter-row',
@@ -17,7 +18,9 @@ import {Observable} from 'rxjs';
   templateUrl: './advanced-search-filter-row.html',
   styleUrl: './advanced-search-filter-row.scss'
 })
-export class AdvancedSearchFilterRow {
+export class AdvancedSearchFilterRow implements OnInit {
+  private solrService = inject(SolrService);
+
   @Input() filter!: AdvancedFilterDefinition;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
   @Output() remove = new EventEmitter<void>();
@@ -26,6 +29,9 @@ export class AdvancedSearchFilterRow {
   options: Record<string, string[]> = {
     doctype: ['Periodikum', 'Knihy', 'Mapy', 'Grafiky', 'Archivalie', 'Rukopisy']
   };
+
+  ngOnInit() {
+  }
 
   selectedFilterTypeOption() {
     return this.filterTypes.find(f => f.key === this.filter.key) || this.filterTypes[0];
@@ -42,21 +48,22 @@ export class AdvancedSearchFilterRow {
     }
   }
 
+
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[SearchService] getting suggestions for:', term);
-    // return this.solrService.getAutocompleteSuggestions(term);
-    return new Observable<string[]>(subscriber => {
-      setTimeout(() => {
-        subscriber.next(this.options[this.filter.key] || []);
-        subscriber.complete();
-      }, 1000);
-    });
-  }
+    if (!this.filter.solrField) return of([]);
+
+    return this.solrService.getSuggestionsByFacetKey(this.filter.solrField, term);
+  };
 
   filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? option.label : '';
 
   emitChange() {
     this.filterChange.emit({ ...this.filter });
+  }
+
+  suggestionSelected(value: string) {
+    this.filter.value = value;
+    this.emitChange();
   }
 
   protected readonly AdvancedFilterType = AdvancedFilterType;

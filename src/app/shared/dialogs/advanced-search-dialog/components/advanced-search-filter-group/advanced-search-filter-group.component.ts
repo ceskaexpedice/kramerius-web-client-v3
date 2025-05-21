@@ -1,14 +1,17 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AdvancedSearchFilterRow} from '../advanced-search-filter-row/advanced-search-filter-row';
-import {NgForOf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {SolrOperators} from '../../../../../core/solr/solr-helpers';
-import {AdvancedFilterDefinition} from '../../advanced-filters';
+import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../advanced-filters';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'advanced-search-filter-group',
   imports: [
     AdvancedSearchFilterRow,
     NgForOf,
+    TranslatePipe,
+    NgIf,
   ],
   templateUrl: './advanced-search-filter-group.component.html',
   styleUrl: './advanced-search-filter-group.component.scss'
@@ -28,7 +31,8 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
   }
 
   addFilter() {
-    this.filters = [...this.filters, new AdvancedFilterDefinition()];
+    const defaultFilter = { ...DEFAULT_ADVANCED_FILTER, value: '' };
+    this.filters = [...this.filters, defaultFilter];
     this.filtersChange.emit(this.filters);
   }
 
@@ -42,9 +46,10 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
     this.filtersChange.emit(this.filters);
   }
 
-  setOperator(op: SolrOperators) {
-    this.operator = op;
-    this.operatorChange.emit(op);
+  toggleOperator() {
+    this.operator =
+      this.operator === SolrOperators.and ? SolrOperators.or : SolrOperators.and;
+    this.operatorChange.emit(this.operator);
   }
 
   protected readonly SolrOperators = SolrOperators;

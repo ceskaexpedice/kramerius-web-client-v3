@@ -1,26 +1,30 @@
 <div class="filter-row">
 
-  <app-select
-    [options]="filterTypes"
-    [value]="selectedFilterTypeOption()"
-    [displayFn]="filterTypeDisplayFn"
-    (valueChange)="onFilterTypeChange($event.key)">
-  </app-select>
+  <div class="filter-wrapper">
 
-  <ng-container [ngSwitch]="filter.key">
+    <app-select
+      [options]="filterTypes"
+      [value]="selectedFilterTypeOption()"
+      [displayFn]="filterTypeDisplayFn"
+      (valueChange)="onFilterTypeChange($event.key)">
+    </app-select>
 
-    <app-autocomplete
-      *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
-      [initialValue]="filter.value"
-      [placeholder]="filter.key"
-      [showHelpButton]="false"
-      [showMicrophoneButton]="false"
-      [showSubmitButton]="false"
-      (search)="emitChange()"
-      [getSuggestions]="getSuggestionsFn"
-    ></app-autocomplete>
+    <ng-container [ngSwitch]="filter.key">
+      <app-autocomplete
+        *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
+        [initialValue]="filter.value"
+        [placeholder]="filter.key"
+        [showHelpButton]="false"
+        [showMicrophoneButton]="false"
+        [showSubmitButton]="false"
+        (search)="emitChange()"
+        (suggestionSelected)="suggestionSelected($event)"
+        [getSuggestions]="getSuggestionsFn"
+      ></app-autocomplete>
+    </ng-container>
+  </div>
 
-  </ng-container>
-
-  <button (click)="remove.emit()" class="remove-button">✕</button>
+  <button (click)="remove.emit()" class="remove-button">
+    <i class="icon-trash"></i>
+  </button>
 </div>
