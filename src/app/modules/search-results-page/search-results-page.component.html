@@ -50,6 +50,25 @@
         clearButtonPosition="left">
       </app-selected-tags>
 
+<!--      <ng-container *ngIf="advancedSearchService.isAdvancedSearchActive()">-->
+<!--        <div class="advanced-query-box">-->
+<!--          <strong>Dotaz pokročilého hledání</strong>-->
+<!--          <p>{{ advancedSearchService.getAdvancedSearchPreview() }}</p>-->
+
+<!--          <div class="button-row">-->
+<!--            <button class="button primary" (click)="advancedSearchService.openDialog()">Upravit dotaz</button>-->
+<!--            <button class="button outlined" (click)="searchService.clearAllFilters()">Nové hledání</button>-->
+<!--            <button class="button outlined">Zrušit</button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </ng-container>-->
+
+      <ng-container *ngIf="advancedSearchService.isAdvancedSearchActive()">
+
+        <app-advanced-search-indicator></app-advanced-search-indicator>
+
+      </ng-container>
+
       <div class="grid--container">
         <ng-container *ngIf="searchService.results$ | async as results">
           <app-record-item *ngFor="let doc of results" [record]="doc"></app-record-item>

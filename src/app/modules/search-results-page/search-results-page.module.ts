@@ -13,7 +13,7 @@ import {BooksEffects} from '../search/state/books/books.effects';
 import {GenresEffects} from '../search/state/genres/genres.effects';
 import {DocumentTypesEffects} from '../search/state/document-types/document-types.effects';
 import {SearchEffects} from './state/search.effects';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf, UpperCasePipe} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 import {searchReducer} from './state/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
@@ -24,6 +24,10 @@ import {SearchFiltersComponent} from './components/search-filters/search-filters
 import {SearchService} from '../../shared/services/search.service';
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {
+  AdvancedSearchIndicatorComponent
+} from './components/advanced-search-indicator/advanced-search-indicator.component';
 
 const routes: Routes = [
   {
@@ -54,6 +58,9 @@ const routes: Routes = [
     SearchFiltersComponent,
     ActionToolbarComponent,
     RecordTypeTabsComponent,
+    TranslatePipe,
+    UpperCasePipe,
+    AdvancedSearchIndicatorComponent,
   ],
   providers: [
     { provide: 'FilterService', useClass: SearchService }

@@ -1,6 +1,7 @@
 import { createSelector } from '@ngrx/store';
 import { SearchState } from './search.reducer';
 import {selectRouterQueryParams} from '../../../shared/state/router/router.selectors';
+import {SolrOperators} from '../../../core/solr/solr-helpers';
 
 export const selectSearchState = (state: any) => state['search-results'];
 
@@ -38,11 +39,11 @@ export const selectFacetItems = (facetKey: string) => createSelector(
 
 export const selectFacetOperators = createSelector(
   selectRouterQueryParams,
-  (params): { [field: string]: 'AND' | 'OR' } => {
-    const operators: { [field: string]: 'AND' | 'OR' } = {};
+  (params): { [field: string]: SolrOperators } => {
+    const operators: { [field: string]: SolrOperators } = {};
 
     Object.entries(params).forEach(([key, value]) => {
-      if (key.endsWith('_operator') && (value === 'AND' || value === 'OR')) {
+      if (key.endsWith('_operator') && (value === SolrOperators.and || value === SolrOperators.or)) {
         const field = key.replace('_operator', '');
         operators[field] = value;
       }

@@ -1,0 +1,30 @@
+<div class="advanced-search-indicator--container">
+  <div class="advanced-search-indicator--content">
+    <div class="advanced-search-indicator--title-row">
+      <i class="icon-message-search"></i>
+      <strong>Dotaz pokročilého hledání</strong>
+    </div>
+
+    <p class="advanced-search-indicator--preview">
+      <ng-container *ngFor="let group of advancedSearchService.getAdvancedSearchPreviewGroups(); let i = index">
+        <ng-container *ngIf="i > 0"> <strong>{{ advancedSearchService.mainOperator() | uppercase }}</strong> </ng-container>
+        <span class="advanced-search-indicator--group">
+          <ng-container *ngFor="let filter of group.filters; let j = index">
+            <ng-container *ngIf="j > 0"> <strong>{{ group.operator | uppercase }}</strong> </ng-container>
+            [{{ filter.label | translate }}: {{ filter.value }}]
+          </ng-container>
+        </span>
+      </ng-container>
+    </p>
+
+    <div class="advanced-search-indicator--buttons">
+      <button class="button primary" (click)="updateQuery()">Upravit dotaz</button>
+      <button class="button outlined" (click)="newSearch()">Nové hledání</button>
+      <button class="button outlined" (click)="clearAll()">Zrušit</button>
+    </div>
+  </div>
+
+  <div class="advanced-search-indicator--image">
+    <img src="/img/folder-image.png" alt="Složka" />
+  </div>
+</div>

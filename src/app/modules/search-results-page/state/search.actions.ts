@@ -1,10 +1,10 @@
 import { createAction, props } from '@ngrx/store';
 import {FacetItem} from '../../models/facet-item';
-import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',
-  props<{ query: string; filters: string[], page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>()
+  props<{ query: string; filters: string[], advancedQuery?: string, advancedQueryMainOperator?: SolrOperators, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>()
 );
 
 export const loadSearchResultsSuccess = createAction(

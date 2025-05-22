@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
-import { SolrService } from '../../../core/solr/solr.service';
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
+import {forkJoin, of} from 'rxjs';
+import {SolrService} from '../../../core/solr/solr.service';
 import * as SearchActions from './search.actions';
-import { SolrResponseParser } from '../../../core/solr/solr-response-parser';
-import { parseSearchDocument } from '../../models/search-document';
-import {Store } from '@ngrx/store';
+import {SolrResponseParser} from '../../../core/solr/solr-response-parser';
+import {parseSearchDocument} from '../../models/search-document';
+import {Store} from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
-import { FacetItem } from '../../models/facet-item';
+import {FacetItem} from '../../models/facet-item';
+import {SolrOperators} from '../../../core/solr/solr-helpers';
 
 @Injectable()
 export class SearchEffects {
@@ -25,7 +26,7 @@ export class SearchEffects {
         this.store.select(SearchSelectors.selectFacets),
         this.store.select(SearchSelectors.selectFacetOperators)
       ),
-      switchMap(([{ query, filters, page, pageCount, sortBy, sortDirection }, currentFacets, facetOperators]) => {
+      switchMap(([{ query, filters, page, pageCount, sortBy, sortDirection, advancedQuery, advancedQueryMainOperator }, currentFacets, facetOperators]) => {
         const facetFields = [
           'model',
           'authors.facet',
@@ -39,8 +40,8 @@ export class SearchEffects {
         ];
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection),
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, facetFields, facetOperators)
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, advancedQueryMainOperator),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, facetFields, facetOperators, advancedQuery, advancedQueryMainOperator)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
@@ -72,7 +73,7 @@ export class SearchEffects {
   private handleFacetsWithOperators(
     searchFacets: Record<string, any[]>,
     operatorFacets: Record<string, any[]>,
-    facetOperators: Record<string, 'AND' | 'OR'>
+    facetOperators: Record<string, SolrOperators>
   ): Record<string, FacetItem[]> {
     const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
     const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
@@ -80,9 +81,9 @@ export class SearchEffects {
 
     // Process each facet field
     for (const [facetKey, values] of Object.entries(parsedOperatorFacets)) {
-      const operator = facetOperators[facetKey] ?? 'OR';
+      const operator = facetOperators[facetKey] ?? SolrOperators.or;
 
-      if (operator === 'OR') {
+      if (operator === SolrOperators.or) {
         // For OR, use the values from operatorFacets (with tag/exclude)
         result[facetKey] = values;
       } else {
@@ -91,7 +92,7 @@ export class SearchEffects {
       }
 
       // Make sure we don't miss any values that might only be in one response
-      if (operator === 'AND' && values.length > 0) {
+      if (operator === SolrOperators.and && values.length > 0) {
         const existingMap = new Map(result[facetKey].map(item => [item.name, item]));
 
         // Add any missing values from operatorFacets
@@ -111,7 +112,7 @@ export class SearchEffects {
       ofType(SearchActions.loadFacet),
       withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
       switchMap(([{ query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
-        console.log('ide sem')
+
         return this.solr.loadFacet(query, filters, facet, contains, ignoreCase, facetLimit, facetOffset).pipe(
           map(response => {
             const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);

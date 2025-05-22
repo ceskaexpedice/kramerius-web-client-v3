@@ -11,7 +11,6 @@ import {ActivatedRoute} from '@angular/router';
 import {
   AdvancedSearchFilterGroupComponent,
 } from './components/advanced-search-filter-group/advanced-search-filter-group.component';
-import {SolrOperators} from '../../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-advanced-search-dialog',
@@ -34,6 +33,10 @@ export class AdvancedSearchDialogComponent implements OnInit {
   private queryParamsService = inject(QueryParamsService);
 
   ngOnInit(): void {
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      this.advancedSearchService.resetFromParams(params);
+    });
+
     this.searchService.activeFilters$.pipe(take(1)).subscribe(filters => {
       this.advancedSearchService.setPendingFilters(filters);
 
@@ -64,33 +67,13 @@ export class AdvancedSearchDialogComponent implements OnInit {
   }
 
   submit() {
-    const groups = this.advancedSearchService.pendingGroups();
+    const advancedQuery = this.advancedSearchService.getAdvancedQueryString();
+    const mainOperator = this.advancedSearchService.mainOperator();
 
-    const filtersByFacet: Record<string, string[]> = {};
-    const operators: Record<string, SolrOperators> = {};
-
-    for (const group of groups) {
-      for (const filter of group.filters) {
-        if (!filter.value?.trim()) continue;
-
-        const field = filter.solrField;
-        if (!field) continue;
-
-        if (!filtersByFacet[field]) {
-          filtersByFacet[field] = [];
-        }
-
-        filtersByFacet[field].push(filter.value);
-
-        operators[field] = group.operator;
-      }
-    }
-
-    this.queryParamsService.updateMultipleFilters(
-      this.route,
-      filtersByFacet,
-      operators
-    );
+    this.queryParamsService.appendToQueryParams(this.route, {
+      advSearch: advancedQuery || null,
+      advOp: mainOperator
+    });
 
     this.close();
   }

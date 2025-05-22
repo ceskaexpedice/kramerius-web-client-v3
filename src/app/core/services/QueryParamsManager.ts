@@ -13,7 +13,9 @@ export class QueryParamsService {
    */
   getFilters(params: Params): string[] {
     const fq = params['fq'];
-    return Array.isArray(fq) ? fq : fq ? [fq] : [];
+    if (!fq) return [];
+    const filters = Array.isArray(fq) ? fq : [fq];
+    return filters.filter(f => f && f !== 'undefined');
   }
 
   /**
@@ -223,6 +225,42 @@ export class QueryParamsService {
     this.router.navigate([], {
       relativeTo: route,
       queryParams: newParams
+    });
+  }
+
+  getAdvancedSearch(params: Params): string | null {
+    return params['advSearch'] || null;
+  }
+
+  getAdvancedMainOperator(params: Params): string {
+    return params['advOp'] || 'AND';
+  }
+
+  removeAdvancedSearch(route: ActivatedRoute): void {
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: {
+        advSearch: null,
+        advOp: null
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  appendToQueryParams(route: ActivatedRoute, newParams: Record<string, any>): void {
+    const currentParams = route.snapshot.queryParams;
+    const queryParams = { ...currentParams, ...newParams };
+
+    Object.keys(queryParams).forEach(key => {
+      if (queryParams[key] === null || queryParams[key] === undefined) {
+        delete queryParams[key];
+      }
+    });
+
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams,
+      queryParamsHandling: 'merge'
     });
   }
 }

@@ -15,6 +15,7 @@ import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../core/solr
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
 import {FilterService} from './filter.service';
+import {AdvancedSearchService} from './advanced-search.service';
 
 @Injectable({
   providedIn: 'root'
@@ -86,7 +87,8 @@ export class SearchService implements FilterService {
     private route: ActivatedRoute,
     private store: Store,
     private queryParamsService: QueryParamsService,
-    private solrService: SolrService
+    private solrService: SolrService,
+    private advancedSearchService: AdvancedSearchService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
@@ -133,6 +135,9 @@ export class SearchService implements FilterService {
     this.route.queryParams.subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
       if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+
+        this.advancedSearchService.resetFromParams(params);
+
         this.dispatchSearch(params);
       }
     });
@@ -141,11 +146,13 @@ export class SearchService implements FilterService {
   }
 
   private dispatchSearch(params: any): void {
-    // Only dispatch if we have actual params
     if (Object.keys(params).length === 0) return;
 
     const query = params['query'] || '';
-    const filters = this.queryParamsService.getFilters(params);
+    const baseFilters = this.queryParamsService.getFilters(params);
+
+    const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
+
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();
@@ -158,9 +165,15 @@ export class SearchService implements FilterService {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
 
+    let filters: string[];
+
+    filters = baseFilters;
+
     this.store.dispatch(loadSearchResults({
       query,
       filters,
+      advancedQuery: advancedQuery,
+      advancedQueryMainOperator: advancedQueryMainOperator,
       page: page - 1,
       pageCount: pageSize,
       sortBy,

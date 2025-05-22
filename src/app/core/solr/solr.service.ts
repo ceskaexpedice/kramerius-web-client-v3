@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {SolrResponseParser} from './solr-response-parser';
 import {map} from 'rxjs/operators';
@@ -8,9 +8,8 @@ import {SolrQueryBuilder} from './solr-query-builder';
 import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
 import {SearchResultResponse} from '../../modules/models/search-result-response';
-import {SolrSortDirections, SolrSortFields} from './solr-helpers';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
 import {FilterService} from '../services/FilterUtilities';
-import {AdvancedFilterKey} from '../../shared/dialogs/advanced-search-dialog/advanced-filters';
 
 @Injectable({
   providedIn: 'root'
@@ -306,13 +305,15 @@ export class SolrService {
   search(
     query: string,
     filters: string[] = [],
-    facetOperators: { [field: string]: 'AND' | 'OR' } = {},
+    facetOperators: { [field: string]: SolrOperators } = {},
     page = 0,
     pageCount = 60,
     sortBy: SolrSortFields,
-    sortDirection: SolrSortDirections
+    sortDirection: SolrSortDirections,
+    advancedQuery?: string,
+    advancedQueryMainOperator: SolrOperators = SolrOperators.and
   ): Observable<SearchResultResponse> {
-    // Create base parameters
+
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
@@ -329,25 +330,30 @@ export class SolrService {
 
     let params = this.createHttpParams(paramsObject);
 
-    // Set query
     const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
     params = params.set('q', finalQuery);
 
-    // Group filters by field and create filter queries
     const filtersByField = this.groupFiltersByField(filters);
-    const filterQueries: string[] = [];
+    const facetFqParts: string[] = [];
 
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const operator = facetOperators[field] || 'OR';
-        const escapedValues = values.map(v => `"${v}"`);
-        filterQueries.push(`(${field}:${escapedValues.join(` ${operator} ${field}:`)})`);
+        const escaped = values.map(v => `"${v}"`);
+        const part = values.length === 1
+          ? `${field}:${escaped[0]}`
+          : `(${escaped.map(val => `${field}:${val}`).join(` ${operator} `)})`;
+
+        facetFqParts.push(part);
       }
     });
 
-    // Add all filter queries as a single AND-joined fq parameter
-    if (filterQueries.length > 0) {
-      params = params.append('fq', filterQueries.join(' AND '));
+    if (advancedQuery?.trim()) {
+      facetFqParts.push(`(${advancedQuery})`);
+    }
+
+    if (facetFqParts.length > 0) {
+      params = params.append('fq', facetFqParts.join(' AND '));
     }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -426,9 +432,11 @@ export class SolrService {
     query: string,
     filters: string[],
     facetFields: string[] = this.DEFAULT_FACET_FIELDS,
-    facetOperators: { [field: string]: 'AND' | 'OR' } = {}
+    facetOperators: { [field: string]: 'AND' | 'OR' } = {},
+    advancedQuery?: string,
+    advancedQueryMainOperator: SolrOperators = SolrOperators.and
   ): Observable<SearchResultResponse> {
-    // Create base parameters
+
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
@@ -440,14 +448,12 @@ export class SolrService {
 
     let params = this.createHttpParams(paramsObject);
 
-    // Set query
     const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
     params = params.set('q', finalQuery);
 
-    // Group filters by field
     const filtersByField = this.groupFiltersByField(filters);
+    const facetFqParts: string[] = [];
 
-    // Add facet fields with exclude tags for OR operators
     facetFields.forEach(field => {
       const operator = facetOperators[field] || 'OR';
       const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
@@ -459,29 +465,32 @@ export class SolrService {
       }
     });
 
-    // Add filters with tags for OR operators
     filtersByField.forEach((values, field) => {
       if (values.length > 0) {
         const operator = facetOperators[field] || 'OR';
-        const escapedValues = values.map(v => `"${v}"`);
+        const escaped = values.map(v => `"${v}"`);
 
         let fqParam = '';
 
-        // Add tag for OR operators
         if (operator === 'OR') {
           fqParam += `{!tag=${field}}`;
         }
 
-        // Add field and values
-        if (values.length === 1) {
-          fqParam += `${field}:${escapedValues[0]}`;
-        } else {
-          fqParam += `${field}:(${escapedValues.join(` ${operator} ${field}:`)})`;
-        }
+        fqParam += values.length === 1
+          ? `${field}:${escaped[0]}`
+          : `(${escaped.map(val => `${field}:${val}`).join(` ${operator} `)})`;
 
-        params = params.append('fq', fqParam);
+        facetFqParts.push(fqParam);
       }
     });
+
+    if (advancedQuery?.trim()) {
+      facetFqParts.push(`(${advancedQuery})`);
+    }
+
+    if (facetFqParts.length > 0) {
+      params = params.append('fq', facetFqParts.join(' AND '));
+    }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
