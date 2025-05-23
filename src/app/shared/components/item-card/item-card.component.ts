@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {NgIf} from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 
@@ -8,6 +8,7 @@ import {DocumentAccessibilityEnum} from '../../../modules/constants/document-acc
   imports: [
     NgIf,
     AccessibilityBadgeComponent,
+    NgClass,
   ],
   templateUrl: './item-card.component.html',
   styleUrl: './item-card.component.scss'
@@ -18,6 +19,7 @@ export class ItemCardComponent {
   @Input() subtitle?: string;
   @Input() link: string | null = null;
   @Input() accessibility: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
+  @Input() className?: string;
 
   @Input() showFavoriteButton: boolean = true;
   @Input() showAccessibilityBadge: boolean = false;

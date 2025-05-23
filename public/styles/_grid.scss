@@ -1,9 +1,75 @@
+//.grid--container {
+//  display: grid;
+//  grid-template-columns: repeat(auto-fill, 230px);
+//  gap: 16px;
+//  justify-content: center;
+//  //padding: 16px 0;
+//  flex-grow: 1;
+//  max-height: fit-content;
+//}
+
 .grid--container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 230px);
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 16px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex--column {
+  flex-direction: column;
+}
+
+.flex--row {
+  flex-direction: row;
+}
+
+.flex--wrap {
+  flex-wrap: wrap;
+}
+
+.flex--center {
   justify-content: center;
-  padding: 16px 0;
-  flex-grow: 1;
-  max-height: fit-content;
+}
+
+.flex--space-between {
+  justify-content: space-between;
+}
+
+.flex--space-around {
+  justify-content: space-around;
+}
+
+.flex--space-evenly {
+  justify-content: space-evenly;
+}
+
+.flex--align-center {
+  align-items: center;
+}
+
+.flex--align-start {
+  align-items: flex-start;
+}
+
+.flex--align-end {
+  align-items: flex-end;
+}
+
+.flex--align-stretch {
+  align-items: stretch;
+}
+
+.flex--align-baseline {
+  align-items: baseline;
+}
+
+.flex--gap {
+  gap: 16px;
+}
+
+.flex--padding {
+  padding: 16px;
 }

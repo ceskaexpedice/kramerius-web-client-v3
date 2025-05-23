@@ -26,20 +26,28 @@
         </div>
 
         <div right>
-          <app-toolbar-controls
-            [showCalendarGridControls]="true"
-            [showFavorites]="true"
-            [showShare]="true"
-            [showQuote]="true"
-            [activeCalendarGridControl]="activeCalendarGridControl()"
-            (calendarGridClicked)="setView($event)">
-          </app-toolbar-controls>
+
+          <div class="flex flex--align-center">
+
+            <app-toolbar-controls
+              [showCalendarGridControls]="true"
+              [showFavorites]="true"
+              [showShare]="true"
+              [showQuote]="true"
+              [activeCalendarGridControl]="activeCalendarGridControl()"
+              (calendarGridClicked)="setView($event)">
+            </app-toolbar-controls>
+
+<!--            <app-results-sort></app-results-sort>-->
+
+          </div>
+
         </div>
 
       </app-action-toolbar>
 
       <!-- Content rendering based on view mode -->
-      <ng-container *ngIf="viewMode() as mode">
+      <div class="results-content--wrapper" *ngIf="viewMode() as mode">
 
         <app-periodical-years-timeline
           *ngIf="mode === ViewMode.Timeline"
@@ -65,7 +73,7 @@
           [pid]="getSelectedPid() || ''">
         </app-periodical-year-issues-grid>
 
-      </ng-container>
+      </div>
 
       <!-- Loading and error states -->
       <div *ngIf="loading$ | async">Načítavam...</div>
