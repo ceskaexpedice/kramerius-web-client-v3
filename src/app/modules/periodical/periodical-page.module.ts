@@ -26,6 +26,7 @@ import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 
 const routes: Routes = [
   {
@@ -37,28 +38,29 @@ const routes: Routes = [
   declarations: [
     PeriodicalPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    StoreModule.forFeature('periodical', periodicalDetailReducer),
-    EffectsModule.forFeature([PeriodicalDetailEffects]),
-    AsyncPipe,
-    JsonPipe,
-    NgIf,
-    NgForOf,
-    FilterSidebarComponent,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    PeriodicalYearsTimelineComponent,
-    PeriodicalYearsGridComponent,
-    PeriodicalYearIssuesCalendarComponent,
-    PeriodicalYearIssuesGridComponent,
-    PeriodicalFiltersComponent,
-    ActionToolbarComponent,
-    RecordTypeTabsComponent,
-    ToolbarHeaderComponent,
-    YearNavigatorComponent,
-    ToolbarControlsComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		StoreModule.forFeature('periodical', periodicalDetailReducer),
+		EffectsModule.forFeature([PeriodicalDetailEffects]),
+		AsyncPipe,
+		JsonPipe,
+		NgIf,
+		NgForOf,
+		FilterSidebarComponent,
+		MatDatepickerModule,
+		MatNativeDateModule,
+		PeriodicalYearsTimelineComponent,
+		PeriodicalYearsGridComponent,
+		PeriodicalYearIssuesCalendarComponent,
+		PeriodicalYearIssuesGridComponent,
+		PeriodicalFiltersComponent,
+		ActionToolbarComponent,
+		RecordTypeTabsComponent,
+		ToolbarHeaderComponent,
+		YearNavigatorComponent,
+		ToolbarControlsComponent,
+		ResultsSortComponent,
+	],
   providers: [
     { provide: 'FilterService', useClass: PeriodicalFilterService }
   ]

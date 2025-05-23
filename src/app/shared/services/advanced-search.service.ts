@@ -4,7 +4,9 @@ import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog
 import { ADVANCED_FILTERS, AdvancedFilterDefinition } from '../dialogs/advanced-search-dialog/advanced-filters';
 import { SolrOperators } from '../../core/solr/solr-helpers';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../app.routes';
+import {take} from 'rxjs';
 
 export interface FilterGroup {
   filters: AdvancedFilterDefinition[];
@@ -31,6 +33,24 @@ export class AdvancedSearchService {
   private dialog = inject(MatDialog);
   private queryParamsService = inject(QueryParamsService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  initializeFromRoute(): void {
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      this.resetFromParams(params);
+
+      // aj basic filters
+      const baseFilters = this.queryParamsService.getFilters(params);
+      const baseOperators = this.queryParamsService.getOperators(params);
+
+      this.setPendingFilters(baseFilters);
+      this.setPendingOperators(baseOperators);
+
+      if (this.filterGroupsSignal().length === 0) {
+        this.addGroup();
+      }
+    });
+  }
 
   setPendingFilters(filters: string[]) {
     this.pendingFiltersSignal.set(filters);
@@ -52,6 +72,27 @@ export class AdvancedSearchService {
     this.filterGroupsSignal.set([]);
     this.appliedGroupsSignal.set([]);
     this.queryParamsService.removeAdvancedSearch(this.route);
+  }
+
+  onSubmitAdvancedSearch() {
+    const advancedQuery = this.getAdvancedQueryString();
+    const mainOperator = this.mainOperator();
+
+    const isOnSearchPage = this.router.url.split('?')[0] === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`;
+
+    if (!isOnSearchPage) {
+      this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS], {
+        queryParams: {
+          advSearch: advancedQuery || null,
+          advOp: mainOperator
+        }
+      });
+    } else {
+      this.queryParamsService.appendToQueryParams(this.route, {
+        advSearch: advancedQuery || null,
+        advOp: mainOperator
+      });
+    }
   }
 
   setAppliedGroups(groups: FilterGroup[]) {

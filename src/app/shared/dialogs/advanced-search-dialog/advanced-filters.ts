@@ -41,11 +41,11 @@ export interface AdvancedFilterDefinition {
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: AdvancedFilterKey.Author, label: `advanced-filter-${AdvancedFilterKey.Author}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'authors.facet' },
-  { key: AdvancedFilterKey.Title, label: `advanced-filter-${AdvancedFilterKey.Title}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '' },
-  { key: AdvancedFilterKey.Year, label: `advanced-filter-${AdvancedFilterKey.Year}-label`, inputType: AdvancedFilterType.Slider, dynamicOptions: true, value: '' },
+  { key: AdvancedFilterKey.Title, label: `advanced-filter-${AdvancedFilterKey.Title}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'title.search' },
+  { key: AdvancedFilterKey.Year, label: `advanced-filter-${AdvancedFilterKey.Year}-label`, inputType: AdvancedFilterType.Slider, dynamicOptions: true, value: '', solrField: 'date.str' },
   { key: AdvancedFilterKey.Date, label: `advanced-filter-${AdvancedFilterKey.Date}-label`, inputType: AdvancedFilterType.DateRange, value: '' },
-  { key: AdvancedFilterKey.Doctype, label: `advanced-filter-${AdvancedFilterKey.Doctype}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
-  { key: AdvancedFilterKey.Language, label: `advanced-filter-${AdvancedFilterKey.Language}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
+  { key: AdvancedFilterKey.Doctype, label: `advanced-filter-${AdvancedFilterKey.Doctype}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'model' },
+  { key: AdvancedFilterKey.Language, label: `advanced-filter-${AdvancedFilterKey.Language}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'languages.facet' },
   { key: AdvancedFilterKey.Institution, label: `advanced-filter-${AdvancedFilterKey.Institution}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
   { key: AdvancedFilterKey.Publisher, label: `advanced-filter-${AdvancedFilterKey.Publisher}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'publishers.facet' },
   { key: AdvancedFilterKey.Location, label: `advanced-filter-${AdvancedFilterKey.Location}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'physical_locations.facet' },
@@ -57,7 +57,7 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: AdvancedFilterKey.GeoName, label: `advanced-filter-${AdvancedFilterKey.GeoName}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'geographic_names.facet' },
   { key: AdvancedFilterKey.SearchScope, label: `advanced-filter-${AdvancedFilterKey.SearchScope}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
   { key: AdvancedFilterKey.Fulltext, label: `advanced-filter-${AdvancedFilterKey.Fulltext}-label`, inputType: AdvancedFilterType.Text, value: '' },
-  { key: AdvancedFilterKey.Identifier, label: `advanced-filter-${AdvancedFilterKey.Identifier}-label`, inputType: AdvancedFilterType.Identifier, value: '' }
+  { key: AdvancedFilterKey.Identifier, label: `advanced-filter-${AdvancedFilterKey.Identifier}-label`, inputType: AdvancedFilterType.Identifier, value: '', solrField: 'dc.identifier' }
 ];
 
 export const DEFAULT_ADVANCED_FILTER: AdvancedFilterDefinition = {...ADVANCED_FILTERS[0]};

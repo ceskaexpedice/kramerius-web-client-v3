@@ -30,25 +30,9 @@ export class AdvancedSearchDialogComponent implements OnInit {
   public searchService = inject(SearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   private route = inject(ActivatedRoute);
-  private queryParamsService = inject(QueryParamsService);
 
   ngOnInit(): void {
-    this.route.queryParams.pipe(take(1)).subscribe(params => {
-      this.advancedSearchService.resetFromParams(params);
-    });
-
-    this.searchService.activeFilters$.pipe(take(1)).subscribe(filters => {
-      this.advancedSearchService.setPendingFilters(filters);
-
-      this.searchService.getFiltersWithOperators().pipe(take(1)).subscribe(operators => {
-        this.advancedSearchService.setPendingOperators(operators);
-      });
-    });
-
-    if (this.advancedSearchService.pendingGroups().length === 0) {
-      this.advancedSearchService.addGroup();
-    }
-
+    this.advancedSearchService.initializeFromRoute();
   }
 
   removePendingTag(tag: string) {
@@ -67,13 +51,7 @@ export class AdvancedSearchDialogComponent implements OnInit {
   }
 
   submit() {
-    const advancedQuery = this.advancedSearchService.getAdvancedQueryString();
-    const mainOperator = this.advancedSearchService.mainOperator();
-
-    this.queryParamsService.appendToQueryParams(this.route, {
-      advSearch: advancedQuery || null,
-      advOp: mainOperator
-    });
+    this.advancedSearchService.onSubmitAdvancedSearch();
 
     this.close();
   }
