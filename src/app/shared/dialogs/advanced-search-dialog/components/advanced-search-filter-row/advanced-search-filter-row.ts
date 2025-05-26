@@ -1,6 +1,6 @@
-import {Component, Input, Output, EventEmitter, computed, inject, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
@@ -55,7 +55,7 @@ export class AdvancedSearchFilterRow implements OnInit {
     return this.solrService.getSuggestionsByFacetKey(this.filter.solrField, term);
   };
 
-  filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? option.label : '';
+  filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label + (option.solrField && option.inputType === AdvancedFilterType.Autocomplete ? '*' : '')) : '';
 
   emitChange() {
     this.filterChange.emit({ ...this.filter });
