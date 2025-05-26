@@ -118,8 +118,17 @@ export class AdvancedSearchService {
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
         .filter(filter => !!filter.value?.trim())
-        .map(filter => `${filter.solrField}:"${filter.value}"`);
-      return parts.length > 1 ? `(${parts.join(` ${group.operator} `)})` : parts[0];
+        .map(filter => {
+          const value = filter.value.trim();
+          const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
+          return isRange
+            ? `${filter.solrField}:${value}`
+            : `${filter.solrField}:"${value}"`;
+        });
+
+      return parts.length > 1
+        ? `(${parts.join(` ${group.operator} `)})`
+        : parts[0];
     }).filter(Boolean);
 
     if (advancedQueryParts.length === 0) return undefined;

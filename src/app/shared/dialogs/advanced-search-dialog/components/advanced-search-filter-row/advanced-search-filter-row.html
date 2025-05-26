@@ -21,6 +21,22 @@
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
       ></app-autocomplete>
+
+      <app-range-slider
+        *ngIf="filter.inputType === AdvancedFilterType.Slider"
+        [min]="filter.meta?.min ?? 0"
+        [max]="filter.meta?.max ?? 100"
+        [step]="filter.meta?.step ?? 1"
+        [initialFrom]="filter.meta?.min ?? 0"
+        [initialTo]="filter.meta?.max ?? 100"
+        (rangeChange)="onRangeSliderChange($event)"
+      ></app-range-slider>
+
+      <app-select
+        *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
+        [options]="filter.options || []"
+        [(value)]="filter.value"
+      ></app-select>
     </ng-container>
   </div>
 

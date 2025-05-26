@@ -47,7 +47,7 @@ export class FilterCategoryComponent implements OnChanges {
   // Get whether to show the "Show all" button
   get shouldShowMoreButton(): boolean {
     // Don't show for 'model' facetKey, and only show if we have more items than maxItems
-    return this.facetKey !== 'model' && this.showShowMoreButton && this.items.length > this.maxItems;
+    return this.facetKey !== 'model' && this.showShowMoreButton;
   }
 
   get hasAndOperator(): boolean {

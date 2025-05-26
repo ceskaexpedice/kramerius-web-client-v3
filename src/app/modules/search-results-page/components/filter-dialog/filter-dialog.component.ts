@@ -22,6 +22,7 @@ import {PaginatorInfoComponent} from '../../../../shared/components/paginator-in
 import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
 import {FilterService} from '../../../../core/services/FilterUtilities';
 import {InputComponent} from '../../../../shared/components/input/input.component';
+import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -110,6 +111,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   private route = inject(ActivatedRoute);
   public searchService = inject(SearchService);
   private solrService = inject(SolrService);
+  private advancedSearchService = inject(AdvancedSearchService);
 
   readonly selected = signal<Set<string>>(new Set());
   readonly loading = signal(false);
@@ -232,7 +234,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
           // Use the new method with pending selection and operator
           return this.solrService.loadFacetWithPendingChanges(
-            '*:*',
+            this.searchService.searchTerm(),
             allFilters,
             this.data.facetKey,
             this.pendingSelection(),
@@ -243,7 +245,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
               limit: facetLimit,
               offset: facetOffset,
               sortBy: this.sortBy(),
-              minCount: 1
+              minCount: 1,
+              advancedQuery: this.advancedSearchService.getAdvancedQueryString()
             }
           ).pipe(
             map(response => ({

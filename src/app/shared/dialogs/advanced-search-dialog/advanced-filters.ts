@@ -37,12 +37,21 @@ export interface AdvancedFilterDefinition {
   value: string;
   solrField?: string;
   options?: string[];
+  meta?: {
+    min?: number;
+    max?: number;
+    step?: number;
+  };
 }
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: AdvancedFilterKey.Author, label: `advanced-filter-${AdvancedFilterKey.Author}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'authors.facet' },
   { key: AdvancedFilterKey.Title, label: `advanced-filter-${AdvancedFilterKey.Title}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, value: '', solrField: 'title.search' },
-  { key: AdvancedFilterKey.Year, label: `advanced-filter-${AdvancedFilterKey.Year}-label`, inputType: AdvancedFilterType.Slider, dynamicOptions: true, value: '', solrField: 'date.str' },
+  { key: AdvancedFilterKey.Year, label: `advanced-filter-${AdvancedFilterKey.Year}-label`, inputType: AdvancedFilterType.Slider, dynamicOptions: true, value: '', solrField: 'date.str', meta: {
+      min: 0,
+      max: new Date().getFullYear(),
+      step: 1
+    } },
   { key: AdvancedFilterKey.Date, label: `advanced-filter-${AdvancedFilterKey.Date}-label`, inputType: AdvancedFilterType.DateRange, value: '' },
   { key: AdvancedFilterKey.Doctype, label: `advanced-filter-${AdvancedFilterKey.Doctype}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'model' },
   { key: AdvancedFilterKey.Language, label: `advanced-filter-${AdvancedFilterKey.Language}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'languages.facet' },

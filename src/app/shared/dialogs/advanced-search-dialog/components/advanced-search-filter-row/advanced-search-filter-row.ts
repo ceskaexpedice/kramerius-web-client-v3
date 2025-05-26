@@ -11,10 +11,11 @@ import {AutocompleteComponent} from '../../../../components/autocomplete/autocom
 import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
+import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
 
 @Component({
   selector: 'advanced-search-filter-row',
-  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent],
+  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent],
   templateUrl: './advanced-search-filter-row.html',
   styleUrl: './advanced-search-filter-row.scss'
 })
@@ -26,11 +27,21 @@ export class AdvancedSearchFilterRow implements OnInit {
   @Output() remove = new EventEmitter<void>();
 
   filterTypes = ADVANCED_FILTERS;
-  options: Record<string, string[]> = {
-    doctype: ['Periodikum', 'Knihy', 'Mapy', 'Grafiky', 'Archivalie', 'Rukopisy']
-  };
 
   ngOnInit() {
+
+    this.loadData();
+
+  }
+
+  loadData() {
+    if (this.filter.inputType === AdvancedFilterType.Dropdown && this.filter.solrField) {
+      const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '');
+
+      data.subscribe(suggestions => {
+        this.filter.options = suggestions;
+      });
+    }
   }
 
   selectedFilterTypeOption() {
@@ -47,7 +58,6 @@ export class AdvancedSearchFilterRow implements OnInit {
       this.emitChange();
     }
   }
-
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
     if (!this.filter.solrField) return of([]);
@@ -66,5 +76,10 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.emitChange();
   }
 
+  onRangeSliderChange(range: { from: number; to: number }) {
+    this.filter.value = `[${range.from} TO ${range.to}]`;
+  }
+
   protected readonly AdvancedFilterType = AdvancedFilterType;
+
 }

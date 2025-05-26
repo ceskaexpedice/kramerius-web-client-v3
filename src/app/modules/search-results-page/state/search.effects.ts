@@ -40,8 +40,8 @@ export class SearchEffects {
         ];
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, advancedQueryMainOperator),
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, facetFields, facetOperators, advancedQuery, advancedQueryMainOperator)
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, facetFields, facetOperators, advancedQuery)
         }).pipe(
           switchMap(({ resultsRes, facetsRes }) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>

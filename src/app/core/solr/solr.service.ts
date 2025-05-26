@@ -1,19 +1,17 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {PeriodicalItem} from '../../modules/models/periodical-item';
-import {SolrResponseParser} from './solr-response-parser';
 import {map} from 'rxjs/operators';
+import {SolrResponseParser} from './solr-response-parser';
 import {SolrQueryBuilder} from './solr-query-builder';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
+import {SearchResultResponse} from '../../modules/models/search-result-response';
+import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
-import {SearchResultResponse} from '../../modules/models/search-result-response';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
 import {FilterService} from '../services/FilterUtilities';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class SolrService {
   private readonly API_URL = 'https://api.kramerius.mzk.cz/search/api/client/v7.0/search';
   private readonly DEFAULT_FACET_FIELDS = [
@@ -31,68 +29,6 @@ export class SolrService {
 
   constructor(private http: HttpClient, private filterService: FilterService) {}
 
-  getPeriodicals(): Observable<PeriodicalItem[]> {
-    const paramsObject = {
-      ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.filterByModel('periodical'),
-      ...SolrQueryBuilder.sortBy(),
-      ...SolrQueryBuilder.rows(100),
-      ...SolrQueryBuilder.start(0)
-    };
-
-    const params = new HttpParams({ fromObject: paramsObject });
-
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(response => SolrResponseParser.parsePeriodicalItems(response))
-    );
-  }
-
-  getBooks(): Observable<BookItem[]> {
-    const paramsObject = {
-      ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.filterByModel('monograph'),
-      ...SolrQueryBuilder.sortBy(),
-      ...SolrQueryBuilder.rows(100)
-    };
-
-    const params = new HttpParams({ fromObject: paramsObject });
-
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => SolrResponseParser.parseBookItems(res))
-    );
-  }
-
-  getGenres(): Observable<FacetItem[]> {
-    const params = new HttpParams({
-      fromObject: SolrQueryBuilder.facetByField('genres.facet')
-    });
-
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => SolrResponseParser.parseFacetField<FacetItem>(
-        res,
-        'genres.facet',
-        SolrResponseParser.mapToGenreItem
-      ))
-    );
-  }
-
-  getDocumentTypes(): Observable<FacetItem[]> {
-    const params = new HttpParams({
-      fromObject: SolrQueryBuilder.facetByModel()
-    });
-
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => SolrResponseParser.parseFacetField<FacetItem>(
-        res,
-        'model',
-        (value, count) => ({ name: value, count })
-      ))
-    );
-  }
-
-  /**
-   * Helper method to create HttpParams from a raw params object
-   */
   private createHttpParams(rawParams: Record<string, any>): HttpParams {
     let params = new HttpParams();
     Object.entries(rawParams).forEach(([key, value]) => {
@@ -107,9 +43,6 @@ export class SolrService {
     return params;
   }
 
-  /**
-   * Groups filter strings (field:value) by their field
-   */
   private groupFiltersByField(filters: string[]): Map<string, string[]> {
     const filtersByField = new Map<string, string[]>();
     filters.forEach(filter => {
@@ -122,20 +55,8 @@ export class SolrService {
     return filtersByField;
   }
 
-  /**
-   * Creates base parameters for facet queries
-   */
-  private createFacetBaseParams(
-    options: {
-      searchTerm?: string,
-      limit?: number,
-      offset?: number,
-      sortBy?: SolrSortFields,
-      minCount?: number
-    } = {}
-  ): Record<string, any> {
-    // Build base parameters
-    let params: Record<string, any> = {
+  private createFacetBaseParams(options: any = {}): Record<string, any> {
+    const params: Record<string, any> = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.fieldsToReturn([]),
@@ -143,177 +64,44 @@ export class SolrService {
       facet: 'true',
       'facet.mincount': (options.minCount || 1).toString()
     };
-
-    // Add sort if provided
-    if (options.sortBy) {
-      params = { ...params, ...SolrQueryBuilder.facetSortBy(options.sortBy) };
-    }
-
-    // Add search term if provided
-    if (options.searchTerm) {
-      params = { ...params, ...SolrQueryBuilder.facetContains(options.searchTerm, true) };
-    }
-
-    // Add pagination if provided
-    if (options.limit !== undefined) {
-      params['facet.limit'] = options.limit.toString();
-    }
-
-    if (options.offset !== undefined) {
-      params['facet.offset'] = options.offset.toString();
-    }
-
+    if (options.sortBy) Object.assign(params, SolrQueryBuilder.facetSortBy(options.sortBy));
+    if (options.searchTerm) Object.assign(params, SolrQueryBuilder.facetContains(options.searchTerm, true));
+    if (options.limit !== undefined) params['facet.limit'] = options.limit.toString();
+    if (options.offset !== undefined) params['facet.offset'] = options.offset.toString();
     return params;
   }
 
-  /**
-   * Adds filters to params with proper operators
-   */
-  private addFilterQueries(
-    params: HttpParams,
-    filters: string[],
-    operators: Record<string, string> = {},
-    skipField?: string
-  ): HttpParams {
-    const filtersByField = this.groupFiltersByField(filters);
-    let result = params;
+  private buildQParam(query: string, advancedQuery?: string): string {
+    const parts = [];
+    if (query?.trim()) parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search')})`);
+    if (advancedQuery?.trim()) parts.push(`(${advancedQuery})`);
+    return parts.length ? parts.join(' AND ') : '*:*';
+  }
 
-    filtersByField.forEach((values, field) => {
-      if (values.length > 0 && field !== skipField) {
-        const operator = operators[field] || 'OR';
-        const escapedValues = values.map(v => `"${v}"`);
-
-        if (values.length === 1) {
-          result = result.append('fq', `${field}:${escapedValues[0]}`);
-        } else {
-          result = result.append('fq', `${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
-        }
-      }
+  private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
+    const grouped = this.groupFiltersByField(filters);
+    const fq: string[] = [];
+    grouped.forEach((values, field) => {
+      const op = operators[field] || SolrOperators.or;
+      const escaped = values.map(v => `"${v}"`);
+      fq.push(
+        values.length === 1
+          ? `${field}:${escaped[0]}`
+          : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`
+      );
     });
-
-    return result;
+    return fq;
   }
 
-  /**
-   * Specialized method to load facet with pending changes (preview)
-   */
-  loadFacetWithPendingChanges(
-    query: string,
-    allFilters: string[],
-    currentFacet: string,
-    pendingSelections: Set<string>,
-    pendingOperator: 'AND' | 'OR',
-    otherOperators: Record<string, string> = {},
-    options: {
-      searchTerm?: string,
-      limit?: number,
-      offset?: number,
-      sortBy?: SolrSortFields,
-      minCount?: number
-    } = {}
-  ): Observable<any> {
-    // Create base parameters
-    const paramsObject = this.createFacetBaseParams(options);
-    let params = this.createHttpParams(paramsObject);
-
-    // Set query
-    params = params.set('q', query || '*:*');
-
-    // Filter out current facet from filters
-    const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
-
-    // Add other filters
-    params = this.addFilterQueries(params, otherFilters, otherOperators);
-
-    // Handle the current facet with pending selections
-    const isOrWithSelection = pendingOperator === 'OR' && pendingSelections.size > 0;
-
-    // Set the facet field with exclude tag if needed
-    if (isOrWithSelection) {
-      params = params.append('facet.field', `{!ex=${currentFacet}}${currentFacet}`);
-    } else {
-      params = params.append('facet.field', currentFacet);
-    }
-
-    // Add the pending selections as filter
-    if (pendingSelections.size > 0) {
-      const values = Array.from(pendingSelections);
-      const escapedValues = values.map(v => `"${v}"`);
-
-      let fqParam = '';
-
-      // Add tag for OR operator
-      if (isOrWithSelection) {
-        fqParam += `{!tag=${currentFacet}}`;
-      }
-
-      // Add field and values
-      if (values.length === 1) {
-        fqParam += `${currentFacet}:${escapedValues[0]}`;
-      } else {
-        fqParam += `${currentFacet}:(${escapedValues.join(` ${pendingOperator} ${currentFacet}:`)})`;
-      }
-
-      params = params.append('fq', fqParam);
-    }
-
-    return this.http.get<any>(this.API_URL, { params });
-  }
-
-  /**
-   * Load facet data with given filters and pagination
-   */
-  loadFacet(
-    query: string,
-    filters: string[],
-    facetField: string,
-    contains?: string,
-    ignoreCase?: boolean,
-    facetLimit?: number,
-    facetOffset?: number,
-    sortBy?: SolrSortFields,
-    minCount: number = 1,
-    existingOperators?: Record<string, string>
-  ): Observable<any> {
-    // Create base parameters
-    const paramsObject = this.createFacetBaseParams({
-      searchTerm: contains,
-      limit: facetLimit,
-      offset: facetOffset,
-      sortBy,
-      minCount
+  private buildFacetFieldParams(fields: string[], filtersByField: Map<string, string[]>, operators: Record<string, string>): string[] {
+    return fields.map(field => {
+      const op = operators[field] || SolrOperators.or;
+      const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
+      return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
-
-    let params = this.createHttpParams(paramsObject);
-
-    // Set query
-    params = params.set('q', query || '*:*');
-
-    // Add facet field
-    params = params.append('facet.field', facetField);
-
-    // Filter out current facet and add other filters
-    const otherFilters = filters.filter(f => !f.startsWith(`${facetField}:`));
-    params = this.addFilterQueries(params, otherFilters, existingOperators);
-
-    return this.http.get<any>(this.API_URL, { params });
   }
 
-  /**
-   * Search with filters, pagination and sorting
-   */
-  search(
-    query: string,
-    filters: string[] = [],
-    facetOperators: { [field: string]: SolrOperators } = {},
-    page = 0,
-    pageCount = 60,
-    sortBy: SolrSortFields,
-    sortDirection: SolrSortDirections,
-    advancedQuery?: string,
-    advancedQueryMainOperator: SolrOperators = SolrOperators.and
-  ): Observable<SearchResultResponse> {
-
+  search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string): Observable<SearchResultResponse> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
@@ -327,46 +115,123 @@ export class SolrService {
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
-
-    let params = this.createHttpParams(paramsObject);
-
-    const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
-    params = params.set('q', finalQuery);
-
-    const filtersByField = this.groupFiltersByField(filters);
-    const facetFqParts: string[] = [];
-
-    filtersByField.forEach((values, field) => {
-      if (values.length > 0) {
-        const operator = facetOperators[field] || 'OR';
-        const escaped = values.map(v => `"${v}"`);
-        const part = values.length === 1
-          ? `${field}:${escaped[0]}`
-          : `(${escaped.map(val => `${field}:${val}`).join(` ${operator} `)})`;
-
-        facetFqParts.push(part);
-      }
-    });
-
-    if (advancedQuery?.trim()) {
-      facetFqParts.push(`(${advancedQuery})`);
-    }
-
-    if (facetFqParts.length > 0) {
-      params = params.append('fq', facetFqParts.join(' AND '));
-    }
-
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  getDetailItem(pid: string): Observable<any> {
-    const params = new HttpParams({
-      fromObject: {
-        q: `pid:"${pid}"`,
-        ...SolrQueryBuilder.rows(1)
-      }
+  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = this.DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string): Observable<SearchResultResponse> {
+    const filtersByField = this.groupFiltersByField(filters);
+    const paramsObject = this.createFacetBaseParams();
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+
+    this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
+      params = params.append('facet.field', field);
     });
 
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
+  loadFacetWithPendingChanges(query: string, allFilters: string[], currentFacet: string, pendingSelections: Set<string>, pendingOperator: SolrOperators, otherOperators: Record<string, string> = {}, options: any = {}): Observable<any> {
+    const { advancedQuery } = options;
+    const paramsObject = this.createFacetBaseParams(options);
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+    const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
+    params = this.addFilterQueries(params, otherFilters, otherOperators);
+
+    const isOrWithSelection = pendingOperator === SolrOperators.or && pendingSelections.size > 0;
+    params = params.append('facet.field', isOrWithSelection ? `{!ex=${currentFacet}}${currentFacet}` : currentFacet);
+
+    if (pendingSelections.size > 0) {
+      const values = Array.from(pendingSelections);
+      const escaped = values.map(v => `"${v}"`);
+      let fqParam = isOrWithSelection ? `{!tag=${currentFacet}}` : '';
+      fqParam += values.length === 1 ? `${currentFacet}:${escaped[0]}` : `(${escaped.map(val => `${currentFacet}:${val}`).join(` ${pendingOperator} `)})`;
+      params = params.append('fq', fqParam);
+    }
+
+    return this.http.get<any>(this.API_URL, { params });
+  }
+
+  loadFacet(query: string, filters: string[], facetField: string, contains?: string, ignoreCase?: boolean, facetLimit?: number, facetOffset?: number, sortBy?: SolrSortFields, minCount: number = 1, existingOperators?: Record<string, string>): Observable<any> {
+    const paramsObject = this.createFacetBaseParams({
+      searchTerm: contains,
+      limit: facetLimit,
+      offset: facetOffset,
+      sortBy,
+      minCount
+    });
+    let params = this.createHttpParams(paramsObject).set('q', query || '*:*').append('facet.field', facetField);
+    const otherFilters = filters.filter(f => !f.startsWith(`${facetField}:`));
+    params = this.addFilterQueries(params, otherFilters, existingOperators);
+    return this.http.get<any>(this.API_URL, { params });
+  }
+
+  getSuggestionsByFacetKey(solrField: string, term: string): Observable<string[]> {
+    return this.loadFacet('*:*', [], solrField, term, true, 20, 0, SolrSortFields.count, 1).pipe(
+      map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
+    );
+  }
+
+  getAutocompleteSuggestions(term: string): Observable<string[]> {
+    const query = SolrQueryBuilder.buildQueryFromInput(term);
+    const paramsObject = {
+      q: query,
+      fl: 'pid,title.search',
+      fq: ['accessibility:public', 'level:0'],
+      rows: '50',
+      wt: 'json',
+    };
+    const params = this.createHttpParams(paramsObject);
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs?.map((doc: any) => doc['title.search']) ?? [])
+    );
+  }
+
+  getPeriodicals(): Observable<PeriodicalItem[]> {
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.filterByModel('periodical'),
+      ...SolrQueryBuilder.sortBy(),
+      ...SolrQueryBuilder.rows(100),
+      ...SolrQueryBuilder.start(0)
+    };
+    const params = new HttpParams({ fromObject: paramsObject });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(response => SolrResponseParser.parsePeriodicalItems(response))
+    );
+  }
+
+  getBooks(): Observable<BookItem[]> {
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.filterByModel('monograph'),
+      ...SolrQueryBuilder.sortBy(),
+      ...SolrQueryBuilder.rows(100)
+    };
+    const params = new HttpParams({ fromObject: paramsObject });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => SolrResponseParser.parseBookItems(res))
+    );
+  }
+
+  getGenres(): Observable<FacetItem[]> {
+    const params = new HttpParams({ fromObject: SolrQueryBuilder.facetByField('genres.facet') });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => SolrResponseParser.parseFacetField<FacetItem>(res, 'genres.facet', SolrResponseParser.mapToGenreItem))
+    );
+  }
+
+  getDocumentTypes(): Observable<FacetItem[]> {
+    const params = new HttpParams({ fromObject: SolrQueryBuilder.facetByModel() });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => SolrResponseParser.parseFacetField<FacetItem>(res, 'model', (value, count) => ({ name: value, count })))
+    );
+  }
+
+  getDetailItem(pid: string): Observable<any> {
+    const params = new HttpParams({ fromObject: { q: `pid:"${pid}"`, ...SolrQueryBuilder.rows(1) } });
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs[0] ?? null)
     );
@@ -378,14 +243,7 @@ export class SolrService {
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `(model:periodicalvolume)`
     ]);
-    const params = {
-      q: query,
-      fl: 'date.str, pid, accessibility',
-      rows: '10000',
-      sort: 'date.min asc',
-      wt: 'json'
-    };
-
+    const params = { q: query, fl: 'date.str, pid, accessibility', rows: '10000', sort: 'date.min asc', wt: 'json' };
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -404,7 +262,6 @@ export class SolrService {
       sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
       wt: 'json'
     };
-
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -419,115 +276,36 @@ export class SolrService {
       sort: 'date.min asc',
       wt: 'json'
     };
-
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
   }
 
-  /**
-   * Get facets with proper operators (OR/AND)
+    /**
+   * Adds filters to params with proper operators
    */
-  getFacetsWithOperators(
-    query: string,
+  private addFilterQueries(
+    params: HttpParams,
     filters: string[],
-    facetFields: string[] = this.DEFAULT_FACET_FIELDS,
-    facetOperators: { [field: string]: 'AND' | 'OR' } = {},
-    advancedQuery?: string,
-    advancedQueryMainOperator: SolrOperators = SolrOperators.and
-  ): Observable<SearchResultResponse> {
-
-    const paramsObject = {
-      ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.baseFilters(),
-      ...SolrQueryBuilder.fieldsToReturn([]),
-      ...SolrQueryBuilder.pagination(0, 0),
-      facet: 'true',
-      'facet.mincount': '1'
-    };
-
-    let params = this.createHttpParams(paramsObject);
-
-    const finalQuery = SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search');
-    params = params.set('q', finalQuery);
-
+    operators: Record<string, string> = {},
+    skipField?: string
+  ): HttpParams {
     const filtersByField = this.groupFiltersByField(filters);
-    const facetFqParts: string[] = [];
-
-    facetFields.forEach(field => {
-      const operator = facetOperators[field] || 'OR';
-      const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
-
-      if (operator === 'OR' && hasFilter) {
-        params = params.append('facet.field', `{!ex=${field}}${field}`);
-      } else {
-        params = params.append('facet.field', field);
-      }
-    });
+    let result = params;
 
     filtersByField.forEach((values, field) => {
-      if (values.length > 0) {
-        const operator = facetOperators[field] || 'OR';
-        const escaped = values.map(v => `"${v}"`);
+      if (values.length > 0 && field !== skipField) {
+        const operator = operators[field] || SolrOperators.or;
+        const escapedValues = values.map(v => `"${v}"`);
 
-        let fqParam = '';
-
-        if (operator === 'OR') {
-          fqParam += `{!tag=${field}}`;
+        if (values.length === 1) {
+          result = result.append('fq', `${field}:${escapedValues[0]}`);
+        } else {
+          result = result.append('fq', `${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
         }
-
-        fqParam += values.length === 1
-          ? `${field}:${escaped[0]}`
-          : `(${escaped.map(val => `${field}:${val}`).join(` ${operator} `)})`;
-
-        facetFqParts.push(fqParam);
       }
     });
 
-    if (advancedQuery?.trim()) {
-      facetFqParts.push(`(${advancedQuery})`);
-    }
-
-    if (facetFqParts.length > 0) {
-      params = params.append('fq', facetFqParts.join(' AND '));
-    }
-
-    return this.http.get<SearchResultResponse>(this.API_URL, { params });
-  }
-
-  /**
-   * Get autocomplete suggestions for a search term
-   */
-  getAutocompleteSuggestions(term: string): Observable<string[]> {
-    const query = SolrQueryBuilder.buildQueryFromInput(term);
-    const paramsObject = {
-      'q': query,
-      'fl': 'pid,title.search',
-      'fq': ['accessibility:public', 'level:0'],
-      'rows': '50',
-      'wt': 'json',
-    };
-
-    const params = this.createHttpParams(paramsObject);
-
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => res.response?.docs?.map((doc: { [key: string]: any }) => doc['title.search']) ?? [])
-    );
-  }
-
-  getSuggestionsByFacetKey(solrField: string, term: string): Observable<string[]> {
-    return this.loadFacet(
-      '*:*',
-      [],
-      solrField,
-      term,
-      true,
-      20,
-      0,
-      SolrSortFields.count,
-      1
-    ).pipe(
-      map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
-    );
+    return result;
   }
 }
