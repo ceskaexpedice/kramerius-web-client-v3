@@ -80,18 +80,24 @@ export class AdvancedSearchService {
 
     const isOnSearchPage = this.router.url.split('?')[0] === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`;
 
+    const updatedFq = this.getFilters();
+    const updatedOperators = this.getOperators();
+
+    const queryParams: any = {
+      advSearch: advancedQuery || null,
+      advOp: mainOperator,
+      fq: updatedFq.length > 0 ? updatedFq : null,
+      ...Object.fromEntries(
+        Object.entries(updatedOperators).map(([key, op]) => [`${key}_operator`, op])
+      )
+    };
+
     if (!isOnSearchPage) {
       this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS], {
-        queryParams: {
-          advSearch: advancedQuery || null,
-          advOp: mainOperator
-        }
+        queryParams
       });
     } else {
-      this.queryParamsService.appendToQueryParams(this.route, {
-        advSearch: advancedQuery || null,
-        advOp: mainOperator
-      });
+      this.queryParamsService.appendToQueryParams(this.route, queryParams);
     }
   }
 

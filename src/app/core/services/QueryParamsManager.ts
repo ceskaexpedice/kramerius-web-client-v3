@@ -249,10 +249,11 @@ export class QueryParamsService {
 
   appendToQueryParams(route: ActivatedRoute, newParams: Record<string, any>): void {
     const currentParams = route.snapshot.queryParams;
-    const queryParams = { ...currentParams, ...newParams };
+
+    const queryParams: any = { ...currentParams, ...newParams };
 
     Object.keys(queryParams).forEach(key => {
-      if (queryParams[key] === null || queryParams[key] === undefined) {
+      if (queryParams[key] === undefined) {
         delete queryParams[key];
       }
     });
