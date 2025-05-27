@@ -121,9 +121,13 @@ export class AdvancedSearchService {
         .map(filter => {
           const value = filter.value.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
+          const useRaw = filter.userRawQueryFormat || false;
+
           return isRange
             ? `${filter.solrField}:${value}`
-            : `${filter.solrField}:"${value}"`;
+            : useRaw
+              ? `${filter.solrField}:(${value})`
+              : `${filter.solrField}:"${value}"`;
         });
 
       return parts.length > 0
@@ -240,12 +244,22 @@ export class AdvancedSearchService {
         if (!match) continue;
 
         const solrField = match[1];
-        let rawValue = match[2].trim();
 
-        const value = rawValue.startsWith('"') && rawValue.endsWith('"')
-          ? rawValue.slice(1, -1)
-          : rawValue;
+        let rawValue = match[2].trim().replace(/^\(+/, '').replace(/\)+$/, '');
 
+        let value = rawValue;
+
+        const isQuoted = value.startsWith('"') && value.endsWith('"');
+        const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
+        const isWrapped = value.startsWith('(') && value.endsWith(')');
+
+        if (!isQuoted && !isRange && isWrapped) {
+          value = value.slice(1, -1).trim();
+        }
+
+        if (isQuoted) {
+          value = value.slice(1, -1).trim();
+        }
 
         if (!solrField || !value) continue;
 

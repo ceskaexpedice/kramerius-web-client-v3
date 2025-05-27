@@ -40,6 +40,7 @@ hr {
 .advanced-search-dialog {
   display: flex;
   flex: 1;
+  overflow-y: auto;
 }
 
 .advanced-search-dialog--container {

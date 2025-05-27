@@ -18,6 +18,7 @@
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
         (search)="emitChange()"
+        (submit)="autocompleteSubmit($event)"
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
       ></app-autocomplete>

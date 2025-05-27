@@ -77,6 +77,10 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.emitChange();
   }
 
+  autocompleteSubmit(value: string) {
+    this.filter.value = value;
+  }
+
   onRangeSliderChange(range: { from: number; to: number }) {
     this.filter.value = `[${range.from} TO ${range.to}]`;
   }
