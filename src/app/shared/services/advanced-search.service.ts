@@ -126,9 +126,9 @@ export class AdvancedSearchService {
             : `${filter.solrField}:"${value}"`;
         });
 
-      return parts.length > 1
+      return parts.length > 0
         ? `(${parts.join(` ${group.operator} `)})`
-        : parts[0];
+        : '';
     }).filter(Boolean);
 
     if (advancedQueryParts.length === 0) return undefined;
@@ -229,12 +229,23 @@ export class AdvancedSearchService {
 
     for (const groupRaw of groupParts) {
       const cleaned = groupRaw.replace(/^\(|\)$/g, '');
-      const parts = cleaned.split(/\s+(AND|OR)\s+/i);
-      const filters: AdvancedFilterDefinition[] = [];
+          const parts = cleaned
+            .replace(/^\(+/, '')
+            .replace(/\)+$/, '')
+            .split(/\s+(AND|OR)\s+/i);
+            const filters: AdvancedFilterDefinition[] = [];
 
       for (let i = 0; i < parts.length; i += 2) {
-        const [solrField, rawValue] = parts[i].split(':');
-        const value = rawValue?.replace(/^"|"$/g, '');
+        const match = parts[i].match(/^(.+?):(.+)$/);
+        if (!match) continue;
+
+        const solrField = match[1];
+        let rawValue = match[2].trim();
+
+        const value = rawValue.startsWith('"') && rawValue.endsWith('"')
+          ? rawValue.slice(1, -1)
+          : rawValue;
+
 
         if (!solrField || !value) continue;
 

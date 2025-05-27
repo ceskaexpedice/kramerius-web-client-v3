@@ -68,3 +68,43 @@
     gap: 4px;
   }
 }
+
+.range-slider {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &.inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.inputs-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-grow: 1;
+
+  input[type='number'] {
+    width: 70px;
+  }
+
+  .sliders {
+    flex-grow: 1;
+    position: relative;
+    height: 8px;
+    background: var(--color-bg-light);
+    border-radius: 4px;
+  }
+}
+
+input[type='range'] {
+  z-index: 2;
+
+  &.on-top {
+    z-index: 4;
+  }
+}

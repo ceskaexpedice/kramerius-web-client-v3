@@ -1,9 +1,10 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {AdvancedSearchFilterRow} from '../advanced-search-filter-row/advanced-search-filter-row';
 import {NgForOf, NgIf} from '@angular/common';
 import {SolrOperators} from '../../../../../core/solr/solr-helpers';
 import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../advanced-filters';
 import {TranslatePipe} from '@ngx-translate/core';
+import {AdvancedSearchService} from '../../../../services/advanced-search.service';
 
 @Component({
   selector: 'advanced-search-filter-group',
@@ -23,6 +24,8 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
   @Output() filtersChange = new EventEmitter<AdvancedFilterDefinition[]>();
   @Output() operatorChange = new EventEmitter<SolrOperators>();
   @Output() removeGroup = new EventEmitter<void>();
+
+  public advancedSearchService = inject(AdvancedSearchService);
 
   ngOnInit() {
     if (this.filters.length === 0) {

@@ -27,8 +27,9 @@
         [min]="filter.meta?.min ?? 0"
         [max]="filter.meta?.max ?? 100"
         [step]="filter.meta?.step ?? 1"
-        [initialFrom]="filter.meta?.min ?? 0"
-        [initialTo]="filter.meta?.max ?? 100"
+        [initialFrom]="getInitialFrom()"
+        [initialTo]="getInitialTo()"
+        [layout]="'inline'"
         (rangeChange)="onRangeSliderChange($event)"
       ></app-range-slider>
 

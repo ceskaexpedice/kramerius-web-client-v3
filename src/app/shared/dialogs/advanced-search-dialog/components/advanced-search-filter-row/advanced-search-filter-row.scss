@@ -22,6 +22,11 @@
       flex-grow: 1;
       padding-left: 4px;
     }
+
+    app-range-slider {
+      flex-grow: 1;
+      min-width: 200px;
+    }
   }
 
   .remove-button {
