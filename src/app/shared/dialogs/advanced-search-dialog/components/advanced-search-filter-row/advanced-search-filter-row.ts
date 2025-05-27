@@ -66,7 +66,7 @@ export class AdvancedSearchFilterRow implements OnInit {
     return this.solrService.getSuggestionsByFacetKey(this.filter.solrField, term);
   };
 
-  filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label + (option.solrField && option.inputType === AdvancedFilterType.Autocomplete ? '*' : '')) : '';
+  filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label) : '';
 
   emitChange() {
     this.filterChange.emit({ ...this.filter });
@@ -86,21 +86,17 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   getInitialFrom(): number {
-    if (typeof this.filter.value === 'string') {
-      const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
-      if (match) {
-        return Number(match[1]);
-      }
+    const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    if (match) {
+      return Number(match[1]);
     }
     return this.filter.meta?.min ?? 0;
   }
 
   getInitialTo(): number {
-    if (typeof this.filter.value === 'string') {
-      const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
-      if (match) {
-        return Number(match[2]);
-      }
+    const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    if (match) {
+      return Number(match[2]);
     }
     return this.filter.meta?.max ?? 100;
   }
