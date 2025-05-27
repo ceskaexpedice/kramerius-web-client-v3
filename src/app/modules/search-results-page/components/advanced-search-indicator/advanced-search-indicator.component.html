@@ -9,10 +9,12 @@
       <ng-container *ngFor="let group of advancedSearchService.getAdvancedSearchPreviewGroups(); let i = index">
         <ng-container *ngIf="i > 0"> <strong>{{ advancedSearchService.mainOperator() | uppercase }}</strong> </ng-container>
         <span class="advanced-search-indicator--group">
+          [
           <ng-container *ngFor="let filter of group.filters; let j = index">
             <ng-container *ngIf="j > 0"> <strong>{{ group.operator | uppercase }}</strong> </ng-container>
-            [{{ filter.label | translate }}: {{ filter.value }}]
+            {{ filter.label | translate }}: {{ filter.value }}
           </ng-container>
+          ]
         </span>
       </ng-container>
     </p>
