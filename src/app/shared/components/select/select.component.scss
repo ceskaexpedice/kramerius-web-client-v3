@@ -1,3 +1,6 @@
+$option-height: 36px;
+$num-options: 8;
+
 :host {
   display: inline-block;
   position: relative;
@@ -32,6 +35,8 @@
   z-index: 10;
   padding: 6px 0;
   margin-top: 6px;
+  max-height: calc($num-options * $option-height);
+  overflow-y: auto;
 
   &.above {
     bottom: 100%;

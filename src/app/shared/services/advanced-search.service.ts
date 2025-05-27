@@ -1,7 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
-import { ADVANCED_FILTERS, AdvancedFilterDefinition } from '../dialogs/advanced-search-dialog/advanced-filters';
+import {
+  ADVANCED_FILTERS,
+  AdvancedFilterDefinition,
+  AdvancedFilterType,
+} from '../dialogs/advanced-search-dialog/advanced-filters';
 import { SolrOperators } from '../../core/solr/solr-helpers';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -277,7 +281,7 @@ export class AdvancedSearchService {
           filters.push({
             key: solrField as any,
             label: solrField,
-            inputType: 'text' as any,
+            inputType: AdvancedFilterType.Text as any,
             solrField,
             value: value.trim()
           });
