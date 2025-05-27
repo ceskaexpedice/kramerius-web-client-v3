@@ -67,5 +67,13 @@
   "advanced-filter-identifier-label": "Identifikátor",
   "next-condition-button-label": "Ďalšia podmienka",
   "remove-group-button-label": "Odstrániť skupinu",
-  "add-group-button-label": "Pridať skupinu"
+  "add-group-button-label": "Pridať skupinu",
+  "advanced-search-indicator.title": "Dotaz pokročilého hľadania",
+  "advanced-search-indicator.edit": "Upraviť dotaz",
+  "advanced-search-indicator.new": "Nové hľadanie",
+  "advanced-search-indicator.cancel": "Zrušiť",
+  "filter-dialog.search-placeholder": "Hľadať v zozname...",
+  "filter-dialog.sort.count": "Podľa výskytu",
+  "filter-dialog.sort.alpha": "Abecedne",
+  "dialog.apply": "Použiť"
 }

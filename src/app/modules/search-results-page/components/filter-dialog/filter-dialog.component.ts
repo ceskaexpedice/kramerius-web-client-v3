@@ -57,8 +57,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   ];
 
   sortOptions = [
-    { label: 'Podľa výskytu', value: SolrSortFields.count },
-    { label: 'Abecedne', value: SolrSortFields.title }
+    { label: 'filter-dialog.sort.count', value: SolrSortFields.count },
+    { label: 'filter-dialog.sort.alpha', value: SolrSortFields.title }
   ];
 
   pendingSelection = signal<Set<string>>(new Set());

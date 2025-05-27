@@ -72,5 +72,13 @@
   "advanced-filter-identifier-label": "Identifikátor",
   "next-condition-button-label": "Další podmínka",
   "remove-group-button-label": "Odstranit skupinu",
-  "add-group-button-label": "Přidat skupinu"
+  "add-group-button-label": "Přidat skupinu",
+  "advanced-search-indicator.title": "Dotaz pokročilého hledání",
+  "advanced-search-indicator.edit": "Upravit dotaz",
+  "advanced-search-indicator.new": "Nové hledání",
+  "advanced-search-indicator.cancel": "Zrušit",
+  "filter-dialog.search-placeholder": "Hledat v seznamu...",
+  "filter-dialog.sort.count": "Podle výskytu",
+  "filter-dialog.sort.alpha": "Abecedně",
+  "dialog.apply": "Použít"
 }

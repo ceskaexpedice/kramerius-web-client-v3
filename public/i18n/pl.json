@@ -72,5 +72,13 @@
   "advanced-filter-identifier-label": "Identyfikator",
   "next-condition-button-label": "Następny warunek",
   "remove-group-button-label": "Usuń grupę",
-  "add-group-button-label": "Dodaj grupę"
+  "add-group-button-label": "Dodaj grupę",
+  "advanced-search-indicator.title": "Zapytanie zaawansowanego wyszukiwania",
+  "advanced-search-indicator.edit": "Edytuj zapytanie",
+  "advanced-search-indicator.new": "Nowe wyszukiwanie",
+  "advanced-search-indicator.cancel": "Anuluj",
+  "filter-dialog.search-placeholder": "Szukaj na liście...",
+  "filter-dialog.sort.count": "Według występowania",
+  "filter-dialog.sort.alpha": "Alfabetycznie",
+  "dialog.apply": "Zastosuj"
 }

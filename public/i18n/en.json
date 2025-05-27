@@ -72,5 +72,13 @@
   "advanced-filter-identifier-label": "Identifier",
   "next-condition-button-label": "Next condition",
   "remove-group-button-label": "Remove group",
-  "add-group-button-label": "Add group"
+  "add-group-button-label": "Add group",
+  "advanced-search-indicator.title": "Advanced search query",
+  "advanced-search-indicator.edit": "Edit query",
+  "advanced-search-indicator.new": "New search",
+  "advanced-search-indicator.cancel": "Cancel",
+  "filter-dialog.search-placeholder": "Search in the list...",
+  "filter-dialog.sort.count": "By occurrence",
+  "filter-dialog.sort.alpha": "Alphabetically",
+  "dialog.apply": "Apply"
 }
