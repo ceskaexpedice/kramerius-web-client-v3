@@ -1,0 +1,49 @@
+<div class="stepper-container">
+  <app-input
+    class="sm-input"
+    [withIcons]="false"
+    [type]="'number'"
+    [theme]="'dark'"
+    [min]="1"
+    [max]="getMaxDay()"
+    [initialValue]="day"
+    (valueChange)="onPartChange('day', $event)"
+  ></app-input>
+
+  <span class="separator">-</span>
+
+  <app-input
+    class="sm-input"
+    [withIcons]="false"
+    [type]="'number'"
+    [theme]="'dark'"
+    [min]="1"
+    [max]="12"
+    [initialValue]="month"
+    (valueChange)="onPartChange('month', $event)"
+  ></app-input>
+
+  <span class="separator">-</span>
+
+  <app-input
+    class="mid-input"
+    [withIcons]="false"
+    [type]="'number'"
+    [theme]="'dark'"
+    [min]="0"
+    [max]="9999"
+    [initialValue]="year"
+    (valueChange)="onPartChange('year', $event)"
+  ></app-input>
+
+  <span class="separator">-</span>
+
+  <app-day-offset-picker
+    class="mid-input"
+    [min]="0"
+    [max]="365"
+    [theme]="'dark'"
+    [(offset)]="offset"
+  ></app-day-offset-picker>
+
+</div>
