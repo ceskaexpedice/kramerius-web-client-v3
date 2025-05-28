@@ -8,17 +8,19 @@ import {
   ViewChild,
   AfterViewInit, OnDestroy,
 } from '@angular/core';
-import {NgIf, NgForOf} from '@angular/common';
+import {NgIf, NgForOf, NgClass} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgIf, NgForOf, TranslatePipe],
+  imports: [NgIf, NgForOf, TranslatePipe, NgClass],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
 export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
+
+  @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => o != null ? String(o) : '-';
   @Input() value: T | null = null;

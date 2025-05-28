@@ -12,10 +12,11 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
+import {DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
 
 @Component({
   selector: 'advanced-search-filter-row',
-  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent],
+  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, DateStepperComponent],
   templateUrl: './advanced-search-filter-row.html',
   styleUrl: './advanced-search-filter-row.scss'
 })
@@ -83,6 +84,13 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   onRangeSliderChange(range: { from: number; to: number }) {
     this.filter.value = `[${range.from} TO ${range.to}]`;
+  }
+
+  onDateChange(date: Date) {
+    const formattedDate = date.toISOString().split('T')[0];
+    if (this.filter.value === formattedDate) return;
+    this.filter.value = formattedDate;
+    this.emitChange();
   }
 
   getInitialFrom(): number {

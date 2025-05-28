@@ -1,11 +1,13 @@
 import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
+import {InputComponent} from '../input/input.component';
 
 @Component({
   selector: 'app-range-slider',
   imports: [
     NgIf,
     NgClass,
+    InputComponent,
   ],
   templateUrl: './range-slider.component.html',
   styleUrl: './range-slider.component.scss'
@@ -32,17 +34,21 @@ export class RangeSliderComponent {
     this.to.set(this.initialTo);
   }
 
-  onFromInput(value: number) {
-    if (value > this.to()) return; // zabráni prekročeniu to
-    const num = Math.min(Math.max(this.min, value), this.to());
+  onFromInput(value: number | string) {
+    const parsedValue = Number.parseInt(value.toString(), 0);
+
+    if (parsedValue > this.to()) return;
+    const num = Math.min(Math.max(this.min, parsedValue), this.to());
     this.from.set(num);
     this.lastMoved = 'from';
     this.emitChange();
   }
 
-  onToInput(value: number) {
-    if (value < this.from()) return; // zabráni prekročeniu from
-    const num = Math.max(Math.min(this.max, value), this.from());
+  onToInput(value: number | string) {
+    const parsedValue = Number.parseInt(value.toString(), 0);
+
+    if (parsedValue < this.from()) return;
+    const num = Math.max(Math.min(this.max, parsedValue), this.from());
     this.to.set(num);
     this.lastMoved = 'to';
     this.emitChange();
@@ -60,4 +66,5 @@ export class RangeSliderComponent {
     return 100 - ((this.to() - this.min) / (this.max - this.min)) * 100;
   }
 
+  protected readonly Number = Number;
 }

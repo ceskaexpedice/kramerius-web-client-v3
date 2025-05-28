@@ -10,7 +10,8 @@
     [showSubmitButton]="showSubmitButton"
     [signalInput]="inputTerm"
     [submitIcon]="'icon-search-normal'"
-    (valueChange)="onInputValueChange($event)"
+    [withIcons]="withIcons"
+    (valueChange)="onInputValueChange($event.toString())"
     (enter)="onSearch()"
     (submit)="onSubmit()">
   </app-input>

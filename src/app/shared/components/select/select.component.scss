@@ -20,6 +20,10 @@ $num-options: 8;
   outline: none;
   font-weight: bold;
 
+  &.light {
+    background-color: var(--color-bg-light);
+  }
+
   &:focus {
     box-shadow: 0 0 0 2px var(--color-primary-outline);
   }

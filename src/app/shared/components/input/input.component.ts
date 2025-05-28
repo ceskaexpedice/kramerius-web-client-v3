@@ -28,9 +28,19 @@ import {FormsModule, NgModel} from '@angular/forms';
 })
 export class InputComponent implements OnInit, AfterViewInit {
 
+  @Input() type: string = 'text';
+  @Input() min?: number;
+  @Input() max?: number;
+  @Input() readonly: boolean = false;
+  @Input() required: boolean = false;
+  @Input() name?: string;
+  @Input() id?: string;
+  @Input() pattern?: string;
+  @Input() withIcons: boolean = true;
+
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';
-  @Input() initialValue: string = '';
+  @Input() initialValue: string | number = '';
   @Input() autocomplete: MatAutocomplete | null = null;
   @Input() signalInput?: WritableSignal<string>;
 
@@ -40,14 +50,14 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() submitIcon: string = 'icon-search-normal';
   @Input() changeMicToClearOnFocus: boolean = true;
 
-  @Output() valueChange = new EventEmitter<string>();
-  @Output() enter = new EventEmitter<string>();
-  @Output() submit = new EventEmitter<string>();
+  @Output() valueChange = new EventEmitter<string | number>();
+  @Output() enter = new EventEmitter<string | number>();
+  @Output() submit = new EventEmitter<string | number>();
 
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
   @ViewChild('inputModel', { static: true }) inputModel!: NgModel;
 
-  value: string = '';
+  value: string | number = '';
   isFocused = false;
 
   private envInjector = inject(EnvironmentInjector);
@@ -57,8 +67,8 @@ export class InputComponent implements OnInit, AfterViewInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    if (this.initialValue) {
-      this.value = this.initialValue;
+    if (this.initialValue !== undefined) {
+      this.value = this.castValue(this.initialValue);
     }
   }
 
@@ -67,20 +77,30 @@ export class InputComponent implements OnInit, AfterViewInit {
       runInInjectionContext(this.envInjector, () => {
         effect(() => {
           const newValue = this.signalInput!();
-          if (this.value !== newValue) {
-            this.value = newValue;
-            this.inputModel?.control?.setValue(newValue, { emitEvent: false });
-            this.cdr.detectChanges(); // Force change detection
+          const castedValue = this.castValue(newValue);
+          if (this.value !== castedValue) {
+            this.value = castedValue;
+            this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
+            this.cdr.detectChanges();
           }
         });
       });
     }
   }
 
-  onInputChange(val: string) {
-    this.value = val;
-    this.valueChange.emit(val);
-    this.signalInput?.set(val);
+  private castValue(val: any): string | number {
+    if (this.type === 'number') {
+      const num = Number(val);
+      return isNaN(num) ? '' : num;
+    }
+    return val ?? '';
+  }
+
+  onInputChange(val: any) {
+    const casted = this.castValue(val);
+    this.value = casted;
+    this.valueChange.emit(casted);
+    this.signalInput?.set(casted as any);
   }
 
   onFocus() {
@@ -111,11 +131,38 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get showClearButton(): boolean {
-    return this.changeMicToClearOnFocus && this.isFocused && this.showMicButton && this.value.trim().length > 0;
+    const val = this.value;
+    const hasValue =
+      typeof val === 'string' ? val.trim().length > 0 :
+        typeof val === 'number' ? true : false;
+
+    return this.changeMicToClearOnFocus && this.isFocused && this.showMicButton && hasValue;
   }
 
   get showMicButtonActual(): boolean {
     return this.showMicButton && !this.showClearButton;
+  }
+
+  stepUp() {
+    const step = 1;
+    this.value = (Number(this.value) || 0) + step;
+    this.onInputChange(this.value);
+  }
+
+  stepDown() {
+    const step = 1;
+    this.value = (Number(this.value) || 0) - step;
+    this.onInputChange(this.value);
+  }
+
+  isAtMin(): boolean {
+    const minVal = this.min !== undefined ? Number(this.min) : -Infinity;
+    return typeof this.value === 'number' && this.value <= minVal;
+  }
+
+  isAtMax(): boolean {
+    const maxVal = this.max !== undefined ? Number(this.max) : Infinity;
+    return typeof this.value === 'number' && this.value >= maxVal;
   }
 
 }

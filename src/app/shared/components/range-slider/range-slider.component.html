@@ -2,13 +2,16 @@
   <!-- VARIANT: INLINE -->
   <ng-container *ngIf="layout === 'inline'; else verticalLayout">
     <div class="inputs-inline">
-      <input
-        type="number"
+      <app-input
+        [showSubmitButton]="false"
+        [theme]="'dark'"
+        [type]="'number'"
+        [initialValue]="from()"
         [min]="min"
         [max]="max"
-        [value]="from()"
-        (input)="onFromInput($any($event.target).valueAsNumber)"
-      />
+        (valueChange)="onFromInput($event)"
+        [withIcons]="false"
+      ></app-input>
 
       <div class="sliders">
         <input
@@ -36,13 +39,17 @@
         ></div>
       </div>
 
-      <input
-        type="number"
+      <app-input
+        [showSubmitButton]="false"
+        [theme]="'dark'"
+        [type]="'number'"
+        [initialValue]="to()"
         [min]="min"
         [max]="max"
-        [value]="to()"
-        (input)="onToInput($any($event.target).valueAsNumber)"
-      />
+        (valueChange)="onToInput($event)"
+        [withIcons]="false"
+      ></app-input>
+
     </div>
   </ng-container>
 
@@ -76,25 +83,32 @@
 
     <div class="inputs">
       <div>
-        <input
-          type="number"
+        <app-input
+          [showSubmitButton]="false"
+          [theme]="'dark'"
+          [type]="'number'"
+          [initialValue]="from()"
           [min]="min"
           [max]="max"
-          [value]="from()"
-          (input)="onFromInput($any($event.target).valueAsNumber)"
-        />
+          (valueChange)="onFromInput($event)"
+          [withIcons]="false"
+        ></app-input>
+
       </div>
 
       <div class="separator">-</div>
 
       <div>
-        <input
-          type="number"
+        <app-input
+          [showSubmitButton]="false"
+          [theme]="'dark'"
+          [type]="'number'"
+          [initialValue]="to()"
           [min]="min"
           [max]="max"
-          [value]="to()"
-          (input)="onToInput($any($event.target).valueAsNumber)"
-        />
+          (valueChange)="onToInput($event)"
+          [withIcons]="false"
+        ></app-input>
       </div>
     </div>
   </ng-template>

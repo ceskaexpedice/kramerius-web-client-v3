@@ -9,18 +9,27 @@
     display: flex;
     align-items: center;
     flex-grow: 1;
+    gap: 8px;
 
-    app-select, app-autocomplete {
+    app-select, app-autocomplete, app-date-stepper {
       flex: 1 1 50%;
     }
 
     app-select {
       flex: 0 0 180px;
+
+      &:not(:first-child) {
+        flex-grow: 1;
+      }
     }
 
     app-autocomplete {
       flex-grow: 1;
-      padding-left: 4px;
+    }
+
+    app-date-stepper {
+      flex-grow: 1;
+      min-width: 200px;
     }
 
     app-range-slider {

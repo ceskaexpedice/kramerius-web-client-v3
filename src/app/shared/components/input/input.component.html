@@ -2,7 +2,7 @@
   <div class="input-container" [ngClass]="theme">
     <ng-container *ngIf="autocomplete; else noAutocomplete">
       <input
-        type="text"
+        [type]="type"
         #inputElement
         #inputModel="ngModel"
         [placeholder]="placeholder | translate"
@@ -12,12 +12,19 @@
         [matAutocomplete]="autocomplete"
         (focus)="onFocus()"
         (blur)="onBlur()"
+        [attr.name]="name"
+        [attr.id]="id"
+        [attr.pattern]="pattern"
+        [attr.required]="required ? '' : null"
+        [attr.min]="min"
+        [attr.max]="max"
+        [class.with-icons]="withIcons"
       />
     </ng-container>
 
     <ng-template #noAutocomplete>
       <input
-        type="text"
+        [type]="type"
         #inputElement
         #inputModel="ngModel"
         [placeholder]="placeholder | translate"
@@ -26,8 +33,37 @@
         (keyup.enter)="onEnter()"
         (focus)="onFocus()"
         (blur)="onBlur()"
+        [attr.name]="name"
+        [attr.id]="id"
+        [attr.pattern]="pattern"
+        [attr.required]="required ? '' : null"
+        [attr.min]="min"
+        [attr.max]="max"
+        [class.with-icons]="withIcons"
       />
     </ng-template>
+
+    <div class="input-step-buttons" *ngIf="type === 'number'">
+      <button
+        type="button"
+        class="step-btn up"
+        [ngClass]="{ disabled: isAtMax() }"
+        [disabled]="isAtMax()"
+        (click)="stepUp()"
+      >
+        <i class="icon-arrow-up-1"></i>
+      </button>
+
+      <button
+        type="button"
+        class="step-btn down"
+        [ngClass]="{ disabled: isAtMin() }"
+        [disabled]="isAtMin()"
+        (click)="stepDown()"
+      >
+        <i class="icon-arrow-up-1"></i>
+      </button>
+    </div>
 
     <span class="input--icons" *ngIf="showMicButton || showHelpButton || showClearButton">
       <button

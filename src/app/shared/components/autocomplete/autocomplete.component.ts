@@ -56,6 +56,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showMicrophoneButton: boolean = true;
   @Input() showHelpButton: boolean = true;
   @Input() showSubmitButton: boolean = true;
+  @Input() withIcons: boolean = true;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');

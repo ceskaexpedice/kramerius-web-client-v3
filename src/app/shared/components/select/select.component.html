@@ -5,6 +5,7 @@
   [attr.aria-expanded]="open()"
   role="button"
   tabindex="0"
+  [ngClass]="theme"
   (keydown.enter)="toggle()"
   (keydown.space)="toggle()"
   (keydown.arrowDown)="focusFirst()"

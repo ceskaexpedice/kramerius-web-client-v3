@@ -17,7 +17,7 @@
     [showHelpButton]="true"
     [showSubmitButton]="true"
     [changeMicToClearOnFocus]="true"
-    (valueChange)="onSearchTermChange($event)"
+    (valueChange)="onSearchTermChange($event.toString())"
   />
 </div>
 

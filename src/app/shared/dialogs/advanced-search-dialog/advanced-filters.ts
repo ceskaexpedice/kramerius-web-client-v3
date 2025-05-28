@@ -1,6 +1,7 @@
 export enum AdvancedFilterType {
   Autocomplete = 'autocomplete',
   Slider = 'slider',
+  Date = 'date',
   DateRange = 'date-range',
   Dropdown = 'dropdown',
   Text = 'text',
@@ -53,7 +54,7 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
       max: new Date().getFullYear(),
       step: 1
     } },
-  // { key: AdvancedFilterKey.Date, label: `advanced-filter-${AdvancedFilterKey.Date}-label`, inputType: AdvancedFilterType.DateRange, value: '' },
+  { key: AdvancedFilterKey.Date, label: `advanced-filter-${AdvancedFilterKey.Date}-label`, inputType: AdvancedFilterType.Date, value: '', solrField: 'date.min' },
   { key: AdvancedFilterKey.Doctype, label: `advanced-filter-${AdvancedFilterKey.Doctype}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'model' },
   { key: AdvancedFilterKey.Language, label: `advanced-filter-${AdvancedFilterKey.Language}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', solrField: 'languages.facet' },
   // { key: AdvancedFilterKey.Institution, label: `advanced-filter-${AdvancedFilterKey.Institution}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },

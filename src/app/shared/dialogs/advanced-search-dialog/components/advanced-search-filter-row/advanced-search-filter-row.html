@@ -6,7 +6,9 @@
       [options]="filterTypes"
       [value]="selectedFilterTypeOption()"
       [displayFn]="filterTypeDisplayFn"
-      (valueChange)="onFilterTypeChange($event.key)">
+      (valueChange)="onFilterTypeChange($event.key)"
+      [theme]="'light'"
+    >
     </app-select>
 
     <ng-container [ngSwitch]="filter.key">
@@ -21,6 +23,8 @@
         (submit)="autocompleteSubmit($event)"
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
+        [inputTheme]="'dark'"
+        [withIcons]="false"
       ></app-autocomplete>
 
       <app-range-slider
@@ -38,7 +42,13 @@
         *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
         [options]="filter.options || []"
         [(value)]="filter.value"
+        [theme]="'light'"
       ></app-select>
+
+      <app-date-stepper
+        *ngIf="filter.inputType === AdvancedFilterType.Date"
+        (dateChange)="onDateChange($event)"
+      ></app-date-stepper>
     </ng-container>
   </div>
 
