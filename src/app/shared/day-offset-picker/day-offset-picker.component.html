@@ -1,0 +1,26 @@
+<div class="day-offset-field" [ngClass]="theme">
+  <span class="offset-display">
+<!--    {{ offset >= 0 ? '+' + offset : offset }}-->
+    {{ formatOffset(offset) }}</span>
+
+  <div class="input-step-buttons">
+    <button
+      type="button"
+      class="step-btn up"
+      (click)="stepUp()"
+      [disabled]="offset >= max"
+      [ngClass]="{ disabled: offset >= max }"
+    >
+      <i class="icon-arrow-up-1"></i>
+    </button>
+    <button
+      type="button"
+      class="step-btn down"
+      (click)="stepDown()"
+      [disabled]="offset <= min"
+      [ngClass]="{ disabled: offset <= min }"
+    >
+      <i class="icon-arrow-up-1"></i>
+    </button>
+  </div>
+</div>
