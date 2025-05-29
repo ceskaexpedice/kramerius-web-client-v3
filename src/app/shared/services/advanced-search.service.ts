@@ -1,14 +1,14 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
   AdvancedFilterType,
 } from '../dialogs/advanced-search-dialog/advanced-filters';
-import { SolrOperators } from '../../core/solr/solr-helpers';
-import { QueryParamsService } from '../../core/services/QueryParamsManager';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import {SolrOperators} from '../../core/solr/solr-helpers';
+import {QueryParamsService} from '../../core/services/QueryParamsManager';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {take} from 'rxjs';
 
@@ -127,9 +127,9 @@ export class AdvancedSearchService {
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.elementValue?.trim())
+        .filter(filter => !!filter.solrValue?.trim())
         .map(filter => {
-          const value = filter.elementValue.trim();
+          const value = filter.solrValue.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
           const useRaw = filter.userRawQueryFormat || false;
 
@@ -235,36 +235,74 @@ export class AdvancedSearchService {
   resetFromParams(params: Params): void {
     const rawQuery = params['advSearch'];
     const mainOperator = (params['advOp'] as SolrOperators) || SolrOperators.and;
-
     if (!rawQuery) return;
 
-    console.log('rawQuery', rawQuery);
-
     const groups: FilterGroup[] = [];
-    const groupParts = rawQuery.match(/\(.*?\)|[^()]+/g)?.filter(Boolean) || [];
 
-    console.log('groupParts', groupParts);
+    // Remove outer parentheses if they wrap the entire query
+    let cleanQuery = rawQuery.trim();
+    if (cleanQuery.startsWith('(') && cleanQuery.endsWith(')')) {
+      // Check if these are the outermost parentheses
+      let depth = 0;
+      let isOutermost = true;
+      for (let i = 0; i < cleanQuery.length - 1; i++) {
+        if (cleanQuery[i] === '(') depth++;
+        if (cleanQuery[i] === ')') depth--;
+        if (depth === 0) {
+          isOutermost = false;
+          break;
+        }
+      }
+      if (isOutermost) {
+        cleanQuery = cleanQuery.slice(1, -1).trim();
+      }
+    }
+
+    // Split by the main operator (determined by advOp parameter)
+    const mainOperatorStr = mainOperator === SolrOperators.or ? SolrOperators.or : SolrOperators.and;
+    const groupParts = this.splitByTopLevelOperator(cleanQuery, mainOperatorStr);
 
     for (const groupRaw of groupParts) {
-      const cleaned = groupRaw.replace(/^\(|\)$/g, '');
-          const parts = cleaned
-            .replace(/^\(+/, '')
-            .replace(/\)+$/, '')
-            .split(/\s+(AND|OR)\s+/i);
-            const filters: AdvancedFilterDefinition[] = [];
+      const cleaned = groupRaw.trim();
 
-            console.log('parts', parts);
+      // Remove outer parentheses from individual groups
+      let groupContent = cleaned;
+      if (groupContent.startsWith('(') && groupContent.endsWith(')')) {
+        groupContent = groupContent.slice(1, -1).trim();
+      }
 
-      for (let i = 0; i < parts.length; i += 2) {
-        const match = parts[i].match(/^(.+?):(.+)$/);
+      // Detect the operator used within this group and split accordingly
+      let parts: string[];
+      let groupOperator: SolrOperators;
+
+      // Try splitting by OR first, then by AND
+      const orParts = this.splitByTopLevelOperator(groupContent, SolrOperators.or);
+      const andParts = this.splitByTopLevelOperator(groupContent, SolrOperators.and);
+
+      if (orParts.length > 1) {
+        parts = orParts;
+        groupOperator = SolrOperators.or;
+      } else if (andParts.length > 1) {
+        parts = andParts;
+        groupOperator = SolrOperators.and;
+      } else {
+        // Single filter in group
+        parts = [groupContent];
+        groupOperator = SolrOperators.and;
+      }
+
+      const filters: AdvancedFilterDefinition[] = [];
+
+      for (const part of parts) {
+        const trimmedPart = part.trim();
+        const match = trimmedPart.match(/^(.+?):(.+)$/);
         if (!match) continue;
 
         const solrField = match[1];
-
-        let rawValue = match[2].trim().replace(/^\(+/, '').replace(/\)+$/, '');
-
+        let rawValue = match[2].trim();
         let value = rawValue;
 
+        // Handle different value formats
         const isQuoted = value.startsWith('"') && value.endsWith('"');
         const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
         const isWrapped = value.startsWith('(') && value.endsWith(')');
@@ -280,7 +318,6 @@ export class AdvancedSearchService {
         if (!solrField || !value) continue;
 
         const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
-
         if (base) {
           filters.push({ ...base, solrValue: value.trim(), elementValue: value.trim() });
         } else {
@@ -296,8 +333,7 @@ export class AdvancedSearchService {
       }
 
       if (filters.length > 0) {
-        const operator = parts.length > 2 ? (parts[1].toUpperCase() as SolrOperators) : SolrOperators.and;
-        groups.push({ filters, operator });
+        groups.push({ filters, operator: groupOperator });
       }
     }
 
@@ -305,5 +341,42 @@ export class AdvancedSearchService {
     this.filterGroupsSignal.set(groups);
     this.appliedMainOperatorSignal.set(mainOperator);
     this.appliedGroupsSignal.set(groups);
+  }
+
+// Helper method to split by top-level operators (ignoring operators inside parentheses)
+  private splitByTopLevelOperator(query: string, operator: string): string[] {
+    const parts: string[] = [];
+    let current = '';
+    let depth = 0;
+    let i = 0;
+
+    while (i < query.length) {
+      const char = query[i];
+
+      if (char === '(') {
+        depth++;
+        current += char;
+      } else if (char === ')') {
+        depth--;
+        current += char;
+      } else if (depth === 0 && query.substr(i, operator.length + 2) === ` ${operator} `) {
+        // Found top-level operator
+        if (current.trim()) {
+          parts.push(current.trim());
+        }
+        current = '';
+        i += operator.length + 1; // Skip the operator and surrounding spaces
+      } else {
+        current += char;
+      }
+      i++;
+    }
+
+    // Add the last part
+    if (current.trim()) {
+      parts.push(current.trim());
+    }
+
+    return parts;
   }
 }
