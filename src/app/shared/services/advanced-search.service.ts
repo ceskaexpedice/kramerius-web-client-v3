@@ -239,8 +239,10 @@ export class AdvancedSearchService {
 
     const groups: FilterGroup[] = [];
 
-    // Remove outer parentheses if they wrap the entire query
+    // Check if the entire query is wrapped in parentheses and determine if it's a single group or multiple groups
     let cleanQuery = rawQuery.trim();
+    let isSingleGroup = false;
+
     if (cleanQuery.startsWith('(') && cleanQuery.endsWith(')')) {
       // Check if these are the outermost parentheses
       let depth = 0;
@@ -254,13 +256,27 @@ export class AdvancedSearchService {
         }
       }
       if (isOutermost) {
-        cleanQuery = cleanQuery.slice(1, -1).trim();
+        const innerContent = cleanQuery.slice(1, -1).trim();
+        // Check if the inner content contains the main operator at top level
+        // If it does, it's multiple groups; if not, it's a single group
+        const mainOperatorStr = mainOperator === SolrOperators.or ? SolrOperators.or : SolrOperators.and;
+        const potentialSplit = this.splitByTopLevelOperator(innerContent, mainOperatorStr);
+
+        if (potentialSplit.length > 1) {
+          // Multiple groups - remove outer parentheses and split
+          cleanQuery = innerContent;
+          isSingleGroup = false;
+        } else {
+          // Single group - keep as is and mark as single group
+          cleanQuery = innerContent;
+          isSingleGroup = true;
+        }
       }
     }
 
-    // Split by the main operator (determined by advOp parameter)
+    // Split by the main operator only if it's not a single wrapped group
     const mainOperatorStr = mainOperator === SolrOperators.or ? SolrOperators.or : SolrOperators.and;
-    const groupParts = this.splitByTopLevelOperator(cleanQuery, mainOperatorStr);
+    const groupParts = isSingleGroup ? [cleanQuery] : this.splitByTopLevelOperator(cleanQuery, mainOperatorStr);
 
     for (const groupRaw of groupParts) {
       const cleaned = groupRaw.trim();
@@ -268,7 +284,20 @@ export class AdvancedSearchService {
       // Remove outer parentheses from individual groups
       let groupContent = cleaned;
       if (groupContent.startsWith('(') && groupContent.endsWith(')')) {
-        groupContent = groupContent.slice(1, -1).trim();
+        // Check if these parentheses wrap the entire group content
+        let depth = 0;
+        let isOutermost = true;
+        for (let i = 0; i < groupContent.length - 1; i++) {
+          if (groupContent[i] === '(') depth++;
+          if (groupContent[i] === ')') depth--;
+          if (depth === 0) {
+            isOutermost = false;
+            break;
+          }
+        }
+        if (isOutermost) {
+          groupContent = groupContent.slice(1, -1).trim();
+        }
       }
 
       // Detect the operator used within this group and split accordingly
@@ -359,13 +388,22 @@ export class AdvancedSearchService {
       } else if (char === ')') {
         depth--;
         current += char;
-      } else if (depth === 0 && query.substr(i, operator.length + 2) === ` ${operator} `) {
-        // Found top-level operator
-        if (current.trim()) {
-          parts.push(current.trim());
+      } else if (depth === 0) {
+        // Check for operator with proper word boundaries
+        const remainingQuery = query.substr(i);
+        const operatorPattern = new RegExp(`^\\s+${operator}\\s+`, 'i');
+        const match = remainingQuery.match(operatorPattern);
+
+        if (match) {
+          // Found top-level operator
+          if (current.trim()) {
+            parts.push(current.trim());
+          }
+          current = '';
+          i += match[0].length - 1; // Skip the operator and surrounding spaces (subtract 1 because i++ at end)
+        } else {
+          current += char;
         }
-        current = '';
-        i += operator.length + 1; // Skip the operator and surrounding spaces
       } else {
         current += char;
       }
@@ -377,6 +415,6 @@ export class AdvancedSearchService {
       parts.push(current.trim());
     }
 
-    return parts;
+    return parts.length > 0 ? parts : [query.trim()];
   }
 }

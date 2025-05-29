@@ -41,7 +41,7 @@
       <app-select
         *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
         [options]="filter.options || []"
-        [(value)]="filter.elementValue"
+        [(value)]="filter.solrValue"
         [theme]="'light'"
       ></app-select>
 
