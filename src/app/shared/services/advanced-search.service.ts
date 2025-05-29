@@ -257,12 +257,24 @@ export class AdvancedSearchService {
       }
       if (isOutermost) {
         const innerContent = cleanQuery.slice(1, -1).trim();
-        // Check if the inner content contains the main operator at top level
-        // If it does, it's multiple groups; if not, it's a single group
         const mainOperatorStr = mainOperator === SolrOperators.or ? SolrOperators.or : SolrOperators.and;
         const potentialSplit = this.splitByTopLevelOperator(innerContent, mainOperatorStr);
 
+        // Check if this looks like multiple groups (each part should be a complete group, likely wrapped in parentheses)
+        // vs a single group with multiple filters (field:value pairs)
+        let looksLikeMultipleGroups = false;
+
         if (potentialSplit.length > 1) {
+          // Check if each split part looks like a complete group (wrapped in parentheses or complex structure)
+          looksLikeMultipleGroups = potentialSplit.every(part => {
+            const trimmedPart = part.trim();
+            // If it starts with parentheses, it's likely a group
+            // If it contains multiple field:value pairs or complex structure, it might be a group
+            return trimmedPart.startsWith('(') && trimmedPart.endsWith(')');
+          });
+        }
+
+        if (looksLikeMultipleGroups) {
           // Multiple groups - remove outer parentheses and split
           cleanQuery = innerContent;
           isSingleGroup = false;
