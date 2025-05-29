@@ -1,14 +1,16 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
 import {InputComponent} from '../components/input/input.component';
 import {DayOffsetPickerComponent} from '../day-offset-picker/day-offset-picker.component';
 import {of} from 'rxjs';
 
+export interface DateStepperChange {
+  date: Date;
+  offset: number;
+}
+
 @Component({
   selector: 'app-date-stepper',
   imports: [
-    NgForOf,
-    NgIf,
     InputComponent,
     DayOffsetPickerComponent,
   ],
@@ -16,10 +18,9 @@ import {of} from 'rxjs';
   styleUrl: './date-stepper.component.scss'
 })
 export class DateStepperComponent {
-  @Input() initialDate: Date = new Date();
-  @Input() initialOffset: number = 0;
+  @Input() data: any = {};
 
-  @Output() dateChange = new EventEmitter<Date>();
+  @Output() dateChange = new EventEmitter<DateStepperChange>();
 
   day: number = 1;
   month: number = 1;
@@ -27,15 +28,37 @@ export class DateStepperComponent {
   offset: number = 0;
 
   ngOnInit() {
-    this.setFromDate(this.initialDate, this.initialOffset);
+    this.parseFromString(this.data);
+
+    this.emitDate();
   }
 
-  setFromDate(date: Date, offset: number = 0) {
-    this.day = date.getDate();
-    this.month = date.getMonth() + 1;
-    this.year = date.getFullYear();
+  parseFromString(dateString: string): void {
+    const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})\+(-?\d+)$/);
+
+    if (!match) {
+      console.warn('Invalid date string format:', dateString);
+      return;
+    }
+
+    const [, yearStr, monthStr, dayStr, offsetStr] = match;
+
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    const day = parseInt(dayStr, 10);
+    const offset = parseInt(offsetStr, 10);
+
+    const isValidDate = !isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(offset);
+
+    if (!isValidDate) {
+      console.warn('Parsed values are invalid:', { year, month, day, offset });
+      return;
+    }
+
+    this.year = year;
+    this.month = month;
+    this.day = day;
     this.offset = offset;
-    this.emitDate();
   }
 
   getMaxDay(): number {
@@ -70,9 +93,9 @@ export class DateStepperComponent {
     // }
 
     const result = new Date(baseDate);
-    result.setDate(result.getDate() + this.offset);
+    result.setDate(result.getDate());
 
-    this.dateChange.emit(result);
+    this.dateChange.emit({date : result, offset: this.offset});
   }
 
   protected readonly of = of;

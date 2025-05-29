@@ -127,9 +127,9 @@ export class AdvancedSearchService {
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.value?.trim())
+        .filter(filter => !!filter.solrValue?.trim())
         .map(filter => {
-          const value = filter.value.trim();
+          const value = filter.solrValue.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
           const useRaw = filter.userRawQueryFormat || false;
 
@@ -210,7 +210,7 @@ export class AdvancedSearchService {
 
   isAdvancedSearchActive(): boolean {
     return this.appliedGroupsSignal().some(group =>
-      group.filters.some(f => f.value?.trim())
+      group.filters.some(f => f.solrValue?.trim())
     );
   }
 
@@ -219,10 +219,10 @@ export class AdvancedSearchService {
 
     return this.appliedGroupsSignal().map(group => {
       const filters = group.filters
-        .filter(f => !!f.value?.trim())
+        .filter(f => !!f.solrValue?.trim())
         .map(f => ({
           label: f.label,
-          value: f.value
+          value: f.solrValue
         }));
 
       return {
@@ -276,14 +276,15 @@ export class AdvancedSearchService {
         const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
 
         if (base) {
-          filters.push({ ...base, value: value.trim() });
+          filters.push({ ...base, solrValue: value.trim() });
         } else {
           filters.push({
             key: solrField as any,
             label: solrField,
             inputType: AdvancedFilterType.Text as any,
             solrField,
-            value: value.trim()
+            solrValue: value.trim(),
+            elementValue: value.trim(),
           });
         }
       }

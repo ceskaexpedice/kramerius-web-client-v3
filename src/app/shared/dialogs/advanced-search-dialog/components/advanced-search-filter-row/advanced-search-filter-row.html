@@ -14,7 +14,7 @@
     <ng-container [ngSwitch]="filter.key">
       <app-autocomplete
         *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
-        [initialValue]="filter.value"
+        [initialValue]="filter.solrValue"
         [placeholder]="filter.key"
         [showHelpButton]="false"
         [showMicrophoneButton]="false"
@@ -41,12 +41,13 @@
       <app-select
         *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
         [options]="filter.options || []"
-        [(value)]="filter.value"
+        [(value)]="filter.solrValue"
         [theme]="'light'"
       ></app-select>
 
       <app-date-stepper
         *ngIf="filter.inputType === AdvancedFilterType.Date"
+        [data]="filter.solrValue"
         (dateChange)="onDateChange($event)"
       ></app-date-stepper>
     </ng-container>

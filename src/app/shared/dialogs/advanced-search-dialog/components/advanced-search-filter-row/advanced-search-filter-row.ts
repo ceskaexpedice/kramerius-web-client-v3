@@ -12,7 +12,7 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
+import {DateStepperChange, DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
 
 @Component({
   selector: 'advanced-search-filter-row',
@@ -55,7 +55,7 @@ export class AdvancedSearchFilterRow implements OnInit {
     if (def) {
       this.filter = {
         ...def,
-        value: ''
+        solrValue: ''
       };
       this.emitChange();
     }
@@ -74,27 +74,37 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   suggestionSelected(value: string) {
-    this.filter.value = value;
+    this.filter.solrValue = value;
     this.emitChange();
   }
 
   autocompleteSubmit(value: string) {
-    this.filter.value = value;
+    this.filter.solrValue = value;
   }
 
   onRangeSliderChange(range: { from: number; to: number }) {
-    this.filter.value = `[${range.from} TO ${range.to}]`;
+    this.filter.solrValue = `[${range.from} TO ${range.to}]`;
   }
 
-  onDateChange(date: Date) {
-    const formattedDate = date.toISOString().split('T')[0];
-    if (this.filter.value === formattedDate) return;
-    this.filter.value = formattedDate;
-    this.emitChange();
+  onDateChange(date: DateStepperChange) {
+    console.log('date changed:', date);
+    const formattedDate = date.date.toISOString().split('T')[0];
+    this.filter.elementValue = `${formattedDate}${date.offset ? `+${date.offset}` : ''}`
+    // solr value format is [start TO end] so we need to take date, calculate the start and end dates with offset
+    const startDate = new Date(date.date);
+    startDate.setHours(0, 0, 0, 0);
+    // If offset is provided, the end date is start date plus offset in days
+    const endDate = new Date(startDate);
+    if (date.offset) {
+      endDate.setDate(endDate.getDate() + date.offset);
+    } else {
+      endDate.setDate(endDate.getDate() + 1); // Default to next day if no offset
+    }
+    this.filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
   }
 
   getInitialFrom(): number {
-    const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    const match = this.filter.solrValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[1]);
     }
@@ -102,7 +112,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   getInitialTo(): number {
-    const match = this.filter.value.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    const match = this.filter.solrValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[2]);
     }
