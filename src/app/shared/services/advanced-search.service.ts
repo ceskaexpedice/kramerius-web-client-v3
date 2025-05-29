@@ -127,9 +127,9 @@ export class AdvancedSearchService {
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.solrValue?.trim())
+        .filter(filter => !!filter.elementValue?.trim())
         .map(filter => {
-          const value = filter.solrValue.trim();
+          const value = filter.elementValue.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
           const useRaw = filter.userRawQueryFormat || false;
 
@@ -210,7 +210,7 @@ export class AdvancedSearchService {
 
   isAdvancedSearchActive(): boolean {
     return this.appliedGroupsSignal().some(group =>
-      group.filters.some(f => f.solrValue?.trim())
+      group.filters.some(f => f.elementValue?.trim())
     );
   }
 
@@ -219,10 +219,10 @@ export class AdvancedSearchService {
 
     return this.appliedGroupsSignal().map(group => {
       const filters = group.filters
-        .filter(f => !!f.solrValue?.trim())
+        .filter(f => !!f.elementValue?.trim())
         .map(f => ({
           label: f.label,
-          value: f.solrValue
+          value: f.elementValue
         }));
 
       return {
@@ -238,8 +238,12 @@ export class AdvancedSearchService {
 
     if (!rawQuery) return;
 
+    console.log('rawQuery', rawQuery);
+
     const groups: FilterGroup[] = [];
     const groupParts = rawQuery.match(/\(.*?\)|[^()]+/g)?.filter(Boolean) || [];
+
+    console.log('groupParts', groupParts);
 
     for (const groupRaw of groupParts) {
       const cleaned = groupRaw.replace(/^\(|\)$/g, '');
@@ -248,6 +252,8 @@ export class AdvancedSearchService {
             .replace(/\)+$/, '')
             .split(/\s+(AND|OR)\s+/i);
             const filters: AdvancedFilterDefinition[] = [];
+
+            console.log('parts', parts);
 
       for (let i = 0; i < parts.length; i += 2) {
         const match = parts[i].match(/^(.+?):(.+)$/);
@@ -276,7 +282,7 @@ export class AdvancedSearchService {
         const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
 
         if (base) {
-          filters.push({ ...base, solrValue: value.trim() });
+          filters.push({ ...base, solrValue: value.trim(), elementValue: value.trim() });
         } else {
           filters.push({
             key: solrField as any,

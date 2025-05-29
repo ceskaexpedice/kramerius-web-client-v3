@@ -74,16 +74,19 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   suggestionSelected(value: string) {
+    this.filter.elementValue = value;
     this.filter.solrValue = value;
     this.emitChange();
   }
 
   autocompleteSubmit(value: string) {
+    this.filter.elementValue = value;
     this.filter.solrValue = value;
   }
 
   onRangeSliderChange(range: { from: number; to: number }) {
     this.filter.solrValue = `[${range.from} TO ${range.to}]`;
+    this.filter.elementValue = `[${range.from} TO ${range.to}]`;
   }
 
   onDateChange(date: DateStepperChange) {
@@ -104,7 +107,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   getInitialFrom(): number {
-    const match = this.filter.solrValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[1]);
     }
@@ -112,7 +115,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   getInitialTo(): number {
-    const match = this.filter.solrValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+    const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[2]);
     }
