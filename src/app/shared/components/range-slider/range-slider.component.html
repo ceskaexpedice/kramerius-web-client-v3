@@ -6,19 +6,20 @@
         [showSubmitButton]="false"
         [theme]="'dark'"
         [type]="'number'"
-        [initialValue]="from()"
         [min]="min"
         [max]="max"
         (valueChange)="onFromInput($event)"
+        [signalInput]="from"
         [withIcons]="false"
       ></app-input>
 
-      <div class="sliders">
+      <div class="sliders" [style.background]="getSliderBackground()">
         <input
           class="range from-slider"
           type="range"
           [min]="min"
           [max]="max"
+          [step]="step"
           [value]="from()"
           [class.on-top]="from() === to() && lastMoved === 'from'"
           (input)="onFromInput($any($event.target).valueAsNumber)"
@@ -28,39 +29,35 @@
           type="range"
           [min]="min"
           [max]="max"
+          [step]="step"
           [value]="to()"
           [class.on-top]="from() === to() && lastMoved === 'to'"
           (input)="onToInput($any($event.target).valueAsNumber)"
         />
-        <div
-          class="slider-track"
-          [style.left.%]="getProgressLeft()"
-          [style.right.%]="getProgressRight()"
-        ></div>
       </div>
 
       <app-input
         [showSubmitButton]="false"
         [theme]="'dark'"
         [type]="'number'"
-        [initialValue]="to()"
         [min]="min"
         [max]="max"
         (valueChange)="onToInput($event)"
+        [signalInput]="to"
         [withIcons]="false"
       ></app-input>
-
     </div>
   </ng-container>
 
   <!-- VARIANT: DEFAULT (VERTICAL) -->
   <ng-template #verticalLayout>
-    <div class="sliders">
+    <div class="sliders" [style.background]="getSliderBackground()">
       <input
         class="range from-slider"
         type="range"
         [min]="min"
         [max]="max"
+        [step]="step"
         [value]="from()"
         [class.on-top]="from() === to() && lastMoved === 'from'"
         (input)="onFromInput($any($event.target).valueAsNumber)"
@@ -70,15 +67,11 @@
         type="range"
         [min]="min"
         [max]="max"
+        [step]="step"
         [value]="to()"
         [class.on-top]="from() === to() && lastMoved === 'to'"
         (input)="onToInput($any($event.target).valueAsNumber)"
       />
-      <div
-        class="slider-track"
-        [style.left.%]="getProgressLeft()"
-        [style.right.%]="getProgressRight()"
-      ></div>
     </div>
 
     <div class="inputs">
@@ -87,13 +80,12 @@
           [showSubmitButton]="false"
           [theme]="'dark'"
           [type]="'number'"
-          [initialValue]="from()"
           [min]="min"
           [max]="max"
           (valueChange)="onFromInput($event)"
+          [signalInput]="from"
           [withIcons]="false"
         ></app-input>
-
       </div>
 
       <div class="separator">-</div>
@@ -103,10 +95,10 @@
           [showSubmitButton]="false"
           [theme]="'dark'"
           [type]="'number'"
-          [initialValue]="to()"
           [min]="min"
           [max]="max"
           (valueChange)="onToInput($event)"
+          [signalInput]="to"
           [withIcons]="false"
         ></app-input>
       </div>

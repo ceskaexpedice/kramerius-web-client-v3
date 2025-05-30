@@ -1,16 +1,13 @@
-import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
-import {NgClass, NgIf} from '@angular/common';
-import {InputComponent} from '../input/input.component';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { NgClass, NgIf } from '@angular/common';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-range-slider',
-  imports: [
-    NgIf,
-    NgClass,
-    InputComponent,
-  ],
+  standalone: true,
+  imports: [NgIf, NgClass, InputComponent],
   templateUrl: './range-slider.component.html',
-  styleUrl: './range-slider.component.scss'
+  styleUrl: './range-slider.component.scss',
 })
 export class RangeSliderComponent {
   lastMoved: 'from' | 'to' = 'from';
@@ -35,21 +32,27 @@ export class RangeSliderComponent {
   }
 
   onFromInput(value: number | string) {
-    const parsedValue = Number.parseInt(value.toString(), 0);
+    const parsedValue = Number.parseInt(value.toString(), 10);
 
-    if (parsedValue > this.to()) return;
-    const num = Math.min(Math.max(this.min, parsedValue), this.to());
-    this.from.set(num);
+    if (parsedValue > this.to()) {
+      this.to.set(parsedValue);
+    }
+
+    const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
+    this.from.set(clamped);
     this.lastMoved = 'from';
     this.emitChange();
   }
 
   onToInput(value: number | string) {
-    const parsedValue = Number.parseInt(value.toString(), 0);
+    const parsedValue = Number.parseInt(value.toString(), 10);
 
-    if (parsedValue < this.from()) return;
-    const num = Math.max(Math.min(this.max, parsedValue), this.from());
-    this.to.set(num);
+    if (parsedValue < this.from()) {
+      this.from.set(parsedValue);
+    }
+
+    const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
+    this.to.set(clamped);
     this.lastMoved = 'to';
     this.emitChange();
   }
@@ -58,12 +61,24 @@ export class RangeSliderComponent {
     this.rangeChange.emit({ from: this.from(), to: this.to() });
   }
 
-  getProgressLeft() {
-    return ((this.from() - this.min) / (this.max - this.min)) * 100;
-  }
+  getSliderBackground(): string {
+    const min = this.min;
+    const max = this.max;
+    const from = this.from();
+    const to = this.to();
+    const range = max - min;
+    const fromPercent = ((from - min) / range) * 100;
+    const toPercent = ((to - min) / range) * 100;
 
-  getProgressRight() {
-    return 100 - ((this.to() - this.min) / (this.max - this.min)) * 100;
+    return `linear-gradient(
+      to right,
+      var(--color-bg-light) 0%,
+      var(--color-bg-light) ${fromPercent}%,
+      var(--color-primary) ${fromPercent}%,
+      var(--color-primary) ${toPercent}%,
+      var(--color-bg-light) ${toPercent}%,
+      var(--color-bg-light) 100%
+    )`;
   }
 
   protected readonly Number = Number;
