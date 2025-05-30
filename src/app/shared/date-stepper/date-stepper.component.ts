@@ -34,6 +34,7 @@ export class DateStepperComponent {
   }
 
   parseFromString(dateString: string): void {
+    console.log('dateString:', dateString);
     const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})\+(-?\d+)$/);
 
     if (!match) {

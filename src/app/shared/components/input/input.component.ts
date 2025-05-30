@@ -37,6 +37,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() id?: string;
   @Input() pattern?: string;
   @Input() withIcons: boolean = true;
+  @Input() prefix?: string;
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';

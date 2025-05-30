@@ -38,13 +38,26 @@
 
   <span class="separator">-</span>
 
-  <app-day-offset-picker
-    class="mid-input"
-    [min]="0"
-    [max]="365"
-    [theme]="'dark'"
-    [(offset)]="offset"
-    (offsetChange)="onOffsetChange($event)"
-  ></app-day-offset-picker>
+	<app-input
+			class="mid-input"
+			[withIcons]="false"
+			[type]="'text'"
+			[theme]="'dark'"
+			[min]="0"
+			[max]="365"
+			[initialValue]="offset"
+			[placeholder]="'0 days'"
+			[prefix]="'+'"
+			(valueChange)="onOffsetChange($event)"
+	></app-input>
+
+<!--  <app-day-offset-picker-->
+<!--    class="mid-input"-->
+<!--    [min]="0"-->
+<!--    [max]="365"-->
+<!--    [theme]="'dark'"-->
+<!--    [(offset)]="offset"-->
+<!--    (offsetChange)="onOffsetChange($event)"-->
+<!--  ></app-day-offset-picker>-->
 
 </div>

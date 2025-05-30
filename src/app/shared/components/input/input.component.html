@@ -23,24 +23,29 @@
     </ng-container>
 
     <ng-template #noAutocomplete>
-      <input
-        [type]="type"
-        #inputElement
-        #inputModel="ngModel"
-        [placeholder]="placeholder | translate"
-        [(ngModel)]="value"
-        (ngModelChange)="onInputChange($event)"
-        (keyup.enter)="onEnter()"
-        (focus)="onFocus()"
-        (blur)="onBlur()"
-        [attr.name]="name"
-        [attr.id]="id"
-        [attr.pattern]="pattern"
-        [attr.required]="required ? '' : null"
-        [attr.min]="min"
-        [attr.max]="max"
-        [class.with-icons]="withIcons"
-      />
+      <div class="input-with-prefix">
+        <span class="prefix" *ngIf="prefix">{{ prefix }}</span>
+        <input
+          [type]="type"
+          inputmode="numeric"
+          #inputElement
+          #inputModel="ngModel"
+          [placeholder]="placeholder | translate"
+          [(ngModel)]="value"
+          (ngModelChange)="onInputChange($event)"
+          (keyup.enter)="onEnter()"
+          (focus)="onFocus()"
+          (blur)="onBlur()"
+          [attr.name]="name"
+          [attr.id]="id"
+          [attr.pattern]="pattern"
+          [attr.required]="required ? '' : null"
+          [attr.min]="min"
+          [attr.max]="max"
+          [readonly]="readonly"
+          [class.with-icons]="withIcons"
+        />
+      </div>
     </ng-template>
 
     <div class="input-step-buttons" *ngIf="type === 'number'">

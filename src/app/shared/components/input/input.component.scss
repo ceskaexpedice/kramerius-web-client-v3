@@ -93,3 +93,22 @@ input[type="number"] {
     }
   }
 }
+
+.input-with-prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .prefix {
+    position: absolute;
+    left: 12px;
+    color: var(--color-primary);
+    pointer-events: none;
+    font-size: 14px;
+  }
+
+  .prefix + input {
+    padding-left: 20px;
+  }
+}
+
