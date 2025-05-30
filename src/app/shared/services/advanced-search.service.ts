@@ -18,7 +18,7 @@ export interface FilterGroup {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdvancedSearchService {
   private pendingFiltersSignal = signal<string[]>([]);
@@ -66,7 +66,7 @@ export class AdvancedSearchService {
 
   toggleMainOperator() {
     this.mainOperatorSignal.set(
-      this.mainOperatorSignal() === SolrOperators.and ? SolrOperators.or : SolrOperators.and
+      this.mainOperatorSignal() === SolrOperators.and ? SolrOperators.or : SolrOperators.and,
     );
   }
 
@@ -92,13 +92,13 @@ export class AdvancedSearchService {
       advOp: mainOperator,
       fq: updatedFq.length > 0 ? updatedFq : null,
       ...Object.fromEntries(
-        Object.entries(updatedOperators).map(([key, op]) => [`${key}_operator`, op])
-      )
+        Object.entries(updatedOperators).map(([key, op]) => [`${key}_operator`, op]),
+      ),
     };
 
     if (!isOnSearchPage) {
       this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS], {
-        queryParams
+        queryParams,
       });
     } else {
       this.queryParamsService.appendToQueryParams(this.route, queryParams);
@@ -106,6 +106,7 @@ export class AdvancedSearchService {
   }
 
   setAppliedGroups(groups: FilterGroup[]) {
+    console.log('applied groups set:', groups);
     this.appliedGroupsSignal.set(groups);
   }
 
@@ -158,27 +159,25 @@ export class AdvancedSearchService {
 
     return {
       advancedQuery: advancedQuery || undefined,
-      advancedQueryMainOperator: mainOperator
+      advancedQueryMainOperator: mainOperator,
     };
   }
 
   openDialog(): void {
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
       width: '80vw',
-      height: '80vh'
+      height: '80vh',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
-      if (result) {
-        this.setAppliedGroups(this.filterGroupsSignal());
-        this.setAppliedMainOperator(this.mainOperatorSignal());
-      }
+      this.setAppliedGroups(this.filterGroupsSignal());
+      this.setAppliedMainOperator(this.mainOperatorSignal());
     });
   }
 
   addGroup(): void {
     const current = this.filterGroupsSignal();
-    this.filterGroupsSignal.set([...current, { filters: [], operator: SolrOperators.and }]);
+    this.filterGroupsSignal.set([...current, {filters: [], operator: SolrOperators.and}]);
   }
 
   removeGroup(index: number): void {
@@ -195,7 +194,7 @@ export class AdvancedSearchService {
   updateGroupFilters(index: number, filters: AdvancedFilterDefinition[]): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = { ...current[index], filters };
+      current[index] = {...current[index], filters};
       this.filterGroupsSignal.set(current);
     }
   }
@@ -203,14 +202,14 @@ export class AdvancedSearchService {
   updateGroupOperator(index: number, operator: SolrOperators): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = { ...current[index], operator };
+      current[index] = {...current[index], operator};
       this.filterGroupsSignal.set(current);
     }
   }
 
   isAdvancedSearchActive(): boolean {
     return this.appliedGroupsSignal().some(group =>
-      group.filters.some(f => f.elementValue?.trim())
+      group.filters.some(f => f.elementValue?.trim()),
     );
   }
 
@@ -222,12 +221,12 @@ export class AdvancedSearchService {
         .filter(f => !!f.elementValue?.trim())
         .map(f => ({
           label: f.label,
-          value: f.elementValue
+          value: f.elementValue,
         }));
 
       return {
         operator: group.operator,
-        filters
+        filters,
       };
     }).filter(group => group.filters.length > 0);
   });
@@ -360,7 +359,7 @@ export class AdvancedSearchService {
 
         const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
         if (base) {
-          filters.push({ ...base, solrValue: value.trim(), elementValue: value.trim() });
+          filters.push({...base, solrValue: value.trim(), elementValue: value.trim()});
         } else {
           filters.push({
             key: solrField as any,
@@ -374,7 +373,7 @@ export class AdvancedSearchService {
       }
 
       if (filters.length > 0) {
-        groups.push({ filters, operator: groupOperator });
+        groups.push({filters, operator: groupOperator});
       }
     }
 
