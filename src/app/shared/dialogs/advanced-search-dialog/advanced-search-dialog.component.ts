@@ -53,7 +53,7 @@ export class AdvancedSearchDialogComponent implements OnInit {
   submit() {
     this.advancedSearchService.onSubmitAdvancedSearch();
 
-    this.close();
+    this.dialogRef.close('submit');
   }
 
   close() {

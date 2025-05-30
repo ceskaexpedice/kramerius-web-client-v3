@@ -21,6 +21,7 @@ export interface FilterGroup {
   providedIn: 'root',
 })
 export class AdvancedSearchService {
+
   private pendingFiltersSignal = signal<string[]>([]);
   private pendingOperatorsSignal = signal<Record<string, SolrOperators>>({});
   private mainOperatorSignal = signal<SolrOperators>(SolrOperators.and);
@@ -164,14 +165,22 @@ export class AdvancedSearchService {
   }
 
   openDialog(): void {
+    this.filterGroupsSignal.set(structuredClone(this.appliedGroupsSignal()));
+    this.mainOperatorSignal.set(this.appliedMainOperatorSignal());
+
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
       width: '80vw',
       height: '80vh',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
-      this.setAppliedGroups(this.filterGroupsSignal());
-      this.setAppliedMainOperator(this.mainOperatorSignal());
+      if (result === 'submit') {
+        this.setAppliedGroups(this.filterGroupsSignal());
+        this.setAppliedMainOperator(this.mainOperatorSignal());
+      } else {
+        this.filterGroupsSignal.set(this.appliedGroupsSignal());
+        this.mainOperatorSignal.set(this.appliedMainOperatorSignal());
+      }
     });
   }
 
