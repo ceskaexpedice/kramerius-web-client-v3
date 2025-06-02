@@ -1,3 +1,5 @@
+import {ENVIRONMENT} from '../../../app.config';
+
 export enum AdvancedFilterType {
   Autocomplete = 'autocomplete',
   Slider = 'slider',
@@ -51,7 +53,7 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: AdvancedFilterKey.Author, label: `advanced-filter-${AdvancedFilterKey.Author}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'authors.search', userRawQueryFormat: true },
   { key: AdvancedFilterKey.Title, label: `advanced-filter-${AdvancedFilterKey.Title}-label`, inputType: AdvancedFilterType.Autocomplete, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'title.search', userRawQueryFormat: true },
   { key: AdvancedFilterKey.Year, label: `advanced-filter-${AdvancedFilterKey.Year}-label`, inputType: AdvancedFilterType.Slider, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'date.str', meta: {
-      min: 0,
+      min: ENVIRONMENT.dateRangeStartYear,
       max: new Date().getFullYear(),
       step: 1
     } },

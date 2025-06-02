@@ -5,7 +5,8 @@ export const ENVIRONMENT = {
   apiUrl: 'https://dev-api.example.com',
   enableDebug: true,
   availableLanguages: ['cs', 'en', 'sk', 'pl'],
-  defaultLanguage: 'cs'
+  defaultLanguage: 'cs',
+  dateRangeStartYear: 1162
 };
 
 export const API_URL = new InjectionToken<string>('API_URL');
