@@ -6,6 +6,7 @@
     [theme]="'dark'"
     [min]="1"
     [max]="getMaxDay()"
+    [leadingZero]="true"
     [initialValue]="day"
     (valueChange)="onPartChange('day', $event)"
   ></app-input>
@@ -19,6 +20,7 @@
     [theme]="'dark'"
     [min]="1"
     [max]="12"
+    [leadingZero]="true"
     [initialValue]="month"
     (valueChange)="onPartChange('month', $event)"
   ></app-input>

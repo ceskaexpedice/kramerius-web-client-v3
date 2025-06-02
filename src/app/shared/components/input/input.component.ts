@@ -44,6 +44,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() initialValue: string | number = '';
   @Input() autocomplete: MatAutocomplete | null = null;
   @Input() signalInput?: WritableSignal<string | number>;
+  @Input() leadingZero: boolean = false;
 
   @Input() showMicButton: boolean = false;
   @Input() showHelpButton: boolean = false;
@@ -69,7 +70,12 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     if (this.initialValue !== undefined) {
-      this.value = this.castValue(this.initialValue);
+
+      if (this.leadingZero && this.type === 'number') {
+        this.initialValue = this.formatWithLeadingZero(Number(this.initialValue));
+      }
+
+      this.value = this.initialValue;
     }
   }
 
@@ -79,6 +85,7 @@ export class InputComponent implements OnInit, AfterViewInit {
         effect(() => {
           const newValue = this.signalInput!();
           const castedValue = this.castValue(newValue);
+
           if (this.value !== castedValue) {
             this.value = castedValue;
             this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
@@ -98,7 +105,12 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   onInputChange(val: any) {
-    const casted = this.castValue(val);
+    let casted = this.castValue(val);
+
+    if (this.type === 'number' && !this.prefix && this.leadingZero) {
+      casted = this.formatWithLeadingZero(Number(casted));
+    }
+
     this.value = casted;
     this.valueChange.emit(casted);
     this.signalInput?.set(casted as any);
@@ -164,6 +176,10 @@ export class InputComponent implements OnInit, AfterViewInit {
   isAtMax(): boolean {
     const maxVal = this.max !== undefined ? Number(this.max) : Infinity;
     return typeof this.value === 'number' && this.value >= maxVal;
+  }
+
+  private formatWithLeadingZero(val: number): string {
+    return val < 10 ? `0${val}` : `${val}`;
   }
 
 }
