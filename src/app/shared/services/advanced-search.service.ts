@@ -190,7 +190,7 @@ export class AdvancedSearchService {
             isRange = true;
 
           } else if (filter.key === AdvancedFilterKey.Year) {
-            isRange = true;
+            return `date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue}`;
           }
 
           const value = filter.solrValue.trim();
