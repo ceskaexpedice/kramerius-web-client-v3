@@ -84,11 +84,17 @@ export class SolrService {
     grouped.forEach((values, field) => {
       const op = operators[field] || SolrOperators.or;
       const escaped = values.map(v => `"${v}"`);
-      fq.push(
-        values.length === 1
-          ? `${field}:${escaped[0]}`
-          : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`
-      );
+      let fqParam = '';
+
+      if (op === SolrOperators.or) {
+        fqParam += `{!tag=${field}}`;
+      }
+
+      fqParam += values.length === 1
+        ? `${field}:${escaped[0]}`
+        : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`;
+
+      fq.push(fqParam);
     });
     return fq;
   }
