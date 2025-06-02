@@ -41,6 +41,7 @@ export class AdvancedSearchFilterRow implements OnInit {
 
       data.subscribe(suggestions => {
         this.filter.options = suggestions;
+        this.filter.elementValue = suggestions[0];
       });
     }
 
