@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InputComponent} from '../components/input/input.component';
-import {DayOffsetPickerComponent} from '../day-offset-picker/day-offset-picker.component';
 import {of} from 'rxjs';
 
 export interface DateStepperChange {
@@ -12,7 +11,6 @@ export interface DateStepperChange {
   selector: 'app-date-stepper',
   imports: [
     InputComponent,
-    DayOffsetPickerComponent,
   ],
   templateUrl: './date-stepper.component.html',
   styleUrl: './date-stepper.component.scss'
@@ -93,10 +91,12 @@ export class DateStepperComponent {
     //   return;
     // }
 
-    const result = new Date(baseDate);
-    result.setDate(result.getDate());
+    // Create a UTC date to avoid timezone issues
+    // This will create a date object that represents the same calendar date
+    // regardless of the user's timezone
+    const utcDate = new Date(Date.UTC(this.year, this.month - 1, this.day));
 
-    this.dateChange.emit({date : result, offset: this.offset});
+    this.dateChange.emit({date : utcDate, offset: this.offset});
   }
 
   protected readonly of = of;

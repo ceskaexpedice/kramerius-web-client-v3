@@ -92,18 +92,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   onDateChange(date: DateStepperChange) {
     console.log('date changed:', date);
     const formattedDate = date.date.toISOString().split('T')[0];
-    this.filter.elementValue = `${formattedDate}${date.offset ? `+${date.offset}` : ''}`
-    // solr value format is [start TO end] so we need to take date, calculate the start and end dates with offset
-    const startDate = new Date(date.date);
-    startDate.setHours(0, 0, 0, 0);
-    // If offset is provided, the end date is start date plus offset in days
-    const endDate = new Date(startDate);
-    if (date.offset) {
-      endDate.setDate(endDate.getDate() + date.offset);
-    } else {
-      endDate.setDate(endDate.getDate() + 1); // Default to next day if no offset
-    }
-    this.filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
+    this.filter.elementValue = `${formattedDate}+${date.offset}`
   }
 
   getInitialFrom(): number {

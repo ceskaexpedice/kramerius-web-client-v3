@@ -4,6 +4,7 @@ import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/a
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
+  AdvancedFilterKey,
   AdvancedFilterType,
 } from '../dialogs/advanced-search-dialog/advanced-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
@@ -129,9 +130,9 @@ export class AdvancedSearchService {
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.solrValue?.trim())
+        .filter(filter => !!filter.elementValue?.trim())
         .map(filter => {
-          const value = filter.solrValue.trim();
+          const value = filter.elementValue.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
           const useRaw = filter.userRawQueryFormat || false;
 
@@ -154,13 +155,85 @@ export class AdvancedSearchService {
       : advancedQueryParts[0];
   }
 
-  getAdvancedParams(params: Params): { advancedQuery?: string, advancedQueryMainOperator: SolrOperators } {
-    const advancedQuery = this.queryParamsService.getAdvancedSearch(params);
-    const mainOperator = (this.queryParamsService.getAdvancedMainOperator(params) || SolrOperators.and) as SolrOperators;
+  getSolrAdvancedQueryString(): string | undefined {
+    const groups = this.filterGroupsSignal();
+    const mainOperator = this.mainOperatorSignal();
 
+    const advancedQueryParts: string[] = groups.map(group => {
+      const parts = group.filters
+        .filter(filter => !!filter.solrValue?.trim())
+        .map(filter => {
+
+          let isRange = false;
+          const useRaw = filter.userRawQueryFormat || false;
+
+          if (filter.key === AdvancedFilterKey.Date) {
+            // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
+            // so we need to update solrValue to be in the format [start TO end]
+            const dateParts = filter.elementValue.split('+');
+            const dateStr = dateParts[0]; // Format: YYYY-MM-DD
+            const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
+
+            // Parse the date using UTC to avoid timezone issues
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const date = new Date(Date.UTC(year, month - 1, day));
+
+            // Calculate start and end dates using UTC methods to maintain consistency
+            const startDate = new Date(date);
+            startDate.setUTCDate(startDate.getUTCDate());
+
+            const endDate = new Date(date);
+            endDate.setUTCDate(endDate.getUTCDate() + offset);
+
+            // Format as ISO strings for Solr
+            filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
+            isRange = true;
+
+          } else if (filter.key === AdvancedFilterKey.Year) {
+            isRange = true;
+          }
+
+          const value = filter.solrValue.trim();
+
+          return isRange
+            ? `${filter.solrField}:${value}`
+            : useRaw
+              ? `${filter.solrField}:(${value})`
+              : `${filter.solrField}:"${value}"`;
+        });
+
+      return parts.length > 0
+        ? `(${parts.join(` ${group.operator} `)})`
+        : '';
+    }).filter(Boolean);
+
+    if (advancedQueryParts.length === 0) return undefined;
+
+    return advancedQueryParts.length > 1
+      ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
+      : advancedQueryParts[0];
+  }
+
+  getAdvancedParams(params: Params): { advancedQuery?: string, advancedQueryMainOperator?: SolrOperators } {
+    const advancedQueryFromUrl = params['advSearch'];
+    const advancedQueryMainOperator = (params['advOp'] as SolrOperators) || SolrOperators.and;
+
+    if (!advancedQueryFromUrl) {
+      return {advancedQueryMainOperator};
+    }
+
+    // If we have reset from params, use the solr-specific query
+    if (this.filterGroupsSignal().length > 0) {
+      return {
+        advancedQuery: this.getSolrAdvancedQueryString(),
+        advancedQueryMainOperator,
+      };
+    }
+
+    // Fallback if the filter groups haven't been properly initialized
     return {
-      advancedQuery: advancedQuery || undefined,
-      advancedQueryMainOperator: mainOperator,
+      advancedQuery: advancedQueryFromUrl,
+      advancedQueryMainOperator,
     };
   }
 
