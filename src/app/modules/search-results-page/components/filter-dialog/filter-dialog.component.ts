@@ -158,7 +158,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     ).subscribe((term: string) => {
       if (term.length === 0 || term.length >= 2) {
         this.page = 1;
-        this.loadFacets();
+        this.loadFacets(false);
       }
     });
   }
