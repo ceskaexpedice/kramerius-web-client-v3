@@ -8,6 +8,8 @@ export interface SearchDocument {
   accessibility: string;
   licenses?: string[];
   containsLicenses?: string[];
+  count_page?: number;
+  languages?: string[];
 
   access: string;
 }
@@ -22,5 +24,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   accessibility: doc.accessibility,
   licenses: doc.licenses,
   containsLicenses: doc.contains_licenses,
-  access: doc.access
+  access: doc.access,
+  count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,
+  languages: doc['languages.facet'] ? doc['languages.facet'] : undefined,
 });

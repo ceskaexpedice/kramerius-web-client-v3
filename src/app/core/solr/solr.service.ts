@@ -115,7 +115,7 @@ export class SolrService {
         'pid', 'accessibility', 'model', 'authors', 'titles.search',
         'title.search', 'root.title', 'date.str', 'title.search_*',
         'collection.desc', 'collection.desc_*', 'licenses',
-        'contains_licenses', 'licenses_of_ancestors'
+        'contains_licenses', 'licenses_of_ancestors', 'count_page', 'languages.facet',
       ]),
       ...SolrQueryBuilder.facetFields(this.DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
