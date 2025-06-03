@@ -223,6 +223,11 @@ export class InputComponent implements OnInit, AfterViewInit {
       width += 32;
     }
 
+    // default
+    if (width === 0) {
+      width = 14; // default icon width
+    }
+
     return `${width}px`;
   }
 

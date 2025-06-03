@@ -21,6 +21,10 @@
       padding: 11px;
     }
 
+    .prefix + input {
+      padding-left: 20px;
+    }
+
     //input.with-icons {
     //  padding: 14px 100px 14px 14px;
     //}
@@ -114,8 +118,5 @@ input[type="number"] {
     font-size: 14px;
   }
 
-  .prefix + input {
-    padding-left: 20px;
-  }
 }
 
