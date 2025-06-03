@@ -80,5 +80,12 @@
   "filter-dialog.search-placeholder": "Search in the list...",
   "filter-dialog.sort.count": "By occurrence",
   "filter-dialog.sort.alpha": "Alphabetically",
-  "dialog.apply": "Apply"
+  "dialog.apply": "Apply",
+  "advanced-filter-title-placeholder": "Enter document title",
+  "advanced-filter-author-placeholder": "Enter author's name",
+  "advanced-filter-publisher-placeholder": "Enter publisher's name",
+  "advanced-filter-publishPlace-placeholder": "Enter place of publication",
+  "advanced-filter-keyword-placeholder": "Enter keyword",
+  "advanced-filter-genre-placeholder": "Enter genre",
+  "advanced-filter-geoName-placeholder": "Enter geographic name"
 }

@@ -80,5 +80,12 @@
   "filter-dialog.search-placeholder": "Szukaj na liście...",
   "filter-dialog.sort.count": "Według występowania",
   "filter-dialog.sort.alpha": "Alfabetycznie",
-  "dialog.apply": "Zastosuj"
+  "dialog.apply": "Zastosuj",
+  "advanced-filter-title-placeholder": "Wprowadź tytuł dokumentu",
+  "advanced-filter-author-placeholder": "Wprowadź nazwisko autora",
+  "advanced-filter-publisher-placeholder": "Wprowadź nazwę wydawcy",
+  "advanced-filter-publishPlace-placeholder": "Wprowadź miejsce wydania",
+  "advanced-filter-keyword-placeholder": "Wprowadź słowo kluczowe",
+  "advanced-filter-genre-placeholder": "Wprowadź gatunek",
+  "advanced-filter-geoName-placeholder": "Wprowadź nazwę geograficzną"
 }

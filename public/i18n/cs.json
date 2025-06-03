@@ -80,5 +80,12 @@
   "filter-dialog.search-placeholder": "Hledat v seznamu...",
   "filter-dialog.sort.count": "Podle výskytu",
   "filter-dialog.sort.alpha": "Abecedně",
-  "dialog.apply": "Použít"
+  "dialog.apply": "Použít",
+  "advanced-filter-title-placeholder": "Zadejte název dokumentu",
+  "advanced-filter-author-placeholder": "Napište jméno",
+  "advanced-filter-publisher-placeholder": "Zadejte název vydavatele",
+  "advanced-filter-publishPlace-placeholder": "Zadejte místo vydání",
+  "advanced-filter-keyword-placeholder": "Zadejte klíčové slovo",
+  "advanced-filter-genre-placeholder": "Zadejte žánr",
+  "advanced-filter-geoName-placeholder": "Zadejte geografický název"
 }

@@ -2,12 +2,14 @@
 
   <app-input
     [theme]="inputTheme"
+    [size]="size"
     [placeholder]="placeholder | translate"
     [initialValue]="inputTerm()"
     [autocomplete]="auto"
     [showMicButton]="showMicrophoneButton"
     [showHelpButton]="showHelpButton"
     [showSubmitButton]="showSubmitButton"
+    [showClearButton]="showClearButton"
     [signalInput]="inputTerm"
     [submitIcon]="'icon-search-normal'"
     [withIcons]="withIcons"

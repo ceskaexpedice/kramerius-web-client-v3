@@ -15,16 +15,18 @@
       <app-autocomplete
         *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
         [initialValue]="filter.elementValue"
-        [placeholder]="filter.key"
+        [placeholder]="filter.placeholder || filter.key"
         [showHelpButton]="false"
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
+        [showClearButton]="true"
         (search)="emitChange()"
         (submit)="autocompleteSubmit($event)"
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
         [inputTheme]="'dark'"
         [withIcons]="false"
+        [size]="'sm'"
       ></app-autocomplete>
 
       <app-range-slider

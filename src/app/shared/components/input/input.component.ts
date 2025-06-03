@@ -45,10 +45,12 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() autocomplete: MatAutocomplete | null = null;
   @Input() signalInput?: WritableSignal<string | number>;
   @Input() leadingZero: boolean = false;
+  @Input() size: 'sm' | 'md' = 'md';
 
   @Input() showMicButton: boolean = false;
   @Input() showHelpButton: boolean = false;
   @Input() showSubmitButton: boolean = false;
+  @Input() showClearButton: boolean = false;
   @Input() submitIcon: string = 'icon-search-normal';
   @Input() changeMicToClearOnFocus: boolean = true;
 
@@ -143,11 +145,15 @@ export class InputComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.inputElement?.nativeElement?.focus(), 0);
   }
 
-  get showClearButton(): boolean {
+  get showClear(): boolean {
     const val = this.value;
     const hasValue =
       typeof val === 'string' ? val.trim().length > 0 :
         typeof val === 'number' ? true : false;
+
+    if (this.showClearButton && hasValue) {
+      return true;
+    }
 
     return this.changeMicToClearOnFocus && this.isFocused && this.showMicButton && hasValue;
   }
@@ -180,6 +186,44 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   private formatWithLeadingZero(val: number): string {
     return val < 10 ? `0${val}` : `${val}`;
+  }
+
+  get iconsRight(): string {
+    // if showMic is true and showHelp is true and showSubmit is true, right is 55px
+    let right = 0;
+
+    // if there is submitButton add 55px
+    if (this.showSubmitButton) {
+      right += 55;
+    }
+
+    return `${right}px`;
+  }
+
+  get iconsWidth(): string {
+    // if showMic is true and showHelp is true and showSubmit is true, width is 55px
+    let width = 0;
+
+    if (this.showSubmitButton) {
+      width += 55;
+    }
+
+    // if there is micButton add 32
+    if (this.showMicButton) {
+      width += 32;
+    }
+
+    // if there is helpButton add 32
+    if (this.showHelpButton) {
+      width += 32;
+    }
+
+    // if there is clearButton add 32
+    if (this.showClearButton) {
+      width += 32;
+    }
+
+    return `${width}px`;
   }
 
 }

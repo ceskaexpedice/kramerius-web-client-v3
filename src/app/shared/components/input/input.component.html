@@ -1,7 +1,8 @@
 <div class="input-field">
-  <div class="input-container" [ngClass]="theme">
+  <div class="input-container" [ngClass]="[theme, size]">
     <ng-container *ngIf="autocomplete; else noAutocomplete">
       <input
+        [style.padding-right]="iconsWidth"
         [type]="type"
         #inputElement
         #inputModel="ngModel"
@@ -26,6 +27,7 @@
       <div class="input-with-prefix">
         <span class="prefix" *ngIf="prefix">{{ prefix }}</span>
         <input
+          [style.padding-right]="iconsWidth"
           [type]="type"
           inputmode="numeric"
           #inputElement
@@ -70,7 +72,7 @@
       </button>
     </div>
 
-    <span class="input--icons" *ngIf="showMicButton || showHelpButton || showClearButton">
+    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear">
       <button
         class="icon-button button link tertiary"
         *ngIf="showMicButtonActual"
@@ -80,7 +82,7 @@
 
       <button
         class="icon-button button link tertiary"
-        *ngIf="showClearButton"
+        *ngIf="showClear"
         type="button"
         (mousedown)="clearInput($event)">
         <i class="icon-x input--icon"></i>

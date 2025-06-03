@@ -13,9 +13,17 @@
       color: var(--color-text-light);
     }
 
-    input.with-icons {
-      padding: 14px 100px 14px 14px;
+    &.md input {
+      padding: 14px;
     }
+
+    &.sm input {
+      padding: 11px;
+    }
+
+    //input.with-icons {
+    //  padding: 14px 100px 14px 14px;
+    //}
 
     &.dark input {
       background: var(--color-bg-light);
@@ -26,7 +34,6 @@
     .input--icons {
       position: absolute;
       top: 50%;
-      right: 55px;
       transform: translateY(-50%);
       display: flex;
       align-items: center;
