@@ -139,7 +139,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const operator = this.queryParamsService.getOperatorForFacet(params, this.data.facetKey);
       this.pendingOperator.set(operator);
-      this.useOrOperator.set(operator !== 'AND');
+      this.useOrOperator.set(operator !== SolrOperators.and);
     });
 
     effect(() => {
@@ -168,7 +168,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       // Initialize operator
       const operator = this.queryParamsService.getOperatorForFacet(params, this.data.facetKey);
       this.pendingOperator.set(operator);
-      this.useOrOperator.set(operator !== 'AND');
+      this.useOrOperator.set(operator !== SolrOperators.and);
 
       // Initialize selection
       const selectedValues = this.queryParamsService.getFiltersByFacet(params, this.data.facetKey);
@@ -317,7 +317,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     this.pendingSelection.set(pendingSet);
 
     // if operator is AND, we need to loadFacetsWithPendingChanges with false
-    if (this.pendingOperator() === 'AND') {
+    if (this.pendingOperator() === SolrOperators.and) {
       this.loadFacetsWithPendingChanges(false);
     } else {
       this.loadFacetsWithPendingChanges();
