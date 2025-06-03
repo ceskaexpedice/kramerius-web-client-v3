@@ -35,6 +35,11 @@
       color: var(--color-text-light);
     }
 
+    input:focus, input:active, input:target {
+      outline: none;
+      border: 1px solid var(--color-primary);
+    }
+
     .input--icons {
       position: absolute;
       top: 50%;
@@ -119,4 +124,3 @@ input[type="number"] {
   }
 
 }
-
