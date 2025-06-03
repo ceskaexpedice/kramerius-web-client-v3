@@ -159,7 +159,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get showMicButtonActual(): boolean {
-    return this.showMicButton && !this.showClearButton;
+    return this.showMicButton && !this.showClear;
   }
 
   stepUp() {
