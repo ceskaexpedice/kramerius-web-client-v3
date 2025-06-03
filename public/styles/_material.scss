@@ -47,10 +47,15 @@ div.mat-mdc-autocomplete-panel {
 
 .mat-mdc-option {
   padding: var(--spacing-x2) var(--spacing-x4) !important;
+  width: 100% !important;
 }
 
 .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-multiple) {
   background-color: transparent !important;
+}
+
+.mat-mdc-option .mdc-list-item__primary-text {
+  width: 100% !important;
 }
 
 .has-issue .mat-calendar-body-cell-content {

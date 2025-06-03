@@ -3,6 +3,19 @@
   width: 100%;
 }
 
+.autocomplete-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  &--content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x3);
+  }
+}
+
 label {
   color: var(--color-text-secondary);
   font-size: 14px;

@@ -8,7 +8,7 @@ import {
   EventEmitter,
   Output,
   ViewChild,
-  Signal, WritableSignal,
+  Signal, WritableSignal, inject, computed,
 } from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -23,6 +23,7 @@ import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
 import {InputComponent} from '../input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {catchError} from 'rxjs/operators';
+import {SearchHistoryService} from '../../services/search-history.service';
 
 @Component({
   selector: 'app-autocomplete',
@@ -59,6 +60,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showClearButton: boolean = false;
   @Input() withIcons: boolean = true;
   @Input() size: 'sm' | 'md' = 'md';
+  @Input() showHistorySuggestions: boolean = false;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');
@@ -67,6 +69,8 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Output() submit = new EventEmitter<string>();
   @Output() termChange = new EventEmitter<string>();
   @Output() suggestionSelected = new EventEmitter<string>();
+
+  public historyService = inject(SearchHistoryService);
 
   constructor() {
     this.subscription = this.termChangeSubject.pipe(
@@ -133,6 +137,14 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     }
   }
 
+  filteredHistorySuggestions = computed(() => {
+    const term = this.inputTerm().toLowerCase().trim();
+    if (!term) return this.historyService.history();
+    return this.historyService.history().filter(item =>
+      item.toLowerCase().includes(term)
+    );
+  });
+
   onInputValueChange(value: string) {
     this.inputTerm.set(value);
 
@@ -146,17 +158,26 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     const value = option.value;
 
     this.justSelected = true;
-
     this.inputTerm.set(value);
+
+    this.saveToHistory(value);
     this.suggestionSelected.emit(value);
   }
 
   onSearch() {
+    this.saveToHistory(this.inputTerm());
     this.search.emit(this.inputTerm());
   }
 
   onSubmit() {
+    this.saveToHistory(this.inputTerm());
     this.submit.emit(this.inputTerm());
+  }
+
+  saveToHistory(term: string) {
+    if (this.showHistorySuggestions) {
+      this.historyService.add(term);
+    }
   }
 
   highlight(text: string, term: string): string {

@@ -19,6 +19,7 @@
       (search)="searchService.onSearch($event)"
       (submit)="searchService.onSubmit($event)"
       [inputTerm]="searchService.searchTerm"
+      [showHistorySuggestions]="true"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
