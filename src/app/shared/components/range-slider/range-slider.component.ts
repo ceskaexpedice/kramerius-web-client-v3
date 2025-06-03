@@ -29,6 +29,8 @@ export class RangeSliderComponent {
   ngOnInit() {
     this.from.set(this.initialFrom);
     this.to.set(this.initialTo);
+
+    this.emitChange();
   }
 
   onFromInput(value: number | string) {
