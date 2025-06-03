@@ -13,14 +13,14 @@
 
   // secondary color
   --color-secondary: #fff;
-  --color-secondary-hover: #EFF2F5;
-  --color-secondary-pressed: #EFF2F5;
+  --color-secondary-hover: #f6f7f9;
+  --color-secondary-pressed: #fff;
   --color-secondary-disabled: #F6F7F9;
 
   // tertiary color
-  --color-tertiary: #DFE5EC;
-  --color-tertiary-hover: #BFCCD9;
-  --color-tertiary-pressed: #9FB2C6;
+  --color-tertiary: #fff;
+  --color-tertiary-hover: #f6f7f9;
+  --color-tertiary-pressed: #fff;
   --color-tertiary-disabled: #F6F7F9;
 
   --color-error: #FF3A30;
@@ -30,6 +30,7 @@
   // text color
   --color-text-base: #0A0D10;
   --color-text-secondary: #263340;
+  --color-text-tertiary: #4C6580;
   --color-text-light: #4C6580;
   --color-text-disable: #9FB2C6;
   --color-text-on-color: #FFFFFF;
@@ -131,6 +132,7 @@
   // text color
   --color-text-base: #FFFFFF;
   --color-text-secondary: #DFE5EC;
+  --color-text-tertiary: #9FB2C6;
   --color-text-light: #9FB2C6;
   --color-text-disable: #8099B3;
   --color-text-on-color: #FFFFFF;
