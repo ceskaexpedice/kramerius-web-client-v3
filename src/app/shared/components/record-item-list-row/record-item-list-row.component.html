@@ -1,0 +1,46 @@
+<td class="record-title">
+  <div class="title-wrapper">
+    <img
+      class="thumb"
+      [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + record.pid + '/image/thumb'"
+      alt="thumbnail"
+    />
+    <div>
+      <div class="title" [title]="record.title">
+        {{ record.title.length > 80 ? (record.title.slice(0, 80) + '...') : record.title }}
+      </div>
+    </div>
+  </div>
+</td>
+
+<td>
+  <ng-container *ngIf="record.authors && record.authors?.length; else noAuthors">
+    {{ record.authors.join(', ').length > 35 ? (record.authors.join(', ').slice(0, 35) + '...') : record.authors.join(', ') }}
+  </ng-container>
+
+  <ng-template #noAuthors>
+    <span>{{'author-not-filled' | translate}}</span>
+  </ng-template>
+
+</td>
+
+<td>{{ record.date || '—' }}</td>
+
+<td>
+
+  <span class="access-label" [ngClass]="record.accessibility">
+  {{record.accessibility | translate}}
+  </span>
+
+  <!--    <span class="badge" [ngClass]="record.license">{{ record.license }}</span>-->
+</td>
+
+<td>{{ record.model | translate }}</td>
+
+<td>
+  {{record.count_page ? record.count_page : '—'}}
+</td>
+
+<td>
+  <span *ngFor="let lang of record.languages">{{lang}}</span>
+</td>

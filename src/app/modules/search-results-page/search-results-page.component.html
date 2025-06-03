@@ -15,12 +15,27 @@
           </div>
 
           <div right>
-            <app-paginator-info
-              [page]="searchService.page"
-              [pageSize]="searchService.pageSize"
-              [totalCount]="searchService.totalCount">
-            </app-paginator-info>
+
+            <div class="flex flex--center flex--align-center">
+
+              <app-paginator-info
+                [page]="searchService.page"
+                [pageSize]="searchService.pageSize"
+                [totalCount]="searchService.totalCount">
+              </app-paginator-info>
+
+              <app-toggle-button-group
+                [options]="viewOptions"
+                [value]="view()"
+                (valueChange)="setView($event)"
+              />
+
+              <app-results-sort></app-results-sort>
+
+            </div>
+
           </div>
+
         </app-action-toolbar>
 
 <!--        <app-action-toolbar>-->
@@ -35,7 +50,6 @@
 
 <!--        </app-action-toolbar>-->
 
-        <app-results-sort></app-results-sort>
 
       </div>
 
@@ -59,10 +73,24 @@
 
         </ng-container>
 
-        <div class="grid--container">
+        <div [class]="view() === ViewOptions.grid ? 'grid--container' : 'list--container'">
+
           <ng-container *ngIf="searchService.results$ | async as results">
-            <app-record-item *ngFor="let doc of results" [record]="doc"></app-record-item>
+
+            <ng-container *ngIf="view() === ViewOptions.grid; else listView">
+
+              <app-record-item *ngFor="let doc of results" [record]="doc"></app-record-item>
+
+            </ng-container>
+
+            <ng-template #listView>
+
+              <app-record-item-list [records]="results"></app-record-item-list>
+
+            </ng-template>
+
           </ng-container>
+
         </div>
 
         <app-paginator

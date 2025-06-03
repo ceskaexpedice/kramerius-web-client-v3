@@ -1,0 +1,25 @@
+<table class="record-table" *ngIf="records.length">
+  <thead>
+  <tr>
+    <th>Názov</th>
+    <th>Autor</th>
+    <th>Rok</th>
+    <th>Licencia</th>
+    <th>Typ dokumentu</th>
+    <th>Počet</th>
+    <th>Jazyk</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr
+    (click)="onClick($event, record)"
+    app-record-item-list-row
+    *ngFor="let record of records"
+    [record]="record">
+  </tr>
+  </tbody>
+</table>
+
+<div class="no-results" *ngIf="!records.length">
+  <p>Žiadne výsledky na zobrazenie.</p>
+</div>

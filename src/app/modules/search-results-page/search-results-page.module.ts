@@ -13,7 +13,7 @@ import {BooksEffects} from '../search/state/books/books.effects';
 import {GenresEffects} from '../search/state/genres/genres.effects';
 import {DocumentTypesEffects} from '../search/state/document-types/document-types.effects';
 import {SearchEffects} from './state/search.effects';
-import {AsyncPipe, NgForOf, NgIf, UpperCasePipe} from '@angular/common';
+import {AsyncPipe, NgClass, NgForOf, NgIf, UpperCasePipe} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 import {searchReducer} from './state/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
@@ -28,6 +28,8 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {
   AdvancedSearchIndicatorComponent
 } from './components/advanced-search-indicator/advanced-search-indicator.component';
+import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
+import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
 
 const routes: Routes = [
   {
@@ -61,6 +63,9 @@ const routes: Routes = [
     TranslatePipe,
     UpperCasePipe,
     AdvancedSearchIndicatorComponent,
+    ToggleButtonGroupComponent,
+    NgClass,
+    RecordItemListComponent,
   ],
   providers: [
     { provide: 'FilterService', useClass: SearchService }
