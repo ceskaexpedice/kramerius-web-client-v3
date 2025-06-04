@@ -16,6 +16,7 @@ import {APP_ROUTES_ENUM} from '../../app.routes';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {CalendarGridControl} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
+import {RecordInfoService} from '../../shared/services/record-info.service';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -24,6 +25,7 @@ import {LocalStorageService} from '../../shared/services/local-storage.service';
   styleUrl: './periodical-page.component.scss'
 })
 export class PeriodicalPageComponent {
+  uuid: string | null = null;
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
 
   private store = inject(Store);
@@ -31,6 +33,7 @@ export class PeriodicalPageComponent {
   private route = inject(ActivatedRoute);
   private recordHandler = inject(RecordHandlerService);
   private localStorage = inject(LocalStorageService);
+  public recordInfoService = inject(RecordInfoService);
 
   // Signals
   activeCalendarGridControl = signal<CalendarGridControl>('calendar');
@@ -65,6 +68,7 @@ export class PeriodicalPageComponent {
       filter(Boolean),
       distinctUntilChanged()
     ).subscribe((uuid: string) => {
+      this.uuid = uuid;
       this.store.dispatch(loadPeriodical({ uuid }));
     });
 
@@ -164,6 +168,12 @@ export class PeriodicalPageComponent {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({ ...y, exists: true }))
       .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+  }
+
+  openRecordInfo() {
+    // get uuid from document
+    if (!this.uuid) return;
+    this.recordInfoService.openRecordInfoDialog(this.uuid);
   }
 
 }

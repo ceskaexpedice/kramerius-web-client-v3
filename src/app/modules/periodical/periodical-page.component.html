@@ -34,8 +34,11 @@
               [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
+              [showInfo]="true"
               [activeCalendarGridControl]="activeCalendarGridControl()"
-              (calendarGridClicked)="setView($event)">
+              (calendarGridClicked)="setView($event)"
+              (infoClicked)="openRecordInfo()"
+            >
             </app-toolbar-controls>
 
 <!--            <app-results-sort></app-results-sort>-->

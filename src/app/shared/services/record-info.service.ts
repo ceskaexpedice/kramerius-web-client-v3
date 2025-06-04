@@ -1,0 +1,30 @@
+import {inject, Injectable} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {RecordInfoDialogComponent} from '../dialogs/record-info-dialog/record-info-dialog.component';
+import { ModsParserService } from './mods-parser.service';
+import {Metadata} from '../models/metadata.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RecordInfoService {
+
+  public metadata: Metadata = new Metadata();
+
+  private modsParserService = inject(ModsParserService);
+  private dialog = inject(MatDialog);
+
+  public openRecordInfoDialog(uuid: string): void {
+    this.modsParserService.getMods(uuid)
+      .then((metadata: Metadata) => {
+        this.dialog.open(RecordInfoDialogComponent, {
+          width: '80vw',
+          data: metadata,
+        });
+      })
+      .catch(error => {
+        console.error('Failed to load MODS metadata:', error);
+      });
+  }
+
+}

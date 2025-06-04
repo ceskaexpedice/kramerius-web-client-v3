@@ -3,6 +3,7 @@
 
 <ng-container *ngIf="document$ | async as doc">
 
+  <button (click)="openRecordInfo()">info</button>
 
   <img
     [src]="`https://api.kramerius.mzk.cz/search/api/client/v7.0/items/${doc.pid}/image/thumb`"
