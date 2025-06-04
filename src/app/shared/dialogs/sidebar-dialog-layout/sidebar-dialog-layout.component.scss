@@ -1,0 +1,82 @@
+.generic-dialog-container {
+  padding: 24px 20px 12px 20px;
+  max-height: 80vh;
+  overflow: hidden;
+  background-color: var(--color-bg-base);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+
+  .close-button {
+    font-size: 24px;
+    padding: 5px;
+  }
+
+  hr {
+    margin: 0;
+  }
+
+  .dialog-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+
+    .sidebar {
+      flex: 1;
+      border-right: 1px solid var(--color-border-light);
+      padding: var(--spacing-x6) var(--spacing-x6) var(--spacing-x6) 0;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-x2);
+
+        li {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          padding: var(--spacing-x4);
+          cursor: pointer;
+          color: var(--color-text-secondary);
+          transition: background 0.2s;
+          border-radius: var(--spacing-x2);
+
+          i {
+            font-size: 1.2rem;
+            color: var(--color-icon-tertiary-default);
+          }
+
+          &.active {
+            color: var(--color-text-on-color);
+            background: var(--color-primary);
+
+            i {
+              color: var(--color-icon-on-color);
+            }
+          }
+
+          label {
+            display: flex;
+            gap: var(--spacing-x3);
+            align-items: flex-start;
+          }
+        }
+      }
+    }
+
+    .content {
+      padding: 36px 24px;
+      flex: 3;
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-x3);
+    gap: var(--spacing-x4);
+  }
+}
