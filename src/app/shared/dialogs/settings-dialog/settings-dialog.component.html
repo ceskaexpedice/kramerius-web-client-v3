@@ -1,0 +1,12 @@
+<app-sidebar-dialog-layout
+  [config]="dialogConfig"
+  (save)="save()"
+  (close)="close()"
+  (sectionChange)="onSectionChange($event)">
+
+  <app-settings-content
+    [settings]="localSettings()"
+    [activeSection]="activeSection">
+  </app-settings-content>
+
+</app-sidebar-dialog-layout>

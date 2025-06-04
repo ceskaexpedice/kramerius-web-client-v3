@@ -2,7 +2,7 @@ import {AppSettingsThemeEnum, Settings} from './settings.model';
 import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Injectable} from '@angular/core';
-import {SettingsDialogComponent} from './settings-dialog/settings-dialog.component';
+import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/settings-dialog.component';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
 
 @Injectable({
