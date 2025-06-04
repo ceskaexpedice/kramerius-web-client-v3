@@ -6,6 +6,23 @@ terraform {
       version = "3.0.2"
     }
   }
+  required_version = "~> 1.11.3"
+}
+
+variable "APP_DEV_MODE" {
+  type = string
+}
+
+variable "APP_ENV_CODE" {
+  type = string
+}
+
+variable "APP_ENV_NAME" {
+  type = string
+}
+
+variable "APP_KRAMERIUS_URL" {
+  type = string
 }
 
 variable "docker_host_uri" {
@@ -42,12 +59,13 @@ provider "docker" {
   }
 }
 
-# Creating cdk-klient Docker Image with the `latest` as the Tag.
+# Creating cdk_klient Docker Image
+# with the `latest` as Tag
 resource "docker_image" "cdk_klient" {
   name = var.docker_image
 }
 
-# Create Docker Container using the cdk-klient image.
+# Create Docker Container using the cdk_klient image.
 resource "docker_container" "cdk_klient" {
   count             = 1
   image             = docker_image.cdk_klient.image_id
@@ -55,6 +73,12 @@ resource "docker_container" "cdk_klient" {
   must_run          = true
   publish_all_ports = true
   # restart           = "always" # default "no"
+  env = [
+    "APP_DEV_MODE=${var.APP_DEV_MODE}",
+    "APP_ENV_NAME=${var.APP_ENV_NAME}",
+    "APP_ENV_CODE=${var.APP_ENV_CODE}",
+    "APP_KRAMERIUS_URL=${var.APP_KRAMERIUS_URL}"
+  ]
 
   labels {
     label = "traefik.http.routers.${var.docker_container_name}.rule"
