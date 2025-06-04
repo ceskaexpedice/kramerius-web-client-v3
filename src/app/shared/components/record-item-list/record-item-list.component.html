@@ -1,13 +1,13 @@
 <table class="record-table" *ngIf="records.length">
   <thead>
   <tr>
-    <th>Názov</th>
-    <th>Autor</th>
-    <th>Rok</th>
-    <th>Licencia</th>
-    <th>Typ dokumentu</th>
-    <th>Počet</th>
-    <th>Jazyk</th>
+    <th>{{'filter-title-label' | translate}}</th>
+    <th>{{ 'filter-author-label' | translate }}</th>
+    <th>{{ 'filter-year-label' | translate }}</th>
+    <th>{{ 'filter-license-label' | translate }}</th>
+    <th>{{ 'filter-doctype-label' | translate }}</th>
+    <th>{{ 'filter-count-label' | translate }}</th>
+    <th>{{'filter-language-label' | translate}}</th>
   </tr>
   </thead>
   <tbody>

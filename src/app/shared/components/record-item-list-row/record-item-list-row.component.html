@@ -19,7 +19,7 @@
   </ng-container>
 
   <ng-template #noAuthors>
-    <span>{{'author-not-filled' | translate}}</span>
+    <span class="author-not-filled flex flex--align-center flex--gap-x1">{{'author-not-filled' | translate}} <i class="icon-question"></i></span>
   </ng-template>
 
 </td>
@@ -28,11 +28,8 @@
 
 <td>
 
-  <span class="access-label" [ngClass]="record.accessibility">
-  {{record.accessibility | translate}}
-  </span>
+  <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
 
-  <!--    <span class="badge" [ngClass]="record.license">{{ record.license }}</span>-->
 </td>
 
 <td>{{ record.model | translate }}</td>
@@ -42,5 +39,15 @@
 </td>
 
 <td>
-  <span *ngFor="let lang of record.languages">{{lang}}</span>
+  <ng-container *ngFor="let lang of record.languages">
+    <img
+      *ngIf="languageMap[lang]"
+      [src]="'/img/flags/flag_' + languageMap[lang] + '.png'"
+      [alt]="lang"
+      class="flag"
+    />
+  </ng-container>
+  <ng-container *ngIf="!record.languages || record.languages.length === 0">
+    -
+  </ng-container>
 </td>

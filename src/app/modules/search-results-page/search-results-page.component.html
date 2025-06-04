@@ -85,6 +85,29 @@
 
             <ng-template #listView>
 
+              <div class="list-view--header flex flex--space-between align-items-center">
+
+                <h3>Tituly</h3>
+
+                <div class="pull-right">
+
+                  <app-paginator
+                    [showOnlyArrows]="true"
+                    [showPageSizeOptions]="false"
+                    [page]="searchService.page"
+                    [totalCount]="searchService.totalCount"
+                    [pageSize]="searchService.pageSize"
+                    [pageSizeOptions]="[25, 50, 100]"
+                    (pageChange)="searchService.goToPage($event)"
+                    (pageSizeChange)="searchService.changePageSize($event)">
+                  </app-paginator>
+
+                </div>
+
+              </div>
+
+
+
               <app-record-item-list [records]="results"></app-record-item-list>
 
             </ng-template>

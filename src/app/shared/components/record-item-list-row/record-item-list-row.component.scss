@@ -32,11 +32,16 @@ td {
   }
 }
 
-.badge {
-  background: var(--color-bg-accent);
-  color: var(--color-text-on-accent);
-  padding: 3px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-  text-transform: uppercase;
+.author-not-filled {
+  color: var(--color-text-light);
+}
+
+.flag {
+  width: 16px;
+  height: auto;
+  vertical-align: middle;
+
+  &:not(:last-child) {
+    margin-right: 4px;
+  }
 }

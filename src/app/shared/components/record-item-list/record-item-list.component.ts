@@ -3,6 +3,7 @@ import {SearchDocument} from '../../../modules/models/search-document';
 import {NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
 import {RecordItemListRowComponent} from '../record-item-list-row/record-item-list-row.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-record-item-list',
@@ -11,6 +12,7 @@ import {RecordHandlerService} from '../../services/record-handler.service';
     RecordItemListRowComponent,
     NgForOf,
     NgTemplateOutlet,
+    TranslatePipe,
   ],
   templateUrl: './record-item-list.component.html',
   styleUrl: './record-item-list.component.scss'

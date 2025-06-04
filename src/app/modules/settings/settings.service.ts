@@ -74,16 +74,16 @@ export class SettingsService {
     html.classList.add(theme.toLowerCase());
   }
 
-  private saveToStorage(settings: Settings): void {
+  public saveToStorage(settings: Settings): void {
     this.localStorage.set(this.STORAGE_KEY, JSON.stringify(settings));
   }
 
-  private loadInitialSettings(): Settings {
+  public loadInitialSettings(): Settings {
     const saved = this.localStorage.get<any>(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return new Settings(parsed.theme);
+        return new Settings(parsed.theme, parsed.searchResultsView);
       } catch (e) {
         console.warn('⚠️ Could not parse settings from localStorage', e);
       }

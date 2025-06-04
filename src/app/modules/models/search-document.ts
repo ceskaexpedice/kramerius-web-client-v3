@@ -1,3 +1,5 @@
+import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+
 export interface SearchDocument {
   pid: string;
   title: string;
@@ -5,7 +7,7 @@ export interface SearchDocument {
   authors?: string[];
   date?: string;
   model: string;
-  accessibility: string;
+  accessibility: DocumentAccessibilityEnum;
   licenses?: string[];
   containsLicenses?: string[];
   count_page?: number;
