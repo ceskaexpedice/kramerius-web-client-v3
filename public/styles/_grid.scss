@@ -76,6 +76,22 @@
   gap: 16px;
 }
 
+.flex--gap-x1 {
+  gap: var(--spacing-x1);
+}
+
+.flex--gap-x2 {
+  gap: var(--spacing-x2);
+}
+
+.flex--gap-x3 {
+  gap: var(--spacing-x3);
+}
+
+.flex--gap-x4 {
+  gap: var(--spacing-x4);
+}
+
 .flex--padding {
   padding: 16px;
 }
