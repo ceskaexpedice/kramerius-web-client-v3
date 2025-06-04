@@ -9,7 +9,6 @@ import {languageMap} from '../../misc/language-map';
   selector: 'tr[app-record-item-list-row]',
   imports: [
     TranslatePipe,
-    NgClass,
     NgIf,
     NgForOf,
     AccessibilityBadgeComponent,

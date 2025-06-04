@@ -22,6 +22,10 @@
 
   </ng-container>
 
+  <button class="icon-button link tertiary" *ngIf="showInfo" (click)="onInfo()">
+    <i class="icon-info-circle"></i>
+  </button>
+
   <!-- Favorite Icon -->
   <button class="icon-button link tertiary" *ngIf="showFavorites" (click)="onFavorite()">
     <i class="icon-heart"></i>

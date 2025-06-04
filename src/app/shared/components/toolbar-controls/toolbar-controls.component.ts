@@ -18,10 +18,12 @@ export class ToolbarControlsComponent {
   @Input() showFavorites = false;
   @Input() showShare = false;
   @Input() showQuote = false;
+  @Input() showInfo = false;
 
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() shareClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() quoteClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() infoClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() calendarGridClicked: EventEmitter<CalendarGridControl> = new EventEmitter<CalendarGridControl>();
 
   setViewMode(mode: CalendarGridControl) {
@@ -39,6 +41,10 @@ export class ToolbarControlsComponent {
 
   onQuote() {
     this.quoteClicked.emit();
+  }
+
+  onInfo() {
+    this.infoClicked.emit();
   }
 
 }

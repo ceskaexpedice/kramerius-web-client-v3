@@ -11,7 +11,6 @@ import {TranslatePipe} from '@ngx-translate/core';
     NgIf,
     RecordItemListRowComponent,
     NgForOf,
-    NgTemplateOutlet,
     TranslatePipe,
   ],
   templateUrl: './record-item-list.component.html',

@@ -10,7 +10,6 @@ import {RecordHandlerService} from '../../services/record-handler.service';
   selector: 'app-record-item',
   imports: [
     NgIf,
-    NgClass,
     TranslatePipe,
   ],
   templateUrl: './record-item.component.html',
