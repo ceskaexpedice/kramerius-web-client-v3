@@ -105,7 +105,7 @@ jobs:
           '{"include": [
             {
               "name": "cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
-              "domain": "cdk-klient.test.trinera.cloud"
+              "domain": "cdk.test.trinera.cloud"
             }
           ]}'
       if:
@@ -119,7 +119,7 @@ jobs:
           '{"include": [
             {
               "name": "cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
-              "domain": "cdk-klient.app.trinera.cloud"
+              "domain": "cdk.app.trinera.cloud"
             }
           ]}'
       if:
@@ -134,7 +134,7 @@ jobs:
           '{"include": [
             {
               name: "cdk_klient_${{ steps.set_vars.outputs.docker_container_suffix }}",
-              domain: "${{ steps.set_vars.outputs.ref_name }}.cdk-klient.app.trinera.cloud"
+              domain: "${{ steps.set_vars.outputs.ref_name }}.cdk.app.trinera.cloud"
             }
           ]}'
       if:
