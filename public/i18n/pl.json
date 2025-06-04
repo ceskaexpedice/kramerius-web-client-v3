@@ -90,5 +90,7 @@
   "advanced-filter-genre-placeholder": "Wprowadź gatunek",
   "advanced-filter-geoName-placeholder": "Wprowadź nazwę geograficzną",
 
-  "author-not-filled": "Autor nie wypełniony"
+  "author-not-filled": "Autor nie wypełniony",
+  "record-info-dialog-title": "Szczegółowy opis",
+  "record-info-section-meta": "Informacje meta"
 }

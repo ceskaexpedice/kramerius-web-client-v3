@@ -90,5 +90,7 @@
   "advanced-filter-genre-placeholder": "Zadejte žánr",
   "advanced-filter-geoName-placeholder": "Zadejte geografický název",
 
-  "author-not-filled": "Autor nevyplněn"
+  "author-not-filled": "Autor nevyplněn",
+  "record-info-dialog-title": "Podrobný popis",
+  "record-info-section-meta": "Meta informace"
 }

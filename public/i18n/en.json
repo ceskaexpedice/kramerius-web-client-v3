@@ -90,5 +90,7 @@
   "advanced-filter-genre-placeholder": "Enter genre",
   "advanced-filter-geoName-placeholder": "Enter geographic name",
 
-  "author-not-filled": "Author not filled"
+  "author-not-filled": "Author not filled",
+  "record-info-dialog-title": "Detailed description",
+  "record-info-section-meta": "Meta information"
 }
