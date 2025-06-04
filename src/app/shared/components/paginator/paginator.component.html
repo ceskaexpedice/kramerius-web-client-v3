@@ -1,10 +1,14 @@
 <div class="paginator" *ngIf="pages().length > 0 && totalCount > pageSize">
   <div class="pages">
-    <ng-container *ngFor="let p of pages()">
-      <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">
-        {{ p }}
-      </button>
-      <span *ngIf="p === -1">...</span>
+    <ng-container *ngIf="!showOnlyArrows">
+
+      <ng-container *ngFor="let p of pages()">
+        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        <span *ngIf="p === -1">...</span>
+      </ng-container>
+
     </ng-container>
 
     <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">
