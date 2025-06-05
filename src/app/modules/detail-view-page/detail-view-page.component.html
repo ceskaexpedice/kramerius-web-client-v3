@@ -5,9 +5,7 @@
 
   <button (click)="openRecordInfo()">info</button>
 
-  <img
-    [src]="`https://api.kramerius.mzk.cz/search/api/client/v7.0/items/${doc.pid}/image/thumb`"
-    alt="Náhľad dokumentu"
+  <img [src]="`${getKrameriusBaseUrl()}/items/${doc.pid}/image/thumb`" alt="Náhľad dokumentu"
     class="app-document-thumbnail">
 
   <h1>{{ doc.titlesSearch }}</h1>

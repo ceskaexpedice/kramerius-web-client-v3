@@ -2,7 +2,7 @@
   <div class="item-card__image-container">
     <img
       class="item-card__image"
-      [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + uuid + '/image/thumb'"
+      [src]="`${getKrameriusBaseUrl()}/items/${uuid}/image/thumb`"
       [alt]="title"
       loading="lazy"
     />

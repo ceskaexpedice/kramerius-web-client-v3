@@ -2,7 +2,7 @@
   <div class="title-wrapper">
     <img
       class="thumb"
-      [src]="'https://api.kramerius.mzk.cz/search/api/client/v7.0/items/' + record.pid + '/image/thumb'"
+      [src]="`${getKrameriusBaseUrl()}/items/${record.pid}/image/thumb`"      
       alt="thumbnail"
     />
     <div>
