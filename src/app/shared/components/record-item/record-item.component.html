@@ -3,7 +3,7 @@
   <div class="record-item-card__inner">
 
     <div class="record-item-card__image"
-      [style.background-image]="`'url(${getKrameriusBaseUrl()}/items/${record.pid}/image/thumb)'`"
+         [style.background-image] = "`url(${getKrameriusBaseUrl()}/items/${record.pid}/image/thumb)`"
     >
 
       <span class="badge model">{{ record.model | translate }}</span>
