@@ -1,0 +1,23 @@
+.action-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-base);
+
+  .toolbar-left,
+  .toolbar-center,
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .toolbar-center {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .toolbar-right {
+    justify-content: flex-end;
+  }
+}

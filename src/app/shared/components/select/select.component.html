@@ -5,9 +5,8 @@
   [attr.aria-expanded]="open()"
   role="button"
   tabindex="0"
-  (keydown.enter)="toggle()"
-  (keydown.space)="toggle()"
-  (keydown.arrowDown)="focusFirst()"
+  [ngClass]="theme"
+  (keydown)="onKeyDown($event)"
 >
   <span>{{ displayFn(value) | translate }}</span>
   <i

@@ -2,15 +2,18 @@
 
   <app-input
     [theme]="inputTheme"
+    [size]="size"
     [placeholder]="placeholder | translate"
     [initialValue]="inputTerm()"
     [autocomplete]="auto"
-    [showMicButton]="true"
-    [showHelpButton]="true"
-    [showSubmitButton]="true"
+    [showMicButton]="showMicrophoneButton"
+    [showHelpButton]="showHelpButton"
+    [showSubmitButton]="showSubmitButton"
+    [showClearButton]="showClearButton"
     [signalInput]="inputTerm"
     [submitIcon]="'icon-search-normal'"
-    (valueChange)="onInputValueChange($event)"
+    [withIcons]="withIcons"
+    (valueChange)="onInputValueChange($event.toString())"
     (enter)="onSearch()"
     (submit)="onSubmit()">
   </app-input>
@@ -19,9 +22,41 @@
     #auto="matAutocomplete"
     (optionSelected)="onSelectSuggestion($event)"
   >
+    <ng-container *ngIf="showHistorySuggestions">
+      @for (option of filteredHistorySuggestions(); track $index) {
+        <mat-option [value]="option">
+
+          <div class="autocomplete-option">
+
+            <div class="autocomplete-option--content">
+              <i class="icon-search-history"></i>
+              <label [innerHTML]="highlight(option, inputTerm())"></label>
+            </div>
+
+            <button
+              class="delete-btn"
+              (click)="historyService.remove(option); $event.stopPropagation();">
+              <i class="icon-trash"></i>
+            </button>
+
+          </div>
+
+        </mat-option>
+      }
+    </ng-container>
+
     @for (option of suggestions(); track $index) {
       <mat-option [value]="option">
-        <label [innerHTML]="highlight(option, inputTerm())"></label>
+
+        <div class="autocomplete-option">
+
+          <div class="autocomplete-option--content">
+            <i class="icon-search-normal"></i>
+            <label [innerHTML]="highlight(option, inputTerm())"></label>
+          </div>
+
+        </div>
+
       </mat-option>
     }
   </mat-autocomplete>

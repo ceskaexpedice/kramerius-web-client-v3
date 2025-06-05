@@ -1,0 +1,69 @@
+
+:host {
+  display: block;
+  padding: 16px;
+}
+
+h2 {
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+h3 {
+  padding-bottom: 15px;
+  text-align: left;
+  font-size: 20px;
+  margin-top: 0;
+  border-bottom: 1px solid var(--color-border-bright);
+}
+
+.months-calendar-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  /* Responsive layout adjustments */
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+
+  .month-calendar {
+    border: 1px solid var(--color-border-bright);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-bg-base);
+
+    /* Make the calendar smaller to fit in the grid */
+    ::ng-deep .mat-calendar {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Hide the header with month/year navigation */
+    ::ng-deep .mat-calendar-header {
+      display: none;
+    }
+
+    /* Make the day names fit better */
+    ::ng-deep .mat-calendar-table {
+      width: 100%;
+    }
+
+    /* Adjust calendar cells for better fit */
+    ::ng-deep .mat-calendar-body-cell {
+      height: 28px;
+      width: 28px;
+    }
+  }
+}
+

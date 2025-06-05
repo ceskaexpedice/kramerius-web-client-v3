@@ -18,6 +18,7 @@ export class PaginatorComponent implements OnChanges {
   @Input() pageSize = 25;
   @Input() pageSizeOptions = [25, 50, 100, 200, 500];
   @Input() showPageSizeOptions = true;
+  @Input() showOnlyArrows = false;
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();

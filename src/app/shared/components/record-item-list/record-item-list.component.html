@@ -1,0 +1,25 @@
+<table class="record-table" *ngIf="records.length">
+  <thead>
+  <tr>
+    <th>{{'filter-title-label' | translate}}</th>
+    <th>{{ 'filter-author-label' | translate }}</th>
+    <th>{{ 'filter-year-label' | translate }}</th>
+    <th>{{ 'filter-license-label' | translate }}</th>
+    <th>{{ 'filter-doctype-label' | translate }}</th>
+    <th>{{ 'filter-count-label' | translate }}</th>
+    <th>{{'filter-language-label' | translate}}</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr
+    (click)="onClick($event, record)"
+    app-record-item-list-row
+    *ngFor="let record of records"
+    [record]="record">
+  </tr>
+  </tbody>
+</table>
+
+<div class="no-results" *ngIf="!records.length">
+  <p>Žiadne výsledky na zobrazenie.</p>
+</div>

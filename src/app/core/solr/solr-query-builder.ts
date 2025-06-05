@@ -142,4 +142,8 @@ export class SolrQueryBuilder {
     return `${field}:(${words.join(` ${operator} `)})`;
   }
 
+  static buildBooleanQuery(conditions: string[]): string {
+    return conditions.join(' AND ');
+  }
+
 }

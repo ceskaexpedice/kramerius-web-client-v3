@@ -1,23 +1,27 @@
-import {Injectable, signal, effect, Signal, WritableSignal} from '@angular/core';
+import {effect, Injectable, signal} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, map, filter, combineLatest, of} from 'rxjs';
+import {combineLatest, filter, map, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
+  selectFacets,
   selectSearchResults,
   selectSearchResultsTotalCount,
-} from '../../state/search/search.selectors';
+} from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
-import {loadSearchResults} from '../../state/search/search.actions';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
+import {FilterService} from './filter.service';
+import {AdvancedSearchService} from './advanced-search.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SearchService {
+export class SearchService implements FilterService {
+  private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
   private initialized = false;
 
   private _searchTerm = signal('');
@@ -64,6 +68,8 @@ export class SearchService {
   onSearch(term: string | null): void {
     const query = (term && term.length > 0) ? `${term}` : '';
     this._submittedTerm.set(query);
+    // reset page to 1
+    this._page.set(1);
     this.search(query);
   }
 
@@ -81,7 +87,8 @@ export class SearchService {
     private route: ActivatedRoute,
     private store: Store,
     private queryParamsService: QueryParamsService,
-    private solrService: SolrService
+    private solrService: SolrService,
+    private advancedSearchService: AdvancedSearchService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
@@ -95,7 +102,11 @@ export class SearchService {
     });
   }
 
-  getFiltersWithOperators(): Observable<Record<string, string>> {
+  getFacets(): Observable<any> {
+    return this.store.select(selectFacets);
+  }
+
+  getFiltersWithOperators(): Observable<Record<string, SolrOperators>> {
     return this.route.queryParams.pipe(
       map(params => {
         // Get all operators from query parameters
@@ -121,16 +132,27 @@ export class SearchService {
   initialize(): void {
     if (this.initialized) return;
 
-    this.route.queryParams.subscribe(this.dispatchSearch.bind(this));
+    this.route.queryParams.subscribe(params => {
+      const currentRoute = this.router.url.split('?')[0];
+      if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+
+        this.advancedSearchService.resetFromParams(params);
+
+        this.dispatchSearch(params);
+      }
+    });
+
     this.initialized = true;
   }
 
   private dispatchSearch(params: any): void {
-    // Only dispatch if we have actual params
     if (Object.keys(params).length === 0) return;
 
     const query = params['query'] || '';
-    const filters = this.queryParamsService.getFilters(params);
+    const baseFilters = this.queryParamsService.getFilters(params);
+
+    const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
+
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();
@@ -143,9 +165,15 @@ export class SearchService {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
 
+    let filters: string[];
+
+    filters = baseFilters;
+
     this.store.dispatch(loadSearchResults({
       query,
       filters,
+      advancedQuery: advancedQuery,
+      advancedQueryMainOperator: advancedQueryMainOperator,
       page: page - 1,
       pageCount: pageSize,
       sortBy,
@@ -159,7 +187,7 @@ export class SearchService {
     selectedValues: string[],
     useAndOperator: boolean = false
   ): void {
-    const operator = useAndOperator ? 'AND' : 'OR';
+    const operator = useAndOperator ? SolrOperators.and : SolrOperators.or;
     this.queryParamsService.updateFilters(route, facetKey, selectedValues, operator);
   }
 
@@ -247,5 +275,18 @@ export class SearchService {
     return this.activeFilters$.pipe(
       map(filters => filters.includes(itemName))
     );
+  }
+
+  backupCurrentSearchUrl(): void {
+    const currentUrl = this.router.url;
+    sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
+  }
+
+  getBackupSearchUrl(): string | null {
+    return sessionStorage.getItem(this.SEARCH_BACKUP_KEY);
+  }
+
+  clearBackupSearchUrl(): void {
+    sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
 }

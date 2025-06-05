@@ -10,14 +10,14 @@
 
 <div class="search-input">
   <app-input
-    [placeholder]="'Hľadať v zozname...'"
+    [placeholder]="'filter-dialog.search-placeholder' | translate"
     [theme]="'light'"
     [initialValue]="searchTerm()"
     [showMicButton]="true"
     [showHelpButton]="true"
     [showSubmitButton]="true"
     [changeMicToClearOnFocus]="true"
-    (valueChange)="onSearchTermChange($event)"
+    (valueChange)="onSearchTermChange($event.toString())"
   />
 </div>
 
@@ -81,6 +81,6 @@
     [showPageSizeOptions]="false"
   ></app-paginator>
 
-  <button class="button primary" (click)="applyFilter()">Použiť</button>
+  <button class="button primary" (click)="applyFilter()">{{'dialog.apply' | translate}}</button>
 <!--  <button mat-button (click)="close()">Zavrieť</button>-->
 </div>

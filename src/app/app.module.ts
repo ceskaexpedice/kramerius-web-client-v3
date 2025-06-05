@@ -1,26 +1,31 @@
-import {AppComponent} from './app.component';
-import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
-import {RouterModule} from '@angular/router';
-import {routes} from './app.routes';
+import { AppComponent } from './app.component';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { routes } from './app.routes';
 import {
   MissingTranslationHandler,
   TranslateLoader,
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import {HttpBackend, provideHttpClient} from '@angular/common/http';
-import {ENVIRONMENT} from './app.config';
-import {HeaderComponent} from './core/layout/header/header.component';
-import {PercentageSignTranslateParser} from './shared/translation/percentage-sign-translate-parser';
-import {AppMissingTranslationService} from './shared/translation/app-missing-translation-handler';
-import {StoreModule} from '@ngrx/store';
-import {EffectsModule} from '@ngrx/effects';
-import {StoreDevtoolsModule} from '@ngrx/store-devtools';
-import {FooterComponent} from './core/layout/footer/footer.component';
-import {routerReducer, StoreRouterConnectingModule} from '@ngrx/router-store';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {HttpLoaderFactory} from './shared/translation/translate-http-loader';
+import { HttpBackend, provideHttpClient } from '@angular/common/http';
+import { ENVIRONMENT } from './app.config';
+import { HeaderComponent } from './core/layout/header/header.component';
+import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
+import { AppMissingTranslationService } from './shared/translation/app-missing-translation-handler';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { FooterComponent } from './core/layout/footer/footer.component';
+import { routerReducer, StoreRouterConnectingModule } from '@ngrx/router-store';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
+import { EnvironmentService } from './shared/services/environment.service';
+
+export function initApp(envService: EnvironmentService) {
+  return () => envService.load();
+}
 
 @NgModule({
   declarations: [
@@ -50,13 +55,19 @@ import {HttpLoaderFactory} from './shared/translation/translate-http-loader';
     }, {}),
     EffectsModule.forRoot([]),
     StoreRouterConnectingModule.forRoot(),
-    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: ENVIRONMENT.production }),
     HeaderComponent,
     FooterComponent,
   ],
   providers: [
     provideHttpClient(),
-    AppMissingTranslationService
+    AppMissingTranslationService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initApp,
+      deps: [EnvironmentService],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

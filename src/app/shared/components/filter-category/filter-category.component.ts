@@ -47,7 +47,7 @@ export class FilterCategoryComponent implements OnChanges {
   // Get whether to show the "Show all" button
   get shouldShowMoreButton(): boolean {
     // Don't show for 'model' facetKey, and only show if we have more items than maxItems
-    return this.facetKey !== 'model' && this.showShowMoreButton && this.items.length > this.maxItems;
+    return this.facetKey !== 'model' && this.showShowMoreButton;
   }
 
   get hasAndOperator(): boolean {
@@ -82,15 +82,23 @@ export class FilterCategoryComponent implements OnChanges {
       }
     });
 
-    // Sort, selected first
-    const sorted = allItems.sort((a, b) => {
-      const aSelected = selectedSet.has(a.name) ? -1 : 0;
-      const bSelected = selectedSet.has(b.name) ? -1 : 0;
-      return aSelected - bSelected;
-    });
+    let sorted;
+
+    // Special handling for 'model' facet - preserve original order
+    if (this.facetKey === 'model') {
+      sorted = allItems; // Keep original order for model facet
+    } else {
+      // For all other facets, sort with selected items first
+      sorted = allItems.sort((a, b) => {
+        const aSelected = selectedSet.has(a.name) ? -1 : 0;
+        const bSelected = selectedSet.has(b.name) ? -1 : 0;
+        return aSelected - bSelected;
+      });
+    }
 
     this.visibleItems.set(sorted);
   }
+
 
   isSelected(value: string) {
     return this.selected.includes(`${this.facetKey}:${value}`);

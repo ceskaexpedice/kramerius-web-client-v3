@@ -10,3 +10,8 @@ input {
   align-items: center;
   gap: 10px;
 }
+
+input:focus, input:active, input:target {
+  outline: none;
+  border: 1px solid var(--color-primary);
+}

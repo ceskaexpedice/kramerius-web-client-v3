@@ -2,7 +2,8 @@ import {AppSettingsThemeEnum, Settings} from './settings.model';
 import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Injectable} from '@angular/core';
-import {SettingsDialogComponent} from './settings-dialog/settings-dialog.component';
+import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/settings-dialog.component';
+import {LocalStorageService} from '../../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,10 @@ export class SettingsService {
   private _settings = new BehaviorSubject<Settings>(this.loadInitialSettings());
   settings$ = this._settings.asObservable();
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private localStorage: LocalStorageService
+  ) {
     this.applyTheme(this._settings.value.theme);
   }
 
@@ -70,16 +74,16 @@ export class SettingsService {
     html.classList.add(theme.toLowerCase());
   }
 
-  private saveToStorage(settings: Settings): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
+  public saveToStorage(settings: Settings): void {
+    this.localStorage.set(this.STORAGE_KEY, JSON.stringify(settings));
   }
 
-  private loadInitialSettings(): Settings {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
+  public loadInitialSettings(): Settings {
+    const saved = this.localStorage.get<any>(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return new Settings(parsed.theme);
+        return new Settings(parsed.theme, parsed.searchResultsView);
       } catch (e) {
         console.warn('⚠️ Could not parse settings from localStorage', e);
       }

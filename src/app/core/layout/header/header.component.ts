@@ -10,6 +10,8 @@ import {AutocompleteComponent} from '../../../shared/components/autocomplete/aut
 import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
 import {SearchService} from '../../../shared/services/search.service';
 import {TranslatePipe} from '@ngx-translate/core';
+import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
+import { EnvironmentService } from '../../../shared/services/environment.service';
 
 @Component({
   selector: 'app-header',
@@ -33,9 +35,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
 
   constructor(
+    private envService: EnvironmentService,
     private router: Router,
     private settingsService: SettingsService,
-    public searchService: SearchService
+    public searchService: SearchService,
+    private advancedSearch: AdvancedSearchService
   ) {}
 
   ngOnInit() {
@@ -55,6 +59,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Initial check
     this.updateHeaderType();
+
+    this.logDevInfo();
   }
 
   ngOnDestroy() {
@@ -91,5 +97,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   openSettings() {
     this.settingsService.openSettingsDialog();
+  }
+
+  openAdvancedSearch() {
+    this.advancedSearch.openDialog();
+  }
+
+  logDevInfo(): void {
+    const devInfo = {
+      useStaticRuntimeConfig: this.envService.get('useStaticRuntimeConfig'),
+      devMode: this.envService.get('devMode'),
+      environmentCode: this.envService.get('environmentCode'),
+      environmentName: this.envService.get('environmentName'),
+
+      krameriusBaseUrl: this.envService.get('krameriusBaseUrl'),
+
+      gitCommitHash: this.envService.get('git_commit_hash'),
+      gitTag: this.envService.get('git_tag'),
+      buildDate: this.envService.get('build_date'),
+      gitCommitUrl: undefined as string | undefined,
+    };
+    if (devInfo.gitCommitHash) {
+      const commitUrl = 'https://github.com/trineracz/CDK-klient/commit/' + devInfo.gitCommitHash;
+      devInfo.gitCommitUrl = commitUrl;
+      console.log('Git commit URL:', commitUrl);
+    } else {
+      delete devInfo.gitCommitHash;
+    }
+    console.log('Dev Info:', devInfo);
   }
 }

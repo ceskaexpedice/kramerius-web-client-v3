@@ -1,3 +1,5 @@
+import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+
 export interface SearchDocument {
   pid: string;
   title: string;
@@ -5,9 +7,11 @@ export interface SearchDocument {
   authors?: string[];
   date?: string;
   model: string;
-  accessibility: string;
+  accessibility: DocumentAccessibilityEnum;
   licenses?: string[];
   containsLicenses?: string[];
+  count_page?: number;
+  languages?: string[];
 
   access: string;
 }
@@ -22,5 +26,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   accessibility: doc.accessibility,
   licenses: doc.licenses,
   containsLicenses: doc.contains_licenses,
-  access: doc.access
+  access: doc.access,
+  count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,
+  languages: doc['languages.facet'] ? doc['languages.facet'] : undefined,
 });

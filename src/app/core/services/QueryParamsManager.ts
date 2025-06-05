@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import {ActivatedRoute, Params, Router } from "@angular/router";
+import {SolrOperators} from '../solr/solr-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,9 @@ export class QueryParamsService {
    */
   getFilters(params: Params): string[] {
     const fq = params['fq'];
-    return Array.isArray(fq) ? fq : fq ? [fq] : [];
+    if (!fq) return [];
+    const filters = Array.isArray(fq) ? fq : [fq];
+    return filters.filter(f => f && f !== 'undefined');
   }
 
   /**
@@ -35,13 +38,13 @@ export class QueryParamsService {
   /**
    * Extract all operators from URL
    */
-  getOperators(params: Params): Record<string, 'AND' | 'OR'> {
-    const operators: Record<string, 'AND' | 'OR'> = {};
+  getOperators(params: Params): Record<string, SolrOperators> {
+    const operators: Record<string, SolrOperators> = {};
 
     Object.keys(params).forEach(key => {
       if (key.endsWith('_operator')) {
         const field = key.replace('_operator', '');
-        operators[field] = params[key] === 'AND' ? 'AND' : 'OR';
+        operators[field] = params[key] === SolrOperators.and ? SolrOperators.and : SolrOperators.or;
       }
     });
 
@@ -51,9 +54,9 @@ export class QueryParamsService {
   /**
    * Get operator for a specific facet
    */
-  getOperatorForFacet(params: Params, facetKey: string): 'AND' | 'OR' {
+  getOperatorForFacet(params: Params, facetKey: string): SolrOperators {
     const operatorParam = params[`${facetKey}_operator`];
-    return operatorParam === 'AND' ? 'AND' : 'OR';
+    return operatorParam === SolrOperators.and ? SolrOperators.and : SolrOperators.or;
   }
 
   /**
@@ -63,7 +66,7 @@ export class QueryParamsService {
     route: ActivatedRoute,
     facetKey: string,
     selectedValues: string[],
-    operator: 'AND' | 'OR'
+    operator: SolrOperators
   ): void {
     const currentParams = route.snapshot.queryParams;
     const otherFilters = this.getFiltersExcludingFacet(currentParams, facetKey);
@@ -90,6 +93,44 @@ export class QueryParamsService {
     });
 
     // Navigate
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams
+    });
+  }
+
+  /**
+   * Update all filters and operators at once (for advanced search)
+   */
+  updateMultipleFilters(
+    route: ActivatedRoute,
+    filtersByFacet: Record<string, string[]>,
+    operators: Record<string, SolrOperators>
+  ): void {
+    const currentParams = route.snapshot.queryParams;
+
+    const fq: string[] = [];
+    Object.entries(filtersByFacet).forEach(([facetKey, values]) => {
+      values.forEach(value => {
+        fq.push(`${facetKey}:${value}`);
+      });
+    });
+
+    const queryParams: any = {
+      ...currentParams,
+      fq: fq.length > 0 ? fq : null
+    };
+
+    Object.entries(operators).forEach(([facetKey, operator]) => {
+      queryParams[`${facetKey}_operator`] = operator;
+    });
+
+    Object.keys(queryParams).forEach(key => {
+      if (queryParams[key] === null || (Array.isArray(queryParams[key]) && queryParams[key].length === 0)) {
+        delete queryParams[key];
+      }
+    });
+
     this.router.navigate([], {
       relativeTo: route,
       queryParams
@@ -184,6 +225,43 @@ export class QueryParamsService {
     this.router.navigate([], {
       relativeTo: route,
       queryParams: newParams
+    });
+  }
+
+  getAdvancedSearch(params: Params): string | null {
+    return params['advSearch'] || null;
+  }
+
+  getAdvancedMainOperator(params: Params): string {
+    return params['advOp'] || 'AND';
+  }
+
+  removeAdvancedSearch(route: ActivatedRoute): void {
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: {
+        advSearch: null,
+        advOp: null
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  appendToQueryParams(route: ActivatedRoute, newParams: Record<string, any>): void {
+    const currentParams = route.snapshot.queryParams;
+
+    const queryParams: any = { ...currentParams, ...newParams };
+
+    Object.keys(queryParams).forEach(key => {
+      if (queryParams[key] === undefined) {
+        delete queryParams[key];
+      }
+    });
+
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams,
+      queryParamsHandling: 'merge'
     });
   }
 }

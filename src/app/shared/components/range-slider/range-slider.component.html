@@ -1,47 +1,111 @@
-<div class="range-slider">
-  <div class="sliders">
-    <input
-      type="range"
-      [min]="min"
-      [max]="max"
-      [value]="from()"
-      (input)="onFromInput($any($event.target).valueAsNumber)"
-    />
-    <input
-      type="range"
-      [min]="min"
-      [max]="max"
-      [value]="to()"
-      (input)="onToInput($any($event.target).valueAsNumber)"
-    />
-    <div
-      class="slider-track"
-      [style.left.%]="getProgressLeft()"
-      [style.right.%]="getProgressRight()"
-    ></div>
-  </div>
+<div class="range-slider" [ngClass]="layout">
+  <!-- VARIANT: INLINE -->
+  <ng-container *ngIf="layout === 'inline'; else verticalLayout">
+    <div class="inputs-inline">
+      <app-input
+        [showSubmitButton]="false"
+        [theme]="'dark'"
+        [type]="'number'"
+        [min]="min"
+        [size]="'sm'"
+        [max]="max"
+        (valueChange)="onFromInput($event)"
+        [signalInput]="from"
+        [withIcons]="false"
+      ></app-input>
 
-  <div class="inputs">
-    <div>
+      <div class="sliders" [style.background]="getSliderBackground()">
+        <input
+          class="range from-slider"
+          type="range"
+          [min]="min"
+          [max]="max"
+          [step]="step"
+          [value]="from()"
+          [class.on-top]="from() === to() && lastMoved === 'from'"
+          (input)="onFromInput($any($event.target).valueAsNumber)"
+        />
+        <input
+          class="range to-slider"
+          type="range"
+          [min]="min"
+          [max]="max"
+          [step]="step"
+          [value]="to()"
+          [class.on-top]="from() === to() && lastMoved === 'to'"
+          (input)="onToInput($any($event.target).valueAsNumber)"
+        />
+      </div>
+
+      <app-input
+        [showSubmitButton]="false"
+        [theme]="'dark'"
+        [type]="'number'"
+        [min]="min"
+        [size]="'sm'"
+        [max]="max"
+        (valueChange)="onToInput($event)"
+        [signalInput]="to"
+        [withIcons]="false"
+      ></app-input>
+    </div>
+  </ng-container>
+
+  <!-- VARIANT: DEFAULT (VERTICAL) -->
+  <ng-template #verticalLayout>
+    <div class="sliders" [style.background]="getSliderBackground()">
       <input
-        type="number"
+        class="range from-slider"
+        type="range"
         [min]="min"
         [max]="max"
+        [step]="step"
         [value]="from()"
+        [class.on-top]="from() === to() && lastMoved === 'from'"
         (input)="onFromInput($any($event.target).valueAsNumber)"
       />
-    </div>
-
-    <div class="separator">-</div>
-
-    <div>
       <input
-        type="number"
+        class="range to-slider"
+        type="range"
         [min]="min"
         [max]="max"
+        [step]="step"
         [value]="to()"
+        [class.on-top]="from() === to() && lastMoved === 'to'"
         (input)="onToInput($any($event.target).valueAsNumber)"
       />
     </div>
-  </div>
+
+    <div class="inputs">
+      <div>
+        <app-input
+          [showSubmitButton]="false"
+          [theme]="'dark'"
+          [type]="'number'"
+          [min]="min"
+          [size]="'sm'"
+          [max]="max"
+          (valueChange)="onFromInput($event)"
+          [signalInput]="from"
+          [withIcons]="false"
+        ></app-input>
+      </div>
+
+      <div class="separator">-</div>
+
+      <div>
+        <app-input
+          [showSubmitButton]="false"
+          [theme]="'dark'"
+          [type]="'number'"
+          [min]="min"
+          [size]="'sm'"
+          [max]="max"
+          (valueChange)="onToInput($event)"
+          [signalInput]="to"
+          [withIcons]="false"
+        ></app-input>
+      </div>
+    </div>
+  </ng-template>
 </div>

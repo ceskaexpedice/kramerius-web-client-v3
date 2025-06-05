@@ -1,6 +1,6 @@
 <div class="selected-tags" *ngIf="items.length > 0">
   <mat-chip-set>
-    <button *ngIf="clearButtonPosition === 'left'"
+    <button *ngIf="clearButtonPosition === 'left' && showClearAll"
             mat-button
             class="clear-button"
             (click)="clearAll.emit()">
@@ -54,7 +54,7 @@
 
     </ng-container>
 
-    <button *ngIf="clearButtonPosition === 'right'"
+    <button *ngIf="clearButtonPosition === 'right' && showClearAll"
             mat-button
             class="clear-button"
             (click)="clearAll.emit()">

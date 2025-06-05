@@ -1,0 +1,126 @@
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {catchError, map, switchMap, withLatestFrom} from 'rxjs/operators';
+import {forkJoin, of} from 'rxjs';
+import {SolrService} from '../../../core/solr/solr.service';
+import * as SearchActions from './search.actions';
+import {SolrResponseParser} from '../../../core/solr/solr-response-parser';
+import {parseSearchDocument} from '../../models/search-document';
+import {Store} from '@ngrx/store';
+import * as SearchSelectors from './search.selectors';
+import {FacetItem} from '../../models/facet-item';
+import {SolrOperators} from '../../../core/solr/solr-helpers';
+import {DEFAULT_FACET_FIELDS} from '../const/facet-fields';
+
+@Injectable()
+export class SearchEffects {
+  constructor(
+    private actions$: Actions,
+    private solr: SolrService,
+    private store: Store
+  ) {}
+
+  loadSearchResults$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SearchActions.loadSearchResults),
+      withLatestFrom(
+        this.store.select(SearchSelectors.selectFacets),
+        this.store.select(SearchSelectors.selectFacetOperators)
+      ),
+      switchMap(([{ query, filters, page, pageCount, sortBy, sortDirection, advancedQuery, advancedQueryMainOperator }, currentFacets, facetOperators]) => {
+
+        return forkJoin({
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery)
+        }).pipe(
+          switchMap(({ resultsRes, facetsRes }) => {
+            const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>
+              parseSearchDocument(doc)
+            );
+
+            // Use special handling for the facets
+            const facets = this.handleFacetsWithOperators(
+              resultsRes.facet_counts?.facet_fields ?? {},
+              facetsRes.facet_counts?.facet_fields ?? {},
+              facetOperators
+            );
+
+            return [
+              SearchActions.loadSearchResultsSuccess({
+                results: parsedResults,
+                totalCount: resultsRes.response.numFound
+              }),
+              SearchActions.loadFacetsSuccess({ facets })
+            ];
+          }),
+          catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
+        );
+      })
+    )
+  );
+
+// Helper method to process facets according to their operators
+  private handleFacetsWithOperators(
+    searchFacets: Record<string, any[]>,
+    operatorFacets: Record<string, any[]>,
+    facetOperators: Record<string, SolrOperators>
+  ): Record<string, FacetItem[]> {
+    const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
+    const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
+    const result: Record<string, FacetItem[]> = {};
+
+    // Iterate through all known facet keys (union of keys from both responses)
+    const allFacetKeys = new Set([
+      ...Object.keys(parsedSearchFacets),
+      ...Object.keys(parsedOperatorFacets),
+    ]);
+
+    for (const facetKey of allFacetKeys) {
+      const operator = facetOperators[facetKey] ?? SolrOperators.or;
+
+      const searchValues = parsedSearchFacets[facetKey] || [];
+      const operatorValues = parsedOperatorFacets[facetKey] || [];
+
+      // Use values based on operator
+      let baseValues: FacetItem[];
+
+      if (operator === SolrOperators.and) {
+        baseValues = [...searchValues];
+      } else {
+        baseValues = [...operatorValues];
+      }
+
+      // Create map from base values
+      const valueMap = new Map(baseValues.map(item => [item.name, item]));
+
+      // Add missing values from the other source
+      const additionalValues = operator === SolrOperators.and ? operatorValues : searchValues;
+      for (const item of additionalValues) {
+        if (!valueMap.has(item.name)) {
+          baseValues.push(item);
+        }
+      }
+
+      result[facetKey] = baseValues;
+    }
+
+    return result;
+  }
+
+  loadFacet$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SearchActions.loadFacet),
+      withLatestFrom(this.store.select(SearchSelectors.selectFacets)),
+      switchMap(([{ query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
+
+        return this.solr.loadFacet(query, filters, facet, contains, ignoreCase, facetLimit, facetOffset).pipe(
+          map(response => {
+            const parsed = SolrResponseParser.parseFacet(response.facet_counts.facet_fields?.[facet] || []);
+            return SearchActions.loadFacetSuccess({ facet, items: parsed });
+          }),
+          catchError(error => of(SearchActions.loadFacetFailure({ facet, error })))
+        )}
+      )
+    )
+  );
+}

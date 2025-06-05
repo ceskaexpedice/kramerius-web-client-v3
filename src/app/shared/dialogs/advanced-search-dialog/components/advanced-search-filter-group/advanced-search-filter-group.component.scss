@@ -1,0 +1,54 @@
+.filter-group {
+  display: flex;
+  position: relative;
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  background-color: var(--color-bg-subtle);
+
+  .group-content {
+    flex: 1 1 auto;
+    padding: 12px 24px 20px 12px;
+  }
+
+  .filter-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .group-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .group-operator {
+    flex: 0 0 50px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .operator-toggle {
+      height: 100%;
+      width: 100%;
+      font-size: 13px;
+      color: var(--color-text-on-color);
+      background-color: var(--color-primary);
+      border: none;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--color-primary-hover);
+      }
+
+      &:active {
+        background-color: var(--color-primary-pressed);
+      }
+    }
+  }
+}

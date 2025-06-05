@@ -1,0 +1,55 @@
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  width: 100%;
+
+  .filter-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 8px;
+
+    app-select, app-autocomplete, app-date-stepper {
+      flex: 1 1 50%;
+    }
+
+    app-select {
+      flex: 0 0 180px;
+
+      &:not(:first-child) {
+        flex-grow: 1;
+      }
+    }
+
+    app-autocomplete {
+      flex-grow: 1;
+    }
+
+    app-date-stepper {
+      flex-grow: 1;
+      min-width: 200px;
+    }
+
+    app-range-slider {
+      flex-grow: 1;
+      min-width: 200px;
+    }
+  }
+
+  .remove-button {
+    background: none;
+    border: none;
+    color: var(--color-icon);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: var(--color-danger);
+    }
+  }
+}

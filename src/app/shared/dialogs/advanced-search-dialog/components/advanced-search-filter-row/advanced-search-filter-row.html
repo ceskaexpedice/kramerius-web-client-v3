@@ -1,0 +1,61 @@
+<div class="filter-row">
+
+  <div class="filter-wrapper">
+
+    <app-select
+      [options]="filterTypes"
+      [value]="selectedFilterTypeOption()"
+      [displayFn]="filterTypeDisplayFn"
+      (valueChange)="onFilterTypeChange($event.key)"
+      [theme]="'light'"
+    >
+    </app-select>
+
+    <ng-container [ngSwitch]="filter.key">
+      <app-autocomplete
+        *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
+        [initialValue]="filter.elementValue"
+        [placeholder]="filter.placeholder || filter.key"
+        [showHelpButton]="false"
+        [showMicrophoneButton]="false"
+        [showSubmitButton]="false"
+        [showClearButton]="true"
+        (search)="emitChange()"
+        (submit)="autocompleteSubmit($event)"
+        (suggestionSelected)="suggestionSelected($event)"
+        [getSuggestions]="getSuggestionsFn"
+        [inputTheme]="'dark'"
+        [withIcons]="false"
+        [size]="'sm'"
+      ></app-autocomplete>
+
+      <app-range-slider
+        *ngIf="filter.inputType === AdvancedFilterType.Slider"
+        [min]="filter.meta?.min ?? 0"
+        [max]="filter.meta?.max ?? 100"
+        [step]="filter.meta?.step ?? 1"
+        [initialFrom]="getInitialFrom()"
+        [initialTo]="getInitialTo()"
+        [layout]="'inline'"
+        (rangeChange)="onRangeSliderChange($event)"
+      ></app-range-slider>
+
+      <app-select
+        *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
+        [options]="filter.options || []"
+        [(value)]="filter.elementValue"
+        [theme]="'light'"
+      ></app-select>
+
+      <app-date-stepper
+        *ngIf="filter.inputType === AdvancedFilterType.Date"
+        [data]="filter.elementValue"
+        (dateChange)="onDateChange($event)"
+      ></app-date-stepper>
+    </ng-container>
+  </div>
+
+  <button (click)="remove.emit()" class="remove-button">
+    <i class="icon-trash"></i>
+  </button>
+</div>

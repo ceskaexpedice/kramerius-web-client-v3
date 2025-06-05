@@ -5,7 +5,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 export interface ToggleOption<T> {
   icon?: string;
   iconColor?: string;
-  label: string;
+  label?: string;
   value: T;
 }
 

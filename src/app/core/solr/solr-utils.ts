@@ -6,4 +6,8 @@ export class SolrUtils {
   static cleanText(text: string): string {
     return text?.trim().replace(/\s+/g, ' ') || '';
   }
+
+  static escapeSolrValue(value: string): string {
+    return value.replace(/(["\\])/g, '\\$1');
+  }
 }

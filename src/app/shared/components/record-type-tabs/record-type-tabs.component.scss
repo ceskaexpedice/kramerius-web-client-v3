@@ -1,0 +1,18 @@
+.category-filter--container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background-color: var(--color-bg-base);
+}
+
+.category-filter--container--item {
+  padding: 20px 16px;
+  cursor: pointer;
+  color: var(--color-text-light);
+
+  &.active {
+    font-weight: 600;
+    color: var(--color-text-btn-secondary-pressed);
+  }
+}

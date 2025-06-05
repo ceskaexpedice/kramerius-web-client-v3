@@ -1,49 +1,23 @@
-<div class="settings-body">
+<ng-container [ngSwitch]="activeSection()">
 
-  <div class="sidebar">
+  <ng-container *ngSwitchCase="'display'">
+    <app-settings-display-section [settings]="settings"></app-settings-display-section>
+  </ng-container>
 
-    <ul>
+  <ng-container *ngSwitchCase="'reading'">
+    <app-settings-read-section></app-settings-read-section>
+  </ng-container>
 
-      <li
-        *ngFor="let section of sections"
-        [class.active]="activeSection() === section.key"
-        (click)="setSection(section.key)">
+  <ng-container *ngSwitchCase="'preferences'">
+    <app-settings-user-preferences-section></app-settings-user-preferences-section>
+  </ng-container>
 
-        <label>
-          <i class="{{ section.icon }}"></i> {{ section.label | translate }}
-        </label>
+  <ng-container *ngSwitchCase="'experimental'">
+    <app-settings-experimental-section></app-settings-experimental-section>
+  </ng-container>
 
-        <i class="icon-arrow-right-1"></i>
-      </li>
+  <ng-container *ngSwitchCase="'gdpr'">
+    <app-settings-gdpr-section></app-settings-gdpr-section>
+  </ng-container>
 
-    </ul>
-
-  </div>
-
-  <div class="content">
-    <ng-container [ngSwitch]="activeSection()">
-
-      <ng-container *ngSwitchCase="'display'">
-        <app-settings-display-section [settings]="settings"></app-settings-display-section>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'reading'">
-        <app-settings-read-section></app-settings-read-section>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'preferences'">
-        <app-settings-user-preferences-section></app-settings-user-preferences-section>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'experimental'">
-        <app-settings-experimental-section></app-settings-experimental-section>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'gdpr'">
-        <app-settings-gdpr-section></app-settings-gdpr-section>
-      </ng-container>
-
-    </ng-container>
-  </div>
-
-</div>
+</ng-container>

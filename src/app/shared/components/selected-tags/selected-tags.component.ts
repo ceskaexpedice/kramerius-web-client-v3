@@ -27,6 +27,7 @@ export class SelectedTagsComponent {
   @Input() showFieldNames: boolean = true;
   @Input() translateItems: boolean = true;
   @Input() maxTagLength: number = 30;
+  @Input() showClearAll = true;
 
   @Output() remove = new EventEmitter<string>();
   @Output() removeGroup = new EventEmitter<string>();

@@ -1,0 +1,51 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ config.title | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <hr>
+
+  <div class="dialog-body">
+    <div class="sidebar">
+      <ul>
+        <li
+          *ngFor="let section of config.sections"
+          [class.active]="activeSection() === section.key"
+          (click)="setActiveSection(section.key)">
+
+          <label>
+            <i class="{{ section.icon }}"></i>
+            {{ section.label | translate }}
+          </label>
+
+          <i class="icon-arrow-right-1"></i>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <ng-content></ng-content>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="footer" *ngIf="config.showCancelButton || config.showSaveButton">
+    <button
+      *ngIf="config.showCancelButton"
+      class="button outlined secondary"
+      (click)="onClose()">
+      {{ (config.cancelButtonLabel || 'cancel') | translate }}
+    </button>
+
+    <button
+      *ngIf="config.showSaveButton"
+      class="button primary"
+      (click)="onSave()">
+      {{ (config.saveButtonLabel || 'save') | translate }}
+    </button>
+  </div>
+</div>

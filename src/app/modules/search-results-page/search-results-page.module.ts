@@ -3,24 +3,33 @@ import {SearchResultsPageComponent} from './search-results-page.component';
 import {NgModule} from '@angular/core';
 import {FilterSidebarComponent} from './components/filter-sidebar/filter-sidebar.component';
 import {StoreModule} from '@ngrx/store';
-import {periodicalsReducer} from '../../state/search/periodicals/periodicals.reducer';
-import {booksReducer} from '../../state/search/books/books.reducer';
-import {genresReducer} from '../../state/search/genres/genres.reducer';
-import {documentTypesReducer} from '../../state/search/document-types/document-types.reducer';
+import {periodicalsReducer} from '../search/state/periodicals/periodicals.reducer';
+import {booksReducer} from '../search/state/books/books.reducer';
+import {genresReducer} from '../search/state/genres/genres.reducer';
+import {documentTypesReducer} from '../search/state/document-types/document-types.reducer';
 import {EffectsModule} from '@ngrx/effects';
-import {PeriodicalsEffects} from '../../state/search/periodicals/periodicals.effects';
-import {BooksEffects} from '../../state/search/books/books.effects';
-import {GenresEffects} from '../../state/search/genres/genres.effects';
-import {DocumentTypesEffects} from '../../state/search/document-types/document-types.effects';
-import {SearchEffects} from '../../state/search/search.effects';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {PeriodicalsEffects} from '../search/state/periodicals/periodicals.effects';
+import {BooksEffects} from '../search/state/books/books.effects';
+import {GenresEffects} from '../search/state/genres/genres.effects';
+import {DocumentTypesEffects} from '../search/state/document-types/document-types.effects';
+import {SearchEffects} from './state/search.effects';
+import {AsyncPipe, NgClass, NgForOf, NgIf, UpperCasePipe} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
-import {searchReducer} from '../../state/search/search.reducer';
+import {searchReducer} from './state/search.reducer';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
-import {CategoryFilterComponent} from './components/category-filter/category-filter.component';
 import {ResultsSortComponent} from './components/results-sort/results-sort.component';
+import {SearchFiltersComponent} from './components/search-filters/search-filters.component';
+import {SearchService} from '../../shared/services/search.service';
+import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
+import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {
+  AdvancedSearchIndicatorComponent
+} from './components/advanced-search-indicator/advanced-search-indicator.component';
+import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
+import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
 
 const routes: Routes = [
   {
@@ -47,9 +56,20 @@ const routes: Routes = [
     SelectedTagsComponent,
     PaginatorComponent,
     PaginatorInfoComponent,
-    CategoryFilterComponent,
     ResultsSortComponent,
+    SearchFiltersComponent,
+    ActionToolbarComponent,
+    RecordTypeTabsComponent,
+    TranslatePipe,
+    UpperCasePipe,
+    AdvancedSearchIndicatorComponent,
+    ToggleButtonGroupComponent,
+    NgClass,
+    RecordItemListComponent,
   ],
+  providers: [
+    { provide: 'FilterService', useClass: SearchService }
+  ]
 })
 
 export class SearchResultsPageModule {

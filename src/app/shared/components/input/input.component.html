@@ -1,8 +1,9 @@
 <div class="input-field">
-  <div class="input-container" [ngClass]="theme">
+  <div class="input-container" [ngClass]="[theme, size]">
     <ng-container *ngIf="autocomplete; else noAutocomplete">
       <input
-        type="text"
+        [style.padding-right]="iconsWidth"
+        [type]="type"
         #inputElement
         #inputModel="ngModel"
         [placeholder]="placeholder | translate"
@@ -12,24 +13,66 @@
         [matAutocomplete]="autocomplete"
         (focus)="onFocus()"
         (blur)="onBlur()"
+        [attr.name]="name"
+        [attr.id]="id"
+        [attr.pattern]="pattern"
+        [attr.required]="required ? '' : null"
+        [attr.min]="min"
+        [attr.max]="max"
+        [class.with-icons]="withIcons"
       />
     </ng-container>
 
     <ng-template #noAutocomplete>
-      <input
-        type="text"
-        #inputElement
-        #inputModel="ngModel"
-        [placeholder]="placeholder | translate"
-        [(ngModel)]="value"
-        (ngModelChange)="onInputChange($event)"
-        (keyup.enter)="onEnter()"
-        (focus)="onFocus()"
-        (blur)="onBlur()"
-      />
+      <div class="input-with-prefix">
+        <span class="prefix" *ngIf="prefix">{{ prefix }}</span>
+        <input
+          [style.padding-right]="iconsWidth"
+          [type]="type"
+          inputmode="numeric"
+          #inputElement
+          #inputModel="ngModel"
+          [placeholder]="placeholder | translate"
+          [(ngModel)]="value"
+          (ngModelChange)="onInputChange($event)"
+          (keyup.enter)="onEnter()"
+          (focus)="onFocus()"
+          (blur)="onBlur()"
+          [attr.name]="name"
+          [attr.id]="id"
+          [attr.pattern]="pattern"
+          [attr.required]="required ? '' : null"
+          [attr.min]="min"
+          [attr.max]="max"
+          [readonly]="readonly"
+          [class.with-icons]="withIcons"
+        />
+      </div>
     </ng-template>
 
-    <span class="input--icons" *ngIf="showMicButton || showHelpButton || showClearButton">
+    <div class="input-step-buttons" *ngIf="type === 'number'">
+      <button
+        type="button"
+        class="step-btn up"
+        [ngClass]="{ disabled: isAtMax() }"
+        [disabled]="isAtMax()"
+        (click)="stepUp()"
+      >
+        <i class="icon-arrow-up-1"></i>
+      </button>
+
+      <button
+        type="button"
+        class="step-btn down"
+        [ngClass]="{ disabled: isAtMin() }"
+        [disabled]="isAtMin()"
+        (click)="stepDown()"
+      >
+        <i class="icon-arrow-up-1"></i>
+      </button>
+    </div>
+
+    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear">
       <button
         class="icon-button button link tertiary"
         *ngIf="showMicButtonActual"
@@ -39,7 +82,7 @@
 
       <button
         class="icon-button button link tertiary"
-        *ngIf="showClearButton"
+        *ngIf="showClear"
         type="button"
         (mousedown)="clearInput($event)">
         <i class="icon-x input--icon"></i>

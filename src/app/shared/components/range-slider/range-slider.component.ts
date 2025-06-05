@@ -1,35 +1,87 @@
-import { Component, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { NgClass, NgIf } from '@angular/common';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-range-slider',
-  imports: [
-  ],
+  standalone: true,
+  imports: [NgIf, NgClass, InputComponent],
   templateUrl: './range-slider.component.html',
-  styleUrl: './range-slider.component.scss'
+  styleUrl: './range-slider.component.scss',
 })
 export class RangeSliderComponent {
-  min = 0;
-  max = 100;
+  lastMoved: 'from' | 'to' = 'from';
 
-  from = signal(10);
-  to = signal(30);
+  @Input() min = 0;
+  @Input() max = 100;
+  @Input() step = 1;
 
-  onFromInput(value: number) {
-    const num = Math.min(Math.max(this.min, value), this.to());
-    this.from.set(num);
+  @Input() initialFrom = 0;
+  @Input() initialTo = 100;
+
+  @Input() layout: 'default' | 'inline' = 'default';
+
+  @Output() rangeChange = new EventEmitter<{ from: number; to: number }>();
+
+  from = signal(this.initialFrom);
+  to = signal(this.initialTo);
+
+  ngOnInit() {
+    this.from.set(this.initialFrom);
+    this.to.set(this.initialTo);
+
+    this.emitChange();
   }
 
-  onToInput(value: number) {
-    const num = Math.max(Math.min(this.max, value), this.from());
-    this.to.set(num);
+  onFromInput(value: number | string) {
+    const parsedValue = Number.parseInt(value.toString(), 10);
+
+    if (parsedValue > this.to()) {
+      this.to.set(parsedValue);
+    }
+
+    const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
+    this.from.set(clamped);
+    this.lastMoved = 'from';
+    this.emitChange();
   }
 
-  getProgressLeft() {
-    return ((this.from() - this.min) / (this.max - this.min)) * 100;
+  onToInput(value: number | string) {
+    const parsedValue = Number.parseInt(value.toString(), 10);
+
+    if (parsedValue < this.from()) {
+      this.from.set(parsedValue);
+    }
+
+    const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
+    this.to.set(clamped);
+    this.lastMoved = 'to';
+    this.emitChange();
   }
 
-  getProgressRight() {
-    return 100 - ((this.to() - this.min) / (this.max - this.min)) * 100;
+  emitChange() {
+    this.rangeChange.emit({ from: this.from(), to: this.to() });
   }
 
+  getSliderBackground(): string {
+    const min = this.min;
+    const max = this.max;
+    const from = this.from();
+    const to = this.to();
+    const range = max - min;
+    const fromPercent = ((from - min) / range) * 100;
+    const toPercent = ((to - min) / range) * 100;
+
+    return `linear-gradient(
+      to right,
+      var(--color-bg-light) 0%,
+      var(--color-bg-light) ${fromPercent}%,
+      var(--color-primary) ${fromPercent}%,
+      var(--color-primary) ${toPercent}%,
+      var(--color-bg-light) ${toPercent}%,
+      var(--color-bg-light) 100%
+    )`;
+  }
+
+  protected readonly Number = Number;
 }

@@ -3,7 +3,8 @@ import { Routes } from '@angular/router';
 export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
   SEARCH_RESULTS = 'search-results',
-  DETAIL_VIEW = 'detail-view',
+  DETAIL_VIEW = 'view',
+  PERIODICAL_VIEW = 'periodical'
 }
 
 export const routes: Routes = [
@@ -24,5 +25,9 @@ export const routes: Routes = [
   {
     path: APP_ROUTES_ENUM.DETAIL_VIEW,
     loadChildren: () => import('./modules/detail-view-page/detail-view-page.module').then(m => m.DetailViewPageModule)
+  },
+  {
+    path: APP_ROUTES_ENUM.PERIODICAL_VIEW,
+    loadChildren: () => import('./modules/periodical/periodical-page.module').then(m => m.PeriodicalPageModule)
   }
 ];
