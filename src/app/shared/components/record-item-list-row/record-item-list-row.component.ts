@@ -1,9 +1,10 @@
-import {Component, Input} from '@angular/core';
-import {SearchDocument} from '../../../modules/models/search-document';
-import {TranslatePipe} from '@ngx-translate/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
-import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
-import {languageMap} from '../../misc/language-map';
+import { Component, Input } from '@angular/core';
+import { SearchDocument } from '../../../modules/models/search-document';
+import { TranslatePipe } from '@ngx-translate/core';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
+import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { languageMap } from '../../misc/language-map';
+import { EnvironmentService } from '../../services/environment.service';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -21,4 +22,14 @@ export class RecordItemListRowComponent {
   @Input() record!: SearchDocument;
 
   protected readonly languageMap = languageMap;
+
+  private krameriusBaseUrl: string;
+
+  constructor(private envService: EnvironmentService) {
+    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+  }
+
+  getKrameriusBaseUrl(): string {
+    return this.krameriusBaseUrl;
+  }
 }
