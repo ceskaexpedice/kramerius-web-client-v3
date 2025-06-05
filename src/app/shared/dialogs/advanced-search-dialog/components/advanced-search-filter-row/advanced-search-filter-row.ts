@@ -40,12 +40,21 @@ export class AdvancedSearchFilterRow implements OnInit {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '');
 
       data.subscribe(suggestions => {
-        this.filter.options = suggestions;
+        // sort suggestions, first 4 suggestions default order, then alphabetically
+        const firstFour = suggestions.slice(0, 4); // Keep first 4 in original order
+        const rest = suggestions.slice(4).sort((a, b) => {
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+
+        const sorted = [...firstFour, ...rest]; // Combine the two arrays
+
+        this.filter.options = sorted;
 
         if (!this.filter.elementValue) {
-          this.filter.elementValue = suggestions[0];
+          this.filter.elementValue = sorted[0];
         }
       });
+
     }
 
   }
