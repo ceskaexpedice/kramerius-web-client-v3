@@ -69,29 +69,39 @@ export class SearchEffects {
     const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
     const result: Record<string, FacetItem[]> = {};
 
-    // Process each facet field
-    for (const [facetKey, values] of Object.entries(parsedOperatorFacets)) {
+    // Iterate through all known facet keys (union of keys from both responses)
+    const allFacetKeys = new Set([
+      ...Object.keys(parsedSearchFacets),
+      ...Object.keys(parsedOperatorFacets),
+    ]);
+
+    for (const facetKey of allFacetKeys) {
       const operator = facetOperators[facetKey] ?? SolrOperators.or;
 
-      if (operator === SolrOperators.or) {
-        // For OR, use the values from operatorFacets (with tag/exclude)
-        result[facetKey] = values;
+      const searchValues = parsedSearchFacets[facetKey] || [];
+      const operatorValues = parsedOperatorFacets[facetKey] || [];
+
+      // Use values based on operator
+      let baseValues: FacetItem[];
+
+      if (operator === SolrOperators.and) {
+        baseValues = [...searchValues];
       } else {
-        // For AND, use the values from searchFacets (without tag/exclude)
-        result[facetKey] = parsedSearchFacets[facetKey] || [];
+        baseValues = [...operatorValues];
       }
 
-      // Make sure we don't miss any values that might only be in one response
-      if (operator === SolrOperators.and && values.length > 0) {
-        const existingMap = new Map(result[facetKey].map(item => [item.name, item]));
+      // Create map from base values
+      const valueMap = new Map(baseValues.map(item => [item.name, item]));
 
-        // Add any missing values from operatorFacets
-        for (const item of values) {
-          if (!existingMap.has(item.name)) {
-            result[facetKey].push(item);
-          }
+      // Add missing values from the other source
+      const additionalValues = operator === SolrOperators.and ? operatorValues : searchValues;
+      for (const item of additionalValues) {
+        if (!valueMap.has(item.name)) {
+          baseValues.push(item);
         }
       }
+
+      result[facetKey] = baseValues;
     }
 
     return result;
