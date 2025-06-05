@@ -49,12 +49,12 @@ docker build -t cdk-client .
 
 possibly including version tag  
 ```
-docker build -t trinera/cdk-client:1.0.2 .
+docker build -t trinera/cdk-client:1.0.3 .
 ```
 
 or including version tag and tag `latest`
 ```
-docker build -t trinera/cdk-client:latest -t trinera/cdk-client:1.0.2 .
+docker build -t trinera/cdk-client:latest -t trinera/cdk-client:1.0.3 .
 ```
 
 ### Push to Dockerhub
@@ -63,7 +63,7 @@ Only if you have write access to Dockerhub repository trinera/cdk-client.
 You don't need this to run localy built Docker image.
 
 ```
-docker push trinera/cdk-client:1.0.2
+docker push trinera/cdk-client:1.0.3
 docker push trinera/cdk-client:latest
 ```
 
@@ -92,7 +92,7 @@ or
 ```
 docker run -p 1234:80 \
   -e APP_KRAMERIUS_URL=https://api.kramerius.mzk.cz/search \
-trinera/cdk-client:1.0.2
+trinera/cdk-client:1.0.3
 ```
 
 #### Image pulled from Docker Hub
