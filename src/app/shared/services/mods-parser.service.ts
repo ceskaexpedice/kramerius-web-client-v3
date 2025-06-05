@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import {Author, CartographicData, Metadata, PhysicalDescription, Publisher, TitleInfo, Location} from '../models/metadata.model';
-import {environment} from '../../../environments/environment';
+import {EnvironmentService} from './environment.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ModsParserService {
-  private readonly API_URL = `${environment.krameriusBaseUrl}items`;
+  API_URL = '';
 
-  constructor() {}
+  constructor(
+    private env: EnvironmentService
+  ) {
+
+    this.API_URL = this.env.getApiUrl('items');
+
+  }
 
   async getMods(uuid: string, type: 'full' | 'plain' = 'full'): Promise<Metadata> {
     const url = `${this.API_URL}/${uuid}/metadata/mods`;

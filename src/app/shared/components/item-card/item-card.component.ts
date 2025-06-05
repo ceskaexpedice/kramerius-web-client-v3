@@ -1,7 +1,8 @@
-import {Component, Input} from '@angular/core';
-import {NgClass, NgIf} from '@angular/common';
-import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
-import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
+import { Component, Input } from '@angular/core';
+import { NgClass, NgIf } from '@angular/common';
+import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
+import { EnvironmentService } from '../../services/environment.service';
 
 @Component({
   selector: 'app-item-card',
@@ -24,9 +25,19 @@ export class ItemCardComponent {
   @Input() showFavoriteButton: boolean = true;
   @Input() showAccessibilityBadge: boolean = false;
 
+  private krameriusBaseUrl: string;
+
+  constructor(private envService: EnvironmentService) {
+    this.krameriusBaseUrl = this.envService.getApiUrl('items');
+  }
+
   toggleFavorite() {
     // Implement this method
     if (!this.showFavoriteButton) return;
+  }
+
+  getKrameriusBaseUrl(): string {
+    return this.krameriusBaseUrl + '/' + this.uuid + '/image/thumb';
   }
 
 }

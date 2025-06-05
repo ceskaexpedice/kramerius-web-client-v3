@@ -1,14 +1,15 @@
-import {Component, inject} from '@angular/core';
-import {loadDocumentDetail} from '../../shared/state/document-detail/document-detail.actions';
-import {Store} from '@ngrx/store';
+import { Component, inject } from '@angular/core';
+import { loadDocumentDetail } from '../../shared/state/document-detail/document-detail.actions';
+import { Store } from '@ngrx/store';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
   selectDocumentDetailLoading,
 } from '../../shared/state/document-detail/document-detail.selectors';
-import {RecordInfoService} from '../../shared/services/record-info.service';
-import {take} from 'rxjs';
-import {DocumentDetail} from '../models/document-detail';
+import { RecordInfoService } from '../../shared/services/record-info.service';
+import { take } from 'rxjs';
+import { DocumentDetail } from '../models/document-detail';
+import { EnvironmentService } from '../../shared/services/environment.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -20,11 +21,15 @@ export class DetailViewPageComponent {
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
+  private krameriusBaseUrl: string;
 
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
 
+  constructor(private envService: EnvironmentService) {
+    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+  }
 
   ngOnInit() {
     this.store.dispatch(loadDocumentDetail());
@@ -39,6 +44,10 @@ export class DetailViewPageComponent {
         this.recordInfoService.openRecordInfoDialog(uuid);
       }
     });
+  }
+
+  getKrameriusBaseUrl(): string {
+    return this.krameriusBaseUrl;
   }
 
 }

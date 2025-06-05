@@ -12,12 +12,22 @@ import {FacetItem} from '../../modules/models/facet-item';
 import {environment} from '../../../environments/environment';
 import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
 import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
+import {EnvironmentService} from '../../shared/services/environment.service';
+import {ensureTrailingSlash} from '../../shared/misc/trailing-slash';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
-  private readonly API_URL = `${environment.krameriusBaseUrl}search`;
 
-  constructor(private http: HttpClient) {}
+  API_URL = '';
+
+  constructor(
+    private http: HttpClient,
+    private env: EnvironmentService
+  ) {
+
+    this.API_URL = this.env.getApiUrl('search');
+
+  }
 
   private createHttpParams(rawParams: Record<string, any>): HttpParams {
     let params = new HttpParams();

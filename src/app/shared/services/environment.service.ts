@@ -1,10 +1,11 @@
 // This service is responsible for loading and providing the environment configuration for the application.
 // It loads both runtime and build-time configurations.
 // The runtime configuration is loaded from a JSON file (env.json) or from the static environment file (environment.ts), depending on the value of `useStaticRuntimeConfig` in the environment file.
-// The build-time configuration is loaded from a JSON file (build-info.json). 
+// The build-time configuration is loaded from a JSON file (build-info.json).
 
 import { Injectable } from '@angular/core';
 import { environment as staticEnv } from '../../../environments/environment';
+import {ensureTrailingSlash} from '../misc/trailing-slash';
 
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService {
@@ -51,4 +52,9 @@ export class EnvironmentService {
             return undefined;
         }
     }
+
+  getApiUrl(path: string = ''): string {
+    const baseUrl = this.get('krameriusBaseUrl');
+    return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
+  }
 }
