@@ -6,7 +6,7 @@ import {environment} from '../../../environments/environment';
   providedIn: 'root'
 })
 export class ModsParserService {
-  private readonly API_URL = `${environment.krameriusBaseUrl}items`;
+  private readonly API_URL = `${environment.krameriusBaseUrl}/items`;
 
   constructor() {}
 
