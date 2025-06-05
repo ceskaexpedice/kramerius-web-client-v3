@@ -27,7 +27,7 @@ export class RecordItemComponent {
   private krameriusBaseUrl: string;
 
   constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+    this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
   onRecordClick(e: Event, record: SearchDocument): void {
@@ -37,6 +37,6 @@ export class RecordItemComponent {
   }
 
   getKrameriusBaseUrl(): string {
-    return this.krameriusBaseUrl;
+    return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
 }

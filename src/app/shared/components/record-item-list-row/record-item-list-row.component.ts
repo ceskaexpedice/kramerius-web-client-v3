@@ -26,10 +26,10 @@ export class RecordItemListRowComponent {
   private krameriusBaseUrl: string;
 
   constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+    this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
   getKrameriusBaseUrl(): string {
-    return this.krameriusBaseUrl;
+    return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
 }

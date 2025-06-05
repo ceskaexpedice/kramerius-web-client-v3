@@ -28,7 +28,7 @@ export class ItemCardComponent {
   private krameriusBaseUrl: string;
 
   constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+    this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
   toggleFavorite() {
@@ -37,7 +37,7 @@ export class ItemCardComponent {
   }
 
   getKrameriusBaseUrl(): string {
-    return this.krameriusBaseUrl;
+    return this.krameriusBaseUrl + '/' + this.uuid + '/image/thumb';
   }
 
 }
