@@ -118,7 +118,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       gitCommitUrl: undefined as string | undefined,
     };
     if (devInfo.gitCommitHash) {
-      const commitUrl = 'https://github.com/trineracz/fundus-frontend/commit/' + devInfo.gitCommitHash;
+      const commitUrl = 'https://github.com/trineracz/CDK-klient/commit/' + devInfo.gitCommitHash;
       devInfo.gitCommitUrl = commitUrl;
       console.log('Git commit URL:', commitUrl);
     } else {
