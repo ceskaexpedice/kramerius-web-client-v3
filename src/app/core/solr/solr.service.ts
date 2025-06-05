@@ -9,25 +9,15 @@ import {SearchResultResponse} from '../../modules/models/search-result-response'
 import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
-import {FilterService} from '../services/FilterUtilities';
+import {environment} from '../../../environments/environment';
+import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
+import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
-  private readonly API_URL = 'https://api.kramerius.mzk.cz/search/api/client/v7.0/search';
-  private readonly DEFAULT_FACET_FIELDS = [
-    'model',
-    'keywords.facet',
-    'languages.facet',
-    'physical_locations.facet',
-    'geographic_names.facet',
-    'authors.facet',
-    'publishers.facet',
-    'publication_places.facet',
-    'own_model_path',
-    'genres.facet',
-  ];
+  private readonly API_URL = `${environment.krameriusBaseUrl}search`;
 
-  constructor(private http: HttpClient, private filterService: FilterService) {}
+  constructor(private http: HttpClient) {}
 
   private createHttpParams(rawParams: Record<string, any>): HttpParams {
     let params = new HttpParams();
@@ -111,13 +101,8 @@ export class SolrService {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.baseFilters(),
-      ...SolrQueryBuilder.fieldsToReturn([
-        'pid', 'accessibility', 'model', 'authors', 'titles.search',
-        'title.search', 'root.title', 'date.str', 'title.search_*',
-        'collection.desc', 'collection.desc_*', 'licenses',
-        'contains_licenses', 'licenses_of_ancestors', 'count_page', 'languages.facet',
-      ]),
-      ...SolrQueryBuilder.facetFields(this.DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -126,7 +111,7 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = this.DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string): Observable<SearchResultResponse> {
+  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams();
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
