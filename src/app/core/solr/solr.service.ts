@@ -15,7 +15,7 @@ import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/sear
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
-  private readonly API_URL = `${environment.krameriusBaseUrl}search`;
+  private readonly API_URL = `${environment.krameriusBaseUrl}/search`;
 
   constructor(private http: HttpClient) {}
 
