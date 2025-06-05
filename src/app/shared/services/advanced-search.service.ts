@@ -134,7 +134,11 @@ export class AdvancedSearchService {
         .map(filter => {
           const value = filter.elementValue.trim();
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
-          const useRaw = filter.userRawQueryFormat || false;
+          let useRaw = filter.userRawQueryFormat || false;
+
+          if (value.startsWith('*') || value.endsWith('*')) {
+            useRaw = true;
+          }
 
           return isRange
             ? `${filter.solrField}:${value}`
@@ -165,7 +169,7 @@ export class AdvancedSearchService {
         .map(filter => {
 
           let isRange = false;
-          const useRaw = filter.userRawQueryFormat || false;
+          let useRaw = filter.userRawQueryFormat || false;
 
           if (filter.key === AdvancedFilterKey.Date) {
             // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
@@ -190,10 +194,14 @@ export class AdvancedSearchService {
             isRange = true;
 
           } else if (filter.key === AdvancedFilterKey.Year) {
-            return `date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue}`;
+            return `(date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue})`;
           }
 
           const value = filter.solrValue.trim();
+
+          if (value.startsWith('*') || value.endsWith('*')) {
+            useRaw = true;
+          }
 
           return isRange
             ? `${filter.solrField}:${value}`
