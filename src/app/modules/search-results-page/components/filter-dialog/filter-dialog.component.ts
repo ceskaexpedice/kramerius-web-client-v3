@@ -14,7 +14,7 @@ import {SolrService} from '../../../../core/solr/solr.service';
 import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
 import {SolrOperators, SolrSortFields} from '../../../../core/solr/solr-helpers';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {
   ToggleButtonGroupComponent,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
@@ -23,6 +23,7 @@ import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
 import {FilterService} from '../../../../core/services/FilterUtilities';
 import {InputComponent} from '../../../../shared/components/input/input.component';
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
+import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-search-dialog/solr-filters';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -60,6 +61,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     { label: 'filter-dialog.sort.count', value: SolrSortFields.count },
     { label: 'filter-dialog.sort.alpha', value: SolrSortFields.title }
   ];
+
+  isFrontendFiltered = false;
 
   pendingSelection = signal<Set<string>>(new Set());
   pendingOperator = signal<SolrOperators>(SolrOperators.or);
@@ -112,6 +115,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   public searchService = inject(SearchService);
   private solrService = inject(SolrService);
   private advancedSearchService = inject(AdvancedSearchService);
+  private translateService = inject(TranslateService);
 
   readonly selected = signal<Set<string>>(new Set());
   readonly loading = signal(false);
@@ -157,8 +161,20 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       debounceTime(300)
     ).subscribe((term: string) => {
       if (term.length === 0 || term.length >= 2) {
+
         this.page = 1;
-        this.loadFacets(false);
+
+        if (this.isFrontendFiltered) {
+          this.items.set(
+            this.allItems().filter(item => {
+              const translated = this.translateService.instant(item.name);
+              console.log('translated', translated);
+              return translated.toLowerCase().includes(term.toLowerCase())
+            })
+          )
+        } else {
+          this.loadFacets(false);
+        }
       }
     });
   }
@@ -179,6 +195,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     });
 
     this.loadFacets(false);
+
+    this.isFrontendFiltered = isFrontendFilteredFacetKey(this.data.facetKey);
 
   }
 
@@ -330,6 +348,22 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   setSort(sort: SolrSortFields) {
     this.sortBy.set(sort);
-    this.loadFacets();
+
+    if (this.isFrontendFiltered) {
+      // For frontend filtered facets, we just sort the items
+      const sortedItems = this.items().slice().sort((a, b) => {
+        const translatedA = this.translateService.instant(a.name);
+        const translatedB = this.translateService.instant(b.name);
+        if (sort === SolrSortFields.count) {
+          return b.count - a.count; // Sort by count descending
+        } else if (sort === SolrSortFields.title) {
+          return translatedA.localeCompare(translatedB); // Sort alphabetically
+        }
+        return 0;
+      });
+      this.items.set(sortedItems);
+    } else {
+      this.loadFacets();
+    }
   }
 }

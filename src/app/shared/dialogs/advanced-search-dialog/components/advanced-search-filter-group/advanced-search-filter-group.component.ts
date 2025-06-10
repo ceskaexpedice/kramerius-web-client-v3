@@ -2,7 +2,7 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/c
 import {AdvancedSearchFilterRow} from '../advanced-search-filter-row/advanced-search-filter-row';
 import {NgForOf, NgIf} from '@angular/common';
 import {SolrOperators} from '../../../../../core/solr/solr-helpers';
-import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../advanced-filters';
+import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../solr-filters';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../../services/advanced-search.service';
 

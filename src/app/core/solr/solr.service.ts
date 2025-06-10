@@ -169,8 +169,8 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params });
   }
 
-  getSuggestionsByFacetKey(solrField: string, term: string): Observable<string[]> {
-    return this.loadFacet('*:*', [], solrField, term, true, 20, 0, SolrSortFields.count, 1).pipe(
+  getSuggestionsByFacetKey(solrField: string, term: string, facetLimit = 20): Observable<string[]> {
+    return this.loadFacet('*:*', [], solrField, term, true, facetLimit, 0, SolrSortFields.count, 1).pipe(
       map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
     );
   }

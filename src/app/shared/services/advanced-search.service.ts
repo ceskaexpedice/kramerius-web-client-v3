@@ -4,9 +4,9 @@ import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/a
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  AdvancedFilterKey,
-  AdvancedFilterType,
-} from '../dialogs/advanced-search-dialog/advanced-filters';
+  SolrFacetKey,
+  FilterElementType,
+} from '../dialogs/advanced-search-dialog/solr-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {ActivatedRoute, Params, Router} from '@angular/router';
@@ -171,7 +171,7 @@ export class AdvancedSearchService {
           let isRange = false;
           let useRaw = filter.userRawQueryFormat || false;
 
-          if (filter.key === AdvancedFilterKey.Date) {
+          if (filter.key === SolrFacetKey.Date) {
             // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
             // so we need to update solrValue to be in the format [start TO end]
             const dateParts = filter.elementValue.split('+');
@@ -193,7 +193,7 @@ export class AdvancedSearchService {
             filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
             isRange = true;
 
-          } else if (filter.key === AdvancedFilterKey.Year) {
+          } else if (filter.key === SolrFacetKey.Year) {
             return `(date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue})`;
           }
 
@@ -454,7 +454,7 @@ export class AdvancedSearchService {
           filters.push({
             key: solrField as any,
             label: solrField,
-            inputType: AdvancedFilterType.Text as any,
+            inputType: FilterElementType.Text as any,
             solrField,
             solrValue: value.trim(),
             elementValue: value.trim(),
