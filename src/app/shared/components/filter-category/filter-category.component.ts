@@ -10,6 +10,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SearchService} from '../../services/search.service';
 import {expandCollapseAnimation} from '../../animations';
+import {facetKeysInfinityCount} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-filter-category',
@@ -47,7 +48,8 @@ export class FilterCategoryComponent implements OnChanges {
   // Get whether to show the "Show all" button
   get shouldShowMoreButton(): boolean {
     // Don't show for 'model' facetKey, and only show if we have more items than maxItems
-    return this.facetKey !== 'model' && this.showShowMoreButton;
+    const isFacetInInfinityCount = facetKeysInfinityCount.includes(this.facetKey);
+    return !isFacetInInfinityCount && this.showShowMoreButton;
   }
 
   get hasAndOperator(): boolean {

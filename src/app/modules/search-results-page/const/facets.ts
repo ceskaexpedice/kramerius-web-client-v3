@@ -1,5 +1,8 @@
 export const facetKeysEnum = {
+  accessibility: 'accessibility',
+  license: 'licenses.facet',
   model: 'model',
+  level: 'level',
   authors: 'authors.facet',
   languages: 'languages.facet',
   genres: 'genres.facet',
@@ -11,7 +14,10 @@ export const facetKeysEnum = {
 }
 
 export const facetKeys: string[] = [
+  facetKeysEnum.accessibility,
+  facetKeysEnum.license,
   facetKeysEnum.model,
+  facetKeysEnum.level,
   facetKeysEnum.authors,
   facetKeysEnum.languages,
   facetKeysEnum.genres,
@@ -23,5 +29,8 @@ export const facetKeys: string[] = [
 ];
 
 export const facetKeysInfinityCount: string[] = [
-  facetKeysEnum.model
+  facetKeysEnum.accessibility,
+  facetKeysEnum.license,
+  facetKeysEnum.model,
+  facetKeysEnum.level,
 ]

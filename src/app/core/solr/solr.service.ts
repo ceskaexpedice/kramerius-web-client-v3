@@ -55,15 +55,23 @@ export class SolrService {
     return filtersByField;
   }
 
-  private createFacetBaseParams(options: any = {}): Record<string, any> {
-    const params: Record<string, any> = {
-      ...SolrQueryBuilder.baseParams(),
+  private createFacetBaseParams(options: any = {}, addBaseFilters = false): Record<string, any> {
+    let params: Record<string, any> = {
       ...SolrQueryBuilder.baseFilters(),
+      ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn([]),
       ...SolrQueryBuilder.pagination(0, 0),
       facet: 'true',
       'facet.mincount': (options.minCount || 1).toString()
     };
+
+    // if (addBaseFilters) {
+    //   params = {
+    //     ...params,
+    //     ...SolrQueryBuilder.baseFilters()
+    //   }
+    // }
+
     if (options.sortBy) Object.assign(params, SolrQueryBuilder.facetSortBy(options.sortBy));
     if (options.searchTerm) Object.assign(params, SolrQueryBuilder.facetContains(options.searchTerm, true));
     if (options.limit !== undefined) params['facet.limit'] = options.limit.toString();
@@ -108,14 +116,20 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string): Observable<SearchResultResponse> {
-    const paramsObject = {
-      ...SolrQueryBuilder.baseParams(),
+    let paramsObject = {
       ...SolrQueryBuilder.baseFilters(),
+      ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
+    // if (filters.length === 0 && query === '') {
+    //   paramsObject = {
+    //     ...paramsObject,
+    //     ...SolrQueryBuilder.baseFilters()
+    //   }
+    // }
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -123,7 +137,7 @@ export class SolrService {
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
-    const paramsObject = this.createFacetBaseParams();
+    const paramsObject = this.createFacetBaseParams({}, filters.length === 0);
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
@@ -136,7 +150,7 @@ export class SolrService {
 
   loadFacetWithPendingChanges(query: string, allFilters: string[], currentFacet: string, pendingSelections: Set<string>, pendingOperator: SolrOperators, otherOperators: Record<string, string> = {}, options: any = {}): Observable<any> {
     const { advancedQuery } = options;
-    const paramsObject = this.createFacetBaseParams(options);
+    const paramsObject = this.createFacetBaseParams(options, allFilters.length === 0);
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
     const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
     params = this.addFilterQueries(params, otherFilters, otherOperators);
@@ -162,7 +176,7 @@ export class SolrService {
       offset: facetOffset,
       sortBy,
       minCount
-    });
+    }, filters.length === 0);
     let params = this.createHttpParams(paramsObject).set('q', query || '*:*').append('facet.field', facetField);
     const otherFilters = filters.filter(f => !f.startsWith(`${facetField}:`));
     params = this.addFilterQueries(params, otherFilters, existingOperators);
