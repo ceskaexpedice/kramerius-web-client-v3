@@ -1,5 +1,6 @@
 $option-height: 36px;
 $num-options: 8;
+$filter-height: 44px;
 
 :host {
   display: inline-block;
@@ -29,7 +30,7 @@ $num-options: 8;
   }
 }
 
-.options {
+.options-container {
   position: absolute;
   left: 0;
   width: 100%;
@@ -37,16 +38,59 @@ $num-options: 8;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   z-index: 10;
-  padding: 6px 0;
   margin-top: 6px;
-  max-height: calc($num-options * $option-height);
-  overflow-y: auto;
+  overflow: hidden;
 
   &.above {
     bottom: 100%;
     top: auto;
     margin-bottom: 6px;
     margin-top: 0;
+  }
+}
+
+.filter-container {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg-base);
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border-bright);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-input {
+  flex: 1;
+}
+
+.options-list {
+  max-height: calc($num-options * $option-height);
+  overflow-y: auto;
+  padding: 6px 0;
+
+  &.with-filter {
+    // Reduce max height when filter is present to account for filter container
+    max-height: calc($num-options * $option-height - $filter-height + 6px);
+  }
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border, rgba(0,0,0,0.2));
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--color-border-hover, rgba(0,0,0,0.3));
+    }
   }
 }
 
@@ -69,6 +113,13 @@ $num-options: 8;
   &:hover {
     background-color: var(--color-bg-light);
   }
+}
+
+.no-results {
+  padding: 20px 14px;
+  text-align: center;
+  color: var(--color-text-muted, #6c757d);
+  font-style: italic;
 }
 
 .arrow-icon {

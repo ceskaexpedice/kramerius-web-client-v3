@@ -11,11 +11,13 @@ import {
 } from '@angular/core';
 import { NgIf, NgForOf, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {InputComponent} from '../input/input.component';
 
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgIf, NgForOf, TranslatePipe, NgClass],
+  imports: [NgIf, NgForOf, TranslatePipe, NgClass, FormsModule, InputComponent],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
@@ -27,11 +29,15 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');
   @Input() value: T | null = null;
+  @Input() filterable: boolean = false;
+  @Input() filterPlaceholder: string = 'Search...';
   @Output() valueChange = new EventEmitter<T>();
 
   open = signal(false);
   showAbove = false;
   focusedIndex = -1;
+  filterText = '';
+  filteredOptions: T[] = [];
 
   @ViewChild('wrapper') wrapperRef?: ElementRef;
 
@@ -43,6 +49,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     new ResizeObserver(() => this.checkPosition()).observe(document.body);
     document.addEventListener('click', this.onClickOutside);
+    this.updateFilteredOptions();
   }
 
   ngOnDestroy() {
@@ -52,7 +59,9 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   toggle() {
     this.open.update((v) => {
       if (!v) {
-        this.focusedIndex = this.options.findIndex((o) => o === this.value);
+        this.filterText = '';
+        this.updateFilteredOptions();
+        this.focusedIndex = this.filteredOptions.findIndex((o) => o === this.value);
       }
       return !v;
     });
@@ -64,6 +73,49 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     this.value = option;
     this.valueChange.emit(option);
     this.open.set(false);
+    this.filterText = '';
+    this.updateFilteredOptions();
+  }
+
+  onFilterChange(text: string | number) {
+    const filterText = String(text);
+    this.filterText = filterText;
+    this.updateFilteredOptions();
+    this.focusedIndex = -1; // Reset focused index when filtering
+  }
+
+  onFilterKeyDown(event: KeyboardEvent) {
+    const key = event.key;
+
+    switch (key) {
+      case 'ArrowDown':
+        if (this.filteredOptions.length > 0) {
+          this.focusedIndex = 0;
+          this.scrollFocusedIntoView();
+        }
+        event.preventDefault();
+        break;
+      case 'ArrowUp':
+        if (this.filteredOptions.length > 0) {
+          this.focusedIndex = this.filteredOptions.length - 1;
+          this.scrollFocusedIntoView();
+        }
+        event.preventDefault();
+        break;
+      case 'Enter':
+        if (this.focusedIndex >= 0 && this.filteredOptions[this.focusedIndex]) {
+          this.select(this.filteredOptions[this.focusedIndex]);
+          event.preventDefault();
+        }
+        break;
+      case 'Escape':
+        this.open.set(false);
+        event.preventDefault();
+        break;
+      case 'Tab':
+        this.open.set(false);
+        break;
+    }
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -83,7 +135,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
       case 'Enter':
       case ' ':
         if (this.focusedIndex >= 0) {
-          this.select(this.options[this.focusedIndex]);
+          this.select(this.filteredOptions[this.focusedIndex]);
           event.preventDefault();
         }
         break;
@@ -97,10 +149,23 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     }
   }
 
-  private moveFocus(delta: number) {
-    if (!this.options.length) return;
+  private updateFilteredOptions() {
+    if (!this.filterText.trim()) {
+      this.filteredOptions = [...this.options];
+    } else {
+      const filterLower = this.filterText.toLowerCase();
+      this.filteredOptions = this.options.filter((option) => {
+        const raw = this.displayFn(option);
+        const translated = this.translate.instant(raw);
+        return translated.toLowerCase().includes(filterLower);
+      });
+    }
+  }
 
-    this.focusedIndex = (this.focusedIndex + delta + this.options.length) % this.options.length;
+  private moveFocus(delta: number) {
+    if (!this.filteredOptions.length) return;
+
+    this.focusedIndex = (this.focusedIndex + delta + this.filteredOptions.length) % this.filteredOptions.length;
     this.scrollFocusedIntoView();
   }
 
@@ -119,7 +184,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => (this.searchBuffer = ''), 500);
 
-    const matchIndex = this.options.findIndex((opt) => {
+    const matchIndex = this.filteredOptions.findIndex((opt) => {
       const raw = this.displayFn(opt);
       const translated = this.translate.instant(raw);
       return translated.toLowerCase().startsWith(this.searchBuffer);
@@ -140,7 +205,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     if (!wrapperEl) return;
 
     const rect = wrapperEl.getBoundingClientRect();
-    const dropdownHeight = this.options.length * 40;
+    const dropdownHeight = (this.filterable ? 50 : 0) + this.filteredOptions.length * 40; // Include filter input height if present
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
@@ -152,6 +217,8 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   private onClickOutside = (event: Event) => {
     if (!this.hostRef.nativeElement.contains(event.target)) {
       this.open.set(false);
+      this.filterText = '';
+      this.updateFilteredOptions();
     }
   };
 }
