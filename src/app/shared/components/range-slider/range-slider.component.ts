@@ -36,9 +36,9 @@ export class RangeSliderComponent {
   onFromInput(value: number | string) {
     const parsedValue = Number.parseInt(value.toString(), 10);
 
-    if (parsedValue > this.to()) {
-      this.to.set(parsedValue);
-    }
+    // if (parsedValue > this.to()) {
+    //   this.to.set(parsedValue);
+    // }
 
     const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
     this.from.set(clamped);
@@ -49,9 +49,9 @@ export class RangeSliderComponent {
   onToInput(value: number | string) {
     const parsedValue = Number.parseInt(value.toString(), 10);
 
-    if (parsedValue < this.from()) {
-      this.from.set(parsedValue);
-    }
+    // if (parsedValue < this.from()) {
+    //   this.from.set(parsedValue);
+    // }
 
     const clamped = Math.min(Math.max(this.min, parsedValue), this.max);
     this.to.set(clamped);
