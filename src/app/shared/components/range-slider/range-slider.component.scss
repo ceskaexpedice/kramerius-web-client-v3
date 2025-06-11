@@ -85,3 +85,53 @@ $slider-height: 4px;
     flex-grow: 1;
   }
 }
+
+.date-input-wrapper {
+  position: relative;
+  min-width: 120px;
+
+  .date-display {
+    border-radius: var(--base-border-radius);
+    background: var(--color-bg-base);
+    color: var(--color-text-light);
+    padding: 11px;
+  }
+
+  .date-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+
+    &::-webkit-calendar-picker-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+}
+
+// Additional styling for better visual integration
+.date-input-wrapper {
+  .date-display {
+    // Style similar to your existing inputs if needed
+    &.sm {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  }
+}
+
+// Focus states
+.date-input:focus + .date-display,
+.date-input-wrapper:focus-within .date-display {
+  box-shadow: 0 0 0 2px var(--color-primary-outline, rgba(0,123,255,0.25));
+  border-color: var(--color-primary, #007bff);
+}

@@ -1,22 +1,38 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {InputComponent} from '../components/input/input.component';
 import {of} from 'rxjs';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {NgIf} from '@angular/common';
+import {DateRange, RangeSliderComponent} from '../components/range-slider/range-slider.component';
+import {ENVIRONMENT} from '../../app.config';
 
 export interface DateStepperChange {
   date: Date;
   offset: number;
 }
 
+export enum DatePickerMode {
+  Manual = 'manual',
+  Range = 'range',
+}
+
 @Component({
   selector: 'app-date-stepper',
   imports: [
     InputComponent,
+    MatSlideToggle,
+    NgIf,
+    RangeSliderComponent,
   ],
   templateUrl: './date-stepper.component.html',
   styleUrl: './date-stepper.component.scss'
 })
 export class DateStepperComponent {
+
+  dateMode = signal<DatePickerMode>(DatePickerMode.Manual);
+
   @Input() data: any = {};
+  @Input() showModeToggle: boolean = false;
 
   @Output() dateChange = new EventEmitter<DateStepperChange>();
 
@@ -25,10 +41,42 @@ export class DateStepperComponent {
   year: number = 1970;
   offset: number = 0;
 
+  dateFrom: Date | undefined = undefined;
+  dateTo: Date | undefined = undefined;
+  minDate: Date = new Date(1900, 0, 1);
+  maxDate: Date = new Date(2100, 11, 31);
+
   ngOnInit() {
+    this.calculateMinMaxDates();
+
     this.parseFromString(this.data);
 
     this.emitDate();
+  }
+
+  calculateMinMaxDates() {
+    // max date is today
+    const today = new Date();
+    this.maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const minYear = ENVIRONMENT.dateRangeStartYear;
+    // min date is 1.1.minYear
+    this.minDate = new Date(minYear, 0, 1);
+  }
+
+  toggleDateMode() {
+    this.dateMode.update((currentMode) => {
+      return currentMode === DatePickerMode.Manual ? DatePickerMode.Range : DatePickerMode.Manual;
+    });
+
+    this.calculateDates();
+  }
+
+  calculateDates() {
+    // dateFrom is from day,month,year
+    this.dateFrom = new Date(Date.UTC(this.year, this.month - 1, this.day));
+    // dateTo is dateFrom + offset days
+    this.dateTo = new Date(this.dateFrom);
+    this.dateTo.setDate(this.dateFrom.getDate() + this.offset);
   }
 
   parseFromString(dateString: string): void {
@@ -58,6 +106,8 @@ export class DateStepperComponent {
     this.month = month;
     this.day = day;
     this.offset = offset;
+
+    this.calculateDates();
   }
 
   getMaxDay(): number {
@@ -76,6 +126,12 @@ export class DateStepperComponent {
     const numValue = typeof value === 'string' ? parseInt(value, 10) : value;
     this.offset = numValue;
     this.emitDate();
+  }
+
+  dateRangeChange(range: DateRange) {
+    this.dateFrom = range.from;
+    this.dateTo = range.to;
+    console.log('dateRangeChange:', range);
   }
 
   emitDate() {
@@ -100,4 +156,5 @@ export class DateStepperComponent {
   }
 
   protected readonly of = of;
+  protected readonly DatePickerMode = DatePickerMode;
 }

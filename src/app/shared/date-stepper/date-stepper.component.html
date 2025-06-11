@@ -1,65 +1,84 @@
-<div class="stepper-container">
-  <app-input
-    class="sm-input"
-    [withIcons]="false"
-    [type]="'number'"
-    [theme]="'dark'"
-    [min]="1"
-    [max]="getMaxDay()"
-    [leadingZero]="true"
-    [initialValue]="day"
-    (valueChange)="onPartChange('day', $event)"
-  ></app-input>
+<div class="stepper-container" [class.mode-toggle]="showModeToggle">
 
-  <span class="separator">-</span>
+  <ng-container *ngIf="dateMode() === DatePickerMode.Manual">
 
-  <app-input
-    class="sm-input"
-    [withIcons]="false"
-    [type]="'number'"
-    [theme]="'dark'"
-    [min]="1"
-    [max]="12"
-    [leadingZero]="true"
-    [initialValue]="month"
-    (valueChange)="onPartChange('month', $event)"
-  ></app-input>
+    <app-input
+      class="sm-input"
+      [withIcons]="false"
+      [type]="'number'"
+      [theme]="'dark'"
+      [min]="1"
+      [max]="getMaxDay()"
+      [leadingZero]="true"
+      [initialValue]="day"
+      [size]="'sm'"
+      (valueChange)="onPartChange('day', $event)"
+    ></app-input>
 
-  <span class="separator">-</span>
+    <span class="separator">-</span>
 
-  <app-input
-    class="mid-input"
-    [withIcons]="false"
-    [type]="'number'"
-    [theme]="'dark'"
-    [min]="0"
-    [max]="9999"
-    [initialValue]="year"
-    (valueChange)="onPartChange('year', $event)"
-  ></app-input>
+    <app-input
+      class="sm-input"
+      [withIcons]="false"
+      [type]="'number'"
+      [theme]="'dark'"
+      [min]="1"
+      [max]="12"
+      [leadingZero]="true"
+      [initialValue]="month"
+      [size]="'sm'"
+      (valueChange)="onPartChange('month', $event)"
+    ></app-input>
 
-  <span class="separator">-</span>
+    <span class="separator">-</span>
 
-	<app-input
-			class="mid-input"
-			[withIcons]="false"
-			[type]="'text'"
-			[theme]="'dark'"
-			[min]="0"
-			[max]="365"
-			[initialValue]="offset"
-			[placeholder]="'0 days'"
-			[prefix]="'+'"
-			(valueChange)="onOffsetChange($event)"
-	></app-input>
+    <app-input
+      class="mid-input"
+      [withIcons]="false"
+      [type]="'number'"
+      [theme]="'dark'"
+      [min]="0"
+      [max]="9999"
+      [initialValue]="year"
+      [size]="'sm'"
+      (valueChange)="onPartChange('year', $event)"
+    ></app-input>
 
-<!--  <app-day-offset-picker-->
-<!--    class="mid-input"-->
-<!--    [min]="0"-->
-<!--    [max]="365"-->
-<!--    [theme]="'dark'"-->
-<!--    [(offset)]="offset"-->
-<!--    (offsetChange)="onOffsetChange($event)"-->
-<!--  ></app-day-offset-picker>-->
+    <span class="separator">-</span>
+
+    <app-input
+      class="mid-input"
+      [withIcons]="false"
+      [type]="'number'"
+      [theme]="'dark'"
+      [min]="0"
+      [max]="365"
+      [initialValue]="offset"
+      [placeholder]="'0 days'"
+      [prefix]="'+'"
+      [size]="'sm'"
+      (valueChange)="onOffsetChange($event)"
+    ></app-input>
+
+  </ng-container>
+
+  <ng-container *ngIf="dateMode() === DatePickerMode.Range">
+
+    <app-range-slider
+      [type]="'date'"
+      [layout]="'inline'"
+      [initialFromDate]="dateFrom"
+      [initialToDate]="dateTo"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      (dateRangeChange)="dateRangeChange($event)"
+    ></app-range-slider>
+
+  </ng-container>
 
 </div>
+
+<mat-slide-toggle
+  [hideIcon]="true"
+  (toggleChange)="toggleDateMode()"
+>Výběr období od–do</mat-slide-toggle>

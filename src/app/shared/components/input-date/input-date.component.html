@@ -1,0 +1,11 @@
+<div class="date-input-wrapper" [ngClass]="[theme, size]">
+  <span class="date-display">{{ label || displayValue }}</span>
+  <input
+    type="date"
+    class="date-input"
+    [value]="valueSignal() ? (valueSignal() | date:'yyyy-MM-dd') : ''"
+    [min]="min"
+    [max]="max"
+    (change)="onDateChange($event)"
+  />
+</div>
