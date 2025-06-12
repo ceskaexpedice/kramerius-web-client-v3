@@ -1,8 +1,21 @@
 <div class="range-slider" [ngClass]="layout">
   <!-- VARIANT: INLINE -->
   <ng-container *ngIf="layout === 'inline'; else verticalLayout">
+
     <div class="inputs-inline">
+
+      <app-input-date
+        *ngIf="type === 'date'"
+        [valueSignal]="fromDate"
+        (valueChange)="onFromInput($event)"
+        [minDate]="minDate"
+        [maxDate]="maxDate"
+        [size]="'sm'"
+        [theme]="'dark'"
+      ></app-input-date>
+
       <app-input
+        *ngIf="type === 'number'"
         [showSubmitButton]="false"
         [theme]="'dark'"
         [type]="'number'"
@@ -14,30 +27,42 @@
         [withIcons]="false"
       ></app-input>
 
+      <!-- Slider -->
       <div class="sliders" [style.background]="getSliderBackground()">
         <input
           class="range from-slider"
           type="range"
-          [min]="min"
-          [max]="max"
-          [step]="step"
+          [min]="getSliderMin()"
+          [max]="getSliderMax()"
+          [step]="getSliderStep()"
           [value]="from()"
           [class.on-top]="from() === to() && lastMoved === 'from'"
-          (input)="onFromInput($any($event.target).valueAsNumber)"
+          (input)="onSliderFromChange($any($event.target).valueAsNumber)"
         />
         <input
           class="range to-slider"
           type="range"
-          [min]="min"
-          [max]="max"
-          [step]="step"
+          [min]="getSliderMin()"
+          [max]="getSliderMax()"
+          [step]="getSliderStep()"
           [value]="to()"
           [class.on-top]="from() === to() && lastMoved === 'to'"
-          (input)="onToInput($any($event.target).valueAsNumber)"
+          (input)="onSliderToChange($any($event.target).valueAsNumber)"
         />
       </div>
 
+      <app-input-date
+        *ngIf="type === 'date'"
+        [valueSignal]="toDate"
+        (valueChange)="onToInput($event)"
+        [minDate]="minDate"
+        [maxDate]="maxDate"
+        [size]="'sm'"
+        [theme]="'dark'"
+      ></app-input-date>
+
       <app-input
+        *ngIf="type === 'number'"
         [showSubmitButton]="false"
         [theme]="'dark'"
         [type]="'number'"
@@ -48,7 +73,9 @@
         [signalInput]="to"
         [withIcons]="false"
       ></app-input>
+
     </div>
+
   </ng-container>
 
   <!-- VARIANT: DEFAULT (VERTICAL) -->
@@ -57,28 +84,39 @@
       <input
         class="range from-slider"
         type="range"
-        [min]="min"
-        [max]="max"
-        [step]="step"
+        [min]="getSliderMin()"
+        [max]="getSliderMax()"
+        [step]="getSliderStep()"
         [value]="from()"
         [class.on-top]="from() === to() && lastMoved === 'from'"
-        (input)="onFromInput($any($event.target).valueAsNumber)"
+        (input)="onSliderFromChange($any($event.target).valueAsNumber)"
       />
       <input
         class="range to-slider"
         type="range"
-        [min]="min"
-        [max]="max"
-        [step]="step"
+        [min]="getSliderMin()"
+        [max]="getSliderMax()"
+        [step]="getSliderStep()"
         [value]="to()"
         [class.on-top]="from() === to() && lastMoved === 'to'"
-        (input)="onToInput($any($event.target).valueAsNumber)"
+        (input)="onSliderToChange($any($event.target).valueAsNumber)"
       />
     </div>
 
     <div class="inputs">
       <div>
+        <!-- From Input -->
+        <div class="date-input-wrapper" *ngIf="type === 'date'">
+          <span class="date-display">{{ getDisplayValue('from') }}</span>
+          <input
+            type="date"
+            class="date-input"
+            [value]="fromDate() | date:'yyyy-MM-dd'"
+            (change)="onFromDateChange($event)"
+          />
+        </div>
         <app-input
+          *ngIf="type === 'number'"
           [showSubmitButton]="false"
           [theme]="'dark'"
           [type]="'number'"
@@ -94,7 +132,18 @@
       <div class="separator">-</div>
 
       <div>
+        <!-- To Input -->
+        <div class="date-input-wrapper" *ngIf="type === 'date'">
+          <span class="date-display">{{ getDisplayValue('to') }}</span>
+          <input
+            type="date"
+            class="date-input"
+            [value]="toDate() | date:'yyyy-MM-dd'"
+            (change)="onToDateChange($event)"
+          />
+        </div>
         <app-input
+          *ngIf="type === 'number'"
           [showSubmitButton]="false"
           [theme]="'dark'"
           [type]="'number'"

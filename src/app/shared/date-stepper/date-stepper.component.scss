@@ -4,10 +4,19 @@
   gap: 8px;
   width: 100%;
 
+  &.mode-toggle {
+    margin-bottom: 8px;
+  }
+
   .separator {
     opacity: 0.6;
     padding: 0 5px;
     flex: 0 0 auto;
+  }
+
+  app-range-slider {
+    flex: 1;
+    min-width: 200px;
   }
 }
 

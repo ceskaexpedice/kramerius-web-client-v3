@@ -52,6 +52,7 @@
         *ngIf="filter.inputType === AdvancedFilterType.Date"
         [data]="filter.elementValue"
         (dateChange)="onDateChange($event)"
+        [showModeToggle]="true"
       ></app-date-stepper>
     </ng-container>
   </div>
