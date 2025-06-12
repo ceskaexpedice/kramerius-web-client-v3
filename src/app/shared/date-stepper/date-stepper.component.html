@@ -8,11 +8,11 @@
       [type]="'number'"
       [theme]="'dark'"
       [min]="1"
-      [max]="getMaxDay()"
+      [max]="getMaxDay(dateFrom)"
       [leadingZero]="true"
-      [initialValue]="day"
+      [initialValue]="getDay(dateFrom)"
       [size]="'sm'"
-      (valueChange)="onPartChange('day', $event)"
+      (valueChange)="onManualPartChange('day', $event)"
     ></app-input>
 
     <span class="separator">-</span>
@@ -25,9 +25,9 @@
       [min]="1"
       [max]="12"
       [leadingZero]="true"
-      [initialValue]="month"
+      [initialValue]="getMonth(dateFrom)"
       [size]="'sm'"
-      (valueChange)="onPartChange('month', $event)"
+      (valueChange)="onManualPartChange('month', $event)"
     ></app-input>
 
     <span class="separator">-</span>
@@ -39,9 +39,9 @@
       [theme]="'dark'"
       [min]="0"
       [max]="9999"
-      [initialValue]="year"
+      [initialValue]="getYear(dateFrom)"
       [size]="'sm'"
-      (valueChange)="onPartChange('year', $event)"
+      (valueChange)="onManualPartChange('year', $event)"
     ></app-input>
 
     <span class="separator">-</span>
@@ -80,5 +80,6 @@
 
 <mat-slide-toggle
   [hideIcon]="true"
+  [checked]="dateMode() === DatePickerMode.Range"
   (toggleChange)="toggleDateMode()"
 >Výběr období od–do</mat-slide-toggle>

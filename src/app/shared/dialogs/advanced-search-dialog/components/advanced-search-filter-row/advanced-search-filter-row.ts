@@ -108,7 +108,13 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   onDateChange(date: DateStepperChange) {
     console.log('date changed:', date);
-    const formattedDate = date.date.toISOString().split('T')[0];
+    // if date.offset is -1 it means type is range so we have both dateFrom and dateTo and we can store them as [dateFrom TO dateTo], otherwise we store it as dateFrom+offset
+    if (date.offset === -1 && date.dateTo) {
+      this.filter.elementValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
+      this.filter.solrValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
+      return;
+    }
+    const formattedDate = date.dateFrom.toISOString().split('T')[0];
     this.filter.elementValue = `${formattedDate}+${date.offset}`
   }
 

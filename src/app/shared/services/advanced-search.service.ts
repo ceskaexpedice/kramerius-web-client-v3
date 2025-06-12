@@ -172,6 +172,17 @@ export class AdvancedSearchService {
           let useRaw = filter.userRawQueryFormat || false;
 
           if (filter.key === SolrFacetKey.Date) {
+
+            // there are two formats for date filters: [YYYY-MM-DD TO YYYY-MM-DD] and YYYY-MM-DD+offset
+            // if the filter is in the first format, we can use it directly
+            if (filter.solrValue.startsWith('[') && filter.solrValue.endsWith(']')) {
+              isRange = true;
+              return `${filter.solrField}:${filter.solrValue}`;
+            }
+
+            // otherwise, we need to parse the date and offset
+            // Example: if filter.solrValue is "1989-12-31+360", we need to convert it to a range
+
             // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
             // so we need to update solrValue to be in the format [start TO end]
             const dateParts = filter.elementValue.split('+');

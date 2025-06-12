@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, WritableSignal} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, WritableSignal} from '@angular/core';
 import {DatePipe, NgClass, NgIf} from '@angular/common';
 
 @Component({
@@ -21,6 +21,7 @@ export class InputDateComponent {
   @Input() size: 'sm' | 'md' = 'md';
 
   @Output() valueChange = new EventEmitter<Date>();
+  @ViewChild('dateInput', { static: true }) dateInputRef!: ElementRef<HTMLInputElement>;
 
   ngOnInit() {
     if (!this.valueSignal) {
@@ -46,7 +47,8 @@ export class InputDateComponent {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    // format should be DD.MM.YYYY
+    return date.toISOString().split('T')[0].split('-').reverse().join('.');
   }
 
   get min(): string | null {
@@ -55,6 +57,14 @@ export class InputDateComponent {
 
   get max(): string | null {
     return this.maxDate ? this.maxDate.toISOString().split('T')[0] : null;
+  }
+
+  clickedDateInput(e: Event) {
+    if (this.dateInputRef?.nativeElement?.showPicker) {
+      this.dateInputRef.nativeElement.showPicker(); // Chrome-only
+    } else {
+      this.dateInputRef.nativeElement.focus(); // fallback
+    }
   }
 
 }
