@@ -11,7 +11,7 @@
 
       </h4>
 
-      <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
+      <i class="icon-minus-square cursor-pointer" *ngIf="showToggleExpand" (click)="toggleExpanded()"></i>
 
     </div>
 
@@ -29,7 +29,9 @@
 
   </div>
 
-  <hr>
+  <ng-content #categoryContent></ng-content>
+
+  <hr *ngIf="showBottomBorder">
 
 </ng-container>
 

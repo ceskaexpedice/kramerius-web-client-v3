@@ -92,5 +92,8 @@
 
   "author-not-filled": "Author not filled",
   "record-info-dialog-title": "Detailed description",
-  "record-info-section-meta": "Meta information"
+  "record-info-section-meta": "Meta information",
+  "accessibility": "Accessibility",
+  "licenses.facet": "License",
+  "show-licenses-label": "Show licenses"
 }

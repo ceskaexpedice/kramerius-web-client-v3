@@ -10,7 +10,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SearchService} from '../../services/search.service';
 import {expandCollapseAnimation} from '../../animations';
-import {facetKeysInfinityCount} from '../../../modules/search-results-page/const/facets';
+import {facetKeysEnum, facetKeysInfinityCount} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-filter-category',
@@ -34,6 +34,8 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() selected: string[] = [];
   @Input() showShowMoreButton = false;
   @Input() operators: Record<string, string> = {};
+  @Input() showToggleExpand = true;
+  @Input() showBottomBorder = true;
 
   @Output() toggle = new EventEmitter<string>();
   @Output() showMore = new EventEmitter<void>();
@@ -134,4 +136,6 @@ export class FilterCategoryComponent implements OnChanges {
       }
     });
   }
+
+  protected readonly facetKeysEnum = facetKeysEnum;
 }

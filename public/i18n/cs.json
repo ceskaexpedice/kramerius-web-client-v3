@@ -92,5 +92,8 @@
 
   "author-not-filled": "Autor nevyplněn",
   "record-info-dialog-title": "Podrobný popis",
-  "record-info-section-meta": "Meta informace"
+  "record-info-section-meta": "Meta informace",
+  "accessibility": "Dostupnost",
+  "licenses.facet": "Licence",
+  "show-licenses-label": "Zobrazit licence"
 }

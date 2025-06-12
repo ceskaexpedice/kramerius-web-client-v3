@@ -104,6 +104,8 @@ export class SearchEffects {
       result[facetKey] = baseValues;
     }
 
+    console.log('result', result);
+
     return result;
   }
 
