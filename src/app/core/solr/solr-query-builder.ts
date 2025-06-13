@@ -12,7 +12,7 @@ export class SolrQueryBuilder {
 
   static baseFilters(): any {
     return {
-      fq: `(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR (model:collection AND collection.is_standalone:true) OR model:monographunit)`
+      fq: `(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR (model:collection AND collection.is_standalone:true) OR model:monographunit OR model:supplement OR model:article)`
     };
   }
 

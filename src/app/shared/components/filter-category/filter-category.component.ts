@@ -10,7 +10,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SearchService} from '../../services/search.service';
 import {expandCollapseAnimation} from '../../animations';
-import {facetKeysEnum, facetKeysInfinityCount} from '../../../modules/search-results-page/const/facets';
+import {
+  customDefinedFacetsEnum,
+  facetKeysEnum,
+  facetKeysInfinityCount,
+} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-filter-category',
@@ -44,7 +48,7 @@ export class FilterCategoryComponent implements OnChanges {
 
   // Get max items based on facetKey
   get maxItems(): number {
-    return this.facetKey === 'model' ? Infinity : 5;
+    return facetKeysInfinityCount.includes(this.facetKey) ? Infinity : 5;
   }
 
   // Get whether to show the "Show all" button
@@ -89,7 +93,7 @@ export class FilterCategoryComponent implements OnChanges {
     let sorted;
 
     // Special handling for 'model' facet - preserve original order
-    if (this.facetKey === 'model') {
+    if (this.facetKey === facetKeysEnum.model || this.facetKey === customDefinedFacetsEnum.model) {
       sorted = allItems; // Keep original order for model facet
     } else {
       // For all other facets, sort with selected items first

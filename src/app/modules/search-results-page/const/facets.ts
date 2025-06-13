@@ -26,38 +26,156 @@ export const facetKeys: string[] = [
   facetKeysEnum.physical_locations,
 ];
 
+export enum customDefinedFacetsEnum {
+  model = 'custom-model',
+  whereToSearchModel = 'custom-where-to-search.model',
+}
+
+export const customDefinedFacetsKeys: string[] = [
+  customDefinedFacetsEnum.model,
+  customDefinedFacetsEnum.whereToSearchModel
+]
+
 export const facetKeysInfinityCount: string[] = [
   facetKeysEnum.accessibility,
   facetKeysEnum.license,
   facetKeysEnum.model,
+  customDefinedFacetsEnum.model,
+  customDefinedFacetsEnum.whereToSearchModel
 ]
 
 export const customDefinedFacets = [
   {
     facetKey: facetKeysEnum.model,
-    title: 'where-to-search.accessibility',
+    title: customDefinedFacetsEnum.model,
+    data: [
+      {
+        key: 'periodical',
+        fq: [
+          'periodical'
+        ],
+        name: 'periodical',
+        count: 0
+      },
+      {
+        key: 'monograph',
+        fq: [
+          'monograph'
+        ],
+        name: 'monograph',
+        count: 0
+      },
+      {
+        key: 'map',
+        fq: [
+          'map'
+        ],
+        name: 'map',
+        count: 0
+      },
+      {
+        key: 'graphic',
+        fq: [
+          'graphic'
+        ],
+        name: 'graphic',
+        count: 0
+      },
+      {
+        key: 'archive',
+        fq: [
+          'archive'
+        ],
+        name: 'archive',
+        count: 0
+      },
+      {
+        key: 'manuscript',
+        fq: [
+          'manuscript'
+        ],
+        name: 'manuscript',
+        count: 0
+      },
+      {
+        key: 'soundrecording',
+        fq: [
+          'soundrecording'
+        ],
+        name: 'soundrecording',
+        count: 0
+      },
+      {
+        key: 'sheetmusic',
+        fq: [
+          'sheetmusic'
+        ],
+        name: 'sheetmusic',
+        count: 0
+      },
+      {
+        key: 'convolute',
+        fq: [
+          'convolute'
+        ],
+        name: 'convolute',
+        count: 0
+      },
+      {
+        key: 'collection',
+        fq: [
+          '(model:collection AND collection.is_standalone:true)'
+        ],
+        name: 'collection',
+        count: 0
+      },
+      {
+        key: 'monographunit',
+        fq: [
+          'monographunit'
+        ],
+        name: 'monographunit',
+        count: 0
+      }
+    ]
+  },
+  {
+    facetKey: facetKeysEnum.model,
+    title: customDefinedFacetsEnum.whereToSearchModel,
     data: [
       {
         key: 'titles',
-        fq: '(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR (model:collection AND collection.is_standalone:true) OR model:monographunit)',
+        fq: [
+          'periodical',
+          'monograph',
+          'map',
+          'graphic',
+          'archive',
+          'manuscript',
+          'soundrecording',
+          'sheetmusic',
+          'convolute',
+          'collection',
+          'monographunit'
+        ],
         name: 'titles',
         count: 0
       },
       {
         key: 'pages',
-        fq: '(model:page)',
+        fq: 'page',
         name: 'page',
         count: 0
       },
       {
         key: 'articles',
-        fq: '(model:article)',
+        fq: 'article',
         name: 'article',
         count: 0
       },
       {
         key: 'attachments',
-        fq: '(model:supplement)',
+        fq: 'supplement',
         name: 'supplement',
         count: 0
       }

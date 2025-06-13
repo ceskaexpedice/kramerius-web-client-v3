@@ -11,6 +11,7 @@ import * as SearchSelectors from './search.selectors';
 import {FacetItem} from '../../models/facet-item';
 import {SolrOperators} from '../../../core/solr/solr-helpers';
 import {DEFAULT_FACET_FIELDS} from '../const/facet-fields';
+import {customDefinedFacets} from '../const/facets';
 
 @Injectable()
 export class SearchEffects {
@@ -102,6 +103,25 @@ export class SearchEffects {
       }
 
       result[facetKey] = baseValues;
+    }
+
+    for (const custom of customDefinedFacets) {
+      const enrichedItems: FacetItem[] = custom.data.map(item => {
+        console.log('item', item);
+        const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
+
+        const count = fqList.reduce((sum, fqValue) => {
+          const value = result[custom.facetKey]?.find(f => f.name === fqValue)?.count || 0;
+          return sum + value;
+        }, 0);
+
+        return {
+          ...item,
+          count,
+        };
+      });
+
+      result[custom.title] = enrichedItems;
     }
 
     console.log('result', result);

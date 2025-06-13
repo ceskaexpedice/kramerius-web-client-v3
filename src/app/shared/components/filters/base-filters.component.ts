@@ -25,6 +25,7 @@ export abstract class BaseFiltersComponent {
   }
 
   onToggleFacet(fullValue: string): void {
+    console.log(fullValue);
     this.filterService.toggleFilter(this.route, fullValue);
   }
 }

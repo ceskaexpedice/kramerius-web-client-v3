@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
-import {customDefinedFacets, facetKeys, facetKeysEnum} from '../../const/facets';
+import {customDefinedFacets, customDefinedFacetsKeys, facetKeys, facetKeysEnum} from '../../const/facets';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
@@ -12,18 +12,18 @@ import {TranslatePipe} from '@ngx-translate/core';
   template: `
     <div class="filters-content">
 
-      <app-filter-category *ngFor="let category of customDefinedFacets"
-                           [label]="category.title"
-                            [facetKey]="category.facetKey"
-                            [items]="category.data"
-                            [selected]="selectedFilters"
-                            [operators]="(filterService.getFiltersWithOperators() | async) || {}"
-                            [showShowMoreButton]="false"
-                            [showBottomBorder]="true"
-                           (toggle)="onToggleFacet($event)"
-      >
+<!--      <app-filter-category *ngFor="let category of customDefinedFacets"-->
+<!--                           [label]="category.title"-->
+<!--                            [facetKey]="category.facetKey"-->
+<!--                            [items]="category.data"-->
+<!--                            [selected]="selectedFilters"-->
+<!--                            [operators]="(filterService.getFiltersWithOperators() | async) || {}"-->
+<!--                            [showShowMoreButton]="false"-->
+<!--                            [showBottomBorder]="true"-->
+<!--                           (toggle)="onToggleFacet($event)"-->
+<!--      >-->
 
-      </app-filter-category>
+<!--      </app-filter-category>-->
 
       <app-filter-category
         *ngFor="let facetKey of getFacetKeys"
@@ -89,7 +89,7 @@ export class SearchFiltersComponent extends BaseFiltersComponent {
 
   get getFacetKeys(): string[] {
     // we are showing licenses under accessibility facet so we need to return all facet keys except 'licenses.facet'
-    return this.facetKeys.filter(key => key !== facetKeysEnum.license);
+    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
   }
 
   toggleLicenses() {
@@ -97,5 +97,4 @@ export class SearchFiltersComponent extends BaseFiltersComponent {
   }
 
   protected readonly facetKeysEnum = facetKeysEnum;
-  protected readonly customDefinedFacets = customDefinedFacets;
 }
