@@ -130,7 +130,11 @@ export class SolrQueryBuilder {
 
   }
 
-  static buildQueryFromInput(input: string, operator: 'AND' | 'OR' = 'AND', field: string = 'titles.search'): string {
+  static buildQueryFromInput(
+    input: string,
+    operator: 'AND' | 'OR' = 'AND',
+    field: string | string[] = 'titles.search'
+  ): string {
     const trimmed = input.trim();
     if (!trimmed) return '*:*';
 
@@ -139,8 +143,16 @@ export class SolrQueryBuilder {
       return i === arr.length - 1 ? `${escaped}*` : escaped;
     });
 
-    return `${field}:(${words.join(` ${operator} `)})`;
+    const queryBody = words.join(` ${operator} `);
+
+    if (Array.isArray(field)) {
+      const fieldQueries = field.map(f => `${f}:(${queryBody})`);
+      return `(${fieldQueries.join(' OR ')})`;
+    }
+
+    return `${field}:(${queryBody})`;
   }
+
 
   static buildBooleanQuery(conditions: string[]): string {
     return conditions.join(' AND ');
