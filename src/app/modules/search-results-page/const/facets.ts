@@ -47,7 +47,7 @@ export const facetKeysInfinityCount: string[] = [
 export const customDefinedFacets = [
   {
     facetKey: facetKeysEnum.model,
-    title: customDefinedFacetsEnum.model,
+    title: facetKeysEnum.model,
     data: [
       {
         key: 'periodical',

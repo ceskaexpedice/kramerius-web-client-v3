@@ -1,6 +1,8 @@
 export interface FacetItem {
   name: string;
   count: number;
+  icon?: string;
+  available?: boolean;
 }
 
 export const parseFacetField = (raw: any[]): FacetItem[] => {

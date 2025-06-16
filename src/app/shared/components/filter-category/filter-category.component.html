@@ -17,7 +17,7 @@
 
     <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
-      <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+      <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [icon]="facet.icon || null" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
 
       <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
         {{ 'show-more' | translate }}

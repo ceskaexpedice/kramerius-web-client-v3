@@ -140,6 +140,4 @@ export class FilterCategoryComponent implements OnChanges {
       }
     });
   }
-
-  protected readonly facetKeysEnum = facetKeysEnum;
 }
