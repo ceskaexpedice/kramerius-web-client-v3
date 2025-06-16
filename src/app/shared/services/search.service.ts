@@ -16,6 +16,7 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
 import {FilterService} from './filter.service';
 import {AdvancedSearchService} from './advanced-search.service';
+import {UserService} from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,8 @@ export class SearchService implements FilterService {
   private _sortBy = signal(SolrSortFields.relevance);
   private _sortDirection = signal(SolrSortDirections.desc);
 
+  private _licenses = signal<string[]>([]);
+
   results$: Observable<SearchDocument[]>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
@@ -43,6 +46,8 @@ export class SearchService implements FilterService {
   get totalCount() { return this._totalCount(); }
   get sortBy() { return this._sortBy; }
   get sortDirection() { return this._sortDirection; }
+
+  get licenses() { return this._licenses(); }
 
   inputSearchTerm = '';
 
@@ -88,7 +93,8 @@ export class SearchService implements FilterService {
     private store: Store,
     private queryParamsService: QueryParamsService,
     private solrService: SolrService,
-    private advancedSearchService: AdvancedSearchService
+    private advancedSearchService: AdvancedSearchService,
+    private userService: UserService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
@@ -142,7 +148,15 @@ export class SearchService implements FilterService {
       }
     });
 
+    this.loadLicenses();
+
     this.initialized = true;
+  }
+
+  private loadLicenses(): void {
+    this.userService.getUserSession().subscribe(session => {
+      this._licenses.set(session.licenses);
+    });
   }
 
   private dispatchSearch(params: any): void {
