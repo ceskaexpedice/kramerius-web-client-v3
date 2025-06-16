@@ -9,11 +9,9 @@ import {SearchResultResponse} from '../../modules/models/search-result-response'
 import {PeriodicalItem} from '../../modules/models/periodical-item';
 import {BookItem} from '../../modules/models/book-item';
 import {FacetItem} from '../../modules/models/facet-item';
-import {environment} from '../../../environments/environment';
 import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
 import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 import {EnvironmentService} from '../../shared/services/environment.service';
-import {ensureTrailingSlash} from '../../shared/misc/trailing-slash';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -81,7 +79,7 @@ export class SolrService {
 
   private buildQParam(query: string, advancedQuery?: string): string {
     const parts = [];
-    if (query?.trim()) parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', 'titles.search')})`);
+    if (query?.trim()) parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', ['titles.search', 'text_ocr'])})`);
     if (advancedQuery?.trim()) parts.push(`(${advancedQuery})`);
     return parts.length ? parts.join(' AND ') : '*:*';
   }
