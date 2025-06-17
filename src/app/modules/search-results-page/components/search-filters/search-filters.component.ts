@@ -2,7 +2,13 @@ import { Component } from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
-import {customDefinedFacets, customDefinedFacetsKeys, facetKeys, facetKeysEnum} from '../../const/facets';
+import {
+  customDefinedFacets,
+  customDefinedFacetsEnum,
+  customDefinedFacetsKeys,
+  facetKeys,
+  facetKeysEnum,
+} from '../../const/facets';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
@@ -12,50 +18,57 @@ import {TranslatePipe} from '@ngx-translate/core';
   template: `
     <div class="filters-content">
 
-<!--      <app-filter-category *ngFor="let category of customDefinedFacets"-->
-<!--                           [label]="category.title"-->
-<!--                            [facetKey]="category.facetKey"-->
-<!--                            [items]="category.data"-->
-<!--                            [selected]="selectedFilters"-->
-<!--                            [operators]="(filterService.getFiltersWithOperators() | async) || {}"-->
-<!--                            [showShowMoreButton]="false"-->
-<!--                            [showBottomBorder]="true"-->
-<!--                           (toggle)="onToggleFacet($event)"-->
-<!--      >-->
+      <!--      <app-filter-category *ngFor="let category of customDefinedFacets"-->
+      <!--                           [label]="category.title"-->
+      <!--                            [facetKey]="category.facetKey"-->
+      <!--                            [items]="category.data"-->
+      <!--                            [selected]="selectedFilters"-->
+      <!--                            [operators]="(filterService.getFiltersWithOperators() | async) || {}"-->
+      <!--                            [showShowMoreButton]="false"-->
+      <!--                            [showBottomBorder]="true"-->
+      <!--                           (toggle)="onToggleFacet($event)"-->
+      <!--      >-->
 
-<!--      </app-filter-category>-->
+      <!--      </app-filter-category>-->
 
-      <app-filter-category
+      <ng-container
         *ngFor="let facetKey of getFacetKeys"
-        [label]="facetKey"
-        [facetKey]="facetKey"
-        [items]="(facets$ | async)?.[facetKey] || []"
-        [selected]="selectedFilters"
-        [operators]="(filterService.getFiltersWithOperators() | async) || {}"
-        [showShowMoreButton]="true"
-        (toggle)="onToggleFacet($event)">
+      >
 
-        <ng-container categoryContent *ngIf="facetKey === facetKeysEnum.accessibility">
 
-          <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-            {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
-          </div>
+        <app-filter-category
+          [label]="facetKey"
+          [facetKey]="facetKey"
+          [items]="(facets$ | async)?.[facetKey] || []"
+          [selected]="selectedFilters"
+          [operators]="(filterService.getFiltersWithOperators() | async) || {}"
+          [showShowMoreButton]="true"
+          (toggle)="onToggleFacet($event)">
 
-          <app-filter-category
-            *ngIf="expandLicenses"
-            [facetKey]="facetKeysEnum.license"
-            [items]="(facets$ | async)?.[facetKeysEnum.license] || []"
-            [selected]="selectedFilters"
-            [operators]="(filterService.getFiltersWithOperators() | async) || {}"
-            [showShowMoreButton]="false"
-            [showBottomBorder]="false"
-            [showToggleExpand]="false"
-            (toggle)="onToggleFacet($event)">
-          </app-filter-category>
+          <ng-container categoryContent *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
-        </ng-container>
+            <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
+              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
+            </div>
 
-      </app-filter-category>
+            <app-filter-category
+              *ngIf="expandLicenses"
+              [facetKey]="facetKeysEnum.license"
+              [items]="(facets$ | async)?.[facetKeysEnum.license] || []"
+              [selected]="selectedFilters"
+              [operators]="(filterService.getFiltersWithOperators() | async) || {}"
+              [showShowMoreButton]="false"
+              [showBottomBorder]="false"
+              [showToggleExpand]="false"
+              (toggle)="onToggleFacet($event)">
+            </app-filter-category>
+
+          </ng-container>
+
+        </app-filter-category>
+
+      </ng-container>
+
     </div>
 
   `,
@@ -83,6 +96,7 @@ import {TranslatePipe} from '@ngx-translate/core';
   `]
 })
 export class SearchFiltersComponent extends BaseFiltersComponent {
+  accessibilityFilter = customDefinedFacets.find(a => a.facetKey === customDefinedFacetsEnum.accessibility);
   expandLicenses = false;
 
   facetKeys = facetKeys;
@@ -97,4 +111,5 @@ export class SearchFiltersComponent extends BaseFiltersComponent {
   }
 
   protected readonly facetKeysEnum = facetKeysEnum;
+  protected readonly customDefinedFacetsEnum = customDefinedFacetsEnum;
 }

@@ -3,6 +3,12 @@ export interface FacetItem {
   count: number;
   icon?: string;
   available?: boolean;
+  type?: 'radio' | 'checkbox';
+}
+
+export interface FacetGroup {
+  type: 'radio' | 'checkbox';
+  items: FacetItem[];
 }
 
 export const parseFacetField = (raw: any[]): FacetItem[] => {

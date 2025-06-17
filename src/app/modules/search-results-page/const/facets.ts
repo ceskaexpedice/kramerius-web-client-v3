@@ -2,6 +2,7 @@ export const facetKeysEnum = {
   accessibility: 'accessibility',
   license: 'licenses.facet',
   model: 'model',
+  rootModel: 'root.model',
   authors: 'authors.facet',
   languages: 'languages.facet',
   genres: 'genres.facet',
@@ -13,7 +14,6 @@ export const facetKeysEnum = {
 }
 
 export const facetKeys: string[] = [
-  facetKeysEnum.accessibility,
   facetKeysEnum.license,
   facetKeysEnum.model,
   facetKeysEnum.authors,
@@ -27,11 +27,13 @@ export const facetKeys: string[] = [
 ];
 
 export enum customDefinedFacetsEnum {
+  accessibility = 'custom-accessibility',
   model = 'custom-model',
   whereToSearchModel = 'custom-where-to-search.model',
 }
 
 export const customDefinedFacetsKeys: string[] = [
+  customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
   customDefinedFacetsEnum.whereToSearchModel
 ]
@@ -40,14 +42,36 @@ export const facetKeysInfinityCount: string[] = [
   facetKeysEnum.accessibility,
   facetKeysEnum.license,
   facetKeysEnum.model,
+  customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
   customDefinedFacetsEnum.whereToSearchModel
 ]
 
 export const customDefinedFacets = [
   {
-    facetKey: facetKeysEnum.model,
-    title: facetKeysEnum.model,
+    facetKey: customDefinedFacetsEnum.accessibility,
+    title: customDefinedFacetsEnum.accessibility,
+    type: 'radio',
+    data: [
+      {
+        key: 'all',
+        fq: null,
+        name: 'all',
+        count: 0,
+        type: 'radio',
+      },
+      {
+        key: 'available',
+        fq: [],
+        name: 'available',
+        count: 0,
+        type: 'radio',
+      }
+    ]
+  },
+  {
+    facetKey: facetKeysEnum.rootModel,
+    title: facetKeysEnum.rootModel,
     data: [
       {
         key: 'periodical',

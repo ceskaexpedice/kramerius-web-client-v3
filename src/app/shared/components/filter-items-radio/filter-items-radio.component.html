@@ -1,0 +1,17 @@
+<mat-radio-group
+  class="radio-group"
+  [value]="selected"
+  [name]="'radio-group-' + facetKey"
+(change)="onSelectionChange($event)"
+>
+  <mat-radio-button
+    *ngFor="let item of items; trackBy: trackByFn"
+    [value]="item.name"
+    class="radio-button"
+  >
+    {{ item.name | translate }}
+    <span class="count">({{ item.count }})</span>
+    <i *ngIf="item.icon" [ngClass]="item.icon"></i>
+  </mat-radio-button>
+</mat-radio-group>
+

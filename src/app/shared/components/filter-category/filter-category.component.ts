@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
 import {NgForOf, NgIf, SlicePipe} from '@angular/common';
 import {FilterItemComponent} from '../filter-item/filter-item.component';
-import {FacetItem} from '../../../modules/models/facet-item';
+import {FacetItem, FacetGroup} from '../../../modules/models/facet-item';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
   FilterDialogComponent
@@ -15,15 +15,17 @@ import {
   facetKeysEnum,
   facetKeysInfinityCount,
 } from '../../../modules/search-results-page/const/facets';
+import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radio.component';
 
 @Component({
   selector: 'app-filter-category',
   imports: [
-    SlicePipe,
     FilterItemComponent,
     NgForOf,
     NgIf,
     TranslatePipe,
+    FilterItemsRadioComponent,
+    SlicePipe
   ],
   templateUrl: './filter-category.component.html',
   styleUrl: './filter-category.component.scss',
@@ -109,6 +111,13 @@ export class FilterCategoryComponent implements OnChanges {
 
 
   isSelected(value: string) {
+    // if facetKey is customDefinedFacetsEnum.accessibility, we need to check for 'available' or 'all'
+    // default - always checked is 'all', available is checked only if selected
+    // if (this.facetKey === customDefinedFacetsEnum.accessibility) {
+    //   return value === 'all' && !this.selected.includes(`${this.facetKey}:available`);
+    // }
+
+
     return this.selected.includes(`${this.facetKey}:${value}`);
   }
 
@@ -140,4 +149,39 @@ export class FilterCategoryComponent implements OnChanges {
       }
     });
   }
+
+  get groupedItems(): FacetGroup[] {
+    const items = this.visibleItems();
+
+    const radioItems = items.filter(i => i.type === 'radio');
+    const checkboxItems = items.filter(i => !i.type || i.type !== 'radio');
+
+    const groups: FacetGroup[] = [];
+
+    if (checkboxItems.length) {
+      groups.push({ type: 'checkbox', items: checkboxItems });
+    }
+
+    if (radioItems.length) {
+      groups.push({ type: 'radio', items: radioItems });
+    }
+
+    return groups;
+  }
+
+  getSelectedRadioValue(): string | null {
+    const match = this.selected.find(f => f.startsWith(this.facetKey + ':'));
+    const result = match ? match.split(':')[1] : null;
+    console.log('getSelectedRadioValue:', result, 'from selected:', this.selected);
+    return result;
+  }
+
+  onRadioChange(value: string) {
+    console.log('onRadioChange called with:', value);
+    console.log('Current selected:', this.selected);
+    console.log('FacetKey:', this.facetKey);
+
+    this.toggle.emit(`${this.facetKey}:${value}`);
+  }
+
 }

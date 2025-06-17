@@ -5,7 +5,6 @@ import {DatePipe, NgClass, NgIf} from '@angular/common';
   selector: 'app-input-date',
   imports: [
     DatePipe,
-    NgIf,
     NgClass,
   ],
   templateUrl: './input-date.component.html',

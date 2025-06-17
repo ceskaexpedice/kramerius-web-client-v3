@@ -6,7 +6,7 @@
     (change)="toggled.emit()"
     color="tertiary"
   >
-    <label>{{ truncateLabel ? ((label | translate).length > 15 ? ((label | translate).slice(0, 15) + '...') : (label | translate)) : (label | translate) }}</label>
+    <label *ngIf="label | translate as translatedLabel">{{ truncateLabel ? ((label | translate).length > 15 ? ((label | translate).slice(0, 15) + '...') : (label | translate)) : (label | translate) }}</label>
 
     <span class="count">({{ count }})</span>
   </mat-checkbox>
