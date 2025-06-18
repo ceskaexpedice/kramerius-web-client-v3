@@ -1,3 +1,13 @@
+export enum FacetElementType {
+  checkbox = 'checkbox',
+  radio = 'radio'
+}
+
+export enum FacetAccessibilityTypes {
+  all = 'all',
+  available = 'available'
+}
+
 export const facetKeysEnum = {
   accessibility: 'accessibility',
   license: 'licenses.facet',
@@ -28,7 +38,7 @@ export const facetKeys: string[] = [
 
 export enum customDefinedFacetsEnum {
   accessibility = 'custom-accessibility',
-  model = 'custom-model',
+  model = 'custom-root-model',
   whereToSearchModel = 'custom-where-to-search.model',
 }
 
@@ -51,27 +61,31 @@ export const customDefinedFacets = [
   {
     facetKey: customDefinedFacetsEnum.accessibility,
     title: customDefinedFacetsEnum.accessibility,
-    type: 'radio',
+    solrFacetKey: facetKeysEnum.license,
+    solrFacetKeyForCount: facetKeysEnum.license,
+    type: FacetElementType.radio,
     data: [
       {
-        key: 'all',
+        key: FacetAccessibilityTypes.all,
         fq: null,
-        name: 'all',
+        name: FacetAccessibilityTypes.all,
         count: 0,
-        type: 'radio',
+        type: FacetElementType.radio,
       },
       {
-        key: 'available',
+        key: FacetAccessibilityTypes.available,
         fq: [],
-        name: 'available',
+        name: FacetAccessibilityTypes.available,
         count: 0,
-        type: 'radio',
+        type: FacetElementType.radio,
       }
     ]
   },
   {
-    facetKey: facetKeysEnum.rootModel,
-    title: facetKeysEnum.rootModel,
+    facetKey: customDefinedFacetsEnum.model,
+    title: customDefinedFacetsEnum.model,
+    solrFacetKey: facetKeysEnum.rootModel,
+    solrFacetKeyForCount: facetKeysEnum.model,
     data: [
       {
         key: 'periodical',
@@ -164,8 +178,10 @@ export const customDefinedFacets = [
     ]
   },
   {
-    facetKey: facetKeysEnum.model,
+    facetKey: customDefinedFacetsEnum.whereToSearchModel,
     title: customDefinedFacetsEnum.whereToSearchModel,
+    solrFacetKey: facetKeysEnum.model,
+    solrFacetKeyForCount: facetKeysEnum.model,
     data: [
       {
         key: 'titles',
@@ -189,6 +205,12 @@ export const customDefinedFacets = [
         key: 'pages',
         fq: 'page',
         name: 'page',
+        count: 0
+      },
+      {
+        key: 'periodicalitem',
+        fq: 'periodicalitem',
+        name: 'periodicalitem',
         count: 0
       },
       {

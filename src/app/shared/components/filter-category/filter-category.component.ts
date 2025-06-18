@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, signal, effect} from '@angular/core';
 import {NgForOf, NgIf, SlicePipe} from '@angular/common';
 import {FilterItemComponent} from '../filter-item/filter-item.component';
 import {FacetItem, FacetGroup} from '../../../modules/models/facet-item';
@@ -33,6 +33,10 @@ import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radi
 })
 export class FilterCategoryComponent implements OnChanges {
   expanded = true;
+
+  // specific for custom-where-to-search facet
+  showPageFacet = false;
+  showPeriodicalItemFacet = false;
 
   @Input() label!: string;
   @Input() facetKey!: string;
@@ -70,6 +74,15 @@ export class FilterCategoryComponent implements OnChanges {
     private dialog: MatDialog,
     private searchService: SearchService
   ) {
+
+    effect(() => {
+      if (this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
+        this.showPageFacet = this.searchService.hasSubmittedQuery();
+        this.showPeriodicalItemFacet = this.searchService.filtersContainDate();
+        this.updateVisibleItems();
+      }
+    });
+
   }
 
   ngOnChanges() {
@@ -103,6 +116,17 @@ export class FilterCategoryComponent implements OnChanges {
         const aSelected = selectedSet.has(a.name) ? -1 : 0;
         const bSelected = selectedSet.has(b.name) ? -1 : 0;
         return aSelected - bSelected;
+      });
+    }
+
+    // if facetKey is customDefinedFacetsEnum.whereToSearchModel, we
+    // need to show only facet items without 'periodical' or 'page' in their name
+    // if showPageFacet is true, we can show also 'page', similarly for 'periodical'
+    if (this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
+      sorted = sorted.filter(item => {
+        if (this.showPageFacet && item.name === 'page') return true;
+        if (this.showPeriodicalItemFacet && item.name === 'periodicalitem') return true;
+        return !['periodicalitem', 'page'].includes(item.name);
       });
     }
 

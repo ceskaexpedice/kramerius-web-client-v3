@@ -10,11 +10,31 @@ export class SolrQueryBuilder {
     };
   }
 
-  static baseFilters(): any {
+  static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false): any {
+    const baseModels = [
+      'model:periodical',
+      'model:monograph',
+      'model:map',
+      'model:graphic',
+      'model:archive',
+      'model:manuscript',
+      'model:soundrecording',
+      'model:sheetmusic',
+      'model:convolute',
+      '(model:collection AND collection.is_standalone:true)',
+      'model:monographunit',
+      'model:supplement',
+      'model:article'
+    ];
+
+    if (includePeriodicalItem) baseModels.push('model:periodicalitem');
+    if (includePage) baseModels.push('model:page');
+
     return {
-      fq: `(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR (model:collection AND collection.is_standalone:true) OR model:monographunit OR model:supplement OR model:article)`
+      fq: `(${baseModels.join(' OR ')})`
     };
   }
+
 
   // static baseFilters(): any {
   //   return {

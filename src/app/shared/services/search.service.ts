@@ -1,4 +1,4 @@
-import {effect, Injectable, signal} from '@angular/core';
+import {effect, Injectable, signal, computed} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, filter, map, Observable, of} from 'rxjs';
@@ -17,6 +17,8 @@ import {SolrService} from '../../core/solr/solr.service';
 import {FilterService} from './filter.service';
 import {AdvancedSearchService} from './advanced-search.service';
 import {UserService} from './user.service';
+import {CustomSearchService} from './custom-search.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +34,10 @@ export class SearchService implements FilterService {
   private _totalCount = signal(0);
   private _sortBy = signal(SolrSortFields.relevance);
   private _sortDirection = signal(SolrSortDirections.desc);
-
-  private _licenses = signal<string[]>([]);
+  private _activeFiltersSignal = toSignal(
+    this.store.select(selectActiveFilters),
+    { initialValue: [] }
+  );
 
   results$: Observable<SearchDocument[]>;
   totalCount$: Observable<number>;
@@ -46,8 +50,6 @@ export class SearchService implements FilterService {
   get totalCount() { return this._totalCount(); }
   get sortBy() { return this._sortBy; }
   get sortDirection() { return this._sortDirection; }
-
-  get licenses() { return this._licenses(); }
 
   inputSearchTerm = '';
 
@@ -94,7 +96,8 @@ export class SearchService implements FilterService {
     private queryParamsService: QueryParamsService,
     private solrService: SolrService,
     private advancedSearchService: AdvancedSearchService,
-    private userService: UserService
+    private userService: UserService,
+    private customSearchService: CustomSearchService
   ) {
     this.results$ = this.store.select(selectSearchResults);
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
@@ -135,8 +138,12 @@ export class SearchService implements FilterService {
     });
   }
 
-  initialize(): void {
+  async initialize() {
     if (this.initialized) return;
+
+    await this.userService.loadLicenses();
+
+    this.customSearchService.initializeFromRoute();
 
     this.route.queryParams.subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
@@ -148,15 +155,7 @@ export class SearchService implements FilterService {
       }
     });
 
-    this.loadLicenses();
-
     this.initialized = true;
-  }
-
-  private loadLicenses(): void {
-    this.userService.getUserSession().subscribe(session => {
-      this._licenses.set(session.licenses);
-    });
   }
 
   private dispatchSearch(params: any): void {
@@ -164,6 +163,9 @@ export class SearchService implements FilterService {
 
     const query = params['query'] || '';
     const baseFilters = this.queryParamsService.getFilters(params);
+    const customFilters = this.customSearchService.getSolrFqFilters();
+
+    console.log('customFilters:', customFilters);
 
     const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
 
@@ -181,7 +183,7 @@ export class SearchService implements FilterService {
 
     let filters: string[];
 
-    filters = baseFilters;
+    filters = [...baseFilters, ...customFilters];
 
     this.store.dispatch(loadSearchResults({
       query,
@@ -303,4 +305,16 @@ export class SearchService implements FilterService {
   clearBackupSearchUrl(): void {
     sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
+
+  get hasSubmittedQuery() {
+    return computed(() => this._submittedTerm().trim().length > 0);
+  }
+
+  get filtersContainDate() {
+    return computed(() =>
+      this._activeFiltersSignal().some(f => f.toLowerCase().includes('date')) ||
+      this.advancedSearchService.filtersContainDate()
+    );
+  }
+
 }

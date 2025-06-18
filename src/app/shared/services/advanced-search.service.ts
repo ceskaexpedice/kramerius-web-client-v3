@@ -529,4 +529,16 @@ export class AdvancedSearchService {
 
     return parts.length > 0 ? parts : [query.trim()];
   }
+
+  get filtersContainDate() {
+    return computed(() => {
+      return this.appliedGroupsSignal().some(group =>
+        group.filters.some(f =>
+          !!f.elementValue?.trim() &&
+          (f.key === SolrFacetKey.Date || f.key === SolrFacetKey.Year)
+        )
+      );
+    });
+  }
+
 }

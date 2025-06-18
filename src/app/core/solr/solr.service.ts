@@ -53,15 +53,20 @@ export class SolrService {
     return filtersByField;
   }
 
-  private createFacetBaseParams(options: any = {}, addBaseFilters = false): Record<string, any> {
+  private createFacetBaseParams(options: any = {}, addBaseFilters = false, baseFilters: { fq: string } | null  = null): Record<string, any> {
     let params: Record<string, any> = {
-      ...SolrQueryBuilder.baseFilters(),
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn([]),
       ...SolrQueryBuilder.pagination(0, 0),
       facet: 'true',
       'facet.mincount': (options.minCount || 1).toString()
     };
+
+    if (baseFilters) {
+      params = {...params, ...baseFilters};
+    } else {
+      params = {...params, ...SolrQueryBuilder.baseFilters()};
+    }
 
     // if (addBaseFilters) {
     //   params = {
@@ -113,9 +118,10 @@ export class SolrService {
     });
   }
 
-  search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string): Observable<SearchResultResponse> {
+  search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
+         baseFilters: { fq: string } = SolrQueryBuilder.baseFilters(false, false)): Observable<SearchResultResponse> {
     let paramsObject = {
-      ...SolrQueryBuilder.baseFilters(),
+      ...baseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
@@ -133,9 +139,10 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string): Observable<SearchResultResponse> {
+  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
+                         baseFilters: { fq: string } = SolrQueryBuilder.baseFilters(false, false)): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
-    const paramsObject = this.createFacetBaseParams({}, filters.length === 0);
+    const paramsObject = this.createFacetBaseParams({}, filters.length === 0, baseFilters);
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {

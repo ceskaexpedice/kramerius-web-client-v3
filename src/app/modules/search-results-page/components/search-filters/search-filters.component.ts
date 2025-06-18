@@ -18,19 +18,6 @@ import {TranslatePipe} from '@ngx-translate/core';
   template: `
     <div class="filters-content">
 
-      <!--      <app-filter-category *ngFor="let category of customDefinedFacets"-->
-      <!--                           [label]="category.title"-->
-      <!--                            [facetKey]="category.facetKey"-->
-      <!--                            [items]="category.data"-->
-      <!--                            [selected]="selectedFilters"-->
-      <!--                            [operators]="(filterService.getFiltersWithOperators() | async) || {}"-->
-      <!--                            [showShowMoreButton]="false"-->
-      <!--                            [showBottomBorder]="true"-->
-      <!--                           (toggle)="onToggleFacet($event)"-->
-      <!--      >-->
-
-      <!--      </app-filter-category>-->
-
       <ng-container
         *ngFor="let facetKey of getFacetKeys"
       >
