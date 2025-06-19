@@ -89,6 +89,12 @@
   "record-info-dialog-title": "Podrobný popis",
   "record-info-section-meta": "Meta informácie",
   "accessibility": "Dostupnosť",
+  "custom-accessibility": "Dostupnosť",
   "licenses.facet": "Licencia",
-  "show-licenses-label": "Zobraziť licencie"
+  "show-licenses-label": "Zobraziť licencie",
+  "all-label": "Všetko",
+  "available-label": "Len dostupné",
+  "custom-root-model": "Typ dokumentu",
+  "custom-where-to-search.model": "Kde hľadať",
+  "titles": "Tituly"
 }

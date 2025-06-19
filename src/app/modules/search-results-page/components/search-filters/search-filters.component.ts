@@ -5,7 +5,7 @@ import { BaseFiltersComponent } from '../../../../shared/components/filters/base
 import {
   customDefinedFacets,
   customDefinedFacetsEnum,
-  customDefinedFacetsKeys,
+  customDefinedFacetsKeys, FacetElementType,
   facetKeys,
   facetKeysEnum,
 } from '../../const/facets';
@@ -21,8 +21,6 @@ import {TranslatePipe} from '@ngx-translate/core';
       <ng-container
         *ngFor="let facetKey of getFacetKeys"
       >
-
-
         <app-filter-category
           [label]="facetKey"
           [facetKey]="facetKey"
@@ -30,6 +28,7 @@ import {TranslatePipe} from '@ngx-translate/core';
           [selected]="selectedFilters"
           [operators]="(filterService.getFiltersWithOperators() | async) || {}"
           [showShowMoreButton]="true"
+          [type]="getElementTypeByFacetKey(facetKey)"
           (toggle)="onToggleFacet($event)">
 
           <ng-container categoryContent *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
@@ -95,6 +94,11 @@ export class SearchFiltersComponent extends BaseFiltersComponent {
 
   toggleLicenses() {
     this.expandLicenses = !this.expandLicenses;
+  }
+
+  getElementTypeByFacetKey(facetKey: string): FacetElementType {
+    const facet = customDefinedFacets.find(f => f.facetKey === facetKey);
+    return facet?.type || FacetElementType.checkbox;
   }
 
   protected readonly facetKeysEnum = facetKeysEnum;

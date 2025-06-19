@@ -99,6 +99,32 @@ export class CustomSearchService {
     });
   }
 
+  removeAllFiltersByFacetKey(facetKey: string): void {
+    const updated = this._appliedFilters().filter(k => !k.startsWith(facetKey + ':'));
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.length > 0 ? updated.join(',') : null,
+    });
+  }
+
+  getSelectedFilterValue(facetKey: string): string | null {
+    const filterItem = customDefinedFacets.find(facet => facet.facetKey === facetKey);
+    if (!filterItem) return null;
+
+    const selectedFilter = this._appliedFilters().find(k => k.startsWith(facetKey + ':'));
+    if (!selectedFilter) return null;
+
+    const value = selectedFilter.split(':')[1];
+
+    // Special case for accessibility, where we want to return 'all' if no specific value is selected
+    if (facetKey === customDefinedFacetsEnum.accessibility && value !== FacetAccessibilityTypes.available) {
+      return FacetAccessibilityTypes.all;
+    }
+
+    return value;
+  }
+
   clear(): void {
     this._appliedFilters.set([]);
 

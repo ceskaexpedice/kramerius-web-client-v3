@@ -317,4 +317,25 @@ export class SearchService implements FilterService {
     );
   }
 
+  isSelectedFilter(facetKey: string, value: string): boolean {
+    return this._activeFiltersSignal().includes(`${facetKey}:${value}`);
+  }
+
+  getValueBySelectedFilter(facetKey: string): string | null {
+    const filter = this._activeFiltersSignal().find(f => f.startsWith(`${facetKey}:`));
+    return filter ? filter.split(':')[1] : null;
+  }
+
+  toggleRadioFilter(route: ActivatedRoute, facetKey: string, value: string) {
+    // Remove any existing filter for this facetKey
+    const currentFilters = this._activeFiltersSignal().filter(f => !f.startsWith(`${facetKey}:`));
+
+    // Add the new value
+    const updatedFilters = [...currentFilters, `${facetKey}:${value}`];
+
+    const operator = this.queryParamsService.getOperatorForFacet(route.snapshot.queryParams, facetKey);
+
+    this.queryParamsService.updateFilters(route, facetKey, [value], operator);
+  }
+
 }

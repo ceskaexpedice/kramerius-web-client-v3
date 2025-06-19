@@ -8,6 +8,7 @@ export enum FacetAccessibilityTypes {
   available = 'available'
 }
 
+
 export const facetKeysEnum = {
   accessibility: 'accessibility',
   license: 'licenses.facet',
@@ -68,14 +69,14 @@ export const customDefinedFacets = [
       {
         key: FacetAccessibilityTypes.all,
         fq: null,
-        name: FacetAccessibilityTypes.all,
+        name: `${FacetAccessibilityTypes.all}`,
         count: 0,
         type: FacetElementType.radio,
       },
       {
         key: FacetAccessibilityTypes.available,
         fq: [],
-        name: FacetAccessibilityTypes.available,
+        name: `${FacetAccessibilityTypes.available}`,
         count: 0,
         type: FacetElementType.radio,
       }

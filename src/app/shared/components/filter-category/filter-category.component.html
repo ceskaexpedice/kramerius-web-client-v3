@@ -17,7 +17,8 @@
 
     <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
-      <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems">
+      <ng-container *ngIf="type !== 'radio'">
+        <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems">
           <app-filter-item
             [label]="item.name"
             [checked]="isSelected(item.name)"
@@ -26,13 +27,15 @@
             [truncateLabel]="true"
             (toggled)="onToggle(item.name)"
           ></app-filter-item>
+        </ng-container>
+      </ng-container>
 
-<!--        <ng-container *ngIf="group.type === 'radio'">-->
-<!--          <app-filter-items-radio-->
-<!--            [items]="group.items"-->
-<!--            (changed)="onRadioChange($event)"-->
-<!--          ></app-filter-items-radio>-->
-<!--        </ng-container>-->
+      <ng-container *ngIf="type === 'radio'">
+        <app-filter-items-radio
+          [items]="visibleItems()"
+          [selected]="getSelectedRadioValue()"
+          (changed)="onRadioChange($event)"
+        ></app-filter-items-radio>
       </ng-container>
 
       <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">

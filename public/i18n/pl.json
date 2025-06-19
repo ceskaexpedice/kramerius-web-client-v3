@@ -94,6 +94,12 @@
   "record-info-dialog-title": "Szczegółowy opis",
   "record-info-section-meta": "Informacje meta",
   "accessibility": "Dostępność",
+  "custom-accessibility": "Dostępność",
   "licenses.facet": "Licencja",
-  "show-licenses-label": "Pokaż licencje"
+  "show-licenses-label": "Pokaż licencje",
+  "all-label": "Wszystko",
+  "available-label": "Tylko dostępne",
+  "custom-root-model": "Typ dokumentu",
+  "custom-where-to-search.model": "Gdzie szukać",
+  "titles": "Tytuły"
 }
