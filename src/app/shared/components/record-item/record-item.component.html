@@ -12,15 +12,17 @@
 
     <div class="record-item-card__content">
 
-      <div class="title" [title]="record.title">{{ record.title.length > 35 ? (record.title.slice(0, 35) + '...') : record.title }}</div>
+      <div class="title" [title]="record.title">{{ record.title}}</div>
 
-      <div class="subtitle" *ngIf="record.authors && record.authors?.length">
-        {{ record.authors.join(', ').length > 35 ? (record.authors.join(', ').slice(0, 35) + '...') : record.authors.join(', ') }}
+      <div class="subtitle" *ngIf="record.authors?.length || record.date">
+        <span class="authors">
+          {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
+        </span>
       </div>
 
-      <div class="subtitle" *ngIf="record.date">
-        {{ record.date }}
-      </div>
+<!--      <div class="subtitle" *ngIf="record.date">-->
+<!--        {{ record.date }}-->
+<!--      </div>-->
 
       <div class="access-label">
 <!--        <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>-->
