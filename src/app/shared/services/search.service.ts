@@ -19,6 +19,7 @@ import {AdvancedSearchService} from './advanced-search.service';
 import {UserService} from './user.service';
 import {CustomSearchService} from './custom-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
 
 @Injectable({
   providedIn: 'root'
@@ -163,9 +164,13 @@ export class SearchService implements FilterService {
 
     const query = params['query'] || '';
     const baseFilters = this.queryParamsService.getFilters(params);
-    const customFilters = this.customSearchService.getSolrFqFilters();
+    let customFilters = this.customSearchService.getSolrFqFilters();
 
-    console.log('customFilters:', customFilters);
+    // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
+    // so delete all custom filters that contain 'licenses.facet'
+    if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
+      customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    }
 
     const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
 
