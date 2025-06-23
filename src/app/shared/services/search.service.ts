@@ -31,7 +31,7 @@ export class SearchService implements FilterService {
   private _searchTerm = signal('');
   private _submittedTerm = signal('');
   private _page = signal(1);
-  private _pageSize = signal(25);
+  private _pageSize = signal(60);
   private _totalCount = signal(0);
   private _sortBy = signal(SolrSortFields.relevance);
   private _sortDirection = signal(SolrSortDirections.desc);

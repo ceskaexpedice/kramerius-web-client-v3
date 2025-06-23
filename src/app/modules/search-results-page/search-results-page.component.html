@@ -97,7 +97,7 @@
                     [page]="searchService.page"
                     [totalCount]="searchService.totalCount"
                     [pageSize]="searchService.pageSize"
-                    [pageSizeOptions]="[25, 50, 100]"
+                    [pageSizeOptions]="[60, 120, 180]"
                     (pageChange)="searchService.goToPage($event)"
                     (pageSizeChange)="searchService.changePageSize($event)">
                   </app-paginator>
@@ -120,7 +120,7 @@
           [page]="searchService.page"
           [totalCount]="searchService.totalCount"
           [pageSize]="searchService.pageSize"
-          [pageSizeOptions]="[25, 50, 100]"
+          [pageSizeOptions]="[60, 120, 180]"
           (pageChange)="searchService.goToPage($event)"
           (pageSizeChange)="searchService.changePageSize($event)">
         </app-paginator>
