@@ -99,6 +99,16 @@ export class CustomSearchService {
     });
   }
 
+  removeFilterByValue(facetKey: string, value: string): void {
+    const filterKey = `${facetKey}:${value}`;
+    const updated = this._appliedFilters().filter(k => k !== filterKey);
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.length > 0 ? updated.join(',') : null,
+    });
+  }
+
   removeAllFiltersByFacetKey(facetKey: string): void {
     const updated = this._appliedFilters().filter(k => !k.startsWith(facetKey + ':'));
     this._appliedFilters.set(updated);

@@ -163,13 +163,25 @@ export class SearchService implements FilterService {
     if (Object.keys(params).length === 0) return;
 
     const query = params['query'] || '';
-    const baseFilters = this.queryParamsService.getFilters(params);
+    let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
 
     // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
     // so delete all custom filters that contain 'licenses.facet'
     if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
       customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    }
+
+    // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
+    if (!this.hasSubmittedQuery()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+    }
+
+    // similar check for periodicalitem
+    if (!this.filtersContainDate()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
     }
 
     const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
