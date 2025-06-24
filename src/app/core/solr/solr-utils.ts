@@ -10,4 +10,8 @@ export class SolrUtils {
   static escapeSolrValue(value: string): string {
     return value.replace(/(["\\])/g, '\\$1');
   }
+
+  static removeBrackets(text: string): string {
+    return text.replace(/[()]/g, '');
+  }
 }

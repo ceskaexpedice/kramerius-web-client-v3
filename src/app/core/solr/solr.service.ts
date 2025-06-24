@@ -12,6 +12,7 @@ import {FacetItem} from '../../modules/models/facet-item';
 import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
 import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 import {EnvironmentService} from '../../shared/services/environment.service';
+import {SolrUtils} from './solr-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -84,8 +85,23 @@ export class SolrService {
 
   private buildQParam(query: string, advancedQuery?: string): string {
     const parts = [];
-    if (query?.trim()) parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', ['titles.search', 'text_ocr'])})`);
-    if (advancedQuery?.trim()) parts.push(`(${advancedQuery})`);
+    if (query?.trim()) {
+      parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', ['titles.search', 'text_ocr'])})`);
+    } else {
+      parts.push('*:*');
+    }
+    if (advancedQuery?.trim()) {
+
+      let finalAdvancedQuery = '';
+
+      // if advancedQuery contains OR, we need to have brackets around it, otherwise we need to remove them
+      if (advancedQuery?.indexOf(SolrOperators.or) !== -1) {
+        finalAdvancedQuery = `${advancedQuery}`;
+      } else {
+        finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
+      }
+      parts.push(`${finalAdvancedQuery}`);
+    }
     return parts.length ? parts.join(' AND ') : '*:*';
   }
 

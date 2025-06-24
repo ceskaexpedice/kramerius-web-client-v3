@@ -63,6 +63,11 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   }
 
+  toggleEqualsOperator() {
+    this.filter.isEquals = !this.filter.isEquals;
+    this.emitChange();
+  }
+
   selectedFilterTypeOption() {
     return this.filterTypes.find(f => f.key === this.filter.key) || this.filterTypes[0];
   }

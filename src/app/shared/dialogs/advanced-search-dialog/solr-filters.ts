@@ -40,6 +40,7 @@ export interface AdvancedFilterDefinition {
   dynamicOptions?: boolean;
   elementValue: string;
   solrValue: string;
+  isEquals?: boolean; // If true, the filter will be applied as an equals condition
   solrField?: string;
   options?: string[];
   meta?: {
@@ -51,28 +52,28 @@ export interface AdvancedFilterDefinition {
 }
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
-  { key: SolrFacetKey.Author, label: `filter-${SolrFacetKey.Author}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Author}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'authors.facet', userRawQueryFormat: false },
-  { key: SolrFacetKey.Title, label: `filter-${SolrFacetKey.Title}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Title}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'title.search', userRawQueryFormat: true },
+  { key: SolrFacetKey.Author, label: `filter-${SolrFacetKey.Author}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Author}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'authors.facet', userRawQueryFormat: false, isEquals: true },
+  { key: SolrFacetKey.Title, label: `filter-${SolrFacetKey.Title}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Title}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'title.search', userRawQueryFormat: true, isEquals: true },
   { key: SolrFacetKey.Year, label: `filter-${SolrFacetKey.Year}-label`, inputType: FilterElementType.Slider, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'date.str', meta: {
       min: ENVIRONMENT.dateRangeStartYear,
       max: new Date().getFullYear(),
       step: 1
-    } },
-  { key: SolrFacetKey.Date, label: `filter-${SolrFacetKey.Date}-label`, inputType: FilterElementType.Date, elementValue: '', solrValue: '', solrField: 'date.min' },
-  { key: SolrFacetKey.Doctype, label: `filter-${SolrFacetKey.Doctype}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'model' },
-  { key: SolrFacetKey.Language, label: `filter-${SolrFacetKey.Language}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'languages.facet' },
-  // { key: AdvancedFilterKey.Institution, label: `filter-${AdvancedFilterKey.Institution}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'institutions.facet' },
-  { key: SolrFacetKey.Publisher, label: `filter-${SolrFacetKey.Publisher}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Publisher}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'publishers.facet' },
-  { key: SolrFacetKey.PhysicalLocations, label: `filter-${SolrFacetKey.PhysicalLocations}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'physical_locations.facet' },
-  { key: SolrFacetKey.PublishPlace, label: `filter-${SolrFacetKey.PublishPlace}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.PublishPlace}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'publication_places.facet' },
-  { key: SolrFacetKey.Keyword, label: `filter-${SolrFacetKey.Keyword}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Keyword}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'keywords.facet' },
-  // { key: AdvancedFilterKey.Availability, label: `advanced-filter-${AdvancedFilterKey.Availability}-label`, inputType: AdvancedFilterType.Radio, dynamicOptions: true, value: '' },
-  // { key: AdvancedFilterKey.License, label: `advanced-filter-${AdvancedFilterKey.License}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
-  { key: SolrFacetKey.Genre, label: `filter-${SolrFacetKey.Genre}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Genre}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'genres.facet' },
-  { key: SolrFacetKey.GeoName, label: `filter-${SolrFacetKey.GeoName}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.GeoName}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'geographic_names.facet' },
-  // { key: AdvancedFilterKey.SearchScope, label: `advanced-filter-${AdvancedFilterKey.SearchScope}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '' },
-  // { key: AdvancedFilterKey.Fulltext, label: `advanced-filter-${AdvancedFilterKey.Fulltext}-label`, inputType: AdvancedFilterType.Text, value: '' },
-  { key: SolrFacetKey.Identifier, label: `filter-${SolrFacetKey.Identifier}-label`, inputType: FilterElementType.Autocomplete, elementValue: '', solrValue: '', solrField: 'dc.identifier' }
+    }, isEquals: true },
+  { key: SolrFacetKey.Date, label: `filter-${SolrFacetKey.Date}-label`, inputType: FilterElementType.Date, elementValue: '', solrValue: '', solrField: 'date.min', isEquals: true },
+  { key: SolrFacetKey.Doctype, label: `filter-${SolrFacetKey.Doctype}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'model', isEquals: true },
+  { key: SolrFacetKey.Language, label: `filter-${SolrFacetKey.Language}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'languages.facet', isEquals: true },
+  // { key: AdvancedFilterKey.Institution, label: `filter-${AdvancedFilterKey.Institution}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'institutions.facet', isEquals: true },
+  { key: SolrFacetKey.Publisher, label: `filter-${SolrFacetKey.Publisher}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Publisher}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'publishers.facet', isEquals: true },
+  { key: SolrFacetKey.PhysicalLocations, label: `filter-${SolrFacetKey.PhysicalLocations}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'physical_locations.facet', isEquals: true },
+  { key: SolrFacetKey.PublishPlace, label: `filter-${SolrFacetKey.PublishPlace}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.PublishPlace}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'publication_places.facet', isEquals: true },
+  { key: SolrFacetKey.Keyword, label: `filter-${SolrFacetKey.Keyword}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Keyword}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'keywords.facet', isEquals: true },
+  // { key: AdvancedFilterKey.Availability, label: `advanced-filter-${AdvancedFilterKey.Availability}-label`, inputType: AdvancedFilterType.Radio, dynamicOptions: true, value: '', isEquals: true },
+  // { key: AdvancedFilterKey.License, label: `advanced-filter-${AdvancedFilterKey.License}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', isEquals: true },
+  { key: SolrFacetKey.Genre, label: `filter-${SolrFacetKey.Genre}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Genre}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'genres.facet', isEquals: true },
+  { key: SolrFacetKey.GeoName, label: `filter-${SolrFacetKey.GeoName}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.GeoName}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'geographic_names.facet', isEquals: true },
+  // { key: AdvancedFilterKey.SearchScope, label: `advanced-filter-${AdvancedFilterKey.SearchScope}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', isEquals: true },
+  // { key: AdvancedFilterKey.Fulltext, label: `advanced-filter-${AdvancedFilterKey.Fulltext}-label`, inputType: AdvancedFilterType.Text, value: '', isEquals: true },
+  { key: SolrFacetKey.Identifier, label: `filter-${SolrFacetKey.Identifier}-label`, inputType: FilterElementType.Autocomplete, elementValue: '', solrValue: '', solrField: 'dc.identifier', isEquals: true }
 ];
 
 export const DEFAULT_ADVANCED_FILTER: AdvancedFilterDefinition = {...ADVANCED_FILTERS[0]};

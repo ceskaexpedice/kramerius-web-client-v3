@@ -186,6 +186,8 @@ export class SearchService implements FilterService {
 
     const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
 
+    console.log('advancedQuery:', advancedQuery);
+
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();

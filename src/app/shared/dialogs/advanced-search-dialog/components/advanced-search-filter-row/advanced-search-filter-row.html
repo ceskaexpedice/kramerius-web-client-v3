@@ -11,6 +11,8 @@
     >
     </app-select>
 
+    <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+
     <ng-container [ngSwitch]="filter.key">
       <app-autocomplete
         *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
