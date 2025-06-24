@@ -1,18 +1,73 @@
-<div *ngIf="loading$ | async">Načítavam...</div>
-<div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+<div class="search-results-page">
+  <div class="search-results-page--inner">
 
-<ng-container *ngIf="document$ | async as doc">
+    <app-filter-sidebar>
 
-  <button (click)="openRecordInfo()">info</button>
+    </app-filter-sidebar>
 
-  <img [src]="`${getKrameriusBaseUrl()}/items/${doc.pid}/image/thumb`" alt="Náhľad dokumentu"
-    class="app-document-thumbnail">
+    <div class="results-content">
 
-  <h1>{{ doc.titlesSearch }}</h1>
-  <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>
-  <p><strong>Model:</strong> {{ doc.model }}</p>
+      <!-- Action Toolbar -->
+      <app-action-toolbar>
 
-  <br>
+        <div left>
+          <app-toolbar-header
+            [title]="(document$ | async)?.title || ''"
+            (goBack)="goBackClicked()">
+          </app-toolbar-header>
+        </div>
 
-  {{doc | json}}
-</ng-container>
+
+        <div center>
+          test2
+        </div>
+
+        <div right>
+
+          <div class="flex flex--align-center">
+
+            <app-toolbar-controls
+              [showCalendarGridControls]="false"
+              [showFavorites]="true"
+              [showShare]="true"
+              [showQuote]="true"
+              [showInfo]="true"
+              (infoClicked)="openRecordInfo()"
+            >
+            </app-toolbar-controls>
+
+            <!--            <app-results-sort></app-results-sort>-->
+
+          </div>
+
+        </div>
+
+      </app-action-toolbar>
+
+      <div class="results-content--wrapper">
+
+        <ng-container *ngIf="document$ | async as doc">
+
+          <button (click)="openRecordInfo()">info</button>
+
+          <img [src]="`${getKrameriusBaseUrl()}/items/${doc.pid}/image/thumb`" alt="Náhľad dokumentu"
+               class="app-document-thumbnail">
+
+          <h1>{{ doc.titlesSearch }}</h1>
+          <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>
+          <p><strong>Model:</strong> {{ doc.model }}</p>
+
+          <br>
+
+          {{doc | json}}
+        </ng-container>
+
+      </div>
+
+      <!-- Loading and error states -->
+      <div *ngIf="loading$ | async">Načítavam...</div>
+      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+    </div>
+  </div>
+</div>

@@ -35,6 +35,10 @@ export class DetailViewPageComponent {
     this.store.dispatch(loadDocumentDetail());
   }
 
+  goBackClicked() {
+
+  }
+
   openRecordInfo() {
     this.document$.pipe(take(1)).subscribe((doc: DocumentDetail | null) => {
       if (!doc) return;

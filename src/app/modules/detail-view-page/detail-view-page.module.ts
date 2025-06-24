@@ -6,6 +6,24 @@ import { EffectsModule } from '@ngrx/effects';
 import { documentDetailReducer } from '../../shared/state/document-detail/document-detail.reducer';
 import { DocumentDetailEffects } from '../../shared/state/document-detail/document-detail.effects';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
+import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
+import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
+import {PeriodicalFiltersComponent} from '../periodical/components/periodical-filters/periodical-filters.component';
+import {
+	PeriodicalYearIssuesCalendarComponent
+} from '../periodical/components/periodical-year-issues-calendar/periodical-year-issues-calendar.component';
+import {
+	PeriodicalYearIssuesGridComponent
+} from '../periodical/components/periodical-year-issues-grid/periodical-year-issues-grid.component';
+import {
+	PeriodicalYearsGridComponent
+} from '../periodical/components/periodical-years-grid/periodical-years-grid.component';
+import {
+	PeriodicalYearsTimelineComponent
+} from '../periodical/components/periodical-years-timeline/periodical-years-timeline.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
+import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
 
 const routes: Routes = [
   {
@@ -17,14 +35,19 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    StoreModule.forFeature('document-detail', documentDetailReducer),
-    EffectsModule.forFeature([DocumentDetailEffects]),
-    NgIf,
-    AsyncPipe,
-    JsonPipe,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		StoreModule.forFeature('document-detail', documentDetailReducer),
+		EffectsModule.forFeature([DocumentDetailEffects]),
+		NgIf,
+		AsyncPipe,
+		JsonPipe,
+		ActionToolbarComponent,
+		FilterSidebarComponent,
+		ToolbarControlsComponent,
+		ToolbarHeaderComponent,
+		YearNavigatorComponent,
+	],
 })
 
 export class DetailViewPageModule { }
