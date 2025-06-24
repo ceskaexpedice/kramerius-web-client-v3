@@ -1,0 +1,10 @@
+<div class="page--grid" *ngIf="(pages$ | async) as pages">
+
+  @for (page of pages; track page.pid; let index = $index) {
+    <app-detail-page-item
+      [page]="page"
+      [pageNumber]="index + 1"
+    >
+    </app-detail-page-item>
+  }
+</div>

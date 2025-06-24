@@ -5,22 +5,25 @@ import {DocumentDetail} from '../../../modules/models/document-detail';
 export interface DocumentDetailState {
   loading: boolean;
   data: DocumentDetail | null;
+  pages: any[] | null;
   error: any;
 }
 
 export const initialState: DocumentDetailState = {
   loading: false,
   data: null,
+  pages: null,
   error: null,
 };
 
 export const documentDetailReducer = createReducer(
   initialState,
   on(DocumentDetailActions.loadDocumentDetail, state => ({ ...state, loading: true })),
-  on(DocumentDetailActions.loadDocumentDetailSuccess, (state, { data }) => ({
+  on(DocumentDetailActions.loadDocumentDetailSuccess, (state, { data, pages }) => ({
     ...state,
     loading: false,
-    data
+    data,
+    pages: pages || [],
   })),
   on(DocumentDetailActions.loadDocumentDetailFailure, (state, { error }) => ({
     ...state,

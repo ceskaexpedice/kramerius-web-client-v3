@@ -5,6 +5,7 @@ import {selectRouterParams} from '../router/router.selectors';
 export const selectDocumentDetailState = createFeatureSelector<DocumentDetailState>('document-detail');
 
 export const selectDocumentDetail = createSelector(selectDocumentDetailState, state => state.data);
+export const selectDocumentDetailPages = createSelector(selectDocumentDetailState, state => state.pages);
 export const selectDocumentDetailLoading = createSelector(selectDocumentDetailState, state => state.loading);
 export const selectDocumentDetailError = createSelector(selectDocumentDetailState, state => state.error);
 

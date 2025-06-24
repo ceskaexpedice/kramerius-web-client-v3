@@ -24,6 +24,7 @@ import {
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
+import {DetailPagesGridComponent} from './components/detail-pages-grid/detail-pages-grid.component';
 
 const routes: Routes = [
   {
@@ -35,19 +36,20 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		StoreModule.forFeature('document-detail', documentDetailReducer),
-		EffectsModule.forFeature([DocumentDetailEffects]),
-		NgIf,
-		AsyncPipe,
-		JsonPipe,
-		ActionToolbarComponent,
-		FilterSidebarComponent,
-		ToolbarControlsComponent,
-		ToolbarHeaderComponent,
-		YearNavigatorComponent,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    StoreModule.forFeature('document-detail', documentDetailReducer),
+    EffectsModule.forFeature([DocumentDetailEffects]),
+    NgIf,
+    AsyncPipe,
+    JsonPipe,
+    ActionToolbarComponent,
+    FilterSidebarComponent,
+    ToolbarControlsComponent,
+    ToolbarHeaderComponent,
+    YearNavigatorComponent,
+    DetailPagesGridComponent,
+  ],
 })
 
 export class DetailViewPageModule { }
