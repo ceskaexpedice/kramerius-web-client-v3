@@ -19,6 +19,8 @@ export class Page {
   title: string = '';
   placement: string = '';
   lockHash: string = '';
+
+  pid: string = '';
 }
 
 export enum PagePosition {

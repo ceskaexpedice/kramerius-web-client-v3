@@ -3,6 +3,13 @@
 
     <app-filter-sidebar [padding]="'sm'">
 
+      <app-input
+        [placeholder]="'Hledat v dokumentu'"
+        [theme]="'dark'"
+        [size]="'sm'"
+        [showMicButton]="true"
+      ></app-input>
+
       <app-detail-pages-grid></app-detail-pages-grid>
 
     </app-filter-sidebar>
@@ -46,29 +53,35 @@
 
       </app-action-toolbar>
 
-      <div class="results-content--wrapper">
+      <div class="results-content--body">
 
-        <ng-container *ngIf="document$ | async as doc">
+        <div class="results-content--wrapper">
 
-          <button (click)="openRecordInfo()">info</button>
+          <ng-container *ngIf="document$ | async as doc">
 
-          <img [src]="`${getKrameriusBaseUrl()}/items/${doc.pid}/image/thumb`" alt="Náhľad dokumentu"
-               class="app-document-thumbnail">
+<!--            <button (click)="openRecordInfo()">info</button>-->
 
-          <h1>{{ doc.titlesSearch }}</h1>
-          <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>
-          <p><strong>Model:</strong> {{ doc.model }}</p>
+            <img [src]="`${getKrameriusBaseUrl()}/items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+                 class="app-document-thumbnail">
 
-          <br>
+<!--            <h1>{{ doc.titlesSearch }}</h1>-->
+<!--            <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>-->
+<!--            <p><strong>Model:</strong> {{ doc.model }}</p>-->
 
-          {{doc | json}}
-        </ng-container>
+<!--            <br>-->
+
+<!--            {{doc | json}}-->
+          </ng-container>
+
+        </div>
+
+        <!-- Loading and error states -->
+        <div *ngIf="loading$ | async">Načítavam...</div>
+        <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+
+        <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
 
       </div>
-
-      <!-- Loading and error states -->
-      <div *ngIf="loading$ | async">Načítavam...</div>
-      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
 
     </div>
   </div>

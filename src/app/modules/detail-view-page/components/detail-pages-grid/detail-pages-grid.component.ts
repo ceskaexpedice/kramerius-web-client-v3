@@ -5,6 +5,7 @@ import {
 } from '../../../../shared/state/document-detail/document-detail.selectors';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {DetailPageItemComponent} from '../detail-page-item/detail-page-item.component';
+import {DetailViewService} from '../../services/detail-view.service';
 
 @Component({
   selector: 'app-detail-pages-grid',
@@ -18,8 +19,11 @@ import {DetailPageItemComponent} from '../detail-page-item/detail-page-item.comp
   styleUrl: './detail-pages-grid.component.scss'
 })
 export class DetailPagesGridComponent {
-  private store = inject(Store);
+  public detailViewService = inject(DetailViewService);
 
-  pages$ = this.store.select(selectDocumentDetailPages);
+  clickedPage(index: number) {
+    console.log('Page clicked:', index);
+    this.detailViewService.goToPage(index);
+  }
 
 }

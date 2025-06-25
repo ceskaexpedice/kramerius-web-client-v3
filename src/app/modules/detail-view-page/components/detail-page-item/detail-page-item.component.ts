@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {EnvironmentService} from '../../../../shared/services/environment.service';
 import {
   AccessibilityBadgeComponent
@@ -21,6 +21,9 @@ export class DetailPageItemComponent {
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: number = 0;
+  @Input() isSelected: boolean = false;
+
+  @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
 
   constructor() {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -28,6 +31,10 @@ export class DetailPageItemComponent {
 
   getImageUrl(): string {
     return this.krameriusBaseUrl + '/' + this.page.pid + '/image/thumb';
+  }
+
+  onPageClicked() {
+    this.pageClicked.emit();
   }
 
 }

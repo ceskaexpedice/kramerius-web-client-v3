@@ -1,11 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import * as DocumentDetailActions from './document-detail.actions';
 import {DocumentDetail} from '../../../modules/models/document-detail';
+import {Page} from '../../models/page.model';
 
 export interface DocumentDetailState {
   loading: boolean;
   data: DocumentDetail | null;
-  pages: any[] | null;
+  pages: Page[] | null;
   error: any;
 }
 

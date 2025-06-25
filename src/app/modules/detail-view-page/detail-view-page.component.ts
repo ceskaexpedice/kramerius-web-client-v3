@@ -10,6 +10,7 @@ import { RecordInfoService } from '../../shared/services/record-info.service';
 import { take } from 'rxjs';
 import { DocumentDetail } from '../models/document-detail';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import {DetailViewService} from './services/detail-view.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -23,6 +24,8 @@ export class DetailViewPageComponent {
   private recordInfoService = inject(RecordInfoService);
   private krameriusBaseUrl: string;
 
+  public detailViewService = inject(DetailViewService);
+
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
@@ -33,6 +36,8 @@ export class DetailViewPageComponent {
 
   ngOnInit() {
     this.store.dispatch(loadDocumentDetail());
+
+    this.detailViewService.loadPages();
   }
 
   goBackClicked() {

@@ -25,6 +25,10 @@ import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
 import {DetailPagesGridComponent} from './components/detail-pages-grid/detail-pages-grid.component';
+import {InputComponent} from '../../shared/components/input/input.component';
+import {
+  DetailViewBottomToolbarComponent
+} from './components/detail-view-bottom-toolbar/detail-view-bottom-toolbar.component';
 
 const routes: Routes = [
   {
@@ -49,6 +53,8 @@ const routes: Routes = [
     ToolbarHeaderComponent,
     YearNavigatorComponent,
     DetailPagesGridComponent,
+    InputComponent,
+    DetailViewBottomToolbarComponent,
   ],
 })
 
