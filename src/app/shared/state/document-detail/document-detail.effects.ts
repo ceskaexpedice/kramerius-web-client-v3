@@ -34,7 +34,7 @@ export class DocumentDetailEffects {
 
               return [
                 DocumentDetailActions.loadDocumentDetailSuccess({
-                  data: detailItem,
+                  data: parseDocumentDetail(detailItem),
                   pages: children,
                 }),
               ];

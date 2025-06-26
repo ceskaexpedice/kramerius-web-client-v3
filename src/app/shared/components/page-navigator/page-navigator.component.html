@@ -1,0 +1,27 @@
+<div class="page-navigator">
+  <span class="label">Strana</span>
+
+  <div class="spacer"></div>
+
+  <div class="indicator">
+    <input type="text"
+           class="current-input"
+           [value]="currentPageString"
+           (change)="onInputChange($event)"
+           (keydown.enter)="onInputConfirm($event)" />
+    <span class="divider">/</span>
+    <span class="total">{{ totalPages }}</span>
+  </div>
+
+  <button class="button tertiary outlined"
+          (click)="goPrev()"
+          [disabled]="currentPage <= 1">
+    <i class="icon-arrow-left-1"></i>
+  </button>
+
+  <button class="button tertiary outlined"
+          (click)="goNext()"
+          [disabled]="currentPage >= totalPages">
+    <i class="icon-arrow-right-1"></i>
+  </button>
+</div>

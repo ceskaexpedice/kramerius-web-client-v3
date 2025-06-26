@@ -1,15 +1,9 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {EnvironmentService} from '../../../../shared/services/environment.service';
-import {
-  AccessibilityBadgeComponent
-} from '../../../../shared/components/accessibility-badge/accessibility-badge.component';
-import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-detail-page-item',
   imports: [
-    AccessibilityBadgeComponent,
-    NgIf,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'

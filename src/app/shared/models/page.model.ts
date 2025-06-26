@@ -21,6 +21,7 @@ export class Page {
   lockHash: string = '';
 
   pid: string = '';
+  'date.str': string = '';
 }
 
 export enum PagePosition {

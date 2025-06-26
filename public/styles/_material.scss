@@ -99,3 +99,8 @@ mat-checkbox {
 .mdc-checkbox__background {
   border-radius: 4px !important;
 }
+
+// radio
+.mat-mdc-radio-button .mdc-label {
+  cursor: pointer !important;
+}

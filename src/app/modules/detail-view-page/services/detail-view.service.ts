@@ -1,7 +1,15 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Page} from '../../../shared/models/page.model';
 import {Store} from '@ngrx/store';
-import {selectDocumentDetailPages} from '../../../shared/state/document-detail/document-detail.selectors';
+import {
+  selectDocumentDetail, selectDocumentDetailError, selectDocumentDetailLoading,
+  selectDocumentDetailPages,
+} from '../../../shared/state/document-detail/document-detail.selectors';
+import {EnvironmentService} from '../../../shared/services/environment.service';
+import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
+import {take} from 'rxjs';
+import {DocumentDetail} from '../../models/document-detail';
+import {RecordInfoService} from '../../../shared/services/record-info.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +19,12 @@ export class DetailViewService {
   _pages = signal<Page[]>([]);
 
   private store = inject(Store);
+  private recordInfoService = inject(RecordInfoService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
+  document$ = this.store.select(selectDocumentDetail);
+  loading$ = this.store.select(selectDocumentDetailLoading);
+  error$ = this.store.select(selectDocumentDetailError);
 
   constructor() { }
 
@@ -26,6 +38,10 @@ export class DetailViewService {
     return this._currentPageIndex();
   }
 
+  get totalPages(): number {
+    return this._pages().length;
+  }
+
   get viewerMode() {
     return this._viewerMode();
   }
@@ -33,6 +49,10 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  loadDocument() {
+    this.store.dispatch(loadDocumentDetail());
   }
 
   loadPages() {
@@ -48,7 +68,22 @@ export class DetailViewService {
         this._currentPageIndex.set(0);
       }
 
+      this.checkAndSetCurrentPageFromUrl();
+
     });
+  }
+
+  checkAndSetCurrentPageFromUrl() {
+    // check if there is a page in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageParam = urlParams.get('page');
+
+    if (pageParam) {
+      const pageIndex = this._pages().findIndex(page => page.pid === pageParam);
+      if (pageIndex !== -1) {
+        this._currentPageIndex.set(pageIndex);
+      }
+    }
   }
 
   setPages(pages: Page[]) {
@@ -63,19 +98,50 @@ export class DetailViewService {
   goToPage(index: number) {
     if (index >= 0 && index < this._pages().length) {
       this._currentPageIndex.set(index);
+
+      this.changePageUrl();
     }
   }
 
-  goToNext() {
-    this.goToPage(this._currentPageIndex() + 1);
+  changePageUrl() {
+    const currentPage = this.getCurrentPage();
+    // add to url ?page=PAGE_PID
+    if (currentPage) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', currentPage.pid);
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
-  goToPrevious() {
-    this.goToPage(this._currentPageIndex() - 1);
+  goToNext(pagesToGoForward: number = 1) {
+    this.goToPage(this._currentPageIndex() + pagesToGoForward);
+  }
+
+  goToPrevious(pagesToGoBack: number = 1) {
+    this.goToPage(this._currentPageIndex() - pagesToGoBack);
   }
 
   getCurrentPage(): Page | null {
     const pages = this._pages();
     return pages[this._currentPageIndex()] ?? null;
+  }
+
+  getCurrentPageDate(): string | null {
+    const currentPage = this.getCurrentPage();
+    if (currentPage && currentPage['date.str']) {
+      return currentPage['date.str'];
+    }
+    return null;
+  }
+
+  openRecordInfo() {
+    this.document$.pipe(take(1)).subscribe((doc: DocumentDetail | null) => {
+      if (!doc) return;
+
+      const uuid = doc?.pid;
+      if (uuid) {
+        this.recordInfoService.openRecordInfoDialog(uuid);
+      }
+    });
   }
 }

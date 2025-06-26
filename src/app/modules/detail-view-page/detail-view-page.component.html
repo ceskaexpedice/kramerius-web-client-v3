@@ -1,34 +1,74 @@
-<div class="search-results-page">
-  <div class="search-results-page--inner">
+<div class="detail-view--page"
+     tabindex="0"
+  (keydown)="keydownHandler($event)"
+>
 
-    <app-filter-sidebar [padding]="'sm'">
+  <div class="detail-view--page--inner">
 
-      <app-input
-        [placeholder]="'Hledat v dokumentu'"
-        [theme]="'dark'"
-        [size]="'sm'"
-        [showMicButton]="true"
-      ></app-input>
+    <app-filter-sidebar [padding]="'0'">
 
-      <app-detail-pages-grid></app-detail-pages-grid>
+      <app-tabs>
+
+        <app-tab-item label="Stránky">
+
+          <div class="sidebar--wrapper">
+
+            <app-input
+              [placeholder]="'Hledat v dokumentu'"
+              [theme]="'dark'"
+              [size]="'sm'"
+              [showMicButton]="true"
+            ></app-input>
+
+            <hr>
+
+            <app-page-navigator
+              [currentPage]="detailViewService.currentPageIndex + 1"
+              [totalPages]="detailViewService.totalPages"
+              (next)="detailViewService.goToNext()"
+              (prev)="detailViewService.goToPrevious()"
+              (pageChange)="detailViewService.goToPage($event)"
+            ></app-page-navigator>
+
+            <app-detail-pages-grid></app-detail-pages-grid>
+
+          </div>
+
+        </app-tab-item>
+
+        <app-tab-item label="Články">
+
+        </app-tab-item>
+
+        <app-tab-item label="Obrázky">
+
+        </app-tab-item>
+
+      </app-tabs>
 
     </app-filter-sidebar>
 
-    <div class="results-content">
+    <div class="detail-view--page--content">
 
       <!-- Action Toolbar -->
       <app-action-toolbar>
 
         <div left>
           <app-toolbar-header
-            [title]="(document$ | async)?.title || ''"
+            [title]="(detailViewService.document$ | async)?.rootTitle || ''"
             (goBack)="goBackClicked()">
           </app-toolbar-header>
         </div>
 
 
         <div center>
-          test2
+
+          <app-date-navigator
+            [value]="detailViewService.getCurrentPageDate() || ''"
+            (goToPrevious)="detailViewService.goToPrevious()"
+            (goToNext)="detailViewService.goToNext()">
+          </app-date-navigator>
+
         </div>
 
         <div right>
@@ -37,15 +77,13 @@
 
             <app-toolbar-controls
               [showCalendarGridControls]="false"
-              [showFavorites]="true"
+              [showFavorites]="false"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="true"
-              (infoClicked)="openRecordInfo()"
+              (infoClicked)="detailViewService.openRecordInfo()"
             >
             </app-toolbar-controls>
-
-            <!--            <app-results-sort></app-results-sort>-->
 
           </div>
 
@@ -53,36 +91,25 @@
 
       </app-action-toolbar>
 
-      <div class="results-content--body">
+      <div class="detail-view--page--content--body">
 
-        <div class="results-content--wrapper">
+        <div class="detail-view--page--content--wrapper">
 
-          <ng-container *ngIf="document$ | async as doc">
-
-<!--            <button (click)="openRecordInfo()">info</button>-->
+          <ng-container *ngIf="detailViewService.document$ | async as doc">
 
             <img [src]="`${getKrameriusBaseUrl()}/items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
                  class="app-document-thumbnail">
 
-<!--            <h1>{{ doc.titlesSearch }}</h1>-->
-<!--            <p><strong>Autor:</strong> {{ doc.authors?.join(', ') || 'Neznámy' }}</p>-->
-<!--            <p><strong>Model:</strong> {{ doc.model }}</p>-->
-
-<!--            <br>-->
-
-<!--            {{doc | json}}-->
           </ng-container>
 
         </div>
-
-        <!-- Loading and error states -->
-        <div *ngIf="loading$ | async">Načítavam...</div>
-        <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
 
         <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
 
       </div>
 
     </div>
+
   </div>
+
 </div>

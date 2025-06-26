@@ -11,6 +11,6 @@ import {NgClass} from '@angular/common';
 })
 export class FilterSidebarComponent {
 
-  @Input() padding: 'sm' | 'md' | 'lg' = 'md';
+  @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
 
 }

@@ -18,11 +18,11 @@
         </div>
 
         <div center *ngIf="selectedYear() as year">
-          <app-year-navigator
-            [year]="year"
-            (goToPreviousYear)="goToPreviousYear()"
-            (goToNextYear)="goToNextYear()">
-          </app-year-navigator>
+          <app-date-navigator
+            [value]="year"
+            (goToPrevious)="goToPreviousYear()"
+            (goToNext)="goToNextYear()">
+          </app-date-navigator>
         </div>
 
         <div right>

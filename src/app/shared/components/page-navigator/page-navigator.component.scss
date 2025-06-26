@@ -1,0 +1,55 @@
+.page-navigator {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-x2);
+
+  .label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+  }
+
+  .spacer {
+    flex-grow: 1;
+  }
+
+  .indicator {
+    background: var(--color-bg-light);
+    padding: var(--spacing-x2) var(--spacing-x3);
+    border-radius: var(--spacing-x2);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  input.current-input {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 17px;
+    text-align: right;
+    border: none;
+    background: transparent;
+    color: var(--color-text-base);
+    padding: 0;
+    width: 32px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .divider,
+  .total {
+    color: var(--color-text-light);
+    font-size: 16px;
+  }
+
+  button {
+    flex-shrink: 0;
+    padding: 12px;
+  }
+}

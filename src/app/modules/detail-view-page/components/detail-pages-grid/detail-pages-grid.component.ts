@@ -1,9 +1,5 @@
-import {Component, inject} from '@angular/core';
-import {Store} from '@ngrx/store';
-import {
-  selectDocumentDetailPages,
-} from '../../../../shared/state/document-detail/document-detail.selectors';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {Component, effect, ElementRef, inject, QueryList, ViewChildren} from '@angular/core';
+import {AsyncPipe, NgIf} from '@angular/common';
 import {DetailPageItemComponent} from '../detail-page-item/detail-page-item.component';
 import {DetailViewService} from '../../services/detail-view.service';
 
@@ -12,7 +8,6 @@ import {DetailViewService} from '../../services/detail-view.service';
   imports: [
     NgIf,
     AsyncPipe,
-    NgForOf,
     DetailPageItemComponent,
   ],
   templateUrl: './detail-pages-grid.component.html',
@@ -21,9 +16,28 @@ import {DetailViewService} from '../../services/detail-view.service';
 export class DetailPagesGridComponent {
   public detailViewService = inject(DetailViewService);
 
+  @ViewChildren(DetailPageItemComponent, { read: ElementRef })
+  pageItems!: QueryList<ElementRef>;
+
+  constructor() {
+    effect(() => {
+      const index = this.detailViewService.currentPageIndex;
+      queueMicrotask(() => this.scrollToActivePage());
+    });
+  }
+
   clickedPage(index: number) {
-    console.log('Page clicked:', index);
     this.detailViewService.goToPage(index);
+  }
+
+  scrollToActivePage() {
+    const index = this.detailViewService.currentPageIndex;
+    const el = this.pageItems.get(index)?.nativeElement as HTMLElement;
+    el?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest'
+    });
   }
 
 }
