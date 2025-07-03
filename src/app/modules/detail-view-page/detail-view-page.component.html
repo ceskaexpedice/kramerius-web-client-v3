@@ -55,7 +55,7 @@
     <div class="detail-view--page--content">
 
       <!-- Action Toolbar -->
-      <app-action-toolbar>
+      <app-action-toolbar [hasCenterContent]="(detailViewService.document$ | async)?.rootModel === DocumentTypeEnum.periodical">
 
         <div class="max-width-100" left>
           <app-toolbar-header
@@ -65,10 +65,10 @@
         </div>
 
 
-        <div center #centerContent>
+        <div center
+        >
 
           <app-date-navigator
-            *ngIf="(detailViewService.document$ | async)?.rootModel === DocumentTypeEnum.periodical"
             [value]="detailViewService.getCurrentPageDate() || ''"
             (goToPrevious)="detailViewService.goToPrevious()"
             (goToNext)="detailViewService.goToNext()">

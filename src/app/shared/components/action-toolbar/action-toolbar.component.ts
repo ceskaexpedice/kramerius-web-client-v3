@@ -1,4 +1,4 @@
-import {AfterContentInit, Component, ContentChild, ElementRef} from '@angular/core';
+import {AfterContentInit, Component, ContentChild, ElementRef, Input} from '@angular/core';
 import {NgIf} from '@angular/common';
 
 @Component({
@@ -9,12 +9,8 @@ import {NgIf} from '@angular/common';
   templateUrl: './action-toolbar.component.html',
   styleUrl: './action-toolbar.component.scss'
 })
-export class ActionToolbarComponent implements AfterContentInit {
+export class ActionToolbarComponent {
 
-  @ContentChild('centerContent', { read: ElementRef }) centerContentRef?: ElementRef;
-  hasCenterContent = false;
+  @Input() hasCenterContent = false;
 
-  ngAfterContentInit(): void {
-    this.hasCenterContent = !!this.centerContentRef?.nativeElement?.childNodes?.length;
-  }
 }
