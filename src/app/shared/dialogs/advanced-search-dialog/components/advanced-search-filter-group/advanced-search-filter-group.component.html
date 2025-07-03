@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div class="group-operator">
+  <div class="group-operator" *ngIf="advancedSearchService.filters().length > 1 || filters.length > 1">
     <button class="operator-toggle" (click)="toggleOperator()">
       {{ operator }}
     </button>
