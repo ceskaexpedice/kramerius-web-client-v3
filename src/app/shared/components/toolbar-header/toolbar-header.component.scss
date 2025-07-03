@@ -4,10 +4,17 @@
   gap: 10px;
 }
 
-h2 {
+h2.title {
   margin: 0;
   font-weight: normal;
   font-size: 22px;
   line-height: 36px;
   color: var(--color-text-base);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  flex: 1;
+  min-width: 0;
 }

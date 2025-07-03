@@ -1,4 +1,5 @@
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+import {DocumentTypeEnum} from '../constants/document-type';
 
 export interface SearchDocument {
   pid: string;
@@ -6,7 +7,7 @@ export interface SearchDocument {
   rootTitle?: string;
   authors?: string[];
   date?: string;
-  model: string;
+  model: DocumentTypeEnum;
   accessibility: DocumentAccessibilityEnum;
   licenses?: string[];
   containsLicenses?: string[];
