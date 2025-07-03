@@ -303,13 +303,13 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, model: string): Observable<any[]> {
+  getChildrenByModel(parentPid: string, model: string, sort = 'date.min asc'): Observable<any[]> {
     const query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND (model:${model})`;
     const params = {
       q: query,
       fl: 'pid,accessibility,model,title.search,date.str',
       rows: '10000',
-      sort: 'date.min asc',
+      sort,
       wt: 'json'
     };
     return this.http.get<any>(this.API_URL, { params }).pipe(

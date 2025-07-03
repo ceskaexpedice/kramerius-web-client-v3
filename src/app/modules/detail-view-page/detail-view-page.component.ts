@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {DocumentTypeEnum} from '../constants/document-type';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -70,4 +71,5 @@ export class DetailViewPageComponent {
     return this.krameriusBaseUrl;
   }
 
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
 }

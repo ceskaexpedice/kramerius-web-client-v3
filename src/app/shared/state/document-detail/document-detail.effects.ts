@@ -27,7 +27,7 @@ export class DocumentDetailEffects {
           return forkJoin(
             {
               detailItem: this.solr.getDetailItem(pid),
-              children: this.solr.getChildrenByModel(pid, 'page'),
+              children: this.solr.getChildrenByModel(pid, 'page', 'rels_ext_index.sort asc'),
             },
           ).pipe(
             switchMap(({detailItem, children}) => {
