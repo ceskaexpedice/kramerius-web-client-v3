@@ -12,9 +12,14 @@
 
     <div class="record-item-card__content">
 
-      <div class="title" [title]="record.title">{{ record.title}}</div>
+      <div class="title" [title]="getTitle()">
+        {{ getTitle() }}
+      </div>
 
       <div class="subtitle" *ngIf="record.authors?.length || record.date">
+
+        {{getSubtitle()}}
+
         <span class="authors">
           {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
         </span>

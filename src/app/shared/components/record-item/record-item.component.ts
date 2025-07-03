@@ -1,11 +1,11 @@
-import { Component, inject, Input } from '@angular/core';
-import { SearchDocument } from '../../../modules/models/search-document';
-import { NgClass, NgIf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { APP_ROUTES_ENUM } from '../../../app.routes';
-import { RecordHandlerService } from '../../services/record-handler.service';
-import { EnvironmentService } from '../../services/environment.service';
+import {Component, inject, Input} from '@angular/core';
+import {SearchDocument} from '../../../modules/models/search-document';
+import {NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {RecordHandlerService} from '../../services/record-handler.service';
+import {EnvironmentService} from '../../services/environment.service';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 
 @Component({
   selector: 'app-record-item',
@@ -38,5 +38,35 @@ export class RecordItemComponent {
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
+  }
+
+  getTitle(): string {
+    switch (this.record.model) {
+      case DocumentTypeEnum.monograph:
+        return this.record.title || '';
+      case DocumentTypeEnum.periodical:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.periodicalvolume:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.article:
+        return this.record.title || '';
+      case DocumentTypeEnum.supplement:
+        return this.record.title || '';
+      case DocumentTypeEnum.page:
+        return this.record.rootTitle || '';
+      default:
+        return this.record.rootTitle || '';
+    }
+  }
+
+  getSubtitle() {
+    switch (this.record.model) {
+      case DocumentTypeEnum.article:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.supplement:
+        return this.record.rootTitle || '';
+      default:
+        return '';
+    }
   }
 }
