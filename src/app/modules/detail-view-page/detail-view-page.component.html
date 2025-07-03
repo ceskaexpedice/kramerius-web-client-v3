@@ -5,7 +5,7 @@
 
   <div class="detail-view--page--inner">
 
-    <app-filter-sidebar [padding]="'0'">
+    <app-filter-sidebar [padding]="'0'" [scrollable]="false">
 
       <app-tabs>
 
@@ -30,7 +30,11 @@
               (pageChange)="detailViewService.goToPage($event)"
             ></app-page-navigator>
 
-            <app-detail-pages-grid></app-detail-pages-grid>
+            <div class="sidebar--wrapper--scroll-content">
+
+              <app-detail-pages-grid></app-detail-pages-grid>
+
+            </div>
 
           </div>
 
@@ -53,7 +57,7 @@
       <!-- Action Toolbar -->
       <app-action-toolbar>
 
-        <div left>
+        <div class="max-width-100" left>
           <app-toolbar-header
             [title]="(detailViewService.document$ | async)?.rootTitle || ''"
             (goBack)="goBackClicked()">
@@ -61,9 +65,10 @@
         </div>
 
 
-        <div center>
+        <div center #centerContent>
 
           <app-date-navigator
+            *ngIf="(detailViewService.document$ | async)?.rootModel === DocumentTypeEnum.periodical"
             [value]="detailViewService.getCurrentPageDate() || ''"
             (goToPrevious)="detailViewService.goToPrevious()"
             (goToNext)="detailViewService.goToNext()">
@@ -97,7 +102,7 @@
 
           <ng-container *ngIf="detailViewService.document$ | async as doc">
 
-            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+            <img [src]="`${getKrameriusBaseUrl()}/items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
                  class="app-document-thumbnail">
 
           </ng-container>

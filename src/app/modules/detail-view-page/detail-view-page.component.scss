@@ -17,6 +17,14 @@
   flex-direction: column;
   gap: var(--spacing-x4);
   padding: var(--spacing-x4);
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar--wrapper--scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 hr {

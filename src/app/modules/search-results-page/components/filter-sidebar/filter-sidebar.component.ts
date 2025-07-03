@@ -13,4 +13,6 @@ export class FilterSidebarComponent {
 
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
 
+  @Input() scrollable = true;
+
 }
