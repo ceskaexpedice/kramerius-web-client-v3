@@ -307,7 +307,9 @@ export class AdvancedSearchService {
 
             const startDate = new Date(date);
             const endDate = new Date(date);
+            // end date should have time 23:59:59
             endDate.setUTCDate(endDate.getUTCDate() + offset);
+            endDate.setUTCHours(23, 59, 59, 999);
 
             filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
             isRange = true;

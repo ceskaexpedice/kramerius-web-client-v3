@@ -74,6 +74,8 @@ export class DateStepperComponent {
   calculateDates() {
     if (this.dateMode() === DatePickerMode.Range && this.dateFrom) {
       this.dateTo = new Date(this.dateFrom);
+      // add time 23:59:59 to dateTo
+      this.dateTo.setHours(23, 59, 59, 999);
       this.dateTo.setDate(this.dateFrom.getDate() + this.offset);
     }
 
@@ -186,10 +188,15 @@ export class DateStepperComponent {
     let dateTo = new Date(utcDate);
     dateTo.setDate(utcDate.getDate() + this.offset);
 
+    // set time to 23:59:59 for dateTo if it is not range
+    dateTo.setHours(23, 59, 59, 999);
+
     // if type is range, dateTo is from dateTo variable
     if (this.dateMode() === DatePickerMode.Range && this.dateTo) {
       dateTo = this.dateTo;
     }
+
+    console.log('dateTo:', dateTo);
 
     this.dateChange.emit({dateFrom : utcDate, dateTo, offset: this.dateMode() === DatePickerMode.Manual ? this.offset : -1});
   }
