@@ -1,14 +1,20 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {TranslatePipe} from '@ngx-translate/core';
-import {NgForOf} from '@angular/common';
+import {AfterContentInit, Component, ContentChild, ElementRef} from '@angular/core';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-action-toolbar',
   imports: [
+    NgIf,
   ],
   templateUrl: './action-toolbar.component.html',
   styleUrl: './action-toolbar.component.scss'
 })
-export class ActionToolbarComponent {
+export class ActionToolbarComponent implements AfterContentInit {
 
+  @ContentChild('centerContent', { read: ElementRef }) centerContentRef?: ElementRef;
+  hasCenterContent = false;
+
+  ngAfterContentInit(): void {
+    this.hasCenterContent = !!this.centerContentRef?.nativeElement?.childNodes?.length;
+  }
 }
