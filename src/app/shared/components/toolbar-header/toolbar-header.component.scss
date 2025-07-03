@@ -13,8 +13,10 @@ h2.title {
 
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  //text-overflow: ellipsis;
 
   flex: 1;
   min-width: 0;
+  mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
 }
