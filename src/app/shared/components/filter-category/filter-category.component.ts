@@ -110,7 +110,7 @@ export class FilterCategoryComponent implements OnChanges {
     let sorted;
 
     // Special handling for 'model' facet - preserve original order
-    if (this.facetKey === facetKeysEnum.model || this.facetKey === customDefinedFacetsEnum.model) {
+    if (this.facetKey === facetKeysEnum.model || this.facetKey === customDefinedFacetsEnum.model || this.facetKey === customDefinedFacetsEnum.accessibility || this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
       sorted = allItems; // Keep original order for model facet
     } else {
       // For all other facets, sort with selected items first
