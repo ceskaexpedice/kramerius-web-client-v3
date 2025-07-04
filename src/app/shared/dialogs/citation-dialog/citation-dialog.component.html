@@ -1,0 +1,49 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'Citace dle ČSN ISO 690' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+
+      <app-tabs>
+
+        <app-tab-item label="LaTeX">
+          <div class="tab--content" [innerHTML]="citationResponse?.iso690"></div>
+        </app-tab-item>
+
+        <app-tab-item label="HTML">
+          <div class="tab--content" [innerHTML]="citationResponse?.iso690html"></div>
+        </app-tab-item>
+
+        <app-tab-item label="text">
+          <div class="tab--content" [innerHTML]="citationResponse?.iso690"></div>
+        </app-tab-item>
+
+        <app-tab-item label="BibTeX">
+          <div class="tab--content" [innerHTML]="citationResponse?.bibtex"></div>
+        </app-tab-item>
+
+        <app-tab-item label="Wikipedie">
+          <div class="tab--content" [innerHTML]="citationResponse?.wiki"></div>
+        </app-tab-item>
+
+        <div tab-common>
+          <div class="tab--content">
+            <button class="link primary with-icon">
+              <i class="icon-copy"></i>
+              {{ 'Kopírovat' | translate }}
+            </button>
+          </div>
+        </div>
+
+      </app-tabs>
+    </div>
+
+  </div>
+
+</div>

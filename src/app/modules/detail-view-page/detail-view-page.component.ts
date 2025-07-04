@@ -16,7 +16,7 @@ export class DetailViewPageComponent {
 
   public detailViewService = inject(DetailViewService);
 
-  private recordHandler = inject(RecordHandlerService);
+  public recordHandler = inject(RecordHandlerService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');

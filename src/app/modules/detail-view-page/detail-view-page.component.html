@@ -52,15 +52,16 @@
 
     </app-filter-sidebar>
 
-    <div class="detail-view--page--content">
+    <div class="detail-view--page--content" *ngIf="detailViewService.document$ | async as document">
 
       <!-- Action Toolbar -->
-      <app-action-toolbar [hasCenterContent]="(detailViewService.document$ | async)?.rootModel === DocumentTypeEnum.periodical">
+      <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical">
 
         <div class="max-width-100" left>
           <app-toolbar-header
-            [title]="(detailViewService.document$ | async)?.rootTitle || ''"
-            (goBack)="goBackClicked()">
+            [title]="document?.rootTitle || ''"
+            (goBack)="goBackClicked()"
+          >
           </app-toolbar-header>
         </div>
 
@@ -87,6 +88,7 @@
               [showQuote]="true"
               [showInfo]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
+              (quoteClicked)="recordHandler.openCitationDialog(document.pid)"
             >
             </app-toolbar-controls>
 

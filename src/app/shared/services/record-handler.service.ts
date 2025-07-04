@@ -1,14 +1,18 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {SearchDocument} from '../../modules/models/search-document';
 import {SearchService} from './search.service';
+import {MatDialog} from '@angular/material/dialog';
+import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordHandlerService {
+
+  private dialog = inject(MatDialog);
 
   constructor(
     private router: Router,
@@ -53,6 +57,13 @@ export class RecordHandlerService {
     } else {
       this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS]);
     }
+  }
+
+  openCitationDialog(uuid: string) {
+    this.dialog.open(CitationDialogComponent, {
+      width: '60vw',
+      data: {uuid},
+    });
   }
 
   /**

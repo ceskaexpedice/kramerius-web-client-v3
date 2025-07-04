@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input, TemplateRef, ViewChild} from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-tab-item',
   template: `
-    <div [ngClass]="{ 'hidden': !active }" class="tab-content">
+    <ng-template #content>
       <ng-content></ng-content>
-    </div>
+    </ng-template>
   `,
   styles: `
     :host {
@@ -33,5 +33,5 @@ import {NgClass, NgIf} from '@angular/common';
 })
 export class TabItemComponent {
   @Input() label!: string;
-  active = false;
+  @ViewChild('content', { static: true }) content!: TemplateRef<unknown>;
 }
