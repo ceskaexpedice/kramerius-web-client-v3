@@ -1,0 +1,24 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'Sdílet' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+
+      {{shareService.getCurrentUrl()}}
+
+      <button class="link primary with-icon" (click)="copyToClipboard()">
+        <i class="icon-copy"></i>
+        {{ 'Kopírovat' | translate }}
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

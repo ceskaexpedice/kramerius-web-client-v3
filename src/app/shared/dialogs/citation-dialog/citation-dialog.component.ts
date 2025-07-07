@@ -56,6 +56,10 @@ export class CitationDialogComponent {
     this.dialogRef?.close();
   }
 
+  copyToClipboard() {
+
+  }
+
   loadCitation(): void {
     this.isLoading = true;
     this.error = null;

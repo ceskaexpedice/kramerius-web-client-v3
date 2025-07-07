@@ -6,6 +6,7 @@ import {SearchDocument} from '../../modules/models/search-document';
 import {SearchService} from './search.service';
 import {MatDialog} from '@angular/material/dialog';
 import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
+import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +65,13 @@ export class RecordHandlerService {
       width: '60vw',
       data: {uuid},
     });
+  }
+
+  openShareDialog(uuid: string) {
+    this.dialog.open(ShareDialogComponent, {
+      width: '60vw',
+      data: {uuid},
+    })
   }
 
   /**

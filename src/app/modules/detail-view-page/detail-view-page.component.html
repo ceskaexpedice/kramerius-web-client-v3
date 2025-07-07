@@ -88,6 +88,7 @@
               [showQuote]="true"
               [showInfo]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
+              (shareClicked)="recordHandler.openShareDialog(document.pid)"
               (quoteClicked)="recordHandler.openCitationDialog(document.pid)"
             >
             </app-toolbar-controls>
