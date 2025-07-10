@@ -53,7 +53,7 @@ export class DetailViewService {
   }
 
   loadDocument() {
-    this.store.dispatch(loadDocumentDetail());
+    this.store.dispatch(loadDocumentDetail({}));
 
     // Wait until `document$` resolves and then call `checkForDataNeedToLoad`
     this.document$.pipe(take(1)).subscribe((doc) => {

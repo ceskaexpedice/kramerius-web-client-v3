@@ -2,6 +2,7 @@ import {Component, inject} from '@angular/core';
 import {ViewMode} from './models/view-mode.enum';
 import {RecordInfoService} from '../../shared/services/record-info.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
+import {RecordHandlerService} from '../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -12,6 +13,7 @@ import {PeriodicalService} from '../../shared/services/periodical.service';
 export class PeriodicalPageComponent {
   periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
+  public recordHandler = inject(RecordHandlerService);
 
   protected readonly ViewMode = ViewMode;
 

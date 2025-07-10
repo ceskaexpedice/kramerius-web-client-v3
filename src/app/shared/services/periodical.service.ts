@@ -10,7 +10,7 @@ import {LocalStorageService} from './local-storage.service';
 import { RecordHandlerService } from './record-handler.service';
 import {
   selectAvailableYears, selectPeriodicalChildren,
-  selectPeriodicalDocument, selectPeriodicalError, selectPeriodicalLoading,
+  selectPeriodicalDocument, selectPeriodicalError, selectPeriodicalLoading, selectPeriodicalMetadata,
 } from '../../modules/periodical/state/periodical-detail.selectors';
 import {loadPeriodical} from '../../modules/periodical/state/periodical-detail.actions';
 import {toSignal} from '@angular/core/rxjs-interop';
@@ -32,9 +32,11 @@ export class PeriodicalService {
   availableYears$ = this.store.select(selectAvailableYears);
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
   loading$ = this.store.select(selectPeriodicalLoading);
+  metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
+  private metadataSignal = toSignal(this.metadata$, { initialValue: null });
 
   private route = inject(ActivatedRoute);
 
@@ -92,6 +94,10 @@ export class PeriodicalService {
 
   get document() {
     return this.documentSignal();
+  }
+
+  get metadata() {
+    return this.metadataSignal();
   }
 
   handleDocument(doc: any): void {

@@ -8,3 +8,4 @@ export const selectPeriodicalYears = createSelector(selectPeriodicalState, state
 export const selectAvailableYears = createSelector(selectPeriodicalState, state => state.availableYears);
 export const selectPeriodicalLoading = createSelector(selectPeriodicalState, state => state.loading);
 export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state.error);
+export const selectPeriodicalMetadata = createSelector(selectPeriodicalState, state => state.metadata);

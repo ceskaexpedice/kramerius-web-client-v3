@@ -8,7 +8,6 @@ import {MatDialog} from '@angular/material/dialog';
 import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
 import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
 import {Metadata} from '../models/metadata.model';
-import {Meta} from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
@@ -62,14 +61,22 @@ export class RecordHandlerService {
     }
   }
 
-  openCitationDialog(document: Metadata) {
+  openCitationDialog(document: Metadata | null) {
+    if (!document) {
+      console.warn('No document provided for citation dialog.');
+      return;
+    }
     this.dialog.open(CitationDialogComponent, {
       width: '60vw',
       data: {document},
     });
   }
 
-  openShareDialog(document: Metadata) {
+  openShareDialog(document: Metadata | null) {
+    if (!document) {
+      console.warn('No document provided for share dialog.');
+      return;
+    }
     this.dialog.open(ShareDialogComponent, {
       width: '60vw',
       data: {document},
@@ -84,7 +91,7 @@ export class RecordHandlerService {
   }
 
   getShareableDocumentTypes(document: Metadata): any[] {
-    const shareableTypes = [];
+    let shareableTypes = [];
 
     if (document.rootModel) {
       shareableTypes.push({
@@ -94,17 +101,27 @@ export class RecordHandlerService {
     }
 
     // if rootModel is periodical, add periodical volume
-    if (document.rootModel === 'periodical' && document.volume) {
-      shareableTypes.push({
-        model: 'periodicalvolume',
-        pid: document.volume.uuid
-      })
+    if (document.rootModel === 'periodical' && document.model !== 'periodical' && document.volume) {
+
+      if (document.model === 'periodicalvolume') {
+        shareableTypes.push({
+          model: 'periodicalvolume',
+          pid: document.uuid
+        });
+      } else {
+        shareableTypes.push({
+          model: 'periodicalvolume',
+          pid: document.volume.uuid
+        })
+      }
     }
 
-    shareableTypes.push({
-      model: document.model,
-      pid: document.uuid
-    });
+    if (document.model !== 'periodical' && document.model !== 'periodicalvolume') {
+      shareableTypes.push({
+        model: document.model,
+        pid: document.uuid
+      });
+    }
 
     // if in url is ?page=uuid, then add it to the list
     const urlParams = new URLSearchParams(window.location.search);
@@ -115,6 +132,18 @@ export class RecordHandlerService {
         pid: pageUuid
       });
     }
+
+    // remove duplicates
+    const uniqueShareableTypes = new Map();
+    shareableTypes.forEach(item => {
+      const key = `${item.model}-${item.pid}`;
+      if (!uniqueShareableTypes.has(key)) {
+        uniqueShareableTypes.set(key, item);
+      }
+    });
+
+    // Convert back to array
+    shareableTypes = Array.from(uniqueShareableTypes.values());
 
     // reverse order
     shareableTypes.reverse();

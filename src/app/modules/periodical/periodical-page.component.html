@@ -38,6 +38,8 @@
               [activeCalendarGridControl]="periodical.activeCalendarGridControl()"
               (calendarGridClicked)="periodical.setView($event)"
               (infoClicked)="openRecordInfo()"
+              (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
+              (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
             >
             </app-toolbar-controls>
 

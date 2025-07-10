@@ -27,6 +27,7 @@ import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/too
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
+import {DocumentDetailEffects} from '../../shared/state/document-detail/document-detail.effects';
 
 const routes: Routes = [
   {
@@ -41,7 +42,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     StoreModule.forFeature('periodical', periodicalDetailReducer),
-    EffectsModule.forFeature([PeriodicalDetailEffects]),
+    EffectsModule.forFeature([PeriodicalDetailEffects, DocumentDetailEffects]),
     AsyncPipe,
     JsonPipe,
     NgIf,

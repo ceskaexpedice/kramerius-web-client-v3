@@ -1,4 +1,5 @@
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+import {Metadata} from '../../shared/models/metadata.model';
 
 export interface PeriodicalItem {
   uuid: string;
@@ -34,4 +35,46 @@ export interface PeriodicalItemYear {
   exists: boolean;
   pid: string;
   accessibility: DocumentAccessibilityEnum;
+}
+
+export function parsePeriodicalItemFromMetadata(metadata: Metadata): PeriodicalItem {
+  return {
+    uuid: metadata.uuid,
+    title: metadata.mainTitle,
+    dateRange: buildDateRange(metadata),
+    accessibility: metadata.isPublic ? DocumentAccessibilityEnum.PUBLIC : DocumentAccessibilityEnum.PRIVATE,
+    licenses: metadata.licences,
+    publishers: metadata.publishers?.map(p => p.fullDetail()) ?? [],
+    publicationPlaces: metadata.publishers?.map(p => p.place).filter(Boolean) ?? [],
+    languages: metadata.languages ?? [],
+    keywords: metadata.keywords ?? [],
+    geographicNames: metadata.geonames ?? [],
+    genres: metadata.genres ?? [],
+    shelfLocators: metadata.locations?.map(l => l.shelfLocator).filter(Boolean) ?? [],
+    created: metadata.created,
+    modified: metadata.modified,
+    hasTiles: metadata.hasTiles,
+
+    model: metadata.model,
+    'root.pid': metadata.rootPid,
+    'root.title': metadata.mainTitle,
+    'date.str': metadata.dateStr,
+
+    children: [],
+  };
+}
+
+function buildDateRange(metadata: Metadata): string {
+  const start = metadata.dateRangeStartYear;
+  const end = metadata.dateRangeEndYear;
+
+  if (start && end) {
+    return `${start}–${end}`;
+  } else if (start) {
+    return `${start}`;
+  } else if (metadata.dateStr) {
+    return metadata.dateStr;
+  }
+
+  return '';
 }
