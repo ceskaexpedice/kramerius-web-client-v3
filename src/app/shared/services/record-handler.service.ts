@@ -7,6 +7,8 @@ import {SearchService} from './search.service';
 import {MatDialog} from '@angular/material/dialog';
 import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
 import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
+import {Metadata} from '../models/metadata.model';
+import {Meta} from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
@@ -60,17 +62,17 @@ export class RecordHandlerService {
     }
   }
 
-  openCitationDialog(uuid: string) {
+  openCitationDialog(document: Metadata) {
     this.dialog.open(CitationDialogComponent, {
       width: '60vw',
-      data: {uuid},
+      data: {document},
     });
   }
 
-  openShareDialog(uuid: string) {
+  openShareDialog(document: Metadata) {
     this.dialog.open(ShareDialogComponent, {
       width: '60vw',
-      data: {uuid},
+      data: {document},
     })
   }
 
@@ -79,5 +81,44 @@ export class RecordHandlerService {
    */
   isPeriodical(model: string): boolean {
     return model === DocumentTypeEnum.periodical;
+  }
+
+  getShareableDocumentTypes(document: Metadata): any[] {
+    const shareableTypes = [];
+
+    if (document.rootModel) {
+      shareableTypes.push({
+        model: document.rootModel,
+        pid: document.rootPid
+      })
+    }
+
+    // if rootModel is periodical, add periodical volume
+    if (document.rootModel === 'periodical' && document.volume) {
+      shareableTypes.push({
+        model: 'periodicalvolume',
+        pid: document.volume.uuid
+      })
+    }
+
+    shareableTypes.push({
+      model: document.model,
+      pid: document.uuid
+    });
+
+    // if in url is ?page=uuid, then add it to the list
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageUuid = urlParams.get('page');
+    if (pageUuid) {
+      shareableTypes.push({
+        model: 'page',
+        pid: pageUuid
+      });
+    }
+
+    // reverse order
+    shareableTypes.reverse();
+
+    return shareableTypes;
   }
 }

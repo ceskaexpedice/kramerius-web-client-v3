@@ -7,7 +7,7 @@ export class ShareService {
 
   constructor() { }
 
-  getCurrentUrl(): string {
+  getCurrentUrl(pid: string, isPage = false): string {
     const url = new URL(window.location.href);
 
     // Extract query parameters
@@ -15,13 +15,25 @@ export class ShareService {
 
     // Extract the UUID from the existing path
     const pathSegments = url.pathname.split('/');
-    const uuidSegment = pathSegments.find(segment => segment.startsWith('uuid:'));
+    let uuidSegment = '';
 
-    // Adjust the path structure to the desired format
-    url.pathname = uuidSegment ? `/uuid/${uuidSegment}` : url.pathname;
+    let finalUrl = url.origin;
 
-    // Preserve the original query parameters
-    return url.origin + url.pathname + searchParams;
+    if (isPage) {
+      uuidSegment = pathSegments.find(segment => segment.startsWith('uuid:')) || '';
+
+      url.pathname = uuidSegment ? `/uuid/${uuidSegment}` : url.pathname;
+
+      finalUrl += url.pathname + searchParams;
+    } else {
+      uuidSegment = pid;
+
+      url.pathname = uuidSegment ? `/uuid/${uuidSegment}` : url.pathname;
+
+      finalUrl += url.pathname;
+    }
+
+    return finalUrl;
   }
 
 

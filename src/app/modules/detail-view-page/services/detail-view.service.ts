@@ -5,11 +5,11 @@ import {
   selectDocumentDetail, selectDocumentDetailError, selectDocumentDetailLoading,
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
-import {EnvironmentService} from '../../../shared/services/environment.service';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
 import {take} from 'rxjs';
-import {DocumentDetail} from '../../models/document-detail';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
+import {PeriodicalService} from '../../../shared/services/periodical.service';
+import {Metadata} from '../../../shared/models/metadata.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,7 @@ export class DetailViewService {
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
+  private periodicalService = inject(PeriodicalService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -53,6 +54,14 @@ export class DetailViewService {
 
   loadDocument() {
     this.store.dispatch(loadDocumentDetail());
+
+    // Wait until `document$` resolves and then call `checkForDataNeedToLoad`
+    this.document$.pipe(take(1)).subscribe((doc) => {
+      if (doc && doc.uuid) {
+        this.periodicalService.checkForDataNeedToLoad(doc.uuid);
+      }
+    });
+
   }
 
   loadPages() {
@@ -69,7 +78,6 @@ export class DetailViewService {
       }
 
       this.checkAndSetCurrentPageFromUrl();
-
     });
   }
 
@@ -83,6 +91,8 @@ export class DetailViewService {
       if (pageIndex !== -1) {
         this._currentPageIndex.set(pageIndex);
       }
+    } else {
+      this.goToPage(0);
     }
   }
 
@@ -121,6 +131,14 @@ export class DetailViewService {
     this.goToPage(this._currentPageIndex() - pagesToGoBack);
   }
 
+  goToNextPeriodicalIssue() {
+    this.periodicalService.goToNextPeriodicalIssue();
+  }
+
+  goToPreviousPeriodicalIssue() {
+    this.periodicalService.goToPreviousPeriodicalIssue();
+  }
+
   getCurrentPage(): Page | null {
     const pages = this._pages();
     return pages[this._currentPageIndex()] ?? null;
@@ -135,10 +153,10 @@ export class DetailViewService {
   }
 
   openRecordInfo() {
-    this.document$.pipe(take(1)).subscribe((doc: DocumentDetail | null) => {
+    this.document$.pipe(take(1)).subscribe((doc: Metadata | null) => {
       if (!doc) return;
 
-      const uuid = doc?.pid;
+      const uuid = doc?.uuid;
       if (uuid) {
         this.recordInfoService.openRecordInfoDialog(uuid);
       }

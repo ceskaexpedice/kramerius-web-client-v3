@@ -9,6 +9,7 @@ import * as DocumentDetailSelectors from './document-detail.selectors';
 import {parseDocumentDetail} from '../../../modules/models/document-detail';
 import {parseSearchDocument} from '../../../modules/models/search-document';
 import * as SearchActions from '../../../modules/search-results-page/state/search.actions';
+import {fromSolrToMetadata} from '../../models/metadata.model';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -31,10 +32,10 @@ export class DocumentDetailEffects {
             },
           ).pipe(
             switchMap(({detailItem, children}) => {
-
+console.log('detail item', detailItem);
               return [
                 DocumentDetailActions.loadDocumentDetailSuccess({
-                  data: parseDocumentDetail(detailItem),
+                  data: fromSolrToMetadata(detailItem),
                   pages: children,
                 }),
               ];

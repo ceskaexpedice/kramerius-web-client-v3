@@ -3,6 +3,7 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {DocumentTypeEnum} from '../constants/document-type';
+import {PeriodicalService} from '../../shared/services/periodical.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -15,7 +16,7 @@ export class DetailViewPageComponent {
   private krameriusBaseUrl: string;
 
   public detailViewService = inject(DetailViewService);
-
+  public periodicalService = inject(PeriodicalService);
   public recordHandler = inject(RecordHandlerService);
 
   constructor(private envService: EnvironmentService) {

@@ -59,7 +59,7 @@
 
         <div class="max-width-100" left>
           <app-toolbar-header
-            [title]="document?.rootTitle || ''"
+            [title]="document?.mainTitle || ''"
             (goBack)="goBackClicked()"
           >
           </app-toolbar-header>
@@ -70,9 +70,9 @@
         >
 
           <app-date-navigator
-            [value]="detailViewService.getCurrentPageDate() || ''"
-            (goToPrevious)="detailViewService.goToPrevious()"
-            (goToNext)="detailViewService.goToNext()">
+            [value]="document.dateStr || ''"
+            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
           </app-date-navigator>
 
         </div>
@@ -88,8 +88,8 @@
               [showQuote]="true"
               [showInfo]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
-              (shareClicked)="recordHandler.openShareDialog(document.pid)"
-              (quoteClicked)="recordHandler.openCitationDialog(document.pid)"
+              (shareClicked)="recordHandler.openShareDialog(document)"
+              (quoteClicked)="recordHandler.openCitationDialog(document)"
             >
             </app-toolbar-controls>
 

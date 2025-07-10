@@ -8,6 +8,10 @@
   </button>
 </div>
 
+<div class="tabs-common">
+  <ng-content select="[tab-common-up]"></ng-content>
+</div>
+
 <div class="tabs-content" *ngIf="tabs.length">
   <ng-container
     *ngTemplateOutlet="tabs[activeTabIndex()]?.content || null">
@@ -15,5 +19,5 @@
 </div>
 
 <div class="tabs-common">
-  <ng-content select="[tab-common]"></ng-content>
+  <ng-content select="[tab-common-down]"></ng-content>
 </div>

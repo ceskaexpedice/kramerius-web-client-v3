@@ -33,3 +33,12 @@
 .tab--content {
   padding: var(--spacing-x4) 24px;
 }
+
+.tab-item--content {
+  padding: 0 24px;
+}
+
+.citation-types--container {
+  display: flex;
+  gap: var(--spacing-x2);
+}

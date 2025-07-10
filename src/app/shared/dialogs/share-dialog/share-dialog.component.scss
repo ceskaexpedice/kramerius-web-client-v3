@@ -26,7 +26,18 @@
       flex: 3;
       overflow-y: auto;
       min-height: 0;
-      padding: 0 24px;
+      padding: 0 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
   }
+}
+
+.tab--content {
+}
+
+.citation-types--container, .share-options--container {
+  display: flex;
+  gap: var(--spacing-x2);
 }

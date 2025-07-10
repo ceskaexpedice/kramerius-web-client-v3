@@ -10,7 +10,7 @@ export class Metadata {
   public titles: TitleInfo[] = [];
   public authors: Author[] = [];
   public publishers: Publisher[] = [];
-  public extent: String = '';
+  public extent: string = '';
   public keywords: string[] = [];
   public geonames: string[] = [];
   public notes: string[] = [];
@@ -29,6 +29,45 @@ export class Metadata {
 
   public isPublic: boolean = true;
   public licences: string[] = [];
+  public licence: string = '';
+
+  public mainTitle: string = '';
+  public donators: string[] = [];
+
+  public activePages: string = '';
+  public activePage: Page | null = null;
+  public activePageRight: Page | null = null;
+
+  public originUrl: string = '';
+
+  public inCollections: InCollections[] = [];
+  public inCollectionsDirect: InCollections[] = [];
+
+  public dateStr: string = '';
+  public dateMin: string = '';
+  public dateMax: string = '';
+  public dateRangeStartYear?: number;
+  public dateRangeStartMonth?: number;
+  public dateRangeStartDay?: number;
+  public dateRangeEndYear?: number;
+  public dateRangeEndMonth?: number;
+  public dateRangeEndDay?: number;
+
+  public hasTiles: boolean = false;
+  public level?: number;
+
+  public created: string = '';
+  public modified: string = '';
+
+  public rootModel: string = '';
+  public rootPid: string = '';
+  public ownParentPid: string = '';
+  public ownParentModel: string = '';
+
+  public pidPaths: string[] = [];
+  public ownPidPath: string = '';
+
+  public partNumberSort?: number;
 
   public currentIssue: PeriodicalItem | null = null;
   public nextIssue: PeriodicalItem | null = null;
@@ -47,20 +86,6 @@ export class Metadata {
   public reviews: Metadata[] = [];
   public volumeMetadata: Metadata | null = null;
   public extraParentMetadata: Metadata | null = null;
-
-  public mainTitle: string = '';
-  public donators: string[] = [];
-
-  public activePages: string = '';
-  public activePage: Page | null = null;
-  public activePageRight: Page | null = null;
-
-  public originUrl: string = '';
-
-  public licence: string = '';
-
-  public inCollections: InCollections[] = [];
-  public inCollectionsDirect: InCollections[] = [];
 }
 
 export class TitleInfo {
@@ -162,3 +187,64 @@ export class InCollections {
   public uuid: string = '';
   public name: string = '';
 }
+
+export function fromSolrToMetadata(doc: any): Metadata {
+  const metadata = new Metadata();
+
+  metadata.uuid = doc.pid;
+  metadata.model = doc.model;
+  metadata.isPublic = doc.accessibility === 'public';
+
+  metadata.licences = doc.licenses ?? [];
+  metadata.licence = doc['licenses.facet']?.[0] ?? '';
+
+  metadata.languages = doc['languages.facet'] ?? [];
+
+  metadata.mainTitle = doc['root.title'] ?? '';
+
+  metadata.volume = new Volume(
+    doc['own_parent.pid'] ?? '',
+    doc['date_range_start.year']?.toString() ?? '',
+    doc['part.number.str'] ?? ''
+  );
+
+  metadata.inCollections = (doc.in_collections ?? []).map((uuid: string) => {
+    const c = new InCollections();
+    c.uuid = uuid;
+    return c;
+  });
+
+  metadata.dateStr = doc['date.str'] ?? '';
+  metadata.dateMin = doc['date.min'] ?? '';
+  metadata.dateMax = doc['date.max'] ?? '';
+
+  metadata.dateRangeStartYear = doc['date_range_start.year'];
+  metadata.dateRangeStartMonth = doc['date_range_start.month'];
+  metadata.dateRangeStartDay = doc['date_range_start.day'];
+
+  metadata.dateRangeEndYear = doc['date_range_end.year'];
+  metadata.dateRangeEndMonth = doc['date_range_end.month'];
+  metadata.dateRangeEndDay = doc['date_range_end.day'];
+
+  metadata.hasTiles = doc.has_tiles ?? false;
+  metadata.level = doc.level;
+
+  metadata.created = doc.created ?? '';
+  metadata.modified = doc.modified ?? '';
+
+  metadata.rootModel = doc['root.model'] ?? '';
+  metadata.rootPid = doc['root.pid'] ?? '';
+  metadata.ownParentPid = doc['own_parent.pid'] ?? '';
+  metadata.ownParentModel = doc['own_parent.model'] ?? '';
+
+  metadata.pidPaths = doc.pid_paths ?? [];
+  metadata.ownPidPath = doc.own_pid_path ?? '';
+
+  metadata.partNumberSort = doc['part.number.sort'];
+
+  metadata.extent = doc.count_page ? `${doc.count_page} stran` : '';
+
+  return metadata;
+}
+
+

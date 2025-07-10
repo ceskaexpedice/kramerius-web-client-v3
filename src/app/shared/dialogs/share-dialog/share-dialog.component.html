@@ -10,12 +10,56 @@
 
     <div class="content">
 
-      {{shareService.getCurrentUrl()}}
+      <div class="citation-types--container">
 
-      <button class="link primary with-icon" (click)="copyToClipboard()">
-        <i class="icon-copy"></i>
-        {{ 'Kopírovat' | translate }}
-      </button>
+        <app-button-toggle
+          *ngFor="let type of shareableDocumentTypes"
+          [label]="type.model"
+          [value]="type.pid"
+          [checked]="type.pid === activePid"
+          (toggled)="toggledActiveShareDocumentType($event, type.pid)">
+        </app-button-toggle>
+
+      </div>
+
+      {{currentShareUrl}}
+
+      <div class="actions--container">
+
+        <button class="link primary with-icon p-left-0" (click)="copyToClipboard()">
+          <i class="icon-copy"></i>
+          {{ 'Kopírovat' | translate }}
+        </button>
+
+      </div>
+
+      <div class="share-options--container">
+
+        <button class="with-icon outlined tertiary">
+
+          <i class="icon-facebook"></i>
+
+          Facebook
+
+        </button>
+
+        <button class="with-icon outlined tertiary">
+
+          <i class="fa-linkedin-square"></i>
+
+          LinkedIn
+
+        </button>
+
+        <button class="with-icon outlined tertiary">
+
+          <i class="icon-x"></i>
+
+          Platforma X
+
+        </button>
+
+      </div>
 
     </div>
 
