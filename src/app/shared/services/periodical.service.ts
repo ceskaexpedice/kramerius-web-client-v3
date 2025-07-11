@@ -46,13 +46,16 @@ export class PeriodicalService {
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService
   ) {
-    this.availableYears$.pipe(
-      filter(Boolean),
-      map(data => {
-        this.availableYears = data;
-        this.generateYearsFromAvailable();
-      })
-    ).subscribe();
+
+    if (this.availableYears$) {
+      this.availableYears$.pipe(
+        filter(Boolean),
+        map(data => {
+          this.availableYears = data;
+          this.generateYearsFromAvailable();
+        })
+      ).subscribe();
+    }
   }
 
   checkForDataNeedToLoad(rootPid: string): void {
@@ -117,7 +120,7 @@ export class PeriodicalService {
     this.setView(storedView);
   }
 
-  setView(view: CalendarGridControl): void {
+  setView(view: string): void {
     this.saveViewModeToLocalStorage(view);
     const hasSelectedYear = !!this.selectedYear();
     const newView = view === 'calendar'
@@ -196,7 +199,7 @@ export class PeriodicalService {
       .sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
-  private saveViewModeToLocalStorage(view: CalendarGridControl): void {
+  private saveViewModeToLocalStorage(view: string): void {
     this.localStorage.set(this.PERIODICAL_VIEW_LOCAL_STORAGE_KEY, view);
   }
 

@@ -1,25 +1,15 @@
 <div class="toolbar-controls">
 
-  <ng-container *ngIf="showCalendarGridControls">
-
+  <ng-container *ngIf="showViewToggle && viewToggleOptions.length > 0">
     <div class="toggle--container">
-
       <div
         class="view-toggle"
-        [class.active]="activeCalendarGridControl === 'calendar'"
-        (click)="setViewMode('calendar')">
-        <i class="icon-calendar"></i> Kalendář
+        *ngFor="let option of viewToggleOptions"
+        [class.active]="activeViewValue === option.value"
+        (click)="onToggle(option)">
+        <i class="{{ option.icon }}"></i> {{ option.label | translate }}
       </div>
-
-      <div
-        class="view-toggle"
-        [class.active]="activeCalendarGridControl === 'grid'"
-        (click)="setViewMode('grid')">
-        <i class="icon-grid-1"></i> Mřížka
-      </div>
-
     </div>
-
   </ng-container>
 
   <button class="icon-button link tertiary" *ngIf="showInfo" (click)="onInfo()">

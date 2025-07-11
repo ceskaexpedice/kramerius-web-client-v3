@@ -10,6 +10,9 @@ import {take} from 'rxjs';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {PeriodicalService} from '../../../shared/services/periodical.service';
 import {Metadata} from '../../../shared/models/metadata.model';
+import {
+  SoundRecordGridControl,
+} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +20,8 @@ import {Metadata} from '../../../shared/models/metadata.model';
 export class DetailViewService {
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
+
+  soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
@@ -30,6 +35,10 @@ export class DetailViewService {
   constructor() { }
 
   private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
+
+  setSoundRecordingViewView(view: any): void {
+    this.soundRecordingViewMode.set(view);
+  }
 
   get pages() {
     return this._pages();

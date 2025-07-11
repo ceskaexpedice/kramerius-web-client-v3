@@ -1,9 +1,11 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {EnvironmentService} from '../../../../shared/services/environment.service';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-detail-page-item',
   imports: [
+    NgClass,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'
@@ -16,6 +18,8 @@ export class DetailPageItemComponent {
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: number = 0;
   @Input() isSelected: boolean = false;
+
+  @Input() type: 'recording' | 'page' = 'page';
 
   @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
 

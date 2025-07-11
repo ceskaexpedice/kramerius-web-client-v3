@@ -1,5 +1,5 @@
-import {Component, effect, ElementRef, inject, QueryList, ViewChildren} from '@angular/core';
-import {AsyncPipe, NgIf} from '@angular/common';
+import {Component, effect, ElementRef, inject, Input, QueryList, ViewChildren} from '@angular/core';
+import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {DetailPageItemComponent} from '../detail-page-item/detail-page-item.component';
 import {DetailViewService} from '../../services/detail-view.service';
 
@@ -9,6 +9,7 @@ import {DetailViewService} from '../../services/detail-view.service';
     NgIf,
     AsyncPipe,
     DetailPageItemComponent,
+    NgClass,
   ],
   templateUrl: './detail-pages-grid.component.html',
   styleUrl: './detail-pages-grid.component.scss'
@@ -18,6 +19,8 @@ export class DetailPagesGridComponent {
 
   @ViewChildren(DetailPageItemComponent, { read: ElementRef })
   pageItems!: QueryList<ElementRef>;
+
+  @Input() type: 'recording' | 'page' = 'page';
 
   constructor() {
     effect(() => {

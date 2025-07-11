@@ -1,5 +1,12 @@
 .page--grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
   gap: 8px;
+
+  &.type-page {
+    grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  }
+
+  &.type-recording {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
 }

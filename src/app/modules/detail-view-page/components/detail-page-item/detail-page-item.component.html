@@ -1,4 +1,6 @@
-<div class="page--item" [class.selected]="isSelected" (click)="onPageClicked()">
+<div class="page--item"
+     [ngClass]="'type-' + type"
+     [class.selected]="isSelected" (click)="onPageClicked()">
 
   <img
     class="page--item__image"

@@ -30,13 +30,17 @@
           <div class="flex flex--align-center">
 
             <app-toolbar-controls
-              [showCalendarGridControls]="true"
+              [showViewToggle]="true"
               [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="true"
-              [activeCalendarGridControl]="periodical.activeCalendarGridControl()"
-              (calendarGridClicked)="periodical.setView($event)"
+              [viewToggleOptions]="[
+                { label: 'Kalendář', icon: 'icon-calendar', value: 'calendar' },
+                { label: 'Mřížka', icon: 'icon-grid-1', value: 'grid' }
+              ]"
+              [activeViewValue]="periodical.activeCalendarGridControl()"
+              (viewChanged)="periodical.setView($event)"
               (infoClicked)="openRecordInfo()"
               (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
               (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"

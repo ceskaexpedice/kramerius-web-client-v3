@@ -12,5 +12,6 @@ export enum DocumentTypeEnum {
   "supplement" = "supplement",
   "article" = "article",
   "periodicalvolume" = "periodicalvolume",
-  "page" = "page"
+  "page" = "page",
+  "soundunit" = "soundunit"
 }

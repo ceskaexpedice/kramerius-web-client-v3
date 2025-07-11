@@ -32,6 +32,10 @@ export class PageNavigatorComponent {
     return this.currentPage.toString().padStart(2, '0');
   }
 
+  get totalPagesString(): string {
+    return this.totalPages.toString().padStart(2, '0');
+  }
+
   onInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = parseInt(input.value, 10);

@@ -303,14 +303,18 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, model: string, sort = 'date.min asc'): Observable<any[]> {
-    const query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND (model:${model})`;
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null): Observable<any[]> {
+    let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
+
+    if (model) {
+      query += ` AND model:${model}`;
+    }
+
     const params = {
       q: query,
-      fl: 'pid,accessibility,model,title.search,date.str',
+      fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length',
       rows: '10000',
-      sort,
-      wt: 'json'
+      sort
     };
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])

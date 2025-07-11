@@ -69,7 +69,7 @@ export class DocumentDetailEffects {
   private loadDetail(uuid: string) {
     return forkJoin({
       detailItem: this.solr.getDetailItem(uuid),
-      children: this.solr.getChildrenByModel(uuid, 'page', 'rels_ext_index.sort asc'),
+      children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null),
     }).pipe(
       map(({ detailItem, children }) => {
         return DocumentDetailActions.loadDocumentDetailSuccess({
