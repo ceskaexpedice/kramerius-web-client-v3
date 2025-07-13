@@ -1,0 +1,82 @@
+tr {
+  cursor: pointer;
+
+  &.playing {
+    background-color: var(--color-playing-bg);
+  }
+
+  td {
+    vertical-align: middle;
+    padding: var(--spacing-x2) var(--spacing-x4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+  }
+
+  .track-link {
+    color: var(--color-text);
+    text-decoration: none;
+
+    &.active {
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+  }
+
+  .page-ref {
+    color: var(--color-muted);
+  }
+
+  .duration {
+    white-space: nowrap;
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--spacing-x2);
+    justify-content: flex-end;
+  }
+
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-x1);
+    border-radius: 999px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--color-hover-bg);
+    }
+
+    &.favorited i {
+      color: var(--color-heart);
+    }
+  }
+
+  .icon {
+    &--playing {
+      content: url('/assets/icons/speaker.svg');
+    }
+
+    &--track {
+      content: url('/assets/icons/music-note.svg');
+    }
+
+    &--queue {
+      content: url('/assets/icons/queue.svg');
+    }
+
+    &--heart {
+      content: url('/assets/icons/heart.svg');
+    }
+
+    &--download {
+      content: url('/assets/icons/download.svg');
+    }
+  }
+}

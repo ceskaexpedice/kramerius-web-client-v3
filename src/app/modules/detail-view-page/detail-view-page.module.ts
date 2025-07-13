@@ -19,6 +19,7 @@ import {PageNavigatorComponent} from '../../shared/components/page-navigator/pag
 import {TabsComponent} from '../../shared/components/tabs/tabs.component';
 import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
+import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
 
 const routes: Routes = [
   {
@@ -48,6 +49,7 @@ const routes: Routes = [
     TabsComponent,
     TabItemComponent,
     DateNavigatorComponent,
+    DetailLayoutComponent,
   ],
 })
 

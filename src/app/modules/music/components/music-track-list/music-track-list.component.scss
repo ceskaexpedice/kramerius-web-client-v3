@@ -1,0 +1,28 @@
+.track-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+
+  th {
+    text-align: left;
+    padding: var(--spacing-x2);
+    color: var(--color-secondary-text);
+    font-weight: 500;
+  }
+
+  td {
+    padding: var(--spacing-x2);
+    vertical-align: middle;
+  }
+
+  tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s;
+  }
+
+  tr:hover {
+    background: var(--color-hover-bg);
+    cursor: pointer;
+  }
+}

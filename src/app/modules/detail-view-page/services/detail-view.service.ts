@@ -2,17 +2,17 @@ import {inject, Injectable, signal} from '@angular/core';
 import {Page} from '../../../shared/models/page.model';
 import {Store} from '@ngrx/store';
 import {
-  selectDocumentDetail, selectDocumentDetailError, selectDocumentDetailLoading,
+  selectDocumentDetail,
+  selectDocumentDetailError,
+  selectDocumentDetailLoading,
+  selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {take} from 'rxjs';
+import {Observable, take} from 'rxjs';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
-import {PeriodicalService} from '../../../shared/services/periodical.service';
 import {Metadata} from '../../../shared/models/metadata.model';
-import {
-  SoundRecordGridControl,
-} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
+import {SoundRecordGridControl,} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,6 @@ export class DetailViewService {
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
-  private periodicalService = inject(PeriodicalService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -62,14 +61,16 @@ export class DetailViewService {
   }
 
   loadDocument() {
+    console.log('loadDocument');
     this.store.dispatch(loadDocumentDetail({}));
 
     // Wait until `document$` resolves and then call `checkForDataNeedToLoad`
-    this.document$.pipe(take(1)).subscribe((doc) => {
-      if (doc && doc.uuid) {
-        this.periodicalService.checkForDataNeedToLoad(doc.uuid);
-      }
-    });
+    // this.document$.pipe(take(1)).subscribe((doc) => {
+    //   console.log('document loaded', doc);
+    //   if (doc && doc.uuid) {
+    //     this.periodicalService.checkForDataNeedToLoad(doc.uuid);
+    //   }
+    // });
 
   }
 
@@ -90,6 +91,11 @@ export class DetailViewService {
     });
   }
 
+  getSoundRecordings(): Observable<Page[] | undefined> {
+    // selectDocumentDetailOnlyRecordings
+    return this.store.select(selectDocumentDetailOnlyRecordings);
+  }
+
   checkAndSetCurrentPageFromUrl() {
     // check if there is a page in the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -101,7 +107,7 @@ export class DetailViewService {
         this._currentPageIndex.set(pageIndex);
       }
     } else {
-      this.goToPage(0);
+      //this.goToPage(0);
     }
   }
 
@@ -141,11 +147,11 @@ export class DetailViewService {
   }
 
   goToNextPeriodicalIssue() {
-    this.periodicalService.goToNextPeriodicalIssue();
+    //this.periodicalService.goToNextPeriodicalIssue();
   }
 
   goToPreviousPeriodicalIssue() {
-    this.periodicalService.goToPreviousPeriodicalIssue();
+    //this.periodicalService.goToPreviousPeriodicalIssue();
   }
 
   getCurrentPage(): Page | null {

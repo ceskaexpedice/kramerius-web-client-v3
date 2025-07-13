@@ -71,5 +71,4 @@ export class DetailViewPageComponent {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
-  protected readonly document = document;
 }

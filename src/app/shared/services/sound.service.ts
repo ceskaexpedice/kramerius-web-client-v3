@@ -10,7 +10,7 @@ export interface Track {
 @Injectable({
   providedIn: 'root'
 })
-export class MusicService {
+export class SoundService {
   private audio = new Audio();
 
   private queue: Track[] = [];

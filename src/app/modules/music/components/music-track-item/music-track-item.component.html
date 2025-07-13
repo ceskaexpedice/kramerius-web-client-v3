@@ -1,0 +1,28 @@
+<tr [class.playing]="isPlaying" (click)="select()">
+  <td>{{ index + 1 }}</td>
+  <td>
+    <div class="title">
+      <ng-container *ngIf="isPlaying; else notPlaying">
+        <span class="icon icon--playing"></span>
+      </ng-container>
+      <ng-template #notPlaying>
+        <span class="icon icon--track"></span>
+      </ng-template>
+
+      <a class="track-link" [class.active]="isSelected" href="#">{{ track['title.search'] }}</a>
+      <span class="page-ref"> · {{ pageReference }}</span>
+    </div>
+  </td>
+  <td class="duration">{{ duration }}</td>
+  <td class="actions">
+    <button class="icon-button" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
+      <i class="icon icon--queue"></i>
+    </button>
+    <button class="icon-button" (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+      <i class="icon icon--heart"></i>
+    </button>
+    <button class="icon-button" (click)="download(); $event.stopPropagation()">
+      <i class="icon icon--download"></i>
+    </button>
+  </td>
+</tr>
