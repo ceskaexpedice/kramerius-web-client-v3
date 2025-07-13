@@ -33,6 +33,9 @@ export class RecordHandlerService {
       case DocumentTypeEnum.periodical:
         this.navigateToPeriodical(document.pid);
         break;
+      case DocumentTypeEnum.soundrecording:
+        this.navigateToMusic(document.pid);
+        break;
       default:
         this.navigateToDetail(document.pid);
     }
@@ -50,6 +53,10 @@ export class RecordHandlerService {
    */
   private navigateToPeriodical(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
+  }
+
+  private navigateToMusic(pid: string): void {
+    this.router.navigate([APP_ROUTES_ENUM.MUSIC_VIEW, pid]);
   }
 
   navigateFromPeriodicalToSearchResults(): void {

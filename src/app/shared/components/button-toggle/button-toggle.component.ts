@@ -10,7 +10,6 @@ import {NgIf} from '@angular/common';
   imports: [
     CheckboxComponent,
     TranslatePipe,
-    MatCheckbox,
     FormsModule,
     NgIf,
   ],

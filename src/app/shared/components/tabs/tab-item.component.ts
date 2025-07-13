@@ -27,8 +27,6 @@ import {NgClass, NgIf} from '@angular/common';
     }
   `,
   imports: [
-    NgIf,
-    NgClass,
   ],
 })
 export class TabItemComponent {
