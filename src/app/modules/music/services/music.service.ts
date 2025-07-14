@@ -88,6 +88,10 @@ export class MusicService {
     }
   }
 
+  addTrackToQueue(track: SoundTrackModel): void {
+    this.soundService.addToQueue(track);
+  }
+
   goBackClicked(): void {
     //this.recordHandler.navi();
   }

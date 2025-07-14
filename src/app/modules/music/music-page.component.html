@@ -91,6 +91,7 @@
               <app-music-track-list
                 [tracks]="tracks"
                 (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                (addToQueue)="musicService.addTrackToQueue($event)"
               ></app-music-track-list>
 
 <!--              <div *ngFor="let track of tracks">-->
