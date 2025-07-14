@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
+import {SoundTrackModel} from '../../../models/sound-track.model';
 
 @Component({
-  selector: 'app-music-track-item',
+  selector: '[app-music-track-item]',
   imports: [
     NgIf
   ],
@@ -11,7 +12,7 @@ import {NgIf} from "@angular/common";
   standalone: true
 })
 export class MusicTrackItemComponent {
-  @Input() track: any;
+  @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
@@ -42,7 +43,8 @@ export class MusicTrackItemComponent {
   }
 
   get pageReference(): string {
-    return this.track?.['page.number'] ? `Strana ${this.track['page.number']}` : '';
+    return ''
+    //return this.track?.['page.number'] ? `Strana ${this.track['page.number']}` : '';
   }
 
   select(): void {

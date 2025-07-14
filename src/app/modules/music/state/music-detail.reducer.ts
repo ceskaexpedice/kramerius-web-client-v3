@@ -3,11 +3,12 @@ import {
   loadMusic, loadMusicFailure, loadMusicSuccess
 } from './music-detail.actions';
 import {Metadata} from '../../../shared/models/metadata.model';
+import {SoundTrackModel} from '../../models/sound-track.model';
 
 export interface MusicDetailState {
   document: any | null;
   metadata: Metadata | null;
-  tracks: any[] | null;
+  tracks: SoundTrackModel[] | null;
   loading: boolean;
   error: any;
 }

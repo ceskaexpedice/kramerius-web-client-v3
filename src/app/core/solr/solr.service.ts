@@ -18,6 +18,7 @@ import {SolrUtils} from './solr-utils';
 export class SolrService {
 
   API_URL = '';
+  API_BASE_URL = '';
 
   constructor(
     private http: HttpClient,
@@ -25,6 +26,7 @@ export class SolrService {
   ) {
 
     this.API_URL = this.env.getApiUrl('search');
+    this.API_BASE_URL = this.env.getApiUrl();
 
   }
 
@@ -319,6 +321,10 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
+  }
+
+  getAudioTrackMp3Url(pid: string): string {
+    return `${this.API_BASE_URL}items/${pid}/audio/mp3`;
   }
 
     /**

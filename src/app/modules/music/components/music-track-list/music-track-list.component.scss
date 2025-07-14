@@ -3,17 +3,22 @@
   border-collapse: collapse;
   font-size: var(--font-size-base);
   color: var(--color-text);
+  background-color: var(--color-secondary);
+  border-radius: var(--spacing-x4);
 
   th {
     text-align: left;
-    padding: var(--spacing-x2);
-    color: var(--color-secondary-text);
+    padding: var(--spacing-x2) var(--spacing-x4);
+    color: var(--color-tertiary);
+    font-size: 14px;
+    line-height: 20px;
     font-weight: 500;
   }
 
   td {
     padding: var(--spacing-x2);
     vertical-align: middle;
+    text-align: center;
   }
 
   tr {

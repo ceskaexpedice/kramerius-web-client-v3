@@ -4,6 +4,7 @@ import {RecordHandlerService} from "../../shared/services/record-handler.service
 import {EnvironmentService} from "../../shared/services/environment.service";
 import {DocumentTypeEnum} from "../constants/document-type";
 import {MusicService} from "./services/music.service";
+import {SoundService} from '../../shared/services/sound.service';
 
 @Component({
   selector: 'app-music-page',
@@ -18,6 +19,7 @@ export class MusicPageComponent implements OnInit {
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
   public musicService = inject(MusicService);
+  public soundService = inject(SoundService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');

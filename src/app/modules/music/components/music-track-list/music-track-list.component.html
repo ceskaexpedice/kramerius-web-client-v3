@@ -8,19 +8,16 @@
   </tr>
   </thead>
   <tbody>
-  <ng-container *ngFor="let track of tracks; let i = index">
-    <tr (click)="onSelect(track.pid)">
-      <app-music-track-item
-        [track]="track"
-        [index]="i"
-        [selectedPid]="selectedPid"
-        [playingPid]="playingPid"
-        (trackSelected)="onSelect($event)"
-        (toggleFavoriteClicked)="onFavoriteToggled($event)"
-        (addToQueueClicked)="onAddToQueue($event)"
-        (downloadClicked)="onDownload($event)"
-      ></app-music-track-item>
-    </tr>
-  </ng-container>
+  <tr *ngFor="let track of tracks; let i = index"
+      (click)="onSelect(track)"
+      app-music-track-item
+      [track]="track"
+      [index]="i"
+      [selectedPid]="selectedPid"
+      [playingPid]="playingPid"
+      (toggleFavoriteClicked)="onFavoriteToggled($event)"
+      (addToQueueClicked)="onAddToQueue($event)"
+      (downloadClicked)="onDownload($event)"
+  ></tr>
   </tbody>
 </table>

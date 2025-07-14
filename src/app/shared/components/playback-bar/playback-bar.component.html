@@ -1,0 +1,44 @@
+<div class="playback-bar" *ngIf="show()">
+  <div class="left">
+<!--    <img class="cover" [src]="soundService.getCurrentTrack()?.thumbnail" alt="Cover" />-->
+    <div class="info">
+      <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+<!--      <div class="meta">-->
+<!--        {{ soundService.getCurrentTrack()?.author }}-->
+<!--        · {{ soundService.getCurrentTrack()?.year }}-->
+<!--        · Strana {{ soundService.getCurrentTrack()?.part }}-->
+<!--      </div>-->
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="controls">
+      <button (click)="prev()"><i class="icon-previous"></i></button>
+      <button (click)="togglePlay()">
+        <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+      </button>
+      <button (click)="next()"><i class="icon-next"></i></button>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <span>{{ soundService.getCurrentTime() | timeFormat }}</span>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      [value]="soundService.getProgress() * 100"
+      (input)="seekTo($event)"
+    />
+    <span>{{ soundService.getDuration() | timeFormat }}</span>
+  </div>
+
+  <div class="right">
+    <button><i class="icon-queue"></i></button>
+    <div class="volume">
+      <i class="icon-volume"></i>
+      <input type="range" min="0" max="1" step="0.01" [value]="volume()" (input)="onVolumeChange($event)" />
+    </div>
+    <button (click)="close()"><i class="icon-x"></i></button>
+  </div>
+</div>

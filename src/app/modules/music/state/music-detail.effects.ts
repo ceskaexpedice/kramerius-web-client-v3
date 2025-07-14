@@ -9,6 +9,7 @@ import {
   loadMusicFailure
 } from './music-detail.actions';
 import {SolrService} from "../../../core/solr/solr.service";
+import {SoundTrackModel} from '../../models/sound-track.model';
 
 @Injectable()
 export class MusicDetailEffects {
@@ -20,13 +21,13 @@ export class MusicDetailEffects {
     this.actions$.pipe(
       ofType(loadMusic),
       mergeMap(({ uuids }) => {
-        console.log('uuids', uuids);
         const requests = uuids.map((uuid: string) =>
           this.solrService.getChildrenByModel(uuid, 'rels_ext_index.sort asc', 'track')
         );
         return forkJoin(requests).pipe(
           map(results => {
             const mergedTracks = results.flat();
+            mergedTracks.forEach((track: SoundTrackModel) => track.url = this.solrService.getAudioTrackMp3Url(track.pid));
             return loadMusicSuccess({ tracks: mergedTracks, document: null, metadata: null });
           }),
           catchError(error => of(loadMusicFailure({ error })))

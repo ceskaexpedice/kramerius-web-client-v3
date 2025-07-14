@@ -1,11 +1,5 @@
 import {Injectable, signal} from '@angular/core';
-
-export interface Track {
-  id: string;
-  title: string;
-  url: string;
-  duration?: number;
-}
+import {SoundTrackModel} from '../../modules/models/sound-track.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +7,7 @@ export interface Track {
 export class SoundService {
   private audio = new Audio();
 
-  private queue: Track[] = [];
+  private queue: SoundTrackModel[] = [];
   private currentIndex = signal<number>(-1);
   private isPlaying = signal(false);
   private currentTime = signal(0);
@@ -44,9 +38,9 @@ export class SoundService {
   getProgress = this.progress.asReadonly();
   isPlayingSignal = this.isPlaying.asReadonly();
 
-  play(track?: Track) {
+  play(track?: SoundTrackModel) {
     if (track) {
-      const index = this.queue.findIndex(t => t.id === track.id);
+      const index = this.queue.findIndex(t => t.pid === track.pid);
       if (index !== -1) {
         this.currentIndex.set(index);
       } else {
@@ -97,12 +91,20 @@ export class SoundService {
     this.audio.currentTime = seconds;
   }
 
-  addToQueue(track: Track) {
+  addToQueue(track: SoundTrackModel) {
     this.queue.push(track);
   }
 
+  addTracksToQueue(tracks: SoundTrackModel[]) {
+    this.queue.push(...tracks);
+    if (this.currentIndex() === -1 && tracks.length > 0) {
+      this.currentIndex.set(0);
+      this.loadAndPlay(tracks[0].url);
+    }
+  }
+
   removeFromQueue(trackId: string) {
-    const index = this.queue.findIndex(t => t.id === trackId);
+    const index = this.queue.findIndex(t => t.pid === trackId);
     if (index !== -1) {
       this.queue.splice(index, 1);
       if (index === this.currentIndex()) {
@@ -124,11 +126,11 @@ export class SoundService {
     this.isPlaying.set(true);
   }
 
-  getQueue(): Track[] {
+  getQueue(): SoundTrackModel[] {
     return [...this.queue];
   }
 
-  getCurrentTrack(): Track | null {
+  getCurrentTrack(): SoundTrackModel | null {
     return this.currentTrack || null;
   }
 

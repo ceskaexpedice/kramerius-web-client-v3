@@ -16,13 +16,13 @@ export class MusicTrackListComponent {
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
 
-  @Output() select = new EventEmitter<string>();
+  @Output() select = new EventEmitter<any>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
 
-  onSelect(pid: string) {
-    this.select.emit(pid);
+  onSelect(track: any) {
+    this.select.emit(track);
   }
 
   onFavoriteToggled(track: any) {
