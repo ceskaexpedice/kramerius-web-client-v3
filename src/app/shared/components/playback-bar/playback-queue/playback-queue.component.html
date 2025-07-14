@@ -1,0 +1,31 @@
+<div class="queue-panel" *ngIf="isOpen()">
+  <div class="header">
+    <i class="icon-music-filter"></i>
+    <span>Právě hraje</span>
+    <button class="icon-button rounded light close-btn" (click)="close()"><i class="icon-x"></i></button>
+  </div>
+
+  <div class="track-list">
+    <div
+      class="track"
+      *ngFor="let track of soundService.getQueue()"
+      [class.active]="isActive(track)"
+    >
+<!--      <img class="thumb" [src]="track.thumbnail" alt="" />-->
+      <div class="info" (click)="play(track)">
+        <div class="title">{{ track['title.search'] }}</div>
+      </div>
+      <div class="actions">
+        <button class="icon-button rounded light" (click)="remove(track)">
+          <i class="icon-trash"></i>
+        </button>
+        <button class="icon-button rounded light">
+          <i class="icon-heart"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fade-bottom" *ngIf="soundService.getQueue().length > 5"></div>
+
+</div>

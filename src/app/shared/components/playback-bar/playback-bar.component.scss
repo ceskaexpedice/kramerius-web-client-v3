@@ -3,14 +3,14 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
-  background: #ffffff;
-  border-top: 1px solid #e0e0e0;
+  height: 52px;
+  border-radius: 16px 16px 0 0;
+  background: var(--color-bg-base);
+  border-top: 1px solid var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-x2) var(--spacing-x4);
   z-index: 1000;
 
   .left {
@@ -47,34 +47,6 @@
     .controls {
       display: flex;
       gap: 12px;
-      button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-
-        i {
-          font-size: 20px;
-        }
-      }
-    }
-
-    .timeline {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      max-width: 400px;
-
-      input[type='range'] {
-        flex: 1;
-      }
-
-      span {
-        font-size: 12px;
-        width: 40px;
-        text-align: center;
-      }
     }
   }
 
@@ -92,11 +64,19 @@
         width: 80px;
       }
     }
+  }
+}
 
-    button {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+
+  span {
+    font-size: 12px;
+    width: 40px;
+    text-align: center;
   }
 }

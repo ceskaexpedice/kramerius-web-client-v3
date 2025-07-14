@@ -15,3 +15,77 @@ input:focus, input:active, input:target {
   outline: none;
   border: 1px solid var(--color-primary);
 }
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  background: linear-gradient(
+      to right,
+      var(--color-primary) 0%,
+      var(--color-primary) calc(var(--progress, 0%) - 2px),
+      var(--color-bg-light) var(--progress, 0%),
+      var(--color-bg-light) 100%
+  );
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    background: transparent;
+    border-radius: 8px;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-primary);
+    margin-top: -6px;
+    cursor: pointer;
+    opacity: 0; // Hide by default
+    transition: opacity 0.2s ease; // Smooth transition
+  }
+
+  // Show thumb on hover
+  &:hover::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  &::-webkit-slider-thumb:active {
+    cursor: grabbing;
+  }
+
+  // Firefox styles
+  &::-moz-range-track {
+    height: 4px;
+    background: var(--color-bg-light);
+    border-radius: 8px;
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-primary);
+    cursor: pointer;
+    opacity: 0; // Hide by default
+    transition: opacity 0.2s ease; // Smooth transition
+  }
+
+  // Show thumb on hover for Firefox
+  &:hover::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  &::-moz-range-progress {
+    background: var(--color-primary);
+    height: 4px;
+    border-radius: 8px;
+  }
+}

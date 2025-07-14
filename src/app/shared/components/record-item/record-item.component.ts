@@ -4,8 +4,8 @@ import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
-import {EnvironmentService} from '../../services/environment.service';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import {SolrService} from '../../../core/solr/solr.service';
 
 @Component({
   selector: 'app-record-item',
@@ -19,16 +19,11 @@ import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 export class RecordItemComponent {
 
   recordHandler = inject(RecordHandlerService);
+  solrService = inject(SolrService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
 
   router = inject(Router);
-
-  private krameriusBaseUrl: string;
-
-  constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.getApiUrl('items');
-  }
 
   onRecordClick(e: Event, record: SearchDocument): void {
     e.stopPropagation();
@@ -36,8 +31,8 @@ export class RecordItemComponent {
     this.recordHandler.handleDocumentClick(record)
   }
 
-  getKrameriusBaseUrl(): string {
-    return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
+  getImageThumbnailUrl(): string {
+    return this.solrService.getImageThumbnailUrl(this.record.pid);
   }
 
   getTitle(): string {

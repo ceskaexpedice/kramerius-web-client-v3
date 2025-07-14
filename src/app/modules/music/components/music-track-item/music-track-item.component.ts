@@ -18,10 +18,10 @@ export class MusicTrackItemComponent {
   @Input() playingPid: string | null = null;
   @Input() favoritedPids: string[] = [];
 
-  @Output() trackSelected = new EventEmitter<string>();
-  @Output() addToQueueClicked = new EventEmitter<string>();
-  @Output() toggleFavoriteClicked = new EventEmitter<string>();
-  @Output() downloadClicked = new EventEmitter<string>();
+  @Output() trackSelected = new EventEmitter<SoundTrackModel>();
+  @Output() addToQueueClicked = new EventEmitter<SoundTrackModel>();
+  @Output() toggleFavoriteClicked = new EventEmitter<SoundTrackModel>();
+  @Output() downloadClicked = new EventEmitter<SoundTrackModel>();
 
   get isSelected(): boolean {
     return this.track?.pid === this.selectedPid;
@@ -48,18 +48,18 @@ export class MusicTrackItemComponent {
   }
 
   select(): void {
-    this.trackSelected.emit(this.track?.pid);
+    this.trackSelected.emit(this.track);
   }
 
   addToQueue(): void {
-    this.addToQueueClicked.emit(this.track?.pid);
+    this.addToQueueClicked.emit(this.track);
   }
 
   toggleFavorite(): void {
-    this.toggleFavoriteClicked.emit(this.track?.pid);
+    this.toggleFavoriteClicked.emit(this.track);
   }
 
   download(): void {
-    this.downloadClicked.emit(this.track?.pid);
+    this.downloadClicked.emit(this.track);
   }
 }

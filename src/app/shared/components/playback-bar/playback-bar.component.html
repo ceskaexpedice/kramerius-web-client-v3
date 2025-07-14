@@ -1,6 +1,6 @@
 <div class="playback-bar" *ngIf="show()">
   <div class="left">
-<!--    <img class="cover" [src]="soundService.getCurrentTrack()?.thumbnail" alt="Cover" />-->
+    <img class="cover" [src]="soundService.getImageThumbnailUrl(soundService.getCurrentTrack()?.pid || '')" alt="Cover" />
     <div class="info">
       <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
 <!--      <div class="meta">-->
@@ -13,11 +13,11 @@
 
   <div class="center">
     <div class="controls">
-      <button (click)="prev()"><i class="icon-previous"></i></button>
-      <button (click)="togglePlay()">
+      <button (click)="prev()" class="outlined tertiary"><i class="icon-previous"></i></button>
+      <button (click)="togglePlay()" class="primary">
         <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
       </button>
-      <button (click)="next()"><i class="icon-next"></i></button>
+      <button (click)="next()" class="outlined tertiary"><i class="icon-next"></i></button>
     </div>
   </div>
 
@@ -27,18 +27,25 @@
       type="range"
       min="0"
       max="100"
+      [style.--progress]="(soundService.getProgress() * 100) + '%'"
       [value]="soundService.getProgress() * 100"
       (input)="seekTo($event)"
     />
     <span>{{ soundService.getDuration() | timeFormat }}</span>
   </div>
 
+
   <div class="right">
-    <button><i class="icon-queue"></i></button>
-    <div class="volume">
-      <i class="icon-volume"></i>
-      <input type="range" min="0" max="1" step="0.01" [value]="volume()" (input)="onVolumeChange($event)" />
-    </div>
-    <button (click)="close()"><i class="icon-x"></i></button>
+
+    <button (click)="toggleQueue()" class="outlined tertiary"><i class="icon-music-filter"></i></button>
+
+    <app-volume-control
+      [volume]="volume"
+      (volumeChange)="onVolumeChange($event)"
+    ></app-volume-control>
+
+    <button (click)="close()" class="icon-button rounded light"><i class="icon-x"></i></button>
   </div>
 </div>
+
+<app-playback-queue *ngIf="isQueueOpen()"></app-playback-queue>

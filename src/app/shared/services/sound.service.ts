@@ -1,5 +1,6 @@
-import {Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {SoundTrackModel} from '../../modules/models/sound-track.model';
+import {SolrService} from '../../core/solr/solr.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,8 @@ export class SoundService {
   private currentTime = signal(0);
   private duration = signal(0);
   private progress = signal(0);
+
+  private solrService = inject(SolrService);
 
   constructor() {
     this.audio.addEventListener('timeupdate', () => {
@@ -132,6 +135,10 @@ export class SoundService {
 
   getCurrentTrack(): SoundTrackModel | null {
     return this.currentTrack || null;
+  }
+
+  getImageThumbnailUrl(pid: string): string {
+    return this.solrService.getImageThumbnailUrl(pid);
   }
 
   getCurrentIndex(): number {

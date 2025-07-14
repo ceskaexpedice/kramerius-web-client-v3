@@ -1,24 +1,32 @@
 import {Component, computed, signal} from '@angular/core';
 import {SoundService} from '../../services/sound.service';
-import {DatePipe, DecimalPipe, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {TimeFormatPipe} from '../../pipes/time-format.pipe';
+import {VolumeControlComponent} from './volume-control/volume-control.component';
+import {PlaybackQueueComponent} from './playback-queue/playback-queue.component';
 
 @Component({
   selector: 'app-playback-bar',
   imports: [
     NgIf,
-    DecimalPipe,
-    DatePipe,
     TimeFormatPipe,
+    VolumeControlComponent,
+    PlaybackQueueComponent,
   ],
   templateUrl: './playback-bar.component.html',
   styleUrl: './playback-bar.component.scss'
 })
 export class PlaybackBarComponent {
+  isQueueOpen = signal(false);
+
   volume = signal(1);
   show = computed(() => !!this.soundService.getCurrentTrack());
 
   constructor(public soundService: SoundService) {}
+
+  toggleQueue() {
+    this.isQueueOpen.set(!this.isQueueOpen());
+  }
 
   togglePlay() {
     this.soundService.togglePlayPause();
@@ -38,11 +46,8 @@ export class PlaybackBarComponent {
     this.soundService.seekTo(time);
   }
 
-  onVolumeChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const vol = parseFloat(input.value);
-    this.volume.set(vol);
-    this.soundService['audio'].volume = vol;
+  onVolumeChange(volume: number) {
+    this.soundService['audio'].volume = volume;
   }
 
   close() {

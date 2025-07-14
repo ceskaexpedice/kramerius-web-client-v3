@@ -15,13 +15,13 @@
   </td>
   <td class="duration">{{ duration }}</td>
   <td class="actions">
-    <button class="icon-button rounded secondary" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
+    <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
       <i class="icon icon-additem"></i>
     </button>
-    <button class="icon-button rounded secondary" (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+    <button class="icon-button rounded light" (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
       <i class="icon icon-heart"></i>
     </button>
-    <button class="icon-button rounded secondary" (click)="download(); $event.stopPropagation()">
+    <button class="icon-button rounded light" (click)="download(); $event.stopPropagation()">
       <i class="icon icon-download"></i>
     </button>
   </td>

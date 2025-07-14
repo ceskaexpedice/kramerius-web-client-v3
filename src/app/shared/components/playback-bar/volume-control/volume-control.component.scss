@@ -1,0 +1,9 @@
+.volume {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+}
+
+input[type="range"] {
+  max-width: 55px;
+}

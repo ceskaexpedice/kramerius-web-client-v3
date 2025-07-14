@@ -327,6 +327,10 @@ export class SolrService {
     return `${this.API_BASE_URL}items/${pid}/audio/mp3`;
   }
 
+  getImageThumbnailUrl(pid: string): string {
+    return `${this.API_BASE_URL}items/${pid}/image/thumb`;
+  }
+
     /**
    * Adds filters to params with proper operators
    */
