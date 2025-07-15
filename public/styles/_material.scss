@@ -104,3 +104,8 @@ mat-checkbox {
 .mat-mdc-radio-button .mdc-label {
   cursor: pointer !important;
 }
+
+.mat-mdc-radio-button .mat-internal-form-field {
+  color: var(--color-text-light) !important;
+  font-size: var(--font-size-small) !important;
+}
