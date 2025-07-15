@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {
-  selectMusicDocument, selectMusicError,
+  selectMusicError,
   selectMusicLoading,
   selectMusicMetadata,
   selectMusicTracks
@@ -9,7 +9,6 @@ import {
 import {Store} from "@ngrx/store";
 import {RecordHandlerService} from "../../../shared/services/record-handler.service";
 import {loadMusic} from "../state/music-detail.actions";
-import {filter, take} from 'rxjs';
 import {toSignal} from "@angular/core/rxjs-interop";
 import {Page} from "../../../shared/models/page.model";
 import {SoundService} from '../../../shared/services/sound.service';
@@ -27,13 +26,11 @@ export class MusicService {
   private solr = inject(SolrService);
 
   // Store selectors as observables
-  document$ = this.store.select(selectMusicDocument);
   metadata$ = this.store.select(selectMusicMetadata);
   tracks$ = this.store.select(selectMusicTracks);
   loading$ = this.store.select(selectMusicLoading);
   error$ = this.store.select(selectMusicError);
 
-  private documentSignal = toSignal(this.document$, { initialValue: null });
   private metadataSignal = toSignal(this.metadata$, { initialValue: null });
   private tracksSignal = toSignal(this.tracks$, { initialValue: [] });
 
@@ -45,18 +42,27 @@ export class MusicService {
   }
 
   loadMusic(page: Page[]) {
-    console.log('loadMusic', page);
     const uuids = page.map(p => p.pid);
 
     this.store.dispatch(loadMusic({ uuids }));
   }
 
-  get document() {
-    return this.documentSignal();
-  }
-
   get metadata() {
     return this.metadataSignal();
+  }
+
+  get authorForTrack() {
+    if (this.metadata && this.metadata.authors.length > 0) {
+      return this.metadata.authors[0].name;
+    }
+    return '';
+  }
+
+  get coverImageForTrack() {
+    if (this.metadata && this.metadata.uuid) {
+      return this.solr.getImageThumbnailUrl(this.metadata.uuid);
+    }
+    return '';
   }
 
   get tracks() {
@@ -80,6 +86,8 @@ export class MusicService {
 
     // if track is found add all tracks after it to the queue
     if (index !== undefined && index >= 0) {
+      this.soundService.clearQueue();
+
       const tracksToAdd = this.tracks.slice(index);
       if (tracksToAdd && tracksToAdd.length > 0) {
         this.soundService.addTracksToQueue(tracksToAdd);
@@ -90,6 +98,17 @@ export class MusicService {
 
   addTrackToQueue(track: SoundTrackModel): void {
     this.soundService.addToQueue(track);
+  }
+
+  downloadTrack(track: SoundTrackModel): void {
+    if (track && track.url) {
+      const link = document.createElement('a');
+      link.href = track.url;
+      link.download = 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
 
   goBackClicked(): void {

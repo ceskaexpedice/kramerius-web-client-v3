@@ -1,13 +1,13 @@
 <div class="playback-bar" *ngIf="show()">
   <div class="left">
-    <img class="cover" [src]="soundService.getImageThumbnailUrl(soundService.getCurrentTrack()?.pid || '')" alt="Cover" />
+    <img class="cover" [src]="musicService.coverImageForTrack" alt="Cover" />
     <div class="info">
       <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
-<!--      <div class="meta">-->
-<!--        {{ soundService.getCurrentTrack()?.author }}-->
-<!--        · {{ soundService.getCurrentTrack()?.year }}-->
-<!--        · Strana {{ soundService.getCurrentTrack()?.part }}-->
-<!--      </div>-->
+      <div class="meta">
+        {{ musicService.authorForTrack }}
+        · {{ musicService.metadata?.dateStr }}
+        · {{ 'Strana' | translate }} {{ soundService.getCurrentTrack()?.part }}
+      </div>
     </div>
   </div>
 

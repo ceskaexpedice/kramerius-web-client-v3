@@ -8,4 +8,5 @@ export interface SoundTrackModel {
   ['title.search']: string;
   ['track.length']: number;
   url: string;
+  part: string;
 }

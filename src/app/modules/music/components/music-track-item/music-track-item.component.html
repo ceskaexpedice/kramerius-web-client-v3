@@ -10,7 +10,7 @@
       </ng-template>
 
       <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
-      <span class="page-ref"> · {{ pageReference }}</span>
+      <span class="page-ref"> · {{'Strana' | translate}} {{track.part}}</span>
     </div>
   </td>
   <td class="duration">{{ duration }}</td>

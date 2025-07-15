@@ -1,9 +1,11 @@
-import {Component, computed, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {SoundService} from '../../services/sound.service';
 import {NgIf} from '@angular/common';
 import {TimeFormatPipe} from '../../pipes/time-format.pipe';
 import {VolumeControlComponent} from './volume-control/volume-control.component';
 import {PlaybackQueueComponent} from './playback-queue/playback-queue.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {MusicService} from '../../../modules/music/services/music.service';
 
 @Component({
   selector: 'app-playback-bar',
@@ -12,6 +14,7 @@ import {PlaybackQueueComponent} from './playback-queue/playback-queue.component'
     TimeFormatPipe,
     VolumeControlComponent,
     PlaybackQueueComponent,
+    TranslatePipe,
   ],
   templateUrl: './playback-bar.component.html',
   styleUrl: './playback-bar.component.scss'
@@ -22,7 +25,8 @@ export class PlaybackBarComponent {
   volume = signal(1);
   show = computed(() => !!this.soundService.getCurrentTrack());
 
-  constructor(public soundService: SoundService) {}
+  public soundService = inject(SoundService);
+  public musicService = inject(MusicService);
 
   toggleQueue() {
     this.isQueueOpen.set(!this.isQueueOpen());

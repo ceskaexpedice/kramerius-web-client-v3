@@ -1,11 +1,13 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
 import {SoundTrackModel} from '../../../models/sound-track.model';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: '[app-music-track-item]',
   imports: [
-    NgIf
+    NgIf,
+    TranslatePipe,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrl: './music-track-item.component.scss',

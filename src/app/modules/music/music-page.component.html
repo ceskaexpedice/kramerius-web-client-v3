@@ -40,7 +40,7 @@
       <app-action-toolbar>
         <div class="max-width-100" left>
           <app-toolbar-header
-            [title]="document?.mainTitle || ''"
+            [title]="detailViewService.title"
             (goBack)="goBackClicked()">
           </app-toolbar-header>
         </div>
@@ -92,6 +92,7 @@
                 [tracks]="tracks"
                 (select)="musicService.addTracksToQueueAndPlayFirst($event)"
                 (addToQueue)="musicService.addTrackToQueue($event)"
+                (download)="musicService.downloadTrack($event)"
               ></app-music-track-list>
 
 <!--              <div *ngFor="let track of tracks">-->

@@ -13,6 +13,8 @@ import {Observable, take} from 'rxjs';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundRecordGridControl,} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {DocumentTypeEnum} from '../../constants/document-type';
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +33,18 @@ export class DetailViewService {
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
 
+  private documentSignal = toSignal(this.document$, { initialValue: null });
+
   constructor() { }
 
   private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
 
   setSoundRecordingViewView(view: any): void {
     this.soundRecordingViewMode.set(view);
+  }
+
+  get document(): Metadata | null {
+    return this.documentSignal();
   }
 
   get pages() {
@@ -58,6 +66,19 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  get title(): string {
+    // if model is soundrecording return title · author[0] · year
+    if (this.document?.model === DocumentTypeEnum.soundrecording) {
+      const title = this.document.mainTitle;
+      const author = this.document.authors[0]?.name || '';
+      const year = this.document.dateStr || '';
+
+      return `${title} · ${author} · ${year}`;
+    }
+
+    return this.document?.mainTitle || '';
   }
 
   loadDocument() {

@@ -1,5 +1,5 @@
 import {Component, signal} from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {SoundService} from '../../../services/sound.service';
 import {SoundTrackModel} from '../../../../modules/models/sound-track.model';
 
@@ -8,7 +8,6 @@ import {SoundTrackModel} from '../../../../modules/models/sound-track.model';
   imports: [
     NgIf,
     NgForOf,
-    NgClass,
   ],
   templateUrl: './playback-queue.component.html',
   styleUrl: './playback-queue.component.scss'

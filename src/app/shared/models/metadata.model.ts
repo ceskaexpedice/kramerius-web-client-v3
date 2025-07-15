@@ -244,6 +244,49 @@ export function fromSolrToMetadata(doc: any): Metadata {
 
   metadata.extent = doc.count_page ? `${doc.count_page} stran` : '';
 
+  metadata.titles = (doc['titles.search'] ?? []).map((title: string) => {
+    const info = new TitleInfo();
+    info.title = title;
+    return info;
+  });
+
+  metadata.authors = (doc['authors'] ?? []).map((authorStr: string) => {
+    const author = new Author();
+    author.name = authorStr;
+    return author;
+  });
+
+  metadata.publishers = (doc['publishers.search'] ?? []).map((name: string) => {
+    const pub = new Publisher();
+    pub.name = name;
+    return pub;
+  });
+
+  metadata.locations = (doc['shelf_locators'] ?? []).map((loc: string) => {
+    const location = new Location();
+    location.shelfLocator = loc;
+    return location;
+  });
+
+  metadata.identifiers = {
+    idOther: doc['id_other'] ?? [],
+    idSysno: doc['id_sysno'] ?? [],
+    idUuid: doc['id_uuid'] ?? [],
+  };
+
+  metadata.originUrl = doc['indexed'] ?? '';
+  metadata.created = doc['created'] ?? '';
+  metadata.modified = doc['modified'] ?? '';
+
+  metadata.level = doc['level'];
+  metadata.ownParentModel = doc['own_model_path'] ?? '';
+  metadata.languages = doc['languages.facet'] ?? [];
+  metadata.licences = doc['licenses'] ?? [];
+  metadata.licence = doc['licenses.facet']?.[0] ?? '';
+  metadata.dateStr = doc['date.str'] ?? '';
+  metadata.dateMin = doc['date.min'] ?? '';
+  metadata.dateMax = doc['date.max'] ?? '';
+
   return metadata;
 }
 

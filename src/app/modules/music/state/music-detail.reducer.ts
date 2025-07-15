@@ -6,7 +6,6 @@ import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundTrackModel} from '../../models/sound-track.model';
 
 export interface MusicDetailState {
-  document: any | null;
   metadata: Metadata | null;
   tracks: SoundTrackModel[] | null;
   loading: boolean;
@@ -14,7 +13,6 @@ export interface MusicDetailState {
 }
 
 export const initialState: MusicDetailState = {
-  document: null,
   metadata: null,
   tracks: [],
   loading: false,
@@ -24,10 +22,9 @@ export const initialState: MusicDetailState = {
 export const musicDetailReducer = createReducer(
   initialState,
   on(loadMusic, state => ({ ...state, loading: true })),
-  on(loadMusicSuccess, (state, { document, metadata, tracks }) => ({
+  on(loadMusicSuccess, (state, { metadata, tracks }) => ({
     ...state,
     loading: false,
-    document,
     metadata,
     tracks
   })),
