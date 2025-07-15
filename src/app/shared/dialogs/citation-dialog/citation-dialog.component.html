@@ -1,6 +1,6 @@
 <div class="generic-dialog-container">
   <h2>
-    {{ 'Citace dle ČSN ISO 690' | translate }}
+    {{ 'citation-dialog--header' | translate }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-x"></i>
     </button>
@@ -47,7 +47,7 @@
           <div class="tab-item--content" [innerHTML]="citationResponse?.bibtex"></div>
         </app-tab-item>
 
-        <app-tab-item label="Wikipedie">
+        <app-tab-item [label]="'wiki' | translate">
           <div class="tab-item--content" [innerHTML]="citationResponse?.wiki"></div>
         </app-tab-item>
 
@@ -57,7 +57,7 @@
 
             <button class="link primary with-icon p-left-0" (click)="copyToClipboard()">
               <i class="icon-copy"></i>
-              {{ 'Kopírovat' | translate }}
+              {{ 'copy' | translate }}
             </button>
           </div>
         </div>

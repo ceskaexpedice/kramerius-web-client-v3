@@ -101,5 +101,20 @@
   "available-label": "Available only",
   "custom-root-model": "Document type",
   "custom-where-to-search.model": "Where to search",
-  "titles": "Titles"
+  "titles": "Titles",
+  "search-in-document--placeholder": "Search in document",
+  "sound-records--toggle": "Recordings",
+  "images--toggle": "Images",
+  "track-list-table--title": "Title",
+  "track-list-table--duration": "Duration",
+  "track-list-table--actions": "Actions",
+  "page": "Page",
+  "now-playing--header": "Now playing",
+  "share-dialog--header": "Share",
+  "copy": "Copy",
+  "Facebook": "Facebook",
+  "LinkedIn": "LinkedIn",
+  "platform-x": "Platform X",
+  "citation-dialog--header": "Citation according to ISO 690",
+  "wiki": "Wikipedia"
 }

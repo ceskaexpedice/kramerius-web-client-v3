@@ -96,5 +96,20 @@
   "available-label": "Len dostupné",
   "custom-root-model": "Typ dokumentu",
   "custom-where-to-search.model": "Kde hľadať",
-  "titles": "Tituly"
+  "titles": "Tituly",
+  "search-in-document--placeholder": "Hľadať v dokumente",
+  "sound-records--toggle": "Nahrávky",
+  "images--toggle": "Obrázky",
+  "track-list-table--title": "Názov",
+  "track-list-table--duration": "Dĺžka",
+  "track-list-table--actions": "Akcie",
+  "page": "Strana",
+  "now-playing--header": "Práve sa prehráva",
+  "share-dialog--header": "Zdieľať",
+  "copy": "Kopírovať",
+  "Facebook": "Facebook",
+  "LinkedIn": "LinkedIn",
+  "platform-x": "Platforma X",
+  "citation-dialog--header": "Citácia podľa normy ČSN ISO 690",
+  "wiki": "Wikipédia"
 }

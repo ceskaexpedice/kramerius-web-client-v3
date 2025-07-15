@@ -101,5 +101,20 @@
   "available-label": "Pouze dostupné",
   "custom-root-model": "Typ dokumentu",
   "custom-where-to-search.model": "Kde hledat",
-  "titles": "Tituly"
+  "titles": "Tituly",
+    "search-in-document--placeholder": "Hledat v dokumentu",
+  "sound-records--toggle": "Nahrávky",
+    "images--toggle": "Obrázky",
+  "track-list-table--title": "Název",
+    "track-list-table--duration": "Délka",
+    "track-list-table--actions": "Akce",
+    "page": "Strana",
+  "now-playing--header": "Právě hraje",
+  "share-dialog--header": "Sdílet",
+  "copy": "Kopírovat",
+  "Facebook": "Facebook",
+  "LinkedIn": "LinkedIn",
+  "platform-x": "Platforma X",
+  "citation-dialog--header": "Citace dle ČSN ISO 690",
+  "wiki": "Wikipedie"
 }

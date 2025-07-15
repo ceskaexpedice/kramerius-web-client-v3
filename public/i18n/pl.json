@@ -101,5 +101,20 @@
   "available-label": "Tylko dostępne",
   "custom-root-model": "Typ dokumentu",
   "custom-where-to-search.model": "Gdzie szukać",
-  "titles": "Tytuły"
+  "titles": "Tytuły",
+  "search-in-document--placeholder": "Szukaj w dokumencie",
+  "sound-records--toggle": "Nagrania",
+  "images--toggle": "Obrazy",
+  "track-list-table--title": "Tytuł",
+  "track-list-table--duration": "Czas trwania",
+  "track-list-table--actions": "Akcje",
+  "page": "Strona",
+  "now-playing--header": "Aktualnie odtwarzane",
+  "share-dialog--header": "Udostępnij",
+  "copy": "Kopiuj",
+  "Facebook": "Facebook",
+  "LinkedIn": "LinkedIn",
+  "platform-x": "Platforma X",
+  "citation-dialog--header": "Cytowanie zgodnie z ČSN ISO 690",
+  "wiki": "Wikipedia"
 }
