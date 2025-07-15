@@ -1,5 +1,4 @@
 <div class="detail-layout">
-  <!-- Optional top toolbar -->
   <header class="detail-layout--top-toolbar">
     <ng-content select="[top-toolbar]"></ng-content>
   </header>
@@ -24,7 +23,10 @@
 
   </div>
 
-  <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
-    <ng-content select="[bottom-toolbar]"></ng-content>
-  </footer>
+  @if (showBottomToolbar) {
+    <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
+      <ng-content select="[bottom-toolbar]"></ng-content>
+    </footer>
+  }
+
 </div>

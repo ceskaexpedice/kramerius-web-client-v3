@@ -20,6 +20,7 @@ import {TabsComponent} from '../../shared/components/tabs/tabs.component';
 import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
 import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
+import {TranslatePipe} from '@ngx-translate/core';
 
 const routes: Routes = [
   {
@@ -31,26 +32,27 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    StoreModule.forFeature('document-detail', documentDetailReducer),
-    EffectsModule.forFeature([DocumentDetailEffects]),
-    NgIf,
-    AsyncPipe,
-    JsonPipe,
-    ActionToolbarComponent,
-    FilterSidebarComponent,
-    ToolbarControlsComponent,
-    ToolbarHeaderComponent,
-    DetailPagesGridComponent,
-    InputComponent,
-    DetailViewBottomToolbarComponent,
-    PageNavigatorComponent,
-    TabsComponent,
-    TabItemComponent,
-    DateNavigatorComponent,
-    DetailLayoutComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		StoreModule.forFeature('document-detail', documentDetailReducer),
+		EffectsModule.forFeature([DocumentDetailEffects]),
+		NgIf,
+		AsyncPipe,
+		JsonPipe,
+		ActionToolbarComponent,
+		FilterSidebarComponent,
+		ToolbarControlsComponent,
+		ToolbarHeaderComponent,
+		DetailPagesGridComponent,
+		InputComponent,
+		DetailViewBottomToolbarComponent,
+		PageNavigatorComponent,
+		TabsComponent,
+		TabItemComponent,
+		DateNavigatorComponent,
+		DetailLayoutComponent,
+		TranslatePipe,
+	],
 })
 
 export class DetailViewPageModule { }

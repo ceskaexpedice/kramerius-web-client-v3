@@ -2,12 +2,14 @@ import {Component, signal} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {SoundService} from '../../../services/sound.service';
 import {SoundTrackModel} from '../../../../modules/models/sound-track.model';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-playback-queue',
   imports: [
     NgIf,
     NgForOf,
+    TranslatePipe,
   ],
   templateUrl: './playback-queue.component.html',
   styleUrl: './playback-queue.component.scss'

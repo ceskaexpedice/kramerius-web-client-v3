@@ -1,4 +1,4 @@
-<app-detail-layout [constrainBottomToolbar]="true">
+<app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true">
 
   <ng-container left-sidebar>
 
@@ -7,7 +7,7 @@
       <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
         <div class="sidebar--wrapper">
           <app-input
-            [placeholder]="'Hledat v dokumentu'"
+            [placeholder]="'search-in-document--placeholder' | translate"
             [theme]="'dark'"
             [size]="'sm'"
             [showMicButton]="true"
@@ -38,7 +38,7 @@
     <ng-container *ngIf="detailViewService.document$ | async as document">
 
       <app-action-toolbar>
-        <div class="max-width-100" left>
+        <div class="max-width-100 w-100" left>
           <app-toolbar-header
             [title]="detailViewService.title"
             (goBack)="goBackClicked()">
@@ -58,8 +58,8 @@
             <app-toolbar-controls
               [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="[
-                { label: 'Nahrávky', icon: 'icon-music-filter', value: 'records' },
-                { label: 'Obrázky', icon: 'icon-gallery', value: 'images' }
+                { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
+                { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
               ]"
               [showFavorites]="false"
               [showShare]="true"
@@ -79,10 +79,13 @@
       <div class="detail-view--page--content--body">
 
         <div class="detail-view--page--content--wrapper" >
-          <img
-            *ngIf="detailViewService.soundRecordingViewMode() === 'images'"
-            [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-               class="app-document-thumbnail">
+
+          @if (detailViewService.soundRecordingViewMode() === 'images') {
+
+            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+              class="app-document-thumbnail">
+
+          }
 
           <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
 
@@ -90,6 +93,7 @@
 
               <app-music-track-list
                 [tracks]="tracks"
+                [playingPid]="soundService.currentTrackPid"
                 (select)="musicService.addTracksToQueueAndPlayFirst($event)"
                 (addToQueue)="musicService.addTrackToQueue($event)"
                 (download)="musicService.downloadTrack($event)"
@@ -112,7 +116,7 @@
     </ng-container>
   </ng-container>
 
-  <ng-container bottom-toolbar>
-<!--    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>-->
-  </ng-container>
+<!--  <ng-container bottom-toolbar>-->
+<!--&lt;!&ndash;    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>&ndash;&gt;-->
+<!--  </ng-container>-->
 </app-detail-layout>

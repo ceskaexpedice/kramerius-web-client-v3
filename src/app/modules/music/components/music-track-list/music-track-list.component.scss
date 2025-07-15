@@ -10,6 +10,7 @@
     text-align: left;
     padding: var(--spacing-x2) var(--spacing-x4);
     color: var(--color-tertiary);
+    border-bottom: 1px solid var(--color-border-light);
     font-size: 14px;
     line-height: 20px;
     font-weight: 500;
@@ -19,15 +20,5 @@
     padding: var(--spacing-x2);
     vertical-align: middle;
     text-align: center;
-  }
-
-  tr {
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.2s;
-  }
-
-  tr:hover {
-    background: var(--color-hover-bg);
-    cursor: pointer;
   }
 }

@@ -1,4 +1,26 @@
-  td {
+:host:not(:last-child) {
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background 0.2s;
+}
+
+:host:hover {
+  background: var(--color-secondary-hover);
+  cursor: pointer;
+}
+
+:host.playing {
+  color: var(--color-primary);
+
+  td .title {
+    color: var(--color-primary);
+  }
+
+  .page-ref {
+    color: var(--color-primary);
+  }
+}
+
+td {
     vertical-align: middle;
     padding: var(--spacing-x2) var(--spacing-x4);
     border-bottom: 1px solid var(--color-border);

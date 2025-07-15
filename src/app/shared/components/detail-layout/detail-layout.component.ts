@@ -15,4 +15,6 @@ export class DetailLayoutComponent {
 
   @Input() constrainBottomToolbar = false;
 
+  @Input() showBottomToolbar = true;
+
 }

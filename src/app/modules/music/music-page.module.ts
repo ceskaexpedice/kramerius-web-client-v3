@@ -21,6 +21,7 @@ import {DocumentDetailEffects} from "../../shared/state/document-detail/document
 import {musicDetailReducer} from "./state/music-detail.reducer";
 import {MusicDetailEffects} from "./state/music-detail.effects";
 import {MusicTrackListComponent} from "./components/music-track-list/music-track-list.component";
+import {TranslatePipe} from '@ngx-translate/core';
 
 const routes: Routes = [
   {
@@ -32,25 +33,26 @@ const routes: Routes = [
   declarations: [
     MusicPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    StoreModule.forFeature('document-detail', documentDetailReducer),
-    StoreModule.forFeature('music', musicDetailReducer),
-    EffectsModule.forFeature([DocumentDetailEffects, MusicDetailEffects]),
-    DetailLayoutComponent,
-    InputComponent,
-    NgIf,
-    AsyncPipe,
-    PageNavigatorComponent,
-    DetailPagesGridComponent,
-    ActionToolbarComponent,
-    ToolbarHeaderComponent,
-    DateNavigatorComponent,
-    ToolbarControlsComponent,
-    DetailViewBottomToolbarComponent,
-    NgForOf,
-    MusicTrackListComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		StoreModule.forFeature('document-detail', documentDetailReducer),
+		StoreModule.forFeature('music', musicDetailReducer),
+		EffectsModule.forFeature([DocumentDetailEffects, MusicDetailEffects]),
+		DetailLayoutComponent,
+		InputComponent,
+		NgIf,
+		AsyncPipe,
+		PageNavigatorComponent,
+		DetailPagesGridComponent,
+		ActionToolbarComponent,
+		ToolbarHeaderComponent,
+		DateNavigatorComponent,
+		ToolbarControlsComponent,
+		DetailViewBottomToolbarComponent,
+		NgForOf,
+		MusicTrackListComponent,
+		TranslatePipe,
+	],
   providers: [
   ]
 

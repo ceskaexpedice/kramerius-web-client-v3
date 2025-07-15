@@ -14,6 +14,7 @@ import {Page} from "../../../shared/models/page.model";
 import {SoundService} from '../../../shared/services/sound.service';
 import {SolrService} from '../../../core/solr/solr.service';
 import {SoundTrackModel} from '../../models/sound-track.model';
+import {FileService} from '../../../shared/services/file.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class MusicService {
   private route = inject(ActivatedRoute);
   private soundService = inject(SoundService);
   private solr = inject(SolrService);
+  private fileService = inject(FileService);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -58,7 +60,11 @@ export class MusicService {
     return '';
   }
 
-  get coverImageForTrack() {
+  getCoverImageForTrack(pid: string | null = null) {
+    if (pid) {
+      return this.solr.getImageThumbnailUrl(pid);
+    }
+
     if (this.metadata && this.metadata.uuid) {
       return this.solr.getImageThumbnailUrl(this.metadata.uuid);
     }
@@ -102,12 +108,8 @@ export class MusicService {
 
   downloadTrack(track: SoundTrackModel): void {
     if (track && track.url) {
-      const link = document.createElement('a');
-      link.href = track.url;
-      link.download = 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      this.fileService
+        .downloadFile(track.url, track['title.search']);
     }
   }
 

@@ -1,5 +1,11 @@
 <!--<tr [class.playing]="isPlaying" (click)="select()">-->
-  <td>{{ index + 1 }}</td>
+  <td>
+    @if (isPlaying) {
+      <i class="icon-volume-high"></i>
+    } @else {
+      {{ index + 1 }}
+    }
+  </td>
   <td>
     <div class="title">
       <ng-container *ngIf="isPlaying; else notPlaying">
@@ -10,7 +16,7 @@
       </ng-template>
 
       <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
-      <span class="page-ref"> · {{'Strana' | translate}} {{track.part}}</span>
+      <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
     </div>
   </td>
   <td class="duration">{{ duration }}</td>

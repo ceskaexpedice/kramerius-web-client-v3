@@ -1,7 +1,7 @@
 <div class="queue-panel" *ngIf="isOpen()">
   <div class="header">
     <i class="icon-music-filter"></i>
-    <span>Právě hraje</span>
+    <span>{{'now-playing--header' | translate}}</span>
     <button class="icon-button rounded light close-btn" (click)="close()"><i class="icon-x"></i></button>
   </div>
 
@@ -11,7 +11,13 @@
       *ngFor="let track of soundService.getQueue()"
       [class.active]="isActive(track)"
     >
-<!--      <img class="thumb" [src]="track.thumbnail" alt="" />-->
+      <div class="thumb-wrapper" (click)="play(track)">
+        <img class="thumb" [src]="soundService.getImageThumbnailUrl(track.parentPid)" alt="" />
+        <div class="thumb-overlay" *ngIf="isActive(track)">
+          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+        </div>
+      </div>
+
       <div class="info" (click)="play(track)">
         <div class="title">{{ track['title.search'] }}</div>
       </div>

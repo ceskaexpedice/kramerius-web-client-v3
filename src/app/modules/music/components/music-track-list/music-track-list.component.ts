@@ -1,12 +1,14 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MusicTrackItemComponent} from "../music-track-item/music-track-item.component";
 import {NgForOf} from "@angular/common";
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-music-track-list',
   imports: [
     MusicTrackItemComponent,
-    NgForOf
+    NgForOf,
+    TranslatePipe,
   ],
   templateUrl: './music-track-list.component.html',
   styleUrl: './music-track-list.component.scss'

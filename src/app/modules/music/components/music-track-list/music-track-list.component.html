@@ -2,15 +2,16 @@
   <thead>
   <tr>
     <th>#</th>
-    <th>Název</th>
-    <th>Délka</th>
-    <th>Akce</th>
+    <th>{{'track-list-table--title' | translate}}</th>
+    <th>{{'track-list-table--duration' | translate}}</th>
+    <th>{{'track-list-table--actions' | translate}}</th>
   </tr>
   </thead>
   <tbody>
   <tr *ngFor="let track of tracks; let i = index"
       (click)="onSelect(track)"
       app-music-track-item
+      [class.playing]="track.pid === playingPid"
       [track]="track"
       [index]="i"
       [selectedPid]="selectedPid"

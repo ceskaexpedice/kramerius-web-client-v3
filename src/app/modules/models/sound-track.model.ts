@@ -9,4 +9,5 @@ export interface SoundTrackModel {
   ['track.length']: number;
   url: string;
   part: string;
+  parentPid: string;
 }

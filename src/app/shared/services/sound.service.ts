@@ -36,6 +36,10 @@ export class SoundService {
     return this.queue[this.currentIndex()];
   }
 
+  get currentTrackPid() {
+    return this.currentTrack ? this.currentTrack.pid : null;
+  }
+
   getCurrentTime = this.currentTime.asReadonly();
   getDuration = this.duration.asReadonly();
   getProgress = this.progress.asReadonly();

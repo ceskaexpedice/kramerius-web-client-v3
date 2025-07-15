@@ -1,8 +1,10 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-page-navigator',
   imports: [
+    TranslatePipe,
   ],
   templateUrl: './page-navigator.component.html',
   styleUrl: './page-navigator.component.scss'
