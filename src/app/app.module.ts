@@ -9,7 +9,7 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import { HttpBackend, provideHttpClient } from '@angular/common/http';
+import {HttpBackend, provideHttpClient, withFetch} from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -62,7 +62,7 @@ export function initApp(envService: EnvironmentService) {
 		PlaybackBarComponent,
 	],
   providers: [
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     AppMissingTranslationService,
     {
       provide: APP_INITIALIZER,
