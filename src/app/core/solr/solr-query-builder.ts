@@ -146,6 +146,8 @@ export class SolrQueryBuilder {
     // const specialChars = /([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\])/g;
     // return input.replace(specialChars, '\\$1');
 
+    if (!input) return input;
+
     return input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
 
   }
