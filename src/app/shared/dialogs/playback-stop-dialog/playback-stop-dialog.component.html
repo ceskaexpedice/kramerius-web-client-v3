@@ -1,0 +1,41 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'playback-stop-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+
+      <p>{{'playback-stop-dialog--message' | translate}}</p>
+
+      <div class="dont-ask-again--container">
+        <mat-checkbox class="p-left-0">
+          <label>
+            {{ 'dont-ask-again' | translate }}
+          </label>
+        </mat-checkbox>
+      </div>
+
+      <p class="reopen-message">
+        <i class="icon-info-circle"></i>
+        {{ 'playback-stop-dialog--reopen-message' | translate}}
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button tertiary outlined" (click)="onClose('close')">
+      {{ 'cancel-button' | translate }}
+    </button>
+    <button class="button primary" (click)="onStop('stop')">
+      {{ 'playback-stop-dialog--stop-button' | translate }}
+    </button>
+  </div>
+
+</div>
