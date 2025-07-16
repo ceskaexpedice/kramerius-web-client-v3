@@ -11,7 +11,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     TranslatePipe,
   ],
   templateUrl: './music-track-list.component.html',
-  styleUrl: './music-track-list.component.scss'
+  styleUrls: ['./music-track-list.component.scss', '../music-track-list-table.scss'],
 })
 export class MusicTrackListComponent {
   @Input() tracks: any[] = [];

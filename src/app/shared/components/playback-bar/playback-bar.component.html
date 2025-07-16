@@ -48,4 +48,6 @@
   </div>
 </div>
 
-<app-playback-queue *ngIf="isQueueOpen()"></app-playback-queue>
+@if (isQueueOpen()) {
+  <app-playback-queue></app-playback-queue>
+}

@@ -15,6 +15,11 @@ import {SoundService} from '../../../shared/services/sound.service';
 import {SolrService} from '../../../core/solr/solr.service';
 import {SoundTrackModel} from '../../models/sound-track.model';
 import {FileService} from '../../../shared/services/file.service';
+import {MatDialog} from '@angular/material/dialog';
+import {
+  PlaybackStopDialogComponent,
+  PlaybackStopResult,
+} from '../../../shared/dialogs/playback-stop-dialog/playback-stop-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +31,7 @@ export class MusicService {
   private soundService = inject(SoundService);
   private solr = inject(SolrService);
   private fileService = inject(FileService);
+  private dialog = inject(MatDialog);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -115,5 +121,22 @@ export class MusicService {
 
   goBackClicked(): void {
     //this.recordHandler.navi();
+  }
+
+  openMusicStopDialog() {
+    this.dialog.open(PlaybackStopDialogComponent, {
+      width: '60vw'
+    })
+      .afterClosed().subscribe({
+        next: (result: PlaybackStopResult) => {
+          if (result === 'stop') {
+            this.soundService.stop();
+            this.soundService.clearQueue();
+          }
+        },
+        error: (err) => {
+          console.error('Error opening playback stop dialog:', err);
+        }
+      });
   }
 }

@@ -10,10 +10,13 @@ import {TranslatePipe} from '@ngx-translate/core';
     TranslatePipe,
   ],
   templateUrl: './music-track-item.component.html',
-  styleUrl: './music-track-item.component.scss',
+  styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],
   standalone: true
 })
 export class MusicTrackItemComponent {
+
+  isMouseOverFavorite = false;
+
   @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
   @Input() selectedPid: string | null = null;

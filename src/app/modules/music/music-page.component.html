@@ -1,34 +1,36 @@
-<app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true">
+<app-detail-layout
+  [showBottomToolbar]="detailViewService.soundRecordingViewMode() === 'images'"
+  [constrainBottomToolbar]="true">
 
   <ng-container left-sidebar>
 
     <div class="sidebar-wrapper" *ngIf="detailViewService.document$ | async as document">
 
-      <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
-        <div class="sidebar--wrapper">
-          <app-input
-            [placeholder]="'search-in-document--placeholder' | translate"
-            [theme]="'dark'"
-            [size]="'sm'"
-            [showMicButton]="true"
-          ></app-input>
+        @if (document.model === DocumentTypeEnum.soundrecording) {
+          <div class="sidebar--wrapper">
+            <app-input
+              [placeholder]="'search-in-document--placeholder' | translate"
+              [theme]="'dark'"
+              [size]="'sm'"
+              [showMicButton]="true"
+            ></app-input>
 
-          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
-            <hr>
-            <app-page-navigator
-              [currentPage]="detailViewService.currentPageIndex + 1"
-              [totalPages]="detailViewService.totalPages"
-              (next)="detailViewService.goToNext()"
-              (prev)="detailViewService.goToPrevious()"
-              (pageChange)="detailViewService.goToPage($event)"
-            ></app-page-navigator>
-          </ng-container>
+            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
+              <hr>
+              <app-page-navigator
+                [currentPage]="detailViewService.currentPageIndex + 1"
+                [totalPages]="detailViewService.totalPages"
+                (next)="detailViewService.goToNext()"
+                (prev)="detailViewService.goToPrevious()"
+                (pageChange)="detailViewService.goToPage($event)"
+              ></app-page-navigator>
+            </ng-container>
 
-          <div class="sidebar--wrapper--scroll-content">
-            <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+            <div class="sidebar--wrapper--scroll-content">
+              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+            </div>
           </div>
-        </div>
-      </ng-container>
+        }
 
     </div>
   </ng-container>
@@ -99,12 +101,6 @@
                 (download)="musicService.downloadTrack($event)"
               ></app-music-track-list>
 
-<!--              <div *ngFor="let track of tracks">-->
-
-<!--                {{track['title.search']}}-->
-
-<!--              </div>-->
-
             </ng-container>
 
 
@@ -116,7 +112,11 @@
     </ng-container>
   </ng-container>
 
-<!--  <ng-container bottom-toolbar>-->
-<!--&lt;!&ndash;    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>&ndash;&gt;-->
-<!--  </ng-container>-->
+  <ng-container bottom-toolbar>
+
+    @if (detailViewService.soundRecordingViewMode() === 'images') {
+      <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
+    }
+
+  </ng-container>
 </app-detail-layout>

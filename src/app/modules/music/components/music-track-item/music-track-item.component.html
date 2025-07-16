@@ -1,5 +1,4 @@
-<!--<tr [class.playing]="isPlaying" (click)="select()">-->
-  <td>
+  <td class="index-col">
     @if (isPlaying) {
       <i class="icon-volume-high"></i>
     } @else {
@@ -19,16 +18,21 @@
       <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
     </div>
   </td>
-  <td class="duration">{{ duration }}</td>
-  <td class="actions">
+  <td class="duration duration-col">{{ duration }}</td>
+  <td class="actions actions-col">
     <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
       <i class="icon icon-additem"></i>
     </button>
-    <button class="icon-button rounded light" (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
-      <i class="icon icon-heart"></i>
+    <button class="icon-button rounded light"
+            (mouseover)="isMouseOverFavorite = true"
+            (mouseout)="isMouseOverFavorite = false"
+            (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+      <i
+        [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
+        [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">
+      </i>
     </button>
     <button class="icon-button rounded light" (click)="download(); $event.stopPropagation()">
       <i class="icon icon-download"></i>
     </button>
   </td>
-<!--</tr>-->

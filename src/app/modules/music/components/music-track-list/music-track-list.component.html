@@ -1,13 +1,14 @@
 <table class="track-table">
   <thead>
   <tr>
-    <th>#</th>
+    <th class="index-col">#</th>
     <th>{{'track-list-table--title' | translate}}</th>
-    <th>{{'track-list-table--duration' | translate}}</th>
-    <th>{{'track-list-table--actions' | translate}}</th>
+    <th class="duration-col">{{'track-list-table--duration' | translate}}</th>
+    <th class="actions-col">{{'track-list-table--actions' | translate}}</th>
   </tr>
   </thead>
   <tbody>
+
   <tr *ngFor="let track of tracks; let i = index"
       (click)="onSelect(track)"
       app-music-track-item

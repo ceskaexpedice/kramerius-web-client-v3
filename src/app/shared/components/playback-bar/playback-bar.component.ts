@@ -55,7 +55,7 @@ export class PlaybackBarComponent {
   }
 
   close() {
-    this.soundService.stop();
+    this.musicService.openMusicStopDialog();
   }
 
 }
