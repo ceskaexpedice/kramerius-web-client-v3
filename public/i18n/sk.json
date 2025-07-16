@@ -111,5 +111,12 @@
   "LinkedIn": "LinkedIn",
   "platform-x": "Platforma X",
   "citation-dialog--header": "Citácia podľa normy ČSN ISO 690",
-  "wiki": "Wikipédia"
+  "wiki": "Wikipédia",
+
+  "playback-stop-dialog--stop-button": "Zastaviť prehrávanie",
+  "cancel-button": "Zrušiť",
+  "playback-stop-dialog--header": "Skutočne chcete zastaviť prehrávanie?",
+  "playback-stop-dialog--message": "Týmto zastavíte prehrávanie a zatvoríte prehrávač.",
+  "dont-ask-again": "Nabudúce sa už nepýtať",
+  "playback-stop-dialog--reopen-message": "Prehrávač môžete kedykoľvek znovu otvoriť v dokumente so zvukom."
 }

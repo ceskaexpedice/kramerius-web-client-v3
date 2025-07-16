@@ -116,5 +116,12 @@
   "LinkedIn": "LinkedIn",
   "platform-x": "Platform X",
   "citation-dialog--header": "Citation according to ISO 690",
-  "wiki": "Wikipedia"
+  "wiki": "Wikipedia",
+
+  "playback-stop-dialog--stop-button": "Stop playback",
+  "cancel-button": "Cancel",
+  "playback-stop-dialog--header": "Are you sure you want to stop playback?",
+  "playback-stop-dialog--message": "This will stop playback and close the player.",
+  "dont-ask-again": "Don't ask again",
+  "playback-stop-dialog--reopen-message": "You can reopen the player anytime in an audio document."
 }

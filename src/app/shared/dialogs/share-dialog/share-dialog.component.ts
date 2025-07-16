@@ -16,7 +16,7 @@ import {copyTextToClipboard} from '../../misc/misc-functions';
     NgForOf,
   ],
   templateUrl: './share-dialog.component.html',
-  styleUrl: './share-dialog.component.scss'
+  styleUrls: ['./share-dialog.component.scss', '../generic-dialog.scss'],
 })
 export class ShareDialogComponent {
   document!: Metadata;

@@ -96,6 +96,10 @@ mat-checkbox {
   --mdc-checkbox-unselected-icon-color: var(--color-border-contrast);
 }
 
+.mat-mdc-checkbox.p-left-0 .mdc-checkbox {
+  padding-left: 0 !important;
+}
+
 .mdc-checkbox__background {
   border-radius: 4px !important;
 }

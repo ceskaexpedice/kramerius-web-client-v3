@@ -23,7 +23,7 @@ export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
     NgForOf,
   ],
   templateUrl: './citation-dialog.component.html',
-  styleUrl: './citation-dialog.component.scss'
+  styleUrls: ['./citation-dialog.component.scss', '../generic-dialog.scss'],
 })
 export class CitationDialogComponent {
   document!: Metadata;

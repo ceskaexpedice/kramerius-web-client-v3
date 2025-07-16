@@ -116,5 +116,12 @@
   "LinkedIn": "LinkedIn",
   "platform-x": "Platforma X",
   "citation-dialog--header": "Cytowanie zgodnie z ČSN ISO 690",
-  "wiki": "Wikipedia"
+  "wiki": "Wikipedia",
+
+  "playback-stop-dialog--stop-button": "Zatrzymaj odtwarzanie",
+  "cancel-button": "Anuluj",
+  "playback-stop-dialog--header": "Czy na pewno chcesz zatrzymać odtwarzanie?",
+  "playback-stop-dialog--message": "To zatrzyma odtwarzanie i zamknie odtwarzacz.",
+  "dont-ask-again": "Nie pytaj ponownie",
+  "playback-stop-dialog--reopen-message": "Odtwarzacz możesz ponownie otworzyć w dokumencie z dźwiękiem."
 }
