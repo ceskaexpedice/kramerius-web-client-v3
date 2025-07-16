@@ -21,6 +21,8 @@ import {TabItemComponent} from '../../shared/components/tabs/tab-item.component'
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
 import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
 import {TranslatePipe} from '@ngx-translate/core';
+import {musicDetailReducer} from '../music/state/music-detail.reducer';
+import {routerReducer} from '@ngrx/router-store';
 
 const routes: Routes = [
   {
@@ -35,6 +37,8 @@ const routes: Routes = [
 	imports: [
 		RouterModule.forChild(routes),
 		StoreModule.forFeature('document-detail', documentDetailReducer),
+    StoreModule.forFeature('music', musicDetailReducer),
+    StoreModule.forFeature('router', routerReducer),
 		EffectsModule.forFeature([DocumentDetailEffects]),
 		NgIf,
 		AsyncPipe,
