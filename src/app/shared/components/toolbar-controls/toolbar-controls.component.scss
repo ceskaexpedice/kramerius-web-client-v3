@@ -31,6 +31,10 @@
   &.active {
     color: var(--color-text-base);
 
+    i {
+      color: var(--color-primary);
+    }
+
     &::after {
       content: '';
       position: absolute;
@@ -38,7 +42,7 @@
       right: 0;
       height: 2px;
       width: 100%;
-      background-color: var(--color-text-base);
+      background-color: var(--color-primary);
     }
   }
 }
