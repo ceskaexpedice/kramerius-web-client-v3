@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import {Component, HostListener, inject} from '@angular/core';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
@@ -30,6 +30,7 @@ export class DetailViewPageComponent {
     window.history.back();
   }
 
+  @HostListener('document:keydown', ['$event'])
   keydownHandler(event: KeyboardEvent) {
     switch (event.key) {
       case 'Escape': {
