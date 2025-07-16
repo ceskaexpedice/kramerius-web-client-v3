@@ -2,6 +2,15 @@
   font-weight: bold;
 }
 
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .accessibility-public {
   background-color: var(--accessibility-public-bg) !important;
   color: var(--accessibility-public-text-color) !important;
