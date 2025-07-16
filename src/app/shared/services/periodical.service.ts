@@ -14,6 +14,7 @@ import {
 } from '../../modules/periodical/state/periodical-detail.selectors';
 import {loadPeriodical} from '../../modules/periodical/state/periodical-detail.actions';
 import {toSignal} from '@angular/core/rxjs-interop';
+import {DetailViewService} from '../../modules/detail-view-page/services/detail-view.service';
 
 @Injectable({ providedIn: 'root' })
 export class PeriodicalService {
@@ -44,7 +45,8 @@ export class PeriodicalService {
     private store: Store,
     private router: Router,
     private localStorage: LocalStorageService,
-    private recordHandler: RecordHandlerService
+    private recordHandler: RecordHandlerService,
+    private detailView: DetailViewService
   ) {
 
     if (this.availableYears$) {
@@ -56,6 +58,8 @@ export class PeriodicalService {
         })
       ).subscribe();
     }
+
+    this.watchRouteParams();
   }
 
   checkForDataNeedToLoad(rootPid: string): void {
@@ -75,9 +79,12 @@ export class PeriodicalService {
 
     // Detect any time the URL changes (e.g., user clicks a year and uuid changes in URL)
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => {
+        return event instanceof NavigationEnd && event.url.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)
+      })
     ).subscribe(() => {
       console.log('🔄 NavigationEnd detected, checking for UUID in URL');
+
       const rawUrl = this.router.routerState.snapshot.url;
       const match = rawUrl.match(/(uuid:[a-f0-9\-]+)/i);
       const finalUuid = match?.[1] ?? null;

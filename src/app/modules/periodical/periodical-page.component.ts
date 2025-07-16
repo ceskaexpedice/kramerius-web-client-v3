@@ -18,7 +18,7 @@ export class PeriodicalPageComponent {
   protected readonly ViewMode = ViewMode;
 
   constructor() {
-    this.periodical.watchRouteParams();
+    //this.periodical.watchRouteParams();
   }
 
   ngOnInit(): void {

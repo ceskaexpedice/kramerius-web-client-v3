@@ -127,6 +127,7 @@ import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../models/
 import { DocumentAccessibilityEnum } from '../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../shared/state/document-detail/document-detail.actions';
 import {loadDocumentDetailSuccess} from '../../../shared/state/document-detail/document-detail.actions';
+import {DocumentTypeEnum} from '../../constants/document-type';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -150,7 +151,13 @@ export class PeriodicalDetailEffects {
     this.actions$.pipe(
       ofType(loadDocumentDetailSuccess),
       switchMap(({ data }) => {
+
+        if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
+          return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
+        }
+
         const periodical = parsePeriodicalItemFromMetadata(data);
+
         if (data.model === 'periodical') {
           return this.solr.getPeriodicalVolumes(data.uuid).pipe(
             map(volumes => {
