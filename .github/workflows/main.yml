@@ -228,3 +228,27 @@ jobs:
           TERRAFORM_DOCKER_HOST_URI: ${{ secrets.DOCKER_HOST_URI }}
           TERRAFORM_GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           TERRAFORM_GHCR_USERNAME: ${{ github.actor }}
+  check_assets:
+    needs:
+      - set_variables
+      - deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.set_variables.outputs.docker_names) }}
+    steps:
+      - run: echo "Matrix - Container ${{ matrix.name }}, Domain ${{ matrix.domain }}"
+      - name: Check assets/env.json
+        run: |
+          curl -s -o env.json "https://${{ matrix.domain }}/assets/env.json"
+          jq '.environmentName | if  . =="" or . == null then error("empty environmentName") else . end' env.json
+          jq '.environmentCode | if  . =="" or . == null then error("empty environmentCode") else . end' env.json
+          jq 'if .devMode | type != "boolean" then error("devMode is not boolean") else . end' env.json
+      - name: Check assets/build-info.json
+        # REFS:
+        # - TRI-424
+        # git_commit_hash není prázdný
+        # build_date není prázdný
+        run: |
+          curl -s -o build-info.json "https://${{ matrix.domain }}/assets/build-info.json"
+          jq '.git_commit_hash | if  . =="" or . == null then error("empty git_commit_hash") else . end' build-info.json
+          jq '.build_date | if  . =="" or . == null then error("empty build_date") else . end' build-info.json
