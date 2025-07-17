@@ -128,7 +128,8 @@ export class FilterCategoryComponent implements OnChanges {
       sorted = sorted.filter(item => {
         if (this.showPageFacet && item.name === 'page') return true;
         if (this.showPeriodicalItemFacet && item.name === 'periodicalitem') return true;
-        return !['periodicalitem', 'page'].includes(item.name);
+        if (this.showPeriodicalItemFacet && item.name === 'periodicalvolume') return true;
+        return !['periodicalitem', 'page', 'periodicalvolume'].includes(item.name);
       });
     }
 

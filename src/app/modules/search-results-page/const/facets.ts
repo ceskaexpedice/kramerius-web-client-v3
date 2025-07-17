@@ -209,6 +209,12 @@ export const customDefinedFacets = [
         count: 0
       },
       {
+        key: 'periodicalvolume',
+        fq: 'periodicalvolume',
+        name: 'periodicalvolume',
+        count: 0
+      },
+      {
         key: 'periodicalitem',
         fq: 'periodicalitem',
         name: 'periodicalitem',

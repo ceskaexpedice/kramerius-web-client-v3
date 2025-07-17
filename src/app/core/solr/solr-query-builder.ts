@@ -28,6 +28,7 @@ export class SolrQueryBuilder {
     ];
 
     if (includePeriodicalItem) baseModels.push('model:periodicalitem');
+    if (includePeriodicalItem) baseModels.push('model:periodicalvolume');
     if (includePage) baseModels.push('model:page');
 
     return {
