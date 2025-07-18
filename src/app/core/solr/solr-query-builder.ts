@@ -1,5 +1,5 @@
 import {SolrFields} from './solr-fields';
-import {SolrSortDirections, SolrSortFields} from './solr-helpers';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
 
 export class SolrQueryBuilder {
 
@@ -43,7 +43,9 @@ export class SolrQueryBuilder {
   //   };
   // }
 
-  static filterByModel(model: string): any {
+  static filterByModel(model: string, valueOnly = false): any {
+    if (valueOnly) return `${SolrFields.model}:${model}`;
+
     return {
       fq: `${SolrFields.model}:${model}`
     };
@@ -79,6 +81,20 @@ export class SolrQueryBuilder {
   static start(start: number): any {
     return {
       start: start
+    };
+  }
+
+  static accessibilityPublic(valueOnly = false): any {
+    if (valueOnly) return `${SolrFields.accessibility}:public`;
+    return {
+      fq: `${SolrFields.accessibility}:public`
+    };
+  }
+
+  static level0(valueOnly = false): any {
+    if (valueOnly) return `level:0`;
+    return {
+      fq: `level:0`
     };
   }
 
@@ -134,7 +150,7 @@ export class SolrQueryBuilder {
   static facetFilter(field: string, values: string[]): string | null {
     if (!values.length) return null;
 
-    const escapedValues = values.map(v => `"${v}"`); // ošetrenie medzier, diakritiky
+    const escapedValues = values.map(v => `"${v}"`);
     return `${field}:(${escapedValues.join(' OR ')})`;
   }
 
@@ -144,9 +160,6 @@ export class SolrQueryBuilder {
 
   static escapeSolrQuery(input: string): string {
     // Escape special characters for Solr query syntax
-    // const specialChars = /([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\])/g;
-    // return input.replace(specialChars, '\\$1');
-
     if (!input) return input;
 
     return input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
@@ -155,7 +168,7 @@ export class SolrQueryBuilder {
 
   static buildQueryFromInput(
     input: string,
-    operator: 'AND' | 'OR' = 'AND',
+    operator: SolrOperators.and | SolrOperators.or = SolrOperators.and,
     field: string | string[] = 'titles.search'
   ): string {
     const trimmed = input.trim();
@@ -170,7 +183,7 @@ export class SolrQueryBuilder {
 
     if (Array.isArray(field)) {
       const fieldQueries = field.map(f => `${f}:(${queryBody})`);
-      return `(${fieldQueries.join(' OR ')})`;
+      return `(${fieldQueries.join(` ${SolrOperators.or} `)})`;
     }
 
     return `${field}:(${queryBody})`;
@@ -178,7 +191,7 @@ export class SolrQueryBuilder {
 
 
   static buildBooleanQuery(conditions: string[]): string {
-    return conditions.join(' AND ');
+    return conditions.join(` ${SolrOperators.and} `);
   }
 
 }

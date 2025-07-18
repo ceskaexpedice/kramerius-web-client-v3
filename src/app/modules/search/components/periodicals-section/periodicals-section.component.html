@@ -8,9 +8,10 @@
     <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true">
       <app-item-card
         *ngFor="let item of periodicals"
-        [uuid]="item.uuid"
-        [title]="item.title"
+        [uuid]="item.pid"
+        [title]="item['title.search']"
         [subtitle]="item.year"
+        [model]="item.model"
         [link]="'/detail/' + item.title"
       ></app-item-card>
     </app-carousel>

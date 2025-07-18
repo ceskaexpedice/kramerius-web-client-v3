@@ -41,10 +41,23 @@ export class RecordHandlerService {
     }
   }
 
+  handleDocumentClickByModelAndPid(model: string, pid: string): void {
+    switch (model) {
+      case DocumentTypeEnum.periodical:
+        this.navigateToPeriodical(pid);
+        break;
+      case DocumentTypeEnum.soundrecording:
+        this.navigateToMusic(pid);
+        break;
+      default:
+        this.navigateToDetail(pid);
+    }
+  }
+
   /**
    * Navigate to the document detail view.
    */
-  private navigateToDetail(pid: string): void {
+  public navigateToDetail(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
   }
 

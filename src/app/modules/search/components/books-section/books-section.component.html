@@ -8,10 +8,11 @@
     <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
       <app-item-card
         *ngFor="let item of books"
-        [uuid]="item.uuid"
-        [title]="item.title"
+        [uuid]="item.pid"
+        [model]="item.model"
+        [title]="item['title.search']"
         [subtitle]="item.year"
-        [link]="'/detail/' + item.title"
+        [link]="'/detail/' + item['title.search']"
       ></app-item-card>
     </app-carousel>
   </div>

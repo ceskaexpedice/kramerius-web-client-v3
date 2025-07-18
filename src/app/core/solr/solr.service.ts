@@ -13,6 +13,8 @@ import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/face
 import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 import {EnvironmentService} from '../../shared/services/environment.service';
 import {SolrUtils} from './solr-utils';
+import {DocumentTypeEnum} from '../../modules/constants/document-type';
+import {ItemCard} from '../../shared/components/item-card/item-card.component';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -88,7 +90,7 @@ export class SolrService {
   private buildQParam(query: string, advancedQuery?: string): string {
     const parts = [];
     if (query?.trim()) {
-      parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, 'AND', ['titles.search', 'text_ocr'])})`);
+      parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
     } else {
       parts.push('*:*');
     }
@@ -227,30 +229,32 @@ export class SolrService {
     );
   }
 
-  getPeriodicals(): Observable<PeriodicalItem[]> {
+  getPeriodicals(): Observable<ItemCard[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.filterByModel('periodical'),
+      fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.periodical}`],
+      fl: 'pid,title.search,model,accessibility',
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100),
       ...SolrQueryBuilder.start(0)
     };
     const params = new HttpParams({ fromObject: paramsObject });
     return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(response => SolrResponseParser.parsePeriodicalItems(response))
+      map(res => res.response.docs)
     );
   }
 
-  getBooks(): Observable<BookItem[]> {
+  getBooks(): Observable<ItemCard[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.filterByModel('monograph'),
+      fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.monograph}`],
+      fl: 'pid,title.search,model,accessibility',
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100)
     };
     const params = new HttpParams({ fromObject: paramsObject });
     return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => SolrResponseParser.parseBookItems(res))
+      map(res => res.response.docs)
     );
   }
 
