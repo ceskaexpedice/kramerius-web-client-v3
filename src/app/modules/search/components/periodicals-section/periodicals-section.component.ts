@@ -6,6 +6,9 @@ import {Store} from '@ngrx/store';
 import {selectPeriodicals, selectPeriodicalsLoading} from '../../state/periodicals/periodicals.selectors';
 import {loadPeriodicals} from '../../state/periodicals/periodicals.actions';
 import {TranslatePipe} from '@ngx-translate/core';
+import {DocumentTypeEnum} from '../../../constants/document-type';
+import {SearchService} from '../../../../shared/services/search.service';
+import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
 
 @Component({
   selector: 'app-periodicals-section',
@@ -23,12 +26,17 @@ import {TranslatePipe} from '@ngx-translate/core';
 export class PeriodicalsSectionComponent implements OnInit {
 
   private store = inject(Store);
+  private searchService = inject(SearchService);
 
   periodicals$ = this.store.select(selectPeriodicals);
   loading$ = this.store.select(selectPeriodicalsLoading);
 
   ngOnInit(): void {
     this.store.dispatch(loadPeriodicals());
+  }
+
+  showMore() {
+    this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.periodical, true);
   }
 
 }

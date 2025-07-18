@@ -90,8 +90,24 @@ export class CustomSearchService {
     });
   }
 
+  getCustomSearchQuery(key: string): string {
+    return `customSearch=${key}`;
+  }
+
   removeFilter(key: string): void {
     const updated = this._appliedFilters().filter(k => k !== key);
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.length > 0 ? updated.join(',') : null,
+    });
+  }
+
+  addFilter(key: string): void {
+    const current = this._appliedFilters();
+    if (current.includes(key)) return; // Filter already applied
+
+    const updated = [...current, key];
     this._appliedFilters.set(updated);
 
     this.queryParamsService.appendToQueryParams(this.route, {

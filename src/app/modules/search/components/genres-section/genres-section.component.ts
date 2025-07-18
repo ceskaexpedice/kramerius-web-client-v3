@@ -7,6 +7,7 @@ import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors
 import {loadBooks} from '../../state/books/books.actions';
 import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
 import {loadGenres} from '../../state/genres/genres.actions';
+import {SearchService} from '../../../../shared/services/search.service';
 
 @Component({
   selector: 'app-genres-section',
@@ -23,12 +24,17 @@ import {loadGenres} from '../../state/genres/genres.actions';
 export class GenresSectionComponent implements OnInit {
 
   private store = inject(Store);
+  private searchService = inject(SearchService);
 
   genres$ = this.store.select(selectGenres);
   loading$ = this.store.select(selectGenresLoading);
 
   ngOnInit(): void {
     this.store.dispatch(loadGenres());
+  }
+
+  clickedGenre(genreName: string) {
+    this.searchService.searchWithFacet('genres.facet', genreName);
   }
 
 }

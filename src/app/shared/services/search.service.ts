@@ -125,6 +125,35 @@ export class SearchService implements FilterService {
     );
   }
 
+  searchWithFacet(facetKey: string, facetValue: string, customFacet = false): void {
+    this.initialize();
+
+    this.customSearchService.clear();
+
+    const queryParams: any = {
+      query: this._searchTerm(),
+      page: this._page(),
+      pageSize: this._pageSize(),
+      sortBy: this._sortBy(),
+      sortDirection: this._sortDirection()
+    };
+
+    if (customFacet) {
+      this.customSearchService.addFilter(`${facetKey}:${facetValue}`);
+      queryParams['customSearch'] = `${facetKey}:${facetValue}`;
+    }
+
+    if (!customFacet) {
+      queryParams['fq'] = `${facetKey}:${facetValue}`;
+      queryParams[`${facetKey}_operator`] = SolrOperators.or;
+    }
+
+    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
+      queryParams
+    });
+
+  }
+
   search(query: string): void {
     this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
@@ -161,6 +190,8 @@ export class SearchService implements FilterService {
 
   private dispatchSearch(params: any): void {
     if (Object.keys(params).length === 0) return;
+
+    console.log('dispatching search with params:', params)
 
     const query = params['query'] || '';
     let baseFilters = this.queryParamsService.getFilters(params);

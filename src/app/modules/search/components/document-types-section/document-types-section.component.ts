@@ -10,6 +10,9 @@ import {
   selectDocumentTypesLoading,
 } from '../../state/document-types/document-types.selectors';
 import {loadDocumentTypes} from '../../state/document-types/document-types.actions';
+import {SearchService} from '../../../../shared/services/search.service';
+import {DocumentTypeEnum} from '../../../constants/document-type';
+import {customDefinedFacets, customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
 
 @Component({
   selector: 'app-document-types-section',
@@ -24,6 +27,7 @@ import {loadDocumentTypes} from '../../state/document-types/document-types.actio
   styleUrls: ['./document-types-section.component.scss', '../search-section.scss']
 })
 export class DocumentTypesSectionComponent {
+  private searchService = inject(SearchService);
   private store = inject(Store);
 
   documentTypes$ = this.store.select(selectDocumentTypes);
@@ -31,5 +35,9 @@ export class DocumentTypesSectionComponent {
 
   ngOnInit(): void {
     this.store.dispatch(loadDocumentTypes());
+  }
+
+  clickedDocumentType(documentType: string) {
+    this.searchService.searchWithFacet(customDefinedFacetsEnum.model, documentType, true);
   }
 }
