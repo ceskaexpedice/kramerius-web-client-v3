@@ -145,6 +145,10 @@ export class DetailViewService {
     if (index >= 0 && index < this._pages().length) {
       this._currentPageIndex.set(index);
 
+      if (this.document?.model === DocumentTypeEnum.soundrecording && this.soundRecordingViewMode() === 'records') {
+        this.soundRecordingViewMode.set('images');
+      }
+
       this.changePageUrl();
     }
   }
