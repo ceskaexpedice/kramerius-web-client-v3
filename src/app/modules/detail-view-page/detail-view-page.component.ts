@@ -1,4 +1,4 @@
-import {Component, HostListener, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
@@ -29,43 +29,6 @@ export class DetailViewPageComponent {
   goBackClicked() {
     window.history.back();
   }
-
-  @HostListener('document:keydown', ['$event'])
-  keydownHandler(event: KeyboardEvent) {
-    switch (event.key) {
-      case 'Escape': {
-        this.detailViewService.openRecordInfo();
-        break;
-      }
-      case 'ArrowLeft': {
-        this.detailViewService.goToPrevious();
-        break;
-      }
-      case 'ArrowRight': {
-        this.detailViewService.goToNext();
-        break;
-      }
-      case 'ArrowUp': {
-        // go -3 pages
-        this.detailViewService.goToPrevious(3);
-        break;
-      }
-      case 'ArrowDown': {
-        // go +3 pages
-        this.detailViewService.goToNext(3);
-        break;
-      }
-      case 'Enter': {
-        this.detailViewService.openRecordInfo();
-        break;
-      }
-      default: {
-        // Do nothing
-      }
-    }
-  }
-
-
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl;
