@@ -123,5 +123,9 @@
   "playback-stop-dialog--header": "Opravdu chcete zastavit přehrávání?",
   "playback-stop-dialog--message": "Tímto zastavíte přehrávání a zavřete přehrávač.",
   "dont-ask-again": "Příště se již neptat",
-  "playback-stop-dialog--reopen-message": "Přehrávač můžete kdykoliv znovu otevřít v dokumentu se zvukem."
+  "playback-stop-dialog--reopen-message": "Přehrávač můžete kdykoliv znovu otevřít v dokumentu se zvukem.",
+  "copy-to-clipboard-success": "Zkopírováno do schránky",
+  "track-added-to-queue": "Skladba přidána do fronty",
+  "track-removed-from-queue": "Skladba odstraněna z fronty",
+  "track-downloaded": "Skladba stažena"
 }

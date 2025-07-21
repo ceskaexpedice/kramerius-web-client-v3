@@ -7,6 +7,7 @@ import {NgForOf} from '@angular/common';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {Metadata} from '../../models/metadata.model';
 import {copyTextToClipboard} from '../../misc/misc-functions';
+import {ToastService} from '../../services/toast.service';
 
 @Component({
   selector: 'app-share-dialog',
@@ -30,6 +31,7 @@ export class ShareDialogComponent {
 
   public shareService = inject(ShareService);
   private recordHandlerService = inject(RecordHandlerService);
+  private toastService = inject(ToastService);
 
   private dialogRef = inject(MatDialogRef<ShareDialogComponent>, { optional: true });
   data = inject<any>(MAT_DIALOG_DATA);
@@ -71,6 +73,7 @@ export class ShareDialogComponent {
 
   copyToClipboard() {
     copyTextToClipboard(this.currentShareUrl);
+    this.toastService.show('copy-to-clipboard-success');
   }
 
 }

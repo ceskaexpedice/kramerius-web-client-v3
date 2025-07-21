@@ -123,5 +123,9 @@
   "playback-stop-dialog--header": "Are you sure you want to stop playback?",
   "playback-stop-dialog--message": "This will stop playback and close the player.",
   "dont-ask-again": "Don't ask again",
-  "playback-stop-dialog--reopen-message": "You can reopen the player anytime in an audio document."
+  "playback-stop-dialog--reopen-message": "You can reopen the player anytime in an audio document.",
+  "copy-to-clipboard-success": "Copied to clipboard",
+  "track-added-to-queue": "Track added to queue",
+  "track-removed-from-queue": "Track removed from queue",
+  "track-downloaded": "Track downloaded"
 }

@@ -10,6 +10,7 @@ import {ButtonToggleComponent} from '../../components/button-toggle/button-toggl
 import {NgForOf} from '@angular/common';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {copyTextToClipboard} from '../../misc/misc-functions';
+import {ToastService} from '../../services/toast.service';
 
 export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
 
@@ -46,6 +47,7 @@ export class CitationDialogComponent {
   private translationService = inject(TranslateService);
   private environmentService = inject(EnvironmentService);
   private recordHandlerService = inject(RecordHandlerService);
+  private toastService = inject(ToastService);
 
   constructor() {
     this.document = this.data.document;
@@ -73,6 +75,7 @@ export class CitationDialogComponent {
     }
 
     copyTextToClipboard(textToCopy);
+    this.toastService.show('copy-to-clipboard-success');
   }
 
   toggledActiveCitationType(active: boolean, pid: string): void {

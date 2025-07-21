@@ -2,12 +2,14 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
 import {SoundTrackModel} from '../../../models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
+import {TooltipDirective} from '../../../../shared/directives/tooltip/tooltip.directive';
 
 @Component({
   selector: '[app-music-track-item]',
   imports: [
     NgIf,
     TranslatePipe,
+    TooltipDirective,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],

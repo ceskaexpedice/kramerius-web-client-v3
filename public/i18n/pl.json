@@ -123,5 +123,9 @@
   "playback-stop-dialog--header": "Czy na pewno chcesz zatrzymać odtwarzanie?",
   "playback-stop-dialog--message": "To zatrzyma odtwarzanie i zamknie odtwarzacz.",
   "dont-ask-again": "Nie pytaj ponownie",
-  "playback-stop-dialog--reopen-message": "Odtwarzacz możesz ponownie otworzyć w dokumencie z dźwiękiem."
+  "playback-stop-dialog--reopen-message": "Odtwarzacz możesz ponownie otworzyć w dokumencie z dźwiękiem.",
+  "copy-to-clipboard-success": "Skopiowano do schowka",
+  "track-added-to-queue": "Utwór dodany do kolejki",
+  "track-removed-from-queue": "Utwór usunięty z kolejki",
+  "track-downloaded": "Utwór pobrany"
 }

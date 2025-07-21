@@ -20,6 +20,7 @@ import {
   PlaybackStopDialogComponent,
   PlaybackStopResult,
 } from '../../../shared/dialogs/playback-stop-dialog/playback-stop-dialog.component';
+import {ToastService} from '../../../shared/services/toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,7 @@ export class MusicService {
   private solr = inject(SolrService);
   private fileService = inject(FileService);
   private dialog = inject(MatDialog);
+  private toastService = inject(ToastService);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -110,12 +112,16 @@ export class MusicService {
 
   addTrackToQueue(track: SoundTrackModel): void {
     this.soundService.addToQueue(track);
+
+    this.toastService.show('track-added-to-queue');
   }
 
   downloadTrack(track: SoundTrackModel): void {
     if (track && track.url) {
       this.fileService
         .downloadFile(track.url, track['title.search']);
+
+      this.toastService.show('track-downloaded');
     }
   }
 

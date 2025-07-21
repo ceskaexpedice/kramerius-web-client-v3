@@ -1,8 +1,9 @@
-import {Component, signal} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {SoundService} from '../../../services/sound.service';
 import {SoundTrackModel} from '../../../../modules/models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
+import {ToastService} from '../../../services/toast.service';
 
 @Component({
   selector: 'app-playback-queue',
@@ -15,9 +16,10 @@ import {TranslatePipe} from '@ngx-translate/core';
   styleUrl: './playback-queue.component.scss'
 })
 export class PlaybackQueueComponent {
-  isOpen = signal(true); // could be controlled from outside too
+  isOpen = signal(true);
 
-  constructor(public soundService: SoundService) {}
+  public soundService = inject(SoundService);
+  private toastService = inject(ToastService);
 
   play(track: SoundTrackModel) {
     this.soundService.play(track);
@@ -25,6 +27,7 @@ export class PlaybackQueueComponent {
 
   remove(track: SoundTrackModel) {
     this.soundService.removeFromQueue(track.pid);
+    this.toastService.show('track-removed-from-queue');
   }
 
   close() {
