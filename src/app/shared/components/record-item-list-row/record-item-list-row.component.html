@@ -1,5 +1,5 @@
 <td class="record-title">
-  <div class="title-wrapper">
+  <a class="title-wrapper" [href]="url">
     <img
       class="thumb"
       [src]="`${getKrameriusBaseUrl()}`"
@@ -10,7 +10,7 @@
         {{ record.title.length > 80 ? (record.title.slice(0, 80) + '...') : record.title }}
       </div>
     </div>
-  </div>
+  </a>
 </td>
 
 <td>

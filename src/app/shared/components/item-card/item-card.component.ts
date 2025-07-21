@@ -36,7 +36,7 @@ export class ItemCardComponent {
 
   private krameriusBaseUrl: string;
 
-  private recordHandlerService = inject(RecordHandlerService);
+  public recordHandlerService = inject(RecordHandlerService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');

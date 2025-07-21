@@ -20,6 +20,7 @@ import { EnvironmentService } from '../../services/environment.service';
 export class RecordItemListRowComponent {
 
   @Input() record!: SearchDocument;
+  @Input() url!: string;
 
   protected readonly languageMap = languageMap;
 

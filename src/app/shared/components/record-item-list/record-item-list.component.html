@@ -15,6 +15,7 @@
     (click)="onClick($event, record)"
     app-record-item-list-row
     *ngFor="let record of records"
+    [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
     [record]="record">
   </tr>
   </tbody>

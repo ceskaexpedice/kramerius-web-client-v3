@@ -13,6 +13,7 @@ import {loadDocumentTypes} from '../../state/document-types/document-types.actio
 import {SearchService} from '../../../../shared/services/search.service';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {customDefinedFacets, customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
+import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
 @Component({
   selector: 'app-document-types-section',
@@ -38,6 +39,12 @@ export class DocumentTypesSectionComponent {
   }
 
   clickedDocumentType(documentType: string) {
+    const url = `${APP_ROUTES_ENUM.SEARCH_RESULTS}?customSearch=custom-root-model:${documentType}`;
+    this.searchService.redirectDirectlyToUrl(url);
     this.searchService.searchWithFacet(customDefinedFacetsEnum.model, documentType, true);
+  }
+
+  getDocumentTypeUrl(documentType: string): string {
+    return `${APP_ROUTES_ENUM.SEARCH_RESULTS}?customSearch=custom-root-model:${documentType}`;
   }
 }

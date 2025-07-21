@@ -154,6 +154,18 @@ export class SearchService implements FilterService {
 
   }
 
+  redirectDirectlyToUrl(url: string): void {
+    // url is in format ?query=searchTerm&page=1&pageSize=60&sortBy=relevance&sortDirection=desc
+    // redirect to the search results page with the query parameters
+    this.initialize();
+
+    window.open(`/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`, '_self');
+  }
+
+  getRedirectUrl(url: string) {
+    return `/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`;
+  }
+
   search(query: string): void {
     this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {

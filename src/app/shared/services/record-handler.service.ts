@@ -54,6 +54,17 @@ export class RecordHandlerService {
     }
   }
 
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string): string {
+    switch (model) {
+      case DocumentTypeEnum.periodical:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+      case DocumentTypeEnum.soundrecording:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
+      default:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+    }
+  }
+
   /**
    * Navigate to the document detail view.
    */

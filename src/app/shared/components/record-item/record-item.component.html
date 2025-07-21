@@ -1,4 +1,6 @@
-<div class="record-item-card" (click)="onRecordClick($event, record)">
+<a class="record-item-card"
+   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+   (click)="onRecordClick($event, record)">
 
   <div class="record-item-card__inner">
 
@@ -37,4 +39,4 @@
 
   </div>
 
-</div>
+</a>
