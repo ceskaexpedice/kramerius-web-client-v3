@@ -34,6 +34,7 @@ export interface PeriodicalItemYear {
   year: string;
   exists: boolean;
   pid: string;
+  model: string;
   accessibility: DocumentAccessibilityEnum;
 }
 

@@ -2,12 +2,23 @@ import { createSelector } from '@ngrx/store';
 import { SearchState } from './search.reducer';
 import {selectRouterQueryParams} from '../../../shared/state/router/router.selectors';
 import {SolrOperators} from '../../../core/solr/solr-helpers';
+import {DocumentTypeEnum} from '../../constants/document-type';
 
 export const selectSearchState = (state: any) => state['search-results'];
 
 export const selectSearchResults = createSelector(
   selectSearchState,
   (state: SearchState) => state.results
+);
+
+export const selectNonPageSearchResults = createSelector(
+  selectSearchState,
+  (state: SearchState) => state.results && state.results.filter(s => s.model !== DocumentTypeEnum.page)
+);
+
+export const selectPageSearchResults = createSelector(
+  selectSearchState,
+  (state: SearchState) => state.results && state.results.filter(s => s.model === DocumentTypeEnum.page)
 );
 
 export const selectSearchResultsTotalCount = createSelector(
@@ -24,7 +35,7 @@ export const selectFacets = createSelector(
 
 export const selectSearchResultsLoading = createSelector(
   selectSearchState,
-  state => state.loading
+  state => state?.loading
 );
 
 export const selectSearchResultsError = createSelector(

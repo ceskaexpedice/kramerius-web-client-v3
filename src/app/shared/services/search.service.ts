@@ -5,7 +5,7 @@ import {combineLatest, filter, map, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
-  selectFacets,
+  selectFacets, selectNonPageSearchResults, selectPageSearchResults,
   selectSearchResults,
   selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
@@ -41,6 +41,10 @@ export class SearchService implements FilterService {
   );
 
   results$: Observable<SearchDocument[]>;
+
+  nonPageResults$: Observable<SearchDocument[]>;
+  pageResults$: Observable<SearchDocument[]>;
+
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
@@ -101,6 +105,9 @@ export class SearchService implements FilterService {
     private customSearchService: CustomSearchService
   ) {
     this.results$ = this.store.select(selectSearchResults);
+    this.pageResults$ = this.store.select(selectPageSearchResults);
+    this.nonPageResults$ = this.store.select(selectNonPageSearchResults);
+
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
@@ -252,7 +259,7 @@ export class SearchService implements FilterService {
       filters,
       advancedQuery: advancedQuery,
       advancedQueryMainOperator: advancedQueryMainOperator,
-      page: page - 1,
+      page: (page - 1) * pageSize, // Solr uses 0-based indexing for pages
       pageCount: pageSize,
       sortBy,
       sortDirection

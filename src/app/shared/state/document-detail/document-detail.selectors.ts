@@ -16,7 +16,7 @@ export const selectDocumentDetailOnlyPages = createSelector(selectDocumentDetail
 export const selectDocumentDetailOnlyRecordings = createSelector(selectDocumentDetailState, state => {
   return state.pages?.filter((p: any) => p.model === DocumentTypeEnum.soundunit);
 });
-export const selectDocumentDetailLoading = createSelector(selectDocumentDetailState, state => state.loading);
+export const selectDocumentDetailLoading = createSelector(selectDocumentDetailState, state => state?.loading);
 export const selectDocumentDetailError = createSelector(selectDocumentDetailState, state => state.error);
 
 export const selectDocumentDetailUuid = createSelector(

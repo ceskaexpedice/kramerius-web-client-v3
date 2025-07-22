@@ -58,6 +58,8 @@ export class RecordHandlerService {
     switch (model) {
       case DocumentTypeEnum.periodical:
         return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+      case DocumentTypeEnum.periodicalvolume:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
       case DocumentTypeEnum.soundrecording:
         return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
       default:

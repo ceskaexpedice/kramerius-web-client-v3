@@ -109,7 +109,43 @@ export class SolrService {
   //   return parts.length ? parts.join(' AND ') : '*:*';
   // }
 
-  private buildQParam(query: string, advancedQuery?: string): string {
+  // private buildQParam(query: string, advancedQuery?: string): string {
+  //   const parts: string[] = [];
+  //
+  //   const hasSpecialSyntax = (input: string): boolean => {
+  //     const specialChars = ['?', '*', 'AND', 'OR', 'NOT', '"', '~'];
+  //     return specialChars.some(char => input.includes(char));
+  //   };
+  //
+  //   // Handle main query
+  //   if (query?.trim()) {
+  //     if (hasSpecialSyntax(query)) {
+  //       // Use raw query across all search fields
+  //       const escapedQuery = query.trim();
+  //       parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+  //     } else {
+  //       // Use builder for normal input
+  //       parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+  //     }
+  //   } else {
+  //     parts.push('*:*');
+  //   }
+  //
+  //   // Handle advanced query
+  //   if (advancedQuery?.trim()) {
+  //     let finalAdvancedQuery = '';
+  //     if (advancedQuery.includes(SolrOperators.or)) {
+  //       finalAdvancedQuery = advancedQuery;
+  //     } else {
+  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
+  //     }
+  //     parts.push(`(${finalAdvancedQuery})`);
+  //   }
+  //
+  //   return parts.length ? parts.join(' AND ') : '*:*';
+  // }
+
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false): string {
     const parts: string[] = [];
 
     const hasSpecialSyntax = (input: string): boolean => {
@@ -131,6 +167,10 @@ export class SolrService {
       parts.push('*:*');
     }
 
+    // Add boosted model query for proper ranking
+    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage);
+    parts.push(boostedModelQuery);
+
     // Handle advanced query
     if (advancedQuery?.trim()) {
       let finalAdvancedQuery = '';
@@ -144,7 +184,6 @@ export class SolrService {
 
     return parts.length ? parts.join(' AND ') : '*:*';
   }
-
 
   private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
     const grouped = this.groupFiltersByField(filters);
@@ -176,9 +215,12 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-         baseFilters: { fq: string } = SolrQueryBuilder.baseFilters(false, false)): Observable<SearchResultResponse> {
+         includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+
+    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+
     let paramsObject = {
-      ...baseFilters,
+      ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
@@ -191,13 +233,16 @@ export class SolrService {
     //     ...SolrQueryBuilder.baseFilters()
     //   }
     // }
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-                         baseFilters: { fq: string } = SolrQueryBuilder.baseFilters(false, false)): Observable<SearchResultResponse> {
+                         includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+
+    const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({}, filters.length === 0, baseFilters);
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
@@ -322,7 +367,7 @@ export class SolrService {
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `(model:periodicalvolume)`
     ]);
-    const params = { q: query, fl: 'date.str, pid, accessibility', rows: '10000', sort: 'date.min asc', wt: 'json' };
+    const params = { q: query, fl: 'date.str, pid, accessibility, model', rows: '10000', sort: 'date.min asc', wt: 'json' };
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -336,7 +381,7 @@ export class SolrService {
     ]);
     const params = {
       q: query,
-      fl: 'date.str, pid, accessibility',
+      fl: 'date.str, pid, accessibility,model',
       rows: '10000',
       sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
       wt: 'json'

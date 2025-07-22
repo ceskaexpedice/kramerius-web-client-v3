@@ -43,14 +43,12 @@ export class SearchEffects {
         const includePeriodicalItem = this.searchService.filtersContainDate();
         const includePage = this.searchService.hasSubmittedQuery();
 
-        const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
-
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, baseFilters),
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, baseFilters),
-          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, baseFilters)
+          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, includePeriodicalItem, includePage),
+          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, includePeriodicalItem, includePage)
         }).pipe(
           switchMap(({ resultsRes, facetsRes, facetsAllRes }) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc =>

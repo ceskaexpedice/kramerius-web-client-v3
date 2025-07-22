@@ -23,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
+import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -32,35 +33,36 @@ export function initApp(envService: EnvironmentService) {
   declarations: [
     AppComponent
   ],
-	imports: [
-		BrowserModule,
-		BrowserAnimationsModule,
-		RouterModule.forRoot(routes),
-		TranslateModule.forRoot({
-			loader: {
-				provide: TranslateLoader,
-				useFactory: HttpLoaderFactory,
-				deps: [HttpBackend],
-			},
-			parser: {
-				provide: TranslateParser,
-				useClass: PercentageSignTranslateParser,
-			},
-			missingTranslationHandler: {
-				provide: MissingTranslationHandler,
-				useExisting: AppMissingTranslationService,
-			},
-		}),
-		StoreModule.forRoot({
-			router: routerReducer,
-		}, {}),
-		EffectsModule.forRoot([]),
-		StoreRouterConnectingModule.forRoot(),
-		StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
-		HeaderComponent,
-		FooterComponent,
-		PlaybackBarComponent,
-	],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    RouterModule.forRoot(routes),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpBackend],
+      },
+      parser: {
+        provide: TranslateParser,
+        useClass: PercentageSignTranslateParser,
+      },
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useExisting: AppMissingTranslationService,
+      },
+    }),
+    StoreModule.forRoot({
+      router: routerReducer,
+    }, {}),
+    EffectsModule.forRoot([]),
+    StoreRouterConnectingModule.forRoot(),
+    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
+    HeaderComponent,
+    FooterComponent,
+    PlaybackBarComponent,
+    LoadingOverlayComponent,
+  ],
   providers: [
     provideHttpClient(withFetch()),
     AppMissingTranslationService,

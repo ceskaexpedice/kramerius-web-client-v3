@@ -217,6 +217,7 @@ export class PeriodicalDetailEffects {
       .filter(v => !!v['date.str'] && !!v['pid'] && !!v['accessibility'])
       .map(v => ({
         year: v['date.str'],
+        model: v['model'] || '',
         pid: v['pid'],
         exists: true as const,
         accessibility: v['accessibility'] as DocumentAccessibilityEnum
@@ -235,6 +236,7 @@ export class PeriodicalDetailEffects {
         year,
         pid: found?.pid ?? '',
         exists: true,
+        model: found?.model ?? '',
         accessibility: found?.accessibility ?? DocumentAccessibilityEnum.PRIVATE
       };
     });

@@ -7,5 +7,5 @@ export const selectMusicTracks = createSelector(
   selectMusicState,
   (state) => state?.tracks ?? []
 );
-export const selectMusicLoading = createSelector(selectMusicState, state => state.loading);
+export const selectMusicLoading = createSelector(selectMusicState, state => state?.loading);
 export const selectMusicError = createSelector(selectMusicState, state => state.error);
