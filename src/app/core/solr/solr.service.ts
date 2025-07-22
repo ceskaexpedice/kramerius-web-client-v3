@@ -87,27 +87,64 @@ export class SolrService {
     return params;
   }
 
+  // private buildQParam(query: string, advancedQuery?: string): string {
+  //   const parts = [];
+  //   if (query?.trim()) {
+  //     parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+  //   } else {
+  //     parts.push('*:*');
+  //   }
+  //   if (advancedQuery?.trim()) {
+  //
+  //     let finalAdvancedQuery = '';
+  //
+  //     // if advancedQuery contains OR, we need to have brackets around it, otherwise we need to remove them
+  //     if (advancedQuery?.indexOf(SolrOperators.or) !== -1) {
+  //       finalAdvancedQuery = `${advancedQuery}`;
+  //     } else {
+  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
+  //     }
+  //     parts.push(`${finalAdvancedQuery}`);
+  //   }
+  //   return parts.length ? parts.join(' AND ') : '*:*';
+  // }
+
   private buildQParam(query: string, advancedQuery?: string): string {
-    const parts = [];
+    const parts: string[] = [];
+
+    const hasSpecialSyntax = (input: string): boolean => {
+      const specialChars = ['?', '*', 'AND', 'OR', 'NOT', '"', '~'];
+      return specialChars.some(char => input.includes(char));
+    };
+
+    // Handle main query
     if (query?.trim()) {
-      parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+      if (hasSpecialSyntax(query)) {
+        // Use raw query across all search fields
+        const escapedQuery = query.trim();
+        parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+      } else {
+        // Use builder for normal input
+        parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+      }
     } else {
       parts.push('*:*');
     }
+
+    // Handle advanced query
     if (advancedQuery?.trim()) {
-
       let finalAdvancedQuery = '';
-
-      // if advancedQuery contains OR, we need to have brackets around it, otherwise we need to remove them
-      if (advancedQuery?.indexOf(SolrOperators.or) !== -1) {
-        finalAdvancedQuery = `${advancedQuery}`;
+      if (advancedQuery.includes(SolrOperators.or)) {
+        finalAdvancedQuery = advancedQuery;
       } else {
         finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
       }
-      parts.push(`${finalAdvancedQuery}`);
+      parts.push(`(${finalAdvancedQuery})`);
     }
+
     return parts.length ? parts.join(' AND ') : '*:*';
   }
+
 
   private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
     const grouped = this.groupFiltersByField(filters);
