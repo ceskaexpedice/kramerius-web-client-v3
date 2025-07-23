@@ -1,6 +1,6 @@
 import {Component, inject, Input} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
-import {NgIf} from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
@@ -15,6 +15,7 @@ import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-
     NgIf,
     TranslatePipe,
     AccessibilityBadgeComponent,
+    NgClass,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'

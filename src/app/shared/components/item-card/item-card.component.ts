@@ -26,10 +26,10 @@ export class ItemCardComponent {
   @Input() uuid!: string;
   @Input() title!: string;
   @Input() subtitle?: string;
-  @Input() model!: string;
+  @Input() model: string = '';
   @Input() link: string | null = null;
   @Input() accessibility: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
-  @Input() className?: string;
+  @Input() className?: string = '';
 
   @Input() showFavoriteButton: boolean = true;
   @Input() showAccessibilityBadge: boolean = false;
@@ -55,4 +55,5 @@ export class ItemCardComponent {
     this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
   }
 
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

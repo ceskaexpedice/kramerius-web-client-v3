@@ -72,3 +72,34 @@
     }
   }
 }
+
+.item-card.periodicalvolume, .item-card.periodicalitem {
+  padding: 8px 16px 16px 16px;
+
+  .item-card__image-container {
+    order: 2;
+    flex: auto;
+    height: 180px;
+  }
+
+  &.with-badge {
+
+  }
+
+  .item-card__content {
+    order: 1;
+    flex: auto;
+    .title {
+      font-size: 20px;
+      line-height: 32px;
+    }
+  }
+
+
+
+  app-accessibility-badge {
+    display: inline-flex;
+    order: 3;
+  }
+
+}

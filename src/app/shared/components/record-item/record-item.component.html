@@ -1,6 +1,4 @@
-<a class="record-item-card"
-   [class.page]="record.model === DocumentTypeEnum.page"
-   [class.periodical]="record.model === DocumentTypeEnum.periodical"
+<a class="record-item-card" [ngClass]="record.model"
    [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)">
 
   <div class="record-item-card__inner">

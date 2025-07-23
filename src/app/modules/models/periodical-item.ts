@@ -28,6 +28,7 @@ export interface PeriodicalItem {
 export interface PeriodicalItemChild {
   'date.str': string;
   pid: string;
+  model: string;
 }
 
 export interface PeriodicalItemYear {

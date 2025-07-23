@@ -1,4 +1,8 @@
-<a class="item-card" [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)" [ngClass]="className" (click)="goToDetail()">
+<a class="item-card"
+   [class.with-badge]="showAccessibilityBadge && accessibility !== DocumentAccessibilityEnum.PUBLIC"
+   [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)"
+   [ngClass]="[className, model]" (click)="goToDetail()">
+
   <div class="item-card__image-container">
     <img
       class="item-card__image"
@@ -15,6 +19,8 @@
   <div class="item-card__content">
     <div class="title">{{ title.length > 50 ? (title.slice(0, 50) + '...') : title }}</div>
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
-    <app-accessibility-badge *ngIf="showAccessibilityBadge" [accessibility]="accessibility"></app-accessibility-badge>
   </div>
+
+  <app-accessibility-badge *ngIf="showAccessibilityBadge && accessibility !== DocumentAccessibilityEnum.PUBLIC" [accessibility]="accessibility"></app-accessibility-badge>
+
 </a>
