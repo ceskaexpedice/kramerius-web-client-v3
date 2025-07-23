@@ -213,6 +213,12 @@ export class SearchService implements FilterService {
     console.log('dispatching search with params:', params)
 
     const query = params['query'] || '';
+
+    if (query && query.length > 0 && !this.hasSubmittedQuery()) {
+      this._searchTerm.set(query);
+      this._submittedTerm.set(query);
+    }
+
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
 

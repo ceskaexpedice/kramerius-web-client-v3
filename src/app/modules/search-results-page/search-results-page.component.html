@@ -58,7 +58,7 @@
 
             <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
               @if (nonPageResults.length > 0) {
-                <h3>Tituly</h3>
+                <h3>{{'titles-section-header' | translate}}</h3>
 
                 <div class="grid--container">
 
@@ -70,7 +70,7 @@
 
             <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
               @if (pageResults.length > 0) {
-                <h3>Stránky</h3>
+                <h3>{{'pages-section-header' | translate}}</h3>
 
                 <div class="grid--container">
 
@@ -86,7 +86,7 @@
             <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
               @if (nonPageResults.length > 0) {
                 <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>Tituly</h3>
+                  <h3>{{'titles-section-header' | translate}}</h3>
                   <div class="pull-right">
                     <app-paginator
                       [showOnlyArrows]="true"
@@ -107,7 +107,7 @@
             <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
               @if (pageResults.length > 0) {
                 <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>Stránky</h3>
+                  <h3>{{'pages-section-header' | translate}}</h3>
                   <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
                     <div class="pull-right">
                       <app-paginator

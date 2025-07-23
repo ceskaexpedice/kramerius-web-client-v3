@@ -127,5 +127,7 @@
   "copy-to-clipboard-success": "Zkopírováno do schránky",
   "track-added-to-queue": "Skladba přidána do fronty",
   "track-removed-from-queue": "Skladba odstraněna z fronty",
-  "track-downloaded": "Skladba stažena"
+  "track-downloaded": "Skladba stažena",
+  "titles-section-header": "Tituly",
+  "pages-section-header": "Jednotlivé strany"
 }

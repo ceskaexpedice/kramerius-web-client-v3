@@ -127,5 +127,7 @@
   "copy-to-clipboard-success": "Skopiowano do schowka",
   "track-added-to-queue": "Utwór dodany do kolejki",
   "track-removed-from-queue": "Utwór usunięty z kolejki",
-  "track-downloaded": "Utwór pobrany"
+  "track-downloaded": "Utwór pobrany",
+  "titles-section-header": "Tytuły",
+  "pages-section-header": "Poszczególne strony"
 }

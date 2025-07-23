@@ -127,5 +127,7 @@
   "copy-to-clipboard-success": "Copied to clipboard",
   "track-added-to-queue": "Track added to queue",
   "track-removed-from-queue": "Track removed from queue",
-  "track-downloaded": "Track downloaded"
+  "track-downloaded": "Track downloaded",
+  "titles-section-header": "Titles",
+  "pages-section-header": "Individual pages"
 }
