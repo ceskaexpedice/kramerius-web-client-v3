@@ -15,6 +15,7 @@ export interface SearchDocument {
   languages?: string[];
 
   access: string;
+  highlighting?: string[]
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -30,4 +31,5 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   access: doc.access,
   count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,
   languages: doc['languages.facet'] ? doc['languages.facet'] : undefined,
+  highlighting: doc.highlighting ? doc.highlighting['text_ocr'] : undefined
 });

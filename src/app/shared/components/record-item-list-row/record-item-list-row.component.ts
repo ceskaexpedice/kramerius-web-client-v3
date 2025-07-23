@@ -5,6 +5,7 @@ import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
+import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -33,4 +34,6 @@ export class RecordItemListRowComponent {
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
+
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

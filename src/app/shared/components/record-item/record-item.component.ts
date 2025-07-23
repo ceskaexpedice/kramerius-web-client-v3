@@ -6,12 +6,15 @@ import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 import {SolrService} from '../../../core/solr/solr.service';
+import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
+import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 
 @Component({
   selector: 'app-record-item',
   imports: [
     NgIf,
     TranslatePipe,
+    AccessibilityBadgeComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -64,4 +67,7 @@ export class RecordItemComponent {
         return '';
     }
   }
+
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

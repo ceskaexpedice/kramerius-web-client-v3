@@ -9,4 +9,9 @@ export interface SearchResultResponse {
       [field: string]: (string | number)[];
     };
   };
+  highlighting?: {
+    [docId: string]: {
+      text_ocr?: string[];
+    };
+  };
 }

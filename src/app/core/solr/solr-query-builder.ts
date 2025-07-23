@@ -362,6 +362,19 @@ export class SolrQueryBuilder {
     };
   }
 
+  // &hl=true&hl.fl=text_ocr&hl.method=original&hl.snippets=1&hl.fragsize=120&hl.simple.pre=<strong>&hl.simple.post=</strong>
+  static highlight(fields: string[] = ['text_ocr'], snippets: number = 1, fragsize: number = 120): Record<string, any> {
+    return {
+      hl: 'true',
+      'hl.fl': fields.join(','),
+      'hl.method': 'original',
+      'hl.snippets': snippets.toString(),
+      'hl.fragsize': fragsize.toString(),
+      'hl.simple.pre': '<strong>',
+      'hl.simple.post': '</strong>'
+    };
+  }
+
   static fieldsToReturn(fields: string[]): Record<string, any> {
     return {
       fl: fields.join(',')

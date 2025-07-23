@@ -227,6 +227,14 @@ export class SolrService {
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
+
+    if (includePage) {
+      paramsObject = {
+        ...paramsObject,
+        ...SolrQueryBuilder.highlight()
+      }
+    }
+
     // if (filters.length === 0 && query === '') {
     //   paramsObject = {
     //     ...paramsObject,
