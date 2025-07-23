@@ -112,10 +112,6 @@
     height: 50px;
   }
 
-  .record-item-card__content {
-    //height: 120px;
-  }
-
   .record-item-card__image-lock-overlay {
 
     i {
@@ -134,5 +130,18 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+  }
+}
+
+.record-item-card.periodical {
+  .record-item-card__image {
+    height: 230px;
+  }
+
+  .record-item-card__content {
+
+    .title {
+      -webkit-line-clamp: 2;
+    }
   }
 }

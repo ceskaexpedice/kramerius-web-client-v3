@@ -1,11 +1,27 @@
 <div class="years-timeline">
-  <div
-    class="year-item--container accessibility-{{ year.accessibility }}"
-    *ngFor="let year of years"
-    (click)="selectYear.emit(year.year)"
-  >
-    <div class="year-item">
-      {{ year.year }}
+  <div class="year-row" *ngFor="let row of yearsByDecades">
+    <!-- horizontálna čiara -->
+    <div class="row-line"></div>
+
+    <div
+      class="year-item--container"
+      *ngFor="let year of row"
+      [ngClass]="{
+        'placeholder': year === null,
+        'accessibility-available': isYearAvailable(year),
+        'accessibility-disabled': !isYearAvailable(year)
+      }"
+      (click)="year !== null && selectYear.emit(year.toString())"
+    >
+      <div class="year-item" *ngIf="year !== null">
+
+        <div class="year-item--wrapper">
+
+          {{ year }}
+
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
