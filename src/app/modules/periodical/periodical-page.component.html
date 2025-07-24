@@ -12,17 +12,17 @@
 
         <div left>
           <app-toolbar-header
-            [title]="(document$ | async)?.['root.title'] || ''"
-            (goBack)="goBackClicked()">
+            [title]="(periodical.document$ | async)?.['root.title'] || ''"
+            (goBack)="periodical.goBackClicked()">
           </app-toolbar-header>
         </div>
 
-        <div center *ngIf="selectedYear() as year">
-          <app-year-navigator
-            [year]="year"
-            (goToPreviousYear)="goToPreviousYear()"
-            (goToNextYear)="goToNextYear()">
-          </app-year-navigator>
+        <div center *ngIf="periodical.selectedYear() as year">
+          <app-date-navigator
+            [value]="year"
+            (goToPrevious)="periodical.goToPreviousYear()"
+            (goToNext)="periodical.goToNextYear()">
+          </app-date-navigator>
         </div>
 
         <div right>
@@ -30,14 +30,20 @@
           <div class="flex flex--align-center">
 
             <app-toolbar-controls
-              [showCalendarGridControls]="true"
+              [showViewToggle]="true"
               [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="true"
-              [activeCalendarGridControl]="activeCalendarGridControl()"
-              (calendarGridClicked)="setView($event)"
+              [viewToggleOptions]="[
+                { label: 'Kalendář', icon: 'icon-calendar', value: 'calendar' },
+                { label: 'Mřížka', icon: 'icon-grid-1', value: 'grid' }
+              ]"
+              [activeViewValue]="periodical.activeCalendarGridControl()"
+              (viewChanged)="periodical.setView($event)"
               (infoClicked)="openRecordInfo()"
+              (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
+              (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
             >
             </app-toolbar-controls>
 
@@ -50,37 +56,36 @@
       </app-action-toolbar>
 
       <!-- Content rendering based on view mode -->
-      <div class="results-content--wrapper" *ngIf="viewMode() as mode">
+      <div class="results-content--wrapper" *ngIf="periodical.viewMode() as mode">
 
         <app-periodical-years-timeline
           *ngIf="mode === ViewMode.Timeline"
-          [years]="periodicalYears"
-          (selectYear)="onSelectYear($event)">
+          [years]="periodical.periodicalYears"
+          (selectYear)="periodical.onSelectYear($event)">
         </app-periodical-years-timeline>
 
         <app-periodical-years-grid
           *ngIf="mode === ViewMode.GridYears"
-          [years]="periodicalYears"
-          (selectYear)="onSelectYear($event)">
+          [years]="periodical.periodicalYears"
+          (selectYear)="periodical.onSelectYear($event)">
         </app-periodical-years-grid>
 
         <app-periodical-year-issues-calendar
           *ngIf="mode === ViewMode.Calendar"
-          [year]="selectedYear() || ''"
-          [pid]="getSelectedPid() || ''">
+          [year]="periodical.selectedYear() || ''"
+          [pid]="periodical.getSelectedPid() || ''">
         </app-periodical-year-issues-calendar>
 
         <app-periodical-year-issues-grid
           *ngIf="mode === ViewMode.GridIssues"
-          [year]="selectedYear() || ''"
-          [pid]="getSelectedPid() || ''">
+          [year]="periodical.selectedYear() || ''"
+          [pid]="periodical.getSelectedPid() || ''">
         </app-periodical-year-issues-grid>
 
       </div>
 
       <!-- Loading and error states -->
-      <div *ngIf="loading$ | async">Načítavam...</div>
-      <div *ngIf="error$ | async as error">Chyba: {{ error }}</div>
+      <div *ngIf="periodical.loading$ | async">Načítavam...</div>
 
     </div>
   </div>

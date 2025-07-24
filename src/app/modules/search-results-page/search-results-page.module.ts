@@ -30,6 +30,7 @@ import {
 } from './components/advanced-search-indicator/advanced-search-indicator.component';
 import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
+import {musicDetailReducer} from '../music/state/music-detail.reducer';
 
 const routes: Routes = [
   {
@@ -48,6 +49,7 @@ const routes: Routes = [
     StoreModule.forFeature('genres', genresReducer),
     StoreModule.forFeature('document-types', documentTypesReducer),
     StoreModule.forFeature('search-results', searchReducer),
+    StoreModule.forFeature('music', musicDetailReducer),
     EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]),
     NgIf,
     AsyncPipe,

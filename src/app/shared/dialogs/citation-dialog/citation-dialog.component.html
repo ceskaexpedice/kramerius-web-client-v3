@@ -1,0 +1,70 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'citation-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+
+      <app-tabs (tabChanged)="onTabChanged($event)">
+
+<!--        <app-tab-item label="LaTeX">-->
+<!--          <div class="tab&#45;&#45;content" [innerHTML]="citationResponse?.iso690"></div>-->
+<!--        </app-tab-item>-->
+
+        <div tab-common-up>
+
+          <div class="tab--content">
+
+            <div class="citation-types--container">
+
+              <app-button-toggle
+                *ngFor="let type of shareableDocumentTypes"
+                [label]="type.model"
+                [value]="type.pid"
+                [checked]="type.pid === activeCitationPid"
+                (toggled)="toggledActiveCitationType($event, type.pid)">
+              </app-button-toggle>
+
+            </div>
+          </div>
+
+        </div>
+
+        <app-tab-item label="HTML">
+          <div class="tab-item--content" [innerHTML]="citationResponse?.iso690html"></div>
+        </app-tab-item>
+
+        <app-tab-item label="text">
+          <div class="tab-item--content" [innerHTML]="citationResponse?.iso690"></div>
+        </app-tab-item>
+
+        <app-tab-item label="BibTeX">
+          <div class="tab-item--content" [innerHTML]="citationResponse?.bibtex"></div>
+        </app-tab-item>
+
+        <app-tab-item [label]="'wiki' | translate">
+          <div class="tab-item--content" [innerHTML]="citationResponse?.wiki"></div>
+        </app-tab-item>
+
+        <div tab-common-down>
+
+          <div class="tab--content">
+
+            <button class="link primary with-icon p-left-0" (click)="copyToClipboard()">
+              <i class="icon-copy"></i>
+              {{ 'copy' | translate }}
+            </button>
+          </div>
+        </div>
+
+      </app-tabs>
+    </div>
+
+  </div>
+
+</div>

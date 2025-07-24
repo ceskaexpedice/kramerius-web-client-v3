@@ -9,7 +9,7 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import { HttpBackend, provideHttpClient } from '@angular/common/http';
+import {HttpBackend, provideHttpClient, withFetch} from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -22,6 +22,8 @@ import { routerReducer, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
+import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
+import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -51,16 +53,18 @@ export function initApp(envService: EnvironmentService) {
       },
     }),
     StoreModule.forRoot({
-      router: routerReducer
+      router: routerReducer,
     }, {}),
     EffectsModule.forRoot([]),
     StoreRouterConnectingModule.forRoot(),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: ENVIRONMENT.production }),
+    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,
     FooterComponent,
+    PlaybackBarComponent,
+    LoadingOverlayComponent,
   ],
   providers: [
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     AppMissingTranslationService,
     {
       provide: APP_INITIALIZER,

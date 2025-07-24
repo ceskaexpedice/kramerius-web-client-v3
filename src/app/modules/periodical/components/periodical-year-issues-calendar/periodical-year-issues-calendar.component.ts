@@ -18,6 +18,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {PeriodicalService} from '../../../../shared/services/periodical.service';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -41,6 +42,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   private router = inject(Router);
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
+  private periodicalService = inject(PeriodicalService);
 
   @Input() year!: string;
   @Input() pid!: string;
@@ -134,6 +136,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   onDateSelected(date: Date | null): void {
     if (!date) return;
     const data = this.issueMap().get(this.formatDateKey(date));
-    if (data?.pid) this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, data.pid]);
+    if (data?.pid) this.periodicalService.onCalendarDateSelected(data.pid);
   }
 }

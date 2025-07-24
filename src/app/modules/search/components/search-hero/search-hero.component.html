@@ -16,18 +16,16 @@
       (submit)="searchService.onSubmit($event)"
       [inputTerm]="searchService.searchTerm"
       [showHistorySuggestions]="true"
+      [showMicrophoneButton]="false"
+      [showHelpButton]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined" >
+    <button class="outlined" (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
   </div>
 
-  <div class="tags-row">
-    <span class="tag">Oborová</span>
-    <span class="tag">Historické mapy</span>
-    <span class="tag">Hudebniny</span>
-    <span class="tag">Ilustrované noviny</span>
-  </div>
+  <app-suggested-search-tags-section></app-suggested-search-tags-section>
+
 </section>

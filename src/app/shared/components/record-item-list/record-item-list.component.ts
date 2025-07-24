@@ -20,7 +20,7 @@ export class RecordItemListComponent {
 
   @Input() records: SearchDocument[] = [];
 
-  private recordHandler = inject(RecordHandlerService);
+  public recordHandler = inject(RecordHandlerService);
 
   onClick(e: MouseEvent, record: SearchDocument) {
     e.stopPropagation();

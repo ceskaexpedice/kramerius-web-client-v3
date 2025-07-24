@@ -1,0 +1,8 @@
+<div class="volume">
+
+  <button (click)="toggleMute()" class="outlined tertiary"><i class="{{getVolumeIcon()}}"></i></button>
+
+  <input type="range" min="0" max="1" step="0.01"
+         [style.--progress]="(volume() * 100) + '%'"
+         [value]="volume()" (input)="onVolumeChange($event)" />
+</div>

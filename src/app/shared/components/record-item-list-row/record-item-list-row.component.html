@@ -1,16 +1,27 @@
 <td class="record-title">
-  <div class="title-wrapper">
-    <img
-      class="thumb"
-      [src]="`${getKrameriusBaseUrl()}`"
-      alt="thumbnail"
-    />
+  <a class="title-wrapper" [href]="url">
+    <div class="thumb-wrapper">
+      <img
+        class="thumb"
+        [src]="`${getKrameriusBaseUrl()}`"
+        alt="thumbnail"
+      />
+
+      <ng-container *ngIf="record.accessibility === DocumentAccessibilityEnum.PRIVATE">
+        <div class="record-item-card__image-lock-overlay">
+          <button class="button secondary rounded icon-button">
+            <i class="icon-lock-1"></i>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
     <div>
       <div class="title" [title]="record.title">
         {{ record.title.length > 80 ? (record.title.slice(0, 80) + '...') : record.title }}
       </div>
     </div>
-  </div>
+  </a>
 </td>
 
 <td>
@@ -21,15 +32,12 @@
   <ng-template #noAuthors>
     <span class="author-not-filled flex flex--align-center flex--gap-x1">{{'author-not-filled' | translate}} <i class="icon-question"></i></span>
   </ng-template>
-
 </td>
 
 <td>{{ record.date || '—' }}</td>
 
 <td>
-
   <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
-
 </td>
 
 <td>{{ record.model | translate }}</td>

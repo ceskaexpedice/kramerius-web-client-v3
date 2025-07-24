@@ -1,17 +1,20 @@
-import { Component, inject, Input } from '@angular/core';
-import { SearchDocument } from '../../../modules/models/search-document';
-import { NgClass, NgIf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { APP_ROUTES_ENUM } from '../../../app.routes';
-import { RecordHandlerService } from '../../services/record-handler.service';
-import { EnvironmentService } from '../../services/environment.service';
+import {Component, inject, Input} from '@angular/core';
+import {SearchDocument} from '../../../modules/models/search-document';
+import {NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {RecordHandlerService} from '../../services/record-handler.service';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import {SolrService} from '../../../core/solr/solr.service';
+import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
+import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 
 @Component({
   selector: 'app-record-item',
   imports: [
     NgIf,
     TranslatePipe,
+    AccessibilityBadgeComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -19,16 +22,11 @@ import { EnvironmentService } from '../../services/environment.service';
 export class RecordItemComponent {
 
   recordHandler = inject(RecordHandlerService);
+  solrService = inject(SolrService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
 
   router = inject(Router);
-
-  private krameriusBaseUrl: string;
-
-  constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.getApiUrl('items');
-  }
 
   onRecordClick(e: Event, record: SearchDocument): void {
     e.stopPropagation();
@@ -36,7 +34,40 @@ export class RecordItemComponent {
     this.recordHandler.handleDocumentClick(record)
   }
 
-  getKrameriusBaseUrl(): string {
-    return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
+  getImageThumbnailUrl(): string {
+    return this.solrService.getImageThumbnailUrl(this.record.pid);
   }
+
+  getTitle(): string {
+    switch (this.record.model) {
+      case DocumentTypeEnum.monograph:
+        return this.record.title || '';
+      case DocumentTypeEnum.periodical:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.periodicalvolume:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.article:
+        return this.record.title || '';
+      case DocumentTypeEnum.supplement:
+        return this.record.title || '';
+      case DocumentTypeEnum.page:
+        return this.record.rootTitle || '';
+      default:
+        return this.record.rootTitle || '';
+    }
+  }
+
+  getSubtitle() {
+    switch (this.record.model) {
+      case DocumentTypeEnum.article:
+        return this.record.rootTitle || '';
+      case DocumentTypeEnum.supplement:
+        return this.record.rootTitle || '';
+      default:
+        return '';
+    }
+  }
+
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

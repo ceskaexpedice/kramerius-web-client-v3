@@ -1,0 +1,122 @@
+<app-detail-layout
+  [showBottomToolbar]="detailViewService.soundRecordingViewMode() === 'images'"
+  [constrainBottomToolbar]="true">
+
+  <ng-container left-sidebar>
+
+    <div class="sidebar-wrapper" *ngIf="detailViewService.document$ | async as document">
+
+        @if (document.model === DocumentTypeEnum.soundrecording) {
+          <div class="sidebar--wrapper">
+            <app-input
+              [placeholder]="'search-in-document--placeholder' | translate"
+              [theme]="'dark'"
+              [size]="'sm'"
+              [showMicButton]="true"
+            ></app-input>
+
+            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
+              <hr>
+              <app-page-navigator
+                [currentPage]="detailViewService.currentPageIndex + 1"
+                [totalPages]="detailViewService.totalPages"
+                (next)="detailViewService.goToNext()"
+                (prev)="detailViewService.goToPrevious()"
+                (pageChange)="detailViewService.goToPage($event)"
+              ></app-page-navigator>
+            </ng-container>
+
+            <div class="sidebar--wrapper--scroll-content">
+              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+            </div>
+          </div>
+        }
+
+    </div>
+  </ng-container>
+
+  <ng-container main-content>
+
+    <ng-container *ngIf="detailViewService.document$ | async as document">
+
+      <app-action-toolbar>
+        <div class="max-width-100 w-100" left>
+          <app-toolbar-header
+            [title]="detailViewService.title"
+            (goBack)="goBackClicked()">
+          </app-toolbar-header>
+        </div>
+
+        <div center>
+          <app-date-navigator
+            [value]="document.dateStr || ''"
+            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
+          </app-date-navigator>
+        </div>
+
+        <div right>
+          <div class="flex flex--align-center">
+            <app-toolbar-controls
+              [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
+              [viewToggleOptions]="[
+                { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
+                { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
+              ]"
+              [showFavorites]="false"
+              [showShare]="true"
+              [showQuote]="true"
+              [showInfo]="true"
+              (infoClicked)="detailViewService.openRecordInfo()"
+              [activeViewValue]="detailViewService.soundRecordingViewMode()"
+              (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (shareClicked)="recordHandler.openShareDialog(document)"
+              (quoteClicked)="recordHandler.openCitationDialog(document)">
+            </app-toolbar-controls>
+          </div>
+        </div>
+
+      </app-action-toolbar>
+
+      <div class="detail-view--page--content--body">
+
+        <div class="detail-view--page--content--wrapper" >
+
+          @if (detailViewService.soundRecordingViewMode() === 'images') {
+
+            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+              class="app-document-thumbnail">
+
+          }
+
+          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
+
+            <ng-container *ngIf="musicService.tracks$ | async as tracks">
+
+              <app-music-track-list
+                [tracks]="tracks"
+                [playingPid]="soundService.currentTrackPid"
+                (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                (addToQueue)="musicService.addTrackToQueue($event)"
+                (download)="musicService.downloadTrack($event)"
+              ></app-music-track-list>
+
+            </ng-container>
+
+
+          </ng-container>
+
+        </div>
+
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container bottom-toolbar>
+
+    @if (detailViewService.soundRecordingViewMode() === 'images') {
+      <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
+    }
+
+  </ng-container>
+</app-detail-layout>

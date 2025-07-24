@@ -1,20 +1,32 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export type CalendarGridControl = 'calendar' | 'grid';
+export type SoundRecordGridControl = 'records' | 'images';
+
+export interface ViewToggleOption {
+  label: string;
+  icon: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-toolbar-controls',
   imports: [
     NgIf,
+    NgForOf,
+    TranslatePipe,
   ],
   templateUrl: './toolbar-controls.component.html',
   styleUrl: './toolbar-controls.component.scss'
 })
 export class ToolbarControlsComponent {
 
-  @Input() showCalendarGridControls = false;
-  @Input() activeCalendarGridControl: CalendarGridControl = 'calendar';
+  @Input() showViewToggle = false;
+  @Input() viewToggleOptions: ViewToggleOption[] = [];
+  @Input() activeViewValue: string | null = null;
+
   @Input() showFavorites = false;
   @Input() showShare = false;
   @Input() showQuote = false;
@@ -24,11 +36,11 @@ export class ToolbarControlsComponent {
   @Output() shareClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() quoteClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() infoClicked: EventEmitter<any> = new EventEmitter<any>();
-  @Output() calendarGridClicked: EventEmitter<CalendarGridControl> = new EventEmitter<CalendarGridControl>();
+  @Output() viewChanged = new EventEmitter<string>();
 
-  setViewMode(mode: CalendarGridControl) {
-    this.activeCalendarGridControl = mode;
-    this.calendarGridClicked.emit(mode);
+  onToggle(option: ViewToggleOption): void {
+    this.activeViewValue = option.value;
+    this.viewChanged.emit(option.value);
   }
 
   onFavorite() {

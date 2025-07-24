@@ -2,7 +2,7 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/c
 import {AdvancedSearchFilterRow} from '../advanced-search-filter-row/advanced-search-filter-row';
 import {NgForOf, NgIf} from '@angular/common';
 import {SolrOperators} from '../../../../../core/solr/solr-helpers';
-import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../advanced-filters';
+import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../solr-filters';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../../services/advanced-search.service';
 
@@ -41,6 +41,8 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
 
   updateFilter(index: number, updated: AdvancedFilterDefinition) {
     this.filters = [...this.filters.slice(0, index), updated, ...this.filters.slice(index + 1)];
+    console.log('updated filters:', updated);
+    console.log('all filters:', this.filters);
     this.filtersChange.emit(this.filters);
   }
 

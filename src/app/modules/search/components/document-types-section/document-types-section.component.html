@@ -5,8 +5,10 @@
     <app-category-item
       *ngFor="let genre of documentTypes?.slice(0, 16)"
       [icon]="genre.icon"
-      [label]="genre.name | translate"
+      [label]="genre.name"
       [count]="genre.count"
+      [url]="getDocumentTypeUrl(genre.name)"
+      (clicked)="clickedDocumentType($event)"
     ></app-category-item>
   </div>
 </section>

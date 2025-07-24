@@ -1,14 +1,20 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {SearchDocument} from '../../modules/models/search-document';
 import {SearchService} from './search.service';
+import {MatDialog} from '@angular/material/dialog';
+import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
+import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
+import {Metadata} from '../models/metadata.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordHandlerService {
+
+  private dialog = inject(MatDialog);
 
   constructor(
     private router: Router,
@@ -27,15 +33,44 @@ export class RecordHandlerService {
       case DocumentTypeEnum.periodical:
         this.navigateToPeriodical(document.pid);
         break;
+      case DocumentTypeEnum.soundrecording:
+        this.navigateToMusic(document.pid);
+        break;
       default:
         this.navigateToDetail(document.pid);
+    }
+  }
+
+  handleDocumentClickByModelAndPid(model: string, pid: string): void {
+    switch (model) {
+      case DocumentTypeEnum.periodical:
+        this.navigateToPeriodical(pid);
+        break;
+      case DocumentTypeEnum.soundrecording:
+        this.navigateToMusic(pid);
+        break;
+      default:
+        this.navigateToDetail(pid);
+    }
+  }
+
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string): string {
+    switch (model) {
+      case DocumentTypeEnum.periodical:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+      case DocumentTypeEnum.periodicalvolume:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+      case DocumentTypeEnum.soundrecording:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
+      default:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
     }
   }
 
   /**
    * Navigate to the document detail view.
    */
-  private navigateToDetail(pid: string): void {
+  public navigateToDetail(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
   }
 
@@ -44,6 +79,10 @@ export class RecordHandlerService {
    */
   private navigateToPeriodical(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
+  }
+
+  private navigateToMusic(pid: string): void {
+    this.router.navigate([APP_ROUTES_ENUM.MUSIC_VIEW, pid]);
   }
 
   navigateFromPeriodicalToSearchResults(): void {
@@ -55,10 +94,93 @@ export class RecordHandlerService {
     }
   }
 
+  openCitationDialog(document: Metadata | null) {
+    if (!document) {
+      console.warn('No document provided for citation dialog.');
+      return;
+    }
+    this.dialog.open(CitationDialogComponent, {
+      width: '60vw',
+      data: {document},
+    });
+  }
+
+  openShareDialog(document: Metadata | null) {
+    if (!document) {
+      console.warn('No document provided for share dialog.');
+      return;
+    }
+    this.dialog.open(ShareDialogComponent, {
+      width: '60vw',
+      data: {document},
+    })
+  }
+
   /**
    * Return whether the given model is considered periodical.
    */
   isPeriodical(model: string): boolean {
     return model === DocumentTypeEnum.periodical;
+  }
+
+  getShareableDocumentTypes(document: Metadata): any[] {
+    let shareableTypes = [];
+
+    if (document.rootModel) {
+      shareableTypes.push({
+        model: document.rootModel,
+        pid: document.rootPid
+      })
+    }
+
+    // if rootModel is periodical, add periodical volume
+    if (document.rootModel === 'periodical' && document.model !== 'periodical' && document.volume) {
+
+      if (document.model === 'periodicalvolume') {
+        shareableTypes.push({
+          model: 'periodicalvolume',
+          pid: document.uuid
+        });
+      } else {
+        shareableTypes.push({
+          model: 'periodicalvolume',
+          pid: document.volume.uuid
+        })
+      }
+    }
+
+    if (document.model !== 'periodical' && document.model !== 'periodicalvolume') {
+      shareableTypes.push({
+        model: document.model,
+        pid: document.uuid
+      });
+    }
+
+    // if in url is ?page=uuid, then add it to the list
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageUuid = urlParams.get('page');
+    if (pageUuid) {
+      shareableTypes.push({
+        model: 'page',
+        pid: pageUuid
+      });
+    }
+
+    // remove duplicates
+    const uniqueShareableTypes = new Map();
+    shareableTypes.forEach(item => {
+      const key = `${item.model}-${item.pid}`;
+      if (!uniqueShareableTypes.has(key)) {
+        uniqueShareableTypes.set(key, item);
+      }
+    });
+
+    // Convert back to array
+    shareableTypes = Array.from(uniqueShareableTypes.values());
+
+    // reverse order
+    shareableTypes.reverse();
+
+    return shareableTypes;
   }
 }

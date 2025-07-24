@@ -5,6 +5,7 @@ import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
+import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -20,6 +21,7 @@ import { EnvironmentService } from '../../services/environment.service';
 export class RecordItemListRowComponent {
 
   @Input() record!: SearchDocument;
+  @Input() url!: string;
 
   protected readonly languageMap = languageMap;
 
@@ -32,4 +34,6 @@ export class RecordItemListRowComponent {
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
+
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

@@ -3,10 +3,10 @@
     *ngFor="let year of years"
     [title]="year.year"
     [uuid]="year.pid"
+    [model]="year.model"
     [showFavoriteButton]="false"
     [showAccessibilityBadge]="true"
     [accessibility]="year.accessibility"
     [className]="'card--fluid'"
-    (click)="selectYear.emit(year.year)"
   ></app-item-card>
 </div>

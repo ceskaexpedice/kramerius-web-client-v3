@@ -1,31 +1,10 @@
-<!--<div class="category-filter&#45;&#45;container">-->
-
-<!--  <div class="tabs-left">-->
-
-<!--    <div-->
-<!--      *ngFor="let tab of tabs"-->
-<!--      class="category-filter&#45;&#45;container&#45;&#45;item"-->
-<!--      [class.active]="value === tab.value"-->
-<!--      (click)="selectTab(tab.value)"-->
-<!--    >-->
-<!--      {{ tab.label | translate }}-->
-<!--    </div>-->
-
-<!--  </div>-->
-
-<!--  <div class="content-right">-->
-<!--    <ng-content select="[actions]"></ng-content>-->
-<!--  </div>-->
-
-<!--</div>-->
-
 <div class="action-toolbar">
 
   <div class="toolbar-left">
     <ng-content select="[left]"></ng-content>
   </div>
 
-  <div class="toolbar-center">
+  <div class="toolbar-center" *ngIf="hasCenterContent">
     <ng-content select="[center]"></ng-content>
   </div>
 

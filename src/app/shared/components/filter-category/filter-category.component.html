@@ -11,13 +11,32 @@
 
       </h4>
 
-      <i class="icon-minus-square cursor-pointer" (click)="toggleExpanded()"></i>
+      <i class="icon-minus-square cursor-pointer" *ngIf="showToggleExpand" (click)="toggleExpanded()"></i>
 
     </div>
 
     <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
-      <app-filter-item *ngFor="let facet of visibleItems() | slice:0:maxItems" [label]="facet.name" [checked]="isSelected(facet.name)" [count]="facet.count" [truncateLabel]="true" (toggled)="onToggle(facet.name)"></app-filter-item>
+      <ng-container *ngIf="type !== 'radio'">
+        <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems">
+          <app-filter-item
+            [label]="item.name"
+            [checked]="isSelected(item.name)"
+            [icon]="item.icon || null"
+            [count]="item.count"
+            [truncateLabel]="true"
+            (toggled)="onToggle(item.name)"
+          ></app-filter-item>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="type === 'radio'">
+        <app-filter-items-radio
+          [items]="visibleItems()"
+          [selected]="getSelectedRadioValue()"
+          (changed)="onRadioChange($event)"
+        ></app-filter-items-radio>
+      </ng-container>
 
       <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
         {{ 'show-more' | translate }}
@@ -29,7 +48,9 @@
 
   </div>
 
-  <hr>
+  <ng-content #categoryContent></ng-content>
+
+  <hr *ngIf="showBottomBorder">
 
 </ng-container>
 

@@ -70,3 +70,46 @@ div.mat-mdc-autocomplete-panel {
 .custom-label .mat-calendar-body-label {
   visibility: hidden !important;
 }
+
+
+// Custom styles for Angular Material Switch
+.mdc-switch__track::before, .mdc-switch__track::after {
+  border: none !important;
+}
+
+.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle {
+  width: var(--mat-switch-unselected-handle-size, 24px) !important;
+  height: var(--mat-switch-unselected-handle-size, 24px) !important;
+  margin: var(--mat-switch-unselected-handle-horizontal-margin, 0 5px) !important;
+}
+
+.mdc-switch__track::before {
+  background-color: var(--color-bg-bright) !important;
+}
+
+.mdc-switch--unselected:enabled .mdc-switch__handle::after, .mdc-switch--selected:enabled .mdc-switch__handle::after {
+  background: var(--color-text-on-color) !important;
+}
+
+// checkbox
+mat-checkbox {
+  --mdc-checkbox-unselected-icon-color: var(--color-border-contrast);
+}
+
+.mat-mdc-checkbox.p-left-0 .mdc-checkbox {
+  padding-left: 0 !important;
+}
+
+.mdc-checkbox__background {
+  border-radius: 4px !important;
+}
+
+// radio
+.mat-mdc-radio-button .mdc-label {
+  cursor: pointer !important;
+}
+
+.mat-mdc-radio-button .mat-internal-form-field {
+  color: var(--color-text-light) !important;
+  font-size: var(--font-size-small) !important;
+}

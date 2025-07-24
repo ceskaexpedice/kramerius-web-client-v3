@@ -24,9 +24,10 @@ import {PeriodicalFiltersComponent} from './components/periodical-filters/period
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {RecordTypeTabsComponent} from '../../shared/components/record-type-tabs/record-type-tabs.component';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
-import {YearNavigatorComponent} from '../../shared/components/year-navigator/year-navigator.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
+import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
+import {DocumentDetailEffects} from '../../shared/state/document-detail/document-detail.effects';
 
 const routes: Routes = [
   {
@@ -38,29 +39,29 @@ const routes: Routes = [
   declarations: [
     PeriodicalPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		StoreModule.forFeature('periodical', periodicalDetailReducer),
-		EffectsModule.forFeature([PeriodicalDetailEffects]),
-		AsyncPipe,
-		JsonPipe,
-		NgIf,
-		NgForOf,
-		FilterSidebarComponent,
-		MatDatepickerModule,
-		MatNativeDateModule,
-		PeriodicalYearsTimelineComponent,
-		PeriodicalYearsGridComponent,
-		PeriodicalYearIssuesCalendarComponent,
-		PeriodicalYearIssuesGridComponent,
-		PeriodicalFiltersComponent,
-		ActionToolbarComponent,
-		RecordTypeTabsComponent,
-		ToolbarHeaderComponent,
-		YearNavigatorComponent,
-		ToolbarControlsComponent,
-		ResultsSortComponent,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    StoreModule.forFeature('periodical', periodicalDetailReducer),
+    EffectsModule.forFeature([PeriodicalDetailEffects, DocumentDetailEffects]),
+    AsyncPipe,
+    JsonPipe,
+    NgIf,
+    NgForOf,
+    FilterSidebarComponent,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    PeriodicalYearsTimelineComponent,
+    PeriodicalYearsGridComponent,
+    PeriodicalYearIssuesCalendarComponent,
+    PeriodicalYearIssuesGridComponent,
+    PeriodicalFiltersComponent,
+    ActionToolbarComponent,
+    RecordTypeTabsComponent,
+    ToolbarHeaderComponent,
+    ToolbarControlsComponent,
+    ResultsSortComponent,
+    DateNavigatorComponent,
+  ],
   providers: [
     { provide: 'FilterService', useClass: PeriodicalFilterService }
   ]

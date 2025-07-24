@@ -1,0 +1,38 @@
+  <td class="index-col">
+    @if (isPlaying) {
+      <i class="icon-volume-high"></i>
+    } @else {
+      {{ index + 1 }}
+    }
+  </td>
+  <td>
+    <div class="title">
+      <ng-container *ngIf="isPlaying; else notPlaying">
+        <span class="icon icon--playing"></span>
+      </ng-container>
+      <ng-template #notPlaying>
+        <span class="icon icon--track"></span>
+      </ng-template>
+
+      <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
+      <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+    </div>
+  </td>
+  <td class="duration duration-col">{{ duration }}</td>
+  <td class="actions actions-col">
+    <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
+      <i class="icon icon-additem"></i>
+    </button>
+    <button class="icon-button rounded light"
+            (mouseover)="isMouseOverFavorite = true"
+            (mouseout)="isMouseOverFavorite = false"
+            (click)="toggleFavorite(); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+      <i
+        [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
+        [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">
+      </i>
+    </button>
+    <button class="icon-button rounded light" (click)="download(); $event.stopPropagation()">
+      <i class="icon icon-download"></i>
+    </button>
+  </td>

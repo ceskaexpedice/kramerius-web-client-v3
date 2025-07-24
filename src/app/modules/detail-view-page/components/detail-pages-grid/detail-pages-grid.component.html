@@ -1,0 +1,13 @@
+<div class="page--grid" [ngClass]="'type-' + type" *ngIf="(detailViewService.pages$ | async) as pages">
+
+  @for (page of pages; track page.pid; let index = $index) {
+    <app-detail-page-item
+      [page]="page"
+      [type]="type"
+      [pageNumber]="index + 1"
+      [isSelected]="detailViewService.currentPageIndex === index"
+      (pageClicked)="clickedPage(index)"
+    >
+    </app-detail-page-item>
+  }
+</div>

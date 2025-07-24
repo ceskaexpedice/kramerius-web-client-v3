@@ -25,6 +25,8 @@ import {FooterComponent} from '../../core/layout/footer/footer.component';
 import {SearchEffects} from '../search-results-page/state/search.effects';
 import {searchReducer} from '../search-results-page/state/search.reducer';
 import {SearchService} from '../../shared/services/search.service';
+import {musicDetailReducer} from '../music/state/music-detail.reducer';
+import {routerReducer} from '@ngrx/router-store';
 
 const routes: Routes = [
   {
@@ -41,6 +43,8 @@ const routes: Routes = [
     StoreModule.forFeature('genres', genresReducer),
     StoreModule.forFeature('document-types', documentTypesReducer),
     StoreModule.forFeature('search-results', searchReducer),
+    StoreModule.forFeature('music', musicDetailReducer),
+    StoreModule.forFeature('router', routerReducer),
     EffectsModule.forFeature([PeriodicalsEffects, BooksEffects, GenresEffects, DocumentTypesEffects, SearchEffects]), FooterComponent,
   ],
   providers: [

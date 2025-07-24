@@ -1,0 +1,17 @@
+.generic-dialog-container {
+
+  .dialog-body {
+
+    .content {
+      padding: 0 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+  }
+}
+
+.citation-types--container, .share-options--container {
+  display: flex;
+  gap: var(--spacing-x2);
+}

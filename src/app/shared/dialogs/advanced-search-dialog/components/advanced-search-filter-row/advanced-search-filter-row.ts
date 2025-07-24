@@ -4,15 +4,16 @@ import {FormsModule} from '@angular/forms';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  AdvancedFilterKey,
-  AdvancedFilterType,
-} from '../../advanced-filters';
+  SolrFacetKey,
+  FilterElementType,
+} from '../../solr-filters';
 import {AutocompleteComponent} from '../../../../components/autocomplete/autocomplete.component';
 import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
 import {DateStepperChange, DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'advanced-search-filter-row',
@@ -22,6 +23,7 @@ import {DateStepperChange, DateStepperComponent} from '../../../../date-stepper/
 })
 export class AdvancedSearchFilterRow implements OnInit {
   private solrService = inject(SolrService);
+  private translateService = inject(TranslateService);
 
   @Input() filter!: AdvancedFilterDefinition;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
@@ -36,14 +38,16 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   loadData() {
-    if (this.filter.inputType === AdvancedFilterType.Dropdown && this.filter.solrField) {
-      const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '');
+    if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
+      const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
 
       data.subscribe(suggestions => {
         // sort suggestions, first 4 suggestions default order, then alphabetically
         const firstFour = suggestions.slice(0, 4); // Keep first 4 in original order
         const rest = suggestions.slice(4).sort((a, b) => {
-          return a.toLowerCase().localeCompare(b.toLowerCase());
+          const translatedA = this.translateService.instant(a);
+          const translatedB = this.translateService.instant(b);
+          return translatedA.toLowerCase().localeCompare(translatedB.toLowerCase());
         });
 
         const sorted = [...firstFour, ...rest]; // Combine the two arrays
@@ -59,11 +63,16 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   }
 
+  toggleEqualsOperator() {
+    this.filter.isEquals = !this.filter.isEquals;
+    this.emitChange();
+  }
+
   selectedFilterTypeOption() {
     return this.filterTypes.find(f => f.key === this.filter.key) || this.filterTypes[0];
   }
 
-  onFilterTypeChange(key: AdvancedFilterKey) {
+  onFilterTypeChange(key: SolrFacetKey) {
     const def = this.filterTypes.find(f => f.key === key);
     if (def) {
       this.filter = {
@@ -104,7 +113,13 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   onDateChange(date: DateStepperChange) {
     console.log('date changed:', date);
-    const formattedDate = date.date.toISOString().split('T')[0];
+    // if date.offset is -1 it means type is range so we have both dateFrom and dateTo and we can store them as [dateFrom TO dateTo], otherwise we store it as dateFrom+offset
+    if (date.offset === -1 && date.dateTo) {
+      this.filter.elementValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
+      this.filter.solrValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
+      return;
+    }
+    const formattedDate = date.dateFrom.toISOString().split('T')[0];
     this.filter.elementValue = `${formattedDate}+${date.offset}`
   }
 
@@ -124,6 +139,6 @@ export class AdvancedSearchFilterRow implements OnInit {
     return this.filter.meta?.max ?? 100;
   }
 
-  protected readonly AdvancedFilterType = AdvancedFilterType;
+  protected readonly AdvancedFilterType = FilterElementType;
 
 }

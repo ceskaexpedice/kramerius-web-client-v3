@@ -17,29 +17,49 @@
 
 <div
   *ngIf="open()"
-  class="options"
+  class="options-container"
   [class.above]="showAbove"
   role="listbox"
   [attr.aria-activedescendant]="'option-' + focusedIndex"
 >
-  <div
-    class="option"
-    *ngFor="let option of options; let i = index; trackBy: trackByFn"
-    [attr.id]="'option-' + i"
-    [class.selected]="option === value"
-    [class.focused]="focusedIndex === i"
-    (click)="select(option)"
-    (mouseenter)="focusedIndex = i"
-    role="option"
-    [attr.aria-selected]="option === value"
-  >
-    {{ displayFn(option) | translate }}
-    <i *ngIf="option === value" class="icon-tick-circle"></i>
+  <!-- Filter Input -->
+  <div *ngIf="filterable" class="filter-container">
+    <app-input
+      [type]="'text'"
+      class="filter-input"
+        [placeholder]="filterPlaceholder | translate"
+        (valueChange)="onFilterChange($event)"
+        (keydown)="onFilterKeyDown($event)"
+        (click)="$event.stopPropagation()"
+      [theme]="'dark'"
+      [size]="'sm'"
+    ></app-input>
+  </div>
+
+  <!-- Options List -->
+  <div class="options-list" [class.with-filter]="filterable">
+    <div
+      class="option"
+      *ngFor="let option of filteredOptions; let i = index; trackBy: trackByFn"
+      [attr.id]="'option-' + i"
+      [class.selected]="option === value"
+      [class.focused]="focusedIndex === i"
+      (click)="select(option)"
+      (mouseenter)="focusedIndex = i"
+      role="option"
+      [attr.aria-selected]="option === value"
+    >
+      {{ displayFn(option) | translate }}
+      <i *ngIf="option === value" class="icon-tick-circle"></i>
+    </div>
+
+    <!-- No results message -->
+    <div *ngIf="filteredOptions.length === 0" class="no-results">
+      {{ 'No results found' | translate }}
+    </div>
   </div>
 
   <div aria-live="polite" class="visually-hidden">
     {{ displayFn(value) | translate }}
   </div>
-
 </div>
-

@@ -29,13 +29,26 @@ export class SearchResultsPageComponent implements OnInit {
 
     this.searchService.initialize();
 
-    console.log('this.settingsService.settings:', this.settingsService.settings);
-    this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
+    // layout=grid | list
+    // check if in url is set layout
+    const urlParams = new URLSearchParams(window.location.search);
+    const layout = urlParams.get('viewType') as AppResultsViewType;
+
+    if (layout && Object.values(AppResultsViewType).includes(layout)) {
+      this.view.set(layout);
+      this.settingsService.settings.searchResultsView = layout;
+    } else {
+      this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
+    }
 
   }
 
   setView(view: AppResultsViewType) {
     this.view.set(view);
+    // update the URL with the new view type
+    const url = new URL(window.location.href);
+    url.searchParams.set('viewType', view);
+    window.history.replaceState({}, '', url.toString());
     this.settingsService.settings.searchResultsView = view;
     this.settingsService.saveToStorage(this.settingsService.settings);
   }

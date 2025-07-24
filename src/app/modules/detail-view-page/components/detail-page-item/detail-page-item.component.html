@@ -1,0 +1,15 @@
+<div class="page--item"
+     [ngClass]="'type-' + type"
+     [class.selected]="isSelected" (click)="onPageClicked()">
+
+  <img
+    class="page--item__image"
+    [src]="`${getImageUrl()}`"
+    loading="lazy"
+  />
+
+  <span class="page--number">
+    {{pageNumber}}
+  </span>
+
+</div>

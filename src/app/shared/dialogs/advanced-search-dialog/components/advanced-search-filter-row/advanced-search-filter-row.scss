@@ -1,13 +1,13 @@
 .filter-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   padding: 6px 0;
   width: 100%;
 
   .filter-wrapper {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex-grow: 1;
     gap: 8px;
 
@@ -52,4 +52,8 @@
       color: var(--color-danger);
     }
   }
+}
+
+.equals-operator-btn.not-equals {
+  color: var(--color-text-error);
 }

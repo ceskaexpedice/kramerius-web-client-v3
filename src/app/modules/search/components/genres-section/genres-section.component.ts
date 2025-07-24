@@ -7,6 +7,8 @@ import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors
 import {loadBooks} from '../../state/books/books.actions';
 import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
 import {loadGenres} from '../../state/genres/genres.actions';
+import {SearchService} from '../../../../shared/services/search.service';
+import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
 @Component({
   selector: 'app-genres-section',
@@ -21,14 +23,23 @@ import {loadGenres} from '../../state/genres/genres.actions';
   styleUrls: ['./genres-section.component.scss', '../search-section.scss']
 })
 export class GenresSectionComponent implements OnInit {
-
   private store = inject(Store);
+  private searchService = inject(SearchService);
 
   genres$ = this.store.select(selectGenres);
   loading$ = this.store.select(selectGenresLoading);
 
   ngOnInit(): void {
     this.store.dispatch(loadGenres());
+  }
+
+  clickedGenre(genreName: string) {
+    const url = `${APP_ROUTES_ENUM.SEARCH_RESULTS}?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
+  getGenreUrl(genreName: string): string {
+    return `${APP_ROUTES_ENUM.SEARCH_RESULTS}?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
   }
 
 }

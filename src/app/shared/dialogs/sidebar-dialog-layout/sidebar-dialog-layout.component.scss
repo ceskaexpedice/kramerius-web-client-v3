@@ -20,11 +20,13 @@
     flex: 1;
     display: flex;
     overflow: hidden;
+    min-height: 0;
 
     .sidebar {
       flex: 1;
       border-right: 1px solid var(--color-border-light);
       padding: var(--spacing-x6) var(--spacing-x6) var(--spacing-x6) 0;
+      overflow: auto;
 
       ul {
         list-style: none;
@@ -70,6 +72,8 @@
     .content {
       padding: 36px 24px;
       flex: 3;
+      overflow-y: auto;
+      min-height: 0;
     }
   }
 

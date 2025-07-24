@@ -1,4 +1,6 @@
-<div class="filter-sidebar">
+<div class="filter-sidebar"
+     [class.scrollable]="scrollable"
+     [ngClass]="['padding-' + padding]">
 
   <ng-content></ng-content>
 

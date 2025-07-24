@@ -1,4 +1,8 @@
 <app-header />
-<main>
+<main [class.with-playback-bar]="showPlaybackBar()">
   <router-outlet />
+  <app-playback-bar />
 </main>
+
+<app-loading-overlay />
+

@@ -56,6 +56,10 @@ export class AdvancedSearchDialogComponent implements OnInit {
     this.dialogRef.close('submit');
   }
 
+  deleteAll() {
+    this.clearAllPending();
+  }
+
   close() {
     this.dialogRef.close();
   }

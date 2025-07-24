@@ -18,9 +18,9 @@ export class RecordTypeTabsComponent {
 
   readonly tabs = [
     { label: 'filter-all', value: 'all' },
-    { label: 'filter-images', value: 'images' },
-    { label: 'filter-periodicals', value: 'periodicals' },
-    { label: 'filter-maps', value: 'maps' }
+    // { label: 'filter-images', value: 'images' },
+    // { label: 'filter-periodicals', value: 'periodicals' },
+    // { label: 'filter-maps', value: 'maps' }
   ];
 
   selectTab(value: string) {

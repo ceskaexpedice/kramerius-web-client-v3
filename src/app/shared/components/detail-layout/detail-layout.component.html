@@ -1,0 +1,32 @@
+<div class="detail-layout">
+  <header class="detail-layout--top-toolbar">
+    <ng-content select="[top-toolbar]"></ng-content>
+  </header>
+
+  <div class="detail-layout--body">
+
+    <app-filter-sidebar [padding]="'0'" [scrollable]="false">
+
+      <ng-content select="[left-sidebar]"></ng-content>
+
+    </app-filter-sidebar>
+
+<!--    <aside class="detail-layout&#45;&#45;sidebar-left">-->
+<!--      <ng-content select="[left-sidebar]"></ng-content>-->
+<!--    </aside>-->
+
+    <main class="detail-layout--main-content">
+
+      <ng-content select="[main-content]"></ng-content>
+
+    </main>
+
+  </div>
+
+  @if (showBottomToolbar) {
+    <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
+      <ng-content select="[bottom-toolbar]"></ng-content>
+    </footer>
+  }
+
+</div>

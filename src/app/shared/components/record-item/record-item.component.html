@@ -1,33 +1,67 @@
-<div class="record-item-card" (click)="onRecordClick($event, record)">
+<a class="record-item-card"
+   [class.page]="record.model === DocumentTypeEnum.page"
+   [class.periodical]="record.model === DocumentTypeEnum.periodical"
+   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)">
 
   <div class="record-item-card__inner">
 
     <div class="record-item-card__image"
-         [style.background-image] = "`url(${getKrameriusBaseUrl()})`"
+         [style.background-image] = "`url(${getImageThumbnailUrl()})`"
     >
 
-      <span class="badge model">{{ record.model | translate }}</span>
+      @if (record.model !== DocumentTypeEnum.page) {
+        <span class="badge model">{{ record.model | translate }}</span>
+      }
+
+      @if (record.accessibility === DocumentAccessibilityEnum.PRIVATE) {
+        <div class="record-item-card__image-lock-overlay">
+
+          <button class="button secondary rounded icon-button">
+
+            <i class="icon-lock-1"></i>
+
+          </button>
+
+        </div>
+      }
 
     </div>
 
     <div class="record-item-card__content">
 
-      <div class="title" [title]="record.title">{{ record.title.length > 35 ? (record.title.slice(0, 35) + '...') : record.title }}</div>
-
-      <div class="subtitle" *ngIf="record.authors && record.authors?.length">
-        {{ record.authors.join(', ').length > 35 ? (record.authors.join(', ').slice(0, 35) + '...') : record.authors.join(', ') }}
+      <div class="title" [title]="getTitle()">
+        {{ getTitle() }}
       </div>
 
-      <div class="subtitle" *ngIf="record.date">
-        {{ record.date }}
+      <div class="subtitle" *ngIf="record.authors?.length || record.date">
+
+        {{getSubtitle()}}
+
+        <span class="authors">
+          {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
+        </span>
       </div>
 
-      <div class="access-label">
-<!--        <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>-->
-      </div>
+      @if (record.model === DocumentTypeEnum.page) {
+
+          @for (text of record.highlighting; track $index) {
+
+            <div class="text-ocr" [innerHTML]="text"></div>
+
+          }
+
+      }
+
+      @if (record.accessibility !== DocumentAccessibilityEnum.PUBLIC) {
+
+        <div class="access-label">
+          <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
+        </div>
+
+      }
 
     </div>
 
   </div>
 
-</div>
+</a>

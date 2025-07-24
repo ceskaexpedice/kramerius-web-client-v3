@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page--item {
+  position: relative;
+  width: 100%;
+  height: auto;
+
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--spacing-x2);
+  overflow: hidden;
+  transition: all 0.4s;
+  cursor: pointer;
+  border: 2px solid var(--color-border-bright);
+
+  &.type-page {
+    aspect-ratio: 82.67/124;
+  }
+
+  &.type-recording {
+    aspect-ratio: 1/1;
+  }
+
+  &.selected {
+    border: 2px solid var(--color-border-primary-default);
+  }
+
+  &:hover {
+    box-shadow: var(--item-card-shadow);
+    border: 2px solid var(--color-border-base);
+  }
+
+  .page--item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.page--number {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  border-radius: var(--spacing-x2);
+  padding: var(--spacing-x2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-base);
+  background-color: var(--color-bg-base);
+  font-size: 13px;
+  line-height: 11px;
+}

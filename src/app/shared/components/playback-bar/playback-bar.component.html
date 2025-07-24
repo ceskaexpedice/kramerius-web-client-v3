@@ -1,0 +1,53 @@
+<div class="playback-bar" *ngIf="show()">
+  <div class="left">
+    <img class="cover" [src]="musicService.getCoverImageForTrack()" alt="Cover" />
+    <div class="info">
+      <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+      <div class="meta">
+        {{ musicService.authorForTrack }}
+        · {{ musicService.metadata?.dateStr }}
+        · {{ 'page' | translate }} {{ soundService.getCurrentTrack()?.part }}
+      </div>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="controls">
+      <button (click)="prev()" class="outlined tertiary"><i class="icon-previous"></i></button>
+      <button (click)="togglePlay()" class="primary">
+        <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+      </button>
+      <button (click)="next()" class="outlined tertiary"><i class="icon-next"></i></button>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <span>{{ soundService.getCurrentTime() | timeFormat }}</span>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      [style.--progress]="(soundService.getProgress() * 100) + '%'"
+      [value]="soundService.getProgress() * 100"
+      (input)="seekTo($event)"
+    />
+    <span>{{ soundService.getDuration() | timeFormat }}</span>
+  </div>
+
+
+  <div class="right">
+
+    <button (click)="toggleQueue()" class="outlined tertiary"><i class="icon-music-filter"></i></button>
+
+    <app-volume-control
+      [volume]="volume"
+      (volumeChange)="onVolumeChange($event)"
+    ></app-volume-control>
+
+    <button (click)="close()" class="icon-button rounded light"><i class="icon-x"></i></button>
+  </div>
+</div>
+
+@if (isQueueOpen()) {
+  <app-playback-queue></app-playback-queue>
+}

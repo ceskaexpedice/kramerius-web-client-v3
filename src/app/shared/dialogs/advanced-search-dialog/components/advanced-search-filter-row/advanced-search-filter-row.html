@@ -11,6 +11,8 @@
     >
     </app-select>
 
+    <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+
     <ng-container [ngSwitch]="filter.key">
       <app-autocomplete
         *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
@@ -45,12 +47,14 @@
         [options]="filter.options || []"
         [(value)]="filter.elementValue"
         [theme]="'light'"
+        [filterable]="true"
       ></app-select>
 
       <app-date-stepper
         *ngIf="filter.inputType === AdvancedFilterType.Date"
         [data]="filter.elementValue"
         (dateChange)="onDateChange($event)"
+        [showModeToggle]="true"
       ></app-date-stepper>
     </ng-container>
   </div>

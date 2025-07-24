@@ -4,6 +4,8 @@
   --color-bg-light: #EFF2F5;
   --color-bg-bright: #DFE5EC;
   --color-bg-contrast: #BFCCD9;
+  --overlay-bg: rgba(255, 255, 255, 0.7);
+  --overlay-lock-bg: rgba(33, 33, 33, 0.5);
 
   // primary color
   --color-primary: #0063CC;
@@ -18,7 +20,7 @@
   --color-secondary-disabled: #F6F7F9;
 
   // tertiary color
-  --color-tertiary: #fff;
+  --color-tertiary: #4c6580;
   --color-tertiary-hover: #f6f7f9;
   --color-tertiary-pressed: #fff;
   --color-tertiary-disabled: #F6F7F9;
@@ -82,6 +84,7 @@
 
   --color-border-error: #FF3A30;
   --color-border-success: #34C759;
+  --color-border-additional: #9fb2c6;
 
   --color-icon-primary-default: #0063cc;
   --color-icon-primary-hover: #004D9E;
@@ -110,6 +113,8 @@
   --color-bg-light: #263340;
   --color-bg-bright: #263340;
   --color-bg-contrast: #394C60;
+  --overlay-bg: rgba(14, 18, 22, 0.7);
+  --overlay-lock-bg: rgba(33, 33, 33, 0.5);
 
   // primary color
   --color-primary: #0A85FF;
@@ -188,6 +193,7 @@
 
   --color-border-error: #FF443A;
   --color-border-success: #30D158;
+  --color-border-additional: #9fb2c6;
 
   --color-icon-primary-default: #3399ff;
   --color-icon-primary-hover: #66B2FF;

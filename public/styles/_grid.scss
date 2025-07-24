@@ -10,7 +10,7 @@
 
 .grid--container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
   gap: 16px;
 }
 
@@ -94,4 +94,20 @@
 
 .flex--padding {
   padding: 16px;
+}
+
+.max-width-100 {
+  max-width: 100%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.p-left-0 {
+  padding-left: 0;
+}
+
+.p-right-0 {
+  padding-right: 0;
 }

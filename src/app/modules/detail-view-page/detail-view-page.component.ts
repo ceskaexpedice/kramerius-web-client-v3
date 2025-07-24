@@ -1,15 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { loadDocumentDetail } from '../../shared/state/document-detail/document-detail.actions';
-import { Store } from '@ngrx/store';
-import {
-  selectDocumentDetail,
-  selectDocumentDetailError,
-  selectDocumentDetailLoading,
-} from '../../shared/state/document-detail/document-detail.selectors';
-import { RecordInfoService } from '../../shared/services/record-info.service';
-import { take } from 'rxjs';
-import { DocumentDetail } from '../models/document-detail';
+import {Component, inject} from '@angular/core';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import {DetailViewService} from './services/detail-view.service';
+import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {DocumentTypeEnum} from '../constants/document-type';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -19,35 +12,27 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 })
 export class DetailViewPageComponent {
 
-  private store = inject(Store);
-  private recordInfoService = inject(RecordInfoService);
   private krameriusBaseUrl: string;
 
-  document$ = this.store.select(selectDocumentDetail);
-  loading$ = this.store.select(selectDocumentDetailLoading);
-  error$ = this.store.select(selectDocumentDetailError);
+  public detailViewService = inject(DetailViewService);
+  public recordHandler = inject(RecordHandlerService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
   }
 
   ngOnInit() {
-    this.store.dispatch(loadDocumentDetail());
+    this.detailViewService.loadDocument();
+    this.detailViewService.loadPages();
   }
 
-  openRecordInfo() {
-    this.document$.pipe(take(1)).subscribe((doc: DocumentDetail | null) => {
-      if (!doc) return;
-
-      const uuid = doc?.pid;
-      if (uuid) {
-        this.recordInfoService.openRecordInfoDialog(uuid);
-      }
-    });
+  goBackClicked() {
+    window.history.back();
   }
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl;
   }
 
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
 }

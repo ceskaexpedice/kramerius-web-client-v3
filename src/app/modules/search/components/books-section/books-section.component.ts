@@ -8,6 +8,9 @@ import {loadPeriodicals} from '../../state/periodicals/periodicals.actions';
 import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors';
 import {loadBooks} from '../../state/books/books.actions';
 import {TranslatePipe} from '@ngx-translate/core';
+import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
+import {DocumentTypeEnum} from '../../../constants/document-type';
+import {SearchService} from '../../../../shared/services/search.service';
 
 @Component({
   selector: 'app-books-section',
@@ -26,12 +29,17 @@ import {TranslatePipe} from '@ngx-translate/core';
 export class BooksSectionComponent implements OnInit {
 
   private store = inject(Store);
+  private searchService = inject(SearchService);
 
   books$ = this.store.select(selectBooks);
   loading$ = this.store.select(selectBooksLoading);
 
   ngOnInit(): void {
     this.store.dispatch(loadBooks());
+  }
+
+  showMore() {
+    this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.monograph, true);
   }
 
 }

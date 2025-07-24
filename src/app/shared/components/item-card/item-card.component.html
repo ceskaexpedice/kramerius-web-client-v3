@@ -1,4 +1,4 @@
-<div class="item-card" [ngClass]="className">
+<a class="item-card" [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)" [ngClass]="className" (click)="goToDetail()">
   <div class="item-card__image-container">
     <img
       class="item-card__image"
@@ -17,4 +17,4 @@
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
     <app-accessibility-badge *ngIf="showAccessibilityBadge" [accessibility]="accessibility"></app-accessibility-badge>
   </div>
-</div>
+</a>

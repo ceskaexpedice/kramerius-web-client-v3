@@ -1,11 +1,11 @@
-import {effect, Injectable, signal} from '@angular/core';
+import {effect, Injectable, signal, computed} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, filter, map, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
-  selectFacets,
+  selectFacets, selectNonPageSearchResults, selectPageSearchResults,
   selectSearchResults,
   selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
@@ -16,6 +16,10 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
 import {FilterService} from './filter.service';
 import {AdvancedSearchService} from './advanced-search.service';
+import {UserService} from './user.service';
+import {CustomSearchService} from './custom-search.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
 
 @Injectable({
   providedIn: 'root'
@@ -27,12 +31,20 @@ export class SearchService implements FilterService {
   private _searchTerm = signal('');
   private _submittedTerm = signal('');
   private _page = signal(1);
-  private _pageSize = signal(25);
+  private _pageSize = signal(60);
   private _totalCount = signal(0);
   private _sortBy = signal(SolrSortFields.relevance);
   private _sortDirection = signal(SolrSortDirections.desc);
+  private _activeFiltersSignal = toSignal(
+    this.store.select(selectActiveFilters),
+    { initialValue: [] }
+  );
 
   results$: Observable<SearchDocument[]>;
+
+  nonPageResults$: Observable<SearchDocument[]>;
+  pageResults$: Observable<SearchDocument[]>;
+
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
@@ -88,9 +100,14 @@ export class SearchService implements FilterService {
     private store: Store,
     private queryParamsService: QueryParamsService,
     private solrService: SolrService,
-    private advancedSearchService: AdvancedSearchService
+    private advancedSearchService: AdvancedSearchService,
+    private userService: UserService,
+    private customSearchService: CustomSearchService
   ) {
     this.results$ = this.store.select(selectSearchResults);
+    this.pageResults$ = this.store.select(selectPageSearchResults);
+    this.nonPageResults$ = this.store.select(selectNonPageSearchResults);
+
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
@@ -115,6 +132,47 @@ export class SearchService implements FilterService {
     );
   }
 
+  searchWithFacet(facetKey: string, facetValue: string, customFacet = false): void {
+    this.initialize();
+
+    this.customSearchService.clear();
+
+    const queryParams: any = {
+      query: this._searchTerm(),
+      page: this._page(),
+      pageSize: this._pageSize(),
+      sortBy: this._sortBy(),
+      sortDirection: this._sortDirection()
+    };
+
+    if (customFacet) {
+      this.customSearchService.addFilter(`${facetKey}:${facetValue}`);
+      queryParams['customSearch'] = `${facetKey}:${facetValue}`;
+    }
+
+    if (!customFacet) {
+      queryParams['fq'] = `${facetKey}:${facetValue}`;
+      queryParams[`${facetKey}_operator`] = SolrOperators.or;
+    }
+
+    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
+      queryParams
+    });
+
+  }
+
+  redirectDirectlyToUrl(url: string): void {
+    // url is in format ?query=searchTerm&page=1&pageSize=60&sortBy=relevance&sortDirection=desc
+    // redirect to the search results page with the query parameters
+    this.initialize();
+
+    window.open(`/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`, '_self');
+  }
+
+  getRedirectUrl(url: string) {
+    return `/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`;
+  }
+
   search(query: string): void {
     this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
@@ -129,8 +187,12 @@ export class SearchService implements FilterService {
     });
   }
 
-  initialize(): void {
+  async initialize() {
     if (this.initialized) return;
+
+    await this.userService.loadLicenses();
+
+    this.customSearchService.initializeFromRoute();
 
     this.route.queryParams.subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
@@ -148,10 +210,39 @@ export class SearchService implements FilterService {
   private dispatchSearch(params: any): void {
     if (Object.keys(params).length === 0) return;
 
+    console.log('dispatching search with params:', params)
+
     const query = params['query'] || '';
-    const baseFilters = this.queryParamsService.getFilters(params);
+
+    if (query && query.length > 0 && !this.hasSubmittedQuery()) {
+      this._searchTerm.set(query);
+      this._submittedTerm.set(query);
+    }
+
+    let baseFilters = this.queryParamsService.getFilters(params);
+    let customFilters = this.customSearchService.getSolrFqFilters();
+
+    // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
+    // so delete all custom filters that contain 'licenses.facet'
+    if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
+      customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    }
+
+    // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
+    if (!this.hasSubmittedQuery()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+    }
+
+    // similar check for periodicalitem
+    if (!this.filtersContainDate()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
+    }
 
     const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
+
+    console.log('advancedQuery:', advancedQuery);
 
     const page = Number(params['page']) || this._page();
     const pageSize = Number(params['pageSize']) || this._pageSize();
@@ -167,14 +258,14 @@ export class SearchService implements FilterService {
 
     let filters: string[];
 
-    filters = baseFilters;
+    filters = [...baseFilters, ...customFilters];
 
     this.store.dispatch(loadSearchResults({
       query,
       filters,
       advancedQuery: advancedQuery,
       advancedQueryMainOperator: advancedQueryMainOperator,
-      page: page - 1,
+      page: (page - 1) * pageSize, // Solr uses 0-based indexing for pages
       pageCount: pageSize,
       sortBy,
       sortDirection
@@ -289,4 +380,37 @@ export class SearchService implements FilterService {
   clearBackupSearchUrl(): void {
     sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
+
+  get hasSubmittedQuery() {
+    return computed(() => this._submittedTerm().trim().length > 0);
+  }
+
+  get filtersContainDate() {
+    return computed(() =>
+      this._activeFiltersSignal().some(f => f.toLowerCase().includes('date')) ||
+      this.advancedSearchService.filtersContainDate()
+    );
+  }
+
+  isSelectedFilter(facetKey: string, value: string): boolean {
+    return this._activeFiltersSignal().includes(`${facetKey}:${value}`);
+  }
+
+  getValueBySelectedFilter(facetKey: string): string | null {
+    const filter = this._activeFiltersSignal().find(f => f.startsWith(`${facetKey}:`));
+    return filter ? filter.split(':')[1] : null;
+  }
+
+  toggleRadioFilter(route: ActivatedRoute, facetKey: string, value: string) {
+    // Remove any existing filter for this facetKey
+    const currentFilters = this._activeFiltersSignal().filter(f => !f.startsWith(`${facetKey}:`));
+
+    // Add the new value
+    const updatedFilters = [...currentFilters, `${facetKey}:${value}`];
+
+    const operator = this.queryParamsService.getOperatorForFacet(route.snapshot.queryParams, facetKey);
+
+    this.queryParamsService.updateFilters(route, facetKey, [value], operator);
+  }
+
 }

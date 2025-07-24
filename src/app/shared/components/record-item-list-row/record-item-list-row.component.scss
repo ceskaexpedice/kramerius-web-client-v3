@@ -18,6 +18,7 @@ td {
   flex-direction: row;
   align-items: center;
   gap: 10px;
+  position: relative;
 
   .thumb {
     width: 36px;
@@ -29,6 +30,32 @@ td {
 
   .title {
     font-weight: 600;
+  }
+}
+
+.thumb-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.record-item-card__image-lock-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--overlay-lock-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--base-border-radius);
+
+  .icon-button {
+    padding: 5px;
+  }
+
+  i {
+    font-size: 16px;
   }
 }
 

@@ -1,9 +1,28 @@
+:host {
+  height: 100%;
+  overflow: hidden;
+}
+
 .filter-sidebar {
   display: block;
   background-color: var(--color-bg-base);
-  padding: 1.5rem;
   width: 300px;
   height: 100%;
   font-family: inherit;
-  overflow-y: auto;
+
+  &.scrollable {
+    overflow-y: auto;
+  }
+}
+
+.padding-sm {
+  padding: var(--spacing-x4);
+}
+
+.padding-md {
+  padding: 1.5rem;
+}
+
+.padding-lg {
+  padding: 2.5rem;
 }

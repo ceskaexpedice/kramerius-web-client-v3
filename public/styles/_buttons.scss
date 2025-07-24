@@ -32,6 +32,25 @@ button.icon-button {
   padding: 12px;
   background: var(--color-primary);
   color: var(--color-text-on-color);
+
+  &.light {
+    color: var(--color-text-btn-secondary-default);
+    background: var(--color-bg-light);
+
+    &:hover {
+      color: var(--color-text-btn-secondary-hover);
+    }
+
+    &:active {
+      color: var(--color-text-btn-secondary-pressed);
+    }
+
+    &:disabled {
+      color: var(--color-text-btn-secondary-disable);
+      cursor: not-allowed;
+    }
+  }
+
 }
 
 // VARIANTS
