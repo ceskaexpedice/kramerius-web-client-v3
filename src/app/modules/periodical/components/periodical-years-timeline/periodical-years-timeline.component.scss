@@ -66,3 +66,45 @@
     background-color: var(--accessibility-private-bg);
   }
 }
+
+.range-years-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  width: 100%;
+}
+
+.range-year-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  .range-year-label {
+    font-size: 18px;
+    font-weight: bold;
+    padding: var(--spacing-x2);
+    border-radius: 4px;
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border-additional);
+  }
+
+  &.accessibility-available .range-year-label {
+    background-color: var(--accessibility-public-bg);
+  }
+
+  &.accessibility-disabled .range-year-label {
+    background-color: var(--accessibility-private-bg);
+  }
+
+  &.placeholder .range-year-label {
+    background-color: transparent;
+  }
+}
