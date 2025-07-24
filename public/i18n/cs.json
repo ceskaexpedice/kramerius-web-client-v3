@@ -129,5 +129,7 @@
   "track-removed-from-queue": "Skladba odstraněna z fronty",
   "track-downloaded": "Skladba stažena",
   "titles-section-header": "Tituly",
-  "pages-section-header": "Jednotlivé strany"
+  "pages-section-header": "Jednotlivé strany",
+  "periodicalvolume-part-subtitle": "číslo",
+  "search-in-periodicals--placeholder": "Hledat v periodiku"
 }

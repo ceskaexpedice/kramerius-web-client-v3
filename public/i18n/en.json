@@ -129,5 +129,7 @@
   "track-removed-from-queue": "Track removed from queue",
   "track-downloaded": "Track downloaded",
   "titles-section-header": "Titles",
-  "pages-section-header": "Individual pages"
+  "pages-section-header": "Individual pages",
+  "periodicalvolume-part-subtitle": "issue number",
+  "search-in-periodicals--placeholder": "Search within periodical"
 }

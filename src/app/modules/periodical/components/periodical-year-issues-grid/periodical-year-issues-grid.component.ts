@@ -6,6 +6,7 @@ import {ItemCardComponent} from '../../../../shared/components/item-card/item-ca
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {PeriodicalItemChild} from '../../../models/periodical-item';
 import {Router} from '@angular/router';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-periodical-year-issues-grid',
@@ -13,6 +14,7 @@ import {Router} from '@angular/router';
     NgForOf,
     AsyncPipe,
     ItemCardComponent,
+    TranslatePipe,
   ],
   templateUrl: './periodical-year-issues-grid.component.html',
   styleUrl: './periodical-year-issues-grid.component.scss'

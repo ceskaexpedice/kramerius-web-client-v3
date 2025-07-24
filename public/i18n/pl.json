@@ -129,5 +129,7 @@
   "track-removed-from-queue": "Utwór usunięty z kolejki",
   "track-downloaded": "Utwór pobrany",
   "titles-section-header": "Tytuły",
-  "pages-section-header": "Poszczególne strony"
+  "pages-section-header": "Poszczególne strony",
+  "periodicalvolume-part-subtitle": "numer",
+  "search-in-periodicals--placeholder": "Szukaj w periodyku"
 }

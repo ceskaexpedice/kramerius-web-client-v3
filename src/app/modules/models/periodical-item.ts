@@ -27,6 +27,11 @@ export interface PeriodicalItem {
 
 export interface PeriodicalItemChild {
   'date.str': string;
+  'part.number.str': string;
+  //date_range_end.day,date_range_end.month,date_range_end.year
+  'date_range_end.day'?: string;
+  'date_range_end.month'?: string;
+  'date_range_end.year'?: string;
   pid: string;
   model: string;
 }

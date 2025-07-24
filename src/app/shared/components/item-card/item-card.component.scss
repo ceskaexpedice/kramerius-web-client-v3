@@ -59,6 +59,7 @@
     display: flex;
     flex: 1;
     line-height: 20px;
+    flex-direction: column;
 
     .title {
       flex: 3;
@@ -69,17 +70,19 @@
     .subtitle {
       flex: 1;
       font-size: 14px;
+      color: var(--color-tertiary);
     }
   }
 }
 
 .item-card.periodicalvolume, .item-card.periodicalitem {
   padding: 8px 16px 16px 16px;
+  gap: var(--spacing-x2);
 
   .item-card__image-container {
     order: 2;
     flex: auto;
-    height: 180px;
+    height: 185px;
   }
 
   &.with-badge {
