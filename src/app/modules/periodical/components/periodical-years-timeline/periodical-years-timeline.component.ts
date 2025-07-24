@@ -16,17 +16,22 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
 
   groupedYears: any[] = [];
   yearsByDecades: (number | null)[][] = [];
+  rangeYears: PeriodicalItemYear[] = [];
 
 
   @Input() years: PeriodicalItemYear[] = [];
   @Output() selectYear = new EventEmitter<string>();
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['years'] && changes['years'].currentValue) {
-      this.groupedYears = this.groupYears(changes['years'].currentValue);
-      this.yearsByDecades = this.groupYearsByDecades(
-        changes['years'].currentValue.map((y: any) => Number(y.year))
-      );    }
+    if (changes['years']?.currentValue) {
+      const allYears = changes['years'].currentValue as PeriodicalItemYear[];
+
+      const singleYears = allYears.filter(y => /^\d{4}$/.test(y.year));
+      this.rangeYears = allYears.filter(y => /^\d{4}-\d{4}$/.test(y.year));
+
+      const numericYears = singleYears.map(y => Number(y.year));
+      this.yearsByDecades = this.groupYearsByDecades(numericYears);
+    }
   }
 
   groupYears(years: any[]): any[][] {
@@ -67,4 +72,6 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
     const isAvailable = this.years.some(y => y.year == year.toString());
     return isAvailable;
   }
+
+  protected readonly Number = Number;
 }
