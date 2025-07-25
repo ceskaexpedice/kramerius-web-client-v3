@@ -23,10 +23,6 @@ export class DetailLayoutComponent {
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event: KeyboardEvent) {
     switch (event.key) {
-      case 'Escape': {
-        this.detailViewService.openRecordInfo();
-        break;
-      }
       case 'ArrowLeft': {
         this.detailViewService.goToPrevious();
         break;
@@ -43,10 +39,6 @@ export class DetailLayoutComponent {
       case 'ArrowDown': {
         // go +3 pages
         this.detailViewService.goToNext(3);
-        break;
-      }
-      case 'Enter': {
-        this.detailViewService.openRecordInfo();
         break;
       }
       default: {
