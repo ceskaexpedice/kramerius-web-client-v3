@@ -10,7 +10,7 @@
       <!-- Action Toolbar -->
       <app-action-toolbar>
 
-        <div left>
+        <div left class="max-width-100">
           <app-toolbar-header
             [title]="(periodical.document$ | async)?.['root.title'] || ''"
             (goBack)="periodical.goBackClicked()">
