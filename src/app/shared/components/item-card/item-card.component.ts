@@ -4,6 +4,7 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
 import { EnvironmentService } from '../../services/environment.service';
 import {RecordHandlerService} from '../../services/record-handler.service';
+import {Router} from '@angular/router';
 
 export interface ItemCard {
   uuid: string;
@@ -37,6 +38,7 @@ export class ItemCardComponent {
   private krameriusBaseUrl: string;
 
   public recordHandlerService = inject(RecordHandlerService);
+  private router = inject(Router);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -54,5 +56,6 @@ export class ItemCardComponent {
   goToDetail() {
     this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
   }
+
 
 }

@@ -183,4 +183,14 @@ export class RecordHandlerService {
 
     return shareableTypes;
   }
+
+  onNavigate(event: MouseEvent, url: string) {
+    const isModifiedClick =
+      event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0;
+
+    if (!isModifiedClick) {
+      event.preventDefault();
+      this.router.navigateByUrl(url);
+    }
+  }
 }

@@ -1,7 +1,9 @@
 <a class="record-item-card"
    [class.page]="record.model === DocumentTypeEnum.page"
    [class.periodical]="record.model === DocumentTypeEnum.periodical"
-   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)">
+   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+   (click)="recordHandler.onNavigate($event, recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid))"
+>
 
   <div class="record-item-card__inner">
 

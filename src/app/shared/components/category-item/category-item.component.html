@@ -1,4 +1,6 @@
-<a class="category-item" [href]="url" (click)="onClick()">
+<a class="category-item"
+   [href]="url"
+   (click)="recordHandler.onNavigate($event, url)">
 
   <img [src]="icon" alt="" />
 

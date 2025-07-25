@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
 import { SearchDocument } from '../../../modules/models/search-document';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass, NgForOf, NgIf } from '@angular/common';
@@ -6,6 +6,7 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
 import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
+import {RecordHandlerService} from '../../services/record-handler.service';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -22,6 +23,8 @@ export class RecordItemListRowComponent {
 
   @Input() record!: SearchDocument;
   @Input() url!: string;
+
+  recordHandler = inject(RecordHandlerService);
 
   protected readonly languageMap = languageMap;
 

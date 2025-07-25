@@ -1,5 +1,7 @@
 <td class="record-title">
-  <a class="title-wrapper" [href]="url">
+  <a class="title-wrapper" [href]="url"
+  (click)="recordHandler.onNavigate($event, url)"
+  >
     <div class="thumb-wrapper">
       <img
         class="thumb"

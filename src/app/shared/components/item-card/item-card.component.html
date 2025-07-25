@@ -1,5 +1,6 @@
-<a class="item-card" [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)" [ngClass]="className" (click)="goToDetail()">
-  <div class="item-card__image-container">
+<a class="item-card" [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)" [ngClass]="className"
+   (click)="recordHandlerService.onNavigate($event, recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid))">
+<div class="item-card__image-container">
     <img
       class="item-card__image"
       [src]="`${getKrameriusBaseUrl()}`"

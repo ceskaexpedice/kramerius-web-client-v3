@@ -18,19 +18,37 @@ export class LoadingService {
   private store = inject(Store);
 
   constructor() {
+    // combineLatest([
+    //   this.safeSelect(selectSearchResultsLoading),
+    //   this.safeSelect(selectGenresLoading),
+    //   this.safeSelect(selectBooksLoading),
+    //   this.safeSelect(selectDocumentTypesLoading),
+    //   this.safeSelect(selectPeriodicalLoading),
+    //   this.safeSelect(selectMusicLoading),
+    //   this.safeSelect(selectDocumentDetailLoading),
+    // ]).subscribe(([res, gen, book, docType, periodical, music, documentDetail]) => {
+    //   this.isLoadingSignal.set(
+    //     res || gen || book || docType || periodical || music || documentDetail
+    //   );
+    // });
+
     combineLatest([
       this.safeSelect(selectSearchResultsLoading),
       this.safeSelect(selectGenresLoading),
       this.safeSelect(selectBooksLoading),
       this.safeSelect(selectDocumentTypesLoading),
       this.safeSelect(selectPeriodicalLoading),
-      this.safeSelect(selectMusicLoading),
       this.safeSelect(selectDocumentDetailLoading),
-    ]).subscribe(([res, gen, book, docType, periodical, music, documentDetail]) => {
+    ]).subscribe(([res, gen, book, docType, periodical, documentDetail]) => {
+      console.log('🌀 Loading flags:', {
+        res, gen, book, docType, periodical, documentDetail
+      });
+
       this.isLoadingSignal.set(
-        res || gen || book || docType || periodical || music || documentDetail
+        res || gen || book || docType || periodical || documentDetail
       );
     });
+
   }
 
   get isLoading() {
