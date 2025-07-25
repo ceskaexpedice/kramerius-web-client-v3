@@ -207,6 +207,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     // Get the operator value
     const operator = this.pendingOperator();
 
+    this.searchService.resetPage();
+
     // Update filters with the chosen operator
     this.queryParamsService.updateFilters(
       this.route,

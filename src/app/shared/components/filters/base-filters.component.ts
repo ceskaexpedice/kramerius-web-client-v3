@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {map, Observable} from 'rxjs';
-import { FilterService } from '../../services/filter.service';
+import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
 import {SearchService} from '../../services/search.service';
 import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
@@ -16,7 +16,7 @@ export abstract class BaseFiltersComponent {
   facets$: Observable<any> = new Observable<any>();
 
   constructor(
-    @Inject('FilterService') protected filterService: FilterService,
+    @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
     protected searchService: SearchService,
     protected customSearchService: CustomSearchService,
@@ -69,13 +69,6 @@ export abstract class BaseFiltersComponent {
     );
   }
 
-  // protected initializeFilters(): void {
-  //   this.route.queryParams.subscribe(params => {
-  //     const fq = params['fq'];
-  //     this.selectedFilters = Array.isArray(fq) ? fq : fq ? [fq] : [];
-  //   });
-  // }
-
   protected initializeFilters(): void {
     this.route.queryParams.subscribe(params => {
       const fq = params['fq'];
@@ -98,6 +91,9 @@ export abstract class BaseFiltersComponent {
     // we need to check if facetKey is in customDefinedFacets, if so, we need to toggle the filter using the customSearchService
     const [facetKey, facetValue] = fullValue.split(':');
     const isCustom = customDefinedFacets.find(c => c.facetKey === facetKey);
+
+    this.filterService.resetPage();
+
     if (isCustom) {
       this.customSearchService.toggleFilter(fullValue);
       return;

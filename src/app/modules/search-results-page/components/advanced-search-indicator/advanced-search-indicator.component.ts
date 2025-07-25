@@ -30,6 +30,7 @@ export class AdvancedSearchIndicatorComponent {
   }
 
   clearAll() {
+    this.searchService.resetPage();
     this.advancedSearchService.clear();
   }
 

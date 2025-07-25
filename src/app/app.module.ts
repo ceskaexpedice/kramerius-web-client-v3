@@ -24,6 +24,8 @@ import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
 import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
+import {FILTER_SERVICE} from './shared/services/filter.service';
+import {SearchService} from './shared/services/search.service';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -71,6 +73,10 @@ export function initApp(envService: EnvironmentService) {
       useFactory: initApp,
       deps: [EnvironmentService],
       multi: true
+    },
+    {
+      provide: FILTER_SERVICE,
+      useExisting: SearchService
     }
   ],
   bootstrap: [AppComponent]
