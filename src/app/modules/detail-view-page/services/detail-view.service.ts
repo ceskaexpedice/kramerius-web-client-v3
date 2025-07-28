@@ -128,7 +128,7 @@ export class DetailViewService {
         this._currentPageIndex.set(pageIndex);
       }
     } else {
-      //this.goToPage(0);
+      this.goToPage(0);
     }
   }
 

@@ -55,7 +55,7 @@ export class RecordHandlerService {
     }
   }
 
-  getHandleDocumentUrlByModelAndPid(model: string, pid: string): string {
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null): string {
     switch (model) {
       case DocumentTypeEnum.periodical:
         return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
@@ -63,6 +63,13 @@ export class RecordHandlerService {
         return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
       case DocumentTypeEnum.soundrecording:
         return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
+      case DocumentTypeEnum.page:
+        // DETAIL_VIEW/rootPid?page=pid
+        if (rootPid) {
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], {queryParams: {page: pid}}).toString();
+        } else {
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+        }
       default:
         return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
     }

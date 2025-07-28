@@ -5,6 +5,8 @@ export interface SearchDocument {
   pid: string;
   title: string;
   rootTitle?: string;
+  rootPid?: string;
+  ownParentPid?: string;
   authors?: string[];
   date?: string;
   model: DocumentTypeEnum;
@@ -22,11 +24,13 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   pid: doc.pid,
   title: doc['title.search'],
   rootTitle: doc['root.title'],
+  rootPid: doc['root.pid'],
+  ownParentPid: doc['own_parent.pid'],
   authors: doc.authors,
   date: doc['date.str'],
   model: doc.model,
   accessibility: doc.accessibility,
-  licenses: doc.licenses,
+  licenses: doc.licenses || doc['contains_licenses'] || doc['licenses.facet'] || [],
   containsLicenses: doc.contains_licenses,
   access: doc.access,
   count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,

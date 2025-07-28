@@ -1,12 +1,11 @@
 import {Component, inject, Input} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
-import {NgClass, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 import {SolrService} from '../../../core/solr/solr.service';
-import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 
 @Component({
@@ -15,7 +14,7 @@ import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-
     NgIf,
     TranslatePipe,
     AccessibilityBadgeComponent,
-    NgClass,
+
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -37,6 +36,15 @@ export class RecordItemComponent {
 
   getImageThumbnailUrl(): string {
     return this.solrService.getImageThumbnailUrl(this.record.pid);
+  }
+
+  getDocumentUrl() {
+
+    if (this.record.model === DocumentTypeEnum.page) {
+      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.record.model, this.record.pid, this.record.ownParentPid);
+    }
+
+    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.record.model, this.record.pid, null);
   }
 
   getTitle(): string {
