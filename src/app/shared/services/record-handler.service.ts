@@ -195,13 +195,9 @@ export class RecordHandlerService {
     }
   }
 
-  isRecordLocked(record: SearchDocument): boolean {
+  isRecordLocked(licenses: string[]): boolean {
     // Check if the record contains any license from ONLINE_LICENSES
-    const hasOnlineLicense = record.licenses?.some(license => PUBLIC_LICENSES.includes(license))
-      || record.containsLicenses?.some(license => PUBLIC_LICENSES.includes(license));
-
-    console.log('record.title', record.title);
-    console.log('record.licenses', record.containsLicenses);
+    const hasOnlineLicense = licenses.some(license => PUBLIC_LICENSES.includes(license));
 
     // Return false if it contains an online license, otherwise return true
     return !hasOnlineLicense;

@@ -30,6 +30,7 @@ export class ItemCardComponent {
   @Input() model: string = '';
   @Input() link: string | null = null;
   @Input() accessibility: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
+  @Input() licenses: string[] = [];
   @Input() className?: string = '';
 
   @Input() showFavoriteButton: boolean = true;
@@ -57,4 +58,5 @@ export class ItemCardComponent {
     this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
   }
 
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

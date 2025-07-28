@@ -15,7 +15,7 @@
         <span class="badge model">{{ record.model | translate }}</span>
       }
 
-      @if (recordHandler.isRecordLocked(record)) {
+      @if (recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])) {
         <div class="record-item-card__image-lock-overlay">
 
           <button class="button secondary rounded icon-button">
@@ -54,10 +54,10 @@
 
       }
 
-      @if (recordHandler.isRecordLocked(record)) {
+      @if (recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])) {
 
         <div class="access-label">
-          <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record)"></app-accessibility-badge>
+          <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"></app-accessibility-badge>
         </div>
 
       }

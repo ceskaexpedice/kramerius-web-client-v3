@@ -370,7 +370,7 @@ export class SolrService {
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `(model:periodicalvolume)`
     ]);
-    const params = { q: query, fl: 'date.str, pid, accessibility, model, part.number.str,date_range_end.day,date_range_end.month,date_range_end.year, licenses, contains_licenses', rows: '10000', sort: 'date.min asc', wt: 'json' };
+    const params = { q: query, fl: 'date.str, pid, accessibility, model, part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet', rows: '10000', sort: 'date.min asc', wt: 'json' };
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -384,7 +384,7 @@ export class SolrService {
     ]);
     const params = {
       q: query,
-      fl: 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year, licenses, contains_licenses',
+      fl: 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet',
       rows: '10000',
       sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
       wt: 'json'

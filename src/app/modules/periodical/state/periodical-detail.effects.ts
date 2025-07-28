@@ -219,6 +219,7 @@ export class PeriodicalDetailEffects {
         year: v['date.str'],
         model: v['model'] || '',
         pid: v['pid'],
+        licenses: v['licenses.facet'],
         exists: true as const,
         accessibility: v['accessibility'] as DocumentAccessibilityEnum
       }));
@@ -235,6 +236,7 @@ export class PeriodicalDetailEffects {
       return {
         year,
         pid: found?.pid ?? '',
+        licenses: found?.['licenses.facet'] ?? [],
         exists: true,
         model: found?.model ?? '',
         accessibility: found?.accessibility ?? DocumentAccessibilityEnum.PRIVATE

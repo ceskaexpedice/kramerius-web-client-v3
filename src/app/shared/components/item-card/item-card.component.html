@@ -1,5 +1,5 @@
 <a class="item-card"
-   [class.with-badge]="showAccessibilityBadge && accessibility !== DocumentAccessibilityEnum.PUBLIC"
+   [class.with-badge]="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)"
    [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)"
    [ngClass]="[className, model]"
    (click)="recordHandlerService.onNavigate($event, recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid))">
@@ -20,6 +20,6 @@
   <div class="item-card__content">
     <div class="title">{{ title.length > 50 ? (title.slice(0, 50) + '...') : title }}</div>
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
-<!--    <app-accessibility-badge *ngIf="showAccessibilityBadge" [accessibility]="accessibility"></app-accessibility-badge>-->
+    <app-accessibility-badge *ngIf="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)" [isLocked]="recordHandlerService.isRecordLocked(licenses)"></app-accessibility-badge>
   </div>
 </a>
