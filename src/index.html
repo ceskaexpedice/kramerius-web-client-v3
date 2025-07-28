@@ -8,6 +8,37 @@
   <link rel="icon" type="image/x-icon" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <script>
+    (function() {
+      var hostname = window.location.hostname;
+      var gId;
+
+      if (hostname.endsWith('cdk.test.trinera.cloud')) {
+        gId = 'G-W742T420R3';
+      } else if (hostname.endsWith('cdk.app.trinera.cloud')) {
+        gId = 'G-674F59YZR2';
+      } else {
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-' + gId;
+      script.async = true;
+      document.head.appendChild(script);
+
+      script.onload = function() {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          window.dataLayer.push(arguments);
+        }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-' + gId);
+      };
+    })();
+  </script>
+
 </head>
 <body>
   <app-root></app-root>
