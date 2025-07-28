@@ -9,7 +9,7 @@ import {
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {Observable, take} from 'rxjs';
+import {first, Observable, skip, take} from 'rxjs';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundRecordGridControl,} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -34,8 +34,6 @@ export class DetailViewService {
   error$ = this.store.select(selectDocumentDetailError);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
-
-  constructor() { }
 
   private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
 
@@ -82,34 +80,25 @@ export class DetailViewService {
   }
 
   loadDocument() {
-    console.log('loadDocument');
     this.store.dispatch(loadDocumentDetail({}));
 
-    // Wait until `document$` resolves and then call `checkForDataNeedToLoad`
-    // this.document$.pipe(take(1)).subscribe((doc) => {
-    //   console.log('document loaded', doc);
-    //   if (doc && doc.uuid) {
-    //     this.periodicalService.checkForDataNeedToLoad(doc.uuid);
-    //   }
-    // });
-
+    this.document$.pipe(
+      skip(1),
+      take(1)
+    ).subscribe(() => {
+      this.loadPages();
+    });
   }
 
   loadPages() {
-    this.store.select(selectDocumentDetailPages).subscribe(pages => {
-
-      if (pages && pages.length > 0) {
-        this._pages.set(pages);
-        if (pages.length > 0) {
-          this._currentPageIndex.set(0);
-        }
-      } else {
-        this._pages.set([]);
+    this.store.select(selectDocumentDetailPages)
+      .pipe(take(1))
+      .subscribe(pages => {
+        const safePages = pages ?? [];
+        this._pages.set(safePages);
         this._currentPageIndex.set(0);
-      }
-
-      this.checkAndSetCurrentPageFromUrl();
-    });
+        this.checkAndSetCurrentPageFromUrl();
+      });
   }
 
   getSoundRecordings(): Observable<Page[] | undefined> {

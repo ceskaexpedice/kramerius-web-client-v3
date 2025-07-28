@@ -23,7 +23,7 @@ export class DetailViewPageComponent {
 
   ngOnInit() {
     this.detailViewService.loadDocument();
-    this.detailViewService.loadPages();
+    // this.detailViewService.loadPages();
   }
 
   goBackClicked() {
