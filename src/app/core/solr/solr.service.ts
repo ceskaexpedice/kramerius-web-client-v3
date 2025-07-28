@@ -15,6 +15,7 @@ import {EnvironmentService} from '../../shared/services/environment.service';
 import {SolrUtils} from './solr-utils';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {ItemCard} from '../../shared/components/item-card/item-card.component';
+import {SearchDocument} from '../../modules/models/search-document';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -235,12 +236,6 @@ export class SolrService {
       }
     }
 
-    // if (filters.length === 0 && query === '') {
-    //   paramsObject = {
-    //     ...paramsObject,
-    //     ...SolrQueryBuilder.baseFilters()
-    //   }
-    // }
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -319,11 +314,11 @@ export class SolrService {
     );
   }
 
-  getPeriodicals(): Observable<ItemCard[]> {
+  getPeriodicals(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.periodical}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100),
       ...SolrQueryBuilder.start(0)
@@ -334,11 +329,11 @@ export class SolrService {
     );
   }
 
-  getBooks(): Observable<ItemCard[]> {
+  getBooks(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.monograph}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100)
     };

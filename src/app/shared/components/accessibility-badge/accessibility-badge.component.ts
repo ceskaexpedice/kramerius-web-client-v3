@@ -14,7 +14,14 @@ import {DocumentAccessibilityEnum} from '../../../modules/constants/document-acc
 })
 export class AccessibilityBadgeComponent {
 
-  @Input() accessibility: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
+  @Input() isLocked = false;
 
   protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
+
+  get accessibility() {
+    if (this.isLocked) {
+      return DocumentAccessibilityEnum.PRIVATE;
+    }
+    return DocumentAccessibilityEnum.PUBLIC;
+  }
 }

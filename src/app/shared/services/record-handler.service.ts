@@ -8,6 +8,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
 import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
 import {Metadata} from '../models/metadata.model';
+import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
 
 @Injectable({
   providedIn: 'root'
@@ -192,5 +193,17 @@ export class RecordHandlerService {
       event.preventDefault();
       this.router.navigateByUrl(url);
     }
+  }
+
+  isRecordLocked(record: SearchDocument): boolean {
+    // Check if the record contains any license from ONLINE_LICENSES
+    const hasOnlineLicense = record.licenses?.some(license => PUBLIC_LICENSES.includes(license))
+      || record.containsLicenses?.some(license => PUBLIC_LICENSES.includes(license));
+
+    console.log('record.title', record.title);
+    console.log('record.licenses', record.containsLicenses);
+
+    // Return false if it contains an online license, otherwise return true
+    return !hasOnlineLicense;
   }
 }

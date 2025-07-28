@@ -6,14 +6,13 @@
 
   <div class="carousel-wrapper">
     <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
-      <app-item-card
+
+      <app-record-item
         *ngFor="let item of books"
-        [uuid]="item.pid"
-        [model]="item.model"
-        [title]="item['title.search']"
-        [subtitle]="item.year"
-        [link]="'/detail/' + item['title.search']"
-      ></app-item-card>
+        [record]="item"
+      >
+      </app-record-item>
+
     </app-carousel>
   </div>
 

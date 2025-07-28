@@ -11,6 +11,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {SearchService} from '../../../../shared/services/search.service';
+import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 
 @Component({
   selector: 'app-books-section',
@@ -22,6 +23,7 @@ import {SearchService} from '../../../../shared/services/search.service';
     AsyncPipe,
     TranslatePipe,
     TitleCasePipe,
+    RecordItemComponent,
   ],
   templateUrl: './books-section.component.html',
   styleUrls: ['./books-section.component.scss', '../search-section.scss']
