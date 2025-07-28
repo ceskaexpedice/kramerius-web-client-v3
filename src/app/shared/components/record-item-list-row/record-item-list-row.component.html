@@ -1,5 +1,7 @@
 <td class="record-title">
-  <a class="title-wrapper" [href]="url">
+  <a class="title-wrapper" [href]="url"
+  (click)="recordHandler.onNavigate($event, url)"
+  >
     <div class="thumb-wrapper">
       <img
         class="thumb"
@@ -7,7 +9,7 @@
         alt="thumbnail"
       />
 
-      <ng-container *ngIf="record.accessibility === DocumentAccessibilityEnum.PRIVATE">
+      <ng-container *ngIf="recordHandler.isRecordLocked(record)">
         <div class="record-item-card__image-lock-overlay">
           <button class="button secondary rounded icon-button">
             <i class="icon-lock-1"></i>
@@ -37,7 +39,7 @@
 <td>{{ record.date || '—' }}</td>
 
 <td>
-  <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
+  <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record)"></app-accessibility-badge>
 </td>
 
 <td>{{ record.model | translate }}</td>

@@ -5,19 +5,27 @@
 
   .carousel-content-wrapper {
     position: relative;
-    overflow: hidden; // zabránime zobrazovaniu scroll pretečenia
+    overflow: hidden;
   }
 
   .carousel-content {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 195px;
     gap: 16px;
     overflow-x: auto;
     scroll-behavior: smooth;
     padding-bottom: 10px;
-    // Hide scrollbar
+
+    // Scrollbar hidden
     scrollbar-width: none;
     -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
+
 
   .carousel-actions {
     display: flex;

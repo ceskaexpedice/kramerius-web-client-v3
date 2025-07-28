@@ -1,5 +1,9 @@
-<a class="record-item-card" [ngClass]="record.model"
-   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)">
+<a class="record-item-card"
+   [class.page]="record.model === DocumentTypeEnum.page"
+   [class.periodical]="record.model === DocumentTypeEnum.periodical"
+   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+   (click)="recordHandler.onNavigate($event, recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid))"
+>
 
   <div class="record-item-card__inner">
 
@@ -11,7 +15,7 @@
         <span class="badge model">{{ record.model | translate }}</span>
       }
 
-      @if (record.accessibility === DocumentAccessibilityEnum.PRIVATE) {
+      @if (recordHandler.isRecordLocked(record)) {
         <div class="record-item-card__image-lock-overlay">
 
           <button class="button secondary rounded icon-button">
@@ -50,10 +54,10 @@
 
       }
 
-      @if (record.accessibility !== DocumentAccessibilityEnum.PUBLIC) {
+      @if (recordHandler.isRecordLocked(record)) {
 
         <div class="access-label">
-          <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
+          <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record)"></app-accessibility-badge>
         </div>
 
       }

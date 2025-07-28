@@ -30,4 +30,8 @@ export class PeriodicalFilterService implements FilterService {
     const [facetKey, value] = fullValue.split(':');
     // Add your periodical-specific filter toggle logic here
   }
+
+  resetPage() {
+
+  }
 }

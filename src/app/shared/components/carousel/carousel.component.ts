@@ -20,7 +20,7 @@ export class CarouselComponent {
 
 
   scrollLeft() {
-    const firstItem = this.scrollContainer.nativeElement.querySelector('.item-card');
+    const firstItem = this.scrollContainer.nativeElement.querySelector('.record-item-card');
     if (firstItem) {
       const scrollAmount = firstItem.clientWidth + 16; // +gap
       this.scrollContainer.nativeElement.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
@@ -30,7 +30,7 @@ export class CarouselComponent {
   }
 
   scrollRight() {
-    const firstItem = this.scrollContainer.nativeElement.querySelector('.item-card');
+    const firstItem = this.scrollContainer.nativeElement.querySelector('.record-item-card');
     if (firstItem) {
       const scrollAmount = firstItem.clientWidth + 16; // +gap
       this.scrollContainer.nativeElement.scrollBy({ left: scrollAmount, behavior: 'smooth' });

@@ -1,6 +1,6 @@
 import {effect, Injectable, signal, computed} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {combineLatest, filter, map, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
@@ -22,12 +22,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SearchService implements FilterService {
   private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
   private initialized = false;
 
+  private _pageReset = signal(false);
   private _searchTerm = signal('');
   private _submittedTerm = signal('');
   private _page = signal(1);
@@ -244,7 +245,15 @@ export class SearchService implements FilterService {
 
     console.log('advancedQuery:', advancedQuery);
 
-    const page = Number(params['page']) || this._page();
+    let page = 1;
+
+    if (!this._pageReset()) {
+      page = Number(params['page']) || this._page();
+    } else {
+      this._pageReset.set(false);
+      this.goToPage(page);
+    }
+
     const pageSize = Number(params['pageSize']) || this._pageSize();
     const sortBy = params['sortBy'] || this._sortBy();
     const sortDirection = params['sortDirection'] || this._sortDirection();
@@ -340,6 +349,10 @@ export class SearchService implements FilterService {
       queryParams: { page, pageSize: this.pageSize },
       queryParamsHandling: 'merge'
     });
+  }
+
+  resetPage() {
+    this._pageReset.set(true);
   }
 
   changePageSize(size: number) {

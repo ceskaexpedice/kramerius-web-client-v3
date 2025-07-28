@@ -124,41 +124,6 @@ export class AdvancedSearchService {
     return this.pendingOperatorsSignal();
   }
 
-  // getAdvancedQueryString(): string | undefined {
-  //   const groups = this.filterGroupsSignal();
-  //   const mainOperator = this.mainOperatorSignal();
-  //
-  //   const advancedQueryParts: string[] = groups.map(group => {
-  //     const parts = group.filters
-  //       .filter(filter => !!filter.elementValue?.trim())
-  //       .map(filter => {
-  //         const value = filter.elementValue.trim();
-  //         const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
-  //         let useRaw = filter.userRawQueryFormat || false;
-  //
-  //         if (value.startsWith('*') || value.endsWith('*')) {
-  //           useRaw = true;
-  //         }
-  //
-  //         return isRange
-  //           ? `${filter.solrField}:${value}`
-  //           : useRaw
-  //             ? `${filter.solrField}:(${value})`
-  //             : `${filter.solrField}:"${value}"`;
-  //       });
-  //
-  //     return parts.length > 0
-  //       ? `(${parts.join(` ${group.operator} `)})`
-  //       : '';
-  //   }).filter(Boolean);
-  //
-  //   if (advancedQueryParts.length === 0) return undefined;
-  //
-  //   return advancedQueryParts.length > 1
-  //     ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
-  //     : advancedQueryParts[0];
-  // }
-
   getAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();
     const mainOperator = this.mainOperatorSignal();
@@ -196,82 +161,6 @@ export class AdvancedSearchService {
       ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
       : advancedQueryParts[0];
   }
-
-  // getSolrAdvancedQueryString(): string | undefined {
-  //   const groups = this.filterGroupsSignal();
-  //   const mainOperator = this.mainOperatorSignal();
-  //
-  //   const advancedQueryParts: string[] = groups.map(group => {
-  //     const parts = group.filters
-  //       .filter(filter => !!filter.solrValue?.trim())
-  //       .map(filter => {
-  //         console.log('Processing filter:', filter);
-  //
-  //         let isRange = false;
-  //         let useRaw = filter.userRawQueryFormat || false;
-  //         const isEquals = filter.isEquals;
-  //
-  //         if (filter.key === SolrFacetKey.Date) {
-  //
-  //           // there are two formats for date filters: [YYYY-MM-DD TO YYYY-MM-DD] and YYYY-MM-DD+offset
-  //           // if the filter is in the first format, we can use it directly
-  //           if (filter.solrValue.startsWith('[') && filter.solrValue.endsWith(']')) {
-  //             isRange = true;
-  //             return `${filter.solrField}:${filter.solrValue}`;
-  //           }
-  //
-  //           // otherwise, we need to parse the date and offset
-  //           // Example: if filter.solrValue is "1989-12-31+360", we need to convert it to a range
-  //
-  //           // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
-  //           // so we need to update solrValue to be in the format [start TO end]
-  //           const dateParts = filter.elementValue.split('+');
-  //           const dateStr = dateParts[0]; // Format: YYYY-MM-DD
-  //           const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
-  //
-  //           // Parse the date using UTC to avoid timezone issues
-  //           const [year, month, day] = dateStr.split('-').map(Number);
-  //           const date = new Date(Date.UTC(year, month - 1, day));
-  //
-  //           // Calculate start and end dates using UTC methods to maintain consistency
-  //           const startDate = new Date(date);
-  //           startDate.setUTCDate(startDate.getUTCDate());
-  //
-  //           const endDate = new Date(date);
-  //           endDate.setUTCDate(endDate.getUTCDate() + offset);
-  //
-  //           // Format as ISO strings for Solr
-  //           filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
-  //           isRange = true;
-  //
-  //         } else if (filter.key === SolrFacetKey.Year) {
-  //           return `(date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue})`;
-  //         }
-  //
-  //         const value = filter.solrValue.trim();
-  //
-  //         if (value.startsWith('*') || value.endsWith('*')) {
-  //           useRaw = true;
-  //         }
-  //
-  //         return isRange
-  //           ? `${filter.solrField}:${value}`
-  //           : useRaw
-  //             ? `${filter.solrField}:(${value})`
-  //             : `${filter.solrField}:"${value}"`;
-  //       });
-  //
-  //     return parts.length > 0
-  //       ? `(${parts.join(` ${group.operator} `)})`
-  //       : '';
-  //   }).filter(Boolean);
-  //
-  //   if (advancedQueryParts.length === 0) return undefined;
-  //
-  //   return advancedQueryParts.length > 1
-  //     ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
-  //     : advancedQueryParts[0];
-  // }
 
   getSolrAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();

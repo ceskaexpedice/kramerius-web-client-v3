@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {TranslatePipe} from '@ngx-translate/core';
 import {NgClass, NgIf} from '@angular/common';
+import {FormatNumberPipe} from '../../pipes/format-number.pipe';
 
 @Component({
   selector: 'app-filter-item',
@@ -10,6 +11,7 @@ import {NgClass, NgIf} from '@angular/common';
     TranslatePipe,
     NgIf,
     NgClass,
+    FormatNumberPipe,
   ],
   templateUrl: './filter-item.component.html',
   styleUrl: './filter-item.component.scss'

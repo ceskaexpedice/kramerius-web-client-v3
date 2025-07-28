@@ -27,6 +27,7 @@
       type="range"
       min="0"
       max="100"
+      class="hide-thumb"
       [style.--progress]="(soundService.getProgress() * 100) + '%'"
       [value]="soundService.getProgress() * 100"
       (input)="seekTo($event)"

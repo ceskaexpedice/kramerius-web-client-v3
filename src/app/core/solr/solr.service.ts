@@ -15,6 +15,7 @@ import {EnvironmentService} from '../../shared/services/environment.service';
 import {SolrUtils} from './solr-utils';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {ItemCard} from '../../shared/components/item-card/item-card.component';
+import {SearchDocument} from '../../modules/models/search-document';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -235,12 +236,6 @@ export class SolrService {
       }
     }
 
-    // if (filters.length === 0 && query === '') {
-    //   paramsObject = {
-    //     ...paramsObject,
-    //     ...SolrQueryBuilder.baseFilters()
-    //   }
-    // }
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -319,11 +314,11 @@ export class SolrService {
     );
   }
 
-  getPeriodicals(): Observable<ItemCard[]> {
+  getPeriodicals(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.periodical}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100),
       ...SolrQueryBuilder.start(0)
@@ -334,11 +329,11 @@ export class SolrService {
     );
   }
 
-  getBooks(): Observable<ItemCard[]> {
+  getBooks(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.monograph}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100)
     };
@@ -375,7 +370,7 @@ export class SolrService {
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `(model:periodicalvolume)`
     ]);
-    const params = { q: query, fl: 'date.str, pid, accessibility, model, part.number.str,date_range_end.day,date_range_end.month,date_range_end.year', rows: '10000', sort: 'date.min asc', wt: 'json' };
+    const params = { q: query, fl: 'date.str, pid, accessibility, model, part.number.str,date_range_end.day,date_range_end.month,date_range_end.year, licenses, contains_licenses', rows: '10000', sort: 'date.min asc', wt: 'json' };
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -389,7 +384,7 @@ export class SolrService {
     ]);
     const params = {
       q: query,
-      fl: 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year',
+      fl: 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year, licenses, contains_licenses',
       rows: '10000',
       sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
       wt: 'json'

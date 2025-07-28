@@ -10,7 +10,7 @@
     class="radio-button"
   >
     {{ (item.name + '-label') | translate }}
-    <span class="count">({{ item.count }})</span>
+    <span class="count">({{ item.count | formatNumber }})</span>
     <i *ngIf="item.icon" [ngClass]="item.icon"></i>
   </mat-radio-button>
 </mat-radio-group>

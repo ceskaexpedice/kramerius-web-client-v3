@@ -24,6 +24,7 @@ import {FilterService} from '../../../../core/services/FilterUtilities';
 import {InputComponent} from '../../../../shared/components/input/input.component';
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-search-dialog/solr-filters';
+import {FormatNumberPipe} from '../../../../shared/pipes/format-number.pipe';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -40,6 +41,7 @@ import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-se
     ToggleButtonGroupComponent,
     PaginatorInfoComponent,
     InputComponent,
+    FormatNumberPipe,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -206,6 +208,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
     // Get the operator value
     const operator = this.pendingOperator();
+
+    this.searchService.resetPage();
 
     // Update filters with the chosen operator
     this.queryParamsService.updateFilters(

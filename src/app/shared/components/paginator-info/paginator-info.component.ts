@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
+import {FormatNumberPipe} from '../../pipes/format-number.pipe';
 
 @Component({
   selector: 'app-paginator-info',
   imports: [
     TranslatePipe,
+    FormatNumberPipe,
   ],
   templateUrl: './paginator-info.component.html',
   styleUrl: './paginator-info.component.scss',

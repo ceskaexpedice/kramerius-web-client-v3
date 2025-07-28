@@ -56,6 +56,7 @@ export class PlaybackBarComponent {
 
   close() {
     this.musicService.openMusicStopDialog();
+    this.isQueueOpen.set(false);
   }
 
 }

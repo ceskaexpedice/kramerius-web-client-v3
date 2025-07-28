@@ -70,5 +70,4 @@ export class RecordItemComponent {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

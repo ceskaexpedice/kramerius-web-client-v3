@@ -7,6 +7,7 @@ import {
   loadBooks,
   loadBooksFailure, loadBooksSuccess,
 } from './books.actions';
+import {parseSearchDocument} from '../../../models/search-document';
 
 @Injectable()
 export class BooksEffects {
@@ -17,7 +18,7 @@ export class BooksEffects {
       ofType(loadBooks),
       switchMap(() =>
         this.solr.getBooks().pipe(
-          map(books => loadBooksSuccess({ data: books })),
+          map(books => loadBooksSuccess({ data: books.map(doc => parseSearchDocument(doc)) })),
           catchError(error => {
             console.error('Chyba v efektoch:', error);
             return of(loadBooksFailure({ error }));

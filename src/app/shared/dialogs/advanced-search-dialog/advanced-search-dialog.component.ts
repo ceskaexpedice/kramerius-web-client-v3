@@ -51,6 +51,8 @@ export class AdvancedSearchDialogComponent implements OnInit {
   }
 
   submit() {
+    this.searchService.resetPage();
+
     this.advancedSearchService.onSubmitAdvancedSearch();
 
     this.dialogRef.close('submit');
