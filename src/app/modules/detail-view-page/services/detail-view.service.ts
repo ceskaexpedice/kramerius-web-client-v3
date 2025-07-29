@@ -86,18 +86,24 @@ export class DetailViewService {
       skip(1),
       take(1)
     ).subscribe(() => {
+      console.log('Document loaded:');
       this.loadPages();
     });
   }
 
   loadPages() {
+    console.log('loadPages called');
     this.store.select(selectDocumentDetailPages)
       .pipe(take(1))
       .subscribe(pages => {
+        console.log('selectDocumentDetailPages', pages);
         const safePages = pages ?? [];
         this._pages.set(safePages);
         this._currentPageIndex.set(0);
-        this.checkAndSetCurrentPageFromUrl();
+
+        if (this.document?.model !== DocumentTypeEnum.soundrecording) {
+          this.checkAndSetCurrentPageFromUrl();
+        }
       });
   }
 
@@ -111,12 +117,15 @@ export class DetailViewService {
     const urlParams = new URLSearchParams(window.location.search);
     const pageParam = urlParams.get('page');
 
+    console.log('pageParam', pageParam);
+
     if (pageParam) {
       const pageIndex = this._pages().findIndex(page => page.pid === pageParam);
       if (pageIndex !== -1) {
         this._currentPageIndex.set(pageIndex);
       }
     } else {
+      console.log('goToPage(0) called');
       this.goToPage(0);
     }
   }
@@ -131,20 +140,30 @@ export class DetailViewService {
   }
 
   goToPage(index: number) {
+    console.log('goToPage', index);
+    console.log('_pages', this._pages());
     if (index >= 0 && index < this._pages().length) {
+      console.log('ide sem')
+      console.log('index', index);
       this._currentPageIndex.set(index);
+      console.log('currentPageIndex set to', this._currentPageIndex());
 
+      console.log('document', this.document);
       if (this.document?.model === DocumentTypeEnum.soundrecording && this.soundRecordingViewMode() === 'records') {
         this.soundRecordingViewMode.set('images');
       }
 
+      console.log('index set to', index);
       this.changePageUrl();
     }
   }
 
   changePageUrl() {
+    console.log('changePageUrl');
     const currentPage = this.getCurrentPage();
     // add to url ?page=PAGE_PID
+
+    console.log('changePageUrl', currentPage);
     if (currentPage) {
       const url = new URL(window.location.href);
       url.searchParams.set('page', currentPage.pid);

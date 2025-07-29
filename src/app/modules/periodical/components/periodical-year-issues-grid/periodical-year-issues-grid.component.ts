@@ -38,4 +38,12 @@ export class PeriodicalYearIssuesGridComponent {
     }
   }
 
+  getItemTitle(item: PeriodicalItemChild): string {
+    // item['date_range_end.day'] + '.' + item['date_range_end.month']
+    if (item['date_range_end.day'] && item['date_range_end.month']) {
+      return `${item['date_range_end.day']}.${item['date_range_end.month']}`;
+    }
+    return item['date.str'];
+  }
+
 }

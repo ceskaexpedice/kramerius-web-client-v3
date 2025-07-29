@@ -43,13 +43,18 @@ export class DocumentDetailEffects {
       children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null),
     }).pipe(
       map(({ detailItem, children }) => {
+        console.log('detailItem', detailItem);
+        console.log('children', children);
+        console.log('fromSolrToMetadata(detailItem)', fromSolrToMetadata(detailItem));
         return DocumentDetailActions.loadDocumentDetailSuccess({
           data: fromSolrToMetadata(detailItem),
           pages: children,
         });
       }),
-      catchError(error =>
-        of(DocumentDetailActions.loadDocumentDetailFailure({ error }))
+      catchError(error =>{
+        console.log('Error loading document detail:', error);
+       return of(DocumentDetailActions.loadDocumentDetailFailure({ error }))
+      }
       )
     );
   }

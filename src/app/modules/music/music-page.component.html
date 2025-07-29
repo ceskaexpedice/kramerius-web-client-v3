@@ -4,10 +4,10 @@
 
   <ng-container left-sidebar>
 
-    <div class="sidebar-wrapper" *ngIf="detailViewService.document$ | async as document">
+    <div class="sidebar--wrapper" *ngIf="detailViewService.document$ | async as document">
 
-        @if (document.model === DocumentTypeEnum.soundrecording) {
-          <div class="sidebar--wrapper">
+
+      @if (document.model === DocumentTypeEnum.soundrecording) {
             <app-input
               [placeholder]="'search-in-document--placeholder' | translate"
               [theme]="'dark'"
@@ -29,8 +29,8 @@
             <div class="sidebar--wrapper--scroll-content">
               <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
             </div>
-          </div>
         }
+
 
     </div>
   </ng-container>
