@@ -1,23 +1,31 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal, computed, effect} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import { Store } from '@ngrx/store';
-import {distinctUntilChanged, filter, map, take} from 'rxjs';
-import { APP_ROUTES_ENUM } from '../../app.routes';
+import {Store} from '@ngrx/store';
+import {distinctUntilChanged, filter, map, Observable, of, take} from 'rxjs';
+import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
 import {PeriodicalItemYear} from '../../modules/models/periodical-item';
 import {LocalStorageService} from './local-storage.service';
-import { RecordHandlerService } from './record-handler.service';
+import {RecordHandlerService} from './record-handler.service';
 import {
-  selectAvailableYears, selectPeriodicalChildren,
-  selectPeriodicalDocument, selectPeriodicalError, selectPeriodicalLoading, selectPeriodicalMetadata,
+  selectAvailableYears,
+  selectPeriodicalChildren,
+  selectPeriodicalDocument,
+  selectPeriodicalError,
+  selectPeriodicalLoading,
+  selectPeriodicalMetadata,
 } from '../../modules/periodical/state/periodical-detail.selectors';
-import {loadPeriodical} from '../../modules/periodical/state/periodical-detail.actions';
+import {loadPeriodical, loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-detail.actions';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DetailViewService} from '../../modules/detail-view-page/services/detail-view.service';
+import {FilterService} from './filter.service';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {QueryParamsService} from '../../core/services/QueryParamsManager';
+import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 
-@Injectable({ providedIn: 'root' })
-export class PeriodicalService {
+@Injectable({providedIn: 'root'})
+export class PeriodicalService implements FilterService {
   uuid: string | null = null;
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
 
@@ -28,7 +36,25 @@ export class PeriodicalService {
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
 
-  // Store Observables
+  private _page = signal(1);
+  private _pageSize = signal(60);
+  private _totalCount = signal(0);
+  private _sortBy = signal(SolrSortFields.relevance);
+  private _sortDirection = signal(SolrSortDirections.desc);
+  private _pageReset = signal(false);
+  private _submittedTerm = signal('');
+  private initialized = false;
+
+  private _activeFiltersSignal = toSignal(
+    this.store.select(selectActiveFilters),
+    { initialValue: [] }
+  );
+
+  totalCount$ = this._totalCount.asReadonly();
+  activeFilters$ = this.store.select(selectActiveFilters);
+  pageResults$ = of([]); // Placeholder
+  nonPageResults$ = of([]); // Placeholder
+
   document$ = this.store.select(selectPeriodicalDocument);
   availableYears$ = this.store.select(selectAvailableYears);
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
@@ -36,78 +62,191 @@ export class PeriodicalService {
   metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
 
-  private documentSignal = toSignal(this.document$, { initialValue: null });
-  private metadataSignal = toSignal(this.metadata$, { initialValue: null });
+  private documentSignal = toSignal(this.document$, {initialValue: null});
+  private metadataSignal = toSignal(this.metadata$, {initialValue: null});
 
   private route = inject(ActivatedRoute);
+  private queryParamsService = inject(QueryParamsService);
 
   constructor(
     private store: Store,
     private router: Router,
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService,
-    private detailView: DetailViewService
+    private detailView: DetailViewService,
   ) {
-
     if (this.availableYears$) {
       this.availableYears$.pipe(
         filter(Boolean),
         map(data => {
           this.availableYears = data;
           this.generateYearsFromAvailable();
-        })
+        }),
       ).subscribe();
     }
 
     this.watchRouteParams();
+
+    this.initialize();
+  }
+
+  async initialize() {
+    if (this.initialized) return;
+
+    // await this.userService.loadLicenses();
+
+    // route is /periodical/uuid:592a84c0-7faa-11ed-856c-5ef3fc9bb22f
+    // extract uuid from the route
+    this.uuid = this.route.snapshot.paramMap.get('uuid') || null;
+    console.log('uuid from route:', this.uuid);
+
+    this.route.queryParams.subscribe(params => {
+      const currentRoute = this.router.url.split('?')[0];
+      console.log('currentRoute:', currentRoute);
+      if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+
+        this.dispatchPeriodicalSearch(params);
+      }
+    });
+
+    this.initialized = true;
+  }
+
+  private dispatchPeriodicalSearch(params: any): void {
+
+    console.log('uuid:', this.uuid);
+
+    if (!this.uuid) return;
+
+    const query = params['query'] || '';
+
+    if (query && query.length > 0) {
+      this._submittedTerm.set(query);
+    }
+
+    const baseFilters = this.queryParamsService.getFilters(params);
+    const { advancedQuery, advancedQueryMainOperator } = { advancedQuery: undefined, advancedQueryMainOperator: undefined };
+
+    let page = 1;
+    if (!this._pageReset()) {
+      page = Number(params['page']) || this._page();
+    } else {
+      this._pageReset.set(false);
+      this.goToPage(page);
+    }
+
+    const pageSize = Number(params['pageSize']) || this._pageSize();
+    const sortBy = params['sortBy'] || this._sortBy();
+    const sortDirection = params['sortDirection'] || this._sortDirection();
+
+    this._page.set(page);
+    this._pageSize.set(pageSize);
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
+
+    this.store.dispatch(loadPeriodicalSearchResults({
+      uuid: this.uuid,
+      query,
+      filters: baseFilters,
+      advancedQuery,
+      advancedQueryMainOperator,
+      page: (page - 1) * pageSize,
+      pageCount: pageSize,
+      sortBy,
+      sortDirection
+    }));
+  }
+
+  get page() { return this._page(); }
+  get pageSize() { return this._pageSize(); }
+  get sortBy() { return this._sortBy(); }
+  get sortDirection() { return this._sortDirection(); }
+  get submittedTerm() { return this._submittedTerm(); }
+
+  get document() { return this.documentSignal(); }
+  get metadata() { return this.metadataSignal(); }
+
+  getFacets(): Observable<any> {
+    throw new Error('Method not implemented for periodicals.');
+  }
+
+  getFiltersWithOperators(): Observable<Record<string, string>> {
+    return this.route.queryParams.pipe(
+      map(params => this.queryParamsService.getOperators(params))
+    );
+  }
+
+  toggleFilter(route: ActivatedRoute, fullValue: string): void {
+    const [facetKey, value] = fullValue.split(':');
+    const params = route.snapshot.queryParams;
+    const currentValues = this.queryParamsService.getFiltersByFacet(params, facetKey);
+
+    const isSelected = currentValues.includes(value);
+    const newValues = isSelected
+      ? currentValues.filter(v => v !== value)
+      : [...currentValues, value];
+
+    const operator = this.queryParamsService.getOperatorForFacet(params, facetKey);
+
+    this.queryParamsService.updateFilters(route, facetKey, newValues, operator);
+  }
+
+  resetPage(): void {
+    this._pageReset.set(true);
+  }
+
+  goToPage(page: number) {
+    this._page.set(page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page, pageSize: this.pageSize },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  changePageSize(size: number) {
+    this._pageSize.set(size);
+    this._page.set(1);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: 1, pageSize: size },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { sortBy, sortDirection },
+      queryParamsHandling: 'merge'
+    });
   }
 
   checkForDataNeedToLoad(rootPid: string): void {
-    if (
-      (!this.availableYears || this.availableYears.length === 0)
-    ) {
-      // Dispatch if pid is valid
-      this.store.dispatch(loadPeriodical({ uuid: rootPid }));
-    } else {
-      console.warn('Invalid document root.pid or no data to load.');
+    if (!this.availableYears || this.availableYears.length === 0) {
+      this.store.dispatch(loadPeriodical({uuid: rootPid}));
     }
   }
 
-
   watchRouteParams(): void {
-    console.log('🔄 Subscribing to route/url changes');
-
-    // Detect any time the URL changes (e.g., user clicks a year and uuid changes in URL)
     this.router.events.pipe(
-      filter(event => {
-        return event instanceof NavigationEnd && event.url.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)
-      })
+      filter(event => event instanceof NavigationEnd && event.url.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)),
     ).subscribe(() => {
-      console.log('🔄 NavigationEnd detected, checking for UUID in URL');
-
       const rawUrl = this.router.routerState.snapshot.url;
       const match = rawUrl.match(/(uuid:[a-f0-9\-]+)/i);
       const finalUuid = match?.[1] ?? null;
 
       if (finalUuid && finalUuid !== this.uuid) {
-        console.log('🔁 UUID changed, loading new periodical:', finalUuid);
         this.uuid = finalUuid;
-        this.store.dispatch(loadPeriodical({ uuid: finalUuid }));
+        this.store.dispatch(loadPeriodical({uuid: finalUuid}));
       }
     });
 
-    // Initial doc handling after load
     this.document$.pipe(filter(Boolean)).subscribe(doc => {
       this.handleDocument(doc);
     });
-  }
-
-  get document() {
-    return this.documentSignal();
-  }
-
-  get metadata() {
-    return this.metadataSignal();
   }
 
   handleDocument(doc: any): void {
@@ -136,23 +275,15 @@ export class PeriodicalService {
     this.viewMode.set(newView);
   }
 
-  goToPreviousYear(): void {
-    this.navigateToRelativeYear(-1);
-  }
-
-  goToNextYear(): void {
-    this.navigateToRelativeYear(1);
-  }
+  goToPreviousYear(): void { this.navigateToRelativeYear(-1); }
+  goToNextYear(): void { this.navigateToRelativeYear(1); }
 
   getCurrentPeriodicalIssueDate(): string | null {
-    // return date.str from current document
-    console.log('document', this.document);
     return this.document?.['date.str'] ?? null;
   }
 
   private navigateToRelativeYear(offset: number): void {
     if (!this.selectedYear() || this.availableYears.length === 0) return;
-
     const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
     const target = this.availableYears[currentIndex + offset];
     if (target) this.selectYear(target.year);
@@ -168,7 +299,6 @@ export class PeriodicalService {
 
   onSelectYear(year: string): void {
     const match = this.availableYears.find(y => y.year === year);
-    console.log('availableYears', this.availableYears);
     if (match) {
       this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, match.pid]);
     }
@@ -202,7 +332,7 @@ export class PeriodicalService {
 
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
-      .map(y => ({ ...y, exists: true }))
+      .map(y => ({...y, exists: true}))
       .sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
@@ -215,49 +345,27 @@ export class PeriodicalService {
   }
 
   public goToNextPeriodicalYear() {
-    // we have selected year
-    // find the index of the selected year in availableYears
     if (!this.selectedYear() || this.availableYears.length === 0) return;
-
     const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-
-    // if the index is not found or it's the last year, do nothing
     if (currentIndex === -1 || currentIndex === this.availableYears.length - 1) return;
-
-    // get the next year
     const nextYear = this.availableYears[currentIndex + 1];
-
-    // navigate to the next year
     if (nextYear) {
       this.selectYear(nextYear.year);
     }
   }
 
   public goToPreviousPeriodicalYear() {
-    // we have selected year
-    // find the index of the selected year in availableYears
     if (!this.selectedYear() || this.availableYears.length === 0) return;
-
     const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-
-    // if the index is not found or it's the first year, do nothing
     if (currentIndex <= 0) return;
-
-    // get the previous year
     const previousYear = this.availableYears[currentIndex - 1];
-
-    // navigate to the previous year
     if (previousYear) {
       this.selectYear(previousYear.year);
     }
   }
 
   public goToNextPeriodicalIssue() {
-    // take current uuid
-    // find the index in periodicalChildren$ where uuid matches
-    // if found, navigate to the next issue
     if (!this.uuid) return;
-
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
       const currentIndex = children.findIndex(child => child.pid === this.uuid);
       if (currentIndex !== -1 && currentIndex < children.length - 1) {
@@ -268,11 +376,7 @@ export class PeriodicalService {
   }
 
   public goToPreviousPeriodicalIssue() {
-    // take current uuid
-    // find the index in periodicalChildren$ where uuid matches
-    // if found, navigate to the previous issue
     if (!this.uuid) return;
-
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
       const currentIndex = children.findIndex(child => child.pid === this.uuid);
       if (currentIndex > 0) {
@@ -283,13 +387,8 @@ export class PeriodicalService {
   }
 
   public getCurrentPeriodicalYearPid(): string | null {
-    // Return the pid of the currently selected year
     const year = this.selectedYear();
-
-    console.log('selectedYear', year);
-    console.log('availableYears', this.availableYears);
     if (!year) return null;
-
     const yearData = this.availableYears.find(y => y.year === year);
     return yearData ? yearData.pid : null;
   }
