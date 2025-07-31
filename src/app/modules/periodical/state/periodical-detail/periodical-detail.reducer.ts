@@ -3,8 +3,8 @@ import {
   loadPeriodical, loadPeriodicalFailure,
   loadPeriodicalSuccess
 } from './periodical-detail.actions';
-import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../models/periodical-item';
-import {Metadata} from '../../../shared/models/metadata.model';
+import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
+import {Metadata} from '../../../../shared/models/metadata.model';
 
 export interface PeriodicalDetailState {
   document: PeriodicalItem | null;

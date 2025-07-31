@@ -118,16 +118,16 @@ import { of } from 'rxjs';
 import {
   loadPeriodical,
   loadPeriodicalFailure,
-  loadPeriodicalSuccess
+  loadPeriodicalSuccess,
 } from './periodical-detail.actions';
 import { Store } from '@ngrx/store';
-import { SolrService } from '../../../core/solr/solr.service';
+import { SolrService } from '../../../../core/solr/solr.service';
 import { selectAvailableYears } from './periodical-detail.selectors';
-import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../models/periodical-item';
-import { DocumentAccessibilityEnum } from '../../constants/document-accessibility';
-import * as DocumentDetailActions from '../../../shared/state/document-detail/document-detail.actions';
-import {loadDocumentDetailSuccess} from '../../../shared/state/document-detail/document-detail.actions';
-import {DocumentTypeEnum} from '../../constants/document-type';
+import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../../models/periodical-item';
+import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
+import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
+import {loadDocumentDetailSuccess} from '../../../../shared/state/document-detail/document-detail.actions';
+import {DocumentTypeEnum} from '../../../constants/document-type';
 
 @Injectable()
 export class PeriodicalDetailEffects {

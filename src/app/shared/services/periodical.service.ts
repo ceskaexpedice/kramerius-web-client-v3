@@ -15,14 +15,16 @@ import {
   selectPeriodicalError,
   selectPeriodicalLoading,
   selectPeriodicalMetadata,
-} from '../../modules/periodical/state/periodical-detail.selectors';
-import {loadPeriodical, loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-detail.actions';
+} from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
+import {loadPeriodical} from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DetailViewService} from '../../modules/detail-view-page/services/detail-view.service';
 import {FilterService} from './filter.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
+import {SolrService} from '../../core/solr/solr.service';
+import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 
 @Injectable({providedIn: 'root'})
 export class PeriodicalService implements FilterService {
@@ -36,6 +38,8 @@ export class PeriodicalService implements FilterService {
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
 
+  inputSearchTerm = '';
+
   private _page = signal(1);
   private _pageSize = signal(60);
   private _totalCount = signal(0);
@@ -43,11 +47,13 @@ export class PeriodicalService implements FilterService {
   private _sortDirection = signal(SolrSortDirections.desc);
   private _pageReset = signal(false);
   private _submittedTerm = signal('');
+  private _searchTerm = signal('');
+
   private initialized = false;
 
   private _activeFiltersSignal = toSignal(
     this.store.select(selectActiveFilters),
-    { initialValue: [] }
+    {initialValue: []}
   );
 
   totalCount$ = this._totalCount.asReadonly();
@@ -65,8 +71,13 @@ export class PeriodicalService implements FilterService {
   private documentSignal = toSignal(this.document$, {initialValue: null});
   private metadataSignal = toSignal(this.metadata$, {initialValue: null});
 
+  get searchTerm() {
+    return this._searchTerm;
+  }
+
   private route = inject(ActivatedRoute);
   private queryParamsService = inject(QueryParamsService);
+  private solrService = inject(SolrService);
 
   constructor(
     private store: Store,
@@ -85,32 +96,28 @@ export class PeriodicalService implements FilterService {
       ).subscribe();
     }
 
-    this.watchRouteParams();
-
     this.initialize();
   }
 
   async initialize() {
     if (this.initialized) return;
 
-    // await this.userService.loadLicenses();
-
-    // route is /periodical/uuid:592a84c0-7faa-11ed-856c-5ef3fc9bb22f
-    // extract uuid from the route
-    this.uuid = this.route.snapshot.paramMap.get('uuid') || null;
+    const rawUrl = this.router.routerState.snapshot.url;
+    const match = rawUrl.match(/(uuid:[a-f0-9\\-]+)/i);
+    this.uuid = match?.[1] ?? null;
     console.log('uuid from route:', this.uuid);
 
     this.route.queryParams.subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
-      console.log('currentRoute:', currentRoute);
-      if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
 
+      if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
         this.dispatchPeriodicalSearch(params);
       }
     });
 
     this.initialized = true;
   }
+
 
   private dispatchPeriodicalSearch(params: any): void {
 
@@ -121,6 +128,7 @@ export class PeriodicalService implements FilterService {
     const query = params['query'] || '';
 
     if (query && query.length > 0) {
+      this._searchTerm.set(query);
       this._submittedTerm.set(query);
     }
 
@@ -139,6 +147,8 @@ export class PeriodicalService implements FilterService {
     const sortBy = params['sortBy'] || this._sortBy();
     const sortDirection = params['sortDirection'] || this._sortDirection();
 
+    this._searchTerm.set(query);
+    this._submittedTerm.set(query);
     this._page.set(page);
     this._pageSize.set(pageSize);
     this._sortBy.set(sortBy);
@@ -174,6 +184,42 @@ export class PeriodicalService implements FilterService {
     return this.route.queryParams.pipe(
       map(params => this.queryParamsService.getOperators(params))
     );
+  }
+
+  getSuggestionsFn = (term: string): Observable<string[]> => {
+    console.log('[PeriodicalService] getting suggestions for:', term);
+    return this.solrService.getAutocompleteSuggestions(term);
+  }
+
+  onSearch(term: string | null): void {
+    const query = (term && term.length > 0) ? `${term}` : '';
+    this._submittedTerm.set(query);
+    // reset page to 1
+    this._page.set(1);
+    this.search(query);
+  }
+
+  onSubmit(term: string): void {
+    this.onSearch(term);
+  }
+
+  onSuggestionSelected(suggestion: string): void {
+    this._submittedTerm.set(suggestion);
+    this.search(suggestion);
+  }
+
+  search(query: string): void {
+    this.initialize();
+    this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
+      queryParams: {
+        query,
+        page: this._page(),
+        pageSize: this._pageSize(),
+        sortBy: this._sortBy(),
+        sortDirection: this._sortDirection()
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
@@ -228,25 +274,6 @@ export class PeriodicalService implements FilterService {
     if (!this.availableYears || this.availableYears.length === 0) {
       this.store.dispatch(loadPeriodical({uuid: rootPid}));
     }
-  }
-
-  watchRouteParams(): void {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd && event.url.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)),
-    ).subscribe(() => {
-      const rawUrl = this.router.routerState.snapshot.url;
-      const match = rawUrl.match(/(uuid:[a-f0-9\-]+)/i);
-      const finalUuid = match?.[1] ?? null;
-
-      if (finalUuid && finalUuid !== this.uuid) {
-        this.uuid = finalUuid;
-        this.store.dispatch(loadPeriodical({uuid: finalUuid}));
-      }
-    });
-
-    this.document$.pipe(filter(Boolean)).subscribe(doc => {
-      this.handleDocument(doc);
-    });
   }
 
   handleDocument(doc: any): void {

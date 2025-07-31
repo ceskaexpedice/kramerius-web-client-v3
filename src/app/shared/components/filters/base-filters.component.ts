@@ -8,6 +8,7 @@ import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-result
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {UserService} from '../../services/user.service';
+import {PeriodicalService} from '../../services/periodical.service';
 
 @Component({ template: '' })
 export abstract class BaseFiltersComponent {
@@ -19,6 +20,7 @@ export abstract class BaseFiltersComponent {
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
     protected searchService: SearchService,
+    protected periodicalService: PeriodicalService,
     protected customSearchService: CustomSearchService,
     protected userService: UserService
   ) {

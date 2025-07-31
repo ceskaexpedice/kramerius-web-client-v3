@@ -1,5 +1,5 @@
 import {Component, inject, Input} from '@angular/core';
-import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
+import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical-detail.selectors';
 import {Store} from '@ngrx/store';
 import {AsyncPipe, NgForOf} from '@angular/common';
 import {ItemCardComponent} from '../../../../shared/components/item-card/item-card.component';

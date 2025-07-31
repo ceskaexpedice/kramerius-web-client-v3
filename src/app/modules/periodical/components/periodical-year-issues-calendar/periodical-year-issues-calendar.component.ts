@@ -12,7 +12,7 @@ import {
 import {MatCalendar} from '@angular/material/datepicker';
 import {NgForOf, NgIf} from '@angular/common';
 import {Store} from '@ngrx/store';
-import {selectPeriodicalChildren} from '../../state/periodical-detail.selectors';
+import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical-detail.selectors';
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';

@@ -4,19 +4,31 @@ import { FilterCategoryComponent } from '../../../../shared/components/filter-ca
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import {InputComponent} from '../../../../shared/components/input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, InputComponent, TranslatePipe],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, InputComponent, TranslatePipe, AutocompleteComponent],
   template: `
     <div class="filters-content">
 
-      <app-input
-        [theme]="'dark'"
-        [size]="'sm'"
+      <app-autocomplete
+        [inputTheme]="'dark'"
         [placeholder]="'search-in-periodicals--placeholder' | translate"
-      ></app-input>
+        [size]="'sm'"
+        [minTermLength]="2"
+        [initialValue]="periodicalService.inputSearchTerm"
+        [getSuggestions]="periodicalService.getSuggestionsFn"
+        [showHelpButton]="false"
+        [showMicrophoneButton]="false"
+        [showSubmitButton]="false"
+        (search)="periodicalService.onSearch($event)"
+        (submit)="periodicalService.onSubmit($event)"
+        [inputTerm]="periodicalService.searchTerm"
+        [showHistorySuggestions]="true"
+        (suggestionSelected)="periodicalService.onSuggestionSelected($event)">
+      </app-autocomplete>
 
       <app-filter-category
         *ngFor="let facetKey of facetKeys"

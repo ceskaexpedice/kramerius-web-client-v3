@@ -6,7 +6,7 @@ import { selectSearchResultsLoading } from '../../modules/search-results-page/st
 import { selectGenresLoading } from '../../modules/search/state/genres/genres.selectors';
 import { selectBooksLoading } from '../../modules/search/state/books/books.selectors';
 import { selectDocumentTypesLoading } from '../../modules/search/state/document-types/document-types.selectors';
-import { selectPeriodicalLoading } from '../../modules/periodical/state/periodical-detail.selectors';
+import { selectPeriodicalLoading } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { selectMusicLoading } from '../../modules/music/state/music-detail.selectors';
 import { selectDocumentDetailLoading } from '../state/document-detail/document-detail.selectors';
 
