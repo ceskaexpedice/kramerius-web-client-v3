@@ -105,6 +105,8 @@ export class SearchService implements FilterService {
     private userService: UserService,
     private customSearchService: CustomSearchService
   ) {
+    this.load();
+
     this.results$ = this.store.select(selectSearchResults);
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.nonPageResults$ = this.store.select(selectNonPageSearchResults);
@@ -188,10 +190,12 @@ export class SearchService implements FilterService {
     });
   }
 
+  async load(): Promise<void> {
+    await this.userService.loadLicenses();
+  }
+
   async initialize() {
     if (this.initialized) return;
-
-    await this.userService.loadLicenses();
 
     this.customSearchService.initializeFromRoute();
 

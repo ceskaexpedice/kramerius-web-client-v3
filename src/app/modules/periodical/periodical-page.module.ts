@@ -30,6 +30,8 @@ import {DateNavigatorComponent} from '../../shared/components/date-navigator/dat
 import {DocumentDetailEffects} from '../../shared/state/document-detail/document-detail.effects';
 import {periodicalSearchReducer} from './state/periodical-search/periodical-search.reducer';
 import {PeriodicalSearchEffects} from './state/periodical-search/periodical-search.effects';
+import {FILTER_SERVICE} from '../../shared/services/filter.service';
+import {PeriodicalService} from '../../shared/services/periodical.service';
 
 const routes: Routes = [
   {
@@ -66,7 +68,7 @@ const routes: Routes = [
     DateNavigatorComponent,
   ],
   providers: [
-    { provide: 'FilterService', useClass: PeriodicalFilterService }
+    { provide: FILTER_SERVICE, useClass: PeriodicalService }
   ]
 
 })

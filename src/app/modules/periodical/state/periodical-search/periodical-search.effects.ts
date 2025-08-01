@@ -11,9 +11,7 @@ import { SolrService } from '../../../../core/solr/solr.service';
 import * as PeriodicalSelectors from './periodical-search.selectors';
 import {DEFAULT_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
 import {parseSearchDocument} from '../../../models/search-document';
-import {SolrOperators} from '../../../../core/solr/solr-helpers';
-import {FacetItem} from '../../../models/facet-item';
-import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
+import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
 
 @Injectable()
 export class PeriodicalSearchEffects {
@@ -45,7 +43,7 @@ export class PeriodicalSearchEffects {
               },
             );
 
-            const facets = this.handleFacetsWithOperators(
+            const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
@@ -66,41 +64,5 @@ export class PeriodicalSearchEffects {
       })
     )
   )
-
-  private handleFacetsWithOperators(
-    searchFacets: Record<string, any[]>,
-    operatorFacets: Record<string, any[]>,
-    facetOperators: Record<string, SolrOperators>,
-  ): Record<string, FacetItem[]> {
-    const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
-    const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
-
-    const result: Record<string, FacetItem[]> = {};
-    const allFacetKeys = new Set([
-      ...Object.keys(parsedSearchFacets),
-      ...Object.keys(parsedOperatorFacets),
-    ]);
-
-    for (const facetKey of allFacetKeys) {
-      const operator = facetOperators[facetKey] ?? SolrOperators.or;
-      const primaryValues = operator === SolrOperators.and
-        ? parsedSearchFacets[facetKey] || []
-        : parsedOperatorFacets[facetKey] || [];
-      const fallbackValues = operator === SolrOperators.and
-        ? parsedOperatorFacets[facetKey] || []
-        : parsedSearchFacets[facetKey] || [];
-
-      const valueMap = new Map(primaryValues.map(item => [item.name, item]));
-      fallbackValues.forEach(item => {
-        if (!valueMap.has(item.name)) {
-          primaryValues.push(item);
-        }
-      });
-
-      result[facetKey] = primaryValues;
-    }
-
-    return result;
-  }
 
 }

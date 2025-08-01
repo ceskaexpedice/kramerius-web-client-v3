@@ -44,9 +44,10 @@ export const initialState: PeriodicalDetailState = {
 export const periodicalDetailReducer = createReducer(
   initialState,
   on(loadPeriodical, state => ({ ...state, loading: true })),
-  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, children }) => ({
+  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, children, facets }) => ({
     ...state,
     loading: false,
+    facets: facets ?? {},
     document,
     metadata,
     years,

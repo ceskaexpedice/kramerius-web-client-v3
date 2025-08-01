@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import {InputComponent} from '../../../../shared/components/input/input.component';
@@ -8,14 +8,14 @@ import {AutocompleteComponent} from '../../../../shared/components/autocomplete/
 import {
   customDefinedFacets,
   customDefinedFacetsEnum,
-  customDefinedFacetsKeys, FacetElementType,
+  customDefinedFacetsKeys, FacetElementType, facetKeys,
   facetKeysEnum,
 } from '../../../search-results-page/const/facets';
 
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, InputComponent, TranslatePipe, AutocompleteComponent, NgIf],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, InputComponent, TranslatePipe, AutocompleteComponent, NgIf, JsonPipe],
   template: `
     <div class="filters-content">
 
@@ -89,7 +89,9 @@ import {
 export class PeriodicalFiltersComponent extends BaseFiltersComponent {
   expandLicenses = false;
 
-  facetKeys = ['years.facet', 'availability.facet'];
+  facetKeys = [];
+  customDefinedFacetsKeys = [customDefinedFacetsEnum.accessibility];
+
   protected readonly customDefinedFacetsEnum = customDefinedFacetsEnum;
   protected readonly facetKeysEnum = facetKeysEnum;
 
@@ -104,6 +106,6 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
 
   get getFacetKeys(): string[] {
     // we are showing licenses under accessibility facet so we need to return all facet keys except 'licenses.facet'
-    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
+    return [...this.customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
   }
 }

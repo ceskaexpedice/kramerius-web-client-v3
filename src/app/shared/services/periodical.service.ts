@@ -26,8 +26,10 @@ import {selectActiveFilters} from '../../modules/search-results-page/state/searc
 import {SolrService} from '../../core/solr/solr.service';
 import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
-  selectPeriodicalSearchStateResults
+  selectPeriodicalSearchStateFacets,
+  selectPeriodicalSearchStateResults,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
+import {UserService} from './user.service';
 
 @Injectable({providedIn: 'root'})
 export class PeriodicalService implements FilterService {
@@ -89,7 +91,13 @@ export class PeriodicalService implements FilterService {
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService,
     private detailView: DetailViewService,
+    private userService: UserService,
   ) {
+
+    this.load();
+
+    this.initialize();
+
     if (this.availableYears$) {
       this.availableYears$.pipe(
         filter(Boolean),
@@ -100,38 +108,16 @@ export class PeriodicalService implements FilterService {
       ).subscribe();
     }
 
-    this.initialize();
   }
 
-  // async initialize() {
-  //   if (this.initialized) return;
-  //
-  //   const rawUrl = this.router.routerState.snapshot.url;
-  //   const match = rawUrl.match(/(uuid:[a-f0-9\\-]+)/i);
-  //   this.uuid = match?.[1] ?? null;
-  //   console.log('uuid from route:', this.uuid);
-  //
-  //   this.route.queryParams.subscribe(params => {
-  //     console.log('queryParams:', params);
-  //     const currentRoute = this.router.url.split('?')[0];
-  //
-  //     if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
-  //       this.dispatchPeriodicalSearch(params);
-  //     }
-  //   });
-  //
-  //   // Initial doc handling after load
-  //   this.document$.pipe(filter(Boolean)).subscribe(doc => {
-  //     console.log('document loaded:', doc);
-  //     this.handleDocument(doc);
-  //   });
-  //
-  //   this.initialized = true;
-  // }
-
+  async load(): Promise<void> {
+    await this.userService.loadLicenses();
+  }
 
   async initialize() {
     if (this.initialized) return;
+
+    // await this.userService.loadLicenses();
 
     const extractUuid = (url: string): string | null => {
       const match = url.match(/(uuid:[a-f0-9\-]+)/i);
@@ -154,7 +140,6 @@ export class PeriodicalService implements FilterService {
       }
     });
 
-    // Po načítaní dokumentu
     this.document$.pipe(filter(Boolean)).subscribe(doc => {
       console.log('document loaded:', doc);
       this.handleDocument(doc);
@@ -228,7 +213,7 @@ export class PeriodicalService implements FilterService {
   get metadata() { return this.metadataSignal(); }
 
   getFacets(): Observable<any> {
-    throw new Error('Method not implemented for periodicals.');
+    return this.store.select(selectPeriodicalSearchStateFacets);
   }
 
   getFiltersWithOperators(): Observable<Record<string, string>> {

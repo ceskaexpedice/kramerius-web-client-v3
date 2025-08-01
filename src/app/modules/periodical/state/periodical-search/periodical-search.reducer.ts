@@ -1,5 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import {
+  loadFacetsSuccess,
   loadFacetSuccess,
   loadPeriodicalSearchFailure,
   loadPeriodicalSearchResults,
@@ -39,6 +40,12 @@ export const periodicalSearchReducer = createReducer(
   })),
 
   on(loadPeriodicalSearchFailure, (state, { error }) => ({ ...state, loading: false, error })),
+
+  on(loadFacetsSuccess, (state, { facets })  => ({
+    ...state,
+    facets,
+    loading: false,
+  })),
 
   on(loadFacetSuccess, (state, { facet, items }) => ({
     ...state,

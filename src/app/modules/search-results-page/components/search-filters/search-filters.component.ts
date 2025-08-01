@@ -82,7 +82,6 @@ import {TranslatePipe} from '@ngx-translate/core';
   `]
 })
 export class SearchFiltersComponent extends BaseFiltersComponent {
-  accessibilityFilter = customDefinedFacets.find(a => a.facetKey === customDefinedFacetsEnum.accessibility);
   expandLicenses = false;
 
   facetKeys = facetKeys;

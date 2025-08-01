@@ -131,15 +131,19 @@ import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../../mode
 import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
 import * as PeriodicalDetailActions from './periodical-detail.actions';
+import * as PeriodicalSearchActions from '../periodical-search/periodical-search.actions';
 import {loadDocumentDetailSuccess} from '../../../../shared/state/document-detail/document-detail.actions';
 import {DocumentTypeEnum} from '../../../constants/document-type';
+import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
+import {UserService} from '../../../../shared/services/user.service';
 
 @Injectable()
 export class PeriodicalDetailEffects {
   constructor(
     private actions$: Actions,
     private solr: SolrService,
-    private store: Store
+    private store: Store,
+    private userService: UserService
   ) {}
 
   triggerDocumentLoad$ = createEffect(() =>
@@ -171,29 +175,60 @@ export class PeriodicalDetailEffects {
 
         const periodical = parsePeriodicalItemFromMetadata(data);
 
-        if (data.model === 'periodical') {
-          return this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
-            map(volumes => {
+        if (data.model === DocumentTypeEnum.periodical) {
+          return this.solr.getPeriodicalVolumesWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
+            mergeMap(({ volumes, facets, facetsWithoutLicenses }) => {
               const availableYears = this.mapAvailableYears(volumes);
               const years = this.buildYearList(data, availableYears);
-              return loadPeriodicalSuccess({ document: periodical, metadata: data, years, availableYears });
+              const parsedFacets = handleFacetsWithOperators(
+                {},
+                facets?.facet_counts?.facet_fields ?? {},
+                facetOperators,
+                facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
+                this.userService.licenses
+              );
+
+              const successAction = loadPeriodicalSuccess({
+                document: periodical,
+                metadata: data,
+                years,
+                availableYears,
+                facets: parsedFacets
+              });
+
+              const facetsSuccessAction = PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
+
+              // Emit both actions
+              return of(successAction, facetsSuccessAction);
             }),
             catchError(error => of(loadPeriodicalFailure({ error })))
           );
         }
 
-        if (data.model === 'periodicalvolume') {
-          return this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection).pipe(
+
+        if (data.model === DocumentTypeEnum.periodicalvolume) {
+          return this.solr.getPeriodicalItemsWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
             withLatestFrom(this.store.select(selectAvailableYears)),
-            switchMap(([children, previousAvailableYears]) => {
+            switchMap(([{ children, facets, facetsWithoutLicenses }, previousAvailableYears]) => {
+              const parsedFacets = handleFacetsWithOperators(
+                {},
+                facets?.facet_counts?.facet_fields ?? {},
+                facetOperators,
+                facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
+                this.userService.licenses
+              );
+
               if (previousAvailableYears?.length > 0) {
-                return of(loadPeriodicalSuccess({
+                return of(
+                  loadPeriodicalSuccess({
                   document: periodical,
                   metadata: data,
                   years: [],
                   availableYears: previousAvailableYears,
-                  children
-                }));
+                  children,
+                  facets: parsedFacets
+                }),
+                  PeriodicalSearchActions.loadFacetsSuccess({facets: parsedFacets}));
               }
 
               const rootPid = data.rootPid;
@@ -202,15 +237,20 @@ export class PeriodicalDetailEffects {
               }
 
               return this.solr.getPeriodicalVolumes(rootPid).pipe(
-                map(volumes => {
+                mergeMap(volumes => {
                   const availableYears = this.mapAvailableYears(volumes);
-                  return loadPeriodicalSuccess({
+                  const successAction = loadPeriodicalSuccess({
                     document: periodical,
                     metadata: data,
                     years: [],
                     availableYears,
-                    children
+                    children,
+                    facets: parsedFacets
                   });
+                  const facetsSuccessAction = PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
+
+                  // Emit both actions
+                  return of(successAction, facetsSuccessAction);
                 }),
                 catchError(error =>
                   of(loadPeriodicalFailure({ error: 'Failed to load parent periodical volumes: ' + error }))

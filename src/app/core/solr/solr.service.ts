@@ -1,13 +1,16 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {SolrResponseParser} from './solr-response-parser';
 import {SolrQueryBuilder} from './solr-query-builder';
 import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
 import {SearchResultResponse} from '../../modules/models/search-result-response';
 import {FacetItem} from '../../modules/models/facet-item';
-import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
+import {
+  DEFAULT_FACET_FIELDS,
+  DEFAULT_PERIODICAL_FACET_FIELDS,
+} from '../../modules/search-results-page/const/facet-fields';
 import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 import {EnvironmentService} from '../../shared/services/environment.service';
 import {SolrUtils} from './solr-utils';
@@ -71,77 +74,12 @@ export class SolrService {
       params = {...params, ...SolrQueryBuilder.baseFilters()};
     }
 
-    // if (addBaseFilters) {
-    //   params = {
-    //     ...params,
-    //     ...SolrQueryBuilder.baseFilters()
-    //   }
-    // }
-
     if (options.sortBy) Object.assign(params, SolrQueryBuilder.facetSortBy(options.sortBy));
     if (options.searchTerm) Object.assign(params, SolrQueryBuilder.facetContains(options.searchTerm, true));
     if (options.limit !== undefined) params['facet.limit'] = options.limit.toString();
     if (options.offset !== undefined) params['facet.offset'] = options.offset.toString();
     return params;
   }
-
-  // private buildQParam(query: string, advancedQuery?: string): string {
-  //   const parts = [];
-  //   if (query?.trim()) {
-  //     parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
-  //   } else {
-  //     parts.push('*:*');
-  //   }
-  //   if (advancedQuery?.trim()) {
-  //
-  //     let finalAdvancedQuery = '';
-  //
-  //     // if advancedQuery contains OR, we need to have brackets around it, otherwise we need to remove them
-  //     if (advancedQuery?.indexOf(SolrOperators.or) !== -1) {
-  //       finalAdvancedQuery = `${advancedQuery}`;
-  //     } else {
-  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
-  //     }
-  //     parts.push(`${finalAdvancedQuery}`);
-  //   }
-  //   return parts.length ? parts.join(' AND ') : '*:*';
-  // }
-
-  // private buildQParam(query: string, advancedQuery?: string): string {
-  //   const parts: string[] = [];
-  //
-  //   const hasSpecialSyntax = (input: string): boolean => {
-  //     const specialChars = ['?', '*', 'AND', 'OR', 'NOT', '"', '~'];
-  //     return specialChars.some(char => input.includes(char));
-  //   };
-  //
-  //   // Handle main query
-  //   if (query?.trim()) {
-  //     if (hasSpecialSyntax(query)) {
-  //       // Use raw query across all search fields
-  //       const escapedQuery = query.trim();
-  //       parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
-  //     } else {
-  //       // Use builder for normal input
-  //       parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
-  //     }
-  //   } else {
-  //     parts.push('*:*');
-  //   }
-  //
-  //   // Handle advanced query
-  //   if (advancedQuery?.trim()) {
-  //     let finalAdvancedQuery = '';
-  //     if (advancedQuery.includes(SolrOperators.or)) {
-  //       finalAdvancedQuery = advancedQuery;
-  //     } else {
-  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
-  //     }
-  //     parts.push(`(${finalAdvancedQuery})`);
-  //   }
-  //
-  //   return parts.length ? parts.join(' AND ') : '*:*';
-  // }
 
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null): string {
     const parts: string[] = [];
@@ -275,9 +213,15 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-                         includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+                         includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
 
-    const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    let baseFilters;
+
+    if (rootPid) {
+      baseFilters = SolrQueryBuilder.basePeriodicalFilters(includePeriodicalItem, includePage, rootPid);
+    } else {
+      baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    }
 
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({}, filters.length === 0, baseFilters);
@@ -397,13 +341,45 @@ export class SolrService {
     );
   }
 
+  getPeriodicalVolumesWithFacets(
+    uuid: string,
+    filters: string[],
+    facetOperators: Record<string, SolrOperators>,
+    page: number,
+    pageCount: number,
+    sortBy: any,
+    sortDirection: any
+  ) {
+    return forkJoin({
+      volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection),
+      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
+      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+    });
+  }
+
+  getPeriodicalItemsWithFacets(
+    uuid: string,
+    filters: string[],
+    facetOperators: Record<string, SolrOperators>,
+    page: number,
+    pageCount: number,
+    sortBy: any,
+    sortDirection: any
+  ) {
+    return forkJoin({
+      children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection),
+      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
+      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+    });
+  }
+
   getPeriodicalVolumes(pid: string,
                        filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc
   ): Observable<any[]> {
     const query = SolrQueryBuilder.buildBooleanQuery([
       `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `(model:periodicalvolume)`
+      `(model:${DocumentTypeEnum.periodicalvolume})`
     ]);
 
     let params = this.createHttpParams({
@@ -424,7 +400,7 @@ export class SolrService {
     const query = SolrQueryBuilder.buildBooleanQuery([
       `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `(model:periodicalitem OR model:supplement OR model:page)`
+      `(model:${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page})`
     ]);
     const params = {
       q: query,
