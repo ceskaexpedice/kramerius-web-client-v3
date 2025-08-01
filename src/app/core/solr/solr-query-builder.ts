@@ -209,6 +209,28 @@ export class SolrQueryBuilder {
     };
   }
 
+  static basePeriodicalFilters(includePeriodicalItem: boolean = false, includePage: boolean = false, rootPid: string | null = null): any {
+    const baseModels = [
+      'model:periodical^10'
+    ];
+
+    if (rootPid) {
+      baseModels.push(`root.pid:${rootPid}`);
+    }
+
+    if (includePeriodicalItem) {
+      baseModels.push('model:periodicalitem^2');
+      baseModels.push('model:periodicalvolume^2');
+    }
+    if (includePage) {
+      baseModels.push('model:page^0.001');  // Very low boost for pages
+    }
+
+    return {
+      fq: `(${baseModels.join(' OR ')})`
+    };
+  }
+
   static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false): any {
     const baseModels = [
       'model:periodical^10',    // High boost for periodicals
@@ -243,22 +265,28 @@ export class SolrQueryBuilder {
    * Alternative method for generating boosted model queries to be used in the main query (q parameter)
    * This provides stronger boosting control than filter queries
    */
-  static buildBoostedModelQuery(includePeriodicalItem: boolean = false, includePage: boolean = false): string {
-    const baseModels = [
-      'model:periodical^10',
-      'model:monograph^8',
-      'model:map^2',
-      'model:graphic^2',
-      'model:archive^2',
-      'model:manuscript^2',
-      'model:soundrecording^2',
-      'model:sheetmusic^2',
-      'model:convolute^2',
-      '(model:collection AND collection.is_standalone:true)^2',
-      'model:monographunit^2',
-      'model:supplement^2',
-      'model:article^2'
+  static buildBoostedModelQuery(includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false): string {
+    let baseModels = [
+      'model:periodical^10'
     ];
+
+    if (!periodicalOnly) {
+      baseModels = [
+        ...baseModels,
+        'model:monograph^8',
+        'model:map^2',
+        'model:graphic^2',
+        'model:archive^2',
+        'model:manuscript^2',
+        'model:soundrecording^2',
+        'model:sheetmusic^2',
+        'model:convolute^2',
+        '(model:collection AND collection.is_standalone:true)^2',
+        'model:monographunit^2',
+        'model:supplement^2',
+        'model:article^2'
+      ]
+    }
 
     if (includePeriodicalItem) {
       baseModels.push('model:periodicalitem^2');

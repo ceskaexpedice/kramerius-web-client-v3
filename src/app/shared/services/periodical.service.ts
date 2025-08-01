@@ -25,6 +25,9 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 import {SolrService} from '../../core/solr/solr.service';
 import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
+import {
+  selectPeriodicalSearchStateResults
+} from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
 
 @Injectable({providedIn: 'root'})
 export class PeriodicalService implements FilterService {
@@ -67,6 +70,7 @@ export class PeriodicalService implements FilterService {
   loading$ = this.store.select(selectPeriodicalLoading);
   metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
+  searchResults$ = this.store.select(selectPeriodicalSearchStateResults);
 
   private documentSignal = toSignal(this.document$, {initialValue: null});
   private metadataSignal = toSignal(this.metadata$, {initialValue: null});
@@ -99,20 +103,61 @@ export class PeriodicalService implements FilterService {
     this.initialize();
   }
 
+  // async initialize() {
+  //   if (this.initialized) return;
+  //
+  //   const rawUrl = this.router.routerState.snapshot.url;
+  //   const match = rawUrl.match(/(uuid:[a-f0-9\\-]+)/i);
+  //   this.uuid = match?.[1] ?? null;
+  //   console.log('uuid from route:', this.uuid);
+  //
+  //   this.route.queryParams.subscribe(params => {
+  //     console.log('queryParams:', params);
+  //     const currentRoute = this.router.url.split('?')[0];
+  //
+  //     if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+  //       this.dispatchPeriodicalSearch(params);
+  //     }
+  //   });
+  //
+  //   // Initial doc handling after load
+  //   this.document$.pipe(filter(Boolean)).subscribe(doc => {
+  //     console.log('document loaded:', doc);
+  //     this.handleDocument(doc);
+  //   });
+  //
+  //   this.initialized = true;
+  // }
+
+
   async initialize() {
     if (this.initialized) return;
 
-    const rawUrl = this.router.routerState.snapshot.url;
-    const match = rawUrl.match(/(uuid:[a-f0-9\\-]+)/i);
-    this.uuid = match?.[1] ?? null;
-    console.log('uuid from route:', this.uuid);
+    const extractUuid = (url: string): string | null => {
+      const match = url.match(/(uuid:[a-f0-9\-]+)/i);
+      return match?.[1] ?? null;
+    };
 
-    this.route.queryParams.subscribe(params => {
-      const currentRoute = this.router.url.split('?')[0];
+    // Sleduj URL zmeny (nielen queryParams)
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const rawUrl = this.router.url;
+      const currentRoute = rawUrl.split('?')[0];
+      const queryParams = this.route.snapshot.queryParams; // snapshot použijeme, aby sme nemuseli subscribe
+
+      this.uuid = extractUuid(rawUrl);
+      console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
-        this.dispatchPeriodicalSearch(params);
+        this.dispatchPeriodicalSearch(Object.keys(queryParams).length ? queryParams : null);
       }
+    });
+
+    // Po načítaní dokumentu
+    this.document$.pipe(filter(Boolean)).subscribe(doc => {
+      console.log('document loaded:', doc);
+      this.handleDocument(doc);
     });
 
     this.initialized = true;
@@ -125,7 +170,7 @@ export class PeriodicalService implements FilterService {
 
     if (!this.uuid) return;
 
-    const query = params['query'] || '';
+    const query = params && params['query'] || '';
 
     if (query && query.length > 0) {
       this._searchTerm.set(query);
@@ -137,15 +182,15 @@ export class PeriodicalService implements FilterService {
 
     let page = 1;
     if (!this._pageReset()) {
-      page = Number(params['page']) || this._page();
+      page = Number(params && params['page']) || this._page();
     } else {
       this._pageReset.set(false);
       this.goToPage(page);
     }
 
-    const pageSize = Number(params['pageSize']) || this._pageSize();
-    const sortBy = params['sortBy'] || this._sortBy();
-    const sortDirection = params['sortDirection'] || this._sortDirection();
+    const pageSize = Number(params && params['pageSize']) || this._pageSize();
+    const sortBy = params && params['sortBy'] || this._sortBy();
+    const sortDirection = params && params['sortDirection'] || this._sortDirection();
 
     this._searchTerm.set(query);
     this._submittedTerm.set(query);
@@ -153,6 +198,12 @@ export class PeriodicalService implements FilterService {
     this._pageSize.set(pageSize);
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
+
+    // if we dont have search term, we do loadPeriodical
+    if (!query || query.length === 0) {
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: baseFilters, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+      return;
+    }
 
     this.store.dispatch(loadPeriodicalSearchResults({
       uuid: this.uuid,
@@ -268,12 +319,6 @@ export class PeriodicalService implements FilterService {
       queryParams: { sortBy, sortDirection },
       queryParamsHandling: 'merge'
     });
-  }
-
-  checkForDataNeedToLoad(rootPid: string): void {
-    if (!this.availableYears || this.availableYears.length === 0) {
-      this.store.dispatch(loadPeriodical({uuid: rootPid}));
-    }
   }
 
   handleDocument(doc: any): void {

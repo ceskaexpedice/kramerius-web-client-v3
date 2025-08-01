@@ -5,6 +5,7 @@ import {
 } from './periodical-detail.actions';
 import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 
 export interface PeriodicalDetailState {
   document: PeriodicalItem | null;
@@ -14,6 +15,13 @@ export interface PeriodicalDetailState {
   children: PeriodicalItemChild[];
   loading: boolean;
   error: any;
+  searchParams: {
+    filters: string[];
+    page: number;
+    pageCount: number;
+    sortBy: any;
+    sortDirection: any;
+  };
 }
 
 export const initialState: PeriodicalDetailState = {
@@ -23,7 +31,14 @@ export const initialState: PeriodicalDetailState = {
   availableYears: [],
   children: [],
   loading: false,
-  error: null
+  error: null,
+  searchParams: {
+    filters: [],
+    page: 1,
+    pageCount: 10000,
+    sortBy: SolrSortFields.dateMin,
+    sortDirection: SolrSortDirections.asc
+  }
 };
 
 export const periodicalDetailReducer = createReducer(

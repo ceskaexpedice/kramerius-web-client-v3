@@ -113,7 +113,7 @@
 
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import {catchError, map, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
 import { of } from 'rxjs';
 import {
   loadPeriodical,
@@ -122,10 +122,15 @@ import {
 } from './periodical-detail.actions';
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../../core/solr/solr.service';
-import { selectAvailableYears } from './periodical-detail.selectors';
+import {
+  selectAvailableYears,
+  selectPeriodicalFacetOperators,
+  selectPeriodicalSearchParams,
+} from './periodical-detail.selectors';
 import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../../models/periodical-item';
 import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
+import * as PeriodicalDetailActions from './periodical-detail.actions';
 import {loadDocumentDetailSuccess} from '../../../../shared/state/document-detail/document-detail.actions';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 
@@ -140,17 +145,25 @@ export class PeriodicalDetailEffects {
   triggerDocumentLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadPeriodical),
-      map(({ uuid }) => {
-        console.log('Load triggerDocumentLoad$ ...');
-        return DocumentDetailActions.loadDocumentDetail({uuid})
-      })
+      mergeMap(({ uuid, filters, page, pageCount, sortBy, sortDirection }) => [
+        DocumentDetailActions.loadDocumentDetail({ uuid }),
+        PeriodicalDetailActions.setPeriodicalSearchParams({ filters, page, pageCount, sortBy, sortDirection })
+      ])
     )
   );
 
   loadPeriodicalFromDocument$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadDocumentDetailSuccess),
-      switchMap(({ data }) => {
+      withLatestFrom(
+        this.store.select(selectPeriodicalSearchParams),
+        this.store.select(selectPeriodicalFacetOperators)
+      ),
+      switchMap(([{ data }, params, facetOperators]) => {
+
+        const { filters, page, pageCount, sortBy, sortDirection } = params;
+
+        console.log('params', params);
 
         if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
           return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
@@ -159,7 +172,7 @@ export class PeriodicalDetailEffects {
         const periodical = parsePeriodicalItemFromMetadata(data);
 
         if (data.model === 'periodical') {
-          return this.solr.getPeriodicalVolumes(data.uuid).pipe(
+          return this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
             map(volumes => {
               const availableYears = this.mapAvailableYears(volumes);
               const years = this.buildYearList(data, availableYears);
@@ -170,7 +183,7 @@ export class PeriodicalDetailEffects {
         }
 
         if (data.model === 'periodicalvolume') {
-          return this.solr.getPeriodicalItems(data.uuid).pipe(
+          return this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection).pipe(
             withLatestFrom(this.store.select(selectAvailableYears)),
             switchMap(([children, previousAvailableYears]) => {
               if (previousAvailableYears?.length > 0) {

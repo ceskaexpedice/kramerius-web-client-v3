@@ -34,7 +34,7 @@ export class PeriodicalSearchEffects {
 
 
         return forkJoin({
-          resultsRes: this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, undefined, true, true),
+          resultsRes: this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, undefined, true, true),
           facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_FACET_FIELDS, facetOperators, undefined, true, true),
         }).pipe(
           switchMap(({resultsRes, facetsRes}) => {
