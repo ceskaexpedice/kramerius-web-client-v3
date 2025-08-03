@@ -91,7 +91,7 @@ export class SolrService {
 
     if (rootUuid) {
       // If rootUuid is provided, we are searching periodicals
-      parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
+      parts.push(`!root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
     }
 
     // Handle main query
@@ -225,7 +225,7 @@ export class SolrService {
 
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({}, filters.length === 0, baseFilters);
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);
@@ -352,8 +352,8 @@ export class SolrService {
   ) {
     return forkJoin({
       volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection),
-      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
-      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, '', true, true, uuid),
+      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, '', true, true, uuid)
     });
   }
 
@@ -368,8 +368,8 @@ export class SolrService {
   ) {
     return forkJoin({
       children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection),
-      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
-      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+      facets: this.getFacetsWithOperators('', filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, '', true, true, uuid),
+      facetsWithoutLicenses: this.getFacetsWithOperators('', filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, '', true, true, uuid)
     });
   }
 

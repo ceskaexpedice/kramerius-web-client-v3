@@ -15,9 +15,9 @@ export class SolrQueryBuilder {
       'model:periodical^10'
     ];
 
-    if (rootPid) {
-      baseModels.push(`root.pid:${rootPid}`);
-    }
+    // if (rootPid) {
+    //   baseModels.push(`root.pid:${rootPid}`);
+    // }
 
     if (includePeriodicalItem) {
       baseModels.push('model:periodicalitem^2');
