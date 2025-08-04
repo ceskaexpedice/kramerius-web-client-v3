@@ -19,6 +19,7 @@ import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PeriodicalService} from '../../../../shared/services/periodical.service';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -43,6 +44,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   private periodicalService = inject(PeriodicalService);
+  private recordHandler = inject(RecordHandlerService);
 
   @Input() year!: string;
   @Input() pid!: string;
@@ -51,7 +53,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   selectedDate: Date | null = null;
   shouldShowCalendars = signal(true);
 
-  issueMap = signal(new Map<string, { pid: string; accessibility: string }>());
+  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }>());
 
   months = Array.from({ length: 12 }, (_, i) => i);
   monthNames = [
@@ -84,7 +86,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   }
 
   private updateIssueMap(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string }>();
+    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }>();
 
     for (const item of items) {
       const date = this.parseDate(item['date.str']);
@@ -93,7 +95,8 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
       const key = this.formatDateKey(date);
       map.set(key, {
         pid: item.pid,
-        accessibility: item.accessibility || 'private'
+        accessibility: item.accessibility || 'private',
+        licenses: item.licenses || [],
       });
     }
 
@@ -130,7 +133,10 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
 
   dateClass = (date: Date): string => {
     const data = this.issueMap().get(this.formatDateKey(date));
-    return data ? `has-issue accessibility-${data.accessibility}` : '';
+
+    const isLocked = this.recordHandler.isRecordLocked(data?.licenses || []);
+
+    return data ? `has-issue accessibility-${isLocked ? 'private' : 'public'}` : '';
   };
 
   onDateSelected(date: Date | null): void {

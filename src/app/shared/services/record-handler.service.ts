@@ -32,7 +32,7 @@ export class RecordHandlerService {
 
     switch (model) {
       case DocumentTypeEnum.periodical:
-        this.navigateToPeriodical(document.pid);
+        //this.navigateToPeriodical(document.pid);
         break;
       case DocumentTypeEnum.soundrecording:
         this.navigateToMusic(document.pid);
@@ -45,7 +45,7 @@ export class RecordHandlerService {
   handleDocumentClickByModelAndPid(model: string, pid: string): void {
     switch (model) {
       case DocumentTypeEnum.periodical:
-        this.navigateToPeriodical(pid);
+        //this.navigateToPeriodical(pid);
         break;
       case DocumentTypeEnum.soundrecording:
         this.navigateToMusic(pid);

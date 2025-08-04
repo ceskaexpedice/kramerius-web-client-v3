@@ -1,12 +1,11 @@
 import {Component, ContentChildren, EventEmitter, Output, QueryList, signal} from '@angular/core';
 import {TabItemComponent} from './tab-item.component';
-import {NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
+import {NgForOf, NgTemplateOutlet} from '@angular/common';
 
 @Component({
   selector: 'app-tabs',
   imports: [
     NgForOf,
-    NgIf,
     NgTemplateOutlet,
   ],
   templateUrl: './tabs.component.html',

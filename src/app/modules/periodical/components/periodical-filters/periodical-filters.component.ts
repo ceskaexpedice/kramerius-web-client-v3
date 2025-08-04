@@ -1,21 +1,42 @@
-import { Component } from '@angular/core';
-import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
-import {InputComponent} from '../../../../shared/components/input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 import {
   customDefinedFacets,
   customDefinedFacetsEnum,
-  customDefinedFacetsKeys, FacetElementType, facetKeys,
+  FacetElementType,
   facetKeysEnum,
 } from '../../../search-results-page/const/facets';
+import {PeriodicalService} from '../../../../shared/services/periodical.service';
 
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, InputComponent, TranslatePipe, AutocompleteComponent, NgIf, JsonPipe],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf],
+  styles: `
+    .show-licenses--header {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: var(--spacing-x2);
+      color: var(--color-text-base);
+      margin-top: var(--spacing-x4);
+      font-size: 13px;
+      font-weight: 500;
+
+      i {
+        transition: transform 0.3s ease;
+        transform: rotate(180deg);
+      }
+
+      &.expanded i {
+        transform: rotate(0deg);
+      }
+    }
+  `,
   template: `
     <div class="filters-content">
 
@@ -30,11 +51,12 @@ import {
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
         (search)="periodicalService.onSearch($event)"
-        (submit)="periodicalService.onSubmit($event)"
         [inputTerm]="periodicalService.searchTerm"
         [showHistorySuggestions]="true"
         (suggestionSelected)="periodicalService.onSuggestionSelected($event)">
       </app-autocomplete>
+
+      <hr>
 
       <ng-container
         *ngFor="let facetKey of getFacetKeys"
@@ -73,21 +95,13 @@ import {
 
       </ng-container>
 
-<!--      <app-filter-category-->
-<!--        *ngFor="let facetKey of facetKeys"-->
-<!--        [facetKey]="facetKey"-->
-<!--        [label]="facetKey"-->
-<!--        [items]="(facets$ | async)?.[facetKey] || []"-->
-<!--        [selected]="selectedFilters"-->
-<!--        [operators]="(filterService.getFiltersWithOperators() | async) || {}"-->
-<!--        [showShowMoreButton]="true"-->
-<!--        (toggle)="onToggleFacet($event)">-->
-<!--      </app-filter-category>-->
     </div>
   `
 })
 export class PeriodicalFiltersComponent extends BaseFiltersComponent {
   expandLicenses = false;
+
+  public periodicalService = inject(PeriodicalService);
 
   facetKeys = [];
   customDefinedFacetsKeys = [customDefinedFacetsEnum.accessibility];

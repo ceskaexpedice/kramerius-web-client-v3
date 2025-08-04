@@ -1,0 +1,11 @@
+<ng-container *ngIf="periodicalService.searchResults$ | async as searchResults">
+  @if (searchResults.length > 0) {
+    <h3>{{'pages-section-header' | translate}}</h3>
+
+    <div class="grid--container">
+
+      <app-record-item *ngFor="let doc of searchResults" [record]="doc"></app-record-item>
+
+    </div>
+  }
+</ng-container>

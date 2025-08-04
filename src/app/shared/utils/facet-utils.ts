@@ -56,6 +56,11 @@ export function handleFacetsWithOperators(
 
         if (item.key === FacetAccessibilityTypes.all) {
           count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
+
+          // if we dont have any modelsUnfiltered, we can use the count from the licenses
+          if (modelsUnfiltered.length === 0) {
+            count = licenses.reduce((sum, lic) => sum + lic.count, 0);
+          }
         } else if (item.key === FacetAccessibilityTypes.available) {
           item.fq = userLicenses;
           count = userLicenses.reduce((sum, lic) => {

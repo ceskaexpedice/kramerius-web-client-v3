@@ -32,6 +32,9 @@ import {periodicalSearchReducer} from './state/periodical-search/periodical-sear
 import {PeriodicalSearchEffects} from './state/periodical-search/periodical-search.effects';
 import {FILTER_SERVICE} from '../../shared/services/filter.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
+import {
+  PeriodicalSearchResultsComponent
+} from './components/periodical-search-results/periodical-search-results.component';
 
 const routes: Routes = [
   {
@@ -66,9 +69,11 @@ const routes: Routes = [
     ToolbarControlsComponent,
     ResultsSortComponent,
     DateNavigatorComponent,
+    PeriodicalSearchResultsComponent,
   ],
   providers: [
-    { provide: FILTER_SERVICE, useClass: PeriodicalService }
+    PeriodicalService,
+    { provide: FILTER_SERVICE, useExisting: PeriodicalService }
   ]
 
 })

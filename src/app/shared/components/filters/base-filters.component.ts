@@ -3,12 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
-import {SearchService} from '../../services/search.service';
 import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {UserService} from '../../services/user.service';
-import {PeriodicalService} from '../../services/periodical.service';
 
 @Component({ template: '' })
 export abstract class BaseFiltersComponent {
@@ -19,8 +17,6 @@ export abstract class BaseFiltersComponent {
   constructor(
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
-    protected searchService: SearchService,
-    protected periodicalService: PeriodicalService,
     protected customSearchService: CustomSearchService,
     protected userService: UserService
   ) {

@@ -221,6 +221,12 @@ export class PeriodicalDetailEffects {
           return this.solr.getPeriodicalItemsWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
             withLatestFrom(this.store.select(selectAvailableYears)),
             switchMap(([{ children, facets, facetsWithoutLicenses }, previousAvailableYears]) => {
+              children.map(i => {
+                if (!i['licenses'] || i['licenses'].length === 0 && i['licenses.facet']) {
+                  i['licenses'] = i['licenses.facet'];
+                }
+              })
+
               const parsedFacets = handleFacetsWithOperators(
                 {},
                 facets?.facet_counts?.facet_fields ?? {},

@@ -6,7 +6,7 @@ import {Page} from '../../models/page.model';
 
 export const selectDocumentDetailState = createFeatureSelector<DocumentDetailState>('document-detail');
 
-export const selectDocumentDetail = createSelector(selectDocumentDetailState, state => state.data);
+export const selectDocumentDetail = createSelector(selectDocumentDetailState, state => state?.data);
 export const selectDocumentDetailPages = createSelector(selectDocumentDetailState, state => {
   return state.pages;
 });

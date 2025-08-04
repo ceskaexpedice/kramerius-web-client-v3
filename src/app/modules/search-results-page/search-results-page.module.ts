@@ -31,6 +31,7 @@ import {
 import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
 import {musicDetailReducer} from '../music/state/music-detail.reducer';
+import {PeriodicalService} from '../../shared/services/periodical.service';
 
 const routes: Routes = [
   {
@@ -70,7 +71,8 @@ const routes: Routes = [
     RecordItemListComponent,
   ],
   providers: [
-    { provide: 'FilterService', useClass: SearchService }
+    SearchService,
+    { provide: 'FilterService', useClass: SearchService },
   ]
 })
 

@@ -35,8 +35,8 @@
       *ngFor="let year of rangeYears"
       [ngClass]="{
         'placeholder': year === null,
-        'accessibility-available': year.exists,
-        'accessibility-disabled': !year.exists
+        'accessibility-available': !recordHandler.isRecordLocked(year.licenses),
+        'accessibility-disabled': recordHandler.isRecordLocked(year.licenses)
       }"
       (click)="selectYear.emit(year.year)"
     >
@@ -52,13 +52,13 @@
       *ngFor="let year of row"
       [ngClass]="{
         'placeholder': year === null,
-        'accessibility-available': isYearAvailable(year),
-        'accessibility-disabled': !isYearAvailable(year)
+        'accessibility-available': !recordHandler.isRecordLocked(year?.licenses || []),
+        'accessibility-disabled': recordHandler.isRecordLocked(year?.licenses || [])
       }"
-      (click)="year !== null && selectYear.emit(year.toString())"
+      (click)="year !== null && selectYear.emit(year.year.toString())"
     >
       <div class="year-item" *ngIf="year !== null">
-        <div class="year-item--wrapper">{{ year }}</div>
+        <div class="year-item--wrapper">{{ year.year }}</div>
       </div>
     </div>
   </div>

@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {PeriodicalItemYear} from '../../../models/periodical-item';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-years-timeline',
@@ -14,9 +15,10 @@ import {NgClass, NgForOf, NgIf} from '@angular/common';
 })
 export class PeriodicalYearsTimelineComponent implements OnChanges {
 
-  groupedYears: any[] = [];
-  yearsByDecades: (number | null)[][] = [];
+  yearsByDecades: (PeriodicalItemYear | null)[][] = [];
   rangeYears: PeriodicalItemYear[] = [];
+
+  public recordHandler = inject(RecordHandlerService);
 
 
   @Input() years: PeriodicalItemYear[] = [];
@@ -30,7 +32,7 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
       this.rangeYears = allYears.filter(y => /^\d{4}-\d{4}$/.test(y.year));
 
       const numericYears = singleYears.map(y => Number(y.year));
-      this.yearsByDecades = this.groupYearsByDecades(numericYears);
+      this.yearsByDecades = this.groupYearsByDecades(singleYears);
     }
   }
 
@@ -42,35 +44,35 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
     return rows;
   }
 
-  groupYearsByDecades(years: number[]): (number | null)[][] {
-    const yearSet = new Set(years);
-    const allYears = Array.from(yearSet).sort((a, b) => a - b);
+  groupYearsByDecades(years: PeriodicalItemYear[]): (PeriodicalItemYear | null)[][] {
+    const yearMap = new Map<number, PeriodicalItemYear>();
 
-    const minYear = Math.floor(allYears[0] / 10) * 10;
-    const maxYear = Math.ceil(allYears[allYears.length - 1] / 10) * 10;
+    years.forEach(y => {
+      const num = Number(y.year);
+      if (!isNaN(num)) {
+        yearMap.set(num, y);
+      }
+    });
 
-    const result: (number | null)[][] = [];
+    const allYearNums = Array.from(yearMap.keys()).sort((a, b) => a - b);
+
+    if (allYearNums.length === 0) return [];
+
+    const minYear = Math.floor(allYearNums[0] / 10) * 10;
+    const maxYear = Math.ceil(allYearNums[allYearNums.length - 1] / 10) * 10;
+
+    const result: (PeriodicalItemYear | null)[][] = [];
 
     for (let decadeStart = minYear; decadeStart < maxYear; decadeStart += 10) {
-      const decade: (number | null)[] = [];
+      const decade: (PeriodicalItemYear | null)[] = [];
       for (let i = 0; i < 10; i++) {
         const y = decadeStart + i;
-        decade.push(yearSet.has(y) ? y : null);
+        decade.push(yearMap.get(y) ?? null);
       }
       result.push(decade);
     }
 
     return result;
-  }
-
-  isYearAvailable(year: number | null): boolean {
-    if (year === null) {
-      return false;
-    }
-
-    // Check if the year is in the years array
-    const isAvailable = this.years.some(y => y.year == year.toString());
-    return isAvailable;
   }
 
   protected readonly Number = Number;

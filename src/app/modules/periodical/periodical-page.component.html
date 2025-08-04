@@ -82,6 +82,10 @@
           [pid]="periodical.getSelectedPid() || ''">
         </app-periodical-year-issues-grid>
 
+        <app-periodical-search-results
+          *ngIf="mode === ViewMode.SearchResults">
+        </app-periodical-search-results>
+
       </div>
 
       <!-- Loading and error states -->

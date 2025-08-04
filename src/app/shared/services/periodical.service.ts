@@ -1,7 +1,7 @@
-import {inject, Injectable, signal, computed, effect} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {distinctUntilChanged, filter, map, Observable, of, take} from 'rxjs';
+import {filter, map, Observable, of, take} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
@@ -30,8 +30,11 @@ import {
   selectPeriodicalSearchStateResults,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
 import {UserService} from './user.service';
+import {CustomSearchService} from './custom-search.service';
+import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
+import {AdvancedSearchService} from './advanced-search.service';
 
-@Injectable({providedIn: 'root'})
+@Injectable()
 export class PeriodicalService implements FilterService {
   uuid: string | null = null;
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
@@ -84,6 +87,8 @@ export class PeriodicalService implements FilterService {
   private route = inject(ActivatedRoute);
   private queryParamsService = inject(QueryParamsService);
   private solrService = inject(SolrService);
+  private customSearchService = inject(CustomSearchService);
+  private advancedSearchService = inject(AdvancedSearchService);
 
   constructor(
     private store: Store,
@@ -93,6 +98,8 @@ export class PeriodicalService implements FilterService {
     private detailView: DetailViewService,
     private userService: UserService,
   ) {
+
+    console.log('PeriodicalService initialized');
 
     this.load();
 
@@ -117,8 +124,6 @@ export class PeriodicalService implements FilterService {
   async initialize() {
     if (this.initialized) return;
 
-    // await this.userService.loadLicenses();
-
     const extractUuid = (url: string): string | null => {
       const match = url.match(/(uuid:[a-f0-9\-]+)/i);
       return match?.[1] ?? null;
@@ -129,7 +134,7 @@ export class PeriodicalService implements FilterService {
     ).subscribe(() => {
       const rawUrl = this.router.url;
       const currentRoute = rawUrl.split('?')[0];
-      const queryParams = this.route.snapshot.queryParams; // snapshot použijeme, aby sme nemuseli subscribe
+      const queryParams = this.route.snapshot.queryParams;
 
       this.uuid = extractUuid(rawUrl);
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
@@ -161,7 +166,27 @@ export class PeriodicalService implements FilterService {
       this._submittedTerm.set(query);
     }
 
-    const baseFilters = this.queryParamsService.getFilters(params);
+    let baseFilters = this.queryParamsService.getFilters(params);
+    let customFilters = this.customSearchService.getSolrFqFilters();
+
+    // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
+    // so delete all custom filters that contain 'licenses.facet'
+    if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
+      customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    }
+
+    // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
+    if (!this.hasSubmittedQuery()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
+    }
+
+    // similar check for periodicalitem
+    if (!this.filtersContainDate()) {
+      customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
+      baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
+    }
+
     const { advancedQuery, advancedQueryMainOperator } = { advancedQuery: undefined, advancedQueryMainOperator: undefined };
 
     let page = 1;
@@ -185,18 +210,22 @@ export class PeriodicalService implements FilterService {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
 
+    let filters: string[];
+
+    filters = [...baseFilters, ...customFilters];
+
     console.log('query periodical:', query);
 
     // if we dont have search term, we do loadPeriodical
     if (!query || query.length === 0) {
-      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: baseFilters, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
       return;
     }
 
     this.store.dispatch(loadPeriodicalSearchResults({
       uuid: this.uuid,
       query,
-      filters: baseFilters,
+      filters: filters,
       advancedQuery,
       advancedQueryMainOperator,
       page: (page - 1) * pageSize,
@@ -204,6 +233,8 @@ export class PeriodicalService implements FilterService {
       sortBy,
       sortDirection
     }));
+
+    this.viewMode.set(ViewMode.SearchResults);
   }
 
   get page() { return this._page(); }
@@ -261,6 +292,17 @@ export class PeriodicalService implements FilterService {
     });
   }
 
+  get hasSubmittedQuery() {
+    return computed(() => this._submittedTerm().trim().length > 0);
+  }
+
+  get filtersContainDate() {
+    return computed(() =>
+      this._activeFiltersSignal().some(f => f.toLowerCase().includes('date')) ||
+      this.advancedSearchService.filtersContainDate()
+    );
+  }
+
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
     const [facetKey, value] = fullValue.split(':');
     const params = route.snapshot.queryParams;
@@ -313,12 +355,17 @@ export class PeriodicalService implements FilterService {
     const model = doc.model;
     const dateStr = doc['date.str'] ?? null;
 
-    if (model === 'periodical') {
-      this.viewMode.set(ViewMode.Timeline);
+    if (this.hasSubmittedQuery()) {
+      this.viewMode.set(ViewMode.SearchResults);
       this.selectedYear.set(null);
-    } else if (model === 'periodicalvolume') {
-      this.selectedYear.set(dateStr);
-      this.viewMode.set(ViewMode.Calendar);
+    } else {
+      if (model === 'periodical') {
+        this.viewMode.set(ViewMode.Timeline);
+        this.selectedYear.set(null);
+      } else if (model === 'periodicalvolume') {
+        this.selectedYear.set(dateStr);
+        this.viewMode.set(ViewMode.Calendar);
+      }
     }
 
     const storedView = this.loadViewModeFromLocalStorage();

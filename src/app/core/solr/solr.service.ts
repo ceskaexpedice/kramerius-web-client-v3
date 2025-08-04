@@ -89,7 +89,7 @@ export class SolrService {
     };
 
     if (rootUuid) {
-      parts.push(`!root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
+      parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
     }
 
     // Handle main query
