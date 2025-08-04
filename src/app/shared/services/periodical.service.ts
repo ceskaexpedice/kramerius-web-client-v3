@@ -124,7 +124,6 @@ export class PeriodicalService implements FilterService {
       return match?.[1] ?? null;
     };
 
-    // Sleduj URL zmeny (nielen queryParams)
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -173,6 +172,8 @@ export class PeriodicalService implements FilterService {
       this.goToPage(page);
     }
 
+    console.log('baseFilters:', baseFilters);
+
     const pageSize = Number(params && params['pageSize']) || this._pageSize();
     const sortBy = params && params['sortBy'] || this._sortBy();
     const sortDirection = params && params['sortDirection'] || this._sortDirection();
@@ -183,6 +184,8 @@ export class PeriodicalService implements FilterService {
     this._pageSize.set(pageSize);
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
+
+    console.log('query periodical:', query);
 
     // if we dont have search term, we do loadPeriodical
     if (!query || query.length === 0) {
@@ -245,7 +248,7 @@ export class PeriodicalService implements FilterService {
   }
 
   search(query: string): void {
-    this.initialize();
+    //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
       queryParams: {
         query,

@@ -149,10 +149,21 @@ export class PeriodicalDetailEffects {
   triggerDocumentLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadPeriodical),
-      mergeMap(({ uuid, filters, page, pageCount, sortBy, sortDirection }) => [
-        DocumentDetailActions.loadDocumentDetail({ uuid }),
-        PeriodicalDetailActions.setPeriodicalSearchParams({ filters, page, pageCount, sortBy, sortDirection })
-      ])
+      mergeMap(({ uuid, filters, page, pageCount, sortBy, sortDirection }) => {
+        console.log('triggerDocumentLoad$ - filters:', {
+          uuid,
+          filters,
+          page,
+          pageCount,
+          sortBy,
+          sortDirection
+        });
+
+        return [
+          DocumentDetailActions.loadDocumentDetail({ uuid }),
+          PeriodicalDetailActions.setPeriodicalSearchParams({ filters, page, pageCount, sortBy, sortDirection })
+        ];
+      })
     )
   );
 
@@ -166,7 +177,7 @@ export class PeriodicalDetailEffects {
       switchMap(([{ data }, params, facetOperators]) => {
 
         const { filters, page, pageCount, sortBy, sortDirection } = params;
-
+        console.log('filters', filters);
         console.log('params', params);
 
         if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
