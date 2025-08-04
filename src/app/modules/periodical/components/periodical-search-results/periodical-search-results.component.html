@@ -1,4 +1,9 @@
 <ng-container *ngIf="periodicalService.searchResults$ | async as searchResults">
+
+  <div class="sort--container">
+    <app-results-sort></app-results-sort>
+  </div>
+
   @if (searchResults.length > 0) {
 
     <div class="grid--container">
@@ -7,10 +12,8 @@
 
     </div>
 
-      <div class="pull-right">
+
         <app-paginator
-          [showOnlyArrows]="true"
-          [showPageSizeOptions]="false"
           [page]="periodicalService.page"
           [totalCount]="periodicalService.totalCount"
           [pageSize]="periodicalService.pageSize"
@@ -18,6 +21,6 @@
           (pageChange)="periodicalService.goToPage($event)"
           (pageSizeChange)="periodicalService.changePageSize($event)">
         </app-paginator>
-      </div>
+
   }
 </ng-container>

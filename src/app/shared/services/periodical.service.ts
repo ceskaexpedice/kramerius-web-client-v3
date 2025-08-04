@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {filter, map, Observable, of, take} from 'rxjs';
@@ -28,6 +28,7 @@ import {loadPeriodicalSearchResults} from '../../modules/periodical/state/period
 import {
   selectPeriodicalSearchStateFacets,
   selectPeriodicalSearchStateResults,
+  selectPeriodicalSearchStateTotalCount,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
 import {UserService} from './user.service';
 import {CustomSearchService} from './custom-search.service';
@@ -64,7 +65,7 @@ export class PeriodicalService implements FilterService {
     {initialValue: []}
   );
 
-  totalCount$ = this._totalCount.asReadonly();
+  totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
   activeFilters$ = this.store.select(selectActiveFilters);
   pageResults$ = of([]); // Placeholder
   nonPageResults$ = of([]); // Placeholder
@@ -114,6 +115,13 @@ export class PeriodicalService implements FilterService {
         }),
       ).subscribe();
     }
+
+    effect(() => {
+      const subscription = this.totalCount$
+        .pipe(filter(count => count !== undefined && count !== null))
+        .subscribe(count => this._totalCount.set(count));
+      return () => subscription.unsubscribe();
+    });
 
   }
 
@@ -191,7 +199,7 @@ export class PeriodicalService implements FilterService {
 
     let page = 1;
     if (!this._pageReset()) {
-      page = Number(params && params['page']) || this._page();
+      page = Number(params['page']) || this._page();
     } else {
       this._pageReset.set(false);
       this.goToPage(page);
@@ -199,9 +207,9 @@ export class PeriodicalService implements FilterService {
 
     console.log('baseFilters:', baseFilters);
 
-    const pageSize = Number(params && params['pageSize']) || this._pageSize();
-    const sortBy = params && params['sortBy'] || this._sortBy();
-    const sortDirection = params && params['sortDirection'] || this._sortDirection();
+    const pageSize = Number(params['pageSize']) || this._pageSize();
+    const sortBy = params['sortBy'] || this._sortBy();
+    const sortDirection = params['sortDirection'] || this._sortDirection();
 
     this._searchTerm.set(query);
     this._submittedTerm.set(query);

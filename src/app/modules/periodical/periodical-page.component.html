@@ -5,58 +5,60 @@
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-    <div class="results-content">
+    <div class="results-content" *ngIf="periodical.viewMode() as mode">
 
-      <!-- Action Toolbar -->
-      <app-action-toolbar>
+      @if (mode !== ViewMode.SearchResults) {
+        <!-- Action Toolbar -->
+        <app-action-toolbar>
 
-        <div left class="max-width-100">
-          <app-toolbar-header
-            [title]="(periodical.document$ | async)?.['root.title'] || ''"
-            (goBack)="periodical.goBackClicked()">
-          </app-toolbar-header>
-        </div>
+          <div left class="max-width-100">
+            <app-toolbar-header
+              [title]="(periodical.document$ | async)?.['root.title'] || ''"
+              (goBack)="periodical.goBackClicked()">
+            </app-toolbar-header>
+          </div>
 
-        <div center *ngIf="periodical.selectedYear() as year">
-          <app-date-navigator
-            [value]="year"
-            (goToPrevious)="periodical.goToPreviousYear()"
-            (goToNext)="periodical.goToNextYear()">
-          </app-date-navigator>
-        </div>
+          <div center *ngIf="periodical.selectedYear() as year">
+            <app-date-navigator
+              [value]="year"
+              (goToPrevious)="periodical.goToPreviousYear()"
+              (goToNext)="periodical.goToNextYear()">
+            </app-date-navigator>
+          </div>
 
-        <div right>
+          <div right>
 
-          <div class="flex flex--align-center">
+            <div class="flex flex--align-center">
 
-            <app-toolbar-controls
-              [showViewToggle]="true"
-              [showFavorites]="true"
-              [showShare]="true"
-              [showQuote]="true"
-              [showInfo]="true"
-              [viewToggleOptions]="[
+              <app-toolbar-controls
+                [showViewToggle]="true"
+                [showFavorites]="true"
+                [showShare]="true"
+                [showQuote]="true"
+                [showInfo]="true"
+                [viewToggleOptions]="[
                 { label: 'Kalendář', icon: 'icon-calendar', value: 'calendar' },
                 { label: 'Mřížka', icon: 'icon-grid-1', value: 'grid' }
               ]"
-              [activeViewValue]="periodical.activeCalendarGridControl()"
-              (viewChanged)="periodical.setView($event)"
-              (infoClicked)="openRecordInfo()"
-              (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
-              (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
-            >
-            </app-toolbar-controls>
+                [activeViewValue]="periodical.activeCalendarGridControl()"
+                (viewChanged)="periodical.setView($event)"
+                (infoClicked)="openRecordInfo()"
+                (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
+                (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
+              >
+              </app-toolbar-controls>
 
-<!--            <app-results-sort></app-results-sort>-->
+              <!--            <app-results-sort></app-results-sort>-->
+
+            </div>
 
           </div>
 
-        </div>
-
-      </app-action-toolbar>
+        </app-action-toolbar>
+      }
 
       <!-- Content rendering based on view mode -->
-      <div class="results-content--wrapper" *ngIf="periodical.viewMode() as mode">
+      <div class="results-content--wrapper">
 
         <app-periodical-years-timeline
           *ngIf="mode === ViewMode.Timeline"

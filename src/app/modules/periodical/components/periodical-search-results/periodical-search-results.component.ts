@@ -4,6 +4,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
 import {TranslatePipe} from '@ngx-translate/core';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
+import {ResultsSortComponent} from '../../../search-results-page/components/results-sort/results-sort.component';
 
 @Component({
   selector: 'app-periodical-search-results',
@@ -14,6 +15,7 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
     RecordItemComponent,
     NgForOf,
     PaginatorComponent,
+    ResultsSortComponent,
   ],
   templateUrl: './periodical-search-results.component.html',
   styleUrl: './periodical-search-results.component.scss'
