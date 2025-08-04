@@ -239,6 +239,7 @@ export class PeriodicalService implements FilterService {
 
   get page() { return this._page(); }
   get pageSize() { return this._pageSize(); }
+  get totalCount() { return this._totalCount(); }
   get sortBy() { return this._sortBy(); }
   get sortDirection() { return this._sortDirection(); }
   get submittedTerm() { return this._submittedTerm(); }

@@ -3,6 +3,7 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {PeriodicalService} from '../../../../shared/services/periodical.service';
 import {TranslatePipe} from '@ngx-translate/core';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
+import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
 
 @Component({
   selector: 'app-periodical-search-results',
@@ -12,6 +13,7 @@ import {RecordItemComponent} from '../../../../shared/components/record-item/rec
     TranslatePipe,
     RecordItemComponent,
     NgForOf,
+    PaginatorComponent,
   ],
   templateUrl: './periodical-search-results.component.html',
   styleUrl: './periodical-search-results.component.scss'
