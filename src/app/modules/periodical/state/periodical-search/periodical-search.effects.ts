@@ -9,16 +9,19 @@ import {
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../../core/solr/solr.service';
 import * as PeriodicalSelectors from './periodical-search.selectors';
-import {DEFAULT_FACET_FIELDS, DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
+import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
 import {parseSearchDocument} from '../../../models/search-document';
 import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
+import {UserService} from '../../../../shared/services/user.service';
+import {DocumentTypeEnum} from '../../../constants/document-type';
 
 @Injectable()
 export class PeriodicalSearchEffects {
   constructor(
     private actions$: Actions,
     private solr: SolrService,
-    private store: Store
+    private store: Store,
+    private userService: UserService
   ) {}
 
   loadPeriodicalSearchResults$ = createEffect(() =>
@@ -33,9 +36,10 @@ export class PeriodicalSearchEffects {
 
         return forkJoin({
           resultsRes: this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, undefined, true, true),
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, undefined, true, true),
+          facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
+          facetsWithoutLicensesRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
         }).pipe(
-          switchMap(({resultsRes, facetsRes}) => {
+          switchMap(({resultsRes, facetsRes, facetsWithoutLicensesRes}) => {
 
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
                 doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
@@ -47,6 +51,8 @@ export class PeriodicalSearchEffects {
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
+              facetsWithoutLicensesRes.facet_counts?.facet_fields ?? {},
+              this.userService.licenses
             );
 
             return [
