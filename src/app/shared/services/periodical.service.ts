@@ -22,7 +22,6 @@ import {DetailViewService} from '../../modules/detail-view-page/services/detail-
 import {FilterService} from './filter.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 import {SolrService} from '../../core/solr/solr.service';
 import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
@@ -60,13 +59,7 @@ export class PeriodicalService implements FilterService {
 
   private initialized = false;
 
-  private _activeFiltersSignal = toSignal(
-    this.store.select(selectActiveFilters),
-    {initialValue: []}
-  );
-
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
-  activeFilters$ = this.store.select(selectActiveFilters);
   pageResults$ = of([]); // Placeholder
   nonPageResults$ = of([]); // Placeholder
 
@@ -306,10 +299,12 @@ export class PeriodicalService implements FilterService {
   }
 
   get filtersContainDate() {
-    return computed(() =>
-      this._activeFiltersSignal().some(f => f.toLowerCase().includes('date')) ||
-      this.advancedSearchService.filtersContainDate()
-    );
+    return computed(() => {
+      const params = this.route.snapshot.queryParams;
+      const filters = this.queryParamsService.getFilters(params);
+      return filters.some(f => f.toLowerCase().includes('date')) ||
+        this.advancedSearchService.filtersContainDate();
+    });
   }
 
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
