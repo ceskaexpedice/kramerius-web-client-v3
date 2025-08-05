@@ -35,6 +35,11 @@ export class SettingsService {
     this.applyTheme(settings.theme);
   }
 
+  saveImmediately() {
+    this.applyTheme(this._settings.value.theme);
+    this.saveToStorage(this.settings);
+  }
+
   get theme(): AppSettingsThemeEnum {
     return this.settings.theme;
   }

@@ -1,8 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {AppSettingsThemeEnum, Settings} from '../../settings.model';
 import {
   ToggleButtonGroupComponent, ToggleOption,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
+import {SettingsService} from '../../settings.service';
 
 @Component({
   selector: 'app-settings-display-section',
@@ -16,6 +17,8 @@ export class SettingsDisplaySectionComponent implements OnInit {
   @Input() settings!: Settings;
 
   options: ToggleOption<AppSettingsThemeEnum>[] = [];
+
+  private settingsService = inject(SettingsService);
 
   ngOnInit() {
     this.generateToggleButtons();
@@ -31,6 +34,7 @@ export class SettingsDisplaySectionComponent implements OnInit {
 
   onThemeChange(newTheme: AppSettingsThemeEnum) {
     this.settings.theme = newTheme;
+    this.settingsService.settings = this.settings;
   }
 
 }
