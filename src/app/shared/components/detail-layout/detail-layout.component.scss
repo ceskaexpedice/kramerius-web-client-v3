@@ -20,7 +20,7 @@
     gap: var(--spacing-x4);
     padding: var(--spacing-x4);
     height: 100%;
-    flex: 0 0 280px; // alebo tvoje reálne číslo
+    flex: 0 0 280px;
 
     overflow: hidden;
   }
@@ -34,7 +34,7 @@
 
   &--bottom-toolbar {
     padding: var(--spacing-x2) var(--spacing-x4);
-    background: white;
+    background: var(--color-bg-base);
     z-index: 10;
 
     &.constrained {

@@ -1,32 +1,3 @@
-<!--<div class="years-timeline">-->
-<!--  <div class="year-row" *ngFor="let row of yearsByDecades">-->
-<!--    &lt;!&ndash; horizontálna čiara &ndash;&gt;-->
-<!--    <div class="row-line"></div>-->
-
-<!--    <div-->
-<!--      class="year-item&#45;&#45;container"-->
-<!--      *ngFor="let year of row"-->
-<!--      [ngClass]="{-->
-<!--        'placeholder': year === null,-->
-<!--        'accessibility-available': isYearAvailable(year),-->
-<!--        'accessibility-disabled': !isYearAvailable(year)-->
-<!--      }"-->
-<!--      (click)="year !== null && selectYear.emit(year.toString())"-->
-<!--    >-->
-<!--      <div class="year-item" *ngIf="year !== null">-->
-
-<!--        <div class="year-item&#45;&#45;wrapper">-->
-
-<!--          {{ year }}-->
-
-<!--        </div>-->
-
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
-
-
 <div class="years-timeline">
 
   <div class="range-years-row" *ngIf="rangeYears.length > 0">
