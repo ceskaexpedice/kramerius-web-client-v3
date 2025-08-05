@@ -31,8 +31,9 @@ import {
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
 import {UserService} from './user.service';
 import {CustomSearchService} from './custom-search.service';
-import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
+import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
 import {AdvancedSearchService} from './advanced-search.service';
+import {SearchService} from './search.service';
 
 @Injectable()
 export class PeriodicalService implements FilterService {
@@ -60,8 +61,6 @@ export class PeriodicalService implements FilterService {
   private initialized = false;
 
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
-  pageResults$ = of([]); // Placeholder
-  nonPageResults$ = of([]); // Placeholder
 
   document$ = this.store.select(selectPeriodicalDocument);
   availableYears$ = this.store.select(selectAvailableYears);
@@ -74,6 +73,8 @@ export class PeriodicalService implements FilterService {
   private documentSignal = toSignal(this.document$, {initialValue: null});
   private metadataSignal = toSignal(this.metadata$, {initialValue: null});
 
+  POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
+
   get searchTerm() {
     return this._searchTerm;
   }
@@ -83,6 +84,7 @@ export class PeriodicalService implements FilterService {
   private solrService = inject(SolrService);
   private customSearchService = inject(CustomSearchService);
   private advancedSearchService = inject(AdvancedSearchService);
+  private searchService = inject(SearchService);
 
   constructor(
     private store: Store,
@@ -168,7 +170,7 @@ export class PeriodicalService implements FilterService {
     }
 
     let baseFilters = this.queryParamsService.getFilters(params);
-    let customFilters = this.customSearchService.getSolrFqFilters();
+    let customFilters = this.customSearchService.getSolrFqFilters(this.POSSIBLE_FILTERS);
 
     // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
     // so delete all custom filters that contain 'licenses.facet'
@@ -192,7 +194,7 @@ export class PeriodicalService implements FilterService {
 
     let page = 1;
     if (!this._pageReset()) {
-      page = Number(params['page']) || this._page();
+      page = Number(params && params['page']) || this._page();
     } else {
       this._pageReset.set(false);
       this.goToPage(page);
@@ -200,9 +202,9 @@ export class PeriodicalService implements FilterService {
 
     console.log('baseFilters:', baseFilters);
 
-    const pageSize = Number(params['pageSize']) || this._pageSize();
-    const sortBy = params['sortBy'] || this._sortBy();
-    const sortDirection = params['sortDirection'] || this._sortDirection();
+    const pageSize = Number(params && params['pageSize']) || this._pageSize();
+    const sortBy = params && params['sortBy'] || this._sortBy();
+    const sortDirection = params && params['sortDirection'] || this._sortDirection();
 
     this._searchTerm.set(query);
     this._submittedTerm.set(query);
@@ -212,6 +214,8 @@ export class PeriodicalService implements FilterService {
     this._sortDirection.set(sortDirection);
 
     let filters: string[];
+
+    console.log('customFilters:', customFilters);
 
     filters = [...baseFilters, ...customFilters];
 

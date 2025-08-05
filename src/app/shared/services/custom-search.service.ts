@@ -36,10 +36,18 @@ export class CustomSearchService {
     return this._appliedFilters();
   }
 
-  getSolrFqFilters(): string[] {
+  getSolrFqFilters(possibleFilters: string[] | null = null): string[] {
     const result: string[] = [];
 
-    for (const key of this._appliedFilters()) {
+    let filters = this._appliedFilters();
+
+    // If possibleFilters is provided, filter the applied filters - filters should only include those that are in possibleFilters
+    if (possibleFilters) {
+      // filter applied filters by checking if they are included in possibleFilters
+      filters = filters.filter(filter => possibleFilters.some(pf => filter.includes(pf)));
+    }
+
+    for (const key of filters) {
       const facetKey = key.split(':')[0];
       const value = key.split(':')[1];
 
