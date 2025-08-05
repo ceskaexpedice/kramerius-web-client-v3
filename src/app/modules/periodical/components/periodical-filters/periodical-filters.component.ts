@@ -99,8 +99,6 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
   `
 })
 export class PeriodicalFiltersComponent extends BaseFiltersComponent {
-  expandLicenses = false;
-
   public periodicalService = inject(PeriodicalService);
 
   facetKeys = [];
@@ -108,10 +106,6 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
 
   protected readonly customDefinedFacetsEnum = customDefinedFacetsEnum;
   protected readonly facetKeysEnum = facetKeysEnum;
-
-  toggleLicenses() {
-    this.expandLicenses = !this.expandLicenses;
-  }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
     const facet = customDefinedFacets.find(f => f.facetKey === facetKey);

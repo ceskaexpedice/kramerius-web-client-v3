@@ -14,6 +14,8 @@ export abstract class BaseFiltersComponent {
   selectedFilters: string[] = [];
   facets$: Observable<any> = new Observable<any>();
 
+  expandLicenses = false;
+
   constructor(
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
@@ -25,6 +27,8 @@ export abstract class BaseFiltersComponent {
     this.getFacets();
 
     this.sortFacets();
+
+    this.checkIfSomeOfLicensesSelected();
   }
 
   getFacets() {
@@ -83,6 +87,15 @@ export abstract class BaseFiltersComponent {
     });
   }
 
+  checkIfSomeOfLicensesSelected() {
+    const selected = this.selectedFilters.some(filter => {
+      const [facetKey, facetValue] = filter.split(':');
+      return facetKey === facetKeysEnum.license && this.userService.licenses.includes(facetValue);
+    });
+
+    this.expandLicenses = selected;
+  }
+
   onToggleFacet(fullValue: string): void {
     console.log(fullValue);
     // fullValue is expected to be in the format 'facetKey:facetValue'
@@ -97,5 +110,9 @@ export abstract class BaseFiltersComponent {
       return;
     }
     this.filterService.toggleFilter(this.route, fullValue);
+  }
+
+  toggleLicenses() {
+    this.expandLicenses = !this.expandLicenses;
   }
 }

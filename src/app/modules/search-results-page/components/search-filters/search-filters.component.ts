@@ -82,17 +82,12 @@ import {TranslatePipe} from '@ngx-translate/core';
   `]
 })
 export class SearchFiltersComponent extends BaseFiltersComponent {
-  expandLicenses = false;
 
   facetKeys = facetKeys;
 
   get getFacetKeys(): string[] {
     // we are showing licenses under accessibility facet so we need to return all facet keys except 'licenses.facet'
     return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
-  }
-
-  toggleLicenses() {
-    this.expandLicenses = !this.expandLicenses;
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
