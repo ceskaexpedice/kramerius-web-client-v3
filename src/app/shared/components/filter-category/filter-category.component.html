@@ -15,7 +15,7 @@
 
     </div>
 
-    <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
+    <div class="flex flex--gap-x2 flex--column" [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
       <ng-container *ngIf="type !== 'radio'">
         <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems">
@@ -38,7 +38,7 @@
         ></app-filter-items-radio>
       </ng-container>
 
-      <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
+      <button class="button primary link p-left-0 flex--space-start" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
         {{ 'show-more' | translate }}
 
         <i class="icon-arrow-right-1"></i>

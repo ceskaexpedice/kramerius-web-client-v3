@@ -1,3 +1,9 @@
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+}
+
 .form-control label {
   color: var(--color-text-light);
   font-size: var(--font-size-small);

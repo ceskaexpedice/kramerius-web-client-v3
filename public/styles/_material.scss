@@ -5,6 +5,13 @@
 
 $custom-radius: 4px;
 
+:root {
+  --mdc-checkbox-state-layer-size: 20px;
+  --mat-checkbox-state-layer-size: 20px;
+  --mdc-radio-state-layer-size: 20px;
+  --mat-radio-state-layer-size: 20px;
+}
+
 html {
   @include mat.theme((
     color: (
@@ -98,6 +105,9 @@ mat-checkbox {
 
 .mat-mdc-checkbox.p-left-0 .mdc-checkbox {
   padding-left: 0 !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox {
 }
 
 .mdc-checkbox__background {
