@@ -149,7 +149,13 @@ export class PeriodicalService implements FilterService {
 
     this.document$.pipe(filter(Boolean)).subscribe(doc => {
       console.log('document loaded:', doc);
-      this.handleDocument(doc);
+      // Only handle document if we're not in search results mode to prevent conflicts
+      const queryParams = this.route.snapshot.queryParams;
+      const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
+      
+      if (!hasSearchQuery) {
+        this.handleDocument(doc);
+      }
     });
 
     this.initialized = true;
@@ -363,7 +369,11 @@ export class PeriodicalService implements FilterService {
     const model = doc.model;
     const dateStr = doc['date.str'] ?? null;
 
-    if (this.hasSubmittedQuery()) {
+    // Check current route to prevent overriding search results view during navigation
+    const queryParams = this.route.snapshot.queryParams;
+    const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
+    
+    if (hasSearchQuery || this.hasSubmittedQuery()) {
       this.viewMode.set(ViewMode.SearchResults);
       this.selectedYear.set(null);
     } else {

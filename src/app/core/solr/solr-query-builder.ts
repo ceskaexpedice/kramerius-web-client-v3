@@ -15,10 +15,6 @@ export class SolrQueryBuilder {
       'model:periodical^10'
     ];
 
-    // if (rootPid) {
-    //   baseModels.push(`root.pid:${rootPid}`);
-    // }
-
     if (includePeriodicalItem) {
       baseModels.push('model:periodicalitem^2');
       baseModels.push('model:periodicalvolume^2');
@@ -29,6 +25,12 @@ export class SolrQueryBuilder {
 
     return {
       fq: `(${baseModels.join(' OR ')})`
+    };
+  }
+
+  static pageFilter() {
+    return {
+      fq: `${SolrFields.model}:page`
     };
   }
 

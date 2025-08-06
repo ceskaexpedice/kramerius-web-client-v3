@@ -196,14 +196,15 @@ export class SolrService {
 
     console.log('solr search periodicals')
 
-    const simpleBaseFilters = SolrQueryBuilder.basePeriodicalFilters(includePeriodicalItem, includePage, rootUuid);
+    const simpleBaseFilters = SolrQueryBuilder.pageFilter();
 
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
-      ...SolrQueryBuilder.pagination(page, pageCount)
+      ...SolrQueryBuilder.pagination(page, pageCount),
+      ...simpleBaseFilters
     };
 
     console.log('paramsObject', paramsObject);
@@ -215,7 +216,7 @@ export class SolrService {
       }
     }
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, true, rootUuid));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, false, includePage, true, rootUuid));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }

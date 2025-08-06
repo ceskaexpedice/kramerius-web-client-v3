@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, switchMap, withLatestFrom } from 'rxjs/operators';
 import {forkJoin, of} from 'rxjs';
 import {
   loadFacetsSuccess, loadPeriodicalSearchFailure,
