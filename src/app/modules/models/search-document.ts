@@ -18,6 +18,9 @@ export interface SearchDocument {
 
   access: string;
   highlighting?: string[]
+  year?: number;
+  month?: number;
+  day?: number;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -35,5 +38,8 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   access: doc.access,
   count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,
   languages: doc['languages.facet'] ? doc['languages.facet'] : undefined,
-  highlighting: doc.highlighting ? doc.highlighting['text_ocr'] : undefined
+  highlighting: doc.highlighting ? doc.highlighting['text_ocr'] : undefined,
+  year: doc['date_range_start.year'] ? parseInt(doc['date_range_start.year'], 10) : undefined,
+  month: doc['date_range_start.month'] ? parseInt(doc['date_range_start.month'], 10) : undefined,
+  day: doc['date_range_start.day'] ? parseInt(doc['date_range_start.day'], 10) : undefined
 });

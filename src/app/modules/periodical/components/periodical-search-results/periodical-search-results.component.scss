@@ -8,3 +8,15 @@
   display: inline-flex;
   margin-left: auto;
 }
+
+.year-section {
+  margin-bottom: var(--spacing-x6);
+}
+
+.year-header {
+  font-size: 20px;
+  line-height: 32px;
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin-bottom: var(--spacing-x4);
+}

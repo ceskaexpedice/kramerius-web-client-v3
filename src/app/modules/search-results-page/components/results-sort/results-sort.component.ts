@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Output} from '@angular/core';
 import {SelectComponent} from '../../../../shared/components/select/select.component';
 import {SearchService} from '../../../../shared/services/search.service';
 import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
@@ -12,6 +12,10 @@ import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-hel
   styleUrl: './results-sort.component.scss'
 })
 export class ResultsSortComponent {
+
+  currentSortBy = SolrSortFields.relevance;
+
+  @Output() sortChanged: EventEmitter<SolrSortFields> = new EventEmitter<SolrSortFields>();
 
   sortOptions = [
     { label: 'sort-relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
@@ -35,6 +39,8 @@ export class ResultsSortComponent {
 
   onSortChange(event: any) {
     this.searchService.changeSortBy(event.value, event.direction);
+    this.currentSortBy = event.value;
+    this.sortChanged.emit(event.value);
   }
 
   sortOptionDisplayFn = (option: any) => option ? option.label : '';
