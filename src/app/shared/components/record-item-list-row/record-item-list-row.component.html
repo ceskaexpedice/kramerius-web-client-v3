@@ -19,8 +19,8 @@
     </div>
 
     <div>
-      <div class="title" [title]="record.title">
-        {{ record.title.length > 80 ? (record.title.slice(0, 80) + '...') : record.title }}
+      <div class="title" [title]="record?.title">
+        {{ (record.title && record.title.length > 80) ? (record.title.slice(0, 80) + '...') : record.title }}
       </div>
     </div>
   </a>

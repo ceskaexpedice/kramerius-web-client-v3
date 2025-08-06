@@ -245,7 +245,25 @@ export class SearchService implements FilterService {
       baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:periodicalitem`));
     }
 
-    const { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
+    let { advancedQuery, advancedQueryMainOperator } = this.advancedSearchService.getAdvancedParams(params);
+
+    // Handle year range filter as a separate advanced query
+    const yearFrom = params && params['yearFrom'];
+    const yearTo = params && params['yearTo'];
+    
+    if (yearFrom !== undefined || yearTo !== undefined) {
+      const from = yearFrom ? parseInt(yearFrom, 10) : 0;
+      const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
+      const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
+      
+      if (advancedQuery && advancedQuery.length > 0) {
+        // Combine existing advanced query with year range
+        advancedQuery = `${advancedQuery} AND ${yearRangeQuery}`;
+      } else {
+        // Just use year range as advanced query
+        advancedQuery = yearRangeQuery;
+      }
+    }
 
     console.log('advancedQuery:', advancedQuery);
 

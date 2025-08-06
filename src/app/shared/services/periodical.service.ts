@@ -152,7 +152,7 @@ export class PeriodicalService implements FilterService {
       // Only handle document if we're not in search results mode to prevent conflicts
       const queryParams = this.route.snapshot.queryParams;
       const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
-      
+
       if (!hasSearchQuery) {
         this.handleDocument(doc);
       }
@@ -225,19 +225,40 @@ export class PeriodicalService implements FilterService {
 
     filters = [...baseFilters, ...customFilters];
 
-    console.log('query periodical:', query);
+    // Handle year range filter as a separate advanced query
+    const yearFrom = params && params['yearFrom'];
+    const yearTo = params && params['yearTo'];
 
-    // if we dont have search term, we do loadPeriodical
-    if (!query || query.length === 0) {
+    let finalAdvancedQuery = advancedQuery || '';
+
+    if (yearFrom !== undefined || yearTo !== undefined) {
+      const from = yearFrom ? parseInt(yearFrom, 10) : 0;
+      const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
+      const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
+
+      if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {
+        // Combine existing advanced query with year range
+        finalAdvancedQuery = `${finalAdvancedQuery} AND ${yearRangeQuery}`;
+      } else {
+        // Just use year range as advanced query
+        finalAdvancedQuery = yearRangeQuery;
+      }
+    }
+
+    if (!query && !finalAdvancedQuery) {
+      // No search term and no filters, use loadPeriodical
       this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
       return;
     }
 
+    console.log('query periodical:', query);
+    console.log('advanced query:', finalAdvancedQuery);
+
     this.store.dispatch(loadPeriodicalSearchResults({
       uuid: this.uuid,
-      query,
+      query: query,
       filters: filters,
-      advancedQuery,
+      advancedQuery: finalAdvancedQuery,
       advancedQueryMainOperator,
       page: (page - 1) * pageSize,
       pageCount: pageSize,
@@ -372,7 +393,7 @@ export class PeriodicalService implements FilterService {
     // Check current route to prevent overriding search results view during navigation
     const queryParams = this.route.snapshot.queryParams;
     const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
-    
+
     if (hasSearchQuery || this.hasSubmittedQuery()) {
       this.viewMode.set(ViewMode.SearchResults);
       this.selectedYear.set(null);

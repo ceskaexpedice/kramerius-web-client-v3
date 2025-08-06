@@ -10,16 +10,17 @@ import {
   facetKeysEnum,
 } from '../../const/facets';
 import {TranslatePipe} from '@ngx-translate/core';
+import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
 
 @Component({
   selector: 'app-search-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe, RangeSliderComponent],
   template: `
     <div class="filters-content">
 
       <ng-container
-        *ngFor="let facetKey of getFacetKeys"
+        *ngFor="let facetKey of getFacetKeys; let i = index"
       >
         <app-filter-category
           [label]="facetKey"
@@ -53,6 +54,27 @@ import {TranslatePipe} from '@ngx-translate/core';
 
         </app-filter-category>
 
+        <!-- Year Range Slider - Insert after model filter -->
+        <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="year-range-section">
+          <h3 class="filter-section-title">{{ 'year-range' | translate }}</h3>
+          <app-range-slider
+            [min]="0"
+            [max]="currentYear"
+            [step]="1"
+            [initialFrom]="yearRangeFrom"
+            [initialTo]="yearRangeTo"
+            (rangeChange)="onYearRangeChange($event)"
+          ></app-range-slider>
+          <button
+            class="outlined submit-year-range-btn w-100"
+            [class.disabled]="!hasYearRangeChanged"
+            [disabled]="!hasYearRangeChanged"
+            (click)="submitYearRange()">
+            {{ 'apply-year-range' | translate }}
+          </button>
+          <hr>
+        </div>
+
       </ng-container>
 
     </div>
@@ -76,6 +98,24 @@ import {TranslatePipe} from '@ngx-translate/core';
 
         &.expanded i {
           transform: rotate(0deg);
+        }
+      }
+
+      .filter-section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-base);
+        margin-bottom: var(--spacing-x3);
+      }
+
+      .submit-year-range-btn {
+        margin-top: var(--spacing-x3);
+        cursor: pointer;
+        font-size: 12px;
+        transition: background-color 0.2s ease;
+
+        &.disabled, &:disabled {
+          cursor: not-allowed;
         }
       }
 

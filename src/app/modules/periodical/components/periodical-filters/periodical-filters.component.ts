@@ -4,6 +4,7 @@ import { FilterCategoryComponent } from '../../../../shared/components/filter-ca
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
+import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
 import {
   customDefinedFacets,
   customDefinedFacetsEnum,
@@ -15,7 +16,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf, RangeSliderComponent],
   styles: `
     .show-licenses--header {
       display: flex;
@@ -34,6 +35,39 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
 
       &.expanded i {
         transform: rotate(0deg);
+      }
+    }
+
+    .year-range-section {
+      margin-bottom: var(--spacing-x4);
+    }
+
+    .filter-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-base);
+      margin-bottom: var(--spacing-x3);
+    }
+
+    .submit-year-range-btn {
+      margin-top: var(--spacing-x3);
+      padding: var(--spacing-x2) var(--spacing-x4);
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+      }
+
+      &.disabled, &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: var(--color-gray-300);
       }
     }
   `,
@@ -94,6 +128,28 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
         </app-filter-category>
 
       </ng-container>
+
+      <!-- Year Range Slider -->
+      <div class="year-range-section">
+        <h3 class="filter-section-title">{{ 'year-range' | translate }}</h3>
+        <app-range-slider
+          [min]="0"
+          [max]="currentYear"
+          [step]="1"
+          [initialFrom]="yearRangeFrom"
+          [initialTo]="yearRangeTo"
+          (rangeChange)="onYearRangeChange($event)"
+        ></app-range-slider>
+        <button
+          class="submit-year-range-btn"
+          [class.disabled]="!hasYearRangeChanged"
+          [disabled]="!hasYearRangeChanged"
+          (click)="submitYearRange()">
+          {{ 'apply-year-range' | translate }}
+        </button>
+      </div>
+
+      <hr>
 
     </div>
   `

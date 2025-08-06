@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
@@ -16,11 +16,20 @@ export abstract class BaseFiltersComponent {
 
   expandLicenses = false;
 
+  // Year range properties
+  currentYear = new Date().getFullYear();
+  yearRangeFrom = 0;
+  yearRangeTo = this.currentYear;
+  private pendingYearRangeFrom = 0;
+  private pendingYearRangeTo = this.currentYear;
+  hasYearRangeChanged = false;
+
   constructor(
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
     protected customSearchService: CustomSearchService,
-    protected userService: UserService
+    protected userService: UserService,
+    protected router: Router
   ) {
     this.initializeFilters();
 
@@ -29,6 +38,8 @@ export abstract class BaseFiltersComponent {
     this.sortFacets();
 
     this.checkIfSomeOfLicensesSelected();
+
+    this.initializeYearRange();
   }
 
   getFacets() {
@@ -114,5 +125,53 @@ export abstract class BaseFiltersComponent {
 
   toggleLicenses() {
     this.expandLicenses = !this.expandLicenses;
+  }
+
+  private initializeYearRange() {
+    // Check if there are existing year range parameters
+    const queryParams = this.route.snapshot.queryParams;
+    const yearFrom = queryParams['yearFrom'];
+    const yearTo = queryParams['yearTo'];
+    
+    if (yearFrom !== undefined) {
+      this.yearRangeFrom = parseInt(yearFrom, 10) || 0;
+      this.pendingYearRangeFrom = this.yearRangeFrom;
+    }
+    
+    if (yearTo !== undefined) {
+      this.yearRangeTo = parseInt(yearTo, 10) || this.currentYear;
+      this.pendingYearRangeTo = this.yearRangeTo;
+    }
+  }
+
+  onYearRangeChange(range: { from: number; to: number }) {
+    this.pendingYearRangeFrom = range.from;
+    this.pendingYearRangeTo = range.to;
+
+    // Check if values have changed from current applied values
+    this.hasYearRangeChanged =
+      this.pendingYearRangeFrom !== this.yearRangeFrom ||
+      this.pendingYearRangeTo !== this.yearRangeTo;
+  }
+
+  submitYearRange() {
+    if (!this.hasYearRangeChanged) return;
+
+    // Update the applied values
+    this.yearRangeFrom = this.pendingYearRangeFrom;
+    this.yearRangeTo = this.pendingYearRangeTo;
+
+    // Navigate with year range parameters
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        yearFrom: this.yearRangeFrom === 0 ? null : this.yearRangeFrom,
+        yearTo: this.yearRangeTo === this.currentYear ? null : this.yearRangeTo,
+        page: 1 // Reset to first page when filters change
+      },
+      queryParamsHandling: 'merge'
+    });
+
+    this.hasYearRangeChanged = false;
   }
 }
