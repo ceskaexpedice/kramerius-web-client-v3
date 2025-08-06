@@ -17,6 +17,8 @@ import {
 } from '../../../modules/search-results-page/const/facets';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radio.component';
+import {RangeSliderComponent} from '../range-slider/range-slider.component';
+import {FilterElementType} from '../../dialogs/advanced-search-dialog/solr-filters';
 
 @Component({
   selector: 'app-filter-category',
@@ -27,6 +29,7 @@ import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radi
     TranslatePipe,
     SlicePipe,
     FilterItemsRadioComponent,
+    RangeSliderComponent,
   ],
   templateUrl: './filter-category.component.html',
   styleUrl: './filter-category.component.scss',
@@ -188,4 +191,5 @@ export class FilterCategoryComponent implements OnChanges {
     }
   }
 
+  protected readonly AdvancedFilterType = FilterElementType;
 }

@@ -1,6 +1,7 @@
 export enum FacetElementType {
   checkbox = 'checkbox',
-  radio = 'radio'
+  radio = 'radio',
+  range = 'range',
 }
 
 export enum FacetAccessibilityTypes {
