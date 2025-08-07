@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {map, Observable} from 'rxjs';
+import {map, Observable, Subscription} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
 import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
@@ -11,7 +11,7 @@ import {ENVIRONMENT} from '../../../app.config';
 import {DatePickerOutput} from '../date-picker/date-picker.component';
 
 @Component({ template: '' })
-export abstract class BaseFiltersComponent {
+export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   abstract facetKeys: string[];
   selectedFilters: string[] = [];
   facets$: Observable<any> = new Observable<any>();
@@ -30,6 +30,9 @@ export abstract class BaseFiltersComponent {
   private pendingDateTo: Date | null = null;
   private pendingDateOffset: number = 0;
   hasDateRangeChanged = false;
+
+  // Subscriptions
+  private subscriptions: Subscription[] = [];
 
   // Get current values from CustomSearchService
   get yearRangeFrom(): number {
@@ -59,6 +62,10 @@ export abstract class BaseFiltersComponent {
     protected userService: UserService,
     protected router: Router
   ) {
+    
+  }
+
+  ngOnInit() {
     this.initializeFilters();
 
     this.getFacets();
@@ -67,8 +74,30 @@ export abstract class BaseFiltersComponent {
 
     this.checkIfSomeOfLicensesSelected();
 
-    this.initializeYearRange();
-    this.initializeDateRange();
+    // Initialize CustomSearchService first, then initialize ranges
+    this.customSearchService.initializeFromRoute();
+    
+    // Wait a tick for the service to initialize, then set initial values
+    setTimeout(() => {
+      this.initializeYearRange();
+      this.initializeDateRange();
+    }, 0);
+
+    // Watch for route parameter changes to update component values
+    const routeSubscription = this.route.queryParams.subscribe(params => {
+      // Re-initialize CustomSearchService and then ranges
+      this.customSearchService.initializeFromRoute();
+      setTimeout(() => {
+        this.initializeYearRange();
+        this.initializeDateRange();
+      }, 0);
+    });
+    
+    this.subscriptions.push(routeSubscription);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   getFacets() {
@@ -160,6 +189,7 @@ export abstract class BaseFiltersComponent {
     // Initialize pending values from current service values
     this.pendingYearRangeFrom = this.yearRangeFrom;
     this.pendingYearRangeTo = this.yearRangeTo;
+    this.hasYearRangeChanged = false;
   }
 
   onYearRangeChange(range: { from: number; to: number }) {
@@ -206,6 +236,7 @@ export abstract class BaseFiltersComponent {
     this.pendingDateFrom = this.dateFrom;
     this.pendingDateTo = this.dateTo;
     this.pendingDateOffset = this.dateOffset;
+    this.hasDateRangeChanged = false;
   }
 
   submitYearRange() {

@@ -1,7 +1,7 @@
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {filter, map, Observable, of, take} from 'rxjs';
+import {combineLatest, filter, map, Observable, of, take} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
@@ -73,10 +73,68 @@ export class PeriodicalService implements FilterService {
   private documentSignal = toSignal(this.document$, {initialValue: null});
   private metadataSignal = toSignal(this.metadata$, {initialValue: null});
 
-  POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'yearFrom', 'yearTo'];
+  POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
 
   get searchTerm() {
     return this._searchTerm;
+  }
+
+  get selectedTags(): Observable<string[]> {
+    return combineLatest([
+      of([] as string[]), // No base filters for periodicals, only custom ones
+      of(this.submittedTerm),
+      this.route.queryParams
+    ]).pipe(
+      map(([filters, term, params]) => {
+        let allFilters: string[] = [...filters];
+        
+        // Add search term if present
+        if (term && term.trim().length > 0) {
+          allFilters.push(`search:${term}`);
+        }
+        
+        // Add custom search filters (including date/year range filters)
+        const customFilters = this.getCustomFiltersFromParams(params);
+        allFilters.push(...customFilters);
+        
+        return allFilters;
+      })
+    );
+  }
+
+  private getCustomFiltersFromParams(params: any): string[] {
+    const filters: string[] = [];
+    
+    // Get custom search filters
+    const customRaw = params['customSearch'];
+    const customFilters = customRaw ? customRaw.split(',') : [];
+    filters.push(...customFilters);
+    
+    // Add year range as single combined filter
+    const yearFrom = params['yearFrom'];
+    const yearTo = params['yearTo'];
+    if (yearFrom !== undefined || yearTo !== undefined) {
+      const fromYear = yearFrom || '0';
+      const toYear = yearTo || new Date().getFullYear().toString();
+      filters.push(`yearRange:${fromYear} - ${toYear}`);
+    }
+    
+    // Add date range as single combined filter
+    const dateFrom = params['dateFrom'];
+    const dateTo = params['dateTo'];
+    if (dateFrom !== undefined || dateTo !== undefined) {
+      if (dateFrom && dateTo) {
+        filters.push(`dateRange:${dateFrom} - ${dateTo}`);
+      } else if (dateFrom) {
+        filters.push(`dateRange:${dateFrom} - *`);
+      } else if (dateTo) {
+        filters.push(`dateRange:* - ${dateTo}`);
+      }
+    }
+    
+    // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
+    
+    return filters;
   }
 
   private route = inject(ActivatedRoute);
@@ -126,6 +184,8 @@ export class PeriodicalService implements FilterService {
 
   async initialize() {
     if (this.initialized) return;
+
+    this.customSearchService.initializeFromRoute();
 
     const extractUuid = (url: string): string | null => {
       const match = url.match(/(uuid:[a-f0-9\-]+)/i);
@@ -228,9 +288,14 @@ export class PeriodicalService implements FilterService {
     // Handle year range filter as a separate advanced query
     const yearFrom = params && params['yearFrom'];
     const yearTo = params && params['yearTo'];
+    
+    // Handle date range filter as a separate advanced query
+    const dateFrom = params && params['dateFrom'];
+    const dateTo = params && params['dateTo'];
 
     let finalAdvancedQuery = advancedQuery || '';
 
+    // Add year range query
     if (yearFrom !== undefined || yearTo !== undefined) {
       const from = yearFrom ? parseInt(yearFrom, 10) : 0;
       const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
@@ -242,6 +307,30 @@ export class PeriodicalService implements FilterService {
       } else {
         // Just use year range as advanced query
         finalAdvancedQuery = yearRangeQuery;
+      }
+    }
+
+    // Add date range query
+    if (dateFrom || dateTo) {
+      let dateRangeQuery = '';
+      
+      if (dateFrom && dateTo) {
+        // Both dates provided
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO ${dateTo}T23:59:59Z])`;
+      } else if (dateFrom) {
+        // Only from date provided
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO *])`;
+      } else if (dateTo) {
+        // Only to date provided
+        dateRangeQuery = `(date.min:[* TO ${dateTo}T23:59:59Z])`;
+      }
+
+      if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {
+        // Combine existing advanced query with date range
+        finalAdvancedQuery = `${finalAdvancedQuery} AND ${dateRangeQuery}`;
+      } else {
+        // Just use date range as advanced query
+        finalAdvancedQuery = dateRangeQuery;
       }
     }
 
@@ -355,6 +444,53 @@ export class PeriodicalService implements FilterService {
 
   resetPage(): void {
     this._pageReset.set(true);
+  }
+
+  removeFilter(filter: string) {
+    if (filter.startsWith('search:')) {
+      this.queryParamsService.removeSearchTerm(this.route);
+      this._searchTerm.set('');
+      this._submittedTerm.set('');
+    } else if (this.isCustomFilter(filter)) {
+      // Handle custom filters including combined date/year ranges
+      const [facetKey] = filter.split(':');
+      
+      if (facetKey === 'yearRange') {
+        // Remove year range parameters
+        this.customSearchService.removeYearRange();
+      } else if (facetKey === 'dateRange') {
+        // Remove date range parameters
+        this.customSearchService.removeDateRange();
+      } else {
+        // Handle other custom filters
+        this.customSearchService.removeFilter(filter);
+      }
+    } else {
+      this.queryParamsService.removeFilter(this.route, filter);
+    }
+  }
+
+  private isCustomFilter(filter: string): boolean {
+    const [facetKey] = filter.split(':');
+    const customFilterKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo', 'yearRange', 'dateRange'];
+    return customFilterKeys.includes(facetKey) || this.customSearchService.getAppliedFilters().includes(filter);
+  }
+
+  removeFieldFilters(field: string) {
+    this.queryParamsService.removeFieldFilters(this.route, field);
+  }
+
+  resetOperator(field: string) {
+    this.queryParamsService.resetOperator(this.route, field);
+  }
+
+  clearAllFilters() {
+    this.queryParamsService.removeSearchTerm(this.route);
+    this._submittedTerm.set('');
+    this._searchTerm.set('');
+    this.queryParamsService.clearAllFilters(this.route);
+    // Also clear custom search filters including year ranges
+    this.customSearchService.clear();
   }
 
   goToPage(page: number) {

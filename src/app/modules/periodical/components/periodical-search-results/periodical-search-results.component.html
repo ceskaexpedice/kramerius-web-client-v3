@@ -1,5 +1,17 @@
 <ng-container *ngIf="periodicalService.searchResults$ | async as searchResults">
 
+  <app-selected-tags
+    *ngIf="((periodicalService.selectedTags | async) || []).length > 0"
+    [items]="(periodicalService.selectedTags | async) || []"
+    [operators]="{}"
+    [showOperators]="false"
+    [translateItems]="true"
+    (remove)="periodicalService.removeFilter($event)"
+    (removeGroup)="periodicalService.resetOperator($event)"
+    (clearAll)="periodicalService.clearAllFilters()"
+    clearButtonPosition="left">
+  </app-selected-tags>
+
   <div class="sort--container">
     <app-results-sort (sortChanged)="($event)"></app-results-sort>
   </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import {DatePipe, NgClass, NgIf} from '@angular/common';
 import { InputComponent } from '../input/input.component';
 import {InputDateComponent} from '../input-date/input-date.component';
@@ -20,7 +20,7 @@ export interface NumberRange {
   templateUrl: './range-slider.component.html',
   styleUrl: './range-slider.component.scss',
 })
-export class RangeSliderComponent {
+export class RangeSliderComponent implements OnInit, OnChanges {
   lastMoved: 'from' | 'to' = 'from';
 
   // Numeric range inputs
@@ -58,6 +58,24 @@ export class RangeSliderComponent {
       this.initializeDateMode();
     } else {
       this.initializeNumberMode();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // React to changes in initialFrom and initialTo
+    if (changes['initialFrom'] || changes['initialTo']) {
+      if (this.type === 'number') {
+        this.from.set(this.initialFrom);
+        this.to.set(this.initialTo);
+        this.emitChange();
+      }
+    }
+
+    // React to changes in initialFromDate and initialToDate
+    if (changes['initialFromDate'] || changes['initialToDate']) {
+      if (this.type === 'date') {
+        this.initializeDateMode();
+      }
     }
   }
 

@@ -7,6 +7,7 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
 import {ResultsSortComponent} from '../../../search-results-page/components/results-sort/results-sort.component';
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {SearchDocument} from '../../../models/search-document';
+import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
 
 @Component({
   selector: 'app-periodical-search-results',
@@ -18,6 +19,7 @@ import {SearchDocument} from '../../../models/search-document';
     NgForOf,
     PaginatorComponent,
     ResultsSortComponent,
+    SelectedTagsComponent,
   ],
   templateUrl: './periodical-search-results.component.html',
   styleUrl: './periodical-search-results.component.scss'

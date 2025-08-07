@@ -142,13 +142,18 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
 
       <div class="year-range-section">
         <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
-        <app-date-picker></app-date-picker>
+        <app-date-picker
+          [initialDateFrom]="dateFrom"
+          [initialDateTo]="dateTo"
+          [initialOffset]="dateOffset"
+          (datePickerChange)="onDateRangeChange($event)">
+        </app-date-picker>
         <button
           class="outlined submit-year-range-btn w-100"
-          [class.disabled]="!hasYearRangeChanged"
-          [disabled]="!hasYearRangeChanged"
-          (click)="submitYearRange()">
-          {{ 'apply-year-range' | translate }}
+          [class.disabled]="!hasDateRangeChanged"
+          [disabled]="!hasDateRangeChanged"
+          (click)="submitDateRange()">
+          {{ 'apply-date-range' | translate }}
         </button>
       </div>
 

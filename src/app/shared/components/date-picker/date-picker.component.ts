@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, signal} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
 import {InputDateComponent} from '../input-date/input-date.component';
 import {DateRange} from '../range-slider/range-slider.component';
 
@@ -16,7 +16,7 @@ export interface DatePickerOutput {
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
 })
-export class DatePickerComponent implements OnInit {
+export class DatePickerComponent implements OnInit, OnChanges {
 
   @Input() initialDateFrom: Date | null = null;
   @Input() initialDateTo: Date | null = null;
@@ -35,19 +35,41 @@ export class DatePickerComponent implements OnInit {
   @Output() datePickerChange = new EventEmitter<DatePickerOutput>();
 
   ngOnInit() {
+    this.updateFromInitialValues();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // React to changes in input properties
+    if (changes['initialDateFrom'] || changes['initialDateTo'] || changes['initialOffset']) {
+      this.updateFromInitialValues();
+    }
+  }
+
+  private updateFromInitialValues() {
     // Initialize with provided values if available
     if (this.initialDateFrom) {
       this.fromDate.set(this.initialDateFrom);
+    } else {
+      this.fromDate.set(undefined);
     }
+    
     if (this.initialDateTo) {
       this.toDate.set(this.initialDateTo);
+    } else {
+      this.toDate.set(undefined);
     }
+    
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
 
       if (this.initialOffset > 7) {
         this.openedMore = true;
+      } else {
+        this.openedMore = false;
       }
+    } else {
+      this.offset.set(0);
+      this.openedMore = false;
     }
   }
 

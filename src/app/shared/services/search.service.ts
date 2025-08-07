@@ -91,24 +91,29 @@ export class SearchService implements FilterService {
     const customFilters = customRaw ? customRaw.split(',') : [];
     filters.push(...customFilters);
     
-    // Add date range filters
-    if (params['dateFrom']) {
-      filters.push(`dateFrom:${params['dateFrom']}`);
-    }
-    if (params['dateTo']) {
-      filters.push(`dateTo:${params['dateTo']}`);
-    }
-    if (params['dateOffset'] !== undefined && params['dateOffset'] !== '0') {
-      filters.push(`dateOffset:${params['dateOffset']}`);
+    // Add year range as single combined filter
+    const yearFrom = params['yearFrom'];
+    const yearTo = params['yearTo'];
+    if (yearFrom !== undefined || yearTo !== undefined) {
+      const fromYear = yearFrom || '0';
+      const toYear = yearTo || new Date().getFullYear().toString();
+      filters.push(`yearRange:${fromYear} - ${toYear}`);
     }
     
-    // Add year range filters
-    if (params['yearFrom'] !== undefined) {
-      filters.push(`yearFrom:${params['yearFrom']}`);
+    // Add date range as single combined filter
+    const dateFrom = params['dateFrom'];
+    const dateTo = params['dateTo'];
+    if (dateFrom !== undefined || dateTo !== undefined) {
+      if (dateFrom && dateTo) {
+        filters.push(`dateRange:${dateFrom} - ${dateTo}`);
+      } else if (dateFrom) {
+        filters.push(`dateRange:${dateFrom} - *`);
+      } else if (dateTo) {
+        filters.push(`dateRange:* - ${dateTo}`);
+      }
     }
-    if (params['yearTo'] !== undefined) {
-      filters.push(`yearTo:${params['yearTo']}`);
-    }
+    
+    // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
     
     return filters;
   }
@@ -406,8 +411,19 @@ export class SearchService implements FilterService {
       this._searchTerm.set('');
       this._submittedTerm.set('');
     } else if (this.isCustomFilter(filter)) {
-      // Handle custom filters including date/year ranges
-      this.customSearchService.removeFilter(filter);
+      // Handle custom filters including combined date/year ranges
+      const [facetKey] = filter.split(':');
+      
+      if (facetKey === 'yearRange') {
+        // Remove year range parameters
+        this.customSearchService.removeYearRange();
+      } else if (facetKey === 'dateRange') {
+        // Remove date range parameters
+        this.customSearchService.removeDateRange();
+      } else {
+        // Handle other custom filters
+        this.customSearchService.removeFilter(filter);
+      }
     } else {
       this.queryParamsService.removeFilter(this.route, filter);
     }
@@ -415,7 +431,7 @@ export class SearchService implements FilterService {
 
   private isCustomFilter(filter: string): boolean {
     const [facetKey] = filter.split(':');
-    const customFilterKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
+    const customFilterKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo', 'yearRange', 'dateRange'];
     return customFilterKeys.includes(facetKey) || this.customSearchService.getAppliedFilters().includes(filter);
   }
 
