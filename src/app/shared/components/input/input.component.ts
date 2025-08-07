@@ -53,6 +53,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() showClearButton: boolean = false;
   @Input() submitIcon: string = 'icon-search-normal';
   @Input() changeMicToClearOnFocus: boolean = true;
+  @Input() showNumberStepper: boolean = true;
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();

@@ -38,17 +38,6 @@
         ></app-filter-items-radio>
       </ng-container>
 
-<!--      <app-range-slider-->
-<!--        *ngIf="type === 'range'"-->
-<!--        [min]="filter.meta?.min ?? 0"-->
-<!--        [max]="filter.meta?.max ?? 100"-->
-<!--        [step]="filter.meta?.step ?? 1"-->
-<!--        [initialFrom]="getInitialFrom()"-->
-<!--        [initialTo]="getInitialTo()"-->
-<!--        [layout]="'inline'"-->
-<!--        (rangeChange)="onRangeSliderChange($event)"-->
-<!--      ></app-range-slider>-->
-
       <button class="button primary link p-left-0 flex--space-start" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
         {{ 'show-more' | translate }}
 

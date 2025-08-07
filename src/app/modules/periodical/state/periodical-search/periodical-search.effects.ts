@@ -31,11 +31,11 @@ export class PeriodicalSearchEffects {
         this.store.select(PeriodicalSelectors.selectPeriodicalSearchStateFacets),
         this.store.select(PeriodicalSelectors.selectFacetOperators)
       ),
-      switchMap(([{ uuid, query, filters, page, pageCount, sortBy, sortDirection }, currentFacets, facetOperators]) => {
+      switchMap(([{ uuid, query, filters, advancedQuery, page, pageCount, sortBy, sortDirection }, currentFacets, facetOperators]) => {
 
 
         return forkJoin({
-          resultsRes: this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, undefined, true, true),
+          resultsRes: this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true),
           facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
           facetsWithoutLicensesRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
         }).pipe(

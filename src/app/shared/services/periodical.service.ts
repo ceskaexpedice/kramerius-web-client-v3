@@ -73,7 +73,7 @@ export class PeriodicalService implements FilterService {
   private documentSignal = toSignal(this.document$, {initialValue: null});
   private metadataSignal = toSignal(this.metadata$, {initialValue: null});
 
-  POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
+  POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'yearFrom', 'yearTo'];
 
   get searchTerm() {
     return this._searchTerm;

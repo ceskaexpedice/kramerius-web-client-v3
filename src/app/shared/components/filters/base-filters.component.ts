@@ -7,6 +7,7 @@ import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-result
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {UserService} from '../../services/user.service';
+import {ENVIRONMENT} from '../../../app.config';
 
 @Component({ template: '' })
 export abstract class BaseFiltersComponent {
@@ -18,7 +19,8 @@ export abstract class BaseFiltersComponent {
 
   // Year range properties
   currentYear = new Date().getFullYear();
-  yearRangeFrom = 0;
+  defaultYearRangeFrom = ENVIRONMENT.dateRangeStartYear;
+  yearRangeFrom = ENVIRONMENT.dateRangeStartYear;
   yearRangeTo = this.currentYear;
   private pendingYearRangeFrom = 0;
   private pendingYearRangeTo = this.currentYear;
@@ -132,12 +134,12 @@ export abstract class BaseFiltersComponent {
     const queryParams = this.route.snapshot.queryParams;
     const yearFrom = queryParams['yearFrom'];
     const yearTo = queryParams['yearTo'];
-    
+
     if (yearFrom !== undefined) {
       this.yearRangeFrom = parseInt(yearFrom, 10) || 0;
       this.pendingYearRangeFrom = this.yearRangeFrom;
     }
-    
+
     if (yearTo !== undefined) {
       this.yearRangeTo = parseInt(yearTo, 10) || this.currentYear;
       this.pendingYearRangeTo = this.yearRangeTo;

@@ -32,6 +32,7 @@ export class DateStepperComponent {
 
   dateMode = signal<DatePickerMode>(DatePickerMode.Manual);
 
+  @Input() mode: DatePickerMode = DatePickerMode.Manual;
   @Input() data: any = {};
   @Input() showModeToggle: boolean = false;
 
@@ -45,6 +46,11 @@ export class DateStepperComponent {
   maxDate: Date = new Date(2100, 11, 31);
 
   ngOnInit() {
+
+    if (this.mode) {
+      this.dateMode.set(this.mode);
+    }
+
     this.calculateMinMaxDates();
 
     this.parseFromString(this.data);

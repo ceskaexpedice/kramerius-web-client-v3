@@ -7,7 +7,6 @@
 
     <div class="results-content" *ngIf="periodical.viewMode() as mode">
 
-      @if (mode !== ViewMode.SearchResults) {
         <!-- Action Toolbar -->
         <app-action-toolbar>
 
@@ -55,7 +54,6 @@
           </div>
 
         </app-action-toolbar>
-      }
 
       <!-- Content rendering based on view mode -->
       <div class="results-content--wrapper">

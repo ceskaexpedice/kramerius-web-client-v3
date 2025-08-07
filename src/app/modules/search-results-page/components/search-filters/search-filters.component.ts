@@ -58,12 +58,13 @@ import {RangeSliderComponent} from '../../../../shared/components/range-slider/r
         <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="year-range-section">
           <h3 class="filter-section-title">{{ 'year-range' | translate }}</h3>
           <app-range-slider
-            [min]="0"
+            [min]="defaultYearRangeFrom"
             [max]="currentYear"
             [step]="1"
             [initialFrom]="yearRangeFrom"
             [initialTo]="yearRangeTo"
             (rangeChange)="onYearRangeChange($event)"
+            [showInputNumberStepper]="false"
           ></app-range-slider>
           <button
             class="outlined submit-year-range-btn w-100"

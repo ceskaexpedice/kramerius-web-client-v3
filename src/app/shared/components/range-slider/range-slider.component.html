@@ -25,6 +25,7 @@
         (valueChange)="onFromInput($event)"
         [signalInput]="from"
         [withIcons]="false"
+        [showNumberStepper]="showInputNumberStepper"
       ></app-input>
 
       <!-- Slider -->
@@ -72,6 +73,7 @@
         (valueChange)="onToInput($event)"
         [signalInput]="to"
         [withIcons]="false"
+        [showNumberStepper]="showInputNumberStepper"
       ></app-input>
 
     </div>
@@ -126,6 +128,7 @@
           (valueChange)="onFromInput($event)"
           [signalInput]="from"
           [withIcons]="false"
+          [showNumberStepper]="showInputNumberStepper"
         ></app-input>
       </div>
 
@@ -153,6 +156,7 @@
           (valueChange)="onToInput($event)"
           [signalInput]="to"
           [withIcons]="false"
+          [showNumberStepper]="showInputNumberStepper"
         ></app-input>
       </div>
     </div>

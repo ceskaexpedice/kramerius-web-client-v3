@@ -39,6 +39,7 @@ export class RangeSliderComponent {
   @Input() dateFormat: string = 'DD. MM. YYYY'; // Format for display
 
   @Input() layout: 'default' | 'inline' = 'default';
+  @Input() showInputNumberStepper = true;
 
   @Output() rangeChange = new EventEmitter<NumberRange>();
   @Output() dateRangeChange = new EventEmitter<DateRange>();

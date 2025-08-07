@@ -12,11 +12,12 @@ import {
   facetKeysEnum,
 } from '../../../search-results-page/const/facets';
 import {PeriodicalService} from '../../../../shared/services/periodical.service';
+import {DatePickerComponent} from '../../../../shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf, RangeSliderComponent],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf, RangeSliderComponent, DatePickerComponent],
   styles: `
     .show-licenses--header {
       display: flex;
@@ -51,23 +52,12 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
 
     .submit-year-range-btn {
       margin-top: var(--spacing-x3);
-      padding: var(--spacing-x2) var(--spacing-x4);
-      background-color: var(--color-primary);
-      color: white;
-      border: none;
-      border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
       transition: background-color 0.2s ease;
 
-      &:hover:not(:disabled) {
-        background-color: var(--color-primary-hover);
-      }
-
       &.disabled, &:disabled {
-        opacity: 0.5;
         cursor: not-allowed;
-        background-color: var(--color-gray-300);
       }
     }
   `,
@@ -133,15 +123,28 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
       <div class="year-range-section">
         <h3 class="filter-section-title">{{ 'year-range' | translate }}</h3>
         <app-range-slider
-          [min]="0"
+          [min]="defaultYearRangeFrom"
           [max]="currentYear"
           [step]="1"
           [initialFrom]="yearRangeFrom"
           [initialTo]="yearRangeTo"
           (rangeChange)="onYearRangeChange($event)"
+          [showInputNumberStepper]="false"
         ></app-range-slider>
         <button
-          class="submit-year-range-btn"
+          class="outlined submit-year-range-btn w-100"
+          [class.disabled]="!hasYearRangeChanged"
+          [disabled]="!hasYearRangeChanged"
+          (click)="submitYearRange()">
+          {{ 'apply-year-range' | translate }}
+        </button>
+      </div>
+
+      <div class="year-range-section">
+        <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
+        <app-date-picker></app-date-picker>
+        <button
+          class="outlined submit-year-range-btn w-100"
           [class.disabled]="!hasYearRangeChanged"
           [disabled]="!hasYearRangeChanged"
           (click)="submitYearRange()">

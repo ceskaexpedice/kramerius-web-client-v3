@@ -1,0 +1,58 @@
+<app-input-date
+  [valueSignal]="fromDate"
+  (valueChange)="onFromDateInput($event)"
+  [label]="'DD.MM.YYYY'"
+  [minDate]="minDate"
+  [maxDate]="maxDate"
+  [size]="'sm'"
+  [theme]="'dark'"
+></app-input-date>
+
+<div class="offset-buttons">
+
+  <button class="outlined tertiary sm">
+    +1 day
+  </button>
+
+  <button class="outlined tertiary sm">
+    +3 day
+  </button>
+
+  <button class="outlined tertiary sm">
+    +week
+  </button>
+
+  <button class="outlined tertiary sm" (click)="openedMore = !openedMore">
+    + {{openedMore ? 'hide' : 'more'}}
+  </button>
+
+</div>
+
+@if (openedMore) {
+  <div class="more-section--inputs">
+
+    <app-input-date
+      [valueSignal]="fromDate"
+      (valueChange)="onFromDateInput($event)"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      [label]="'DD.MM.YYYY'"
+      [size]="'sm'"
+      [theme]="'dark'"
+    ></app-input-date>
+
+    -
+
+    <app-input-date
+      [valueSignal]="toDate"
+      (valueChange)="onFromDateInput($event)"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      [label]="'DD.MM.YYYY'"
+      [size]="'sm'"
+      [theme]="'dark'"
+    ></app-input-date>
+
+  </div>
+
+}
