@@ -11,11 +11,12 @@ import {
 } from '../../const/facets';
 import {TranslatePipe} from '@ngx-translate/core';
 import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
+import {DatePickerComponent} from '../../../../shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-search-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe, RangeSliderComponent],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe, RangeSliderComponent, DatePickerComponent],
   template: `
     <div class="filters-content">
 
@@ -53,6 +54,20 @@ import {RangeSliderComponent} from '../../../../shared/components/range-slider/r
           </ng-container>
 
         </app-filter-category>
+
+        <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="date-range-section">
+          <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
+          <app-date-picker></app-date-picker>
+          <button
+            class="outlined submit-year-range-btn w-100"
+            [class.disabled]="!hasDateRangeChanged"
+            [disabled]="!hasDateRangeChanged"
+            (click)="submitDateRange()">
+            {{ 'apply-date-range' | translate }}
+          </button>
+        </div>
+
+        <hr>
 
         <!-- Year Range Slider - Insert after model filter -->
         <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="year-range-section">

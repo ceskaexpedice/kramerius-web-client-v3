@@ -26,6 +26,8 @@ export abstract class BaseFiltersComponent {
   private pendingYearRangeTo = this.currentYear;
   hasYearRangeChanged = false;
 
+  hasDateRangeChanged = false;
+
   constructor(
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
     protected route: ActivatedRoute,
@@ -154,6 +156,13 @@ export abstract class BaseFiltersComponent {
     this.hasYearRangeChanged =
       this.pendingYearRangeFrom !== this.yearRangeFrom ||
       this.pendingYearRangeTo !== this.yearRangeTo;
+  }
+
+  submitDateRange() {
+    if (!this.hasDateRangeChanged) return;
+
+
+    this.hasDateRangeChanged = false;
   }
 
   submitYearRange() {

@@ -1,5 +1,17 @@
 <div class="date-input-wrapper" [ngClass]="[theme, size]">
-  <span class="date-display" tabindex="-1">{{ label || displayValue }}</span>
+  <span class="date-display" tabindex="-1">
+
+    @if (prefixIcon) {
+      <i [ngClass]="prefixIcon"></i>
+    }
+
+    {{ label || displayValue }}
+
+    @if (postfixIcon) {
+      <i [ngClass]="postfixIcon"></i>
+    }
+
+  </span>
   <input
     #dateInput
     type="date"
