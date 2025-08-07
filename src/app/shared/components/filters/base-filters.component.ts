@@ -8,6 +8,7 @@ import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {UserService} from '../../services/user.service';
 import {ENVIRONMENT} from '../../../app.config';
+import {DatePickerOutput} from '../date-picker/date-picker.component';
 
 @Component({ template: '' })
 export abstract class BaseFiltersComponent {
@@ -26,6 +27,13 @@ export abstract class BaseFiltersComponent {
   private pendingYearRangeTo = this.currentYear;
   hasYearRangeChanged = false;
 
+  // Date range properties
+  dateFrom: Date | null = null;
+  dateTo: Date | null = null;
+  dateOffset: number = 0;
+  private pendingDateFrom: Date | null = null;
+  private pendingDateTo: Date | null = null;
+  private pendingDateOffset: number = 0;
   hasDateRangeChanged = false;
 
   constructor(
@@ -44,6 +52,7 @@ export abstract class BaseFiltersComponent {
     this.checkIfSomeOfLicensesSelected();
 
     this.initializeYearRange();
+    this.initializeDateRange();
   }
 
   getFacets() {
@@ -158,11 +167,70 @@ export abstract class BaseFiltersComponent {
       this.pendingYearRangeTo !== this.yearRangeTo;
   }
 
+  onDateRangeChange(dateRange: DatePickerOutput) {
+    this.pendingDateFrom = dateRange.dateFrom;
+    this.pendingDateTo = dateRange.dateTo;
+    this.pendingDateOffset = dateRange.offset;
+
+    // Check if values have changed from current applied values
+    this.hasDateRangeChanged =
+      this.pendingDateFrom?.getTime() !== this.dateFrom?.getTime() ||
+      this.pendingDateTo?.getTime() !== this.dateTo?.getTime() ||
+      this.pendingDateOffset !== this.dateOffset;
+  }
+
   submitDateRange() {
     if (!this.hasDateRangeChanged) return;
 
+    // Update the applied values
+    this.dateFrom = this.pendingDateFrom;
+    this.dateTo = this.pendingDateTo;
+    this.dateOffset = this.pendingDateOffset;
+
+    // Format dates for URL parameters (YYYY-MM-DD)
+    const dateFromParam = this.dateFrom ? this.formatDateForUrl(this.dateFrom) : null;
+    const dateToParam = this.dateTo ? this.formatDateForUrl(this.dateTo) : null;
+
+    // Navigate with date range parameters
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        dateFrom: dateFromParam,
+        dateTo: dateToParam,
+        dateOffset: this.dateOffset || null,
+        page: 1 // Reset to first page when filters change
+      },
+      queryParamsHandling: 'merge'
+    });
 
     this.hasDateRangeChanged = false;
+  }
+
+  private formatDateForUrl(date: Date): string {
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+  }
+
+  private initializeDateRange() {
+    // Check if there are existing date range parameters
+    const queryParams = this.route.snapshot.queryParams;
+    const dateFromParam = queryParams['dateFrom'];
+    const dateToParam = queryParams['dateTo'];
+    const dateOffsetParam = queryParams['dateOffset'];
+
+    if (dateFromParam) {
+      this.dateFrom = new Date(dateFromParam);
+      this.pendingDateFrom = this.dateFrom;
+    }
+
+    if (dateToParam) {
+      this.dateTo = new Date(dateToParam);
+      this.pendingDateTo = this.dateTo;
+    }
+
+    if (dateOffsetParam !== undefined) {
+      this.dateOffset = parseInt(dateOffsetParam, 10) || 0;
+      this.pendingDateOffset = this.dateOffset;
+    }
   }
 
   submitYearRange() {

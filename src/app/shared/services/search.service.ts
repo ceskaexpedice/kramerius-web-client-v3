@@ -250,18 +250,45 @@ export class SearchService implements FilterService {
     // Handle year range filter as a separate advanced query
     const yearFrom = params && params['yearFrom'];
     const yearTo = params && params['yearTo'];
-    
+
     if (yearFrom !== undefined || yearTo !== undefined) {
       const from = yearFrom ? parseInt(yearFrom, 10) : 0;
       const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
       const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
-      
+
       if (advancedQuery && advancedQuery.length > 0) {
         // Combine existing advanced query with year range
         advancedQuery = `${advancedQuery} AND ${yearRangeQuery}`;
       } else {
         // Just use year range as advanced query
         advancedQuery = yearRangeQuery;
+      }
+    }
+
+    // Handle date range filter as a separate advanced query
+    const dateFrom = params && params['dateFrom'];
+    const dateTo = params && params['dateTo'];
+
+    if (dateFrom || dateTo) {
+      let dateRangeQuery = '';
+
+      if (dateFrom && dateTo) {
+        // Both dates provided - create range query
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO ${dateTo}T23:59:59Z])`;
+      } else if (dateFrom) {
+        // Only start date provided
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO *])`;
+      } else if (dateTo) {
+        // Only end date provided
+        dateRangeQuery = `(date.min:[* TO ${dateTo}T23:59:59Z])`;
+      }
+
+      if (dateRangeQuery && advancedQuery && advancedQuery.length > 0) {
+        // Combine existing advanced query with date range
+        advancedQuery = `${advancedQuery} AND ${dateRangeQuery}`;
+      } else if (dateRangeQuery) {
+        // Just use date range as advanced query
+        advancedQuery = dateRangeQuery;
       }
     }
 

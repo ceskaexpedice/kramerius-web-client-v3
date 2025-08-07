@@ -57,7 +57,9 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
 
         <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="date-range-section">
           <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
-          <app-date-picker></app-date-picker>
+          <app-date-picker
+            (datePickerChange)="onDateRangeChange($event)">
+          </app-date-picker>
           <button
             class="outlined submit-year-range-btn w-100"
             [class.disabled]="!hasDateRangeChanged"
@@ -65,9 +67,10 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
             (click)="submitDateRange()">
             {{ 'apply-date-range' | translate }}
           </button>
-        </div>
 
-        <hr>
+          <hr>
+
+        </div>
 
         <!-- Year Range Slider - Insert after model filter -->
         <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="year-range-section">

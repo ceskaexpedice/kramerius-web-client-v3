@@ -33,7 +33,7 @@ export class InputDateComponent {
 
   get displayValue(): string {
     const val = this.valueSignal();
-    return val ? this.formatDate(val) : '';
+    return val ? this.formatDate(val) : (this.label ? this.label : '');
   }
 
   onDateChange(event: Event) {
