@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output, signal} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, signal} from '@angular/core';
 import {InputDateComponent} from '../input-date/input-date.component';
 import {DateRange} from '../range-slider/range-slider.component';
 
@@ -16,7 +16,11 @@ export interface DatePickerOutput {
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
 })
-export class DatePickerComponent {
+export class DatePickerComponent implements OnInit {
+
+  @Input() initialDateFrom: Date | null = null;
+  @Input() initialDateTo: Date | null = null;
+  @Input() initialOffset: number = 0;
 
   openedMore: boolean = false;
 
@@ -29,6 +33,19 @@ export class DatePickerComponent {
 
   @Output() dateRangeChange = new EventEmitter<DateRange>();
   @Output() datePickerChange = new EventEmitter<DatePickerOutput>();
+
+  ngOnInit() {
+    // Initialize with provided values if available
+    if (this.initialDateFrom) {
+      this.fromDate.set(this.initialDateFrom);
+    }
+    if (this.initialDateTo) {
+      this.toDate.set(this.initialDateTo);
+    }
+    if (this.initialOffset !== undefined) {
+      this.offset.set(this.initialOffset);
+    }
+  }
 
 
   onFromDateInput(date: Date) {
