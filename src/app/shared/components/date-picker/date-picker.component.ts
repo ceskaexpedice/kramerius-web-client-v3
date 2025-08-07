@@ -44,6 +44,10 @@ export class DatePickerComponent implements OnInit {
     }
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
+
+      if (this.initialOffset > 7) {
+        this.openedMore = true;
+      }
     }
   }
 
@@ -58,7 +62,7 @@ export class DatePickerComponent implements OnInit {
     ));
 
     this.fromDate.set(clampedDate);
-    
+
     // Calculate toDate based on current offset
     const calculatedToDate = new Date(clampedDate.getTime() + this.offset() * 24 * 60 * 60 * 1000);
     this.toDate.set(calculatedToDate);
@@ -76,7 +80,7 @@ export class DatePickerComponent implements OnInit {
     ));
 
     this.toDate.set(clampedDate);
-    
+
     // Calculate offset based on date difference
     if (this.fromDate()) {
       const diffTime = clampedDate.getTime() - this.fromDate()!.getTime();
@@ -89,7 +93,7 @@ export class DatePickerComponent implements OnInit {
 
   onOffsetClick(days: number) {
     this.offset.set(days);
-    
+
     if (this.fromDate()) {
       const calculatedToDate = new Date(this.fromDate()!.getTime() + days * 24 * 60 * 60 * 1000);
       this.toDate.set(calculatedToDate);

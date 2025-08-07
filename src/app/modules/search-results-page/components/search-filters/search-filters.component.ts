@@ -58,6 +58,9 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
         <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="date-range-section">
           <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
           <app-date-picker
+            [initialDateFrom]="dateFrom"
+            [initialDateTo]="dateTo"
+            [initialOffset]="dateOffset"
             (datePickerChange)="onDateRangeChange($event)">
           </app-date-picker>
           <button
