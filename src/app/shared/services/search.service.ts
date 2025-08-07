@@ -62,15 +62,55 @@ export class SearchService implements FilterService {
   get selectedTags(): Observable<string[]> {
     return combineLatest([
       this.activeFilters$,
-      of(this.submittedTerm)
+      of(this.submittedTerm),
+      this.route.queryParams
     ]).pipe(
-      map(([filters, term]) => {
+      map(([filters, term, params]) => {
+        let allFilters = [...filters];
+        
+        // Add search term if present
         if (term && term.trim().length > 0) {
-          return [...filters, `search:${term}`];
+          allFilters.push(`search:${term}`);
         }
-        return filters;
+        
+        // Add custom search filters (including date/year range filters)
+        // Re-initialize custom filters from current route params to ensure reactivity
+        const customFilters = this.getCustomFiltersFromParams(params);
+        allFilters.push(...customFilters);
+        
+        return allFilters;
       })
     );
+  }
+
+  private getCustomFiltersFromParams(params: any): string[] {
+    const filters: string[] = [];
+    
+    // Get custom search filters
+    const customRaw = params['customSearch'];
+    const customFilters = customRaw ? customRaw.split(',') : [];
+    filters.push(...customFilters);
+    
+    // Add date range filters
+    if (params['dateFrom']) {
+      filters.push(`dateFrom:${params['dateFrom']}`);
+    }
+    if (params['dateTo']) {
+      filters.push(`dateTo:${params['dateTo']}`);
+    }
+    if (params['dateOffset'] !== undefined && params['dateOffset'] !== '0') {
+      filters.push(`dateOffset:${params['dateOffset']}`);
+    }
+    
+    // Add year range filters
+    if (params['yearFrom'] !== undefined) {
+      filters.push(`yearFrom:${params['yearFrom']}`);
+    }
+    if (params['yearTo'] !== undefined) {
+      filters.push(`yearTo:${params['yearTo']}`);
+    }
+    
+    return filters;
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
@@ -365,9 +405,18 @@ export class SearchService implements FilterService {
       this.queryParamsService.removeSearchTerm(this.route);
       this._searchTerm.set('');
       this._submittedTerm.set('');
+    } else if (this.isCustomFilter(filter)) {
+      // Handle custom filters including date/year ranges
+      this.customSearchService.removeFilter(filter);
     } else {
       this.queryParamsService.removeFilter(this.route, filter);
     }
+  }
+
+  private isCustomFilter(filter: string): boolean {
+    const [facetKey] = filter.split(':');
+    const customFilterKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
+    return customFilterKeys.includes(facetKey) || this.customSearchService.getAppliedFilters().includes(filter);
   }
 
   removeFieldFilters(field: string) {
@@ -383,6 +432,8 @@ export class SearchService implements FilterService {
     this._submittedTerm.set('');
     this._searchTerm.set('');
     this.queryParamsService.clearAllFilters(this.route);
+    // Also clear custom search filters including date/year ranges
+    this.customSearchService.clear();
   }
 
   getFiltersByFacet(facet: string): Observable<string[]> {

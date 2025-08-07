@@ -21,20 +21,36 @@ export abstract class BaseFiltersComponent {
   // Year range properties
   currentYear = new Date().getFullYear();
   defaultYearRangeFrom = ENVIRONMENT.dateRangeStartYear;
-  yearRangeFrom = ENVIRONMENT.dateRangeStartYear;
-  yearRangeTo = this.currentYear;
   private pendingYearRangeFrom = 0;
   private pendingYearRangeTo = this.currentYear;
   hasYearRangeChanged = false;
 
   // Date range properties
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
-  dateOffset: number = 0;
   private pendingDateFrom: Date | null = null;
   private pendingDateTo: Date | null = null;
   private pendingDateOffset: number = 0;
   hasDateRangeChanged = false;
+
+  // Get current values from CustomSearchService
+  get yearRangeFrom(): number {
+    return this.customSearchService.getYearFrom() ?? this.defaultYearRangeFrom;
+  }
+  
+  get yearRangeTo(): number {
+    return this.customSearchService.getYearTo() ?? this.currentYear;
+  }
+  
+  get dateFrom(): Date | null {
+    return this.customSearchService.getDateFrom();
+  }
+  
+  get dateTo(): Date | null {
+    return this.customSearchService.getDateTo();
+  }
+  
+  get dateOffset(): number {
+    return this.customSearchService.getDateOffset();
+  }
 
   constructor(
     @Inject(FILTER_SERVICE) protected filterService: FilterService,
@@ -141,20 +157,9 @@ export abstract class BaseFiltersComponent {
   }
 
   private initializeYearRange() {
-    // Check if there are existing year range parameters
-    const queryParams = this.route.snapshot.queryParams;
-    const yearFrom = queryParams['yearFrom'];
-    const yearTo = queryParams['yearTo'];
-
-    if (yearFrom !== undefined) {
-      this.yearRangeFrom = parseInt(yearFrom, 10) || 0;
-      this.pendingYearRangeFrom = this.yearRangeFrom;
-    }
-
-    if (yearTo !== undefined) {
-      this.yearRangeTo = parseInt(yearTo, 10) || this.currentYear;
-      this.pendingYearRangeTo = this.yearRangeTo;
-    }
+    // Initialize pending values from current service values
+    this.pendingYearRangeFrom = this.yearRangeFrom;
+    this.pendingYearRangeTo = this.yearRangeTo;
   }
 
   onYearRangeChange(range: { from: number; to: number }) {
@@ -182,26 +187,12 @@ export abstract class BaseFiltersComponent {
   submitDateRange() {
     if (!this.hasDateRangeChanged) return;
 
-    // Update the applied values
-    this.dateFrom = this.pendingDateFrom;
-    this.dateTo = this.pendingDateTo;
-    this.dateOffset = this.pendingDateOffset;
-
-    // Format dates for URL parameters (YYYY-MM-DD)
-    const dateFromParam = this.dateFrom ? this.formatDateForUrl(this.dateFrom) : null;
-    const dateToParam = this.dateTo ? this.formatDateForUrl(this.dateTo) : null;
-
-    // Navigate with date range parameters
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        dateFrom: dateFromParam,
-        dateTo: dateToParam,
-        dateOffset: this.dateOffset || null,
-        page: 1 // Reset to first page when filters change
-      },
-      queryParamsHandling: 'merge'
-    });
+    // Use CustomSearchService to set date range
+    this.customSearchService.setDateRange(
+      this.pendingDateFrom,
+      this.pendingDateTo,
+      this.pendingDateOffset
+    );
 
     this.hasDateRangeChanged = false;
   }
@@ -211,45 +202,20 @@ export abstract class BaseFiltersComponent {
   }
 
   private initializeDateRange() {
-    // Check if there are existing date range parameters
-    const queryParams = this.route.snapshot.queryParams;
-    const dateFromParam = queryParams['dateFrom'];
-    const dateToParam = queryParams['dateTo'];
-    const dateOffsetParam = queryParams['dateOffset'];
-
-    if (dateFromParam) {
-      this.dateFrom = new Date(dateFromParam);
-      this.pendingDateFrom = this.dateFrom;
-    }
-
-    if (dateToParam) {
-      this.dateTo = new Date(dateToParam);
-      this.pendingDateTo = this.dateTo;
-    }
-
-    if (dateOffsetParam !== undefined) {
-      this.dateOffset = parseInt(dateOffsetParam, 10) || 0;
-      this.pendingDateOffset = this.dateOffset;
-    }
+    // Initialize pending values from current service values
+    this.pendingDateFrom = this.dateFrom;
+    this.pendingDateTo = this.dateTo;
+    this.pendingDateOffset = this.dateOffset;
   }
 
   submitYearRange() {
     if (!this.hasYearRangeChanged) return;
 
-    // Update the applied values
-    this.yearRangeFrom = this.pendingYearRangeFrom;
-    this.yearRangeTo = this.pendingYearRangeTo;
-
-    // Navigate with year range parameters
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        yearFrom: this.yearRangeFrom === 0 ? null : this.yearRangeFrom,
-        yearTo: this.yearRangeTo === this.currentYear ? null : this.yearRangeTo,
-        page: 1 // Reset to first page when filters change
-      },
-      queryParamsHandling: 'merge'
-    });
+    // Use CustomSearchService to set year range
+    this.customSearchService.setYearRange(
+      this.pendingYearRangeFrom,
+      this.pendingYearRangeTo
+    );
 
     this.hasYearRangeChanged = false;
   }

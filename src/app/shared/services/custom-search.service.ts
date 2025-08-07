@@ -20,12 +20,67 @@ export class CustomSearchService {
   private userService = inject(UserService);
   private queryParamsService = inject(QueryParamsService);
 
+  // Date/Year range filter keys
+  private readonly DATE_FROM_KEY = 'dateFrom';
+  private readonly DATE_TO_KEY = 'dateTo';
+  private readonly DATE_OFFSET_KEY = 'dateOffset';
+  private readonly YEAR_FROM_KEY = 'yearFrom';
+  private readonly YEAR_TO_KEY = 'yearTo';
+
   initializeFromRoute(): void {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const raw = params['customSearch'];
-      const list: string[] = raw ? raw.split(',') as string[] : [];
+      let list: string[] = raw ? raw.split(',') as string[] : [];
+      
+      // Also initialize from date/year range parameters
+      list = this.addDateYearRangeFromParams(params, list);
+      
       this._appliedFilters.set(list);
     });
+  }
+
+  private addDateYearRangeFromParams(params: any, currentFilters: string[]): string[] {
+    let updated = [...currentFilters];
+
+    // Initialize year range
+    const yearFrom = params[this.YEAR_FROM_KEY];
+    const yearTo = params[this.YEAR_TO_KEY];
+    if (yearFrom || yearTo) {
+      // Remove existing year range filters
+      updated = updated.filter(f => !f.startsWith(`${this.YEAR_FROM_KEY}:`) && !f.startsWith(`${this.YEAR_TO_KEY}:`));
+      
+      if (yearFrom) {
+        updated.push(`${this.YEAR_FROM_KEY}:${yearFrom}`);
+      }
+      if (yearTo) {
+        updated.push(`${this.YEAR_TO_KEY}:${yearTo}`);
+      }
+    }
+
+    // Initialize date range
+    const dateFrom = params[this.DATE_FROM_KEY];
+    const dateTo = params[this.DATE_TO_KEY];
+    const dateOffset = params[this.DATE_OFFSET_KEY];
+    if (dateFrom || dateTo || dateOffset !== undefined) {
+      // Remove existing date range filters
+      updated = updated.filter(f => 
+        !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
+        !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+        !f.startsWith(`${this.DATE_OFFSET_KEY}:`)
+      );
+      
+      if (dateFrom) {
+        updated.push(`${this.DATE_FROM_KEY}:${dateFrom}`);
+      }
+      if (dateTo) {
+        updated.push(`${this.DATE_TO_KEY}:${dateTo}`);
+      }
+      if (dateOffset !== undefined) {
+        updated.push(`${this.DATE_OFFSET_KEY}:${dateOffset}`);
+      }
+    }
+
+    return updated;
   }
 
   isActive(): boolean {
@@ -40,6 +95,10 @@ export class CustomSearchService {
     const result: string[] = [];
 
     let filters = this._appliedFilters();
+    
+    // Filter out date/year range filters as they are handled separately in SearchService
+    const dateYearFilterKeys = [this.DATE_FROM_KEY, this.DATE_TO_KEY, this.DATE_OFFSET_KEY, this.YEAR_FROM_KEY, this.YEAR_TO_KEY];
+    filters = filters.filter(f => !dateYearFilterKeys.some(key => f.startsWith(`${key}:`)));
 
     // If possibleFilters is provided, filter the applied filters - filters should only include those that are in possibleFilters
     if (possibleFilters) {
@@ -78,7 +137,10 @@ export class CustomSearchService {
           }
           break;
         default:
-          result.push(`${filterItem?.solrFacetKey}:${value}`);
+          // Only add if we found a valid filterItem
+          if (filterItem?.solrFacetKey) {
+            result.push(`${filterItem.solrFacetKey}:${value}`);
+          }
           break;
       }
     }
@@ -164,6 +226,12 @@ export class CustomSearchService {
 
     this.queryParamsService.appendToQueryParams(this.route, {
       customSearch: null,
+      // Also clear date/year range parameters
+      [this.DATE_FROM_KEY]: null,
+      [this.DATE_TO_KEY]: null,
+      [this.DATE_OFFSET_KEY]: null,
+      [this.YEAR_FROM_KEY]: null,
+      [this.YEAR_TO_KEY]: null,
     });
   }
 
@@ -179,9 +247,152 @@ export class CustomSearchService {
   }
 
   private getLabelForKey(key: string): string {
-    switch (key) {
+    const [facetKey, value] = key.split(':');
+    switch (facetKey) {
+      case this.DATE_FROM_KEY:
+        return `Date From: ${value}`;
+      case this.DATE_TO_KEY:
+        return `Date To: ${value}`;
+      case this.DATE_OFFSET_KEY:
+        return `Date Offset: ${value} days`;
+      case this.YEAR_FROM_KEY:
+        return `Year From: ${value}`;
+      case this.YEAR_TO_KEY:
+        return `Year To: ${value}`;
       default:
         return key;
     }
+  }
+
+  // Date range methods
+  setDateRange(dateFrom: Date | null, dateTo: Date | null, offset: number): void {
+    const current = this._appliedFilters();
+    let updated = current.filter(f => 
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
+      !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+      !f.startsWith(`${this.DATE_OFFSET_KEY}:`)
+    );
+
+    const queryParams: any = {};
+
+    if (dateFrom) {
+      const dateFromParam = dateFrom.toISOString().split('T')[0];
+      updated.push(`${this.DATE_FROM_KEY}:${dateFromParam}`);
+      queryParams[this.DATE_FROM_KEY] = dateFromParam;
+    } else {
+      queryParams[this.DATE_FROM_KEY] = null;
+    }
+
+    if (dateTo) {
+      const dateToParam = dateTo.toISOString().split('T')[0];
+      updated.push(`${this.DATE_TO_KEY}:${dateToParam}`);
+      queryParams[this.DATE_TO_KEY] = dateToParam;
+    } else {
+      queryParams[this.DATE_TO_KEY] = null;
+    }
+
+    if (offset !== undefined && offset !== 0) {
+      updated.push(`${this.DATE_OFFSET_KEY}:${offset}`);
+      queryParams[this.DATE_OFFSET_KEY] = offset;
+    } else {
+      queryParams[this.DATE_OFFSET_KEY] = null;
+    }
+
+    queryParams.customSearch = updated.length > 0 ? updated.join(',') : null;
+    queryParams.page = 1; // Reset to first page
+
+    this._appliedFilters.set(updated);
+    this.queryParamsService.appendToQueryParams(this.route, queryParams);
+  }
+
+  // Year range methods
+  setYearRange(yearFrom: number, yearTo: number): void {
+    const current = this._appliedFilters();
+    let updated = current.filter(f => 
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) && 
+      !f.startsWith(`${this.YEAR_TO_KEY}:`)
+    );
+
+    const queryParams: any = {};
+    const currentYear = new Date().getFullYear();
+
+    if (yearFrom !== undefined && yearFrom !== 0) {
+      updated.push(`${this.YEAR_FROM_KEY}:${yearFrom}`);
+      queryParams[this.YEAR_FROM_KEY] = yearFrom;
+    } else {
+      queryParams[this.YEAR_FROM_KEY] = null;
+    }
+
+    if (yearTo !== undefined && yearTo !== currentYear) {
+      updated.push(`${this.YEAR_TO_KEY}:${yearTo}`);
+      queryParams[this.YEAR_TO_KEY] = yearTo;
+    } else {
+      queryParams[this.YEAR_TO_KEY] = null;
+    }
+
+    queryParams.customSearch = updated.length > 0 ? updated.join(',') : null;
+    queryParams.page = 1; // Reset to first page
+
+    this._appliedFilters.set(updated);
+    this.queryParamsService.appendToQueryParams(this.route, queryParams);
+  }
+
+  // Get current date/year range values
+  getDateFrom(): Date | null {
+    const filter = this._appliedFilters().find(f => f.startsWith(`${this.DATE_FROM_KEY}:`));
+    return filter ? new Date(filter.split(':')[1]) : null;
+  }
+
+  getDateTo(): Date | null {
+    const filter = this._appliedFilters().find(f => f.startsWith(`${this.DATE_TO_KEY}:`));
+    return filter ? new Date(filter.split(':')[1]) : null;
+  }
+
+  getDateOffset(): number {
+    const filter = this._appliedFilters().find(f => f.startsWith(`${this.DATE_OFFSET_KEY}:`));
+    return filter ? parseInt(filter.split(':')[1], 10) : 0;
+  }
+
+  getYearFrom(): number | null {
+    const filter = this._appliedFilters().find(f => f.startsWith(`${this.YEAR_FROM_KEY}:`));
+    return filter ? parseInt(filter.split(':')[1], 10) : null;
+  }
+
+  getYearTo(): number | null {
+    const filter = this._appliedFilters().find(f => f.startsWith(`${this.YEAR_TO_KEY}:`));
+    return filter ? parseInt(filter.split(':')[1], 10) : null;
+  }
+
+  // Remove specific date/year range filters
+  removeDateRange(): void {
+    const updated = this._appliedFilters().filter(f => 
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
+      !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+      !f.startsWith(`${this.DATE_OFFSET_KEY}:`)
+    );
+
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.length > 0 ? updated.join(',') : null,
+      [this.DATE_FROM_KEY]: null,
+      [this.DATE_TO_KEY]: null,
+      [this.DATE_OFFSET_KEY]: null,
+    });
+  }
+
+  removeYearRange(): void {
+    const updated = this._appliedFilters().filter(f => 
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) && 
+      !f.startsWith(`${this.YEAR_TO_KEY}:`)
+    );
+
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.length > 0 ? updated.join(',') : null,
+      [this.YEAR_FROM_KEY]: null,
+      [this.YEAR_TO_KEY]: null,
+    });
   }
 }
