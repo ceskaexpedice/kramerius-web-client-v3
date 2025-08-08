@@ -10,18 +10,16 @@ import {
   facetKeysEnum,
 } from '../../const/facets';
 import {TranslatePipe} from '@ngx-translate/core';
-import {RangeSliderComponent} from '../../../../shared/components/range-slider/range-slider.component';
-import {DatePickerComponent} from '../../../../shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-search-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe, RangeSliderComponent, DatePickerComponent],
+  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, NgIf, TranslatePipe],
   template: `
     <div class="filters-content">
 
       <ng-container
-        *ngFor="let facetKey of getFacetKeys; let i = index"
+        *ngFor="let facetKey of getFacetKeys"
       >
         <app-filter-category
           [label]="facetKey"
@@ -33,7 +31,7 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
           [type]="getElementTypeByFacetKey(facetKey)"
           (toggle)="onToggleFacet($event)">
 
-          <ng-container categoryContent *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
+          <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
               {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
@@ -55,14 +53,20 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
 
         </app-filter-category>
 
-        <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="date-range-section">
-          <h3 class="filter-section-title">{{ 'date' | translate }}</h3>
-          <app-date-picker
-            [initialDateFrom]="dateFrom"
-            [initialDateTo]="dateTo"
-            [initialOffset]="dateOffset"
-            (datePickerChange)="onDateRangeChange($event)">
-          </app-date-picker>
+        <!-- Date Range Filter -->
+        <app-filter-category
+          *ngIf="facetKey === customDefinedFacetsEnum.model"
+          [label]="customDefinedFacetsEnum.dateRange"
+          [facetKey]="customDefinedFacetsEnum.dateRange"
+          [showToggleExpand]="true"
+          [items]="[]"
+          [selected]="selectedFilters"
+          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.dateRange)"
+          [dateFrom]="dateFrom"
+          [dateTo]="dateTo"
+          [dateOffset]="dateOffset"
+          (datePickerChange)="onDateRangeChange($event)"
+        >
           <button
             class="outlined submit-year-range-btn w-100"
             [class.disabled]="!hasDateRangeChanged"
@@ -70,23 +74,23 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
             (click)="submitDateRange()">
             {{ 'apply-date-range' | translate }}
           </button>
+        </app-filter-category>
 
-          <hr>
-
-        </div>
-
-        <!-- Year Range Slider - Insert after model filter -->
-        <div *ngIf="facetKey === customDefinedFacetsEnum.model" class="year-range-section">
-          <h3 class="filter-section-title">{{ 'year-range' | translate }}</h3>
-          <app-range-slider
-            [min]="defaultYearRangeFrom"
-            [max]="currentYear"
-            [step]="1"
-            [initialFrom]="yearRangeFrom"
-            [initialTo]="yearRangeTo"
-            (rangeChange)="onYearRangeChange($event)"
-            [showInputNumberStepper]="false"
-          ></app-range-slider>
+        <!-- Year Range Filter -->
+        <app-filter-category
+          *ngIf="facetKey === customDefinedFacetsEnum.model"
+          [label]="customDefinedFacetsEnum.yearRange"
+          [facetKey]="customDefinedFacetsEnum.yearRange"
+          [showToggleExpand]="true"
+          [items]="[]"
+          [selected]="selectedFilters"
+          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.yearRange)"
+          [yearRangeMin]="defaultYearRangeFrom"
+          [yearRangeMax]="currentYear"
+          [yearRangeFrom]="yearRangeFrom"
+          [yearRangeTo]="yearRangeTo"
+          (rangeChange)="onYearRangeChange($event)"
+        >
           <button
             class="outlined submit-year-range-btn w-100"
             [class.disabled]="!hasYearRangeChanged"
@@ -94,8 +98,7 @@ import {DatePickerComponent} from '../../../../shared/components/date-picker/dat
             (click)="submitYearRange()">
             {{ 'apply-year-range' | translate }}
           </button>
-          <hr>
-        </div>
+        </app-filter-category>
 
       </ng-container>
 
@@ -149,7 +152,7 @@ export class SearchFiltersComponent extends BaseFiltersComponent {
 
   get getFacetKeys(): string[] {
     // we are showing licenses under accessibility facet so we need to return all facet keys except 'licenses.facet'
-    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
+    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license && key !== customDefinedFacetsEnum.dateRange && key !== customDefinedFacetsEnum.yearRange);
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {

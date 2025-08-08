@@ -18,6 +18,7 @@ import {
 import {CustomSearchService} from '../../services/custom-search.service';
 import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radio.component';
 import {RangeSliderComponent} from '../range-slider/range-slider.component';
+import {DatePickerComponent} from '../date-picker/date-picker.component';
 import {FilterElementType} from '../../dialogs/advanced-search-dialog/solr-filters';
 
 @Component({
@@ -30,6 +31,7 @@ import {FilterElementType} from '../../dialogs/advanced-search-dialog/solr-filte
     SlicePipe,
     FilterItemsRadioComponent,
     RangeSliderComponent,
+    DatePickerComponent,
   ],
   templateUrl: './filter-category.component.html',
   styleUrl: './filter-category.component.scss',
@@ -51,9 +53,22 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() showToggleExpand = true;
   @Input() showBottomBorder = true;
   @Input() type: FacetElementType = FacetElementType.checkbox;
+  
+  // Date range inputs
+  @Input() dateFrom: Date | null = null;
+  @Input() dateTo: Date | null = null;
+  @Input() dateOffset: number = 0;
+  
+  // Year range inputs
+  @Input() yearRangeMin: number = 1400;
+  @Input() yearRangeMax: number = new Date().getFullYear();
+  @Input() yearRangeFrom: number = 1400;
+  @Input() yearRangeTo: number = new Date().getFullYear();
 
   @Output() toggle = new EventEmitter<string>();
   @Output() showMore = new EventEmitter<void>();
+  @Output() datePickerChange = new EventEmitter<any>();
+  @Output() rangeChange = new EventEmitter<any>();
 
   visibleItems = signal<FacetItem[]>([]);
 
@@ -189,6 +204,44 @@ export class FilterCategoryComponent implements OnChanges {
         this.onToggle(value);
       }
     }
+  }
+
+  // Date range methods
+  getDateFrom(): Date | null {
+    return this.dateFrom;
+  }
+
+  getDateTo(): Date | null {
+    return this.dateTo;
+  }
+
+  getDateOffset(): number {
+    return this.dateOffset;
+  }
+
+  onDatePickerChange(event: any) {
+    this.datePickerChange.emit(event);
+  }
+
+  // Year range methods
+  getRangeMin(): number {
+    return this.yearRangeMin;
+  }
+
+  getRangeMax(): number {
+    return this.yearRangeMax;
+  }
+
+  getRangeFrom(): number {
+    return this.yearRangeFrom;
+  }
+
+  getRangeTo(): number {
+    return this.yearRangeTo;
+  }
+
+  onRangeChange(event: any) {
+    this.rangeChange.emit(event);
   }
 
   protected readonly AdvancedFilterType = FilterElementType;

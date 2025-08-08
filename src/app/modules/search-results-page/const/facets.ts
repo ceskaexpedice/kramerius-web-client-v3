@@ -2,6 +2,8 @@ export enum FacetElementType {
   checkbox = 'checkbox',
   radio = 'radio',
   range = 'range',
+  dateRange = 'dateRange',
+  yearRange = 'yearRange',
 }
 
 export enum FacetAccessibilityTypes {
@@ -42,12 +44,16 @@ export enum customDefinedFacetsEnum {
   accessibility = 'custom-accessibility',
   model = 'custom-root-model',
   whereToSearchModel = 'custom-where-to-search.model',
+  dateRange = 'custom-date-range',
+  yearRange = 'custom-year-range',
 }
 
 export const customDefinedFacetsKeys: string[] = [
   customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
-  customDefinedFacetsEnum.whereToSearchModel
+  customDefinedFacetsEnum.whereToSearchModel,
+  customDefinedFacetsEnum.dateRange,
+  customDefinedFacetsEnum.yearRange
 ]
 
 export const facetKeysInfinityCount: string[] = [
@@ -56,7 +62,9 @@ export const facetKeysInfinityCount: string[] = [
   facetKeysEnum.model,
   customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
-  customDefinedFacetsEnum.whereToSearchModel
+  customDefinedFacetsEnum.whereToSearchModel,
+  customDefinedFacetsEnum.dateRange,
+  customDefinedFacetsEnum.yearRange
 ]
 
 export const customDefinedFacets = [
@@ -234,5 +242,17 @@ export const customDefinedFacets = [
         count: 0
       }
     ]
+  },
+  {
+    facetKey: customDefinedFacetsEnum.dateRange,
+    title: 'date',
+    type: FacetElementType.dateRange,
+    data: []
+  },
+  {
+    facetKey: customDefinedFacetsEnum.yearRange,
+    title: 'year-range',
+    type: FacetElementType.yearRange,
+    data: []
   }
 ]

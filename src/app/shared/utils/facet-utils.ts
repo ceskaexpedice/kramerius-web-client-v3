@@ -46,9 +46,14 @@ export function handleFacetsWithOperators(
   for (const custom of customDefinedFacets) {
     const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
       const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
-      let count = fqList.reduce((sum: number, fq: any) => {
-        return sum + (result[custom.solrFacetKeyForCount]?.find(f => f.name === fq)?.count || 0);
-      }, 0);
+      let count = 0;
+      
+      // Only calculate count for custom facets that have a corresponding Solr facet
+      if (custom.solrFacetKeyForCount) {
+        count = fqList.reduce((sum: number, fq: any) => {
+          return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+        }, 0);
+      }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
         const licenses = result[facetKeysEnum.license] || [];
