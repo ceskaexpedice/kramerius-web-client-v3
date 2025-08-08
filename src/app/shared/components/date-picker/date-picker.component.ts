@@ -64,12 +64,9 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
       if (this.initialOffset > 7) {
         this.openedMore = true;
-      } else {
-        this.openedMore = false;
       }
     } else {
       this.offset.set(0);
-      this.openedMore = false;
     }
   }
 
@@ -122,6 +119,10 @@ export class DatePickerComponent implements OnInit, OnChanges {
     }
 
     this.emitChanges();
+  }
+
+  toggleOpenedMore() {
+    this.openedMore = !this.openedMore;
   }
 
   private emitChanges() {

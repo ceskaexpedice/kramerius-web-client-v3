@@ -12,11 +12,11 @@
     clearButtonPosition="left">
   </app-selected-tags>
 
-  <div class="sort--container">
-    <app-results-sort (sortChanged)="($event)"></app-results-sort>
-  </div>
-
   @if (searchResults.length > 0) {
+
+    <div class="sort--container">
+      <app-results-sort (sortChanged)="($event)"></app-results-sort>
+    </div>
 
     <!-- Show grouped by year if sorting by date -->
     @if (shouldGroupByYear()) {
