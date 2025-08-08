@@ -1,7 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import {
   loadPeriodical, loadPeriodicalFailure,
-  loadPeriodicalSuccess, setPeriodicalSearchParams
+  loadPeriodicalSuccess, setPeriodicalSearchParams,
+  loadPeriodicalItems, loadPeriodicalItemsSuccess, loadPeriodicalItemsFailure
 } from './periodical-detail.actions';
 import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
@@ -93,5 +94,13 @@ export const periodicalDetailReducer = createReducer(
     availableYears: availableYears.length > 0 ? availableYears : state.availableYears,
     children: children || []
   })),
-  on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error }))
+  on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error })),
+  on(loadPeriodicalItems, state => ({ ...state, loading: true })),
+  on(loadPeriodicalItemsSuccess, (state, { children, availableYears }) => ({
+    ...state,
+    loading: false,
+    children: children || [],
+    availableYears: availableYears && availableYears.length > 0 ? availableYears : state.availableYears,
+  })),
+  on(loadPeriodicalItemsFailure, (state, { error }) => ({ ...state, loading: false, error }))
 );

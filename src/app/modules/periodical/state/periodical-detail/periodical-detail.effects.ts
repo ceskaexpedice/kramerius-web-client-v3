@@ -1,28 +1,32 @@
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {catchError, map, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
-import { of } from 'rxjs';
+import {of} from 'rxjs';
+import * as PeriodicalDetailActions from './periodical-detail.actions';
 import {
   loadPeriodical,
   loadPeriodicalFailure,
+  loadPeriodicalItems,
+  loadPeriodicalItemsFailure,
+  loadPeriodicalItemsSuccess,
   loadPeriodicalSuccess,
 } from './periodical-detail.actions';
-import { Store } from '@ngrx/store';
-import { SolrService } from '../../../../core/solr/solr.service';
+import {Store} from '@ngrx/store';
+import {SolrService} from '../../../../core/solr/solr.service';
 import {
   selectAvailableYears,
   selectPeriodicalFacetOperators,
   selectPeriodicalSearchParams,
 } from './periodical-detail.selectors';
 import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../../models/periodical-item';
-import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
+import {DocumentAccessibilityEnum} from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
-import * as PeriodicalDetailActions from './periodical-detail.actions';
-import * as PeriodicalSearchActions from '../periodical-search/periodical-search.actions';
 import {loadDocumentDetailSuccess} from '../../../../shared/state/document-detail/document-detail.actions';
+import * as PeriodicalSearchActions from '../periodical-search/periodical-search.actions';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
 import {UserService} from '../../../../shared/services/user.service';
+import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -206,4 +210,78 @@ export class PeriodicalDetailEffects {
       };
     });
   }
+
+  loadPeriodicalItems$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadPeriodicalItems),
+      switchMap(({ parentVolumeUuid }) => {
+        console.log('loadPeriodicalItems$ effect - parentVolumeUuid:', parentVolumeUuid);
+
+        return this.solr.getPeriodicalItems(
+          parentVolumeUuid,
+          [], // no filters for detail view
+          0, // page
+          1000, // pageCount - get all items
+          SolrSortFields.relevance, // sortBy
+          SolrSortDirections.asc, // sortDirection
+          '' // no advanced query
+        ).pipe(
+          withLatestFrom(this.store.select(selectAvailableYears)),
+          switchMap(([children, previousAvailableYears]) => {
+            // Fix licenses field if needed
+            children.map(i => {
+              if (!i['licenses'] || i['licenses'].length === 0 && i['licenses.facet']) {
+                i['licenses'] = i['licenses.facet'];
+              }
+            });
+
+            console.log('previousAvailableYears:', previousAvailableYears);
+
+            // If we already have availableYears, use them
+            if (previousAvailableYears?.length > 0) {
+              return of(loadPeriodicalItemsSuccess({
+                children,
+                availableYears: previousAvailableYears
+              }));
+            }
+
+            // If no availableYears, we need to load them from the root periodical
+            // We'll need to get the rootPid from one of the children
+            const firstChild = children[0];
+            console.log('First child:', firstChild);
+            if (!firstChild['root.pid']) {
+              console.warn('No rootPid found in children, cannot load availableYears');
+              return of(loadPeriodicalItemsSuccess({
+                children,
+                availableYears: []
+              }));
+            }
+
+            // Load volumes to get availableYears
+            return this.solr.getPeriodicalVolumes(firstChild['root.pid']).pipe(
+              map(volumes => {
+                const availableYears = this.mapAvailableYears(volumes);
+                return loadPeriodicalItemsSuccess({
+                  children,
+                  availableYears
+                });
+              }),
+              catchError(error => {
+                console.error('Failed to load periodical volumes:', error);
+                // Still return success with children, just without availableYears
+                return of(loadPeriodicalItemsSuccess({
+                  children,
+                  availableYears: []
+                }));
+              })
+            );
+          }),
+          catchError(error => {
+            console.error('loadPeriodicalItems$ effect error:', error);
+            return of(loadPeriodicalItemsFailure({ error }));
+          })
+        );
+      })
+    )
+  );
 }

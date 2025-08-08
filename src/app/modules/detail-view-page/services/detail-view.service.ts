@@ -11,20 +11,23 @@ import {
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {filter, Observable, of, skip, switchMap, take} from 'rxjs';
+import {Observable, skip, take} from 'rxjs';
 import {selectPeriodicalChildren} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundRecordGridControl} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DocumentTypeEnum} from '../../constants/document-type';
-import {loadPeriodical} from '../../periodical/state/periodical-detail/periodical-detail.actions';
+import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/periodical-detail/periodical-detail.actions';
 import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
+import {LocalStorageService} from '../../../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DetailViewService {
+  private readonly PERIODICAL_CONTEXT_KEY = 'detailViewPeriodicalContext';
+
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
 
@@ -33,6 +36,7 @@ export class DetailViewService {
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
   private router = inject(Router);
+  private localStorage = inject(LocalStorageService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -92,10 +96,49 @@ export class DetailViewService {
     this.document$.pipe(
       skip(1),
       take(1)
-    ).subscribe(() => {
-      console.log('Document loaded:');
+    ).subscribe((doc) => {
+      console.log('Document loaded:', doc);
       this.loadPages();
+
+      // If document is from a periodical, proactively load periodical children data
+      if (doc?.rootModel === DocumentTypeEnum.periodical || doc?.model === DocumentTypeEnum.periodicalitem) {
+        this.loadPeriodicalChildren(doc);
+      }
     });
+  }
+
+  private loadPeriodicalChildren(doc: any) {
+    console.log('Loading periodical children for:', doc);
+
+    if (doc?.rootModel === DocumentTypeEnum.periodical || doc?.model === DocumentTypeEnum.periodicalitem) {
+
+      // Fallback: If document is directly a periodicalitem, try to get parent info
+      if (doc?.model === DocumentTypeEnum.periodicalitem && doc?.ownParentPid) {
+        console.log('Direct periodicalitem - dispatching loadPeriodicalItems for parentPid:', doc.ownParentPid);
+
+        this.store.dispatch(loadPeriodicalItems({
+          parentVolumeUuid: doc.ownParentPid
+        }));
+
+        return;
+      }
+
+      // Default fallback: Load entire periodical structure
+      const rootPid = doc?.rootPid || doc?.uuid;
+      if (rootPid) {
+        console.log('Fallback - dispatching loadPeriodical for rootPid:', rootPid);
+
+        this.store.dispatch(loadPeriodical({
+          uuid: rootPid,
+          filters: [],
+          advancedQuery: '',
+          page: 0,
+          pageCount: 1000,
+          sortBy: SolrSortFields.relevance,
+          sortDirection: SolrSortDirections.asc
+        }));
+      }
+    }
   }
 
   loadPages() {
@@ -188,12 +231,10 @@ export class DetailViewService {
 
   goToNextPeriodicalIssue() {
     const currentDoc = this.document;
-    console.log('currentdoc', currentDoc)
     if (!currentDoc?.uuid) return;
 
-    this.ensurePeriodicalChildrenLoaded().pipe(
-      take(1)
-    ).subscribe(children => {
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      console.log('goToNextPeriodicalIssue', children);
       const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
       if (currentIndex !== -1 && currentIndex < children.length - 1) {
         const nextIssue = children[currentIndex + 1];
@@ -206,9 +247,7 @@ export class DetailViewService {
     const currentDoc = this.document;
     if (!currentDoc?.uuid) return;
 
-    this.ensurePeriodicalChildrenLoaded().pipe(
-      take(1)
-    ).subscribe(children => {
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
       const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
       if (currentIndex > 0) {
         const previousIssue = children[currentIndex - 1];
@@ -217,44 +256,6 @@ export class DetailViewService {
     });
   }
 
-  private ensurePeriodicalChildrenLoaded(): Observable<any[]> {
-    console.log('ensurePeriodicalChildrenLoaded')
-    return this.periodicalChildren$.pipe(
-      switchMap(children => {
-        console.log('children:', children)
-        if (children && children.length > 0) {
-          // Children are already loaded
-          return of(children);
-        }
-
-        // Children not loaded, need to load them
-        const currentDoc = this.document;
-        console.log('currentDoc', currentDoc)
-        if (!currentDoc?.rootPid) {
-          return of([]);
-        }
-
-        console.log('Dispatching loadPeriodical for rootPid:', currentDoc.rootPid);
-
-        // Dispatch action to load periodical data which will populate children
-        this.store.dispatch(loadPeriodical({
-          uuid: currentDoc.rootPid,
-          filters: [],
-          advancedQuery: '',
-          page: 0,
-          pageCount: 1000,
-          sortBy: SolrSortFields.relevance,
-          sortDirection: SolrSortDirections.asc
-        }));
-
-        // Wait for children to be loaded
-        return this.periodicalChildren$.pipe(
-          filter(children => children && children.length > 0),
-          take(1)
-        );
-      })
-    );
-  }
 
   getCurrentPage(): Page | null {
     const pages = this._pages();

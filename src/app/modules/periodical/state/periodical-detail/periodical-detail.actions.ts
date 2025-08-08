@@ -16,3 +16,7 @@ export const setPeriodicalSearchParams = createAction('[Periodical] Set Search P
   sortBy: SolrSortFields;
   sortDirection: SolrSortDirections;
 }>());
+
+export const loadPeriodicalItems = createAction('[Periodical] Load Items', props<{ parentVolumeUuid: string }>());
+export const loadPeriodicalItemsSuccess = createAction('[Periodical] Load Items Success', props<{ children: any[]; availableYears?: PeriodicalItemYear[] }>());
+export const loadPeriodicalItemsFailure = createAction('[Periodical] Load Items Failure', props<{ error: any }>());
