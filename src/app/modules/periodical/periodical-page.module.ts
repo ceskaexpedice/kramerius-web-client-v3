@@ -48,7 +48,7 @@ const routes: Routes = [
   ],
   imports: [
     RouterModule.forChild(routes),
-    StoreModule.forFeature('periodical', periodicalDetailReducer),
+    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
     StoreModule.forFeature('periodical-search', periodicalSearchReducer),
     EffectsModule.forFeature([PeriodicalDetailEffects, DocumentDetailEffects, PeriodicalSearchEffects]),
     AsyncPipe,
