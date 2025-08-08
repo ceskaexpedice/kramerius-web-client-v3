@@ -71,12 +71,12 @@
         </div>
         <div center>
     <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
-<!--      <app-date-navigator-->
-<!--        [value]="document.dateStr || ''"-->
-<!--        (goToPrevious)="detailViewService.goToPreviousPeriodicalItem()"-->
-<!--        (goToNext)="detailViewService.goToNextPeriodicalItem()"-->
-<!--      >-->
-<!--      </app-date-navigator>-->
+      <app-date-navigator
+        [value]="document.dateStr || ''"
+        (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+        (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+      >
+      </app-date-navigator>
     </ng-container>
         </div>
         <div right>

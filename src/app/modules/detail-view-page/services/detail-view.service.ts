@@ -1,6 +1,8 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Page} from '../../../shared/models/page.model';
 import {Store} from '@ngrx/store';
+import {Router} from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
@@ -10,6 +12,7 @@ import {
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
 import {first, Observable, skip, take} from 'rxjs';
+import {selectPeriodicalChildren} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundRecordGridControl,} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -27,11 +30,13 @@ export class DetailViewService {
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
+  private router = inject(Router);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
+  periodicalChildren$ = this.store.select(selectPeriodicalChildren);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
 
@@ -180,11 +185,29 @@ export class DetailViewService {
   }
 
   goToNextPeriodicalIssue() {
-    //this.periodicalService.goToNextPeriodicalIssue();
+    const currentDoc = this.document;
+    if (!currentDoc?.uuid) return;
+    
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
+      if (currentIndex !== -1 && currentIndex < children.length - 1) {
+        const nextIssue = children[currentIndex + 1];
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, nextIssue.pid]);
+      }
+    });
   }
 
   goToPreviousPeriodicalIssue() {
-    //this.periodicalService.goToPreviousPeriodicalIssue();
+    const currentDoc = this.document;
+    if (!currentDoc?.uuid) return;
+    
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
+      if (currentIndex > 0) {
+        const previousIssue = children[currentIndex - 1];
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, previousIssue.pid]);
+      }
+    });
   }
 
   getCurrentPage(): Page | null {
