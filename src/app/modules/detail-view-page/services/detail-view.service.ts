@@ -11,7 +11,7 @@ import {
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {Observable, skip, take} from 'rxjs';
+import {Observable, skip, take, filter} from 'rxjs';
 import {selectPeriodicalChildren} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
@@ -26,8 +26,6 @@ import {LocalStorageService} from '../../../shared/services/local-storage.servic
   providedIn: 'root'
 })
 export class DetailViewService {
-  private readonly PERIODICAL_CONTEXT_KEY = 'detailViewPeriodicalContext';
-
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
 
@@ -36,7 +34,6 @@ export class DetailViewService {
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
   private router = inject(Router);
-  private localStorage = inject(LocalStorageService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -45,6 +42,16 @@ export class DetailViewService {
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
+
+  constructor() {
+    // Listen to pages changes and update the signal automatically
+    this.pages$.subscribe(pages => {
+      if (pages) {
+        this._pages.set(pages);
+        this._currentPageIndex.set(0);
+      }
+    });
+  }
 
   private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
 

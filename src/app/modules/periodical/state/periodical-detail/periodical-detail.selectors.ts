@@ -3,7 +3,7 @@ import {PeriodicalDetailState} from './periodical-detail.reducer';
 import {selectRouterQueryParams} from '../../../../shared/state/router/router.selectors';
 import {SolrOperators} from '../../../../core/solr/solr-helpers';
 
-export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical');
+export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical-detail');
 export const selectPeriodicalDocument = createSelector(selectPeriodicalState, state => state?.document);
 export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state?.children || []);
 export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state?.years);
