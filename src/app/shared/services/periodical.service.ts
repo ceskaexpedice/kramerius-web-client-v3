@@ -44,6 +44,11 @@ export class PeriodicalService implements FilterService, OnDestroy {
   activeCalendarGridControl = signal<CalendarGridControl>('calendar');
   selectedYear = signal<string | null>(null);
 
+  // Debug wrapper for selectedYear.set to track when it changes
+  private setSelectedYear(value: string | null) {
+    this.selectedYear.set(value);
+  }
+
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
 
@@ -590,13 +595,13 @@ export class PeriodicalService implements FilterService, OnDestroy {
 
     if (hasSearchQuery || this.hasSubmittedQuery()) {
       this.viewMode.set(ViewMode.SearchResults);
-      this.selectedYear.set(null);
+      this.setSelectedYear(null);
     } else {
       if (model === 'periodical') {
         this.viewMode.set(ViewMode.Timeline);
-        this.selectedYear.set(null);
+        this.setSelectedYear(null);
       } else if (model === 'periodicalvolume') {
-        this.selectedYear.set(dateStr);
+        this.setSelectedYear(dateStr);
         this.viewMode.set(ViewMode.Calendar);
       }
     }
@@ -623,14 +628,22 @@ export class PeriodicalService implements FilterService, OnDestroy {
   }
 
   private navigateToRelativeYear(offset: number): void {
-    if (!this.selectedYear() || this.availableYears.length === 0) return;
+    if (!this.selectedYear() || this.availableYears.length === 0) {
+      console.log('Early return: no selected year or no available years');
+      return;
+    }
+
     const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
     const target = this.availableYears[currentIndex + offset];
-    if (target) this.selectYear(target.year);
+    if (target) {
+      this.selectYear(target.year);
+    } else {
+      console.log('No target found for offset:', offset);
+    }
   }
 
   selectYear(year: string): void {
-    this.selectedYear.set(year);
+    this.setSelectedYear(year);
     const pid = this.availableYears.find(y => y.year === year)?.pid;
     if (pid) {
       this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);

@@ -8,7 +8,7 @@
     <div class="results-content" *ngIf="periodical.viewMode() as mode">
 
         <!-- Action Toolbar -->
-        <app-action-toolbar>
+        <app-action-toolbar [hasCenterContent]="true">
 
           <div left class="max-width-100">
             <app-toolbar-header
@@ -17,12 +17,17 @@
             </app-toolbar-header>
           </div>
 
-          <div center *ngIf="periodical.selectedYear() as year">
-            <app-date-navigator
-              [value]="year"
-              (goToPrevious)="periodical.goToPreviousYear()"
-              (goToNext)="periodical.goToNextYear()">
-            </app-date-navigator>
+          <div center>
+            <div *ngIf="periodical.selectedYear() as year; else noYear">
+              <app-date-navigator
+                [value]="year"
+                (goToPrevious)="periodical.goToPreviousYear()"
+                (goToNext)="periodical.goToNextYear()">
+              </app-date-navigator>
+            </div>
+            <ng-template #noYear>
+              <span>No selected year ({{ periodical.selectedYear() }})</span>
+            </ng-template>
           </div>
 
           <div right>
