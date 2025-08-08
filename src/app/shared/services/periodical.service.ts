@@ -310,19 +310,72 @@ export class PeriodicalService implements FilterService {
       }
     }
 
-    // Add date range query
+    // Add date range query using separate date components
     if (dateFrom || dateTo) {
       let dateRangeQuery = '';
 
       if (dateFrom && dateTo) {
-        // Both dates provided
-        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO ${dateTo}T23:59:59Z])`;
+        // Both dates provided - parse dates to get components
+        const fromDate = new Date(dateFrom);
+        const toDate = new Date(dateTo);
+        
+        const fromDay = fromDate.getDate();
+        const fromMonth = fromDate.getMonth() + 1; // getMonth() returns 0-11
+        const fromYear = fromDate.getFullYear();
+        
+        const toDay = toDate.getDate();
+        const toMonth = toDate.getMonth() + 1;
+        const toYear = toDate.getFullYear();
+        
+        // Build comprehensive date range query
+        if (fromYear === toYear && fromMonth === toMonth) {
+          // Same year and month - simple day range
+          dateRangeQuery = `(date_range_start.year:${fromYear} AND date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO ${toDay}])`;
+        } else if (fromYear === toYear) {
+          // Same year, different months
+          const parts = [];
+          if (fromMonth === toMonth) {
+            parts.push(`(date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO ${toDay}])`);
+          } else {
+            // First month (from day to end of month)
+            parts.push(`(date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31])`);
+            // Middle months (if any)
+            if (toMonth - fromMonth > 1) {
+              parts.push(`(date_range_start.month:[${fromMonth + 1} TO ${toMonth - 1}])`);
+            }
+            // Last month (from start of month to day)
+            parts.push(`(date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}])`);
+          }
+          dateRangeQuery = `(date_range_start.year:${fromYear} AND (${parts.join(' OR ')}))`;
+        } else {
+          // Different years
+          const parts = [];
+          // First year (from month/day to end of year)
+          parts.push(`(date_range_start.year:${fromYear} AND ((date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31]) OR date_range_start.month:[${fromMonth + 1} TO 12]))`);
+          // Middle years (if any)
+          if (toYear - fromYear > 1) {
+            parts.push(`(date_range_start.year:[${fromYear + 1} TO ${toYear - 1}])`);
+          }
+          // Last year (from start of year to month/day)
+          parts.push(`(date_range_start.year:${toYear} AND ((date_range_start.month:[1 TO ${toMonth - 1}]) OR (date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}])))`);
+          dateRangeQuery = `(${parts.join(' OR ')})`;
+        }
       } else if (dateFrom) {
         // Only from date provided
-        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO *])`;
+        const fromDate = new Date(dateFrom);
+        const fromDay = fromDate.getDate();
+        const fromMonth = fromDate.getMonth() + 1;
+        const fromYear = fromDate.getFullYear();
+        
+        dateRangeQuery = `((date_range_start.year:${fromYear} AND ((date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31]) OR date_range_start.month:[${fromMonth + 1} TO 12])) OR date_range_start.year:[${fromYear + 1} TO *])`;
       } else if (dateTo) {
         // Only to date provided
-        dateRangeQuery = `(date.min:[* TO ${dateTo}T23:59:59Z])`;
+        const toDate = new Date(dateTo);
+        const toDay = toDate.getDate();
+        const toMonth = toDate.getMonth() + 1;
+        const toYear = toDate.getFullYear();
+        
+        dateRangeQuery = `((date_range_start.year:[* TO ${toYear - 1}]) OR (date_range_start.year:${toYear} AND ((date_range_start.month:[1 TO ${toMonth - 1}]) OR (date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}]))))`;
       }
 
       if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {

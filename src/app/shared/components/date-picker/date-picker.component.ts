@@ -24,7 +24,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   openedMore: boolean = false;
 
-  minDate: Date = new Date(1900, 0, 1);
+  minDate: Date = new Date(1400, 0, 1);
   maxDate: Date = new Date(2100, 11, 31);
 
   fromDate = signal<Date | undefined>(undefined);
@@ -52,13 +52,13 @@ export class DatePickerComponent implements OnInit, OnChanges {
     } else {
       this.fromDate.set(undefined);
     }
-    
+
     if (this.initialDateTo) {
       this.toDate.set(this.initialDateTo);
     } else {
       this.toDate.set(undefined);
     }
-    
+
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
 
