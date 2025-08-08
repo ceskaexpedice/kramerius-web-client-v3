@@ -10,6 +10,12 @@
   gap: 10px;
   align-items: center;
   margin-top: var(--spacing-x3);
+  width: 100%;
+
+  app-input-date {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .offset-buttons {
