@@ -23,6 +23,8 @@ import {DetailLayoutComponent} from "../../shared/components/detail-layout/detai
 import {TranslatePipe} from '@ngx-translate/core';
 import {musicDetailReducer} from '../music/state/music-detail.reducer';
 import {routerReducer} from '@ngrx/router-store';
+import {PeriodicalDetailEffects} from '../periodical/state/periodical-detail/periodical-detail.effects';
+import {periodicalDetailReducer} from '../periodical/state/periodical-detail/periodical-detail.reducer';
 
 const routes: Routes = [
   {
@@ -39,7 +41,8 @@ const routes: Routes = [
     StoreModule.forFeature('document-detail', documentDetailReducer),
     StoreModule.forFeature('music', musicDetailReducer),
     StoreModule.forFeature('router', routerReducer),
-    EffectsModule.forFeature([DocumentDetailEffects]),
+    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
+    EffectsModule.forFeature([DocumentDetailEffects, PeriodicalDetailEffects]),
     NgIf,
     AsyncPipe,
     JsonPipe,

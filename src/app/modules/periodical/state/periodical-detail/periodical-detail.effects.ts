@@ -64,7 +64,14 @@ export class PeriodicalDetailEffects {
       ),
       switchMap(([{ data }, params, facetOperators]) => {
 
-        const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params;
+        const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params || {
+          filters: [],
+          advancedQuery: '',
+          page: 1,
+          pageCount: 10000,
+          sortBy: 'date.min',
+          sortDirection: 'asc'
+        };
 
         if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
           return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));

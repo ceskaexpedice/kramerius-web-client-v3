@@ -4,14 +4,14 @@ import {selectRouterQueryParams} from '../../../../shared/state/router/router.se
 import {SolrOperators} from '../../../../core/solr/solr-helpers';
 
 export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical');
-export const selectPeriodicalDocument = createSelector(selectPeriodicalState, state => state.document);
-export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state.children || []);
-export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state.years);
-export const selectAvailableYears = createSelector(selectPeriodicalState, state => state.availableYears);
+export const selectPeriodicalDocument = createSelector(selectPeriodicalState, state => state?.document);
+export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state?.children || []);
+export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state?.years);
+export const selectAvailableYears = createSelector(selectPeriodicalState, state => state?.availableYears);
 export const selectPeriodicalLoading = createSelector(selectPeriodicalState, state => state?.loading);
-export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state.error);
-export const selectPeriodicalMetadata = createSelector(selectPeriodicalState, state => state.metadata);
-export const selectPeriodicalSearchParams = createSelector(selectPeriodicalState, state => state.searchParams);
+export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state?.error);
+export const selectPeriodicalMetadata = createSelector(selectPeriodicalState, state => state?.metadata);
+export const selectPeriodicalSearchParams = createSelector(selectPeriodicalState, state => state?.searchParams);
 
 export const selectPeriodicalFacetOperators = createSelector(
   selectRouterQueryParams,
