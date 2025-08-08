@@ -1,7 +1,7 @@
-import {effect, Injectable, signal, computed} from '@angular/core';
+import {effect, Injectable, OnDestroy, signal, computed} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {combineLatest, filter, map, Observable, of} from 'rxjs';
+import {combineLatest, filter, map, Observable, of, Subject, takeUntil} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
@@ -24,9 +24,10 @@ import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
 @Injectable({
   providedIn: 'root',
 })
-export class SearchService implements FilterService {
+export class SearchService implements FilterService, OnDestroy {
   private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
   private initialized = false;
+  private destroy$ = new Subject<void>();
 
   private _pageReset = signal(false);
   private _searchTerm = signal('');
@@ -244,7 +245,9 @@ export class SearchService implements FilterService {
 
     this.customSearchService.initializeFromRoute();
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
       if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
 
@@ -542,6 +545,11 @@ export class SearchService implements FilterService {
     const operator = this.queryParamsService.getOperatorForFacet(route.snapshot.queryParams, facetKey);
 
     this.queryParamsService.updateFilters(route, facetKey, [value], operator);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

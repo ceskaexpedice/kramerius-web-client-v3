@@ -1,7 +1,7 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Injectable, OnDestroy, signal} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {combineLatest, filter, map, Observable, of, take} from 'rxjs';
+import {combineLatest, filter, map, Observable, of, Subject, take, takeUntil} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
@@ -36,7 +36,7 @@ import {AdvancedSearchService} from './advanced-search.service';
 import {SearchService} from './search.service';
 
 @Injectable()
-export class PeriodicalService implements FilterService {
+export class PeriodicalService implements FilterService, OnDestroy {
   uuid: string | null = null;
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
 
@@ -59,6 +59,7 @@ export class PeriodicalService implements FilterService {
   private _searchTerm = signal('');
 
   private initialized = false;
+  private destroy$ = new Subject<void>();
 
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
 
@@ -162,6 +163,7 @@ export class PeriodicalService implements FilterService {
     if (this.availableYears$) {
       this.availableYears$.pipe(
         filter(Boolean),
+        takeUntil(this.destroy$),
         map(data => {
           this.availableYears = data;
           this.generateYearsFromAvailable();
@@ -193,7 +195,8 @@ export class PeriodicalService implements FilterService {
     };
 
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
     ).subscribe(() => {
       const rawUrl = this.router.url;
       const currentRoute = rawUrl.split('?')[0];
@@ -207,7 +210,10 @@ export class PeriodicalService implements FilterService {
       }
     });
 
-    this.document$.pipe(filter(Boolean)).subscribe(doc => {
+    this.document$.pipe(
+      filter(Boolean),
+      takeUntil(this.destroy$)
+    ).subscribe(doc => {
       console.log('document loaded:', doc);
       // Only handle document if we're not in search results mode to prevent conflicts
       const queryParams = this.route.snapshot.queryParams;
@@ -318,15 +324,15 @@ export class PeriodicalService implements FilterService {
         // Both dates provided - parse dates to get components
         const fromDate = new Date(dateFrom);
         const toDate = new Date(dateTo);
-        
+
         const fromDay = fromDate.getDate();
         const fromMonth = fromDate.getMonth() + 1; // getMonth() returns 0-11
         const fromYear = fromDate.getFullYear();
-        
+
         const toDay = toDate.getDate();
         const toMonth = toDate.getMonth() + 1;
         const toYear = toDate.getFullYear();
-        
+
         // Build comprehensive date range query
         if (fromYear === toYear && fromMonth === toMonth) {
           // Same year and month - simple day range
@@ -366,7 +372,7 @@ export class PeriodicalService implements FilterService {
         const fromDay = fromDate.getDate();
         const fromMonth = fromDate.getMonth() + 1;
         const fromYear = fromDate.getFullYear();
-        
+
         dateRangeQuery = `((date_range_start.year:${fromYear} AND ((date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31]) OR date_range_start.month:[${fromMonth + 1} TO 12])) OR date_range_start.year:[${fromYear + 1} TO *])`;
       } else if (dateTo) {
         // Only to date provided
@@ -374,7 +380,7 @@ export class PeriodicalService implements FilterService {
         const toDay = toDate.getDate();
         const toMonth = toDate.getMonth() + 1;
         const toYear = toDate.getFullYear();
-        
+
         dateRangeQuery = `((date_range_start.year:[* TO ${toYear - 1}]) OR (date_range_start.year:${toYear} AND ((date_range_start.month:[1 TO ${toMonth - 1}]) OR (date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}]))))`;
       }
 
@@ -676,6 +682,11 @@ export class PeriodicalService implements FilterService {
 
   private loadViewModeFromLocalStorage(): CalendarGridControl {
     return this.localStorage.get<CalendarGridControl>(this.PERIODICAL_VIEW_LOCAL_STORAGE_KEY) ?? 'calendar';
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public goToNextPeriodicalYear() {

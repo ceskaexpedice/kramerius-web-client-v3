@@ -104,7 +104,7 @@ export class PeriodicalDetailEffects {
 
 
         if (data.model === DocumentTypeEnum.periodicalvolume) {
-          return this.solr.getPeriodicalItemsWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
+          return this.solr.getPeriodicalItemsWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
             withLatestFrom(this.store.select(selectAvailableYears)),
             switchMap(([{ children, facets, facetsWithoutLicenses }, previousAvailableYears]) => {
               children.map(i => {
