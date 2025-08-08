@@ -2,9 +2,20 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
 }
 
 h2 {
   margin: 0;
   color: var(--color-text-base);
+
+  &.clickable {
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+  }
 }

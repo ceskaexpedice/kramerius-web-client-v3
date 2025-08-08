@@ -279,4 +279,8 @@ export class DetailViewService {
       }
     });
   }
+
+  navigateToDate(pid: string) {
+    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+  }
 }

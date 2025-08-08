@@ -25,6 +25,8 @@ import {musicDetailReducer} from '../music/state/music-detail.reducer';
 import {routerReducer} from '@ngrx/router-store';
 import {PeriodicalDetailEffects} from '../periodical/state/periodical-detail/periodical-detail.effects';
 import {periodicalDetailReducer} from '../periodical/state/periodical-detail/periodical-detail.reducer';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 const routes: Routes = [
   {
@@ -43,6 +45,8 @@ const routes: Routes = [
     StoreModule.forFeature('router', routerReducer),
     StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
     EffectsModule.forFeature([DocumentDetailEffects, PeriodicalDetailEffects]),
+    MatDatepickerModule,
+    MatNativeDateModule,
     NgIf,
     AsyncPipe,
     JsonPipe,

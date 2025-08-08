@@ -4,11 +4,22 @@
     <i class="icon-arrow-left-1"></i>
   </button>
 
-  <h2>{{ value }}</h2>
+  <h2 
+    [class.clickable]="enableCalendarPopup"
+    (click)="toggleCalendar()">
+    {{ value }}
+  </h2>
 
   <button (click)="next()">
     <i class="icon-arrow-right-1"></i>
   </button>
 
+  <app-calendar-popup
+    *ngIf="showCalendarPopup()"
+    [year]="getYearFromValue()"
+    [periodicalChildren]="periodicalChildren"
+    (dateSelected)="onCalendarDateSelected($event)"
+    (closePopup)="closeCalendar()">
+  </app-calendar-popup>
 
 </div>

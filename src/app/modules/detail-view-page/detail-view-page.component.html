@@ -73,8 +73,11 @@
     <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
       <app-date-navigator
         [value]="document.dateStr || ''"
+        [enableCalendarPopup]="true"
+        [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
         (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
         (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+        (dateSelected)="detailViewService.navigateToDate($event)"
       >
       </app-date-navigator>
     </ng-container>
