@@ -47,14 +47,6 @@
           </app-toolbar-header>
         </div>
 
-        <div center>
-          <app-date-navigator
-            [value]="document.dateStr || ''"
-            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
-          </app-date-navigator>
-        </div>
-
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls

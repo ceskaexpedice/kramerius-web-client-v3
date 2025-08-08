@@ -70,11 +70,14 @@
           </app-toolbar-header>
         </div>
         <div center>
-          <app-date-navigator
-            [value]="document.dateStr || ''"
-            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
-          </app-date-navigator>
+    <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
+<!--      <app-date-navigator-->
+<!--        [value]="document.dateStr || ''"-->
+<!--        (goToPrevious)="detailViewService.goToPreviousPeriodicalItem()"-->
+<!--        (goToNext)="detailViewService.goToNextPeriodicalItem()"-->
+<!--      >-->
+<!--      </app-date-navigator>-->
+    </ng-container>
         </div>
         <div right>
           <div class="flex flex--align-center">
