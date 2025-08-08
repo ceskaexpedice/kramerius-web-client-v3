@@ -67,17 +67,17 @@ export class SearchService implements FilterService {
     ]).pipe(
       map(([filters, term, params]) => {
         let allFilters = [...filters];
-        
+
         // Add search term if present
         if (term && term.trim().length > 0) {
           allFilters.push(`search:${term}`);
         }
-        
+
         // Add custom search filters (including date/year range filters)
         // Re-initialize custom filters from current route params to ensure reactivity
         const customFilters = this.getCustomFiltersFromParams(params);
         allFilters.push(...customFilters);
-        
+
         return allFilters;
       })
     );
@@ -85,12 +85,12 @@ export class SearchService implements FilterService {
 
   private getCustomFiltersFromParams(params: any): string[] {
     const filters: string[] = [];
-    
+
     // Get custom search filters
     const customRaw = params['customSearch'];
     const customFilters = customRaw ? customRaw.split(',') : [];
     filters.push(...customFilters);
-    
+
     // Add year range as single combined filter
     const yearFrom = params['yearFrom'];
     const yearTo = params['yearTo'];
@@ -99,7 +99,7 @@ export class SearchService implements FilterService {
       const toYear = yearTo || new Date().getFullYear().toString();
       filters.push(`yearRange:${fromYear} - ${toYear}`);
     }
-    
+
     // Add date range as single combined filter
     const dateFrom = params['dateFrom'];
     const dateTo = params['dateTo'];
@@ -112,9 +112,9 @@ export class SearchService implements FilterService {
         filters.push(`dateRange:* - ${dateTo}`);
       }
     }
-    
+
     // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
-    
+
     return filters;
   }
 
@@ -413,7 +413,7 @@ export class SearchService implements FilterService {
     } else if (this.isCustomFilter(filter)) {
       // Handle custom filters including combined date/year ranges
       const [facetKey] = filter.split(':');
-      
+
       if (facetKey === 'yearRange') {
         // Remove year range parameters
         this.customSearchService.removeYearRange();
@@ -449,7 +449,9 @@ export class SearchService implements FilterService {
     this._searchTerm.set('');
     this.queryParamsService.clearAllFilters(this.route);
     // Also clear custom search filters including date/year ranges
-    this.customSearchService.clear();
+    setTimeout(() => {
+      this.customSearchService.clear();
+    }, 0);
   }
 
   getFiltersByFacet(facet: string): Observable<string[]> {
