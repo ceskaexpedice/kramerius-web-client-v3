@@ -36,10 +36,11 @@ export class PeriodicalDetailEffects {
   triggerDocumentLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadPeriodical),
-      mergeMap(({ uuid, filters, page, pageCount, sortBy, sortDirection }) => {
+      mergeMap(({ uuid, filters, advancedQuery, page, pageCount, sortBy, sortDirection }) => {
         console.log('triggerDocumentLoad$ - filters:', {
           uuid,
           filters,
+          advancedQuery,
           page,
           pageCount,
           sortBy,
@@ -48,7 +49,7 @@ export class PeriodicalDetailEffects {
 
         return [
           DocumentDetailActions.loadDocumentDetail({ uuid }),
-          PeriodicalDetailActions.setPeriodicalSearchParams({ filters, page, pageCount, sortBy, sortDirection })
+          PeriodicalDetailActions.setPeriodicalSearchParams({ filters, advancedQuery, page, pageCount, sortBy, sortDirection })
         ];
       })
     )
@@ -63,7 +64,7 @@ export class PeriodicalDetailEffects {
       ),
       switchMap(([{ data }, params, facetOperators]) => {
 
-        const { filters, page, pageCount, sortBy, sortDirection } = params;
+        const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params;
 
         if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
           return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
@@ -72,7 +73,7 @@ export class PeriodicalDetailEffects {
         const periodical = parsePeriodicalItemFromMetadata(data);
 
         if (data.model === DocumentTypeEnum.periodical) {
-          return this.solr.getPeriodicalVolumesWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection).pipe(
+          return this.solr.getPeriodicalVolumesWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
             mergeMap(({ volumes, facets, facetsWithoutLicenses }) => {
               const availableYears = this.mapAvailableYears(volumes);
               const years = this.buildYearList(data, availableYears);

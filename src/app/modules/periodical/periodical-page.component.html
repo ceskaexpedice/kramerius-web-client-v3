@@ -30,7 +30,7 @@
             <div class="flex flex--align-center">
 
               <app-toolbar-controls
-                [showViewToggle]="true"
+                [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
                 [showFavorites]="true"
                 [showShare]="true"
                 [showQuote]="true"

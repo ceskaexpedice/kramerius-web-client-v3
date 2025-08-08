@@ -17,6 +17,7 @@ export interface PeriodicalDetailState {
   error: any;
   searchParams: {
     filters: string[];
+    advancedQuery?: string;
     page: number;
     pageCount: number;
     sortBy: any;
@@ -34,6 +35,7 @@ export const initialState: PeriodicalDetailState = {
   error: null,
   searchParams: {
     filters: [],
+    advancedQuery: '',
     page: 1,
     pageCount: 10000,
     sortBy: SolrSortFields.dateMin,
@@ -60,9 +62,10 @@ export const initialState: PeriodicalDetailState = {
 export const periodicalDetailReducer = createReducer(
   initialState,
   on(loadPeriodical, state => ({ ...state, loading: true })),
-  on(setPeriodicalSearchParams, (state, { filters, page, pageCount, sortBy, sortDirection }) => {
+  on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection }) => {
     console.log('setPeriodicalSearchParams reducer - filters:', {
       filters,
+      advancedQuery,
       page,
       pageCount,
       sortBy,
@@ -72,6 +75,7 @@ export const periodicalDetailReducer = createReducer(
       ...state,
       searchParams: {
         filters,
+        advancedQuery,
         page,
         pageCount,
         sortBy,

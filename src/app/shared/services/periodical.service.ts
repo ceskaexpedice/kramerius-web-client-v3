@@ -87,16 +87,16 @@ export class PeriodicalService implements FilterService {
     ]).pipe(
       map(([filters, term, params]) => {
         let allFilters: string[] = [...filters];
-        
+
         // Add search term if present
         if (term && term.trim().length > 0) {
           allFilters.push(`search:${term}`);
         }
-        
+
         // Add custom search filters (including date/year range filters)
         const customFilters = this.getCustomFiltersFromParams(params);
         allFilters.push(...customFilters);
-        
+
         return allFilters;
       })
     );
@@ -104,12 +104,12 @@ export class PeriodicalService implements FilterService {
 
   private getCustomFiltersFromParams(params: any): string[] {
     const filters: string[] = [];
-    
+
     // Get custom search filters
     const customRaw = params['customSearch'];
     const customFilters = customRaw ? customRaw.split(',') : [];
     filters.push(...customFilters);
-    
+
     // Add year range as single combined filter
     const yearFrom = params['yearFrom'];
     const yearTo = params['yearTo'];
@@ -118,7 +118,7 @@ export class PeriodicalService implements FilterService {
       const toYear = yearTo || new Date().getFullYear().toString();
       filters.push(`yearRange:${fromYear} - ${toYear}`);
     }
-    
+
     // Add date range as single combined filter
     const dateFrom = params['dateFrom'];
     const dateTo = params['dateTo'];
@@ -131,9 +131,9 @@ export class PeriodicalService implements FilterService {
         filters.push(`dateRange:* - ${dateTo}`);
       }
     }
-    
+
     // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
-    
+
     return filters;
   }
 
@@ -288,7 +288,7 @@ export class PeriodicalService implements FilterService {
     // Handle year range filter as a separate advanced query
     const yearFrom = params && params['yearFrom'];
     const yearTo = params && params['yearTo'];
-    
+
     // Handle date range filter as a separate advanced query
     const dateFrom = params && params['dateFrom'];
     const dateTo = params && params['dateTo'];
@@ -313,7 +313,7 @@ export class PeriodicalService implements FilterService {
     // Add date range query
     if (dateFrom || dateTo) {
       let dateRangeQuery = '';
-      
+
       if (dateFrom && dateTo) {
         // Both dates provided
         dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO ${dateTo}T23:59:59Z])`;
@@ -334,9 +334,8 @@ export class PeriodicalService implements FilterService {
       }
     }
 
-    if (!query && !finalAdvancedQuery) {
-      // No search term and no filters, use loadPeriodical
-      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+    if (!query) {
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
       return;
     }
 
@@ -454,7 +453,7 @@ export class PeriodicalService implements FilterService {
     } else if (this.isCustomFilter(filter)) {
       // Handle custom filters including combined date/year ranges
       const [facetKey] = filter.split(':');
-      
+
       if (facetKey === 'yearRange') {
         // Remove year range parameters
         this.customSearchService.removeYearRange();

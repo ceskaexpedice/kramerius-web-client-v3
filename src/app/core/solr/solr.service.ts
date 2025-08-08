@@ -125,12 +125,25 @@ export class SolrService {
   /**
    * Builds a specific query for periodical children (volumes/items)
    */
-  private buildPeriodicalChildrenQuery(parentPid: string, model: string): string {
-    return SolrQueryBuilder.buildBooleanQuery([
+  private buildPeriodicalChildrenQuery(parentPid: string, model: string, advancedQuery?: string): string {
+    const baseParts = [
       `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
       `(model:${model})`
-    ]);
+    ];
+
+    // Handle advanced query like in buildQParam
+    if (advancedQuery?.trim()) {
+      let finalAdvancedQuery = '';
+      if (advancedQuery.includes(SolrOperators.or)) {
+        finalAdvancedQuery = advancedQuery;
+      } else {
+        finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
+      }
+      baseParts.push(`(${finalAdvancedQuery})`);
+    }
+
+    return SolrQueryBuilder.buildBooleanQuery(baseParts);
   }
 
   private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
@@ -255,12 +268,13 @@ export class SolrService {
     model: string,
     filters: string[],
     facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
-    facetOperators: { [field: string]: SolrOperators } = {}
+    facetOperators: { [field: string]: SolrOperators } = {},
+    advancedQuery?: string
   ): Observable<SearchResultResponse> {
 
     console.log('getPeriodicalChildrenFacets', parentPid, model);
 
-    const query = this.buildPeriodicalChildrenQuery(parentPid, model);
+    const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery);
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({});
 
@@ -396,13 +410,14 @@ export class SolrService {
     page: number,
     pageCount: number,
     sortBy: any,
-    sortDirection: any
+    sortDirection: any,
+    advancedQuery?: string
   ) {
     console.log('filters:', filters)
     return forkJoin({
-      volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection),
-      facets: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
-      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+      volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
+      facets: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
     });
   }
 
@@ -416,20 +431,22 @@ export class SolrService {
     page: number,
     pageCount: number,
     sortBy: any,
-    sortDirection: any
+    sortDirection: any,
+    advancedQuery?: string
   ) {
     console.log('filters:', filters)
     return forkJoin({
-      children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection),
-      facets: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
-      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators)
+      children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery),
+      facets: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
     });
   }
 
   getPeriodicalVolumes(pid: string,
-                       filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc
+                       filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
+                        advancedQuery?: string
   ): Observable<any[]> {
-    const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume);
+    const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
 
     let params = this.createHttpParams({
       q: query,
@@ -447,12 +464,8 @@ export class SolrService {
   }
 
   getPeriodicalItems(pid: string,
-                     filters: string[] = [], page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections): Observable<any[]> {
-    const query = SolrQueryBuilder.buildBooleanQuery([
-      `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `(model:${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page})`
-    ]);
+                     filters: string[] = [], page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string): Observable<any[]> {
+    const query = this.buildPeriodicalChildrenQuery(pid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, advancedQuery);
 
     const params = {
       q: query,
