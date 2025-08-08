@@ -162,8 +162,6 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
         </button>
       </app-filter-category>
 
-      <hr>
-
     </div>
   `
 })
