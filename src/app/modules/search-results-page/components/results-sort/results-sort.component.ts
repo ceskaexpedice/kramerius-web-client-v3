@@ -28,8 +28,8 @@ export class ResultsSortComponent {
 
 // Computed signal for the selected option
   selectedSortOption = computed(() => {
-    const sortBy = this.searchService.sortBy();
-    const sortDirection = this.searchService.sortDirection();
+    const sortBy = this.searchService.sortBy;
+    const sortDirection = this.searchService.sortDirection;
 
     return this.sortOptions.find(option =>
       option.value === sortBy && option.direction === sortDirection
