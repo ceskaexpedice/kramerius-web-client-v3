@@ -10,22 +10,22 @@
   padding: var(--base-padding);
   gap: var(--base-gap);
   
-  /* FORCE absolutely identical dimensions - no exceptions */
-  width: 170px;
-  height: 290px;
+  /* Consistent width and height - identical cards in each row */
+  width: 100%;
+  max-width: 100%; /* Prevent overflow */
   min-width: 170px;
-  max-width: 170px;
-  min-height: 290px;
-  max-height: 290px;
   box-sizing: border-box;
+  
+  /* Consistent height for all cards */
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden; /* Prevent any content overflow */
 
   &.card--fluid {
-    width: 170px;
-    height: 290px;
+    width: 100%;
+    max-width: 100%;
     min-width: 170px;
-    max-width: 170px;
-    min-height: 290px;
-    max-height: 290px;
+    height: clamp(280px, 16vw, 320px);
+    overflow: hidden;
   }
 
   &:hover {
@@ -87,13 +87,12 @@
 }
 
 .item-card.periodicalvolume, .item-card.periodicalitem {
-  /* FORCE same fixed dimensions as all other cards */
-  width: 170px;
-  height: 290px;
+  /* Same consistent dimensions as all other cards */
+  width: 100%;
+  max-width: 100%;
   min-width: 170px;
-  max-width: 170px;
-  min-height: 290px;
-  max-height: 290px;
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden;
   padding: 8px 16px 16px 16px;
   gap: var(--spacing-x2);
 

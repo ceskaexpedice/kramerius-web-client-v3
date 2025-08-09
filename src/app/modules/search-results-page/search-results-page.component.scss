@@ -9,17 +9,12 @@
     overflow: hidden;
     padding-top: var(--small-gap);
     gap: var(--small-gap);
-    
+
     /* Responsive layout adjustments */
     @media (max-width: 853px) {
       /* Mobile/small tablet - no sidebar gap */
       gap: 0;
       padding-top: 0;
-    }
-    
-    @media (min-width: 854px) and (max-width: 1051px) {
-      /* Medium tablet - smaller gap */
-      gap: var(--spacing-x2);
     }
   }
 
@@ -29,7 +24,7 @@
     flex-direction: column;
     overflow-y: auto;
     min-width: 0; /* Prevent flex child from overflowing */
-    
+
     /* Mobile/tablet adjustments */
     @media (max-width: 853px) {
       width: 100%;
@@ -41,7 +36,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-x4);
-    
+
     /* Mobile adjustments */
     @media (max-width: 603px) {
       padding: var(--spacing-x2);

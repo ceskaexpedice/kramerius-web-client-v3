@@ -8,14 +8,15 @@
   transition: all 0.3s;
   cursor: pointer;
   
-  /* FORCE absolutely identical dimensions - no exceptions */
-  width: 170px;
-  height: 290px;
+  /* Consistent width and height - identical cards in each row */
+  width: 100%;
+  max-width: 100%; /* Prevent overflow */
   min-width: 170px;
-  max-width: 170px;
-  min-height: 290px;
-  max-height: 290px;
   box-sizing: border-box;
+  
+  /* Consistent height for all cards */
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden; /* Prevent any content overflow */
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
@@ -92,6 +93,8 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-height: 60px; /* 3 lines * 20px line-height */
+      height: 60px; /* Force consistent height */
     }
 
     .subtitle {
@@ -120,13 +123,12 @@
 
 
 .record-item-card.page {
-  /* FORCE same fixed dimensions as all other cards */
-  width: 170px;
-  height: 290px;
+  /* Same consistent dimensions as all other cards */
+  width: 100%;
+  max-width: 100%;
   min-width: 170px;
-  max-width: 170px;
-  min-height: 290px;
-  max-height: 290px;
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden;
   
   .record-item-card__image {
     flex: 0 0 auto;
@@ -145,24 +147,25 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--color-text-base);
-    // max 4 lines
+    /* Strictly limit to 3 lines to prevent size variations */
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+    max-height: 60px; /* 3 lines * 20px line-height */
+    height: 60px; /* Force consistent height */
   }
 }
 
 .record-item-card.periodical {
-  /* FORCE same fixed dimensions as all other cards */
-  width: 170px;
-  height: 290px;
+  /* Same consistent dimensions as all other cards */
+  width: 100%;
+  max-width: 100%;
   min-width: 170px;
-  max-width: 170px;
-  min-height: 290px;
-  max-height: 290px;
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden;
   
   .record-item-card__image {
     flex: 1;
@@ -173,6 +176,8 @@
 
     .title {
       -webkit-line-clamp: 2;
+      max-height: 40px; /* 2 lines * 20px line-height */
+      height: 40px; /* Force consistent height */
     }
   }
 }
