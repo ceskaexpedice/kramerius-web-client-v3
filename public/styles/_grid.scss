@@ -8,10 +8,73 @@
 //  max-height: fit-content;
 //}
 
+/* Base grid container */
 .grid--container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
   gap: 16px;
+  width: 100%;
+  justify-content: center; /* Center the grid when it doesn't fill width */
+}
+
+/* Mobile First - Default: 1 column for very small screens */
+.grid--container {
+  grid-template-columns: repeat(1, 170px);
+}
+
+/* Mobile: 408-603px = 2 columns */
+@media (min-width: 408px) and (max-width: 603px) {
+  .grid--container {
+    grid-template-columns: repeat(2, 170px);
+  }
+}
+
+/* Tablet Small: 604-853px = 3 columns, no sidebar */
+@media (min-width: 604px) and (max-width: 853px) {
+  .grid--container {
+    grid-template-columns: repeat(3, 170px);
+  }
+}
+
+/* Tablet Medium: 854-1051px = 3 columns, 250px sidebar */
+@media (min-width: 854px) and (max-width: 1051px) {
+  .grid--container {
+    grid-template-columns: repeat(3, 170px);
+  }
+}
+
+/* Tablet Large: 1052-1279px = 4 columns, 250px sidebar */
+@media (min-width: 1052px) and (max-width: 1279px) {
+  .grid--container {
+    grid-template-columns: repeat(4, 170px);
+  }
+}
+
+/* Desktop Small: 1280-1439px = 5 columns, 300px sidebar */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .grid--container {
+    grid-template-columns: repeat(5, 170px);
+  }
+}
+
+/* Desktop Medium: 1440-1611px = 6 columns, 300px sidebar */
+@media (min-width: 1440px) and (max-width: 1611px) {
+  .grid--container {
+    grid-template-columns: repeat(6, 170px);
+  }
+}
+
+/* Desktop Large: 1612-2211px = 7 columns, 300px sidebar */
+@media (min-width: 1612px) and (max-width: 2211px) {
+  .grid--container {
+    grid-template-columns: repeat(7, 170px);
+  }
+}
+
+/* Desktop XL: >2212px = 8 columns, 300px sidebar */
+@media (min-width: 2212px) {
+  .grid--container {
+    grid-template-columns: repeat(8, 170px);
+  }
 }
 
 //.list--container {

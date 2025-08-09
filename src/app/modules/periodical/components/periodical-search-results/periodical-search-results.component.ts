@@ -14,7 +14,6 @@ import {SelectedTagsComponent} from '../../../../shared/components/selected-tags
   imports: [
     NgIf,
     AsyncPipe,
-    TranslatePipe,
     RecordItemComponent,
     NgForOf,
     PaginatorComponent,

@@ -1,33 +1,44 @@
 .record-item-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: var(--color-bg-base);
   border: 1px solid transparent;
   border-radius: var(--base-border-radius);
   overflow: hidden;
   transition: all 0.3s;
   cursor: pointer;
+  
+  /* FORCE absolutely identical dimensions - no exceptions */
+  width: 170px;
+  height: 290px;
+  min-width: 170px;
+  max-width: 170px;
+  min-height: 290px;
+  max-height: 290px;
+  box-sizing: border-box;
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
   }
 
   .record-item-card__inner {
-    padding: var(--spacing-x4);
+    padding: var(--base-padding);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x4);
+    gap: var(--base-gap);
     height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .record-item-card__image {
-    height: 230px;
+    flex: 1;
     background-size: cover;
     background-position: center;
     position: relative;
     border: 1px solid var(--color-border-contrast);
     border-radius: var(--base-border-radius);
+    min-height: 0;
 
     .badge.model {
       position: absolute;
@@ -68,7 +79,8 @@
     flex-direction: column;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
-    flex: 1;
+    flex: 0 1 auto;
+    min-height: 0;
 
     .title {
       font-size: 16px;
@@ -108,8 +120,18 @@
 
 
 .record-item-card.page {
+  /* FORCE same fixed dimensions as all other cards */
+  width: 170px;
+  height: 290px;
+  min-width: 170px;
+  max-width: 170px;
+  min-height: 290px;
+  max-height: 290px;
+  
   .record-item-card__image {
-    height: 50px;
+    flex: 0 0 auto;
+    min-height: 50px;
+    max-height: 80px;
   }
 
   .record-item-card__image-lock-overlay {
@@ -134,8 +156,17 @@
 }
 
 .record-item-card.periodical {
+  /* FORCE same fixed dimensions as all other cards */
+  width: 170px;
+  height: 290px;
+  min-width: 170px;
+  max-width: 170px;
+  min-height: 290px;
+  max-height: 290px;
+  
   .record-item-card__image {
-    height: 230px;
+    flex: 1;
+    min-height: 0;
   }
 
   .record-item-card__content {
