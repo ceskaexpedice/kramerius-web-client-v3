@@ -4,19 +4,16 @@
   background: var(--color-bg-base);
   border: 1px solid transparent;
   border-radius: var(--base-border-radius);
-  overflow: hidden;
   transition: all 0.3s;
   cursor: pointer;
-  
-  /* Consistent width and height - identical cards in each row */
+
   width: 100%;
-  max-width: 100%; /* Prevent overflow */
+  max-width: 100%;
   min-width: 170px;
   box-sizing: border-box;
-  
-  /* Consistent height for all cards */
+
   height: clamp(280px, 16vw, 320px);
-  overflow: hidden; /* Prevent any content overflow */
+  overflow: hidden;
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
@@ -93,8 +90,8 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-height: 60px; /* 3 lines * 20px line-height */
-      height: 60px; /* Force consistent height */
+      max-height: 60px;
+      height: 60px;
     }
 
     .subtitle {
@@ -123,13 +120,12 @@
 
 
 .record-item-card.page {
-  /* Same consistent dimensions as all other cards */
   width: 100%;
   max-width: 100%;
   min-width: 170px;
   height: clamp(280px, 16vw, 320px);
   overflow: hidden;
-  
+
   .record-item-card__image {
     flex: 0 0 auto;
     min-height: 50px;
@@ -147,26 +143,24 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--color-text-base);
-    /* Strictly limit to 3 lines to prevent size variations */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
-    max-height: 60px; /* 3 lines * 20px line-height */
-    height: 60px; /* Force consistent height */
+    max-height: 60px;
+    height: 60px;
   }
 }
 
 .record-item-card.periodical {
-  /* Same consistent dimensions as all other cards */
   width: 100%;
   max-width: 100%;
   min-width: 170px;
   height: clamp(280px, 16vw, 320px);
   overflow: hidden;
-  
+
   .record-item-card__image {
     flex: 1;
     min-height: 0;
@@ -176,8 +170,8 @@
 
     .title {
       -webkit-line-clamp: 2;
-      max-height: 40px; /* 2 lines * 20px line-height */
-      height: 40px; /* Force consistent height */
+      max-height: 40px;
+      height: 40px;
     }
   }
 }
