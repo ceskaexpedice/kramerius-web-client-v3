@@ -57,8 +57,8 @@ export class PeriodicalService implements FilterService, OnDestroy {
   private _page = signal(1);
   private _pageSize = signal(60);
   private _totalCount = signal(0);
-  private _sortBy = signal(SolrSortFields.relevance);
-  private _sortDirection = signal(SolrSortDirections.desc);
+  private _sortBy = signal(SolrSortFields.dateMin);
+  private _sortDirection = signal(SolrSortDirections.asc);
   private _pageReset = signal(false);
   private _submittedTerm = signal('');
   private _searchTerm = signal('');
@@ -686,7 +686,7 @@ export class PeriodicalService implements FilterService, OnDestroy {
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({...y, exists: true}))
-      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {

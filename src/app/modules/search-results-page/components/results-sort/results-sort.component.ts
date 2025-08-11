@@ -1,7 +1,17 @@
-import {Component, computed, EventEmitter, inject, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {SelectComponent} from '../../../../shared/components/select/select.component';
-import {SearchService} from '../../../../shared/services/search.service';
 import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+
+interface SortOption {
+  label: string;
+  value: SolrSortFields;
+  direction: SolrSortDirections;
+}
+
+interface SortChangeEvent {
+  value: SolrSortFields;
+  direction: SolrSortDirections;
+}
 
 @Component({
   selector: 'app-results-sort',
@@ -13,34 +23,28 @@ import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-hel
 })
 export class ResultsSortComponent {
 
-  currentSortBy = SolrSortFields.relevance;
+  @Input() selectedSort: SolrSortFields = SolrSortFields.relevance;
+  @Input() selectedDirection: SolrSortDirections = SolrSortDirections.desc;
+  @Output() sortChange: EventEmitter<SortChangeEvent> = new EventEmitter<SortChangeEvent>();
 
-  @Output() sortChanged: EventEmitter<SolrSortFields> = new EventEmitter<SolrSortFields>();
-
-  sortOptions = [
+  sortOptions: SortOption[] = [
     { label: 'sort-relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
     { label: 'sort-alphabetical', value: SolrSortFields.title, direction: SolrSortDirections.asc },
     { label: 'sort-date-newest', value: SolrSortFields.dateMax, direction: SolrSortDirections.desc },
     { label: 'sort-date-oldest', value: SolrSortFields.dateMin, direction: SolrSortDirections.asc },
   ]
 
-  public searchService = inject(SearchService);
-
-// Computed signal for the selected option
-  selectedSortOption = computed(() => {
-    const sortBy = this.searchService.sortBy();
-    const sortDirection = this.searchService.sortDirection();
-
+  get selectedSortOption(): SortOption {
     return this.sortOptions.find(option =>
-      option.value === sortBy && option.direction === sortDirection
-    ) || this.sortOptions[0]; // Default to first option if no match
-  });
+      option.value === this.selectedSort && option.direction === this.selectedDirection
+    ) || this.sortOptions[0];
+  }
 
-
-  onSortChange(event: any) {
-    this.searchService.changeSortBy(event.value, event.direction);
-    this.currentSortBy = event.value;
-    this.sortChanged.emit(event.value);
+  onSortChange(event: SortOption) {
+    this.sortChange.emit({
+      value: event.value,
+      direction: event.direction
+    });
   }
 
   sortOptionDisplayFn = (option: any) => option ? option.label : '';

@@ -49,7 +49,11 @@
               >
               </app-toolbar-controls>
 
-                          <app-results-sort></app-results-sort>
+                          <app-results-sort
+                            [selectedSort]="periodical.sortBy"
+                            [selectedDirection]="periodical.sortDirection"
+                            (sortChange)="onSortChange($event)">
+                          </app-results-sort>
 
             </div>
 
