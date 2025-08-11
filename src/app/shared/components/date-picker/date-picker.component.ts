@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
 import {InputDateComponent} from '../input-date/input-date.component';
 import {DateRange} from '../range-slider/range-slider.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {LowerCasePipe} from '@angular/common';
 
 export interface DatePickerOutput {
   dateFrom: Date;
@@ -12,6 +14,8 @@ export interface DatePickerOutput {
   selector: 'app-date-picker',
   imports: [
     InputDateComponent,
+    TranslatePipe,
+    LowerCasePipe,
   ],
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'

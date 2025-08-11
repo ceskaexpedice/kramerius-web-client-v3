@@ -14,19 +14,19 @@
   <div class="offset-buttons">
 
     <button class="outlined tertiary sm" (click)="onOffsetClick(1)">
-      +1 day
+      +1 {{ 'day' | translate | lowercase }}
     </button>
 
     <button class="outlined tertiary sm" (click)="onOffsetClick(3)">
-      +3 days
+      +3 {{ 'days' | translate | lowercase }}
     </button>
 
     <button class="outlined tertiary sm" (click)="onOffsetClick(7)">
-      +week
+      + {{'week' | translate | lowercase}}
     </button>
 
     <button class="outlined tertiary sm" (click)="toggleOpenedMore()">
-      + {{openedMore ? 'hide' : 'more'}}
+      + {{openedMore ? ('hide' | translate | lowercase) : ('more' | translate | lowercase)}}
     </button>
 
   </div>
