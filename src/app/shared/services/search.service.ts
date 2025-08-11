@@ -58,7 +58,7 @@ export class SearchService extends BaseFilterService {
 
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
     this.resetPage();
-    
+
     const [facetKey, value] = fullValue.split(':');
     const params = route.snapshot.queryParams;
     const currentValues = this.queryParamsService.getFiltersByFacet(params, facetKey);
@@ -348,16 +348,6 @@ export class SearchService extends BaseFilterService {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: 1, pageSize: size },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
-    this._sortBy.set(sortBy);
-    this._sortDirection.set(sortDirection);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { sortBy, sortDirection },
       queryParamsHandling: 'merge'
     });
   }

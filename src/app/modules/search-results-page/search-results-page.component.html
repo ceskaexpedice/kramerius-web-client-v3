@@ -28,8 +28,8 @@
               />
 
               <app-results-sort
-                [selectedSort]="searchService.sortBy()"
-                [selectedDirection]="searchService.sortDirection()"
+                [selectedSort]="searchService.sortBy"
+                [selectedDirection]="searchService.sortDirection"
                 (sortChange)="onSortChange($event)">
               </app-results-sort>
             </div>

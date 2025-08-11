@@ -1,7 +1,7 @@
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {filter, map, Observable, of, Subject, take, takeUntil} from 'rxjs';
+import {filter, map, Observable, of, take, takeUntil} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
@@ -30,10 +30,7 @@ import {
 import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
 import {AdvancedSearchService} from './advanced-search.service';
 import {BaseFilterService} from './base-filter.service';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {CustomSearchService} from './custom-search.service';
 import {SearchService} from './search.service';
-import {UserService} from './user.service';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -83,7 +80,6 @@ export class PeriodicalService extends BaseFilterService {
     private detailView: DetailViewService,
   ) {
     super();
-
     console.log('PeriodicalService initialized');
 
     this.load();
@@ -113,6 +109,11 @@ export class PeriodicalService extends BaseFilterService {
 
   async initialize() {
     if (this.initialized) return;
+
+    // if there is no sortBy in query params, set default sort
+    if (!this.route.snapshot.queryParams['sortBy']) {
+      this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc);
+    }
 
     this.customSearchService.initializeFromRoute();
 
@@ -443,16 +444,6 @@ export class PeriodicalService extends BaseFilterService {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: 1, pageSize: size },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
-    this._sortBy.set(sortBy);
-    this._sortDirection.set(sortDirection);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { sortBy, sortDirection },
       queryParamsHandling: 'merge'
     });
   }

@@ -56,16 +56,16 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     ]).pipe(
       map(([filters, term, params]) => {
         let allFilters: string[] = [...filters];
-        
+
         // Add search term if present
         if (term && term.trim().length > 0) {
           allFilters.push(`search:${term}`);
         }
-        
+
         // Add custom search filters (including date/year range filters)
         const customFilters = this.getCustomFiltersFromParams(params);
         allFilters.push(...customFilters);
-        
+
         return allFilters;
       })
     );
@@ -74,12 +74,12 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   // Common method: Get custom filters from params (identical in both services)
   protected getCustomFiltersFromParams(params: any): string[] {
     const filters: string[] = [];
-    
+
     // Get custom search filters
     const customRaw = params['customSearch'];
     const customFilters = customRaw ? customRaw.split(',') : [];
     filters.push(...customFilters);
-    
+
     // Add year range as single combined filter
     const yearFrom = params['yearFrom'];
     const yearTo = params['yearTo'];
@@ -88,7 +88,7 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
       const toYear = yearTo || new Date().getFullYear().toString();
       filters.push(`yearRange:${fromYear} - ${toYear}`);
     }
-    
+
     // Add date range as single combined filter
     const dateFrom = params['dateFrom'];
     const dateTo = params['dateTo'];
@@ -101,9 +101,9 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
         filters.push(`dateRange:* - ${dateTo}`);
       }
     }
-    
+
     // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
-    
+
     return filters;
   }
 
@@ -116,7 +116,7 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     } else if (this.isCustomFilter(filter)) {
       // Handle custom filters including combined date/year ranges
       const [facetKey] = filter.split(':');
-      
+
       if (facetKey === 'yearRange') {
         // Remove year range parameters
         this.customSearchService.removeYearRange();
@@ -169,6 +169,16 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   // Common method for loading (required by FilterService interface)
   async load(): Promise<void> {
     await this.userService.loadLicenses();
+  }
+
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { sortBy, sortDirection },
+      queryParamsHandling: 'merge'
+    });
   }
 
   // Common cleanup
