@@ -11,7 +11,7 @@ import {RecordHandlerService} from '../../shared/services/record-handler.service
   styleUrl: './periodical-page.component.scss'
 })
 export class PeriodicalPageComponent {
-  periodical = inject(PeriodicalService);
+  public periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
 
