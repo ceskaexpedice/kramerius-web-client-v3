@@ -35,6 +35,7 @@ import {PeriodicalService} from '../../shared/services/periodical.service';
 import {
   PeriodicalSearchResultsComponent
 } from './components/periodical-search-results/periodical-search-results.component';
+import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 
 const routes: Routes = [
   {
@@ -70,6 +71,7 @@ const routes: Routes = [
     ResultsSortComponent,
     DateNavigatorComponent,
     PeriodicalSearchResultsComponent,
+    SelectedTagsComponent,
   ],
   providers: [
     PeriodicalService,

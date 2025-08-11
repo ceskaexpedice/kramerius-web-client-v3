@@ -40,6 +40,7 @@ export class RangeSliderComponent implements OnInit, OnChanges {
 
   @Input() layout: 'default' | 'inline' = 'default';
   @Input() showInputNumberStepper = true;
+  @Input() inputStyle: 'default' | 'wide' = 'default'; // For controlling input widths in inline mode
 
   @Output() rangeChange = new EventEmitter<NumberRange>();
   @Output() dateRangeChange = new EventEmitter<DateRange>();

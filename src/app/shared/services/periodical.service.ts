@@ -558,7 +558,7 @@ export class PeriodicalService extends BaseFilterService {
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({...y, exists: true}))
-      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {

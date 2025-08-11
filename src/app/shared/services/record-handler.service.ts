@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {SearchDocument} from '../../modules/models/search-document';
@@ -9,6 +9,7 @@ import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialo
 import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
 import {Metadata} from '../models/metadata.model';
 import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
+import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,10 @@ import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
 export class RecordHandlerService {
 
   private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+
+  // Filter keys that should be preserved when navigating to periodicals
+  private readonly FILTERS_TO_PRESERVE = ['yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
 
   constructor(
     private router: Router,
@@ -198,8 +203,85 @@ export class RecordHandlerService {
 
     if (!isModifiedClick) {
       event.preventDefault();
-      this.router.navigateByUrl(url);
+
+      // Check if this is a navigation to a periodical page
+      const isPeriodicalNavigation = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
+
+      if (isPeriodicalNavigation) {
+        // Preserve specific filters from current route when navigating to periodicals
+        const enhancedUrl = this.addFiltersToUrl(url);
+        this.router.navigateByUrl(enhancedUrl);
+      } else {
+        this.router.navigateByUrl(url);
+      }
     }
+  }
+
+  /**
+   * Add preserved filters from current route to the target URL
+   */
+  private addFiltersToUrl(url: string): string {
+    const currentParams = this.route.snapshot.queryParams;
+    const filtersToAdd: any = {};
+
+    // Extract filters that should be preserved
+    for (const filterKey of this.FILTERS_TO_PRESERVE) {
+      if (currentParams[filterKey] !== undefined) {
+        filtersToAdd[filterKey] = currentParams[filterKey];
+      }
+    }
+    console.log('currentParams::', currentParams)
+
+    // Also preserve relevant customSearch filters
+    const customSearch = currentParams['customSearch'];
+    console.log('customsearch:', customSearch)
+    if (customSearch) {
+      const customFilters = customSearch.split(',');
+      const relevantCustomFilters = customFilters.filter((filter: string) =>
+        this.FILTERS_TO_PRESERVE.some(preserveKey => filter.startsWith(`${preserveKey}:`))
+      );
+      if (relevantCustomFilters.length > 0) {
+        filtersToAdd['customSearch'] = relevantCustomFilters.join(',');
+      }
+    }
+
+    // Preserve fq parameters that match any key in FILTERS_TO_PRESERVE
+    const fq = currentParams['fq'];
+    if (fq) {
+      const fqFilters = Array.isArray(fq) ? fq : [fq];
+      const relevantFqFilters = fqFilters.filter((filter: string) =>
+        this.FILTERS_TO_PRESERVE.some(preserveKey => filter.startsWith(`${preserveKey}:`))
+      );
+      if (relevantFqFilters.length > 0) {
+        console.log('relevantFqFilters:', relevantFqFilters);
+        filtersToAdd['fq'] = relevantFqFilters;
+      }
+    }
+
+
+
+    // If no filters to add, return original URL
+    if (Object.keys(filtersToAdd).length === 0) {
+      return url;
+    }
+
+    // Parse the URL and add query parameters
+    const [basePath, existingParams] = url.split('?');
+    const urlParams = new URLSearchParams(existingParams || '');
+
+    // Add preserved filters
+    for (const [key, value] of Object.entries(filtersToAdd)) {
+      if (key === 'fq' && Array.isArray(value)) {
+        // Handle multiple fq parameters - each one needs to be added separately
+        value.forEach(fqValue => {
+          urlParams.append('fq', fqValue);
+        });
+      } else {
+        urlParams.set(key, value as string);
+      }
+    }
+
+    return `${basePath}?${urlParams.toString()}`;
   }
 
   isRecordLocked(licenses: string[]): boolean {

@@ -3,6 +3,7 @@ import {ViewMode} from './models/view-mode.enum';
 import {RecordInfoService} from '../../shared/services/record-info.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -11,7 +12,7 @@ import {RecordHandlerService} from '../../shared/services/record-handler.service
   styleUrl: './periodical-page.component.scss'
 })
 export class PeriodicalPageComponent {
-  periodical = inject(PeriodicalService);
+  public periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
 
@@ -28,6 +29,10 @@ export class PeriodicalPageComponent {
     // get uuid from document
     if (!this.periodical.uuid) return;
     this.recordInfoService.openRecordInfoDialog(this.periodical.uuid);
+  }
+
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.periodical.changeSortBy(event.value, event.direction);
   }
 
 }

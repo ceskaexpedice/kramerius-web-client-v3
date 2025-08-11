@@ -133,26 +133,7 @@ import {RecordHandlerService} from '../../services/record-handler.service';
     }
 
     :host ::ng-deep .has-issue {
-      background-color: #4CAF50 !important;
-      color: white !important;
       border-radius: 15%;
-      font-weight: 600;
-
-      & > span {
-        color: white !important;
-      }
-    }
-
-    :host ::ng-deep .has-issue.accessibility-private {
-      background-color: #FF9800 !important;
-    }
-
-    :host ::ng-deep .has-issue:hover {
-      background-color: #45a049 !important;
-    }
-
-    :host ::ng-deep .has-issue.accessibility-private:hover {
-      background-color: #F57C00 !important;
     }
   `
 })
@@ -174,11 +155,6 @@ export class CalendarPopupComponent implements OnChanges {
 
   // Data map for all issues across all years
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }>());
-
-  monthNames = [
-    'Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún',
-    'Júl', 'August', 'September', 'Október', 'November', 'December',
-  ];
 
   constructor() {
     // Init date locale
