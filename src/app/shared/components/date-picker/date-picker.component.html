@@ -13,15 +13,15 @@
 
   <div class="offset-buttons">
 
-    <button class="outlined tertiary sm" (click)="onOffsetClick(1)">
+    <button class="outlined tertiary sm" [class.selected]="offset() === 1" (click)="onOffsetClick(1)">
       +1 {{ 'day' | translate | lowercase }}
     </button>
 
-    <button class="outlined tertiary sm" (click)="onOffsetClick(3)">
+    <button class="outlined tertiary sm" [class.selected]="offset() === 3" (click)="onOffsetClick(3)">
       +3 {{ 'days' | translate | lowercase }}
     </button>
 
-    <button class="outlined tertiary sm" (click)="onOffsetClick(7)">
+    <button class="outlined tertiary sm" [class.selected]="offset() === 7" (click)="onOffsetClick(7)">
       + {{'week' | translate | lowercase}}
     </button>
 
