@@ -135,6 +135,44 @@ import {RecordHandlerService} from '../../services/record-handler.service';
     :host ::ng-deep .has-issue {
       border-radius: 15%;
     }
+
+    /* Single dot for single issue */
+    :host ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
+      content: '•';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+    }
+
+    /* Two dots for 2 issues */
+    :host ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-2::after {
+      content: '••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
+    }
+
+    /* Three dots for 3+ issues */
+    :host ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-3plus::after {
+      content: '•••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
+    }
   `
 })
 export class CalendarPopupComponent implements OnChanges {
@@ -154,7 +192,7 @@ export class CalendarPopupComponent implements OnChanges {
   shouldShowCalendar = signal(true);
 
   // Data map for all issues across all years
-  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }>());
+  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
 
   constructor() {
     // Init date locale
@@ -218,18 +256,24 @@ export class CalendarPopupComponent implements OnChanges {
   }
 
   private updateIssueMap(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }>();
+    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
 
     for (const item of items) {
       const date = this.parseDate(item['date.str']);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);
-      map.set(key, {
+      const issueData = {
         pid: item.pid,
         accessibility: item.accessibility || 'private',
         licenses: item.licenses || [],
-      });
+      };
+
+      if (map.has(key)) {
+        map.get(key)!.push(issueData);
+      } else {
+        map.set(key, [issueData]);
+      }
     }
 
     this.issueMap.set(map);
@@ -259,16 +303,32 @@ export class CalendarPopupComponent implements OnChanges {
   }
 
   dateClass = (date: Date): string => {
-    const data = this.issueMap().get(this.formatDateKey(date));
-    const isLocked = this.recordHandler.isRecordLocked(data?.licenses || []);
-    return data ? `has-issue accessibility-${isLocked ? 'private' : 'public'}` : '';
+    const issues = this.issueMap().get(this.formatDateKey(date));
+    if (!issues || issues.length === 0) return '';
+
+    const hasLockedIssue = issues.some(issue =>
+      this.recordHandler.isRecordLocked(issue.licenses || [])
+    );
+
+    let classes = 'has-issue';
+    if (issues.length > 1) {
+      classes += ' multiple-issues';
+      if (issues.length === 2) {
+        classes += ' issue-count-2';
+      } else {
+        classes += ' issue-count-3plus';
+      }
+    }
+    classes += ` accessibility-${hasLockedIssue ? 'private' : 'public'}`;
+
+    return classes;
   };
 
   onDateSelected(date: Date | null): void {
     if (!date) return;
-    const data = this.issueMap().get(this.formatDateKey(date));
-    if (data?.pid) {
-      this.dateSelected.emit(data.pid);
+    const issues = this.issueMap().get(this.formatDateKey(date));
+    if (issues && issues.length > 0) {
+      this.dateSelected.emit(issues[0].pid);
     }
   }
 
