@@ -12,8 +12,8 @@
   min-width: 170px;
   box-sizing: border-box;
 
-  height: clamp(280px, 16vw, 320px);
   overflow: hidden;
+  aspect-ratio: 170/286;
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
@@ -123,13 +123,14 @@
   width: 100%;
   max-width: 100%;
   min-width: 170px;
-  height: clamp(280px, 16vw, 320px);
+  aspect-ratio: 170/228;
   overflow: hidden;
 
   .record-item-card__image {
     flex: 0 0 auto;
-    min-height: 50px;
-    max-height: 80px;
+    height: 30%;
+    //min-height: 50px;
+    //max-height: 80px;
   }
 
   .record-item-card__image-lock-overlay {
@@ -158,7 +159,6 @@
   width: 100%;
   max-width: 100%;
   min-width: 170px;
-  height: clamp(280px, 16vw, 320px);
   overflow: hidden;
 
   .record-item-card__image {

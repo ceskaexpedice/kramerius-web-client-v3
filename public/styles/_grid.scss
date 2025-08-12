@@ -72,12 +72,62 @@
   }
 }
 
-/* Desktop XL: >2212px = 8 columns, 300px sidebar */
+/* Desktop XL: 2212-2999px = 8 columns, 300px sidebar */
 @media (min-width: 2212px) {
   .grid--container {
     grid-template-columns: repeat(8, minmax(170px, 1fr));
   }
 }
+
+/* Desktop XL: 2212-2399px = 8 columns, 300px sidebar */
+@media (min-width: 2212px) and (max-width: 2399px) {
+  .grid--container {
+    grid-template-columns: repeat(8, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop XXL Step 1: 2400-2579px = 9 columns */
+@media (min-width: 2400px) and (max-width: 2579px) {
+  .grid--container {
+    grid-template-columns: repeat(9, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop XXL Step 2: 2580-2759px = 10 columns */
+@media (min-width: 2580px) and (max-width: 2759px) {
+  .grid--container {
+    grid-template-columns: repeat(10, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop XXL Step 3: 2760-2939px = 11 columns */
+@media (min-width: 2760px) and (max-width: 2939px) {
+  .grid--container {
+    grid-template-columns: repeat(11, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop XXL Step 4: 2940-3119px = 12 columns */
+@media (min-width: 2940px) and (max-width: 3119px) {
+  .grid--container {
+    grid-template-columns: repeat(12, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop XXL Step 5: 3120-3376px = 13 columns */
+@media (min-width: 3120px) and (max-width: 3376px) {
+  .grid--container {
+    grid-template-columns: repeat(13, minmax(170px, 1fr));
+  }
+}
+
+/* Desktop Ultra: 3377px+ = 14 columns */
+@media (min-width: 3377px) {
+  .grid--container {
+    grid-template-columns: repeat(14, minmax(170px, 1fr));
+  }
+}
+
 
 //.list--container {
 //  display: flex;
