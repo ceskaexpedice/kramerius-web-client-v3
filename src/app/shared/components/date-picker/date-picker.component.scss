@@ -23,6 +23,10 @@
   align-items: center;
   justify-content: space-between;
 
+  .selected {
+    border-color: var(--color-primary);
+  }
+
   button {
     padding: var(--spacing-x1) var(--spacing-x2);
   }

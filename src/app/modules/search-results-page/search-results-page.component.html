@@ -27,7 +27,11 @@
                 (valueChange)="setView($event)"
               />
 
-              <app-results-sort></app-results-sort>
+              <app-results-sort
+                [selectedSort]="searchService.sortBy"
+                [selectedDirection]="searchService.sortDirection"
+                (sortChange)="onSortChange($event)">
+              </app-results-sort>
             </div>
           </div>
         </app-action-toolbar>

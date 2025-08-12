@@ -72,7 +72,7 @@ import {TranslatePipe} from '@ngx-translate/core';
             [class.disabled]="!hasDateRangeChanged"
             [disabled]="!hasDateRangeChanged"
             (click)="submitDateRange()">
-            {{ 'apply-date-range' | translate }}
+            {{ 'submit' | translate }}
           </button>
         </app-filter-category>
 
@@ -96,7 +96,7 @@ import {TranslatePipe} from '@ngx-translate/core';
             [class.disabled]="!hasYearRangeChanged"
             [disabled]="!hasYearRangeChanged"
             (click)="submitYearRange()">
-            {{ 'apply-year-range' | translate }}
+            {{ 'submit' | translate }}
           </button>
         </app-filter-category>
 

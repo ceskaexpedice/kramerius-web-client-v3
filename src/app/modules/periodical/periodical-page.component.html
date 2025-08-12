@@ -10,9 +10,10 @@
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults">
 
-          <div left class="max-width-100">
+          <div left class="max-width-100" *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
-              [title]="(periodical.document$ | async)?.['root.title'] || ''"
+              [title]="document?.['root.title'] || ''"
+              (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="periodical.goBackClicked()">
             </app-toolbar-header>
           </div>
@@ -49,7 +50,11 @@
               >
               </app-toolbar-controls>
 
-              <!--            <app-results-sort></app-results-sort>-->
+                          <app-results-sort
+                            [selectedSort]="periodical.sortBy"
+                            [selectedDirection]="periodical.sortDirection"
+                            (sortChange)="onSortChange($event)">
+                          </app-results-sort>
 
             </div>
 
@@ -59,6 +64,18 @@
 
       <!-- Content rendering based on view mode -->
       <div class="results-content--wrapper">
+
+        <app-selected-tags
+          *ngIf="((periodical.selectedTags | async) || []).length > 0"
+          [items]="(periodical.selectedTags | async) || []"
+          [operators]="{}"
+          [showOperators]="false"
+          [translateItems]="true"
+          (remove)="periodical.removeFilter($event)"
+          (removeGroup)="periodical.resetOperator($event)"
+          (clearAll)="periodical.clearAllFilters()"
+          clearButtonPosition="left">
+        </app-selected-tags>
 
         <app-periodical-years-timeline
           *ngIf="mode === ViewMode.Timeline"

@@ -86,6 +86,13 @@ $slider-height: 4px;
   }
 }
 
+.range-slider.wide {
+    .date--input{
+      width: 35%;
+      flex: 0 0 35%;
+    }
+}
+
 .date-input-wrapper {
   position: relative;
   min-width: 120px;

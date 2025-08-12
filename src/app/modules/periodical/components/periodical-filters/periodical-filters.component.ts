@@ -136,7 +136,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
           [class.disabled]="!hasYearRangeChanged"
           [disabled]="!hasYearRangeChanged"
           (click)="submitYearRange()">
-          {{ 'apply-year-range' | translate }}
+          {{ 'submit' | translate }}
         </button>
       </app-filter-category>
 
@@ -158,7 +158,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
           [class.disabled]="!hasDateRangeChanged"
           [disabled]="!hasDateRangeChanged"
           (click)="submitDateRange()">
-          {{ 'apply-date-range' | translate }}
+          {{ 'submit' | translate }}
         </button>
       </app-filter-category>
 

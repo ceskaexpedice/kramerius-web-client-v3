@@ -11,9 +11,14 @@ export class ToolbarHeaderComponent {
   @Input() title: string = '';
 
   @Output() goBack = new EventEmitter<void>();
+  @Output() titleClick = new EventEmitter<void>();
 
   goBackClicked() {
     this.goBack.emit();
+  }
+
+  titleClicked() {
+    this.titleClick.emit();
   }
 
 }

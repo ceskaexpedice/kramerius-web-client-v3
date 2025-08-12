@@ -53,7 +53,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   selectedDate: Date | null = null;
   shouldShowCalendars = signal(true);
 
-  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }>());
+  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
 
   months = Array.from({ length: 12 }, (_, i) => i);
   monthNames = [
@@ -86,18 +86,24 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   }
 
   private updateIssueMap(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }>();
+    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
 
     for (const item of items) {
       const date = this.parseDate(item['date.str']);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);
-      map.set(key, {
+      const issueData = {
         pid: item.pid,
         accessibility: item.accessibility || 'private',
         licenses: item.licenses || [],
-      });
+      };
+
+      if (map.has(key)) {
+        map.get(key)!.push(issueData);
+      } else {
+        map.set(key, [issueData]);
+      }
     }
 
     this.issueMap.set(map);
@@ -132,16 +138,37 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   }
 
   dateClass = (date: Date): string => {
-    const data = this.issueMap().get(this.formatDateKey(date));
+    const issues = this.issueMap().get(this.formatDateKey(date));
+    if (!issues || issues.length === 0) return '';
 
-    const isLocked = this.recordHandler.isRecordLocked(data?.licenses || []);
+    const hasLockedIssue = issues.some(issue => 
+      this.recordHandler.isRecordLocked(issue.licenses || [])
+    );
 
-    return data ? `has-issue accessibility-${isLocked ? 'private' : 'public'}` : '';
+    let classes = 'has-issue';
+    if (issues.length > 1) {
+      classes += ' multiple-issues';
+      if (issues.length === 2) {
+        classes += ' issue-count-2';
+      } else {
+        classes += ' issue-count-3plus';
+      }
+    }
+    classes += ` accessibility-${hasLockedIssue ? 'private' : 'public'}`;
+
+    return classes;
   };
+
+  getIssueCount(date: Date): number {
+    const issues = this.issueMap().get(this.formatDateKey(date));
+    return issues ? issues.length : 0;
+  }
 
   onDateSelected(date: Date | null): void {
     if (!date) return;
-    const data = this.issueMap().get(this.formatDateKey(date));
-    if (data?.pid) this.periodicalService.onCalendarDateSelected(data.pid);
+    const issues = this.issueMap().get(this.formatDateKey(date));
+    if (issues && issues.length > 0) {
+      this.periodicalService.onCalendarDateSelected(issues[0].pid);
+    }
   }
 }

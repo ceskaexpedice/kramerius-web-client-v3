@@ -1,7 +1,7 @@
-import {computed, effect, inject, Injectable, OnDestroy, signal} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {ActivatedRoute, NavigationEnd} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {combineLatest, filter, map, Observable, of, Subject, take, takeUntil} from 'rxjs';
+import {filter, map, Observable, of, take, takeUntil} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
 import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
@@ -19,9 +19,7 @@ import {
 import {loadPeriodical} from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DetailViewService} from '../../modules/detail-view-page/services/detail-view.service';
-import {FilterService} from './filter.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {SolrService} from '../../core/solr/solr.service';
 import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
@@ -29,14 +27,13 @@ import {
   selectPeriodicalSearchStateResults,
   selectPeriodicalSearchStateTotalCount,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
-import {UserService} from './user.service';
-import {CustomSearchService} from './custom-search.service';
 import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
 import {AdvancedSearchService} from './advanced-search.service';
+import {BaseFilterService} from './base-filter.service';
 import {SearchService} from './search.service';
 
 @Injectable()
-export class PeriodicalService implements FilterService, OnDestroy {
+export class PeriodicalService extends BaseFilterService {
   uuid: string | null = null;
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
 
@@ -54,18 +51,6 @@ export class PeriodicalService implements FilterService, OnDestroy {
 
   inputSearchTerm = '';
 
-  private _page = signal(1);
-  private _pageSize = signal(60);
-  private _totalCount = signal(0);
-  private _sortBy = signal(SolrSortFields.relevance);
-  private _sortDirection = signal(SolrSortDirections.desc);
-  private _pageReset = signal(false);
-  private _submittedTerm = signal('');
-  private _searchTerm = signal('');
-
-  private initialized = false;
-  private destroy$ = new Subject<void>();
-
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
 
   document$ = this.store.select(selectPeriodicalDocument);
@@ -81,84 +66,20 @@ export class PeriodicalService implements FilterService, OnDestroy {
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
 
-  get searchTerm() {
-    return this._searchTerm;
-  }
 
-  get selectedTags(): Observable<string[]> {
-    return combineLatest([
-      of([] as string[]), // No base filters for periodicals, only custom ones
-      of(this.submittedTerm),
-      this.route.queryParams
-    ]).pipe(
-      map(([filters, term, params]) => {
-        let allFilters: string[] = [...filters];
 
-        // Add search term if present
-        if (term && term.trim().length > 0) {
-          allFilters.push(`search:${term}`);
-        }
 
-        // Add custom search filters (including date/year range filters)
-        const customFilters = this.getCustomFiltersFromParams(params);
-        allFilters.push(...customFilters);
-
-        return allFilters;
-      })
-    );
-  }
-
-  private getCustomFiltersFromParams(params: any): string[] {
-    const filters: string[] = [];
-
-    // Get custom search filters
-    const customRaw = params['customSearch'];
-    const customFilters = customRaw ? customRaw.split(',') : [];
-    filters.push(...customFilters);
-
-    // Add year range as single combined filter
-    const yearFrom = params['yearFrom'];
-    const yearTo = params['yearTo'];
-    if (yearFrom !== undefined || yearTo !== undefined) {
-      const fromYear = yearFrom || '0';
-      const toYear = yearTo || new Date().getFullYear().toString();
-      filters.push(`yearRange:${fromYear} - ${toYear}`);
-    }
-
-    // Add date range as single combined filter
-    const dateFrom = params['dateFrom'];
-    const dateTo = params['dateTo'];
-    if (dateFrom !== undefined || dateTo !== undefined) {
-      if (dateFrom && dateTo) {
-        filters.push(`dateRange:${dateFrom} - ${dateTo}`);
-      } else if (dateFrom) {
-        filters.push(`dateRange:${dateFrom} - *`);
-      } else if (dateTo) {
-        filters.push(`dateRange:* - ${dateTo}`);
-      }
-    }
-
-    // Note: dateOffset is not displayed as a separate tag since it's part of date range logic
-
-    return filters;
-  }
-
-  private route = inject(ActivatedRoute);
-  private queryParamsService = inject(QueryParamsService);
   private solrService = inject(SolrService);
-  private customSearchService = inject(CustomSearchService);
   private advancedSearchService = inject(AdvancedSearchService);
   private searchService = inject(SearchService);
 
   constructor(
     private store: Store,
-    private router: Router,
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService,
     private detailView: DetailViewService,
-    private userService: UserService,
   ) {
-
+    super();
     console.log('PeriodicalService initialized');
 
     this.load();
@@ -185,12 +106,14 @@ export class PeriodicalService implements FilterService, OnDestroy {
 
   }
 
-  async load(): Promise<void> {
-    await this.userService.loadLicenses();
-  }
 
   async initialize() {
     if (this.initialized) return;
+
+    // if there is no sortBy in query params, set default sort
+    if (!this.route.snapshot.queryParams['sortBy']) {
+      this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc);
+    }
 
     this.customSearchService.initializeFromRoute();
 
@@ -421,15 +344,14 @@ export class PeriodicalService implements FilterService, OnDestroy {
     this.viewMode.set(ViewMode.SearchResults);
   }
 
-  get page() { return this._page(); }
-  get pageSize() { return this._pageSize(); }
-  get totalCount() { return this._totalCount(); }
-  get sortBy() { return this._sortBy(); }
-  get sortDirection() { return this._sortDirection(); }
-  get submittedTerm() { return this._submittedTerm(); }
 
   get document() { return this.documentSignal(); }
   get metadata() { return this.metadataSignal(); }
+
+  // Implementation of abstract methods from BaseFilterService
+  getBaseFilters(): Observable<string[]> {
+    return of([] as string[]); // No base filters for periodicals, only custom ones
+  }
 
   getFacets(): Observable<any> {
     return this.store.select(selectPeriodicalSearchStateFacets);
@@ -477,11 +399,11 @@ export class PeriodicalService implements FilterService, OnDestroy {
     });
   }
 
-  get hasSubmittedQuery() {
+  override get hasSubmittedQuery() {
     return computed(() => this._submittedTerm().trim().length > 0);
   }
 
-  get filtersContainDate() {
+  override get filtersContainDate() {
     return computed(() => {
       const params = this.route.snapshot.queryParams;
       const filters = this.queryParamsService.getFilters(params);
@@ -505,56 +427,7 @@ export class PeriodicalService implements FilterService, OnDestroy {
     this.queryParamsService.updateFilters(route, facetKey, newValues, operator);
   }
 
-  resetPage(): void {
-    this._pageReset.set(true);
-  }
 
-  removeFilter(filter: string) {
-    if (filter.startsWith('search:')) {
-      this.queryParamsService.removeSearchTerm(this.route);
-      this._searchTerm.set('');
-      this._submittedTerm.set('');
-    } else if (this.isCustomFilter(filter)) {
-      // Handle custom filters including combined date/year ranges
-      const [facetKey] = filter.split(':');
-
-      if (facetKey === 'yearRange') {
-        // Remove year range parameters
-        this.customSearchService.removeYearRange();
-      } else if (facetKey === 'dateRange') {
-        // Remove date range parameters
-        this.customSearchService.removeDateRange();
-      } else {
-        // Handle other custom filters
-        this.customSearchService.removeFilter(filter);
-      }
-    } else {
-      this.queryParamsService.removeFilter(this.route, filter);
-    }
-  }
-
-  private isCustomFilter(filter: string): boolean {
-    const [facetKey] = filter.split(':');
-    const customFilterKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo', 'yearRange', 'dateRange'];
-    return customFilterKeys.includes(facetKey) || this.customSearchService.getAppliedFilters().includes(filter);
-  }
-
-  removeFieldFilters(field: string) {
-    this.queryParamsService.removeFieldFilters(this.route, field);
-  }
-
-  resetOperator(field: string) {
-    this.queryParamsService.resetOperator(this.route, field);
-  }
-
-  clearAllFilters() {
-    this.queryParamsService.removeSearchTerm(this.route);
-    this._submittedTerm.set('');
-    this._searchTerm.set('');
-    this.queryParamsService.clearAllFilters(this.route);
-    // Also clear custom search filters including year ranges
-    this.customSearchService.clear();
-  }
 
   goToPage(page: number) {
     this._page.set(page);
@@ -571,16 +444,6 @@ export class PeriodicalService implements FilterService, OnDestroy {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page: 1, pageSize: size },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
-    this._sortBy.set(sortBy);
-    this._sortDirection.set(sortDirection);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { sortBy, sortDirection },
       queryParamsHandling: 'merge'
     });
   }
@@ -686,7 +549,7 @@ export class PeriodicalService implements FilterService, OnDestroy {
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({...y, exists: true}))
-      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {
@@ -697,10 +560,6 @@ export class PeriodicalService implements FilterService, OnDestroy {
     return this.localStorage.get<CalendarGridControl>(this.PERIODICAL_VIEW_LOCAL_STORAGE_KEY) ?? 'calendar';
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   public goToNextPeriodicalYear() {
     if (!this.selectedYear() || this.availableYears.length === 0) return;

@@ -18,8 +18,8 @@ export interface PeriodicalItem {
   modified?: string;
   hasTiles?: boolean;
 
-  model?: string;
-  'root.pid'?: string;
+  model: string;
+  'root.pid': string;
   'root.title'?: string;
   'date.str'?: string;
   children?: PeriodicalItemChild[];

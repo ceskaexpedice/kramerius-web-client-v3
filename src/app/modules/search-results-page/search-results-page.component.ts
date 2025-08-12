@@ -3,6 +3,7 @@ import {SearchService} from '../../shared/services/search.service';
 import {AdvancedSearchService} from '../../shared/services/advanced-search.service';
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-search-results-page',
@@ -51,6 +52,10 @@ export class SearchResultsPageComponent implements OnInit {
     window.history.replaceState({}, '', url.toString());
     this.settingsService.settings.searchResultsView = view;
     this.settingsService.saveToStorage(this.settingsService.settings);
+  }
+
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.searchService.changeSortBy(event.value, event.direction);
   }
 
 }

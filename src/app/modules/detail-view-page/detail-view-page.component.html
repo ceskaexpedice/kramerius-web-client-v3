@@ -66,6 +66,7 @@
         <div class="max-width-100" left>
           <app-toolbar-header
             [title]="document?.mainTitle || ''"
+            (titleClick)="recordHandler.clickedToolbarTitle(document.model, document.rootPid)"
             (goBack)="goBackClicked()">
           </app-toolbar-header>
         </div>

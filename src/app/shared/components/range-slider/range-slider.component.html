@@ -1,4 +1,4 @@
-<div class="range-slider" [ngClass]="layout">
+<div class="range-slider" [ngClass]="[layout, inputStyle]">
   <!-- VARIANT: INLINE -->
   <ng-container *ngIf="layout === 'inline'; else verticalLayout">
 
@@ -106,7 +106,7 @@
     </div>
 
     <div class="inputs">
-      <div>
+      <div class="date--input">
         <!-- From Input -->
         <div class="date-input-wrapper" *ngIf="type === 'date'">
           <span class="date-display">{{ getDisplayValue('from') }}</span>
@@ -134,7 +134,7 @@
 
       <div class="separator">-</div>
 
-      <div>
+      <div class="date--input">
         <!-- To Input -->
         <div class="date-input-wrapper" *ngIf="type === 'date'">
           <span class="date-display">{{ getDisplayValue('to') }}</span>

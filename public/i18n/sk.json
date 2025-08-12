@@ -126,5 +126,13 @@
   "titles-section-header": "Tituly",
   "pages-section-header": "Jednotlivé strany",
   "periodicalvolume-part-subtitle": "číslo",
-  "search-in-periodicals--placeholder": "Hľadať v periodiku"
+  "search-in-periodicals--placeholder": "Hľadať v periodiku",
+  "custom-year-range": "Rok od-do",
+  "custom-date-range": "Dátum vydania",
+  "submit": "Potvrdiť",
+  "day": "Deň",
+  "days": "Dni",
+  "week": "Týždeň",
+  "hide": "Skryť",
+  "more": "Viac"
 }
