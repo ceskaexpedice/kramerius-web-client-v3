@@ -31,11 +31,6 @@ export class FilterSidebarComponent {
     return this.breakpointService.isMobile() || !this.breakpointService.sidebarVisible();
   });
 
-  // Toggle sidebar for mobile/tablet
-  toggleSidebar() {
-    this.manualToggle.update(value => !value);
-  }
-
   // Close sidebar
   closeSidebar() {
     this.manualToggle.set(false);

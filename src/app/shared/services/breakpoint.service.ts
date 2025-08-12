@@ -19,6 +19,8 @@ export enum BreakpointSize {
   providedIn: 'root'
 })
 export class BreakpointService {
+  manualToggle = signal(false);
+
   private breakpointObserver = inject(BreakpointObserver);
 
   // Custom breakpoints based on designer specifications
@@ -57,16 +59,16 @@ export class BreakpointService {
 
   isTablet = computed(() => {
     const bp = this.currentBreakpoint();
-    return bp === BreakpointSize.TabletSM || 
-           bp === BreakpointSize.TabletMD || 
+    return bp === BreakpointSize.TabletSM ||
+           bp === BreakpointSize.TabletMD ||
            bp === BreakpointSize.TabletLG;
   });
 
   isDesktop = computed(() => {
     const bp = this.currentBreakpoint();
-    return bp === BreakpointSize.DesktopSM || 
-           bp === BreakpointSize.DesktopMD || 
-           bp === BreakpointSize.DesktopLG || 
+    return bp === BreakpointSize.DesktopSM ||
+           bp === BreakpointSize.DesktopMD ||
+           bp === BreakpointSize.DesktopLG ||
            bp === BreakpointSize.DesktopXL;
   });
 
@@ -94,9 +96,9 @@ export class BreakpointService {
   sidebarWidth = computed(() => {
     const bp = this.currentBreakpoint();
     const isVisible = this.sidebarVisible();
-    
+
     if (!isVisible) return 0;
-    
+
     switch (bp) {
       case BreakpointSize.TabletMD:
       case BreakpointSize.TabletLG:
@@ -136,4 +138,14 @@ export class BreakpointService {
         return 5;
     }
   });
+
+  isVisible = computed(() => {
+    const responsiveVisible = this.sidebarVisible();
+    return responsiveVisible || this.manualToggle();
+  });
+
+  // Toggle sidebar for mobile/tablet
+  toggleSidebar() {
+    this.manualToggle.update(value => !value);
+  }
 }

@@ -16,7 +16,7 @@
   @media (min-width: 854px) and (max-width: 1279px) {
     width: 250px; /* Tablet: 250px */
   }
-  
+
   @media (min-width: 1280px) {
     width: 300px; /* Desktop: 300px */
   }
@@ -34,7 +34,7 @@
     width: 280px; /* Fixed width for overlay */
     transform: translateX(-100%);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    
+
     &.visible {
       transform: translateX(0);
     }
@@ -50,7 +50,7 @@
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   left: 20px;
   z-index: 999;
   width: 44px;
