@@ -61,8 +61,51 @@ h3 {
 
     /* Adjust calendar cells for better fit */
     ::ng-deep .mat-calendar-body-cell {
-      height: 28px;
-      width: 28px;
+      height: 32px;
+      width: 32px;
+    }
+
+    /* Style for cells with issues */
+    //::ng-deep .mat-calendar-body-cell.has-issue {
+    //  position: relative;
+    //}
+
+    /* Single dot for single issue */
+    ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
+      content: '•';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+    }
+
+    /* Two dots for 2 issues */
+    ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-2::after {
+      content: '••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
+    }
+
+    /* Three dots for 3+ issues */
+    ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-3plus::after {
+      content: '•••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
     }
   }
 }
