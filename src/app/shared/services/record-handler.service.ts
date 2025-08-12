@@ -90,7 +90,7 @@ export class RecordHandlerService {
   /**
    * Navigate to the year selection page for a periodical.
    */
-  private navigateToPeriodical(pid: string): void {
+  public navigateToPeriodical(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
   }
 
@@ -134,6 +134,17 @@ export class RecordHandlerService {
    */
   isPeriodical(model: string): boolean {
     return model === DocumentTypeEnum.periodical;
+  }
+
+  isParentPeriodical(model: string): boolean {
+    return model === DocumentTypeEnum.periodical || model === DocumentTypeEnum.periodicalvolume || model === DocumentTypeEnum.periodicalitem;
+  }
+
+  clickedToolbarTitle(model: string, pid: string) {
+    console.log('clickedToolbarTitle::', model, pid);
+    if (this.isParentPeriodical(model)) {
+      this.navigateToPeriodical(pid);
+    }
   }
 
   getShareableDocumentTypes(document: Metadata): any[] {

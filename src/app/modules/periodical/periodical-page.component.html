@@ -10,9 +10,10 @@
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults">
 
-          <div left class="max-width-100">
+          <div left class="max-width-100" *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
-              [title]="(periodical.document$ | async)?.['root.title'] || ''"
+              [title]="document?.['root.title'] || ''"
+              (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="periodical.goBackClicked()">
             </app-toolbar-header>
           </div>
