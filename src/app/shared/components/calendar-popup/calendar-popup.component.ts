@@ -61,7 +61,7 @@ import {RecordHandlerService} from '../../services/record-handler.service';
       background: var(--color-bg-base);
       border-radius: var(--spacing-x2);
       box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
-      width: 265px;
+      width: 280px;
       z-index: 1000;
       margin-top: 4px;
     }
@@ -136,6 +136,20 @@ import {RecordHandlerService} from '../../services/record-handler.service';
       border-radius: 15%;
     }
 
+    /* Preselected date styling */
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date {
+      background-color: var(--color-primary) !important;
+      color: white !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date .mat-calendar-body-cell-content {
+      color: white !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover {
+      background-color: var(--color-primary) !important;
+    }
+
     /* Single dot for single issue */
     :host ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
       content: '•';
@@ -173,6 +187,11 @@ import {RecordHandlerService} from '../../services/record-handler.service';
       color: var(--color-text-btn-tertiary-default);
       letter-spacing: 1px;
     }
+
+    /* Dots on preselected dates should be white for visibility */
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue::after {
+      color: white !important;
+    }
   `
 })
 export class CalendarPopupComponent implements OnChanges {
@@ -182,6 +201,7 @@ export class CalendarPopupComponent implements OnChanges {
 
   @Input() year!: string;
   @Input() periodicalChildren: any[] = [];
+  @Input() preselectedDate?: string;
   @Output() dateSelected = new EventEmitter<string>();
   @Output() closePopup = new EventEmitter<void>();
 
@@ -212,11 +232,26 @@ export class CalendarPopupComponent implements OnChanges {
     if (changes['periodicalChildren'] && this.periodicalChildren) {
       this.updateIssueMap(this.periodicalChildren);
     }
+    if (changes['preselectedDate'] && this.preselectedDate) {
+      this.updateCalendarToPreselectedDate();
+    }
   }
 
   private updateCurrentDate(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
     this.currentDate.set(date);
+  }
+
+  private updateCalendarToPreselectedDate(): void {
+    if (!this.preselectedDate) return;
+
+    const preselectedDateObj = this.parseDate(this.preselectedDate);
+    if (preselectedDateObj) {
+      this.currentMonth.set(preselectedDateObj.getMonth());
+      this.currentYear.set(preselectedDateObj.getFullYear());
+      this.updateCurrentDate();
+      this.refreshCalendar();
+    }
   }
 
   previousMonth(): void {
@@ -303,25 +338,37 @@ export class CalendarPopupComponent implements OnChanges {
   }
 
   dateClass = (date: Date): string => {
-    const issues = this.issueMap().get(this.formatDateKey(date));
-    if (!issues || issues.length === 0) return '';
+    const dateKey = this.formatDateKey(date);
+    let classes = '';
 
-    const hasLockedIssue = issues.some(issue =>
-      this.recordHandler.isRecordLocked(issue.licenses || [])
-    );
-
-    let classes = 'has-issue';
-    if (issues.length > 1) {
-      classes += ' multiple-issues';
-      if (issues.length === 2) {
-        classes += ' issue-count-2';
-      } else {
-        classes += ' issue-count-3plus';
+    // Check if this is the preselected date
+    if (this.preselectedDate) {
+      const preselectedDateObj = this.parseDate(this.preselectedDate);
+      if (preselectedDateObj && this.formatDateKey(preselectedDateObj) === dateKey) {
+        classes += ' preselected-date';
       }
     }
-    classes += ` accessibility-${hasLockedIssue ? 'private' : 'public'}`;
 
-    return classes;
+    // Check for issues
+    const issues = this.issueMap().get(dateKey);
+    if (issues && issues.length > 0) {
+      const hasLockedIssue = issues.some(issue =>
+        this.recordHandler.isRecordLocked(issue.licenses || [])
+      );
+
+      classes += ' has-issue';
+      if (issues.length > 1) {
+        classes += ' multiple-issues';
+        if (issues.length === 2) {
+          classes += ' issue-count-2';
+        } else {
+          classes += ' issue-count-3plus';
+        }
+      }
+      classes += ` accessibility-${hasLockedIssue ? 'private' : 'public'}`;
+    }
+
+    return classes.trim();
   };
 
   onDateSelected(date: Date | null): void {
