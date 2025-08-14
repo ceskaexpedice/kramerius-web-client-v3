@@ -4,7 +4,7 @@ import {
   inject,
   Input,
   OnChanges,
-  OnInit,
+  OnDestroy,
   Output,
   signal,
   SimpleChanges,
@@ -13,8 +13,16 @@ import {MatCalendar} from '@angular/material/datepicker';
 import {NgIf} from '@angular/common';
 import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {RecordHandlerService} from '../../services/record-handler.service';
+import {Store} from '@ngrx/store';
+import {loadMonthIssues} from '../../../modules/periodical/state/periodical-detail/periodical-detail.actions';
+import {
+  selectMonthIssues,
+  selectMonthLoading,
+  selectPidFromAvailableYears,
+} from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
+import {catchError, of, combineLatest, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -31,16 +39,16 @@ import {RecordHandlerService} from '../../services/record-handler.service';
   ],
   template: `
     <div class="calendar-dropdown">
-<!--      <div class="calendar-popup-header">-->
-<!--        <button class="nav-btn" (click)="previousMonth()">-->
-<!--          <i class="icon-arrow-left-1"></i>-->
-<!--        </button>-->
-<!--        <h3>{{ monthNames[currentMonth()] }} {{ currentYear() }}</h3>-->
-<!--        <button class="nav-btn" (click)="nextMonth()">-->
-<!--          <i class="icon-arrow-right-1"></i>-->
-<!--        </button>-->
-<!--        <button class="close-btn" (click)="close()">×</button>-->
-<!--      </div>-->
+      <div class="calendar-popup-header">
+        <button class="nav-btn" (click)="previousMonth()">
+          <i class="icon-arrow-left-1"></i>
+        </button>
+        <h3>{{ monthNames[currentMonth()] }} {{ currentYear() }}</h3>
+        <button class="nav-btn" (click)="nextMonth()">
+          <i class="icon-arrow-right-1"></i>
+        </button>
+        <button class="close-btn" (click)="close()">×</button>
+      </div>
       <div class="single-calendar-container" *ngIf="shouldShowCalendar()">
         <mat-calendar
           class="custom-label"
@@ -194,10 +202,11 @@ import {RecordHandlerService} from '../../services/record-handler.service';
     }
   `
 })
-export class CalendarPopupComponent implements OnChanges {
+export class CalendarPopupComponent implements OnChanges, OnDestroy {
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   private recordHandler = inject(RecordHandlerService);
+  private store = inject(Store);
 
   @Input() year!: string;
   @Input() periodicalChildren: any[] = [];
@@ -213,16 +222,24 @@ export class CalendarPopupComponent implements OnChanges {
 
   // Data map for all issues across all years
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
-  
+
   // Lazy loading for single month view
-  lazyLoadingEnabled = signal(false);
+  lazyLoadingEnabled = signal(true); // Enable by default
   currentMonthIssues = signal<any[]>([]);
+  isLoadingCurrentMonth = signal(false);
+  
+  private destroy$ = new Subject<void>();
+
+  monthNames: string[] = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   constructor() {
     // Init date locale
     this.adapter.setLocale(this.translate.currentLang);
     this.translate.onLangChange
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroy$))
       .subscribe(e => this.adapter.setLocale(e.lang));
   }
 
@@ -232,6 +249,9 @@ export class CalendarPopupComponent implements OnChanges {
       this.currentYear.set(yearNum);
       this.currentMonth.set(0); // Start with January
       this.updateCurrentDate();
+
+      // Load the initial month when year changes
+      this.loadCurrentMonthIssues();
     }
     if (changes['periodicalChildren'] && this.periodicalChildren) {
       this.updateIssueMap(this.periodicalChildren);
@@ -269,6 +289,7 @@ export class CalendarPopupComponent implements OnChanges {
       this.currentMonth.set(currentM - 1);
     }
     this.updateCurrentDate();
+    this.loadCurrentMonthIssues();
     this.refreshCalendar();
   }
 
@@ -283,6 +304,7 @@ export class CalendarPopupComponent implements OnChanges {
       this.currentMonth.set(currentM + 1);
     }
     this.updateCurrentDate();
+    this.loadCurrentMonthIssues();
     this.refreshCalendar();
   }
 
@@ -333,13 +355,6 @@ export class CalendarPopupComponent implements OnChanges {
     return date.toISOString().split('T')[0]; // YYYY-MM-DD
   }
 
-  getMinDate(): Date {
-    return new Date(this.currentYear(), this.currentMonth(), 1);
-  }
-
-  getMaxDate(): Date {
-    return new Date(this.currentYear(), this.currentMonth() + 1, 0);
-  }
 
   dateClass = (date: Date): string => {
     const dateKey = this.formatDateKey(date);
@@ -391,14 +406,42 @@ export class CalendarPopupComponent implements OnChanges {
   loadCurrentMonthIssues(): void {
     if (!this.lazyLoadingEnabled()) return;
 
-    const year = this.currentYear().toString();
-    const month = this.currentMonth() + 1;
+    const year = this.currentYear();
+    const month = this.currentMonth() + 1; // Convert 0-based to 1-based month
 
-    // Inject PeriodicalService if needed for month loading
-    // this.periodicalService.loadMonthIssues(year, month).subscribe(issues => {
-    //   this.currentMonthIssues.set(issues);
-    //   this.updateIssueMapForMonth(issues);
-    // });
+    // Combine all the data streams we need
+    combineLatest([
+      this.store.select(selectPidFromAvailableYears(year.toString())).pipe(catchError(() => of(''))),
+      this.store.select(selectMonthIssues(year, month)).pipe(catchError(() => of([]))),
+      this.store.select(selectMonthLoading(year, month)).pipe(catchError(() => of(false)))
+    ]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([volumeUuid, issues, loading]) => {
+      // Update loading state
+      this.isLoadingCurrentMonth.set(loading as boolean);
+
+      const uuid = volumeUuid as string;
+      const monthIssues = issues as any[];
+      const isLoading = loading as boolean;
+
+      if (!uuid) {
+        console.warn(`No volume UUID found for year ${year}`);
+        return;
+      }
+
+      // If we have no issues and we're not currently loading, dispatch the load action
+      if (monthIssues.length === 0 && !isLoading) {
+        this.store.dispatch(loadMonthIssues({
+          parentVolumeUuid: uuid,
+          year,
+          month
+        }));
+      } else if (monthIssues.length > 0) {
+        // Update calendar with loaded issues
+        this.currentMonthIssues.set(monthIssues);
+        this.updateIssueMapForMonth(monthIssues);
+      }
+    });
   }
 
   private updateIssueMapForMonth(items: any[]): void {
@@ -426,11 +469,9 @@ export class CalendarPopupComponent implements OnChanges {
     this.refreshCalendar();
   }
 
-  enableLazyLoading(): void {
-    this.lazyLoadingEnabled.set(true);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  disableLazyLoading(): void {
-    this.lazyLoadingEnabled.set(false);
-  }
 }

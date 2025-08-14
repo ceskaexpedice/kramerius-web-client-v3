@@ -38,3 +38,8 @@ export const selectMonthLoading = (year: number, month: number) => createSelecto
   selectPeriodicalState,
   s => !!s.monthLoading[`${year}-${String(month).padStart(2, '0')}`]
 );
+
+export const selectPidFromAvailableYears = (year: string) => createSelector(
+  selectAvailableYears,
+  years => years.find(y => y.year === year)?.pid || ''
+);
