@@ -49,6 +49,11 @@ export class PeriodicalService extends BaseFilterService {
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
 
+  // Lazy loading state for calendar months
+  private monthlyIssuesCache = new Map<string, any[]>();
+  private loadingMonths = new Set<string>();
+  monthlyIssuesLoading = signal(false);
+
   inputSearchTerm = '';
 
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
@@ -608,5 +613,53 @@ export class PeriodicalService extends BaseFilterService {
     if (!year) return null;
     const yearData = this.availableYears.find(y => y.year === year);
     return yearData ? yearData.pid : null;
+  }
+
+  // Lazy loading methods for calendar months
+  loadMonthIssues(year: string, month: number): Observable<any[]> {
+    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+    
+    if (this.monthlyIssuesCache.has(monthKey)) {
+      return of(this.monthlyIssuesCache.get(monthKey) || []);
+    }
+
+    if (this.loadingMonths.has(monthKey)) {
+      return of([]);
+    }
+
+    this.loadingMonths.add(monthKey);
+    this.monthlyIssuesLoading.set(true);
+
+    // TODO: Implement actual API call to load issues for specific month
+    // This is a skeleton - replace with real implementation
+    return this.fetchMonthIssuesFromAPI(year, month).pipe(
+      map(issues => {
+        this.monthlyIssuesCache.set(monthKey, issues);
+        this.loadingMonths.delete(monthKey);
+        
+        if (this.loadingMonths.size === 0) {
+          this.monthlyIssuesLoading.set(false);
+        }
+        
+        return issues;
+      })
+    );
+  }
+
+  private fetchMonthIssuesFromAPI(year: string, month: number): Observable<any[]> {
+    // TODO: Replace with actual API call
+    // For now, return empty array to maintain functionality
+    console.log(`Skeleton: Would fetch issues for ${year}-${month}`);
+    return of([]);
+  }
+
+  getMonthIssuesFromCache(year: string, month: number): any[] {
+    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+    return this.monthlyIssuesCache.get(monthKey) || [];
+  }
+
+  clearMonthlyCache(): void {
+    this.monthlyIssuesCache.clear();
+    this.loadingMonths.clear();
   }
 }

@@ -213,6 +213,10 @@ export class CalendarPopupComponent implements OnChanges {
 
   // Data map for all issues across all years
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
+  
+  // Lazy loading for single month view
+  lazyLoadingEnabled = signal(false);
+  currentMonthIssues = signal<any[]>([]);
 
   constructor() {
     // Init date locale
@@ -381,5 +385,52 @@ export class CalendarPopupComponent implements OnChanges {
 
   close(): void {
     this.closePopup.emit();
+  }
+
+  // Lazy loading methods for calendar popup
+  loadCurrentMonthIssues(): void {
+    if (!this.lazyLoadingEnabled()) return;
+
+    const year = this.currentYear().toString();
+    const month = this.currentMonth() + 1;
+
+    // Inject PeriodicalService if needed for month loading
+    // this.periodicalService.loadMonthIssues(year, month).subscribe(issues => {
+    //   this.currentMonthIssues.set(issues);
+    //   this.updateIssueMapForMonth(issues);
+    // });
+  }
+
+  private updateIssueMapForMonth(items: any[]): void {
+    const map = new Map(this.issueMap());
+
+    for (const item of items) {
+      const date = this.parseDate(item['date.str']);
+      if (!date || !item.pid) continue;
+
+      const key = this.formatDateKey(date);
+      const issueData = {
+        pid: item.pid,
+        accessibility: item.accessibility || 'private',
+        licenses: item.licenses || [],
+      };
+
+      if (map.has(key)) {
+        map.get(key)!.push(issueData);
+      } else {
+        map.set(key, [issueData]);
+      }
+    }
+
+    this.issueMap.set(map);
+    this.refreshCalendar();
+  }
+
+  enableLazyLoading(): void {
+    this.lazyLoadingEnabled.set(true);
+  }
+
+  disableLazyLoading(): void {
+    this.lazyLoadingEnabled.set(false);
   }
 }

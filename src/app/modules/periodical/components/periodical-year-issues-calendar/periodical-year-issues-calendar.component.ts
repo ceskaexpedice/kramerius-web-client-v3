@@ -43,7 +43,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   private router = inject(Router);
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
-  private periodicalService = inject(PeriodicalService);
+  public periodicalService = inject(PeriodicalService);
   private recordHandler = inject(RecordHandlerService);
 
   @Input() year!: string;
@@ -54,6 +54,11 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   shouldShowCalendars = signal(true);
 
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
+
+  // Lazy loading state
+  monthlyIssueMap = signal(new Map<number, { pid: string; accessibility: string, licenses: string[] }[]>());
+  visibleMonths = signal(new Set<number>([0, 1, 2])); // Initially show first 3 months
+  lazyLoadingEnabled = signal(false);
 
   months = Array.from({ length: 12 }, (_, i) => i);
   monthNames = [
@@ -141,7 +146,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
     const issues = this.issueMap().get(this.formatDateKey(date));
     if (!issues || issues.length === 0) return '';
 
-    const hasLockedIssue = issues.some(issue => 
+    const hasLockedIssue = issues.some(issue =>
       this.recordHandler.isRecordLocked(issue.licenses || [])
     );
 
@@ -170,5 +175,63 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
     if (issues && issues.length > 0) {
       this.periodicalService.onCalendarDateSelected(issues[0].pid);
     }
+  }
+
+  // Lazy loading methods
+  loadMonthIfNeeded(monthIndex: number): void {
+    if (!this.lazyLoadingEnabled() || this.visibleMonths().has(monthIndex)) {
+      return;
+    }
+
+    this.periodicalService.loadMonthIssues(this.year, monthIndex + 1).subscribe(issues => {
+      this.updateMonthInIssueMap(monthIndex, issues);
+      this.visibleMonths.update(months => new Set([...months, monthIndex]));
+    });
+  }
+
+  private updateMonthInIssueMap(monthIndex: number, items: any[]): void {
+    const currentMap = new Map(this.issueMap());
+
+    for (const item of items) {
+      const date = this.parseDate(item['date.str']);
+      if (!date || !item.pid || date.getMonth() !== monthIndex) continue;
+
+      const key = this.formatDateKey(date);
+      const issueData = {
+        pid: item.pid,
+        accessibility: item.accessibility || 'private',
+        licenses: item.licenses || [],
+      };
+
+      if (currentMap.has(key)) {
+        currentMap.get(key)!.push(issueData);
+      } else {
+        currentMap.set(key, [issueData]);
+      }
+    }
+
+    this.issueMap.set(currentMap);
+    this.shouldShowCalendars.set(false);
+    setTimeout(() => this.shouldShowCalendars.set(true), 0);
+  }
+
+  onMonthIntersection(monthIndex: number, isIntersecting: boolean): void {
+    if (isIntersecting) {
+      this.loadMonthIfNeeded(monthIndex);
+    }
+  }
+
+  isMonthVisible(monthIndex: number): boolean {
+    return !this.lazyLoadingEnabled() || this.visibleMonths().has(monthIndex);
+  }
+
+  enableLazyLoading(): void {
+    this.lazyLoadingEnabled.set(true);
+    this.visibleMonths.set(new Set([0, 1, 2]));
+  }
+
+  disableLazyLoading(): void {
+    this.lazyLoadingEnabled.set(false);
+    this.visibleMonths.set(new Set(this.months));
   }
 }
