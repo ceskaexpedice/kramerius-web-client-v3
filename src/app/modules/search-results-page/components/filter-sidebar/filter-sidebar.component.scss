@@ -1,17 +1,122 @@
 :host {
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .filter-sidebar {
   display: block;
   background-color: var(--color-bg-base);
-  width: 300px;
   height: 100%;
   font-family: inherit;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+  position: relative;
+
+  /* Responsive width based on breakpoints */
+  @media (min-width: 854px) and (max-width: 1279px) {
+    width: 250px; /* Tablet: 250px */
+  }
+
+  @media (min-width: 1280px) {
+    width: 300px; /* Desktop: 300px */
+  }
 
   &.scrollable {
     overflow-y: auto;
+  }
+
+  /* Mobile/tablet overlay mode */
+  &.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 280px; /* Fixed width for overlay */
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+
+    &.visible {
+      transform: translateX(0);
+    }
+  }
+
+  /* Desktop mode - always visible */
+  &:not(.overlay) {
+    position: relative;
+    transform: none;
+  }
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  i {
+    font-size: 20px;
+  }
+}
+
+/* Sidebar close button */
+.sidebar-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+
+  &:hover {
+    background: var(--color-bg-contrast);
+  }
+
+  i {
+    font-size: 16px;
+  }
+}
+
+/* Backdrop for mobile overlay */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
   }
 }
 

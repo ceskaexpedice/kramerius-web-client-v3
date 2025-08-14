@@ -1,33 +1,42 @@
 .record-item-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: var(--color-bg-base);
   border: 1px solid transparent;
   border-radius: var(--base-border-radius);
-  overflow: hidden;
   transition: all 0.3s;
   cursor: pointer;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  box-sizing: border-box;
+
+  overflow: hidden;
+  aspect-ratio: 170/286;
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
   }
 
   .record-item-card__inner {
-    padding: var(--spacing-x4);
+    padding: var(--base-padding);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x4);
+    gap: var(--base-gap);
     height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .record-item-card__image {
-    height: 230px;
+    flex: 1;
     background-size: cover;
     background-position: center;
     position: relative;
     border: 1px solid var(--color-border-contrast);
     border-radius: var(--base-border-radius);
+    min-height: 0;
 
     .badge.model {
       position: absolute;
@@ -68,7 +77,8 @@
     flex-direction: column;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
-    flex: 1;
+    flex: 0 1 auto;
+    min-height: 0;
 
     .title {
       font-size: 16px;
@@ -80,6 +90,8 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-height: 60px;
+      height: 60px;
     }
 
     .subtitle {
@@ -108,8 +120,17 @@
 
 
 .record-item-card.page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  aspect-ratio: 170/228;
+  overflow: hidden;
+
   .record-item-card__image {
-    height: 50px;
+    flex: 0 0 auto;
+    height: 30%;
+    //min-height: 50px;
+    //max-height: 80px;
   }
 
   .record-item-card__image-lock-overlay {
@@ -123,25 +144,34 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--color-text-base);
-    // max 4 lines
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+    max-height: 60px;
+    height: 60px;
   }
 }
 
 .record-item-card.periodical {
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  overflow: hidden;
+
   .record-item-card__image {
-    height: 230px;
+    flex: 1;
+    min-height: 0;
   }
 
   .record-item-card__content {
 
     .title {
       -webkit-line-clamp: 2;
+      max-height: 40px;
+      height: 40px;
     }
   }
 }

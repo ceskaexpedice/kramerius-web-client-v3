@@ -1,6 +1,30 @@
+
+<!-- Sidebar toggle button for mobile/tablet -->
+<button *ngIf="!breakpointService.sidebarVisible() && !isVisible()"
+        class="sidebar-toggle-btn"
+        (click)="breakpointService.toggleSidebar()"
+        aria-label="Open filters">
+  <i class="icon-filter"></i>
+</button>
+
+<!-- Backdrop for mobile overlay -->
+<div *ngIf="isVisible() && isOverlay()"
+     class="sidebar-backdrop"
+     (click)="onBackdropClick()"></div>
+
 <div class="filter-sidebar"
      [class.scrollable]="scrollable"
+     [class.overlay]="isOverlay()"
+     [class.visible]="isVisible()"
      [ngClass]="['padding-' + padding]">
+
+  <!-- Close button for overlay mode -->
+  <button *ngIf="isOverlay() && isVisible()"
+          class="sidebar-close-btn"
+          (click)="closeSidebar()"
+          aria-label="Close filters">
+    <i class="icon-close"></i>
+  </button>
 
   <ng-content></ng-content>
 

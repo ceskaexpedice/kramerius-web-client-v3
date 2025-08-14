@@ -1,8 +1,6 @@
 .item-card {
   display: flex;
   flex-direction: column;
-  width: 200px;
-  height: 365px;
   background: var(--color-bg-base);
   border: 1px solid transparent;
   border-radius: var(--base-border-radius);
@@ -11,10 +9,23 @@
   cursor: pointer;
   padding: var(--base-padding);
   gap: var(--base-gap);
+  
+  /* Consistent width and height - identical cards in each row */
+  width: 100%;
+  max-width: 100%; /* Prevent overflow */
+  min-width: 170px;
+  box-sizing: border-box;
+  
+  /* Consistent height for all cards */
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden; /* Prevent any content overflow */
 
   &.card--fluid {
     width: 100%;
-    height: 100%;
+    max-width: 100%;
+    min-width: 170px;
+    height: clamp(280px, 16vw, 320px);
+    overflow: hidden;
   }
 
   &:hover {
@@ -76,13 +87,19 @@
 }
 
 .item-card.periodicalvolume, .item-card.periodicalitem {
+  /* Same consistent dimensions as all other cards */
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden;
   padding: 8px 16px 16px 16px;
   gap: var(--spacing-x2);
 
   .item-card__image-container {
     order: 2;
     flex: auto;
-    height: 185px;
+    min-height: 0;
   }
 
   &.with-badge {
