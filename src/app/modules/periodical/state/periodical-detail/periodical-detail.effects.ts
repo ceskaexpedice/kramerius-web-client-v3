@@ -299,7 +299,16 @@ export class PeriodicalDetailEffects {
           parentVolumeUuid,
           fq
         ).pipe(
-          map(issues => PeriodicalDetailActions.loadMonthIssuesSuccess({ year, month, issues })),
+          map(issues => {
+            // Fix licenses field if needed
+            issues.map(i => {
+              if (!i['licenses'] || i['licenses'].length === 0 && i['licenses.facet']) {
+                i['licenses'] = i['licenses.facet'];
+              }
+            });
+
+            return PeriodicalDetailActions.loadMonthIssuesSuccess({ year, month, issues })
+          }),
           catchError(error => of(PeriodicalDetailActions.loadMonthIssuesFailure({ year, month, error })))
         );
       })

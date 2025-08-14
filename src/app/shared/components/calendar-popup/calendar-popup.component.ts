@@ -9,6 +9,9 @@ import {
   Output,
   signal,
   SimpleChanges,
+  ChangeDetectorRef,
+  ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import {MatCalendar} from '@angular/material/datepicker';
 import {NgIf} from '@angular/common';
@@ -51,9 +54,16 @@ import {takeUntil} from 'rxjs/operators';
         </button>
         <button class="close-btn" (click)="close()">×</button>
       </div>
-      <div class="single-calendar-container" *ngIf="shouldShowCalendar()">
-        <mat-calendar
+      <div class="single-calendar-container">
+        <div class="loading-overlay" *ngIf="isLoadingCalendar()">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>Loading...</span>
+          </div>
+        </div>
+        <mat-calendar *ngIf="!isLoadingCalendar()"
           class="custom-label"
+          [class.loading]="isLoadingCalendar()"
           [dateClass]="dateClass"
           [startAt]="currentDate()"
           [startView]="'month'"
@@ -136,10 +146,57 @@ import {takeUntil} from 'rxjs/operators';
       padding: 20px;
       display: flex;
       justify-content: center;
+      position: relative;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: 8px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--color-primary, #007bff);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-spinner span {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     :host ::ng-deep .mat-calendar {
       width: 100%;
+      transition: opacity 0.2s ease;
+    }
+
+    :host ::ng-deep .mat-calendar.loading {
+      opacity: 0.5;
     }
 
     :host ::ng-deep .has-issue {
@@ -204,11 +261,12 @@ import {takeUntil} from 'rxjs/operators';
     }
   `
 })
-export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
+export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   private recordHandler = inject(RecordHandlerService);
   private store = inject(Store);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() year!: string;
   @Input() preselectedDate?: string;
@@ -219,7 +277,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
   currentMonth = signal(0);
   currentYear = signal(2024);
   currentDate = signal(new Date());
-  shouldShowCalendar = signal(true);
+  isLoadingCalendar = signal(false);
 
   // Data map for current month only
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
@@ -227,8 +285,11 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
   // Always lazy load
   currentMonthIssues = signal<any[]>([]);
 
+
   private destroy$ = new Subject<void>();
   private loadingTimeouts = new Map<string, any>();
+
+  @ViewChild(MatCalendar) calendar!: MatCalendar<Date>;
 
   monthNames: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -241,7 +302,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
       .subscribe(e => this.adapter.setLocale(e.lang));
-      
+
     // Set up reactive data loading for current month
     this.setupReactiveDataLoading();
   }
@@ -269,6 +330,10 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  ngAfterViewInit(): void {
+    // Calendar ViewChild is now available
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['year'] && this.year) {
       const yearNum = parseInt(this.year, 10);
@@ -287,6 +352,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
   private updateCurrentDate(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
     this.currentDate.set(date);
+    console.log(`Updated current date to: ${date.toISOString().split('T')[0]}`);
   }
 
   private updateCalendarToPreselectedDate(): void {
@@ -319,8 +385,8 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       this.currentMonth.set(currentM - 1);
     }
     this.updateCurrentDate();
+    this.navigateCalendar();
     this.loadCurrentMonthIssues();
-    this.refreshCalendar();
   }
 
   nextMonth(): void {
@@ -334,16 +400,22 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       this.currentMonth.set(currentM + 1);
     }
     this.updateCurrentDate();
+    this.navigateCalendar();
     this.loadCurrentMonthIssues();
-    this.refreshCalendar();
+  }
+
+  private navigateCalendar(): void {
+    // Programmatically navigate the Material Calendar to the current month/year
+    if (this.calendar) {
+      this.calendar.activeDate = new Date(this.currentYear(), this.currentMonth(), 1);
+      // Force the calendar to update its view
+      this.cdr.detectChanges();
+    }
   }
 
   private refreshCalendar(): void {
-    // Force calendar re-render by toggling visibility
-    this.shouldShowCalendar.set(false);
-    setTimeout(() => {
-      this.shouldShowCalendar.set(true);
-    }, 0);
+    // Force change detection to update calendar display
+    this.cdr.detectChanges();
   }
 
 
@@ -370,8 +442,10 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
-    // Check for issues
-    const issues = this.issueMap().get(dateKey);
+    // Get current issues from the issueMap signal
+    const currentIssueMap = this.issueMap();
+    const issues = currentIssueMap.get(dateKey);
+
     if (issues && issues.length > 0) {
       const hasLockedIssue = issues.some(issue =>
         this.recordHandler.isRecordLocked(issue.licenses || [])
@@ -404,6 +478,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     this.closePopup.emit();
   }
 
+
   private setupReactiveDataLoading(): void {
     // Listen specifically to periodical state changes for month issues
     this.store.select(selectPeriodicalState)
@@ -421,7 +496,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
   private updateCurrentMonthFromStore(): void {
     const year = this.currentYear();
     const month = this.currentMonth() + 1;
-    
+
     // Get the current data from store (synchronously)
     let currentData: any[] = [];
     this.store.select(selectMonthIssues(year, month))
@@ -429,11 +504,13 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(issues => {
         currentData = issues as any[];
       });
-      
+
     if (currentData.length > 0) {
       console.log(`Found ${currentData.length} issues in store for ${year}-${month}, updating calendar`);
       this.currentMonthIssues.set(currentData);
       this.updateIssueMapForMonth(currentData);
+      // Clear loading state when data is available
+      this.isLoadingCalendar.set(false);
     }
   }
 
@@ -450,6 +527,9 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       clearTimeout(this.loadingTimeouts.get(monthKey));
     }
 
+    // Set loading state
+    this.isLoadingCalendar.set(true);
+
     // Debounce the loading to prevent rapid calls
     const timeoutId = setTimeout(() => {
       this.loadingTimeouts.delete(monthKey);
@@ -460,6 +540,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
 
         if (!uuid) {
           console.warn(`No volume UUID found for year ${year}`);
+          this.isLoadingCalendar.set(false);
           return;
         }
 
@@ -480,10 +561,16 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
                 year,
                 month
               }));
-            } else if (monthIssues.length > 0) {
-              // Update calendar with existing issues
-              this.currentMonthIssues.set(monthIssues);
-              this.updateIssueMapForMonth(monthIssues);
+              // Keep loading state - it will be cleared when data arrives via reactive subscription
+            } else {
+              // Data already exists or is loading, clear loading state
+              this.isLoadingCalendar.set(false);
+
+              if (monthIssues.length > 0) {
+                // Update calendar with existing issues
+                this.currentMonthIssues.set(monthIssues);
+                this.updateIssueMapForMonth(monthIssues);
+              }
             }
           });
         });
