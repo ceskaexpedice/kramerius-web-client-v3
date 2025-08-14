@@ -5,6 +5,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  OnInit,
   Output,
   signal,
   SimpleChanges,
@@ -202,14 +203,13 @@ import {takeUntil} from 'rxjs/operators';
     }
   `
 })
-export class CalendarPopupComponent implements OnChanges, OnDestroy {
+export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   private recordHandler = inject(RecordHandlerService);
   private store = inject(Store);
 
   @Input() year!: string;
-  @Input() periodicalChildren: any[] = [];
   @Input() preselectedDate?: string;
   @Output() dateSelected = new EventEmitter<string>();
   @Output() closePopup = new EventEmitter<void>();
@@ -220,13 +220,11 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
   currentDate = signal(new Date());
   shouldShowCalendar = signal(true);
 
-  // Data map for all issues across all years
+  // Data map for current month only
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
 
-  // Lazy loading for single month view
-  lazyLoadingEnabled = signal(true); // Enable by default
+  // Always lazy load
   currentMonthIssues = signal<any[]>([]);
-  isLoadingCurrentMonth = signal(false);
   
   private destroy$ = new Subject<void>();
   private loadingTimeouts = new Map<string, any>();
@@ -244,6 +242,29 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
       .subscribe(e => this.adapter.setLocale(e.lang));
   }
 
+  ngOnInit(): void {
+    // Lazy load data when component opens
+    if (this.year) {
+      const yearNum = parseInt(this.year, 10);
+      this.currentYear.set(yearNum);
+      
+      // If preselected date exists, start with that month, otherwise January
+      if (this.preselectedDate) {
+        const preselectedDateObj = this.parseDate(this.preselectedDate);
+        if (preselectedDateObj && preselectedDateObj.getFullYear() === yearNum) {
+          this.currentMonth.set(preselectedDateObj.getMonth());
+        } else {
+          this.currentMonth.set(0); // Start with January
+        }
+      } else {
+        this.currentMonth.set(0); // Start with January
+      }
+      
+      this.updateCurrentDate();
+      this.loadCurrentMonthIssues();
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['year'] && this.year) {
       const yearNum = parseInt(this.year, 10);
@@ -251,11 +272,8 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
       this.currentMonth.set(0); // Start with January
       this.updateCurrentDate();
 
-      // Load the initial month when year changes
+      // Always lazy load when year changes
       this.loadCurrentMonthIssues();
-    }
-    if (changes['periodicalChildren'] && this.periodicalChildren) {
-      this.updateIssueMap(this.periodicalChildren);
     }
     if (changes['preselectedDate'] && this.preselectedDate) {
       this.updateCalendarToPreselectedDate();
@@ -272,9 +290,16 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
 
     const preselectedDateObj = this.parseDate(this.preselectedDate);
     if (preselectedDateObj) {
-      this.currentMonth.set(preselectedDateObj.getMonth());
-      this.currentYear.set(preselectedDateObj.getFullYear());
-      this.updateCurrentDate();
+      const newMonth = preselectedDateObj.getMonth();
+      const newYear = preselectedDateObj.getFullYear();
+      
+      // Only update if month/year changed
+      if (newMonth !== this.currentMonth() || newYear !== this.currentYear()) {
+        this.currentMonth.set(newMonth);
+        this.currentYear.set(newYear);
+        this.updateCurrentDate();
+        this.loadCurrentMonthIssues(); // Lazy load the new month
+      }
       this.refreshCalendar();
     }
   }
@@ -317,34 +342,6 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
     }, 0);
   }
 
-  private updateIssueMap(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
-
-    for (const item of items) {
-      const date = this.parseDate(item['date.str']);
-      if (!date || !item.pid) continue;
-
-      const key = this.formatDateKey(date);
-      const issueData = {
-        pid: item.pid,
-        accessibility: item.accessibility || 'private',
-        licenses: item.licenses || [],
-      };
-
-      if (map.has(key)) {
-        map.get(key)!.push(issueData);
-      } else {
-        map.set(key, [issueData]);
-      }
-    }
-
-    this.issueMap.set(map);
-
-    this.shouldShowCalendar.set(false);
-    setTimeout(() => {
-      this.shouldShowCalendar.set(true);
-    }, 0);
-  }
 
   // Utility: parse date from DD.MM.YYYY
   parseDate(str: string): Date | null {
@@ -404,9 +401,8 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
   }
 
 
-  // Lazy loading methods for calendar popup
+  // Always lazy load current month
   loadCurrentMonthIssues(): void {
-    if (!this.lazyLoadingEnabled()) return;
 
     const year = this.currentYear();
     const month = this.currentMonth() + 1; // Convert 0-based to 1-based month
