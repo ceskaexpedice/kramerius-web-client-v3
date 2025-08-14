@@ -20,3 +20,18 @@ export const setPeriodicalSearchParams = createAction('[Periodical] Set Search P
 export const loadPeriodicalItems = createAction('[Periodical] Load Items', props<{ parentVolumeUuid: string }>());
 export const loadPeriodicalItemsSuccess = createAction('[Periodical] Load Items Success', props<{ children: any[]; availableYears?: PeriodicalItemYear[] }>());
 export const loadPeriodicalItemsFailure = createAction('[Periodical] Load Items Failure', props<{ error: any }>());
+
+export const loadMonthIssues = createAction(
+  '[Periodical] Load Month Issues',
+  props<{ parentVolumeUuid: string; year: number; month: number }>() // month: 1-12
+);
+
+export const loadMonthIssuesSuccess = createAction(
+  '[Periodical] Load Month Issues Success',
+  props<{ year: number; month: number; issues: any[] }>()
+);
+
+export const loadMonthIssuesFailure = createAction(
+  '[Periodical] Load Month Issues Failure',
+  props<{ year: number; month: number; error: any }>()
+);

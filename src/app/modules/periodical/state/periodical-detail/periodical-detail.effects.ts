@@ -284,4 +284,25 @@ export class PeriodicalDetailEffects {
       })
     )
   );
+
+  loadMonthIssues$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PeriodicalDetailActions.loadMonthIssues),
+      switchMap(({ parentVolumeUuid, year, month }) => {
+        // build date range: [YYYY-MM-01 TO YYYY-MM-lastDay]
+        const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+        const end   = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+
+        const fq = [`date.min:[${start.toISOString()} TO ${end.toISOString()}]`];
+
+        return this.solr.getPeriodicalItems(
+          parentVolumeUuid,
+          fq
+        ).pipe(
+          map(issues => PeriodicalDetailActions.loadMonthIssuesSuccess({ year, month, issues })),
+          catchError(error => of(PeriodicalDetailActions.loadMonthIssuesFailure({ year, month, error })))
+        );
+      })
+    )
+  );
 }

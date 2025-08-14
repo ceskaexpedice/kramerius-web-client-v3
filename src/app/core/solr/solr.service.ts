@@ -463,17 +463,37 @@ export class SolrService {
     );
   }
 
-  getPeriodicalItems(pid: string,
-                     filters: string[] = [], page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string): Observable<any[]> {
-    const query = this.buildPeriodicalChildrenQuery(pid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, advancedQuery);
+  getPeriodicalItems(
+    pid: string,
+    filters: string[] = [],
+    page = 0,
+    pageCount = 60,
+    sortBy: SolrSortFields = SolrSortFields.dateMin,
+    sortDirection: SolrSortDirections = SolrSortDirections.asc,
+    advancedQuery?: string
+  ): Observable<any[]> {
+    const query = this.buildPeriodicalChildrenQuery(
+      pid,
+      `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`,
+      advancedQuery
+    );
 
-    const params = {
-      q: query,
-      fl: 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid',
-      rows: '10000',
-      sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
-      wt: 'json'
-    };
+    // Build HttpParams so we can safely add repeated `fq` keys
+    let params = new HttpParams()
+      .set('q', query)
+      .set('fl', 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid')
+      .set('rows', '10000')
+      .set('sort', 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc')
+      .set('wt', 'json');
+
+    // Append each filter as its own fq param: &fq=...&fq=...
+    if (filters?.length) {
+      filters.forEach(fq => {
+        if (fq && fq.trim()) {
+          params = params.append('fq', fq.trim());
+        }
+      });
+    }
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
