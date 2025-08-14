@@ -21,6 +21,7 @@ import {
   selectMonthIssues,
   selectMonthLoading,
   selectPidFromAvailableYears,
+  selectPeriodicalState,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import {Subject, take} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
@@ -225,7 +226,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   // Always lazy load
   currentMonthIssues = signal<any[]>([]);
-  
+
   private destroy$ = new Subject<void>();
   private loadingTimeouts = new Map<string, any>();
 
@@ -240,6 +241,9 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
       .subscribe(e => this.adapter.setLocale(e.lang));
+      
+    // Set up reactive data loading for current month
+    this.setupReactiveDataLoading();
   }
 
   ngOnInit(): void {
@@ -247,7 +251,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     if (this.year) {
       const yearNum = parseInt(this.year, 10);
       this.currentYear.set(yearNum);
-      
+
       // If preselected date exists, start with that month, otherwise January
       if (this.preselectedDate) {
         const preselectedDateObj = this.parseDate(this.preselectedDate);
@@ -259,7 +263,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         this.currentMonth.set(0); // Start with January
       }
-      
+
       this.updateCurrentDate();
       this.loadCurrentMonthIssues();
     }
@@ -292,7 +296,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     if (preselectedDateObj) {
       const newMonth = preselectedDateObj.getMonth();
       const newYear = preselectedDateObj.getFullYear();
-      
+
       // Only update if month/year changed
       if (newMonth !== this.currentMonth() || newYear !== this.currentYear()) {
         this.currentMonth.set(newMonth);
@@ -400,6 +404,39 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     this.closePopup.emit();
   }
 
+  private setupReactiveDataLoading(): void {
+    // Listen specifically to periodical state changes for month issues
+    this.store.select(selectPeriodicalState)
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe((state) => {
+        // Check if current month has new data when state changes
+        if (state?.monthIssues) {
+          this.updateCurrentMonthFromStore();
+        }
+      });
+  }
+
+  private updateCurrentMonthFromStore(): void {
+    const year = this.currentYear();
+    const month = this.currentMonth() + 1;
+    
+    // Get the current data from store (synchronously)
+    let currentData: any[] = [];
+    this.store.select(selectMonthIssues(year, month))
+      .pipe(take(1))
+      .subscribe(issues => {
+        currentData = issues as any[];
+      });
+      
+    if (currentData.length > 0) {
+      console.log(`Found ${currentData.length} issues in store for ${year}-${month}, updating calendar`);
+      this.currentMonthIssues.set(currentData);
+      this.updateIssueMapForMonth(currentData);
+    }
+  }
+
 
   // Always lazy load current month
   loadCurrentMonthIssues(): void {
@@ -407,20 +444,20 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     const year = this.currentYear();
     const month = this.currentMonth() + 1; // Convert 0-based to 1-based month
     const monthKey = `${year}-${month}`;
-    
+
     // Clear any existing timeout for this month
     if (this.loadingTimeouts.has(monthKey)) {
       clearTimeout(this.loadingTimeouts.get(monthKey));
     }
-    
+
     // Debounce the loading to prevent rapid calls
     const timeoutId = setTimeout(() => {
       this.loadingTimeouts.delete(monthKey);
-      
+
       // Get current state and dispatch if needed
       this.store.select(selectPidFromAvailableYears(year.toString())).pipe(take(1)).subscribe(volumeUuid => {
         const uuid = volumeUuid as string;
-        
+
         if (!uuid) {
           console.warn(`No volume UUID found for year ${year}`);
           return;
@@ -429,12 +466,12 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
         // Check current state
         this.store.select(selectMonthIssues(year, month)).pipe(take(1)).subscribe(issues => {
           const monthIssues = issues as any[];
-          
+
           this.store.select(selectMonthLoading(year, month)).pipe(take(1)).subscribe(loading => {
             const isLoading = loading as boolean;
-            
+
             console.log(`Month ${year}-${month}: issues=${monthIssues.length}, loading=${isLoading}`);
-            
+
             // Only dispatch if we don't have data and aren't loading
             if (monthIssues.length === 0 && !isLoading) {
               console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
@@ -452,7 +489,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
         });
       });
     }, 100); // 100ms debounce
-    
+
     this.loadingTimeouts.set(monthKey, timeoutId);
   }
 
@@ -485,7 +522,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy {
     // Clear all pending timeouts
     this.loadingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
     this.loadingTimeouts.clear();
-    
+
     this.destroy$.next();
     this.destroy$.complete();
   }
