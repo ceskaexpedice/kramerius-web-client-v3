@@ -21,7 +21,7 @@ import {
   selectMonthLoading,
   selectPidFromAvailableYears,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import {catchError, of, combineLatest, Subject} from 'rxjs';
+import {Subject, take} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
@@ -229,6 +229,7 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
   isLoadingCurrentMonth = signal(false);
   
   private destroy$ = new Subject<void>();
+  private loadingTimeouts = new Map<string, any>();
 
   monthNames: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -402,46 +403,61 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
     this.closePopup.emit();
   }
 
+
   // Lazy loading methods for calendar popup
   loadCurrentMonthIssues(): void {
     if (!this.lazyLoadingEnabled()) return;
 
     const year = this.currentYear();
     const month = this.currentMonth() + 1; // Convert 0-based to 1-based month
+    const monthKey = `${year}-${month}`;
+    
+    // Clear any existing timeout for this month
+    if (this.loadingTimeouts.has(monthKey)) {
+      clearTimeout(this.loadingTimeouts.get(monthKey));
+    }
+    
+    // Debounce the loading to prevent rapid calls
+    const timeoutId = setTimeout(() => {
+      this.loadingTimeouts.delete(monthKey);
+      
+      // Get current state and dispatch if needed
+      this.store.select(selectPidFromAvailableYears(year.toString())).pipe(take(1)).subscribe(volumeUuid => {
+        const uuid = volumeUuid as string;
+        
+        if (!uuid) {
+          console.warn(`No volume UUID found for year ${year}`);
+          return;
+        }
 
-    // Combine all the data streams we need
-    combineLatest([
-      this.store.select(selectPidFromAvailableYears(year.toString())).pipe(catchError(() => of(''))),
-      this.store.select(selectMonthIssues(year, month)).pipe(catchError(() => of([]))),
-      this.store.select(selectMonthLoading(year, month)).pipe(catchError(() => of(false)))
-    ]).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(([volumeUuid, issues, loading]) => {
-      // Update loading state
-      this.isLoadingCurrentMonth.set(loading as boolean);
-
-      const uuid = volumeUuid as string;
-      const monthIssues = issues as any[];
-      const isLoading = loading as boolean;
-
-      if (!uuid) {
-        console.warn(`No volume UUID found for year ${year}`);
-        return;
-      }
-
-      // If we have no issues and we're not currently loading, dispatch the load action
-      if (monthIssues.length === 0 && !isLoading) {
-        this.store.dispatch(loadMonthIssues({
-          parentVolumeUuid: uuid,
-          year,
-          month
-        }));
-      } else if (monthIssues.length > 0) {
-        // Update calendar with loaded issues
-        this.currentMonthIssues.set(monthIssues);
-        this.updateIssueMapForMonth(monthIssues);
-      }
-    });
+        // Check current state
+        this.store.select(selectMonthIssues(year, month)).pipe(take(1)).subscribe(issues => {
+          const monthIssues = issues as any[];
+          
+          this.store.select(selectMonthLoading(year, month)).pipe(take(1)).subscribe(loading => {
+            const isLoading = loading as boolean;
+            
+            console.log(`Month ${year}-${month}: issues=${monthIssues.length}, loading=${isLoading}`);
+            
+            // Only dispatch if we don't have data and aren't loading
+            if (monthIssues.length === 0 && !isLoading) {
+              console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
+              this.store.dispatch(loadMonthIssues({
+                parentVolumeUuid: uuid,
+                year,
+                month
+              }));
+            } else if (monthIssues.length > 0) {
+              // Update calendar with existing issues
+              this.currentMonthIssues.set(monthIssues);
+              this.updateIssueMapForMonth(monthIssues);
+            }
+          });
+        });
+      });
+    }, 100); // 100ms debounce
+    
+    this.loadingTimeouts.set(monthKey, timeoutId);
   }
 
   private updateIssueMapForMonth(items: any[]): void {
@@ -470,6 +486,10 @@ export class CalendarPopupComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Clear all pending timeouts
+    this.loadingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.loadingTimeouts.clear();
+    
     this.destroy$.next();
     this.destroy$.complete();
   }
