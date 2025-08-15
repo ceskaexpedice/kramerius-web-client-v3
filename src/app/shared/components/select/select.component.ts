@@ -62,6 +62,9 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
         this.filterText = '';
         this.updateFilteredOptions();
         this.focusedIndex = this.filteredOptions.findIndex((o) => o === this.value);
+        if (this.focusedIndex >= 0) {
+          this.scrollFocusedIntoView();
+        }
       }
       return !v;
     });
