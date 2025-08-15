@@ -13,6 +13,7 @@
           <div left class="max-width-100" *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
               [title]="document?.['root.title'] || ''"
+              [showBackButton]="recordHandler.shouldShowBackButton()"
               (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="periodical.goBackClicked()">
             </app-toolbar-header>

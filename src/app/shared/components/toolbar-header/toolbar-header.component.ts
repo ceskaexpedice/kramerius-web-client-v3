@@ -9,6 +9,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 export class ToolbarHeaderComponent {
 
   @Input() title: string = '';
+  @Input() showBackButton: boolean = true;
 
   @Output() goBack = new EventEmitter<void>();
   @Output() titleClick = new EventEmitter<void>();

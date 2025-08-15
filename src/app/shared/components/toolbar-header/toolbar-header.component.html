@@ -1,7 +1,10 @@
 <div class="toolbar-header">
-  <button class="icon-button button link primary" (click)="goBackClicked()">
-    <i class="icon-arrow-left"></i>
-  </button>
+
+  @if (showBackButton) {
+    <button class="icon-button button link primary" (click)="goBackClicked()">
+      <i class="icon-arrow-left"></i>
+    </button>
+  }
 
   <h2 class="title cursor-pointer" (click)="titleClicked()">{{ title }}</h2>
 </div>

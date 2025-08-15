@@ -302,4 +302,14 @@ export class RecordHandlerService {
     // Return false if it contains an online license, otherwise return true
     return !hasOnlineLicense;
   }
+
+  goBackClicked(): void {
+    window.history.back();
+  }
+
+  shouldShowBackButton(): boolean {
+    console.log('back history:', window.history)
+    // check if there is something in the history stack
+    return window.history.length > 2;
+  }
 }
