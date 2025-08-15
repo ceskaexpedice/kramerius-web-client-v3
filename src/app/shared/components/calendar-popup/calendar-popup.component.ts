@@ -342,13 +342,23 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     if (changes['year'] && this.year) {
       const yearNum = parseInt(this.year, 10);
       this.currentYear.set(yearNum);
-      this.currentMonth.set(0); // Start with January
+      
+      // Check if we have a preselected date to determine the starting month
+      let startingMonth = 0; // Default to January
+      if (this.preselectedDate) {
+        const preselectedDateObj = this.parseDate(this.preselectedDate);
+        if (preselectedDateObj && preselectedDateObj.getFullYear() === yearNum) {
+          startingMonth = preselectedDateObj.getMonth();
+        }
+      }
+      
+      this.currentMonth.set(startingMonth);
       this.updateCurrentDate();
-
-      // Always lazy load when year changes
       this.loadCurrentMonthIssues();
     }
-    if (changes['preselectedDate'] && this.preselectedDate) {
+    if (changes['preselectedDate'] && this.preselectedDate && !changes['year']) {
+      // Only process preselected date change if year didn't change
+      // (year change already handles preselected date above)
       this.updateCalendarToPreselectedDate();
     }
   }
