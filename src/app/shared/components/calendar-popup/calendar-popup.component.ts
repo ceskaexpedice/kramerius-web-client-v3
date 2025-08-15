@@ -28,12 +28,14 @@ import {
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import {Subject, take} from 'rxjs';
 import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
+import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selector/month-year-selector.component';
 
 @Component({
   selector: 'app-calendar-popup',
   imports: [
     MatCalendar,
     NgIf,
+    MonthYearSelectorComponent,
   ],
   providers: [
     {
@@ -44,15 +46,22 @@ import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
   ],
   template: `
     <div class="calendar-dropdown">
-      <div class="calendar-popup-header">
-        <button class="nav-btn" (click)="previousMonth()">
-          <i class="icon-arrow-left-1"></i>
-        </button>
-        <h3>{{ monthNames[currentMonth()] }} {{ currentYear() }}</h3>
-        <button class="nav-btn" (click)="nextMonth()">
-          <i class="icon-arrow-right-1"></i>
-        </button>
-        <button class="close-btn" (click)="close()">×</button>
+<!--      <div class="calendar-popup-header">-->
+<!--        <button class="nav-btn" (click)="previousMonth()">-->
+<!--          <i class="icon-arrow-left-1"></i>-->
+<!--        </button>-->
+<!--        <h3>{{ monthNames[currentMonth()] }} {{ currentYear() }}</h3>-->
+<!--        <button class="nav-btn" (click)="nextMonth()">-->
+<!--          <i class="icon-arrow-right-1"></i>-->
+<!--        </button>-->
+<!--        <button class="close-btn" (click)="close()">×</button>-->
+<!--      </div>-->
+      <div class="calendar-popup-selectors">
+        <app-month-year-selector
+          [month]="currentMonth()"
+          [year]="currentYear()"
+          (monthYearChange)="onMonthYearChange($event)">
+        </app-month-year-selector>
       </div>
       <div class="single-calendar-container">
         <div class="loading-overlay" *ngIf="isLoadingCalendar()">
@@ -84,6 +93,7 @@ import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
       width: 280px;
       z-index: 1000;
       margin-top: 4px;
+      padding: var(--spacing-x2) var(--spacing-x5) var(--spacing-x5) var(--spacing-x5);
     }
 
     .calendar-popup-header {
@@ -142,8 +152,13 @@ import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
       background-color: #e0e0e0;
     }
 
+    .calendar-popup-selectors {
+      padding: var(--spacing-x2) 0;
+      border-bottom: 1px solid var(--color-border-bright);
+    }
+
     .single-calendar-container {
-      padding: 20px;
+      margin-top: var(--spacing-x2);
       display: flex;
       justify-content: center;
       position: relative;
@@ -192,6 +207,10 @@ import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
       100% {
         transform: rotate(360deg);
       }
+    }
+
+    :host ::ng-deep .mat-calendar-header {
+      display: none !important;
     }
 
     :host ::ng-deep .mat-calendar {
@@ -481,6 +500,14 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
   close(): void {
     this.closePopup.emit();
+  }
+
+  onMonthYearChange(change: MonthYearChange): void {
+    this.currentMonth.set(change.month);
+    this.currentYear.set(change.year);
+    this.updateCurrentDate();
+    this.navigateCalendar();
+    this.loadCurrentMonthIssues();
   }
 
 
