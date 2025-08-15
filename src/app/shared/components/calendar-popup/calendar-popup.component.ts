@@ -274,7 +274,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
   @Input() year!: string;
   @Input() preselectedDate?: string;
-  @Output() dateSelected = new EventEmitter<string>();
+  @Output() dateSelected = new EventEmitter<{pid: string, year: number}>();
   @Output() closePopup = new EventEmitter<void>();
 
   // Current view state
@@ -474,7 +474,10 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     if (!date) return;
     const issues = this.issueMap().get(this.formatDateKey(date));
     if (issues && issues.length > 0) {
-      this.dateSelected.emit(issues[0].pid);
+      this.dateSelected.emit({
+        pid: issues[0].pid,
+        year: date.getFullYear()
+      });
     }
   }
 

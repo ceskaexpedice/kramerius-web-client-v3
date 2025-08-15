@@ -17,7 +17,7 @@ export class DateNavigatorComponent {
 
   @Output() goToNext = new EventEmitter<void>();
   @Output() goToPrevious = new EventEmitter<void>();
-  @Output() dateSelected = new EventEmitter<string>();
+  @Output() dateSelected = new EventEmitter<{pid: string, year: number}>();
 
   showCalendarPopup = signal(false);
 
@@ -35,8 +35,8 @@ export class DateNavigatorComponent {
     }
   }
 
-  onCalendarDateSelected(pid: string) {
-    this.dateSelected.emit(pid);
+  onCalendarDateSelected(dateInfo: {pid: string, year: number}) {
+    this.dateSelected.emit(dateInfo);
     this.showCalendarPopup.set(false);
   }
 

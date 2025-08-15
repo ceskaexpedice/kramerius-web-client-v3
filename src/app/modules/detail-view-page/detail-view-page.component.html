@@ -78,7 +78,7 @@
         [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
         (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
         (goToNext)="detailViewService.goToNextPeriodicalIssue()"
-        (dateSelected)="detailViewService.navigateToDate($event)"
+        (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)"
       >
       </app-date-navigator>
     </ng-container>

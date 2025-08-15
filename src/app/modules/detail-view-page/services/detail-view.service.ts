@@ -12,7 +12,7 @@ import {
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
 import {Observable, skip, take, filter} from 'rxjs';
-import {selectPeriodicalChildren} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
+import {selectPeriodicalChildren, selectPidFromAvailableYears} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
 import {RecordInfoService} from '../../../shared/services/record-info.service';
 import {Metadata} from '../../../shared/models/metadata.model';
 import {SoundRecordGridControl} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -288,7 +288,62 @@ export class DetailViewService {
     });
   }
 
-  navigateToDate(pid: string) {
-    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+  navigateToDate(pid: string, year?: number) {
+    if (year && this.needsYearDataLoading(year)) {
+      this.loadYearDataAndNavigate(pid, year);
+    } else {
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+    }
+  }
+
+  private needsYearDataLoading(targetYear: number): boolean {
+    const currentLoadedYear = this.getCurrentLoadedYear();
+    return currentLoadedYear !== null && currentLoadedYear !== targetYear;
+  }
+
+  private getCurrentLoadedYear(): number | null {
+    let currentYear: number | null = null;
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      if (children && children.length > 0) {
+        // Get year from first child's date
+        const firstChild = children[0];
+        if (firstChild['date.str']) {
+          const dateParts = firstChild['date.str'].split('.');
+          if (dateParts.length >= 3) {
+            currentYear = parseInt(dateParts[2], 10);
+          }
+        }
+      }
+    });
+    return currentYear;
+  }
+
+  private loadYearDataAndNavigate(pid: string, year: number) {
+    // First, get the volume UUID for the target year
+    this.store.select(selectPidFromAvailableYears(year.toString())).pipe(take(1)).subscribe(volumeUuid => {
+      const uuid = volumeUuid as string;
+      
+      if (!uuid) {
+        console.warn(`No volume UUID found for year ${year}, navigating anyway`);
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+        return;
+      }
+
+      console.log(`Loading periodical items for year ${year} with volume UUID: ${uuid}`);
+      
+      // Dispatch action to load the year's children
+      this.store.dispatch(loadPeriodicalItems({
+        parentVolumeUuid: uuid
+      }));
+
+      // Wait for the data to load, then navigate
+      this.store.select(selectPeriodicalChildren).pipe(
+        filter(children => children && children.length > 0),
+        take(1)
+      ).subscribe(() => {
+        console.log(`Year ${year} data loaded, navigating to ${pid}`);
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+      });
+    });
   }
 }
