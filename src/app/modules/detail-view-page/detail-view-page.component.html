@@ -108,7 +108,7 @@
 
       <div class="detail-view--page--content--body">
         <div class="detail-view--page--content--wrapper">
-          <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+          <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
                class="app-document-thumbnail">
         </div>
       </div>
