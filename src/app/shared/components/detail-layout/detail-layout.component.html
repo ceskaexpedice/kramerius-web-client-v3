@@ -15,18 +15,24 @@
 <!--      <ng-content select="[left-sidebar]"></ng-content>-->
 <!--    </aside>-->
 
-    <main class="detail-layout--main-content">
+    <main class="detail-layout--main">
 
-      <ng-content select="[main-content]"></ng-content>
+      <div class="detail-layout--main-content">
+
+        <ng-content select="[main-content]"></ng-content>
+
+      </div>
+
+      @if (showBottomToolbar) {
+        <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
+          <ng-content select="[bottom-toolbar]"></ng-content>
+        </footer>
+      }
 
     </main>
 
   </div>
 
-  @if (showBottomToolbar) {
-    <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
-      <ng-content select="[bottom-toolbar]"></ng-content>
-    </footer>
-  }
+
 
 </div>

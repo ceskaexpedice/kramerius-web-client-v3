@@ -25,6 +25,13 @@
     overflow: hidden;
   }
 
+  &--main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   &--main-content {
     flex: 1;
     display: flex;
@@ -36,9 +43,11 @@
     padding: var(--spacing-x2) var(--spacing-x4);
     background: var(--color-bg-base);
     z-index: 10;
+    flex: 0 0 auto;
+    border-radius: 8px 8px 0 0;
 
     &.constrained {
-      flex: 1;
+      flex: 0 0 auto;
     }
   }
 }
