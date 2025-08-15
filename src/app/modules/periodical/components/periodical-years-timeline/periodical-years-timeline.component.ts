@@ -75,5 +75,9 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
     return result;
   }
 
+  getNonNullYears(years: (PeriodicalItemYear | null)[]): PeriodicalItemYear[] {
+    return years.filter(y => y !== null) as PeriodicalItemYear[];
+  }
+
   protected readonly Number = Number;
 }

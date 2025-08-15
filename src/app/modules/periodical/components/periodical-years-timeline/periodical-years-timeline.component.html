@@ -15,22 +15,31 @@
     </div>
   </div>
 
-  <div class="year-row" *ngFor="let row of yearsByDecades">
-    <div class="row-line"></div>
+  @for (row of yearsByDecades; track row) {
 
-    <div
-      class="year-item--container"
-      *ngFor="let year of row"
-      [ngClass]="{
+    @if (getNonNullYears(row).length > 0) {
+
+      <div class="year-row">
+        <div class="row-line"></div>
+
+        <div
+          class="year-item--container"
+          *ngFor="let year of row"
+          [ngClass]="{
         'placeholder': year === null,
         'accessibility-available': !recordHandler.isRecordLocked(year?.licenses || []),
         'accessibility-disabled': recordHandler.isRecordLocked(year?.licenses || [])
       }"
-      (click)="year !== null && selectYear.emit(year.year.toString())"
-    >
-      <div class="year-item" *ngIf="year !== null">
-        <div class="year-item--wrapper">{{ year.year }}</div>
+          (click)="year !== null && selectYear.emit(year.year.toString())"
+        >
+          <div class="year-item" *ngIf="year !== null">
+            <div class="year-item--wrapper">{{ year.year }}</div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+
+    }
+
+  }
+
 </div>
