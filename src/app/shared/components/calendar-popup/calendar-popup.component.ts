@@ -558,35 +558,38 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
           return;
         }
 
-        // Check current state
-        this.store.select(selectMonthIssues(year, month)).pipe(take(1)).subscribe(issues => {
-          const monthIssues = issues as any[];
+        // Check current state by looking at the raw store data
+        this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
+          const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+          const monthIssues = state?.monthIssues[monthKey];
+          const isLoading = !!state?.monthLoading[monthKey];
+          const hasBeenLoaded = monthKey in (state?.monthIssues || {});
 
-          this.store.select(selectMonthLoading(year, month)).pipe(take(1)).subscribe(loading => {
-            const isLoading = loading as boolean;
+          console.log(`Month ${year}-${month}: hasBeenLoaded=${hasBeenLoaded}, issues=${monthIssues?.length || 0}, loading=${isLoading}`);
 
-            console.log(`Month ${year}-${month}: issues=${monthIssues.length}, loading=${isLoading}`);
+          if (!hasBeenLoaded && !isLoading) {
+            // No data cached and not loading - dispatch new request
+            console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
+            this.store.dispatch(loadMonthIssues({
+              parentVolumeUuid: uuid,
+              year,
+              month,
+            }));
+            // Keep loading state - it will be cleared when data arrives via reactive subscription
+          } else {
+            // Data already exists or is loading, clear loading state
+            this.isLoadingCalendar.set(false);
 
-            // Only dispatch if we don't have data and aren't loading
-            if (monthIssues.length === 0 && !isLoading) {
-              console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
-              this.store.dispatch(loadMonthIssues({
-                parentVolumeUuid: uuid,
-                year,
-                month,
-              }));
-              // Keep loading state - it will be cleared when data arrives via reactive subscription
+            if (monthIssues && monthIssues.length > 0) {
+              // Update calendar with existing issues
+              this.currentMonthIssues.set(monthIssues);
+              this.updateIssueMapForMonth(monthIssues);
             } else {
-              // Data already exists or is loading, clear loading state
-              this.isLoadingCalendar.set(false);
-
-              if (monthIssues.length > 0) {
-                // Update calendar with existing issues
-                this.currentMonthIssues.set(monthIssues);
-                this.updateIssueMapForMonth(monthIssues);
-              }
+              // Clear calendar for empty month (including cached empty data)
+              this.currentMonthIssues.set([]);
+              this.issueMap.set(new Map());
             }
-          });
+          }
         });
       });
     }, 100); // 100ms debounce
