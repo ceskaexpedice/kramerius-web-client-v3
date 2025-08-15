@@ -312,26 +312,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   ngOnInit(): void {
-    // Lazy load data when component opens
-    if (this.year) {
-      const yearNum = parseInt(this.year, 10);
-      this.currentYear.set(yearNum);
 
-      // If preselected date exists, start with that month, otherwise January
-      if (this.preselectedDate) {
-        const preselectedDateObj = this.parseDate(this.preselectedDate);
-        if (preselectedDateObj && preselectedDateObj.getFullYear() === yearNum) {
-          this.currentMonth.set(preselectedDateObj.getMonth());
-        } else {
-          this.currentMonth.set(0); // Start with January
-        }
-      } else {
-        this.currentMonth.set(0); // Start with January
-      }
-
-      this.updateCurrentDate();
-      this.loadCurrentMonthIssues();
-    }
   }
 
   ngAfterViewInit(): void {
@@ -339,10 +320,11 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // Handle year changes (including initial setup)
     if (changes['year'] && this.year) {
       const yearNum = parseInt(this.year, 10);
       this.currentYear.set(yearNum);
-      
+
       // Check if we have a preselected date to determine the starting month
       let startingMonth = 0; // Default to January
       if (this.preselectedDate) {
@@ -351,14 +333,16 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
           startingMonth = preselectedDateObj.getMonth();
         }
       }
-      
+
       this.currentMonth.set(startingMonth);
       this.updateCurrentDate();
       this.loadCurrentMonthIssues();
+      return; // Early return to avoid duplicate processing
     }
-    if (changes['preselectedDate'] && this.preselectedDate && !changes['year']) {
-      // Only process preselected date change if year didn't change
-      // (year change already handles preselected date above)
+
+    // Handle preselected date changes (only if year didn't change)
+    if (changes['preselectedDate'] && this.preselectedDate) {
+      console.log('Preselected date changed:', this.preselectedDate);
       this.updateCalendarToPreselectedDate();
     }
   }
@@ -374,6 +358,8 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     const preselectedDateObj = this.parseDate(this.preselectedDate);
     if (preselectedDateObj) {
+      this.isLoadingCalendar.set(true);
+
       const newMonth = preselectedDateObj.getMonth();
       const newYear = preselectedDateObj.getFullYear();
 
@@ -385,6 +371,8 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
         this.loadCurrentMonthIssues(); // Lazy load the new month
       }
       this.refreshCalendar();
+
+      this.isLoadingCalendar.set(false);
     }
   }
 
