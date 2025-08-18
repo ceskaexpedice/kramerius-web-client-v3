@@ -98,6 +98,11 @@ export class RecordHandlerService {
     this.router.navigate([APP_ROUTES_ENUM.MUSIC_VIEW, pid]);
   }
 
+  public navigateToEmptySearch(): void {
+    this.searchService.searchTerm.set('');
+    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
+  }
+
   navigateFromPeriodicalToSearchResults(): void {
     const returnUrl = this.searchService.getBackupSearchUrl();
     if (returnUrl) {

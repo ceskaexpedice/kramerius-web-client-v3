@@ -12,6 +12,7 @@ import {SearchService} from '../../../shared/services/search.service';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import {RecordHandlerService} from '../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-header',
@@ -39,7 +40,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private settingsService: SettingsService,
     public searchService: SearchService,
-    private advancedSearch: AdvancedSearchService
+    private advancedSearch: AdvancedSearchService,
+    private recordHandler: RecordHandlerService
   ) {}
 
   ngOnInit() {
@@ -73,7 +75,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logoClicked() {
-    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
+    this.recordHandler.navigateToEmptySearch();
   }
 
   updateHeaderType() {

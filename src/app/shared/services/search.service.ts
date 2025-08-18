@@ -88,6 +88,7 @@ export class SearchService extends BaseFilterService {
   }
 
   onSubmit(term: string): void {
+    this.customSearchService.clear();
     this.onSearch(term);
   }
 
@@ -170,8 +171,7 @@ export class SearchService extends BaseFilterService {
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
         sortDirection: this._sortDirection()
-      },
-      queryParamsHandling: 'merge'
+      }
     });
   }
 
