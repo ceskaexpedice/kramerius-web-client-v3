@@ -37,8 +37,12 @@
 .date-picker--popup-calendar {
   display: flex;
   gap: var(--spacing-x6);
-  position: absolute;
-  width: 100%;
-  z-index: 1000;
+  position: fixed;
+  width: auto;
+  z-index: 1001;
   background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: var(--spacing-x4);
 }

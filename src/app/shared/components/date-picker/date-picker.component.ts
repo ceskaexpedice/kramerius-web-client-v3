@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter, inject,
   Input,
   OnChanges,
@@ -57,6 +58,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
   dateTo = signal(new Date());
 
   @ViewChild(MatCalendar) calendarFrom!: MatCalendar<Date>;
+  @ViewChild('popupCalendar') popupCalendar!: ElementRef;
 
 
   @Input() initialDateFrom: Date | null = null;
@@ -90,6 +92,31 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   toggleOpenPopupCalendar() {
     this.openedPopupCalendar = !this.openedPopupCalendar;
+    if (this.openedPopupCalendar) {
+      setTimeout(() => this.positionPopup(), 0);
+    }
+  }
+
+  private positionPopup() {
+    if (!this.popupCalendar) return;
+    
+    const containerElement = this.popupCalendar.nativeElement.previousElementSibling;
+    if (!containerElement) return;
+    
+    const rect = containerElement.getBoundingClientRect();
+    const popup = this.popupCalendar.nativeElement;
+    
+    // Position below the input
+    popup.style.top = `${rect.bottom + 8}px`;
+    popup.style.left = `${rect.left}px`;
+    
+    // Ensure popup doesn't go off-screen
+    const popupRect = popup.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    
+    if (popupRect.right > viewportWidth) {
+      popup.style.left = `${viewportWidth - popupRect.width - 16}px`;
+    }
   }
 
   private updateFromInitialValues() {
