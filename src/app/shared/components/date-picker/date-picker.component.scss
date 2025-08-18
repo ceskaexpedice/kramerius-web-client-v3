@@ -22,6 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-x2);
 
   .selected {
     border-color: var(--color-primary);
@@ -29,5 +30,15 @@
 
   button {
     padding: var(--spacing-x1) var(--spacing-x2);
+    flex: 1;
   }
+}
+
+.date-picker--popup-calendar {
+  display: flex;
+  gap: var(--spacing-x6);
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+  background-color: var(--color-bg-base);
 }

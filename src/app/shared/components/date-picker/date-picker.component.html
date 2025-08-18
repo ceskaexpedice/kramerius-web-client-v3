@@ -1,35 +1,24 @@
 <div class="date-picker--container">
 
-  <app-input-date
-    [valueSignal]="fromDate"
-    (valueChange)="onFromDateInput($event)"
-    [label]="'DD.MM.YYYY'"
-    [minDate]="minDate"
-    [maxDate]="maxDate"
-    [size]="'lg'"
+<!--  <app-input-date-->
+<!--    [valueSignal]="fromDate"-->
+<!--    (valueChange)="onFromDateInput($event)"-->
+<!--    [label]="'DD.MM.YYYY'"-->
+<!--    [minDate]="minDate"-->
+<!--    [maxDate]="maxDate"-->
+<!--    [size]="'lg'"-->
+<!--    [theme]="'dark'"-->
+<!--    [postfixIcon]="'icon-calendar'"-->
+<!--    (click)="toggleOpenPopupCalendar()"-->
+<!--  ></app-input-date>-->
+
+  <app-input
+    [placeholder]="'DD.MM.YYYY'"
+    [size]="'md'"
     [theme]="'dark'"
     [postfixIcon]="'icon-calendar'"
-  ></app-input-date>
-
-  <div class="offset-buttons">
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 1" (click)="onOffsetClick(1)">
-      +1 {{ 'day' | translate | lowercase }}
-    </button>
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 3" (click)="onOffsetClick(3)">
-      +3 {{ 'days' | translate | lowercase }}
-    </button>
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 7" (click)="onOffsetClick(7)">
-      + {{'week' | translate | lowercase}}
-    </button>
-
-    <button class="outlined tertiary sm" (click)="toggleOpenedMore()">
-      + {{openedMore ? ('hide' | translate | lowercase) : ('more' | translate | lowercase)}}
-    </button>
-
-  </div>
+    (click)="toggleOpenPopupCalendar()"
+  ></app-input>
 
   @if (openedMore) {
     <div class="more-section--inputs">
@@ -63,4 +52,71 @@
   }
 
 
+</div>
+
+<div class="date-picker--popup-calendar" *ngIf="openedPopupCalendar">
+
+  <div class="calendar--container calendar--from">
+
+    <mat-checkbox
+      [(ngModel)]="isRangeModeActive"
+    >
+
+    </mat-checkbox>
+
+    <div class="offset-buttons">
+
+      <button class="outlined tertiary sm" [class.selected]="offset() === 1" (click)="onOffsetClick(1)">
+        +1 {{ 'day' | translate | lowercase }}
+      </button>
+
+      <button class="outlined tertiary sm" [class.selected]="offset() === 3" (click)="onOffsetClick(3)">
+        +3 {{ 'days' | translate | lowercase }}
+      </button>
+
+      <button class="outlined tertiary sm" [class.selected]="offset() === 7" (click)="onOffsetClick(7)">
+        + {{'week' | translate | lowercase}}
+      </button>
+
+      <!--    <button class="outlined tertiary sm" (click)="toggleOpenedMore()">-->
+      <!--      + {{openedMore ? ('hide' | translate | lowercase) : ('more' | translate | lowercase)}}-->
+      <!--    </button>-->
+
+    </div>
+
+    <div class="calendar-popup-selectors">
+      <app-month-year-selector
+        [month]="monthFrom()"
+        [year]="yearFrom()"
+        [showMonthNavigation]="true"
+        (monthYearChange)="onMonthYearChangeFrom($event)">
+      </app-month-year-selector>
+    </div>
+
+    <mat-calendar class="custom-label"
+                  [startView]="'month'">
+    </mat-calendar>
+
+  </div>
+
+  @if (isRangeModeActive) {
+
+    <div class="calendar--container calendar--to">
+
+      <div class="calendar-popup-selectors">
+        <app-month-year-selector
+          [month]="monthFrom()"
+          [year]="yearFrom()"
+          [showMonthNavigation]="true"
+          (monthYearChange)="onMonthYearChangeTo($event)">
+        </app-month-year-selector>
+      </div>
+
+      <mat-calendar class="custom-label"
+                    [startView]="'month'">
+      </mat-calendar>
+
+    </div>
+
+  }
 </div>
