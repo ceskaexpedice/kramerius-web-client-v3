@@ -38,6 +38,8 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() pattern?: string;
   @Input() withIcons: boolean = true;
   @Input() prefix?: string;
+  @Input() prefixIcon = '';
+  @Input() postfixIcon = '';
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';
