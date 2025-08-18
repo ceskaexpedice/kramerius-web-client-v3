@@ -35,12 +35,12 @@
 
         </div>
 
-        <app-tab-item label="HTML">
-          <div class="tab-item--content" [innerHTML]="citationResponse?.iso690html"></div>
-        </app-tab-item>
-
         <app-tab-item label="text">
           <div class="tab-item--content" [innerHTML]="citationResponse?.iso690"></div>
+        </app-tab-item>
+
+        <app-tab-item label="HTML">
+          <div class="tab-item--content">{{citationResponse?.iso690html}}</div>
         </app-tab-item>
 
         <app-tab-item label="BibTeX">
