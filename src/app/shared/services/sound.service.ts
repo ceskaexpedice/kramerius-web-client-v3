@@ -61,6 +61,18 @@ export class SoundService {
     }
   }
 
+  loadTrack(track: SoundTrackModel) {
+    const index = this.queue.findIndex(t => t.pid === track.pid);
+    if (index !== -1) {
+      this.currentIndex.set(index);
+
+      this.audio.src = track.url;
+      this.audio.load();
+    } else {
+      console.warn('Track not found in queue:', track.pid);
+    }
+  }
+
   pause() {
     this.audio.pause();
     this.isPlaying.set(false);
@@ -139,6 +151,10 @@ export class SoundService {
 
   getCurrentTrack(): SoundTrackModel | null {
     return this.currentTrack || null;
+  }
+
+  setIndexToZero() {
+    this.currentIndex.set(0);
   }
 
   getImageThumbnailUrl(pid: string): string {

@@ -113,6 +113,10 @@ export class MusicService {
   addTrackToQueue(track: SoundTrackModel): void {
     this.soundService.addToQueue(track);
 
+    if (!this.soundService.getCurrentTrack()) {
+      this.soundService.loadTrack(track);
+    }
+
     this.toastService.show('track-added-to-queue');
   }
 
