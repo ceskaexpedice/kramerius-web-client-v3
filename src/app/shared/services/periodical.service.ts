@@ -618,7 +618,7 @@ export class PeriodicalService extends BaseFilterService {
   // Lazy loading methods for calendar months
   loadMonthIssues(year: string, month: number): Observable<any[]> {
     const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-    
+
     if (this.monthlyIssuesCache.has(monthKey)) {
       return of(this.monthlyIssuesCache.get(monthKey) || []);
     }
@@ -636,11 +636,11 @@ export class PeriodicalService extends BaseFilterService {
       map(issues => {
         this.monthlyIssuesCache.set(monthKey, issues);
         this.loadingMonths.delete(monthKey);
-        
+
         if (this.loadingMonths.size === 0) {
           this.monthlyIssuesLoading.set(false);
         }
-        
+
         return issues;
       })
     );

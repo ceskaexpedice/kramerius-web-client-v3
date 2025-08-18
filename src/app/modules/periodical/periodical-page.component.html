@@ -15,7 +15,7 @@
               [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton()"
               (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
-              (goBack)="periodical.goBackClicked()">
+              (goBack)="recordHandler.goBackClicked()">
             </app-toolbar-header>
           </div>
 
