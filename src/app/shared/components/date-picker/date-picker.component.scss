@@ -88,6 +88,62 @@
   }
 }
 
+// Hide default calendar header since we use custom month-year selector
 :host ::ng-deep .mat-calendar-header {
   display: none !important;
+}
+
+// Date range highlighting
+:host ::ng-deep .mat-calendar-body {
+  .mat-calendar-body-cell {
+    position: relative;
+    
+    &.range-start {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        border-radius: 50%;
+      }
+    }
+    
+    &.range-end {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        border-radius: 50%;
+      }
+    }
+    
+    &.range-middle {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary-light, rgba(var(--color-primary-rgb, 33, 150, 243), 0.2)) !important;
+        color: var(--color-text-base) !important;
+        border-radius: 0 !important;
+      }
+      
+      // Add full-width background for middle range dates
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--color-primary-light, rgba(var(--color-primary-rgb, 33, 150, 243), 0.2));
+        z-index: -1;
+      }
+    }
+    
+    &.range-start.range-end {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        border-radius: 50% !important;
+      }
+      
+      &::before {
+        display: none;
+      }
+    }
+  }
 }

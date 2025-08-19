@@ -62,7 +62,8 @@ export class DatePickerComponent implements OnInit, OnChanges {
   toDate = signal<Date | undefined>(undefined);
   offset = signal<number>(0);
 
-  @ViewChild(MatCalendar) calendarFrom!: MatCalendar<Date>;
+  @ViewChild('calendarFrom') calendarFrom!: MatCalendar<Date>;
+  @ViewChild('calendarTo') calendarTo!: MatCalendar<Date>;
   @ViewChild('popupCalendar') popupCalendar!: ElementRef;
 
 
@@ -180,20 +181,27 @@ export class DatePickerComponent implements OnInit, OnChanges {
   }
 
   // Calendar interaction methods
-  onDateFromSelect(date: Date): void {
+  onDateFromSelect(date: Date | null): void {
+    if (!date) return;
+
     this.selectedDateFrom.set(date);
 
     // Auto-calculate toDate based on offset
-    if (this.selectedOffset() >= 0) {
+    if (this.selectedOffset() > 0) {
       const calculatedToDate = new Date(date.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
       this.selectedDateTo.set(calculatedToDate);
       this.updateToCalendarMonth(calculatedToDate);
     } else if (!this.isRangeModeActive) {
       this.selectedDateTo.set(null);
     }
+
+    // Force calendar to refresh highlighting
+    this.forceCalendarRefresh();
   }
 
-  onDateToSelect(date: Date): void {
+  onDateToSelect(date: Date | null): void {
+    if (!date) return;
+
     this.selectedDateTo.set(date);
 
     // Calculate offset if in offset mode
@@ -202,6 +210,9 @@ export class DatePickerComponent implements OnInit, OnChanges {
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
       this.selectedOffset.set(Math.max(0, diffDays));
     }
+
+    // Force calendar to refresh highlighting
+    this.forceCalendarRefresh();
   }
 
   onRangeModeToggle(): void {
@@ -214,11 +225,71 @@ export class DatePickerComponent implements OnInit, OnChanges {
       this.selectedDateTo.set(null);
       this.selectedOffset.set(0);
     }
+
+    // Force calendar to refresh highlighting
+    this.forceCalendarRefresh();
   }
 
   private updateToCalendarMonth(date: Date): void {
     this.monthTo.set(date.getMonth());
     this.yearTo.set(date.getFullYear());
+  }
+
+  private forceCalendarRefresh(): void {
+    // Force change detection to update calendar highlighting
+    this.cdr.detectChanges();
+    
+    // Trigger a refresh of the calendar views by slightly modifying and resetting active dates
+    setTimeout(() => {
+      if (this.calendarFrom) {
+        const currentActive = this.calendarFrom.activeDate;
+        this.calendarFrom.activeDate = new Date(currentActive.getTime() + 1);
+        this.calendarFrom.activeDate = currentActive;
+        this.calendarFrom.updateTodaysDate();
+      }
+      if (this.calendarTo) {
+        const currentActive = this.calendarTo.activeDate;
+        this.calendarTo.activeDate = new Date(currentActive.getTime() + 1);
+        this.calendarTo.activeDate = currentActive;
+        this.calendarTo.updateTodaysDate();
+      }
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+  // Date class function for range highlighting
+  get dateClass() {
+    // Return a new function reference that captures current signal values
+    return (date: Date): string => {
+      const fromDate = this.selectedDateFrom();
+      const toDate = this.selectedDateTo();
+
+      console.log('dateClass called for date:', date, 'from:', fromDate, 'to:', toDate);
+
+      if (!fromDate || !toDate) {
+        return '';
+      }
+
+      const dateTime = date.getTime();
+      const fromTime = fromDate.getTime();
+      const toTime = toDate.getTime();
+
+      // Ensure fromTime <= toTime
+      const startTime = Math.min(fromTime, toTime);
+      const endTime = Math.max(fromTime, toTime);
+
+      if (dateTime === startTime && dateTime === endTime) {
+        return 'range-start range-end';
+      } else if (dateTime === startTime) {
+        return 'range-start';
+      } else if (dateTime === endTime) {
+        return 'range-end';
+      } else if (dateTime > startTime && dateTime < endTime) {
+        return 'range-middle';
+      }
+
+      return '';
+    };
   }
 
 
@@ -232,6 +303,9 @@ export class DatePickerComponent implements OnInit, OnChanges {
       this.selectedDateTo.set(calculatedToDate);
       this.updateToCalendarMonth(calculatedToDate);
     }
+
+    // Force calendar to refresh highlighting
+    this.forceCalendarRefresh();
   }
 
   // Action button methods
@@ -264,12 +338,42 @@ export class DatePickerComponent implements OnInit, OnChanges {
   onMonthYearChangeFrom(change: MonthYearChange): void {
     this.monthFrom.set(change.month);
     this.yearFrom.set(change.year);
-    this.cdr.detectChanges();
+    this.updateDateFrom();
+    this.navigateCalendarFrom();
   }
 
   onMonthYearChangeTo(change: MonthYearChange): void {
     this.monthTo.set(change.month);
     this.yearTo.set(change.year);
+    this.updateDateTo();
+    this.navigateCalendarTo();
   }
 
+  private updateDateFrom(): void {
+    const date = new Date(this.yearFrom(), this.monthFrom(), 1);
+    this.fromDate.set(date);
+  }
+
+  private updateDateTo(): void {
+    const date = new Date(this.yearTo(), this.monthTo(), 1);
+    this.toDate.set(date);
+  }
+
+  private navigateCalendarFrom(): void {
+    // Programmatically navigate the Material Calendar to the current month/year
+    if (this.calendarFrom) {
+      this.calendarFrom.activeDate = new Date(this.yearFrom(), this.monthFrom(), 1);
+      // Force the calendar to update its view
+      this.cdr.detectChanges();
+    }
+  }
+
+  private navigateCalendarTo(): void {
+    // Programmatically navigate the Material Calendar to the current month/year
+    if (this.calendarTo) {
+      this.calendarTo.activeDate = new Date(this.yearTo(), this.monthTo(), 1);
+      // Force the calendar to update its view
+      this.cdr.detectChanges();
+    }
+  }
 }

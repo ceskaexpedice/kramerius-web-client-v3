@@ -19,7 +19,7 @@
           [readonly]="true"
         ></app-input>
       </div>
-      
+
       @if (isRangeModeActive || selectedOffset() > 0) {
         <div class="date-input-section">
           <app-input
@@ -65,9 +65,11 @@
         </div>
 
         <mat-calendar
+          #calendarFrom
           class="custom-calendar"
           [startView]="'month'"
           [selected]="selectedDateFrom()"
+          [dateClass]="dateClass"
           (selectedChange)="onDateFromSelect($event)"
         ></mat-calendar>
       </div>
@@ -84,9 +86,11 @@
           </div>
 
           <mat-calendar
+            #calendarTo
             class="custom-calendar"
             [startView]="'month'"
             [selected]="selectedDateTo()"
+            [dateClass]="dateClass"
             (selectedChange)="onDateToSelect($event)"
           ></mat-calendar>
         </div>
