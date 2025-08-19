@@ -287,22 +287,26 @@ export class DatePickerComponent implements OnInit {
         return '';
       }
 
-      const dateTime = date.getTime();
-      const fromTime = fromDate.getTime();
-      const toTime = toDate.getTime();
+      // Compare just the date strings for accurate comparison
+      const dateStr = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const fromStr = `${fromDate.getFullYear()}-${fromDate.getMonth()}-${fromDate.getDate()}`;
+      const toStr = `${toDate.getFullYear()}-${toDate.getMonth()}-${toDate.getDate()}`;
 
-      // Ensure fromTime <= toTime
-      const startTime = Math.min(fromTime, toTime);
-      const endTime = Math.max(fromTime, toTime);
-
-      if (dateTime === startTime && dateTime === endTime) {
+      if (dateStr === fromStr && dateStr === toStr) {
         return 'range-start range-end';
-      } else if (dateTime === startTime) {
+      } else if (dateStr === fromStr) {
         return 'range-start';
-      } else if (dateTime === endTime) {
+      } else if (dateStr === toStr) {
         return 'range-end';
-      } else if (dateTime > startTime && dateTime < endTime) {
-        return 'range-middle';
+      } else {
+        // Check if date is between fromDate and toDate
+        const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const checkFrom = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+        const checkTo = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+        
+        if (checkDate > checkFrom && checkDate < checkTo) {
+          return 'range-middle';
+        }
       }
 
       return '';
