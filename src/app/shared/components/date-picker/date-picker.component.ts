@@ -91,7 +91,9 @@ export class DatePickerComponent implements OnInit {
     this.openedPopupCalendar = !this.openedPopupCalendar;
     if (this.openedPopupCalendar) {
       this.initializePopupValues();
-      setTimeout(() => this.positionPopup(), 0);
+      setTimeout(() => {
+        this.positionPopup()
+      }, 0);
     }
   }
 
@@ -100,7 +102,15 @@ export class DatePickerComponent implements OnInit {
     this.selectedDateFrom.set(this.fromDate() || null);
     this.selectedDateTo.set(this.toDate() || null);
     this.selectedOffset.set(this.offset());
-    this.isRangeModeActive = !!(this.toDate() && this.fromDate() && this.offset() === 0);
+
+    // Range mode is active when we have both dates, regardless of how they were created
+    this.isRangeModeActive = !!(this.fromDate() && this.toDate());
+
+    console.log('initializePopupValues - Range mode set to:', this.isRangeModeActive, {
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      offset: this.offset()
+    });
 
     // Set calendar months based on selected dates or current date
     const baseDate = this.selectedDateFrom() || new Date();
@@ -156,9 +166,21 @@ export class DatePickerComponent implements OnInit {
       this.offset.set(this.initialOffset);
     }
 
-    this.isRangeModeActive = !!this.selectedDateFrom;
+    // Range mode is active when we have both initial dates, regardless of offset
+    this.isRangeModeActive = !!(this.initialDateFrom && this.initialDateTo);
+
+    console.log('updateFromInitialValues - Range mode set to:', this.isRangeModeActive, {
+      initialDateFrom: this.initialDateFrom,
+      initialDateTo: this.initialDateTo,
+      initialOffset: this.initialOffset
+    });
 
     this.forceCalendarRefresh();
+  }
+
+  // Computed property for showing two-calendar layout
+  get showDualCalendarMode(): boolean {
+    return this.isRangeModeActive || this.selectedOffset() > 0;
   }
 
   // Template methods
@@ -191,6 +213,15 @@ export class DatePickerComponent implements OnInit {
   // Calendar interaction methods
   onDateFromSelect(date: Date | null): void {
     if (!date) return;
+
+    console.log('onDateFromSelect - Raw date received:', date);
+    console.log('onDateFromSelect - Date details:', {
+      day: date.getDate(),
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      toString: date.toString(),
+      toISOString: date.toISOString()
+    });
 
     this.selectedDateFrom.set(date);
 
@@ -236,6 +267,7 @@ export class DatePickerComponent implements OnInit {
     if (this.isRangeModeActive) {
       // Entering range mode - clear offset
       this.selectedOffset.set(0);
+      this.selectedDateTo.set(this.selectedDateFrom());
       if (this.selectedDateFrom() && !this.selectedDateTo()) {
         this.updateToCalendarMonth(this.selectedDateFrom()!);
       }
@@ -303,7 +335,7 @@ export class DatePickerComponent implements OnInit {
         const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         const checkFrom = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
         const checkTo = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
-        
+
         if (checkDate > checkFrom && checkDate < checkTo) {
           return 'range-middle';
         }
@@ -350,9 +382,33 @@ export class DatePickerComponent implements OnInit {
     const toDate = this.toDate();
     const offset = this.offset();
 
+    console.log('emitChanges - Final values being emitted:', {
+      fromDate: fromDate?.toString(),
+      fromDateDetails: fromDate ? {
+        day: fromDate.getDate(),
+        month: fromDate.getMonth() + 1, // +1 for human readable month
+        year: fromDate.getFullYear()
+      } : null,
+      toDate: toDate?.toString(),
+      offset
+    });
+
     if (fromDate && toDate) {
-      this.dateRangeChange.emit({ from: fromDate, to: toDate });
-      this.datePickerChange.emit({ dateFrom: fromDate, offset, dateTo: toDate });
+      // Create dates at noon local time to avoid timezone conversion issues
+      const normalizeToNoon = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+
+      const normalizedFromDate = normalizeToNoon(fromDate);
+      const normalizedToDate = normalizeToNoon(toDate);
+
+      console.log('emitChanges - Normalized dates:', {
+        originalFrom: fromDate,
+        normalizedFrom: normalizedFromDate,
+        originalTo: toDate,
+        normalizedTo: normalizedToDate
+      });
+
+      this.dateRangeChange.emit({ from: normalizedFromDate, to: normalizedToDate });
+      this.datePickerChange.emit({ dateFrom: normalizedFromDate, offset, dateTo: normalizedToDate });
     }
   }
 
