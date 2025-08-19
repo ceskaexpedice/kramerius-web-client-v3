@@ -11,7 +11,6 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {InputDateComponent} from '../input-date/input-date.component';
 import {DateRange} from '../range-slider/range-slider.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {LowerCasePipe, NgIf} from '@angular/common';
@@ -30,7 +29,6 @@ export interface DatePickerOutput {
 @Component({
   selector: 'app-date-picker',
   imports: [
-    InputDateComponent,
     TranslatePipe,
     LowerCasePipe,
     NgIf,
@@ -46,16 +44,23 @@ export interface DatePickerOutput {
 export class DatePickerComponent implements OnInit, OnChanges {
 
   openedPopupCalendar: boolean = false;
-
   isRangeModeActive = false;
 
-  monthFrom = signal(0);
-  yearFrom = signal(2024);
-  dateFrom = signal(new Date());
+  // Temporary working values (for popup)
+  selectedDateFrom = signal<Date | null>(null);
+  selectedDateTo = signal<Date | null>(null);
+  selectedOffset = signal<number>(0);
 
-  monthTo = signal(0);
-  yearTo = signal(2024);
-  dateTo = signal(new Date());
+  // Calendar navigation
+  monthFrom = signal(new Date().getMonth());
+  yearFrom = signal(new Date().getFullYear());
+  monthTo = signal(new Date().getMonth());
+  yearTo = signal(new Date().getFullYear());
+
+  // Final committed values
+  fromDate = signal<Date | undefined>(undefined);
+  toDate = signal<Date | undefined>(undefined);
+  offset = signal<number>(0);
 
   @ViewChild(MatCalendar) calendarFrom!: MatCalendar<Date>;
   @ViewChild('popupCalendar') popupCalendar!: ElementRef;
@@ -65,14 +70,8 @@ export class DatePickerComponent implements OnInit, OnChanges {
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
 
-  openedMore: boolean = false;
-
   minDate: Date = new Date(1400, 0, 1);
   maxDate: Date = new Date(2100, 11, 31);
-
-  fromDate = signal<Date | undefined>(undefined);
-  toDate = signal<Date | undefined>(undefined);
-  offset = signal<number>(0);
 
   @Output() dateRangeChange = new EventEmitter<DateRange>();
   @Output() datePickerChange = new EventEmitter<DatePickerOutput>();
@@ -93,27 +92,46 @@ export class DatePickerComponent implements OnInit, OnChanges {
   toggleOpenPopupCalendar() {
     this.openedPopupCalendar = !this.openedPopupCalendar;
     if (this.openedPopupCalendar) {
+      this.initializePopupValues();
       setTimeout(() => this.positionPopup(), 0);
+    }
+  }
+
+  private initializePopupValues() {
+    // Initialize popup with current committed values
+    this.selectedDateFrom.set(this.fromDate() || null);
+    this.selectedDateTo.set(this.toDate() || null);
+    this.selectedOffset.set(this.offset());
+    this.isRangeModeActive = !!(this.toDate() && this.fromDate() && this.offset() === 0);
+
+    // Set calendar months based on selected dates or current date
+    const baseDate = this.selectedDateFrom() || new Date();
+    this.monthFrom.set(baseDate.getMonth());
+    this.yearFrom.set(baseDate.getFullYear());
+
+    if (this.selectedDateTo()) {
+      this.monthTo.set(this.selectedDateTo()!.getMonth());
+      this.yearTo.set(this.selectedDateTo()!.getFullYear());
     }
   }
 
   private positionPopup() {
     if (!this.popupCalendar) return;
-    
+
     const containerElement = this.popupCalendar.nativeElement.previousElementSibling;
     if (!containerElement) return;
-    
+
     const rect = containerElement.getBoundingClientRect();
     const popup = this.popupCalendar.nativeElement;
-    
+
     // Position below the input
     popup.style.top = `${rect.bottom + 8}px`;
     popup.style.left = `${rect.left}px`;
-    
+
     // Ensure popup doesn't go off-screen
     const popupRect = popup.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
-    
+
     if (popupRect.right > viewportWidth) {
       popup.style.left = `${viewportWidth - popupRect.width - 16}px`;
     }
@@ -123,80 +141,113 @@ export class DatePickerComponent implements OnInit, OnChanges {
     // Initialize with provided values if available
     if (this.initialDateFrom) {
       this.fromDate.set(this.initialDateFrom);
-    } else {
-      this.fromDate.set(undefined);
     }
 
     if (this.initialDateTo) {
       this.toDate.set(this.initialDateTo);
-    } else {
-      this.toDate.set(undefined);
     }
 
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
+    }
+  }
 
-      if (this.initialOffset > 7) {
-        this.openedMore = true;
+  // Template methods
+  getSelectedDateText(): string {
+    const fromDate = this.fromDate();
+    const toDate = this.toDate();
+    const offset = this.offset();
+
+    if (fromDate && toDate && offset === 0) {
+      return `${this.formatDate(fromDate)} - ${this.formatDate(toDate)}`;
+    } else if (fromDate && offset > 0) {
+      return `${this.formatDate(fromDate)} + ${offset} ${offset === 1 ? 'day' : 'days'}`;
+    } else if (fromDate) {
+      return this.formatDate(fromDate);
+    }
+    return 'DD.MM.YYYY';
+  }
+
+  getFormattedDate(date: Date | null): string {
+    return date ? this.formatDate(date) : '';
+  }
+
+  private formatDate(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  // Calendar interaction methods
+  onDateFromSelect(date: Date): void {
+    this.selectedDateFrom.set(date);
+
+    // Auto-calculate toDate based on offset
+    if (this.selectedOffset() >= 0) {
+      const calculatedToDate = new Date(date.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
+      this.selectedDateTo.set(calculatedToDate);
+      this.updateToCalendarMonth(calculatedToDate);
+    } else if (!this.isRangeModeActive) {
+      this.selectedDateTo.set(null);
+    }
+  }
+
+  onDateToSelect(date: Date): void {
+    this.selectedDateTo.set(date);
+
+    // Calculate offset if in offset mode
+    if (!this.isRangeModeActive && this.selectedDateFrom()) {
+      const diffTime = date.getTime() - this.selectedDateFrom()!.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      this.selectedOffset.set(Math.max(0, diffDays));
+    }
+  }
+
+  onRangeModeToggle(): void {
+    if (this.isRangeModeActive) {
+      this.selectedOffset.set(0);
+      if (this.selectedDateFrom() && !this.selectedDateTo()) {
+        this.updateToCalendarMonth(this.selectedDateFrom()!);
       }
     } else {
-      this.offset.set(0);
+      this.selectedDateTo.set(null);
+      this.selectedOffset.set(0);
     }
   }
 
-
-  onFromDateInput(date: Date) {
-    if (!this.minDate || !this.maxDate) return;
-
-    // Clamp date to valid range
-    const clampedDate = new Date(Math.max(
-      this.minDate.getTime(),
-      Math.min(this.maxDate.getTime(), date.getTime())
-    ));
-
-    this.fromDate.set(clampedDate);
-
-    // Calculate toDate based on current offset
-    const calculatedToDate = new Date(clampedDate.getTime() + this.offset() * 24 * 60 * 60 * 1000);
-    this.toDate.set(calculatedToDate);
-
-    this.emitChanges();
+  private updateToCalendarMonth(date: Date): void {
+    this.monthTo.set(date.getMonth());
+    this.yearTo.set(date.getFullYear());
   }
 
-  onToDateInput(date: Date) {
-    if (!this.minDate || !this.maxDate) return;
 
-    // Clamp date to valid range
-    const clampedDate = new Date(Math.max(
-      this.minDate.getTime(),
-      Math.min(this.maxDate.getTime(), date.getTime())
-    ));
-
-    this.toDate.set(clampedDate);
-
-    // Calculate offset based on date difference
-    if (this.fromDate()) {
-      const diffTime = clampedDate.getTime() - this.fromDate()!.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      this.offset.set(Math.max(0, diffDays));
-    }
-
-    this.emitChanges();
-  }
 
   onOffsetClick(days: number) {
-    this.offset.set(days);
+    this.selectedOffset.set(days);
+    this.isRangeModeActive = false;
 
-    if (this.fromDate()) {
-      const calculatedToDate = new Date(this.fromDate()!.getTime() + days * 24 * 60 * 60 * 1000);
-      this.toDate.set(calculatedToDate);
+    if (this.selectedDateFrom()) {
+      const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);
+      this.selectedDateTo.set(calculatedToDate);
+      this.updateToCalendarMonth(calculatedToDate);
     }
-
-    this.emitChanges();
   }
 
-  toggleOpenedMore() {
-    this.openedMore = !this.openedMore;
+  // Action button methods
+  onDiscard(): void {
+    this.openedPopupCalendar = false;
+    // Reset to original values - no changes are committed
+  }
+
+  onSubmit(): void {
+    // Commit the selected values to the actual state
+    this.fromDate.set(this.selectedDateFrom() || undefined);
+    this.toDate.set(this.selectedDateTo() || undefined);
+    this.offset.set(this.selectedOffset());
+
+    this.openedPopupCalendar = false;
+    this.emitChanges();
   }
 
   private emitChanges() {
@@ -213,28 +264,12 @@ export class DatePickerComponent implements OnInit, OnChanges {
   onMonthYearChangeFrom(change: MonthYearChange): void {
     this.monthFrom.set(change.month);
     this.yearFrom.set(change.year);
-    this.updateCurrentDate();
-    this.navigateCalendar();
+    this.cdr.detectChanges();
   }
 
   onMonthYearChangeTo(change: MonthYearChange): void {
     this.monthTo.set(change.month);
     this.yearTo.set(change.year);
-    this.updateCurrentDate();
   }
 
-  private updateCurrentDate(): void {
-    const date = new Date(this.yearFrom(), this.monthFrom(), 1);
-    this.dateFrom.set(date);
-    console.log(`Updated dateFrom to: ${date.toISOString().split('T')[0]}`);
-  }
-
-  private navigateCalendar(): void {
-    // Programmatically navigate the Material Calendar to the current month/year
-    if (this.calendarFrom) {
-      this.calendarFrom.activeDate = new Date(this.yearFrom(), this.monthFrom(), 1);
-      // Force the calendar to update its view
-      this.cdr.detectChanges();
-    }
-  }
 }

@@ -1,122 +1,105 @@
 <div class="date-picker--container">
-
-<!--  <app-input-date-->
-<!--    [valueSignal]="fromDate"-->
-<!--    (valueChange)="onFromDateInput($event)"-->
-<!--    [label]="'DD.MM.YYYY'"-->
-<!--    [minDate]="minDate"-->
-<!--    [maxDate]="maxDate"-->
-<!--    [size]="'lg'"-->
-<!--    [theme]="'dark'"-->
-<!--    [postfixIcon]="'icon-calendar'"-->
-<!--    (click)="toggleOpenPopupCalendar()"-->
-<!--  ></app-input-date>-->
-
   <app-input
-    [placeholder]="'DD.MM.YYYY'"
+    [placeholder]="getSelectedDateText()"
     [size]="'md'"
     [theme]="'dark'"
     [postfixIcon]="'icon-calendar'"
     (click)="toggleOpenPopupCalendar()"
   ></app-input>
-
-  @if (openedMore) {
-    <div class="more-section--inputs">
-
-      <app-input-date
-        [valueSignal]="fromDate"
-        (valueChange)="onFromDateInput($event)"
-        [minDate]="minDate"
-        [maxDate]="maxDate"
-        [label]="'DD.MM.YYYY'"
-        [size]="'lg'"
-        [theme]="'dark'"
-        [postfixIcon]="'icon-calendar'"
-      ></app-input-date>
-
-      -
-
-      <app-input-date
-        [valueSignal]="toDate"
-        (valueChange)="onToDateInput($event)"
-        [minDate]="minDate"
-        [maxDate]="maxDate"
-        [label]="'DD.MM.YYYY'"
-        [size]="'lg'"
-        [theme]="'dark'"
-        [postfixIcon]="'icon-calendar'"
-      ></app-input-date>
-
-    </div>
-
-  }
-
-
 </div>
 
 <div class="date-picker--popup-calendar" #popupCalendar *ngIf="openedPopupCalendar">
-
-  <div class="calendar--container calendar--from">
-
-    <mat-checkbox
-      [(ngModel)]="isRangeModeActive"
-    >
-
-    </mat-checkbox>
-
-    <div class="offset-buttons">
-
-      <button class="outlined tertiary sm" [class.selected]="offset() === 1" (click)="onOffsetClick(1)">
-        +1 {{ 'day' | translate | lowercase }}
-      </button>
-
-      <button class="outlined tertiary sm" [class.selected]="offset() === 3" (click)="onOffsetClick(3)">
-        +3 {{ 'days' | translate | lowercase }}
-      </button>
-
-      <button class="outlined tertiary sm" [class.selected]="offset() === 7" (click)="onOffsetClick(7)">
-        + {{'week' | translate | lowercase}}
-      </button>
-
-      <!--    <button class="outlined tertiary sm" (click)="toggleOpenedMore()">-->
-      <!--      + {{openedMore ? ('hide' | translate | lowercase) : ('more' | translate | lowercase)}}-->
-      <!--    </button>-->
-
+  <div class="popup-content">
+    <div class="date-inputs-row">
+      <div class="date-input-section">
+        <app-input
+          [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
+          [size]="'md'"
+          [theme]="'dark'"
+          [readonly]="true"
+        ></app-input>
+      </div>
+      
+      @if (isRangeModeActive || selectedOffset() > 0) {
+        <div class="date-input-section">
+          <app-input
+            [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+            [size]="'md'"
+            [theme]="'dark'"
+            [readonly]="true"
+          ></app-input>
+        </div>
+      }
     </div>
 
-    <div class="calendar-popup-selectors">
-      <app-month-year-selector
-        [month]="monthFrom()"
-        [year]="yearFrom()"
-        [showMonthNavigation]="true"
-        (monthYearChange)="onMonthYearChangeFrom($event)">
-      </app-month-year-selector>
-    </div>
+    <div class="calendars-row">
+      <div class="calendar-section">
+        <div class="calendar-header">
+          <mat-checkbox
+            [(ngModel)]="isRangeModeActive"
+            (change)="onRangeModeToggle()"
+          >
+            {{ 'Range mode' | translate }}
+          </mat-checkbox>
 
-    <mat-calendar class="custom-label"
-                  [startView]="'month'">
-    </mat-calendar>
+          <div class="offset-buttons">
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
+              +1 {{ 'day' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
+              +3 {{ 'days' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
+              + {{'week' | translate | lowercase}}
+            </button>
+          </div>
+        </div>
 
-  </div>
+        <div class="month-year-selector">
+          <app-month-year-selector
+            [month]="monthFrom()"
+            [year]="yearFrom()"
+            [showMonthNavigation]="true"
+            (monthYearChange)="onMonthYearChangeFrom($event)">
+          </app-month-year-selector>
+        </div>
 
-  @if (isRangeModeActive) {
-
-    <div class="calendar--container calendar--to">
-
-      <div class="calendar-popup-selectors">
-        <app-month-year-selector
-          [month]="monthFrom()"
-          [year]="yearFrom()"
-          [showMonthNavigation]="true"
-          (monthYearChange)="onMonthYearChangeTo($event)">
-        </app-month-year-selector>
+        <mat-calendar
+          class="custom-calendar"
+          [startView]="'month'"
+          [selected]="selectedDateFrom()"
+          (selectedChange)="onDateFromSelect($event)"
+        ></mat-calendar>
       </div>
 
-      <mat-calendar class="custom-label"
-                    [startView]="'month'">
-      </mat-calendar>
+      @if (isRangeModeActive || selectedOffset() > 0) {
+        <div class="calendar-section">
+          <div class="month-year-selector">
+            <app-month-year-selector
+              [month]="monthTo()"
+              [year]="yearTo()"
+              [showMonthNavigation]="true"
+              (monthYearChange)="onMonthYearChangeTo($event)">
+            </app-month-year-selector>
+          </div>
 
+          <mat-calendar
+            class="custom-calendar"
+            [startView]="'month'"
+            [selected]="selectedDateTo()"
+            (selectedChange)="onDateToSelect($event)"
+          ></mat-calendar>
+        </div>
+      }
     </div>
 
-  }
+    <div class="action-buttons">
+      <button class="outlined secondary" (click)="onDiscard()">
+        {{ 'Discard' | translate }}
+      </button>
+      <button class="primary" (click)="onSubmit()">
+        {{ 'Submit' | translate }}
+      </button>
+    </div>
+  </div>
 </div>

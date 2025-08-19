@@ -4,45 +4,90 @@
   gap: var(--spacing-x2);
 }
 
-.more-section--inputs {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-  margin-top: var(--spacing-x3);
-  width: 100%;
-
-  app-input-date {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-.offset-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-x2);
-
-  .selected {
-    border-color: var(--color-primary);
-  }
-
-  button {
-    padding: var(--spacing-x1) var(--spacing-x2);
-    flex: 1;
-  }
-}
-
 .date-picker--popup-calendar {
-  display: flex;
-  gap: var(--spacing-x6);
   position: fixed;
-  width: auto;
   z-index: 1001;
   background-color: var(--color-bg-base);
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: var(--spacing-x4);
+  min-width: 400px;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x4);
+}
+
+.date-inputs-row {
+  display: flex;
+  gap: var(--spacing-x4);
+  align-items: center;
+}
+
+.date-input-section {
+  flex: 1;
+}
+
+.calendars-row {
+  display: flex;
+  gap: var(--spacing-x6);
+}
+
+.calendar-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x3);
+  flex: 1;
+}
+
+.calendar-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x3);
+  align-items: flex-start;
+}
+
+.offset-buttons {
+  display: flex;
+  gap: var(--spacing-x2);
+  width: 100%;
+
+  .selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+
+  button {
+    padding: var(--spacing-x1) var(--spacing-x2);
+    flex: 1;
+    font-size: 12px;
+  }
+}
+
+.month-year-selector {
+  width: 100%;
+}
+
+.custom-calendar {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-x2);
+  padding-top: var(--spacing-x2);
+  border-top: 1px solid var(--color-border-light);
+
+  button {
+    padding: var(--spacing-x2) var(--spacing-x4);
+    min-width: 100px;
+  }
+}
+
+:host ::ng-deep .mat-calendar-header {
+  display: none !important;
 }
