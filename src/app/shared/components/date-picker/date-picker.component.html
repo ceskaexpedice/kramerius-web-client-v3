@@ -13,134 +13,145 @@
 
   <div class="popup-content">
 
-    <!-- Controls section -->
-    <div class="controls-section">
-      <div class="left-controls">
-        <mat-slide-toggle
-          [hideIcon]="true"
-          [class]="'size-sm'"
-          [checked]="isRangeModeActive"
-          (change)="onRangeModeToggle($event)"
-        >{{'change-to-range-mode-label' | translate}}</mat-slide-toggle>
-<!--        <mat-checkbox-->
-<!--          [(ngModel)]="isRangeModeActive"-->
-<!--          (change)="onRangeModeToggle()"-->
-<!--        >-->
-<!--          {{ 'Range mode' | translate }}-->
-<!--        </mat-checkbox>-->
+    <!-- Scrollable content area -->
+    <div class="popup-scrollable-content">
 
-      </div>
+      <!-- Controls section -->
+      <div class="controls-section">
+        <div class="left-controls">
+          <mat-slide-toggle
+            [hideIcon]="true"
+            [class]="'size-sm'"
+            [checked]="isRangeModeActive"
+            (change)="onRangeModeToggle($event)"
+          >{{'change-to-range-mode-label' | translate}}</mat-slide-toggle>
 
-      @if (showDualCalendarMode) {
-        <div class="right-controls">
-          <!-- Empty space to balance layout -->
+          @if (!showDualCalendarMode) {
+            <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
+              <i class="icon-x" ></i>
+            </button>
+          }
+
         </div>
-      }
-    </div>
 
-    <div class="date-inputs-row">
-      <div class="date-input-section">
-        <app-input
-          [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
-          [size]="'sm'"
-          [theme]="'dark'"
-          [readonly]="true"
-        ></app-input>
+        @if (showDualCalendarMode) {
+          <div class="right-controls">
+            <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
+              <i class="icon-x" ></i>
+            </button>
+          </div>
+        }
       </div>
 
-      @if (showDualCalendarMode) {
+      <div class="date-inputs-row">
         <div class="date-input-section">
           <app-input
-            [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+            [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
             [size]="'sm'"
             [theme]="'dark'"
             [readonly]="true"
           ></app-input>
         </div>
-      }
-    </div>
 
-    <div class="controls-section">
-
-      <div class="left-controls">
-
-        <div class="offset-buttons">
-          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
-            +1 {{ 'day' | translate | lowercase }}
-          </button>
-          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
-            +3 {{ 'days' | translate | lowercase }}
-          </button>
-          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
-            + {{'week' | translate | lowercase}}
-          </button>
-        </div>
+        @if (showDualCalendarMode) {
+          <div class="date-input-section">
+            <app-input
+              [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+              [size]="'sm'"
+              [theme]="'dark'"
+              [readonly]="true"
+            ></app-input>
+          </div>
+        }
       </div>
 
-      @if (showDualCalendarMode) {
-        <div class="right-controls">
-          <!-- Empty space to balance layout -->
-        </div>
-      }
-    </div>
+      <div class="controls-section">
 
-    <!-- Month/Year selectors row -->
-    <div class="month-year-row">
-      <div class="month-year-section">
-        <app-month-year-selector
-          [month]="monthFrom()"
-          [year]="yearFrom()"
-          [showMonthNavigation]="true"
-          (monthYearChange)="onMonthYearChangeFrom($event)">
-        </app-month-year-selector>
+        <div class="left-controls">
+
+          <div class="offset-buttons">
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
+              +1 {{ 'day' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
+              +3 {{ 'days' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
+              + {{'week' | translate | lowercase}}
+            </button>
+          </div>
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="right-controls">
+            <!-- Empty space to balance layout -->
+          </div>
+        }
       </div>
 
-      @if (showDualCalendarMode) {
+      <!-- Month/Year selectors row -->
+      <div class="month-year-row">
         <div class="month-year-section">
           <app-month-year-selector
-            [month]="monthTo()"
-            [year]="yearTo()"
+            [month]="monthFrom()"
+            [year]="yearFrom()"
             [showMonthNavigation]="true"
-            (monthYearChange)="onMonthYearChangeTo($event)">
+            (monthYearChange)="onMonthYearChangeFrom($event)">
           </app-month-year-selector>
         </div>
-      }
-    </div>
 
-    <!-- Calendars row -->
-    <div class="calendars-row">
-      <div class="calendar-container">
-        <mat-calendar
-          #calendarFrom
-          class="custom-calendar"
-          [startView]="'month'"
-          [selected]="selectedDateFrom()"
-          [dateClass]="dateClass"
-          (selectedChange)="onDateFromSelect($event)"
-        ></mat-calendar>
+        @if (showDualCalendarMode) {
+          <div class="month-year-section">
+            <app-month-year-selector
+              [month]="monthTo()"
+              [year]="yearTo()"
+              [showMonthNavigation]="true"
+              (monthYearChange)="onMonthYearChangeTo($event)">
+            </app-month-year-selector>
+          </div>
+        }
       </div>
 
-      @if (showDualCalendarMode) {
+      <!-- Calendars row -->
+      <div class="calendars-row">
         <div class="calendar-container">
           <mat-calendar
-            #calendarTo
+            #calendarFrom
             class="custom-calendar"
             [startView]="'month'"
-            [selected]="selectedDateTo()"
+            [selected]="selectedDateFrom()"
             [dateClass]="dateClass"
-            (selectedChange)="onDateToSelect($event)"
+            (selectedChange)="onDateFromSelect($event)"
           ></mat-calendar>
         </div>
-      }
+
+        @if (showDualCalendarMode) {
+          <div class="calendar-container">
+            <mat-calendar
+              #calendarTo
+              class="custom-calendar"
+              [startView]="'month'"
+              [selected]="selectedDateTo()"
+              [dateClass]="dateClass"
+              (selectedChange)="onDateToSelect($event)"
+            ></mat-calendar>
+          </div>
+        }
+      </div>
+
     </div>
 
-    <div class="action-buttons">
-      <button class="outlined secondary" (click)="onDiscard()">
-        {{ 'Discard' | translate }}
-      </button>
-      <button class="primary" (click)="onSubmit()">
-        {{ 'Submit' | translate }}
-      </button>
+    <!-- Fixed action buttons at bottom -->
+    <div class="popup-fixed-actions">
+      <div class="action-buttons">
+        <button class="outlined secondary" (click)="onDiscard()">
+          {{ 'Discard' | translate }}
+        </button>
+        <button class="primary" (click)="onSubmit()">
+          {{ 'Submit' | translate }}
+        </button>
+      </div>
     </div>
+
   </div>
 </div>

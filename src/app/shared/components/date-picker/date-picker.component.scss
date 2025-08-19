@@ -13,12 +13,34 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: var(--spacing-x4);
+  max-height: 90vh; // Limit height to 90% of viewport
+  max-width: 90vw; // Limit width to 90% of viewport
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .popup-content {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0; // Allow flex child to shrink
+}
+
+// Scrollable content area
+.popup-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-x4);
+  padding-bottom: var(--spacing-x2); // Less padding at bottom since fixed actions follow
+}
+
+// Fixed action buttons at bottom
+.popup-fixed-actions {
+  flex-shrink: 0; // Don't shrink
+  border-top: 1px solid var(--color-border-light);
+  padding: var(--spacing-x2) var(--spacing-x4);
+  background-color: var(--color-bg-base); // Ensure background matches
 }
 
 .date-inputs-row {
@@ -41,13 +63,18 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
 
 .left-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-x3);
   flex: 1;
 }
 
 .right-controls {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 // Month/Year selectors row
@@ -96,8 +123,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-x2);
-  padding-top: var(--spacing-x2);
-  border-top: 1px solid var(--color-border-light);
+  // Remove padding-top and border-top as they're now handled by .popup-fixed-actions
 
   button {
     padding: var(--spacing-x2) var(--spacing-x4);
@@ -121,6 +147,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
     position: relative;
     width: 40px !important;
     height: 40px !important;
+    padding: 0 !important;
 
     .mat-calendar-body-cell-content {
       width: 40px !important;

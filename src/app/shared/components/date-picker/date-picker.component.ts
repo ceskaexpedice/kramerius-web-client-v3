@@ -171,18 +171,36 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
     const rect = containerElement.getBoundingClientRect();
     const popup = this.popupCalendar.nativeElement;
-
-    // Position below the input
-    popup.style.top = `${rect.bottom + 8}px`;
-    popup.style.left = `${rect.left}px`;
-
-    // Ensure popup doesn't go off-screen
-    const popupRect = popup.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-    if (popupRect.right > viewportWidth) {
-      popup.style.left = `${viewportWidth - popupRect.width - 16}px`;
+    // Calculate initial position below the input
+    let top = rect.bottom - 50;
+    let left = rect.left;
+
+    // Ensure popup doesn't go off-screen horizontally
+    const popupRect = popup.getBoundingClientRect();
+    if (left + popupRect.width > viewportWidth) {
+      left = viewportWidth - popupRect.width - 16;
     }
+    if (left < 16) {
+      left = 16; // Minimum margin from viewport edge
+    }
+
+    // Ensure popup doesn't go off-screen vertically
+    // If popup would be too tall, position it above the input instead
+    if (top + popupRect.height > viewportHeight - 16) {
+      const topPosition = rect.top - popupRect.height - 8;
+      if (topPosition >= 16) {
+        top = topPosition;
+      } else {
+        // If neither above nor below fits, position it with maximum available space
+        top = Math.max(16, Math.min(top, viewportHeight - popupRect.height - 16));
+      }
+    }
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
   }
 
   private updateFromInitialValues() {
@@ -418,7 +436,14 @@ export class DatePickerComponent implements OnInit, OnChanges {
   // Action button methods
   onDiscard(): void {
     this.openedPopupCalendar = false;
-    // Reset to original values - no changes are committed
+    // Reset to initial values
+    this.fromDate.set(this.initialDateFrom || undefined);
+    this.toDate.set(this.initialDateTo || undefined);
+    this.offset.set(this.initialOffset || 0);
+    this.selectedDateFrom.set(this.initialDateFrom || null);
+    this.selectedDateTo.set(this.initialDateTo || null);
+    this.selectedOffset.set(this.initialOffset || 0);
+    this.isRangeModeActive = !!(this.initialDateFrom && this.initialDateTo);
   }
 
   onSubmit(): void {

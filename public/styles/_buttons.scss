@@ -280,6 +280,24 @@ button.outlined-dark {
   }
 }
 
+button.transparent {
+  background: transparent;
+  color: var(--color-text-base);
+
+  &:hover {
+    background: var(--color-bg-hover);
+  }
+
+  &:active {
+    background: var(--color-bg-pressed);
+  }
+
+  &:disabled {
+    color: var(--color-bg-contrast);
+    cursor: not-allowed;
+  }
+}
+
 // General spacing for buttons with icon and text
 button.with-icon {
   display: inline-flex;
