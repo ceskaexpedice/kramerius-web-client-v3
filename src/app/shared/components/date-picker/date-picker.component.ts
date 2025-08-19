@@ -17,9 +17,7 @@ import {LowerCasePipe, NgIf} from '@angular/common';
 import {MatCalendar} from '@angular/material/datepicker';
 import {InputComponent} from '../input/input.component';
 import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
-import {MatCheckbox} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
-import {ButtonToggleComponent} from '../button-toggle/button-toggle.component';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 export interface DatePickerOutput {
@@ -37,15 +35,13 @@ export interface DatePickerOutput {
     MatCalendar,
     InputComponent,
     MonthYearSelectorComponent,
-    MatCheckbox,
     FormsModule,
-    ButtonToggleComponent,
     MatSlideToggle,
   ],
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
 })
-export class DatePickerComponent implements OnInit {
+export class DatePickerComponent implements OnInit, OnChanges {
 
   openedPopupCalendar: boolean = false;
   isRangeModeActive = false;
@@ -85,6 +81,45 @@ export class DatePickerComponent implements OnInit {
 
   ngOnInit() {
     this.updateFromInitialValues();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Only react to ACTUAL changes in input properties, not just change events
+    let hasActualChanges = false;
+
+    if (changes['initialDateFrom']) {
+      const change = changes['initialDateFrom'];
+      const currentValue = change.currentValue?.getTime();
+      const previousValue = change.previousValue?.getTime();
+      if (currentValue !== previousValue) {
+        hasActualChanges = true;
+      }
+    }
+
+    if (changes['initialDateTo']) {
+      const change = changes['initialDateTo'];
+      const currentValue = change.currentValue?.getTime();
+      const previousValue = change.previousValue?.getTime();
+      if (currentValue !== previousValue) {
+        hasActualChanges = true;
+      }
+    }
+
+    if (changes['initialOffset']) {
+      const change = changes['initialOffset'];
+      if (change.currentValue !== change.previousValue) {
+        hasActualChanges = true;
+      }
+    }
+
+    if (hasActualChanges) {
+      this.updateFromInitialValues();
+
+      // If the popup is open, also update the popup values
+      if (this.openedPopupCalendar) {
+        this.initializePopupValues();
+      }
+    }
   }
 
   toggleOpenPopupCalendar() {
@@ -151,12 +186,20 @@ export class DatePickerComponent implements OnInit {
   }
 
   private updateFromInitialValues() {
-    // Initialize with provided values if available
+    // Handle date clearing (when values are set to null/undefined)
     if (this.initialDateFrom) {
       this.fromDate.set(this.initialDateFrom);
       this.selectedDateFrom.set(this.initialDateFrom);
       this.monthFrom.set(this.initialDateFrom.getMonth());
       this.yearFrom.set(this.initialDateFrom.getFullYear());
+    } else {
+      // Clear date values when initialDateFrom is null/undefined
+      this.fromDate.set(undefined);
+      this.selectedDateFrom.set(null);
+      // Reset to current month when no dates
+      const now = new Date();
+      this.monthFrom.set(now.getMonth());
+      this.yearFrom.set(now.getFullYear());
     }
 
     if (this.initialDateTo) {
@@ -164,10 +207,21 @@ export class DatePickerComponent implements OnInit {
       this.selectedDateTo.set(this.initialDateTo);
       this.monthTo.set(this.initialDateTo.getMonth());
       this.yearTo.set(this.initialDateTo.getFullYear());
+    } else {
+      // Clear date values when initialDateTo is null/undefined
+      this.toDate.set(undefined);
+      this.selectedDateTo.set(null);
+      // Reset to current month when no dates
+      const now = new Date();
+      this.monthTo.set(now.getMonth());
+      this.yearTo.set(now.getFullYear());
     }
 
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
+    } else {
+      // Clear offset when not provided
+      this.offset.set(0);
     }
 
     // Range mode is active when we have both initial dates, regardless of offset
