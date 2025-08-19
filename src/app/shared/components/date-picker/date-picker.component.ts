@@ -219,13 +219,17 @@ export class DatePickerComponent implements OnInit, OnChanges {
     this.forceCalendarRefresh();
   }
 
-  onRangeModeToggle(): void {
+  onRangeModeToggle(event?: any): void {
+    this.isRangeModeActive = event?.checked ?? !this.isRangeModeActive;
+
     if (this.isRangeModeActive) {
+      // Entering range mode - clear offset
       this.selectedOffset.set(0);
       if (this.selectedDateFrom() && !this.selectedDateTo()) {
         this.updateToCalendarMonth(this.selectedDateFrom()!);
       }
     } else {
+      // Exiting range mode - clear selected end date and offset
       this.selectedDateTo.set(null);
       this.selectedOffset.set(0);
     }
@@ -300,7 +304,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   onOffsetClick(days: number) {
     this.selectedOffset.set(days);
-    this.isRangeModeActive = true;
+    this.isRangeModeActive = false; // Offset mode is not range mode
 
     if (this.selectedDateFrom()) {
       const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);

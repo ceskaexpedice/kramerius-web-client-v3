@@ -20,7 +20,7 @@
           [hideIcon]="true"
           [class]="'size-sm'"
           [checked]="isRangeModeActive"
-          (toggleChange)="onRangeModeToggle()"
+          (change)="onRangeModeToggle($event)"
         >{{'change-to-range-mode-label' | translate}}</mat-slide-toggle>
 <!--        <mat-checkbox-->
 <!--          [(ngModel)]="isRangeModeActive"-->
