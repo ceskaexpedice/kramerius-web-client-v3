@@ -140,5 +140,9 @@
   "week": "Week",
   "hide": "Hide",
   "more": "More",
-  "change-to-range-mode-label": "Change to range mode (from-to)"
+  "change-to-range-mode-label": "Change to range mode (from-to)",
+  "period-from-label": "Start of period",
+  "period-to-label": "End of period",
+  "submit-data-buton--label": "Confirm data",
+  "discard-data-buton--label": "Cancel selection"
 }

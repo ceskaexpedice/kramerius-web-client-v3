@@ -5,6 +5,7 @@
       [size]="'md'"
       [theme]="'dark'"
       [postfixIcon]="'icon-calendar'"
+      [clickable]="true"
       [readonly]="true"
       (click)="toggleOpenPopupCalendar()"
     ></app-input>
@@ -55,6 +56,7 @@
         <div class="date-input-section">
           <app-input
             [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
+            [label]="'period-from-label' | translate"
             [size]="'sm'"
             [theme]="'dark'"
             [readonly]="true"
@@ -65,6 +67,7 @@
           <div class="date-input-section">
             <app-input
               [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+              [label]="'period-to-label' | translate"
               [size]="'sm'"
               [theme]="'dark'"
               [readonly]="true"
@@ -158,11 +161,11 @@
     <!-- Fixed action buttons at bottom -->
     <div class="popup-fixed-actions">
       <div class="action-buttons">
-        <button class="outlined secondary" (click)="onDiscard()">
-          {{ 'Discard' | translate }}
+        <button class="outlined tertiary" (click)="onDiscard()">
+          {{ 'discard-data-buton--label' | translate }}
         </button>
         <button class="primary" (click)="onSubmit()">
-          {{ 'Submit' | translate }}
+          {{ 'submit-data-buton--label' | translate }}
         </button>
       </div>
     </div>

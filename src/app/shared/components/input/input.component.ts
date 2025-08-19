@@ -37,9 +37,11 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() id?: string;
   @Input() pattern?: string;
   @Input() withIcons: boolean = true;
+  @Input() label?: string; // Label text above input
   @Input() prefix?: string;
   @Input() prefixIcon = '';
   @Input() postfixIcon = '';
+  @Input() clickable = false;
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';
@@ -192,10 +194,36 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get iconsRight(): string {
-    // if showMic is true and showHelp is true and showSubmit is true, right is 55px
+    // Calculate right position for action icons
     let right = 0;
 
     // if there is submitButton add 55px
+    if (this.showSubmitButton) {
+      right += 55;
+    }
+
+    // if there is postfix icon add 32px
+    if (this.postfixIcon) {
+      right += 32;
+    }
+
+    return `${right}px`;
+  }
+
+  get postfixIconRight(): string {
+    // Calculate right position for postfix icon
+    let right = 12; // base margin
+
+    // if there are action buttons, position postfix icon before them
+    if (this.showMicButton || this.showHelpButton || this.showClearButton) {
+      let actionIconsWidth = 0;
+      if (this.showMicButton) actionIconsWidth += 32;
+      if (this.showHelpButton) actionIconsWidth += 32;
+      if (this.showClearButton) actionIconsWidth += 32;
+      right += actionIconsWidth;
+    }
+
+    // if there is submitButton, position before it
     if (this.showSubmitButton) {
       right += 55;
     }
@@ -204,7 +232,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get iconsWidth(): string {
-    // if showMic is true and showHelp is true and showSubmit is true, width is 55px
+    // Calculate total width of right-side icons
     let width = 0;
 
     if (this.showSubmitButton) {
@@ -223,6 +251,11 @@ export class InputComponent implements OnInit, AfterViewInit {
 
     // if there is clearButton add 32
     if (this.showClearButton) {
+      width += 32;
+    }
+
+    // if there is postfix icon add 32
+    if (this.postfixIcon) {
       width += 32;
     }
 

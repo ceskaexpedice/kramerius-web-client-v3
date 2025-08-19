@@ -135,5 +135,9 @@
   "week": "Týždeň",
   "hide": "Skryť",
   "more": "Viac",
-  "change-to-range-mode-label": "Zmeniť na obdobie (od-do)"
+  "change-to-range-mode-label": "Zmeniť na obdobie (od-do)",
+  "period-from-label": "Začiatok obdobia",
+  "period-to-label": "Koniec obdobia",
+  "submit-data-buton--label": "Potvrdiť dáta",
+  "discard-data-buton--label": "Zrušiť výber"
 }

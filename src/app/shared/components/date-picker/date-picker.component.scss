@@ -147,8 +147,7 @@ hr {
   // Remove padding-top and border-top as they're now handled by .popup-fixed-actions
 
   button {
-    padding: var(--spacing-x2) var(--spacing-x4);
-    min-width: 100px;
+    padding: var(--spacing-x3) var(--spacing-x4);
   }
 }
 
