@@ -89,7 +89,8 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     // React to changes in input properties
-    if (changes['initialDateFrom'] || changes['initialDateTo'] || changes['initialOffset']) {
+    if ((changes['initialDateFrom'].previousValue !== changes['initialDateFrom'].currentValue) || (changes['initialDateTo'].previousValue !== changes['initialDateTo'].currentValue) || (changes['initialOffset'].previousValue !== changes['initialOffset'].currentValue)) {
+      console.log('changes in date-picker:', changes);
       this.updateFromInitialValues();
     }
   }
@@ -143,18 +144,29 @@ export class DatePickerComponent implements OnInit, OnChanges {
   }
 
   private updateFromInitialValues() {
+    console.log('Updating from initial values:', this.initialDateFrom, this.initialDateTo, this.initialOffset);
     // Initialize with provided values if available
     if (this.initialDateFrom) {
       this.fromDate.set(this.initialDateFrom);
+      this.selectedDateFrom.set(this.initialDateFrom);
+      this.monthFrom.set(this.initialDateFrom.getMonth());
+      this.yearFrom.set(this.initialDateFrom.getFullYear());
     }
 
     if (this.initialDateTo) {
       this.toDate.set(this.initialDateTo);
+      this.selectedDateTo.set(this.initialDateTo);
+      this.monthTo.set(this.initialDateTo.getMonth());
+      this.yearTo.set(this.initialDateTo.getFullYear());
     }
 
     if (this.initialOffset !== undefined) {
       this.offset.set(this.initialOffset);
     }
+
+    this.isRangeModeActive = !!this.selectedDateFrom;
+
+    this.forceCalendarRefresh();
   }
 
   // Template methods
@@ -197,6 +209,13 @@ export class DatePickerComponent implements OnInit, OnChanges {
       this.updateToCalendarMonth(calculatedToDate);
     } else if (!this.isRangeModeActive) {
       this.selectedDateTo.set(null);
+    }
+
+    if (!this.selectedDateTo()) {
+      this.selectedDateTo.set(date);
+      this.updateToCalendarMonth(date);
+      this.monthFrom.set(date.getMonth());
+      this.yearFrom.set(date.getFullYear());
     }
 
     // Force calendar to refresh highlighting
@@ -271,8 +290,6 @@ export class DatePickerComponent implements OnInit, OnChanges {
     return (date: Date): string => {
       const fromDate = this.selectedDateFrom();
       const toDate = this.selectedDateTo();
-
-      console.log('dateClass called for date:', date, 'from:', fromDate, 'to:', toDate);
 
       if (!fromDate || !toDate) {
         return '';

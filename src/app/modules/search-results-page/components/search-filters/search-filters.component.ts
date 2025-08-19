@@ -67,13 +67,13 @@ import {TranslatePipe} from '@ngx-translate/core';
           [dateOffset]="dateOffset"
           (datePickerChange)="onDateRangeChange($event)"
         >
-          <button
-            class="outlined submit-year-range-btn w-100"
-            [class.disabled]="!hasDateRangeChanged"
-            [disabled]="!hasDateRangeChanged"
-            (click)="submitDateRange()">
-            {{ 'submit' | translate }}
-          </button>
+<!--          <button-->
+<!--            class="outlined submit-year-range-btn w-100"-->
+<!--            [class.disabled]="!hasDateRangeChanged"-->
+<!--            [disabled]="!hasDateRangeChanged"-->
+<!--            (click)="submitDateRange()">-->
+<!--            {{ 'submit' | translate }}-->
+<!--          </button>-->
         </app-filter-category>
 
         <!-- Year Range Filter -->
