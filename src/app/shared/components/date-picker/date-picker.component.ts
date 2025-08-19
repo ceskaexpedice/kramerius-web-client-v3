@@ -45,7 +45,7 @@ export interface DatePickerOutput {
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
 })
-export class DatePickerComponent implements OnInit, OnChanges {
+export class DatePickerComponent implements OnInit {
 
   openedPopupCalendar: boolean = false;
   isRangeModeActive = false;
@@ -85,14 +85,6 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.updateFromInitialValues();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    // React to changes in input properties
-    if ((changes['initialDateFrom'].previousValue !== changes['initialDateFrom'].currentValue) || (changes['initialDateTo'].previousValue !== changes['initialDateTo'].currentValue) || (changes['initialOffset'].previousValue !== changes['initialOffset'].currentValue)) {
-      console.log('changes in date-picker:', changes);
-      this.updateFromInitialValues();
-    }
   }
 
   toggleOpenPopupCalendar() {
