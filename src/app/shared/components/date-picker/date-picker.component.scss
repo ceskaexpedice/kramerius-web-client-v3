@@ -97,8 +97,27 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
 
 // Date range highlighting
 :host ::ng-deep .mat-calendar-body {
+
+  .mat-calendar-body-cell-container {
+    padding: 2px 0 !important;
+  }
+
   .mat-calendar-body-cell {
     position: relative;
+    width: 40px !important;
+    height: 40px !important;
+
+    .mat-calendar-body-cell-content {
+      width: 40px !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      top: auto;
+      left: auto;
+
+      &.mat-calendar-body-today {
+        border: none !important;
+      }
+    }
 
     &.range-start {
       .mat-calendar-body-cell-content {
@@ -114,8 +133,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
         position: absolute;
         top: 50%;
         left: 0;
-        height: 36px;
-        width: calc(100% + 2px);
+        height: 40px;
         transform: translateY(-50%);
         background-color: var(--color-primary) !important;
         border-top: 2px solid var(--color-primary);
@@ -130,7 +148,6 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
       .mat-calendar-body-cell-content {
         background-color: var(--color-primary) !important;
         color: white !important;
-        border-radius: 50% !important;
         position: relative;
         z-index: 2;
       }
@@ -141,8 +158,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
         position: absolute;
         top: 50%;
         right: 50%;
-        width: calc(100% + 2px);
-        height: 36px;
+        height: 40px;
         transform: translateY(-50%);
         background-color: var(--color-primary) !important;
         border-top: 2px solid var(--color-primary);
@@ -166,8 +182,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
         content: '';
         position: absolute;
         top: 50%;
-        height: 36px;
-        width: calc(100% + 2px);
+        height: 40px;
         transform: translateY(-50%);
         background-color: $date-range-middle-color;
         border-top: 2px solid var(--color-primary);
@@ -181,7 +196,6 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
       .mat-calendar-body-cell-content {
         background-color: var(--color-primary) !important;
         color: white !important;
-        border-radius: 50% !important;
       }
 
       &::after {
