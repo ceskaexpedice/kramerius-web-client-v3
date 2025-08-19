@@ -1,3 +1,5 @@
+$date-range-middle-color: rgba(0, 123, 255, 0.1);
+
 .date-picker--container {
   display: flex;
   flex-direction: column;
@@ -97,52 +99,93 @@
 :host ::ng-deep .mat-calendar-body {
   .mat-calendar-body-cell {
     position: relative;
-    
+
     &.range-start {
       .mat-calendar-body-cell-content {
         background-color: var(--color-primary) !important;
         color: white !important;
-        border-radius: 50%;
+        position: relative;
+        z-index: 2;
+      }
+
+      // Line extending to the right with borders
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 36px;
+        width: calc(100% + 2px);
+        transform: translateY(-50%);
+        background-color: var(--color-primary) !important;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        border-left: 2px solid var(--color-primary);
+        border-radius: 8px 0 0 8px;
+        z-index: 1;
       }
     }
-    
+
     &.range-end {
       .mat-calendar-body-cell-content {
         background-color: var(--color-primary) !important;
         color: white !important;
-        border-radius: 50%;
+        border-radius: 50% !important;
+        position: relative;
+        z-index: 2;
       }
-    }
-    
-    &.range-middle {
-      .mat-calendar-body-cell-content {
-        background-color: var(--color-primary-light, rgba(var(--color-primary-rgb, 33, 150, 243), 0.2)) !important;
-        color: var(--color-text-base) !important;
-        border-radius: 0 !important;
-      }
-      
-      // Add full-width background for middle range dates
-      &::before {
+
+      // Line extending to the left with borders
+      &::after {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: var(--color-primary-light, rgba(var(--color-primary-rgb, 33, 150, 243), 0.2));
-        z-index: -1;
+        top: 50%;
+        right: 50%;
+        width: calc(100% + 2px);
+        height: 36px;
+        transform: translateY(-50%);
+        background-color: var(--color-primary) !important;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        border-right: 2px solid var(--color-primary);
+        border-radius: 0 8px 8px 0;
+        z-index: 1;
       }
     }
-    
+
+    &.range-middle {
+      .mat-calendar-body-cell-content {
+        background-color: transparent !important;
+        color: var(--color-text-base) !important;
+        position: relative;
+        z-index: 2;
+      }
+
+      // Full-width line with borders
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        height: 36px;
+        width: calc(100% + 2px);
+        transform: translateY(-50%);
+        background-color: $date-range-middle-color;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        z-index: 1;
+      }
+    }
+
+    // Single date selection (start and end are the same)
     &.range-start.range-end {
       .mat-calendar-body-cell-content {
         background-color: var(--color-primary) !important;
         color: white !important;
         border-radius: 50% !important;
       }
-      
-      &::before {
-        display: none;
+
+      &::after {
+        display: none !important;
       }
     }
   }
