@@ -20,11 +20,32 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
   overflow: hidden;
 }
 
+// Modal-style overlay when used without input
+:host-context(.date-picker-modal) .date-picker--popup-calendar {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+// Optional backdrop for modal-style usage
+.date-picker--backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
 .popup-content {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0; // Allow flex child to shrink
+}
+
+hr {
+  margin: var(--spacing-x2) 0;
 }
 
 // Scrollable content area

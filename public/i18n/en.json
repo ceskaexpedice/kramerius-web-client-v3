@@ -139,5 +139,6 @@
   "days": "Days",
   "week": "Week",
   "hide": "Hide",
-  "more": "More"
+  "more": "More",
+  "change-to-range-mode-label": "Change to range mode (from-to)"
 }

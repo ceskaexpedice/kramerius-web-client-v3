@@ -1,15 +1,23 @@
-<div class="date-picker--container">
-  <app-input
-    [placeholder]="getSelectedDateText()"
-    [size]="'md'"
-    [theme]="'dark'"
-    [postfixIcon]="'icon-calendar'"
-    [readonly]="true"
-    (click)="toggleOpenPopupCalendar()"
-  ></app-input>
-</div>
+@if (showInput) {
+  <div class="date-picker--container">
+    <app-input
+      [placeholder]="getSelectedDateText()"
+      [size]="'md'"
+      [theme]="'dark'"
+      [postfixIcon]="'icon-calendar'"
+      [readonly]="true"
+      (click)="toggleOpenPopupCalendar()"
+    ></app-input>
+  </div>
+}
 
-<div class="date-picker--popup-calendar" #popupCalendar *ngIf="openedPopupCalendar">
+@if (openedPopupCalendar) {
+  <!-- Optional backdrop for modal-style usage -->
+  @if (!showInput) {
+    <div class="date-picker--backdrop" (click)="closePopup()"></div>
+  }
+
+  <div class="date-picker--popup-calendar" #popupCalendar>
 
   <div class="popup-content">
 
@@ -98,6 +106,9 @@
             [showMonthNavigation]="true"
             (monthYearChange)="onMonthYearChangeFrom($event)">
           </app-month-year-selector>
+
+          <hr>
+
         </div>
 
         @if (showDualCalendarMode) {
@@ -108,6 +119,9 @@
               [showMonthNavigation]="true"
               (monthYearChange)="onMonthYearChangeTo($event)">
             </app-month-year-selector>
+
+            <hr>
+
           </div>
         }
       </div>
@@ -153,5 +167,5 @@
       </div>
     </div>
 
-  </div>
-</div>
+  </div></div>
+}

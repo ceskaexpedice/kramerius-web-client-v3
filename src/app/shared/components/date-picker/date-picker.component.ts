@@ -70,6 +70,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
   @Input() initialDateFrom: Date | null = null;
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
+  @Input() showInput: boolean = true; // Control whether to show built-in input
 
   minDate: Date = new Date(1400, 0, 1);
   maxDate: Date = new Date(2100, 11, 31);
@@ -132,6 +133,22 @@ export class DatePickerComponent implements OnInit, OnChanges {
     }
   }
 
+  // Public method to open the popup (useful when showInput=false)
+  openPopup() {
+    if (!this.openedPopupCalendar) {
+      this.openedPopupCalendar = true;
+      this.initializePopupValues();
+      setTimeout(() => {
+        this.positionPopup()
+      }, 0);
+    }
+  }
+
+  // Public method to close the popup
+  closePopup() {
+    this.openedPopupCalendar = false;
+  }
+
   private initializePopupValues() {
     // Initialize popup with current committed values
     this.selectedDateFrom.set(this.fromDate() || null);
@@ -166,17 +183,27 @@ export class DatePickerComponent implements OnInit, OnChanges {
   private positionPopup() {
     if (!this.popupCalendar) return;
 
-    const containerElement = this.popupCalendar.nativeElement.previousElementSibling;
-    if (!containerElement) return;
-
-    const rect = containerElement.getBoundingClientRect();
     const popup = this.popupCalendar.nativeElement;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    // Calculate initial position below the input
-    let top = rect.bottom - 50;
-    let left = rect.left;
+    let top: number;
+    let left: number;
+
+    if (this.showInput) {
+      // Position relative to the built-in input
+      const containerElement = this.popupCalendar.nativeElement.previousElementSibling;
+      if (!containerElement) return;
+
+      const rect = containerElement.getBoundingClientRect();
+      top = rect.bottom - 50;
+      left = rect.left;
+    } else {
+      // Position in center of screen when no built-in input
+      const popupRect = popup.getBoundingClientRect();
+      top = (viewportHeight - popupRect.height) / 2;
+      left = (viewportWidth - popupRect.width) / 2;
+    }
 
     // Ensure popup doesn't go off-screen horizontally
     const popupRect = popup.getBoundingClientRect();
@@ -188,14 +215,26 @@ export class DatePickerComponent implements OnInit, OnChanges {
     }
 
     // Ensure popup doesn't go off-screen vertically
-    // If popup would be too tall, position it above the input instead
-    if (top + popupRect.height > viewportHeight - 16) {
-      const topPosition = rect.top - popupRect.height - 8;
-      if (topPosition >= 16) {
-        top = topPosition;
-      } else {
-        // If neither above nor below fits, position it with maximum available space
-        top = Math.max(16, Math.min(top, viewportHeight - popupRect.height - 16));
+    if (this.showInput) {
+      // For input-based positioning, try above if below doesn't fit
+      if (top + popupRect.height > viewportHeight - 16) {
+        const containerElement = this.popupCalendar.nativeElement.previousElementSibling;
+        if (containerElement) {
+          const rect = containerElement.getBoundingClientRect();
+          const topPosition = rect.top - popupRect.height - 8;
+          if (topPosition >= 16) {
+            top = topPosition;
+          } else {
+            // If neither above nor below fits, position it with maximum available space
+            top = Math.max(16, Math.min(top, viewportHeight - popupRect.height - 16));
+          }
+        }
+      }
+    } else {
+      // For center positioning, just ensure it fits in viewport
+      if (top < 16) top = 16;
+      if (top + popupRect.height > viewportHeight - 16) {
+        top = viewportHeight - popupRect.height - 16;
       }
     }
 

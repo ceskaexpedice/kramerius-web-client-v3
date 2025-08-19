@@ -139,5 +139,6 @@
   "days": "Dni",
   "week": "Tydzień",
   "more": "Więcej",
-  "hide": "Ukryj"
+  "hide": "Ukryj",
+  "change-to-range-mode-label": "Zmień na tryb zakresu (od-do)"
 }

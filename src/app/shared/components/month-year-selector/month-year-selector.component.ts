@@ -45,8 +45,6 @@ export interface MonthYearChange {
 
       }
     </div>
-
-    <hr>
   `,
   styles: `
     .month-year-selector {

@@ -139,5 +139,6 @@
   "days": "Dny",
   "week": "Týden",
   "hide": "Skrýt",
-  "more": "Více"
+  "more": "Více",
+  "change-to-range-mode-label": "Změnit na období (od-do)"
 }

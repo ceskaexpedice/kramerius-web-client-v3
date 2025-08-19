@@ -134,5 +134,6 @@
   "days": "Dni",
   "week": "Týždeň",
   "hide": "Skryť",
-  "more": "Viac"
+  "more": "Viac",
+  "change-to-range-mode-label": "Zmeniť na obdobie (od-do)"
 }
