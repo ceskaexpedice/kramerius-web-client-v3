@@ -14,42 +14,61 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: var(--spacing-x4);
-  min-width: 400px;
 }
 
 .popup-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-x4);
 }
 
 .date-inputs-row {
   display: flex;
   gap: var(--spacing-x4);
   align-items: center;
+  margin-bottom: var(--spacing-x2);
 }
 
 .date-input-section {
   flex: 1;
 }
 
-.calendars-row {
+// Controls section
+.controls-section {
   display: flex;
   gap: var(--spacing-x6);
+  margin-bottom: var(--spacing-x4);
 }
 
-.calendar-section {
+.left-controls {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x3);
   flex: 1;
 }
 
-.calendar-header {
+.right-controls {
+  flex: 1;
+}
+
+// Month/Year selectors row
+.month-year-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-x3);
-  align-items: flex-start;
+  gap: var(--spacing-x6);
+}
+
+.month-year-section {
+  flex: 1;
+}
+
+// Calendars row - perfectly aligned
+.calendars-row {
+  display: flex;
+  gap: var(--spacing-x6);
+  align-items: flex-start; // Align calendars at the top
+}
+
+.calendar-container {
+  flex: 1;
 }
 
 .offset-buttons {
@@ -67,10 +86,6 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
     flex: 1;
     font-size: 12px;
   }
-}
-
-.month-year-selector {
-  width: 100%;
 }
 
 .custom-calendar {
@@ -113,6 +128,10 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
       line-height: 40px !important;
       top: auto;
       left: auto;
+
+      &.mat-calendar-body-selected {
+        color: white !important;
+      }
 
       &.mat-calendar-body-today {
         border: none !important;
@@ -204,3 +223,5 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
     }
   }
 }
+
+

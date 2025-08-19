@@ -45,6 +45,8 @@ export interface MonthYearChange {
 
       }
     </div>
+
+    <hr>
   `,
   styles: `
     .month-year-selector {
@@ -56,6 +58,7 @@ export interface MonthYearChange {
       display: flex;
       gap: var(--spacing-x1);
       align-items: center;
+      margin-left: auto;
     }
 
     button {

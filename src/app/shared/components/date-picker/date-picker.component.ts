@@ -19,6 +19,8 @@ import {InputComponent} from '../input/input.component';
 import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
+import {ButtonToggleComponent} from '../button-toggle/button-toggle.component';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 export interface DatePickerOutput {
   dateFrom: Date;
@@ -37,6 +39,8 @@ export interface DatePickerOutput {
     MonthYearSelectorComponent,
     MatCheckbox,
     FormsModule,
+    ButtonToggleComponent,
+    MatSlideToggle,
   ],
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
@@ -238,7 +242,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
   private forceCalendarRefresh(): void {
     // Force change detection to update calendar highlighting
     this.cdr.detectChanges();
-    
+
     // Trigger a refresh of the calendar views by slightly modifying and resetting active dates
     setTimeout(() => {
       if (this.calendarFrom) {
@@ -296,7 +300,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   onOffsetClick(days: number) {
     this.selectedOffset.set(days);
-    this.isRangeModeActive = false;
+    this.isRangeModeActive = true;
 
     if (this.selectedDateFrom()) {
       const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);

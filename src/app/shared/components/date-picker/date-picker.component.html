@@ -4,17 +4,45 @@
     [size]="'md'"
     [theme]="'dark'"
     [postfixIcon]="'icon-calendar'"
+    [readonly]="true"
     (click)="toggleOpenPopupCalendar()"
   ></app-input>
 </div>
 
 <div class="date-picker--popup-calendar" #popupCalendar *ngIf="openedPopupCalendar">
+
   <div class="popup-content">
+
+    <!-- Controls section -->
+    <div class="controls-section">
+      <div class="left-controls">
+        <mat-slide-toggle
+          [hideIcon]="true"
+          [class]="'size-sm'"
+          [checked]="isRangeModeActive"
+          (toggleChange)="onRangeModeToggle()"
+        >{{'change-to-range-mode-label' | translate}}</mat-slide-toggle>
+<!--        <mat-checkbox-->
+<!--          [(ngModel)]="isRangeModeActive"-->
+<!--          (change)="onRangeModeToggle()"-->
+<!--        >-->
+<!--          {{ 'Range mode' | translate }}-->
+<!--        </mat-checkbox>-->
+
+      </div>
+
+      @if (isRangeModeActive || selectedOffset() > 0) {
+        <div class="right-controls">
+          <!-- Empty space to balance layout -->
+        </div>
+      }
+    </div>
+
     <div class="date-inputs-row">
       <div class="date-input-section">
         <app-input
           [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
-          [size]="'md'"
+          [size]="'sm'"
           [theme]="'dark'"
           [readonly]="true"
         ></app-input>
@@ -24,7 +52,7 @@
         <div class="date-input-section">
           <app-input
             [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
-            [size]="'md'"
+            [size]="'sm'"
             [theme]="'dark'"
             [readonly]="true"
           ></app-input>
@@ -32,38 +60,56 @@
       }
     </div>
 
-    <div class="calendars-row">
-      <div class="calendar-section">
-        <div class="calendar-header">
-          <mat-checkbox
-            [(ngModel)]="isRangeModeActive"
-            (change)="onRangeModeToggle()"
-          >
-            {{ 'Range mode' | translate }}
-          </mat-checkbox>
+    <div class="controls-section">
 
-          <div class="offset-buttons">
-            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
-              +1 {{ 'day' | translate | lowercase }}
-            </button>
-            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
-              +3 {{ 'days' | translate | lowercase }}
-            </button>
-            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
-              + {{'week' | translate | lowercase}}
-            </button>
-          </div>
+      <div class="left-controls">
+
+        <div class="offset-buttons">
+          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
+            +1 {{ 'day' | translate | lowercase }}
+          </button>
+          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
+            +3 {{ 'days' | translate | lowercase }}
+          </button>
+          <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
+            + {{'week' | translate | lowercase}}
+          </button>
         </div>
+      </div>
 
-        <div class="month-year-selector">
+      @if (isRangeModeActive || selectedOffset() > 0) {
+        <div class="right-controls">
+          <!-- Empty space to balance layout -->
+        </div>
+      }
+    </div>
+
+    <!-- Month/Year selectors row -->
+    <div class="month-year-row">
+      <div class="month-year-section">
+        <app-month-year-selector
+          [month]="monthFrom()"
+          [year]="yearFrom()"
+          [showMonthNavigation]="true"
+          (monthYearChange)="onMonthYearChangeFrom($event)">
+        </app-month-year-selector>
+      </div>
+
+      @if (isRangeModeActive || selectedOffset() > 0) {
+        <div class="month-year-section">
           <app-month-year-selector
-            [month]="monthFrom()"
-            [year]="yearFrom()"
+            [month]="monthTo()"
+            [year]="yearTo()"
             [showMonthNavigation]="true"
-            (monthYearChange)="onMonthYearChangeFrom($event)">
+            (monthYearChange)="onMonthYearChangeTo($event)">
           </app-month-year-selector>
         </div>
+      }
+    </div>
 
+    <!-- Calendars row -->
+    <div class="calendars-row">
+      <div class="calendar-container">
         <mat-calendar
           #calendarFrom
           class="custom-calendar"
@@ -75,16 +121,7 @@
       </div>
 
       @if (isRangeModeActive || selectedOffset() > 0) {
-        <div class="calendar-section">
-          <div class="month-year-selector">
-            <app-month-year-selector
-              [month]="monthTo()"
-              [year]="yearTo()"
-              [showMonthNavigation]="true"
-              (monthYearChange)="onMonthYearChangeTo($event)">
-            </app-month-year-selector>
-          </div>
-
+        <div class="calendar-container">
           <mat-calendar
             #calendarTo
             class="custom-calendar"
