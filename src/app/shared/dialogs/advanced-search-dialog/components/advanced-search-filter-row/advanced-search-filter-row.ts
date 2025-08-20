@@ -157,19 +157,126 @@ export class AdvancedSearchFilterRow implements OnInit {
   protected readonly AdvancedFilterType = FilterElementType;
 
   getDateFrom(): Date | null {
-    return this.dateFrom;
+    if (this.dateFrom) {
+      return this.dateFrom;
+    }
+
+    // Parse from filter.elementValue if available
+    const parsed = this.parseFromString(this.filter.elementValue);
+    if (parsed) {
+      this.dateFrom = parsed.dateFrom;
+      return parsed.dateFrom;
+    }
+
+    return null;
   }
 
   getDateTo(): Date | null {
-    return this.dateTo;
+    if (this.dateTo) {
+      return this.dateTo;
+    }
+
+    // Parse from filter.elementValue if available
+    const parsed = this.parseFromString(this.filter.elementValue);
+    if (parsed) {
+      this.dateTo = parsed.dateTo || null;
+      return parsed.dateTo || null;
+    }
+
+    return null;
   }
 
   getDateOffset(): number {
-    return this.dateOffset;
+    if (this.dateOffset !== 0) {
+      return this.dateOffset;
+    }
+
+    // Parse from filter.elementValue if available
+    const parsed = this.parseFromString(this.filter.elementValue);
+    if (parsed) {
+      this.dateOffset = parsed.offset;
+      return parsed.offset;
+    }
+
+    return 0;
   }
 
   onDatePickerChange(event: any) {
-    console.log('date changed:', event);
+    console.log('date picker changed:', event);
+    
+    if (!event || !event.dateFrom) {
+      return;
+    }
+
+    // Update local state
+    this.dateFrom = event.dateFrom;
+    this.dateTo = event.dateTo;
+    this.dateOffset = event.offset;
+
+    // Handle different cases similar to the date-stepper logic
+    if (event.offset === 0 && event.dateTo) {
+      // Range mode - store as [dateFrom TO dateTo]
+      this.filter.elementValue = `[${event.dateFrom.toISOString()} TO ${event.dateTo.toISOString()}]`;
+      this.filter.solrValue = `[${event.dateFrom.toISOString()} TO ${event.dateTo.toISOString()}]`;
+    } else if (event.offset > 0) {
+      // Offset mode - store as dateFrom+offset  
+      const formattedDate = event.dateFrom.toISOString().split('T')[0];
+      this.filter.elementValue = `${formattedDate}+${event.offset}`;
+      this.filter.solrValue = `${formattedDate}+${event.offset}`;
+    } else {
+      // Single date - store as dateFrom+0
+      const formattedDate = event.dateFrom.toISOString().split('T')[0];
+      this.filter.elementValue = `${formattedDate}+0`;
+      this.filter.solrValue = `${formattedDate}+0`;
+    }
+
+    this.emitChange();
+  }
+
+  private parseFromString(dateString: string): { dateFrom: Date; dateTo?: Date; offset: number } | null {
+    if (!dateString) {
+      return null;
+    }
+
+    const singleDatePattern = /^(\d{4})-(\d{2})-(\d{2})\+(-?\d+)$/;
+    const rangePattern = /^\[([0-9T:\-\.Z]+)\s+TO\s+([0-9T:\-\.Z]+)\]$/;
+
+    const singleMatch = dateString.match(singleDatePattern);
+    const rangeMatch = dateString.match(rangePattern);
+
+    if (singleMatch) {
+      const [, yearStr, monthStr, dayStr, offsetStr] = singleMatch;
+      const year = parseInt(yearStr, 10);
+      const month = parseInt(monthStr, 10);
+      const day = parseInt(dayStr, 10);
+      const offset = parseInt(offsetStr, 10);
+
+      const isValid = !isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(offset);
+      if (!isValid) {
+        console.warn('Parsed values are invalid (single date):', { year, month, day, offset });
+        return null;
+      }
+
+      const dateFrom = new Date(Date.UTC(year, month - 1, day));
+      return { dateFrom, offset };
+    }
+
+    if (rangeMatch) {
+      const [, fromStr, toStr] = rangeMatch;
+
+      const fromDate = new Date(fromStr);
+      const toDate = new Date(toStr);
+
+      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+        console.warn('Invalid date range values:', { fromStr, toStr });
+        return null;
+      }
+
+      return { dateFrom: fromDate, dateTo: toDate, offset: 0 };
+    }
+
+    console.warn('Invalid date string format:', dateString);
+    return null;
   }
 
 }
