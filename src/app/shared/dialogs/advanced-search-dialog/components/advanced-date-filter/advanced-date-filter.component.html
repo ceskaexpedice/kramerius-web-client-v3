@@ -28,14 +28,17 @@
   <div class="filter-controls">
     <mat-slide-toggle
       [(ngModel)]="withoutSpecificYear"
+      [hideIcon]="true"
+      [class]="'size-sm'"
       (change)="onWithoutYearToggle($event)">
       {{ 'without-specific-year' | translate }}
     </mat-slide-toggle>
 
     <button
       *ngIf="withoutSpecificYear"
-      class="button primary add-year-btn"
+      class="button with-icon tertiary transparent"
       (click)="onAddYearFilter()">
+      <i class="icon-add-square"></i>
       {{ 'add-year-from-to' | translate }}
     </button>
   </div>

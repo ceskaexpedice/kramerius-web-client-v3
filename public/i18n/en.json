@@ -144,5 +144,7 @@
   "period-from-label": "Start of period",
   "period-to-label": "End of period",
   "submit-data-buton--label": "Confirm data",
-  "discard-data-buton--label": "Cancel selection"
+  "discard-data-buton--label": "Cancel selection",
+  "without-specific-year": "Without specific year",
+  "add-year-from-to": "Add year (from-to)"
 }

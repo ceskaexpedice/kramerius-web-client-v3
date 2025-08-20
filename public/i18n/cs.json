@@ -144,5 +144,7 @@
   "period-from-label": "Začátek období",
   "period-to-label": "Konec období",
   "submit-data-buton--label": "Potvrdit data",
-  "discard-data-buton--label": "Zrušit výběr"
+  "discard-data-buton--label": "Zrušit výběr",
+  "without-specific-year": "Bez určení roku",
+  "add-year-from-to": "Přidat rok (od-do)"
 }

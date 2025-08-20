@@ -53,12 +53,14 @@ export class AdvancedDateFilterComponent implements OnInit {
   }
 
   onDayMonthFromChange(value: string | number) {
-    this.dayMonthFrom = String(value);
+    const formattedValue = this.formatDayMonth(String(value));
+    this.dayMonthFrom = formattedValue;
     this.validateAndUpdateFilter();
   }
 
   onDayMonthToChange(value: string | number) {
-    this.dayMonthTo = String(value);
+    const formattedValue = this.formatDayMonth(String(value));
+    this.dayMonthTo = formattedValue;
     this.validateAndUpdateFilter();
   }
 
@@ -71,6 +73,39 @@ export class AdvancedDateFilterComponent implements OnInit {
 
   onAddYearFilter() {
     this.addYearFilter.emit();
+  }
+
+  private formatDayMonth(value: string): string {
+    if (!value) return value;
+    
+    // Remove any extra whitespace
+    value = value.trim();
+    
+    // Check if already in DD.MM format
+    const perfectPattern = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])$/;
+    if (perfectPattern.test(value)) {
+      return value; // Already properly formatted
+    }
+    
+    // Try to parse flexible formats like "3.5", "03.5", "3.05", etc.
+    const flexiblePattern = /^(\d{1,2})\.(\d{1,2})$/;
+    const match = value.match(flexiblePattern);
+    
+    if (match) {
+      const day = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10);
+      
+      // Validate ranges
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+        // Format with leading zeros
+        const formattedDay = day.toString().padStart(2, '0');
+        const formattedMonth = month.toString().padStart(2, '0');
+        return `${formattedDay}.${formattedMonth}`;
+      }
+    }
+    
+    // Return original value if it can't be formatted
+    return value;
   }
 
   private validateAndUpdateFilter() {
