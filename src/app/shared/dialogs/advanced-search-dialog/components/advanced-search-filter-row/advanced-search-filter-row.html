@@ -57,13 +57,13 @@
 <!--        [showModeToggle]="true"-->
 <!--      ></app-date-stepper>-->
 
-      <app-date-picker
+      <advanced-date-filter
         *ngIf="filter.inputType === AdvancedFilterType.Date"
-        [initialDateFrom]="getDateFrom()"
-        [initialDateTo]="getDateTo()"
-        [initialOffset]="getDateOffset()"
-        (datePickerChange)="onDatePickerChange($event)"
-      ></app-date-picker>
+        [initialValue]="filter.elementValue"
+        [solrField]="filter.solrField || ''"
+        (valueChange)="onDateFilterChange($event)"
+        (addYearFilter)="onAddYearFilter()"
+      ></advanced-date-filter>
 
     </ng-container>
   </div>

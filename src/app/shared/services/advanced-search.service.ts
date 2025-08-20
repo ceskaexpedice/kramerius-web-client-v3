@@ -137,6 +137,15 @@ export class AdvancedSearchService {
           let useRaw = filter.userRawQueryFormat || false;
           const isEquals = filter.isEquals !== false; // default true if undefined
 
+          // Check if it's a day-month range format (DD.MM-DD.MM)
+          const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
+          if (dayMonthRangePattern.test(filter.elementValue) && filter.solrValue) {
+            // For day-month ranges, use the constructed solrValue from AdvancedDateFilterComponent
+            useRaw = true;
+            const fieldPrefix = isEquals ? '' : '-';
+            return `${fieldPrefix}${filter.solrValue}`;
+          }
+
           if (value.startsWith('*') || value.endsWith('*')) {
             useRaw = true;
           }
@@ -187,6 +196,15 @@ export class AdvancedSearchService {
               return `${filter.solrField}:${value}`;
             }
 
+            // Check if it's a day-month range format (DD.MM-DD.MM)
+            const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
+            if (dayMonthRangePattern.test(filter.elementValue)) {
+              // For day-month ranges, the solrValue is already constructed by AdvancedDateFilterComponent
+              // It contains the complex OR query for cross-month ranges using buildDateRangeFilter
+              return `${fieldPrefix}${filter.solrValue}`;
+            }
+
+            // Handle regular date format (YYYY-MM-DD+offset)
             const dateParts = filter.elementValue.split('+');
             const dateStr = dateParts[0];
             const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;

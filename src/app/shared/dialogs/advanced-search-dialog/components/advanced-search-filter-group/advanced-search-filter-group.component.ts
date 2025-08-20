@@ -2,7 +2,7 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/c
 import {AdvancedSearchFilterRow} from '../advanced-search-filter-row/advanced-search-filter-row';
 import {NgForOf, NgIf} from '@angular/common';
 import {SolrOperators} from '../../../../../core/solr/solr-helpers';
-import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER} from '../../solr-filters';
+import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER, ADVANCED_FILTERS, SolrFacetKey} from '../../solr-filters';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../../services/advanced-search.service';
 
@@ -55,6 +55,15 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
     this.operator =
       this.operator === SolrOperators.and ? SolrOperators.or : SolrOperators.and;
     this.operatorChange.emit(this.operator);
+  }
+
+  addYearFilterRow() {
+    const yearFilter = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Year);
+    if (yearFilter) {
+      const newFilter = { ...yearFilter, elementValue: '', solrValue: '' };
+      this.filters = [...this.filters, newFilter];
+      this.filtersChange.emit(this.filters);
+    }
   }
 
   protected readonly SolrOperators = SolrOperators;

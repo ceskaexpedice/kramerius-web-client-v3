@@ -12,9 +12,8 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {DateStepperChange} from '../../../../date-stepper/date-stepper.component';
 import {TranslateService} from '@ngx-translate/core';
-import {DatePickerComponent} from '../../../../components/date-picker/date-picker.component';
+import {AdvancedDateFilterComponent} from '../advanced-date-filter/advanced-date-filter.component';
 import {
   MatDatepickerModule,
 } from '@angular/material/datepicker';
@@ -22,7 +21,7 @@ import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/c
 
 @Component({
   selector: 'advanced-search-filter-row',
-  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, DatePickerComponent, MatDatepickerModule,
+  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, AdvancedDateFilterComponent, MatDatepickerModule,
     MatNativeDateModule],
   providers: [
     provideNativeDateAdapter(),
@@ -38,11 +37,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   @Input() filter!: AdvancedFilterDefinition;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
   @Output() remove = new EventEmitter<void>();
-
-  // Date range inputs
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
-  dateOffset: number = 0;
+  @Output() addYearFilter = new EventEmitter<void>();
 
   filterTypes = ADVANCED_FILTERS;
 
@@ -126,17 +121,6 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.filter.elementValue = `[${range.from} TO ${range.to}]`;
   }
 
-  onDateChange(date: DateStepperChange) {
-    console.log('date changed:', date);
-    // if date.offset is -1 it means type is range so we have both dateFrom and dateTo and we can store them as [dateFrom TO dateTo], otherwise we store it as dateFrom+offset
-    if (date.offset === -1 && date.dateTo) {
-      this.filter.elementValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
-      this.filter.solrValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
-      return;
-    }
-    const formattedDate = date.dateFrom.toISOString().split('T')[0];
-    this.filter.elementValue = `${formattedDate}+${date.offset}`
-  }
 
   getInitialFrom(): number {
     const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
@@ -156,127 +140,16 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   protected readonly AdvancedFilterType = FilterElementType;
 
-  getDateFrom(): Date | null {
-    if (this.dateFrom) {
-      return this.dateFrom;
-    }
 
-    // Parse from filter.elementValue if available
-    const parsed = this.parseFromString(this.filter.elementValue);
-    if (parsed) {
-      this.dateFrom = parsed.dateFrom;
-      return parsed.dateFrom;
-    }
 
-    return null;
-  }
-
-  getDateTo(): Date | null {
-    if (this.dateTo) {
-      return this.dateTo;
-    }
-
-    // Parse from filter.elementValue if available
-    const parsed = this.parseFromString(this.filter.elementValue);
-    if (parsed) {
-      this.dateTo = parsed.dateTo || null;
-      return parsed.dateTo || null;
-    }
-
-    return null;
-  }
-
-  getDateOffset(): number {
-    if (this.dateOffset !== 0) {
-      return this.dateOffset;
-    }
-
-    // Parse from filter.elementValue if available
-    const parsed = this.parseFromString(this.filter.elementValue);
-    if (parsed) {
-      this.dateOffset = parsed.offset;
-      return parsed.offset;
-    }
-
-    return 0;
-  }
-
-  onDatePickerChange(event: any) {
-    console.log('date picker changed:', event);
-    
-    if (!event || !event.dateFrom) {
-      return;
-    }
-
-    // Update local state
-    this.dateFrom = event.dateFrom;
-    this.dateTo = event.dateTo;
-    this.dateOffset = event.offset;
-
-    // Handle different cases similar to the date-stepper logic
-    if (event.offset === 0 && event.dateTo) {
-      // Range mode - store as [dateFrom TO dateTo]
-      this.filter.elementValue = `[${event.dateFrom.toISOString()} TO ${event.dateTo.toISOString()}]`;
-      this.filter.solrValue = `[${event.dateFrom.toISOString()} TO ${event.dateTo.toISOString()}]`;
-    } else if (event.offset > 0) {
-      // Offset mode - store as dateFrom+offset  
-      const formattedDate = event.dateFrom.toISOString().split('T')[0];
-      this.filter.elementValue = `${formattedDate}+${event.offset}`;
-      this.filter.solrValue = `${formattedDate}+${event.offset}`;
-    } else {
-      // Single date - store as dateFrom+0
-      const formattedDate = event.dateFrom.toISOString().split('T')[0];
-      this.filter.elementValue = `${formattedDate}+0`;
-      this.filter.solrValue = `${formattedDate}+0`;
-    }
-
+  onDateFilterChange(value: {elementValue: string, solrValue: string}) {
+    this.filter.elementValue = value.elementValue;
+    this.filter.solrValue = value.solrValue;
     this.emitChange();
   }
 
-  private parseFromString(dateString: string): { dateFrom: Date; dateTo?: Date; offset: number } | null {
-    if (!dateString) {
-      return null;
-    }
-
-    const singleDatePattern = /^(\d{4})-(\d{2})-(\d{2})\+(-?\d+)$/;
-    const rangePattern = /^\[([0-9T:\-\.Z]+)\s+TO\s+([0-9T:\-\.Z]+)\]$/;
-
-    const singleMatch = dateString.match(singleDatePattern);
-    const rangeMatch = dateString.match(rangePattern);
-
-    if (singleMatch) {
-      const [, yearStr, monthStr, dayStr, offsetStr] = singleMatch;
-      const year = parseInt(yearStr, 10);
-      const month = parseInt(monthStr, 10);
-      const day = parseInt(dayStr, 10);
-      const offset = parseInt(offsetStr, 10);
-
-      const isValid = !isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(offset);
-      if (!isValid) {
-        console.warn('Parsed values are invalid (single date):', { year, month, day, offset });
-        return null;
-      }
-
-      const dateFrom = new Date(Date.UTC(year, month - 1, day));
-      return { dateFrom, offset };
-    }
-
-    if (rangeMatch) {
-      const [, fromStr, toStr] = rangeMatch;
-
-      const fromDate = new Date(fromStr);
-      const toDate = new Date(toStr);
-
-      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
-        console.warn('Invalid date range values:', { fromStr, toStr });
-        return null;
-      }
-
-      return { dateFrom: fromDate, dateTo: toDate, offset: 0 };
-    }
-
-    console.warn('Invalid date string format:', dateString);
-    return null;
+  onAddYearFilter() {
+    this.addYearFilter.emit();
   }
 
 }

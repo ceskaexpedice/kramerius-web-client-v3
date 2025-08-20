@@ -5,7 +5,8 @@
         *ngFor="let filter of filters; let i = index"
         [filter]="filter"
         (filterChange)="updateFilter(i, $event)"
-        (remove)="removeFilter(i)">
+        (remove)="removeFilter(i)"
+        (addYearFilter)="addYearFilterRow()">
       </advanced-search-filter-row>
     </div>
 
