@@ -12,14 +12,24 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {DateStepperChange, DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
+import {DateStepperChange} from '../../../../date-stepper/date-stepper.component';
 import {TranslateService} from '@ngx-translate/core';
+import {DatePickerComponent} from '../../../../components/date-picker/date-picker.component';
+import {
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
+import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 
 @Component({
   selector: 'advanced-search-filter-row',
-  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, DateStepperComponent],
+  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, DatePickerComponent, MatDatepickerModule,
+    MatNativeDateModule],
+  providers: [
+    provideNativeDateAdapter(),
+
+    MatDatepickerModule],
   templateUrl: './advanced-search-filter-row.html',
-  styleUrl: './advanced-search-filter-row.scss'
+  styleUrl: './advanced-search-filter-row.scss',
 })
 export class AdvancedSearchFilterRow implements OnInit {
   private solrService = inject(SolrService);
@@ -28,6 +38,11 @@ export class AdvancedSearchFilterRow implements OnInit {
   @Input() filter!: AdvancedFilterDefinition;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
   @Output() remove = new EventEmitter<void>();
+
+  // Date range inputs
+  dateFrom: Date | null = null;
+  dateTo: Date | null = null;
+  dateOffset: number = 0;
 
   filterTypes = ADVANCED_FILTERS;
 
@@ -77,7 +92,7 @@ export class AdvancedSearchFilterRow implements OnInit {
     if (def) {
       this.filter = {
         ...def,
-        solrValue: ''
+        solrValue: '',
       };
       this.emitChange();
     }
@@ -92,7 +107,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label) : '';
 
   emitChange() {
-    this.filterChange.emit({ ...this.filter });
+    this.filterChange.emit({...this.filter});
   }
 
   suggestionSelected(value: string) {
@@ -140,5 +155,21 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   protected readonly AdvancedFilterType = FilterElementType;
+
+  getDateFrom(): Date | null {
+    return this.dateFrom;
+  }
+
+  getDateTo(): Date | null {
+    return this.dateTo;
+  }
+
+  getDateOffset(): number {
+    return this.dateOffset;
+  }
+
+  onDatePickerChange(event: any) {
+    console.log('date changed:', event);
+  }
 
 }

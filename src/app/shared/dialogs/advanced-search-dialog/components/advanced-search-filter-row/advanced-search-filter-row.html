@@ -50,12 +50,21 @@
         [filterable]="true"
       ></app-select>
 
-      <app-date-stepper
+<!--      <app-date-stepper-->
+<!--        *ngIf="filter.inputType === AdvancedFilterType.Date"-->
+<!--        [data]="filter.elementValue"-->
+<!--        (dateChange)="onDateChange($event)"-->
+<!--        [showModeToggle]="true"-->
+<!--      ></app-date-stepper>-->
+
+      <app-date-picker
         *ngIf="filter.inputType === AdvancedFilterType.Date"
-        [data]="filter.elementValue"
-        (dateChange)="onDateChange($event)"
-        [showModeToggle]="true"
-      ></app-date-stepper>
+        [initialDateFrom]="getDateFrom()"
+        [initialDateTo]="getDateTo()"
+        [initialOffset]="getDateOffset()"
+        (datePickerChange)="onDateChange($event)"
+      ></app-date-picker>
+
     </ng-container>
   </div>
 
