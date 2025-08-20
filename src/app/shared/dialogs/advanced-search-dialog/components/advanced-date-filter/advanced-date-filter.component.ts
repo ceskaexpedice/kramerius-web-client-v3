@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {TranslatePipe} from '@ngx-translate/core';
 import {DatePickerComponent} from '../../../../components/date-picker/date-picker.component';
 import {InputComponent} from '../../../../components/input/input.component';
+import {AdvancedSearchService} from '../../../../services/advanced-search.service';
 
 @Component({
   selector: 'advanced-date-filter',
@@ -26,6 +27,8 @@ export class AdvancedDateFilterComponent implements OnInit {
   @Output() valueChange = new EventEmitter<{elementValue: string, solrValue: string}>();
   @Output() addYearFilter = new EventEmitter<void>();
 
+  private advancedSearchService = inject(AdvancedSearchService);
+
   // Component state
   withoutSpecificYear = false;
   dayMonthFrom = '';
@@ -36,36 +39,6 @@ export class AdvancedDateFilterComponent implements OnInit {
 
   ngOnInit() {
     this.parseInitialValue();
-  }
-
-  // Main Solr query building method for day-month ranges
-  private buildDateRangeFilter(startDay: number, startMonth: number, endDay: number, endMonth: number): string {
-    const filters: string[] = [];
-    
-    if (startMonth === endMonth) {
-      // Same month - simple day range
-      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO ${endDay}])`);
-    } else {
-      // Cross multiple months
-      
-      // Starting month (from startDay to end of month)
-      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO 31])`);
-      
-      // Full months in between
-      let currentMonth = startMonth + 1;
-      if (currentMonth > 12) currentMonth = 1; // Handle year wrap
-      
-      while (currentMonth !== endMonth) {
-        filters.push(`(date_range_start.month:${currentMonth})`);
-        currentMonth++;
-        if (currentMonth > 12) currentMonth = 1; // Handle year wrap
-      }
-      
-      // Ending month (from start of month to endDay)
-      filters.push(`(date_range_start.month:${endMonth} AND date_range_start.day:[1 TO ${endDay}])`);
-    }
-    
-    return `(${filters.join(' OR ')})`;
   }
 
   onWithoutYearToggle(event: any) {
@@ -103,9 +76,9 @@ export class AdvancedDateFilterComponent implements OnInit {
   private validateAndUpdateFilter() {
     // Validate DD.MM format
     const dayMonthPattern = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])$/;
-    
-    if (this.dayMonthFrom && this.dayMonthTo && 
-        dayMonthPattern.test(this.dayMonthFrom) && 
+
+    if (this.dayMonthFrom && this.dayMonthTo &&
+        dayMonthPattern.test(this.dayMonthFrom) &&
         dayMonthPattern.test(this.dayMonthTo)) {
       this.updateFilterValue();
     }
@@ -116,16 +89,16 @@ export class AdvancedDateFilterComponent implements OnInit {
       // Parse DD.MM values
       const [startDay, startMonth] = this.dayMonthFrom.split('.').map(Number);
       const [endDay, endMonth] = this.dayMonthTo.split('.').map(Number);
-      
+
       // Build Solr query using the provided method
-      const solrValue = this.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
+      const solrValue = this.advancedSearchService.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
       const elementValue = `${this.dayMonthFrom}-${this.dayMonthTo}`;
-      
+
       this.valueChange.emit({ elementValue, solrValue });
     } else if (!this.withoutSpecificYear && this.dateFrom) {
       // Handle regular date picker values (existing logic)
       let elementValue, solrValue;
-      
+
       if (this.dateOffset === 0 && this.dateTo) {
         elementValue = `[${this.dateFrom.toISOString()} TO ${this.dateTo.toISOString()}]`;
         solrValue = elementValue;
@@ -138,25 +111,25 @@ export class AdvancedDateFilterComponent implements OnInit {
         elementValue = `${formattedDate}+0`;
         solrValue = elementValue;
       }
-      
+
       this.valueChange.emit({ elementValue, solrValue });
     }
   }
 
   private parseInitialValue() {
     if (!this.initialValue) return;
-    
+
     // Check if it's a day-month range format (DD.MM-DD.MM)
     const dayMonthRangePattern = /^(\d{2}\.\d{2})-(\d{2}\.\d{2})$/;
     const dayMonthMatch = this.initialValue.match(dayMonthRangePattern);
-    
+
     if (dayMonthMatch) {
       this.withoutSpecificYear = true;
       this.dayMonthFrom = dayMonthMatch[1];
       this.dayMonthTo = dayMonthMatch[2];
       return;
     }
-    
+
     // Parse regular date formats (existing parseFromString logic)
     const parsed = this.parseFromString(this.initialValue);
     if (parsed) {
