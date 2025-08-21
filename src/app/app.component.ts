@@ -22,6 +22,6 @@ export class AppComponent implements OnInit {
     console.log('AppComponent ngOnInit, branch: dev');
 
     // Check authentication status on app initialization
-    this.store.dispatch(AuthActions.checkAuthStatus());
+    //this.store.dispatch(AuthActions.checkAuthStatus());
   }
 }
