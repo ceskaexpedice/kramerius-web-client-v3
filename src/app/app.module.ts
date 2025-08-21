@@ -9,7 +9,7 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import {HttpBackend, provideHttpClient, withFetch} from '@angular/common/http';
+import {HttpBackend, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -26,6 +26,9 @@ import {PlaybackBarComponent} from './shared/components/playback-bar/playback-ba
 import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
 import {FILTER_SERVICE} from './shared/services/filter.service';
 import {SearchService} from './shared/services/search.service';
+import { authReducer, authFeatureKey } from './core/auth/store';
+import { AuthEffects } from './core/auth/store';
+import {tokenInterceptor} from './core/auth/token.interceptor';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -56,8 +59,9 @@ export function initApp(envService: EnvironmentService) {
     }),
     StoreModule.forRoot({
       router: routerReducer,
+      [authFeatureKey]: authReducer,
     }, {}),
-    EffectsModule.forRoot([]),
+    EffectsModule.forRoot([AuthEffects]),
     StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,
@@ -66,7 +70,10 @@ export function initApp(envService: EnvironmentService) {
     LoadingOverlayComponent,
   ],
   providers: [
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([tokenInterceptor])
+    ),
     AppMissingTranslationService,
     {
       provide: APP_INITIALIZER,

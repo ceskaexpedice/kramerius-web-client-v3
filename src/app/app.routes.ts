@@ -5,7 +5,8 @@ export enum APP_ROUTES_ENUM {
   SEARCH_RESULTS = 'search-results',
   DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical',
-  MUSIC_VIEW = 'music'
+  MUSIC_VIEW = 'music',
+  AUTH_CALLBACK = 'auth/callback'
 }
 
 export const routes: Routes = [
@@ -13,6 +14,10 @@ export const routes: Routes = [
     path: '',
     redirectTo: APP_ROUTES_ENUM.SEARCH,
     pathMatch: 'full',
+  },
+  {
+    path: APP_ROUTES_ENUM.AUTH_CALLBACK,
+    loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(c => c.AuthCallbackComponent)
   },
   {
     path: APP_ROUTES_ENUM.SEARCH,
