@@ -116,7 +116,7 @@ export class SolrService {
       } else {
         finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
       }
-      parts.push(`(${finalAdvancedQuery})`);
+      parts.push(`${finalAdvancedQuery}`);
     }
 
     return parts.length ? parts.join(' AND ') : '*:*';
