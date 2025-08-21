@@ -34,7 +34,8 @@
   <nav class="app-header__right">
 
 <!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
-    <a class="cursor-pointer" (click)="login()">{{'log-in' | translate}}</a>
+
+    <app-user-info></app-user-info>
 
     <button class="icon-button outlined light" (click)="openSettings()">
       <i class="icon-settings"></i>

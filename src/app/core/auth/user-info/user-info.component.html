@@ -1,0 +1,8 @@
+@if (!(isAuthenticated | async)) {
+  <a class="cursor-pointer" (click)="login()">{{'log-in' | translate}}</a>
+}
+
+@if ((isAuthenticated | async)) {
+<!--  {{(user | async)?.name}}-->
+  <a class="cursor-pointer" (click)="logout()">{{'log-out' | translate}}</a>
+}

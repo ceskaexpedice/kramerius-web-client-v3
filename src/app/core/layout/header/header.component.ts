@@ -13,8 +13,8 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import {RecordHandlerService} from '../../../shared/services/record-handler.service';
-import * as AuthActions from '../../auth/store/auth.actions';
 import {Store} from '@ngrx/store';
+import {UserInfoComponent} from '../../auth/user-info/user-info.component';
 
 @Component({
   selector: 'app-header',
@@ -26,6 +26,7 @@ import {Store} from '@ngrx/store';
     LangPickerComponent,
     RouterLink,
     TranslatePipe,
+    UserInfoComponent,
   ],
   styleUrl: './header.component.scss'
 })
@@ -44,7 +45,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public searchService: SearchService,
     private advancedSearch: AdvancedSearchService,
     private recordHandler: RecordHandlerService,
-    private store: Store
   ) {}
 
   ngOnInit() {
@@ -106,11 +106,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   openAdvancedSearch() {
     this.advancedSearch.openDialog();
-  }
-
-  login() {
-    const currentUrl = this.router.url;
-    this.store.dispatch(AuthActions.login({ returnUrl: currentUrl }));
   }
 
   logDevInfo(): void {
