@@ -1,33 +1,274 @@
+$date-range-middle-color: rgba(0, 123, 255, 0.1);
+
 .date-picker--container {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x2);
 }
 
-.more-section--inputs {
+.date-picker--popup-calendar {
+  position: fixed;
+  z-index: 1001;
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 90vh; // Limit height to 90% of viewport
+  max-width: 90vw; // Limit width to 90% of viewport
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Modal-style overlay when used without input
+:host-context(.date-picker-modal) .date-picker--popup-calendar {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+// Optional backdrop for modal-style usage
+.date-picker--backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; // Allow flex child to shrink
+}
+
+hr {
+  margin: var(--spacing-x2) 0;
+}
+
+// Scrollable content area
+.popup-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-x4);
+  padding-bottom: var(--spacing-x2); // Less padding at bottom since fixed actions follow
+}
+
+// Fixed action buttons at bottom
+.popup-fixed-actions {
+  flex-shrink: 0; // Don't shrink
+  border-top: 1px solid var(--color-border-light);
+  padding: var(--spacing-x2) var(--spacing-x4);
+  background-color: var(--color-bg-base); // Ensure background matches
+}
+
+.date-inputs-row {
+  display: flex;
+  gap: var(--spacing-x4);
+  align-items: center;
+  margin-bottom: var(--spacing-x2);
+}
+
+.date-input-section {
+  flex: 1;
+}
+
+// Controls section
+.controls-section {
+  display: flex;
+  gap: var(--spacing-x6);
+  margin-bottom: var(--spacing-x4);
+}
+
+.left-controls {
   display: flex;
   flex-direction: row;
-  gap: 10px;
   align-items: center;
-  margin-top: var(--spacing-x3);
-  width: 100%;
+  justify-content: space-between;
+  gap: var(--spacing-x3);
+  flex: 1;
+}
 
-  app-input-date {
-    flex: 1;
-    min-width: 0;
-  }
+.right-controls {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Month/Year selectors row
+.month-year-row {
+  display: flex;
+  gap: var(--spacing-x6);
+}
+
+.month-year-section {
+  flex: 1;
+}
+
+// Calendars row - perfectly aligned
+.calendars-row {
+  display: flex;
+  gap: var(--spacing-x6);
+  align-items: flex-start; // Align calendars at the top
+}
+
+.calendar-container {
+  flex: 1;
 }
 
 .offset-buttons {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: var(--spacing-x2);
+  width: 100%;
 
   .selected {
     border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
   }
 
   button {
     padding: var(--spacing-x1) var(--spacing-x2);
+    flex: 1;
+    font-size: 12px;
   }
 }
+
+.custom-calendar {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-x2);
+  // Remove padding-top and border-top as they're now handled by .popup-fixed-actions
+
+  button {
+    padding: var(--spacing-x3) var(--spacing-x4);
+  }
+}
+
+// Hide default calendar header since we use custom month-year selector
+:host ::ng-deep .mat-calendar-header {
+  display: none !important;
+}
+
+// Date range highlighting
+:host ::ng-deep .mat-calendar-body {
+
+  .mat-calendar-body-cell-container {
+    padding: 2px 0 !important;
+  }
+
+  .mat-calendar-body-cell {
+    position: relative;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+
+    .mat-calendar-body-cell-content {
+      width: 40px !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      top: auto;
+      left: auto;
+
+      &.mat-calendar-body-selected {
+        color: white !important;
+      }
+
+      &.mat-calendar-body-today {
+        border: none !important;
+      }
+    }
+
+    &.range-start {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        position: relative;
+        z-index: 2;
+      }
+
+      // Line extending to the right with borders
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 40px;
+        transform: translateY(-50%);
+        background-color: var(--color-primary) !important;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        border-left: 2px solid var(--color-primary);
+        border-radius: 8px 0 0 8px;
+        z-index: 1;
+      }
+    }
+
+    &.range-end {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        position: relative;
+        z-index: 2;
+      }
+
+      // Line extending to the left with borders
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 50%;
+        height: 40px;
+        transform: translateY(-50%);
+        background-color: var(--color-primary) !important;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        border-right: 2px solid var(--color-primary);
+        border-radius: 0 8px 8px 0;
+        z-index: 1;
+      }
+    }
+
+    &.range-middle {
+      .mat-calendar-body-cell-content {
+        background-color: transparent !important;
+        color: var(--color-text-base) !important;
+        position: relative;
+        z-index: 2;
+      }
+
+      // Full-width line with borders
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        height: 40px;
+        transform: translateY(-50%);
+        background-color: $date-range-middle-color;
+        border-top: 2px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        z-index: 1;
+      }
+    }
+
+    // Single date selection (start and end are the same)
+    &.range-start.range-end {
+      .mat-calendar-body-cell-content {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+      }
+
+      &::after {
+        display: none !important;
+      }
+    }
+  }
+}
+
+

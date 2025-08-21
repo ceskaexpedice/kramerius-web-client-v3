@@ -38,19 +38,19 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   get yearRangeFrom(): number {
     return this.customSearchService.getYearFrom() ?? this.defaultYearRangeFrom;
   }
-  
+
   get yearRangeTo(): number {
     return this.customSearchService.getYearTo() ?? this.currentYear;
   }
-  
+
   get dateFrom(): Date | null {
     return this.customSearchService.getDateFrom();
   }
-  
+
   get dateTo(): Date | null {
     return this.customSearchService.getDateTo();
   }
-  
+
   get dateOffset(): number {
     return this.customSearchService.getDateOffset();
   }
@@ -62,7 +62,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
     protected userService: UserService,
     protected router: Router
   ) {
-    
+
   }
 
   ngOnInit() {
@@ -76,7 +76,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
 
     // Initialize CustomSearchService first, then initialize ranges
     this.customSearchService.initializeFromRoute();
-    
+
     // Wait a tick for the service to initialize, then set initial values
     setTimeout(() => {
       this.initializeYearRange();
@@ -92,7 +92,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
         this.initializeDateRange();
       }, 0);
     });
-    
+
     this.subscriptions.push(routeSubscription);
   }
 
@@ -212,6 +212,8 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
       this.pendingDateFrom?.getTime() !== this.dateFrom?.getTime() ||
       this.pendingDateTo?.getTime() !== this.dateTo?.getTime() ||
       this.pendingDateOffset !== this.dateOffset;
+
+    this.submitDateRange();
   }
 
   submitDateRange() {

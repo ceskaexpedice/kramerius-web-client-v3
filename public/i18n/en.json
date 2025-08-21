@@ -139,5 +139,12 @@
   "days": "Days",
   "week": "Week",
   "hide": "Hide",
-  "more": "More"
+  "more": "More",
+  "change-to-range-mode-label": "Change to range mode (from-to)",
+  "period-from-label": "Start of period",
+  "period-to-label": "End of period",
+  "submit-data-buton--label": "Confirm data",
+  "discard-data-buton--label": "Cancel selection",
+  "without-specific-year": "Without specific year",
+  "add-year-from-to": "Add year (from-to)"
 }

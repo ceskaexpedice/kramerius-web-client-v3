@@ -123,3 +123,29 @@ mat-checkbox {
   color: var(--color-text-light) !important;
   font-size: var(--font-size-small) !important;
 }
+
+mat-slide-toggle.size-sm {
+  --mdc-switch-track-width: 32px;
+  --mdc-switch-track-height: 20px;
+  --mat-switch-unselected-handle-size: 14px;
+  --mat-switch-selected-handle-size: 14px;
+  --mdc-switch-state-layer-size: 14px;
+  --mdc-switch-unselected-state-layer-size: 14px;
+  --mat-switch-selected-handle-horizontal-margin: 0 14px;
+}
+
+mat-slide-toggle.size-sm .mdc-switch {
+  width: 32px !important;
+  height: 20px !important;
+}
+
+mat-slide-toggle.size-sm .mdc-switch__track {
+  width: 32px !important;
+  height: 20px !important;
+  border-radius: 10px !important;
+}
+
+mat-slide-toggle.size-sm .mdc-switch__handle {
+  width: 14px !important;
+  height: 14px !important;
+}

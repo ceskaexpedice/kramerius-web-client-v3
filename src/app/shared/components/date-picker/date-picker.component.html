@@ -1,66 +1,174 @@
-<div class="date-picker--container">
-
-  <app-input-date
-    [valueSignal]="fromDate"
-    (valueChange)="onFromDateInput($event)"
-    [label]="'DD.MM.YYYY'"
-    [minDate]="minDate"
-    [maxDate]="maxDate"
-    [size]="'lg'"
-    [theme]="'dark'"
-    [postfixIcon]="'icon-calendar'"
-  ></app-input-date>
-
-  <div class="offset-buttons">
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 1" (click)="onOffsetClick(1)">
-      +1 {{ 'day' | translate | lowercase }}
-    </button>
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 3" (click)="onOffsetClick(3)">
-      +3 {{ 'days' | translate | lowercase }}
-    </button>
-
-    <button class="outlined tertiary sm" [class.selected]="offset() === 7" (click)="onOffsetClick(7)">
-      + {{'week' | translate | lowercase}}
-    </button>
-
-    <button class="outlined tertiary sm" (click)="toggleOpenedMore()">
-      + {{openedMore ? ('hide' | translate | lowercase) : ('more' | translate | lowercase)}}
-    </button>
-
+@if (showInput) {
+  <div class="date-picker--container">
+    <app-input
+      [placeholder]="getSelectedDateText()"
+      [size]="size"
+      [theme]="'dark'"
+      [postfixIcon]="'icon-calendar'"
+      [clickable]="true"
+      [readonly]="true"
+      (click)="toggleOpenPopupCalendar()"
+    ></app-input>
   </div>
+}
 
-  @if (openedMore) {
-    <div class="more-section--inputs">
+@if (openedPopupCalendar) {
+  <!-- Optional backdrop for modal-style usage -->
+  @if (!showInput) {
+    <div class="date-picker--backdrop" (click)="closePopup()"></div>
+  }
 
-      <app-input-date
-        [valueSignal]="fromDate"
-        (valueChange)="onFromDateInput($event)"
-        [minDate]="minDate"
-        [maxDate]="maxDate"
-        [label]="'DD.MM.YYYY'"
-        [size]="'lg'"
-        [theme]="'dark'"
-        [postfixIcon]="'icon-calendar'"
-      ></app-input-date>
+  <div class="date-picker--popup-calendar" #popupCalendar>
 
-      -
+  <div class="popup-content">
 
-      <app-input-date
-        [valueSignal]="toDate"
-        (valueChange)="onToDateInput($event)"
-        [minDate]="minDate"
-        [maxDate]="maxDate"
-        [label]="'DD.MM.YYYY'"
-        [size]="'lg'"
-        [theme]="'dark'"
-        [postfixIcon]="'icon-calendar'"
-      ></app-input-date>
+    <!-- Scrollable content area -->
+    <div class="popup-scrollable-content">
+
+      <!-- Controls section -->
+      <div class="controls-section">
+        <div class="left-controls">
+          <mat-slide-toggle
+            [hideIcon]="true"
+            [class]="'size-sm'"
+            [checked]="isRangeModeActive"
+            (change)="onRangeModeToggle($event)"
+          >{{'change-to-range-mode-label' | translate}}</mat-slide-toggle>
+
+          @if (!showDualCalendarMode) {
+            <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
+              <i class="icon-x" ></i>
+            </button>
+          }
+
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="right-controls">
+            <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
+              <i class="icon-x" ></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="date-inputs-row">
+        <div class="date-input-section">
+          <app-input
+            [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
+            [label]="'period-from-label' | translate"
+            [size]="'sm'"
+            [theme]="'dark'"
+            [readonly]="true"
+          ></app-input>
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="date-input-section">
+            <app-input
+              [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+              [label]="'period-to-label' | translate"
+              [size]="'sm'"
+              [theme]="'dark'"
+              [readonly]="true"
+            ></app-input>
+          </div>
+        }
+      </div>
+
+      <div class="controls-section">
+
+        <div class="left-controls">
+
+          <div class="offset-buttons">
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
+              +1 {{ 'day' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
+              +3 {{ 'days' | translate | lowercase }}
+            </button>
+            <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
+              + {{'week' | translate | lowercase}}
+            </button>
+          </div>
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="right-controls">
+            <!-- Empty space to balance layout -->
+          </div>
+        }
+      </div>
+
+      <!-- Month/Year selectors row -->
+      <div class="month-year-row">
+        <div class="month-year-section">
+          <app-month-year-selector
+            [month]="monthFrom()"
+            [year]="yearFrom()"
+            [showMonthNavigation]="true"
+            (monthYearChange)="onMonthYearChangeFrom($event)">
+          </app-month-year-selector>
+
+          <hr>
+
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="month-year-section">
+            <app-month-year-selector
+              [month]="monthTo()"
+              [year]="yearTo()"
+              [showMonthNavigation]="true"
+              (monthYearChange)="onMonthYearChangeTo($event)">
+            </app-month-year-selector>
+
+            <hr>
+
+          </div>
+        }
+      </div>
+
+      <!-- Calendars row -->
+      <div class="calendars-row">
+        <div class="calendar-container">
+          <mat-calendar
+            #calendarFrom
+            class="custom-calendar"
+            [startView]="'month'"
+            [selected]="selectedDateFrom()"
+            [dateClass]="dateClass"
+            (selectedChange)="onDateFromSelect($event)"
+          ></mat-calendar>
+        </div>
+
+        @if (showDualCalendarMode) {
+          <div class="calendar-container">
+            <mat-calendar
+              #calendarTo
+              class="custom-calendar"
+              [startView]="'month'"
+              [selected]="selectedDateTo()"
+              [dateClass]="dateClass"
+              (selectedChange)="onDateToSelect($event)"
+            ></mat-calendar>
+          </div>
+        }
+      </div>
 
     </div>
 
-  }
+    <!-- Fixed action buttons at bottom -->
+    <div class="popup-fixed-actions">
+      <div class="action-buttons">
+        <button class="outlined tertiary" (click)="onDiscard()">
+          {{ 'discard-data-buton--label' | translate }}
+        </button>
+        <button class="primary" (click)="onSubmit()">
+          {{ 'submit-data-buton--label' | translate }}
+        </button>
+      </div>
+    </div>
 
-
-</div>
+  </div></div>
+}

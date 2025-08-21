@@ -1,8 +1,19 @@
 <div class="input-field">
-  <div class="input-container" [ngClass]="[theme, size]">
+  <!-- Label -->
+  <label *ngIf="label" class="input-label" [attr.for]="id">
+    {{ label | translate }}
+  </label>
+
+  <div class="input-container" [ngClass]="[theme, size, clickable ? 'clickable' : '', withIcons ? 'with-icons' : '']">
+    <!-- Prefix Icon -->
+    <span class="prefix-icon" *ngIf="prefixIcon">
+      <i [class]="prefixIcon"></i>
+    </span>
+
     <ng-container *ngIf="autocomplete; else noAutocomplete">
       <input
         [style.padding-right]="iconsWidth"
+        [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
         [type]="type"
         #inputElement
         #inputModel="ngModel"
@@ -28,6 +39,7 @@
         <span class="prefix" *ngIf="prefix">{{ prefix }}</span>
         <input
           [style.padding-right]="iconsWidth"
+          [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
           [type]="type"
           inputmode="numeric"
           #inputElement
@@ -49,6 +61,11 @@
         />
       </div>
     </ng-template>
+
+    <!-- Postfix Icon -->
+    <span class="postfix-icon" *ngIf="postfixIcon">
+      <i [class]="postfixIcon"></i>
+    </span>
 
     <div class="input-step-buttons" *ngIf="type === 'number' && showNumberStepper">
       <button

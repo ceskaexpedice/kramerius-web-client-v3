@@ -5,12 +5,11 @@ import {NgForOf, NgIf} from '@angular/common';
 import {SelectedTagsComponent} from '../../components/selected-tags/selected-tags.component';
 import {SearchService} from '../../services/search.service';
 import {AdvancedSearchService} from '../../services/advanced-search.service';
-import {take} from 'rxjs';
-import {QueryParamsService} from '../../../core/services/QueryParamsManager';
 import {ActivatedRoute} from '@angular/router';
 import {
   AdvancedSearchFilterGroupComponent,
 } from './components/advanced-search-filter-group/advanced-search-filter-group.component';
+import {MatNativeDateModule} from '@angular/material/core';
 
 @Component({
   selector: 'app-advanced-search-dialog',
@@ -20,6 +19,7 @@ import {
     NgIf,
     AdvancedSearchFilterGroupComponent,
     NgForOf,
+    MatNativeDateModule,
   ],
   templateUrl: './advanced-search-dialog.component.html',
   styleUrl: './advanced-search-dialog.component.scss'

@@ -50,12 +50,21 @@
         [filterable]="true"
       ></app-select>
 
-      <app-date-stepper
+<!--      <app-date-stepper-->
+<!--        *ngIf="filter.inputType === AdvancedFilterType.Date"-->
+<!--        [data]="filter.elementValue"-->
+<!--        (dateChange)="onDateChange($event)"-->
+<!--        [showModeToggle]="true"-->
+<!--      ></app-date-stepper>-->
+
+      <advanced-date-filter
         *ngIf="filter.inputType === AdvancedFilterType.Date"
-        [data]="filter.elementValue"
-        (dateChange)="onDateChange($event)"
-        [showModeToggle]="true"
-      ></app-date-stepper>
+        [initialValue]="filter.elementValue"
+        [solrField]="filter.solrField || ''"
+        (valueChange)="onDateFilterChange($event)"
+        (addYearFilter)="onAddYearFilter()"
+      ></advanced-date-filter>
+
     </ng-container>
   </div>
 

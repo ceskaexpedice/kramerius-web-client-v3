@@ -31,7 +31,8 @@ import {
 import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
 import {musicDetailReducer} from '../music/state/music-detail.reducer';
-import {PeriodicalService} from '../../shared/services/periodical.service';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
 
 const routes: Routes = [
   {
@@ -69,6 +70,8 @@ const routes: Routes = [
     ToggleButtonGroupComponent,
     NgClass,
     RecordItemListComponent,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   providers: [
     SearchService,

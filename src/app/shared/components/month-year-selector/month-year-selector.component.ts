@@ -30,6 +30,20 @@ export interface MonthYearChange {
         [filterable]="true"
         (valueChange)="onYearChange($event)">
       </app-select>
+
+      @if (showMonthNavigation) {
+        <div class="month-navigation">
+
+          <button class="button outlined tertiary sm" (click)="prevMonth()">
+            <i class="icon-arrow-left"></i>
+          </button>
+          <button class="button outlined tertiary sm" (click)="nextMonth()">
+            <i class="icon-arrow-right"></i>
+          </button>
+
+        </div>
+
+      }
     </div>
   `,
   styles: `
@@ -37,15 +51,24 @@ export interface MonthYearChange {
       display: flex;
       align-items: center;
     }
+
+    .month-navigation {
+      display: flex;
+      gap: var(--spacing-x1);
+      align-items: center;
+      margin-left: auto;
+    }
+
+    button {
+      padding: var(--spacing-x2);
+    }
   `
 })
 export class MonthYearSelectorComponent implements OnInit {
   @Input() month: number = 0; // 0-based month
   @Input() year: number = new Date().getFullYear();
+  @Input() showMonthNavigation: boolean = false;
   @Output() monthYearChange = new EventEmitter<MonthYearChange>();
-
-  selectedMonth = signal<{value: number, label: string} | null>(null);
-  selectedYear = signal<{value: number, label: string} | null>(null);
 
   monthOptions: {value: number, label: string}[] = [
     { value: 0, label: 'January' },
@@ -63,6 +86,9 @@ export class MonthYearSelectorComponent implements OnInit {
   ];
 
   yearOptions: {value: number, label: string}[] = [];
+
+  selectedMonth = signal<{value: number, label: string}>({value: this.month, label: this.monthOptions[this.month].label});
+  selectedYear = signal<{value: number, label: string}>({value: this.year, label: this.yearOptions.find(y => y.value === this.year)?.label || this.year.toString()});
 
   ngOnInit() {
     this.generateYearOptions();
@@ -101,6 +127,40 @@ export class MonthYearSelectorComponent implements OnInit {
   onYearChange(yearOption: {value: number, label: string}) {
     this.selectedYear.set(yearOption);
     this.emitChange();
+  }
+
+  prevMonth() {
+    const currentMonth = this.selectedMonth();
+    if (currentMonth && this.selectedYear()) {
+      const newMonthValue = (currentMonth.value - 1 + 12) % 12;
+      const newYearValue = newMonthValue === 11 ? this.selectedYear().value - 1 : this.selectedYear().value;
+
+      const newMonthOption = this.monthOptions.find(m => m.value === newMonthValue);
+      const newYearOption = this.yearOptions.find(y => y.value === newYearValue);
+
+      if (newMonthOption && newYearOption) {
+        this.selectedMonth.set(newMonthOption);
+        this.selectedYear.set(newYearOption);
+        this.emitChange();
+      }
+    }
+  }
+
+  nextMonth() {
+    const currentMonth = this.selectedMonth();
+    if (currentMonth && this.selectedYear()) {
+      const newMonthValue = (currentMonth.value + 1) % 12;
+      const newYearValue = newMonthValue === 0 ? this.selectedYear().value + 1 : this.selectedYear().value;
+
+      const newMonthOption = this.monthOptions.find(m => m.value === newMonthValue);
+      const newYearOption = this.yearOptions.find(y => y.value === newYearValue);
+
+      if (newMonthOption && newYearOption) {
+        this.selectedMonth.set(newMonthOption);
+        this.selectedYear.set(newYearOption);
+        this.emitChange();
+      }
+    }
   }
 
   private emitChange() {

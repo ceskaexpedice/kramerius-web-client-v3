@@ -139,5 +139,12 @@
   "days": "Dni",
   "week": "Tydzień",
   "more": "Więcej",
-  "hide": "Ukryj"
+  "hide": "Ukryj",
+  "change-to-range-mode-label": "Zmień na tryb zakresu (od-do)",
+  "period-from-label": "Początek okresu",
+  "period-to-label": "Koniec okresu",
+  "submit-data-buton--label": "Zatwierdź dane",
+  "discard-data-buton--label": "Anuluj wybór",
+  "without-specific-year": "Bez określonego roku",
+  "add-year-from-to": "Dodaj rok (od-do)"
 }

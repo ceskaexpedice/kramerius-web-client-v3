@@ -22,6 +22,7 @@ export interface PeriodicalItem {
   'root.pid': string;
   'root.title'?: string;
   'date.str'?: string;
+  ownParentPid?: string;
   children?: PeriodicalItemChild[];
 }
 
@@ -35,6 +36,7 @@ export interface PeriodicalItemChild {
   model: string;
   licenses: string[];
   'licenses.facet'?: string[];
+  ownParentPid?: string;
 }
 
 export interface PeriodicalItemYear {
@@ -69,6 +71,7 @@ export function parsePeriodicalItemFromMetadata(metadata: Metadata): PeriodicalI
     'root.pid': metadata.rootPid,
     'root.title': metadata.mainTitle,
     'date.str': metadata.dateStr,
+    ownParentPid: metadata.ownParentPid,
 
     children: [],
   };

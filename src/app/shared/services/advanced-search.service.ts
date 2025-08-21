@@ -89,6 +89,8 @@ export class AdvancedSearchService {
     const updatedFq = this.getFilters();
     const updatedOperators = this.getOperators();
 
+    console.log('advancedQuery:', advancedQuery);
+
     const queryParams: any = {
       advSearch: advancedQuery || null,
       advOp: mainOperator,
@@ -136,6 +138,7 @@ export class AdvancedSearchService {
           const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
           let useRaw = filter.userRawQueryFormat || false;
           const isEquals = filter.isEquals !== false; // default true if undefined
+
 
           if (value.startsWith('*') || value.endsWith('*')) {
             useRaw = true;
@@ -187,6 +190,19 @@ export class AdvancedSearchService {
               return `${filter.solrField}:${value}`;
             }
 
+            // Check if it's a day-month range format (DD.MM-DD.MM)
+            const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
+            if (dayMonthRangePattern.test(filter.elementValue)) {
+              // Parse DD.MM-DD.MM format and build date range query
+              const [fromPart, toPart] = filter.elementValue.split('-');
+              const [startDay, startMonth] = fromPart.split('.').map(Number);
+              const [endDay, endMonth] = toPart.split('.').map(Number);
+
+              const dateRangeQuery = this.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
+              return `${fieldPrefix}${dateRangeQuery}`;
+            }
+
+            // Handle regular date format (YYYY-MM-DD+offset)
             const dateParts = filter.elementValue.split('+');
             const dateStr = dateParts[0];
             const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
@@ -556,6 +572,35 @@ export class AdvancedSearchService {
         )
       );
     });
+  }
+
+  buildDateRangeFilter(startDay: number, startMonth: number, endDay: number, endMonth: number): string {
+    const filters: string[] = [];
+
+    if (startMonth === endMonth) {
+      // Same month - simple day range
+      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO ${endDay}])`);
+    } else {
+      // Cross multiple months
+
+      // Starting month (from startDay to end of month)
+      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO 31])`);
+
+      // Full months in between
+      let currentMonth = startMonth + 1;
+      if (currentMonth > 12) currentMonth = 1; // Handle year wrap
+
+      while (currentMonth !== endMonth) {
+        filters.push(`(date_range_start.month:${currentMonth})`);
+        currentMonth++;
+        if (currentMonth > 12) currentMonth = 1; // Handle year wrap
+      }
+
+      // Ending month (from start of month to endDay)
+      filters.push(`(date_range_start.month:${endMonth} AND date_range_start.day:[1 TO ${endDay}])`);
+    }
+
+    return `(${filters.join(' OR ')})`;
   }
 
 }

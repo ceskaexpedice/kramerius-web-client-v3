@@ -1,0 +1,46 @@
+<div class="advanced-date-filter">
+  <!-- Regular date picker (shown when withoutSpecificYear is false) -->
+  <app-date-picker
+    *ngIf="!withoutSpecificYear"
+    [size]="'sm'"
+    [initialDateFrom]="dateFrom"
+    [initialDateTo]="dateTo"
+    [initialOffset]="dateOffset"
+    (datePickerChange)="onDatePickerChange($event)">
+  </app-date-picker>
+
+  <!-- DD.MM inputs (shown when withoutSpecificYear is true) -->
+  <div *ngIf="withoutSpecificYear" class="day-month-inputs">
+    <app-input
+      [initialValue]="dayMonthFrom"
+      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'"
+      (valueChange)="onDayMonthFromChange($event)">
+    </app-input>
+    <span class="separator">-</span>
+    <app-input
+      [initialValue]="dayMonthTo"
+      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'"
+      (valueChange)="onDayMonthToChange($event)">
+    </app-input>
+  </div>
+
+  <!-- Control row with toggle and button -->
+  <div class="filter-controls">
+    <mat-slide-toggle
+      [(ngModel)]="withoutSpecificYear"
+      [hideIcon]="true"
+      [class]="'size-sm'"
+      (change)="onWithoutYearToggle($event)">
+      {{ 'without-specific-year' | translate }}
+    </mat-slide-toggle>
+
+    <button
+      *ngIf="withoutSpecificYear"
+      class="button with-icon tertiary transparent"
+      (click)="onAddYearFilter()">
+      <i class="icon-add-square"></i>
+      {{ 'add-year-from-to' | translate }}
+    </button>
+  </div>
+
+</div>

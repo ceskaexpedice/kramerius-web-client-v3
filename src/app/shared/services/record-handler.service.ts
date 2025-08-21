@@ -308,13 +308,14 @@ export class RecordHandlerService {
     return !hasOnlineLicense;
   }
 
-  goBackClicked(): void {
-    window.history.back();
+  goBackClicked(document: any): void {
+    if (document.ownParentPid) {
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW , document.ownParentPid])
+    }
+    //window.history.back();
   }
 
-  shouldShowBackButton(): boolean {
-    console.log('back history:', window.history)
-    // check if there is something in the history stack
-    return window.history.length > 2;
+  shouldShowBackButton(document: any): boolean {
+    return !!document.ownParentPid;
   }
 }

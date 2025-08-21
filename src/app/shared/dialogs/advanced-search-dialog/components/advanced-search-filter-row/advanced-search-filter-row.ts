@@ -12,14 +12,23 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {DateStepperChange, DateStepperComponent} from '../../../../date-stepper/date-stepper.component';
 import {TranslateService} from '@ngx-translate/core';
+import {AdvancedDateFilterComponent} from '../advanced-date-filter/advanced-date-filter.component';
+import {
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
+import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 
 @Component({
   selector: 'advanced-search-filter-row',
-  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, DateStepperComponent],
+  imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, AdvancedDateFilterComponent, MatDatepickerModule,
+    MatNativeDateModule],
+  providers: [
+    provideNativeDateAdapter(),
+
+    MatDatepickerModule],
   templateUrl: './advanced-search-filter-row.html',
-  styleUrl: './advanced-search-filter-row.scss'
+  styleUrl: './advanced-search-filter-row.scss',
 })
 export class AdvancedSearchFilterRow implements OnInit {
   private solrService = inject(SolrService);
@@ -28,6 +37,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   @Input() filter!: AdvancedFilterDefinition;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
   @Output() remove = new EventEmitter<void>();
+  @Output() addYearFilter = new EventEmitter<void>();
 
   filterTypes = ADVANCED_FILTERS;
 
@@ -77,7 +87,7 @@ export class AdvancedSearchFilterRow implements OnInit {
     if (def) {
       this.filter = {
         ...def,
-        solrValue: ''
+        solrValue: '',
       };
       this.emitChange();
     }
@@ -92,7 +102,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label) : '';
 
   emitChange() {
-    this.filterChange.emit({ ...this.filter });
+    this.filterChange.emit({...this.filter});
   }
 
   suggestionSelected(value: string) {
@@ -111,17 +121,6 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.filter.elementValue = `[${range.from} TO ${range.to}]`;
   }
 
-  onDateChange(date: DateStepperChange) {
-    console.log('date changed:', date);
-    // if date.offset is -1 it means type is range so we have both dateFrom and dateTo and we can store them as [dateFrom TO dateTo], otherwise we store it as dateFrom+offset
-    if (date.offset === -1 && date.dateTo) {
-      this.filter.elementValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
-      this.filter.solrValue = `[${date.dateFrom.toISOString()} TO ${date.dateTo.toISOString()}]`;
-      return;
-    }
-    const formattedDate = date.dateFrom.toISOString().split('T')[0];
-    this.filter.elementValue = `${formattedDate}+${date.offset}`
-  }
 
   getInitialFrom(): number {
     const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
@@ -140,5 +139,17 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   protected readonly AdvancedFilterType = FilterElementType;
+
+
+
+  onDateFilterChange(value: {elementValue: string, solrValue: string}) {
+    this.filter.elementValue = value.elementValue;
+    this.filter.solrValue = value.solrValue;
+    this.emitChange();
+  }
+
+  onAddYearFilter() {
+    this.addYearFilter.emit();
+  }
 
 }
