@@ -163,7 +163,7 @@ export class SearchService extends BaseFilterService {
   }
 
   search(query: string): void {
-    this.initialize();
+    //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
       queryParams: {
         query,
