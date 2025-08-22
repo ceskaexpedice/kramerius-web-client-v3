@@ -1,10 +1,6 @@
 import { NgModule } from '@angular/core';
 import { DetailViewPageComponent } from './detail-view-page.component';
 import { RouterModule, Routes } from '@angular/router';
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
-import { documentDetailReducer } from '../../shared/state/document-detail/document-detail.reducer';
-import { DocumentDetailEffects } from '../../shared/state/document-detail/document-detail.effects';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
@@ -21,10 +17,6 @@ import {TabItemComponent} from '../../shared/components/tabs/tab-item.component'
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
 import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
 import {TranslatePipe} from '@ngx-translate/core';
-import {musicDetailReducer} from '../music/state/music-detail.reducer';
-import {routerReducer} from '@ngrx/router-store';
-import {PeriodicalDetailEffects} from '../periodical/state/periodical-detail/periodical-detail.effects';
-import {periodicalDetailReducer} from '../periodical/state/periodical-detail/periodical-detail.reducer';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
@@ -40,11 +32,6 @@ const routes: Routes = [
   ],
   imports: [
     RouterModule.forChild(routes),
-    StoreModule.forFeature('document-detail', documentDetailReducer),
-    StoreModule.forFeature('music', musicDetailReducer),
-    StoreModule.forFeature('router', routerReducer),
-    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
-    EffectsModule.forFeature([DocumentDetailEffects, PeriodicalDetailEffects]),
     MatDatepickerModule,
     MatNativeDateModule,
     NgIf,

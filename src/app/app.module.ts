@@ -30,6 +30,28 @@ import { authReducer, authFeatureKey } from './core/auth/store';
 import { AuthEffects } from './core/auth/store';
 import {tokenInterceptor} from './core/auth/token.interceptor';
 
+// NgRx Feature Reducers
+import { periodicalsReducer } from './modules/search/state/periodicals/periodicals.reducer';
+import { booksReducer } from './modules/search/state/books/books.reducer';
+import { genresReducer } from './modules/search/state/genres/genres.reducer';
+import { documentTypesReducer } from './modules/search/state/document-types/document-types.reducer';
+import { searchReducer } from './modules/search-results-page/state/search.reducer';
+import { musicDetailReducer } from './modules/music/state/music-detail.reducer';
+import { documentDetailReducer } from './shared/state/document-detail/document-detail.reducer';
+import { periodicalDetailReducer } from './modules/periodical/state/periodical-detail/periodical-detail.reducer';
+import { periodicalSearchReducer } from './modules/periodical/state/periodical-search/periodical-search.reducer';
+
+// NgRx Feature Effects
+import { PeriodicalsEffects } from './modules/search/state/periodicals/periodicals.effects';
+import { BooksEffects } from './modules/search/state/books/books.effects';
+import { GenresEffects } from './modules/search/state/genres/genres.effects';
+import { DocumentTypesEffects } from './modules/search/state/document-types/document-types.effects';
+import { SearchEffects } from './modules/search-results-page/state/search.effects';
+import { DocumentDetailEffects } from './shared/state/document-detail/document-detail.effects';
+import { PeriodicalDetailEffects } from './modules/periodical/state/periodical-detail/periodical-detail.effects';
+import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-search/periodical-search.effects';
+import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
+
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
 }
@@ -60,8 +82,30 @@ export function initApp(envService: EnvironmentService) {
     StoreModule.forRoot({
       router: routerReducer,
       [authFeatureKey]: authReducer,
+      // Feature states moved to root to avoid warnings with root services
+      periodicals: periodicalsReducer,
+      books: booksReducer,
+      genres: genresReducer,
+      'document-types': documentTypesReducer,
+      'search-results': searchReducer,
+      music: musicDetailReducer,
+      'document-detail': documentDetailReducer,
+      'periodical-detail': periodicalDetailReducer,
+      'periodical-search': periodicalSearchReducer,
     }, {}),
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([
+      AuthEffects,
+      // Feature effects moved to root to avoid warnings with root services
+      PeriodicalsEffects,
+      BooksEffects,
+      GenresEffects,
+      DocumentTypesEffects,
+      SearchEffects,
+      DocumentDetailEffects,
+      PeriodicalDetailEffects,
+      PeriodicalSearchEffects,
+      MusicDetailEffects,
+    ]),
     StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,

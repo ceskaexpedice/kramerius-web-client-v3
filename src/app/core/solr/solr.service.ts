@@ -20,15 +20,28 @@ import {SearchDocument} from '../../modules/models/search-document';
 @Injectable({ providedIn: 'root' })
 export class SolrService {
 
-  API_URL = '';
-  API_BASE_URL = '';
-
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
   ) {
-    this.API_URL = this.env.getApiUrl('search');
-    this.API_BASE_URL = this.env.getApiUrl();
+  }
+
+  private get API_URL(): string {
+    const url = this.env.getApiUrl('search');
+    if (!url) {
+      console.warn('AuthService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
+  }
+
+  private get API_BASE_URL(): string {
+    const url = this.env.getApiUrl();
+    if (!url) {
+      console.warn('AuthService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
   }
 
   private createHttpParams(rawParams: Record<string, any>): HttpParams {

@@ -14,12 +14,6 @@ import {ToolbarControlsComponent} from "../../shared/components/toolbar-controls
 import {
   DetailViewBottomToolbarComponent
 } from "../detail-view-page/components/detail-view-bottom-toolbar/detail-view-bottom-toolbar.component";
-import {StoreModule} from "@ngrx/store";
-import {documentDetailReducer} from "../../shared/state/document-detail/document-detail.reducer";
-import {EffectsModule} from "@ngrx/effects";
-import {DocumentDetailEffects} from "../../shared/state/document-detail/document-detail.effects";
-import {musicDetailReducer} from "./state/music-detail.reducer";
-import {MusicDetailEffects} from "./state/music-detail.effects";
 import {MusicTrackListComponent} from "./components/music-track-list/music-track-list.component";
 import {TranslatePipe} from '@ngx-translate/core';
 
@@ -35,9 +29,6 @@ const routes: Routes = [
   ],
 	imports: [
 		RouterModule.forChild(routes),
-		StoreModule.forFeature('document-detail', documentDetailReducer),
-		StoreModule.forFeature('music', musicDetailReducer),
-		EffectsModule.forFeature([DocumentDetailEffects, MusicDetailEffects]),
 		DetailLayoutComponent,
 		InputComponent,
 		NgIf,

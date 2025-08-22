@@ -1,10 +1,6 @@
 import {NgModule} from '@angular/core';
 import {PeriodicalPageComponent} from './periodical-page.component';
 import {RouterModule, Routes} from '@angular/router';
-import {StoreModule} from '@ngrx/store';
-import {EffectsModule} from '@ngrx/effects';
-import {periodicalDetailReducer} from './state/periodical-detail/periodical-detail.reducer';
-import {PeriodicalDetailEffects} from './state/periodical-detail/periodical-detail.effects';
 import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -27,9 +23,6 @@ import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/too
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
-import {DocumentDetailEffects} from '../../shared/state/document-detail/document-detail.effects';
-import {periodicalSearchReducer} from './state/periodical-search/periodical-search.reducer';
-import {PeriodicalSearchEffects} from './state/periodical-search/periodical-search.effects';
 import {FILTER_SERVICE} from '../../shared/services/filter.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
 import {
@@ -49,9 +42,6 @@ const routes: Routes = [
   ],
   imports: [
     RouterModule.forChild(routes),
-    StoreModule.forFeature('periodical-detail', periodicalDetailReducer),
-    StoreModule.forFeature('periodical-search', periodicalSearchReducer),
-    EffectsModule.forFeature([PeriodicalDetailEffects, DocumentDetailEffects, PeriodicalSearchEffects]),
     AsyncPipe,
     JsonPipe,
     NgIf,
