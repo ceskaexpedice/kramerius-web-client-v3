@@ -6,6 +6,8 @@ import {catchError, map, tap} from 'rxjs/operators';
 import {EnvironmentService} from '../../shared/services/environment.service';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
 import {UserService} from '../../shared/services/user.service';
+import {Store} from '@ngrx/store';
+import * as AuthActions from './store/auth.actions';
 import {AuthTokens, TokenResponse, User} from './auth.models';
 
 @Injectable({
@@ -21,6 +23,7 @@ export class AuthService {
   private router = inject(Router);
   private storage = inject(LocalStorageService);
   private userService = inject(UserService);
+  private store = inject(Store);
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userSubject = new BehaviorSubject<User | null>(this.getStoredUser());
@@ -86,12 +89,26 @@ export class AuthService {
   }
 
   logout() {
+    // Clear storage
     this.storage.remove(this.TOKEN_KEY);
     this.storage.remove(this.USER_KEY);
     this.storage.remove(this.ORIGINAL_ROUTE_KEY);
+
+    // Reset auth subjects
     this.isAuthenticatedSubject.next(false);
     this.userSubject.next(null);
-    this.router.navigate(['/']);
+
+    // Clear user-specific cached data
+    this.userService.clearUserData();
+
+    // Set logout flag to prevent checkAuthStatus loop on reload
+    this.storage.set('intentional_logout', 'true');
+
+    // Option 1: Soft logout - navigate to home
+    // this.router.navigate(['/']);
+
+    // Option 2: Hard logout with reload protection
+    setTimeout(() => window.location.reload(), 100);
   }
 
   getAccessToken(): string | null {
@@ -147,6 +164,9 @@ export class AuthService {
 
         this.storage.set(this.USER_KEY, user);
         this.userSubject.next(user);
+
+        // Update NgRx store with user data
+        this.store.dispatch(AuthActions.setUser({ user }));
       },
       error: error => console.error('Failed to fetch user session:', error)
     });

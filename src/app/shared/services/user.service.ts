@@ -40,4 +40,8 @@ export class UserService {
       map(res => res)
     );
   }
+
+  public clearUserData(): void {
+    this._licenses.set([]);
+  }
 }

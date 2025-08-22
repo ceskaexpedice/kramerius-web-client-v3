@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { LocalStorageService } from './local-storage.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
 
 @Injectable({
@@ -8,6 +9,7 @@ import * as AuthActions from '../../core/auth/store/auth.actions';
 export class AppLoaderService {
 
   private store = inject(Store);
+  private storage = inject(LocalStorageService);
 
   /**
    * Main app initialization method
@@ -24,8 +26,14 @@ export class AppLoaderService {
       }
 
       // 2. Check authentication status for session restoration
-      console.log('AppLoaderService: Checking authentication status');
-      this.checkAuthStatus();
+      // Skip if user just logged out intentionally
+      if (this.storage.get('intentional_logout')) {
+        console.log('AppLoaderService: Skipping auth check after intentional logout');
+        this.storage.remove('intentional_logout');
+      } else {
+        console.log('AppLoaderService: Checking authentication status');
+        this.checkAuthStatus();
+      }
 
       // 3. Other initialization tasks can be added here
       await this.loadAppConfig();
