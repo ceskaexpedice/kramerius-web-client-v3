@@ -53,7 +53,6 @@ export class AuthService {
   }
 
   exchangeCodeForToken(code: string): Observable<AuthTokens> {
-    //        const url =  `${this.getApiUrl()}/user/auth/token?code=${code}&redirect_uri=${redirectUri}`;
     const redirectUri = `${window.location.origin}/auth/callback`;
 
     return this.http.get<TokenResponse>(`${this.API_URL}/auth/token?code=${code}&redirect_uri=${redirectUri}`).pipe(
@@ -134,7 +133,7 @@ export class AuthService {
     this.fetchUserInfo();
   }
 
-  private fetchUserInfo() {
+  fetchUserInfo() {
     // Use UserService to get user session with licenses
     this.userService.getUserSession().subscribe({
       next: userSession => {

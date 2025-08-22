@@ -6,6 +6,7 @@ import {Store} from '@ngrx/store';
 import {SelectComponent} from '../../../shared/components/select/select.component';
 import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
+import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.component';
 
 @Component({
   selector: 'app-user-info',
@@ -13,11 +14,26 @@ import {AsyncPipe} from '@angular/common';
     TranslatePipe,
     SelectComponent,
     AsyncPipe,
+    MenuComponent,
   ],
   templateUrl: './user-info.component.html',
   styleUrl: './user-info.component.scss'
 })
 export class UserInfoComponent {
+
+  userMenuItemsIds = {
+    account: 'account',
+    saved: 'saved',
+    help: 'help',
+    logout: 'logout'
+  }
+
+  userMenuItems: MenuItem[] = [
+    { id: this.userMenuItemsIds.account, label: 'My Account', icon: 'user-square', route: ['/account'] },
+    { id: this.userMenuItemsIds.saved, label: 'Saved Lists', icon: 'heart', route: ['/saved'] },
+    { id: this.userMenuItemsIds.help, label: 'Help', icon: 'question', route: ['/help']},
+    { id: this.userMenuItemsIds.logout, label: 'Log out', icon: 'logout', variant: 'danger' }
+  ];
 
   private router = inject(Router);
   private store = inject(Store);
@@ -28,6 +44,12 @@ export class UserInfoComponent {
   constructor() {
     // Optionally, you can subscribe to the user observable if you need to perform actions based on user changes
     this.user.subscribe(user => console.log('User info updated:', user));
+  }
+
+  onUserMenu(item: MenuItem) {
+    if (item.id === this.userMenuItemsIds.logout) {
+      this.logout();
+    }
   }
 
   login() {
