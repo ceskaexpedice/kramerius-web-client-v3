@@ -7,6 +7,7 @@ import {SelectComponent} from '../../../shared/components/select/select.componen
 import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
 import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.component';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 
 @Component({
   selector: 'app-user-info',
@@ -30,7 +31,7 @@ export class UserInfoComponent {
 
   userMenuItems: MenuItem[] = [
     { id: this.userMenuItemsIds.account, label: 'My Account', icon: 'user-square', route: ['/account'] },
-    { id: this.userMenuItemsIds.saved, label: 'Saved Lists', icon: 'heart', route: ['/saved'] },
+    { id: this.userMenuItemsIds.saved, label: 'Saved Lists', icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
     { id: this.userMenuItemsIds.help, label: 'Help', icon: 'question', route: ['/help']},
     { id: this.userMenuItemsIds.logout, label: 'Log out', icon: 'logout', variant: 'danger' }
   ];

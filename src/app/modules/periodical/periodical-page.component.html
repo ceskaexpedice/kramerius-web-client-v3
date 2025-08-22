@@ -1,11 +1,11 @@
-<div class="search-results-page">
-  <div class="search-results-page--inner">
+<div class="page-container">
+  <div class="page-container__inner">
 
     <app-filter-sidebar>
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-    <div class="results-content" *ngIf="periodical.viewMode() as mode">
+    <div class="page-content" *ngIf="periodical.viewMode() as mode">
 
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults">
@@ -64,7 +64,7 @@
         </app-action-toolbar>
 
       <!-- Content rendering based on view mode -->
-      <div class="results-content--wrapper">
+      <div class="page-content__wrapper">
 
         <app-selected-tags
           *ngIf="((periodical.selectedTags | async) || []).length > 0"

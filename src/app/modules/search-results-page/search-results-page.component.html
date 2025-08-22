@@ -1,13 +1,13 @@
-<div class="search-results-page">
-  <div class="search-results-page--inner">
+<div class="page-container">
+  <div class="page-container__inner">
 
     <app-filter-sidebar>
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
-    <div class="results-content">
+    <div class="page-content">
 
-      <div class="results-content--filters">
+      <div class="page-content__filters">
         <app-action-toolbar>
           <div left>
             <app-record-type-tabs></app-record-type-tabs>
@@ -37,7 +37,7 @@
         </app-action-toolbar>
       </div>
 
-      <div class="results-content--wrapper">
+      <div class="page-content__wrapper">
 
         <app-selected-tags
           *ngIf="((searchService.selectedTags | async) || []).length > 0"
