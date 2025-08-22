@@ -6,7 +6,8 @@ export enum APP_ROUTES_ENUM {
   DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical',
   MUSIC_VIEW = 'music',
-  AUTH_CALLBACK = 'auth/callback'
+  AUTH_CALLBACK = 'auth/callback',
+  SAVED_LISTS = 'saved-lists'
 }
 
 export const routes: Routes = [
@@ -39,5 +40,9 @@ export const routes: Routes = [
   {
     path: APP_ROUTES_ENUM.MUSIC_VIEW,
     loadChildren: () => import('./modules/music/music-page.module').then(m => m.MusicPageModule)
+  },
+  {
+    path: APP_ROUTES_ENUM.SAVED_LISTS,
+    loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule)
   }
 ];
