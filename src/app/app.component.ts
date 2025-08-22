@@ -1,8 +1,6 @@
 import {Component, computed, inject, OnInit} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import {SoundService} from './shared/services/sound.service';
-import {Store} from '@ngrx/store';
-import * as AuthActions from './core/auth/store/auth.actions';
+import {AppLoaderService} from './shared/services/app-loader.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +11,7 @@ import * as AuthActions from './core/auth/store/auth.actions';
 export class AppComponent implements OnInit {
 
   private soundService = inject(SoundService);
-  private store = inject(Store);
+  private appLoader = inject(AppLoaderService);
 
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 
@@ -21,7 +19,9 @@ export class AppComponent implements OnInit {
     //TODO: remove this for production. This is just for testing CI pipeline
     console.log('AppComponent ngOnInit, branch: dev');
 
-    // Check authentication status on app initialization
-    //this.store.dispatch(AuthActions.checkAuthStatus());
+    // Initialize app through centralized loader service
+    this.appLoader.appInit().catch(error => {
+      console.error('App initialization failed:', error);
+    });
   }
 }

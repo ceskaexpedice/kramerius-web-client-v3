@@ -5,6 +5,7 @@ import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {catchError, map, tap} from 'rxjs/operators';
 import {EnvironmentService} from '../../shared/services/environment.service';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
+import {UserService} from '../../shared/services/user.service';
 import {AuthTokens, TokenResponse, User} from './auth.models';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private storage = inject(LocalStorageService);
+  private userService = inject(UserService);
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userSubject = new BehaviorSubject<User | null>(this.getStoredUser());
@@ -133,20 +135,29 @@ export class AuthService {
   }
 
   private fetchUserInfo() {
-    this.http.get<User>(`${this.API_URL}/auth/user`).subscribe({
-      next: user => {
+    // Use UserService to get user session with licenses
+    this.userService.getUserSession().subscribe({
+      next: userSession => {
+        const user: User = {
+          id: userSession.uid,
+          email: userSession.email,
+          name: userSession.name,
+          roles: userSession.roles,
+          licenses: userSession.licenses
+        };
+
         this.storage.set(this.USER_KEY, user);
         this.userSubject.next(user);
       },
-      error: error => console.error('Failed to fetch user info:', error)
+      error: error => console.error('Failed to fetch user session:', error)
     });
   }
 
-  private getStoredTokens(): AuthTokens | null {
+  getStoredTokens(): AuthTokens | null {
     return this.storage.get<AuthTokens>(this.TOKEN_KEY);
   }
 
-  private getStoredUser(): User | null {
+  getStoredUser(): User | null {
     return this.storage.get<User>(this.USER_KEY);
   }
 }

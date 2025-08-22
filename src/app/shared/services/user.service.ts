@@ -12,14 +12,21 @@ import { firstValueFrom } from 'rxjs';
 export class UserService {
   private _licenses = signal<string[]>([]);
 
-  API_URL = '';
 
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
-  ) {
-    this.API_URL = this.env.getApiUrl('user');
+  ) {}
+
+  private get API_URL(): string {
+    const url = this.env.getApiUrl('user');
+    if (!url) {
+      console.warn('UserService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
   }
+
 
   get licenses() { return this._licenses(); }
 

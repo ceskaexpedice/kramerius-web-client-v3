@@ -75,8 +75,8 @@ export class AuthEffects {
       ofType(AuthActions.checkAuthStatus),
       switchMap(() => {
         if (this.authService.hasValidToken()) {
-          const user = this.authService['getStoredUser']();
-          const tokens = this.authService['getStoredTokens']();
+          const user = this.authService.getStoredUser();
+          const tokens = this.authService.getStoredTokens();
           if (user && tokens) {
             return of(AuthActions.loginSuccess({ tokens, user }));
           }

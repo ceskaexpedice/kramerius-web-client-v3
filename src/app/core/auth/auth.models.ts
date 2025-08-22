@@ -18,6 +18,7 @@ export interface User {
   email: string;
   name: string;
   roles?: string[];
+  licenses?: string[];
 }
 
 export interface AuthState {
