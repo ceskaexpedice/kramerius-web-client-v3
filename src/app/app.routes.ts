@@ -7,7 +7,7 @@ export enum APP_ROUTES_ENUM {
   PERIODICAL_VIEW = 'periodical',
   MUSIC_VIEW = 'music',
   AUTH_CALLBACK = 'auth/callback',
-  SAVED_LISTS = 'saved-lists'
+  SAVED_LISTS = 'folders'
 }
 
 export const routes: Routes = [

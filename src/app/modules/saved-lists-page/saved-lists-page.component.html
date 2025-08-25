@@ -1,7 +1,9 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar></app-filter-sidebar>
+    <app-filter-sidebar>
+      <app-saved-lists-filters></app-saved-lists-filters>
+    </app-filter-sidebar>
 
     <div class="page-content">
 
@@ -11,6 +13,11 @@
           </div>
 
           <div right>
+            <app-toggle-button-group
+              [options]="viewOptions"
+              [value]="view()"
+              (valueChange)="setView($event)"
+            />
           </div>
         </app-action-toolbar>
       </div>

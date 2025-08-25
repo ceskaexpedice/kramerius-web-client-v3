@@ -17,10 +17,11 @@ import {SearchFiltersComponent} from '../search-results-page/components/search-f
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {SavedListsFiltersComponent} from './components/saved-lists-filters/saved-lists-filters.component';
 
 const routes: Routes = [
   {
-    path: '',
+    path: ':uuid',
     component: SavedListsPageComponent
   }
 ];
@@ -29,25 +30,26 @@ const routes: Routes = [
   declarations: [
     SavedListsPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    ActionToolbarComponent,
-    AdvancedSearchIndicatorComponent,
-    AsyncPipe,
-    FilterSidebarComponent,
-    NgForOf,
-    NgIf,
-    PaginatorComponent,
-    PaginatorInfoComponent,
-    RecordItemComponent,
-    RecordItemListComponent,
-    RecordTypeTabsComponent,
-    ResultsSortComponent,
-    SearchFiltersComponent,
-    SelectedTagsComponent,
-    ToggleButtonGroupComponent,
-    TranslatePipe,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		ActionToolbarComponent,
+		AdvancedSearchIndicatorComponent,
+		AsyncPipe,
+		FilterSidebarComponent,
+		NgForOf,
+		NgIf,
+		PaginatorComponent,
+		PaginatorInfoComponent,
+		RecordItemComponent,
+		RecordItemListComponent,
+		RecordTypeTabsComponent,
+		ResultsSortComponent,
+		SearchFiltersComponent,
+		SelectedTagsComponent,
+		ToggleButtonGroupComponent,
+		TranslatePipe,
+		SavedListsFiltersComponent,
+	],
 })
 
 export class SavedListsPageModule {}

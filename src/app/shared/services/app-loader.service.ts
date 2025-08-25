@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from './local-storage.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
+import * as FoldersActions from '../../modules/saved-lists-page/state/folders.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,11 @@ export class AppLoaderService {
         this.checkAuthStatus();
       }
 
-      // 3. Other initialization tasks can be added here
+      // 3. Load saved lists/folders for the entire app
+      console.log('AppLoaderService: Loading saved lists');
+      this.store.dispatch(FoldersActions.loadFolders());
+
+      // 4. Other initialization tasks can be added here
       await this.loadAppConfig();
 
       console.log('AppLoaderService: App initialization completed');

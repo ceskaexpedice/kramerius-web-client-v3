@@ -40,6 +40,7 @@ import { musicDetailReducer } from './modules/music/state/music-detail.reducer';
 import { documentDetailReducer } from './shared/state/document-detail/document-detail.reducer';
 import { periodicalDetailReducer } from './modules/periodical/state/periodical-detail/periodical-detail.reducer';
 import { periodicalSearchReducer } from './modules/periodical/state/periodical-search/periodical-search.reducer';
+import { foldersReducer } from './modules/saved-lists-page/state/folders.reducer';
 
 // NgRx Feature Effects
 import { PeriodicalsEffects } from './modules/search/state/periodicals/periodicals.effects';
@@ -51,6 +52,7 @@ import { DocumentDetailEffects } from './shared/state/document-detail/document-d
 import { PeriodicalDetailEffects } from './modules/periodical/state/periodical-detail/periodical-detail.effects';
 import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-search/periodical-search.effects';
 import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
+import { FoldersEffects } from './modules/saved-lists-page/state/folders.effects';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -92,6 +94,7 @@ export function initApp(envService: EnvironmentService) {
       'document-detail': documentDetailReducer,
       'periodical-detail': periodicalDetailReducer,
       'periodical-search': periodicalSearchReducer,
+      folders: foldersReducer,
     }, {}),
     EffectsModule.forRoot([
       AuthEffects,
@@ -105,6 +108,7 @@ export function initApp(envService: EnvironmentService) {
       PeriodicalDetailEffects,
       PeriodicalSearchEffects,
       MusicDetailEffects,
+      FoldersEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
