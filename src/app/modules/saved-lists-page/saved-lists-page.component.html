@@ -23,6 +23,14 @@
           }
 
           <div right>
+            @if (sortParams | async; as sort) {
+              <app-results-sort
+                [selectedSort]="sort.sortBy"
+                [selectedDirection]="sort.sortDirection"
+                (sortChange)="onSortChange($event)">
+              </app-results-sort>
+            }
+            
             <app-toggle-button-group
               [options]="viewOptions"
               [value]="view()"

@@ -157,6 +157,47 @@ export class FoldersEffects {
     )
   );
 
+  searchFolders$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.searchFolders),
+      switchMap(action => 
+        // Get current folder details and search query from state
+        this.store.select(FoldersSelectors.selectFolderDetails).pipe(
+          take(1),
+          filter(folderDetails => !!folderDetails),
+          switchMap(folderDetails => 
+            this.store.select(FoldersSelectors.selectSearchQuery).pipe(
+              take(1),
+              switchMap(currentSearchQuery => {
+                const itemIds = folderDetails!.items.flat().map(item => item.id);
+                const searchQuery = action.searchQuery || currentSearchQuery;
+                
+                return this.foldersService.searchFolderItems(
+                  itemIds, 
+                  searchQuery,
+                  action.sortBy,
+                  action.sortDirection
+                ).pipe(
+                  map(response => {
+                    const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
+                      doc['highlighting'] = response.highlighting?.[doc.pid] || {};
+                      return parseSearchDocument(doc);
+                    });
+                    return FoldersActions.loadFolderSearchResultsSuccess({
+                      results: parsedResults,
+                      totalCount: response.response?.numFound || 0
+                    });
+                  }),
+                  catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
+                );
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
   loadFirstFolderOnInit$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.loadFirstFolderOnInit),

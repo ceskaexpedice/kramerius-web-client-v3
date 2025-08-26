@@ -152,6 +152,26 @@ export const foldersReducer = createReducer(
     ...state,
     folderSearchResultsLoading: false,
     error
+  })),
+
+  on(FoldersActions.setSearchQuery, (state, { searchQuery }): FoldersState => ({
+    ...state,
+    searchQuery
+  })),
+
+  on(FoldersActions.setSortParams, (state, { sortBy, sortDirection }): FoldersState => ({
+    ...state,
+    sortBy,
+    sortDirection
+  })),
+
+  on(FoldersActions.searchFolders, (state, { searchQuery, sortBy, sortDirection }): FoldersState => ({
+    ...state,
+    searchQuery,
+    sortBy: sortBy || state.sortBy,
+    sortDirection: sortDirection || state.sortDirection,
+    folderSearchResultsLoading: true,
+    error: null
   }))
 );
 

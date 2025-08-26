@@ -1,14 +1,14 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, signal} from '@angular/core';
 import {Router} from '@angular/router';
-import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
   CollapsibleCategoryComponent
 } from '../../../../shared/components/collapsible-category/collapsible-category.component';
-import {Folder, FolderDetails, selectAllFolders, selectUserFollowedFolders, selectUserOwnedFolders} from '../../state';
+import {Folder, FolderDetails, selectUserFollowedFolders, selectUserOwnedFolders, selectSearchQuery} from '../../state';
 import * as FoldersActions from '../../state/folders.actions';
 import {Store} from '@ngrx/store';
 import {AsyncPipe} from '@angular/common';
+import {InputComponent} from '../../../../shared/components/input/input.component';
 
 @Component({
   selector: 'app-saved-lists-filters',
@@ -36,34 +36,27 @@ import {AsyncPipe} from '@angular/common';
     }
   `,
   imports: [
-    AutocompleteComponent,
     TranslatePipe,
     CollapsibleCategoryComponent,
     AsyncPipe,
+    InputComponent,
   ],
   template: `
     <div class="filters-content">
 
-      <app-autocomplete
-        [inputTheme]="'dark'"
+      <app-input
+        [theme]="'dark'"
         [placeholder]="'search-in-saved-list--placeholder' | translate"
         [size]="'sm'"
-        [minTermLength]="2"
         [prefixIcon]="'icon-search-normal'"
         [showHelpButton]="false"
-        [showMicrophoneButton]="false"
         [showSubmitButton]="false"
-
-        [showHistorySuggestions]="true"
+        [initialValue]="(searchQuery | async) || ''"
+        (search)="onSearch()"
+        (enter)="onSearch()"
+        [signalInput]="search"
       >
-      </app-autocomplete>
-
-<!--      (suggestionSelected)="periodicalService.onSuggestionSelected($event)"
-     (search)="periodicalService.onSearch($event)"
-        [inputTerm]="periodicalService.searchTerm"
-                [initialValue]="periodicalService.inputSearchTerm"
-        [getSuggestions]="periodicalService.getSuggestionsFn"
--->
+      </app-input>
 
 
       <hr>
@@ -110,8 +103,12 @@ export class SavedListsFiltersComponent {
   private store = inject(Store);
   private router = inject(Router);
 
+  search = signal('');
+
   folders = this.store.select(selectUserOwnedFolders);
   followedFolders = this.store.select(selectUserFollowedFolders);
+  searchQuery = this.store.select(selectSearchQuery);
+
 
   changeFolder(folder: Folder) {
     console.log('📂 Changing to folder:', folder.name, folder.uuid);
@@ -122,6 +119,11 @@ export class SavedListsFiltersComponent {
     // Select the folder and load its details
     this.store.dispatch(FoldersActions.selectFolder({ folder }));
     this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: folder.uuid }));
+  }
+
+  onSearch() {
+    this.store.dispatch(FoldersActions.setSearchQuery({ searchQuery: this.search() }));
+    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: this.search() }));
   }
 
   getOwnerOfFolder(folder: Folder): string {

@@ -3,8 +3,9 @@ import {Store} from '@ngrx/store';
 import {ActivatedRoute} from '@angular/router';
 import {AppResultsViewType} from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading} from './state';
+import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams} from './state';
 import {first} from 'rxjs';
+import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -17,6 +18,7 @@ export class SavedListsPageComponent implements OnInit {
   activeFolderItems = this.store.select(selectFolderSearchResults);
   activeFolder = this.store.select(selectFolderDetails);
   folders = this.store.select(selectAllFolders);
+  sortParams = this.store.select(selectSortParams);
 
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-element-3' },
@@ -50,6 +52,18 @@ export class SavedListsPageComponent implements OnInit {
         });
       });
     }
+  }
+
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.store.dispatch(FoldersActions.setSortParams({
+      sortBy: event.value,
+      sortDirection: event.direction
+    }));
+    this.store.dispatch(FoldersActions.searchFolders({
+      searchQuery: '', // Empty string will cause effect to use current searchQuery from state
+      sortBy: event.value,
+      sortDirection: event.direction
+    }));
   }
 
   setView(view: AppResultsViewType) {

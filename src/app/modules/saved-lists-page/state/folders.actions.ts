@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from './folders.models';
+import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
 
 export const loadFolders = createAction('[Folders] Load Folders');
 
@@ -111,3 +112,18 @@ export const loadFolderSearchResultsFailure = createAction(
 );
 
 export const loadFirstFolderOnInit = createAction('[Folders] Load First Folder On Init');
+
+export const setSearchQuery = createAction(
+  '[Folders] Set Search Query',
+  props<{ searchQuery: string }>()
+);
+
+export const setSortParams = createAction(
+  '[Folders] Set Sort Params',
+  props<{ sortBy: SolrSortFields; sortDirection: SolrSortDirections }>()
+);
+
+export const searchFolders = createAction(
+  '[Folders] Search Folders',
+  props<{ searchQuery: string; sortBy?: SolrSortFields; sortDirection?: SolrSortDirections }>()
+);

@@ -1,4 +1,5 @@
 import {SearchDocument} from '../../models/search-document';
+import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 
 export interface FolderUser {
   createdAt: string;
@@ -51,6 +52,9 @@ export interface FoldersState {
   folderSearchResults: any[];
   folderSearchResultsLoading: boolean;
   folderSearchResultsTotalCount: number;
+  searchQuery: string;
+  sortBy: SolrSortFields;
+  sortDirection: SolrSortDirections;
 }
 
 export const initialFoldersState: FoldersState = {
@@ -62,5 +66,8 @@ export const initialFoldersState: FoldersState = {
   folderDetailsLoading: false,
   folderSearchResults: [],
   folderSearchResultsLoading: false,
-  folderSearchResultsTotalCount: 0
+  folderSearchResultsTotalCount: 0,
+  searchQuery: '',
+  sortBy: SolrSortFields.relevance,
+  sortDirection: SolrSortDirections.desc
 };

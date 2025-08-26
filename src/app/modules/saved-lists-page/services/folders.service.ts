@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from '../state/folders.models';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -48,13 +49,29 @@ export class FoldersService {
     return this.http.get<FolderDetails>(`${this.API_URL}/${uuid}`);
   }
 
-  searchFolderItems(itemIds: string[]): Observable<any> {
+  searchFolderItems(
+    itemIds: string[], 
+    searchQuery?: string,
+    sortBy?: SolrSortFields,
+    sortDirection?: SolrSortDirections
+  ): Observable<any> {
     const searchUrl = this.environmentService.getApiUrl('search') || '';
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
-    const params = {
-      q: pidQuery,
+    
+    let finalQuery = pidQuery;
+    if (searchQuery && searchQuery.trim()) {
+      finalQuery = `(${pidQuery}) AND (${searchQuery.trim()})`;
+    }
+    
+    const params: any = {
+      q: finalQuery,
       rows: '1000'
     };
+
+    if (sortBy && sortDirection) {
+      params.sort = `${sortBy} ${sortDirection}`;
+    }
+    
     return this.http.get<any>(searchUrl, { params });
   }
 }

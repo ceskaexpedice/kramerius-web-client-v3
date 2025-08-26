@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import {AuthGuard} from './core/auth/auth.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
@@ -43,6 +44,7 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.SAVED_LISTS,
-    loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule)
+    loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule),
+    canActivate: [AuthGuard]
   }
 ];

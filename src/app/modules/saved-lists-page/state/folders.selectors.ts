@@ -101,3 +101,13 @@ export const selectActiveFolderItems = createSelector(
   selectFolderDetails,
   (folderDetails) => folderDetails?.items.flat() || []
 );
+
+export const selectSearchQuery = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => state.searchQuery
+);
+
+export const selectSortParams = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => ({ sortBy: state.sortBy, sortDirection: state.sortDirection })
+);
