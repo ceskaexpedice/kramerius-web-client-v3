@@ -5,6 +5,7 @@ import { throwError, BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 let isRefreshing = false;
+let isLoggingOut = false;
 let refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
@@ -57,7 +58,10 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
       }),
       catchError((error) => {
         isRefreshing = false;
-        authService.logout();
+        if (!isLoggingOut) {
+          isLoggingOut = true;
+          authService.logout();
+        }
         return throwError(() => error);
       })
     );

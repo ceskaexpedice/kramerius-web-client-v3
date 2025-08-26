@@ -108,7 +108,19 @@ export class AuthService {
     // this.router.navigate(['/']);
 
     // Option 2: Hard logout with reload protection
-    setTimeout(() => window.location.reload(), 100);
+    // Only reload if we're not already in a page load scenario (prevents double reload)
+    const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const isManualRefresh = navigationEntry?.type === 'reload';
+    
+    if (!isManualRefresh) {
+      console.log('AuthService: Performing logout reload...');
+      setTimeout(() => {
+        console.log('AuthService: Executing reload now');
+        window.location.reload();
+      }, 100);
+    } else {
+      console.log('AuthService: Skipping reload - already in page refresh');
+    }
   }
 
   getAccessToken(): string | null {

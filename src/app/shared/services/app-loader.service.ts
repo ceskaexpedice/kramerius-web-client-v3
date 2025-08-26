@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from './local-storage.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
-import * as FoldersActions from '../../modules/saved-lists-page/state/folders.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -36,14 +35,8 @@ export class AppLoaderService {
         this.checkAuthStatus();
       }
 
-      // 3. Load saved lists/folders for the entire app
-      console.log('AppLoaderService: Loading saved lists');
-      this.store.dispatch(FoldersActions.loadFolders());
-
       // 4. Other initialization tasks can be added here
       await this.loadAppConfig();
-
-      console.log('AppLoaderService: App initialization completed');
 
     } catch (error) {
       console.error('AppLoaderService: App initialization failed:', error);
@@ -57,15 +50,15 @@ export class AppLoaderService {
   private isOAuthCallback(): boolean {
     const currentPath = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     // Check if we're on the callback route
     const isCallbackRoute = currentPath.includes('/auth/callback');
-    
+
     // Check if we have an OAuth code parameter
     const hasCodeParam = urlParams.has('code');
-    
+
     console.log('OAuth detection:', { currentPath, hasCodeParam, isCallbackRoute });
-    
+
     return isCallbackRoute || hasCodeParam;
   }
 

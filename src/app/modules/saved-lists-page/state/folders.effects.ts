@@ -9,6 +9,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { parseSearchDocument } from '../../models/search-document';
 import * as FoldersActions from './folders.actions';
 import * as FoldersSelectors from './folders.selectors';
+import * as AuthActions from '../../../core/auth/store/auth.actions';
 
 @Injectable()
 export class FoldersEffects {
@@ -83,9 +84,16 @@ export class FoldersEffects {
         FoldersActions.createFolderFailure,
         FoldersActions.updateFolderFailure,
         FoldersActions.deleteFolderFailure,
-        FoldersActions.updateFolderItemsFailure
+        FoldersActions.updateFolderItemsFailure,
+        FoldersActions.loadFolderDetailsFailure,
+        FoldersActions.loadFolderSearchResultsFailure
       ),
-      tap(action => this.toastService.show(action.error))
+      tap(action => {
+        // Don't show toast for auth failures - they're handled by the interceptor
+        if (!action.error.includes('401') && !action.error.includes('Unauthorized')) {
+          this.toastService.show(action.error);
+        }
+      })
     ), { dispatch: false }
   );
 
@@ -159,7 +167,7 @@ export class FoldersEffects {
           switchMap(folders => {
             const currentUrl = this.router.url;
             const folderUuidFromUrl = this.extractFolderUuidFromUrl(currentUrl);
-            
+
             let targetFolder;
             if (folderUuidFromUrl) {
               // If URL contains folder UUID, try to find and load that specific folder
@@ -171,7 +179,7 @@ export class FoldersEffects {
                 ];
               }
             }
-            
+
             // Fallback: load first folder and update URL
             const firstFolder = folders[0];
             this.router.navigate(['/folders', firstFolder.uuid]);
@@ -182,6 +190,18 @@ export class FoldersEffects {
           })
         )
       )
+    )
+  );
+
+  // Load folders when user successfully authenticates
+  loadFoldersOnAuth$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        AuthActions.loginSuccess, 
+        AuthActions.exchangeCodeForTokenSuccess,
+        AuthActions.refreshTokenSuccess
+      ),
+      switchMap(() => [FoldersActions.loadFolders()])
     )
   );
 
@@ -196,7 +216,7 @@ export class FoldersEffects {
       switchMap(([action, selectedFolder, folderDetails]) => {
         // Only auto-load if:
         // 1. No folder is currently selected AND
-        // 2. No folder details are loaded AND  
+        // 2. No folder details are loaded AND
         // 3. We're on the folders page AND
         // 4. We have folders available
         if (!selectedFolder && !folderDetails && this.isOnFoldersPage() && action.folders.length > 0) {
