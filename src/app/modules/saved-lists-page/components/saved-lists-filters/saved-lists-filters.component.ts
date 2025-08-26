@@ -49,6 +49,7 @@ import {AsyncPipe} from '@angular/common';
         [placeholder]="'search-in-saved-list--placeholder' | translate"
         [size]="'sm'"
         [minTermLength]="2"
+        [prefixIcon]="'icon-search-normal'"
         [showHelpButton]="false"
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"

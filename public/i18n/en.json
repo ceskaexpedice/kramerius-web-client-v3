@@ -148,5 +148,6 @@
   "without-specific-year": "Without specific year",
   "add-year-from-to": "Add year (from-to)",
   "my-favorites-list--title": "My favorites",
-  "followed-folders-list--title": "Followed"
+  "followed-folders-list--title": "Followed",
+  "search-in-saved-list--placeholder": "Search list"
 }

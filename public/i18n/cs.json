@@ -148,5 +148,6 @@
   "without-specific-year": "Bez určení roku",
   "add-year-from-to": "Přidat rok (od-do)",
   "my-favorites-list--title": "Moje oblíbené",
-  "followed-folders-list--title": "Sdílené"
+  "followed-folders-list--title": "Sdílené",
+  "search-in-saved-list--placeholder": "Hledat seznam"
 }

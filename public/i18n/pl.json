@@ -148,5 +148,6 @@
   "without-specific-year": "Bez określonego roku",
   "add-year-from-to": "Dodaj rok (od-do)",
   "my-favorites-list--title": "Moje ulubione",
-  "followed-folders-list--title": "Udostępnione"
+  "followed-folders-list--title": "Udostępnione",
+  "search-in-saved-list--placeholder": "Szukaj listy"
 }
