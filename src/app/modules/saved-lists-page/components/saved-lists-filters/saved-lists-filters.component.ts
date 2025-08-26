@@ -1,10 +1,12 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
+import {Router} from '@angular/router';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
   CollapsibleCategoryComponent
 } from '../../../../shared/components/collapsible-category/collapsible-category.component';
-import {selectAllFolders} from '../../state';
+import {Folder, FolderDetails, selectAllFolders, selectUserFollowedFolders, selectUserOwnedFolders} from '../../state';
+import * as FoldersActions from '../../state/folders.actions';
 import {Store} from '@ngrx/store';
 import {AsyncPipe} from '@angular/common';
 
@@ -14,9 +16,23 @@ import {AsyncPipe} from '@angular/common';
   styles: `
     .filter-section-title {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--color-text-base);
       margin-bottom: var(--spacing-x3);
+      cursor: pointer;
+
+      .count {
+        color: var(--color-text-light);
+      }
+
+      &.active {
+        color: var(--color-primary);
+        font-weight: 700;
+
+        .count {
+          color: var(--color-text-tertiary);
+        }
+      }
     }
   `,
   imports: [
@@ -58,8 +74,26 @@ import {AsyncPipe} from '@angular/common';
         [initiallyExpanded]="true">
 
         @for (folder of folders | async; track folder.uuid) {
-          <div class="filter-section-title">
-            {{ folder.name }} ({{folder.itemsCount}})
+          <div class="filter-section-title"
+               (click)="changeFolder(folder)"
+               [class.active]="activeFolder?.uuid === folder.uuid">
+            {{ folder.name }} <span class="count">({{folder.itemsCount}})</span>
+          </div>
+        }
+
+      </app-collapsible-category>
+
+      <app-collapsible-category
+        [label]="'followed-folders-list--title' | translate"
+        [labelIcon]="'icon-share'"
+        [showIndicator]="false"
+        [initiallyExpanded]="true">
+
+        @for (folder of followedFolders | async; track folder.uuid) {
+          <div class="filter-section-title"
+               (click)="changeFolder(folder)"
+               [class.active]="activeFolder?.uuid === folder.uuid">
+            {{ folder.name }} <span class="count">({{getOwnerOfFolder(folder)}})</span>
           </div>
         }
 
@@ -70,8 +104,31 @@ import {AsyncPipe} from '@angular/common';
 })
 export class SavedListsFiltersComponent {
 
-  private store = inject(Store);
+  @Input() activeFolder: FolderDetails | null = {} as FolderDetails;
 
-  folders = this.store.select(selectAllFolders);
+  private store = inject(Store);
+  private router = inject(Router);
+
+  folders = this.store.select(selectUserOwnedFolders);
+  followedFolders = this.store.select(selectUserFollowedFolders);
+
+  changeFolder(folder: Folder) {
+    console.log('📂 Changing to folder:', folder.name, folder.uuid);
+
+    // Update the URL to the selected folder
+    this.router.navigate(['/folders', folder.uuid]);
+
+    // Select the folder and load its details
+    this.store.dispatch(FoldersActions.selectFolder({ folder }));
+    this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: folder.uuid }));
+  }
+
+  getOwnerOfFolder(folder: Folder): string {
+    if (folder.users && folder.users.length > 0 && folder.users[0].length > 0) {
+      const owner = folder.users[0].find(user => user.userRole === 'owner');
+      return owner ? owner.userId : 'Unknown';
+    }
+    return 'Unknown';
+  }
 
 }

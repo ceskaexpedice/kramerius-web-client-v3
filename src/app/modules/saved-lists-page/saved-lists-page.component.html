@@ -2,7 +2,9 @@
   <div class="page-container__inner">
 
     <app-filter-sidebar>
-      <app-saved-lists-filters></app-saved-lists-filters>
+      <app-saved-lists-filters
+        [activeFolder]="(activeFolder | async) ?? null"
+      ></app-saved-lists-filters>
     </app-filter-sidebar>
 
     <div class="page-content">

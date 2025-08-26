@@ -22,6 +22,10 @@ import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/too
 
 const routes: Routes = [
   {
+    path: '',
+    component: SavedListsPageComponent
+  },
+  {
     path: ':uuid',
     component: SavedListsPageComponent
   }

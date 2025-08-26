@@ -141,5 +141,7 @@
   "submit-data-buton--label": "Potvrdiť dáta",
   "discard-data-buton--label": "Zrušiť výber",
   "without-specific-year": "Bez určenia roka",
-  "add-year-from-to": "Pridať rok (od-do)"
+  "add-year-from-to": "Pridať rok (od-do)",
+  "my-favorites-list--title": "Moje obľúbené",
+  "followed-folders-list--title": "Zdieľané"
 }

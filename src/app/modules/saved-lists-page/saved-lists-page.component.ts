@@ -1,8 +1,9 @@
 import {Component, signal, OnInit} from '@angular/core';
 import {Store} from '@ngrx/store';
+import {ActivatedRoute} from '@angular/router';
 import {AppResultsViewType} from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults} from './state';
+import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading} from './state';
 import {first} from 'rxjs';
 
 @Component({
@@ -24,12 +25,31 @@ export class SavedListsPageComponent implements OnInit {
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
 
-  constructor(private store: Store) {}
+  constructor(private store: Store, private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
-    // Folder loading is now handled automatically by the handleFoldersLoaded$ effect
-    // when folders are successfully loaded from the app initialization
+    // Check if we're on the base route without UUID
+    const uuid = this.route.snapshot.paramMap.get('uuid');
 
+    if (!uuid) {
+      // Always dispatch loadFirstFolderOnInit - the effect will handle waiting for folders
+      this.store.dispatch(FoldersActions.loadFirstFolderOnInit());
+    } else {
+      // Check if folder details are already loading or loaded
+      this.store.select(selectFolderDetailsLoading).pipe(first()).subscribe(isLoading => {
+        this.store.select(selectFolderDetails).pipe(first()).subscribe(folderDetails => {
+          const isAlreadyLoadingThisFolder = isLoading;
+          const isAlreadyLoadedThisFolder = folderDetails?.uuid === uuid;
+
+          if (!isAlreadyLoadingThisFolder && !isAlreadyLoadedThisFolder) {
+            // Load specific folder based on UUID only if not already loading/loaded
+            this.store.dispatch(FoldersActions.loadFolderDetails({ uuid }));
+          } else {
+          }
+        });
+      });
+    }
   }
 
   setView(view: AppResultsViewType) {

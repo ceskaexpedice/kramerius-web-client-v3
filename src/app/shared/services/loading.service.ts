@@ -9,6 +9,11 @@ import { selectDocumentTypesLoading } from '../../modules/search/state/document-
 import { selectPeriodicalLoading } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { selectMusicLoading } from '../../modules/music/state/music-detail.selectors';
 import { selectDocumentDetailLoading } from '../state/document-detail/document-detail.selectors';
+import {
+  selectFolderDetailsLoading,
+  selectFolderSearchResultsLoading,
+  selectFoldersLoading,
+} from '../../modules/saved-lists-page/state';
 
 @Injectable({
   providedIn: 'root'
@@ -39,13 +44,16 @@ export class LoadingService {
       this.safeSelect(selectDocumentTypesLoading),
       this.safeSelect(selectPeriodicalLoading),
       this.safeSelect(selectDocumentDetailLoading),
-    ]).subscribe(([res, gen, book, docType, periodical, documentDetail]) => {
+      this.safeSelect(selectFoldersLoading),
+      this.safeSelect(selectFolderDetailsLoading),
+      this.safeSelect(selectFolderSearchResultsLoading)
+    ]).subscribe(([res, gen, book, docType, periodical, documentDetail, folders, folderDetails, folderSearchResults]) => {
       console.log('🌀 Loading flags:', {
-        res, gen, book, docType, periodical, documentDetail
+        res, gen, book, docType, periodical, documentDetail, folders, folderDetails, folderSearchResults
       });
 
       this.isLoadingSignal.set(
-        res || gen || book || docType || periodical || documentDetail
+        res || gen || book || docType || periodical || documentDetail || folders || folderDetails || folderSearchResults
       );
     });
 

@@ -1,6 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { FoldersState } from './folders.models';
 import { foldersFeatureKey } from './folders.reducer';
+import { selectUser } from '../../../core/auth/store/auth.selectors';
 
 export const selectFoldersState = createFeatureSelector<FoldersState>(foldersFeatureKey);
 
@@ -31,20 +32,34 @@ export const selectFolderByUuid = (uuid: string) => createSelector(
 
 export const selectUserOwnedFolders = createSelector(
   selectAllFolders,
-  (folders) => folders.filter(folder => 
-    folder.users.some(userGroup => 
-      userGroup.some(user => user.userRole === 'owner')
-    )
-  )
+  selectUser,
+  (folders, user) => {
+    if (!user?.id) return [];
+    
+    return folders.filter(folder => 
+      folder.users.some(userGroup => 
+        userGroup.some(folderUser => 
+          folderUser.userRole === 'owner' && folderUser.userId === user.id
+        )
+      )
+    );
+  }
 );
 
 export const selectUserFollowedFolders = createSelector(
   selectAllFolders,
-  (folders) => folders.filter(folder => 
-    folder.users.some(userGroup => 
-      userGroup.some(user => user.userRole === 'follower')
-    )
-  )
+  selectUser,
+  (folders, user) => {
+    if (!user?.id) return [];
+    
+    return folders.filter(folder => 
+      folder.users.some(userGroup => 
+        userGroup.some(folderUser => 
+          folderUser.userRole === 'follower' && folderUser.userId === user.id
+        )
+      )
+    );
+  }
 );
 
 export const selectFoldersCount = createSelector(

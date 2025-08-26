@@ -11,6 +11,15 @@
          [style.background-image] = "`url(${getImageThumbnailUrl()})`"
     >
 
+      <div class="record-item-card__actions">
+<!--        <button class="button secondary rounded icon-button"-->
+<!--                (click)="toggleFavorite($event)"-->
+<!--                [title]="isFavorite() ? ('remove-from-favorites' | translate) : ('add-to-favorites' | translate)"-->
+<!--        >-->
+<!--          <i class="icon" [ngClass]="isFavorite() ? 'icon-star-1' : 'icon-star-2'"></i>-->
+<!--        </button>-->
+      </div>
+
       @if (record.model !== DocumentTypeEnum.page) {
         <span class="badge model">{{ record.model | translate }}</span>
       }

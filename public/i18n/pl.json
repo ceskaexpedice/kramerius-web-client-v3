@@ -146,5 +146,7 @@
   "submit-data-buton--label": "Zatwierdź dane",
   "discard-data-buton--label": "Anuluj wybór",
   "without-specific-year": "Bez określonego roku",
-  "add-year-from-to": "Dodaj rok (od-do)"
+  "add-year-from-to": "Dodaj rok (od-do)",
+  "my-favorites-list--title": "Moje ulubione",
+  "followed-folders-list--title": "Udostępnione"
 }

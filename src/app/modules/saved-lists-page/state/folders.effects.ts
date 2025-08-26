@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, switchMap, tap, withLatestFrom, filter, take } from 'rxjs/operators';
+import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService } from '../services/folders.service';
@@ -205,27 +205,6 @@ export class FoldersEffects {
     )
   );
 
-  // Wait for folders to be loaded and then handle initial folder loading
-  handleFoldersLoaded$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(FoldersActions.loadFoldersSuccess),
-      withLatestFrom(
-        this.store.select(FoldersSelectors.selectSelectedFolder),
-        this.store.select(FoldersSelectors.selectFolderDetails)
-      ),
-      switchMap(([action, selectedFolder, folderDetails]) => {
-        // Only auto-load if:
-        // 1. No folder is currently selected AND
-        // 2. No folder details are loaded AND
-        // 3. We're on the folders page AND
-        // 4. We have folders available
-        if (!selectedFolder && !folderDetails && this.isOnFoldersPage() && action.folders.length > 0) {
-          return [FoldersActions.loadFirstFolderOnInit()];
-        }
-        return [];
-      })
-    )
-  );
 
   constructor(
     private actions$: Actions,
@@ -238,9 +217,5 @@ export class FoldersEffects {
   private extractFolderUuidFromUrl(url: string): string | null {
     const matches = url.match(/\/folders\/([^\/\?]+)/);
     return matches ? matches[1] : null;
-  }
-
-  private isOnFoldersPage(): boolean {
-    return this.router.url.includes('/folders') || this.router.url.includes('/saved-lists');
   }
 }
