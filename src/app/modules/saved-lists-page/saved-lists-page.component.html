@@ -23,20 +23,27 @@
           }
 
           <div right>
-            @if (sortParams | async; as sort) {
-              <app-results-sort
-                [selectedSort]="sort.sortBy"
-                [selectedDirection]="sort.sortDirection"
-                (sortChange)="onSortChange($event)">
-              </app-results-sort>
-            }
-            
-            <app-toggle-button-group
-              [options]="viewOptions"
-              [value]="view()"
-              (valueChange)="setView($event)"
-            />
+
+            <div class="flex flex--align-center">
+
+              <app-toggle-button-group
+                [options]="viewOptions"
+                [value]="view()"
+                (valueChange)="setView($event)"
+              />
+
+              @if (sortParams | async; as sort) {
+                <app-results-sort
+                  [selectedSort]="sort.sortBy"
+                  [selectedDirection]="sort.sortDirection"
+                  (sortChange)="onSortChange($event)">
+                </app-results-sort>
+              }
+
+            </div>
+
           </div>
+
         </app-action-toolbar>
       </div>
 

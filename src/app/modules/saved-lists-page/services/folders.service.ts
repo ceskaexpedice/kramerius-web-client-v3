@@ -50,19 +50,19 @@ export class FoldersService {
   }
 
   searchFolderItems(
-    itemIds: string[], 
+    itemIds: string[],
     searchQuery?: string,
     sortBy?: SolrSortFields,
     sortDirection?: SolrSortDirections
   ): Observable<any> {
     const searchUrl = this.environmentService.getApiUrl('search') || '';
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
-    
+
     let finalQuery = pidQuery;
     if (searchQuery && searchQuery.trim()) {
-      finalQuery = `(${pidQuery}) AND (${searchQuery.trim()})`;
+      finalQuery = `(${pidQuery}) AND title.search:"${searchQuery.trim()}"`;
     }
-    
+
     const params: any = {
       q: finalQuery,
       rows: '1000'
@@ -71,7 +71,7 @@ export class FoldersService {
     if (sortBy && sortDirection) {
       params.sort = `${sortBy} ${sortDirection}`;
     }
-    
+
     return this.http.get<any>(searchUrl, { params });
   }
 }
