@@ -1,0 +1,22 @@
+<div>
+  <div class="category--header">
+    <h4>
+      @if (labelIcon) {
+        <i [class]="labelIcon"></i>
+      }
+      {{ label | translate }}
+    </h4>
+
+    <i class="icon-minus-square cursor-pointer"
+       *ngIf="showToggle"
+       (click)="toggleExpanded()">
+    </i>
+  </div>
+
+  <div class="category--content pt-1"
+       [@expandCollapse]="expanded() ? 'expanded' : 'collapsed'">
+    <ng-content></ng-content>
+  </div>
+</div>
+
+<hr *ngIf="showBottomBorder">

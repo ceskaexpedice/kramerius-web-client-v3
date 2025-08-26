@@ -9,8 +9,16 @@
 
       <div class="page-content__filters">
         <app-action-toolbar>
-          <div left>
-          </div>
+
+          @if (activeFolder | async; as folder) {
+            <div left class="max-width-100">
+              <app-toolbar-header
+                [title]="folder.name"
+                [showBackButton]="false">
+              </app-toolbar-header>
+            </div>
+
+          }
 
           <div right>
             <app-toggle-button-group
@@ -23,6 +31,33 @@
       </div>
 
       <div class="page-content__wrapper">
+
+        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
+
+          <!-- GRID VIEW -->
+          @if (view() === ViewOptions.grid) {
+
+            <ng-container *ngIf="activeFolderItems | async as nonPageResults">
+              @if (nonPageResults.length > 0) {
+                <div class="grid--container">
+
+                  <app-record-item *ngFor="let doc of nonPageResults" [record]="doc"></app-record-item>
+
+                </div>
+              }
+            </ng-container>
+
+          } @else {
+
+            <!-- LIST VIEW -->
+            <ng-container *ngIf="activeFolderItems | async as nonPageResults">
+              @if (nonPageResults.length > 0) {
+                <app-record-item-list [records]="nonPageResults"></app-record-item-list>
+              }
+            </ng-container>
+          }
+
+        </div>
 
       </div>
 

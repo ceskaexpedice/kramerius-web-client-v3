@@ -197,7 +197,7 @@ export class FoldersEffects {
   loadFoldersOnAuth$ = createEffect(() =>
     this.actions$.pipe(
       ofType(
-        AuthActions.loginSuccess, 
+        AuthActions.loginSuccess,
         AuthActions.exchangeCodeForTokenSuccess,
         AuthActions.refreshTokenSuccess
       ),

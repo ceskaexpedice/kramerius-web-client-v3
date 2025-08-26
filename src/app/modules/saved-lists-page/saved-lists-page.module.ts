@@ -5,7 +5,7 @@ import {ActionToolbarComponent} from '../../shared/components/action-toolbar/act
 import {
   AdvancedSearchIndicatorComponent
 } from '../search-results-page/components/advanced-search-indicator/advanced-search-indicator.component';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {PaginatorInfoComponent} from '../../shared/components/paginator-info/paginator-info.component';
@@ -18,6 +18,7 @@ import {SelectedTagsComponent} from '../../shared/components/selected-tags/selec
 import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {SavedListsFiltersComponent} from './components/saved-lists-filters/saved-lists-filters.component';
+import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 
 const routes: Routes = [
   {
@@ -30,26 +31,28 @@ const routes: Routes = [
   declarations: [
     SavedListsPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		ActionToolbarComponent,
-		AdvancedSearchIndicatorComponent,
-		AsyncPipe,
-		FilterSidebarComponent,
-		NgForOf,
-		NgIf,
-		PaginatorComponent,
-		PaginatorInfoComponent,
-		RecordItemComponent,
-		RecordItemListComponent,
-		RecordTypeTabsComponent,
-		ResultsSortComponent,
-		SearchFiltersComponent,
-		SelectedTagsComponent,
-		ToggleButtonGroupComponent,
-		TranslatePipe,
-		SavedListsFiltersComponent,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    ActionToolbarComponent,
+    AdvancedSearchIndicatorComponent,
+    AsyncPipe,
+    FilterSidebarComponent,
+    NgForOf,
+    NgIf,
+    PaginatorComponent,
+    PaginatorInfoComponent,
+    RecordItemComponent,
+    RecordItemListComponent,
+    RecordTypeTabsComponent,
+    ResultsSortComponent,
+    SearchFiltersComponent,
+    SelectedTagsComponent,
+    ToggleButtonGroupComponent,
+    TranslatePipe,
+    SavedListsFiltersComponent,
+    NgClass,
+    ToolbarHeaderComponent,
+  ],
 })
 
 export class SavedListsPageModule {}

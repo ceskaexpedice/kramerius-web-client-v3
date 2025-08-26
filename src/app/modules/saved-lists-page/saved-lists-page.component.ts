@@ -2,6 +2,8 @@ import {Component, signal, OnInit} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {AppResultsViewType} from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
+import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults} from './state';
+import {first} from 'rxjs';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -10,6 +12,10 @@ import * as FoldersActions from './state/folders.actions';
   styleUrl: './saved-lists-page.component.scss'
 })
 export class SavedListsPageComponent implements OnInit {
+
+  activeFolderItems = this.store.select(selectFolderSearchResults);
+  activeFolder = this.store.select(selectFolderDetails);
+  folders = this.store.select(selectAllFolders);
 
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-element-3' },
@@ -23,6 +29,7 @@ export class SavedListsPageComponent implements OnInit {
   ngOnInit() {
     // Folder loading is now handled automatically by the handleFoldersLoaded$ effect
     // when folders are successfully loaded from the app initialization
+
   }
 
   setView(view: AppResultsViewType) {
@@ -32,4 +39,6 @@ export class SavedListsPageComponent implements OnInit {
     url.searchParams.set('viewType', view);
     window.history.replaceState({}, '', url.toString());
   }
+
+  protected readonly ViewOptions = AppResultsViewType;
 }

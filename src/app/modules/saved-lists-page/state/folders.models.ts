@@ -1,3 +1,5 @@
+import {SearchDocument} from '../../models/search-document';
+
 export interface FolderUser {
   createdAt: string;
   userRole: 'owner' | 'follower';
