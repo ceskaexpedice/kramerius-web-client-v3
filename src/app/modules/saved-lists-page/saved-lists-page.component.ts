@@ -7,6 +7,7 @@ import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFo
 import {first} from 'rxjs';
 import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
 import {ViewMode} from '../periodical/models/view-mode.enum';
+import {ToolbarAction, ToolbarActionEvent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -111,6 +112,35 @@ export class SavedListsPageComponent implements OnInit {
     return isOwner;
   }
 
+  getToolbarActions(folder: any): ToolbarAction[] {
+    const actions: ToolbarAction[] = [];
+
+    // Delete action - only for folder owners
+    if (folder && this.isCurrentUserOwner(folder)) {
+      actions.push({
+        id: 'delete',
+        icon: 'icon-trash',
+        tooltip: 'Delete folder'
+      });
+    }
+
+    // Share action - always visible
+    actions.push({
+      id: 'share',
+      icon: 'icon-send-2',
+      tooltip: 'Share folder link'
+    });
+
+    // Download/Export action - always visible
+    actions.push({
+      id: 'download',
+      icon: 'icon-download',
+      tooltip: 'Export folder contents'
+    });
+
+    return actions;
+  }
+
   onShareFolder() {
     this.activeFolder.pipe(first()).subscribe(folder => {
       if (folder) {
@@ -143,6 +173,23 @@ export class SavedListsPageComponent implements OnInit {
         // This could export folder contents as CSV, JSON, etc.
       }
     });
+  }
+
+  // New unified action handler
+  onToolbarAction(event: ToolbarActionEvent) {
+    switch (event.id) {
+      case 'share':
+        this.onShareFolder();
+        break;
+      case 'delete':
+        this.onDeleteFolder();
+        break;
+      case 'download':
+        this.onDownloadFolder();
+        break;
+      default:
+        console.warn('Unknown toolbar action:', event.id);
+    }
   }
 
   protected readonly ViewOptions = AppResultsViewType;

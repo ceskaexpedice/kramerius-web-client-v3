@@ -64,15 +64,8 @@
               }
 
               <app-toolbar-controls
-                [showFavorites]="false"
-                [showShare]="true"
-                [showQuote]="false"
-                [showInfo]="false"
-                [showDelete]="isCurrentUserOwner((activeFolder | async) || null)"
-                [showDownload]="true"
-                (shareClicked)="onShareFolder()"
-                (deleteClicked)="onDeleteFolder()"
-                (downloadClicked)="onDownloadFolder()"
+                [actions]="getToolbarActions((activeFolder | async) || null)"
+                (actionClicked)="onToolbarAction($event)"
               >
               </app-toolbar-controls>
 
