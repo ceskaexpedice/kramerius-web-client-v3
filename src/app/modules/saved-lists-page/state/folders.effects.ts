@@ -246,6 +246,47 @@ export class FoldersEffects {
     )
   );
 
+  // Auto-select first folder when active folder is deleted
+  autoSelectFirstFolderOnDelete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.deleteFolderSuccess),
+      switchMap(action => 
+        this.store.select(FoldersSelectors.selectFolderDetails).pipe(
+          take(1),
+          switchMap(currentFolderDetails => {
+            // Check if the deleted folder was the currently active folder
+            const wasActiveFolder = currentFolderDetails?.uuid === action.uuid;
+            
+            if (wasActiveFolder) {
+              // Get all remaining folders and select the first one
+              return this.store.select(FoldersSelectors.selectAllFolders).pipe(
+                take(1),
+                switchMap(folders => {
+                  if (folders.length > 0) {
+                    const firstFolder = folders[0];
+                    // Navigate to the first folder and load its details
+                    this.router.navigate(['/folders', firstFolder.uuid]);
+                    return [
+                      FoldersActions.selectFolder({ folder: firstFolder }),
+                      FoldersActions.loadFolderDetails({ uuid: firstFolder.uuid })
+                    ];
+                  } else {
+                    // No folders left, navigate to base route
+                    this.router.navigate(['/folders']);
+                    return [FoldersActions.selectFolder({ folder: null })];
+                  }
+                })
+              );
+            }
+            
+            // If deleted folder was not active, do nothing
+            return [];
+          })
+        )
+      )
+    )
+  );
+
 
   constructor(
     private actions$: Actions,

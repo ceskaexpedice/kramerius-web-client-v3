@@ -54,7 +54,7 @@
 
           <div right>
 
-            <div class="flex flex--align-center flex--gap-3">
+            <div class="flex flex--align-center flex--gap-x2">
 
               @if (activeFolder | async; as folder) {
                 <div class="items-count-display">
@@ -63,17 +63,17 @@
                 </div>
               }
 
-              <app-toolbar-controls
-                [actions]="getToolbarActions((activeFolder | async) || null)"
-                (actionClicked)="onToolbarAction($event)"
-              >
-              </app-toolbar-controls>
-
               <app-toggle-button-group
                 [options]="viewOptions"
                 [value]="view()"
                 (valueChange)="setView($event)"
               />
+
+              <app-toolbar-controls
+                [actions]="getToolbarActions((activeFolder | async) || null)"
+                (actionClicked)="onToolbarAction($event)"
+              >
+              </app-toolbar-controls>
 
               @if (sortParams | async; as sort) {
                 <app-results-sort

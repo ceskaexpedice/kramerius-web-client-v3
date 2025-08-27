@@ -1,17 +1,10 @@
 .toolbar-controls {
   display: flex;
   align-items: center;
-  gap: 0;
+  padding: 0 var(--spacing-x2) ;
+  gap: var(--spacing-x2);
   height: var(--toolbar-height);
   overflow: hidden;
-
-  > * {
-    border-left: 1px solid var(--color-border-light);
-  }
-
-  > *:first-child {
-    border-left: none;
-  }
 }
 
 .toggle--container {
@@ -48,24 +41,18 @@
 }
 
 .icon-button {
-  height: 100%;
-  aspect-ratio: 1/1;
-  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background: none;
   cursor: pointer;
+  width: 32px;
+  height: 32px;
 
   &.link.tertiary {
-    border-radius: 0;
     color: var(--color-primary);
-    border-left: 1px solid var(--color-border-light);
-  }
-
-  &:first-child {
-    border-left: none;
+    padding: var(--spacing-x2);
+    font-size: 16px;
+    //border-left: 1px solid var(--color-border-light);
   }
 
   &.disabled,
