@@ -58,7 +58,7 @@
 
               @if (activeFolder | async; as folder) {
                 <div class="items-count-display">
-                  <span class="count-label">{{ 'count' }}:</span>
+                  <span class="count-label">{{ 'count' | translate }}:</span>
                   <span class="count-value">{{ folder.itemsCount || 0 }}</span>
                 </div>
               }
@@ -101,9 +101,9 @@
               @if (nonPageResults.length > 0) {
                 <div class="grid--container">
 
-                  <app-record-item 
-                    *ngFor="let doc of nonPageResults" 
-                    [record]="doc" 
+                  <app-record-item
+                    *ngFor="let doc of nonPageResults"
+                    [record]="doc"
                     [currentFolderId]="(activeFolder | async)?.uuid">
                   </app-record-item>
 
@@ -116,7 +116,7 @@
             <!-- LIST VIEW -->
             <ng-container *ngIf="activeFolderItems | async as nonPageResults">
               @if (nonPageResults.length > 0) {
-                <app-record-item-list 
+                <app-record-item-list
                   [records]="nonPageResults"
                   [currentFolderId]="(activeFolder | async)?.uuid">
                 </app-record-item-list>
