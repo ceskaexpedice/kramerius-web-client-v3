@@ -149,5 +149,13 @@
   "add-year-from-to": "Dodaj rok (od-do)",
   "my-favorites-list--title": "Moje ulubione",
   "followed-folders-list--title": "Udostępnione",
-  "search-in-saved-list--placeholder": "Szukaj listy"
+  "search-in-saved-list--placeholder": "Szukaj listy",
+  "add-to-favorites": "Dodaj do ulubionych",
+  "search-saved-lists": "Szukaj",
+  "create-new-list--label": "Albo utworzyć listę",
+  "create-new-list--placeholder": "Wpisz nazwę",
+  "my-saved-lists": "Moje listy",
+  "done": "Gotowe",
+  "add-to-favorites-success--header": "Gotowe!",
+  "add-to-favorites-success--text": "Swoje ulubione dokumenty znajdziesz pod swoim kontem na górnym pasku."
 }

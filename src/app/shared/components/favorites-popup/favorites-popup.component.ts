@@ -6,6 +6,7 @@ import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
 import {Observable, combineLatest, map, startWith} from 'rxjs';
+import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 
 interface FavoritesList {
@@ -33,22 +34,22 @@ interface FavoritesList {
           <h3>{{ 'add-to-favorites' | translate }}</h3>
         </div>
 
-<!--        &lt;!&ndash; Search existing lists &ndash;&gt;-->
-<!--        <div class="favorites-popup__section">-->
-<!--          <app-input-->
-<!--            [placeholder]="'search-saved-lists' | translate"-->
-<!--            [size]="'sm'"-->
-<!--            [prefixIcon]="'icon-search-normal'"-->
-<!--            [signalInput]="searchTerm"-->
-<!--            (search)="onSearchChange()"-->
-<!--            (enter)="onSearchChange()">-->
-<!--          </app-input>-->
-<!--        </div>-->
+        <!-- Search existing lists -->
+        <div class="favorites-popup__section" *ngIf="shouldShowSearch$ | async">
+          <app-input
+            [theme]="'dark'"
+            [placeholder]="'search-saved-lists' | translate"
+            [size]="'sm'"
+            [prefixIcon]="'icon-search-normal'"
+            [signalInput]="searchTerm">
+          </app-input>
+        </div>
 
         <!-- Create new list -->
         <div class="favorites-popup__section">
           <app-input
-            [placeholder]="'create-new-list-name' | translate"
+            [placeholder]="'create-new-list--placeholder' | translate"
+            [label]="'create-new-list--label' | translate"
             [size]="'sm'"
             [theme]="'dark'"
             [prefixIcon]="'icon-add'"
@@ -83,11 +84,11 @@ interface FavoritesList {
 
         <!-- Actions -->
         <div class="favorites-popup__actions">
-          <button class="button outlined" (click)="onCancel()">
+          <button class="button sm outlined tertiary" (click)="onCancel()">
             {{ 'cancel' | translate }}
           </button>
           <button
-            class="button primary"
+            class="button primary sm"
             [disabled]="!hasSelectedLists() && !newListName().trim()"
             (click)="onDone()">
             {{ 'done' | translate }}
@@ -96,22 +97,31 @@ interface FavoritesList {
       </div>
 
       <!-- Success State -->
-      <div *ngIf="showSuccess()" class="favorites-popup__success">
-        <div class="success-header">
-          <i class="icon-check-circle success-icon"></i>
-          <h3>{{ 'done' | translate }}!</h3>
+      <div *ngIf="showSuccess()" class="favorites-popup__content">
+        <div class="favorites-popup__header">
+          <h3>{{ 'add-to-favorites-success--header' | translate }}</h3>
         </div>
-        <p class="success-message">{{ 'item-added-to-favorites-success' | translate }}</p>
-        <button class="button primary w-100" (click)="onCloseSuccess()">
-          {{ 'ok' | translate }}
-        </button>
+
+        <hr>
+
+        <div class="favorites-popup__section">
+          {{ 'add-to-favorites-success--text' | translate }}
+        </div>
+
+        <div class="favorites-popup__actions">
+          <button
+            class="button primary sm"
+            (click)="onCloseSuccess()">
+            {{ 'OK' | translate }}
+          </button>
+        </div>
       </div>
     </div>
   `,
   styles: `
     .favorites-popup {
       width: 265px;
-      max-height: 335px;
+      max-height: 400px;
       background: var(--color-bg-base);
       border: 1px solid var(--color-primary);
       border-radius: 8px;
@@ -144,11 +154,11 @@ interface FavoritesList {
       display: flex;
       flex-direction: column;
       padding: var(--spacing-x2) var(--spacing-x4);
-      gap: var(--spacing-x2);
     }
 
     .section-title {
       margin: 0;
+      padding: var(--spacing-x2) 0;
       font-size: 14px;
       font-weight: 600;
       color: var(--color-text-base);
@@ -158,16 +168,13 @@ interface FavoritesList {
       max-height: 105px;
       overflow-y: auto;
       border: 1px solid var(--color-border-base);
-      border-radius: 4px;
-      padding: var(--spacing-x2);
     }
 
     .list-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: var(--spacing-x2);
-      border-radius: 4px;
+      padding: var(--spacing-x2) 0;
       transition: background-color 0.2s ease;
 
       &:hover {
@@ -248,44 +255,6 @@ interface FavoritesList {
       background-color: var(--color-border-light);
       margin: 0;
     }
-
-    .button {
-      padding: var(--spacing-x2) var(--spacing-x4);
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-
-      &.primary {
-        background-color: var(--color-primary);
-        color: white;
-
-        &:hover:not(:disabled) {
-          background-color: var(--color-primary-hover);
-        }
-
-        &:disabled {
-          background-color: var(--color-bg-disabled);
-          color: var(--color-text-disabled);
-          cursor: not-allowed;
-        }
-      }
-
-      &.outlined {
-        background-color: transparent;
-        border: 1px solid var(--color-border-base);
-        color: var(--color-text-base);
-
-        &:hover {
-          background-color: var(--color-bg-hover);
-        }
-      }
-
-      &.w-100 {
-        width: 100%;
-      }
-    }
   `
 })
 export class FavoritesPopupComponent implements OnInit {
@@ -312,18 +281,40 @@ export class FavoritesPopupComponent implements OnInit {
     map(([owned, followed]) => [...owned, ...followed])
   );
 
+  // Observable to determine if search should be shown
+  shouldShowSearch$ = this.allFolders$.pipe(
+    map(folders => folders.length > 10)
+  );
+
   // Computed property for filtered lists
   get filteredLists(): FavoritesList[] {
     // We'll update this manually since signals and observables don't mix well
     return [];
   }
 
-  // For template usage
-  filteredLists$ = this.allFolders$.pipe(
-    map(folders => folders.map(folder => ({
-      folder,
-      isSelected: this.selectedFolderIds().has(folder.uuid)
-    })))
+  // For template usage with search filtering
+  filteredLists$ = combineLatest([
+    this.allFolders$,
+    toObservable(this.searchTerm).pipe(startWith('')),
+    toObservable(this.selectedFolderIds).pipe(startWith(new Set<string>()))
+  ]).pipe(
+    map(([folders, searchTerm, selectedFolderIds]) => {
+      let filteredFolders = folders;
+
+      // Apply search filter if search term exists
+      if (searchTerm && searchTerm.trim()) {
+        const searchLower = searchTerm.trim().toLowerCase();
+        filteredFolders = folders.filter(folder =>
+          folder.name.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Map to FavoritesList format with selection state
+      return filteredFolders.map(folder => ({
+        folder,
+        isSelected: selectedFolderIds.has(folder.uuid)
+      }));
+    })
   );
 
   ngOnInit() {
@@ -335,10 +326,6 @@ export class FavoritesPopupComponent implements OnInit {
     }
   }
 
-  onSearchChange() {
-    // Search term is already updated via signal binding
-    // We could trigger a manual update here if needed
-  }
 
   onListToggle(folder: Folder, change: MatCheckboxChange) {
     const selected = new Set(this.selectedFolderIds());

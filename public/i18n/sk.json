@@ -144,5 +144,13 @@
   "add-year-from-to": "Pridať rok (od-do)",
   "my-favorites-list--title": "Moje obľúbené",
   "followed-folders-list--title": "Zdieľané",
-  "search-in-saved-list--placeholder": "Hľadať zoznam"
+  "search-in-saved-list--placeholder": "Hľadať zoznam",
+  "add-to-favorites": "Pridať do obľúbených",
+  "search-saved-lists": "Hľadať",
+  "create-new-list--label": "Alebo vytvoriť zoznam",
+  "create-new-list--placeholder": "Zadajte názov",
+  "my-saved-lists": "Moje zoznamy",
+  "done": "Hotovo",
+  "add-to-favorites-success--header": "Hotovo!",
+  "add-to-favorites-success--text": "Svoje obľúbené dokumenty nájdete pod svojím účtom v hornej lište."
 }
