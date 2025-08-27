@@ -158,5 +158,6 @@
   "done": "Hotovo",
   "add-to-favorites-success--header": "Hotovo!",
   "add-to-favorites-success--text": "Vaše oblíbené dokumenty najdete pod svým účtem v horní liště.",
-  "remove-from-favorites": "Odebrat"
+  "remove-from-favorites": "Odebrat",
+  "count": "Počet"
 }

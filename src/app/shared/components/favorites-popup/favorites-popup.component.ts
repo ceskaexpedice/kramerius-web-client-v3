@@ -367,8 +367,11 @@ export class FavoritesPopupComponent implements OnInit {
       }
     }));
 
-    // Show success state
-    this.showSuccess.set(true);
+    // Reload folder details to refresh the current view
+    this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: this.currentFolderId }));
+
+    // Close the popup without showing success message
+    this.close.emit();
   }
 
   onDone() {

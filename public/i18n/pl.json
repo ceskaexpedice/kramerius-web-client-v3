@@ -158,5 +158,6 @@
   "done": "Gotowe",
   "add-to-favorites-success--header": "Gotowe!",
   "add-to-favorites-success--text": "Swoje ulubione dokumenty znajdziesz pod swoim kontem na górnym pasku.",
-  "remove-from-favorites": "Usuń"
+  "remove-from-favorites": "Usuń",
+  "count": "Liczba"
 }
