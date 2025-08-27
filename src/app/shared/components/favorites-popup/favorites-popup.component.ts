@@ -1,9 +1,8 @@
-import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {AsyncPipe, NgClass, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
-import {CheckboxComponent} from '../checkbox/checkbox.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
 import {Observable, combineLatest, map, startWith} from 'rxjs';
@@ -19,12 +18,10 @@ interface FavoritesList {
   standalone: true,
   imports: [
     AsyncPipe,
-    NgClass,
     NgForOf,
     NgIf,
     TranslatePipe,
     InputComponent,
-    CheckboxComponent,
     MatCheckbox,
   ],
   template: `
@@ -291,8 +288,9 @@ interface FavoritesList {
     }
   `
 })
-export class FavoritesPopupComponent {
+export class FavoritesPopupComponent implements OnInit {
   @Input() itemId!: string;
+  @Input() currentFolderId?: string;
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
@@ -327,6 +325,15 @@ export class FavoritesPopupComponent {
       isSelected: this.selectedFolderIds().has(folder.uuid)
     })))
   );
+
+  ngOnInit() {
+    // Pre-check the current folder if provided
+    if (this.currentFolderId) {
+      const selected = new Set(this.selectedFolderIds());
+      selected.add(this.currentFolderId);
+      this.selectedFolderIds.set(selected);
+    }
+  }
 
   onSearchChange() {
     // Search term is already updated via signal binding

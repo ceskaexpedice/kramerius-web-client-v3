@@ -26,6 +26,7 @@ export class RecordItemComponent implements OnDestroy {
   solrService = inject(SolrService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
+  @Input() currentFolderId?: string;
 
   router = inject(Router);
 

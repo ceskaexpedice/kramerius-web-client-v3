@@ -83,6 +83,7 @@
        [class.positioned]="popupPositioned()">
     <app-favorites-popup
       [itemId]="record.pid"
+      [currentFolderId]="currentFolderId"
       (close)="onCloseFavoritesPopup()">
     </app-favorites-popup>
   </div>

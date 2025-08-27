@@ -19,6 +19,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 export class RecordItemListComponent {
 
   @Input() records: SearchDocument[] = [];
+  @Input() currentFolderId?: string;
 
   public recordHandler = inject(RecordHandlerService);
 

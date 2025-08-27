@@ -101,7 +101,11 @@
               @if (nonPageResults.length > 0) {
                 <div class="grid--container">
 
-                  <app-record-item *ngFor="let doc of nonPageResults" [record]="doc"></app-record-item>
+                  <app-record-item 
+                    *ngFor="let doc of nonPageResults" 
+                    [record]="doc" 
+                    [currentFolderId]="(activeFolder | async)?.uuid">
+                  </app-record-item>
 
                 </div>
               }
@@ -112,7 +116,10 @@
             <!-- LIST VIEW -->
             <ng-container *ngIf="activeFolderItems | async as nonPageResults">
               @if (nonPageResults.length > 0) {
-                <app-record-item-list [records]="nonPageResults"></app-record-item-list>
+                <app-record-item-list 
+                  [records]="nonPageResults"
+                  [currentFolderId]="(activeFolder | async)?.uuid">
+                </app-record-item-list>
               }
             </ng-container>
           }
