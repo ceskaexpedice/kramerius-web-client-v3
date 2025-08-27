@@ -1,14 +1,17 @@
 import {Component, inject, Input, signal} from '@angular/core';
+import {toObservable} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
   CollapsibleCategoryComponent
 } from '../../../../shared/components/collapsible-category/collapsible-category.component';
-import {Folder, FolderDetails, selectUserFollowedFolders, selectUserOwnedFolders, selectSearchQuery} from '../../state';
+import {Folder, FolderDetails, selectUserFollowedFolders, selectUserOwnedFolders} from '../../state';
 import * as FoldersActions from '../../state/folders.actions';
 import {Store} from '@ngrx/store';
 import {AsyncPipe} from '@angular/common';
 import {InputComponent} from '../../../../shared/components/input/input.component';
+import {map, startWith} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
 
 @Component({
   selector: 'app-saved-lists-filters',
@@ -50,10 +53,10 @@ import {InputComponent} from '../../../../shared/components/input/input.componen
         [size]="'sm'"
         [prefixIcon]="'icon-search-normal'"
         [showHelpButton]="false"
+        [showClearButton]="true"
         [showSubmitButton]="false"
-        [initialValue]="(searchQuery | async) || ''"
-        (search)="onSearch()"
-        (enter)="onSearch()"
+        [type]="'text'"
+        (valueChange)="searchValueChanged($event)"
         [signalInput]="search"
       >
       </app-input>
@@ -67,7 +70,7 @@ import {InputComponent} from '../../../../shared/components/input/input.componen
         [showIndicator]="false"
         [initiallyExpanded]="true">
 
-        @for (folder of folders | async; track folder.uuid) {
+        @for (folder of filteredFolders | async; track folder.uuid) {
           <div class="filter-section-title"
                (click)="changeFolder(folder)"
                [class.active]="activeFolder?.uuid === folder.uuid">
@@ -83,7 +86,7 @@ import {InputComponent} from '../../../../shared/components/input/input.componen
         [showIndicator]="false"
         [initiallyExpanded]="true">
 
-        @for (folder of followedFolders | async; track folder.uuid) {
+        @for (folder of filteredFollowedFolders | async; track folder.uuid) {
           <div class="filter-section-title"
                (click)="changeFolder(folder)"
                [class.active]="activeFolder?.uuid === folder.uuid">
@@ -105,9 +108,36 @@ export class SavedListsFiltersComponent {
 
   search = signal('');
 
-  folders = this.store.select(selectUserOwnedFolders);
-  followedFolders = this.store.select(selectUserFollowedFolders);
-  searchQuery = this.store.select(selectSearchQuery);
+  private allFolders = this.store.select(selectUserOwnedFolders);
+  private allFollowedFolders = this.store.select(selectUserFollowedFolders);
+
+  filteredFolders = combineLatest([
+    this.allFolders,
+    toObservable(this.search).pipe(startWith(''))
+  ]).pipe(
+    map(([folders, searchTerm]: [Folder[], string]) => {
+      if (!searchTerm || searchTerm.trim() === '') {
+        return folders;
+      }
+      return folders?.filter(folder =>
+        folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) || [];
+    })
+  );
+
+  filteredFollowedFolders = combineLatest([
+    this.allFollowedFolders,
+    toObservable(this.search).pipe(startWith(''))
+  ]).pipe(
+    map(([folders, searchTerm]: [Folder[], string]) => {
+      if (!searchTerm || searchTerm.trim() === '') {
+        return folders;
+      }
+      return folders?.filter(folder =>
+        folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) || [];
+    })
+  );
 
 
   changeFolder(folder: Folder) {
@@ -121,9 +151,8 @@ export class SavedListsFiltersComponent {
     this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: folder.uuid }));
   }
 
-  onSearch() {
-    this.store.dispatch(FoldersActions.setSearchQuery({ searchQuery: this.search() }));
-    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: this.search() }));
+  searchValueChanged(value: string | number) {
+    this.search.set(value.toString());
   }
 
   getOwnerOfFolder(folder: Folder): string {
