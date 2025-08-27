@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, signal} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
 import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -7,6 +7,7 @@ import {RecordHandlerService} from '../../services/record-handler.service';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 import {SolrService} from '../../../core/solr/solr.service';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
+import {FavoritesPopupComponent} from '../favorites-popup/favorites-popup.component';
 
 @Component({
   selector: 'app-record-item',
@@ -14,7 +15,7 @@ import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-
     NgIf,
     TranslatePipe,
     AccessibilityBadgeComponent,
-
+    FavoritesPopupComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -27,6 +28,8 @@ export class RecordItemComponent {
   @Input() record: SearchDocument = {} as SearchDocument;
 
   router = inject(Router);
+  
+  showFavoritesPopup = signal(false);
 
   onRecordClick(e: Event, record: SearchDocument): void {
     e.stopPropagation();
@@ -75,6 +78,16 @@ export class RecordItemComponent {
       default:
         return '';
     }
+  }
+
+  onToggleFavorites(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.showFavoritesPopup.set(true);
+  }
+
+  onCloseFavoritesPopup() {
+    this.showFavoritesPopup.set(false);
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

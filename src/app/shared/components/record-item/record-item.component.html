@@ -12,12 +12,11 @@
     >
 
       <div class="record-item-card__actions">
-<!--        <button class="button secondary rounded icon-button"-->
-<!--                (click)="toggleFavorite($event)"-->
-<!--                [title]="isFavorite() ? ('remove-from-favorites' | translate) : ('add-to-favorites' | translate)"-->
-<!--        >-->
-<!--          <i class="icon" [ngClass]="isFavorite() ? 'icon-star-1' : 'icon-star-2'"></i>-->
-<!--        </button>-->
+        <button class="button secondary rounded icon-button favorites-button"
+                (click)="onToggleFavorites($event)"
+                [title]="'add-to-favorites' | translate">
+          <i class="icon-heart"></i>
+        </button>
       </div>
 
       @if (record.model !== DocumentTypeEnum.page) {
@@ -76,3 +75,15 @@
   </div>
 
 </a>
+
+<!-- Favorites Popup -->
+@if (showFavoritesPopup()) {
+  <div class="favorites-popup-overlay" (click)="onCloseFavoritesPopup()">
+    <div (click)="$event.stopPropagation()">
+      <app-favorites-popup
+        [itemId]="record.pid"
+        (close)="onCloseFavoritesPopup()">
+      </app-favorites-popup>
+    </div>
+  </div>
+}
