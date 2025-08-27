@@ -17,6 +17,7 @@
                 [title]="'add-to-favorites' | translate">
           <i class="icon-heart"></i>
         </button>
+        
       </div>
 
       @if (record.model !== DocumentTypeEnum.page) {
@@ -76,14 +77,14 @@
 
 </a>
 
-<!-- Favorites Popup -->
+<!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
 @if (showFavoritesPopup()) {
-  <div class="favorites-popup-overlay" (click)="onCloseFavoritesPopup()">
-    <div (click)="$event.stopPropagation()">
-      <app-favorites-popup
-        [itemId]="record.pid"
-        (close)="onCloseFavoritesPopup()">
-      </app-favorites-popup>
-    </div>
+  <div class="favorites-popup-wrapper" 
+       [class.positioned]="popupPositioned()">
+    <app-favorites-popup
+      [itemId]="record.pid"
+      (close)="onCloseFavoritesPopup()">
+    </app-favorites-popup>
   </div>
 }
+

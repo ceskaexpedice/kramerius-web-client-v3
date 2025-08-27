@@ -83,6 +83,7 @@
           font-size: 16px;
         }
       }
+
     }
   }
 
@@ -211,17 +212,23 @@
   }
 }
 
-// Favorites popup overlay
-.favorites-popup-overlay {
+// Favorites popup wrapper positioned outside the card
+.favorites-popup-wrapper {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  padding: var(--spacing-x4);
+  pointer-events: auto;
+  opacity: 0; // Start hidden to prevent flicker
+  transition: opacity 0.1s ease;
+  
+  &.positioned {
+    opacity: 1; // Show after positioning
+  }
+  
+  app-favorites-popup {
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
 }
+

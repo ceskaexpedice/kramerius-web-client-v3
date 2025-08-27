@@ -36,23 +36,24 @@ interface FavoritesList {
           <h3>{{ 'add-to-favorites' | translate }}</h3>
         </div>
 
-        <!-- Search existing lists -->
-        <div class="favorites-popup__section">
-          <app-input
-            [placeholder]="'search-saved-lists' | translate"
-            [size]="'sm'"
-            [prefixIcon]="'icon-search-normal'"
-            [signalInput]="searchTerm"
-            (search)="onSearchChange()"
-            (enter)="onSearchChange()">
-          </app-input>
-        </div>
+<!--        &lt;!&ndash; Search existing lists &ndash;&gt;-->
+<!--        <div class="favorites-popup__section">-->
+<!--          <app-input-->
+<!--            [placeholder]="'search-saved-lists' | translate"-->
+<!--            [size]="'sm'"-->
+<!--            [prefixIcon]="'icon-search-normal'"-->
+<!--            [signalInput]="searchTerm"-->
+<!--            (search)="onSearchChange()"-->
+<!--            (enter)="onSearchChange()">-->
+<!--          </app-input>-->
+<!--        </div>-->
 
         <!-- Create new list -->
         <div class="favorites-popup__section">
           <app-input
             [placeholder]="'create-new-list-name' | translate"
             [size]="'sm'"
+            [theme]="'dark'"
             [prefixIcon]="'icon-add'"
             [signalInput]="newListName"
             (enter)="onCreateNewList()">
@@ -115,6 +116,7 @@ interface FavoritesList {
       width: 265px;
       max-height: 335px;
       background: var(--color-bg-base);
+      border: 1px solid var(--color-primary);
       border-radius: 8px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       overflow: hidden;
@@ -126,14 +128,12 @@ interface FavoritesList {
     }
 
     .favorites-popup__content {
-      padding: var(--spacing-x4);
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-x3);
     }
 
     .favorites-popup__header {
-      border-bottom: 1px solid var(--color-bg-light);
+      padding: var(--spacing-x3) var(--spacing-x4);
     }
 
     .favorites-popup__header h3 {
@@ -146,6 +146,7 @@ interface FavoritesList {
     .favorites-popup__section {
       display: flex;
       flex-direction: column;
+      padding: var(--spacing-x2) var(--spacing-x4);
       gap: var(--spacing-x2);
     }
 
@@ -186,6 +187,7 @@ interface FavoritesList {
 
     .list-name {
       font-weight: 500;
+      font-size: 14px;
       color: var(--color-text-base);
     }
 
@@ -205,8 +207,8 @@ interface FavoritesList {
       display: flex;
       gap: var(--spacing-x3);
       justify-content: flex-end;
-      padding-top: var(--spacing-x3);
-      border-top: 1px solid var(--color-border-base);
+      border-top: 1px solid var(--color-border-light);
+      padding: 12px 16px;
     }
 
     .favorites-popup__success {
@@ -246,7 +248,7 @@ interface FavoritesList {
     hr {
       border: none;
       height: 1px;
-      background-color: var(--color-border-base);
+      background-color: var(--color-border-light);
       margin: 0;
     }
 
