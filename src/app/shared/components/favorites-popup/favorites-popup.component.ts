@@ -84,15 +84,26 @@ interface FavoritesList {
 
         <!-- Actions -->
         <div class="favorites-popup__actions">
-          <button class="button sm outlined tertiary" (click)="onCancel()">
-            {{ 'cancel' | translate }}
-          </button>
-          <button
-            class="button primary sm"
-            [disabled]="!hasSelectedLists() && !newListName().trim()"
-            (click)="onDone()">
-            {{ 'done' | translate }}
-          </button>
+          <div class="favorites-popup__actions-left">
+            <button
+              *ngIf="currentFolderId"
+              class="button sm transparent primary with-icon remove-button"
+              (click)="onRemoveFromCurrentFolder()">
+              <i class="icon-trash" aria-hidden="true"></i>
+              {{ 'remove-from-favorites' | translate }}
+            </button>
+          </div>
+          <div class="favorites-popup__actions-right">
+            <button class="button sm outlined tertiary" (click)="onCancel()">
+              {{ 'cancel' | translate }}
+            </button>
+            <button
+              class="button primary sm"
+              [disabled]="!hasSelectedLists() && !newListName().trim()"
+              (click)="onDone()">
+              {{ 'done' | translate }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -209,10 +220,24 @@ interface FavoritesList {
 
     .favorites-popup__actions {
       display: flex;
-      gap: var(--spacing-x3);
-      justify-content: flex-end;
+      justify-content: space-between;
       border-top: 1px solid var(--color-border-light);
       padding: 12px 16px;
+    }
+
+    .remove-button {
+      color: var(--color-primary);
+      padding-left: 0;
+      gap: var(--spacing-x2);
+    }
+
+    .favorites-popup__actions-left {
+      display: flex;
+    }
+
+    .favorites-popup__actions-right {
+      display: flex;
+      gap: var(--spacing-x3);
     }
 
     .favorites-popup__success {
@@ -222,31 +247,6 @@ interface FavoritesList {
       flex-direction: column;
       align-items: center;
       gap: var(--spacing-x4);
-    }
-
-    .success-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-x2);
-    }
-
-    .success-icon {
-      font-size: 48px;
-      color: var(--color-success);
-    }
-
-    .success-header h3 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--color-text-base);
-    }
-
-    .success-message {
-      margin: 0;
-      color: var(--color-text-base);
-      line-height: 1.5;
     }
 
     hr {
@@ -355,6 +355,20 @@ export class FavoritesPopupComponent implements OnInit {
 
   onCancel() {
     this.close.emit();
+  }
+
+  onRemoveFromCurrentFolder() {
+    if (!this.currentFolderId) return;
+
+    this.store.dispatch(FoldersActions.removeItemFromFolder({
+      request: {
+        uuid: this.currentFolderId,
+        items: [this.itemId]
+      }
+    }));
+
+    // Show success state
+    this.showSuccess.set(true);
   }
 
   onDone() {

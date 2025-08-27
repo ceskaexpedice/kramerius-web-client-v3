@@ -74,6 +74,21 @@ export const updateFolderItemsFailure = createAction(
   props<{ error: string }>()
 );
 
+export const removeItemFromFolder = createAction(
+  '[Folders] Remove Item From Folder',
+  props<{ request: FolderItemsRequest }>()
+);
+
+export const removeItemFromFolderSuccess = createAction(
+  '[Folders] Remove Item From Folder Success',
+  props<{ uuid: string; itemsCount: number }>()
+);
+
+export const removeItemFromFolderFailure = createAction(
+  '[Folders] Remove Item From Folder Failure',
+  props<{ error: string }>()
+);
+
 export const selectFolder = createAction(
   '[Folders] Select Folder',
   props<{ folder: Folder | null }>()

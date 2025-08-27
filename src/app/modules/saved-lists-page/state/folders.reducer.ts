@@ -108,6 +108,31 @@ export const foldersReducer = createReducer(
     error
   })),
 
+  on(FoldersActions.removeItemFromFolder, (state): FoldersState => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(FoldersActions.removeItemFromFolderSuccess, (state, { uuid }): FoldersState => ({
+    ...state,
+    folders: state.folders.map(f => f.uuid === uuid ? { ...f, itemsCount: Math.max(0, f.itemsCount - 1) } : f),
+    loading: false,
+    error: null,
+    selectedFolder: state.selectedFolder?.uuid === uuid 
+      ? { ...state.selectedFolder, itemsCount: Math.max(0, state.selectedFolder.itemsCount - 1) } 
+      : state.selectedFolder,
+    folderDetails: state.folderDetails?.uuid === uuid 
+      ? { ...state.folderDetails, itemsCount: Math.max(0, state.folderDetails.itemsCount - 1) } 
+      : state.folderDetails
+  })),
+
+  on(FoldersActions.removeItemFromFolderFailure, (state, { error }): FoldersState => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
   on(FoldersActions.selectFolder, (state, { folder }): FoldersState => ({
     ...state,
     selectedFolder: folder

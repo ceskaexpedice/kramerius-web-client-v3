@@ -77,6 +77,21 @@ export class FoldersEffects {
     )
   );
 
+  removeItemFromFolder$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.removeItemFromFolder),
+      switchMap(action =>
+        this.foldersService.removeItemFromFolder(action.request).pipe(
+          map(() => FoldersActions.removeItemFromFolderSuccess({
+            uuid: action.request.uuid,
+            itemsCount: action.request.items.length
+          })),
+          catchError(error => of(FoldersActions.removeItemFromFolderFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+
   showErrorToast$ = createEffect(() =>
     this.actions$.pipe(
       ofType(
@@ -85,6 +100,7 @@ export class FoldersEffects {
         FoldersActions.updateFolderFailure,
         FoldersActions.deleteFolderFailure,
         FoldersActions.updateFolderItemsFailure,
+        FoldersActions.removeItemFromFolderFailure,
         FoldersActions.loadFolderDetailsFailure,
         FoldersActions.loadFolderSearchResultsFailure
       ),

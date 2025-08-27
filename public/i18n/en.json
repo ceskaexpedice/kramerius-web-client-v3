@@ -157,5 +157,6 @@
   "my-saved-lists": "My lists",
   "done": "Done",
   "add-to-favorites-success--header": "Done!",
-  "add-to-favorites-success--text": "You’ll find your favorite documents under your account in the top bar."
+  "add-to-favorites-success--text": "You’ll find your favorite documents under your account in the top bar.",
+  "remove-from-favorites": "Remove"
 }

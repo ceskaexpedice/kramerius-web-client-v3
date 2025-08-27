@@ -45,6 +45,12 @@ export class FoldersService {
     return this.http.put<void>(`${this.API_URL}/${request.uuid}/items`, { items: request.items });
   }
 
+  removeItemFromFolder(request: FolderItemsRequest): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${request.uuid}/items`, { 
+      body: { items: request.items } 
+    });
+  }
+
   getFolderDetails(uuid: string): Observable<FolderDetails> {
     return this.http.get<FolderDetails>(`${this.API_URL}/${uuid}`);
   }

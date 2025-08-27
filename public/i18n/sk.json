@@ -152,5 +152,6 @@
   "my-saved-lists": "Moje zoznamy",
   "done": "Hotovo",
   "add-to-favorites-success--header": "Hotovo!",
-  "add-to-favorites-success--text": "Svoje obľúbené dokumenty nájdete pod svojím účtom v hornej lište."
+  "add-to-favorites-success--text": "Svoje obľúbené dokumenty nájdete pod svojím účtom v hornej lište.",
+  "remove-from-favorites": "Odobrať"
 }
