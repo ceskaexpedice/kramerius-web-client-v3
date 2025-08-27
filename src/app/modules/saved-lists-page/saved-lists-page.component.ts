@@ -6,6 +6,7 @@ import * as FoldersActions from './state/folders.actions';
 import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders} from './state';
 import {first} from 'rxjs';
 import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
+import {ViewMode} from '../periodical/models/view-mode.enum';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -90,9 +91,9 @@ export class SavedListsPageComponent implements OnInit {
   submitTitleEdit(folderUuid: string) {
     const newTitle = this.editedTitle().trim();
     if (newTitle && newTitle !== '') {
-      this.store.dispatch(FoldersActions.updateFolder({ 
-        uuid: folderUuid, 
-        folder: { name: newTitle } 
+      this.store.dispatch(FoldersActions.updateFolder({
+        uuid: folderUuid,
+        folder: { name: newTitle }
       }));
       this.isEditingTitle.set(false);
     }
@@ -100,15 +101,50 @@ export class SavedListsPageComponent implements OnInit {
 
   isCurrentUserOwner(folder: any): boolean {
     if (!folder) return false;
-    
+
     // Check if the folder exists in the user's owned folders list
     let isOwner = false;
     this.userOwnedFolders.pipe(first()).subscribe(ownedFolders => {
       isOwner = ownedFolders.some(ownedFolder => ownedFolder.uuid === folder.uuid);
     });
-    
+
     return isOwner;
   }
 
+  onShareFolder() {
+    this.activeFolder.pipe(first()).subscribe(folder => {
+      if (folder) {
+        // TODO: Implement share functionality - copy folder link to clipboard
+        const url = `${window.location.origin}/folders/${folder.uuid}`;
+        navigator.clipboard.writeText(url).then(() => {
+          console.log('Folder link copied to clipboard');
+          // TODO: Show toast notification
+        });
+      }
+    });
+  }
+
+  onDeleteFolder() {
+    this.activeFolder.pipe(first()).subscribe(folder => {
+      if (folder && this.isCurrentUserOwner(folder)) {
+        // TODO: Show confirmation dialog before deleting
+        if (confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) {
+          this.store.dispatch(FoldersActions.deleteFolder({ uuid: folder.uuid }));
+        }
+      }
+    });
+  }
+
+  onDownloadFolder() {
+    this.activeFolder.pipe(first()).subscribe(folder => {
+      if (folder) {
+        // TODO: Implement folder export/download functionality
+        console.log('Download folder:', folder.name);
+        // This could export folder contents as CSV, JSON, etc.
+      }
+    });
+  }
+
   protected readonly ViewOptions = AppResultsViewType;
+  protected readonly ViewMode = ViewMode;
 }

@@ -31,4 +31,14 @@
     <i class="icon-quote-down"></i>
   </button>
 
+  <!-- Delete Icon -->
+  <button class="icon-button link tertiary" *ngIf="showDelete" (click)="onDelete()">
+    <i class="icon-trash"></i>
+  </button>
+
+  <!-- Download Icon -->
+  <button class="icon-button link tertiary" *ngIf="showDownload" (click)="onDownload()">
+    <i class="icon-download"></i>
+  </button>
+
 </div>

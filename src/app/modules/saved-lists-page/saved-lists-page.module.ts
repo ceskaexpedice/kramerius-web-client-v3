@@ -20,6 +20,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {SavedListsFiltersComponent} from './components/saved-lists-filters/saved-lists-filters.component';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {InputComponent} from '../../shared/components/input/input.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 const routes: Routes = [
   {
@@ -58,6 +59,7 @@ const routes: Routes = [
     NgClass,
     ToolbarHeaderComponent,
     InputComponent,
+    ToolbarControlsComponent,
   ],
 })
 

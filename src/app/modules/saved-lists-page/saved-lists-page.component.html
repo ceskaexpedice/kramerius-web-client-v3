@@ -63,6 +63,19 @@
                 </div>
               }
 
+              <app-toolbar-controls
+                [showFavorites]="false"
+                [showShare]="true"
+                [showQuote]="false"
+                [showInfo]="false"
+                [showDelete]="isCurrentUserOwner((activeFolder | async) || null)"
+                [showDownload]="true"
+                (shareClicked)="onShareFolder()"
+                (deleteClicked)="onDeleteFolder()"
+                (downloadClicked)="onDownloadFolder()"
+              >
+              </app-toolbar-controls>
+
               <app-toggle-button-group
                 [options]="viewOptions"
                 [value]="view()"

@@ -31,11 +31,15 @@ export class ToolbarControlsComponent {
   @Input() showShare = false;
   @Input() showQuote = false;
   @Input() showInfo = false;
+  @Input() showDelete = false;
+  @Input() showDownload = false;
 
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() shareClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() quoteClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() infoClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() deleteClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() downloadClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
   onToggle(option: ViewToggleOption): void {
@@ -57,6 +61,14 @@ export class ToolbarControlsComponent {
 
   onInfo() {
     this.infoClicked.emit();
+  }
+
+  onDelete() {
+    this.deleteClicked.emit();
+  }
+
+  onDownload() {
+    this.downloadClicked.emit();
   }
 
 }
