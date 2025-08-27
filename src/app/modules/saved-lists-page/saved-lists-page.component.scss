@@ -1,2 +1,18 @@
 // Component-specific styles only
 // Common layout styles moved to /public/styles/_page-layout.scss
+
+.items-count-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+  font-size: 14px;
+
+  .count-label {
+    color: var(--color-text-tertiary);
+  }
+
+  .count-value {
+    color: var(--color-text-tertiary);
+    min-width: 20px;
+  }
+}

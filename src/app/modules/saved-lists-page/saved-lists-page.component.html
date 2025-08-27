@@ -14,17 +14,54 @@
 
           @if (activeFolder | async; as folder) {
             <div left class="max-width-100">
-              <app-toolbar-header
-                [title]="folder.name"
-                [showBackButton]="false">
-              </app-toolbar-header>
+              @if (isEditingTitle()) {
+                <div class="flex flex--align-center w-100 flex--gap-x1">
+                  <app-input
+                    [theme]="'dark'"
+                    [size]="'sm'"
+                    [type]="'text'"
+                    [signalInput]="editedTitle"
+                    [showSubmitButton]="true"
+                    [submitIcon]="'icon-check'"
+                    (submit)="submitTitleEdit(folder.uuid)"
+                    (cancel)="cancelEditingTitle()"
+                  />
+
+                  <button class="icon-button outlined tertiary">
+                    <i class="icon-x" (click)="cancelEditingTitle()"></i>
+                  </button>
+
+                </div>
+              } @else {
+                <div class="flex flex--align-center flex--gap-2">
+                  <app-toolbar-header
+                    [title]="folder.name"
+                    [showBackButton]="false">
+                  </app-toolbar-header>
+                  @if (isCurrentUserOwner(folder)) {
+                    <button
+                      class="icon-button transparent"
+                      (click)="startEditingTitle(folder.name)"
+                    >
+                      <i class="icon-edit-2"></i>
+                    </button>
+                  }
+                </div>
+              }
             </div>
 
           }
 
           <div right>
 
-            <div class="flex flex--align-center">
+            <div class="flex flex--align-center flex--gap-3">
+
+              @if (activeFolder | async; as folder) {
+                <div class="items-count-display">
+                  <span class="count-label">{{ 'count' }}:</span>
+                  <span class="count-value">{{ folder.itemsCount || 0 }}</span>
+                </div>
+              }
 
               <app-toggle-button-group
                 [options]="viewOptions"

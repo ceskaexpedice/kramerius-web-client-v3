@@ -3,7 +3,7 @@ import {Store} from '@ngrx/store';
 import {ActivatedRoute} from '@angular/router';
 import {AppResultsViewType} from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams} from './state';
+import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders} from './state';
 import {first} from 'rxjs';
 import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
 
@@ -19,6 +19,7 @@ export class SavedListsPageComponent implements OnInit {
   activeFolder = this.store.select(selectFolderDetails);
   folders = this.store.select(selectAllFolders);
   sortParams = this.store.select(selectSortParams);
+  userOwnedFolders = this.store.select(selectUserOwnedFolders);
 
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-element-3' },
@@ -26,6 +27,8 @@ export class SavedListsPageComponent implements OnInit {
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
+  isEditingTitle = signal<boolean>(false);
+  editedTitle = signal<string>('');
 
   constructor(private store: Store, private route: ActivatedRoute) {
   }
@@ -72,6 +75,39 @@ export class SavedListsPageComponent implements OnInit {
     const url = new URL(window.location.href);
     url.searchParams.set('viewType', view);
     window.history.replaceState({}, '', url.toString());
+  }
+
+  startEditingTitle(currentTitle: string) {
+    this.editedTitle.set(currentTitle);
+    this.isEditingTitle.set(true);
+  }
+
+  cancelEditingTitle() {
+    this.isEditingTitle.set(false);
+    this.editedTitle.set('');
+  }
+
+  submitTitleEdit(folderUuid: string) {
+    const newTitle = this.editedTitle().trim();
+    if (newTitle && newTitle !== '') {
+      this.store.dispatch(FoldersActions.updateFolder({ 
+        uuid: folderUuid, 
+        folder: { name: newTitle } 
+      }));
+      this.isEditingTitle.set(false);
+    }
+  }
+
+  isCurrentUserOwner(folder: any): boolean {
+    if (!folder) return false;
+    
+    // Check if the folder exists in the user's owned folders list
+    let isOwner = false;
+    this.userOwnedFolders.pipe(first()).subscribe(ownedFolders => {
+      isOwner = ownedFolders.some(ownedFolder => ownedFolder.uuid === folder.uuid);
+    });
+    
+    return isOwner;
   }
 
   protected readonly ViewOptions = AppResultsViewType;

@@ -54,7 +54,10 @@ export const foldersReducer = createReducer(
     folders: state.folders.map(f => f.uuid === folder.uuid ? folder : f),
     loading: false,
     error: null,
-    selectedFolder: state.selectedFolder?.uuid === folder.uuid ? folder : state.selectedFolder
+    selectedFolder: state.selectedFolder?.uuid === folder.uuid ? folder : state.selectedFolder,
+    folderDetails: state.folderDetails?.uuid === folder.uuid 
+      ? { ...state.folderDetails, name: folder.name, updatedAt: folder.updatedAt } 
+      : state.folderDetails
   })),
 
   on(FoldersActions.updateFolderFailure, (state, { error }): FoldersState => ({

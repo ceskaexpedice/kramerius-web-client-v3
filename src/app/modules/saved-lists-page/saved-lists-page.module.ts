@@ -19,6 +19,7 @@ import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-
 import {TranslatePipe} from '@ngx-translate/core';
 import {SavedListsFiltersComponent} from './components/saved-lists-filters/saved-lists-filters.component';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
+import {InputComponent} from '../../shared/components/input/input.component';
 
 const routes: Routes = [
   {
@@ -56,6 +57,7 @@ const routes: Routes = [
     SavedListsFiltersComponent,
     NgClass,
     ToolbarHeaderComponent,
+    InputComponent,
   ],
 })
 
