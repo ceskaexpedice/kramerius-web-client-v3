@@ -92,39 +92,49 @@
 
       <div class="page-content__wrapper">
 
-        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
+        <!-- OTHER ITEMS SECTION -->
+        <ng-container *ngIf="nonSoundRecordingItems | async as otherItems">
+          @if (otherItems.length > 0) {
+            <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
 
-          <!-- GRID VIEW -->
-          @if (view() === ViewOptions.grid) {
-
-            <ng-container *ngIf="activeFolderItems | async as nonPageResults">
-              @if (nonPageResults.length > 0) {
+              <!-- GRID VIEW -->
+              @if (view() === ViewOptions.grid) {
                 <div class="grid--container">
-
                   <app-record-item
-                    *ngFor="let doc of nonPageResults"
+                    *ngFor="let doc of otherItems"
                     [record]="doc"
                     [currentFolderId]="(activeFolder | async)?.uuid">
                   </app-record-item>
-
                 </div>
-              }
-            </ng-container>
 
-          } @else {
+              } @else {
 
-            <!-- LIST VIEW -->
-            <ng-container *ngIf="activeFolderItems | async as nonPageResults">
-              @if (nonPageResults.length > 0) {
+                <!-- LIST VIEW -->
                 <app-record-item-list
-                  [records]="nonPageResults"
+                  [records]="otherItems"
                   [currentFolderId]="(activeFolder | async)?.uuid">
                 </app-record-item-list>
               }
-            </ng-container>
-          }
 
-        </div>
+            </div>
+          }
+        </ng-container>
+
+        <!-- SOUND RECORDINGS SECTION -->
+        <ng-container *ngIf="soundRecordingItems | async as soundRecordings">
+          @if (soundRecordings.length > 0) {
+            <div class="music-section">
+              <app-music-track-list
+                [tracks]="soundRecordings"
+                [playingPid]="soundService.currentTrackPid"
+                (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                (addToQueue)="musicService.addTrackToQueue($event)"
+                (download)="musicService.downloadTrack($event)"
+                [currentFolderId]="(activeFolder | async)?.uuid">
+              </app-music-track-list>
+            </div>
+          }
+        </ng-container>
 
       </div>
 

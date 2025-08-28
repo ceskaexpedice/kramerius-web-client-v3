@@ -21,6 +21,7 @@ import {SavedListsFiltersComponent} from './components/saved-lists-filters/saved
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {InputComponent} from '../../shared/components/input/input.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {MusicTrackListComponent} from '../music/components/music-track-list/music-track-list.component';
 
 const routes: Routes = [
   {
@@ -60,6 +61,7 @@ const routes: Routes = [
     ToolbarHeaderComponent,
     InputComponent,
     ToolbarControlsComponent,
+    MusicTrackListComponent,
   ],
 })
 

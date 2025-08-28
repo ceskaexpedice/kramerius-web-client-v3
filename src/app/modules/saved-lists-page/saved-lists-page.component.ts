@@ -4,10 +4,13 @@ import {ActivatedRoute} from '@angular/router';
 import {AppResultsViewType} from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
 import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders} from './state';
-import {first} from 'rxjs';
+import {first, map} from 'rxjs';
 import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
 import {ViewMode} from '../periodical/models/view-mode.enum';
 import {ToolbarAction, ToolbarActionEvent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {DocumentTypeEnum} from '../constants/document-type';
+import {MusicService} from '../music/services/music.service';
+import {SoundService} from '../../shared/services/sound.service';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -23,6 +26,15 @@ export class SavedListsPageComponent implements OnInit {
   sortParams = this.store.select(selectSortParams);
   userOwnedFolders = this.store.select(selectUserOwnedFolders);
 
+  // Separate sound recordings from other items
+  soundRecordingItems = this.activeFolderItems.pipe(
+    map(items => items.filter(item => item.model === DocumentTypeEnum.track))
+  );
+
+  nonSoundRecordingItems = this.activeFolderItems.pipe(
+    map(items => items.filter(item => item.model !== DocumentTypeEnum.track))
+  );
+
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-element-3' },
     { value: AppResultsViewType.list, icon: 'icon-row-vertical' }
@@ -32,7 +44,12 @@ export class SavedListsPageComponent implements OnInit {
   isEditingTitle = signal<boolean>(false);
   editedTitle = signal<string>('');
 
-  constructor(private store: Store, private route: ActivatedRoute) {
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute,
+    public musicService: MusicService,
+    public soundService: SoundService
+  ) {
   }
 
   ngOnInit() {
@@ -194,4 +211,5 @@ export class SavedListsPageComponent implements OnInit {
 
   protected readonly ViewOptions = AppResultsViewType;
   protected readonly ViewMode = ViewMode;
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
 }
