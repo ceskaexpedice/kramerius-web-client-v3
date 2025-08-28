@@ -149,4 +149,33 @@ export class MusicService {
         }
       });
   }
+
+  // Methods for saved-lists-page that don't rely on NgRx store
+  playTrackFromList(track: SoundTrackModel, tracks: SoundTrackModel[]): void {
+    this.soundService.play(track);
+  }
+
+  addTracksFromListToQueueAndPlayFirst(track: SoundTrackModel, tracks: SoundTrackModel[]): void {
+    if (!tracks || tracks.length === 0) {
+      this.addTrackToQueue(track);
+      return;
+    }
+
+    // find the index of the track in the provided tracks array
+    const index = tracks.findIndex((t: any) => t.pid === track.pid);
+
+    // if track is found add all tracks after it to the queue
+    if (index !== undefined && index >= 0) {
+      this.soundService.clearQueue();
+
+      const tracksToAdd = tracks.slice(index);
+      if (tracksToAdd && tracksToAdd.length > 0) {
+        this.soundService.addTracksToQueue(tracksToAdd);
+        this.soundService.play(tracksToAdd[0]);
+      }
+    } else {
+      // Track not found in list, just add it to queue
+      this.addTrackToQueue(track);
+    }
+  }
 }

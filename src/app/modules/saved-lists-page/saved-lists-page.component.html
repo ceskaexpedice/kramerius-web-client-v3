@@ -127,9 +127,9 @@
               <app-music-track-list
                 [tracks]="soundRecordings"
                 [playingPid]="soundService.currentTrackPid"
-                (select)="musicService.addTracksToQueueAndPlayFirst($event)"
-                (addToQueue)="musicService.addTrackToQueue($event)"
-                (download)="musicService.downloadTrack($event)"
+                (select)="onTrackSelect($event)"
+                (addToQueue)="onTrackAddToQueue($event)"
+                (download)="onTrackDownload($event)"
                 [currentFolderId]="(activeFolder | async)?.uuid">
               </app-music-track-list>
             </div>

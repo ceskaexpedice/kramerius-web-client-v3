@@ -7,6 +7,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService } from '../services/folders.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { parseSearchDocument } from '../../models/search-document';
+import { parseSoundTrack } from '../../models/sound-track.model';
+import { DocumentTypeEnum } from '../../constants/document-type';
+import { SolrService } from '../../../core/solr/solr.service';
 import * as FoldersActions from './folders.actions';
 import * as FoldersSelectors from './folders.selectors';
 import * as AuthActions from '../../../core/auth/store/auth.actions';
@@ -160,7 +163,7 @@ export class FoldersEffects {
           map(response => {
             const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
               doc['highlighting'] = response.highlighting?.[doc.pid] || {};
-              return parseSearchDocument(doc);
+              return this.parseDocument(doc);
             });
             return FoldersActions.loadFolderSearchResultsSuccess({
               results: parsedResults,
@@ -197,7 +200,7 @@ export class FoldersEffects {
                   map(response => {
                     const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
                       doc['highlighting'] = response.highlighting?.[doc.pid] || {};
-                      return parseSearchDocument(doc);
+                      return this.parseDocument(doc);
                     });
                     return FoldersActions.loadFolderSearchResultsSuccess({
                       results: parsedResults,
@@ -309,11 +312,21 @@ export class FoldersEffects {
     private foldersService: FoldersService,
     private toastService: ToastService,
     private store: Store,
-    private router: Router
+    private router: Router,
+    private solrService: SolrService
   ) {}
 
   private extractFolderUuidFromUrl(url: string): string | null {
     const matches = url.match(/\/folders\/([^\/\?]+)/);
     return matches ? matches[1] : null;
+  }
+
+  private parseDocument(doc: any) {
+    if (doc.model === DocumentTypeEnum.track) {
+      const soundTrack = parseSoundTrack(doc);
+      soundTrack.url = this.solrService.getAudioTrackMp3Url(soundTrack.pid);
+      return soundTrack;
+    }
+    return parseSearchDocument(doc);
   }
 }

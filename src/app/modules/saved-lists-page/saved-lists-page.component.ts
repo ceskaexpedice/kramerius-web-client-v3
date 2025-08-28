@@ -11,6 +11,7 @@ import {ToolbarAction, ToolbarActionEvent} from '../../shared/components/toolbar
 import {DocumentTypeEnum} from '../constants/document-type';
 import {MusicService} from '../music/services/music.service';
 import {SoundService} from '../../shared/services/sound.service';
+import {SoundTrackModel} from '../models/sound-track.model';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -207,6 +208,21 @@ export class SavedListsPageComponent implements OnInit {
       default:
         console.warn('Unknown toolbar action:', event.id);
     }
+  }
+
+  // Methods for handling track playback with tracks array
+  onTrackSelect(track: SoundTrackModel) {
+    this.soundRecordingItems.pipe(first()).subscribe(tracks => {
+      this.musicService.addTracksFromListToQueueAndPlayFirst(track, tracks as SoundTrackModel[]);
+    });
+  }
+
+  onTrackAddToQueue(track: SoundTrackModel) {
+    this.musicService.addTrackToQueue(track);
+  }
+
+  onTrackDownload(track: SoundTrackModel) {
+    this.musicService.downloadTrack(track);
   }
 
   protected readonly ViewOptions = AppResultsViewType;
