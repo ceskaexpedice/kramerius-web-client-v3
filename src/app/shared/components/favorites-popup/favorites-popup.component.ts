@@ -1,13 +1,14 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal, OnDestroy} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
-import {Observable, combineLatest, map, startWith} from 'rxjs';
+import {Observable, combineLatest, map, startWith, takeUntil, Subject, filter} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
+import {Actions, ofType} from '@ngrx/effects';
 
 interface FavoritesList {
   folder: Folder;
@@ -257,13 +258,25 @@ interface FavoritesList {
     }
   `
 })
-export class FavoritesPopupComponent implements OnInit {
+export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Input() itemId!: string;
   @Input() currentFolderId?: string;
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
   private store = inject(Store);
+  private actions$ = inject(Actions);
+  private destroy$ = new Subject<void>();
+
+  private _shouldAddItemToNewFolder = false;
+
+  private shouldAddItemToNewFolder() {
+    return this._shouldAddItemToNewFolder;
+  }
+
+  private setShouldAddItemToNewFolder(value: boolean) {
+    this._shouldAddItemToNewFolder = value;
+  }
 
   searchTerm = signal('');
   newListName = signal('');
@@ -286,11 +299,6 @@ export class FavoritesPopupComponent implements OnInit {
     map(folders => folders.length > 10)
   );
 
-  // Computed property for filtered lists
-  get filteredLists(): FavoritesList[] {
-    // We'll update this manually since signals and observables don't mix well
-    return [];
-  }
 
   // For template usage with search filtering
   filteredLists$ = combineLatest([
@@ -324,6 +332,43 @@ export class FavoritesPopupComponent implements OnInit {
       selected.add(this.currentFolderId);
       this.selectedFolderIds.set(selected);
     }
+
+    this.actions$.pipe(
+      ofType(FoldersActions.createFolderSuccess),
+      takeUntil(this.destroy$)
+    ).subscribe(({ folder }) => {
+
+      if (this.shouldAddItemToNewFolder()) {
+
+        // Add the item to the newly created folder
+        this.store.dispatch(FoldersActions.updateFolderItems({
+          request: {
+            uuid: folder.uuid,
+            items: [this.itemId]
+          }
+        }));
+
+        // Reset the flag
+        this.setShouldAddItemToNewFolder(false);
+
+        // Show success state
+        this.showSuccess.set(true);
+      }
+    });
+
+    // Listen for successful item updates to reload folders
+    this.actions$.pipe(
+      ofType(FoldersActions.updateFolderItemsSuccess),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      // Reload folders to get updated item counts
+      this.store.dispatch(FoldersActions.loadFolders());
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
@@ -339,8 +384,15 @@ export class FavoritesPopupComponent implements OnInit {
 
   onCreateNewList() {
     const listName = this.newListName().trim();
-    if (!listName) return;
+    if (!listName) {
+      console.log('No list name, returning early');
+      return;
+    }
 
+    // Set flag to indicate we want to add item to the newly created folder
+    this.setShouldAddItemToNewFolder(true);
+
+    // Create the folder
     this.store.dispatch(FoldersActions.createFolder({
       folder: { name: listName }
     }));
@@ -379,7 +431,8 @@ export class FavoritesPopupComponent implements OnInit {
     const selectedIds = Array.from(this.selectedFolderIds());
 
     if (newListName) {
-      // Create new list and add item to it
+      // Create new list and set flag to add item to it
+      this.setShouldAddItemToNewFolder(true);
       this.store.dispatch(FoldersActions.createFolder({
         folder: { name: newListName }
       }));
@@ -395,8 +448,10 @@ export class FavoritesPopupComponent implements OnInit {
       }));
     });
 
-    // Show success state
-    this.showSuccess.set(true);
+    // Show success state only if no new folder is being created (otherwise the subscription will handle it)
+    if (!newListName) {
+      this.showSuccess.set(true);
+    }
   }
 
   onCloseSuccess() {
