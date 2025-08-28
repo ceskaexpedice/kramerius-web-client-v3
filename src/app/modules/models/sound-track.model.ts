@@ -1,5 +1,10 @@
 import {DocumentTypeEnum} from '../constants/document-type';
 
+export enum TrackViewType {
+  DEFAULT = 'default',
+  FOLDER = 'folder'
+}
+
 export interface SoundTrackModel {
   accessibility: string;
   licenses_of_ancestors: string[];
@@ -10,6 +15,8 @@ export interface SoundTrackModel {
   url: string;
   part: string;
   parentPid: string;
+  authors?: string[];
+  year?: number;
 }
 
 export const parseSoundTrack = (doc: any): SoundTrackModel => ({
@@ -21,5 +28,7 @@ export const parseSoundTrack = (doc: any): SoundTrackModel => ({
   'track.length': doc['track.length'] || 0,
   url: doc.url || '',
   part: doc.part || '',
-  parentPid: doc.parentPid || doc['own_parent.pid'] || ''
+  parentPid: doc.parentPid || doc['own_parent.pid'] || '',
+  authors: doc['authors.facet'] || doc.authors || [],
+  year: doc['date_range_start.year'] ? parseInt(doc['date_range_start.year'], 10) : undefined
 });

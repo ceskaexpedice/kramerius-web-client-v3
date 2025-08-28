@@ -124,6 +124,7 @@
   "playback-stop-dialog--message": "Tímto zastavíte přehrávání a zavřete přehrávač.",
   "dont-ask-again": "Příště se již neptat",
   "playback-stop-dialog--reopen-message": "Přehrávač můžete kdykoliv znovu otevřít v dokumentu se zvukem.",
+  "play-all": "Přehrát vše",
   "copy-to-clipboard-success": "Zkopírováno do schránky",
   "track-added-to-queue": "Skladba přidána do fronty",
   "track-removed-from-queue": "Skladba odstraněna z fronty",

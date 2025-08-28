@@ -85,10 +85,13 @@ export class FoldersEffects {
       ofType(FoldersActions.removeItemFromFolder),
       switchMap(action =>
         this.foldersService.removeItemFromFolder(action.request).pipe(
-          map(() => FoldersActions.removeItemFromFolderSuccess({
-            uuid: action.request.uuid,
-            itemsCount: action.request.items.length
-          })),
+          switchMap(() => [
+            FoldersActions.removeItemFromFolderSuccess({
+              uuid: action.request.uuid,
+              itemsCount: action.request.items.length
+            }),
+            FoldersActions.loadFolderDetails({ uuid: action.request.uuid })
+          ]),
           catchError(error => of(FoldersActions.removeItemFromFolderFailure({ error: error.message })))
         )
       )

@@ -11,7 +11,7 @@ import {ToolbarAction, ToolbarActionEvent} from '../../shared/components/toolbar
 import {DocumentTypeEnum} from '../constants/document-type';
 import {MusicService} from '../music/services/music.service';
 import {SoundService} from '../../shared/services/sound.service';
-import {SoundTrackModel} from '../models/sound-track.model';
+import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -225,7 +225,32 @@ export class SavedListsPageComponent implements OnInit {
     this.musicService.downloadTrack(track);
   }
 
+  onTrackRemove(track: SoundTrackModel) {
+    this.activeFolder.pipe(first()).subscribe(folder => {
+      if (folder && folder.uuid) {
+        // Dispatch action to remove the track from the current folder
+        this.store.dispatch(FoldersActions.removeItemFromFolder({
+          request: {
+            uuid: folder.uuid,
+            items: [track.pid]
+          }
+        }));
+      }
+    });
+  }
+
+  playAllTracks() {
+    this.soundRecordingItems.pipe(first()).subscribe(tracks => {
+      if (tracks && tracks.length > 0) {
+        this.soundService.clearQueue();
+        this.soundService.addTracksToQueue(tracks as SoundTrackModel[]);
+        this.soundService.play(tracks[0] as SoundTrackModel);
+      }
+    });
+  }
+
   protected readonly ViewOptions = AppResultsViewType;
   protected readonly ViewMode = ViewMode;
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+  protected readonly TrackViewType = TrackViewType;
 }

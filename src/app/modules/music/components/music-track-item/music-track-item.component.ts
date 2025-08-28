@@ -1,7 +1,8 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
-import {SoundTrackModel} from '../../../models/sound-track.model';
+import {SoundTrackModel, TrackViewType} from '../../../models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
+import {MusicService} from '../../services/music.service';
 
 @Component({
   selector: '[app-music-track-item]',
@@ -17,16 +18,20 @@ export class MusicTrackItemComponent {
 
   isMouseOverFavorite = false;
 
+  public musicService = inject(MusicService);
+
   @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
   @Input() favoritedPids: string[] = [];
+  @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() trackSelected = new EventEmitter<SoundTrackModel>();
   @Output() addToQueueClicked = new EventEmitter<SoundTrackModel>();
   @Output() toggleFavoriteClicked = new EventEmitter<{track: SoundTrackModel, event: Event}>();
   @Output() downloadClicked = new EventEmitter<SoundTrackModel>();
+  @Output() removeClicked = new EventEmitter<SoundTrackModel>();
 
   get isSelected(): boolean {
     return this.track?.pid === this.selectedPid;
@@ -38,6 +43,22 @@ export class MusicTrackItemComponent {
 
   get isFavorited(): boolean {
     return this.favoritedPids.includes(this.track?.pid);
+  }
+
+  get isFolderView(): boolean {
+    return this.viewType === TrackViewType.FOLDER;
+  }
+
+  get showRemoveButton(): boolean {
+    return this.isFolderView;
+  }
+
+  get primaryAuthor(): string {
+    return this.track?.authors && this.track.authors.length > 0 ? this.track.authors[0] : '';
+  }
+
+  get trackYear(): string {
+    return this.track?.year ? this.track.year.toString() : '';
   }
 
   get duration(): string {
@@ -66,5 +87,9 @@ export class MusicTrackItemComponent {
 
   download(): void {
     this.downloadClicked.emit(this.track);
+  }
+
+  remove(): void {
+    this.removeClicked.emit(this.track);
   }
 }

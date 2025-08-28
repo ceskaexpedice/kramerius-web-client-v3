@@ -6,7 +6,7 @@
     }
   </td>
   <td>
-    <div class="title">
+    <div class="title" [class.folder-view]="isFolderView">
       <ng-container *ngIf="isPlaying; else notPlaying">
         <span class="icon icon--playing"></span>
       </ng-container>
@@ -14,8 +14,37 @@
         <span class="icon icon--track"></span>
       </ng-template>
 
-      <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
-      <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+      @if (isFolderView) {
+        <div class="track-info-wrapper">
+          <div class="track-cover" [style.backgroundImage]="'url(' + musicService.getCoverImageForTrack(track.parentPid) + ')'"></div>
+          <div class="track-text-content">
+            <div class="track-title">
+              <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
+            </div>
+            <div class="track-meta">
+              @if (primaryAuthor || trackYear) {
+                <span class="track-author-year">
+                  @if (primaryAuthor) {
+                    {{ primaryAuthor }}
+                  }
+                  @if (primaryAuthor && trackYear) {
+                    ·
+                  }
+                  @if (trackYear) {
+                    {{ trackYear }}
+                  }
+
+                  <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      } @else {
+        <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
+        <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+      }
     </div>
   </td>
   <td class="duration duration-col">{{ duration }}</td>
@@ -23,15 +52,21 @@
     <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
       <i class="icon icon-additem"></i>
     </button>
-    <button class="icon-button rounded light"
-            (mouseover)="isMouseOverFavorite = true"
-            (mouseout)="isMouseOverFavorite = false"
-            (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
-      <i
-        [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
-        [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">
-      </i>
-    </button>
+    @if (showRemoveButton) {
+      <button class="icon-button rounded light" (click)="remove(); $event.stopPropagation()" title="Odebrat ze seznamu">
+        <i class="icon icon-trash"></i>
+      </button>
+    } @else {
+      <button class="icon-button rounded light"
+              (mouseover)="isMouseOverFavorite = true"
+              (mouseout)="isMouseOverFavorite = false"
+              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+        <i
+          [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
+          [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">
+        </i>
+      </button>
+    }
     <button class="icon-button rounded light" (click)="download(); $event.stopPropagation()">
       <i class="icon icon-download"></i>
     </button>

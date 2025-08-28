@@ -17,9 +17,11 @@
       [index]="i"
       [selectedPid]="selectedPid"
       [playingPid]="playingPid"
+      [viewType]="viewType"
       (toggleFavoriteClicked)="onFavoriteToggled($event)"
       (addToQueueClicked)="onAddToQueue($event)"
       (downloadClicked)="onDownload($event)"
+      (removeClicked)="onRemove($event)"
   ></tr>
   </tbody>
 </table>

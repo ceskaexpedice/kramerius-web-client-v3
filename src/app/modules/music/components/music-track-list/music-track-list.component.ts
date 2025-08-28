@@ -4,6 +4,7 @@ import {NgForOf} from "@angular/common";
 import {TranslatePipe} from '@ngx-translate/core';
 import {FavoritesPopupComponent} from '../../../../shared/components/favorites-popup/favorites-popup.component';
 import {PopupPositioningService, PopupState} from '../../../../shared/services/popup-positioning.service';
+import {TrackViewType} from '../../../models/sound-track.model';
 
 @Component({
   selector: 'app-music-track-list',
@@ -21,11 +22,13 @@ export class MusicTrackListComponent implements OnDestroy {
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
   @Input() currentFolderId?: string;
+  @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() select = new EventEmitter<any>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
+  @Output() remove = new EventEmitter<any>();
 
   popupPositioning = inject(PopupPositioningService);
   favoritesPopupState: PopupState;
@@ -63,5 +66,9 @@ export class MusicTrackListComponent implements OnDestroy {
 
   onDownload(track: any) {
     this.download.emit(track);
+  }
+
+  onRemove(track: any) {
+    this.remove.emit(track);
   }
 }

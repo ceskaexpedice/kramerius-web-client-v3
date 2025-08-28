@@ -33,6 +33,48 @@ td {
     align-items: center;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
+
+    &.folder-view {
+      align-items: flex-start;
+    }
+  }
+
+  .track-info-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+  }
+
+  .track-cover {
+    width: 36px;
+    height: 36px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: var(--border-radius-sm);
+    flex-shrink: 0;
+    background-color: var(--color-bg-secondary);
+  }
+
+  .track-text-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+    flex: 1;
+  }
+
+  .track-title {
+    line-height: 1.2;
+  }
+
+  .track-meta {
+    font-size: 0.85em;
+    color: var(--color-text-tertiary);
+    line-height: 1;
+  }
+
+  .track-author-year {
+    color: var(--color-text-secondary);
   }
 
   .track-link {

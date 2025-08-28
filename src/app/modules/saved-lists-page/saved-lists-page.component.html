@@ -46,6 +46,17 @@
                       <i class="icon-edit-2"></i>
                     </button>
                   }
+                  @if (soundRecordingItems | async; as tracks) {
+                    @if (tracks.length > 0) {
+                      <button class="with-icon primary sm"
+                        (click)="playAllTracks()"
+                        title="Play all tracks"
+                      >
+                        <i class="icon-play"></i>
+                        {{ 'play-all' | translate }}
+                      </button>
+                    }
+                  }
                 </div>
               }
             </div>
@@ -127,9 +138,11 @@
               <app-music-track-list
                 [tracks]="soundRecordings"
                 [playingPid]="soundService.currentTrackPid"
+                [viewType]="TrackViewType.FOLDER"
                 (select)="onTrackSelect($event)"
                 (addToQueue)="onTrackAddToQueue($event)"
                 (download)="onTrackDownload($event)"
+                (remove)="onTrackRemove($event)"
                 [currentFolderId]="(activeFolder | async)?.uuid">
               </app-music-track-list>
             </div>
