@@ -1,7 +1,9 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject} from '@angular/core';
 import {MusicTrackItemComponent} from "../music-track-item/music-track-item.component";
 import {NgForOf} from "@angular/common";
 import {TranslatePipe} from '@ngx-translate/core';
+import {FavoritesPopupComponent} from '../../../../shared/components/favorites-popup/favorites-popup.component';
+import {PopupPositioningService, PopupState} from '../../../../shared/services/popup-positioning.service';
 
 @Component({
   selector: 'app-music-track-list',
@@ -9,26 +11,50 @@ import {TranslatePipe} from '@ngx-translate/core';
     MusicTrackItemComponent,
     NgForOf,
     TranslatePipe,
+    FavoritesPopupComponent,
   ],
   templateUrl: './music-track-list.component.html',
   styleUrls: ['./music-track-list.component.scss', '../music-track-list-table.scss'],
 })
-export class MusicTrackListComponent {
+export class MusicTrackListComponent implements OnDestroy {
   @Input() tracks: any[] = [];
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
+  @Input() currentFolderId?: string;
 
   @Output() select = new EventEmitter<any>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
 
+  popupPositioning = inject(PopupPositioningService);
+  favoritesPopupState: PopupState;
+  currentTrackId = signal<string>('');
+
+  constructor() {
+    this.favoritesPopupState = this.popupPositioning.createPopupState();
+  }
+
   onSelect(track: any) {
     this.select.emit(track);
   }
 
-  onFavoriteToggled(track: any) {
-    this.favoriteToggled.emit(track);
+  onFavoriteToggled(data: {track: any, event: Event}) {
+    // Set current track
+    this.currentTrackId.set(data.track.pid);
+
+    // Show and position popup
+    this.popupPositioning.showPopup(this.favoritesPopupState, {
+      triggerEvent: data.event,
+      popupWidth: 265,
+      popupHeight: 400,
+      preferredSide: 'right'
+    });
+  }
+
+  ngOnDestroy() {
+    // Clean up popup positioning service
+    this.popupPositioning.cleanup();
   }
 
   onAddToQueue(track: any) {

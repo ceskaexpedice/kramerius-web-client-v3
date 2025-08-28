@@ -25,7 +25,7 @@ export class MusicTrackItemComponent {
 
   @Output() trackSelected = new EventEmitter<SoundTrackModel>();
   @Output() addToQueueClicked = new EventEmitter<SoundTrackModel>();
-  @Output() toggleFavoriteClicked = new EventEmitter<SoundTrackModel>();
+  @Output() toggleFavoriteClicked = new EventEmitter<{track: SoundTrackModel, event: Event}>();
   @Output() downloadClicked = new EventEmitter<SoundTrackModel>();
 
   get isSelected(): boolean {
@@ -60,8 +60,8 @@ export class MusicTrackItemComponent {
     this.addToQueueClicked.emit(this.track);
   }
 
-  toggleFavorite(): void {
-    this.toggleFavoriteClicked.emit(this.track);
+  toggleFavorite(event: Event): void {
+    this.toggleFavoriteClicked.emit({track: this.track, event});
   }
 
   download(): void {

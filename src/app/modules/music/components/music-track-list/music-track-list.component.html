@@ -23,3 +23,15 @@
   ></tr>
   </tbody>
 </table>
+
+<!-- Favorites Popup positioned fixed to avoid overflow clipping -->
+@if (favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper" 
+       [class.positioned]="favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="currentTrackId()"
+      [currentFolderId]="currentFolderId"
+      (close)="favoritesPopupState.closePopup()">
+    </app-favorites-popup>
+  </div>
+}
