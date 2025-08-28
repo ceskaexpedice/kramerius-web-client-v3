@@ -160,5 +160,7 @@
   "add-to-favorites-success--header": "Done!",
   "add-to-favorites-success--text": "You’ll find your favorite documents under your account in the top bar.",
   "remove-from-favorites": "Remove",
-  "count": "Count"
+  "count": "Count",
+  "login-required-favorites-title": "Log in and save your favorite documents",
+  "login-prompt-message-favorites": " "
 }

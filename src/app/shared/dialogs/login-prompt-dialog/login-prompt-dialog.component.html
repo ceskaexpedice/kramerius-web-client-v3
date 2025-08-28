@@ -1,0 +1,27 @@
+<div class="generic-dialog-container">
+  <h2>
+    💙
+    {{ 'login-required-favorites-title' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+      <p>{{ 'login-prompt-message-favorites' | translate }}</p>
+    </div>
+
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button outlined tertiary" (click)="onClose()">
+      {{ 'cancel' | translate }}
+    </button>
+    <button class="button filled primary" (click)="onLogin()">
+      {{ 'login' | translate }}
+    </button>
+  </div>
+
+</div>

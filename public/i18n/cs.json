@@ -160,5 +160,8 @@
   "add-to-favorites-success--header": "Hotovo!",
   "add-to-favorites-success--text": "Vaše oblíbené dokumenty najdete pod svým účtem v horní liště.",
   "remove-from-favorites": "Odebrat",
-  "count": "Počet"
+  "count": "Počet",
+  "login-required-favorites-title": "Přihlašte se a uložte si své oblíbené dokumenty",
+  "login-prompt-message-favorites": "Mějte je vždy po ruce, vytvářejte si vlastní seznamy a sdílejte je s ostatními.",
+  "login": "Přihlásit se"
 }

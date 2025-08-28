@@ -9,6 +9,9 @@ import {SolrService} from '../../../core/solr/solr.service';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 import {FavoritesPopupComponent} from '../favorites-popup/favorites-popup.component';
 import {PopupPositioningService, PopupState} from '../../services/popup-positioning.service';
+import {AuthService} from '../../../core/auth/auth.service';
+import {MatDialog} from '@angular/material/dialog';
+import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 
 @Component({
   selector: 'app-record-item',
@@ -26,6 +29,8 @@ export class RecordItemComponent implements OnDestroy {
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
   popupPositioning = inject(PopupPositioningService);
+  authService = inject(AuthService);
+  dialog = inject(MatDialog);
 
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
@@ -91,6 +96,24 @@ export class RecordItemComponent implements OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
+    // Check if user is authenticated
+    if (!this.authService.hasValidToken()) {
+      // Show login prompt dialog
+      const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
+        width: '60vw',
+        disableClose: false
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 'login') {
+          // Redirect to login with current route as return URL
+          this.authService.login(this.router.url);
+        }
+      });
+      return;
+    }
+
+    // User is authenticated, show favorites popup
     this.popupPositioning.showPopup(this.favoritesPopupState, {
       triggerEvent: event,
       popupWidth: 265,
