@@ -12,6 +12,14 @@
   "delete-all": "Delete all",
   "display-mode": "Appearance mode",
 
+  "admin-mode": "Admin mode",
+  "select-all-visible": "Select all visible",
+  "deselect-all-visible": "Deselect all visible",
+  "clear-selection": "Clear selection",
+  "export-selected": "Export selected",
+  "delete-selected": "Delete selected",
+  "bulk-add-to-favorites": "Add to favorites",
+
   "about-project": "About the project",
   "log-in": "Log in",
   "settings": "Settings",

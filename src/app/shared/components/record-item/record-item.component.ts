@@ -12,6 +12,8 @@ import {PopupPositioningService, PopupState} from '../../services/popup-position
 import {AuthService} from '../../../core/auth/auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
+import { AdminSelectionService } from '../../services/admin-selection.service';
+import { CheckboxComponent } from '../checkbox/checkbox.component';
 
 @Component({
   selector: 'app-record-item',
@@ -20,6 +22,7 @@ import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/logi
     TranslatePipe,
     AccessibilityBadgeComponent,
     FavoritesPopupComponent,
+    CheckboxComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -31,6 +34,7 @@ export class RecordItemComponent implements OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   authService = inject(AuthService);
   dialog = inject(MatDialog);
+  adminSelectionService = inject(AdminSelectionService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
@@ -44,9 +48,19 @@ export class RecordItemComponent implements OnDestroy {
   }
 
   onRecordClick(e: Event, record: SearchDocument): void {
-    e.stopPropagation();
-    // redirect to detail view with ?uuid=record.uuId
-    this.recordHandler.handleDocumentClick(record)
+    if (this.adminSelectionService.adminMode()) {
+      this.adminSelectionService.toggleItem(record.pid);
+    } else {
+      this.recordHandler.handleDocumentClick(record);
+    }
+  }
+
+  onSelectionChange(selected: boolean): void {
+    if (selected) {
+      this.adminSelectionService.selectItem(this.record.pid);
+    } else {
+      this.adminSelectionService.deselectItem(this.record.pid);
+    }
   }
 
   getImageThumbnailUrl(): string {

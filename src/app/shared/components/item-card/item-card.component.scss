@@ -1,4 +1,5 @@
 .item-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--color-bg-base);
@@ -83,6 +84,87 @@
       font-size: 14px;
       color: var(--color-tertiary);
     }
+  }
+  // Hidden link for SEO/accessibility
+  &__hidden-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  // Admin mode styles
+  &.admin-mode {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    // Disable link behavior in admin mode
+    text-decoration: none;
+    color: inherit;
+  }
+
+  // Selected state
+  &.selected {
+    border: 2px solid var(--primary-color, #007bff);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    
+    .item-card__image-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 123, 255, 0.1);
+      border-radius: inherit;
+    }
+  }
+
+  // Selection overlay
+  &__selection-overlay {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+    
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 4px;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    app-checkbox {
+      display: block;
+      
+      // Ensure checkbox is prominent in admin mode
+      ::ng-deep .checkbox {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    // Animation for selection overlay appearance
+    animation: fadeInScale 0.2s ease-out;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

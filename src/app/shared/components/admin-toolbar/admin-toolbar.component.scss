@@ -1,0 +1,144 @@
+.admin-toolbar {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  
+  background: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  
+  animation: slideUp 0.3s ease-out;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+  }
+
+  &__selection-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .selection-count {
+      font-weight: 600;
+      color: var(--text-primary-color, #333333);
+      font-size: 0.9rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      i {
+        font-size: 1rem;
+      }
+
+      &.primary {
+        background: var(--primary-color, #007bff);
+        color: white;
+        border-color: var(--primary-color, #007bff);
+
+        &:hover {
+          background: var(--primary-hover-color, #0056b3);
+          border-color: var(--primary-hover-color, #0056b3);
+        }
+      }
+
+      &.secondary {
+        background: var(--secondary-background-color, #f8f9fa);
+        color: var(--text-primary-color, #333333);
+        border-color: var(--border-color, #e0e0e0);
+
+        &:hover {
+          background: var(--secondary-hover-color, #e9ecef);
+        }
+
+        &.active {
+          background: var(--primary-color, #007bff);
+          color: white;
+          border-color: var(--primary-color, #007bff);
+        }
+      }
+
+      &.danger {
+        background: var(--danger-color, #dc3545);
+        color: white;
+        border-color: var(--danger-color, #dc3545);
+
+        &:hover {
+          background: var(--danger-hover-color, #c82333);
+          border-color: var(--danger-hover-color, #c82333);
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .admin-toolbar {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    transform: none;
+
+    &__inner {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+    }
+
+    &__actions {
+      gap: 0.5rem;
+
+      .button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+
+        span {
+          display: none;
+        }
+
+        i {
+          margin: 0;
+        }
+      }
+    }
+
+    &__selection-info {
+      .selection-count {
+        font-size: 0.85rem;
+      }
+    }
+  }
+}

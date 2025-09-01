@@ -5,6 +5,8 @@ import { DocumentAccessibilityEnum } from '../../../modules/constants/document-a
 import { EnvironmentService } from '../../services/environment.service';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {Router} from '@angular/router';
+import { AdminSelectionService } from '../../services/admin-selection.service';
+import { CheckboxComponent } from '../checkbox/checkbox.component';
 
 export interface ItemCard {
   uuid: string;
@@ -19,6 +21,7 @@ export interface ItemCard {
     NgIf,
     AccessibilityBadgeComponent,
     NgClass,
+    CheckboxComponent,
   ],
   templateUrl: './item-card.component.html',
   styleUrl: './item-card.component.scss'
@@ -40,6 +43,7 @@ export class ItemCardComponent {
 
   public recordHandlerService = inject(RecordHandlerService);
   private router = inject(Router);
+  public adminSelectionService = inject(AdminSelectionService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -56,6 +60,23 @@ export class ItemCardComponent {
 
   goToDetail() {
     this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
+  }
+
+  onSelectionChange(selected: boolean): void {
+    if (selected) {
+      this.adminSelectionService.selectItem(this.uuid);
+    } else {
+      this.adminSelectionService.deselectItem(this.uuid);
+    }
+  }
+
+  onCardClick(event: Event): void {
+    if (this.adminSelectionService.adminMode()) {
+      this.adminSelectionService.toggleItem(this.uuid);
+    } else {
+      // Navigate to detail page in normal mode
+      this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
+    }
   }
 
   protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;

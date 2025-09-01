@@ -1,8 +1,16 @@
-<a class="item-card"
-   [class.with-badge]="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)"
-   [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)"
-   [ngClass]="[className, model]"
-   (click)="recordHandlerService.onNavigate($event, recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid))">
+<div class="item-card"
+     [class.with-badge]="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)"
+     [class.admin-mode]="adminSelectionService.adminMode()"
+     [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(uuid)"
+     [ngClass]="[className, model]"
+     (click)="onCardClick($event)">
+
+  <!-- Hidden link for SEO and accessibility when not in admin mode -->
+  <a *ngIf="!adminSelectionService.adminMode()" 
+     class="item-card__hidden-link"
+     [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)"
+     [attr.aria-label]="title"
+     tabindex="-1"></a>
 
 <div class="item-card__image-container">
     <img
@@ -12,9 +20,18 @@
       loading="lazy"
     />
 
-    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton" (click)="toggleFavorite()">
+    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton && !adminSelectionService.adminMode()" (click)="toggleFavorite()">
       <i class="fa fa-heart-o"></i>
     </button>
+
+    <!-- Selection checkbox overlay for admin mode -->
+    <div class="item-card__selection-overlay" *ngIf="adminSelectionService.adminMode()">
+      <app-checkbox 
+        [model]="adminSelectionService.isSelected(uuid)"
+        (modelChange)="onSelectionChange($event)"
+        (click)="$event.stopPropagation()">
+      </app-checkbox>
+    </div>
   </div>
 
   <div class="item-card__content">
@@ -22,4 +39,4 @@
     <div class="subtitle" *ngIf="subtitle">{{ subtitle }}</div>
     <app-accessibility-badge *ngIf="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)" [isLocked]="recordHandlerService.isRecordLocked(licenses)"></app-accessibility-badge>
   </div>
-</a>
+</div>

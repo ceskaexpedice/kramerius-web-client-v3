@@ -1,9 +1,16 @@
-<a class="record-item-card"
-   [class.page]="record.model === DocumentTypeEnum.page"
-   [class.periodical]="record.model === DocumentTypeEnum.periodical"
-   [href]="getDocumentUrl()"
-   (click)="recordHandler.onNavigate($event, getDocumentUrl())"
->
+<div class="record-item-card"
+     [class.page]="record.model === DocumentTypeEnum.page"
+     [class.periodical]="record.model === DocumentTypeEnum.periodical"
+     [class.admin-mode]="adminSelectionService.adminMode()"
+     [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(record.pid)"
+     (click)="onRecordClick($event, record)">
+
+  <!-- Hidden link for SEO and accessibility when not in admin mode -->
+  <a *ngIf="!adminSelectionService.adminMode()" 
+     class="record-item-card__hidden-link"
+     [href]="getDocumentUrl()"
+     [attr.aria-label]="getTitle()"
+     tabindex="-1"></a>
 
   <div class="record-item-card__inner">
 
@@ -13,11 +20,20 @@
 
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button"
+                *ngIf="!adminSelectionService.adminMode()"
                 (click)="onToggleFavorites($event)"
                 [title]="'add-to-favorites' | translate">
           <i class="icon-heart"></i>
         </button>
-        
+
+        <!-- Selection checkbox for admin mode -->
+        <div class="record-item-card__selection" *ngIf="adminSelectionService.adminMode()">
+          <app-checkbox 
+            [model]="adminSelectionService.isSelected(record.pid)"
+            (modelChange)="onSelectionChange($event)"
+            (click)="$event.stopPropagation()">
+          </app-checkbox>
+        </div>
       </div>
 
       @if (record.model !== DocumentTypeEnum.page) {
@@ -75,7 +91,7 @@
 
   </div>
 
-</a>
+</div>
 
 <!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {

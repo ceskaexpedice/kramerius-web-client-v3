@@ -32,6 +32,14 @@
                 [selectedDirection]="searchService.sortDirection"
                 (sortChange)="onSortChange($event)">
               </app-results-sort>
+
+              <button 
+                class="icon-button"
+                [class.active]="adminSelectionService.adminMode()"
+                (click)="toggleAdminMode()"
+                [title]="'admin-mode' | translate">
+                <i class="icon-edit-2"></i>
+              </button>
             </div>
           </div>
         </app-action-toolbar>
@@ -149,4 +157,8 @@
     </div>
 
   </div>
+
+  <!-- Admin Toolbar (floating) -->
+  <app-admin-toolbar></app-admin-toolbar>
+
 </div>

@@ -4,6 +4,7 @@ import {AdvancedSearchService} from '../../shared/services/advanced-search.servi
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {AdminSelectionService} from '../../shared/services/admin-selection.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -25,6 +26,7 @@ export class SearchResultsPageComponent implements OnInit {
   public searchService = inject(SearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
+  public adminSelectionService = inject(AdminSelectionService);
 
   ngOnInit(): void {
 
@@ -56,6 +58,10 @@ export class SearchResultsPageComponent implements OnInit {
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
     this.searchService.changeSortBy(event.value, event.direction);
+  }
+
+  toggleAdminMode(): void {
+    this.adminSelectionService.toggleAdminMode();
   }
 
 }

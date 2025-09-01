@@ -20,6 +20,7 @@ import {ToggleButtonGroupComponent} from '../../shared/components/toggle-button-
 import {RecordItemListComponent} from '../../shared/components/record-item-list/record-item-list.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
+import {AdminToolbarComponent} from '../../shared/components/admin-toolbar/admin-toolbar.component';
 
 const routes: Routes = [
   {
@@ -52,6 +53,7 @@ const routes: Routes = [
     RecordItemListComponent,
     MatDatepickerModule,
     MatNativeDateModule,
+    AdminToolbarComponent,
   ],
   providers: [
     SearchService,
