@@ -7,10 +7,8 @@
   // Admin mode styles
   &.admin-mode {
     cursor: pointer;
-    
+
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     // Disable link behavior in admin mode
@@ -22,7 +20,7 @@
   &.selected {
     border: 2px solid var(--primary-color, #007bff);
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-    
+
     .item-card__image-container::after {
       content: '';
       position: absolute;
@@ -38,19 +36,19 @@
   // Selection overlay
   &__selection-overlay {
     position: absolute;
-    top: 8px;
-    left: 8px;
+    top: 7px;
+    right: 7px;
     z-index: 10;
-    
+
     background: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
     padding: 4px;
     backdrop-filter: blur(2px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    
+
     app-checkbox {
       display: block;
-      
+
       // Ensure checkbox is prominent in admin mode
       ::ng-deep .checkbox {
         width: 20px;
@@ -88,7 +86,7 @@
     &.selected {
       border-color: var(--primary-color-dark, #4dabf7);
       box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.3);
-      
+
       .item-card__image-container::after {
         background: rgba(77, 171, 247, 0.15);
       }

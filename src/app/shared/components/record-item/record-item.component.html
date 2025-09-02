@@ -12,6 +12,15 @@
      [attr.aria-label]="getTitle()"
      tabindex="-1"></a>
 
+  <!-- Selection checkbox for admin mode (positioned at card level) -->
+  <div class="record-item-card__selection" *ngIf="adminSelectionService.adminMode()">
+    <app-checkbox 
+      [model]="adminSelectionService.isSelected(record.pid)"
+      (modelChange)="onSelectionChange($event)"
+      (click)="$event.stopPropagation()">
+    </app-checkbox>
+  </div>
+
   <div class="record-item-card__inner">
 
     <div class="record-item-card__image"
@@ -25,15 +34,6 @@
                 [title]="'add-to-favorites' | translate">
           <i class="icon-heart"></i>
         </button>
-
-        <!-- Selection checkbox for admin mode -->
-        <div class="record-item-card__selection" *ngIf="adminSelectionService.adminMode()">
-          <app-checkbox 
-            [model]="adminSelectionService.isSelected(record.pid)"
-            (modelChange)="onSelectionChange($event)"
-            (click)="$event.stopPropagation()">
-          </app-checkbox>
-        </div>
       </div>
 
       @if (record.model !== DocumentTypeEnum.page) {

@@ -170,10 +170,30 @@
   // Admin mode styles
   &.admin-mode {
     cursor: pointer;
-    
+
+    // Admin mode: Resting card styles
+    border-radius: var(--spacing-x2);
+    box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+    border: none;
+
+    // Admin mode: Hover card styles
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+    }
+
+    // Admin mode: Focus card styles
+    &:focus,
+    &:focus-within {
+      border: 1px solid var(--color-border-additional);
+      border-radius: var(--spacing-x2);
+      box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+      outline: none;
+    }
+
+    // Always show actions in admin mode
+    .record-item-card__image > .record-item-card__actions {
+      opacity: 1;
     }
 
     // Disable link behavior in admin mode
@@ -181,11 +201,14 @@
     color: inherit;
   }
 
-  // Selected state
-  &.selected {
-    border: 2px solid var(--primary-color, #007bff);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-    
+  // Selected state (only in admin mode)
+  &.admin-mode.selected {
+    // Admin mode: Selected card styles
+    border: 2px solid var(--color-primary);
+    border-radius: var(--spacing-x2);
+    // Remove shadow for selected state as per design spec
+    box-shadow: none;
+
     .record-item-card__inner::after {
       content: '';
       position: absolute;
@@ -193,24 +216,27 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 123, 255, 0.1);
-      border-radius: inherit;
       pointer-events: none;
+    }
+
+    // Selected card maintains selected border on hover (admin mode)
+    &:hover {
+      border: 2px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
     }
   }
 
   // Selection checkbox in actions area
   .record-item-card__selection {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    padding: 4px;
-    backdrop-filter: blur(2px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     animation: fadeInScale 0.2s ease-out;
-    
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 10;
+
     app-checkbox {
       display: block;
-      
+
       ::ng-deep .checkbox {
         width: 20px;
         height: 20px;
@@ -286,11 +312,11 @@
   pointer-events: auto;
   opacity: 0; // Start hidden to prevent flicker
   transition: opacity 0.1s ease;
-  
+
   &.positioned {
     opacity: 1; // Show after positioning
   }
-  
+
   app-favorites-popup {
     display: block;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));

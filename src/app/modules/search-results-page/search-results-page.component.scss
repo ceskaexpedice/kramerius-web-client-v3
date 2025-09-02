@@ -1,2 +1,14 @@
 // Component-specific styles only
 // Common layout styles moved to /public/styles/_page-layout.scss
+
+
+.admin-selection-count {
+  font-weight: 500;
+  color: var(--color-text-base);
+  background: var(--color-bg-elevated);
+  padding: 4px 12px;
+  border-radius: var(--base-border-radius);
+  border: 1px solid var(--color-border-base);
+  font-size: 14px;
+  margin-right: var(--base-gap);
+}

@@ -10,36 +10,58 @@
       <div class="page-content__filters">
         <app-action-toolbar>
           <div left>
-            <app-record-type-tabs></app-record-type-tabs>
+            <!-- Regular view: show record type tabs -->
+            <ng-container *ngIf="!adminSelectionService.adminMode()">
+              <app-record-type-tabs></app-record-type-tabs>
+            </ng-container>
+
+            <!-- Admin view: show admin actions -->
+            <ng-container *ngIf="adminSelectionService.adminMode()">
+              <app-admin-actions 
+                (exportRequested)="onExportSelected()"
+                (editRequested)="onEditSelected($event)">
+              </app-admin-actions>
+            </ng-container>
           </div>
 
           <div right>
             <div class="flex flex--center flex--align-center">
-              <app-paginator-info
-                [page]="searchService.page"
-                [pageSize]="searchService.pageSize"
-                [totalCount]="searchService.totalCount">
-              </app-paginator-info>
+              
+              <!-- Show regular controls when not in admin mode -->
+              <ng-container *ngIf="!adminSelectionService.adminMode()">
+                <app-paginator-info
+                  [page]="searchService.page"
+                  [pageSize]="searchService.pageSize"
+                  [totalCount]="searchService.totalCount">
+                </app-paginator-info>
 
-              <app-toggle-button-group
-                [options]="viewOptions"
-                [value]="view()"
-                (valueChange)="setView($event)"
-              />
+                <app-toggle-button-group
+                  [options]="viewOptions"
+                  [value]="view()"
+                  (valueChange)="setView($event)"
+                />
 
-              <app-results-sort
-                [selectedSort]="searchService.sortBy"
-                [selectedDirection]="searchService.sortDirection"
-                (sortChange)="onSortChange($event)">
-              </app-results-sort>
+                <app-results-sort
+                  [selectedSort]="searchService.sortBy"
+                  [selectedDirection]="searchService.sortDirection"
+                  (sortChange)="onSortChange($event)">
+                </app-results-sort>
+              </ng-container>
 
-              <button 
-                class="icon-button"
-                [class.active]="adminSelectionService.adminMode()"
-                (click)="toggleAdminMode()"
-                [title]="'admin-mode' | translate">
-                <i class="icon-edit-2"></i>
-              </button>
+              <!-- Show selection count when in admin mode and items are selected -->
+              <ng-container *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
+                <span class="admin-selection-count">{{ adminSelectionService.getSelectionSummary() }}</span>
+              </ng-container>
+
+              <!-- Admin toggle (always visible) -->
+              <mat-slide-toggle
+                [checked]="adminSelectionService.adminMode()"
+                [hideIcon]="true"
+                [class]="'size-sm'"
+                (change)="toggleAdminMode()">
+                {{ 'admin' | translate }}
+              </mat-slide-toggle>
+              
             </div>
           </div>
         </app-action-toolbar>
@@ -158,7 +180,5 @@
 
   </div>
 
-  <!-- Admin Toolbar (floating) -->
-  <app-admin-toolbar></app-admin-toolbar>
 
 </div>

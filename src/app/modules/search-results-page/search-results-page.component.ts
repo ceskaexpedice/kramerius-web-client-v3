@@ -1,10 +1,13 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, OnDestroy, signal} from '@angular/core';
 import {SearchService} from '../../shared/services/search.service';
 import {AdvancedSearchService} from '../../shared/services/advanced-search.service';
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {AdminSelectionService} from '../../shared/services/admin-selection.service';
+import {Subscription, combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {SearchDocument} from '../models/search-document';
 
 @Component({
   selector: 'app-search-results-page',
@@ -12,7 +15,7 @@ import {AdminSelectionService} from '../../shared/services/admin-selection.servi
   templateUrl: './search-results-page.component.html',
   styleUrl: './search-results-page.component.scss'
 })
-export class SearchResultsPageComponent implements OnInit {
+export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-element-3' },
@@ -27,6 +30,8 @@ export class SearchResultsPageComponent implements OnInit {
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
   public adminSelectionService = inject(AdminSelectionService);
+
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
 
@@ -44,6 +49,26 @@ export class SearchResultsPageComponent implements OnInit {
       this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
     }
 
+    // Set up admin selection service to track current page items
+    this.subscriptions.push(
+      combineLatest([
+        this.searchService.nonPageResults$,
+        this.searchService.pageResults$
+      ]).pipe(
+        map(([nonPageResults, pageResults]) => {
+          const allResults: SearchDocument[] = [];
+          if (nonPageResults) allResults.push(...nonPageResults);
+          if (pageResults) allResults.push(...pageResults);
+          return allResults;
+        })
+      ).subscribe(allCurrentItems => {
+        this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   setView(view: AppResultsViewType) {
@@ -62,6 +87,17 @@ export class SearchResultsPageComponent implements OnInit {
 
   toggleAdminMode(): void {
     this.adminSelectionService.toggleAdminMode();
+  }
+
+  // Admin action methods (delegated from admin-actions component)
+  onExportSelected(): void {
+    // The AdminActionsComponent handles the export logic by default
+    // This method can be used to add additional page-specific export behavior if needed
+  }
+
+  onEditSelected(selectedIds: string[]): void {
+    console.log('Edit selected items:', selectedIds);
+    // TODO: Implement edit functionality specific to search results
   }
 
 }
