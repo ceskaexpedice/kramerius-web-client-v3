@@ -1,6 +1,16 @@
 <td class="record-title">
+  <!-- Selection checkbox for admin mode -->
+  <div class="record-row-selection" *ngIf="adminSelectionService.adminMode()">
+    <app-checkbox 
+      [model]="adminSelectionService.isSelected(record.pid)"
+      (modelChange)="onSelectionChange($event)"
+      (click)="$event.stopPropagation()">
+    </app-checkbox>
+  </div>
+
   <a class="title-wrapper" [href]="url"
-  (click)="recordHandler.onNavigate($event, url)"
+  [class.admin-mode]="adminSelectionService.adminMode()"
+  (click)="onTitleClick($event)"
   >
     <div class="thumb-wrapper">
       <img

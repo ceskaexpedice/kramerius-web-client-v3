@@ -6,11 +6,56 @@
   &:hover {
     background-color: var(--color-secondary-hover);
   }
+
+  // Admin mode styles for row
+  &.admin-mode {
+    // Admin mode: Resting row styles
+    border-radius: var(--spacing-x2);
+    box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+    border: none;
+
+    // Admin mode: Hover row styles
+    &:hover {
+      border: 1px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+      background-color: var(--color-secondary-hover);
+    }
+
+    // Admin mode: Focus row styles
+    &:focus,
+    &:focus-within {
+      border: 1px solid var(--color-border-additional);
+      border-radius: var(--spacing-x2);
+      box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+      outline: none;
+    }
+  }
+
+  // Selected state (only in admin mode)
+  &.admin-mode.selected {
+    // Admin mode: Selected row styles
+    border: 2px solid var(--color-primary);
+    border-radius: var(--spacing-x2);
+    // Remove shadow for selected state as per design spec
+    box-shadow: none;
+    background-color: var(--color-secondary-selected, var(--color-secondary-hover));
+
+    // Selected row maintains selected border on hover (admin mode)
+    &:hover {
+      border: 2px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+      background-color: var(--color-secondary-selected, var(--color-secondary-hover));
+    }
+  }
 }
 
 td {
   padding: 8px 16px;
   vertical-align: middle;
+
+  &.record-title {
+    position: relative;
+  }
 }
 
 .title-wrapper {
@@ -70,5 +115,52 @@ td {
 
   &:not(:last-child) {
     margin-right: 4px;
+  }
+}
+
+// Selection checkbox for row (admin mode)
+.record-row-selection {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  animation: fadeInScale 0.2s ease-out;
+
+  app-checkbox {
+    display: block;
+
+    ::ng-deep .checkbox {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Add left padding when checkbox is visible to prevent overlap
+:host.admin-mode td.record-title {
+  padding-left: 44px; // Space for checkbox + padding
+}
+
+.title-wrapper {
+  &.admin-mode {
+    // Disable link behavior in admin mode
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
   }
 }
