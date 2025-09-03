@@ -10,13 +10,17 @@
   cursor: pointer;
   padding: var(--base-padding);
   gap: var(--base-gap);
-  
+
+  // Reset anchor styles
+  text-decoration: none;
+  color: inherit;
+
   /* Consistent width and height - identical cards in each row */
   width: 100%;
   max-width: 100%; /* Prevent overflow */
   min-width: 170px;
   box-sizing: border-box;
-  
+
   /* Consistent height for all cards */
   height: clamp(280px, 16vw, 320px);
   overflow: hidden; /* Prevent any content overflow */
@@ -85,26 +89,29 @@
       color: var(--color-tertiary);
     }
   }
-  // Hidden link for SEO/accessibility
-  &__hidden-link {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
 
   // Admin mode styles
   &.admin-mode {
     cursor: pointer;
-    
+
+    // Admin mode: Resting card styles
+    border-radius: var(--spacing-x2);
+    box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+    border: none;
+
+    // Admin mode: Hover card styles
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+    }
+
+    // Admin mode: Focus card styles
+    &:focus,
+    &:focus-within {
+      border: 1px solid var(--color-border-additional);
+      border-radius: var(--spacing-x2);
+      box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+      outline: none;
     }
 
     // Disable link behavior in admin mode
@@ -112,11 +119,14 @@
     color: inherit;
   }
 
-  // Selected state
-  &.selected {
-    border: 2px solid var(--primary-color, #007bff);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-    
+  // Selected state (only in admin mode)
+  &.admin-mode.selected {
+    // Admin mode: Selected card styles
+    border: 2px solid var(--color-primary);
+    border-radius: var(--spacing-x2);
+    // Remove shadow for selected state as per design spec
+    box-shadow: none;
+
     .item-card__image-container::after {
       content: '';
       position: absolute;
@@ -126,25 +136,26 @@
       bottom: 0;
       background: rgba(0, 123, 255, 0.1);
       border-radius: inherit;
+      pointer-events: none;
     }
+  }
+
+  // Hide favorite button in admin mode, show selection instead
+  &.admin-mode .item-card__favorite-btn {
+    opacity: 0;
+    pointer-events: none;
   }
 
   // Selection overlay
   &__selection-overlay {
     position: absolute;
     top: 8px;
-    left: 8px;
+    right: 8px;
     z-index: 10;
-    
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    padding: 4px;
-    backdrop-filter: blur(2px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    
+
     app-checkbox {
       display: block;
-      
+
       // Ensure checkbox is prominent in admin mode
       ::ng-deep .checkbox {
         width: 20px;

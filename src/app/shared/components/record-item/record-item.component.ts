@@ -47,11 +47,13 @@ export class RecordItemComponent implements OnDestroy {
     this.favoritesPopupState = this.popupPositioning.createPopupState();
   }
 
-  onRecordClick(e: Event, record: SearchDocument): void {
+  onRecordClick(e: MouseEvent, record: SearchDocument): void {
+    console.log(e, record);
     if (this.adminSelectionService.adminMode()) {
+      e.preventDefault();
       this.adminSelectionService.toggleItem(record.pid);
     } else {
-      this.recordHandler.handleDocumentClick(record);
+      this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }
   }
 

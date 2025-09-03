@@ -58,9 +58,6 @@ export class ItemCardComponent {
     return this.krameriusBaseUrl + '/' + this.uuid + '/image/thumb';
   }
 
-  goToDetail() {
-    this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
-  }
 
   onSelectionChange(selected: boolean): void {
     if (selected) {
@@ -70,12 +67,12 @@ export class ItemCardComponent {
     }
   }
 
-  onCardClick(event: Event): void {
+  onCardClick(event: MouseEvent): void {
     if (this.adminSelectionService.adminMode()) {
+      event.preventDefault();
       this.adminSelectionService.toggleItem(this.uuid);
     } else {
-      // Navigate to detail page in normal mode
-      this.recordHandlerService.handleDocumentClickByModelAndPid(this.model, this.uuid);
+      this.recordHandlerService.onNavigate(event, this.recordHandlerService.getHandleDocumentUrlByModelAndPid(this.model, this.uuid));
     }
   }
 

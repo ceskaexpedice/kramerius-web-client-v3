@@ -1,16 +1,11 @@
-<div class="record-item-card"
-     [class.page]="record.model === DocumentTypeEnum.page"
-     [class.periodical]="record.model === DocumentTypeEnum.periodical"
-     [class.admin-mode]="adminSelectionService.adminMode()"
-     [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(record.pid)"
-     (click)="onRecordClick($event, record)">
-
-  <!-- Hidden link for SEO and accessibility when not in admin mode -->
-  <a *ngIf="!adminSelectionService.adminMode()" 
-     class="record-item-card__hidden-link"
-     [href]="getDocumentUrl()"
-     [attr.aria-label]="getTitle()"
-     tabindex="-1"></a>
+<a class="record-item-card"
+   [class.page]="record.model === DocumentTypeEnum.page"
+   [class.periodical]="record.model === DocumentTypeEnum.periodical"
+   [class.admin-mode]="adminSelectionService.adminMode()"
+   [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(record.pid)"
+   [href]="getDocumentUrl()"
+   [attr.aria-label]="getTitle()"
+   (click)="onRecordClick($event, record)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="adminSelectionService.adminMode()">
@@ -91,7 +86,7 @@
 
   </div>
 
-</div>
+</a>
 
 <!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {

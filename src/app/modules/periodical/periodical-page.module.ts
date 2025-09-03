@@ -29,6 +29,10 @@ import {
   PeriodicalSearchResultsComponent
 } from './components/periodical-search-results/periodical-search-results.component';
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
+import {AdminActionsComponent} from '../../shared/components/admin-actions/admin-actions.component';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {FormsModule} from '@angular/forms';
+import {TranslatePipe} from '@ngx-translate/core';
 
 const routes: Routes = [
   {
@@ -62,6 +66,10 @@ const routes: Routes = [
     DateNavigatorComponent,
     PeriodicalSearchResultsComponent,
     SelectedTagsComponent,
+    AdminActionsComponent,
+    MatSlideToggle,
+    FormsModule,
+    TranslatePipe,
   ],
   providers: [
     PeriodicalService,

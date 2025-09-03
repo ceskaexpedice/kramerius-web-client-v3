@@ -8,7 +8,7 @@
     <div class="page-content" *ngIf="periodical.viewMode() as mode">
 
         <!-- Action Toolbar -->
-        <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults">
+        <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults && !adminSelectionService.adminMode()">
 
           <div left class="max-width-100" *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
@@ -19,7 +19,9 @@
             </app-toolbar-header>
           </div>
 
-          <div center>
+          <div center
+               *ngIf="!adminSelectionService.adminMode()"
+          >
             <div *ngIf="periodical.selectedYear() as year;">
               <app-date-navigator
                 [value]="year"
@@ -33,29 +35,54 @@
 
             <div class="flex flex--align-center">
 
-              <app-toolbar-controls
-                [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
-                [showFavorites]="true"
-                [showShare]="true"
-                [showQuote]="true"
-                [showInfo]="true"
-                [viewToggleOptions]="[
-                { label: 'Kalendář', icon: 'icon-calendar', value: 'calendar' },
-                { label: 'Mřížka', icon: 'icon-grid-1', value: 'grid' }
-              ]"
-                [activeViewValue]="periodical.activeCalendarGridControl()"
-                (viewChanged)="periodical.setView($event)"
-                (infoClicked)="openRecordInfo()"
-                (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
-                (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
-              >
-              </app-toolbar-controls>
+              <!-- Show admin actions when in SearchResults mode and admin mode is active -->
+              <ng-container *ngIf="adminSelectionService.adminMode()">
+                <app-admin-actions
+                  (exportRequested)="onExportSelected()"
+                  (editRequested)="onEditSelected($event)">
+                </app-admin-actions>
+              </ng-container>
 
-                          <app-results-sort
-                            [selectedSort]="periodical.sortBy"
-                            [selectedDirection]="periodical.sortDirection"
-                            (sortChange)="onSortChange($event)">
-                          </app-results-sort>
+              <!-- Show normal controls when not in admin mode or not in SearchResults -->
+              <ng-container *ngIf="!adminSelectionService.adminMode()">
+                <app-toolbar-controls
+                  [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
+                  [showFavorites]="true"
+                  [showShare]="true"
+                  [showQuote]="true"
+                  [showInfo]="true"
+                  [viewToggleOptions]="[
+                  { label: 'Kalendář', icon: 'icon-calendar', value: 'calendar' },
+                  { label: 'Mřížka', icon: 'icon-grid-1', value: 'grid' }
+                ]"
+                  [activeViewValue]="periodical.activeCalendarGridControl()"
+                  (viewChanged)="periodical.setView($event)"
+                  (infoClicked)="openRecordInfo()"
+                  (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
+                  (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
+                >
+                </app-toolbar-controls>
+
+                <app-results-sort
+                  [selectedSort]="periodical.sortBy"
+                  [selectedDirection]="periodical.sortDirection"
+                  (sortChange)="onSortChange($event)">
+                </app-results-sort>
+              </ng-container>
+
+                <!-- Show selected count when in admin mode and items are selected -->
+                <ng-container *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
+                  <span class="admin-selection-count">{{ adminSelectionService.getSelectionSummary() }}</span>
+                </ng-container>
+
+              <!-- Admin toggle (always visible in SearchResults mode) -->
+              <mat-slide-toggle
+                [checked]="adminSelectionService.adminMode()"
+                [hideIcon]="true"
+                [class]="'size-sm'"
+                (change)="toggleAdminMode()">
+                {{ 'admin' | translate }}
+              </mat-slide-toggle>
 
             </div>
 
