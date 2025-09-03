@@ -51,6 +51,7 @@ export class ToolbarControlsComponent {
   @Input() showInfo = false;
   @Input() showDelete = false;
   @Input() showDownload = false;
+  @Input() showEdit = false;
 
   // Legacy outputs - maintained for backward compatibility
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -59,15 +60,16 @@ export class ToolbarControlsComponent {
   @Output() infoClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() deleteClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() downloadClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() editClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
   // Get merged actions from both new config approach and legacy boolean approach
   get mergedActions(): ToolbarAction[] {
     const configActions = this.actions.filter(action => action.visible !== false);
-    
+
     // Legacy boolean actions converted to config format
     const legacyActions: ToolbarAction[] = [];
-    
+
     if (this.showInfo) {
       legacyActions.push({ id: 'info', icon: 'icon-info-circle', tooltip: 'Information' });
     }
@@ -86,7 +88,12 @@ export class ToolbarControlsComponent {
     if (this.showDownload) {
       legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download' });
     }
-    
+    if (this.showEdit) {
+      legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit' });
+    }
+
+    // Combine both sets of actions
+
     return [...configActions, ...legacyActions];
   }
 
@@ -98,10 +105,10 @@ export class ToolbarControlsComponent {
   // New configuration-based action handler
   onActionClick(action: ToolbarAction): void {
     if (action.disabled) return;
-    
+
     // Emit new event
     this.actionClicked.emit({ id: action.id, action });
-    
+
     // Maintain backward compatibility by also emitting legacy events
     switch (action.id) {
       case 'info':
@@ -121,6 +128,9 @@ export class ToolbarControlsComponent {
         break;
       case 'download':
         this.downloadClicked.emit();
+        break;
+      case 'edit':
+        this.editClicked.emit();
         break;
     }
   }

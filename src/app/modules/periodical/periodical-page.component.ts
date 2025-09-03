@@ -96,16 +96,10 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.adminSelectionService.toggleAdminMode();
   }
 
-  // Admin action methods (delegated from admin-actions component)
   onExportSelected(): void {
-    // Use the AdminActionsService to handle export
-    this.adminActionsService.performExportAction();
   }
 
   onEditSelected(selectedIds: string[]): void {
-    console.log('Edit selected items in periodical:', selectedIds);
-    // Use the AdminActionsService to handle edit
-    this.adminActionsService.performEditAction(selectedIds);
   }
 
 }

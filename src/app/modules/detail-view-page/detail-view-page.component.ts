@@ -3,6 +3,7 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {DocumentTypeEnum} from '../constants/document-type';
+import {AdminSelectionService} from '../../shared/services';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -16,6 +17,7 @@ export class DetailViewPageComponent {
 
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
+  public adminSelectionService = inject(AdminSelectionService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');

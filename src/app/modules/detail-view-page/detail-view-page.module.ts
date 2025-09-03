@@ -19,6 +19,7 @@ import {DetailLayoutComponent} from "../../shared/components/detail-layout/detai
 import {TranslatePipe} from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import {AdminActionsComponent} from '../../shared/components/admin-actions';
 
 const routes: Routes = [
   {
@@ -30,27 +31,28 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    MatDatepickerModule,
-    MatNativeDateModule,
-    NgIf,
-    AsyncPipe,
-    JsonPipe,
-    ActionToolbarComponent,
-    FilterSidebarComponent,
-    ToolbarControlsComponent,
-    ToolbarHeaderComponent,
-    DetailPagesGridComponent,
-    InputComponent,
-    DetailViewBottomToolbarComponent,
-    PageNavigatorComponent,
-    TabsComponent,
-    TabItemComponent,
-    DateNavigatorComponent,
-    DetailLayoutComponent,
-    TranslatePipe,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		MatDatepickerModule,
+		MatNativeDateModule,
+		NgIf,
+		AsyncPipe,
+		JsonPipe,
+		ActionToolbarComponent,
+		FilterSidebarComponent,
+		ToolbarControlsComponent,
+		ToolbarHeaderComponent,
+		DetailPagesGridComponent,
+		InputComponent,
+		DetailViewBottomToolbarComponent,
+		PageNavigatorComponent,
+		TabsComponent,
+		TabItemComponent,
+		DateNavigatorComponent,
+		DetailLayoutComponent,
+		TranslatePipe,
+		AdminActionsComponent,
+	],
 })
 
 export class DetailViewPageModule { }

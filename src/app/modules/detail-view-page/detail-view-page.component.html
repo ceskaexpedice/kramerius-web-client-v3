@@ -33,6 +33,11 @@
       <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">
         <app-tab-item label="Stránky">
           <div class="sidebar--wrapper">
+
+            <div class="flex flex--align-center flex--justify-space-between mb-2 w-100 max-width-100 flex--wrap">
+              <app-admin-actions></app-admin-actions>
+            </div>
+
             <app-input
               [placeholder]="'search-in-document--placeholder' | translate"
               [theme]="'dark'"
@@ -96,6 +101,7 @@
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="true"
+              [showEdit]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"

@@ -10,13 +10,21 @@
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults && !adminSelectionService.adminMode()">
 
-          <div left class="max-width-100" *ngIf="periodical.document$ | async as document">
+          <div left class="max-width-100 flex flex--align-center flex--gap-x2" *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
               [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
               (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="recordHandler.goBackClicked(document)">
             </app-toolbar-header>
+
+            <!-- Show admin actions when in SearchResults mode and admin mode is active -->
+            <ng-container *ngIf="adminSelectionService.adminMode()">
+              <app-admin-actions
+                (exportRequested)="onExportSelected()"
+                (editRequested)="onEditSelected($event)">
+              </app-admin-actions>
+            </ng-container>
           </div>
 
           <div center
@@ -34,14 +42,6 @@
           <div right>
 
             <div class="flex flex--align-center">
-
-              <!-- Show admin actions when in SearchResults mode and admin mode is active -->
-              <ng-container *ngIf="adminSelectionService.adminMode()">
-                <app-admin-actions
-                  (exportRequested)="onExportSelected()"
-                  (editRequested)="onEditSelected($event)">
-                </app-admin-actions>
-              </ng-container>
 
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
               <ng-container *ngIf="!adminSelectionService.adminMode()">
