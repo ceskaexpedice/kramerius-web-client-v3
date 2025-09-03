@@ -1,0 +1,27 @@
+<app-sidebar-dialog-layout
+  [config]="dialogConfig"
+  (close)="close()"
+  (sectionChange)="onSectionChange($event)"
+  (customButtonClick)="onCustomButtonClick($event)">
+
+  <div class="export-selected-content">
+
+    <!-- CSV Export Section -->
+    <div *ngIf="activeSection() === 'csv'" class="section-content">
+
+    </div>
+
+    <!-- XML Export Section -->
+    <div *ngIf="activeSection() === 'xml'" class="section-content">
+
+    </div>
+
+    <!-- DL4DH Export Section -->
+    <div *ngIf="activeSection() === 'dl4dh'" class="section-content">
+
+    </div>
+
+
+  </div>
+
+</app-sidebar-dialog-layout>

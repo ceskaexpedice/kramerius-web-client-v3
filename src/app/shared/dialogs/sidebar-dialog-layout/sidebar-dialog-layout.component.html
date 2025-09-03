@@ -1,6 +1,9 @@
 <div class="generic-dialog-container">
   <h2>
-    {{ config.title | translate }}
+    <span class="dialog-title">
+      {{ config.title | translate }}
+      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle }}</span>
+    </span>
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-x"></i>
     </button>
@@ -33,7 +36,8 @@
 
   <hr>
 
-  <div class="footer" *ngIf="config.showCancelButton || config.showSaveButton">
+  <div class="footer" *ngIf="config.showCancelButton || config.showSaveButton || config.customButtons?.length">
+    <!-- Cancel Button -->
     <button
       *ngIf="config.showCancelButton"
       class="button outlined secondary"
@@ -41,6 +45,17 @@
       {{ (config.cancelButtonLabel || 'cancel') | translate }}
     </button>
 
+    <!-- Custom Buttons -->
+    <button
+      *ngFor="let button of config.customButtons"
+      [class]="'button ' + (button.class)"
+      [disabled]="isButtonDisabled(button)"
+      (click)="onCustomButtonClick(button.action)">
+      <i *ngIf="button.icon" [class]="button.icon"></i>
+      {{ button.label | translate }}
+    </button>
+
+    <!-- Save Button -->
     <button
       *ngIf="config.showSaveButton"
       class="button primary"

@@ -10,13 +10,23 @@ export interface DialogSection {
   component?: any;
 }
 
+export interface DialogButton {
+  label: string;
+  action: string;
+  class?: string;
+  disabled?: boolean | (() => boolean);
+  icon?: string;
+}
+
 export interface DialogConfig {
   title: string;
+  subtitle?: string;
   sections: DialogSection[];
   showSaveButton?: boolean;
   showCancelButton?: boolean;
   saveButtonLabel?: string;
   cancelButtonLabel?: string;
+  customButtons?: DialogButton[];
 }
 
 @Component({
@@ -34,6 +44,7 @@ export class SidebarDialogLayoutComponent {
   @Output() save = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
   @Output() sectionChange = new EventEmitter<string>();
+  @Output() customButtonClick = new EventEmitter<string>();
 
   private dialogRef = inject(MatDialogRef<SidebarDialogLayoutComponent>, { optional: true });
 
@@ -57,5 +68,16 @@ export class SidebarDialogLayoutComponent {
   onClose() {
     this.close.emit();
     this.dialogRef?.close();
+  }
+
+  onCustomButtonClick(action: string) {
+    this.customButtonClick.emit(action);
+  }
+
+  isButtonDisabled(button: DialogButton): boolean {
+    if (typeof button.disabled === 'function') {
+      return button.disabled();
+    }
+    return button.disabled || false;
   }
 }

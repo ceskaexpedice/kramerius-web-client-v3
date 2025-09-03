@@ -7,7 +7,8 @@ import { map, switchMap } from 'rxjs/operators';
 export enum ExportFormat {
   JSON = 'json',
   CSV = 'csv',
-  TXT = 'txt'
+  TXT = 'txt',
+  XML = 'xml' // For future use
 }
 
 export interface ExportOptions {
@@ -42,7 +43,7 @@ export class ExportService {
   }
 
   private fetchItemDetails(itemIds: string[]): Observable<SearchDocument[]> {
-    // For now, return empty array - in real implementation, 
+    // For now, return empty array - in real implementation,
     // you would fetch detailed information for each item
     // This would typically involve API calls to get full metadata
     return of([]);
@@ -62,7 +63,7 @@ export class ExportService {
 
         const jsonString = JSON.stringify(exportData, null, 2);
         const filename = options.filename || `export_${this.getTimestamp()}.json`;
-        
+
         this.downloadFile(jsonString, filename, 'application/json');
         observer.next();
         observer.complete();
@@ -101,7 +102,7 @@ export class ExportService {
 
         const csvContent = csvRows.join('\n');
         const filename = options.filename || `export_${this.getTimestamp()}.csv`;
-        
+
         this.downloadFile(csvContent, filename, 'text/csv');
         observer.next();
         observer.complete();
@@ -132,7 +133,7 @@ export class ExportService {
         ].join('\n');
 
         const filename = options.filename || `export_${this.getTimestamp()}.txt`;
-        
+
         this.downloadFile(textContent, filename, 'text/plain');
         observer.next();
         observer.complete();
@@ -195,13 +196,13 @@ export class ExportService {
   private downloadFile(content: string, filename: string, mimeType: string): void {
     const blob = new Blob([content], { type: mimeType });
     const url = window.URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
-    
+
     // Cleanup
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);

@@ -12,6 +12,32 @@
     padding: 5px;
   }
 
+  h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 var(--spacing-x4) 0;
+
+    .dialog-title {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+
+      .dialog-subtitle {
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: var(--color-text-secondary);
+        
+        &::before {
+          content: " · ";
+          font-weight: 600;
+          color: var(--color-text-base);
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+
   hr {
     margin: 0;
   }
@@ -82,5 +108,15 @@
     justify-content: center;
     margin-top: var(--spacing-x3);
     gap: var(--spacing-x4);
+    
+    .button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        font-size: 14px;
+      }
+    }
   }
 }

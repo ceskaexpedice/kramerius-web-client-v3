@@ -1,0 +1,28 @@
+<app-sidebar-dialog-layout
+  [config]="dialogConfig"
+  (save)="save()"
+  (close)="close()"
+  (sectionChange)="onSectionChange($event)"
+  (customButtonClick)="onCustomButtonClick($event)">
+
+  <div class="edit-selected-content">
+
+    <!-- Reindex Section -->
+    <div *ngIf="activeSection() === 'reindex'" class="section-content">
+
+    </div>
+
+    <!-- Collections Section -->
+    <div *ngIf="activeSection() === 'collections'" class="section-content">
+
+    </div>
+
+    <!-- Licence Section -->
+    <div *ngIf="activeSection() === 'licence'" class="section-content">
+
+    </div>
+
+
+  </div>
+
+</app-sidebar-dialog-layout>
