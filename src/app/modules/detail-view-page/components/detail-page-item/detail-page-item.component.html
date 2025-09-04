@@ -1,6 +1,19 @@
-<div class="page--item"
-     [ngClass]="'type-' + type"
-     [class.selected]="isSelected" (click)="onPageClicked()">
+<a class="page--item"
+   [ngClass]="'type-' + type"
+   [class.selected]="isSelected"
+   [class.admin-mode]="adminSelectionService.adminMode()"
+   [class.admin-selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(page.pid)"
+   [href]="'#'"
+   (click)="onPageClicked($event)">
+
+  <!-- Selection checkbox for admin mode -->
+  <div class="page--item__selection" *ngIf="adminSelectionService.adminMode()">
+    <app-checkbox 
+      [model]="adminSelectionService.isSelected(page.pid)"
+      (modelChange)="onSelectionChange($event)"
+      (click)="$event.stopPropagation()">
+    </app-checkbox>
+  </div>
 
   <img
     class="page--item__image"
@@ -8,8 +21,8 @@
     loading="lazy"
   />
 
-  <span class="page--number">
+  <span class="page--number" *ngIf="!adminSelectionService.adminMode()">
     {{pageNumber}}
   </span>
 
-</div>
+</a>

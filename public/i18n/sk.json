@@ -158,5 +158,10 @@
   "count": "Počet",
   "login-required-favorites-title": "Prihláste sa a uložte si svoje obľúbené dokumenty",
   "login-prompt-message-favorites": "Majte ich vždy po ruke, vytvárajte si vlastné zoznamy a zdieľajte ich s ostatnými.",
-  "login": "Prihlásiť sa"
+  "login": "Prihlásiť sa",
+  "multi-page-choice": "Viacnásobný výber strán",
+  "edit-selected--admin": "Editácia",
+  "export": "Export",
+  "select-all": "Vybrať všetko",
+  "deselect-all": "Zrušiť výber"
 }

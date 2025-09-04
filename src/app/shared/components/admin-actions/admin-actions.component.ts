@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminSelectionService } from '../../services/admin-selection.service';
@@ -15,6 +15,8 @@ import { AdminActionsService } from '../../services/admin-actions.service';
   styleUrl: './admin-actions.component.scss'
 })
 export class AdminActionsComponent {
+  @Input() compact: boolean = false;
+  
   adminSelectionService = inject(AdminSelectionService);
   private adminActionsService = inject(AdminActionsService);
 

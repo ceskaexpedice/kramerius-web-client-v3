@@ -170,5 +170,11 @@
   "remove-from-favorites": "Remove",
   "count": "Count",
   "login-required-favorites-title": "Log in and save your favorite documents",
-  "login-prompt-message-favorites": " "
+  "login-prompt-message-favorites": " ",
+  "login": "Log in",
+  "multi-page-choice": "Multi-page selection",
+  "edit-selected--admin": "Edit",
+  "export": "Export",
+  "select-all": "Select all",
+  "deselect-all": "Deselect all"
 }

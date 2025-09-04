@@ -160,5 +160,11 @@
   "add-to-favorites-success--header": "Gotowe!",
   "add-to-favorites-success--text": "Swoje ulubione dokumenty znajdziesz pod swoim kontem na górnym pasku.",
   "remove-from-favorites": "Usuń",
-  "count": "Liczba"
+  "count": "Liczba",
+  "login": "Zaloguj się",
+  "multi-page-choice": "Wielostronicowy",
+  "edit-selected--admin": "Edytuj",
+  "export": "Eksportuj",
+  "select-all": "Zaznacz wszystko",
+  "deselect-all": "Odznacz wszystko"
 }

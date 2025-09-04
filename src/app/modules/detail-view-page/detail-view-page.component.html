@@ -34,10 +34,6 @@
         <app-tab-item label="Stránky">
           <div class="sidebar--wrapper">
 
-            <div class="flex flex--align-center flex--justify-space-between mb-2 w-100 max-width-100 flex--wrap">
-              <app-admin-actions></app-admin-actions>
-            </div>
-
             <app-input
               [placeholder]="'search-in-document--placeholder' | translate"
               [theme]="'dark'"
@@ -52,6 +48,28 @@
               (prev)="detailViewService.goToPrevious()"
               (pageChange)="detailViewService.goToPage($event)"
             ></app-page-navigator>
+
+            <ng-container>
+
+              <hr>
+
+              <div class="flex flex--align-center flex--justify-space-between mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminSelectionService.adminMode()">
+                <app-admin-actions [compact]="true"></app-admin-actions>
+              </div>
+
+              <div class="flex flex--align-center flex--justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">
+                <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">
+                  {{'multi-page-choice' | translate}}
+                  <i class="icon-tick-square"></i>
+                </button>
+              </div>
+
+              <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
+                {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
+              </div>
+
+            </ng-container>
+
             <div class="sidebar--wrapper--scroll-content">
               <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>
             </div>

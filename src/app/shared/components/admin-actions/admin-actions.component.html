@@ -1,11 +1,11 @@
-<div class="admin-actions flex flex--center flex--align-center">
+<div class="admin-actions flex flex--center flex--align-center" [class.compact]="compact">
 
   <button
     class="button primary with-icon"
     (click)="onEditSelected()"
     [disabled]="!adminSelectionService.hasSelection()"
     [title]="'edit-selected' | translate">
-    <span>{{ 'edit-selected' | translate }}</span>
+    <span>{{ 'edit-selected--admin' | translate }}</span>
     <i class="icon-edit-2"></i>
   </button>
 
@@ -14,8 +14,8 @@
     class="button outlined tertiary"
     (click)="onExportSelected()"
     [disabled]="!adminSelectionService.hasSelection()"
-    [title]="'export-selected' | translate">
-    <span>{{ 'export-selected' | translate }}</span>
+    [title]="'export' | translate">
+    <span>{{ 'export' | translate }}</span>
     <i class="icon-arrow-right"></i>
   </button>
 
@@ -24,9 +24,9 @@
     class="button transparent tertiary with-icon"
     (click)="onSelectAll()"
     [disabled]="adminSelectionService.isAllVisibleSelected()"
-    [title]="'select-all-visible' | translate">
+    [title]="'select-all' | translate">
     <i class="icon-copy-success"></i>
-    <span>{{ 'select-all-visible' | translate }}</span>
+    <span>{{ 'select-all' | translate }}</span>
   </button>
 
   <!-- Deselect All -->
@@ -34,11 +34,9 @@
     class="button transparent tertiary with-icon"
     (click)="onDeselectAll()"
     [disabled]="!adminSelectionService.hasSelection()"
-    [title]="'deselect-all-visible' | translate">
+    [title]="'deselect-all' | translate">
     <i class="icon-close-square"></i>
-    <span>{{ 'deselect-all-visible' | translate }}</span>
+    <span>{{ 'deselect-all' | translate }}</span>
   </button>
-
-
 
 </div>
