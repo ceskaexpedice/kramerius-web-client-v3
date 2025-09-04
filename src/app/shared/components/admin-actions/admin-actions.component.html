@@ -1,4 +1,4 @@
-<div class="admin-actions flex flex--center flex--align-center" [class.compact]="compact">
+<div class="admin-actions flex" [class.compact]="compact">
 
   <button
     class="button primary with-icon"
@@ -17,6 +17,13 @@
     [title]="'export' | translate">
     <span>{{ 'export' | translate }}</span>
     <i class="icon-arrow-right"></i>
+  </button>
+
+  <button class="button outlined tertiary m-left-auto"
+          *ngIf="compact"
+          (click)="adminSelectionService.toggleAdminMode()"
+  >
+    <i class="icon-x"></i>
   </button>
 
   <!-- Select All -->
