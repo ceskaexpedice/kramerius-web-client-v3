@@ -163,5 +163,11 @@
   "edit-selected--admin": "Editácia",
   "export": "Export",
   "select-all": "Vybrať všetko",
-  "deselect-all": "Zrušiť výber"
+  "deselect-all": "Zrušiť výber",
+  "edit-selected": "Editácia",
+  "edit-section-reindex": "Reindexácia",
+  "edit-section-collections": "Kolekcie",
+  "edit-section-licence": "Licencie",
+  "go-to-admin-interface": "Prejsť do admin rozhrania",
+  "export-section-csv": "CSV"
 }

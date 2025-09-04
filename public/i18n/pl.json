@@ -166,5 +166,11 @@
   "edit-selected--admin": "Edytuj",
   "export": "Eksportuj",
   "select-all": "Zaznacz wszystko",
-  "deselect-all": "Odznacz wszystko"
+  "deselect-all": "Odznacz wszystko",
+  "edit-selected": "Edytuj zaznaczone",
+  "edit-section-reindex": "Reindeksuj",
+  "edit-section-collections": "Kolekcje",
+  "edit-section-licence": "Licencja",
+  "go-to-admin-interface": "Przejdź do interfejsu administracyjnego",
+  "export-section-csv": "CSV"
 }

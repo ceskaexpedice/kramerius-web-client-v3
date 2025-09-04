@@ -176,5 +176,11 @@
   "edit-selected--admin": "Edit",
   "export": "Export",
   "select-all": "Select all",
-  "deselect-all": "Deselect all"
+  "deselect-all": "Deselect all",
+  "edit-selected": "Edit",
+  "edit-section-reindex": "Reindex",
+  "edit-section-collections": "Collections",
+  "edit-section-licence": "Licences",
+  "go-to-admin-interface": "Go to admin interface",
+  "export-section-csv": "CSV"
 }
