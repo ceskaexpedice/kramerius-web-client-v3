@@ -115,6 +115,7 @@ export class AdminActionsService {
     const exportOptions = {
       format: this.mapExportFormat(result.format),
       includeMetadata: result.options?.includeMetadata || false,
+      csvOptions: result.options,
       ...result.options
     };
 

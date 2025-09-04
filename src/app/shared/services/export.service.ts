@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
+import { AdminSelectionService } from './admin-selection.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
 
 export enum ExportFormat {
   JSON = 'json',
@@ -16,6 +18,7 @@ export interface ExportOptions {
   filename?: string;
   includeMetadata?: boolean;
   includeImages?: boolean;
+  csvOptions?: CsvSectionData;
 }
 
 @Injectable({
@@ -23,6 +26,7 @@ export interface ExportOptions {
 })
 export class ExportService {
   private solrService = inject(SolrService);
+  private adminSelectionService = inject(AdminSelectionService);
 
   exportSelectedItems(itemIds: string[], options: ExportOptions): Observable<void> {
     // Fetch full details for selected items
@@ -43,10 +47,26 @@ export class ExportService {
   }
 
   private fetchItemDetails(itemIds: string[]): Observable<SearchDocument[]> {
-    // For now, return empty array - in real implementation,
-    // you would fetch detailed information for each item
-    // This would typically involve API calls to get full metadata
-    return of([]);
+    // First try to get items from current selection service
+    const selectedItems = this.adminSelectionService.getSelectedItems();
+    const foundItems = selectedItems.filter(item => itemIds.includes(item.pid));
+
+    // If we have all items from the selection service, use those
+    if (foundItems.length === itemIds.length) {
+      return of(foundItems);
+    }
+
+    // Otherwise, we'd need to fetch from API
+    // For now, return the items we have and log missing ones
+    const foundIds = foundItems.map(item => item.pid);
+    const missingIds = itemIds.filter(id => !foundIds.includes(id));
+
+    if (missingIds.length > 0) {
+      console.warn('Some items not found in current page data:', missingIds);
+      console.warn('Export will only include items from current page');
+    }
+
+    return of(foundItems);
   }
 
   private exportAsJson(items: SearchDocument[], options: ExportOptions): Observable<void> {
@@ -82,22 +102,23 @@ export class ExportService {
           return;
         }
 
-        // Define CSV headers
-        const headers = [
-          'PID',
-          'Title',
-          'Root Title',
-          'Authors',
-          'Date',
-          'Model',
-          'Accessibility',
-          'Languages'
-        ];
+        // Get selected fields from CSV options or use default fields
+        const selectedFields = options.csvOptions?.fields?.filter(f => f.selected) || [];
 
-        // Create CSV rows
+        if (selectedFields.length === 0) {
+          console.warn('No fields selected for CSV export');
+          observer.next();
+          observer.complete();
+          return;
+        }
+
+        // Create headers from selected fields
+        const headers = selectedFields.map(field => field.label);
+
+        // Create CSV rows based on selected fields
         const csvRows = [
           headers.join(','), // Header row
-          ...items.map(item => this.itemToCsvRow(item))
+          ...items.map(item => this.itemToCsvRowWithFields(item, selectedFields))
         ];
 
         const csvContent = csvRows.join('\n');
@@ -184,6 +205,36 @@ export class ExportService {
     ];
 
     return values.join(',');
+  }
+
+  private itemToCsvRowWithFields(item: SearchDocument, selectedFields: any[]): string {
+    const values = selectedFields.map(field => {
+      const value = this.getFieldValue(item, field.key);
+      return this.escapeCsvValue(value);
+    });
+
+    return values.join(',');
+  }
+
+  private getFieldValue(item: SearchDocument, fieldKey: string): string {
+    switch (fieldKey) {
+      case 'title':
+        return item.title || '';
+      case 'author':
+        return item.authors?.join('; ') || '';
+      case 'yearOfPublishing':
+        return item.year?.toString() || item.date || '';
+      case 'printCount':
+        return item.count_page?.toString() || '';
+      case 'keyword':
+        return '';
+      case 'geographicName':
+        return '';
+      case 'genre':
+        return '';
+      default:
+        return '';
+    }
   }
 
   private escapeCsvValue(value: string): string {
