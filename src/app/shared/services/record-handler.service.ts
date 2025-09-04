@@ -10,6 +10,7 @@ import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.compone
 import {Metadata} from '../models/metadata.model';
 import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
 import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
+import {AdminSelectionService} from './admin-selection.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class RecordHandlerService {
 
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
+  private adminSelectionService = inject(AdminSelectionService);
 
   // Filter keys that should be preserved when navigating to periodicals
   private readonly FILTERS_TO_PRESERVE = ['yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
@@ -309,6 +311,11 @@ export class RecordHandlerService {
   }
 
   goBackClicked(document: any): void {
+    // Turn off admin mode when navigating back
+    if (this.adminSelectionService.adminMode()) {
+      this.adminSelectionService.toggleAdminMode();
+    }
+    
     if (document.ownParentPid) {
       this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW , document.ownParentPid])
     }
