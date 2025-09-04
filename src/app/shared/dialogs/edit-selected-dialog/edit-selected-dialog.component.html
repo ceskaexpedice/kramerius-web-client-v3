@@ -9,19 +9,27 @@
 
     <!-- Reindex Section -->
     <div *ngIf="activeSection() === 'reindex'" class="section-content">
-
+      <app-edit-reindex-section 
+        [selectedIds]="data.selectedIds"
+        (dataChange)="onReindexDataChange($event)">
+      </app-edit-reindex-section>
     </div>
 
     <!-- Collections Section -->
     <div *ngIf="activeSection() === 'collections'" class="section-content">
-
+      <app-edit-collections-section 
+        [selectedIds]="data.selectedIds"
+        (dataChange)="onCollectionsDataChange($event)">
+      </app-edit-collections-section>
     </div>
 
     <!-- Licence Section -->
     <div *ngIf="activeSection() === 'licence'" class="section-content">
-
+      <app-edit-licence-section 
+        [selectedIds]="data.selectedIds"
+        (dataChange)="onLicenceDataChange($event)">
+      </app-edit-licence-section>
     </div>
-
 
   </div>
 

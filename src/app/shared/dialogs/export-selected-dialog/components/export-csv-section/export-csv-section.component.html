@@ -1,0 +1,21 @@
+<div class="export-csv-section">
+  <div class="section-header">
+    <h3>{{ 'csv-export-options' | translate }}</h3>
+    <p class="section-description">{{ 'csv-export-description' | translate }}</p>
+  </div>
+
+  <div class="section-content">
+    <div class="form-group">
+      <label class="form-label">{{ 'csv-fields-to-export' | translate }}</label>
+      <div class="checkbox-group">
+        <mat-checkbox
+          *ngFor="let field of fields"
+          [(ngModel)]="field.selected"
+          (change)="onFieldChange()"
+          class="checkbox-item">
+          {{ field.label | translate }}
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+</div>

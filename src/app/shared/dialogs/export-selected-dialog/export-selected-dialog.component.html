@@ -8,7 +8,10 @@
 
     <!-- CSV Export Section -->
     <div *ngIf="activeSection() === 'csv'" class="section-content">
-
+      <app-export-csv-section 
+        [selectedIds]="data.selectedIds"
+        (dataChange)="onCsvSectionChange($event)">
+      </app-export-csv-section>
     </div>
 
     <!-- XML Export Section -->

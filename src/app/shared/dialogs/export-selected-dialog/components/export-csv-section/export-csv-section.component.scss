@@ -1,0 +1,64 @@
+.export-csv-section {
+  .section-header {
+    margin-bottom: var(--spacing-x4);
+
+    h3 {
+      margin: 0 0 var(--spacing-x2) 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-base);
+    }
+
+    .section-description {
+      margin: 0;
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+
+  .section-content {
+    .form-group {
+      margin-bottom: var(--spacing-x4);
+
+      .form-label {
+        display: block;
+        margin-bottom: var(--spacing-x3);
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--color-text-base);
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-x3);
+
+        .checkbox-item {
+          font-size: 14px;
+          color: var(--color-text-base);
+
+          ::ng-deep .mat-checkbox-label {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  .section-summary {
+    margin-top: var(--spacing-x4);
+    padding-top: var(--spacing-x3);
+    border-top: 1px solid var(--color-border-base);
+
+    p {
+      margin: 0 0 var(--spacing-x2) 0;
+      font-size: 14px;
+      color: var(--color-text-base);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

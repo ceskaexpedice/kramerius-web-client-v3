@@ -182,5 +182,8 @@
   "edit-section-collections": "Collections",
   "edit-section-licence": "Licences",
   "go-to-admin-interface": "Go to admin interface",
-  "export-section-csv": "CSV"
+  "export-section-csv": "CSV",
+  "reindex-object-only": "Object",
+  "reindex-object-and-children": "Object and children",
+  "selected-objects-count": "Number of selected objects"
 }

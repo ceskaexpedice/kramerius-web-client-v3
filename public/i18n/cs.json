@@ -174,5 +174,8 @@
   "edit-section-collections": "Sbírky",
   "edit-section-licence": "Licence",
   "go-to-admin-interface": "Přejít do admin rozhraní",
-  "export-section-csv": "CSV"
+  "export-section-csv": "CSV",
+  "reindex-object-only": "Objekt",
+  "reindex-object-and-children": "Objekt a potomky",
+  "selected-objects-count": "Počet vybraných objektů"
 }

@@ -6,6 +6,9 @@ import {
   DialogConfig,
   SidebarDialogLayoutComponent,
 } from '../sidebar-dialog-layout/sidebar-dialog-layout.component';
+import { EditReindexSectionComponent, ReindexSectionData } from './components/edit-reindex-section/edit-reindex-section.component';
+import { EditCollectionsSectionComponent, CollectionsSectionData } from './components/edit-collections-section/edit-collections-section.component';
+import { EditLicenceSectionComponent, LicenceSectionData } from './components/edit-licence-section/edit-licence-section.component';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -17,7 +20,10 @@ export interface EditSelectedDialogData {
   imports: [
     TranslatePipe,
     NgIf,
-    SidebarDialogLayoutComponent
+    SidebarDialogLayoutComponent,
+    EditReindexSectionComponent,
+    EditCollectionsSectionComponent,
+    EditLicenceSectionComponent
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -47,6 +53,11 @@ export class EditSelectedDialogComponent {
 
   activeSection = signal<string>('reindex');
 
+  // Data from section components
+  reindexData: ReindexSectionData | null = null;
+  collectionsData: CollectionsSectionData | null = null;
+  licenceData: LicenceSectionData | null = null;
+
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
 
@@ -56,9 +67,27 @@ export class EditSelectedDialogComponent {
   }
 
   save() {
-    // TODO: Implement save logic based on activeSection and form data
-    console.log('Save changes for section:', this.activeSection());
-    this.dialogRef.close({ action: 'save', section: this.activeSection() });
+    const currentSection = this.activeSection();
+    let sectionData = null;
+
+    switch (currentSection) {
+      case 'reindex':
+        sectionData = this.reindexData;
+        break;
+      case 'collections':
+        sectionData = this.collectionsData;
+        break;
+      case 'licence':
+        sectionData = this.licenceData;
+        break;
+    }
+
+    console.log('Save changes for section:', currentSection, sectionData);
+    this.dialogRef.close({ 
+      action: 'save', 
+      section: currentSection, 
+      data: sectionData 
+    });
   }
 
   close() {
@@ -79,5 +108,17 @@ export class EditSelectedDialogComponent {
     // TODO: Implement navigation to admin interface with selected items
     console.log('Go to admin interface with items:', this.data.selectedIds);
     this.dialogRef.close({ action: 'admin', selectedIds: this.data.selectedIds });
+  }
+
+  onReindexDataChange(data: ReindexSectionData) {
+    this.reindexData = data;
+  }
+
+  onCollectionsDataChange(data: CollectionsSectionData) {
+    this.collectionsData = data;
+  }
+
+  onLicenceDataChange(data: LicenceSectionData) {
+    this.licenceData = data;
   }
 }

@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TranslatePipe } from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import { NgIf } from '@angular/common';
 import {
   DialogConfig,
   SidebarDialogLayoutComponent,
 } from '../sidebar-dialog-layout/sidebar-dialog-layout.component';
+import { ExportCsvSectionComponent, CsvSectionData } from './components/export-csv-section/export-csv-section.component';
 
 export interface ExportSelectedDialogData {
   selectedIds: string[];
@@ -17,12 +18,15 @@ export interface ExportSelectedDialogData {
   imports: [
     TranslatePipe,
     NgIf,
-    SidebarDialogLayoutComponent
+    SidebarDialogLayoutComponent,
+    ExportCsvSectionComponent
   ],
   templateUrl: './export-selected-dialog.component.html',
   styleUrl: './export-selected-dialog.component.scss'
 })
 export class ExportSelectedDialogComponent {
+
+  csvSectionData: CsvSectionData | null = null;
 
   dialogConfig: DialogConfig = {
     title: 'export-selected',
@@ -49,10 +53,11 @@ export class ExportSelectedDialogComponent {
 
   private dialogRef = inject(MatDialogRef<ExportSelectedDialogComponent>);
   public data = inject<ExportSelectedDialogData>(MAT_DIALOG_DATA);
+  private translateService = inject(TranslateService);
 
   constructor() {
     // Set the subtitle with selected count
-    this.dialogConfig.subtitle = `Počet vybraných objektů: ${this.data.selectedCount}`;
+    this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects-count')}: ${this.data.selectedCount}`;
   }
 
   close() {
@@ -69,12 +74,16 @@ export class ExportSelectedDialogComponent {
     }
   }
 
+  onCsvSectionChange(data: CsvSectionData) {
+    this.csvSectionData = data;
+  }
+
   export() {
-    console.log('Export data:');
+    console.log('Export data:', this.csvSectionData);
     this.dialogRef.close({
       action: 'export',
       format: this.activeSection(),
-      options: {},
+      options: this.csvSectionData,
       selectedIds: this.data.selectedIds
     });
   }

@@ -172,5 +172,8 @@
   "edit-section-collections": "Kolekcje",
   "edit-section-licence": "Licencja",
   "go-to-admin-interface": "Przejdź do interfejsu administracyjnego",
-  "export-section-csv": "CSV"
+  "export-section-csv": "CSV",
+  "reindex-object-only": "Obiekt",
+  "reindex-object-and-children": "Obiekt i dzieci",
+  "selected-objects-count": "Liczba zaznaczonych obiektów"
 }
