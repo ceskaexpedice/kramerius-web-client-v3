@@ -9,6 +9,7 @@ import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selec
 import {loadGenres} from '../../state/genres/genres.actions';
 import {SearchService} from '../../../../shared/services/search.service';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
+import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-genres-section',
@@ -18,6 +19,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
     TranslatePipe,
     NgIf,
     AsyncPipe,
+    InlineLoaderComponent,
   ],
   templateUrl: './genres-section.component.html',
   styleUrls: ['./genres-section.component.scss', '../search-section.scss']

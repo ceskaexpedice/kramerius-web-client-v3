@@ -9,6 +9,7 @@ import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {SearchService} from '../../../../shared/services/search.service';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
+import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-books-section',
@@ -20,6 +21,7 @@ import {RecordItemComponent} from '../../../../shared/components/record-item/rec
     TranslatePipe,
     TitleCasePipe,
     RecordItemComponent,
+    InlineLoaderComponent,
   ],
   templateUrl: './books-section.component.html',
   styleUrls: ['./books-section.component.scss', '../search-section.scss']

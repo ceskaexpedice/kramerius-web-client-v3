@@ -14,6 +14,7 @@ import {SearchService} from '../../../../shared/services/search.service';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {customDefinedFacets, customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
+import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-document-types-section',
@@ -23,6 +24,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
     NgForOf,
     NgIf,
     TranslatePipe,
+    InlineLoaderComponent,
   ],
   templateUrl: './document-types-section.component.html',
   styleUrls: ['./document-types-section.component.scss', '../search-section.scss']

@@ -5,15 +5,19 @@
   </div>
 
   <div class="carousel-wrapper">
-    <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
+    <app-inline-loader 
+      *ngIf="loading$ | async" 
+      message="loading-books">
+    </app-inline-loader>
 
-      <app-record-item
-        *ngFor="let item of books"
-        [record]="item"
-      >
-      </app-record-item>
-
-    </app-carousel>
+    <div *ngIf="!(loading$ | async)">
+      <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
+        <app-record-item
+          *ngFor="let item of books"
+          [record]="item"
+        >
+        </app-record-item>
+      </app-carousel>
+    </div>
   </div>
-
 </section>

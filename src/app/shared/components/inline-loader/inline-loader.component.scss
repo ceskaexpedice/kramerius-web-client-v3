@@ -1,0 +1,45 @@
+.inline-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+
+  .loader-spinner {
+      border-top: 4px solid var(--color-primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 0.8s linear infinite;
+
+    &.size-sm {
+      width: 24px;
+      height: 24px;
+      border-width: 2px;
+    }
+
+    &.size-md {
+      width: 32px;
+      height: 32px;
+      border-width: 3px;
+    }
+
+    &.size-lg {
+      width: 48px;
+      height: 48px;
+      border-width: 4px;
+    }
+  }
+
+  .loader-message {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

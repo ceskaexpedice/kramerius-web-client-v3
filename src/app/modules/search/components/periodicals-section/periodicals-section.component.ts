@@ -9,6 +9,7 @@ import {DocumentTypeEnum} from '../../../constants/document-type';
 import {SearchService} from '../../../../shared/services/search.service';
 import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
+import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-periodicals-section',
@@ -19,6 +20,7 @@ import {RecordItemComponent} from '../../../../shared/components/record-item/rec
     AsyncPipe,
     TranslatePipe,
     RecordItemComponent,
+    InlineLoaderComponent,
   ],
   templateUrl: './periodicals-section.component.html',
   styleUrls: ['./periodicals-section.component.scss', '../search-section.scss'],

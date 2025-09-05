@@ -1,14 +1,22 @@
 <section class="facet-grid-section">
   <h3>{{ 'genres' | translate }}</h3>
 
-  <div class="facet-grid" *ngIf="genres$ | async as genres">
-    <app-category-item
-      *ngFor="let genre of genres?.slice(0, 16)"
-      [icon]="genre.icon"
-      [label]="genre.name"
-      [count]="genre.count"
-      [url]="getGenreUrl(genre.name)"
-      (clicked)="clickedGenre($event)"
-    ></app-category-item>
+  <app-inline-loader 
+    *ngIf="loading$ | async" 
+    message="loading-genres"
+    minHeight="160px">
+  </app-inline-loader>
+
+  <div *ngIf="!(loading$ | async)">
+    <div class="facet-grid" *ngIf="genres$ | async as genres">
+      <app-category-item
+        *ngFor="let genre of genres?.slice(0, 16)"
+        [icon]="genre.icon"
+        [label]="genre.name"
+        [count]="genre.count"
+        [url]="getGenreUrl(genre.name)"
+        (clicked)="clickedGenre($event)"
+      ></app-category-item>
+    </div>
   </div>
 </section>
