@@ -10,21 +10,21 @@
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults && !adminSelectionService.adminMode()">
 
-          <div left class="max-width-100 flex flex--align-center flex--gap-x2" *ngIf="periodical.document$ | async as document">
+          <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
               [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
               (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="recordHandler.goBackClicked(document)">
-            </app-toolbar-header>
 
-            <!-- Show admin actions when in SearchResults mode and admin mode is active -->
-            <ng-container *ngIf="adminSelectionService.adminMode()">
+              <!-- Show admin actions when in SearchResults mode and admin mode is active -->
               <app-admin-actions
+                *ngIf="adminSelectionService.adminMode()"
                 (exportRequested)="onExportSelected()"
                 (editRequested)="onEditSelected($event)">
               </app-admin-actions>
-            </ng-container>
+
+            </app-toolbar-header>
           </div>
 
           <div center

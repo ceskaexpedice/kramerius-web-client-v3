@@ -1,7 +1,13 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .toolbar-header {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
 }
 
 h2.title {
@@ -17,4 +23,11 @@ h2.title {
   display: block;
   flex: 1;
   min-width: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
