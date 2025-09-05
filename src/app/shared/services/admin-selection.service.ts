@@ -1,4 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { SearchDocument } from '../../modules/models/search-document';
 
 export interface AdminSelectionState {
@@ -11,9 +13,21 @@ export interface AdminSelectionState {
   providedIn: 'root'
 })
 export class AdminSelectionService {
+  private router = inject(Router);
   private selectedIds = signal<Set<string>>(new Set());
   private isAdminMode = signal<boolean>(false);
   private currentPageItems = signal<SearchDocument[]>([]);
+
+  constructor() {
+    // Listen to router events and disable admin mode on navigation
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      if (this.isAdminMode()) {
+        this.setAdminMode(false);
+      }
+    });
+  }
 
   readonly selectedCount = computed(() => this.selectedIds().size);
   readonly hasSelection = computed(() => this.selectedIds().size > 0);
