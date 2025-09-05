@@ -23,7 +23,7 @@
       }
 
       var script = document.createElement('script');
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-' + gId;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gId;
       script.async = true;
       document.head.appendChild(script);
 
@@ -34,7 +34,7 @@
         }
         window.gtag = gtag;
         gtag('js', new Date());
-        gtag('config', 'G-' + gId);
+        gtag('config', gId);
       };
     })();
   </script>
