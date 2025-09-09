@@ -1,19 +1,15 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output, signal, OnDestroy} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
-import {Observable, combineLatest, map, startWith, takeUntil, Subject, filter} from 'rxjs';
+import {combineLatest, map, startWith, takeUntil, Subject} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
 
-interface FavoritesList {
-  folder: Folder;
-  isSelected: boolean;
-}
 
 @Component({
   selector: 'app-favorites-popup',
@@ -269,9 +265,12 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
 
   private store = inject(Store);
   private actions$ = inject(Actions);
+  private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
   private _shouldAddItemToNewFolder = false;
+  private _shouldCreateRealFavoritesFolder = false;
+  private readonly FAKE_FAVORITES_UUID = 'fake-favorites-folder-uuid';
 
   private shouldAddItemToNewFolder() {
     return this._shouldAddItemToNewFolder;
@@ -279,6 +278,14 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
 
   private setShouldAddItemToNewFolder(value: boolean) {
     this._shouldAddItemToNewFolder = value;
+  }
+
+  private shouldCreateRealFavoritesFolder() {
+    return this._shouldCreateRealFavoritesFolder;
+  }
+
+  private setShouldCreateRealFavoritesFolder(value: boolean) {
+    this._shouldCreateRealFavoritesFolder = value;
   }
 
   searchTerm = signal('');
@@ -289,12 +296,32 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   ownedFolders$ = this.store.select(selectUserOwnedFolders);
   followedFolders$ = this.store.select(selectUserFollowedFolders);
 
-  // Combine owned and followed folders
+  // Combine owned and followed folders, add fake favorites if empty
   allFolders$ = combineLatest([
     this.ownedFolders$,
     this.followedFolders$
   ]).pipe(
-    map(([owned, followed]) => [...owned, ...followed])
+    map(([owned, followed]) => {
+      const allFolders = [...owned, ...followed];
+
+      // If no folders exist, create a fake favorites folder
+      if (allFolders.length === 0) {
+        const fakeFavoritesFolder: Folder = {
+          name: this.translateService.instant('my-favorites-list--title'),
+          uuid: this.FAKE_FAVORITES_UUID,
+          itemsCount: 0,
+          users: [],
+          updatedAt: new Date().toISOString()
+        };
+
+        // checked by default
+        this.selectedFolderIds.set(new Set([this.FAKE_FAVORITES_UUID]));
+
+        return [fakeFavoritesFolder];
+      }
+
+      return allFolders;
+    })
   );
 
   // Observable to determine if search should be shown
@@ -320,7 +347,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         );
       }
 
-      // Map to FavoritesList format with selection state
+      // Map to list format with selection state
       return filteredFolders.map(folder => ({
         folder,
         isSelected: selectedFolderIds.has(folder.uuid)
@@ -341,7 +368,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(({ folder }) => {
 
-      if (this.shouldAddItemToNewFolder()) {
+      if (this.shouldAddItemToNewFolder() || this.shouldCreateRealFavoritesFolder()) {
 
         // Add the item to the newly created folder
         this.store.dispatch(FoldersActions.updateFolderItems({
@@ -351,8 +378,9 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
           }
         }));
 
-        // Reset the flag
+        // Reset the flags
         this.setShouldAddItemToNewFolder(false);
+        this.setShouldCreateRealFavoritesFolder(false);
 
         // Show success state
         this.showSuccess.set(true);
@@ -441,8 +469,20 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       }));
     }
 
-    // Add item to selected existing lists
-    selectedIds.forEach(folderId => {
+    // Handle fake favorites folder selection
+    const realSelectedIds = selectedIds.filter(id => id !== this.FAKE_FAVORITES_UUID);
+    const isFakeFavoritesSelected = selectedIds.includes(this.FAKE_FAVORITES_UUID);
+
+    if (isFakeFavoritesSelected) {
+      // Set flag to create real favorites folder and add item to it
+      this.setShouldCreateRealFavoritesFolder(true);
+      this.store.dispatch(FoldersActions.createFolder({
+        folder: { name: this.translateService.instant('my-favorites-list--title') }
+      }));
+    }
+
+    // Add item to selected existing lists (excluding fake folder)
+    realSelectedIds.forEach(folderId => {
       this.store.dispatch(FoldersActions.updateFolderItems({
         request: {
           uuid: folderId,
@@ -452,7 +492,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     });
 
     // Show success state only if no new folder is being created (otherwise the subscription will handle it)
-    if (!newListName) {
+    if (!newListName && !isFakeFavoritesSelected) {
       this.showSuccess.set(true);
     }
   }
