@@ -46,24 +46,11 @@ interface FavoritesList {
           </app-input>
         </div>
 
-        <!-- Create new list -->
-        <div class="favorites-popup__section">
-          <app-input
-            [placeholder]="'create-new-list--placeholder' | translate"
-            [label]="'create-new-list--label' | translate"
-            [size]="'sm'"
-            [theme]="'dark'"
-            [prefixIcon]="'icon-add'"
-            [signalInput]="newListName"
-            (enter)="onCreateNewList()">
-          </app-input>
-        </div>
-
         <hr>
 
         <!-- My Saved Lists -->
         <div class="favorites-popup__section">
-          <h4 class="section-title">{{ 'my-saved-lists' | translate }}</h4>
+<!--          <h4 class="section-title">{{ 'my-saved-lists' | translate }}</h4>-->
 
           <div class="lists-container" *ngIf="filteredLists$ | async as lists">
             <div *ngFor="let listItem of lists" class="list-item">
@@ -81,6 +68,21 @@ interface FavoritesList {
           <div *ngIf="(filteredLists$ | async)?.length === 0" class="no-lists">
             {{ 'no-lists-found' | translate }}
           </div>
+        </div>
+
+        <hr>
+
+        <!-- Create new list -->
+        <div class="favorites-popup__section">
+          <app-input
+            [placeholder]="'create-new-list--placeholder' | translate"
+            [label]="'create-new-list--label' | translate"
+            [size]="'sm'"
+            [theme]="'dark'"
+            [prefixIcon]="'icon-add'"
+            [signalInput]="newListName"
+            (enter)="onCreateNewList()">
+          </app-input>
         </div>
 
         <!-- Actions -->
@@ -157,8 +159,8 @@ interface FavoritesList {
 
     .favorites-popup__header h3 {
       margin: 0;
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 500;
       color: var(--color-text-base);
     }
 
@@ -177,8 +179,9 @@ interface FavoritesList {
     }
 
     .lists-container {
-      max-height: 105px;
+      max-height: 150px;
       overflow-y: auto;
+      overflow-x: hidden;
       border: 1px solid var(--color-border-base);
     }
 
