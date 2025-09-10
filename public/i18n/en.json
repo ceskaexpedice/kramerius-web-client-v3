@@ -185,5 +185,8 @@
   "export-section-csv": "CSV",
   "reindex-object-only": "Object",
   "reindex-object-and-children": "Object and children",
-  "selected-objects-count": "Number of selected objects"
+  "selected-objects-count": "Number of selected objects",
+  "edit-title": "Edit title",
+  "title-label": "Title",
+  "enter-new-title": "Enter new title"
 }

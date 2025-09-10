@@ -177,5 +177,8 @@
   "export-section-csv": "CSV",
   "reindex-object-only": "Objekt",
   "reindex-object-and-children": "Objekt a potomky",
-  "selected-objects-count": "Počet vybraných objektů"
+  "selected-objects-count": "Počet vybraných objektů",
+  "edit-title": "Upravit název",
+  "title-label": "Název",
+  "enter-new-title": "Zadejte nový název"
 }

@@ -22,6 +22,7 @@ import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/too
 import {InputComponent} from '../../shared/components/input/input.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {MusicTrackListComponent} from '../music/components/music-track-list/music-track-list.component';
+import {TitleEditPopupComponent} from '../../shared/components/title-edit-popup/title-edit-popup.component';
 
 const routes: Routes = [
   {
@@ -62,6 +63,7 @@ const routes: Routes = [
     InputComponent,
     ToolbarControlsComponent,
     MusicTrackListComponent,
+    TitleEditPopupComponent,
   ],
 })
 

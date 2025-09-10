@@ -14,51 +14,31 @@
 
           @if (activeFolder | async; as folder) {
             <div left class="max-width-100">
-              @if (isEditingTitle()) {
-                <div class="flex flex--align-center w-100 flex--gap-x1">
-                  <app-input
-                    [theme]="'dark'"
-                    [size]="'sm'"
-                    [type]="'text'"
-                    [signalInput]="editedTitle"
-                    [showSubmitButton]="true"
-                    [submitIcon]="'icon-check'"
-                    (submit)="submitTitleEdit(folder.uuid)"
-                    (cancel)="cancelEditingTitle()"
-                  />
-
-                  <button class="icon-button outlined tertiary">
-                    <i class="icon-x" (click)="cancelEditingTitle()"></i>
+              <div class="flex flex--align-center flex--gap-2">
+                <app-toolbar-header
+                  [title]="folder.name"
+                  [showBackButton]="false">
+                </app-toolbar-header>
+                @if (isCurrentUserOwner(folder)) {
+                  <button
+                    class="icon-button transparent"
+                    (click)="startEditingTitle(folder.uuid, folder.name, $event)"
+                  >
+                    <i class="icon-edit-2"></i>
                   </button>
-
-                </div>
-              } @else {
-                <div class="flex flex--align-center flex--gap-2">
-                  <app-toolbar-header
-                    [title]="folder.name"
-                    [showBackButton]="false">
-                  </app-toolbar-header>
-                  @if (isCurrentUserOwner(folder)) {
-                    <button
-                      class="icon-button transparent"
-                      (click)="startEditingTitle(folder.name)"
+                }
+                @if (soundRecordingItems | async; as tracks) {
+                  @if (tracks.length > 0) {
+                    <button class="with-icon primary sm"
+                      (click)="playAllTracks()"
+                      title="Play all tracks"
                     >
-                      <i class="icon-edit-2"></i>
+                      <i class="icon-play"></i>
+                      {{ 'play-all' | translate }}
                     </button>
                   }
-                  @if (soundRecordingItems | async; as tracks) {
-                    @if (tracks.length > 0) {
-                      <button class="with-icon primary sm"
-                        (click)="playAllTracks()"
-                        title="Play all tracks"
-                      >
-                        <i class="icon-play"></i>
-                        {{ 'play-all' | translate }}
-                      </button>
-                    }
-                  }
-                </div>
-              }
+                }
+              </div>
             </div>
 
           }
@@ -154,3 +134,15 @@
     </div>
   </div>
 </div>
+
+<!-- Title Edit Popup -->
+@if (titleEditPopupState.showPopup() && currentEditingFolder()) {
+  <div class="title-edit-popup-wrapper" 
+       [class.positioned]="titleEditPopupState.popupPositioned()">
+    <app-title-edit-popup
+      [initialTitle]="currentEditingFolder()!.name"
+      (close)="onTitleEditClose()"
+      (save)="onTitleEditSave($event)">
+    </app-title-edit-popup>
+  </div>
+}

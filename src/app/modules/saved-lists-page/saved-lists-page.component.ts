@@ -1,4 +1,4 @@
-import {Component, signal, OnInit} from '@angular/core';
+import {Component, signal, OnInit, OnDestroy} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute} from '@angular/router';
 import {AppResultsViewType} from '../settings/settings.model';
@@ -12,6 +12,7 @@ import {DocumentTypeEnum} from '../constants/document-type';
 import {MusicService} from '../music/services/music.service';
 import {SoundService} from '../../shared/services/sound.service';
 import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
+import {PopupPositioningService, PopupState} from '../../shared/services/popup-positioning.service';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -19,7 +20,7 @@ import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
   templateUrl: './saved-lists-page.component.html',
   styleUrl: './saved-lists-page.component.scss'
 })
-export class SavedListsPageComponent implements OnInit {
+export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   activeFolderItems = this.store.select(selectFolderSearchResults);
   activeFolder = this.store.select(selectFolderDetails);
@@ -42,15 +43,17 @@ export class SavedListsPageComponent implements OnInit {
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
-  isEditingTitle = signal<boolean>(false);
-  editedTitle = signal<string>('');
+  currentEditingFolder = signal<{uuid: string, name: string} | null>(null);
+  titleEditPopupState: PopupState;
 
   constructor(
     private store: Store,
     private route: ActivatedRoute,
     public musicService: MusicService,
-    public soundService: SoundService
+    public soundService: SoundService,
+    private popupPositioningService: PopupPositioningService
   ) {
+    this.titleEditPopupState = this.popupPositioningService.createPopupState();
   }
 
   ngOnInit() {
@@ -97,25 +100,40 @@ export class SavedListsPageComponent implements OnInit {
     window.history.replaceState({}, '', url.toString());
   }
 
-  startEditingTitle(currentTitle: string) {
-    this.editedTitle.set(currentTitle);
-    this.isEditingTitle.set(true);
+  startEditingTitle(folderUuid: string, currentTitle: string, event: Event) {
+    this.currentEditingFolder.set({ uuid: folderUuid, name: currentTitle });
+    
+    this.popupPositioningService.showPopup(
+      this.titleEditPopupState,
+      {
+        triggerEvent: event,
+        popupWidth: 300,
+        popupHeight: 200,
+        preferredSide: 'center',
+        offsetY: 10
+      },
+      '.title-edit-popup-wrapper'
+    );
   }
 
-  cancelEditingTitle() {
-    this.isEditingTitle.set(false);
-    this.editedTitle.set('');
+  onTitleEditClose() {
+    this.titleEditPopupState.closePopup();
+    this.currentEditingFolder.set(null);
   }
 
-  submitTitleEdit(folderUuid: string) {
-    const newTitle = this.editedTitle().trim();
-    if (newTitle && newTitle !== '') {
+  onTitleEditSave(newTitle: string) {
+    const folder = this.currentEditingFolder();
+    if (folder && newTitle.trim()) {
       this.store.dispatch(FoldersActions.updateFolder({
-        uuid: folderUuid,
-        folder: { name: newTitle }
+        uuid: folder.uuid,
+        folder: { name: newTitle.trim() }
       }));
-      this.isEditingTitle.set(false);
+      this.onTitleEditClose();
     }
+  }
+
+  ngOnDestroy() {
+    this.popupPositioningService.cleanup();
   }
 
   isCurrentUserOwner(folder: any): boolean {
