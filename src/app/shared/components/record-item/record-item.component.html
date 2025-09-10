@@ -94,6 +94,7 @@
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
       [itemId]="record.pid"
+      [itemName]="getTitle()"
       [currentFolderId]="currentFolderId"
       (close)="favoritesPopupState.closePopup()">
     </app-favorites-popup>

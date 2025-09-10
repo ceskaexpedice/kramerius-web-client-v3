@@ -33,6 +33,7 @@ export class MusicTrackListComponent implements OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   favoritesPopupState: PopupState;
   currentTrackId = signal<string>('');
+  currentTrackName = signal<string>('');
 
   constructor() {
     this.favoritesPopupState = this.popupPositioning.createPopupState();
@@ -45,6 +46,7 @@ export class MusicTrackListComponent implements OnDestroy {
   onFavoriteToggled(data: {track: any, event: Event}) {
     // Set current track
     this.currentTrackId.set(data.track.pid);
+    this.currentTrackName.set(data.track['title.search'] || '');
 
     // Show and position popup
     this.popupPositioning.showPopup(this.favoritesPopupState, {

@@ -178,5 +178,10 @@
   "selected-objects-count": "Liczba zaznaczonych obiektów",
   "edit-title": "Edytuj tytuł",
   "title-label": "Tytuł",
-  "enter-new-title": "Wprowadź nowy tytuł"
+  "enter-new-title": "Wprowadź nowy tytuł",
+  "delete-list-title": "Czy na pewno chcesz usunąć listę \"%name%\"?",
+  "delete-list-message": "Usunięcie listy jest nieodwracalne.",
+  "delete": "Usuń",
+  "remove-from-favorites-confirm": "Czy na pewno chcesz usunąć ten dokument \"%name%\" z ulubionych?",
+  "remove-from-favorites-message": "Usunięcie dokumentu z ulubionych jest nieodwracalne."
 }

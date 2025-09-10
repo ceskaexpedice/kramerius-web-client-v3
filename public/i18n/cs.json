@@ -180,5 +180,10 @@
   "selected-objects-count": "Počet vybraných objektů",
   "edit-title": "Upravit název",
   "title-label": "Název",
-  "enter-new-title": "Zadejte nový název"
+  "enter-new-title": "Zadejte nový název",
+  "delete-list-title": "Opravdu chcete seznam \"%name%\" smazat?",
+  "delete-list-message": "Tímto odstraníte seznam ze svých oblíbených.",
+  "delete": "Smazat",
+  "remove-from-favorites-title": "Opravdu chcete dokument \"%name%\" ze seznamu smazat?",
+  "remove-from-favorites-message": "Dokument bude trvale ze seznamu smazán."
 }

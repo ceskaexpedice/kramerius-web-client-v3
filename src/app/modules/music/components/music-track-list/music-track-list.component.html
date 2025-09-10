@@ -32,6 +32,7 @@
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
       [itemId]="currentTrackId()"
+      [itemName]="currentTrackName()"
       [currentFolderId]="currentFolderId"
       (close)="favoritesPopupState.closePopup()">
     </app-favorites-popup>

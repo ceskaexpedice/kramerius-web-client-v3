@@ -11,33 +11,33 @@ import {TranslatePipe} from '@ngx-translate/core';
   ],
   template: `
     <div class="base-popup" [style.width]="width">
-      
+
       <!-- Header -->
       <div class="base-popup__header" *ngIf="title">
         <h3>{{ title | translate }}</h3>
       </div>
-      
-      <hr *ngIf="title">
-      
+
+<!--      <hr *ngIf="title">-->
+
       <!-- Content -->
       <div class="base-popup__content">
         <ng-content></ng-content>
       </div>
-      
+
       <!-- Actions -->
       <div class="base-popup__actions" *ngIf="showActions">
         <div class="base-popup__actions-left">
           <ng-content select="[slot=left-actions]"></ng-content>
         </div>
         <div class="base-popup__actions-right">
-          <button 
-            class="button sm outlined tertiary" 
+          <button
+            class="button sm outlined tertiary"
             (click)="onCancel()"
             *ngIf="showCancelButton">
             {{ cancelText | translate }}
           </button>
-          <button 
-            class="button primary sm" 
+          <button
+            class="button primary sm"
             [disabled]="confirmDisabled"
             (click)="onConfirm()"
             *ngIf="showConfirmButton">
@@ -69,14 +69,14 @@ import {TranslatePipe} from '@ngx-translate/core';
     }
 
     .base-popup__content {
-      padding: var(--spacing-x2) var(--spacing-x4);
+      padding: 0 var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
     }
 
     .base-popup__actions {
       display: flex;
       justify-content: space-between;
       border-top: 1px solid var(--color-border-light);
-      padding: 12px 16px;
+      padding: 16px;
     }
 
     .base-popup__actions-left {

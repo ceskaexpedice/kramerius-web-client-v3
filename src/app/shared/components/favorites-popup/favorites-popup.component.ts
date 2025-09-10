@@ -9,6 +9,7 @@ import {combineLatest, map, startWith, takeUntil, Subject} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
+import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
 
 
 @Component({
@@ -259,6 +260,7 @@ import {Actions, ofType} from '@ngrx/effects';
 })
 export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Input() itemId!: string;
+  @Input() itemName?: string;
   @Input() currentFolderId?: string;
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
@@ -266,6 +268,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private actions$ = inject(Actions);
   private translateService = inject(TranslateService);
+  private savedListsService = inject(SavedListsService);
   private destroy$ = new Subject<void>();
 
   private _shouldAddItemToNewFolder = false;
@@ -443,18 +446,12 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   onRemoveFromCurrentFolder() {
     if (!this.currentFolderId) return;
 
-    this.store.dispatch(FoldersActions.removeItemFromFolder({
-      request: {
-        uuid: this.currentFolderId,
-        items: [this.itemId]
-      }
-    }));
-
-    // Reload folder details to refresh the current view
-    this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: this.currentFolderId }));
-
-    // Close the popup without showing success message
-    this.close.emit();
+    this.savedListsService.removeItemFromFolder(
+      this.currentFolderId,
+      this.itemId,
+      this.itemName,
+      () => this.close.emit()
+    );
   }
 
   onDone() {

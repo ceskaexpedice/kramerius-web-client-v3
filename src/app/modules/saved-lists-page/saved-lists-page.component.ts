@@ -13,6 +13,7 @@ import {MusicService} from '../music/services/music.service';
 import {SoundService} from '../../shared/services/sound.service';
 import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
 import {PopupPositioningService, PopupState} from '../../shared/services/popup-positioning.service';
+import {SavedListsService} from './services/saved-lists.service';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -51,7 +52,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     public musicService: MusicService,
     public soundService: SoundService,
-    private popupPositioningService: PopupPositioningService
+    private popupPositioningService: PopupPositioningService,
+    private savedListsService: SavedListsService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
   }
@@ -86,7 +88,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       sortDirection: event.direction
     }));
     this.store.dispatch(FoldersActions.searchFolders({
-      searchQuery: '', // Empty string will cause effect to use current searchQuery from state
+      searchQuery: '',
       sortBy: event.value,
       sortDirection: event.direction
     }));
@@ -102,7 +104,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   startEditingTitle(folderUuid: string, currentTitle: string, event: Event) {
     this.currentEditingFolder.set({ uuid: folderUuid, name: currentTitle });
-    
+
     this.popupPositioningService.showPopup(
       this.titleEditPopupState,
       {
@@ -193,10 +195,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   onDeleteFolder() {
     this.activeFolder.pipe(first()).subscribe(folder => {
       if (folder && this.isCurrentUserOwner(folder)) {
-        // TODO: Show confirmation dialog before deleting
-        if (confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) {
-          this.store.dispatch(FoldersActions.deleteFolder({ uuid: folder.uuid }));
-        }
+        this.savedListsService.deleteFolder(folder.uuid, folder.name);
       }
     });
   }
@@ -246,13 +245,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   onTrackRemove(track: SoundTrackModel) {
     this.activeFolder.pipe(first()).subscribe(folder => {
       if (folder && folder.uuid) {
-        // Dispatch action to remove the track from the current folder
-        this.store.dispatch(FoldersActions.removeItemFromFolder({
-          request: {
-            uuid: folder.uuid,
-            items: [track.pid]
-          }
-        }));
+        this.savedListsService.removeTrackFromFolder(folder.uuid, track);
       }
     });
   }

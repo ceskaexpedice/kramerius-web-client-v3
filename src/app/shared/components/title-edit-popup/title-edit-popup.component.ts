@@ -18,17 +18,16 @@ import {TranslatePipe} from '@ngx-translate/core';
       [confirmDisabled]="!currentTitle().trim()"
       (cancel)="onCancel()"
       (confirm)="onConfirm()">
-      
+
       <app-input
         [theme]="'dark'"
         [size]="'sm'"
         [type]="'text'"
-        [label]="'title-label' | translate"
         [placeholder]="'enter-new-title' | translate"
         [signalInput]="currentTitle"
         (enter)="onConfirm()"
       />
-      
+
     </app-base-popup>
   `,
   styles: ``

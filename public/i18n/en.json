@@ -188,5 +188,10 @@
   "selected-objects-count": "Number of selected objects",
   "edit-title": "Edit title",
   "title-label": "Title",
-  "enter-new-title": "Enter new title"
+  "enter-new-title": "Enter new title",
+  "delete-list-title": "Are you sure you want to delete the list \"%name%\"?",
+  "delete-list-message": "This will remove the list from your favorites.",
+  "delete": "Delete",
+  "remove-from-favorites-title": "Are you sure you want to remove the document \"%name%\" from your favorites?",
+  "remove-from-favorites-message": "This will remove the document from your favorites."
 }
