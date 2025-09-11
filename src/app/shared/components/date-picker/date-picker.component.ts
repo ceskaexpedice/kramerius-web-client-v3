@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import {DateRange} from '../range-slider/range-slider.component';
 import {TranslatePipe} from '@ngx-translate/core';
-import {LowerCasePipe, NgIf} from '@angular/common';
+import {LowerCasePipe} from '@angular/common';
 import {MatCalendar} from '@angular/material/datepicker';
 import {InputComponent} from '../input/input.component';
 import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
@@ -31,7 +31,6 @@ export interface DatePickerOutput {
   imports: [
     TranslatePipe,
     LowerCasePipe,
-    NgIf,
     MatCalendar,
     InputComponent,
     MonthYearSelectorComponent,
@@ -151,8 +150,9 @@ export class DatePickerComponent implements OnInit, OnChanges {
   }
 
   private initializePopupValues() {
-    // Initialize popup with current committed values
-    this.selectedDateFrom.set(this.fromDate() || null);
+    // Initialize popup with current committed values, or today's date if no dateFrom exists
+    const today = new Date();
+    this.selectedDateFrom.set(this.fromDate() || today);
     this.selectedDateTo.set(this.toDate() || null);
     this.selectedOffset.set(this.offset());
 
@@ -160,7 +160,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
     this.isRangeModeActive = !!(this.fromDate() && this.toDate());
 
     // Set calendar months based on selected dates or current date
-    const baseDate = this.selectedDateFrom() || new Date();
+    const baseDate = this.selectedDateFrom() || today;
     this.monthFrom.set(baseDate.getMonth());
     this.yearFrom.set(baseDate.getFullYear());
 
@@ -290,7 +290,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   // Computed property for showing two-calendar layout
   get showDualCalendarMode(): boolean {
-    return this.isRangeModeActive || this.selectedOffset() > 0;
+    return this.isRangeModeActive;
   }
 
   // Template methods
@@ -366,12 +366,13 @@ export class DatePickerComponent implements OnInit, OnChanges {
     this.isRangeModeActive = event?.checked ?? !this.isRangeModeActive;
 
     if (this.isRangeModeActive) {
-      // Entering range mode - clear offset
+      // Entering range mode - clear offset and set dateTo to null for user selection
+      // unless we already have both dates (from offset mode)
+      // if (this.selectedOffset() === 0 || !this.selectedDateTo()) {
+      //   this.selectedDateTo.set(null);
+      // }
       this.selectedOffset.set(0);
       this.selectedDateTo.set(this.selectedDateFrom());
-      if (this.selectedDateFrom() && !this.selectedDateTo()) {
-        this.updateToCalendarMonth(this.selectedDateFrom()!);
-      }
     } else {
       // Exiting range mode - clear selected end date and offset
       this.selectedDateTo.set(null);
@@ -461,7 +462,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
 
   onOffsetClick(days: number) {
     this.selectedOffset.set(days);
-    this.isRangeModeActive = false; // Offset mode is not range mode
+    this.isRangeModeActive = true; // Enable range mode to show second calendar
 
     if (this.selectedDateFrom()) {
       const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);
