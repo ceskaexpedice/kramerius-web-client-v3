@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar>
+    <app-filter-sidebar [isDisabled]="adminSelectionService.adminMode()">
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
