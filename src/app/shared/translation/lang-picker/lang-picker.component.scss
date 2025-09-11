@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .lang-switcher-pos {
   position: relative;
   display: inline-block;
@@ -53,7 +55,7 @@
   padding: 8px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 100;
+  z-index: $lang-picker-dropdown;
 }
 
 .available-languages--hidden {

@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 $slider-height: 4px;
 
 .range-slider {
@@ -28,7 +30,7 @@ $slider-height: 4px;
     appearance: none;
     background: none;
     pointer-events: none;
-    z-index: 2;
+    z-index: $slider-thumb;
     border: none;
 
     &::-webkit-slider-thumb {
@@ -53,7 +55,7 @@ $slider-height: 4px;
     }
 
     &.on-top {
-      z-index: 4;
+      z-index: $slider-thumb-active;
     }
   }
 }

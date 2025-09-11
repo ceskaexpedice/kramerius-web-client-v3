@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 $date-range-middle-color: rgba(0, 123, 255, 0.1);
 
 .date-picker--container {
@@ -8,7 +10,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
 
 .date-picker--popup-calendar {
   position: fixed;
-  z-index: 1001;
+  z-index: $date-picker-overlay;
   background-color: var(--color-bg-base);
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
@@ -33,7 +35,7 @@ $date-range-middle-color: rgba(0, 123, 255, 0.1);
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  z-index: $date-picker-calendar;
   backdrop-filter: blur(2px);
 }
 
@@ -190,7 +192,7 @@ hr {
         background-color: var(--color-primary) !important;
         color: white !important;
         position: relative;
-        z-index: 2;
+        z-index: $date-picker-navigation-active;
       }
 
       // Line extending to the right with borders
@@ -206,7 +208,7 @@ hr {
         border-bottom: 2px solid var(--color-primary);
         border-left: 2px solid var(--color-primary);
         border-radius: 8px 0 0 8px;
-        z-index: 1;
+        z-index: $date-picker-navigation;
       }
     }
 
@@ -215,7 +217,7 @@ hr {
         background-color: var(--color-primary) !important;
         color: white !important;
         position: relative;
-        z-index: 2;
+        z-index: $date-picker-navigation-active;
       }
 
       // Line extending to the left with borders
@@ -231,7 +233,7 @@ hr {
         border-bottom: 2px solid var(--color-primary);
         border-right: 2px solid var(--color-primary);
         border-radius: 0 8px 8px 0;
-        z-index: 1;
+        z-index: $date-picker-navigation;
       }
     }
 
@@ -240,7 +242,7 @@ hr {
         background-color: transparent !important;
         color: var(--color-text-base) !important;
         position: relative;
-        z-index: 2;
+        z-index: $date-picker-navigation-active;
       }
 
       // Full-width line with borders
@@ -253,7 +255,7 @@ hr {
         background-color: $date-range-middle-color;
         border-top: 2px solid var(--color-primary);
         border-bottom: 2px solid var(--color-primary);
-        z-index: 1;
+        z-index: $date-picker-navigation;
       }
     }
 

@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .item-card {
   position: relative;
   display: flex;
@@ -151,7 +153,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 10;
+    z-index: $item-card-selection;
 
     app-checkbox {
       display: block;

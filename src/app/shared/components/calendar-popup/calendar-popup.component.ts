@@ -91,7 +91,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
       border-radius: var(--spacing-x2);
       box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
       width: 280px;
-      z-index: 1000;
+      z-index: var(--calendar-popup-overlay-ts);
       margin-top: 4px;
       padding: var(--spacing-x2) var(--spacing-x5) var(--spacing-x5) var(--spacing-x5);
     }
@@ -174,7 +174,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: var(--calendar-popup-content-ts);
       border-radius: 8px;
     }
 

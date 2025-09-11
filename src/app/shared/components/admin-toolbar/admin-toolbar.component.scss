@@ -1,9 +1,11 @@
+@import "_z-index.scss";
+
 .admin-toolbar {
   position: fixed;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: $admin-toolbar;
   
   background: var(--surface-color, #ffffff);
   border: 1px solid var(--border-color, #e0e0e0);

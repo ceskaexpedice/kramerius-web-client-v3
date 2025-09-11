@@ -1,0 +1,58 @@
+// Z-Index Management
+// Specific well-named variables for each component usage
+
+// Base/Background layers
+$timeline-background: 0;
+$timeline-items: 1;
+$input-overlay: 2;
+$input-focus: 2;
+$input-date-background: 0;
+$input-date-foreground: 1;
+$date-picker-navigation: 1;
+$date-picker-navigation-active: 2;
+$slider-thumb: 2;
+$slider-thumb-active: 4;
+$action-toolbar-left: 1;
+
+// Content layers
+$record-item-overlay: 1;
+$record-item-admin-selection: 2;
+$detail-page-selection: 10;
+$item-card-selection: 10;
+$record-list-row-selection: 10;
+$detail-layout-toolbar: 10;
+$select-dropdown: 10;
+$select-dropdown-options: 11;
+
+// UI Component layers
+$lang-picker-dropdown: 100;
+
+// Modal/Overlay layers
+$filter-sidebar-backdrop: 800;
+$filter-sidebar: 801;
+$filter-sidebar-close: 802;
+$sidebar-disabled-overlay-z-index: 803;
+$tooltip: 800;
+$saved-lists-popup: 800;
+$playback-bar: 800;
+$playback-queue: 800;
+$admin-toolbar: 800;
+$music-track-favorites-popup: 800;
+$record-item-favorites-popup: 800;
+$date-picker-overlay: 801;
+$date-picker-calendar: 800;
+$calendar-popup-overlay: 800;
+$calendar-popup-content: 10;
+
+// Calendar and date components
+$calendar-popup-overlay-ts: 800;
+$calendar-popup-content-ts: 10;
+
+// CSS Custom Properties for TypeScript inline styles
+:root {
+  --calendar-popup-overlay-ts: #{$calendar-popup-overlay-ts};
+  --calendar-popup-content-ts: #{$calendar-popup-content-ts};
+}
+
+// Highest priority overlays
+$loading-overlay: 9999;

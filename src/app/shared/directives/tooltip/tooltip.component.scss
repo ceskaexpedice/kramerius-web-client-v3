@@ -1,6 +1,8 @@
+@import "_z-index.scss";
+
 .tooltip-box {
   position: absolute;
-  z-index: 1000;
+  z-index: $tooltip;
   background: #333;
   color: white;
   padding: 6px 10px;

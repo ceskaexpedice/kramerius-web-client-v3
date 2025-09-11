@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .playback-bar {
   position: fixed;
   bottom: 0;
@@ -12,7 +14,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-x2) var(--spacing-x4);
-  z-index: 1000;
+  z-index: $playback-bar;
 
   .left {
     display: flex;

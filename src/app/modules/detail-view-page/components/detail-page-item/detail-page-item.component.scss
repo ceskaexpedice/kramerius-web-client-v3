@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 :host {
   display: block;
   width: 100%;
@@ -99,7 +101,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 10;
+    z-index: $detail-page-selection;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     app-checkbox {

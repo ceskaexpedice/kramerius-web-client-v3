@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .record-item-card {
   position: relative;
   display: flex;
@@ -52,7 +54,7 @@
       font-size: 12px;
       padding: 4px 6px;
       border-radius: 0 4px 4px 0;
-      z-index: 1;
+      z-index: $record-item-overlay;
     }
 
     .record-item-card__actions {
@@ -61,7 +63,7 @@
       left: 8px;
       opacity: 0;
       transition: opacity 0.2s ease;
-      z-index: 2;
+      z-index: $record-item-admin-selection;
 
       .favorites-button {
         background-color: rgba(255, 255, 255, 0.9);
@@ -232,7 +234,7 @@
     position: absolute;
     top: 7px;
     right: 7px;
-    z-index: 10;
+    z-index: $item-card-selection;
 
     app-checkbox {
       display: block;
@@ -308,7 +310,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: $record-item-favorites-popup;
   pointer-events: auto;
   opacity: 0; // Start hidden to prevent flicker
   transition: opacity 0.1s ease;

@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .track-table {
   width: 100%;
   border-collapse: collapse;
@@ -25,7 +27,7 @@
 
 .favorites-popup-wrapper {
   position: fixed;
-  z-index: 1000;
+  z-index: $music-track-favorites-popup;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;

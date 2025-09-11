@@ -1,3 +1,5 @@
+@import "_z-index.scss";
+
 .input-field {
   position: relative;
   width: 100%;
@@ -65,7 +67,7 @@
       align-items: center;
       gap: 0px;
       color: var(--color-icon-tertiary-default);
-      z-index: 2;
+      z-index: $input-focus;
     }
 
     // Prefix icon styles
@@ -76,7 +78,7 @@
       transform: translateY(-50%);
       color: var(--color-icon-tertiary-default);
       pointer-events: none;
-      z-index: 2;
+      z-index: $input-focus;
       display: flex;
       align-items: center;
       font-size: 16px;
@@ -90,7 +92,7 @@
       transform: translateY(-50%);
       color: var(--color-icon-tertiary-default);
       pointer-events: none;
-      z-index: 2;
+      z-index: $input-focus;
       display: flex;
       align-items: center;
       font-size: 16px;
