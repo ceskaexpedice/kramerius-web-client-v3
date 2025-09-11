@@ -31,10 +31,10 @@ export class CustomSearchService {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const raw = params['customSearch'];
       let list: string[] = raw ? raw.split(',') as string[] : [];
-      
+
       // Also initialize from date/year range parameters
       list = this.addDateYearRangeFromParams(params, list);
-      
+
       this._appliedFilters.set(list);
     });
   }
@@ -42,9 +42,9 @@ export class CustomSearchService {
   private addDateYearRangeFromParams(params: any, currentFilters: string[]): string[] {
     // Remove any date/year range filters from currentFilters (they shouldn't be in customSearch)
     // Date/year ranges are stored as individual query parameters only
-    let updated = [...currentFilters].filter(f => 
-      !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
-      !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+    let updated = [...currentFilters].filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
       !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
       !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
       !f.startsWith(`${this.YEAR_TO_KEY}:`)
@@ -65,7 +65,7 @@ export class CustomSearchService {
     const result: string[] = [];
 
     let filters = this._appliedFilters();
-    
+
     // Filter out date/year range filters as they are handled separately in SearchService
     const dateYearFilterKeys = [this.DATE_FROM_KEY, this.DATE_TO_KEY, this.DATE_OFFSET_KEY, this.YEAR_FROM_KEY, this.YEAR_TO_KEY];
     filters = filters.filter(f => !dateYearFilterKeys.some(key => f.startsWith(`${key}:`)));
@@ -238,9 +238,9 @@ export class CustomSearchService {
   setDateRange(dateFrom: Date | null, dateTo: Date | null, offset: number): void {
     // Remove date/year range filters from the applied filters (they shouldn't be in customSearch)
     const current = this._appliedFilters();
-    const updated = current.filter(f => 
-      !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
-      !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+    const updated = current.filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
       !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
       !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
       !f.startsWith(`${this.YEAR_TO_KEY}:`)
@@ -281,11 +281,11 @@ export class CustomSearchService {
   setYearRange(yearFrom: number, yearTo: number): void {
     // Remove date/year range filters from the applied filters (they shouldn't be in customSearch)
     const current = this._appliedFilters();
-    const updated = current.filter(f => 
-      !f.startsWith(`${this.DATE_FROM_KEY}:`) && 
-      !f.startsWith(`${this.DATE_TO_KEY}:`) && 
+    const updated = current.filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
       !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
-      !f.startsWith(`${this.YEAR_FROM_KEY}:`) && 
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
       !f.startsWith(`${this.YEAR_TO_KEY}:`)
     );
 
@@ -355,5 +355,10 @@ export class CustomSearchService {
       [this.YEAR_FROM_KEY]: null,
       [this.YEAR_TO_KEY]: null,
     });
+  }
+
+  get filtersContainDateOrYearRange(): boolean {
+    const dateYearFilterKeys = [this.DATE_FROM_KEY, this.DATE_TO_KEY, this.DATE_OFFSET_KEY, this.YEAR_FROM_KEY, this.YEAR_TO_KEY];
+    return this._appliedFilters().some(f => dateYearFilterKeys.some(key => f.startsWith(`${key}:`)));
   }
 }

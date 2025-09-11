@@ -276,8 +276,6 @@ export class SearchService extends BaseFilterService {
       }
     }
 
-    console.log('advancedQuery:', advancedQuery);
-
     let page = 1;
 
     if (!this._pageReset()) {
@@ -324,8 +322,6 @@ export class SearchService extends BaseFilterService {
     this.queryParamsService.updateFilters(route, facetKey, selectedValues, operator);
   }
 
-
-
   getFiltersByFacet(facet: string): Observable<string[]> {
     return this.activeFilters$.pipe(
       map(filters => filters.filter(filter => filter.startsWith(facet + ':')))
@@ -371,11 +367,18 @@ export class SearchService extends BaseFilterService {
     sessionStorage.removeItem(this.SEARCH_BACKUP_KEY);
   }
 
+  urlContainsDate(): boolean {
+    // check if url contains yearFrom or yearTo or dateFrom or dateTo
+    const params = this.route.snapshot.queryParams;
+    return params['yearFrom'] !== undefined || params['yearTo'] !== undefined ||
+      params['dateFrom'] !== undefined || params['dateTo'] !== undefined;
+  }
 
   override get filtersContainDate() {
     return computed(() =>
       this._activeFiltersSignal().some(f => f.toLowerCase().includes('date')) ||
-      this.advancedSearchService.filtersContainDate()
+      this.advancedSearchService.filtersContainDate() ||
+      this.customSearchService.filtersContainDateOrYearRange || this.urlContainsDate()
     );
   }
 
