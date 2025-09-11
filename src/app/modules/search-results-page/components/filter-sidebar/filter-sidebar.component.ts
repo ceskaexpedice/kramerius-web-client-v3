@@ -16,6 +16,7 @@ export class FilterSidebarComponent {
 
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
   @Input() scrollable = true;
+  @Input() isDisabled = false;
 
   // Manual toggle state for mobile/tablet overlay
   manualToggle = signal(false);

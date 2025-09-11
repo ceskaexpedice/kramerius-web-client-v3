@@ -3,7 +3,7 @@
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
-        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">
+        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)" [disabled]="disabledPagination">
           {{ p }}
         </button>
         <span *ngIf="p === -1">...</span>
@@ -11,11 +11,11 @@
 
     </ng-container>
 
-    <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">
+    <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
       <i class="icon-arrow-left"></i>
     </button>
 
-    <button class="button tertiary outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage()">
+    <button class="button tertiary outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
       <i class="icon-arrow-right"></i>
     </button>
   </div>
@@ -24,6 +24,7 @@
     {{'paginator-page-size' | translate}}:
 
     <app-select
+      [disabled]="disabledPageSize"
       [options]="pageSizeOptions"
       [value]="pageSize"
       (valueChange)="changePageSize($event)">

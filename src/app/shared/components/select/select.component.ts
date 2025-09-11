@@ -31,6 +31,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() value: T | null = null;
   @Input() filterable: boolean = false;
   @Input() filterPlaceholder: string = 'Search...';
+  @Input() disabled: boolean = false;
   @Output() valueChange = new EventEmitter<T>();
 
   open = signal(false);
@@ -57,6 +58,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   }
 
   toggle() {
+    if (this.disabled) return;
     this.open.update((v) => {
       if (!v) {
         this.filterText = '';

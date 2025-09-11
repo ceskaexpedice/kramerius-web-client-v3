@@ -16,6 +16,7 @@
      [class.scrollable]="scrollable"
      [class.overlay]="isOverlay()"
      [class.visible]="isVisible()"
+     [class.disabled]="isDisabled"
      [ngClass]="['padding-' + padding]">
 
   <!-- Close button for overlay mode -->
@@ -27,5 +28,9 @@
   </button>
 
   <ng-content></ng-content>
+
+  @if (isDisabled) {
+    <div class="sidebar-disabled--overlay"></div>
+  }
 
 </div>

@@ -4,7 +4,7 @@ import {AdvancedSearchService} from '../../shared/services/advanced-search.servi
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {AdminSelectionService} from '../../shared/services/admin-selection.service';
+import {AdminSelectionService} from '../../shared/services';
 import {Subscription, combineLatest} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {SearchDocument} from '../models/search-document';

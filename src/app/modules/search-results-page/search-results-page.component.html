@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar>
+    <app-filter-sidebar [isDisabled]="adminSelectionService.adminMode()">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
@@ -17,7 +17,7 @@
 
             <!-- Admin view: show admin actions -->
             <ng-container *ngIf="adminSelectionService.adminMode()">
-              <app-admin-actions 
+              <app-admin-actions
                 (exportRequested)="onExportSelected()"
                 (editRequested)="onEditSelected($event)">
               </app-admin-actions>
@@ -26,7 +26,7 @@
 
           <div right>
             <div class="flex flex--center flex--align-center">
-              
+
               <!-- Show regular controls when not in admin mode -->
               <ng-container *ngIf="!adminSelectionService.adminMode()">
                 <app-paginator-info
@@ -61,7 +61,7 @@
                 (change)="toggleAdminMode()">
                 {{ 'admin' | translate }}
               </mat-slide-toggle>
-              
+
             </div>
           </div>
         </app-action-toolbar>
@@ -166,6 +166,7 @@
         </div>
 
         <app-paginator
+          [disabledPagination]="adminSelectionService.adminMode()"
           [page]="searchService.page"
           [totalCount]="searchService.totalCount"
           [pageSize]="searchService.pageSize"
