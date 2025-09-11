@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { SearchDocument } from '../../modules/models/search-document';
 
@@ -20,11 +20,19 @@ export class AdminSelectionService {
 
   constructor() {
     // Listen to router events and disable admin mode on navigation
+    // but preserve admin mode for same-page navigation (e.g., page size changes)
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    ).subscribe((event: NavigationEnd) => {
       if (this.isAdminMode()) {
-        this.setAdminMode(false);
+        // Only disable admin mode if we're navigating to a different page
+        // Keep admin mode for same-page query parameter changes (pagination, page size)
+        const currentPath = event.urlAfterRedirects.split('?')[0];
+        const previousPath = event.url.split('?')[0];
+        
+        if (currentPath !== previousPath) {
+          this.setAdminMode(false);
+        }
       }
     });
   }
