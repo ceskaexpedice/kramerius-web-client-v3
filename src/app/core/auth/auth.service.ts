@@ -111,7 +111,7 @@ export class AuthService {
     // Only reload if we're not already in a page load scenario (prevents double reload)
     const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     const isManualRefresh = navigationEntry?.type === 'reload';
-    
+
     if (!isManualRefresh) {
       console.log('AuthService: Performing logout reload...');
       setTimeout(() => {

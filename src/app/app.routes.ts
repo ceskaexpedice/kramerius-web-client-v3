@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import {AuthGuard} from './core/auth/auth.guard';
+import {authCallbackGuard} from './core/auth/auth-callback.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = 'search',
@@ -19,7 +20,8 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.AUTH_CALLBACK,
-    loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(c => c.AuthCallbackComponent)
+    loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(c => c.AuthCallbackComponent),
+    canActivate: [authCallbackGuard]
   },
   {
     path: APP_ROUTES_ENUM.SEARCH,

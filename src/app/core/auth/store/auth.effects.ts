@@ -38,6 +38,9 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.exchangeCodeForTokenSuccess),
       tap(() => {
+        // Clean up the callback URL from browser history before navigation
+        this.cleanCallbackFromHistory();
+        
         const originalRoute = this.authService.getOriginalRoute();
         if (originalRoute) {
           this.authService.clearOriginalRoute();
@@ -85,4 +88,14 @@ export class AuthEffects {
       })
     )
   );
+
+  private cleanCallbackFromHistory(): void {
+    // Replace the current history entry if it's the callback page
+    if (window.location.pathname.includes('/auth/callback')) {
+      const url = new URL(window.location.href);
+      url.pathname = '/';
+      url.search = '';
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
 }
