@@ -13,7 +13,7 @@
       <p>{{'playback-stop-dialog--message' | translate}}</p>
 
       <div class="dont-ask-again--container">
-        <mat-checkbox class="p-left-0">
+        <mat-checkbox class="p-left-0" [(ngModel)]="dontShowAgain">
           <label>
             {{ 'dont-ask-again' | translate }}
           </label>

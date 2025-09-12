@@ -21,6 +21,8 @@ import {
   PlaybackStopResult,
 } from '../../../shared/dialogs/playback-stop-dialog/playback-stop-dialog.component';
 import {ToastService} from '../../../shared/services/toast.service';
+import {DontShowAgainService} from '../../../shared/services';
+import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +49,8 @@ export class MusicService {
   constructor(
     private store: Store,
     private router: Router,
-    private recordHandler: RecordHandlerService
+    private recordHandler: RecordHandlerService,
+    private dontShowAgainService: DontShowAgainService
   ) {
   }
 
@@ -134,6 +137,15 @@ export class MusicService {
   }
 
   openMusicStopDialog() {
+
+    const show = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.PlaybackStopDialog);
+
+    if (!show) {
+      this.soundService.stop();
+      this.soundService.clearQueue();
+      return;
+    }
+
     this.dialog.open(PlaybackStopDialogComponent, {
       width: '60vw'
     })

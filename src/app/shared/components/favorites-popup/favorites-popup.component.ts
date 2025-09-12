@@ -10,6 +10,9 @@ import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
+import {FormsModule} from '@angular/forms';
+import {DontShowAgainService} from '../../services';
+import {DontShowDialogs} from '../../services/dont-show-again.service';
 
 
 @Component({
@@ -22,6 +25,7 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
     TranslatePipe,
     InputComponent,
     MatCheckbox,
+    FormsModule,
   ],
   template: `
     <div class="favorites-popup" [class.success-state]="showSuccess()">
@@ -116,7 +120,17 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
         <hr>
 
         <div class="favorites-popup__section">
+
           {{ 'add-to-favorites-success--text' | translate }}
+
+          <div class="dont-ask-again--container">
+            <mat-checkbox [(ngModel)]="dontShowSuccessAgain">
+              <label>
+                {{ 'dont-ask-again' | translate }}
+              </label>
+            </mat-checkbox>
+          </div>
+
         </div>
 
         <div class="favorites-popup__actions">
@@ -221,7 +235,7 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
 
     .favorites-popup__actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: end;
       border-top: 1px solid var(--color-border-light);
       padding: 12px 16px;
     }
@@ -256,9 +270,17 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
       background-color: var(--color-border-light);
       margin: 0;
     }
+
+    .dont-ask-again--container {
+      font-size: 14px;
+      color: var(--color-tertiary);
+      padding: var(--spacing-x4) 0;
+    }
   `
 })
 export class FavoritesPopupComponent implements OnInit, OnDestroy {
+  dontShowSuccessAgain = false;
+
   @Input() itemId!: string;
   @Input() itemName?: string;
   @Input() currentFolderId?: string;
@@ -269,6 +291,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private actions$ = inject(Actions);
   private translateService = inject(TranslateService);
   private savedListsService = inject(SavedListsService);
+  private dontShowAgainService = inject(DontShowAgainService);
   private destroy$ = new Subject<void>();
 
   private _shouldAddItemToNewFolder = false;
@@ -385,8 +408,13 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         this.setShouldAddItemToNewFolder(false);
         this.setShouldCreateRealFavoritesFolder(false);
 
-        // Show success state
-        this.showSuccess.set(true);
+        const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
+
+        if (showSuccessPopup) {
+          this.showSuccess.set(true);
+        } else {
+          this.onCloseSuccess();
+        }
       }
     });
 
@@ -490,11 +518,20 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
 
     // Show success state only if no new folder is being created (otherwise the subscription will handle it)
     if (!newListName && !isFakeFavoritesSelected) {
-      this.showSuccess.set(true);
+      const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
+
+      if (showSuccessPopup) {
+        this.showSuccess.set(true);
+      } else {
+        this.onCloseSuccess();
+      }
     }
   }
 
   onCloseSuccess() {
+    if (this.dontShowSuccessAgain) {
+      this.dontShowAgainService.setDontShowAgain(DontShowDialogs.FavoritesPopup);
+    }
     this.success.emit();
     this.close.emit();
   }
