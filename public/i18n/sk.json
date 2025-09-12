@@ -180,5 +180,9 @@
   "delete-list-message": "Týmto odstránite zoznam zo svojich obľúbených.",
   "delete": "Zmazať",
   "remove-from-favorites-title": "Skutočne chcete dokument \"%name%\" zo zoznamu odstrániť?",
-  "remove-from-favorites-message": "Dokument bude trvalo zo zoznamu odstránený."
+  "remove-from-favorites-message": "Dokument bude trvalo zo zoznamu odstránený.",
+  "user-info--my-account": "Môj účet",
+  "user-info--logout": "Odhlásiť sa",
+  "user-info--saved-lists": "Moje zoznamy",
+  "user-info--help": "Nápoveda"
 }

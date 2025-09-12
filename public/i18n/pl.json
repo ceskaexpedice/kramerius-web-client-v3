@@ -183,5 +183,9 @@
   "delete-list-message": "Usunięcie listy jest nieodwracalne.",
   "delete": "Usuń",
   "remove-from-favorites-confirm": "Czy na pewno chcesz usunąć ten dokument \"%name%\" z ulubionych?",
-  "remove-from-favorites-message": "Usunięcie dokumentu z ulubionych jest nieodwracalne."
+  "remove-from-favorites-message": "Usunięcie dokumentu z ulubionych jest nieodwracalne.",
+  "user-info--my-account": "Moje konto",
+  "user-info--logout": "Wyloguj się",
+  "user-info--help": "Pomoc",
+  "user-info--saved-lists": "Zapisane listy"
 }

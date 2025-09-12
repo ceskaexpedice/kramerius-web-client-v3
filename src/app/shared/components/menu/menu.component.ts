@@ -13,6 +13,7 @@ import {
 import {Router} from '@angular/router';
 import {CdkConnectedOverlay} from '@angular/cdk/overlay';
 import {CdkTrapFocus} from '@angular/cdk/a11y';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 
@@ -25,6 +26,7 @@ export interface MenuItem {
   disabled?: boolean;
   dividerAbove?: boolean;
   variant?: 'default' | 'danger';
+  count?: number;
 }
 
 @Component({
@@ -32,6 +34,7 @@ export interface MenuItem {
   imports: [
     CdkConnectedOverlay,
     CdkTrapFocus,
+    TranslatePipe,
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss'
@@ -42,12 +45,7 @@ export class MenuComponent {
   // Inputs (signals)
   displayName = input<string>('');
   avatarUrl   = input<string | null>(null);
-  items       = input<MenuItem[]>([
-    { id: 'user-square', label: 'Můj účet', icon: 'person', route: ['/account'] },
-    { id: 'saved',   label: 'Moje uložené seznamy', icon: 'heart', route: ['/saved'] },
-    { id: 'question',    label: 'Nápověda', icon: 'help', route: ['/help'], dividerAbove: true },
-    { id: 'logout',  label: 'Odhlásit se', icon: 'logout', variant: 'danger' }
-  ]);
+  items       = input<MenuItem[]>([]);
   placement   = input<MenuPlacement>('bottom-end');
 
   // Outputs (signals)

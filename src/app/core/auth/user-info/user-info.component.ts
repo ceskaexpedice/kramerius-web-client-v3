@@ -8,6 +8,8 @@ import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
 import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.component';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
+import {selectFoldersCount} from '../../../modules/saved-lists-page/state';
+import {_} from '../../../shared/translation/translate-placeholder';
 
 @Component({
   selector: 'app-user-info',
@@ -30,10 +32,10 @@ export class UserInfoComponent {
   }
 
   userMenuItems: MenuItem[] = [
-    { id: this.userMenuItemsIds.account, label: 'My Account', icon: 'user-square', route: ['/account'] },
-    { id: this.userMenuItemsIds.saved, label: 'Saved Lists', icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
-    { id: this.userMenuItemsIds.help, label: 'Help', icon: 'question', route: ['/help']},
-    { id: this.userMenuItemsIds.logout, label: 'Log out', icon: 'logout', variant: 'danger' }
+    { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square', route: [APP_ROUTES_ENUM.PROFILE] },
+    { id: this.userMenuItemsIds.saved, label: _('user-info--saved-lists'), icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
+    { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
+    { id: this.userMenuItemsIds.logout, label: _('user-info--logout'), icon: 'logout', variant: 'danger' }
   ];
 
   private router = inject(Router);
@@ -42,9 +44,19 @@ export class UserInfoComponent {
   isAuthenticated = this.store.select(selectIsAuthenticated);
   user = this.store.select(selectUser);
 
+  savedListsCount = this.store.select(selectFoldersCount);
+
   constructor() {
     // Optionally, you can subscribe to the user observable if you need to perform actions based on user changes
     this.user.subscribe(user => console.log('User info updated:', user));
+
+    // add saved lists count to the "Saved Lists" menu item label
+    this.savedListsCount.subscribe(count => {
+      const savedItem = this.userMenuItems.find(item => item.id === this.userMenuItemsIds.saved);
+      if (savedItem) {
+        savedItem.count = count;
+      }
+    });
   }
 
   onUserMenu(item: MenuItem) {

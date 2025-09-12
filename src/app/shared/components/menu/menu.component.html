@@ -50,7 +50,12 @@
             (click)="onItemClick(item)"
           >
             <i class="icon-{{item.icon}}" aria-hidden="true"></i>
-            <span class="label">{{ item.label }}</span>
+            <span class="label">
+              {{ item.label | translate }}
+              @if (item.count) {
+                ({{item.count}})
+              }
+            </span>
           </button>
         </li>
       }

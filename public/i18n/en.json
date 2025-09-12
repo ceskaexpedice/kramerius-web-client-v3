@@ -193,5 +193,9 @@
   "delete-list-message": "This will remove the list from your favorites.",
   "delete": "Delete",
   "remove-from-favorites-title": "Are you sure you want to remove the document \"%name%\" from your favorites?",
-  "remove-from-favorites-message": "This will remove the document from your favorites."
+  "remove-from-favorites-message": "This will remove the document from your favorites.",
+  "user-info--my-account": "My account",
+  "user-info--logout": "Log out",
+  "user-info--saved-lists": "My lists",
+  "user-info--help": "Help"
 }
