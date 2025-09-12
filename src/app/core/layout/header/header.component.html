@@ -14,7 +14,7 @@
       [inputTheme]="'dark'"
       [placeholder]="'search-input-placeholder' | translate"
       [minTermLength]="2"
-      [initialValue]="searchService.inputSearchTerm"
+      [initialValue]="searchService.searchTerm()"
       [getSuggestions]="searchService.getSuggestionsFn"
       [showHelpButton]="false"
       [showMicrophoneButton]="false"

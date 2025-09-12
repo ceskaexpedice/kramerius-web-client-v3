@@ -1,6 +1,6 @@
 import {computed, effect, Injectable} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {filter, map, Observable, takeUntil} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
@@ -11,15 +11,12 @@ import {
 } from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {SolrOperators} from '../../core/solr/solr-helpers';
 import {SolrService} from '../../core/solr/solr.service';
 import {AdvancedSearchService} from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
 import {BaseFilterService} from './base-filter.service';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {CustomSearchService} from './custom-search.service';
-import {UserService} from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -38,8 +35,6 @@ export class SearchService extends BaseFilterService {
   pageResults$: Observable<SearchDocument[]>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
-
-  inputSearchTerm = '';
 
   // Implementation of abstract methods from BaseFilterService
   getBaseFilters(): Observable<string[]> {

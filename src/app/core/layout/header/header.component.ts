@@ -13,7 +13,6 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import {RecordHandlerService} from '../../../shared/services/record-handler.service';
-import {Store} from '@ngrx/store';
 import {UserInfoComponent} from '../../auth/user-info/user-info.component';
 
 @Component({

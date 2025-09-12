@@ -10,7 +10,7 @@
       [inputTheme]="'light'"
       [placeholder]="'search-input-placeholder' | translate"
       [minTermLength]="2"
-      [initialValue]="searchService.inputSearchTerm"
+      [initialValue]="searchService.searchTerm()"
       [getSuggestions]="searchService.getSuggestionsFn"
       (search)="searchService.onSearch($event)"
       (submit)="searchService.onSubmit($event)"

@@ -60,8 +60,7 @@ const routes: Routes = [
     AdminActionsComponent,
   ],
   providers: [
-    SearchService,
-    { provide: 'FilterService', useClass: SearchService },
+    { provide: 'FilterService', useExisting: SearchService },
   ]
 })
 
