@@ -11,12 +11,12 @@
         <app-action-toolbar>
           <div left>
             <!-- Regular view: show record type tabs -->
-            <ng-container *ngIf="!adminSelectionService.adminMode()">
+            <ng-container *ngIf="!selectionService.selectionMode()">
               <app-record-type-tabs></app-record-type-tabs>
             </ng-container>
 
             <!-- Admin view: show admin actions -->
-            <ng-container *ngIf="adminSelectionService.adminMode()">
+            <ng-container *ngIf="selectionService.selectionMode()">
               <app-admin-actions
                 (exportRequested)="onExportSelected()"
                 (editRequested)="onEditSelected($event)">
@@ -28,7 +28,7 @@
             <div class="flex flex--center flex--align-center">
 
               <!-- Show regular controls when not in admin mode -->
-              <ng-container *ngIf="!adminSelectionService.adminMode()">
+              <ng-container *ngIf="!selectionService.selectionMode()">
                 <app-paginator-info
                   [page]="searchService.page"
                   [pageSize]="searchService.pageSize"
@@ -41,6 +41,18 @@
                   (valueChange)="setView($event)"
                 />
 
+                <div class="flex flex--align-center flex--gap-x2 margin-side--x2">
+
+                  <button class="button outlined tertiary sm square-button">
+                    <i class="icon-download"></i>
+                  </button>
+
+                  <button class="button outlined tertiary sm square-button" (click)="selectionService.setSelectionMode(true)">
+                    <i class="icon-tick-square"></i>
+                  </button>
+
+                </div>
+
                 <app-results-sort
                   [selectedSort]="searchService.sortBy"
                   [selectedDirection]="searchService.sortDirection"
@@ -49,18 +61,13 @@
               </ng-container>
 
               <!-- Show selection count when in admin mode and items are selected -->
-              <ng-container *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
-                <span class="admin-selection-count">{{ adminSelectionService.getSelectionSummary() }}</span>
+              <ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+                <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
               </ng-container>
 
-              <!-- Admin toggle (always visible) -->
-              <mat-slide-toggle
-                [checked]="adminSelectionService.adminMode()"
-                [hideIcon]="true"
-                [class]="'size-sm'"
-                (change)="toggleAdminMode()">
-                {{ 'admin' | translate }}
-              </mat-slide-toggle>
+              <button class="button outlined tertiary sm square-button" *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
+                <i class="icon-x"></i>
+              </button>
 
             </div>
           </div>

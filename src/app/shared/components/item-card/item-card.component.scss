@@ -93,7 +93,7 @@
   }
 
   // Admin mode styles
-  &.admin-mode {
+  &.selection-mode {
     cursor: pointer;
 
     // Admin mode: Resting card styles
@@ -122,7 +122,7 @@
   }
 
   // Selected state (only in admin mode)
-  &.admin-mode.selected {
+  &.selection-mode.selected {
     // Admin mode: Selected card styles
     border: 2px solid var(--color-primary);
     border-radius: var(--spacing-x2);
@@ -143,7 +143,7 @@
   }
 
   // Hide favorite button in admin mode, show selection instead
-  &.admin-mode .item-card__favorite-btn {
+  &.selection-mode .item-card__favorite-btn {
     opacity: 0;
     pointer-events: none;
   }

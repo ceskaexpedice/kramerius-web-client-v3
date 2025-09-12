@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, from } from 'rxjs';
-import { AdminSelectionService } from './admin-selection.service';
+import { SelectionService } from './selection.service';
 import { ExportService, ExportFormat } from './export.service';
 import { EditSelectedDialogComponent, EditSelectedDialogData } from '../dialogs/edit-selected-dialog/edit-selected-dialog.component';
 import { ExportSelectedDialogComponent, ExportSelectedDialogData } from '../dialogs/export-selected-dialog/export-selected-dialog.component';
@@ -18,7 +18,7 @@ export interface AdminActionResult {
 export class AdminActionsService {
 
   private dialog = inject(MatDialog);
-  private adminSelectionService = inject(AdminSelectionService);
+  private selectionService = inject(SelectionService);
   private exportService = inject(ExportService);
 
   /**
@@ -27,7 +27,7 @@ export class AdminActionsService {
    * @returns Observable that emits when dialog is closed with result
    */
   openEditDialog(selectedIds?: string[]): Observable<AdminActionResult | undefined> {
-    const ids = selectedIds || this.adminSelectionService.getSelectedIds();
+    const ids = selectedIds || this.selectionService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for editing');
@@ -56,7 +56,7 @@ export class AdminActionsService {
    * @returns Observable that emits when dialog is closed with result
    */
   openExportDialog(selectedIds?: string[]): Observable<AdminActionResult | undefined> {
-    const ids = selectedIds || this.adminSelectionService.getSelectedIds();
+    const ids = selectedIds || this.selectionService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for export');

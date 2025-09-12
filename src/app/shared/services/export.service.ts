@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
-import { AdminSelectionService } from './admin-selection.service';
+import { SelectionService } from './selection.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
@@ -26,7 +26,7 @@ export interface ExportOptions {
 })
 export class ExportService {
   private solrService = inject(SolrService);
-  private adminSelectionService = inject(AdminSelectionService);
+  private selectionService = inject(SelectionService);
 
   exportSelectedItems(itemIds: string[], options: ExportOptions): Observable<void> {
     // Fetch full details for selected items
@@ -48,7 +48,7 @@ export class ExportService {
 
   private fetchItemDetails(itemIds: string[]): Observable<SearchDocument[]> {
     // First try to get items from current selection service
-    const selectedItems = this.adminSelectionService.getSelectedItems();
+    const selectedItems = this.selectionService.getSelectedItems();
     const foundItems = selectedItems.filter(item => itemIds.includes(item.pid));
 
     // If we have all items from the selection service, use those

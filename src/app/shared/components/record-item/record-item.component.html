@@ -1,16 +1,16 @@
 <a class="record-item-card"
    [class.page]="record.model === DocumentTypeEnum.page"
    [class.periodical]="record.model === DocumentTypeEnum.periodical"
-   [class.admin-mode]="adminSelectionService.adminMode()"
-   [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(record.pid)"
+   [class.selection-mode]="selectionService.selectionMode()"
+   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(record.pid)"
    [href]="getDocumentUrl()"
    [attr.aria-label]="getTitle()"
    (click)="onRecordClick($event, record)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
-  <div class="record-item-card__selection" *ngIf="adminSelectionService.adminMode()">
+  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
     <app-checkbox 
-      [model]="adminSelectionService.isSelected(record.pid)"
+      [model]="selectionService.isSelected(record.pid)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
@@ -24,7 +24,7 @@
 
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button"
-                *ngIf="!adminSelectionService.adminMode()"
+                *ngIf="!selectionService.selectionMode()"
                 (click)="onToggleFavorites($event)"
                 [title]="'add-to-favorites' | translate">
           <i class="icon-heart"></i>

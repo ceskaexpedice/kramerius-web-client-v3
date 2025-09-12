@@ -1,7 +1,7 @@
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AdminSelectionService } from '../../services/admin-selection.service';
+import { SelectionService, AdminModeService } from '../../services';
 import { AdminActionsService } from '../../services/admin-actions.service';
 
 @Component({
@@ -17,26 +17,27 @@ import { AdminActionsService } from '../../services/admin-actions.service';
 export class AdminActionsComponent {
   @Input() compact: boolean = false;
   
-  adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   private adminActionsService = inject(AdminActionsService);
 
   @Output() exportRequested = new EventEmitter<string[]>();
   @Output() editRequested = new EventEmitter<string[]>();
 
   onSelectAll(): void {
-    this.adminSelectionService.selectAllVisible();
+    this.selectionService.selectAllVisible();
   }
 
   onDeselectAll(): void {
-    this.adminSelectionService.deselectAllVisible();
+    this.selectionService.deselectAllVisible();
   }
 
   onToggleAllVisible(): void {
-    this.adminSelectionService.toggleAllVisible();
+    this.selectionService.toggleAllVisible();
   }
 
   onExportSelected(): void {
-    const selectedIds = this.adminSelectionService.getSelectedIds();
+    const selectedIds = this.selectionService.getSelectedIds();
     
     // Emit event for parent components that may need to know
     this.exportRequested.emit(selectedIds);
@@ -46,7 +47,7 @@ export class AdminActionsComponent {
   }
 
   onEditSelected(): void {
-    const selectedIds = this.adminSelectionService.getSelectedIds();
+    const selectedIds = this.selectionService.getSelectedIds();
     
     // Emit event for parent components that may need to know
     this.editRequested.emit(selectedIds);

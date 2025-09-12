@@ -8,7 +8,7 @@ import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
 import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 import {RecordHandlerService} from '../../services/record-handler.service';
-import { AdminSelectionService } from '../../services/admin-selection.service';
+import { SelectionService } from '../../services';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -23,8 +23,8 @@ import { AdminSelectionService } from '../../services/admin-selection.service';
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
   host: {
-    '[class.admin-mode]': 'adminSelectionService.adminMode()',
-    '[class.selected]': 'adminSelectionService.adminMode() && adminSelectionService.isSelected(record.pid)',
+    '[class.selection-mode]': 'selectionService.selectionMode()',
+    '[class.selected]': 'selectionService.selectionMode() && selectionService.isSelected(record.pid)',
     '(click)': 'onRowClick($event)'
   }
 })
@@ -34,7 +34,7 @@ export class RecordItemListRowComponent {
   @Input() url!: string;
 
   recordHandler = inject(RecordHandlerService);
-  adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
 
   protected readonly languageMap = languageMap;
 
@@ -49,19 +49,19 @@ export class RecordItemListRowComponent {
   }
 
   onRowClick(event: MouseEvent): void {
-    // This handles clicks on the entire row (when in admin mode)
-    if (this.adminSelectionService.adminMode()) {
+    // This handles clicks on the entire row (when in selection mode)
+    if (this.selectionService.selectionMode()) {
       event.preventDefault();
-      this.adminSelectionService.toggleItem(this.record.pid);
+      this.selectionService.toggleItem(this.record.pid);
     }
     // In normal mode, row clicks don't do anything (let individual elements handle their clicks)
   }
 
   onTitleClick(event: MouseEvent): void {
     // This handles clicks specifically on the title/link area
-    if (this.adminSelectionService.adminMode()) {
+    if (this.selectionService.selectionMode()) {
       event.preventDefault();
-      this.adminSelectionService.toggleItem(this.record.pid);
+      this.selectionService.toggleItem(this.record.pid);
     } else {
       this.recordHandler.onNavigate(event, this.url);
     }
@@ -69,9 +69,9 @@ export class RecordItemListRowComponent {
 
   onSelectionChange(selected: boolean): void {
     if (selected) {
-      this.adminSelectionService.selectItem(this.record.pid);
+      this.selectionService.selectItem(this.record.pid);
     } else {
-      this.adminSelectionService.deselectItem(this.record.pid);
+      this.selectionService.deselectItem(this.record.pid);
     }
   }
 

@@ -309,3 +309,9 @@ button.with-icon {
     font-size: 16px;
   }
 }
+
+.square-button {
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 1/1;
+}

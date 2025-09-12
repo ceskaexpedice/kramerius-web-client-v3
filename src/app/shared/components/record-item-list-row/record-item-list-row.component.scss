@@ -10,7 +10,7 @@
   }
 
   // Admin mode styles for row
-  &.admin-mode {
+  &.selection-mode {
     // Admin mode: Resting row styles
     border-radius: var(--spacing-x2);
     box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
@@ -34,7 +34,7 @@
   }
 
   // Selected state (only in admin mode)
-  &.admin-mode.selected {
+  &.selection-mode.selected {
     // Admin mode: Selected row styles
     border: 2px solid var(--color-primary);
     border-radius: var(--spacing-x2);
@@ -140,12 +140,12 @@ td {
 }
 
 // Add left padding when checkbox is visible to prevent overlap
-:host.admin-mode td.record-title {
+:host.selection-mode td.record-title {
   padding-left: 44px; // Space for checkbox + padding
 }
 
 .title-wrapper {
-  &.admin-mode {
+  &.selection-mode {
     // Disable link behavior in admin mode
     text-decoration: none;
     color: inherit;

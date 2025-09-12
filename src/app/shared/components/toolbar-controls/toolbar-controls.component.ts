@@ -52,6 +52,7 @@ export class ToolbarControlsComponent {
   @Input() showDelete = false;
   @Input() showDownload = false;
   @Input() showEdit = false;
+  @Input() showSelect = false;
 
   // Legacy outputs - maintained for backward compatibility
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -61,6 +62,7 @@ export class ToolbarControlsComponent {
   @Output() deleteClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() downloadClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() editClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
   // Get merged actions from both new config approach and legacy boolean approach
@@ -90,6 +92,10 @@ export class ToolbarControlsComponent {
     }
     if (this.showEdit) {
       legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit' });
+    }
+
+    if (this.showSelect) {
+      legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'Select', disabled: false });
     }
 
     // Combine both sets of actions
@@ -131,6 +137,9 @@ export class ToolbarControlsComponent {
         break;
       case 'edit':
         this.editClicked.emit();
+        break;
+      case 'select':
+        this.selectClicked.emit();
         break;
     }
   }

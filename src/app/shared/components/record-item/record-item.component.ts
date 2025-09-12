@@ -12,7 +12,7 @@ import {PopupPositioningService, PopupState} from '../../services/popup-position
 import {AuthService} from '../../../core/auth/auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
-import { AdminSelectionService } from '../../services/admin-selection.service';
+import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 
 @Component({
@@ -34,7 +34,7 @@ export class RecordItemComponent implements OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   authService = inject(AuthService);
   dialog = inject(MatDialog);
-  adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
@@ -49,9 +49,9 @@ export class RecordItemComponent implements OnDestroy {
 
   onRecordClick(e: MouseEvent, record: SearchDocument): void {
     console.log(e, record);
-    if (this.adminSelectionService.adminMode()) {
+    if (this.selectionService.selectionMode()) {
       e.preventDefault();
-      this.adminSelectionService.toggleItem(record.pid);
+      this.selectionService.toggleItem(record.pid);
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }
@@ -59,9 +59,9 @@ export class RecordItemComponent implements OnDestroy {
 
   onSelectionChange(selected: boolean): void {
     if (selected) {
-      this.adminSelectionService.selectItem(this.record.pid);
+      this.selectionService.selectItem(this.record.pid);
     } else {
-      this.adminSelectionService.deselectItem(this.record.pid);
+      this.selectionService.deselectItem(this.record.pid);
     }
   }
 

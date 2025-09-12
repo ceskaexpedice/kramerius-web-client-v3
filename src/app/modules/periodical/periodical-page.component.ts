@@ -1,14 +1,14 @@
-import {Component, inject, OnInit, OnDestroy} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {ViewMode} from './models/view-mode.enum';
 import {RecordInfoService} from '../../shared/services/record-info.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {AdminSelectionService} from '../../shared/services/admin-selection.service';
 import {AdminActionsService} from '../../shared/services/admin-actions.service';
 import {Subscription} from 'rxjs';
 import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
+import {SelectionService} from '../../shared/services';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -20,7 +20,8 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
-  public adminSelectionService = inject(AdminSelectionService);
+
+  public selectionService = inject(SelectionService);
   private adminActionsService = inject(AdminActionsService);
 
   private subscriptions: Subscription[] = [];
@@ -36,7 +37,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.periodical.searchResults$.subscribe(searchResults => {
         if (searchResults && this.periodical.viewMode() === ViewMode.SearchResults) {
-          this.adminSelectionService.updateCurrentPageItems(searchResults);
+          this.selectionService.updateCurrentPageItems(searchResults);
         }
       })
     );
@@ -54,7 +55,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
             licenses: year.licenses,
             access: 'public' // Default access for periodical years
           }));
-          this.adminSelectionService.updateCurrentPageItems(yearItems);
+          this.selectionService.updateCurrentPageItems(yearItems);
         }
       })
     );
@@ -72,7 +73,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
             licenses: child['licenses.facet'] || child.licenses || [],
             access: 'public' // Default access for periodical children
           }));
-          this.adminSelectionService.updateCurrentPageItems(childrenItems);
+          this.selectionService.updateCurrentPageItems(childrenItems);
         }
       })
     );
@@ -92,8 +93,13 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.periodical.changeSortBy(event.value, event.direction);
   }
 
-  toggleAdminMode(): void {
-    this.adminSelectionService.toggleAdminMode();
+  toggleSelectionMode(): void {
+    if (this.periodical.viewMode() === ViewMode.Timeline) {
+      this.periodical.setView(ViewMode.GridYears)
+    } else if (this.periodical.viewMode() === ViewMode.Calendar) {
+      this.periodical.setView(ViewMode.GridIssues);
+    }
+    this.selectionService.toggleSelectionMode();
   }
 
   onExportSelected(): void {

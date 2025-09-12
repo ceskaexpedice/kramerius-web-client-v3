@@ -246,3 +246,11 @@
 .d-block-inline {
   display: inline-block;
 }
+
+.margin-side--x1 {
+  margin: 0 var(--spacing-x1);
+}
+
+.margin-side--x2 {
+  margin: 0 var(--spacing-x2);
+}

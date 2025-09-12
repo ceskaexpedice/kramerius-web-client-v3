@@ -5,7 +5,7 @@ import { DocumentAccessibilityEnum } from '../../../modules/constants/document-a
 import { EnvironmentService } from '../../services/environment.service';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {Router} from '@angular/router';
-import { AdminSelectionService } from '../../services/admin-selection.service';
+import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 
 export interface ItemCard {
@@ -43,7 +43,7 @@ export class ItemCardComponent {
 
   public recordHandlerService = inject(RecordHandlerService);
   private router = inject(Router);
-  public adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -61,16 +61,16 @@ export class ItemCardComponent {
 
   onSelectionChange(selected: boolean): void {
     if (selected) {
-      this.adminSelectionService.selectItem(this.uuid);
+      this.selectionService.selectItem(this.uuid);
     } else {
-      this.adminSelectionService.deselectItem(this.uuid);
+      this.selectionService.deselectItem(this.uuid);
     }
   }
 
   onCardClick(event: MouseEvent): void {
-    if (this.adminSelectionService.adminMode()) {
+    if (this.selectionService.selectionMode()) {
       event.preventDefault();
-      this.adminSelectionService.toggleItem(this.uuid);
+      this.selectionService.toggleItem(this.uuid);
     } else {
       this.recordHandlerService.onNavigate(event, this.recordHandlerService.getHandleDocumentUrlByModelAndPid(this.model, this.uuid));
     }

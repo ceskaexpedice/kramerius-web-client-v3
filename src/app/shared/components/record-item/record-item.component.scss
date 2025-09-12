@@ -170,7 +170,7 @@
   }
 
   // Admin mode styles
-  &.admin-mode {
+  &.selection-mode {
     cursor: pointer;
 
     // Admin mode: Resting card styles
@@ -204,7 +204,7 @@
   }
 
   // Selected state (only in admin mode)
-  &.admin-mode.selected {
+  &.selection-mode.selected {
     // Admin mode: Selected card styles
     border: 2px solid var(--color-primary);
     border-radius: var(--spacing-x2);

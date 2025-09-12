@@ -1,7 +1,7 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Injectable, computed, inject } from '@angular/core';
 import { SearchDocument } from '../../modules/models/search-document';
+import { SelectionService } from './selection.service';
+import { AdminModeService } from './admin-mode.service';
 
 export interface AdminSelectionState {
   selectedIds: Set<string>;
@@ -9,151 +9,80 @@ export interface AdminSelectionState {
   currentPageItems: SearchDocument[];
 }
 
+/**
+ * @deprecated Use SelectionService for general selection functionality and AdminModeService for admin-specific functionality
+ * This service is maintained for backward compatibility
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AdminSelectionService {
-  private router = inject(Router);
-  private selectedIds = signal<Set<string>>(new Set());
-  private isAdminMode = signal<boolean>(false);
-  private currentPageItems = signal<SearchDocument[]>([]);
+  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
 
-  constructor() {
-    // Listen to router events and disable admin mode on navigation
-    // but preserve admin mode for same-page navigation (e.g., page size changes)
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      if (this.isAdminMode()) {
-        // Only disable admin mode if we're navigating to a different page
-        // Keep admin mode for same-page query parameter changes (pagination, page size)
-        const currentPath = event.urlAfterRedirects.split('?')[0];
-        const previousPath = event.url.split('?')[0];
-        
-        if (currentPath !== previousPath) {
-          this.setAdminMode(false);
-        }
-      }
-    });
-  }
+  // Delegate selection functionality to SelectionService
+  readonly selectedCount = this.selectionService.selectedCount;
+  readonly hasSelection = this.selectionService.hasSelection;
+  readonly isAllVisibleSelected = this.selectionService.isAllVisibleSelected;
+  readonly isSomeVisibleSelected = this.selectionService.isSomeVisibleSelected;
 
-  readonly selectedCount = computed(() => this.selectedIds().size);
-  readonly hasSelection = computed(() => this.selectedIds().size > 0);
-  readonly adminMode = computed(() => this.isAdminMode());
-  
-  readonly isAllVisibleSelected = computed(() => {
-    const currentItems = this.currentPageItems();
-    const selectedSet = this.selectedIds();
-    
-    if (currentItems.length === 0) return false;
-    
-    return currentItems.every(item => selectedSet.has(item.pid));
-  });
-
-  readonly isSomeVisibleSelected = computed(() => {
-    const currentItems = this.currentPageItems();
-    const selectedSet = this.selectedIds();
-    
-    return currentItems.some(item => selectedSet.has(item.pid)) && 
-           !this.isAllVisibleSelected();
-  });
+  // Delegate admin mode functionality to AdminModeService
+  readonly adminMode = this.adminModeService.adminMode;
 
   toggleAdminMode(): void {
-    this.isAdminMode.update(current => {
-      const newValue = !current;
-      if (!newValue) {
-        this.clearSelection();
-      }
-      return newValue;
-    });
+    this.adminModeService.toggleAdminMode();
   }
 
   setAdminMode(enabled: boolean): void {
-    this.isAdminMode.set(enabled);
-    if (!enabled) {
-      this.clearSelection();
-    }
+    this.adminModeService.setAdminMode(enabled);
   }
 
   updateCurrentPageItems(items: SearchDocument[]): void {
-    this.currentPageItems.set(items);
+    this.selectionService.updateCurrentPageItems(items);
   }
 
   isSelected(itemId: string): boolean {
-    return this.selectedIds().has(itemId);
+    return this.selectionService.isSelected(itemId);
   }
 
   toggleItem(itemId: string): void {
-    this.selectedIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
+    this.selectionService.toggleItem(itemId);
   }
 
   selectItem(itemId: string): void {
-    this.selectedIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      newSet.add(itemId);
-      return newSet;
-    });
+    this.selectionService.selectItem(itemId);
   }
 
   deselectItem(itemId: string): void {
-    this.selectedIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      newSet.delete(itemId);
-      return newSet;
-    });
+    this.selectionService.deselectItem(itemId);
   }
 
   selectAllVisible(): void {
-    this.selectedIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      this.currentPageItems().forEach(item => newSet.add(item.pid));
-      return newSet;
-    });
+    this.selectionService.selectAllVisible();
   }
 
   deselectAllVisible(): void {
-    this.selectedIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      this.currentPageItems().forEach(item => newSet.delete(item.pid));
-      return newSet;
-    });
+    this.selectionService.deselectAllVisible();
   }
 
   toggleAllVisible(): void {
-    if (this.isAllVisibleSelected()) {
-      this.deselectAllVisible();
-    } else {
-      this.selectAllVisible();
-    }
+    this.selectionService.toggleAllVisible();
   }
 
   clearSelection(): void {
-    this.selectedIds.set(new Set());
+    this.selectionService.clearSelection();
   }
 
   getSelectedIds(): string[] {
-    return Array.from(this.selectedIds());
+    return this.selectionService.getSelectedIds();
   }
 
   getSelectedItems(): SearchDocument[] {
-    const selectedSet = this.selectedIds();
-    const allKnownItems = this.currentPageItems();
-    
-    return allKnownItems.filter(item => selectedSet.has(item.pid));
+    return this.selectionService.getSelectedItems();
   }
 
   getSelectionSummary(): string {
-    const count = this.selectedCount();
-    if (count === 0) return 'No items selected';
-    if (count === 1) return '1 item selected';
-    return `${count} items selected`;
+    return this.selectionService.getSelectionSummary();
   }
+
 }

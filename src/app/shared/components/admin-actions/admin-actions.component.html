@@ -3,7 +3,7 @@
   <button
     class="button primary with-icon"
     (click)="onEditSelected()"
-    [disabled]="!adminSelectionService.hasSelection()"
+    [disabled]="!selectionService.hasSelection()"
     [title]="'edit-selected' | translate">
     <span>{{ 'edit-selected--admin' | translate }}</span>
     <i class="icon-edit-2"></i>
@@ -13,7 +13,7 @@
   <button
     class="button outlined tertiary"
     (click)="onExportSelected()"
-    [disabled]="!adminSelectionService.hasSelection()"
+    [disabled]="!selectionService.hasSelection()"
     [title]="'export' | translate">
     <span>{{ 'export' | translate }}</span>
     <i class="icon-arrow-right"></i>
@@ -21,7 +21,7 @@
 
   <button class="button outlined tertiary m-left-auto"
           *ngIf="compact"
-          (click)="adminSelectionService.toggleAdminMode()"
+          (click)="adminModeService.toggleAdminMode()"
   >
     <i class="icon-x"></i>
   </button>
@@ -30,7 +30,7 @@
   <button
     class="button transparent tertiary with-icon"
     (click)="onSelectAll()"
-    [disabled]="adminSelectionService.isAllVisibleSelected()"
+    [disabled]="selectionService.isAllVisibleSelected()"
     [title]="'select-all' | translate">
     <i class="icon-copy-success"></i>
     <span>{{ 'select-all' | translate }}</span>
@@ -40,7 +40,7 @@
   <button
     class="button transparent tertiary with-icon"
     (click)="onDeselectAll()"
-    [disabled]="!adminSelectionService.hasSelection()"
+    [disabled]="!selectionService.hasSelection()"
     [title]="'deselect-all' | translate">
     <i class="icon-close-square"></i>
     <span>{{ 'deselect-all' | translate }}</span>

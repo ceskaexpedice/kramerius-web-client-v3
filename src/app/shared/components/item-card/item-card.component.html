@@ -1,16 +1,16 @@
 <a class="item-card"
    [class.with-badge]="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)"
-   [class.admin-mode]="adminSelectionService.adminMode()"
-   [class.selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(uuid)"
+   [class.selection-mode]="selectionService.selectionMode()"
+   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(uuid)"
    [ngClass]="[className, model]"
    [href]="recordHandlerService.getHandleDocumentUrlByModelAndPid(model, uuid)"
    [attr.aria-label]="title"
    (click)="onCardClick($event)">
 
   <!-- Selection checkbox overlay for admin mode -->
-  <div class="item-card__selection-overlay" *ngIf="adminSelectionService.adminMode()">
+  <div class="item-card__selection-overlay" *ngIf="selectionService.selectionMode()">
     <app-checkbox 
-      [model]="adminSelectionService.isSelected(uuid)"
+      [model]="selectionService.isSelected(uuid)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
@@ -24,7 +24,7 @@
       loading="lazy"
     />
 
-    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton && !adminSelectionService.adminMode()" (click)="toggleFavorite()">
+    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton && !selectionService.selectionMode()" (click)="toggleFavorite()">
       <i class="fa fa-heart-o"></i>
     </button>
   </div>

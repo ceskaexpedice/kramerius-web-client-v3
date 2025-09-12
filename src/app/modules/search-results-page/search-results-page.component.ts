@@ -4,7 +4,7 @@ import {AdvancedSearchService} from '../../shared/services/advanced-search.servi
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {AdminSelectionService} from '../../shared/services';
+import {AdminSelectionService, SelectionService} from '../../shared/services';
 import {Subscription, combineLatest} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {SearchDocument} from '../models/search-document';
@@ -29,6 +29,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public searchService = inject(SearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
+  public selectionService = inject(SelectionService);
   public adminSelectionService = inject(AdminSelectionService);
 
   private subscriptions: Subscription[] = [];
