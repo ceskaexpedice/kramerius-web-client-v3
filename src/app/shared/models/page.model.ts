@@ -22,6 +22,7 @@ export class Page {
 
   pid: string = '';
   'date.str': string = '';
+  'page.number': string = '';
 }
 
 export enum PagePosition {
