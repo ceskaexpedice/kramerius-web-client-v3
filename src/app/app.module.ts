@@ -29,6 +29,7 @@ import {SearchService} from './shared/services/search.service';
 import { authReducer, authFeatureKey } from './core/auth/store';
 import { AuthEffects } from './core/auth/store';
 import {tokenInterceptor} from './core/auth/token.interceptor';
+import {simpleCacheInterceptor} from './core/cache/simple-cache.interceptor-fn';
 
 // NgRx Feature Reducers
 import { periodicalsReducer } from './modules/search/state/periodicals/periodicals.reducer';
@@ -120,7 +121,7 @@ export function initApp(envService: EnvironmentService) {
   providers: [
     provideHttpClient(
       withFetch(),
-      withInterceptors([tokenInterceptor])
+      withInterceptors([simpleCacheInterceptor, tokenInterceptor])
     ),
     AppMissingTranslationService,
     {

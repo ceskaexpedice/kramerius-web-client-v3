@@ -539,31 +539,8 @@ export class SolrService {
     return `${this.API_BASE_URL}items/${pid}/image/thumb`;
   }
 
-  /**
-   * Adds filters to params with proper operators
-   */
-  private addFilterQueries(
-    params: HttpParams,
-    filters: string[],
-    operators: Record<string, string> = {},
-    skipField?: string
-  ): HttpParams {
-    const filtersByField = this.groupFiltersByField(filters);
-    let result = params;
-
-    filtersByField.forEach((values, field) => {
-      if (values.length > 0 && field !== skipField) {
-        const operator = operators[field] || SolrOperators.or;
-        const escapedValues = values.map(v => `"${v}"`);
-
-        if (values.length === 1) {
-          result = result.append('fq', `${field}:${escapedValues[0]}`);
-        } else {
-          result = result.append('fq', `${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
-        }
-      }
-    });
-
-    return result;
+  private addFilterQueries(params: HttpParams, filters: string[], operators: Record<string, string> = {}): HttpParams {
+    this.buildFqParams(filters, operators).forEach(fq => params = params.append('fq', fq));
+    return params;
   }
 }

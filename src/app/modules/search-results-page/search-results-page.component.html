@@ -92,7 +92,15 @@
           <app-advanced-search-indicator></app-advanced-search-indicator>
         </ng-container>
 
-        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
+        <!-- Loading State -->
+        <div *ngIf="searchService.loading$ | async" class="loading-container">
+          <div class="loading-message">
+            <p>Loading search results...</p>
+          </div>
+        </div>
+
+        <!-- Results Container -->
+        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'" *ngIf="!(searchService.loading$ | async)">
 
           <!-- GRID VIEW -->
           @if (view() === ViewOptions.grid) {

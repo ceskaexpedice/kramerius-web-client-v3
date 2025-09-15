@@ -8,6 +8,7 @@ import {
   selectFacets, selectNonPageSearchResults, selectPageSearchResults,
   selectSearchResults,
   selectSearchResultsTotalCount,
+  selectSearchResultsLoading,
 } from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
@@ -33,6 +34,7 @@ export class SearchService extends BaseFilterService {
   results$: Observable<SearchDocument[]>;
   nonPageResults$: Observable<SearchDocument[]>;
   pageResults$: Observable<SearchDocument[]>;
+  loading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
@@ -103,6 +105,7 @@ export class SearchService extends BaseFilterService {
     this.results$ = this.store.select(selectSearchResults);
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.nonPageResults$ = this.store.select(selectNonPageSearchResults);
+    this.loading$ = this.store.select(selectSearchResultsLoading);
 
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);

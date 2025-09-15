@@ -31,13 +31,13 @@ export const searchReducer = createReducer(
   on(SearchActions.loadSearchResultsSuccess, (state, {results, totalCount}) => ({
     ...state,
     results,
-    totalCount
+    totalCount,
+    loading: false,
   })),
 
   on(SearchActions.loadFacetsSuccess, (state, {facets}) => ({
     ...state,
-    facets,
-    loading: false,
+    facets
   })),
 
   on(SearchActions.loadSearchResultsFailure, (state, {error}) => ({
