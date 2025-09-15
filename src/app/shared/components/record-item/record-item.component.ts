@@ -1,6 +1,6 @@
-import {Component, inject, Input, signal, OnDestroy} from '@angular/core';
+import {Component, inject, Input, signal, OnDestroy, OnInit, computed} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
-import {NgIf} from '@angular/common';
+import {NgIf, AsyncPipe, NgClass} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
@@ -14,20 +14,24 @@ import {MatDialog} from '@angular/material/dialog';
 import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
+import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
+import { Observable, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-record-item',
   imports: [
     NgIf,
+    AsyncPipe,
     TranslatePipe,
     AccessibilityBadgeComponent,
     FavoritesPopupComponent,
     CheckboxComponent,
+    NgClass,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
 })
-export class RecordItemComponent implements OnDestroy {
+export class RecordItemComponent implements OnInit, OnDestroy {
 
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
@@ -35,6 +39,7 @@ export class RecordItemComponent implements OnDestroy {
   authService = inject(AuthService);
   dialog = inject(MatDialog);
   public selectionService = inject(SelectionService);
+  private folderItemsService = inject(FolderItemsService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
@@ -43,8 +48,18 @@ export class RecordItemComponent implements OnDestroy {
 
   favoritesPopupState: PopupState;
 
+  // Observable to check if this item is in any folder
+  isItemFavorited$: Observable<boolean> = EMPTY;
+
   constructor() {
     this.favoritesPopupState = this.popupPositioning.createPopupState();
+  }
+
+  ngOnInit() {
+    // Initialize the observable once we have the record
+    if (this.record?.pid) {
+      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(this.record.pid);
+    }
   }
 
   onRecordClick(e: MouseEvent, record: SearchDocument): void {

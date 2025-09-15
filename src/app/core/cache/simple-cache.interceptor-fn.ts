@@ -5,6 +5,14 @@ import { tap } from 'rxjs/operators';
 const TTL = 24 * 60 * 60 * 1000; // 1 day
 const CACHE_PREFIX = 'cdk-cache:';
 
+// List of URL patterns that should not be cached
+const NO_CACHE_PATTERNS = [
+  '/folders',           // User folders - always need fresh data
+  '/auth/',             // Authentication endpoints
+  '/user/',             // User-specific data
+  '/session',           // Session-related endpoints
+] as const;
+
 interface CacheEntry {
   response: any; // Serialized HttpResponse
   timestamp: number;
@@ -13,9 +21,16 @@ interface CacheEntry {
   headers: Record<string, string>;
 }
 
+/**
+ * Check if a URL should be cached based on the NO_CACHE_PATTERNS
+ */
+function shouldCache(url: string): boolean {
+  return !NO_CACHE_PATTERNS.some(pattern => url.includes(pattern));
+}
+
 export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
-  // Only cache GET requests
-  if (req.method !== 'GET') {
+  // Only cache GET requests and URLs that are allowed to be cached
+  if (req.method !== 'GET' || !shouldCache(req.url)) {
     return next(req);
   }
 
@@ -124,4 +139,22 @@ export function clearSimpleCache(): void {
   }
 
   keysToDelete.forEach(key => localStorage.removeItem(key));
+}
+
+// Export function to clear cache for specific URL pattern
+export function clearSimpleCacheForPattern(pattern: string): void {
+  const keysToDelete: string[] = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(CACHE_PREFIX) && key.includes(pattern)) {
+      keysToDelete.push(key);
+    }
+  }
+
+  keysToDelete.forEach(key => localStorage.removeItem(key));
+  
+  if (keysToDelete.length > 0) {
+    console.log(`[SimpleCache] Cleared ${keysToDelete.length} cache entries matching pattern: ${pattern}`);
+  }
 }

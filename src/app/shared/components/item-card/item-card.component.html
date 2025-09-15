@@ -24,8 +24,12 @@
       loading="lazy"
     />
 
-    <button class="icon-button light rounded item-card__favorite-btn" *ngIf="showFavoriteButton && !selectionService.selectionMode()" (click)="toggleFavorite()">
-      <i class="fa fa-heart-o"></i>
+    <button class="icon-button light rounded item-card__favorite-btn" 
+            *ngIf="showFavoriteButton && !selectionService.selectionMode()" 
+            [class.favorited]="isItemFavorited$ | async"
+            [title]="(isItemFavorited$ | async) ? 'Remove from favorites' : 'Add to favorites'"
+            (click)="toggleFavorite($event)">
+      <i class="fa" [class.fa-heart]="isItemFavorited$ | async" [class.fa-heart-o]="!(isItemFavorited$ | async)"></i>
     </button>
   </div>
 
@@ -35,3 +39,15 @@
     <app-accessibility-badge *ngIf="showAccessibilityBadge && recordHandlerService.isRecordLocked(licenses)" [isLocked]="recordHandlerService.isRecordLocked(licenses)"></app-accessibility-badge>
   </div>
 </a>
+
+<!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
+@if (favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper" 
+       [class.positioned]="favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="uuid"
+      [itemName]="title"
+      (close)="favoritesPopupState.closePopup()">
+    </app-favorites-popup>
+  </div>
+}

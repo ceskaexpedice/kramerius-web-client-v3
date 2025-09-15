@@ -200,6 +200,26 @@ export const foldersReducer = createReducer(
     sortDirection: sortDirection || state.sortDirection,
     folderSearchResultsLoading: true,
     error: null
+  })),
+
+  // New reducers for folder items mapping
+  on(FoldersActions.loadAllFolderItems, (state): FoldersState => ({
+    ...state,
+    folderItemsMappingLoading: true,
+    error: null
+  })),
+
+  on(FoldersActions.loadAllFolderItemsSuccess, (state, { folderItemsMapping }): FoldersState => ({
+    ...state,
+    folderItemsMapping,
+    folderItemsMappingLoading: false,
+    error: null
+  })),
+
+  on(FoldersActions.loadAllFolderItemsFailure, (state, { error }): FoldersState => ({
+    ...state,
+    folderItemsMappingLoading: false,
+    error
   }))
 );
 

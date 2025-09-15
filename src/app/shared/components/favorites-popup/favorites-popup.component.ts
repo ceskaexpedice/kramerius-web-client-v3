@@ -13,6 +13,7 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
 import {FormsModule} from '@angular/forms';
 import {DontShowAgainService} from '../../services';
 import {DontShowDialogs} from '../../services/dont-show-again.service';
+import {FolderItemsService} from '../../../modules/saved-lists-page/services/folder-items.service';
 
 
 @Component({
@@ -292,6 +293,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private savedListsService = inject(SavedListsService);
   private dontShowAgainService = inject(DontShowAgainService);
+  private folderItemsService = inject(FolderItemsService);
   private destroy$ = new Subject<void>();
 
   private _shouldAddItemToNewFolder = false;
@@ -360,9 +362,10 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   filteredLists$ = combineLatest([
     this.allFolders$,
     toObservable(this.searchTerm).pipe(startWith('')),
-    toObservable(this.selectedFolderIds).pipe(startWith(new Set<string>()))
+    toObservable(this.selectedFolderIds).pipe(startWith(new Set<string>())),
+    this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(startWith([] as string[]))
   ]).pipe(
-    map(([folders, searchTerm, selectedFolderIds]) => {
+    map(([folders, searchTerm, selectedFolderIds, foldersContainingItem]) => {
       let filteredFolders = folders;
 
       // Apply search filter if search term exists
@@ -376,7 +379,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       // Map to list format with selection state
       return filteredFolders.map(folder => ({
         folder,
-        isSelected: selectedFolderIds.has(folder.uuid)
+        isSelected: selectedFolderIds.has(folder.uuid) || foldersContainingItem.includes(folder.uuid)
       }));
     })
   );
@@ -388,6 +391,17 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       selected.add(this.currentFolderId);
       this.selectedFolderIds.set(selected);
     }
+
+    // Pre-check all folders that already contain this item
+    this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(folderIds => {
+      if (folderIds.length > 0) {
+        const selected = new Set(this.selectedFolderIds());
+        folderIds.forEach(folderId => selected.add(folderId));
+        this.selectedFolderIds.set(selected);
+      }
+    });
 
     this.actions$.pipe(
       ofType(FoldersActions.createFolderSuccess),

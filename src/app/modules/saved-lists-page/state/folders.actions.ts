@@ -142,3 +142,16 @@ export const searchFolders = createAction(
   '[Folders] Search Folders',
   props<{ searchQuery: string; sortBy?: SolrSortFields; sortDirection?: SolrSortDirections }>()
 );
+
+// New actions for folder items mapping
+export const loadAllFolderItems = createAction('[Folders] Load All Folder Items');
+
+export const loadAllFolderItemsSuccess = createAction(
+  '[Folders] Load All Folder Items Success',
+  props<{ folderItemsMapping: Map<string, Set<string>> }>()
+);
+
+export const loadAllFolderItemsFailure = createAction(
+  '[Folders] Load All Folder Items Failure',
+  props<{ error: string }>()
+);

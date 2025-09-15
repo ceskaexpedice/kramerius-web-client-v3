@@ -23,6 +23,14 @@
 
     .record-item-card__image > .record-item-card__actions {
       opacity: 1;
+
+      .favorites-button {
+        opacity: 1; // Show on hover (unless already always visible due to favorited state)
+      }
+
+      .other-button {
+        opacity: 1; // Show other buttons on hover
+      }
     }
   }
 
@@ -61,7 +69,7 @@
       position: absolute;
       top: 8px;
       left: 8px;
-      opacity: 0;
+      opacity: 1;
       transition: opacity 0.2s ease;
       z-index: $record-item-admin-selection;
 
@@ -75,6 +83,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
 
         &:hover {
           background-color: var(--color-primary);
@@ -82,9 +92,19 @@
           border-color: var(--color-primary);
         }
 
+        &.favorited {
+          opacity: 1;
+        }
+
         i {
           font-size: 16px;
         }
+      }
+
+      // Other buttons (future ones) will only show on hover
+      .other-button {
+        opacity: 0;
+        transition: opacity 0.2s ease;
       }
 
     }

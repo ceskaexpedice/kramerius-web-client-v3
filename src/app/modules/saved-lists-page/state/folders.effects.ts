@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { of, combineLatest } from 'rxjs';
 import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -265,6 +265,73 @@ export class FoldersEffects {
         AuthActions.refreshTokenSuccess
       ),
       switchMap(() => [FoldersActions.loadFolders()])
+    )
+  );
+
+  // Load folder items after folders are successfully loaded
+  loadFolderItemsAfterFoldersLoaded$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.loadFoldersSuccess),
+      switchMap(() => [FoldersActions.loadAllFolderItems()])
+    )
+  );
+
+  // Load all folder items using getFolderDetails for each folder
+  loadAllFolderItems$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.loadAllFolderItems),
+      switchMap(() =>
+        // Get current folders from state
+        this.store.select(FoldersSelectors.selectAllFolders).pipe(
+          take(1),
+          switchMap(folders => {
+            if (folders.length === 0) {
+              // No folders, return empty mapping
+              return of(FoldersActions.loadAllFolderItemsSuccess({ 
+                folderItemsMapping: new Map<string, Set<string>>() 
+              }));
+            }
+
+            // Load details for each folder in parallel
+            const folderDetailsRequests = folders.map(folder =>
+              this.foldersService.getFolderDetails(folder.uuid).pipe(
+                map(folderDetails => ({
+                  folderId: folder.uuid,
+                  items: folderDetails.items.flat().map(item => item.id)
+                })),
+                catchError(error => {
+                  console.error(`Failed to load items for folder ${folder.uuid}:`, error);
+                  return of({ folderId: folder.uuid, items: [] });
+                })
+              )
+            );
+
+            // Combine all requests
+            return combineLatest(folderDetailsRequests).pipe(
+              map(folderItemsData => {
+                // Convert to Map<string, Set<string>>
+                const folderItemsMapping = new Map<string, Set<string>>();
+                folderItemsData.forEach(({ folderId, items }) => {
+                  folderItemsMapping.set(folderId, new Set(items));
+                });
+                return FoldersActions.loadAllFolderItemsSuccess({ folderItemsMapping });
+              }),
+              catchError(error => of(FoldersActions.loadAllFolderItemsFailure({ error: error.message })))
+            );
+          })
+        )
+      )
+    )
+  );
+
+  // Reload folder items mapping when items are updated
+  reloadFolderItemsOnUpdate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        FoldersActions.updateFolderItemsSuccess,
+        FoldersActions.removeItemFromFolderSuccess
+      ),
+      switchMap(() => [FoldersActions.loadAllFolderItems()])
     )
   );
 

@@ -46,6 +46,11 @@
     .item-card__favorite-btn {
       opacity: 1;
     }
+
+    // Future buttons will show on hover
+    .item-card__other-btn {
+      opacity: 1;
+    }
   }
 
   .item-card__image-container {
@@ -69,6 +74,21 @@
     position: absolute;
     top: 5px;
     left: 5px;
+    opacity: 0;
+    transition: all 0.4s;
+
+    // Always show when favorited
+    &.favorited {
+      opacity: 1;
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+  }
+
+  // Future additional buttons (will only show on hover)
+  .item-card__other-btn {
+    position: absolute;
     opacity: 0;
     transition: all 0.4s;
   }

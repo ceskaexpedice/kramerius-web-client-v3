@@ -111,3 +111,14 @@ export const selectSortParams = createSelector(
   selectFoldersState,
   (state: FoldersState) => ({ sortBy: state.sortBy, sortDirection: state.sortDirection })
 );
+
+// New selectors for folder items mapping
+export const selectFolderItemsMapping = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => state.folderItemsMapping
+);
+
+export const selectFolderItemsMappingLoading = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => state.folderItemsMappingLoading
+);

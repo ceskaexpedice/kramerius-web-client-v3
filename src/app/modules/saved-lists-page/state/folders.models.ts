@@ -55,6 +55,9 @@ export interface FoldersState {
   searchQuery: string;
   sortBy: SolrSortFields;
   sortDirection: SolrSortDirections;
+  // New properties for folder items mapping
+  folderItemsMapping: Map<string, Set<string>>; // Map<folderId, Set<itemId>>
+  folderItemsMappingLoading: boolean;
 }
 
 export const initialFoldersState: FoldersState = {
@@ -69,5 +72,7 @@ export const initialFoldersState: FoldersState = {
   folderSearchResultsTotalCount: 0,
   searchQuery: '',
   sortBy: SolrSortFields.relevance,
-  sortDirection: SolrSortDirections.desc
+  sortDirection: SolrSortDirections.desc,
+  folderItemsMapping: new Map(),
+  folderItemsMappingLoading: false
 };

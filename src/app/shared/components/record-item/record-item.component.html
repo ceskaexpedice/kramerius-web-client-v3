@@ -9,7 +9,7 @@
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
-    <app-checkbox 
+    <app-checkbox
       [model]="selectionService.isSelected(record.pid)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
@@ -25,10 +25,14 @@
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button"
                 *ngIf="!selectionService.selectionMode()"
+                [class.favorited]="isItemFavorited$ | async"
                 (click)="onToggleFavorites($event)"
-                [title]="'add-to-favorites' | translate">
-          <i class="icon-heart"></i>
+                [title]="(isItemFavorited$ | async) ? ('remove-from-favorites' | translate) : ('add-to-favorites' | translate)">
+          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
         </button>
+        
+        <!-- Future buttons will go here and will use class="other-button" -->
+        <!-- Example: <button class="button secondary rounded icon-button other-button">...</button> -->
       </div>
 
       @if (record.model !== DocumentTypeEnum.page) {
@@ -90,7 +94,7 @@
 
 <!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {
-  <div class="favorites-popup-wrapper" 
+  <div class="favorites-popup-wrapper"
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
       [itemId]="record.pid"
