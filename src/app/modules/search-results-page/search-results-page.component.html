@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="adminSelectionService.adminMode()">
+    <app-filter-sidebar [isDisabled]="selectionService.selectionMode()">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
@@ -181,7 +181,7 @@
         </div>
 
         <app-paginator
-          [disabledPagination]="adminSelectionService.adminMode()"
+          [disabledPagination]="selectionService.selectionMode()"
           [page]="searchService.page"
           [totalCount]="searchService.totalCount"
           [pageSize]="searchService.pageSize"
