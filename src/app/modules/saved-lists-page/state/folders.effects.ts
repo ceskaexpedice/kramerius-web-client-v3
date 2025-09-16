@@ -5,6 +5,7 @@ import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService } from '../services/folders.service';
+import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { parseSearchDocument } from '../../models/search-document';
 import { parseSoundTrack } from '../../models/sound-track.model';
@@ -264,15 +265,41 @@ export class FoldersEffects {
         AuthActions.exchangeCodeForTokenSuccess,
         AuthActions.refreshTokenSuccess
       ),
-      switchMap(() => [FoldersActions.loadFolders()])
+      switchMap(() => {
+        // First try to load folder items from cache
+        const cachedMapping = this.folderItemsService.loadCacheFromStorage();
+        if (cachedMapping) {
+          // Cache is valid, load folders and use cached items
+          return [
+            FoldersActions.loadFolders(),
+            FoldersActions.loadAllFolderItemsSuccess({ folderItemsMapping: cachedMapping })
+          ];
+        } else {
+          // No cache, load folders then items
+          return [FoldersActions.loadFolders()];
+        }
+      })
     )
   );
 
-  // Load folder items after folders are successfully loaded
+  // Load folder items after folders are successfully loaded (only if no cache)
   loadFolderItemsAfterFoldersLoaded$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.loadFoldersSuccess),
-      switchMap(() => [FoldersActions.loadAllFolderItems()])
+      switchMap(() => {
+        // Check if we already have cached data
+        return this.store.select(FoldersSelectors.selectFolderItemsMapping).pipe(
+          take(1),
+          switchMap(currentMapping => {
+            if (currentMapping.size === 0) {
+              // No cached data, load from API
+              return [FoldersActions.loadAllFolderItems()];
+            }
+            // Already have data, don't reload
+            return [];
+          })
+        );
+      })
     )
   );
 
@@ -329,10 +356,23 @@ export class FoldersEffects {
     this.actions$.pipe(
       ofType(
         FoldersActions.updateFolderItemsSuccess,
-        FoldersActions.removeItemFromFolderSuccess
+        FoldersActions.removeItemFromFolderSuccess,
+        FoldersActions.createFolderSuccess,
+        FoldersActions.deleteFolderSuccess
       ),
       switchMap(() => [FoldersActions.loadAllFolderItems()])
     )
+  );
+
+
+  // Save cache to localStorage when mapping updates
+  saveCacheToStorage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.loadAllFolderItemsSuccess),
+      tap(action => {
+        this.folderItemsService.saveCacheToStorage(action.folderItemsMapping);
+      })
+    ), { dispatch: false }
   );
 
   // Auto-select first folder when active folder is deleted
@@ -380,6 +420,7 @@ export class FoldersEffects {
   constructor(
     private actions$: Actions,
     private foldersService: FoldersService,
+    private folderItemsService: FolderItemsService,
     private toastService: ToastService,
     private store: Store,
     private router: Router,
