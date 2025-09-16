@@ -8,8 +8,8 @@ const CACHE_PREFIX = 'cdk-cache:';
 // List of URL patterns that should not be cached
 const NO_CACHE_PATTERNS = [
   '/folders',           // User folders - always need fresh data
-  '/auth/',             // Authentication endpoints
-  '/user/',             // User-specific data
+  '/auth',             // Authentication endpoints
+  '/user',             // User-specific data
   '/session',           // Session-related endpoints
 ] as const;
 
@@ -153,7 +153,7 @@ export function clearSimpleCacheForPattern(pattern: string): void {
   }
 
   keysToDelete.forEach(key => localStorage.removeItem(key));
-  
+
   if (keysToDelete.length > 0) {
     console.log(`[SimpleCache] Cleared ${keysToDelete.length} cache entries matching pattern: ${pattern}`);
   }
