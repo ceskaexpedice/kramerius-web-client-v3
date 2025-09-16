@@ -14,6 +14,7 @@ import {FormsModule} from '@angular/forms';
 import {DontShowAgainService} from '../../services';
 import {DontShowDialogs} from '../../services/dont-show-again.service';
 import {FolderItemsService} from '../../../modules/saved-lists-page/services/folder-items.service';
+import {LocalStorageService} from '../../services/local-storage.service';
 
 
 @Component({
@@ -28,256 +29,8 @@ import {FolderItemsService} from '../../../modules/saved-lists-page/services/fol
     MatCheckbox,
     FormsModule,
   ],
-  template: `
-    <div class="favorites-popup" [class.success-state]="showSuccess()">
-
-      <!-- Main Form State -->
-      <div *ngIf="!showSuccess()" class="favorites-popup__content">
-        <div class="favorites-popup__header">
-          <h3>{{ 'add-to-favorites' | translate }}</h3>
-        </div>
-
-        <!-- Search existing lists -->
-        <div class="favorites-popup__section" *ngIf="shouldShowSearch$ | async">
-          <app-input
-            [theme]="'dark'"
-            [placeholder]="'search-saved-lists' | translate"
-            [size]="'sm'"
-            [prefixIcon]="'icon-search-normal'"
-            [signalInput]="searchTerm">
-          </app-input>
-        </div>
-
-        <hr>
-
-        <!-- My Saved Lists -->
-        <div class="favorites-popup__section">
-<!--          <h4 class="section-title">{{ 'my-saved-lists' | translate }}</h4>-->
-
-          <div class="lists-container" *ngIf="filteredLists$ | async as lists">
-            <div *ngFor="let listItem of lists" class="list-item">
-              <div class="list-item__content">
-                <span class="list-name">{{ listItem.folder.name }}</span>
-                <span class="list-count">({{ listItem.folder.itemsCount }})</span>
-              </div>
-              <mat-checkbox
-                [checked]="listItem.isSelected"
-                (change)="onListToggle(listItem.folder, $event)">
-              </mat-checkbox>
-            </div>
-          </div>
-
-          <div *ngIf="(filteredLists$ | async)?.length === 0" class="no-lists">
-            {{ 'no-lists-found' | translate }}
-          </div>
-        </div>
-
-        <hr>
-
-        <!-- Create new list -->
-        <div class="favorites-popup__section">
-          <app-input
-            [placeholder]="'create-new-list--placeholder' | translate"
-            [label]="'create-new-list--label' | translate"
-            [size]="'sm'"
-            [theme]="'dark'"
-            [prefixIcon]="'icon-add'"
-            [signalInput]="newListName"
-            (enter)="onCreateNewList()">
-          </app-input>
-        </div>
-
-        <!-- Actions -->
-        <div class="favorites-popup__actions">
-          <div class="favorites-popup__actions-left">
-            <button
-              *ngIf="currentFolderId"
-              class="button sm transparent primary with-icon remove-button"
-              (click)="onRemoveFromCurrentFolder()">
-              <i class="icon-trash" aria-hidden="true"></i>
-              {{ 'remove-from-favorites' | translate }}
-            </button>
-          </div>
-          <div class="favorites-popup__actions-right">
-            <button class="button sm outlined tertiary" (click)="onCancel()">
-              {{ 'cancel' | translate }}
-            </button>
-            <button
-              class="button primary sm"
-              [disabled]="!hasSelectedLists() && !newListName().trim()"
-              (click)="onDone()">
-              {{ 'done' | translate }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Success State -->
-      <div *ngIf="showSuccess()" class="favorites-popup__content">
-        <div class="favorites-popup__header">
-          <h3>{{ 'add-to-favorites-success--header' | translate }}</h3>
-        </div>
-
-        <hr>
-
-        <div class="favorites-popup__section">
-
-          {{ 'add-to-favorites-success--text' | translate }}
-
-          <div class="dont-ask-again--container">
-            <mat-checkbox [(ngModel)]="dontShowSuccessAgain">
-              <label>
-                {{ 'dont-ask-again' | translate }}
-              </label>
-            </mat-checkbox>
-          </div>
-
-        </div>
-
-        <div class="favorites-popup__actions">
-          <button
-            class="button primary sm"
-            (click)="onCloseSuccess()">
-            {{ 'OK' | translate }}
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: `
-    .favorites-popup {
-      width: 265px;
-      max-height: 400px;
-      background: var(--color-bg-base);
-      border: 1px solid var(--color-primary);
-      border-radius: 8px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-
-      &.success-state {
-        width: 300px;
-        max-height: none;
-      }
-    }
-
-    .favorites-popup__content {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .favorites-popup__header {
-      padding: var(--spacing-x3) var(--spacing-x4);
-    }
-
-    .favorites-popup__header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--color-text-base);
-    }
-
-    .favorites-popup__section {
-      display: flex;
-      flex-direction: column;
-      padding: var(--spacing-x2) var(--spacing-x4);
-    }
-
-    .section-title {
-      margin: 0;
-      padding: var(--spacing-x2) 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--color-text-base);
-    }
-
-    .lists-container {
-      max-height: 150px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      border: 1px solid var(--color-border-base);
-    }
-
-    .list-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--spacing-x2) 0;
-      transition: background-color 0.2s ease;
-
-      &:hover {
-        background-color: var(--color-bg-hover);
-      }
-    }
-
-    .list-item__content {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-x2);
-      flex: 1;
-    }
-
-    .list-name {
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--color-text-base);
-    }
-
-    .list-count {
-      color: var(--color-text-light);
-      font-size: 12px;
-    }
-
-    .no-lists {
-      text-align: center;
-      color: var(--color-text-light);
-      padding: var(--spacing-x4);
-      font-style: italic;
-    }
-
-    .favorites-popup__actions {
-      display: flex;
-      justify-content: end;
-      border-top: 1px solid var(--color-border-light);
-      padding: 12px 16px;
-    }
-
-    .remove-button {
-      color: var(--color-primary);
-      padding-left: 0;
-      gap: var(--spacing-x2);
-    }
-
-    .favorites-popup__actions-left {
-      display: flex;
-    }
-
-    .favorites-popup__actions-right {
-      display: flex;
-      gap: var(--spacing-x3);
-    }
-
-    .favorites-popup__success {
-      padding: var(--spacing-x6);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-x4);
-    }
-
-    hr {
-      border: none;
-      height: 1px;
-      background-color: var(--color-border-light);
-      margin: 0;
-    }
-
-    .dont-ask-again--container {
-      font-size: 14px;
-      color: var(--color-tertiary);
-      padding: var(--spacing-x4) 0;
-    }
-  `
+  templateUrl: './favorites-popup.component.html',
+  styleUrl: './favorites-popup.component.scss'
 })
 export class FavoritesPopupComponent implements OnInit, OnDestroy {
   dontShowSuccessAgain = false;
@@ -294,10 +47,14 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private savedListsService = inject(SavedListsService);
   private dontShowAgainService = inject(DontShowAgainService);
   private folderItemsService = inject(FolderItemsService);
+  private localStorage = inject(LocalStorageService);
   private destroy$ = new Subject<void>();
+
+  private readonly LAST_USED_FOLDER_KEY = 'last_used_folder';
 
   private _shouldAddItemToNewFolder = false;
   private _shouldCreateRealFavoritesFolder = false;
+  private _hasFavoritesFolder = false;
   private readonly FAKE_FAVORITES_UUID = 'fake-favorites-folder-uuid';
 
   private shouldAddItemToNewFolder() {
@@ -316,6 +73,27 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     this._shouldCreateRealFavoritesFolder = value;
   }
 
+  private setLastUsedFolder(folderId: string): void {
+    this.localStorage.set(this.LAST_USED_FOLDER_KEY, folderId);
+  }
+
+  private getLastUsedFolder(): string | null {
+    return this.localStorage.get(this.LAST_USED_FOLDER_KEY);
+  }
+
+  private validateAndGetLastUsedFolder(validFolderIds: string[]): string | null {
+    const lastUsedId = this.getLastUsedFolder();
+    
+    if (lastUsedId && validFolderIds.includes(lastUsedId)) {
+      return lastUsedId;
+    } else if (lastUsedId) {
+      // Clean up invalid last used folder
+      this.localStorage.remove(this.LAST_USED_FOLDER_KEY);
+    }
+    
+    return null;
+  }
+
   searchTerm = signal('');
   newListName = signal('');
   selectedFolderIds = signal<Set<string>>(new Set());
@@ -324,28 +102,32 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   ownedFolders$ = this.store.select(selectUserOwnedFolders);
   followedFolders$ = this.store.select(selectUserFollowedFolders);
 
-  // Combine owned and followed folders, add fake favorites if empty
+  // Combine owned and followed folders, add fake favorites unless real one exists
   allFolders$ = combineLatest([
     this.ownedFolders$,
     this.followedFolders$
   ]).pipe(
     map(([owned, followed]) => {
       const allFolders = [...owned, ...followed];
+      const favoritesTitle = this.translateService.instant('my-favorites-list--title');
 
-      // If no folders exist, create a fake favorites folder
-      if (allFolders.length === 0) {
+      // Check if user already has a folder with the favorites name
+      this._hasFavoritesFolder = allFolders.some(folder =>
+        folder.name.toLowerCase() === favoritesTitle.toLowerCase()
+      );
+
+      // Always add fake favorites folder unless user already has one with same name
+      if (!this._hasFavoritesFolder) {
         const fakeFavoritesFolder: Folder = {
-          name: this.translateService.instant('my-favorites-list--title'),
+          name: favoritesTitle,
           uuid: this.FAKE_FAVORITES_UUID,
           itemsCount: 0,
           users: [],
           updatedAt: new Date().toISOString()
         };
 
-        // checked by default
-        this.selectedFolderIds.set(new Set([this.FAKE_FAVORITES_UUID]));
-
-        return [fakeFavoritesFolder];
+        // Add fake folder at the beginning
+        allFolders.unshift(fakeFavoritesFolder);
       }
 
       return allFolders;
@@ -357,6 +139,8 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     map(folders => folders.length > 10)
   );
 
+
+  private initialSortApplied = signal(false);
 
   // For template usage with search filtering
   filteredLists$ = combineLatest([
@@ -377,10 +161,26 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       }
 
       // Map to list format with selection state
-      return filteredFolders.map(folder => ({
+      const mappedFolders = filteredFolders.map(folder => ({
         folder,
         isSelected: selectedFolderIds.has(folder.uuid) || foldersContainingItem.includes(folder.uuid)
       }));
+
+      // Only sort on initial load, not on every check/uncheck
+      if (!this.initialSortApplied()) {
+        this.initialSortApplied.set(true);
+        return mappedFolders.sort((a, b) => {
+          // If both have same selection state, maintain original order
+          if (a.isSelected === b.isSelected) {
+            return 0;
+          }
+          // Selected items first
+          return a.isSelected ? -1 : 1;
+        });
+      }
+
+      // After initial sort, maintain the order and just update selection state
+      return mappedFolders;
     })
   );
 
@@ -392,14 +192,51 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       this.selectedFolderIds.set(selected);
     }
 
-    // Pre-check all folders that already contain this item
+    // Determine which folder to pre-check based on priority:
+    // 1. Current folder (if specified)
+    // 2. Folders that already contain this item
+    // 3. Last used folder (if valid)
+    // 4. Fake favorites folder (fallback)
+    
     this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(
       takeUntil(this.destroy$)
     ).subscribe(folderIds => {
+      const selected = new Set(this.selectedFolderIds());
+
       if (folderIds.length > 0) {
-        const selected = new Set(this.selectedFolderIds());
+        // Item is already in some folders - check those folders
         folderIds.forEach(folderId => selected.add(folderId));
         this.selectedFolderIds.set(selected);
+      } else if (!this.currentFolderId) {
+        // Item is not in any folder and no current folder specified
+        // Check for last used folder or fallback to fake favorites
+        this.allFolders$.pipe(
+          takeUntil(this.destroy$)
+        ).subscribe(folders => {
+          const allFolderIds = folders.map(f => f.uuid);
+          const lastUsedFolderId = this.validateAndGetLastUsedFolder(allFolderIds);
+          
+          const newSelected = new Set(this.selectedFolderIds());
+          
+          if (lastUsedFolderId) {
+            // Pre-check last used folder
+            newSelected.add(lastUsedFolderId);
+          } else if (this._hasFavoritesFolder) {
+            // Fallback: pre-check real favorites folder
+            const favoriteFolder = folders.find(f => f.name === this.translateService.instant('my-favorites-list--title'));
+            if (favoriteFolder) {
+              newSelected.add(favoriteFolder.uuid);
+            }
+          } else {
+            // Fallback: pre-check fake favorites folder
+            const fakeFavoriteFolder = folders.find(f => f.uuid === this.FAKE_FAVORITES_UUID);
+            if (fakeFavoriteFolder) {
+              newSelected.add(this.FAKE_FAVORITES_UUID);
+            }
+          }
+          
+          this.selectedFolderIds.set(newSelected);
+        });
       }
     });
 
@@ -409,6 +246,9 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     ).subscribe(({ folder }) => {
 
       if (this.shouldAddItemToNewFolder() || this.shouldCreateRealFavoritesFolder()) {
+
+        // Store newly created folder as last used
+        this.setLastUsedFolder(folder.uuid);
 
         // Add the item to the newly created folder
         this.store.dispatch(FoldersActions.updateFolderItems({
@@ -500,6 +340,12 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     const newListName = this.newListName().trim();
     const selectedIds = Array.from(this.selectedFolderIds());
 
+    // Store the first selected folder as last used (excluding fake favorites)
+    const realSelectedIds = selectedIds.filter(id => id !== this.FAKE_FAVORITES_UUID);
+    if (realSelectedIds.length > 0) {
+      this.setLastUsedFolder(realSelectedIds[0]);
+    }
+
     if (newListName) {
       // Create new list and set flag to add item to it
       this.setShouldAddItemToNewFolder(true);
@@ -509,7 +355,6 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     }
 
     // Handle fake favorites folder selection
-    const realSelectedIds = selectedIds.filter(id => id !== this.FAKE_FAVORITES_UUID);
     const isFakeFavoritesSelected = selectedIds.includes(this.FAKE_FAVORITES_UUID);
 
     if (isFakeFavoritesSelected) {

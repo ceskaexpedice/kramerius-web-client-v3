@@ -1,0 +1,114 @@
+<div class="favorites-popup" [class.success-state]="showSuccess()">
+
+  <!-- Main Form State -->
+  <div *ngIf="!showSuccess()" class="favorites-popup__content">
+    <div class="favorites-popup__header">
+      <h3>{{ 'add-to-favorites' | translate }}</h3>
+    </div>
+
+    <!-- Search existing lists -->
+    <div class="favorites-popup__section" *ngIf="shouldShowSearch$ | async">
+      <app-input
+        [theme]="'dark'"
+        [placeholder]="'search-saved-lists' | translate"
+        [size]="'sm'"
+        [prefixIcon]="'icon-search-normal'"
+        [signalInput]="searchTerm">
+      </app-input>
+    </div>
+
+    <hr>
+
+    <!-- My Saved Lists -->
+    <div class="favorites-popup__section">
+<!--          <h4 class="section-title">{{ 'my-saved-lists' | translate }}</h4>-->
+
+      <div class="lists-container" *ngIf="filteredLists$ | async as lists">
+        <div *ngFor="let listItem of lists" class="list-item">
+          <div class="list-item__content">
+            <span class="list-name">{{ listItem.folder.name }}</span>
+            <span class="list-count">({{ listItem.folder.itemsCount }})</span>
+          </div>
+          <mat-checkbox
+            [checked]="listItem.isSelected"
+            (change)="onListToggle(listItem.folder, $event)">
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <div *ngIf="(filteredLists$ | async)?.length === 0" class="no-lists">
+        {{ 'no-lists-found' | translate }}
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Create new list -->
+    <div class="favorites-popup__section">
+      <app-input
+        [placeholder]="'create-new-list--placeholder' | translate"
+        [label]="'create-new-list--label' | translate"
+        [size]="'sm'"
+        [theme]="'dark'"
+        [prefixIcon]="'icon-add'"
+        [signalInput]="newListName"
+        (enter)="onCreateNewList()">
+      </app-input>
+    </div>
+
+    <!-- Actions -->
+    <div class="favorites-popup__actions">
+      <div class="favorites-popup__actions-left">
+        <button
+          *ngIf="currentFolderId"
+          class="button sm transparent primary with-icon remove-button"
+          (click)="onRemoveFromCurrentFolder()">
+          <i class="icon-trash" aria-hidden="true"></i>
+          {{ 'remove-from-favorites' | translate }}
+        </button>
+      </div>
+      <div class="favorites-popup__actions-right">
+        <button class="button sm outlined tertiary" (click)="onCancel()">
+          {{ 'cancel' | translate }}
+        </button>
+        <button
+          class="button primary sm"
+          [disabled]="!hasSelectedLists() && !newListName().trim()"
+          (click)="onDone()">
+          {{ 'done' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="showSuccess()" class="favorites-popup__content">
+    <div class="favorites-popup__header">
+      <h3>{{ 'add-to-favorites-success--header' | translate }}</h3>
+    </div>
+
+    <hr>
+
+    <div class="favorites-popup__section">
+
+      {{ 'add-to-favorites-success--text' | translate }}
+
+      <div class="dont-ask-again--container">
+        <mat-checkbox [(ngModel)]="dontShowSuccessAgain">
+          <label>
+            {{ 'dont-ask-again' | translate }}
+          </label>
+        </mat-checkbox>
+      </div>
+
+    </div>
+
+    <div class="favorites-popup__actions">
+      <button
+        class="button primary sm"
+        (click)="onCloseSuccess()">
+        {{ 'OK' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
