@@ -7,7 +7,7 @@ import * as FoldersSelectors from '../state/folders.selectors';
   providedIn: 'root'
 })
 export class FolderItemsService {
-  
+
   private store = inject(Store);
 
   /**
@@ -17,7 +17,7 @@ export class FolderItemsService {
     return this.store.select(FoldersSelectors.selectFolderItemsMapping).pipe(
       map(folderItemsMapping => {
         if (!folderItemsMapping) return false;
-        
+
         // Check if item exists in any folder
         for (const [, itemsSet] of folderItemsMapping.entries()) {
           if (itemsSet.has(itemId)) {
@@ -36,7 +36,7 @@ export class FolderItemsService {
     return this.store.select(FoldersSelectors.selectFolderItemsMapping).pipe(
       map(folderItemsMapping => {
         if (!folderItemsMapping) return [];
-        
+
         const folderIds: string[] = [];
         for (const [folderId, itemsSet] of folderItemsMapping.entries()) {
           if (itemsSet.has(itemId)) {
@@ -55,7 +55,7 @@ export class FolderItemsService {
     return this.store.select(FoldersSelectors.selectFolderItemsMapping).pipe(
       map(folderItemsMapping => {
         if (!folderItemsMapping) return false;
-        
+
         const itemsSet = folderItemsMapping.get(folderId);
         return itemsSet ? itemsSet.has(itemId) : false;
       })
@@ -96,7 +96,7 @@ export class FolderItemsService {
 
       const parsed = JSON.parse(cachedData);
       const now = Date.now();
-      
+
       // Check if cache is expired (24h TTL)
       if (!parsed.savedAt || (now - parsed.savedAt) > this.CACHE_TTL) {
         localStorage.removeItem(this.STORAGE_KEY);

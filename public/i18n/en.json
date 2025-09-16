@@ -197,5 +197,6 @@
   "user-info--my-account": "My account",
   "user-info--logout": "Log out",
   "user-info--saved-lists": "My lists",
-  "user-info--help": "Help"
+  "user-info--help": "Help",
+  "my-favorite--list": "My favorites"
 }

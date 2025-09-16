@@ -189,5 +189,6 @@
   "user-info--my-account": "Můj účet",
   "user-info--logout": "Odhlásit se",
   "user-info--saved-lists": "Moje seznamy",
-  "user-info--help" : "Nápověda"
+  "user-info--help" : "Nápověda",
+  "my-favorite--list": "Moje oblíbené"
 }

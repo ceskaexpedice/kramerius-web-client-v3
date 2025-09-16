@@ -187,5 +187,6 @@
   "user-info--my-account": "Moje konto",
   "user-info--logout": "Wyloguj się",
   "user-info--help": "Pomoc",
-  "user-info--saved-lists": "Zapisane listy"
+  "user-info--saved-lists": "Zapisane listy",
+  "my-favorite--list": "Moje ulubione"
 }

@@ -5,11 +5,12 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
-import {combineLatest, map, startWith, takeUntil, Subject} from 'rxjs';
+import {combineLatest, map, startWith, takeUntil, Subject, of, Observable} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
+import {FoldersService} from '../../../modules/saved-lists-page/services/folders.service';
 import {FormsModule} from '@angular/forms';
 import {DontShowAgainService} from '../../services';
 import {DontShowDialogs} from '../../services/dont-show-again.service';
@@ -45,6 +46,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private actions$ = inject(Actions);
   private translateService = inject(TranslateService);
   private savedListsService = inject(SavedListsService);
+  private foldersService = inject(FoldersService);
   private dontShowAgainService = inject(DontShowAgainService);
   private folderItemsService = inject(FolderItemsService);
   private localStorage = inject(LocalStorageService);
@@ -83,14 +85,14 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
 
   private validateAndGetLastUsedFolder(validFolderIds: string[]): string | null {
     const lastUsedId = this.getLastUsedFolder();
-    
+
     if (lastUsedId && validFolderIds.includes(lastUsedId)) {
       return lastUsedId;
     } else if (lastUsedId) {
       // Clean up invalid last used folder
       this.localStorage.remove(this.LAST_USED_FOLDER_KEY);
     }
-    
+
     return null;
   }
 
@@ -98,6 +100,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   newListName = signal('');
   selectedFolderIds = signal<Set<string>>(new Set());
   showSuccess = signal(false);
+  lastUsedFolderId = signal<string | null>(null);
 
   ownedFolders$ = this.store.select(selectUserOwnedFolders);
   followedFolders$ = this.store.select(selectUserFollowedFolders);
@@ -109,7 +112,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   ]).pipe(
     map(([owned, followed]) => {
       const allFolders = [...owned, ...followed];
-      const favoritesTitle = this.translateService.instant('my-favorites-list--title');
+      const favoritesTitle = this.foldersService.getFavoritesFolderName();
 
       // Check if user already has a folder with the favorites name
       this._hasFavoritesFolder = allFolders.some(folder =>
@@ -139,52 +142,78 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     map(folders => folders.length > 10)
   );
 
+  // Create observables at field level for injection context
+  private searchTerm$ = toObservable(this.searchTerm).pipe(startWith(''));
+  private selectedFolderIds$ = toObservable(this.selectedFolderIds).pipe(startWith(new Set<string>()));
+  private lastUsedFolderId$ = toObservable(this.lastUsedFolderId).pipe(startWith(null));
 
-  private initialSortApplied = signal(false);
-
-  // For template usage with search filtering
-  filteredLists$ = combineLatest([
-    this.allFolders$,
-    toObservable(this.searchTerm).pipe(startWith('')),
-    toObservable(this.selectedFolderIds).pipe(startWith(new Set<string>())),
-    this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(startWith([] as string[]))
-  ]).pipe(
-    map(([folders, searchTerm, selectedFolderIds, foldersContainingItem]) => {
-      let filteredFolders = folders;
-
-      // Apply search filter if search term exists
-      if (searchTerm && searchTerm.trim()) {
-        const searchLower = searchTerm.trim().toLowerCase();
-        filteredFolders = folders.filter(folder =>
-          folder.name.toLowerCase().includes(searchLower)
-        );
-      }
-
-      // Map to list format with selection state
-      const mappedFolders = filteredFolders.map(folder => ({
-        folder,
-        isSelected: selectedFolderIds.has(folder.uuid) || foldersContainingItem.includes(folder.uuid)
-      }));
-
-      // Only sort on initial load, not on every check/uncheck
-      if (!this.initialSortApplied()) {
-        this.initialSortApplied.set(true);
-        return mappedFolders.sort((a, b) => {
-          // If both have same selection state, maintain original order
-          if (a.isSelected === b.isSelected) {
-            return 0;
-          }
-          // Selected items first
-          return a.isSelected ? -1 : 1;
-        });
-      }
-
-      // After initial sort, maintain the order and just update selection state
-      return mappedFolders;
-    })
-  );
+  // For template usage with search filtering - initialized in ngOnInit
+  filteredLists$!: Observable<any[]>;
 
   ngOnInit() {
+    // Initialize filteredLists$ observable now that itemId is available
+    this.filteredLists$ = combineLatest([
+      this.allFolders$,
+      this.searchTerm$,
+      this.selectedFolderIds$,
+      this.itemId ? this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(startWith([] as string[])) : of([] as string[]),
+      this.lastUsedFolderId$
+    ]).pipe(
+      map(([folders, searchTerm, selectedFolderIds, foldersContainingItem, lastUsedFolderId]) => {
+        let filteredFolders = folders;
+
+        // Apply search filter if search term exists
+        if (searchTerm && searchTerm.trim()) {
+          const searchLower = searchTerm.trim().toLowerCase();
+          filteredFolders = folders.filter(folder =>
+            folder.name.toLowerCase().includes(searchLower)
+          );
+        }
+
+        // Map to list format with selection state
+        const favoritesName = this.foldersService.getFavoritesFolderName().toLowerCase();
+        const mappedFolders = filteredFolders.map(folder => ({
+          folder,
+          isSelected: selectedFolderIds.has(folder.uuid) || foldersContainingItem.includes(folder.uuid),
+          containsItem: foldersContainingItem.includes(folder.uuid),
+          isFakeFolder: folder.uuid === this.FAKE_FAVORITES_UUID,
+          isFavoritesFolder: folder.name.toLowerCase() === favoritesName,
+          isLastUsed: lastUsedFolderId === folder.uuid
+        }));
+
+        // Sort folders by priority:
+        // 1. Folders containing the item (highest priority) - ALWAYS first
+        // 2. Last used folder (only if item is not in ANY folder globally)
+        // 3. Favorites folder (only if item is not in ANY folder globally and no last used)
+        // 4. All other folders
+        return mappedFolders.sort((a, b) => {
+          // 1. Folders containing the item ALWAYS come first (highest priority)
+          if (a.containsItem && !b.containsItem) return -1;
+          if (!a.containsItem && b.containsItem) return 1;
+          if (a.containsItem && b.containsItem) return 0; // Keep original order among containing folders
+
+          // 2. If item is NOT in ANY folder globally, apply last used and favorites priority
+          if (foldersContainingItem.length === 0) {
+            // 2.1. Last used folder comes first
+            if (a.isLastUsed && !b.isLastUsed) return -1;
+            if (!a.isLastUsed && b.isLastUsed) return 1;
+
+            // 2.2. If neither is last used, then prioritize favorites folder (fake or real)
+            if (!a.isLastUsed && !b.isLastUsed) {
+              const aIsFavorites = a.isFakeFolder || a.isFavoritesFolder;
+              const bIsFavorites = b.isFakeFolder || b.isFavoritesFolder;
+
+              if (aIsFavorites && !bIsFavorites) return -1;
+              if (!aIsFavorites && bIsFavorites) return 1;
+            }
+          }
+
+          // 3. Maintain original order for other cases
+          return 0;
+        });
+      })
+    );
+
     // Pre-check the current folder if provided
     if (this.currentFolderId) {
       const selected = new Set(this.selectedFolderIds());
@@ -197,7 +226,13 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     // 2. Folders that already contain this item
     // 3. Last used folder (if valid)
     // 4. Fake favorites folder (fallback)
-    
+
+    // Only proceed if itemId is defined
+    if (!this.itemId) {
+      console.warn('FavoritesPopupComponent: itemId is not defined');
+      return;
+    }
+
     this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(
       takeUntil(this.destroy$)
     ).subscribe(folderIds => {
@@ -215,15 +250,16 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         ).subscribe(folders => {
           const allFolderIds = folders.map(f => f.uuid);
           const lastUsedFolderId = this.validateAndGetLastUsedFolder(allFolderIds);
-          
+
           const newSelected = new Set(this.selectedFolderIds());
-          
+
           if (lastUsedFolderId) {
-            // Pre-check last used folder
+            // Pre-check last used folder and set it as the last used for sorting
             newSelected.add(lastUsedFolderId);
+            this.lastUsedFolderId.set(lastUsedFolderId);
           } else if (this._hasFavoritesFolder) {
             // Fallback: pre-check real favorites folder
-            const favoriteFolder = folders.find(f => f.name === this.translateService.instant('my-favorites-list--title'));
+            const favoriteFolder = folders.find(f => f.name === this.foldersService.getFavoritesFolderName());
             if (favoriteFolder) {
               newSelected.add(favoriteFolder.uuid);
             }
@@ -234,7 +270,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
               newSelected.add(this.FAKE_FAVORITES_UUID);
             }
           }
-          
+
           this.selectedFolderIds.set(newSelected);
         });
       }
@@ -361,7 +397,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       // Set flag to create real favorites folder and add item to it
       this.setShouldCreateRealFavoritesFolder(true);
       this.store.dispatch(FoldersActions.createFolder({
-        folder: { name: this.translateService.instant('my-favorites-list--title') }
+        folder: { name: this.foldersService.getFavoritesFolderName() }
       }));
     }
 

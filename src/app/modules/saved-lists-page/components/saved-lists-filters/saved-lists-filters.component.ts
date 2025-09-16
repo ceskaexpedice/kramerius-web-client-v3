@@ -8,6 +8,7 @@ import {
 import {Folder, FolderDetails, selectUserFollowedFolders, selectUserOwnedFolders} from '../../state';
 import * as FoldersActions from '../../state/folders.actions';
 import {Store} from '@ngrx/store';
+import {FoldersService} from '../../services/folders.service';
 import {AsyncPipe} from '@angular/common';
 import {InputComponent} from '../../../../shared/components/input/input.component';
 import {map, startWith} from 'rxjs/operators';
@@ -105,6 +106,7 @@ export class SavedListsFiltersComponent {
 
   private store = inject(Store);
   private router = inject(Router);
+  private foldersService = inject(FoldersService);
 
   search = signal('');
 
@@ -116,12 +118,16 @@ export class SavedListsFiltersComponent {
     toObservable(this.search).pipe(startWith(''))
   ]).pipe(
     map(([folders, searchTerm]: [Folder[], string]) => {
-      if (!searchTerm || searchTerm.trim() === '') {
-        return folders;
+      let filteredFolders = folders;
+
+      if (searchTerm && searchTerm.trim() !== '') {
+        filteredFolders = folders?.filter(folder =>
+          folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+        ) || [];
       }
-      return folders?.filter(folder =>
-        folder.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ) || [];
+
+      // Sort folders with favorites first
+      return this.foldersService.sortFoldersWithFavoritesFirst(filteredFolders);
     })
   );
 
