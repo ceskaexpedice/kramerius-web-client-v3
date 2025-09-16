@@ -9,6 +9,7 @@ import {UserService} from '../../shared/services/user.service';
 import {Store} from '@ngrx/store';
 import * as AuthActions from './store/auth.actions';
 import {AuthTokens, TokenResponse, User} from './auth.models';
+import { clearSimpleCache } from '../cache/simple-cache.interceptor-fn';
 
 @Injectable({
   providedIn: 'root'
@@ -101,26 +102,18 @@ export class AuthService {
     // Clear user-specific cached data
     this.userService.clearUserData();
 
+    // Clear HTTP cache to prevent showing cached authenticated data
+    clearSimpleCache();
+
     // Set logout flag to prevent checkAuthStatus loop on reload
     this.storage.set('intentional_logout', 'true');
 
-    // Option 1: Soft logout - navigate to home
-    // this.router.navigate(['/']);
-
-    // Option 2: Hard logout with reload protection
-    // Only reload if we're not already in a page load scenario (prevents double reload)
-    const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-    const isManualRefresh = navigationEntry?.type === 'reload';
-
-    if (!isManualRefresh) {
-      console.log('AuthService: Performing logout reload...');
-      setTimeout(() => {
-        console.log('AuthService: Executing reload now');
-        window.location.reload();
-      }, 100);
-    } else {
-      console.log('AuthService: Skipping reload - already in page refresh');
-    }
+    // Always reload after logout to ensure clean state
+    console.log('AuthService: Performing logout reload...');
+    setTimeout(() => {
+      console.log('AuthService: Executing reload now');
+      window.location.reload();
+    }, 100);
   }
 
   getAccessToken(): string | null {
