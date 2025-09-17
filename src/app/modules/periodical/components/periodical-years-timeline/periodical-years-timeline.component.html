@@ -24,16 +24,29 @@
 
         <div
           class="year-item--container"
-          *ngFor="let year of row"
+          *ngFor="let year of row; let i = index"
           [ngClass]="{
-        'placeholder': year === null,
-        'accessibility-available': !recordHandler.isRecordLocked(year?.licenses || []),
-        'accessibility-disabled': recordHandler.isRecordLocked(year?.licenses || [])
+        'missing': year === null,
+        'accessibility-available': year !== null && !recordHandler.isRecordLocked(year.licenses),
+        'accessibility-disabled': year !== null && recordHandler.isRecordLocked(year.licenses)
       }"
           (click)="year !== null && selectYear.emit(year.year.toString())"
         >
-          <div class="year-item" *ngIf="year !== null">
-            <div class="year-item--wrapper">{{ year.year }}</div>
+          <div class="year-item"
+            [class.with-icon]="year === null || (year !== null && recordHandler.isRecordLocked(year.licenses))"
+          >
+            <div class="year-item--wrapper">
+
+              @if (year === null) {
+                <i class="icon-slash"></i>
+              }
+
+              @if (year !== null && recordHandler.isRecordLocked(year.licenses)) {
+                <i class="icon-lock-1"></i>
+              }
+
+              {{ year !== null ? year.year : getDecadeStartYear(row) + i }}
+            </div>
           </div>
         </div>
       </div>

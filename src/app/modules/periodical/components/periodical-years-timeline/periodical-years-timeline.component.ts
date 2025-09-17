@@ -79,5 +79,13 @@ export class PeriodicalYearsTimelineComponent implements OnChanges {
     return years.filter(y => y !== null) as PeriodicalItemYear[];
   }
 
+  getDecadeStartYear(row: (PeriodicalItemYear | null)[]): number {
+    const firstNonNull = row.find(y => y !== null);
+    if (firstNonNull) {
+      return Math.floor(Number(firstNonNull.year) / 10) * 10;
+    }
+    return 0;
+  }
+
   protected readonly Number = Number;
 }
