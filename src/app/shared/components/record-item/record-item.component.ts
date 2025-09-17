@@ -16,6 +16,7 @@ import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
 import { Observable, EMPTY } from 'rxjs';
+import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
 
 @Component({
   selector: 'app-record-item',
@@ -40,6 +41,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
   public selectionService = inject(SelectionService);
   private folderItemsService = inject(FolderItemsService);
+  private savedListsService = inject(SavedListsService);
 
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
@@ -156,6 +158,22 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     // Clean up popup positioning service
     this.popupPositioning.cleanup();
+  }
+
+  onRemoveFromCurrentFolder(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.currentFolderId) return;
+
+    this.savedListsService.removeItemFromFolder(
+      this.currentFolderId,
+      this.record.pid,
+      this.record.title,
+      () => {
+
+      }
+    );
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

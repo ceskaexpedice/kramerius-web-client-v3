@@ -39,6 +39,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Input() itemId!: string;
   @Input() itemName?: string;
   @Input() currentFolderId?: string;
+  @Input() showRemoveButton = false;
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 

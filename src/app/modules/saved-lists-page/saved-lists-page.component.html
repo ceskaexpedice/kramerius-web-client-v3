@@ -27,17 +27,6 @@
                     <i class="icon-edit-2"></i>
                   </button>
                 }
-                @if (soundRecordingItems | async; as tracks) {
-                  @if (tracks.length > 0) {
-                    <button class="with-icon primary sm"
-                      (click)="playAllTracks()"
-                      title="Play all tracks"
-                    >
-                      <i class="icon-play"></i>
-                      {{ 'play-all' | translate }}
-                    </button>
-                  }
-                }
               </div>
             </div>
 
@@ -113,8 +102,21 @@
 
         <!-- SOUND RECORDINGS SECTION -->
         <ng-container *ngIf="soundRecordingItems | async as soundRecordings">
+
           @if (soundRecordings.length > 0) {
+
             <div class="music-section">
+
+              <div class="music-section--actions">
+                <button class="with-icon primary"
+                        (click)="playAllTracks()"
+                        title="Play all tracks"
+                >
+                  <i class="icon-play"></i>
+                  {{ 'play-all' | translate }}
+                </button>
+              </div>
+
               <app-music-track-list
                 [tracks]="soundRecordings"
                 [playingPid]="soundService.currentTrackPid"
@@ -137,7 +139,7 @@
 
 <!-- Title Edit Popup -->
 @if (titleEditPopupState.showPopup() && currentEditingFolder()) {
-  <div class="title-edit-popup-wrapper" 
+  <div class="title-edit-popup-wrapper"
        [class.positioned]="titleEditPopupState.popupPositioned()">
     <app-title-edit-popup
       [initialTitle]="currentEditingFolder()!.name"

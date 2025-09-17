@@ -60,7 +60,7 @@
     <div class="favorites-popup__actions">
       <div class="favorites-popup__actions-left">
         <button
-          *ngIf="currentFolderId"
+          *ngIf="currentFolderId && showRemoveButton"
           class="button sm transparent primary with-icon remove-button"
           (click)="onRemoveFromCurrentFolder()">
           <i class="icon-trash" aria-hidden="true"></i>
