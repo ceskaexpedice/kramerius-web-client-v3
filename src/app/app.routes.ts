@@ -12,6 +12,7 @@ export enum APP_ROUTES_ENUM {
   SAVED_LISTS = 'folders',
   PROFILE = 'profile',
   HELP = 'help',
+  UUID_REDIRECT = 'uuid',
 }
 
 export const routes: Routes = [
@@ -50,5 +51,9 @@ export const routes: Routes = [
     path: APP_ROUTES_ENUM.SAVED_LISTS,
     loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
+    loadComponent: () => import('./shared/components/uuid-redirect/uuid-redirect.component').then(c => c.UuidRedirectComponent)
   }
 ];

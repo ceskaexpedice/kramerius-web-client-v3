@@ -1,7 +1,7 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Page} from '../../../shared/models/page.model';
 import {Store} from '@ngrx/store';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {
   selectDocumentDetail,
@@ -34,6 +34,7 @@ export class DetailViewService {
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -49,6 +50,9 @@ export class DetailViewService {
       if (pages) {
         this._pages.set(pages);
         this._currentPageIndex.set(0);
+
+        // After pages are loaded, check if there's a page parameter in URL
+        this.checkAndSetCurrentPageFromUrl();
       }
     });
   }
@@ -170,20 +174,17 @@ export class DetailViewService {
   }
 
   checkAndSetCurrentPageFromUrl() {
-    // check if there is a page in the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const pageParam = urlParams.get('page');
-
-    console.log('pageParam', pageParam);
+    // Check if there is a page parameter in the URL
+    const pageParam = this.route.snapshot.queryParams['page'];
 
     if (pageParam) {
       const pageIndex = this._pages().findIndex(page => page.pid === pageParam);
+
       if (pageIndex !== -1) {
         this._currentPageIndex.set(pageIndex);
       }
     } else {
-      console.log('goToPage(0) called');
-      this.goToPage(0);
+      console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
     }
   }
 
@@ -322,7 +323,7 @@ export class DetailViewService {
     // First, get the volume UUID for the target year
     this.store.select(selectPidFromAvailableYears(year.toString())).pipe(take(1)).subscribe(volumeUuid => {
       const uuid = volumeUuid as string;
-      
+
       if (!uuid) {
         console.warn(`No volume UUID found for year ${year}, navigating anyway`);
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
@@ -330,7 +331,7 @@ export class DetailViewService {
       }
 
       console.log(`Loading periodical items for year ${year} with volume UUID: ${uuid}`);
-      
+
       // Dispatch action to load the year's children
       this.store.dispatch(loadPeriodicalItems({
         parentVolumeUuid: uuid
