@@ -82,7 +82,7 @@
                 <div class="grid--container">
                   <app-record-item
                     *ngFor="let doc of otherItems"
-                    [record]="doc"
+                    [item]="toRecordItem(doc)"
                     [currentFolderId]="(activeFolder | async)?.uuid">
                   </app-record-item>
                 </div>

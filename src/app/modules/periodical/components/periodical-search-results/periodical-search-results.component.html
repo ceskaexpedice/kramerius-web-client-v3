@@ -12,14 +12,14 @@
         <div class="year-section">
           <h2 class="year-header">{{year}}</h2>
           <div class="grid--container">
-            <app-record-item *ngFor="let doc of groupResultsByYear(searchResults)[year]" [record]="doc"></app-record-item>
+            <app-record-item *ngFor="let doc of groupResultsByYear(searchResults)[year]" [item]="toRecordItem(doc)"></app-record-item>
           </div>
         </div>
       </ng-container>
     } @else {
       <!-- Default view without year grouping -->
       <div class="grid--container">
-        <app-record-item *ngFor="let doc of searchResults" [record]="doc"></app-record-item>
+        <app-record-item *ngFor="let doc of searchResults" [item]="toRecordItem(doc)"></app-record-item>
       </div>
     }
 

@@ -10,6 +10,8 @@ import {SearchService} from '../../../../shared/services/search.service';
 import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
+import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {SearchDocument} from '../../../models/search-document';
 
 @Component({
   selector: 'app-periodicals-section',
@@ -39,6 +41,11 @@ export class PeriodicalsSectionComponent implements OnInit {
 
   showMore() {
     this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.periodical, true);
+  }
+
+  // Convert SearchDocument to RecordItem
+  toRecordItem(doc: SearchDocument): RecordItem {
+    return searchDocumentToRecordItem(doc);
   }
 
 }

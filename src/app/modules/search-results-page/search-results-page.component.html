@@ -111,7 +111,7 @@
 
                 <div class="grid--container">
 
-                  <app-record-item *ngFor="let doc of nonPageResults" [record]="doc"></app-record-item>
+                  <app-record-item *ngFor="let doc of nonPageResults" [item]="toRecordItem(doc)"></app-record-item>
 
                 </div>
               }
@@ -123,7 +123,7 @@
 
                 <div class="grid--container">
 
-                  <app-record-item *ngFor="let doc of pageResults" [record]="doc"></app-record-item>
+                  <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)"></app-record-item>
 
                 </div>
               }

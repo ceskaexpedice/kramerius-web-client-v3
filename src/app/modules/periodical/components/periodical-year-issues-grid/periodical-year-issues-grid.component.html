@@ -2,14 +2,7 @@
 
   <app-record-item
     *ngFor="let item of children$ | async; trackBy: trackByPid"
-    [uuid]="item.pid"
-    [model]="item.model"
-    [licenses]="item['licenses.facet'] || []"
-    [title]="getItemTitle(item)"
-    [subtitle]="('periodicalvolume-part-subtitle' | translate) + ' ' + item['part.number.str']"
-    [showFavoriteButton]="false"
-    [showAccessibilityBadge]="true"
-    [className]="'card--fluid'"
+    [item]="toRecordItem(item)"
   ></app-record-item>
 
 </div>

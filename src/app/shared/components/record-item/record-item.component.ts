@@ -1,5 +1,4 @@
-import {Component, inject, Input, signal, OnDestroy, OnInit, computed} from '@angular/core';
-import {SearchDocument} from '../../../modules/models/search-document';
+import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {NgIf, AsyncPipe, NgClass} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
@@ -17,8 +16,8 @@ import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
 import { Observable, EMPTY } from 'rxjs';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
-import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
 import { EnvironmentService } from '../../services/environment.service';
+import { RecordItem } from './record-item.model';
 
 @Component({
   selector: 'app-record-item',
@@ -48,21 +47,16 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   private krameriusBaseUrl: string;
 
-  // Original record-item inputs
-  @Input() record: SearchDocument = {} as SearchDocument;
+  @Input() item: RecordItem = {
+    id: '',
+    title: '',
+    model: '',
+    licenses: [],
+    className: '',
+    showFavoriteButton: true,
+    showAccessibilityBadge: false
+  };
   @Input() currentFolderId?: string;
-
-  // item-card compatibility inputs
-  @Input() uuid?: string;
-  @Input() title?: string;
-  @Input() subtitle?: string;
-  @Input() model?: string;
-  @Input() link?: string | null = null;
-  @Input() accessibility?: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
-  @Input() licenses?: string[] = [];
-  @Input() className?: string = '';
-  @Input() showFavoriteButton?: boolean = true;
-  @Input() showAccessibilityBadge?: boolean = false;
 
   router = inject(Router);
 
@@ -77,103 +71,54 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Initialize the observable once we have the record or uuid
-    const itemId = this.getItemId();
-    if (itemId) {
-      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(itemId);
+    // Initialize the observable once we have the item
+    if (this.item.id) {
+      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(this.item.id);
     }
   }
 
-  onRecordClick(e: MouseEvent, record?: SearchDocument): void {
-    const itemId = this.getItemId();
+  onRecordClick(e: MouseEvent): void {
     if (this.selectionService.selectionMode()) {
       e.preventDefault();
-      this.selectionService.toggleItem(itemId);
+      this.selectionService.toggleItem(this.item.id);
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }
   }
 
   onSelectionChange(selected: boolean): void {
-    const itemId = this.getItemId();
     if (selected) {
-      this.selectionService.selectItem(itemId);
+      this.selectionService.selectItem(this.item.id);
     } else {
-      this.selectionService.deselectItem(itemId);
+      this.selectionService.deselectItem(this.item.id);
     }
   }
 
   getImageThumbnailUrl(): string {
-    // Use item-card style URL if uuid is provided (for compatibility)
-    if (this.uuid) {
-      return this.krameriusBaseUrl + '/' + this.uuid + '/image/thumb';
-    }
-    // Use original record-item style URL
-    return this.solrService.getImageThumbnailUrl(this.record.pid);
+    // Use Kramerius API for thumbnail
+    return this.krameriusBaseUrl + '/' + this.item.id + '/image/thumb';
   }
 
   getDocumentUrl(): string {
-    // Use item-card compatibility mode
-    if (this.uuid && this.model) {
-      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.model, this.uuid);
+    if (this.item.model === DocumentTypeEnum.page && this.item.ownParentPid) {
+      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
     }
-
-    // Use original record-item mode
-    if (this.record.model === DocumentTypeEnum.page) {
-      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.record.model, this.record.pid, this.record.ownParentPid);
-    }
-
-    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.record.model, this.record.pid, null);
+    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id);
   }
 
   getTitle(): string {
-    // Use item-card compatibility mode
-    if (this.title) {
-      return this.title;
-    }
-
-    // Use original record-item logic
-    switch (this.record.model) {
-      case DocumentTypeEnum.monograph:
-        return this.record.title || '';
-      case DocumentTypeEnum.periodical:
-        return this.record.rootTitle || '';
-      case DocumentTypeEnum.periodicalvolume:
-        return this.record.rootTitle || '';
-      case DocumentTypeEnum.article:
-        return this.record.title || '';
-      case DocumentTypeEnum.supplement:
-        return this.record.title || '';
-      case DocumentTypeEnum.page:
-        return this.record.rootTitle || '';
-      default:
-        return this.record.rootTitle || '';
-    }
+    return this.item.title || '';
   }
 
   getSubtitle(): string {
-    // Use item-card compatibility mode
-    if (this.subtitle !== undefined) {
-      return this.subtitle;
-    }
-
-    // Use original record-item logic
-    switch (this.record.model) {
-      case DocumentTypeEnum.article:
-        return this.record.rootTitle || '';
-      case DocumentTypeEnum.supplement:
-        return this.record.rootTitle || '';
-      default:
-        return '';
-    }
+    return this.item.subtitle || '';
   }
 
   onToggleFavorites(event: Event) {
     event.preventDefault();
     event.stopPropagation();
 
-    // Check showFavoriteButton for item-card compatibility
-    if (this.showFavoriteButton === false) return;
+    if (this.item.showFavoriteButton === false) return;
 
     // Check if user is authenticated
     if (!this.authService.hasValidToken()) {
@@ -212,44 +157,28 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
     if (!this.currentFolderId) return;
 
-    const itemId = this.getItemId();
-    const itemTitle = this.getTitle();
-
     this.savedListsService.removeItemFromFolder(
       this.currentFolderId,
-      itemId,
-      itemTitle,
+      this.item.id,
+      this.item.title,
       () => {
 
       }
     );
   }
 
-  // Helper methods for compatibility
-  getItemId(): string {
-    return this.uuid || this.record?.pid || '';
-  }
-
-  getItemModel(): string {
-    return this.model || this.record?.model || '';
-  }
-
-  getItemLicenses(): string[] {
-    return this.licenses || this.record?.containsLicenses || this.record?.licenses || [];
-  }
-
+  // Helper methods
   isRecordLocked(): boolean {
-    return this.recordHandler.isRecordLocked(this.getItemLicenses());
+    return this.recordHandler.isRecordLocked(this.item.licenses || []);
   }
 
   shouldShowAccessibilityBadge(): boolean {
-    return this.showAccessibilityBadge === true && this.isRecordLocked();
+    return this.item.showAccessibilityBadge === true && this.isRecordLocked();
   }
 
   shouldShowFavoriteButton(): boolean {
-    return this.showFavoriteButton !== false && !this.selectionService.selectionMode();
+    return this.item.showFavoriteButton !== false && !this.selectionService.selectionMode();
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

@@ -10,6 +10,8 @@ import {DocumentTypeEnum} from '../../../constants/document-type';
 import {SearchService} from '../../../../shared/services/search.service';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
+import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {SearchDocument} from '../../../models/search-document';
 
 @Component({
   selector: 'app-books-section',
@@ -40,6 +42,11 @@ export class BooksSectionComponent implements OnInit {
 
   showMore() {
     this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.monograph, true);
+  }
+
+  // Convert SearchDocument to RecordItem
+  toRecordItem(doc: SearchDocument): RecordItem {
+    return searchDocumentToRecordItem(doc);
   }
 
 }

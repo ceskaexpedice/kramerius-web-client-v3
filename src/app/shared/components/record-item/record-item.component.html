@@ -1,12 +1,12 @@
 <a class="record-item-card"
-   [class.page]="getItemModel() === DocumentTypeEnum.page"
-   [class.periodical]="getItemModel() === DocumentTypeEnum.periodical"
-   [class.periodicalvolume]="getItemModel() === 'periodicalvolume'"
-   [class.periodicalitem]="getItemModel() === 'periodicalitem'"
+   [class.page]="item.model === DocumentTypeEnum.page"
+   [class.periodical]="item.model === 'periodical'"
+   [class.periodicalvolume]="item.model === 'periodicalvolume'"
+   [class.periodicalitem]="item.model === 'periodicalitem'"
    [class.selection-mode]="selectionService.selectionMode()"
-   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(getItemId())"
+   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(item.id)"
    [class.with-badge]="shouldShowAccessibilityBadge()"
-   [ngClass]="[className, getItemModel()]"
+   [ngClass]="[item.className || '', item.model || '']"
    [href]="getDocumentUrl()"
    [attr.aria-label]="getTitle()"
    (click)="onRecordClick($event)">
@@ -14,7 +14,7 @@
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
     <app-checkbox
-      [model]="selectionService.isSelected(getItemId())"
+      [model]="selectionService.isSelected(item.id)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
@@ -26,8 +26,8 @@
          [style.background-image] = "`url(${getImageThumbnailUrl()})`"
     >
 
-      <!-- Show action buttons for record-item mode -->
-      <div class="record-item-card__actions" *ngIf="record?.pid">
+      <!-- Action buttons -->
+      <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button"
                 *ngIf="shouldShowFavoriteButton()"
                 [class.favorited]="isItemFavorited$ | async"
@@ -47,17 +47,8 @@
         <!-- Example: <button class="button secondary rounded icon-button other-button">...</button> -->
       </div>
 
-      <!-- Show favorite button for item-card compatibility mode -->
-      <button class="icon-button light rounded item-card__favorite-btn"
-              *ngIf="uuid && shouldShowFavoriteButton()"
-              [class.favorited]="isItemFavorited$ | async"
-              [title]="(isItemFavorited$ | async) ? 'Remove from favorites' : 'Add to favorites'"
-              (click)="onToggleFavorites($event)">
-        <i class="fa" [class.fa-heart]="isItemFavorited$ | async" [class.fa-heart-o]="!(isItemFavorited$ | async)"></i>
-      </button>
-
-      @if (getItemModel() !== DocumentTypeEnum.page && getItemModel() !== 'periodicalvolume' && getItemModel() !== 'periodicalitem') {
-        <span class="badge model">{{ getItemModel() | translate }}</span>
+      @if (item.model !== DocumentTypeEnum.page && item.model !== 'periodicalvolume' && item.model !== 'periodicalitem') {
+        <span class="badge model">{{ item.model | translate }}</span>
       }
 
       @if (isRecordLocked()) {
@@ -80,18 +71,18 @@
         {{ getTitle() }}
       </div>
 
-      <div class="subtitle" *ngIf="getSubtitle() || (record.authors?.length || record.date)">
+      <div class="subtitle" *ngIf="getSubtitle() || (item.authors?.length || item.date)">
 
         {{getSubtitle()}}
 
-        <span class="authors" *ngIf="record.authors?.length || record.date">
-          {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
+        <span class="authors" *ngIf="item.authors?.length || item.date">
+          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{ item.date }}</span>
         </span>
       </div>
 
-      @if (getItemModel() === DocumentTypeEnum.page && record.highlighting) {
+      @if (item.model === DocumentTypeEnum.page && item.highlighting) {
 
-          @for (text of record.highlighting; track $index) {
+          @for (text of item.highlighting; track $index) {
 
             <div class="text-ocr" [innerHTML]="text"></div>
 
@@ -118,8 +109,8 @@
   <div class="favorites-popup-wrapper"
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
-      [itemId]="getItemId()"
-      [itemName]="getTitle()"
+      [itemId]="item.id"
+      [itemName]="item.title"
       [currentFolderId]="currentFolderId"
       [showRemoveButton]="!!currentFolderId"
       (close)="favoritesPopupState.closePopup()">

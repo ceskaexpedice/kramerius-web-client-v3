@@ -8,6 +8,7 @@ import {AdminSelectionService, SelectionService} from '../../shared/services';
 import {Subscription, combineLatest} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {SearchDocument} from '../models/search-document';
+import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
 
 @Component({
   selector: 'app-search-results-page',
@@ -25,6 +26,11 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
 
   protected readonly ViewOptions = AppResultsViewType;
+
+  // Convert SearchDocument to RecordItem
+  toRecordItem(doc: SearchDocument): RecordItem {
+    return searchDocumentToRecordItem(doc);
+  }
 
   public searchService = inject(SearchService);
   public advancedSearchService = inject(AdvancedSearchService);

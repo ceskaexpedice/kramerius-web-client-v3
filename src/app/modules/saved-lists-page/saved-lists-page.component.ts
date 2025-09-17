@@ -14,6 +14,8 @@ import {SoundService} from '../../shared/services/sound.service';
 import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
 import {PopupPositioningService, PopupState} from '../../shared/services/popup-positioning.service';
 import {SavedListsService} from './services/saved-lists.service';
+import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
+import {SearchDocument} from '../models/search-document';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -263,5 +265,10 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   protected readonly ViewOptions = AppResultsViewType;
   protected readonly ViewMode = ViewMode;
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+
+  // Convert SearchDocument to RecordItem
+  toRecordItem(doc: SearchDocument): RecordItem {
+    return searchDocumentToRecordItem(doc);
+  }
   protected readonly TrackViewType = TrackViewType;
 }
