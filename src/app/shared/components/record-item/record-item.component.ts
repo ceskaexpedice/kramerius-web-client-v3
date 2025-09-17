@@ -17,6 +17,8 @@ import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
 import { Observable, EMPTY } from 'rxjs';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
+import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
+import { EnvironmentService } from '../../services/environment.service';
 
 @Component({
   selector: 'app-record-item',
@@ -42,9 +44,25 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
   private folderItemsService = inject(FolderItemsService);
   private savedListsService = inject(SavedListsService);
+  private envService = inject(EnvironmentService);
 
+  private krameriusBaseUrl: string;
+
+  // Original record-item inputs
   @Input() record: SearchDocument = {} as SearchDocument;
   @Input() currentFolderId?: string;
+
+  // item-card compatibility inputs
+  @Input() uuid?: string;
+  @Input() title?: string;
+  @Input() subtitle?: string;
+  @Input() model?: string;
+  @Input() link?: string | null = null;
+  @Input() accessibility?: DocumentAccessibilityEnum = DocumentAccessibilityEnum.PUBLIC;
+  @Input() licenses?: string[] = [];
+  @Input() className?: string = '';
+  @Input() showFavoriteButton?: boolean = true;
+  @Input() showAccessibilityBadge?: boolean = false;
 
   router = inject(Router);
 
@@ -55,39 +73,52 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.favoritesPopupState = this.popupPositioning.createPopupState();
+    this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
   ngOnInit() {
-    // Initialize the observable once we have the record
-    if (this.record?.pid) {
-      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(this.record.pid);
+    // Initialize the observable once we have the record or uuid
+    const itemId = this.getItemId();
+    if (itemId) {
+      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(itemId);
     }
   }
 
-  onRecordClick(e: MouseEvent, record: SearchDocument): void {
-    console.log(e, record);
+  onRecordClick(e: MouseEvent, record?: SearchDocument): void {
+    const itemId = this.getItemId();
     if (this.selectionService.selectionMode()) {
       e.preventDefault();
-      this.selectionService.toggleItem(record.pid);
+      this.selectionService.toggleItem(itemId);
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }
   }
 
   onSelectionChange(selected: boolean): void {
+    const itemId = this.getItemId();
     if (selected) {
-      this.selectionService.selectItem(this.record.pid);
+      this.selectionService.selectItem(itemId);
     } else {
-      this.selectionService.deselectItem(this.record.pid);
+      this.selectionService.deselectItem(itemId);
     }
   }
 
   getImageThumbnailUrl(): string {
+    // Use item-card style URL if uuid is provided (for compatibility)
+    if (this.uuid) {
+      return this.krameriusBaseUrl + '/' + this.uuid + '/image/thumb';
+    }
+    // Use original record-item style URL
     return this.solrService.getImageThumbnailUrl(this.record.pid);
   }
 
-  getDocumentUrl() {
+  getDocumentUrl(): string {
+    // Use item-card compatibility mode
+    if (this.uuid && this.model) {
+      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.model, this.uuid);
+    }
 
+    // Use original record-item mode
     if (this.record.model === DocumentTypeEnum.page) {
       return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.record.model, this.record.pid, this.record.ownParentPid);
     }
@@ -96,6 +127,12 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   getTitle(): string {
+    // Use item-card compatibility mode
+    if (this.title) {
+      return this.title;
+    }
+
+    // Use original record-item logic
     switch (this.record.model) {
       case DocumentTypeEnum.monograph:
         return this.record.title || '';
@@ -114,7 +151,13 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     }
   }
 
-  getSubtitle() {
+  getSubtitle(): string {
+    // Use item-card compatibility mode
+    if (this.subtitle !== undefined) {
+      return this.subtitle;
+    }
+
+    // Use original record-item logic
     switch (this.record.model) {
       case DocumentTypeEnum.article:
         return this.record.rootTitle || '';
@@ -128,6 +171,9 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   onToggleFavorites(event: Event) {
     event.preventDefault();
     event.stopPropagation();
+
+    // Check showFavoriteButton for item-card compatibility
+    if (this.showFavoriteButton === false) return;
 
     // Check if user is authenticated
     if (!this.authService.hasValidToken()) {
@@ -166,15 +212,44 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
     if (!this.currentFolderId) return;
 
+    const itemId = this.getItemId();
+    const itemTitle = this.getTitle();
+
     this.savedListsService.removeItemFromFolder(
       this.currentFolderId,
-      this.record.pid,
-      this.record.title,
+      itemId,
+      itemTitle,
       () => {
 
       }
     );
   }
 
+  // Helper methods for compatibility
+  getItemId(): string {
+    return this.uuid || this.record?.pid || '';
+  }
+
+  getItemModel(): string {
+    return this.model || this.record?.model || '';
+  }
+
+  getItemLicenses(): string[] {
+    return this.licenses || this.record?.containsLicenses || this.record?.licenses || [];
+  }
+
+  isRecordLocked(): boolean {
+    return this.recordHandler.isRecordLocked(this.getItemLicenses());
+  }
+
+  shouldShowAccessibilityBadge(): boolean {
+    return this.showAccessibilityBadge === true && this.isRecordLocked();
+  }
+
+  shouldShowFavoriteButton(): boolean {
+    return this.showFavoriteButton !== false && !this.selectionService.selectionMode();
+  }
+
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

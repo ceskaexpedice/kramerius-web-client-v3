@@ -1,6 +1,6 @@
 <div  class="grid--container">
 
-  <app-item-card
+  <app-record-item
     *ngFor="let item of children$ | async; trackBy: trackByPid"
     [uuid]="item.pid"
     [model]="item.model"
@@ -10,6 +10,6 @@
     [showFavoriteButton]="false"
     [showAccessibilityBadge]="true"
     [className]="'card--fluid'"
-  ></app-item-card>
+  ></app-record-item>
 
 </div>

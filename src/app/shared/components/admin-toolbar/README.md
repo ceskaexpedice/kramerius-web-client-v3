@@ -26,7 +26,7 @@ Floating toolbar that appears when items are selected.
 - Bulk delete
 
 ### Enhanced Card Components
-Both `ItemCardComponent` and `RecordItemComponent` support:
+The `RecordItemComponent` supports:
 - Selection checkbox overlay in admin mode
 - Visual selection states
 - Click handling for selection

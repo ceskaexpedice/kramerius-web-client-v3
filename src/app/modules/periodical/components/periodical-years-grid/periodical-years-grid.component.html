@@ -1,5 +1,5 @@
 <div class="grid--container">
-  <app-item-card
+  <app-record-item
     *ngFor="let year of years"
     [title]="year.year"
     [uuid]="year.pid"
@@ -9,5 +9,5 @@
     [showAccessibilityBadge]="true"
     [accessibility]="year.accessibility"
     [className]="'card--fluid'"
-  ></app-item-card>
+  ></app-record-item>
 </div>

@@ -1,16 +1,20 @@
 <a class="record-item-card"
-   [class.page]="record.model === DocumentTypeEnum.page"
-   [class.periodical]="record.model === DocumentTypeEnum.periodical"
+   [class.page]="getItemModel() === DocumentTypeEnum.page"
+   [class.periodical]="getItemModel() === DocumentTypeEnum.periodical"
+   [class.periodicalvolume]="getItemModel() === 'periodicalvolume'"
+   [class.periodicalitem]="getItemModel() === 'periodicalitem'"
    [class.selection-mode]="selectionService.selectionMode()"
-   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(record.pid)"
+   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(getItemId())"
+   [class.with-badge]="shouldShowAccessibilityBadge()"
+   [ngClass]="[className, getItemModel()]"
    [href]="getDocumentUrl()"
    [attr.aria-label]="getTitle()"
-   (click)="onRecordClick($event, record)">
+   (click)="onRecordClick($event)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
     <app-checkbox
-      [model]="selectionService.isSelected(record.pid)"
+      [model]="selectionService.isSelected(getItemId())"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
@@ -22,9 +26,10 @@
          [style.background-image] = "`url(${getImageThumbnailUrl()})`"
     >
 
-      <div class="record-item-card__actions">
+      <!-- Show action buttons for record-item mode -->
+      <div class="record-item-card__actions" *ngIf="record?.pid">
         <button class="button secondary rounded icon-button favorites-button"
-                *ngIf="!selectionService.selectionMode()"
+                *ngIf="shouldShowFavoriteButton()"
                 [class.favorited]="isItemFavorited$ | async"
                 (click)="onToggleFavorites($event)"
                 [title]="'add-to-favorites' | translate">
@@ -42,11 +47,20 @@
         <!-- Example: <button class="button secondary rounded icon-button other-button">...</button> -->
       </div>
 
-      @if (record.model !== DocumentTypeEnum.page) {
-        <span class="badge model">{{ record.model | translate }}</span>
+      <!-- Show favorite button for item-card compatibility mode -->
+      <button class="icon-button light rounded item-card__favorite-btn"
+              *ngIf="uuid && shouldShowFavoriteButton()"
+              [class.favorited]="isItemFavorited$ | async"
+              [title]="(isItemFavorited$ | async) ? 'Remove from favorites' : 'Add to favorites'"
+              (click)="onToggleFavorites($event)">
+        <i class="fa" [class.fa-heart]="isItemFavorited$ | async" [class.fa-heart-o]="!(isItemFavorited$ | async)"></i>
+      </button>
+
+      @if (getItemModel() !== DocumentTypeEnum.page && getItemModel() !== 'periodicalvolume' && getItemModel() !== 'periodicalitem') {
+        <span class="badge model">{{ getItemModel() | translate }}</span>
       }
 
-      @if (recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])) {
+      @if (isRecordLocked()) {
         <div class="record-item-card__image-lock-overlay">
 
           <button class="button secondary rounded icon-button">
@@ -66,16 +80,16 @@
         {{ getTitle() }}
       </div>
 
-      <div class="subtitle" *ngIf="record.authors?.length || record.date">
+      <div class="subtitle" *ngIf="getSubtitle() || (record.authors?.length || record.date)">
 
         {{getSubtitle()}}
 
-        <span class="authors">
+        <span class="authors" *ngIf="record.authors?.length || record.date">
           {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
         </span>
       </div>
 
-      @if (record.model === DocumentTypeEnum.page) {
+      @if (getItemModel() === DocumentTypeEnum.page && record.highlighting) {
 
           @for (text of record.highlighting; track $index) {
 
@@ -85,10 +99,10 @@
 
       }
 
-      @if (recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])) {
+      @if (shouldShowAccessibilityBadge()) {
 
         <div class="access-label">
-          <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"></app-accessibility-badge>
+          <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
         </div>
 
       }
@@ -104,7 +118,7 @@
   <div class="favorites-popup-wrapper"
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
-      [itemId]="record.pid"
+      [itemId]="getItemId()"
       [itemName]="getTitle()"
       [currentFolderId]="currentFolderId"
       [showRemoveButton]="!!currentFolderId"

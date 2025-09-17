@@ -2,7 +2,7 @@ import {Component, inject, Input} from '@angular/core';
 import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical-detail.selectors';
 import {Store} from '@ngrx/store';
 import {AsyncPipe, NgForOf} from '@angular/common';
-import {ItemCardComponent} from '../../../../shared/components/item-card/item-card.component';
+import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {PeriodicalItemChild} from '../../../models/periodical-item';
 import {Router} from '@angular/router';
@@ -13,7 +13,7 @@ import {TranslatePipe} from '@ngx-translate/core';
   imports: [
     NgForOf,
     AsyncPipe,
-    ItemCardComponent,
+    RecordItemComponent,
     TranslatePipe,
   ],
   templateUrl: './periodical-year-issues-grid.component.html',
