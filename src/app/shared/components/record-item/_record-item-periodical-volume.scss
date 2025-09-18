@@ -2,41 +2,54 @@
 
 .record-item-card.periodicalvolume,
 .record-item-card.periodicalitem {
-  /* Same consistent dimensions as all other cards */
-  width: 100%;
-  max-width: 100%;
-  min-width: 170px;
-  height: clamp(280px, 16vw, 320px);
-  overflow: hidden;
-  padding: 8px 16px 16px 16px;
-  gap: var(--spacing-x2);
 
+  // Custom layout order: title → subtitle → image → badge
   .record-item-card__inner {
-    padding: 0;
-  }
-
-  .record-item-card__image {
-    order: 2;
-    flex: auto;
-    min-height: 0;
+    padding: var(--spacing-x2) var(--spacing-x3) var(--spacing-x3) var(--spacing-x3);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .record-item-card__content {
+    // Content (title/subtitle) takes smaller portion for periodical volumes
+    // Based on design: ~52px content height
     order: 1;
-    flex: auto;
+    flex: 1;
+    min-height: 0;
 
     .title {
       font-size: 20px;
       line-height: 32px;
+      height: auto;
+      min-height: auto;
+      // Allow more lines for periodical titles
+      -webkit-line-clamp: 2;
     }
   }
 
-  .access-label {
-    order: 3;
-    display: inline-flex;
+  .record-item-card__image {
+    // Image takes larger portion in periodical volumes
+    // Based on design: ~182px image height
+    order: 2;
+    flex: 3;
+    min-height: 0;
   }
 
+  .access-label {
+    // Badge appears at bottom
+    order: 3;
+    flex: 0 0 auto;
+    margin-top: var(--spacing-x2);
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
+  // Responsive height for badge presence
   &.with-badge {
-    // Additional styling when accessibility badge is shown
+
+    .access-label {
+      margin-top: auto;
+    }
   }
 }

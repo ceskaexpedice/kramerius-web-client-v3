@@ -1,22 +1,5 @@
 // Periodical document type specific styles for record item cards
 
 .record-item-card.periodical {
-  width: 100%;
-  max-width: 100%;
-  min-width: 170px;
-  overflow: hidden;
 
-  .record-item-card__image {
-    flex: 1;
-    min-height: 0;
-  }
-
-  .record-item-card__content {
-
-    .title {
-      -webkit-line-clamp: 2;
-      max-height: 40px;
-      height: 40px;
-    }
-  }
 }

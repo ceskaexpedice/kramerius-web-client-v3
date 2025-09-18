@@ -45,7 +45,8 @@
   }
 
   .record-item-card__image {
-    flex: 1;
+    // Image takes ~65-70% of card height for normal layout
+    flex: 7;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -139,7 +140,8 @@
     flex-direction: column;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
-    flex: 0 1 auto;
+    // Content takes ~30-35% of card height for normal layout
+    flex: 3;
     min-height: 0;
 
     .title {
@@ -148,7 +150,7 @@
       font-weight: 600;
 
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
