@@ -1,0 +1,42 @@
+// Periodical volume/item specific styles for record item cards
+
+.record-item-card.periodicalvolume,
+.record-item-card.periodicalitem {
+  /* Same consistent dimensions as all other cards */
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  height: clamp(280px, 16vw, 320px);
+  overflow: hidden;
+  padding: 8px 16px 16px 16px;
+  gap: var(--spacing-x2);
+
+  .record-item-card__inner {
+    padding: 0;
+  }
+
+  .record-item-card__image {
+    order: 2;
+    flex: auto;
+    min-height: 0;
+  }
+
+  .record-item-card__content {
+    order: 1;
+    flex: auto;
+
+    .title {
+      font-size: 20px;
+      line-height: 32px;
+    }
+  }
+
+  .access-label {
+    order: 3;
+    display: inline-flex;
+  }
+
+  &.with-badge {
+    // Additional styling when accessibility badge is shown
+  }
+}

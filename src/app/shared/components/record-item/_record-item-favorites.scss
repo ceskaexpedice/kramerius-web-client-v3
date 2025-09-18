@@ -1,0 +1,62 @@
+// Favorites functionality styles for record item cards
+
+// Favorites popup wrapper positioned outside the card
+.favorites-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: $record-item-favorites-popup;
+  pointer-events: auto;
+  opacity: 0; // Start hidden to prevent flicker
+  transition: opacity 0.1s ease;
+
+  &.positioned {
+    opacity: 1; // Show after positioning
+  }
+
+  app-favorites-popup {
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
+}
+
+// Item-card compatibility styles
+.item-card__favorite-btn {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  opacity: 0;
+  transition: all 0.4s;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-base);
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  // Always show when favorited
+  &.favorited {
+    opacity: 1;
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  i {
+    font-size: 16px;
+  }
+}
+
+// Show favorite button on hover for item-card mode
+.record-item-card:hover .item-card__favorite-btn {
+  opacity: 1;
+}

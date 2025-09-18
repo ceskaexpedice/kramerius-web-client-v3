@@ -1,0 +1,62 @@
+// Admin mode and selection styles for record item cards
+
+.record-item-card {
+  // Admin mode styles
+  &.selection-mode {
+    cursor: pointer;
+
+    // Admin mode: Resting card styles
+    border-radius: var(--spacing-x2);
+    box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+    border: none;
+
+    // Admin mode: Hover card styles
+    &:hover {
+      border: 1px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+    }
+
+    // Admin mode: Focus card styles
+    &:focus,
+    &:focus-within {
+      border: 1px solid var(--color-border-additional);
+      border-radius: var(--spacing-x2);
+      box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+      outline: none;
+    }
+
+    // Always show actions in admin mode
+    .record-item-card__image > .record-item-card__actions {
+      opacity: 1;
+    }
+
+    // Disable link behavior in admin mode
+    text-decoration: none;
+    color: inherit;
+  }
+
+  // Selected state (only in admin mode)
+  &.selection-mode.selected {
+    // Admin mode: Selected card styles
+    border: 2px solid var(--color-primary);
+    border-radius: var(--spacing-x2);
+    // Remove shadow for selected state as per design spec
+    box-shadow: none;
+
+    .record-item-card__inner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    // Selected card maintains selected border on hover (admin mode)
+    &:hover {
+      border: 2px solid var(--color-primary);
+      border-radius: var(--spacing-x2);
+    }
+  }
+}
