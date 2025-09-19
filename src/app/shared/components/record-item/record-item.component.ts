@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {NgIf, AsyncPipe, NgClass} from '@angular/common';
+import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Router} from '@angular/router';
 import {RecordHandlerService} from '../../services/record-handler.service';
@@ -22,13 +22,13 @@ import { RecordItem } from './record-item.model';
 @Component({
   selector: 'app-record-item',
   imports: [
-    NgIf,
     AsyncPipe,
     TranslatePipe,
     AccessibilityBadgeComponent,
     FavoritesPopupComponent,
     CheckboxComponent,
     NgClass,
+    NgIf,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'

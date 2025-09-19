@@ -47,7 +47,7 @@
         <!-- Example: <button class="button secondary rounded icon-button other-button">...</button> -->
       </div>
 
-      @if (item.model !== DocumentTypeEnum.page && item.model !== 'periodicalvolume' && item.model !== 'periodicalitem') {
+      @if (item.model !== DocumentTypeEnum.page && item.model !== DocumentTypeEnum.periodicalvolume && item.model !== DocumentTypeEnum.periodicalitem) {
         <span class="badge model">{{ item.model | translate }}</span>
       }
 
@@ -90,15 +90,15 @@
 
       }
 
-      @if (shouldShowAccessibilityBadge()) {
-
-        <div class="access-label">
-          <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
-        </div>
-
-      }
-
     </div>
+
+    @if (shouldShowAccessibilityBadge()) {
+
+      <div class="access-label">
+        <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
+      </div>
+
+    }
 
   </div>
 
