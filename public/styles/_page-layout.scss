@@ -2,13 +2,13 @@
 // Shared layout styles for full-height pages with sidebar and content areas
 
 .page-container {
-  height: calc(100vh - var(--header-height));
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
 
   /* Responsive layout adjustments */
   @media (max-width: 853px) {
     /* Mobile/small tablet - no sidebar gap */
-    height: 100%;
+    height: calc(100% - var(--playback-bar-height, 0px));
   }
 }
 

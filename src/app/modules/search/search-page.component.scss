@@ -3,4 +3,6 @@
   flex-direction: column;
   gap: 40px;
   padding: 0 var(--search-page-padding);
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  overflow-y: auto;
 }

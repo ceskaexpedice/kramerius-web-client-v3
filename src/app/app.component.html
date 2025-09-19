@@ -1,8 +1,8 @@
 <app-header />
-<main [class.with-playback-bar]="showPlaybackBar()">
+<main [style.--playback-bar-height]="showPlaybackBar() ? '52px' : '0px'">
   <router-outlet />
-  <app-playback-bar />
 </main>
+<app-playback-bar />
 
 <app-loading-overlay />
 
