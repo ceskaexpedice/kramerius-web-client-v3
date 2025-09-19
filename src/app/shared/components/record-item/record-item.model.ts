@@ -56,7 +56,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     highlighting: doc.highlighting,
     className: '',
     showFavoriteButton: true,
-    showAccessibilityBadge: false
+    showAccessibilityBadge: true
   };
 }
 
