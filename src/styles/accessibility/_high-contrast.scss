@@ -1,0 +1,301 @@
+// High Contrast Theme
+// Provides maximum contrast ratios for accessibility compliance
+
+.high-contrast {
+  // Override base colors with high contrast variants
+  --color-bg-base: #000000;
+  --color-bg-light: #1a1a1a;
+  --color-bg-bright: #333333;
+  --color-bg-contrast: #4d4d4d;
+
+  --color-text-base: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-tertiary: #e0e0e0;
+  --color-text-light: #cccccc;
+  --color-text-disable: #999999;
+  --color-text-on-color: #000000;
+
+  // High contrast primary colors
+  --color-primary: #00ccff;
+  --color-primary-hover: #33d4ff;
+  --color-primary-pressed: #66ddff;
+
+  // High contrast secondary colors
+  --color-secondary: #ffffff;
+  --color-secondary-hover: #e6e6e6;
+  --color-secondary-pressed: #cccccc;
+
+  // High contrast error/success/warning
+  --color-error: #ff4444;
+  --color-success: #44ff44;
+  --color-warning: #ffaa00;
+
+  // High contrast borders
+  --color-border-base: #ffffff;
+  --color-border-light: #cccccc;
+  --color-border-bright: #999999;
+  --color-border-contrast: #666666;
+
+  // Enhanced focus indicators
+  --accessibility-focus-outline-width: 3px;
+  --accessibility-focus-outline-color: #00ccff;
+
+  // Material Design component overrides
+  .mat-card {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+    border: 2px solid var(--color-border-light);
+  }
+
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    border: 2px solid currentColor;
+
+    &.mat-primary {
+      background: var(--color-primary);
+      color: var(--color-text-on-color);
+      border-color: var(--color-primary);
+    }
+
+    &:hover {
+      box-shadow: 0 0 8px var(--color-primary);
+    }
+
+    &:focus {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+    }
+  }
+
+  .mat-form-field {
+    .mat-form-field-outline {
+      border: 2px solid var(--color-border-light);
+    }
+
+    &.mat-focused {
+      .mat-form-field-outline {
+        border-color: var(--color-primary);
+        border-width: 3px;
+      }
+    }
+
+    .mat-input-element {
+      color: var(--color-text-base);
+
+      &::placeholder {
+        color: var(--color-text-disable);
+      }
+    }
+  }
+
+  .mat-checkbox {
+    .mat-checkbox-frame {
+      border: 2px solid var(--color-text-base);
+    }
+
+    &.mat-checkbox-checked {
+      .mat-checkbox-background {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+      }
+    }
+  }
+
+  .mat-radio-button {
+    .mat-radio-outer-circle {
+      border: 2px solid var(--color-text-base);
+    }
+
+    &.mat-radio-checked {
+      .mat-radio-outer-circle {
+        border-color: var(--color-primary);
+      }
+
+      .mat-radio-inner-circle {
+        background: var(--color-primary);
+      }
+    }
+  }
+
+  .mat-select {
+    .mat-select-trigger {
+      color: var(--color-text-base);
+      border: 2px solid var(--color-border-light);
+      border-radius: 4px;
+      padding: 8px 12px;
+    }
+
+    &.mat-select-focused {
+      .mat-select-trigger {
+        border-color: var(--color-primary);
+        border-width: 3px;
+      }
+    }
+  }
+
+  .mat-menu-panel {
+    background: var(--color-bg-base);
+    border: 2px solid var(--color-border-light);
+
+    .mat-menu-item {
+      color: var(--color-text-base);
+
+      &:hover {
+        background: var(--color-bg-bright);
+      }
+
+      &:focus {
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
+        outline: none;
+      }
+    }
+  }
+
+  .mat-dialog-container {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+    border: 3px solid var(--color-border-light);
+  }
+
+  .mat-list {
+    .mat-list-item {
+      color: var(--color-text-base);
+      border-bottom: 1px solid var(--color-border-light);
+
+      &:hover {
+        background: var(--color-bg-bright);
+      }
+
+      &:focus {
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
+        outline: none;
+      }
+    }
+  }
+
+  .mat-table {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+
+    th {
+      background: var(--color-bg-bright);
+      color: var(--color-text-base);
+      border: 1px solid var(--color-border-light);
+      font-weight: bold;
+    }
+
+    td {
+      border: 1px solid var(--color-border-light);
+      color: var(--color-text-base);
+    }
+
+    tr:hover {
+      background: var(--color-bg-bright);
+    }
+  }
+
+  .mat-tab-group {
+    .mat-tab-label {
+      color: var(--color-text-base);
+      border: 1px solid var(--color-border-light);
+      margin-right: 2px;
+
+      &:hover {
+        background: var(--color-bg-bright);
+      }
+
+      &.mat-tab-label-active {
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
+        border-color: var(--color-primary);
+      }
+    }
+
+    .mat-tab-body-content {
+      background: var(--color-bg-base);
+      border: 2px solid var(--color-border-light);
+      border-top: none;
+    }
+  }
+
+  // Custom component overrides
+  .search-input {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+    border: 2px solid var(--color-border-light);
+
+    &:focus {
+      border-color: var(--color-primary);
+      border-width: 3px;
+      box-shadow: 0 0 8px var(--color-primary);
+    }
+  }
+
+  .filter-category,
+  .category-item {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+    border: 2px solid var(--color-border-light);
+
+    &:hover {
+      background: var(--color-bg-bright);
+      border-color: var(--color-primary);
+    }
+
+    &.selected {
+      background: var(--color-primary);
+      color: var(--color-text-on-color);
+      border-color: var(--color-primary);
+    }
+  }
+
+  .record-item {
+    background: var(--color-bg-base);
+    color: var(--color-text-base);
+    border: 2px solid var(--color-border-light);
+
+    &:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
+    }
+  }
+
+  // Link styling
+  a {
+    color: var(--color-primary);
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+    }
+  }
+
+  // Image and media contrast
+  img,
+  video {
+    filter: contrast(1.2) brightness(1.1);
+  }
+
+  // Ensure text contrast on overlays
+  .overlay,
+  .modal-backdrop {
+    background: rgba(0, 0, 0, 0.95);
+  }
+
+  // Enhanced dividers
+  hr,
+  .divider {
+    border-color: var(--color-border-light);
+    border-width: 2px;
+  }
+}

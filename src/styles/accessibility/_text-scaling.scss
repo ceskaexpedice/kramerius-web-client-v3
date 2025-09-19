@@ -1,0 +1,174 @@
+// Text Scaling System
+// Supports 100%, 125%, and 150% text scaling for accessibility
+
+// Base text scaling mixin
+@mixin text-scale($scale: 1) {
+  font-size: calc(1em * #{$scale} * var(--accessibility-text-scale));
+  line-height: calc(1.5 * #{$scale} * var(--accessibility-text-scale));
+}
+
+// Text scaling classes
+.text-scale-100 {
+  --accessibility-text-scale: 1;
+}
+
+.text-scale-125 {
+  --accessibility-text-scale: 1.25;
+
+  // Adjust spacing proportionally
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 1.25) calc(1em * 1.25);
+  }
+
+  // Adjust form elements
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 1.25);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 1.25) calc(1em * 1.25);
+  }
+
+  // Adjust navigation elements
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 1.25);
+  }
+}
+
+.text-scale-150 {
+  --accessibility-text-scale: 1.5;
+
+  // Adjust spacing proportionally
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 1.5) calc(1em * 1.5);
+  }
+
+  // Adjust form elements
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 1.5);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 1.5) calc(1em * 1.5);
+  }
+
+  // Adjust navigation elements
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 1.5);
+  }
+
+  // Adjust grid layouts for larger text
+  .search-grid,
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  // Ensure readability with increased line spacing
+  p,
+  .text-content {
+    line-height: calc(1.6 * var(--accessibility-text-scale));
+  }
+}
+
+// Component-specific text scaling adjustments
+body.text-scale-125,
+body.text-scale-150 {
+
+  // Header adjustments
+  header {
+    min-height: calc(64px * var(--accessibility-text-scale));
+  }
+
+  // Search input scaling
+  .search-input {
+    min-height: calc(48px * var(--accessibility-text-scale));
+  }
+
+  // Card component scaling
+  .mat-card {
+    padding: calc(16px * var(--accessibility-text-scale));
+  }
+
+  .mat-card-title {
+    margin-bottom: calc(8px * var(--accessibility-text-scale));
+  }
+
+  .mat-card-content {
+    margin: calc(16px * var(--accessibility-text-scale)) 0;
+  }
+
+  // List item scaling
+  .mat-list-item {
+    min-height: calc(48px * var(--accessibility-text-scale));
+  }
+
+  // Dialog scaling
+  .mat-dialog-container {
+    padding: calc(24px * var(--accessibility-text-scale));
+  }
+
+  .mat-dialog-title {
+    margin-bottom: calc(16px * var(--accessibility-text-scale));
+  }
+
+  .mat-dialog-content {
+    margin: calc(16px * var(--accessibility-text-scale)) 0;
+  }
+
+  // Toolbar scaling
+  .mat-toolbar {
+    min-height: calc(64px * var(--accessibility-text-scale));
+  }
+
+  // Table scaling
+  .mat-table {
+    th, td {
+      padding: calc(12px * var(--accessibility-text-scale));
+    }
+  }
+
+  // Chip scaling
+  .mat-chip {
+    padding: calc(4px * var(--accessibility-text-scale)) calc(8px * var(--accessibility-text-scale));
+    min-height: calc(32px * var(--accessibility-text-scale));
+  }
+
+  // Menu scaling
+  .mat-menu-item {
+    min-height: calc(48px * var(--accessibility-text-scale));
+    padding: 0 calc(16px * var(--accessibility-text-scale));
+  }
+
+  // Tooltip scaling
+  .mat-tooltip {
+    font-size: calc(12px * var(--accessibility-text-scale));
+    padding: calc(6px * var(--accessibility-text-scale)) calc(8px * var(--accessibility-text-scale));
+  }
+
+  // Icon scaling
+  .mat-icon {
+    width: calc(24px * var(--accessibility-text-scale));
+    height: calc(24px * var(--accessibility-text-scale));
+    font-size: calc(24px * var(--accessibility-text-scale));
+  }
+
+  // Responsive text scaling for mobile
+  @media (max-width: 768px) {
+    .mat-dialog-container {
+      max-width: 95vw;
+    }
+
+    .search-grid,
+    .results-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

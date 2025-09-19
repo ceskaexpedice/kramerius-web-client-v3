@@ -1,0 +1,506 @@
+// Screen Reader Optimizations
+// Enhances content presentation for screen reader users
+
+.screen-reader-optimized {
+  // Enhanced semantic structure
+  h1, h2, h3, h4, h5, h6 {
+    // Add visual separation for screen reader users
+    &::before {
+      content: "";
+      display: block;
+      height: 1px;
+      margin-bottom: 0.5em;
+    }
+
+    // Ensure headings are easily navigable
+    &:focus {
+      outline: 2px solid var(--accessibility-focus-outline-color);
+      outline-offset: 2px;
+    }
+  }
+
+  // Improve list navigation
+  ul, ol {
+    // Add list type announcement
+    &[role="list"] {
+      &::before {
+        content: attr(aria-label);
+        @extend .sr-only;
+      }
+    }
+
+    li {
+      // Add pause between list items for better comprehension
+      &::after {
+        content: ", ";
+        @extend .sr-only;
+      }
+
+      &:last-child::after {
+        content: ".";
+      }
+    }
+  }
+
+  // Table optimizations
+  table {
+    caption {
+      font-weight: 600;
+      margin-bottom: 1em;
+      text-align: left;
+    }
+
+    th {
+      // Ensure column headers are properly announced
+      &[scope="col"] {
+        &::after {
+          content: " column";
+          @extend .sr-only;
+        }
+      }
+
+      &[scope="row"] {
+        &::after {
+          content: " row";
+          @extend .sr-only;
+        }
+      }
+    }
+
+    // Add table navigation hints
+    &::before {
+      content: "Data table with " attr(data-rows) " rows and " attr(data-cols) " columns";
+      @extend .sr-only;
+    }
+  }
+
+  // Form optimizations
+  form {
+    .mat-form-field {
+      .mat-form-field-label {
+        // Enhance label clarity
+        font-weight: 500;
+      }
+
+      // Add required field indicators
+      &.mat-form-field-required {
+        .mat-form-field-label::after {
+          content: " (required)";
+          @extend .sr-only;
+        }
+      }
+
+      // Add field type descriptions
+      &.mat-form-field-type-email {
+        input::before {
+          content: "Email address field";
+          @extend .sr-only;
+        }
+      }
+
+      &.mat-form-field-type-tel {
+        input::before {
+          content: "Phone number field";
+          @extend .sr-only;
+        }
+      }
+
+      &.mat-form-field-type-password {
+        input::before {
+          content: "Password field";
+          @extend .sr-only;
+        }
+      }
+    }
+
+    // Error message enhancements
+    .mat-error {
+      // Add error announcement
+      &::before {
+        content: "Error: ";
+        font-weight: 600;
+      }
+
+      // Make errors more prominent
+      font-weight: 500;
+      border-left: 3px solid var(--color-error);
+      padding-left: 0.5em;
+    }
+
+    // Success message enhancements
+    .mat-success {
+      &::before {
+        content: "Success: ";
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Button and interactive element optimizations
+  button,
+  [role="button"] {
+    // Add action descriptions
+    &[aria-label] {
+      &::after {
+        content: " button";
+        @extend .sr-only;
+      }
+    }
+
+    // Loading state announcements
+    &[aria-busy="true"] {
+      &::after {
+        content: " loading";
+        @extend .sr-only;
+      }
+    }
+
+    // Toggle button states
+    &[aria-pressed="true"] {
+      &::after {
+        content: " pressed";
+        @extend .sr-only;
+      }
+    }
+
+    &[aria-pressed="false"] {
+      &::after {
+        content: " not pressed";
+        @extend .sr-only;
+      }
+    }
+
+    // Expanded state announcements
+    &[aria-expanded="true"] {
+      &::after {
+        content: " expanded";
+        @extend .sr-only;
+      }
+    }
+
+    &[aria-expanded="false"] {
+      &::after {
+        content: " collapsed";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Navigation optimizations
+  nav {
+    &[role="navigation"] {
+      &::before {
+        content: attr(aria-label) " navigation";
+        @extend .sr-only;
+      }
+    }
+
+    // Breadcrumb optimizations
+    &[aria-label*="breadcrumb"] {
+      ol {
+        li {
+          &::after {
+            content: " > ";
+            @extend .sr-only;
+          }
+
+          &:last-child::after {
+            content: " (current page)";
+            @extend .sr-only;
+          }
+        }
+      }
+    }
+
+    // Main navigation optimizations
+    &[role="main"] {
+      a {
+        // Add current page indicators
+        &[aria-current="page"] {
+          &::after {
+            content: " (current page)";
+            @extend .sr-only;
+          }
+        }
+      }
+    }
+  }
+
+  // Dialog and modal optimizations
+  .mat-dialog-container {
+    &[role="dialog"] {
+      &::before {
+        content: "Dialog: " attr(aria-label);
+        @extend .sr-only;
+      }
+    }
+
+    &[role="alertdialog"] {
+      &::before {
+        content: "Alert dialog: " attr(aria-label);
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Progress indicator optimizations
+  .mat-progress-bar,
+  .mat-progress-spinner {
+    &[aria-valuenow] {
+      &::after {
+        content: attr(aria-valuenow) "% complete";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Tab optimizations
+  .mat-tab-group {
+    .mat-tab-label {
+      // Add tab position information
+      &::after {
+        content: " tab " attr(data-position) " of " attr(data-total);
+        @extend .sr-only;
+      }
+
+      &.mat-tab-label-active::after {
+        content: " tab " attr(data-position) " of " attr(data-total) " selected";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Image optimizations
+  img {
+    // Ensure all images have proper alt text
+    &:not([alt]) {
+      &::after {
+        content: "Image without description";
+        @extend .sr-only;
+      }
+    }
+
+    &[alt=""] {
+      // Decorative images
+      &::after {
+        content: "Decorative image";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Link optimizations
+  a {
+    // External link indicators
+    &[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"]) {
+      &::after {
+        content: " (external link, opens in new window)";
+        @extend .sr-only;
+      }
+    }
+
+    // Download link indicators
+    &[download] {
+      &::after {
+        content: " (download)";
+        @extend .sr-only;
+      }
+    }
+
+    // Email link indicators
+    &[href^="mailto:"] {
+      &::after {
+        content: " (email link)";
+        @extend .sr-only;
+      }
+    }
+
+    // Phone link indicators
+    &[href^="tel:"] {
+      &::after {
+        content: " (phone link)";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Card optimizations
+  .mat-card {
+    &[role="article"] {
+      &::before {
+        content: "Article: " attr(aria-label);
+        @extend .sr-only;
+      }
+    }
+
+    // Add card structure information
+    .mat-card-header + .mat-card-content {
+      &::before {
+        content: "Card content begins";
+        @extend .sr-only;
+      }
+    }
+
+    .mat-card-actions {
+      &::before {
+        content: "Card actions";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Menu optimizations
+  .mat-menu-panel {
+    &[role="menu"] {
+      &::before {
+        content: "Menu with " attr(data-item-count) " items";
+        @extend .sr-only;
+      }
+    }
+
+    .mat-menu-item {
+      // Add menu item position
+      &::before {
+        content: "Menu item " attr(data-position);
+        @extend .sr-only;
+      }
+
+      // Submenu indicators
+      &[aria-haspopup="true"] {
+        &::after {
+          content: " has submenu";
+          @extend .sr-only;
+        }
+      }
+    }
+  }
+
+  // Search result optimizations
+  .search-results {
+    &::before {
+      content: "Search results: " attr(data-result-count) " items found";
+      @extend .sr-only;
+    }
+
+    .result-item {
+      &::before {
+        content: "Result " attr(data-position) " of " attr(data-total);
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Pagination optimizations
+  .mat-paginator {
+    &::before {
+      content: "Pagination controls";
+      @extend .sr-only;
+    }
+
+    .mat-paginator-page-size-label {
+      &::after {
+        content: " items per page";
+        @extend .sr-only;
+      }
+    }
+
+    .mat-paginator-range-label {
+      &::before {
+        content: "Showing ";
+      }
+
+      &::after {
+        content: " of total results";
+      }
+    }
+  }
+
+  // Sort and filter optimizations
+  .mat-sort-header {
+    &[aria-sort="ascending"] {
+      &::after {
+        content: " sorted ascending";
+        @extend .sr-only;
+      }
+    }
+
+    &[aria-sort="descending"] {
+      &::after {
+        content: " sorted descending";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Status and notification optimizations
+  .mat-snack-bar-container {
+    &[role="alert"] {
+      &::before {
+        content: "Alert: ";
+        font-weight: 600;
+      }
+    }
+
+    &[role="status"] {
+      &::before {
+        content: "Status update: ";
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Loading states
+  .loading-overlay {
+    &[aria-hidden="false"] {
+      &::before {
+        content: "Page loading, please wait";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Custom component optimizations
+  .record-item {
+    &::before {
+      content: "Record: " attr(aria-label);
+      @extend .sr-only;
+    }
+
+    .record-metadata {
+      &::before {
+        content: "Metadata: ";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  .filter-category {
+    &::before {
+      content: "Filter category: " attr(aria-label);
+      @extend .sr-only;
+    }
+
+    &[aria-expanded="true"] {
+      &::before {
+        content: "Filter category: " attr(aria-label) " expanded";
+        @extend .sr-only;
+      }
+    }
+  }
+
+  // Time and date optimizations
+  time[datetime] {
+    &::after {
+      content: " (" attr(datetime) ")";
+      @extend .sr-only;
+    }
+  }
+
+  // Abbreviation optimizations
+  abbr[title] {
+    &::after {
+      content: " (" attr(title) ")";
+      @extend .sr-only;
+    }
+  }
+}
