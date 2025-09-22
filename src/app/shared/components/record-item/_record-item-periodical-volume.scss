@@ -15,7 +15,7 @@
     // Content (title/subtitle) takes smaller portion for periodical volumes
     // Based on design: ~52px content height
     order: 1;
-    flex: 1;
+    //flex: 1;
     min-height: 0;
 
     .title {
@@ -32,7 +32,7 @@
     // Image takes larger portion in periodical volumes
     // Based on design: ~182px image height
     order: 2;
-    flex: 3;
+    //flex: 3;
     min-height: 0;
   }
 

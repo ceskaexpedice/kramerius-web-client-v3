@@ -13,6 +13,7 @@
   width: 100%;
   max-width: 100%;
   min-width: 170px;
+  min-height: 100%;
   box-sizing: border-box;
 
   overflow: hidden;
@@ -34,19 +35,27 @@
     }
   }
 
+  &.with-badge {
+    aspect-ratio: 170/350; // Updated to match 350px height design
+
+    .record-item-card__content {
+      padding-bottom: 32px; // Space for badge
+    }
+  }
+
   .record-item-card__inner {
     padding: var(--base-padding);
     display: flex;
     flex-direction: column;
-    //gap: var(--base-gap);
+    gap: var(--base-gap);
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
   }
 
   .record-item-card__image {
-    // Image takes ~65-70% of card height for normal layout
-    height: 60%;
+    // Image is ~182px out of 350px total (~52% accounting for padding)
+    height: 63%;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -140,8 +149,9 @@
     flex-direction: column;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
-    // Content takes ~30-35% of card height for normal layout
-    height: 40%;
+    // Content is ~108px out of 350px total (~37% accounting for padding)
+    height: 37%;
+    flex-shrink: 0; // Prevent content from shrinking
 
     .title {
       font-size: 16px;
@@ -149,25 +159,30 @@
       font-weight: 600;
 
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3; // Updated to allow 3 lines as per design
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-height: 60px;
-      height: 60px;
+      max-height: 60px; // 3 lines × 20px line-height
+      flex-shrink: 0; // Don't let title shrink
     }
 
     .subtitle {
       font-size: var(--font-size-small);
+      flex: 1; // Take remaining space
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x1, 4px);
     }
 
     .authors {
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 2; // Keep at 2 lines for authors/description
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;
+      flex: 1;
     }
 
     .date {
@@ -176,9 +191,11 @@
   }
 
   .access-label {
-    margin-top: auto;
+    position: absolute;
+    bottom: var(--base-padding);
+    left: var(--base-padding);
     display: inline-flex;
-    order: 3;
+    z-index: 2; // Ensure it's above other content
   }
 
   // Hidden link for SEO/accessibility
