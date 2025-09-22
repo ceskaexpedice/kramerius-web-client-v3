@@ -16,7 +16,7 @@
   box-sizing: border-box;
 
   overflow: hidden;
-  aspect-ratio: 170/286;
+  aspect-ratio: 170/338;
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
@@ -38,7 +38,7 @@
     padding: var(--base-padding);
     display: flex;
     flex-direction: column;
-    gap: var(--base-gap);
+    //gap: var(--base-gap);
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
@@ -46,7 +46,7 @@
 
   .record-item-card__image {
     // Image takes ~65-70% of card height for normal layout
-    flex: 7;
+    height: 60%;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -141,8 +141,7 @@
     gap: var(--spacing-x2);
     color: var(--color-text-base);
     // Content takes ~30-35% of card height for normal layout
-    flex: 3;
-    min-height: 0;
+    height: 40%;
 
     .title {
       font-size: 16px;
