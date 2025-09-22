@@ -2,6 +2,11 @@
 
 .record-item-card.periodicalvolume,
 .record-item-card.periodicalitem {
+  aspect-ratio: 170/266;
+
+  &.with-badge {
+    aspect-ratio: 170/282;
+  }
 
   // Custom layout order: title → subtitle → image → badge
   .record-item-card__inner {
@@ -15,7 +20,8 @@
     // Content (title/subtitle) takes smaller portion for periodical volumes
     // Based on design: ~52px content height
     order: 1;
-    //flex: 1;
+    height: auto;
+    flex: 1;
     min-height: 0;
 
     .title {
@@ -36,20 +42,26 @@
     min-height: 0;
   }
 
-  .access-label {
-    // Badge appears at bottom
-    order: 3;
-    flex: 0 0 auto;
-    margin-top: var(--spacing-x2);
-    display: inline-flex;
-    align-self: flex-start;
-  }
-
-  // Responsive height for badge presence
   &.with-badge {
-
-    .access-label {
-      margin-top: auto;
+    .record-item-card__inner {
+      padding-bottom: 45px;
     }
   }
+
+  //.access-label {
+  //  // Badge appears at bottom
+  //  order: 3;
+  //  flex: 0 0 auto;
+  //  margin-top: var(--spacing-x2);
+  //  display: inline-flex;
+  //  align-self: flex-start;
+  //}
+  //
+  //// Responsive height for badge presence
+  //&.with-badge {
+  //
+  //  .access-label {
+  //    margin-top: auto;
+  //  }
+  //}
 }

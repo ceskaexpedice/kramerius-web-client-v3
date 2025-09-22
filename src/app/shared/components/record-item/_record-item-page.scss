@@ -3,25 +3,30 @@
 .record-item-card.page {
   // More compact aspect ratio for pages
   // Based on design: roughly 1:1.4 ratio (width:height)
-  aspect-ratio: 1/1.4;
+  aspect-ratio: 140/196;
+
+  &.with-badge {
+    aspect-ratio: 170/260;
+  }
 
   .record-item-card__image {
     // Smaller image for pages
     // Based on design: ~48px image height
-    flex: 1;
+    aspect-ratio: 140/48;
+    //flex: 1;
     min-height: 0;
   }
 
   .record-item-card__content {
     // More content space for pages to include OCR text
     // Based on design: ~64px content + ~80px text = 144px total
-    flex: 3;
+    flex: 1;
+    height: auto;
+    gap: var(--spacing-x1);
 
     .title {
       // Smaller title for pages to make room for text
       -webkit-line-clamp: 2;
-      max-height: 40px;
-      height: 40px;
     }
   }
 
