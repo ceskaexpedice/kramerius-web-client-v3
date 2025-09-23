@@ -1,10 +1,12 @@
 import {Component, ElementRef, Input, ViewChild} from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-carousel',
   imports: [
     NgClass,
+    TranslatePipe,
   ],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.scss'

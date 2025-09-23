@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {SearchService} from '../../../../shared/services/search.service';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 export interface SuggestedSearchTag {
   text: string;
@@ -9,7 +9,9 @@ export interface SuggestedSearchTag {
 
 @Component({
   selector: 'app-suggested-search-tags-section',
-  imports: [],
+  imports: [
+    TranslatePipe,
+  ],
   templateUrl: './suggested-search-tags-section.component.html',
   styleUrl: './suggested-search-tags-section.component.scss'
 })

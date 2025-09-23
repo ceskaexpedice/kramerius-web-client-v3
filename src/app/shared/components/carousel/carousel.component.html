@@ -10,11 +10,15 @@
 
   <div class="carousel-actions">
 
-    <button class="outlined-dark icon-button nav left" (click)="scrollLeft()" [disabled]="!canScrollLeft">
+    <button class="outlined-dark icon-button nav left"
+            aria-label="{{'scroll-left' | translate}}"
+            (click)="scrollLeft()" [disabled]="!canScrollLeft">
       <i class="icon-arrow-left"></i>
     </button>
 
-    <button class="outlined-dark icon-button nav right" (click)="scrollRight()" [disabled]="!canScrollRight">
+    <button class="outlined-dark icon-button nav right"
+            aria-label="{{'scroll-right' | translate}}"
+            (click)="scrollRight()" [disabled]="!canScrollRight">
       <i class="icon-arrow-right"></i>
     </button>
 
