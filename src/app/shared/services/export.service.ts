@@ -5,6 +5,7 @@ import { SelectionService } from './selection.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
+import { TranslateService } from '@ngx-translate/core';
 
 export enum ExportFormat {
   JSON = 'json',
@@ -27,6 +28,7 @@ export interface ExportOptions {
 export class ExportService {
   private solrService = inject(SolrService);
   private selectionService = inject(SelectionService);
+  private translateService = inject(TranslateService);
 
   exportSelectedItems(itemIds: string[], options: ExportOptions): Observable<void> {
     // Fetch full details for selected items
@@ -266,9 +268,9 @@ export class ExportService {
   // Helper method to get available export formats
   getAvailableFormats(): Array<{value: ExportFormat, label: string}> {
     return [
-      { value: ExportFormat.JSON, label: 'JSON' },
-      { value: ExportFormat.CSV, label: 'CSV' },
-      { value: ExportFormat.TXT, label: 'Text' }
+      { value: ExportFormat.JSON, label: this.translateService.instant('export.formats.json') },
+      { value: ExportFormat.CSV, label: this.translateService.instant('export.formats.csv') },
+      { value: ExportFormat.TXT, label: this.translateService.instant('export.formats.text') }
     ];
   }
 }

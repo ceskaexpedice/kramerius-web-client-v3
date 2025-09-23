@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output, signal} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, signal, inject} from '@angular/core';
 import {SelectComponent} from '../select/select.component';
 import {ENVIRONMENT} from '../../../app.config';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface MonthYearChange {
   month: number;
@@ -65,25 +66,14 @@ export interface MonthYearChange {
   `
 })
 export class MonthYearSelectorComponent implements OnInit {
+  private translateService = inject(TranslateService);
+
   @Input() month: number = 0; // 0-based month
   @Input() year: number = new Date().getFullYear();
   @Input() showMonthNavigation: boolean = false;
   @Output() monthYearChange = new EventEmitter<MonthYearChange>();
 
-  monthOptions: {value: number, label: string}[] = [
-    { value: 0, label: 'January' },
-    { value: 1, label: 'February' },
-    { value: 2, label: 'March' },
-    { value: 3, label: 'April' },
-    { value: 4, label: 'May' },
-    { value: 5, label: 'June' },
-    { value: 6, label: 'July' },
-    { value: 7, label: 'August' },
-    { value: 8, label: 'September' },
-    { value: 9, label: 'October' },
-    { value: 10, label: 'November' },
-    { value: 11, label: 'December' }
-  ];
+  monthOptions: {value: number, label: string}[] = [];
 
   yearOptions: {value: number, label: string}[] = [];
 
@@ -91,8 +81,26 @@ export class MonthYearSelectorComponent implements OnInit {
   selectedYear = signal<{value: number, label: string}>({value: this.year, label: this.yearOptions.find(y => y.value === this.year)?.label || this.year.toString()});
 
   ngOnInit() {
+    this.generateMonthOptions();
     this.generateYearOptions();
     this.setInitialValues();
+  }
+
+  private generateMonthOptions() {
+    this.monthOptions = [
+      { value: 0, label: this.translateService.instant('months.january') },
+      { value: 1, label: this.translateService.instant('months.february') },
+      { value: 2, label: this.translateService.instant('months.march') },
+      { value: 3, label: this.translateService.instant('months.april') },
+      { value: 4, label: this.translateService.instant('months.may') },
+      { value: 5, label: this.translateService.instant('months.june') },
+      { value: 6, label: this.translateService.instant('months.july') },
+      { value: 7, label: this.translateService.instant('months.august') },
+      { value: 8, label: this.translateService.instant('months.september') },
+      { value: 9, label: this.translateService.instant('months.october') },
+      { value: 10, label: this.translateService.instant('months.november') },
+      { value: 11, label: this.translateService.instant('months.december') }
+    ];
   }
 
   private generateYearOptions() {

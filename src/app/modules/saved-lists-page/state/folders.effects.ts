@@ -7,6 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService } from '../services/folders.service';
 import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { TranslateService } from '@ngx-translate/core';
 import { parseSearchDocument } from '../../models/search-document';
 import { parseSoundTrack } from '../../models/sound-track.model';
 import { DocumentTypeEnum } from '../../constants/document-type';
@@ -130,13 +131,13 @@ export class FoldersEffects {
       ),
       tap(action => {
         if (action.type === FoldersActions.createFolderSuccess.type) {
-          this.toastService.show('List created successfully');
+          this.toastService.show(this.translateService.instant('folders.messages.created'));
         } else if (action.type === FoldersActions.updateFolderSuccess.type) {
-          this.toastService.show('List updated successfully');
+          this.toastService.show(this.translateService.instant('folders.messages.updated'));
         } else if (action.type === FoldersActions.deleteFolderSuccess.type) {
-          this.toastService.show('List deleted successfully');
+          this.toastService.show(this.translateService.instant('folders.messages.deleted'));
         } else if (action.type === FoldersActions.updateFolderItemsSuccess.type) {
-          this.toastService.show('List items updated successfully');
+          this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
         }
       })
     ), { dispatch: false }
@@ -424,7 +425,8 @@ export class FoldersEffects {
     private toastService: ToastService,
     private store: Store,
     private router: Router,
-    private solrService: SolrService
+    private solrService: SolrService,
+    private translateService: TranslateService
   ) {}
 
   private extractFolderUuidFromUrl(url: string): string | null {
