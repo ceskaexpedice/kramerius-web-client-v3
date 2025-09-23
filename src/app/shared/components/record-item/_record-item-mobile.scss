@@ -1,0 +1,143 @@
+//// Mobile styles for record item cards when displayed in single column/row layout
+//// Applied when grid is 1 column on mobile devices
+//
+//.record-item-card {
+//
+//  // Mobile single-row layout
+//  @media (max-width: 768px) {
+//    aspect-ratio: 148/272;
+//    min-height: 120px; // Minimum height for mobile row
+//
+//    .record-item-card__inner {
+//      flex-direction: row; // Horizontal layout
+//      gap: var(--spacing-x3);
+//      padding: var(--spacing-x3);
+//    }
+//
+//    .record-item-card__image {
+//      // Fixed width for mobile, height auto
+//      width: 80px;
+//      height: 100px;
+//      aspect-ratio: 80/100;
+//      flex-shrink: 0;
+//    }
+//
+//    .record-item-card__content {
+//      height: auto; // Auto height in mobile
+//      flex: 1; // Take remaining width
+//      gap: var(--spacing-x1);
+//
+//      .title {
+//        font-size: 14px;
+//        line-height: 18px;
+//        -webkit-line-clamp: 2; // Reduced to 2 lines on mobile
+//        max-height: 36px; // 2 lines × 18px line-height
+//      }
+//
+//      .subtitle {
+//        font-size: 12px;
+//        line-height: 1.3;
+//        -webkit-line-clamp: 1; // Only 1 line for subtitle on mobile
+//        max-height: 1.3em;
+//      }
+//
+//      .authors {
+//        font-size: 12px;
+//      }
+//    }
+//
+//    // Badge positioning for mobile row layout
+//    &.with-badge {
+//      .record-item-card__content {
+//        padding-bottom: 0; // No extra bottom padding needed in row layout
+//      }
+//
+//      .access-label {
+//        position: static; // Remove absolute positioning
+//        margin-top: auto; // Push to bottom of content area
+//        align-self: flex-start;
+//      }
+//    }
+//
+//    // Actions positioning for mobile
+//    .record-item-card__image > .record-item-card__actions {
+//      top: 4px;
+//      left: 4px;
+//
+//      .favorites-button {
+//        width: 28px;
+//        height: 28px;
+//        padding: 4px;
+//
+//        i {
+//          font-size: 14px;
+//        }
+//      }
+//    }
+//
+//    // Selection checkbox positioning for mobile
+//    .record-item-card__selection {
+//      top: 4px;
+//      right: 4px;
+//
+//      app-checkbox ::ng-deep .checkbox {
+//        width: 18px;
+//        height: 18px;
+//      }
+//    }
+//  }
+//}
+
+// xs screen < 408px one single row as card
+@media (max-width: 408px) {
+  .record-item-card {
+    height: 140px;
+
+    .record-item-card__inner {
+      flex-direction: row; // Horizontal layout
+      gap: var(--spacing-x3);
+      padding: var(--spacing-x3);
+    }
+
+    .record-item-card__image {
+      // Fixed width for mobile, height auto
+      aspect-ratio: 100/152;
+      height: 100%;
+      flex-shrink: 0;
+    }
+
+    .record-item-card__content {
+      height: auto; // Auto height in mobile
+      flex: 1; // Take remaining width
+      gap: var(--spacing-x1);
+
+      .title {
+        font-size: 16px;
+        line-height: 20px;
+        -webkit-line-clamp: 3;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        line-height: 1.1;
+        -webkit-line-clamp: 2;
+      }
+
+      .authors {
+        font-size: 12px;
+      }
+    }
+
+    &.with-badge {
+
+      .access-label {
+        position: absolute; // Remove absolute positioning
+        right: var(--spacing-x3);
+        bottom: var(--spacing-x3);
+        left: auto;
+      }
+
+    }
+
+  }
+}
