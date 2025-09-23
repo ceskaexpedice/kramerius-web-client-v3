@@ -16,7 +16,7 @@ import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical
 import {Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PeriodicalService} from '../../../../shared/services/periodical.service';
 import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
@@ -27,6 +27,7 @@ import {RecordHandlerService} from '../../../../shared/services/record-handler.s
     MatCalendar,
     NgForOf,
     NgIf,
+    TranslatePipe,
   ],
   providers: [
     {

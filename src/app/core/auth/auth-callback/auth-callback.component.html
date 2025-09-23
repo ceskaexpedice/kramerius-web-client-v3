@@ -3,16 +3,16 @@
     @if (loading) {
       <div class="loading">
         <div class="spinner"></div>
-        <h2>Completing authentication...</h2>
-        <p>Please wait while we log you in.</p>
+        <h2>{{ 'completing-authentication' | translate }}</h2>
+        <p>{{ 'authentication-wait' | translate }}</p>
       </div>
     }
     
     @if (error) {
       <div class="error">
-        <h2>Authentication Error</h2>
+        <h2>{{ 'authentication-error' | translate }}</h2>
         <p>{{ error }}</p>
-        <p>Redirecting you back to the home page...</p>
+        <p>{{ 'redirecting-home' | translate }}</p>
       </div>
     }
   </div>

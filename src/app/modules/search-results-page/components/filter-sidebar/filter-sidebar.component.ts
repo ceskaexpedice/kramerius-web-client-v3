@@ -1,12 +1,14 @@
 import {Component, Input, inject, signal, computed} from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
 import {BreakpointService} from '../../../../shared/services/breakpoint.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-filter-sidebar',
   imports: [
     NgClass,
     NgIf,
+    TranslatePipe,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'

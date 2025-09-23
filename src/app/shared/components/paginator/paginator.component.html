@@ -4,7 +4,7 @@
 
       <ng-container *ngFor="let p of pages()">
         <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)"
-                aria-label="Go to page {{p}}"
+                [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)"
                 [disabled]="disabledPagination">
           {{ p }}
         </button>
@@ -14,13 +14,13 @@
     </ng-container>
 
     <button class="button tertiary outlined"
-            aria-label="Go to previous page"
+            [attr.aria-label]="'go-to-previous-page' | translate"
             (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
       <i class="icon-arrow-left"></i>
     </button>
 
     <button class="button tertiary outlined"
-            aria-label="Go to next page"
+            [attr.aria-label]="'go-to-next-page' | translate"
             (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
       <i class="icon-arrow-right"></i>
     </button>

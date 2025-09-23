@@ -22,7 +22,7 @@
          (click)="loadMonthIfNeeded(i)">
       <div class="loading-content">
         <div class="loading-spinner" *ngIf="periodicalService.monthlyIssuesLoading()"></div>
-        <p>{{ lazyLoadingEnabled() ? 'Click to load month' : 'Loading...' }}</p>
+        <p>{{ lazyLoadingEnabled() ? ('click-to-load-month' | translate) : ('loading' | translate) }}</p>
       </div>
     </div>
   </div>

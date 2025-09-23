@@ -58,7 +58,7 @@
 
 <div class="facet-list">
   <div *ngIf="loading()" class="loading">
-    Načítavam...
+    {{ 'loading' | translate }}
   </div>
   <label *ngFor="let item of items()" class="facet-item">
     <mat-checkbox

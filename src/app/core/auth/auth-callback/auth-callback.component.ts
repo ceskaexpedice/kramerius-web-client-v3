@@ -3,12 +3,16 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import * as AuthActions from '../store/auth.actions';
 import {AuthService} from '../auth.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-auth-callback',
   standalone: true,
   templateUrl: './auth-callback.component.html',
-  styleUrl: './auth-callback.component.scss'
+  imports: [
+    TranslatePipe,
+  ],
+  styleUrl: './auth-callback.component.scss',
 })
 export class AuthCallbackComponent implements OnInit {
 

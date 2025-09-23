@@ -5,6 +5,7 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {NgIf} from '@angular/common';
 import {DateRange, RangeSliderComponent} from '../components/range-slider/range-slider.component';
 import {ENVIRONMENT} from '../../app.config';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export interface DateStepperChange {
   dateFrom: Date;
@@ -24,6 +25,7 @@ export enum DatePickerMode {
     MatSlideToggle,
     NgIf,
     RangeSliderComponent,
+    TranslatePipe,
   ],
   templateUrl: './date-stepper.component.html',
   styleUrl: './date-stepper.component.scss'

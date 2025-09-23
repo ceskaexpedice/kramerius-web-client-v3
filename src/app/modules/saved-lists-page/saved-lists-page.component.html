@@ -110,7 +110,7 @@
               <div class="music-section--actions">
                 <button class="with-icon primary"
                         (click)="playAllTracks()"
-                        title="Play all tracks"
+                        [title]="'play-all-tracks' | translate"
                 >
                   <i class="icon-play"></i>
                   {{ 'play-all' | translate }}

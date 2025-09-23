@@ -95,7 +95,7 @@
         <!-- Loading State -->
         <div *ngIf="searchService.loading$ | async" class="loading-container">
           <div class="loading-message">
-            <p>Loading search results...</p>
+            <p>{{ 'loading-search-results' | translate }}</p>
           </div>
         </div>
 

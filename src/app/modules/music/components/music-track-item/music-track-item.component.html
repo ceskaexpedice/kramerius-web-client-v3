@@ -49,18 +49,18 @@
   </td>
   <td class="duration duration-col">{{ duration }}</td>
   <td class="actions actions-col">
-    <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" title="Přidat do fronty">
+    <button class="icon-button rounded light" (click)="addToQueue(); $event.stopPropagation()" [title]="'add-to-queue' | translate">
       <i class="icon icon-additem"></i>
     </button>
     @if (showRemoveButton) {
-      <button class="icon-button rounded light" (click)="remove(); $event.stopPropagation()" title="Odebrat ze seznamu">
+      <button class="icon-button rounded light" (click)="remove(); $event.stopPropagation()" [title]="'remove-from-list' | translate">
         <i class="icon icon-trash"></i>
       </button>
     } @else {
       <button class="icon-button rounded light"
               (mouseover)="isMouseOverFavorite = true"
               (mouseout)="isMouseOverFavorite = false"
-              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited" title="Uložit do seznamu">
+              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited" [title]="'save-to-list' | translate">
         <i
           [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
           [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">

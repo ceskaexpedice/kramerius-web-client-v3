@@ -3,6 +3,7 @@ import {DialogConfig, SidebarDialogLayoutComponent} from '../sidebar-dialog-layo
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Metadata} from '../../models/metadata.model';
 import {NgForOf, NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-record-info-dialog',
@@ -10,6 +11,7 @@ import {NgForOf, NgIf} from '@angular/common';
     SidebarDialogLayoutComponent,
     NgIf,
     NgForOf,
+    TranslatePipe,
   ],
   templateUrl: './record-info-dialog.component.html',
   styleUrl: './record-info-dialog.component.scss'

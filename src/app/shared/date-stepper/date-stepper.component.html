@@ -83,4 +83,4 @@
   *ngIf="showModeToggle"
   [checked]="dateMode() === DatePickerMode.Range"
   (toggleChange)="toggleDateMode()"
->Výběr období od–do</mat-slide-toggle>
+>{{ 'date-range-selection' | translate }}</mat-slide-toggle>

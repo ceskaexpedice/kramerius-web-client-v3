@@ -3,7 +3,7 @@
 <button *ngIf="!breakpointService.sidebarVisible() && !isVisible()"
         class="sidebar-toggle-btn"
         (click)="breakpointService.toggleSidebar()"
-        aria-label="Open filters">
+        [attr.aria-label]="'open-filters' | translate">
   <i class="icon-filter"></i>
 </button>
 
@@ -23,7 +23,7 @@
   <button *ngIf="isOverlay() && isVisible()"
           class="sidebar-close-btn"
           (click)="closeSidebar()"
-          aria-label="Close filters">
+          [attr.aria-label]="'close-filters' | translate">
     <i class="icon-close"></i>
   </button>
 
