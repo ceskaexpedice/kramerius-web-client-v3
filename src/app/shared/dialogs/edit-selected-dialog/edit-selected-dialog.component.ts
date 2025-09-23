@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TranslatePipe } from '@ngx-translate/core';
 import { NgIf } from '@angular/common';
 import {
   DialogConfig,
@@ -18,7 +17,6 @@ export interface EditSelectedDialogData {
 @Component({
   selector: 'app-edit-selected-dialog',
   imports: [
-    TranslatePipe,
     NgIf,
     SidebarDialogLayoutComponent,
     EditReindexSectionComponent,
@@ -83,10 +81,10 @@ export class EditSelectedDialogComponent {
     }
 
     console.log('Save changes for section:', currentSection, sectionData);
-    this.dialogRef.close({ 
-      action: 'save', 
-      section: currentSection, 
-      data: sectionData 
+    this.dialogRef.close({
+      action: 'save',
+      section: currentSection,
+      data: sectionData
     });
   }
 

@@ -3,7 +3,6 @@ import {TranslatePipe} from '@ngx-translate/core';
 import * as AuthActions from '../store/auth.actions';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
-import {SelectComponent} from '../../../shared/components/select/select.component';
 import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
 import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.component';
@@ -15,7 +14,6 @@ import {_} from '../../../shared/translation/translate-placeholder';
   selector: 'app-user-info',
   imports: [
     TranslatePipe,
-    SelectComponent,
     AsyncPipe,
     MenuComponent,
   ],

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import { NgIf } from '@angular/common';
 import {
   DialogConfig,
@@ -16,7 +16,6 @@ export interface ExportSelectedDialogData {
 @Component({
   selector: 'app-export-selected-dialog',
   imports: [
-    TranslatePipe,
     NgIf,
     SidebarDialogLayoutComponent,
     ExportCsvSectionComponent

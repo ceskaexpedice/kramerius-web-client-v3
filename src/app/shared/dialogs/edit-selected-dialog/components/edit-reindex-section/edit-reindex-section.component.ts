@@ -1,9 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import {FormatNumberPipe} from '../../../../pipes/format-number.pipe';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
-import {NgForOf, NgIf} from '@angular/common';
 
 export interface ReindexSectionData {
   selectedIds: string[];
@@ -16,11 +14,8 @@ export interface ReindexSectionData {
   imports: [
     TranslatePipe,
     FormsModule,
-    FormatNumberPipe,
     MatRadioButton,
-    MatRadioGroup,
-    NgForOf,
-    NgIf,
+    MatRadioGroup
   ],
   templateUrl: './edit-reindex-section.component.html',
   styleUrl: './edit-reindex-section.component.scss'

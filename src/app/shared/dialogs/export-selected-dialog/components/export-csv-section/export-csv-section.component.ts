@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgForOf } from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 export interface CsvExportField {
@@ -22,7 +22,6 @@ export interface CsvSectionData {
     TranslatePipe,
     FormsModule,
     NgForOf,
-    NgIf,
     MatCheckbox
   ],
   templateUrl: './export-csv-section.component.html',

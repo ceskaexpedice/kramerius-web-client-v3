@@ -1,7 +1,7 @@
 import {Component, inject, Input} from '@angular/core';
 import { SearchDocument } from '../../../modules/models/search-document';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NgClass, NgForOf, NgIf } from '@angular/common';
+import { NgForOf, NgIf } from '@angular/common';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { languageMap } from '../../misc/language-map';
@@ -16,7 +16,6 @@ import { SelectionService } from '../../services';
     TranslatePipe,
     NgIf,
     NgForOf,
-    NgClass,
     AccessibilityBadgeComponent,
     CheckboxComponent,
   ],
