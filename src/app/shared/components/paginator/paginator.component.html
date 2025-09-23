@@ -3,7 +3,9 @@
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
-        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)" [disabled]="disabledPagination">
+        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)"
+                aria-label="Go to page {{p}}"
+                [disabled]="disabledPagination">
           {{ p }}
         </button>
         <span *ngIf="p === -1">...</span>
@@ -11,11 +13,15 @@
 
     </ng-container>
 
-    <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
+    <button class="button tertiary outlined"
+            aria-label="Go to previous page"
+            (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
       <i class="icon-arrow-left"></i>
     </button>
 
-    <button class="button tertiary outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
+    <button class="button tertiary outlined"
+            aria-label="Go to next page"
+            (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
       <i class="icon-arrow-right"></i>
     </button>
   </div>

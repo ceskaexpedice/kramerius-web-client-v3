@@ -74,6 +74,7 @@
         [ngClass]="{ disabled: isAtMax() }"
         [disabled]="isAtMax()"
         (click)="stepUp()"
+        aria-label="Increase value"
       >
         <i class="icon-arrow-up-1"></i>
       </button>
@@ -84,6 +85,7 @@
         [ngClass]="{ disabled: isAtMin() }"
         [disabled]="isAtMin()"
         (click)="stepDown()"
+        aria-label="Decrease value"
       >
         <i class="icon-arrow-up-1"></i>
       </button>
@@ -93,7 +95,9 @@
       <button
         class="icon-button button link tertiary"
         *ngIf="showMicButtonActual"
-        type="button">
+        type="button"
+        aria-label="Voice input"
+      >
         <i class="icon-microphone-2 input--icon"></i>
       </button>
 
@@ -101,14 +105,18 @@
         class="icon-button button link tertiary"
         *ngIf="showClear"
         type="button"
-        (mousedown)="clearInput($event)">
+        (mousedown)="clearInput($event)"
+        aria-label="Clear input"
+      >
         <i class="icon-x input--icon"></i>
       </button>
 
       <button
         class="icon-button button link tertiary"
         *ngIf="showHelpButton"
-        type="button">
+        type="button"
+        aria-label="Help"
+      >
         <i class="icon-question input--icon"></i>
       </button>
     </span>
@@ -118,6 +126,7 @@
     *ngIf="showSubmitButton"
     type="button"
     class="icon-button submit-btn"
+    aria-label="Submit"
     (click)="onSubmitClick()">
     <i class="{{submitIcon}}"></i>
   </button>

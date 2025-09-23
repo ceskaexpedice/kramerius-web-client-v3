@@ -19,8 +19,8 @@ import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/re
 export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-element-3' },
-    { value: AppResultsViewType.list, icon: 'icon-row-vertical' }
+    { value: AppResultsViewType.grid, icon: 'icon-element-3', ariaLabel: 'Grid view' },
+    { value: AppResultsViewType.list, icon: 'icon-row-vertical', ariaLabel: 'List View' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);

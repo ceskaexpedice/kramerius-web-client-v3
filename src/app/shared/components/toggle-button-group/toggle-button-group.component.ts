@@ -7,6 +7,7 @@ export interface ToggleOption<T> {
   iconColor?: string;
   label?: string;
   value: T;
+  ariaLabel?: string;
 }
 
 @Component({

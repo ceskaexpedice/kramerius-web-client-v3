@@ -43,11 +43,11 @@
 
                 <div class="flex flex--align-center flex--gap-x2 margin-side--x2">
 
-                  <button class="button outlined tertiary sm square-button">
+                  <button class="button outlined tertiary sm square-button" aria-label="{{'Download' | translate}}">
                     <i class="icon-download"></i>
                   </button>
 
-                  <button class="button outlined tertiary sm square-button" (click)="selectionService.setSelectionMode(true)">
+                  <button class="button outlined tertiary sm square-button" (click)="selectionService.setSelectionMode(true)" aria-label="{{'Select items' | translate}}">
                     <i class="icon-tick-square"></i>
                   </button>
 
@@ -65,7 +65,7 @@
                 <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
               </ng-container>
 
-              <button class="button outlined tertiary sm square-button" *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
+              <button class="button outlined tertiary sm square-button" aria-label="{{'Close select mode' | translate}}" *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
                 <i class="icon-x"></i>
               </button>
 
