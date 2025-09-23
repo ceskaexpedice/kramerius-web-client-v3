@@ -1,6 +1,6 @@
 <div class="grid--container">
   <app-record-item
     *ngFor="let year of years"
-    [item]="toRecordItem(year)"
+    [item]="toRecordItemWithBadgeLayout(year, years)"
   ></app-record-item>
 </div>

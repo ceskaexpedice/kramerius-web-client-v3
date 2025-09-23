@@ -1,8 +1,8 @@
-<div  class="grid--container">
+<div class="grid--container" *ngIf="children$ | async as children">
 
   <app-record-item
-    *ngFor="let item of children$ | async; trackBy: trackByPid"
-    [item]="toRecordItem(item)"
+    *ngFor="let item of children; trackBy: trackByPid"
+    [item]="toRecordItemWithBadgeLayout(item, children)"
   ></app-record-item>
 
 </div>

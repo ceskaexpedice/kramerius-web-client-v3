@@ -11,6 +11,8 @@ import {Metadata} from '../models/metadata.model';
 import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
 import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
 import {AdminSelectionService} from './admin-selection.service';
+import {RecordItem, searchDocumentToRecordItem} from '../components/record-item/record-item.model';
+import {PeriodicalItemChild, PeriodicalItemYear} from '../../modules/models/periodical-item';
 
 @Injectable({
   providedIn: 'root'
@@ -324,5 +326,109 @@ export class RecordHandlerService {
 
   shouldShowBackButton(document: any): boolean {
     return !!document.ownParentPid;
+  }
+
+  // Badge Layout Detection Methods
+
+  /**
+   * Converts a SearchDocument to RecordItem with badge layout consideration
+   * If any item in the provided array should show a badge, all items get the 'with-badge' class
+   */
+  searchDocumentToRecordItemWithBadgeLayout(doc: SearchDocument, allDocs: SearchDocument[]): RecordItem {
+    const recordItem = searchDocumentToRecordItem(doc);
+
+    if (this.shouldAnySearchDocumentShowBadge(allDocs)) {
+      recordItem.className = this.addWithBadgeClass(recordItem.className);
+    }
+
+    return recordItem;
+  }
+
+  /**
+   * Converts a PeriodicalItemChild to RecordItem with badge layout consideration
+   * If any item in the provided array should show a badge, all items get the 'with-badge' class
+   */
+  periodicalChildToRecordItemWithBadgeLayout(
+    item: PeriodicalItemChild,
+    allItems: PeriodicalItemChild[],
+    subtitlePrefix: string,
+    getItemTitle: (item: PeriodicalItemChild) => string
+  ): RecordItem {
+    const recordItem: RecordItem = {
+      id: item.pid,
+      title: getItemTitle(item),
+      subtitle: `${subtitlePrefix} ${item['part.number.str']}`,
+      model: item.model,
+      licenses: item['licenses.facet'] || [],
+      className: 'card--fluid',
+      showFavoriteButton: false,
+      showAccessibilityBadge: true
+    };
+
+    if (this.shouldAnyPeriodicalChildShowBadge(allItems)) {
+      recordItem.className = this.addWithBadgeClass(recordItem.className);
+    }
+
+    return recordItem;
+  }
+
+  /**
+   * Converts a PeriodicalItemYear to RecordItem with badge layout consideration
+   * If any item in the provided array should show a badge, all items get the 'with-badge' class
+   */
+  periodicalYearToRecordItemWithBadgeLayout(year: PeriodicalItemYear, allYears: PeriodicalItemYear[]): RecordItem {
+    const recordItem: RecordItem = {
+      id: year.pid,
+      title: year.year,
+      model: year.model,
+      licenses: year.licenses || [],
+      className: 'card--fluid',
+      showFavoriteButton: false,
+      showAccessibilityBadge: true
+    };
+
+    if (this.shouldAnyPeriodicalYearShowBadge(allYears)) {
+      recordItem.className = this.addWithBadgeClass(recordItem.className);
+    }
+
+    return recordItem;
+  }
+
+  /**
+   * Check if any SearchDocument in the array should show an accessibility badge
+   */
+  private shouldAnySearchDocumentShowBadge(docs: SearchDocument[]): boolean {
+    return docs.some(doc => {
+      const licenses = doc.containsLicenses || doc.licenses || [];
+      return this.isRecordLocked(licenses);
+    });
+  }
+
+  /**
+   * Check if any PeriodicalItemChild in the array should show an accessibility badge
+   */
+  private shouldAnyPeriodicalChildShowBadge(items: PeriodicalItemChild[]): boolean {
+    return items.some(item => {
+      const licenses = item['licenses.facet'] || [];
+      return this.isRecordLocked(licenses);
+    });
+  }
+
+  /**
+   * Check if any PeriodicalItemYear in the array should show an accessibility badge
+   */
+  private shouldAnyPeriodicalYearShowBadge(years: PeriodicalItemYear[]): boolean {
+    return years.some(year => {
+      const licenses = year.licenses || [];
+      return this.isRecordLocked(licenses);
+    });
+  }
+
+  /**
+   * Adds 'with-badge' class to the existing className string
+   */
+  private addWithBadgeClass(existingClassName: string | undefined): string {
+    const className = existingClassName || '';
+    return className.includes('with-badge') ? className : `${className} with-badge`.trim();
   }
 }

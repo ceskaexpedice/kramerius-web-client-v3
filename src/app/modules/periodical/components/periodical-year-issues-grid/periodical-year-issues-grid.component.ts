@@ -2,18 +2,20 @@ import {Component, inject, Input} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical-detail.selectors';
 import {Store} from '@ngrx/store';
-import {AsyncPipe, NgForOf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {PeriodicalItemChild} from '../../../models/periodical-item';
 import {Router} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
 import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-year-issues-grid',
   imports: [
     NgForOf,
+    NgIf,
     AsyncPipe,
     RecordItemComponent,
   ],
@@ -24,6 +26,7 @@ export class PeriodicalYearIssuesGridComponent {
   private store = inject(Store);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private recordHandlerService = inject(RecordHandlerService);
 
   @Input() year!: string;
   @Input() pid!: string;
@@ -61,6 +64,17 @@ export class PeriodicalYearIssuesGridComponent {
       showFavoriteButton: false,
       showAccessibilityBadge: true
     };
+  }
+
+  // Convert PeriodicalItemChild to RecordItem with badge layout consideration
+  toRecordItemWithBadgeLayout(item: PeriodicalItemChild, allItems: PeriodicalItemChild[]): RecordItem {
+    const subtitlePrefix = this.translate.instant('periodicalvolume-part-subtitle');
+    return this.recordHandlerService.periodicalChildToRecordItemWithBadgeLayout(
+      item,
+      allItems,
+      subtitlePrefix,
+      (item) => this.getItemTitle(item)
+    );
   }
 
 }

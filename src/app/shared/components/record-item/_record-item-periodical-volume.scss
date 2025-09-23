@@ -2,7 +2,7 @@
 
 .record-item-card.periodicalvolume,
 .record-item-card.periodicalitem {
-  aspect-ratio: 170/266;
+  aspect-ratio: 170/253;
 
   &.with-badge {
     aspect-ratio: 170/282;
@@ -21,7 +21,6 @@
     // Based on design: ~52px content height
     order: 1;
     height: auto;
-    flex: 1;
     min-height: 0;
 
     .title {

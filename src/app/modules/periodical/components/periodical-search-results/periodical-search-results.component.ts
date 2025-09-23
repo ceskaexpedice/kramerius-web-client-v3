@@ -6,6 +6,7 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {SearchDocument} from '../../../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-search-results',
@@ -24,10 +25,16 @@ export class PeriodicalSearchResultsComponent {
   currentSortBy = SolrSortFields.relevance;
 
   public periodicalService = inject(PeriodicalService);
+  private recordHandlerService = inject(RecordHandlerService);
 
   // Convert SearchDocument to RecordItem
   toRecordItem(doc: SearchDocument): RecordItem {
     return searchDocumentToRecordItem(doc);
+  }
+
+  // Convert SearchDocument to RecordItem with badge layout consideration
+  toRecordItemWithBadgeLayout(doc: SearchDocument, allDocs: SearchDocument[]): RecordItem {
+    return this.recordHandlerService.searchDocumentToRecordItemWithBadgeLayout(doc, allDocs);
   }
 
   // Cache for grouped results to avoid recomputation

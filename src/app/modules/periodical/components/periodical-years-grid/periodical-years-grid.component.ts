@@ -1,8 +1,9 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {PeriodicalItemYear} from '../../../models/periodical-item';
 import {NgForOf} from '@angular/common';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-years-grid',
@@ -17,6 +18,8 @@ export class PeriodicalYearsGridComponent {
   @Input() years: PeriodicalItemYear[] = [];
   @Output() selectYear = new EventEmitter<string>();
 
+  private recordHandlerService = inject(RecordHandlerService);
+
   // Convert PeriodicalItemYear to RecordItem
   toRecordItem(year: PeriodicalItemYear): RecordItem {
     return {
@@ -28,5 +31,10 @@ export class PeriodicalYearsGridComponent {
       showFavoriteButton: false,
       showAccessibilityBadge: true
     };
+  }
+
+  // Convert PeriodicalItemYear to RecordItem with badge layout consideration
+  toRecordItemWithBadgeLayout(year: PeriodicalItemYear, allYears: PeriodicalItemYear[]): RecordItem {
+    return this.recordHandlerService.periodicalYearToRecordItemWithBadgeLayout(year, allYears);
   }
 }
