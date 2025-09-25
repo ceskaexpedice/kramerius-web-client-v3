@@ -14,18 +14,41 @@
   <div class="dialog-body">
     <div class="sidebar">
       <ul>
-        <li
-          *ngFor="let section of config.sections"
-          [class.active]="activeSection() === section.key"
-          (click)="setActiveSection(section.key)">
+        <ng-container *ngFor="let section of config.sections">
+          <!-- Section with Children -->
+          <div *ngIf="section.isTitle && section.children" class="section-group">
+            <!-- Section Title (non-clickable) -->
+            <li *ngIf="section.isTitle" class="section-title">
+              <label>
+                <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
+                {{ section.label | translate }}
+              </label>
+            </li>
 
-          <label>
-            <i class="{{ section.icon }}"></i>
-            {{ section.label | translate }}
-          </label>
+            <li
+              *ngFor="let child of section.children"
+              [class.active]="activeSection() === child.key"
+              (click)="setActiveSection(child.key)">
+              <label>
+                <i class="{{ child.icon }}"></i>
+                {{ child.label | translate }}
+              </label>
+              <i class="icon-arrow-right-1"></i>
+            </li>
+          </div>
 
-          <i class="icon-arrow-right-1"></i>
-        </li>
+          <!-- Regular Section (clickable) -->
+          <li
+            *ngIf="!section.isTitle"
+            [class.active]="activeSection() === section.key"
+            (click)="setActiveSection(section.key)">
+            <label>
+              <i class="{{ section.icon }}"></i>
+              {{ section.label | translate }}
+            </label>
+            <i class="icon-arrow-right-1"></i>
+          </li>
+        </ng-container>
       </ul>
     </div>
 

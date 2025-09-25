@@ -8,6 +8,8 @@ export interface DialogSection {
   label: string;
   icon: string;
   component?: any;
+  isTitle?: boolean;
+  children?: DialogSection[];
 }
 
 export interface DialogButton {
@@ -52,7 +54,12 @@ export class SidebarDialogLayoutComponent {
 
   ngOnInit() {
     if (this.config.sections.length > 0) {
-      this.activeSection.set(this.config.sections[0].key);
+      const firstSection = this.config.sections[0];
+      if (firstSection.isTitle && firstSection.children?.length) {
+        this.activeSection.set(firstSection.children[0].key);
+      } else {
+        this.activeSection.set(firstSection.key);
+      }
     }
   }
 

@@ -43,9 +43,28 @@ export class EditSelectedDialogComponent {
       }
     ],
     sections: [
-      { key: 'reindex', label: 'edit-section-reindex', icon: '' },
-      { key: 'collections', label: 'edit-section-collections', icon: '' },
-      { key: 'licence', label: 'edit-section-licence', icon: '' },
+      { key: 'reindex', label: 'edit-section-reindex', icon: 'icon-refresh' },
+      {
+        key: 'collections',
+        label: 'edit-section-collections',
+        icon: '',
+        isTitle: true,
+        children: [
+          { key: 'add-collection', label: 'add-collection--label', icon: 'icon-add-circle' },
+          { key: 'remove-collection', label: 'remove-collection--label', icon: 'icon-minus-cirlce' }
+        ]
+      },
+      {
+        key: 'licence',
+        label: 'edit-section-licence',
+        icon: '',
+        isTitle: true,
+        children: [
+          { key: 'add-licence', label: 'add-licence--label', icon: 'icon-add-circle' },
+          { key: 'remove-licence', label: 'remove-licence--label', icon: 'icon-minus-cirlce' }
+        ]
+      },
+      { key: 'title-cover', label: 'edit-section-titlecover', icon: '' },
     ]
   };
 
