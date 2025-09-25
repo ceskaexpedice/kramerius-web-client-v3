@@ -262,5 +262,10 @@
   "search.suggestions.audio-recordings": "Zvukové nahrávky",
   "scroll-left": "Posunout doleva",
   "scroll-right": "Posunout doprava",
-  "search-for": "Hledat: "
+  "search-for": "Hledat: ",
+  "add-collection--label": "Přidat do kolekce",
+  "remove-collection--label": "Odebrat z kolekce",
+  "add-licence--label": "Přidat licenci",
+  "remove-licence--label": "Odebrat licenci",
+  "edit-section-titlecover": "Reprezentativní strana"
 }

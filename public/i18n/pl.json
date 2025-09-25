@@ -260,5 +260,10 @@
   "search.suggestions.audio-recordings": "Nagrania dźwiękowe",
   "scroll-left": "Przewiń w lewo",
   "scroll-right": "Przewiń w prawo",
-  "search-for": "Szukaj dla: "
+  "search-for": "Szukaj dla: ",
+  "add-collection--label": "Dodaj do kolekcji",
+  "remove-collection--label": "Usuń z kolekcji",
+  "add-licence--label": "Dodaj licencję",
+  "remove-licence--label": "Usuń licencję",
+  "edit-section-titlecover": "Okładka i tytuł"
 }

@@ -1,11 +1,11 @@
 .generic-dialog-container {
   padding: 24px 20px 12px 20px;
-  max-height: 80vh;
   overflow: hidden;
   background-color: var(--color-bg-base);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .close-button {
     font-size: 24px;
@@ -60,6 +60,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-x2);
+        height: 100%;
 
         li {
           display: flex;
@@ -101,6 +102,11 @@
             }
           }
 
+          &.action-section {
+            cursor: pointer;
+            margin-top: auto;
+          }
+
           label {
             display: flex;
             gap: var(--spacing-x3);
@@ -112,7 +118,6 @@
           border: 1px solid var(--color-border-light);
           border-radius: var(--spacing-x2);
           margin-bottom: var(--spacing-x3);
-          padding: var(--spacing-x2);
           background: var(--color-bg-tertiary);
 
           li {

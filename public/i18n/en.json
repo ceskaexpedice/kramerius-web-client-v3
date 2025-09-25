@@ -270,5 +270,10 @@
   "search.suggestions.audio-recordings": "Audio recordings",
   "scroll-left": "Scroll left",
   "scroll-right": "Scroll right",
-  "search-for": "Search: "
+  "search-for": "Search: ",
+  "add-collection--label": "Add to collection",
+  "remove-collection--label": "Remove from collection",
+  "add-licence--label": "Add licence",
+  "remove-licence--label": "Remove licence",
+  "edit-section-titlecover": "Cover page"
 }

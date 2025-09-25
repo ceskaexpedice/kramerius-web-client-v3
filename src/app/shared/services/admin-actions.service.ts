@@ -42,7 +42,7 @@ export class AdminActionsService {
     const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
       width: '80vw',
       maxWidth: '1000px',
-      height: '80vh',
+      height: '85vh',
       data: dialogData,
       disableClose: false
     });

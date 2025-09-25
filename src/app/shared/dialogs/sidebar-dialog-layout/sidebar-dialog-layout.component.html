@@ -37,13 +37,24 @@
             </li>
           </div>
 
+          <!-- Action Section (clickable button) -->
+          <li
+            *ngIf="!section.isTitle && section.isAction"
+            class="action-section cursor-pointer"
+            (click)="onActionClick(section.key)">
+            <label class="cursor-pointer">
+              {{ section.label | translate }}
+            </label>
+            <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
+          </li>
+
           <!-- Regular Section (clickable) -->
           <li
-            *ngIf="!section.isTitle"
+            *ngIf="!section.isTitle && !section.isAction"
             [class.active]="activeSection() === section.key"
             (click)="setActiveSection(section.key)">
             <label>
-              <i class="{{ section.icon }}"></i>
+              <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
               {{ section.label | translate }}
             </label>
             <i class="icon-arrow-right-1"></i>
@@ -57,33 +68,38 @@
     </div>
   </div>
 
-  <hr>
+  @if (config.showCancelButton || config.showSaveButton || config.customButtons?.length) {
 
-  <div class="footer" *ngIf="config.showCancelButton || config.showSaveButton || config.customButtons?.length">
-    <!-- Cancel Button -->
-    <button
-      *ngIf="config.showCancelButton"
-      class="button outlined secondary"
-      (click)="onClose()">
-      {{ (config.cancelButtonLabel || 'cancel') | translate }}
-    </button>
 
-    <!-- Custom Buttons -->
-    <button
-      *ngFor="let button of config.customButtons"
-      [class]="'button ' + (button.class)"
-      [disabled]="isButtonDisabled(button)"
-      (click)="onCustomButtonClick(button.action)">
-      <i *ngIf="button.icon" [class]="button.icon"></i>
-      {{ button.label | translate }}
-    </button>
+    <hr>
 
-    <!-- Save Button -->
-    <button
-      *ngIf="config.showSaveButton"
-      class="button primary"
-      (click)="onSave()">
-      {{ (config.saveButtonLabel || 'save') | translate }}
-    </button>
-  </div>
+    <div class="footer">
+      <!-- Cancel Button -->
+      <button
+        *ngIf="config.showCancelButton"
+        class="button outlined secondary"
+        (click)="onClose()">
+        {{ (config.cancelButtonLabel || 'cancel') | translate }}
+      </button>
+
+      <!-- Custom Buttons -->
+      <button
+        *ngFor="let button of config.customButtons"
+        [class]="'button ' + (button.class)"
+        [disabled]="isButtonDisabled(button)"
+        (click)="onCustomButtonClick(button.action)">
+        <i *ngIf="button.icon" [class]="button.icon"></i>
+        {{ button.label | translate }}
+      </button>
+
+      <!-- Save Button -->
+      <button
+        *ngIf="config.showSaveButton"
+        class="button primary"
+        (click)="onSave()">
+        {{ (config.saveButtonLabel || 'save') | translate }}
+      </button>
+    </div>
+
+  }
 </div>

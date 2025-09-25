@@ -31,16 +31,12 @@ export class EditSelectedDialogComponent {
   dialogConfig: DialogConfig = {
     title: 'edit-selected',
     subtitle: '',
-    showSaveButton: true,
+    showSaveButton: false,
     showCancelButton: false,
     saveButtonLabel: 'save',
     cancelButtonLabel: 'cancel',
     customButtons: [
-      {
-        label: 'go-to-admin-interface',
-        action: 'admin',
-        class: 'outlined tertiary',
-      }
+
     ],
     sections: [
       { key: 'reindex', label: 'edit-section-reindex', icon: 'icon-refresh' },
@@ -65,6 +61,7 @@ export class EditSelectedDialogComponent {
         ]
       },
       { key: 'title-cover', label: 'edit-section-titlecover', icon: '' },
+      { key: 'admin', label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
     ]
   };
 
@@ -116,6 +113,12 @@ export class EditSelectedDialogComponent {
   }
 
   onCustomButtonClick(action: string) {
+    if (action === 'admin') {
+      this.goToAdminInterface();
+    }
+  }
+
+  onActionClick(action: string) {
     if (action === 'admin') {
       this.goToAdminInterface();
     }

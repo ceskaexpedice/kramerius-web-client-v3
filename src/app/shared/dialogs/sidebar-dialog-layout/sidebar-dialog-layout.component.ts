@@ -10,6 +10,7 @@ export interface DialogSection {
   component?: any;
   isTitle?: boolean;
   children?: DialogSection[];
+  isAction?: boolean;
 }
 
 export interface DialogButton {
@@ -47,6 +48,7 @@ export class SidebarDialogLayoutComponent {
   @Output() close = new EventEmitter<void>();
   @Output() sectionChange = new EventEmitter<string>();
   @Output() customButtonClick = new EventEmitter<string>();
+  @Output() actionClick = new EventEmitter<string>();
 
   private dialogRef = inject(MatDialogRef<SidebarDialogLayoutComponent>, { optional: true });
 
@@ -66,6 +68,10 @@ export class SidebarDialogLayoutComponent {
   setActiveSection(key: string) {
     this.activeSection.set(key);
     this.sectionChange.emit(key);
+  }
+
+  onActionClick(key: string) {
+    this.actionClick.emit(key);
   }
 
   onSave() {
