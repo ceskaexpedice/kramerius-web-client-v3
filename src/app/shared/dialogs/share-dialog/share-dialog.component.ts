@@ -2,8 +2,7 @@ import {Component, EventEmitter, inject, Output} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ShareService} from '../../services/share.service';
-import {ButtonToggleComponent} from '../../components/button-toggle/button-toggle.component';
-import {NgForOf} from '@angular/common';
+import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {Metadata} from '../../models/metadata.model';
 import {copyTextToClipboard} from '../../misc/misc-functions';
@@ -13,18 +12,14 @@ import {ToastService} from '../../services/toast.service';
   selector: 'app-share-dialog',
   imports: [
     TranslatePipe,
-    ButtonToggleComponent,
-    NgForOf,
+    DocumentHierarchySelectorComponent,
   ],
   templateUrl: './share-dialog.component.html',
   styleUrls: ['./share-dialog.component.scss', '../generic-dialog.scss'],
 })
 export class ShareDialogComponent {
   document!: Metadata;
-
-  shareableDocumentTypes: any[] = [];
-  activePid: string = '';
-
+  selectedPid: string = '';
   currentShareUrl: string = '';
 
   @Output() close = new EventEmitter<void>();
@@ -38,32 +33,22 @@ export class ShareDialogComponent {
 
   constructor() {
     this.document = this.data.document;
-    this.loadShareableDocumentTypes();
+    // selectedPid will be set by the component, then we update URL
   }
 
-  loadShareableDocumentTypes(): void {
-    this.shareableDocumentTypes = this.recordHandlerService.getShareableDocumentTypes(this.document);
-
-    this.activePid = this.shareableDocumentTypes[0].pid;
-    this.currentShareUrl = this.getCurrentShareUrl();
-  }
-
-  getCurrentShareUrl() {
+  getCurrentShareUrl(selectedItem: DocumentHierarchyItem) {
     let isPageSelected = false;
-    const documentType = this.shareableDocumentTypes.find(d => d.pid === this.activePid);
 
-    if (documentType && documentType.model === 'page') {
+    if (selectedItem && selectedItem.model === 'page') {
       isPageSelected = true;
     }
 
-    return this.shareService.getCurrentUrl(this.activePid, isPageSelected);
+    return this.shareService.getCurrentUrl(selectedItem.pid, isPageSelected);
   }
 
-  toggledActiveShareDocumentType(active: boolean, pid: string): void {
-    if (active) {
-      this.activePid = pid;
-      this.currentShareUrl = this.getCurrentShareUrl();
-    }
+  onHierarchySelectionChanged(selectedItem: DocumentHierarchyItem): void {
+    this.selectedPid = selectedItem.pid;
+    this.currentShareUrl = this.getCurrentShareUrl(selectedItem);
   }
 
   onClose() {

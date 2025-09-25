@@ -1,5 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { SearchDocument } from '../../modules/models/search-document';
+import {computed, Injectable, signal} from '@angular/core';
+import {SearchDocument} from '../../modules/models/search-document';
+import {Metadata} from '../models/metadata.model';
+import {DocumentTypeEnum} from '../../modules/constants/document-type';
 
 export interface SelectionState {
   selectedIds: Set<string>;
@@ -18,21 +20,21 @@ export class SelectionService {
   readonly selectedCount = computed(() => this.selectedIds().size);
   readonly hasSelection = computed(() => this.selectedIds().size > 0);
   readonly selectionMode = computed(() => this.isSelectionMode());
-  
+
   readonly isAllVisibleSelected = computed(() => {
     const currentItems = this.currentPageItems();
     const selectedSet = this.selectedIds();
-    
+
     if (currentItems.length === 0) return false;
-    
+
     return currentItems.every(item => selectedSet.has(item.pid));
   });
 
   readonly isSomeVisibleSelected = computed(() => {
     const currentItems = this.currentPageItems();
     const selectedSet = this.selectedIds();
-    
-    return currentItems.some(item => selectedSet.has(item.pid)) && 
+
+    return currentItems.some(item => selectedSet.has(item.pid)) &&
            !this.isAllVisibleSelected();
   });
 
@@ -124,7 +126,7 @@ export class SelectionService {
   getSelectedItems(): SearchDocument[] {
     const selectedSet = this.selectedIds();
     const allKnownItems = this.currentPageItems();
-    
+
     return allKnownItems.filter(item => selectedSet.has(item.pid));
   }
 
@@ -133,5 +135,42 @@ export class SelectionService {
     if (count === 0) return 'No items selected';
     if (count === 1) return '1 item selected';
     return `${count} items selected`;
+  }
+
+  getSelectedItemsAsMetadata(): Metadata[] {
+    const selectedSet = this.selectedIds();
+    const allKnownItems = this.currentPageItems();
+    const selectedSearchDocuments = allKnownItems.filter(item => selectedSet.has(item.pid));
+
+    return selectedSearchDocuments.map(searchDoc => this.convertSearchDocumentToMetadata(searchDoc));
+  }
+
+  private convertSearchDocumentToMetadata(searchDoc: SearchDocument): Metadata {
+    const metadata = new Metadata();
+
+    // Map the key properties needed for getShareableDocumentTypes
+    metadata.uuid = searchDoc.pid;
+    metadata.model = searchDoc.model;
+
+    // Map root information - SearchDocument has rootPid, so infer rootModel
+    if (searchDoc.rootPid) {
+      metadata.rootPid = searchDoc.rootPid;
+      // If there's a rootPid, assume it's a periodical hierarchy
+      metadata.rootModel = DocumentTypeEnum.periodical;
+    }
+
+    metadata.ownParentPid = searchDoc.ownParentPid || '';
+
+    // Set volume info for periodical hierarchy
+    if (searchDoc.ownParentPid) {
+      metadata.volume.uuid = searchDoc.ownParentPid;
+
+      // For periodical items, the parent is usually the volume
+      if (searchDoc.model === DocumentTypeEnum.periodicalitem) {
+        metadata.volume.uuid = searchDoc.ownParentPid;
+      }
+    }
+
+    return metadata;
   }
 }

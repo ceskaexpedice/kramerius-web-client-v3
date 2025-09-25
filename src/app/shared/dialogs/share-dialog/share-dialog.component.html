@@ -10,15 +10,12 @@
 
     <div class="content">
 
-      <div class="citation-types--container">
+      <div class="hierarchy-selector--container">
 
-        <app-button-toggle
-          *ngFor="let type of shareableDocumentTypes"
-          [label]="type.model"
-          [value]="type.pid"
-          [checked]="type.pid === activePid"
-          (toggled)="toggledActiveShareDocumentType($event, type.pid)">
-        </app-button-toggle>
+        <app-document-hierarchy-selector
+          [document]="document"
+          (selectionChanged)="onHierarchySelectionChanged($event)">
+        </app-document-hierarchy-selector>
 
       </div>
 

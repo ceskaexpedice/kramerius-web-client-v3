@@ -6,8 +6,7 @@ import {TabItemComponent} from '../../components/tabs/tab-item.component';
 import {CitationResponse, CitationService} from '../../services/citation.service';
 import {EnvironmentService} from '../../services/environment.service';
 import {Metadata} from '../../models/metadata.model';
-import {ButtonToggleComponent} from '../../components/button-toggle/button-toggle.component';
-import {NgForOf} from '@angular/common';
+import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {copyTextToClipboard} from '../../misc/misc-functions';
 import {ToastService} from '../../services/toast.service';
@@ -20,8 +19,7 @@ export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
     TranslatePipe,
     TabsComponent,
     TabItemComponent,
-    ButtonToggleComponent,
-    NgForOf,
+    DocumentHierarchySelectorComponent,
   ],
   templateUrl: './citation-dialog.component.html',
   styleUrls: ['./citation-dialog.component.scss', '../generic-dialog.scss'],
@@ -29,13 +27,11 @@ export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
 export class CitationDialogComponent {
   document!: Metadata;
 
-  shareableDocumentTypes: any[] = [];
-
   isLoading = false;
   error: string | null = null;
   citationResponse: CitationResponse | null = null;
 
-  activeCitationPid: string = '';
+  selectedPid: string = '';
   activeTabLabel: string = '';
 
   @Output() close = new EventEmitter<void>();
@@ -51,8 +47,6 @@ export class CitationDialogComponent {
 
   constructor() {
     this.document = this.data.document;
-    this.loadShareableDocumentTypes();
-    this.loadCitation();
   }
 
   onClose() {
@@ -78,17 +72,9 @@ export class CitationDialogComponent {
     this.toastService.show('copy-to-clipboard-success');
   }
 
-  toggledActiveCitationType(active: boolean, pid: string): void {
-    if (active) {
-      this.activeCitationPid = pid;
-      this.loadCitation();
-    }
-  }
-
-  loadShareableDocumentTypes(): void {
-    this.shareableDocumentTypes = this.recordHandlerService.getShareableDocumentTypes(this.document);
-
-    this.activeCitationPid = this.shareableDocumentTypes[0].pid;
+  onHierarchySelectionChanged(selectedItem: DocumentHierarchyItem): void {
+    this.selectedPid = selectedItem.pid;
+    this.loadCitation();
   }
 
   loadCitation(): void {
@@ -103,7 +89,7 @@ export class CitationDialogComponent {
 
     this.citationService.getCitation({
       url: apiUrl,
-      uuid: this.activeCitationPid,
+      uuid: this.selectedPid,
       exp: 'all',
       format: 'txt',
       lang: lang,

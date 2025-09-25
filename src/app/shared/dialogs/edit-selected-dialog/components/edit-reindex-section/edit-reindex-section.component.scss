@@ -1,0 +1,27 @@
+.reindex-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x6);
+
+  .hierarchy-section,
+  .scope-section {
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 var(--spacing-x3) 0;
+      color: var(--color-text-primary);
+    }
+  }
+
+  .hierarchy-section {
+    app-document-hierarchy-selector {
+      margin-top: var(--spacing-x2);
+    }
+  }
+
+  .scope-section {
+    .radio-group {
+      margin-top: var(--spacing-x2);
+    }
+  }
+}

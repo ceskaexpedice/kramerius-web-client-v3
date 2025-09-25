@@ -11,7 +11,11 @@
   }
 }
 
-.citation-types--container, .share-options--container {
+.hierarchy-selector--container, .share-options--container {
   display: flex;
   gap: var(--spacing-x2);
+}
+
+.share-options--container {
+  flex-wrap: wrap;
 }
