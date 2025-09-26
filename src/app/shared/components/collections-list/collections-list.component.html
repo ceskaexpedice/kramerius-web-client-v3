@@ -9,28 +9,21 @@
       </span>
     </div>
 
-    <!-- Selection Controls -->
-    <div class="selection-controls" *ngIf="collections$ | async as collections">
-
+    <!-- Search Input -->
+    <div class="search-controls">
       <input
         matInput
         [(ngModel)]="searchQuery"
         (input)="onSearchInput()"
         [placeholder]="'search-collections-placeholder' | translate">
 
-<!--      <button-->
-<!--        mat-button-->
-<!--        color="primary"-->
-<!--        (click)="selectAll(collections)"-->
-<!--        [disabled]="collections.length === 0">-->
-<!--        {{ 'select-all' | translate }}-->
-<!--      </button>-->
-<!--      <button-->
-<!--        mat-button-->
-<!--        (click)="clearAll()"-->
-<!--        [disabled]="selectedCollections.length === 0">-->
-<!--        {{ 'clear-all' | translate }}-->
-<!--      </button>-->
+      <button
+        *ngIf="searchQuery"
+        mat-icon-button
+        (click)="clearSearch()"
+        [attr.aria-label]="'clear-search' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
 
@@ -43,7 +36,7 @@
   <div class="collections-container" #scrollContainer>
 
     <!-- Collections Items -->
-    <div *ngIf="collections$ | async as collections" class="collections-items">
+    <div *ngIf="filteredCollections$ | async as collections" class="collections-items">
       <div
         *ngFor="let collection of collections; trackBy: trackByPid"
         class="collection-item">
@@ -57,21 +50,14 @@
       </div>
     </div>
 
-    <!-- Loading More Indicator -->
-    <div *ngIf="loading$ | async" class="loading-more">
+    <!-- Loading Indicator -->
+    <div *ngIf="loading$ | async" class="loading-indicator">
       <mat-spinner diameter="24"></mat-spinner>
-      <span>{{ 'loading-more-collections' | translate }}</span>
-    </div>
-
-    <!-- Load More Button (fallback if scroll doesn't work) -->
-    <div *ngIf="(hasMore$ | async) && !(loading$ | async)" class="load-more-section">
-      <button mat-button color="primary" (click)="loadMore()">
-        {{ 'load-more' | translate }}
-      </button>
+      <span>{{ 'loading-collections' | translate }}</span>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="(collections$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
+    <div *ngIf="(filteredCollections$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
       <mat-icon>search_off</mat-icon>
       <p *ngIf="searchQuery; else noCollectionsTemplate">
         {{ 'no-collections-found-for-search' | translate: { query: searchQuery } }}

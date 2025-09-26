@@ -40,9 +40,11 @@
       }
     }
 
-    .selection-controls {
+    .search-controls {
       display: flex;
+      align-items: center;
       gap: 8px;
+      min-width: 250px;
     }
   }
 
@@ -109,25 +111,17 @@
       }
     }
 
-    .loading-more {
+    .loading-indicator {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      padding: 16px;
-      border-top: 1px solid var(--color-border-light);
+      padding: 24px;
 
       span {
         font-size: 14px;
         color: var(--color-text-secondary);
       }
-    }
-
-    .load-more-section {
-      display: flex;
-      justify-content: center;
-      padding: 16px;
-      border-top: 1px solid var(--color-border-light);
     }
 
     .empty-state {

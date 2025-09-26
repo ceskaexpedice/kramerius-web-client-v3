@@ -10,22 +10,17 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, fromEvent } from 'rxjs';
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, Subject, fromEvent, combineLatest } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { SearchDocument } from '../../../modules/models/search-document';
 import {
   selectCollections,
   selectCollectionsLoading,
   selectCollectionsError,
-  selectCollectionsQuery,
-  selectCollectionsHasMore,
   selectCollectionsTotalCount
 } from '../../state/collections/collections.selectors';
 import {
-  loadCollections,
-  searchCollections,
-  loadMoreCollections,
-  clearCollectionsSearch
+  loadCollections
 } from '../../state/collections/collections.actions';
 
 @Component({
@@ -53,23 +48,42 @@ export class CollectionsListComponent implements OnInit, OnDestroy, AfterViewIni
 
   @ViewChild('scrollContainer', { static: false }) scrollContainer?: ElementRef;
 
-  collections$: Observable<SearchDocument[]>;
+  allCollections$: Observable<SearchDocument[]>;
+  filteredCollections$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
   error$: Observable<any>;
-  query$: Observable<string>;
-  hasMore$: Observable<boolean>;
   totalCount$: Observable<number>;
 
   searchQuery: string = '';
+  private searchQuery$ = new Subject<string>();
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store) {
-    this.collections$ = this.store.select(selectCollections);
+    this.allCollections$ = this.store.select(selectCollections);
     this.loading$ = this.store.select(selectCollectionsLoading);
     this.error$ = this.store.select(selectCollectionsError);
-    this.query$ = this.store.select(selectCollectionsQuery);
-    this.hasMore$ = this.store.select(selectCollectionsHasMore);
     this.totalCount$ = this.store.select(selectCollectionsTotalCount);
+
+    // Frontend filtering
+    this.filteredCollections$ = combineLatest([
+      this.allCollections$,
+      this.searchQuery$.pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        startWith('') // Initialize with empty string
+      )
+    ]).pipe(
+      map(([collections, query]) => {
+        if (!query || query.trim() === '') {
+          return collections;
+        }
+
+        const searchTerm = query.toLowerCase().trim();
+        return collections.filter(collection =>
+          collection.title?.toLowerCase().includes(searchTerm)
+        );
+      })
+    );
   }
 
   ngOnInit() {
@@ -77,52 +91,23 @@ export class CollectionsListComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   ngAfterViewInit() {
-    this.setupScrollListener();
+    // No longer needed for frontend filtering
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  setupScrollListener() {
-    if (this.scrollContainer) {
-      fromEvent(this.scrollContainer.nativeElement, 'scroll')
-        .pipe(
-          takeUntil(this.destroy$),
-          debounceTime(100)
-        )
-        .subscribe(() => this.onScroll());
-    }
-  }
-
-  onScroll() {
-    if (!this.scrollContainer) return;
-
-    const element = this.scrollContainer.nativeElement;
-    const threshold = 100; // Load more when 100px from bottom
-
-    if (element.scrollTop + element.clientHeight >= element.scrollHeight - threshold) {
-      // this.loadMore();
-    }
+    this.searchQuery$.complete();
   }
 
   onSearchInput() {
-    if (this.searchQuery.trim()) {
-      this.store.dispatch(searchCollections({ query: this.searchQuery.trim() }));
-    } else {
-      this.clearSearch();
-    }
+    // Emit to frontend filter stream
+    this.searchQuery$.next(this.searchQuery);
   }
 
   clearSearch() {
     this.searchQuery = '';
-    this.store.dispatch(clearCollectionsSearch());
-    this.store.dispatch(loadCollections({ reset: true }));
-  }
-
-  loadMore() {
-    this.store.dispatch(loadMoreCollections());
+    this.searchQuery$.next('');
   }
 
   onCollectionToggle(collectionPid: string, checked: boolean) {
@@ -149,6 +134,24 @@ export class CollectionsListComponent implements OnInit, OnDestroy, AfterViewIni
   selectAll(collections: SearchDocument[]) {
     const allPids = collections.map(c => c.pid);
     this.selectionChange.emit(allPids);
+  }
+
+  selectAllFiltered() {
+    this.filteredCollections$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(filteredCollections => {
+      const filteredPids = filteredCollections.map(c => c.pid);
+      const currentSelection = [...this.selectedCollections];
+
+      // Add all filtered items that aren't already selected
+      filteredPids.forEach(pid => {
+        if (!currentSelection.includes(pid)) {
+          currentSelection.push(pid);
+        }
+      });
+
+      this.selectionChange.emit(currentSelection);
+    });
   }
 
   clearAll() {
