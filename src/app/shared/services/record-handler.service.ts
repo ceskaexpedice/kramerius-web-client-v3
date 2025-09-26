@@ -156,25 +156,152 @@ export class RecordHandlerService {
     }
   }
 
-  getShareableDocumentTypes(document: Metadata): any[] {
-    let shareableTypes = [];
+  public getDocumentHierarchyLevels(document: Metadata): any[] {
+    const hierarchyLevels: DocumentTypeEnum[] = [];
 
-    if (document.rootModel) {
+    // Determine hierarchy based on document type
+    switch (document.model as DocumentTypeEnum) {
+      case DocumentTypeEnum.periodical:
+        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.periodicalvolume:
+        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.periodicalitem:
+        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.periodicalitem, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.monograph:
+        hierarchyLevels.push(DocumentTypeEnum.monograph, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.graphic:
+        hierarchyLevels.push(DocumentTypeEnum.graphic, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.map:
+        hierarchyLevels.push(DocumentTypeEnum.map, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.sheetmusic:
+        hierarchyLevels.push(DocumentTypeEnum.sheetmusic, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.manuscript:
+        hierarchyLevels.push(DocumentTypeEnum.manuscript, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.archive:
+        hierarchyLevels.push(DocumentTypeEnum.archive, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.collection:
+        hierarchyLevels.push(DocumentTypeEnum.collection, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.convolute:
+        hierarchyLevels.push(DocumentTypeEnum.convolute, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.supplement:
+        hierarchyLevels.push(DocumentTypeEnum.supplement, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.article:
+        hierarchyLevels.push(DocumentTypeEnum.article, DocumentTypeEnum.page);
+        break;
+
+      case DocumentTypeEnum.soundrecording:
+        hierarchyLevels.push(DocumentTypeEnum.soundrecording, DocumentTypeEnum.soundunit, DocumentTypeEnum.track);
+        break;
+
+      case DocumentTypeEnum.soundunit:
+        hierarchyLevels.push(DocumentTypeEnum.soundrecording, DocumentTypeEnum.soundunit, DocumentTypeEnum.track);
+        break;
+
+      case DocumentTypeEnum.track:
+        hierarchyLevels.push(DocumentTypeEnum.soundrecording, DocumentTypeEnum.soundunit, DocumentTypeEnum.track);
+        break;
+
+      case DocumentTypeEnum.page:
+        // Page documents can show their parent hierarchy
+        if (document.rootModel) {
+          return this.getDocumentHierarchyLevels({ ...document, model: document.rootModel });
+        }
+        hierarchyLevels.push(DocumentTypeEnum.page);
+        break;
+
+      default:
+        // For any unknown types, just add the document itself + page
+        hierarchyLevels.push(document.model as DocumentTypeEnum, DocumentTypeEnum.page);
+        break;
+    }
+
+    // Return in the same format as shareableTypes
+    return hierarchyLevels.map(level => ({
+      model: level,
+      pid: ''
+    }));
+  }
+
+  getShareableDocumentTypes(document: Metadata): any[] {
+    let shareableTypes: any[] = [];
+
+    // Get all possible hierarchy levels based on document type
+    const hierarchyLevels = this.getDocumentHierarchyLevels(document);
+
+    // Add all hierarchy levels with appropriate PIDs
+    hierarchyLevels.forEach(level => {
+      let pid = '';
+
+      switch (level) {
+        case DocumentTypeEnum.periodical:
+          pid = document.rootPid || (document.model === DocumentTypeEnum.periodical ? document.uuid : '');
+          break;
+        case DocumentTypeEnum.periodicalvolume:
+          pid = document.model === DocumentTypeEnum.periodicalvolume ? document.uuid : (document.volume?.uuid || '');
+          break;
+        case DocumentTypeEnum.periodicalitem:
+          pid = document.model === DocumentTypeEnum.periodicalitem ? document.uuid : '';
+          break;
+        case DocumentTypeEnum.page:
+          // Check if page is in URL params
+          const urlParams = new URLSearchParams(window.location.search);
+          pid = urlParams.get('page') || '';
+          break;
+        default:
+          // For other document types (monograph, graphic, map, etc.)
+          pid = document.model === level ? document.uuid : '';
+          break;
+      }
+
+      // Only add if we have a valid PID
+      if (pid) {
+        shareableTypes.push({
+          model: level,
+          pid: pid
+        });
+      }
+    });
+
+    // Legacy logic for backward compatibility
+    if (document.rootModel && !shareableTypes.find(item => item.model === document.rootModel)) {
       shareableTypes.push({
         model: document.rootModel,
         pid: document.rootPid
       })
     }
 
-    // if rootModel is periodical, add periodical volume
+    // if rootModel is periodical, add periodical volume (backward compatibility)
     if (document.rootModel === 'periodical' && document.model !== 'periodical' && document.volume) {
-
-      if (document.model === 'periodicalvolume') {
+      if (document.model === 'periodicalvolume' && !shareableTypes.find(item => item.model === 'periodicalvolume')) {
         shareableTypes.push({
           model: 'periodicalvolume',
           pid: document.uuid
         });
-      } else {
+      } else if (!shareableTypes.find(item => item.model === 'periodicalvolume')) {
         shareableTypes.push({
           model: 'periodicalvolume',
           pid: document.volume.uuid
@@ -182,17 +309,17 @@ export class RecordHandlerService {
       }
     }
 
-    if (document.model !== 'periodical' && document.model !== 'periodicalvolume') {
+    if (document.model !== 'periodical' && document.model !== 'periodicalvolume' && !shareableTypes.find(item => item.model === document.model)) {
       shareableTypes.push({
         model: document.model,
         pid: document.uuid
       });
     }
 
-    // if in url is ?page=uuid, then add it to the list
+    // if in url is ?page=uuid, then add it to the list (backward compatibility)
     const urlParams = new URLSearchParams(window.location.search);
     const pageUuid = urlParams.get('page');
-    if (pageUuid) {
+    if (pageUuid && !shareableTypes.find(item => item.model === 'page')) {
       shareableTypes.push({
         model: 'page',
         pid: pageUuid
@@ -317,7 +444,7 @@ export class RecordHandlerService {
     if (this.adminSelectionService.adminMode()) {
       this.adminSelectionService.toggleAdminMode();
     }
-    
+
     if (document.ownParentPid) {
       this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW , document.ownParentPid])
     }

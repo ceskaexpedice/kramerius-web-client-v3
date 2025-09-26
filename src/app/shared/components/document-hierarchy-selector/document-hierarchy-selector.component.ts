@@ -21,8 +21,10 @@ export interface DocumentHierarchyItem {
   styleUrl: './document-hierarchy-selector.component.scss'
 })
 export class DocumentHierarchySelectorComponent implements OnInit {
-  @Input() selectedPid: string = '';
+  @Input() selectedPid: string = ''; // Keep for backward compatibility
+  @Input() selectedModel: string = ''; // New: track selection by model
   @Output() selectionChanged = new EventEmitter<DocumentHierarchyItem>();
+  @Input() allHierarchyLevels = false; // If true, show all levels even if not present in documents
 
   hierarchyItems: DocumentHierarchyItem[] = [];
   private _documents: Metadata[] = [];
@@ -47,14 +49,39 @@ export class DocumentHierarchySelectorComponent implements OnInit {
   }
 
   onToggled(active: boolean, item: DocumentHierarchyItem): void {
-    if (active && this.selectedPid !== item.pid) {
-      this.selectedPid = item.pid;
+    if (active && this.getSelectedValue() !== this.getItemValue(item)) {
+      // Update both selectedModel and selectedPid for compatibility
+      this.selectedModel = item.model;
+      if (item.pid) {
+        this.selectedPid = item.pid;
+      }
       this.selectionChanged.emit(item);
     }
   }
 
   isSelected(item: DocumentHierarchyItem): boolean {
+    // Use model-based selection when allHierarchyLevels is true and PIDs are empty
+    // Otherwise fall back to PID-based selection for backward compatibility
+    if (this.allHierarchyLevels && !item.pid) {
+      return this.selectedModel === item.model;
+    }
     return this.selectedPid === item.pid;
+  }
+
+  private getSelectedValue(): string {
+    // Get the current selection value (model or pid based on mode)
+    if (this.allHierarchyLevels && this.selectedModel) {
+      return this.selectedModel;
+    }
+    return this.selectedPid;
+  }
+
+  private getItemValue(item: DocumentHierarchyItem): string {
+    // Get the item's value (model or pid based on mode)
+    if (this.allHierarchyLevels && !item.pid) {
+      return item.model;
+    }
+    return item.pid;
   }
 
   ngOnInit(): void {
@@ -68,36 +95,35 @@ export class DocumentHierarchySelectorComponent implements OnInit {
 
     // Process each document
     this._documents.forEach(document => {
-      const shareableTypes = this.recordHandlerService.getShareableDocumentTypes(document);
+      const shareableTypes = this.allHierarchyLevels ? this.recordHandlerService.getDocumentHierarchyLevels(document) : this.recordHandlerService.getShareableDocumentTypes(document);
       const mappedItems = shareableTypes.map(type => ({
         model: type.model,
-        pid: type.pid
+        pid: type.pid ?? ''
       }));
       allHierarchyItems.push(...mappedItems);
     });
 
     // Remove duplicates based on model type, not pid
     // For each model type, keep only the first occurrence
-    const uniqueItemsByModel = allHierarchyItems.filter((item, index, self) =>
-      index === self.findIndex(t => t.model === item.model)
-    );
+    // const uniqueItemsByModel = allHierarchyItems.filter((item, index, self) =>
+    //   index === self.findIndex(t => t.model === item.model)
+    // );
 
-    // Sort by hierarchy level (periodical -> volume -> item -> page)
-    const hierarchyOrder = ['periodical', 'periodicalvolume', 'periodicalitem', 'page'];
-    this.hierarchyItems = uniqueItemsByModel.sort((a, b) => {
-      const aIndex = hierarchyOrder.indexOf(a.model);
-      const bIndex = hierarchyOrder.indexOf(b.model);
-      return aIndex - bIndex;
-    });
+    this.hierarchyItems = allHierarchyItems;
 
     // Auto-select first item if no selection provided
-    if (!this.selectedPid && this.hierarchyItems.length > 0) {
-      this.selectedPid = this.hierarchyItems[0].pid;
-      this.selectionChanged.emit(this.hierarchyItems[0]);
+    if (!this.getSelectedValue() && this.hierarchyItems.length > 0) {
+      const firstItem = this.hierarchyItems[0];
+      this.selectedModel = firstItem.model;
+      if (firstItem.pid) {
+        this.selectedPid = firstItem.pid;
+      }
+      this.selectionChanged.emit(firstItem);
     }
   }
 
-  trackByPid(index: number, item: DocumentHierarchyItem): string {
-    return item.pid;
+  trackByPid(_: number, item: DocumentHierarchyItem): string {
+    // Use pid if available, otherwise use model for tracking
+    return item.pid || item.model;
   }
 }
