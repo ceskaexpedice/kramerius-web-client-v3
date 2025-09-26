@@ -1,0 +1,57 @@
+.collections-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .action-section {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+
+    h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .radio-group {
+      .flex {
+        gap: 12px;
+      }
+
+      .radio-button {
+        font-size: 14px;
+
+        ::ng-deep .mat-radio-label-content {
+          padding-left: 8px;
+        }
+      }
+    }
+  }
+
+  .section-content {
+    .content-section {
+      // Each section component will handle its own styling
+    }
+
+    .replace-section {
+      .section-header {
+        margin-bottom: 20px;
+
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #1976d2;
+        }
+
+        .section-description {
+          margin: 0;
+          font-size: 14px;
+          color: #666;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+}

@@ -8,10 +8,24 @@ import {
 import { EditReindexSectionComponent, ReindexSectionData } from './components/edit-reindex-section/edit-reindex-section.component';
 import { EditCollectionsSectionComponent, CollectionsSectionData } from './components/edit-collections-section/edit-collections-section.component';
 import { EditLicenceSectionComponent, LicenceSectionData } from './components/edit-licence-section/edit-licence-section.component';
+import {AddCollectionSectionComponent} from './components/add-collection-section/add-collection-section.component';
+import {
+  RemoveCollectionSectionComponent
+} from './components/remove-collection-section/remove-collection-section.component';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
   selectedCount: number;
+}
+
+export enum EditSelectedDialogSections {
+  reindex = 'reindex',
+  addCollection = 'add-collection',
+  removeCollection = 'remove-collection',
+  addLicence = 'add-licence',
+  removeLicence = 'remove-licence',
+  titleCover = 'title-cover',
+  admin = 'admin'
 }
 
 @Component({
@@ -21,7 +35,9 @@ export interface EditSelectedDialogData {
     SidebarDialogLayoutComponent,
     EditReindexSectionComponent,
     EditCollectionsSectionComponent,
-    EditLicenceSectionComponent
+    EditLicenceSectionComponent,
+    AddCollectionSectionComponent,
+    RemoveCollectionSectionComponent,
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -39,15 +55,15 @@ export class EditSelectedDialogComponent {
 
     ],
     sections: [
-      { key: 'reindex', label: 'edit-section-reindex', icon: 'icon-refresh' },
+      { key: EditSelectedDialogSections.reindex, label: 'edit-section-reindex', icon: 'icon-refresh' },
       {
         key: 'collections',
         label: 'edit-section-collections',
         icon: '',
         isTitle: true,
         children: [
-          { key: 'add-collection', label: 'add-collection--label', icon: 'icon-add-circle' },
-          { key: 'remove-collection', label: 'remove-collection--label', icon: 'icon-minus-cirlce' }
+          { key: EditSelectedDialogSections.addCollection, label: 'add-collection--label', icon: 'icon-add-circle' },
+          { key: EditSelectedDialogSections.removeCollection, label: 'remove-collection--label', icon: 'icon-minus-cirlce' }
         ]
       },
       {
@@ -56,12 +72,12 @@ export class EditSelectedDialogComponent {
         icon: '',
         isTitle: true,
         children: [
-          { key: 'add-licence', label: 'add-licence--label', icon: 'icon-add-circle' },
-          { key: 'remove-licence', label: 'remove-licence--label', icon: 'icon-minus-cirlce' }
+          { key: EditSelectedDialogSections.addLicence, label: 'add-licence--label', icon: 'icon-add-circle' },
+          { key: EditSelectedDialogSections.removeLicence, label: 'remove-licence--label', icon: 'icon-minus-cirlce' }
         ]
       },
-      { key: 'title-cover', label: 'edit-section-titlecover', icon: '' },
-      { key: 'admin', label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
+      { key: EditSelectedDialogSections.titleCover, label: 'edit-section-titlecover', icon: '' },
+      { key: EditSelectedDialogSections.admin, label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
     ]
   };
 
@@ -71,6 +87,8 @@ export class EditSelectedDialogComponent {
   reindexData: ReindexSectionData | null = null;
   collectionsData: CollectionsSectionData | null = null;
   licenceData: LicenceSectionData | null = null;
+
+  EditSelectedDialogSections = EditSelectedDialogSections;
 
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);

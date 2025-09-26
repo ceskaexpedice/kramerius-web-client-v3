@@ -8,25 +8,51 @@
 
   <div class="edit-selected-content">
 
-    <!-- Reindex Section -->
-    <div *ngIf="activeSection() === 'reindex'" class="section-content">
-      <app-edit-reindex-section 
-        [selectedIds]="data.selectedIds"
-        (dataChange)="onReindexDataChange($event)">
-      </app-edit-reindex-section>
+    <div class="section-content">
+
+
+      @switch (activeSection()) {
+
+        @case (EditSelectedDialogSections.reindex) {
+
+          <!-- Reindex Section -->
+          <app-edit-reindex-section
+            [selectedIds]="data.selectedIds"
+            (dataChange)="onReindexDataChange($event)">
+          </app-edit-reindex-section>
+
+        }
+
+        @case (EditSelectedDialogSections.addCollection) {
+
+          <app-add-collection-section
+            [selectedIds]="data.selectedIds"
+          ></app-add-collection-section>
+
+
+        }
+
+        @case (EditSelectedDialogSections.removeCollection) {
+          <app-remove-collection-section
+            [selectedIds]="data.selectedIds"
+          ></app-remove-collection-section>
+        }
+
+      }
+
     </div>
 
-    <!-- Collections Section -->
-    <div *ngIf="activeSection() === 'collections'" class="section-content">
-      <app-edit-collections-section 
-        [selectedIds]="data.selectedIds"
-        (dataChange)="onCollectionsDataChange($event)">
-      </app-edit-collections-section>
-    </div>
+<!--    &lt;!&ndash; Collections Section &ndash;&gt;-->
+<!--    <div *ngIf="activeSection() === 'add-collection'" class="section-content">-->
+<!--      <app-edit-collections-section-->
+<!--        [selectedIds]="data.selectedIds"-->
+<!--        (dataChange)="onCollectionsDataChange($event)">-->
+<!--      </app-edit-collections-section>-->
+<!--    </div>-->
 
     <!-- Licence Section -->
     <div *ngIf="activeSection() === 'licence'" class="section-content">
-      <app-edit-licence-section 
+      <app-edit-licence-section
         [selectedIds]="data.selectedIds"
         (dataChange)="onLicenceDataChange($event)">
       </app-edit-licence-section>

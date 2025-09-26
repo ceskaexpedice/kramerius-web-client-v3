@@ -1,0 +1,21 @@
+<div class="add-collection-section">
+
+  <div class="section-header">
+    <h3>{{ 'add-to-collections' | translate }}</h3>
+  </div>
+
+  <div class="collections-selection">
+    <app-collections-list
+      [title]="'select-collections-to-add' | translate"
+      [selectedCollections]="selectedCollections"
+      (selectionChange)="onCollectionsSelectionChange($event)">
+    </app-collections-list>
+  </div>
+
+  <div *ngIf="selectedCollections.length > 0" class="selection-summary">
+    <div class="summary-info">
+      <strong>{{ selectedCollections.length }}</strong> {{ 'collections-selected' | translate }}
+    </div>
+  </div>
+
+</div>

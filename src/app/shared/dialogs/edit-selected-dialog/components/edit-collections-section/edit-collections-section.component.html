@@ -1,0 +1,62 @@
+<div class="collections-section">
+
+  <!-- Action Selection -->
+  <div class="action-section">
+    <h3>{{ 'collection-action' | translate }}</h3>
+    <mat-radio-group
+      class="radio-group"
+      [(ngModel)]="selectedAction"
+      (ngModelChange)="onActionChange()">
+
+      <div class="flex flex--column flex--gap-x2">
+        <mat-radio-button value="add" class="radio-button">
+          {{ 'add-to-collections' | translate }}
+        </mat-radio-button>
+
+        <mat-radio-button value="remove" class="radio-button">
+          {{ 'remove-from-collections' | translate }}
+        </mat-radio-button>
+
+        <mat-radio-button value="replace" class="radio-button">
+          {{ 'replace-collections' | translate }}
+        </mat-radio-button>
+      </div>
+    </mat-radio-group>
+  </div>
+
+  <!-- Section Content Based on Selected Action -->
+  <div class="section-content">
+
+    <!-- Add Collection Section -->
+    <div *ngIf="selectedAction === 'add'" class="content-section">
+      <app-add-collection-section
+        [selectedIds]="selectedIds"
+        (dataChange)="onAddCollectionDataChange($event)">
+      </app-add-collection-section>
+    </div>
+
+    <!-- Remove Collection Section -->
+    <div *ngIf="selectedAction === 'remove'" class="content-section">
+      <app-remove-collection-section
+        [selectedIds]="selectedIds"
+        (dataChange)="onRemoveCollectionDataChange($event)">
+      </app-remove-collection-section>
+    </div>
+
+    <!-- Replace Collection Section (uses add component logic) -->
+    <div *ngIf="selectedAction === 'replace'" class="content-section">
+      <div class="replace-section">
+        <div class="section-header">
+          <h3>{{ 'replace-collections' | translate }}</h3>
+          <p class="section-description">{{ 'replace-collections-description' | translate }}</p>
+        </div>
+        <app-add-collection-section
+          [selectedIds]="selectedIds"
+          (dataChange)="onAddCollectionDataChange($event)">
+        </app-add-collection-section>
+      </div>
+    </div>
+
+  </div>
+
+</div>

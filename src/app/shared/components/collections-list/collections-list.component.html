@@ -1,0 +1,50 @@
+<div class="collections-list">
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="loading-container">
+    <mat-spinner diameter="32"></mat-spinner>
+    <p>{{ 'loading-collections' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="error-container">
+    <p class="error-message">{{ 'error-loading-collections' | translate }}: {{ error }}</p>
+  </div>
+
+  <!-- Collections List -->
+  <div *ngIf="!(loading$ | async) && !(error$ | async)" class="collections-container">
+
+    <!-- Header with Select All/Clear All -->
+    <div *ngIf="collections$ | async as collections" class="collections-header">
+
+      {{title | translate}} ({{ selectedCollections.length }} / {{ collections.length }})
+
+      <div class="selection--filter">
+        {{ selectedCollections.length }} / {{ collections.length }} {{ 'selected' | translate }}
+      </div>
+
+    </div>
+
+    <!-- Collections Items -->
+    <div *ngIf="collections$ | async as collections" class="collections-items">
+      <div
+        *ngFor="let collection of collections"
+        class="collection-item">
+        <mat-checkbox
+          [checked]="isCollectionSelected(collection.pid)"
+          (change)="onCollectionToggle(collection.pid, $event.checked)">
+          <div class="collection-info">
+            <div class="collection-title">{{ collection.title }}</div>
+          </div>
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="(collections$ | async)?.length === 0" class="empty-state">
+      <p>{{ 'no-collections-found' | translate }}</p>
+    </div>
+
+  </div>
+
+</div>

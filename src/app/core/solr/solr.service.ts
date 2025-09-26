@@ -392,6 +392,21 @@ export class SolrService {
     );
   }
 
+  getCollections(): Observable<SearchDocument[]> {
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.collection}`],
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.sortBy(),
+      ...SolrQueryBuilder.rows(100),
+      ...SolrQueryBuilder.start(0)
+    };
+    const params = new HttpParams({ fromObject: paramsObject });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response.docs)
+    );
+  }
+
   getGenres(): Observable<FacetItem[]> {
     const params = new HttpParams({ fromObject: SolrQueryBuilder.facetByField('genres.facet') });
     return this.http.get<any>(this.API_URL, { params }).pipe(

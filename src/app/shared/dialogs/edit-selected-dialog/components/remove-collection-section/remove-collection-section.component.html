@@ -1,0 +1,24 @@
+<div class="remove-collection-section">
+
+  <div class="section-header">
+    <h3>{{ 'remove-from-collections' | translate }}</h3>
+  </div>
+
+  <div class="collections-selection">
+    <app-collections-list
+      [title]="'select-collections-to-remove' | translate"
+      [selectedCollections]="selectedCollections"
+      (selectionChange)="onCollectionsSelectionChange($event)">
+    </app-collections-list>
+  </div>
+
+  <div *ngIf="selectedCollections.length > 0" class="selection-summary warning">
+    <div class="summary-info">
+      <strong>{{ selectedCollections.length }}</strong> {{ 'collections-selected-for-removal' | translate }}
+    </div>
+    <div class="warning-text">
+      <small>{{ 'remove-collection-warning' | translate }}</small>
+    </div>
+  </div>
+
+</div>
