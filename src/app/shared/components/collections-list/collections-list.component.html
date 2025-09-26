@@ -1,9 +1,37 @@
 <div class="collections-list">
 
-  <!-- Loading State -->
-  <div *ngIf="loading$ | async" class="loading-container">
-    <mat-spinner diameter="32"></mat-spinner>
-    <p>{{ 'loading-collections' | translate }}</p>
+  <!-- Header with counts and selection info -->
+  <div class="collections-header">
+    <div class="header-info">
+      <span class="title">{{ title | translate }}</span>
+      <span class="count-info" *ngIf="totalCount$ | async as totalCount">
+        ({{ selectedCollections.length }} / {{ totalCount }} {{ 'selected' | translate }})
+      </span>
+    </div>
+
+    <!-- Selection Controls -->
+    <div class="selection-controls" *ngIf="collections$ | async as collections">
+
+      <input
+        matInput
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput()"
+        [placeholder]="'search-collections-placeholder' | translate">
+
+<!--      <button-->
+<!--        mat-button-->
+<!--        color="primary"-->
+<!--        (click)="selectAll(collections)"-->
+<!--        [disabled]="collections.length === 0">-->
+<!--        {{ 'select-all' | translate }}-->
+<!--      </button>-->
+<!--      <button-->
+<!--        mat-button-->
+<!--        (click)="clearAll()"-->
+<!--        [disabled]="selectedCollections.length === 0">-->
+<!--        {{ 'clear-all' | translate }}-->
+<!--      </button>-->
+    </div>
   </div>
 
   <!-- Error State -->
@@ -11,24 +39,13 @@
     <p class="error-message">{{ 'error-loading-collections' | translate }}: {{ error }}</p>
   </div>
 
-  <!-- Collections List -->
-  <div *ngIf="!(loading$ | async) && !(error$ | async)" class="collections-container">
-
-    <!-- Header with Select All/Clear All -->
-    <div *ngIf="collections$ | async as collections" class="collections-header">
-
-      {{title | translate}} ({{ selectedCollections.length }} / {{ collections.length }})
-
-      <div class="selection--filter">
-        {{ selectedCollections.length }} / {{ collections.length }} {{ 'selected' | translate }}
-      </div>
-
-    </div>
+  <!-- Collections List Container -->
+  <div class="collections-container" #scrollContainer>
 
     <!-- Collections Items -->
     <div *ngIf="collections$ | async as collections" class="collections-items">
       <div
-        *ngFor="let collection of collections"
+        *ngFor="let collection of collections; trackBy: trackByPid"
         class="collection-item">
         <mat-checkbox
           [checked]="isCollectionSelected(collection.pid)"
@@ -40,9 +57,28 @@
       </div>
     </div>
 
+    <!-- Loading More Indicator -->
+    <div *ngIf="loading$ | async" class="loading-more">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>{{ 'loading-more-collections' | translate }}</span>
+    </div>
+
+    <!-- Load More Button (fallback if scroll doesn't work) -->
+    <div *ngIf="(hasMore$ | async) && !(loading$ | async)" class="load-more-section">
+      <button mat-button color="primary" (click)="loadMore()">
+        {{ 'load-more' | translate }}
+      </button>
+    </div>
+
     <!-- Empty State -->
-    <div *ngIf="(collections$ | async)?.length === 0" class="empty-state">
-      <p>{{ 'no-collections-found' | translate }}</p>
+    <div *ngIf="(collections$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <p *ngIf="searchQuery; else noCollectionsTemplate">
+        {{ 'no-collections-found-for-search' | translate: { query: searchQuery } }}
+      </p>
+      <ng-template #noCollectionsTemplate>
+        <p>{{ 'no-collections-found' | translate }}</p>
+      </ng-template>
     </div>
 
   </div>

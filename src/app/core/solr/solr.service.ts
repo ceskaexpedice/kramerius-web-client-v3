@@ -392,19 +392,21 @@ export class SolrService {
     );
   }
 
-  getCollections(): Observable<SearchDocument[]> {
+  getCollections(query?: string, page: number = 0, pageSize: number = 10000): Observable<any> {
+    const baseFilters = ['level:0', `model:${DocumentTypeEnum.collection}`];
+
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
-      fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.collection}`],
+      fq: baseFilters,
       ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
-      ...SolrQueryBuilder.rows(100),
-      ...SolrQueryBuilder.start(0)
+      ...SolrQueryBuilder.rows(pageSize),
+      ...SolrQueryBuilder.start(page * pageSize),
+      ...(query && query.trim() && { q: `title.search:${query}*` })
     };
+
     const params = new HttpParams({ fromObject: paramsObject });
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => res.response.docs)
-    );
+    return this.http.get<any>(this.API_URL, { params });
   }
 
   getGenres(): Observable<FacetItem[]> {
