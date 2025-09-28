@@ -1,0 +1,21 @@
+<div class="add-license-section">
+
+  <div class="section-header">
+    <h3>{{ 'add-licenses' | translate }}</h3>
+  </div>
+
+  <div class="licenses-selection">
+    <app-licenses-list
+      [title]="'select-licenses-to-add' | translate"
+      [selectedLicenses]="selectedLicenses"
+      (selectionChange)="onLicensesSelectionChange($event)">
+    </app-licenses-list>
+  </div>
+
+  <div *ngIf="selectedLicenses.length > 0" class="selection-summary">
+    <div class="summary-info">
+      <strong>{{ selectedLicenses.length }}</strong> {{ 'licenses-selected' | translate }}
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,24 @@
+<div class="remove-license-section">
+
+  <div class="section-header">
+    <h3>{{ 'remove-licenses' | translate }}</h3>
+  </div>
+
+  <div class="licenses-selection">
+    <app-licenses-list
+      [title]="'select-licenses-to-remove' | translate"
+      [selectedLicenses]="selectedLicenses"
+      (selectionChange)="onLicensesSelectionChange($event)">
+    </app-licenses-list>
+  </div>
+
+  <div *ngIf="selectedLicenses.length > 0" class="selection-summary warning">
+    <div class="summary-info">
+      <strong>{{ selectedLicenses.length }}</strong> {{ 'licenses-selected-for-removal' | translate }}
+    </div>
+    <div class="warning-text">
+      <small>{{ 'remove-license-warning' | translate }}</small>
+    </div>
+  </div>
+
+</div>

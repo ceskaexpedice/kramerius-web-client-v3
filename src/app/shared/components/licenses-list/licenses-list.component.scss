@@ -1,0 +1,122 @@
+.licenses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+
+  .licenses-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .title {
+        font-weight: 500;
+        font-size: 16px;
+      }
+
+      .count-info {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+    }
+
+    .search-controls {
+      width: 100%;
+    }
+  }
+
+  .error-container {
+    padding: 16px;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-radius: 4px;
+
+    .error-message {
+      color: var(--error-text);
+      margin: 0;
+    }
+  }
+
+  .licenses-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+    max-height: 400px;
+
+    .licenses-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .license-item {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: var(--hover-bg);
+        }
+
+        mat-checkbox {
+          width: 100%;
+
+          .license-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-left: 8px;
+
+            .license-name {
+              font-weight: 500;
+              flex: 1;
+            }
+
+            .license-count {
+              color: var(--text-secondary);
+              font-size: 12px;
+              margin-left: 8px;
+            }
+          }
+        }
+      }
+    }
+
+    .loading-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 32px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 32px;
+      color: var(--text-secondary);
+      text-align: center;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+      }
+    }
+  }
+}

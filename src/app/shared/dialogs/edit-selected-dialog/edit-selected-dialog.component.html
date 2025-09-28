@@ -38,6 +38,20 @@
           ></app-remove-collection-section>
         }
 
+        @case (EditSelectedDialogSections.addLicence) {
+          <app-add-license-section
+            [selectedIds]="data.selectedIds"
+            (dataChange)="onAddLicenseDataChange($event)">
+          </app-add-license-section>
+        }
+
+        @case (EditSelectedDialogSections.removeLicence) {
+          <app-remove-license-section
+            [selectedIds]="data.selectedIds"
+            (dataChange)="onRemoveLicenseDataChange($event)">
+          </app-remove-license-section>
+        }
+
       }
 
     </div>

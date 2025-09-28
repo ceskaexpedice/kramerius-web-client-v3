@@ -1,0 +1,30 @@
+.remove-license-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .section-header {
+
+  }
+
+  .selection-summary.warning {
+    padding: 16px;
+    background: var(--warning-bg, #fff3cd);
+    border: 1px solid var(--warning-border, #ffeaa7);
+    border-radius: 4px;
+
+    .summary-info {
+      color: var(--warning-text, #856404);
+      font-weight: 500;
+    }
+
+    .warning-text {
+      margin-top: 8px;
+
+      small {
+        color: var(--warning-text-secondary, #6c5ce7);
+        font-style: italic;
+      }
+    }
+  }
+}

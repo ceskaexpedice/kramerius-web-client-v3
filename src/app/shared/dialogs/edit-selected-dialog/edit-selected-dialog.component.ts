@@ -12,6 +12,8 @@ import {AddCollectionSectionComponent} from './components/add-collection-section
 import {
   RemoveCollectionSectionComponent
 } from './components/remove-collection-section/remove-collection-section.component';
+import {AddLicenseSectionComponent, AddLicenseSectionData} from './components/add-license-section/add-license-section.component';
+import {RemoveLicenseSectionComponent, RemoveLicenseSectionData} from './components/remove-license-section/remove-license-section.component';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -38,6 +40,8 @@ export enum EditSelectedDialogSections {
     EditLicenceSectionComponent,
     AddCollectionSectionComponent,
     RemoveCollectionSectionComponent,
+    AddLicenseSectionComponent,
+    RemoveLicenseSectionComponent,
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -87,6 +91,8 @@ export class EditSelectedDialogComponent {
   reindexData: ReindexSectionData | null = null;
   collectionsData: CollectionsSectionData | null = null;
   licenceData: LicenceSectionData | null = null;
+  addLicenseData: AddLicenseSectionData | null = null;
+  removeLicenseData: RemoveLicenseSectionData | null = null;
 
   EditSelectedDialogSections = EditSelectedDialogSections;
 
@@ -111,6 +117,12 @@ export class EditSelectedDialogComponent {
         break;
       case 'licence':
         sectionData = this.licenceData;
+        break;
+      case EditSelectedDialogSections.addLicence:
+        sectionData = this.addLicenseData;
+        break;
+      case EditSelectedDialogSections.removeLicence:
+        sectionData = this.removeLicenseData;
         break;
     }
 
@@ -158,5 +170,13 @@ export class EditSelectedDialogComponent {
 
   onLicenceDataChange(data: LicenceSectionData) {
     this.licenceData = data;
+  }
+
+  onAddLicenseDataChange(data: AddLicenseSectionData) {
+    this.addLicenseData = data;
+  }
+
+  onRemoveLicenseDataChange(data: RemoveLicenseSectionData) {
+    this.removeLicenseData = data;
   }
 }
