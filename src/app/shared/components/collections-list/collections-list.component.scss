@@ -21,12 +21,12 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--color-border-bright);
 
     .header-info {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 1;
 
       .title {
         font-weight: 500;
@@ -44,7 +44,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      min-width: 250px;
+      flex: 1;
+
+      app-input {
+        width: 100%;
+      }
     }
   }
 
@@ -63,18 +67,11 @@
   .collections-container {
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid var(--color-border-bright);
-    border-radius: 4px;
 
     .collections-items {
       .collection-item {
         padding: var(--spacing-x2) var(--spacing-x4);
-        border-bottom: 1px solid var(--color-border-light);
         transition: background-color 0.2s;
-
-        &:last-child {
-          border-bottom: none;
-        }
 
         &:hover {
           background-color: var(--color-background-hover);
@@ -99,13 +96,6 @@
           .collection-title {
             font-weight: 500;
             font-size: 14px;
-            color: var(--color-text-primary);
-            margin-bottom: 4px;
-          }
-
-          .collection-subtitle {
-            font-size: 12px;
-            color: var(--color-text-secondary);
           }
         }
       }
@@ -145,25 +135,6 @@
         color: var(--color-text-secondary);
         font-style: italic;
       }
-    }
-  }
-
-  // Scrollbar styling
-  .collections-container::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .collections-container::-webkit-scrollbar-track {
-    background: var(--color-background-light);
-    border-radius: 3px;
-  }
-
-  .collections-container::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--color-border-dark);
     }
   }
 }

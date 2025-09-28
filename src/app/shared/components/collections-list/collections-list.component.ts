@@ -22,6 +22,7 @@ import {
 import {
   loadCollections
 } from '../../state/collections/collections.actions';
+import {InputComponent} from '../input/input.component';
 
 @Component({
   selector: 'app-collections-list',
@@ -36,7 +37,8 @@ import {
     MatButtonModule,
     ScrollingModule,
     FormsModule,
-    TranslateModule
+    TranslateModule,
+    InputComponent,
   ],
   templateUrl: './collections-list.component.html',
   styleUrl: './collections-list.component.scss'
@@ -100,8 +102,8 @@ export class CollectionsListComponent implements OnInit, OnDestroy, AfterViewIni
     this.searchQuery$.complete();
   }
 
-  onSearchInput() {
-    // Emit to frontend filter stream
+  onSearchInput(value: string | number) {
+    this.searchQuery = value.toString();
     this.searchQuery$.next(this.searchQuery);
   }
 

@@ -11,19 +11,18 @@
 
     <!-- Search Input -->
     <div class="search-controls">
-      <input
-        matInput
-        [(ngModel)]="searchQuery"
-        (input)="onSearchInput()"
-        [placeholder]="'search-collections-placeholder' | translate">
 
-      <button
-        *ngIf="searchQuery"
-        mat-icon-button
-        (click)="clearSearch()"
-        [attr.aria-label]="'clear-search' | translate">
-        <mat-icon>close</mat-icon>
-      </button>
+      <app-input
+        [placeholder]="'search-collections-placeholder' | translate"
+        [(ngModel)]="searchQuery"
+        [initialValue]="searchQuery"
+        [theme]="'dark'"
+        (valueChange)="onSearchInput($event)"
+        [showClearButton]="true"
+        [showHelpButton]="false"
+        [showSubmitButton]="false"
+      ></app-input>
+
     </div>
   </div>
 
