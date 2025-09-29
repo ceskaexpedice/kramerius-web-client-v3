@@ -280,5 +280,7 @@
   "select-licenses-to-add": "Vybrat licence pro přidání",
   "select-licenses-to-remove": "Vybrat licence pro odebrání",
   "search-licenses-placeholder": "Hledat v licencích...",
-  "selected-objects--count": "Počet vybraných objektů"
+  "selected-objects--count": "Počet vybraných objektů",
+  "loading-collections": "Načítání kolekcí...",
+  "loading-licenses": "Načítání licencí..."
 }

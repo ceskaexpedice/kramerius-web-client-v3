@@ -288,5 +288,7 @@
   "select-licenses-to-add": "Select licenses to add",
   "select-licenses-to-remove": "Select licenses to remove",
   "search-licenses-placeholder": "Start typing...",
-  "selected-objects--count": "Selected objects"
+  "selected-objects--count": "Selected objects",
+  "loading-collections": "Loading collections...",
+  "loading-licenses": "Loading licenses..."
 }

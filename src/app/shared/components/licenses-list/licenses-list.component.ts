@@ -10,7 +10,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import {Observable, Subject, combineLatest, of} from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { License } from '../../state/licenses/licenses.actions';
 import {

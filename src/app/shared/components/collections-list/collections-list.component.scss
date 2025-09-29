@@ -1,6 +1,8 @@
 .collections-list {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  max-height: 100%;
 
   .search-section {
     .search-field {
@@ -31,8 +33,9 @@
   }
 
   .collections-container {
-    max-height: 400px;
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
 
     .collections-items {
       .collection-item {

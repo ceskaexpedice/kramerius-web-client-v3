@@ -14,12 +14,11 @@ import {
 } from './components/remove-collection-section/remove-collection-section.component';
 import {AddLicenseSectionComponent, AddLicenseSectionData} from './components/add-license-section/add-license-section.component';
 import {RemoveLicenseSectionComponent, RemoveLicenseSectionData} from './components/remove-license-section/remove-license-section.component';
-import {_} from '../../translation/translate-placeholder';
 import {
   DocumentHierarchyItem,
   DocumentHierarchySelectorComponent,
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {SelectionService} from '../../services';
 
 export interface EditSelectedDialogData {
@@ -43,14 +42,11 @@ export enum EditSelectedDialogSections {
     NgIf,
     SidebarDialogLayoutComponent,
     EditReindexSectionComponent,
-    EditCollectionsSectionComponent,
     EditLicenceSectionComponent,
     AddCollectionSectionComponent,
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
-    RemoveLicenseSectionComponent,
-    DocumentHierarchySelectorComponent,
-    TranslatePipe,
+    RemoveLicenseSectionComponent
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -111,6 +107,7 @@ export class EditSelectedDialogComponent {
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
   private selectionService = inject(SelectionService);
+  private translateService = inject(TranslateService);
 
   selectedDocuments = computed(() => {
     return this.selectionService.getSelectedItemsAsMetadata();
@@ -118,7 +115,7 @@ export class EditSelectedDialogComponent {
 
   constructor() {
     // Set the subtitle with selected count
-    this.dialogConfig.subtitle = `${_('selected-objects--count')}: ${this.data.selectedCount}`;
+    this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects--count')}: ${this.data.selectedCount}`;
 
     // we show the hierarchy selector only if all items have same rootUuid
     const rootUuids = new Set(this.selectedDocuments().map(doc => doc.rootPid));

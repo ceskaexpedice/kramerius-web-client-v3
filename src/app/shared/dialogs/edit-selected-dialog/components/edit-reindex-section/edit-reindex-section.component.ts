@@ -2,10 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
-import {
-  DocumentHierarchySelectorComponent
-} from '../../../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-
 export interface ReindexSectionData {
   selectedIds: string[];
   scope: 'object' | 'object-and-children';
@@ -19,7 +15,6 @@ export interface ReindexSectionData {
     FormsModule,
     MatRadioButton,
     MatRadioGroup,
-    DocumentHierarchySelectorComponent,
   ],
   templateUrl: './edit-reindex-section.component.html',
   styleUrls: ['./edit-reindex-section.component.scss', '../edit-selected-dialog-section.scss']

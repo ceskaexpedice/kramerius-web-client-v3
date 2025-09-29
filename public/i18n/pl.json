@@ -278,5 +278,7 @@
   "select-licenses-to-add": "Wybierz licencje do dodania",
   "select-licenses-to-remove": "Wybierz licencje do usunięcia",
   "search-licenses-placeholder": "Szukaj licencji",
-  "selected-objects--count": "Liczba zaznaczonych obiektów"
+  "selected-objects--count": "Liczba zaznaczonych obiektów",
+  "loading-collections": "Wczytywanie kolekcji...",
+  "loading-licenses": "Wczytywanie licencji..."
 }

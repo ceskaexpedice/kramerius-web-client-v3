@@ -2,7 +2,7 @@
   <h2>
     <span class="dialog-title">
       {{ config.title | translate }}
-      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle }}</span>
+      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
     </span>
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-x"></i>

@@ -275,5 +275,7 @@
   "select-licenses-to-add": "Vybrať licencie na pridanie",
   "select-licenses-to-remove": "Vybrať licencie na odstránenie",
   "search-licenses-placeholder": "Začnite písať...",
-  "selected-objects--count": "Počet vybraných objektov"
+  "selected-objects--count": "Počet vybraných objektov",
+  "loading-collections": "Načítavajú sa kolekcie...",
+  "loading-licenses": "Načítavajú sa licencie..."
 }

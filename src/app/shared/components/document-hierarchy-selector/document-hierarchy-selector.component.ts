@@ -1,6 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { NgForOf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonToggleComponent } from '../button-toggle/button-toggle.component';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { Metadata } from '../../models/metadata.model';
@@ -14,7 +13,6 @@ export interface DocumentHierarchyItem {
   selector: 'app-document-hierarchy-selector',
   imports: [
     NgForOf,
-    TranslatePipe,
     ButtonToggleComponent
   ],
   templateUrl: './document-hierarchy-selector.component.html',

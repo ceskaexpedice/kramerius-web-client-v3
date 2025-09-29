@@ -77,8 +77,8 @@ export class MonthYearSelectorComponent implements OnInit {
 
   yearOptions: {value: number, label: string}[] = [];
 
-  selectedMonth = signal<{value: number, label: string}>({value: this.month, label: this.monthOptions[this.month].label});
-  selectedYear = signal<{value: number, label: string}>({value: this.year, label: this.yearOptions.find(y => y.value === this.year)?.label || this.year.toString()});
+  selectedMonth = signal<{value: number, label: string}>({value: this.month, label: ''});
+  selectedYear = signal<{value: number, label: string}>({value: this.year, label: this.year.toString()});
 
   ngOnInit() {
     this.generateMonthOptions();

@@ -12,6 +12,20 @@
   padding: var(--spacing-x4);
 }
 
+.collections-selection {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  app-collections-list {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 .selected-dialog--actions {
   display: flex;
   justify-content: flex-start;
