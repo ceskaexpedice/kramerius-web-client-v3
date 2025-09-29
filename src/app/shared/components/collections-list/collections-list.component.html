@@ -2,21 +2,16 @@
 
   <!-- Header with counts and selection info -->
   <div class="collections-header">
-    <div class="header-info">
-      <span class="title">{{ title | translate }}</span>
-      <span class="count-info" *ngIf="totalCount$ | async as totalCount">
-        ({{ selectedCollections.length }} / {{ totalCount }} {{ 'selected' | translate }})
-      </span>
-    </div>
 
     <!-- Search Input -->
     <div class="search-controls">
 
       <app-input
         [placeholder]="'search-collections-placeholder' | translate"
-        [(ngModel)]="searchQuery"
         [initialValue]="searchQuery"
         [theme]="'dark'"
+        [name]="'collection-search'"
+        aria-label="{{ 'search-collections-placeholder' | translate }}"
         (valueChange)="onSearchInput($event)"
         [showClearButton]="true"
         [showHelpButton]="false"

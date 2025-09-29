@@ -1,0 +1,19 @@
+.selected-dialog--header {
+
+  h3 {
+    margin: 0;
+  }
+
+}
+
+.selected-dialog--section {
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--spacing-x2);
+  padding: var(--spacing-x4);
+}
+
+.selected-dialog--actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--spacing-x2);
+}

@@ -1,18 +1,9 @@
 <div class="reindex-section">
 
-  <!-- Document Hierarchy Selector -->
-  <div class="hierarchy-section">
-    <h3>{{ 'select-hierarchy-level' | translate }}</h3>
-    <app-document-hierarchy-selector
-      [allHierarchyLevels]="true"
-      [documents]="selectedDocuments()"
-      (selectionChanged)="onHierarchySelectionChanged($event)">
-    </app-document-hierarchy-selector>
-  </div>
+  <h3>{{ 'reindex' | translate }}</h3>
 
   <!-- Reindex Scope Options -->
-  <div class="scope-section">
-    <h3>{{ 'reindex-scope' | translate }}</h3>
+  <div class="scope-section selected-dialog--section">
     <mat-radio-group
       class="radio-group"
       [value]="selectedScope"
@@ -38,6 +29,12 @@
 
       </div>
     </mat-radio-group>
+  </div>
+
+  <div class="selected-dialog--actions">
+
+    <button class="primary">{{'reindex' | translate}}</button>
+
   </div>
 
 </div>

@@ -1,10 +1,6 @@
 .collections-list {
-  padding: 16px;
-  border: 1px solid var(--color-border-bright);
-  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
 
   .search-section {
     .search-field {
@@ -22,45 +18,15 @@
     align-items: center;
     padding-bottom: 12px;
 
-    .header-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-
-      .title {
-        font-weight: 500;
-        font-size: 16px;
-        color: var(--color-text-primary);
-      }
-
-      .count-info {
-        font-size: 14px;
-        color: var(--color-text-secondary);
-      }
-    }
-
     .search-controls {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex: 1;
+      width: 50%;
 
       app-input {
         width: 100%;
       }
-    }
-  }
-
-  .error-container {
-    padding: 16px;
-    background-color: #ffebee;
-    border-left: 4px solid #f44336;
-    border-radius: 4px;
-
-    .error-message {
-      margin: 0;
-      color: #c62828;
     }
   }
 

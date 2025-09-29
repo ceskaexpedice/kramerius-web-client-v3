@@ -1,10 +1,10 @@
 <div class="remove-license-section">
 
-  <div class="section-header">
-    <h3>{{ 'remove-licenses' | translate }}</h3>
+  <div class="section-header selected-dialog--header">
+    <h3>{{ 'select-licenses-to-remove' | translate }}<span *ngIf="totalCount$ | async as totalCount">({{ totalCount }})</span></h3>
   </div>
 
-  <div class="licenses-selection">
+  <div class="licenses-selection selected-dialog--section">
     <app-licenses-list
       [title]="'select-licenses-to-remove' | translate"
       [selectedLicenses]="selectedLicenses"
@@ -12,13 +12,15 @@
     </app-licenses-list>
   </div>
 
-  <div *ngIf="selectedLicenses.length > 0" class="selection-summary warning">
-    <div class="summary-info">
-      <strong>{{ selectedLicenses.length }}</strong> {{ 'licenses-selected-for-removal' | translate }}
-    </div>
-    <div class="warning-text">
-      <small>{{ 'remove-license-warning' | translate }}</small>
-    </div>
+  <div class="selected-dialog--actions">
+
+    <button class="primary">
+      {{'remove--button-label' | translate}}
+      @if (selectedLicenses && selectedLicenses.length > 0) {
+        ({{ selectedLicenses.length }})
+      }
+    </button>
+
   </div>
 
 </div>

@@ -2,21 +2,16 @@
 
   <!-- Header with counts and selection info -->
   <div class="licenses-header">
-    <div class="header-info">
-      <span class="title">{{ title | translate }}</span>
-      <span class="count-info" *ngIf="totalCount$ | async as totalCount">
-        ({{ selectedLicenses.length }} / {{ totalCount }} {{ 'selected' | translate }})
-      </span>
-    </div>
 
     <!-- Search Input -->
     <div class="search-controls">
 
       <app-input
         [placeholder]="'search-licenses-placeholder' | translate"
-        [(ngModel)]="searchQuery"
         [initialValue]="searchQuery"
         [theme]="'dark'"
+        [name]="'license-search'"
+        aria-label="{{ 'search-licenses-placeholder' | translate }}"
         (valueChange)="onSearchInput($event)"
         [showClearButton]="true"
         [showHelpButton]="false"
@@ -24,11 +19,6 @@
       ></app-input>
 
     </div>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error$ | async as error" class="error-container">
-    <p class="error-message">{{ 'error-loading-licenses' | translate }}: {{ error }}</p>
   </div>
 
   <!-- Licenses List Container -->
@@ -44,11 +34,6 @@
           (change)="onLicenseToggle(license.name, $event.checked)">
           <div class="license-info">
             <div class="license-name">{{ license.name }}</div>
-            <div class="license-description" *ngIf="license.description">{{ license.description }}</div>
-            <div class="license-meta">
-              <span class="license-group">{{ license.group }}</span>
-              <span class="license-priority">Priority: {{ license.priority }}</span>
-            </div>
           </div>
         </mat-checkbox>
       </div>
@@ -58,17 +43,6 @@
     <div *ngIf="loading$ | async" class="loading-indicator">
       <mat-spinner diameter="24"></mat-spinner>
       <span>{{ 'loading-licenses' | translate }}</span>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="(filteredLicenses$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
-      <mat-icon>search_off</mat-icon>
-      <p *ngIf="searchQuery; else noLicensesTemplate">
-        {{ 'no-licenses-found-for-search' | translate: { query: searchQuery } }}
-      </p>
-      <ng-template #noLicensesTemplate>
-        <p>{{ 'no-licenses-found' | translate }}</p>
-      </ng-template>
     </div>
 
   </div>

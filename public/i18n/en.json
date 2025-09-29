@@ -275,5 +275,18 @@
   "remove-collection--label": "Remove from collection",
   "add-licence--label": "Add licence",
   "remove-licence--label": "Remove licence",
-  "edit-section-titlecover": "Cover page"
+  "edit-section-titlecover": "Cover page",
+  "add-to-collections": "Add to collection",
+  "remove-from-collections": "Remove from collection",
+  "select-collections-to-add": "Select collections to add",
+  "select-collections-to-remove": "Select collections to remove",
+  "search-collections-placeholder": "Start typing...(e.g. daily newspaper)",
+  "select-hierarchy-level": "Select range",
+  "reindex": "Reindex",
+  "add--button-label": "Add",
+  "remove--button-label": "Remove",
+  "select-licenses-to-add": "Select licenses to add",
+  "select-licenses-to-remove": "Select licenses to remove",
+  "search-licenses-placeholder": "Start typing...",
+  "selected-objects--count": "Selected objects"
 }

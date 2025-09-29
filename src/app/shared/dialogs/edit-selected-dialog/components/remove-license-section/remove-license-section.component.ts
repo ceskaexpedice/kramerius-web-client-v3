@@ -2,6 +2,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {LicensesListComponent} from '../../../../components/licenses-list/licenses-list.component';
+import {Observable} from 'rxjs';
+import {Store} from '@ngrx/store';
+import {selectLicensesTotalCount} from '../../../../state/licenses/licenses.selectors';
 
 export interface RemoveLicenseSectionData {
   selectedIds: string[];
@@ -17,13 +20,20 @@ export interface RemoveLicenseSectionData {
     LicensesListComponent,
   ],
   templateUrl: './remove-license-section.component.html',
-  styleUrl: './remove-license-section.component.scss'
+  styleUrls: ['./remove-license-section.component.scss', '../edit-selected-dialog-section.scss']
 })
 export class RemoveLicenseSectionComponent {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<RemoveLicenseSectionData>();
 
   selectedLicenses: string[] = [];
+  totalCount$: Observable<number>;
+
+  constructor(
+    private store: Store
+  ) {
+    this.totalCount$ = this.store.select(selectLicensesTotalCount);
+  }
 
   onLicensesSelectionChange(selectedLicenses: string[]) {
     this.selectedLicenses = selectedLicenses;

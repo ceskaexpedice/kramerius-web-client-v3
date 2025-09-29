@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NgIf } from '@angular/common';
 import {
@@ -14,6 +14,13 @@ import {
 } from './components/remove-collection-section/remove-collection-section.component';
 import {AddLicenseSectionComponent, AddLicenseSectionData} from './components/add-license-section/add-license-section.component';
 import {RemoveLicenseSectionComponent, RemoveLicenseSectionData} from './components/remove-license-section/remove-license-section.component';
+import {_} from '../../translation/translate-placeholder';
+import {
+  DocumentHierarchyItem,
+  DocumentHierarchySelectorComponent,
+} from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {SelectionService} from '../../services';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -42,6 +49,8 @@ export enum EditSelectedDialogSections {
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
     RemoveLicenseSectionComponent,
+    DocumentHierarchySelectorComponent,
+    TranslatePipe,
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -80,7 +89,7 @@ export class EditSelectedDialogComponent {
           { key: EditSelectedDialogSections.removeLicence, label: 'remove-licence--label', icon: 'icon-minus-cirlce' }
         ]
       },
-      { key: EditSelectedDialogSections.titleCover, label: 'edit-section-titlecover', icon: '' },
+      // { key: EditSelectedDialogSections.titleCover, label: 'edit-section-titlecover', icon: '' },
       { key: EditSelectedDialogSections.admin, label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
     ]
   };
@@ -96,12 +105,30 @@ export class EditSelectedDialogComponent {
 
   EditSelectedDialogSections = EditSelectedDialogSections;
 
+  selectedHierarchyItem: DocumentHierarchyItem | null = null;
+  showHierarchySelector = false;
+
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
+  private selectionService = inject(SelectionService);
+
+  selectedDocuments = computed(() => {
+    return this.selectionService.getSelectedItemsAsMetadata();
+  });
 
   constructor() {
     // Set the subtitle with selected count
-    this.dialogConfig.subtitle = `Počet vybraných objektů: ${this.data.selectedCount}`;
+    this.dialogConfig.subtitle = `${_('selected-objects--count')}: ${this.data.selectedCount}`;
+
+    // we show the hierarchy selector only if all items have same rootUuid
+    const rootUuids = new Set(this.selectedDocuments().map(doc => doc.rootPid));
+    this.showHierarchySelector = rootUuids.size === 1;
+  }
+
+  // Get selected documents as Metadata array for hierarchy selector
+
+  onHierarchySelectionChanged(hierarchyItem: DocumentHierarchyItem) {
+    this.selectedHierarchyItem = hierarchyItem;
   }
 
   save() {

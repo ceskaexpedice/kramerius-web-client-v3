@@ -262,5 +262,18 @@
   "remove-collection--label": "Odstrániť z kolekcie",
   "add-licence--label": "Pridať licenciu",
   "remove-licence--label": "Odstrániť licenciu",
-  "edit-section-titlecover": "Reprezentatívna strana"
+  "edit-section-titlecover": "Reprezentatívna strana",
+  "add-to-collections": "Pridať do zbierky",
+  "remove-from-collections": "Odstrániť zo zbierky",
+  "select-collections-to-add": "Vybrať zbierky na pridanie",
+  "select-collections-to-remove": "Vybrať zbierky na odstránenie",
+  "search-collections-placeholder": "Začnite písať...(napr. denná tlač)",
+  "select-hierarchy-level": "Vyberte rozsah",
+  "reindex": "Reindexovať",
+  "add--button-label": "Pridať",
+  "remove--button-label": "Odstrániť",
+  "select-licenses-to-add": "Vybrať licencie na pridanie",
+  "select-licenses-to-remove": "Vybrať licencie na odstránenie",
+  "search-licenses-placeholder": "Začnite písať...",
+  "selected-objects--count": "Počet vybraných objektov"
 }

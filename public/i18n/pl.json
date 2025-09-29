@@ -265,5 +265,18 @@
   "remove-collection--label": "Usuń z kolekcji",
   "add-licence--label": "Dodaj licencję",
   "remove-licence--label": "Usuń licencję",
-  "edit-section-titlecover": "Okładka i tytuł"
+  "edit-section-titlecover": "Okładka i tytuł",
+  "add-to-collections": "Dodaj do kolekcji",
+  "remove-from-collections": "Usuń z kolekcji",
+  "select-collections-to-add": "Wybierz kolekcje do dodania",
+  "select-collections-to-remove": "Wybierz kolekcje do usunięcia",
+  "search-collections-placeholder": "Szukaj kolekcji",
+  "select-hierarchy-level": "Wybierz poziom hierarchii",
+  "reindex": "Reindeksuj",
+  "add--button-label": "Dodaj",
+  "remove--button-label": "Usuń",
+  "select-licenses-to-add": "Wybierz licencje do dodania",
+  "select-licenses-to-remove": "Wybierz licencje do usunięcia",
+  "search-licenses-placeholder": "Szukaj licencji",
+  "selected-objects--count": "Liczba zaznaczonych obiektów"
 }

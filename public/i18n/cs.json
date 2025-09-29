@@ -267,5 +267,18 @@
   "remove-collection--label": "Odebrat z kolekce",
   "add-licence--label": "Přidat licenci",
   "remove-licence--label": "Odebrat licenci",
-  "edit-section-titlecover": "Reprezentativní strana"
+  "edit-section-titlecover": "Reprezentativní strana",
+  "add-to-collections": "Přidat do sbírky",
+  "remove-from-collections": "Odebrat ze sbírky",
+  "select-collections-to-add": "Vybrat sbírky pro přidání",
+  "select-collections-to-remove": "Vybrat sbírky pro odebrání",
+  "search-collections-placeholder": "Hledat v kolekcích...(např. denní tisk)",
+  "select-hierarchy-level": "Vyberte rozsah",
+  "reindex": "Reindexovat",
+  "add--button-label": "Přidat",
+  "remove--button-label": "Odebrat",
+  "select-licenses-to-add": "Vybrat licence pro přidání",
+  "select-licenses-to-remove": "Vybrat licence pro odebrání",
+  "search-licenses-placeholder": "Hledat v licencích...",
+  "selected-objects--count": "Počet vybraných objektů"
 }
