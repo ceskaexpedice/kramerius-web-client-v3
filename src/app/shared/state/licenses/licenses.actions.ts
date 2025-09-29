@@ -1,7 +1,12 @@
 import { createAction, props } from '@ngrx/store';
-import { FacetItem } from '../../../modules/models/facet-item';
 
-export type License = FacetItem;
+export interface License {
+  name: string;
+  description: string;
+  id: number;
+  priority: number;
+  group: 'local' | 'embedded';
+}
 
 export const loadLicenses = createAction(
   '[Licenses] Load',

@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, switchMap, withLatestFrom, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { SolrService } from '../../../core/solr/solr.service';
+import { AdminLicensesService } from '../../../core/admin/admin-licenses.service';
 import {
   loadLicenses,
   loadLicensesFailure,
@@ -22,7 +22,7 @@ import {
 export class LicensesEffects {
   constructor(
     private actions$: Actions,
-    private solr: SolrService,
+    private adminLicensesService: AdminLicensesService,
     private store: Store
   ) {}
 
@@ -30,7 +30,7 @@ export class LicensesEffects {
     this.actions$.pipe(
       ofType(loadLicenses),
       switchMap(({ query, page = 0, pageSize = 10000, reset }) =>
-        this.solr.getLicenses(query, page, pageSize).pipe(
+        this.adminLicensesService.getLicenses(query, page, pageSize).pipe(
           map(response => {
             const licenses = (response.response?.docs ?? []) as License[];
             const totalCount = response.response?.numFound ?? 0;

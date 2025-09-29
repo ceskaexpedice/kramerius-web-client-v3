@@ -423,20 +423,6 @@ export class SolrService {
     );
   }
 
-  getLicenses(query?: string, page: number = 0, pageSize: number = 10000): Observable<any> {
-    const params = new HttpParams({ fromObject: SolrQueryBuilder.facetByField('licenses.facet', pageSize) });
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => {
-        const licenses = SolrResponseParser.parseFacetField<FacetItem>(res, 'licenses.facet', (value, count) => ({ name: value, count }));
-        return {
-          response: {
-            docs: licenses,
-            numFound: licenses.length
-          }
-        };
-      })
-    );
-  }
 
   getDetailItem(pid: string): Observable<any> {
     const params = new HttpParams({ fromObject: { q: `pid:"${pid}"`, ...SolrQueryBuilder.rows(1) } });

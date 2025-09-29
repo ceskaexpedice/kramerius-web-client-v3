@@ -44,7 +44,11 @@
           (change)="onLicenseToggle(license.name, $event.checked)">
           <div class="license-info">
             <div class="license-name">{{ license.name }}</div>
-            <div class="license-count" *ngIf="license.count">({{ license.count }})</div>
+            <div class="license-description" *ngIf="license.description">{{ license.description }}</div>
+            <div class="license-meta">
+              <span class="license-group">{{ license.group }}</span>
+              <span class="license-priority">Priority: {{ license.priority }}</span>
+            </div>
           </div>
         </mat-checkbox>
       </div>

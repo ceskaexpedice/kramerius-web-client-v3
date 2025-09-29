@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
-import { FacetItem } from '../../../modules/models/facet-item';
+import { License } from '../../state/licenses/licenses.actions';
 import {
   selectLicenses,
   selectLicensesLoading,
@@ -50,8 +50,8 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('scrollContainer', { static: false }) scrollContainer?: ElementRef;
 
-  allLicenses$: Observable<FacetItem[]>;
-  filteredLicenses$: Observable<FacetItem[]>;
+  allLicenses$: Observable<License[]>;
+  filteredLicenses$: Observable<License[]>;
   loading$: Observable<boolean>;
   error$: Observable<any>;
   totalCount$: Observable<number>;
@@ -82,7 +82,8 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
 
         const searchTerm = query.toLowerCase().trim();
         return licenses.filter(license =>
-          license.name?.toLowerCase().includes(searchTerm)
+          license.name?.toLowerCase().includes(searchTerm) ||
+          license.description?.toLowerCase().includes(searchTerm)
         );
       })
     );
@@ -133,7 +134,7 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.selectedLicenses.includes(licenseName);
   }
 
-  selectAll(licenses: FacetItem[]) {
+  selectAll(licenses: License[]) {
     const allNames = licenses.map(l => l.name);
     this.selectionChange.emit(allNames);
   }
@@ -160,7 +161,7 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectionChange.emit([]);
   }
 
-  trackByName(index: number, license: FacetItem): string {
+  trackByName(index: number, license: License): string {
     return license.name;
   }
 }
