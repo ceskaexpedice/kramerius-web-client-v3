@@ -7,10 +7,13 @@
     color="tertiary"
   >
     <label
+      [class.checked]="checked"
       (click)="toggled.emit()"
       *ngIf="label | translate as translatedLabel">{{ truncateLabel ? ((label | translate).length > 15 ? ((label | translate).slice(0, 15) + '...') : (label | translate)) : (label | translate) }}</label>
 
-    <span class="count">({{ count | formatNumber }})</span>
+    <span class="count"
+      [class.checked]="checked"
+    >({{ count | formatNumber }})</span>
   </mat-checkbox>
 
   <i *ngIf="icon" [ngClass]="icon"></i>
