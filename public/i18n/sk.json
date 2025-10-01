@@ -277,5 +277,11 @@
   "search-licenses-placeholder": "Začnite písať...",
   "selected-objects--count": "Počet vybraných objektov",
   "loading-collections": "Načítavajú sa kolekcie...",
-  "loading-licenses": "Načítavajú sa licencie..."
+  "loading-licenses": "Načítavajú sa licencie...",
+  "close-confirmation-dialog--header": "Skutočne chcete editáciu ukončiť?",
+  "close-confirmation-dialog--message": "Týmto zahodíte všetky rozpracované akcie.",
+  "yes-close--button": "Áno, zavrieť",
+  "action-confirmation-dialog--header": "Skutočne chcete akciu vykonať?",
+  "action-confirmation-dialog--dont-ask-again": "Potvrdzovacie okno znova nezobrazovať",
+  "yes-execute--button": "Áno, vykonať"
 }

@@ -1,0 +1,16 @@
+.content {
+  padding: var(--spacing-x4) 24px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x4) 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.dont-ask-again--container {
+  color: var(--color-text-tertiary);
+  gap: var(--spacing-x2);
+}

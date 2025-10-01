@@ -1,0 +1,33 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ title | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onCancel()">
+      <i class="icon-x"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+
+<!--      <p>{{ message | translate }}</p>-->
+
+      <div class="dont-ask-again--container">
+        <mat-checkbox class="p-left-0" [(ngModel)]="dontShowAgain">
+          <label>
+            {{ 'dont-ask-again' | translate }}
+          </label>
+        </mat-checkbox>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dialog-footer">
+    <button class="button secondary" (click)="onCancel()">
+      {{ cancelButtonLabel | translate }}
+    </button>
+    <button class="button primary" (click)="onConfirm()">
+      {{ confirmButtonLabel | translate }}
+    </button>
+  </div>
+</div>

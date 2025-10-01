@@ -290,5 +290,11 @@
   "search-licenses-placeholder": "Start typing...",
   "selected-objects--count": "Selected objects",
   "loading-collections": "Loading collections...",
-  "loading-licenses": "Loading licenses..."
+  "loading-licenses": "Loading licenses...",
+  "close-confirmation-dialog--header": "Are you sure you want to close the editor?",
+  "close-confirmation-dialog--message": "You have unsaved changes that will be lost.",
+  "yes-close--button": "Yes, close",
+  "action-confirmation-dialog--header": "Are you sure you want to proceed?",
+  "action-confirmation-dialog--dont-ask-again": "Don't show this message again.",
+  "yes-execute--button": "Yes, execute"
 }

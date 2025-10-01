@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal} from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NgIf } from '@angular/common';
 import {
   DialogConfig,
@@ -20,6 +20,8 @@ import {
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {SelectionService} from '../../services';
+import {CloseConfirmationDialogComponent} from './components/close-confirmation-dialog/close-confirmation-dialog.component';
+import {ActionConfirmationDialogComponent, ActionConfirmationDialogData} from './components/action-confirmation-dialog/action-confirmation-dialog.component';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -108,6 +110,7 @@ export class EditSelectedDialogComponent {
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
   private selectionService = inject(SelectionService);
   private translateService = inject(TranslateService);
+  private dialog = inject(MatDialog);
 
   selectedDocuments = computed(() => {
     return this.selectionService.getSelectedItemsAsMetadata();
@@ -150,16 +153,36 @@ export class EditSelectedDialogComponent {
         break;
     }
 
-    console.log('Save changes for section:', currentSection, sectionData);
-    this.dialogRef.close({
-      action: 'save',
-      section: currentSection,
-      data: sectionData
+    this.openActionConfirmationDialog({
+      title: 'save-confirmation-dialog--header',
+      message: 'save-confirmation-dialog--message',
+      confirmButtonLabel: 'yes-execute--button',
+      cancelButtonLabel: 'cancel'
+    }, () => {
+      console.log('Save changes for section:', currentSection, sectionData);
+      this.dialogRef.close({
+        action: 'yes-execute--button',
+        section: currentSection,
+        data: sectionData
+      });
     });
   }
 
   close() {
-    this.dialogRef.close();
+    const confirmationDialogRef = this.dialog.open(CloseConfirmationDialogComponent, {
+      width: '400px',
+      autoFocus: true,
+      restoreFocus: false,
+      hasBackdrop: true,
+      disableClose: false
+    });
+
+    confirmationDialogRef.afterClosed().subscribe(confirmed => {
+      console.log('confirmed', confirmed);
+      if (confirmed) {
+        this.dialogRef.close();
+      }
+    });
   }
 
   onSectionChange(section: string) {
@@ -179,9 +202,33 @@ export class EditSelectedDialogComponent {
   }
 
   goToAdminInterface() {
-    // TODO: Implement navigation to admin interface with selected items
-    console.log('Go to admin interface with items:', this.data.selectedIds);
-    this.dialogRef.close({ action: 'admin', selectedIds: this.data.selectedIds });
+    this.openActionConfirmationDialog({
+      title: 'admin-confirmation-dialog--header',
+      message: 'admin-confirmation-dialog--message',
+      confirmButtonLabel: 'proceed',
+      cancelButtonLabel: 'cancel'
+    }, () => {
+      // TODO: Implement navigation to admin interface with selected items
+      console.log('Go to admin interface with items:', this.data.selectedIds);
+      this.dialogRef.close({ action: 'admin', selectedIds: this.data.selectedIds });
+    });
+  }
+
+  openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
+    const confirmationDialogRef = this.dialog.open(ActionConfirmationDialogComponent, {
+      width: '400px',
+      data,
+      autoFocus: true,
+      restoreFocus: false,
+      hasBackdrop: true,
+      disableClose: false
+    });
+
+    confirmationDialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        onConfirm();
+      }
+    });
   }
 
   onReindexDataChange(data: ReindexSectionData) {

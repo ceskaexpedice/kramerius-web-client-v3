@@ -3,7 +3,8 @@ import { LocalStorageService } from './local-storage.service';
 
 export enum DontShowDialogs {
   PlaybackStopDialog = 'playback-stop-dialog',
-  FavoritesPopup = 'favorites-popup'
+  FavoritesPopup = 'favorites-popup',
+  EditSelectedDialogSubmitActionDialog = 'edit-selected-dialog-submit-action-dialog'
 }
 
 @Injectable({

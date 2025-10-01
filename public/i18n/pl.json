@@ -280,5 +280,11 @@
   "search-licenses-placeholder": "Szukaj licencji",
   "selected-objects--count": "Liczba zaznaczonych obiektów",
   "loading-collections": "Wczytywanie kolekcji...",
-  "loading-licenses": "Wczytywanie licencji..."
+  "loading-licenses": "Wczytywanie licencji...",
+  "close-confirmation-dialog--header": "Czy na pewno chcesz zamknąć?",
+  "close-confirmation-dialog--message": "Wszelkie niezapisane zmiany zostaną utracone.",
+  "yes-close--button": "Tak, zamknij",
+  "action-confirmation-dialog--header": "Czy na pewno chcesz kontynuować?",
+  "action-confirmation-dialog--dont-ask-again": "Nie pytaj ponownie.",
+  "yes-execute--button": "Tak, wykonaj"
 }

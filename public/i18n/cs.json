@@ -282,5 +282,11 @@
   "search-licenses-placeholder": "Hledat v licencích...",
   "selected-objects--count": "Počet vybraných objektů",
   "loading-collections": "Načítání kolekcí...",
-  "loading-licenses": "Načítání licencí..."
+  "loading-licenses": "Načítání licencí...",
+  "close-confirmation-dialog--header": "Opravdu chtete editaci zavřít?",
+  "close-confirmation-dialog--message": "Tímto zahodíte rozpracované akce.",
+  "yes-close--button": "Ano, zavřít",
+  "action-confirmation-dialog--header": "Opravdu chcete akci provést?",
+  "action-confirmation-dialog--dont-ask-again": "Potvrzovací okno nezobrazovat znovu.",
+  "yes-execute--button": "Ano, provést"
 }

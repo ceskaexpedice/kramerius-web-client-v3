@@ -1,5 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog';
+import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {NgForOf, NgIf} from '@angular/common';
 
@@ -50,8 +49,6 @@ export class SidebarDialogLayoutComponent {
   @Output() customButtonClick = new EventEmitter<string>();
   @Output() actionClick = new EventEmitter<string>();
 
-  private dialogRef = inject(MatDialogRef<SidebarDialogLayoutComponent>, { optional: true });
-
   activeSection = signal<string>('');
 
   ngOnInit() {
@@ -80,7 +77,6 @@ export class SidebarDialogLayoutComponent {
 
   onClose() {
     this.close.emit();
-    this.dialogRef?.close();
   }
 
   onCustomButtonClick(action: string) {
