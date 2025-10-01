@@ -90,6 +90,10 @@ div.mat-mdc-autocomplete-panel {
   margin: var(--mat-switch-unselected-handle-horizontal-margin, 0 5px) !important;
 }
 
+.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {
+  margin: var(--mat-switch-unselected-handle-horizontal-margin, 0 15px) !important;
+}
+
 .mdc-switch__track::before {
   background-color: var(--color-bg-bright) !important;
 }
