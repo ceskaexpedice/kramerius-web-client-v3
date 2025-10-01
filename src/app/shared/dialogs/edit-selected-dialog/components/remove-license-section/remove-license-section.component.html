@@ -14,7 +14,9 @@
 
   <div class="selected-dialog--actions">
 
-    <button class="primary">
+    <button class="primary"
+            [disabled]="selectedLicenses.length === 0"
+            (click)="onActionClick()">
       {{'remove--button-label' | translate}}
       @if (selectedLicenses && selectedLicenses.length > 0) {
         ({{ selectedLicenses.length }})

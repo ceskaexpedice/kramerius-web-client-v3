@@ -22,6 +22,7 @@ export interface ReindexSectionData {
 export class EditReindexSectionComponent {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<ReindexSectionData>();
+  @Output() actionClick = new EventEmitter<void>();
 
   selectedScope: 'object' | 'object-and-children' = 'object';
 
@@ -34,5 +35,9 @@ export class EditReindexSectionComponent {
       selectedIds: this.selectedIds,
       scope: this.selectedScope
     });
+  }
+
+  onActionClick() {
+    this.actionClick.emit();
   }
 }

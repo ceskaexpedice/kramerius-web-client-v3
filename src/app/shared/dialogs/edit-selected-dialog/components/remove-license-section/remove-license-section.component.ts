@@ -25,6 +25,7 @@ export interface RemoveLicenseSectionData {
 export class RemoveLicenseSectionComponent {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<RemoveLicenseSectionData>();
+  @Output() actionClick = new EventEmitter<void>();
 
   selectedLicenses: string[] = [];
   totalCount$: Observable<number>;
@@ -45,5 +46,9 @@ export class RemoveLicenseSectionComponent {
       selectedIds: this.selectedIds,
       selectedLicenses: [...this.selectedLicenses]
     });
+  }
+
+  onActionClick() {
+    this.actionClick.emit();
   }
 }

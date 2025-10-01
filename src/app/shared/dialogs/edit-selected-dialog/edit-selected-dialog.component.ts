@@ -170,7 +170,7 @@ export class EditSelectedDialogComponent {
 
   close() {
     const confirmationDialogRef = this.dialog.open(CloseConfirmationDialogComponent, {
-      width: '400px',
+      width: '50vw',
       autoFocus: true,
       restoreFocus: false,
       hasBackdrop: true,
@@ -216,7 +216,7 @@ export class EditSelectedDialogComponent {
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
     const confirmationDialogRef = this.dialog.open(ActionConfirmationDialogComponent, {
-      width: '400px',
+      width: '50vw',
       data,
       autoFocus: true,
       restoreFocus: false,
@@ -249,5 +249,36 @@ export class EditSelectedDialogComponent {
 
   onRemoveLicenseDataChange(data: RemoveLicenseSectionData) {
     this.removeLicenseData = data;
+  }
+
+  onSectionActionClick() {
+    const currentSection = this.activeSection();
+    let sectionData = null;
+
+    switch (currentSection) {
+      case EditSelectedDialogSections.reindex:
+        sectionData = this.reindexData;
+        break;
+      case EditSelectedDialogSections.addCollection:
+        sectionData = this.collectionsData;
+        break;
+      case EditSelectedDialogSections.removeCollection:
+        sectionData = this.collectionsData;
+        break;
+      case EditSelectedDialogSections.addLicence:
+        sectionData = this.addLicenseData;
+        break;
+      case EditSelectedDialogSections.removeLicence:
+        sectionData = this.removeLicenseData;
+        break;
+    }
+
+    this.openActionConfirmationDialog({
+      cancelButtonLabel: 'cancel'
+    }, () => {
+      console.log('Execute action for section:', currentSection, sectionData);
+      // TODO: Implement actual action execution logic here
+      // This is where you would call the appropriate service method based on the section
+    });
   }
 }

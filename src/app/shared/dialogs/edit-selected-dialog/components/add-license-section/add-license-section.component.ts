@@ -25,6 +25,7 @@ export interface AddLicenseSectionData {
 export class AddLicenseSectionComponent {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<AddLicenseSectionData>();
+  @Output() actionClick = new EventEmitter<void>();
 
   selectedLicenses: string[] = [];
   totalCount$: Observable<number>;
@@ -45,5 +46,9 @@ export class AddLicenseSectionComponent {
       selectedIds: this.selectedIds,
       selectedLicenses: [...this.selectedLicenses]
     });
+  }
+
+  onActionClick() {
+    this.actionClick.emit();
   }
 }

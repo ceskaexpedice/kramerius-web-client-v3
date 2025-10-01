@@ -26,6 +26,7 @@ export interface AddCollectionSectionData {
 export class AddCollectionSectionComponent {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<AddCollectionSectionData>();
+  @Output() actionClick = new EventEmitter<void>();
 
   selectedCollections: string[] = [];
   totalCount$: Observable<number>;
@@ -44,5 +45,9 @@ export class AddCollectionSectionComponent {
       selectedIds: this.selectedIds,
       selectedCollections: [...this.selectedCollections]
     });
+  }
+
+  onActionClick() {
+    this.actionClick.emit();
   }
 }

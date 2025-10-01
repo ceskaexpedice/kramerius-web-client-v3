@@ -29,6 +29,7 @@ export class RemoveCollectionSectionComponent {
 
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<RemoveCollectionSectionData>();
+  @Output() actionClick = new EventEmitter<void>();
 
   selectedCollections: string[] = [];
 
@@ -46,5 +47,9 @@ export class RemoveCollectionSectionComponent {
       selectedIds: this.selectedIds,
       selectedCollections: [...this.selectedCollections]
     });
+  }
+
+  onActionClick() {
+    this.actionClick.emit();
   }
 }

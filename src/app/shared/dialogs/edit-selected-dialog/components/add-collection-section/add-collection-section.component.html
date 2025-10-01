@@ -14,7 +14,9 @@
 
   <div class="selected-dialog--actions">
 
-    <button class="primary">
+    <button class="primary"
+            [disabled]="selectedCollections.length === 0"
+            (click)="onActionClick()">
       {{'add--button-label' | translate}}
       @if (selectedCollections && selectedCollections.length > 0) {
         ({{ selectedCollections.length }})

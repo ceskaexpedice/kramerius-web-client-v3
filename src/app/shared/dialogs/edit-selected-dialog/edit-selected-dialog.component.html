@@ -27,7 +27,8 @@
           <!-- Reindex Section -->
           <app-edit-reindex-section
             [selectedIds]="data.selectedIds"
-            (dataChange)="onReindexDataChange($event)">
+            (dataChange)="onReindexDataChange($event)"
+            (actionClick)="onSectionActionClick()">
           </app-edit-reindex-section>
 
         }
@@ -36,7 +37,9 @@
 
           <app-add-collection-section
             [selectedIds]="data.selectedIds"
-          ></app-add-collection-section>
+            (dataChange)="onCollectionsDataChange($event)"
+            (actionClick)="onSectionActionClick()">
+          </app-add-collection-section>
 
 
         }
@@ -44,20 +47,24 @@
         @case (EditSelectedDialogSections.removeCollection) {
           <app-remove-collection-section
             [selectedIds]="data.selectedIds"
-          ></app-remove-collection-section>
+            (dataChange)="onCollectionsDataChange($event)"
+            (actionClick)="onSectionActionClick()">
+          </app-remove-collection-section>
         }
 
         @case (EditSelectedDialogSections.addLicence) {
           <app-add-license-section
             [selectedIds]="data.selectedIds"
-            (dataChange)="onAddLicenseDataChange($event)">
+            (dataChange)="onAddLicenseDataChange($event)"
+            (actionClick)="onSectionActionClick()">
           </app-add-license-section>
         }
 
         @case (EditSelectedDialogSections.removeLicence) {
           <app-remove-license-section
             [selectedIds]="data.selectedIds"
-            (dataChange)="onRemoveLicenseDataChange($event)">
+            (dataChange)="onRemoveLicenseDataChange($event)"
+            (actionClick)="onSectionActionClick()">
           </app-remove-license-section>
         }
 
