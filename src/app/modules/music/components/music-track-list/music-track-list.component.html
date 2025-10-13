@@ -18,6 +18,7 @@
       [selectedPid]="selectedPid"
       [playingPid]="playingPid"
       [viewType]="viewType"
+      [isFavorited$]="favoritedPidsMap.get(track.pid)"
       (toggleFavoriteClicked)="onFavoriteToggled($event)"
       (addToQueueClicked)="onAddToQueue($event)"
       (downloadClicked)="onDownload($event)"

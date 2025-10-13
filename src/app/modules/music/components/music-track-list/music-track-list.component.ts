@@ -1,10 +1,13 @@
-import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject, OnInit} from '@angular/core';
 import {MusicTrackItemComponent} from "../music-track-item/music-track-item.component";
 import {NgForOf} from "@angular/common";
 import {TranslatePipe} from '@ngx-translate/core';
 import {FavoritesPopupComponent} from '../../../../shared/components/favorites-popup/favorites-popup.component';
 import {PopupPositioningService, PopupState} from '../../../../shared/services/popup-positioning.service';
 import {TrackViewType} from '../../../models/sound-track.model';
+import {Router} from '@angular/router';
+import {Observable} from 'rxjs';
+import {FavoritesService} from '../../../../shared/services/favorites.service';
 
 @Component({
   selector: 'app-music-track-list',
@@ -17,7 +20,7 @@ import {TrackViewType} from '../../../models/sound-track.model';
   templateUrl: './music-track-list.component.html',
   styleUrls: ['./music-track-list.component.scss', '../music-track-list-table.scss'],
 })
-export class MusicTrackListComponent implements OnDestroy {
+export class MusicTrackListComponent implements OnInit, OnDestroy {
   @Input() tracks: any[] = [];
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
@@ -31,12 +34,25 @@ export class MusicTrackListComponent implements OnDestroy {
   @Output() remove = new EventEmitter<any>();
 
   popupPositioning = inject(PopupPositioningService);
+  favoritesService = inject(FavoritesService);
+  router = inject(Router);
+
   favoritesPopupState: PopupState;
   currentTrackId = signal<string>('');
   currentTrackName = signal<string>('');
+  favoritedPidsMap = new Map<string, Observable<boolean>>();
 
   constructor() {
-    this.favoritesPopupState = this.popupPositioning.createPopupState();
+    this.favoritesPopupState = this.favoritesService.createPopupState();
+  }
+
+  ngOnInit() {
+    // Initialize favorited status for all tracks
+    this.tracks.forEach(track => {
+      if (track.pid) {
+        this.favoritedPidsMap.set(track.pid, this.favoritesService.getFavoritedStatus(track.pid));
+      }
+    });
   }
 
   onSelect(track: any) {
@@ -48,13 +64,12 @@ export class MusicTrackListComponent implements OnDestroy {
     this.currentTrackId.set(data.track.pid);
     this.currentTrackName.set(data.track['title.search'] || '');
 
-    // Show and position popup
-    this.popupPositioning.showPopup(this.favoritesPopupState, {
-      triggerEvent: data.event,
-      popupWidth: 265,
-      popupHeight: 400,
-      preferredSide: 'right'
-    });
+    // Handle favorite toggle with authentication check
+    this.favoritesService.handleFavoriteToggle(
+      this.router.url,
+      data.event,
+      this.favoritesPopupState
+    );
   }
 
   ngOnDestroy() {

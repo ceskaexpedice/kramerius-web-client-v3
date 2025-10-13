@@ -1,14 +1,17 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {NgIf} from "@angular/common";
+import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {SoundTrackModel, TrackViewType} from '../../../models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
+import {Observable, of} from 'rxjs';
 
 @Component({
   selector: '[app-music-track-item]',
   imports: [
     NgIf,
     TranslatePipe,
+    AsyncPipe,
+    NgClass,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],
@@ -24,7 +27,7 @@ export class MusicTrackItemComponent {
   @Input() index: number = 0;
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
-  @Input() favoritedPids: string[] = [];
+  @Input() isFavorited$: Observable<boolean> | undefined;
   @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() trackSelected = new EventEmitter<SoundTrackModel>();
@@ -39,10 +42,6 @@ export class MusicTrackItemComponent {
 
   get isPlaying(): boolean {
     return this.track?.pid === this.playingPid;
-  }
-
-  get isFavorited(): boolean {
-    return this.favoritedPids.includes(this.track?.pid);
   }
 
   get isFolderView(): boolean {

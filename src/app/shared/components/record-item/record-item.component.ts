@@ -8,16 +8,13 @@ import {SolrService} from '../../../core/solr/solr.service';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 import {FavoritesPopupComponent} from '../favorites-popup/favorites-popup.component';
 import {PopupPositioningService, PopupState} from '../../services/popup-positioning.service';
-import {AuthService} from '../../../core/auth/auth.service';
-import {MatDialog} from '@angular/material/dialog';
-import {LoginPromptDialogComponent} from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
 import { Observable, EMPTY } from 'rxjs';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
+import { FavoritesService } from '../../services/favorites.service';
 
 @Component({
   selector: 'app-record-item',
@@ -37,11 +34,9 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
+  favoritesService = inject(FavoritesService);
   popupPositioning = inject(PopupPositioningService);
-  authService = inject(AuthService);
-  dialog = inject(MatDialog);
   public selectionService = inject(SelectionService);
-  private folderItemsService = inject(FolderItemsService);
   private savedListsService = inject(SavedListsService);
   private envService = inject(EnvironmentService);
 
@@ -66,14 +61,14 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   isItemFavorited$: Observable<boolean> = EMPTY;
 
   constructor() {
-    this.favoritesPopupState = this.popupPositioning.createPopupState();
+    this.favoritesPopupState = this.favoritesService.createPopupState();
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
   ngOnInit() {
     // Initialize the observable once we have the item
     if (this.item.id) {
-      this.isItemFavorited$ = this.folderItemsService.isItemInAnyFolder(this.item.id);
+      this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item.id);
     }
   }
 
@@ -120,30 +115,12 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
     if (this.item.showFavoriteButton === false) return;
 
-    // Check if user is authenticated
-    if (!this.authService.hasValidToken()) {
-      // Show login prompt dialog
-      const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
-        width: '60vw',
-        disableClose: false
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result === 'login') {
-          // Redirect to login with current route as return URL
-          this.authService.login(this.router.url);
-        }
-      });
-      return;
-    }
-
-    // User is authenticated, show favorites popup
-    this.popupPositioning.showPopup(this.favoritesPopupState, {
-      triggerEvent: event,
-      popupWidth: 265,
-      popupHeight: 400,
-      preferredSide: 'right'
-    });
+    // Handle favorite toggle with authentication check
+    this.favoritesService.handleFavoriteToggle(
+      this.router.url,
+      event,
+      this.favoritesPopupState
+    );
   }
 
   ngOnDestroy() {

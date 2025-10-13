@@ -58,13 +58,8 @@
       </button>
     } @else {
       <button class="icon-button rounded light"
-              (mouseover)="isMouseOverFavorite = true"
-              (mouseout)="isMouseOverFavorite = false"
-              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited" [title]="'save-to-list' | translate">
-        <i
-          [class.icon-heart]="!isMouseOverFavorite && !isFavorited"
-          [class.icon-heart-filled]="isMouseOverFavorite || isFavorited">
-        </i>
+              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited$ | async" [title]="'save-to-list' | translate">
+        <i [ngClass]="(isFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
       </button>
     }
     <button class="icon-button rounded light" (click)="download(); $event.stopPropagation()">
