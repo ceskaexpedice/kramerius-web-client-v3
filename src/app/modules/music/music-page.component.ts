@@ -22,7 +22,7 @@ export class MusicPageComponent implements OnInit {
   public soundService = inject(SoundService);
 
   constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+    this.krameriusBaseUrl = this.envService.getKrameriusUrl();
   }
 
   ngOnInit() {

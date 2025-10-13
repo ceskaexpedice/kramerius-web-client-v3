@@ -23,7 +23,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public adminSelectionService = inject(AdminSelectionService);
 
   constructor(private envService: EnvironmentService) {
-    this.krameriusBaseUrl = this.envService.get('krameriusBaseUrl');
+    this.krameriusBaseUrl = this.envService.getKrameriusUrl();
   }
 
   ngOnInit() {
