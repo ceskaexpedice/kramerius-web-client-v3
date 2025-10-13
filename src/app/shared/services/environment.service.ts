@@ -53,13 +53,34 @@ export class EnvironmentService {
         }
     }
 
+    getKrameriusUrl(): string {
+      const krameriusId = this.get('krameriusId');
+      let baseUrl = '';
+
+      switch (krameriusId) {
+        case 'mzk': baseUrl = 'https://api.kramerius.mzk.cz/'; break;
+        case 'cdk': baseUrl = 'https://api.ceskadigitalniknihovna.cz/'; break;
+        case 'knav': baseUrl = 'https://kramerius.lib.cas.cz/'; break;
+        case 'cdk-test': baseUrl = 'https://api-npo.val.ceskadigitalniknihovna.cz/'; break;
+        default: baseUrl = 'https://api.kramerius.mzk.cz/'; break;
+      }
+
+      baseUrl += '/search/api/client/v7.0/';
+
+      return baseUrl;
+    }
+
   getApiUrl(path: string = ''): string {
-    const baseUrl = this.get('krameriusBaseUrl');
+    // const baseUrl = this.get('krameriusBaseUrl');
+    // return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
+    const baseUrl = this.getKrameriusUrl();
+
     return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
   }
 
   getBaseApiUrl(): string {
-    const fullUrl = this.get('krameriusBaseUrl');
+    // const fullUrl = this.get('krameriusBaseUrl');
+    const fullUrl = this.getKrameriusUrl();
     try {
       const url = new URL(fullUrl);
       const base = `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ''}`;
