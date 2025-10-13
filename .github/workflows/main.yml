@@ -11,7 +11,7 @@ name: Main workflow
 # - APP_DEV_MODE
 # - APP_ENV_NAME
 # - APP_ENV_CODE
-# - APP_KRAMERIUS_URL
+# - APP_KRAMERIUS_ID
 
 # this workflow uses actions:
 # https://github.com/marketplace/actions/create-json
@@ -220,7 +220,7 @@ jobs:
           TF_VAR_APP_DEV_MODE: ${{ vars.APP_DEV_MODE }}
           TF_VAR_APP_ENV_NAME: ${{ vars.APP_ENV_NAME }}
           TF_VAR_APP_ENV_CODE: ${{ vars.APP_ENV_CODE }}
-          TF_VAR_APP_KRAMERIUS_URL: ${{ vars.APP_KRAMERIUS_URL }}
+          TF_VAR_APP_KRAMERIUS_ID: ${{ vars.APP_KRAMERIUS_ID }}
         with:
           TERRAFORM_DOCKER_IMAGE: ${DOCKER_IMAGE}
           TERRAFORM_DOCKER_CONTAINER_NAME: ${{ matrix.name }}

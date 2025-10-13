@@ -8,7 +8,7 @@ cat <<EOF > /usr/share/nginx/html/assets/env.json
   "environmentName": "${APP_ENV_NAME:-docker runtime}",
   "environmentCode": "${APP_ENV_CODE:-docker}",
 
-  "krameriusBaseUrl": "${APP_KRAMERIUS_URL}"  
+  "krameriusId": "${APP_KRAMERIUS_ID}"  
 }
 EOF
 

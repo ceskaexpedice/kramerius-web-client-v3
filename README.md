@@ -20,7 +20,7 @@ First define configuration in environment variables
 ```shell
 
 export APP_DEV_MODE=false
-export APP_KRAMERIUS_URL="https://api.kramerius.mzk.cz/search"
+export APP_KRAMERIUS_ID="mzk"
 
 ```
 
@@ -77,21 +77,21 @@ Run locally built Docker image
 ```
 docker run -p 1234:80 \
   -e APP_DEV_MODE=false \
-  -e APP_KRAMERIUS_URL=https://api.kramerius.mzk.cz/search \
+  -e APP_KRAMERIUS_ID=mzk \
 trinera/cdk-client
 ```
 
 ##### Run exact version:
 ```
 docker run -p 1234:80 \
-  -e APP_KRAMERIUS_URL=https://api.kramerius.mzk.cz/search \
+  -e APP_KRAMERIUS_ID=mzk \
 trinera/cdk-client:latest
 ```
 or
 
 ```
 docker run -p 1234:80 \
-  -e APP_KRAMERIUS_URL=https://api.kramerius.mzk.cz/search \
+  -e APP_KRAMERIUS_ID=mzk \
 trinera/cdk-client:1.0.0
 ```
 
@@ -104,7 +104,7 @@ Run image that someone built and pushed to Dockerhub.
 ```
 docker pull trinera/cdk-client:latest
 docker run -p 1234:80 \
-  -e APP_KRAMERIUS_URL=https://api.kramerius.mzk.cz/search \  
+  -e APP_KRAMERIUS_ID=mzk \  
 trinera/cdk-client
 ```
 

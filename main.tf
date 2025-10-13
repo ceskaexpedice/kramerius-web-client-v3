@@ -21,7 +21,7 @@ variable "APP_ENV_NAME" {
   type = string
 }
 
-variable "APP_KRAMERIUS_URL" {
+variable "APP_KRAMERIUS_ID" {
   type = string
 }
 
@@ -77,7 +77,7 @@ resource "docker_container" "cdk_klient" {
     "APP_DEV_MODE=${var.APP_DEV_MODE}",
     "APP_ENV_NAME=${var.APP_ENV_NAME}",
     "APP_ENV_CODE=${var.APP_ENV_CODE}",
-    "APP_KRAMERIUS_URL=${var.APP_KRAMERIUS_URL}"
+    "APP_KRAMERIUS_ID=${var.APP_KRAMERIUS_ID}"
   ]
 
   labels {

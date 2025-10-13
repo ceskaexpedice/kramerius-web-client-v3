@@ -20,7 +20,7 @@ const config = {
   environmentName: process.env.APP_ENV_NAME || 'not defined',
   environmentCode: process.env.APP_ENV_CODE || 'n-d',
 
-  krameriusBaseUrl: process.env.APP_KRAMERIUS_URL || ''
+  krameriusId: process.env.APP_KRAMERIUS_ID || ''
 };
 
 fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
