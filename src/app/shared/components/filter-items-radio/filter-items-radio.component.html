@@ -10,6 +10,8 @@
     class="radio-button"
   >
     <label
+      class="cursor-pointer"
+      (click)="onLabelClick(item.name)"
       [class.selected]="item.name === selected"
     >{{ (item.name + '-label') | translate }}</label>
     <span class="count"

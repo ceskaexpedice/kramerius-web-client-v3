@@ -28,9 +28,12 @@ export class FilterItemsRadioComponent {
   @Input() selected: string | null = null;
   @Output() changed = new EventEmitter<string>();
 
-  onSelectionChange(event: any) {
-    console.log('Selection changed:', event.value); // ✅ Uistíme sa že sa volá
+  onLabelClick(name: string) {
+    this.selected = name;
+    this.changed.emit(name);
+  }
 
+  onSelectionChange(event: any) {
     this.changed.emit(event.value);
   }
 
