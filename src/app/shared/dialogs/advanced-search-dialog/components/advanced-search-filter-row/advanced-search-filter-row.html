@@ -31,6 +31,35 @@
         [size]="'sm'"
       ></app-autocomplete>
 
+      @if (filter.inputType === AdvancedFilterType.Text) {
+        <div class="w-100 flex flex--column flex--gap-x2">
+          <app-input
+            [initialValue]="filter.elementValue"
+            [placeholder]="filter.placeholder || filter.key"
+            [showHelpButton]="false"
+            [showSubmitButton]="false"
+            [showClearButton]="true"
+            (valueChange)="inputChange($event)"
+            (onBlurEvent)="inputBlur()"
+            [theme]="'dark'"
+            [withIcons]="false"
+            [size]="'sm'"
+          ></app-input>
+
+          <!-- Control row with toggle and button -->
+          <div class="filter-controls">
+            <mat-slide-toggle
+              [(ngModel)]="fulltextExactMatch"
+              [hideIcon]="true"
+              [class]="'size-sm'"
+              (change)="onChangeFulltextExactMatch(fulltextExactMatch)">
+              {{ 'exact-match' | translate }}
+            </mat-slide-toggle>
+          </div>
+
+        </div>
+      }
+
       <app-range-slider
         *ngIf="filter.inputType === AdvancedFilterType.Slider"
         [min]="filter.meta?.min ?? 0"

@@ -4,8 +4,9 @@ import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/a
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  SolrFacetKey,
   FilterElementType,
+  isFulltextFilter,
+  SolrFacetKey,
 } from '../dialogs/advanced-search-dialog/solr-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
@@ -490,9 +491,20 @@ export class AdvancedSearchService {
 
         if (!solrField || !value) continue;
 
-        const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
+        let base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
+
+        const isFulltext = isFulltextFilter(solrField);
+
+        if (isFulltext) {
+          base = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Fulltext);
+        }
+
         if (base) {
           filters.push({...base, solrValue: value.trim(), elementValue: value.trim(), isEquals});
+
+          if (isFulltext) {
+            filters[filters.length - 1].solrField = solrField;
+          }
         } else {
           filters.push({
             key: solrField as any,

@@ -33,6 +33,10 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
     }
   }
 
+  trackByFn(index: number, item: AdvancedFilterDefinition) {
+    return item.key + index;
+  }
+
   addFilter() {
     const defaultFilter = { ...DEFAULT_ADVANCED_FILTER, value: '' };
     this.filters = [...this.filters, defaultFilter];

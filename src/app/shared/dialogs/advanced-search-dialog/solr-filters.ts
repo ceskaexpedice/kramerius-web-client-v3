@@ -54,6 +54,7 @@ export interface AdvancedFilterDefinition {
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: SolrFacetKey.Author, label: `filter-${SolrFacetKey.Author}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Author}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'authors.facet', userRawQueryFormat: false, isEquals: true },
   { key: SolrFacetKey.Title, label: `filter-${SolrFacetKey.Title}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Title}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'title.search', userRawQueryFormat: true, isEquals: true },
+  { key: SolrFacetKey.Fulltext, label: `filter-${SolrFacetKey.Fulltext}-label`, inputType: FilterElementType.Text, placeholder: `advanced-filter-${SolrFacetKey.Fulltext}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'text_ocr', userRawQueryFormat: true, isEquals: true },
   { key: SolrFacetKey.Year, label: `filter-${SolrFacetKey.Year}-label`, inputType: FilterElementType.Slider, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'date.str', meta: {
       min: ENVIRONMENT.dateRangeStartYear,
       max: new Date().getFullYear(),
@@ -72,7 +73,6 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
   { key: SolrFacetKey.Genre, label: `filter-${SolrFacetKey.Genre}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Genre}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'genres.facet', isEquals: true },
   { key: SolrFacetKey.GeoName, label: `filter-${SolrFacetKey.GeoName}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.GeoName}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'geographic_names.facet', isEquals: true },
   // { key: AdvancedFilterKey.SearchScope, label: `advanced-filter-${AdvancedFilterKey.SearchScope}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, value: '', isEquals: true },
-  // { key: AdvancedFilterKey.Fulltext, label: `advanced-filter-${AdvancedFilterKey.Fulltext}-label`, inputType: AdvancedFilterType.Text, value: '', isEquals: true },
   { key: SolrFacetKey.Identifier, label: `filter-${SolrFacetKey.Identifier}-label`, inputType: FilterElementType.Autocomplete, elementValue: '', solrValue: '', solrField: 'dc.identifier', isEquals: true }
 ];
 
@@ -90,4 +90,25 @@ export function isFrontendFilteredFacetKey(key: string): boolean {
   }
   const mapped = key as SolrFacetKey;
   return FRONTEND_FILTERED_FACET_KEYS.includes(mapped);
+}
+
+export function isFulltextFilter(key: string) {
+  if (key.includes('text_ocr')) {
+    return true;
+  }
+  return false;
+}
+
+// if we change fulltext to match case, we need to change solrField to text_ocr.exact
+export function changeFulltextFieldForExactMatch(filter: AdvancedFilterDefinition, exactMatch = false): AdvancedFilterDefinition {
+  if (filter.key === SolrFacetKey.Fulltext) {
+    const newFilter = {...filter};
+    if (exactMatch) {
+      newFilter.solrField = 'text_ocr.exact';
+    } else {
+      newFilter.solrField = 'text_ocr';
+    }
+    return newFilter;
+  }
+  return filter;
 }

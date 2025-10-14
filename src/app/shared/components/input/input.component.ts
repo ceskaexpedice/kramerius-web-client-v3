@@ -62,6 +62,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();
   @Output() submit = new EventEmitter<string | number>();
+  @Output() onBlurEvent = new EventEmitter<void>();
 
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
   @ViewChild('inputModel', { static: true }) inputModel!: NgModel;
@@ -129,6 +130,7 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   onBlur() {
     this.isFocused = false;
+    this.onBlurEvent.emit();
   }
 
   onEnter() {

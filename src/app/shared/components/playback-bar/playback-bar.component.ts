@@ -59,4 +59,12 @@ export class PlaybackBarComponent {
     this.isQueueOpen.set(false);
   }
 
+  openTrackDetails() {
+    const track = this.soundService.getCurrentTrack();
+    console.log('track', track);
+    if (track) {
+      // this.musicService.openTrackDetails(track);
+    }
+  }
+
 }

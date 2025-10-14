@@ -4,25 +4,27 @@ import {FormsModule} from '@angular/forms';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  SolrFacetKey,
+  changeFulltextFieldForExactMatch,
   FilterElementType,
+  isFulltextFilter,
+  SolrFacetKey,
 } from '../../solr-filters';
 import {AutocompleteComponent} from '../../../../components/autocomplete/autocomplete.component';
 import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {TranslateService} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {AdvancedDateFilterComponent} from '../advanced-date-filter/advanced-date-filter.component';
-import {
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
+import {InputComponent} from '../../../../components/input/input.component';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'advanced-search-filter-row',
   imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, AdvancedDateFilterComponent, MatDatepickerModule,
-    MatNativeDateModule],
+    MatNativeDateModule, InputComponent, MatSlideToggle, TranslatePipe],
   providers: [
     provideNativeDateAdapter(),
 
@@ -31,6 +33,8 @@ import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/c
   styleUrl: './advanced-search-filter-row.scss',
 })
 export class AdvancedSearchFilterRow implements OnInit {
+  fulltextExactMatch = false;
+
   private solrService = inject(SolrService);
   private translateService = inject(TranslateService);
 
@@ -48,6 +52,8 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   loadData() {
+    this.checkFulltextFilter();
+
     if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
 
@@ -68,9 +74,25 @@ export class AdvancedSearchFilterRow implements OnInit {
           this.filter.elementValue = sorted[0];
         }
       });
-
     }
+  }
 
+  checkFulltextFilter() {
+    const isFulltext = isFulltextFilter(this.filter.solrField || '');
+
+    if (isFulltext) {
+      const fulltext = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Fulltext);
+      if (fulltext) {
+        this.filter = {
+          ...fulltext,
+          solrField: this.filter.solrField,
+          elementValue: this.filter.elementValue,
+          solrValue: this.filter.solrValue
+        };
+      }
+
+      this.fulltextExactMatch = this.filter.solrField === 'text_ocr.exact';
+    }
   }
 
   toggleEqualsOperator() {
@@ -114,6 +136,22 @@ export class AdvancedSearchFilterRow implements OnInit {
   autocompleteSubmit(value: string) {
     this.filter.elementValue = value;
     this.filter.solrValue = value;
+  }
+
+  inputChange(value: string | number) {
+    this.filter.elementValue = value.toString();
+    this.filter.solrValue = value.toString();
+  }
+
+  inputBlur() {
+    console.log('input blur')
+    this.emitChange();
+  }
+
+  onChangeFulltextExactMatch(exact: boolean) {
+    this.filter = changeFulltextFieldForExactMatch(this.filter, exact);
+    this.emitChange();
+    console.log('Changed fulltext filter:', this.filter);
   }
 
   onRangeSliderChange(range: { from: number; to: number }) {

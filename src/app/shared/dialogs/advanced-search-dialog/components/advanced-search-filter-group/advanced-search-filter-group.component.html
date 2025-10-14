@@ -2,7 +2,7 @@
   <div class="group-content">
     <div class="filter-items">
       <advanced-search-filter-row
-        *ngFor="let filter of filters; let i = index"
+        *ngFor="let filter of filters; let i = index; trackBy: trackByFn"
         [filter]="filter"
         (filterChange)="updateFilter(i, $event)"
         (remove)="removeFilter(i)"
