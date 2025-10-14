@@ -343,7 +343,7 @@ export class SolrService {
   }
 
   getSuggestionsByFacetKey(solrField: string, term: string, facetLimit = 20): Observable<string[]> {
-    return this.loadFacet('*:*', [], solrField, term, true, facetLimit, 0, SolrSortFields.count, 1).pipe(
+    return this.loadFacet('*:* AND level:0', [], solrField, term, true, facetLimit, 0, SolrSortFields.count, 1).pipe(
       map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
     );
   }
