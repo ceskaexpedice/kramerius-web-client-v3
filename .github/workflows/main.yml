@@ -11,7 +11,7 @@ name: Main workflow
 # - APP_DEV_MODE
 # - APP_ENV_NAME
 # - APP_ENV_CODE
-# - APP_KRAMERIUS_ID
+# - APP_KRAMERIUS_ID set in set_variables job and then used in github matrix
 
 # this workflow uses actions:
 # https://github.com/marketplace/actions/create-json
@@ -35,9 +35,6 @@ jobs:
     outputs:
       environment: ${{ steps.check_branch_and_tag.outputs.environment }}
     steps:
-      - name: Dump ENV
-        run: env
-
       - name: Dump VARS context
         env:
           VARS_CONTEXT: ${{ toJson(vars) }}
@@ -104,9 +101,15 @@ jobs:
         json:
           '{"include": [
             {
-              "name": "cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
-              "domain": "cdk.test.trinera.cloud"
-            }
+              "name": "mzk_cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
+              "domain": "cdk.test.trinera.cloud",
+              "krameriusId": "mzk"
+            },
+            {
+              "name": "cdk_test_cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
+              "domain": "cdk-dev.test.trinera.cloud",
+              "krameriusId": "cdk-test"
+            },
           ]}'
       if:
         github.ref == 'refs/heads/dev'
@@ -118,13 +121,18 @@ jobs:
         json:
           '{"include": [
             {
-              "name": "cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
-              "domain": "cdk.app.trinera.cloud"
+              "name": "mzk_cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
+              "domain": "cdk.app.trinera.cloud",
+              "krameriusId": "mzk"
+            },
+            {
+              "name": "cdk_test_cdk_klient_${{ steps.set_vars.outputs.ref_name }}",
+              "domain": "cdk-dev.app.trinera.cloud",
+              "krameriusId": "cdk-test"
             }
           ]}'
       if:
         github.ref == 'refs/heads/main'
-
 
     - name: "Set docker names for tag v*"
       uses: jsdaniell/create-json@v1.2.3
@@ -133,8 +141,14 @@ jobs:
         json:
           '{"include": [
             {
-              name: "cdk_klient_${{ steps.set_vars.outputs.docker_container_suffix }}",
-              domain: "${{ steps.set_vars.outputs.ref_name }}.cdk.app.trinera.cloud"
+              "name": "mzk_cdk_klient_${{ steps.set_vars.outputs.docker_container_suffix }}",
+              "domain": "${{ steps.set_vars.outputs.ref_name }}.cdk.app.trinera.cloud",
+              "krameriusId": "mzk"
+            },
+            {
+              "name": "cdk_test_cdk_klient_${{ steps.set_vars.outputs.docker_container_suffix }}",
+              "domain": "${{ steps.set_vars.outputs.ref_name }}.cdk-dev.app.trinera.cloud",
+              "krameriusId": "cdk-test"
             }
           ]}'
       if:
@@ -220,7 +234,7 @@ jobs:
           TF_VAR_APP_DEV_MODE: ${{ vars.APP_DEV_MODE }}
           TF_VAR_APP_ENV_NAME: ${{ vars.APP_ENV_NAME }}
           TF_VAR_APP_ENV_CODE: ${{ vars.APP_ENV_CODE }}
-          TF_VAR_APP_KRAMERIUS_ID: ${{ vars.APP_KRAMERIUS_ID }}
+          TF_VAR_APP_KRAMERIUS_ID: ${{ matrix.krameriusId }}
         with:
           TERRAFORM_DOCKER_IMAGE: ${DOCKER_IMAGE}
           TERRAFORM_DOCKER_CONTAINER_NAME: ${{ matrix.name }}
@@ -228,6 +242,7 @@ jobs:
           TERRAFORM_DOCKER_HOST_URI: ${{ secrets.DOCKER_HOST_URI }}
           TERRAFORM_GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           TERRAFORM_GHCR_USERNAME: ${{ github.actor }}
+
   check_assets:
     needs:
       - set_variables
