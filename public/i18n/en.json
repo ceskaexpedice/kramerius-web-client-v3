@@ -296,5 +296,7 @@
   "yes-close--button": "Yes, close",
   "action-confirmation-dialog--header": "Are you sure you want to proceed?",
   "action-confirmation-dialog--dont-ask-again": "Don't show this message again.",
-  "yes-execute--button": "Yes, execute"
+  "yes-execute--button": "Yes, execute",
+  "advanced-filter-fulltext-placeholder": "Enter search term",
+  "exact-match": "Distinguish between uppercase letters and diacritics"
 }

@@ -68,7 +68,7 @@
   "filter-genre-label": "Žánr",
   "filter-geoName-label": "Geografický název",
   "filter-searchScope-label": "Rozsah vyhledávání",
-  "filter-fulltext-label": "Fulltext",
+  "filter-fulltext-label": "Plný text",
   "filter-identifier-label": "Identifikátor",
   "filter-count-label": "Počet",
   "next-condition-button-label": "Další podmínka",
@@ -288,5 +288,7 @@
   "yes-close--button": "Ano, zavřít",
   "action-confirmation-dialog--header": "Opravdu chcete akci provést?",
   "action-confirmation-dialog--dont-ask-again": "Potvrzovací okno nezobrazovat znovu.",
-  "yes-execute--button": "Ano, provést"
+  "yes-execute--button": "Ano, provést",
+  "advanced-filter-fulltext-placeholder": "Zadat hledaný výraz",
+  "exact-match": "Rozlišovat velká písmena a diakritiku"
 }
