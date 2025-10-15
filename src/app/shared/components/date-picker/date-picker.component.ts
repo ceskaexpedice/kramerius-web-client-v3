@@ -332,10 +332,12 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateFromSelect(date: Date | null): void {
     if (!date) return;
 
-    // Block selection if date is after current toDate
-    const currentToDate = this.selectedDateTo();
-    if (currentToDate && date > currentToDate) {
-      return;
+    // Block selection if date is after current toDate (only in range mode)
+    if (this.isRangeModeActive) {
+      const currentToDate = this.selectedDateTo();
+      if (currentToDate && date > currentToDate) {
+        return;
+      }
     }
 
     this.selectedDateFrom.set(date);
@@ -363,10 +365,12 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateToSelect(date: Date | null): void {
     if (!date) return;
 
-    // Block selection if date is before current fromDate
-    const currentFromDate = this.selectedDateFrom();
-    if (currentFromDate && date < currentFromDate) {
-      return;
+    // Block selection if date is before current fromDate (only in range mode)
+    if (this.isRangeModeActive) {
+      const currentFromDate = this.selectedDateFrom();
+      if (currentFromDate && date < currentFromDate) {
+        return;
+      }
     }
 
     this.selectedDateTo.set(date);
@@ -444,6 +448,11 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   // Date class function for "FROM" calendar
   get dateClassFrom(): MatCalendarCellClassFunction<Date> {
     return (date: Date, view: string): string => {
+      // Only apply special styling if in range mode
+      if (!this.isRangeModeActive) {
+        return '';
+      }
+
       const fromDate = this.selectedDateFrom();
       const toDate = this.selectedDateTo();
 
@@ -487,6 +496,11 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   // Date class function for "TO" calendar
   get dateClassTo(): MatCalendarCellClassFunction<Date> {
     return (date: Date, view: string): string => {
+      // Only apply special styling if in range mode
+      if (!this.isRangeModeActive) {
+        return '';
+      }
+
       const fromDate = this.selectedDateFrom();
       const toDate = this.selectedDateTo();
 
