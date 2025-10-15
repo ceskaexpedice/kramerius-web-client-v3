@@ -292,5 +292,6 @@
   "advanced-filter-fulltext-placeholder": "Zadat hledaný výraz",
   "exact-match": "Rozlišovat velká písmena a diakritiku",
   "date--from": "Od",
-  "date--to": "Do"
+  "date--to": "Do",
+  "date-picker-selected-days--label": "Vybráno"
 }

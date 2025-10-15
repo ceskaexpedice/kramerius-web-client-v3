@@ -161,7 +161,7 @@
     <!-- Fixed action buttons at bottom -->
     <div class="popup--bottom">
       @if (isRangeModeActive) {
-        <div class="left--container">
+        <div class="left--container selected-days-label">
           {{'date-picker-selected-days--label' | translate}}: {{ getSelectedDaysCount() }} {{ getDayTranslationKey() | translate | lowercase }}
         </div>
       }

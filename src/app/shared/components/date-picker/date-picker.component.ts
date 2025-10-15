@@ -332,14 +332,13 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateFromSelect(date: Date | null): void {
     if (!date) return;
 
-    this.selectedDateFrom.set(date);
-
-    // If selected date is after current toDate, adjust toDate
+    // Block selection if date is after current toDate
     const currentToDate = this.selectedDateTo();
     if (currentToDate && date > currentToDate) {
-      this.selectedDateTo.set(date);
-      this.updateToCalendarMonth(date);
+      return;
     }
+
+    this.selectedDateFrom.set(date);
 
     // Auto-calculate toDate based on offset
     if (this.selectedOffset() > 0) {
@@ -364,12 +363,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateToSelect(date: Date | null): void {
     if (!date) return;
 
-    // If selected date is before current fromDate, adjust fromDate
+    // Block selection if date is before current fromDate
     const currentFromDate = this.selectedDateFrom();
     if (currentFromDate && date < currentFromDate) {
-      this.selectedDateFrom.set(date);
-      this.monthFrom.set(date.getMonth());
-      this.yearFrom.set(date.getFullYear());
+      return;
     }
 
     this.selectedDateTo.set(date);
