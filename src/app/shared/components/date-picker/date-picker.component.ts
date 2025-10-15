@@ -555,4 +555,14 @@ export class DatePickerComponent implements OnInit, OnChanges {
       this.cdr.detectChanges();
     }
   }
+
+  getSelectedDaysCount() : number {
+    if (this.selectedDateFrom() && this.selectedDateTo()) {
+      const diffTime = this.selectedDateTo()!.getTime() - this.selectedDateFrom()!.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+
+      return diffDays >= 0 ? diffDays : 0; // Ensure non-negative
+    }
+    return 0;
+  }
 }

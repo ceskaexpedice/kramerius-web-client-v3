@@ -82,10 +82,10 @@
 
           <div class="offset-buttons">
             <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 1" (click)="onOffsetClick(1)">
-              +1 {{ 'day' | translate | lowercase }}
+              +1 {{ 'one-day' | translate | lowercase }}
             </button>
             <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 3" (click)="onOffsetClick(3)">
-              +3 {{ 'days' | translate | lowercase }}
+              +3 {{ 'more-days' | translate | lowercase }}
             </button>
             <button class="outlined tertiary sm" [class.selected]="selectedOffset() === 7" (click)="onOffsetClick(7)">
               + {{'week' | translate | lowercase}}
@@ -159,7 +159,12 @@
     </div>
 
     <!-- Fixed action buttons at bottom -->
-    <div class="popup-fixed-actions">
+    <div class="popup--bottom">
+      @if (isRangeModeActive) {
+        <div class="left--container">
+          {{'date-picker-selected-days--label' | translate}}: {{ getSelectedDaysCount() }}
+        </div>
+      }
       <div class="action-buttons">
         <button class="outlined tertiary" (click)="onDiscard()">
           {{ 'discard-data-buton--label' | translate }}
