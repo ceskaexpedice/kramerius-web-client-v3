@@ -334,6 +334,13 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
     this.selectedDateFrom.set(date);
 
+    // If selected date is after current toDate, adjust toDate
+    const currentToDate = this.selectedDateTo();
+    if (currentToDate && date > currentToDate) {
+      this.selectedDateTo.set(date);
+      this.updateToCalendarMonth(date);
+    }
+
     // Auto-calculate toDate based on offset
     if (this.selectedOffset() > 0) {
       const calculatedToDate = new Date(date.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
@@ -356,6 +363,14 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   onDateToSelect(date: Date | null): void {
     if (!date) return;
+
+    // If selected date is before current fromDate, adjust fromDate
+    const currentFromDate = this.selectedDateFrom();
+    if (currentFromDate && date < currentFromDate) {
+      this.selectedDateFrom.set(date);
+      this.monthFrom.set(date.getMonth());
+      this.yearFrom.set(date.getFullYear());
+    }
 
     this.selectedDateTo.set(date);
 
@@ -429,9 +444,8 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     }, 0);
   }
 
-  // Date class function for range highlighting
-  get dateClass(): MatCalendarCellClassFunction<Date> {
-    // Return a new function reference that captures current signal values
+  // Date class function for "FROM" calendar
+  get dateClassFrom(): MatCalendarCellClassFunction<Date> {
     return (date: Date, view: string): string => {
       const fromDate = this.selectedDateFrom();
       const toDate = this.selectedDateTo();
@@ -460,6 +474,56 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
         if (checkDate > checkFrom && checkDate < checkTo) {
           return 'range-middle';
         }
+      }
+
+      // Mark dates after toDate as invalid in FROM calendar
+      const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const checkTo = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+      if (checkDate > checkTo) {
+        return 'invalid-date';
+      }
+
+      return '';
+    };
+  }
+
+  // Date class function for "TO" calendar
+  get dateClassTo(): MatCalendarCellClassFunction<Date> {
+    return (date: Date, view: string): string => {
+      const fromDate = this.selectedDateFrom();
+      const toDate = this.selectedDateTo();
+
+      if (!fromDate || !toDate) {
+        return '';
+      }
+
+      // Compare just the date strings for accurate comparison
+      const dateStr = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const fromStr = `${fromDate.getFullYear()}-${fromDate.getMonth()}-${fromDate.getDate()}`;
+      const toStr = `${toDate.getFullYear()}-${toDate.getMonth()}-${toDate.getDate()}`;
+
+      if (dateStr === fromStr && dateStr === toStr) {
+        return 'range-start range-end';
+      } else if (dateStr === fromStr) {
+        return 'range-start';
+      } else if (dateStr === toStr) {
+        return 'range-end';
+      } else {
+        // Check if date is between fromDate and toDate
+        const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const checkFrom = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+        const checkTo = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+        if (checkDate > checkFrom && checkDate < checkTo) {
+          return 'range-middle';
+        }
+      }
+
+      // Mark dates before fromDate as invalid in TO calendar
+      const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const checkFrom = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+      if (checkDate < checkFrom) {
+        return 'invalid-date';
       }
 
       return '';
@@ -594,5 +658,23 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     rangeEndCells.forEach(cell => {
       (cell as HTMLElement).setAttribute('label', toLabel);
     });
+
+    // Find all invalid-date cells in the FROM calendar and add the from label
+    if (this.calendarFrom) {
+      const fromCalendarElement = this.calendarFrom['_elementRef'].nativeElement;
+      const invalidFromCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.invalid-date');
+      invalidFromCells.forEach((cell: HTMLElement) => {
+        cell.setAttribute('label', fromLabel);
+      });
+    }
+
+    // Find all invalid-date cells in the TO calendar and add the to label
+    if (this.calendarTo) {
+      const toCalendarElement = this.calendarTo['_elementRef'].nativeElement;
+      const invalidToCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.invalid-date');
+      invalidToCells.forEach((cell: HTMLElement) => {
+        cell.setAttribute('label', toLabel);
+      });
+    }
   }
 }
