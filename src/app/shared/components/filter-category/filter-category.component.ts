@@ -53,12 +53,12 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() showToggleExpand = true;
   @Input() showBottomBorder = true;
   @Input() type: FacetElementType = FacetElementType.checkbox;
-  
+
   // Date range inputs
   @Input() dateFrom: Date | null = null;
   @Input() dateTo: Date | null = null;
   @Input() dateOffset: number = 0;
-  
+
   // Year range inputs
   @Input() yearRangeMin: number = 1400;
   @Input() yearRangeMax: number = new Date().getFullYear();
@@ -97,8 +97,8 @@ export class FilterCategoryComponent implements OnChanges {
 
     effect(() => {
       if (this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
-        this.showPageFacet = this.searchService.hasSubmittedQuery();
-        this.showPeriodicalItemFacet = this.searchService.filtersContainDate();
+        this.showPageFacet = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+        this.showPeriodicalItemFacet = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         this.updateVisibleItems();
       }
     });

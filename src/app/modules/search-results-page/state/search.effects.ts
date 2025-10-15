@@ -15,6 +15,7 @@ import {
 import {SearchService} from '../../../shared/services/search.service';
 import {UserService} from '../../../shared/services/user.service';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
+import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 
 @Injectable()
 export class SearchEffects {
@@ -23,6 +24,7 @@ export class SearchEffects {
     private solr: SolrService,
     private store: Store,
     private searchService: SearchService,
+    private advancedSearchService: AdvancedSearchService,
     private userService: UserService,
   ) {
   }
@@ -44,8 +46,8 @@ export class SearchEffects {
         advancedQuery,
         advancedQueryMainOperator,
       }, currentFacets, facetOperators]) => {
-        const includePeriodicalItem = this.searchService.filtersContainDate();
-        const includePage = this.searchService.hasSubmittedQuery();
+        const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
+        const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 

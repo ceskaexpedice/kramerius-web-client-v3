@@ -75,7 +75,7 @@ export class PeriodicalService extends BaseFilterService {
 
 
   private solrService = inject(SolrService);
-  private advancedSearchService = inject(AdvancedSearchService);
+  override advancedSearchService = inject(AdvancedSearchService);
   private searchService = inject(SearchService);
 
   constructor(

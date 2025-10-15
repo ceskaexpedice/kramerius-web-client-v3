@@ -97,7 +97,7 @@ export class SearchService extends BaseFilterService {
   constructor(
     private store: Store,
     private solrService: SolrService,
-    private advancedSearchService: AdvancedSearchService
+    override advancedSearchService: AdvancedSearchService
   ) {
     super();
     this.load();

@@ -615,4 +615,10 @@ export class AdvancedSearchService {
     return `(${filters.join(' OR ')})`;
   }
 
+  hasFulltextFilter(): boolean {
+    return this.appliedGroupsSignal().some(group =>
+      group.filters.some(f => isFulltextFilter(f.solrField || '') && !!f.elementValue?.trim())
+    );
+  }
+
 }

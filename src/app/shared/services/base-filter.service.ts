@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, OnDestroy, signal} from '@angular/core';
+import {computed, inject, Injectable, OnDestroy, Signal, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, map, Observable, of, Subject, takeUntil} from 'rxjs';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
@@ -6,6 +6,7 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {CustomSearchService} from './custom-search.service';
 import {UserService} from './user.service';
 import {FilterService} from './filter.service';
+import {AdvancedSearchService} from './advanced-search.service';
 
 @Injectable()
 export abstract class BaseFilterService implements FilterService, OnDestroy {
@@ -26,6 +27,7 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   protected router = inject(Router);
   protected queryParamsService = inject(QueryParamsService);
   protected customSearchService = inject(CustomSearchService);
+  protected advancedSearchService = inject(AdvancedSearchService);
   protected userService = inject(UserService);
 
   // Common getters
@@ -40,6 +42,12 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   // Common computed properties
   get hasSubmittedQuery() {
     return computed(() => this._submittedTerm().trim().length > 0);
+  }
+
+  get hasFulltextFilter(): Signal<boolean> {
+    return computed(() => {
+      return this.advancedSearchService.hasFulltextFilter();
+    });
   }
 
   // Common computed property that can be overridden by subclasses
