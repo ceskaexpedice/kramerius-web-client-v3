@@ -1,4 +1,5 @@
 import {
+  AfterViewChecked,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -12,9 +13,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import {DateRange} from '../range-slider/range-slider.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {LowerCasePipe} from '@angular/common';
-import {MatCalendar} from '@angular/material/datepicker';
+import {MatCalendar, MatCalendarCellClassFunction} from '@angular/material/datepicker';
 import {InputComponent} from '../input/input.component';
 import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
 import {FormsModule} from '@angular/forms';
@@ -40,7 +41,7 @@ export interface DatePickerOutput {
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
 })
-export class DatePickerComponent implements OnInit, OnChanges {
+export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked {
 
   openedPopupCalendar: boolean = false;
   isRangeModeActive = false;
@@ -79,9 +80,16 @@ export class DatePickerComponent implements OnInit, OnChanges {
   @Output() datePickerChange = new EventEmitter<DatePickerOutput>();
 
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   ngOnInit() {
     this.updateFromInitialValues();
+  }
+
+  ngAfterViewChecked() {
+    if (this.openedPopupCalendar) {
+      this.addLabelsToCalendarCells();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -422,9 +430,9 @@ export class DatePickerComponent implements OnInit, OnChanges {
   }
 
   // Date class function for range highlighting
-  get dateClass() {
+  get dateClass(): MatCalendarCellClassFunction<Date> {
     // Return a new function reference that captures current signal values
-    return (date: Date): string => {
+    return (date: Date, view: string): string => {
       const fromDate = this.selectedDateFrom();
       const toDate = this.selectedDateTo();
 
@@ -564,5 +572,27 @@ export class DatePickerComponent implements OnInit, OnChanges {
       return diffDays >= 0 ? diffDays : 0; // Ensure non-negative
     }
     return 0;
+  }
+
+  getDayTranslationKey(): string {
+    const count = this.getSelectedDaysCount();
+    return count === 1 ? 'one-day' : 'more-days';
+  }
+
+  private addLabelsToCalendarCells(): void {
+    const fromLabel = this.translate.instant('date--from');
+    const toLabel = this.translate.instant('date--to');
+
+    // Find all range-start cells and add the from label
+    const rangeStartCells = document.querySelectorAll('.mat-calendar-body-cell.range-start');
+    rangeStartCells.forEach(cell => {
+      (cell as HTMLElement).setAttribute('label', fromLabel);
+    });
+
+    // Find all range-end cells and add the to label (excluding cells that are both start and end)
+    const rangeEndCells = document.querySelectorAll('.mat-calendar-body-cell.range-end:not(.range-start)');
+    rangeEndCells.forEach(cell => {
+      (cell as HTMLElement).setAttribute('label', toLabel);
+    });
   }
 }

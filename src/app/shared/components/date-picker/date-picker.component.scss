@@ -172,7 +172,7 @@ hr {
     position: relative;
     width: 40px !important;
     height: 40px !important;
-    padding: 0 !important;
+    padding: 0 !important;;
 
     .mat-calendar-body-cell-content {
       width: 40px !important;
@@ -195,12 +195,30 @@ hr {
     }
 
     &.range-start {
+      border-radius: 0 0 8px 8px;
+
+      &::before {
+        content: attr(label);
+        position: absolute;
+        top: -10px;
+        height: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 13px;
+        color: var(--color-text-on-color);
+        background-color: var(--color-primary);
+        border-radius: 8px 8px 0 0;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
       .mat-calendar-body-cell-content {
         background-color: var(--color-subdued-blue) !important;
         color: var(--color-text-secondary) !important;
         position: relative;
         border: 2px solid var(--color-primary);
         z-index: $date-picker-navigation-active;
+        border-radius: 0 0 8px 8px !important;
       }
 
       // Line extending to the right with borders
@@ -209,22 +227,39 @@ hr {
         position: absolute;
         top: 50%;
         left: 0;
-        height: 40px;
+        height: 48px;
         transform: translateY(-50%);
         background-color: var(--color-subdued-blue) !important;
         border: 2px solid var(--color-primary);
-        border-radius: 8px;
+        border-radius: 0 0 8px 8px;
         z-index: $date-picker-navigation;
       }
     }
 
     &.range-end {
+
+      &::before {
+        content: attr(label);
+        position: absolute;
+        top: -10px;
+        height: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 13px;
+        color: var(--color-text-on-color);
+        background-color: var(--color-primary);
+        border-radius: 8px 8px 0 0;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
       .mat-calendar-body-cell-content {
         background-color: var(--color-subdued-blue) !important;
         color: var(--color-text-secondary) !important;
         position: relative;
         border: 2px solid var(--color-primary);
         z-index: $date-picker-navigation-active;
+        border-radius: 0 0 8px 8px !important;
       }
 
       // Line extending to the left with borders
@@ -233,11 +268,11 @@ hr {
         position: absolute;
         top: 50%;
         right: 50%;
-        height: 40px;
+        height: 48px;
         transform: translateY(-50%);
         background-color: var(--color-subdued-blue) !important;
         border: 2px solid var(--color-primary);
-        border-radius: 8px;
+        border-radius: 0 0 8px 8px;
         z-index: $date-picker-navigation;
       }
     }

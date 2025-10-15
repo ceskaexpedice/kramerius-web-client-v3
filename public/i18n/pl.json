@@ -288,5 +288,7 @@
   "action-confirmation-dialog--dont-ask-again": "Nie pytaj ponownie.",
   "yes-execute--button": "Tak, wykonaj",
   "advanced-filter-fulltext-placeholder": "Wprowadź pełny tekst",
-  "exact-match": "Odróżnić wielkość liter i uwzględnić znaki diakrytyczne"
+  "exact-match": "Odróżnić wielkość liter i uwzględnić znaki diakrytyczne",
+  "date--from": "Od",
+  "date--to": "Do"
 }

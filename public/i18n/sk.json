@@ -285,5 +285,7 @@
   "action-confirmation-dialog--dont-ask-again": "Potvrdzovacie okno znova nezobrazovať",
   "yes-execute--button": "Áno, vykonať",
   "advanced-filter-fulltext-placeholder": "Zadajte hľadaný výraz",
-  "exact-match": "Rozlišovať veľké písmená a diakritiku"
+  "exact-match": "Rozlišovať veľké písmená a diakritiku",
+  "date--from": "Od",
+  "date--to": "Do"
 }

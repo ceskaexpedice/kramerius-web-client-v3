@@ -298,5 +298,7 @@
   "action-confirmation-dialog--dont-ask-again": "Don't show this message again.",
   "yes-execute--button": "Yes, execute",
   "advanced-filter-fulltext-placeholder": "Enter search term",
-  "exact-match": "Distinguish between uppercase letters and diacritics"
+  "exact-match": "Distinguish between uppercase letters and diacritics",
+  "date--from": "From",
+  "date--to": "To"
 }
