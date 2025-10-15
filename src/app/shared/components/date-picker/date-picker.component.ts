@@ -658,30 +658,67 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     const fromLabel = this.translate.instant('date--from');
     const toLabel = this.translate.instant('date--to');
 
-    // Find all range-start cells and add the from label
-    const rangeStartCells = document.querySelectorAll('.mat-calendar-body-cell.range-start');
-    rangeStartCells.forEach(cell => {
-      (cell as HTMLElement).setAttribute('label', fromLabel);
-    });
+    const fromDate = this.selectedDateFrom();
+    const toDate = this.selectedDateTo();
+    const isSameDate = fromDate && toDate &&
+      fromDate.getFullYear() === toDate.getFullYear() &&
+      fromDate.getMonth() === toDate.getMonth() &&
+      fromDate.getDate() === toDate.getDate();
 
-    // Find all range-end cells and add the to label (excluding cells that are both start and end)
-    const rangeEndCells = document.querySelectorAll('.mat-calendar-body-cell.range-end:not(.range-start)');
-    rangeEndCells.forEach(cell => {
-      (cell as HTMLElement).setAttribute('label', toLabel);
-    });
-
-    // Find all invalid-date cells in the FROM calendar and add the from label
+    // Handle cells in the FROM calendar
     if (this.calendarFrom) {
       const fromCalendarElement = this.calendarFrom['_elementRef'].nativeElement;
+
+      if (isSameDate) {
+        // When dates are the same, show "from" label in FROM calendar for the same date cell
+        const rangeBothCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start.range-end');
+        rangeBothCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', fromLabel);
+        });
+      } else {
+        // When dates are different, show "from" for range-start and "to" for range-end
+        const rangeStartCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start:not(.range-end)');
+        rangeStartCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', fromLabel);
+        });
+
+        const rangeEndCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-end');
+        rangeEndCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', toLabel);
+        });
+      }
+
+      // Add from label to invalid-date cells in FROM calendar
       const invalidFromCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.invalid-date');
       invalidFromCells.forEach((cell: HTMLElement) => {
         cell.setAttribute('label', fromLabel);
       });
     }
 
-    // Find all invalid-date cells in the TO calendar and add the to label
+    // Handle cells in the TO calendar
     if (this.calendarTo) {
       const toCalendarElement = this.calendarTo['_elementRef'].nativeElement;
+
+      if (isSameDate) {
+        // When dates are the same, show "to" label in TO calendar for the same date cell
+        const rangeBothCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start.range-end');
+        rangeBothCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', toLabel);
+        });
+      } else {
+        // When dates are different, show "from" for range-start and "to" for range-end
+        const rangeStartCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start:not(.range-end)');
+        rangeStartCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', fromLabel);
+        });
+
+        const rangeEndCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-end');
+        rangeEndCells.forEach((cell: HTMLElement) => {
+          cell.setAttribute('label', toLabel);
+        });
+      }
+
+      // Add to label to invalid-date cells in TO calendar
       const invalidToCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.invalid-date');
       invalidToCells.forEach((cell: HTMLElement) => {
         cell.setAttribute('label', toLabel);
