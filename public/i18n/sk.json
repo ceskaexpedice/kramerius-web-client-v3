@@ -235,6 +235,7 @@
   "folders.messages.updated": "Zoznam bol úspešne aktualizovaný",
   "folders.messages.deleted": "Zoznam bol úspešne odstránený",
   "folders.messages.items-updated": "Položky zoznamu boli úspešne aktualizované",
+  "folders.messages.items-removed": "Položka zoznamu bola úspešne odstránená",
   "months.january": "Január",
   "months.february": "Február",
   "months.march": "Marec",

@@ -15,6 +15,7 @@ import { SolrService } from '../../../core/solr/solr.service';
 import * as FoldersActions from './folders.actions';
 import * as FoldersSelectors from './folders.selectors';
 import * as AuthActions from '../../../core/auth/store/auth.actions';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 
 @Injectable()
 export class FoldersEffects {
@@ -126,7 +127,8 @@ export class FoldersEffects {
         FoldersActions.createFolderSuccess,
         FoldersActions.updateFolderSuccess,
         FoldersActions.deleteFolderSuccess,
-        FoldersActions.updateFolderItemsSuccess
+        FoldersActions.updateFolderItemsSuccess,
+        FoldersActions.removeItemFromFolderSuccess
       ),
       tap(action => {
         if (action.type === FoldersActions.createFolderSuccess.type) {
@@ -137,6 +139,8 @@ export class FoldersEffects {
           this.toastService.show(this.translateService.instant('folders.messages.deleted'));
         } else if (action.type === FoldersActions.updateFolderItemsSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
+        } else if (action.type === FoldersActions.removeItemFromFolderSuccess.type) {
+          this.toastService.show(this.translateService.instant('folders.messages.items-removed'));
         }
       })
     ), { dispatch: false }
@@ -183,20 +187,20 @@ export class FoldersEffects {
   searchFolders$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.searchFolders),
-      switchMap(action => 
+      switchMap(action =>
         // Get current folder details and search query from state
         this.store.select(FoldersSelectors.selectFolderDetails).pipe(
           take(1),
           filter(folderDetails => !!folderDetails),
-          switchMap(folderDetails => 
+          switchMap(folderDetails =>
             this.store.select(FoldersSelectors.selectSearchQuery).pipe(
               take(1),
               switchMap(currentSearchQuery => {
                 const itemIds = folderDetails!.items.flat().map(item => item.id);
                 const searchQuery = action.searchQuery || currentSearchQuery;
-                
+
                 return this.foldersService.searchFolderItems(
-                  itemIds, 
+                  itemIds,
                   searchQuery,
                   action.sortBy,
                   action.sortDirection
@@ -246,7 +250,7 @@ export class FoldersEffects {
 
             // Fallback: load first folder and update URL
             const firstFolder = folders[0];
-            this.router.navigate(['/folders', firstFolder.uuid]);
+            this.router.navigate([`/${APP_ROUTES_ENUM.SAVED_LISTS}`, firstFolder.uuid]);
             return [
               FoldersActions.selectFolder({ folder: firstFolder }),
               FoldersActions.loadFolderDetails({ uuid: firstFolder.uuid })
@@ -314,8 +318,8 @@ export class FoldersEffects {
           switchMap(folders => {
             if (folders.length === 0) {
               // No folders, return empty mapping
-              return of(FoldersActions.loadAllFolderItemsSuccess({ 
-                folderItemsMapping: new Map<string, Set<string>>() 
+              return of(FoldersActions.loadAllFolderItemsSuccess({
+                folderItemsMapping: new Map<string, Set<string>>()
               }));
             }
 
@@ -388,13 +392,13 @@ export class FoldersEffects {
   autoSelectFirstFolderOnDelete$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.deleteFolderSuccess),
-      switchMap(action => 
+      switchMap(action =>
         this.store.select(FoldersSelectors.selectFolderDetails).pipe(
           take(1),
           switchMap(currentFolderDetails => {
             // Check if the deleted folder was the currently active folder
             const wasActiveFolder = currentFolderDetails?.uuid === action.uuid;
-            
+
             if (wasActiveFolder) {
               // Get all remaining folders and select the first one
               return this.store.select(FoldersSelectors.selectAllFolders).pipe(
@@ -416,7 +420,7 @@ export class FoldersEffects {
                 })
               );
             }
-            
+
             // If deleted folder was not active, do nothing
             return [];
           })

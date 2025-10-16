@@ -248,6 +248,7 @@
   "folders.messages.updated": "List updated successfully",
   "folders.messages.deleted": "List deleted successfully",
   "folders.messages.items-updated": "List items updated successfully",
+  "folders.messages.items-removed": "Items removed from list successfully",
   "months.january": "January",
   "months.february": "February",
   "months.march": "March",

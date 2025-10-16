@@ -88,7 +88,6 @@ export const foldersReducer = createReducer(
 
   on(FoldersActions.updateFolderItems, (state): FoldersState => ({
     ...state,
-    loading: true,
     error: null
   })),
 
@@ -107,7 +106,6 @@ export const foldersReducer = createReducer(
       ...state,
       folders: updatedFolders,
       folderItemsMapping: updatedMapping,
-      loading: false,
       error: null,
       selectedFolder: state.selectedFolder?.uuid === uuid
         ? { ...state.selectedFolder, itemsCount: state.selectedFolder.itemsCount + itemsCount }
@@ -117,13 +115,11 @@ export const foldersReducer = createReducer(
 
   on(FoldersActions.updateFolderItemsFailure, (state, { error }): FoldersState => ({
     ...state,
-    loading: false,
     error
   })),
 
   on(FoldersActions.removeItemFromFolder, (state): FoldersState => ({
     ...state,
-    loading: true,
     error: null
   })),
 
@@ -143,7 +139,6 @@ export const foldersReducer = createReducer(
       ...state,
       folders: updatedFolders,
       folderItemsMapping: updatedMapping,
-      loading: false,
       error: null,
       selectedFolder: state.selectedFolder?.uuid === uuid
         ? { ...state.selectedFolder, itemsCount: Math.max(0, state.selectedFolder.itemsCount - itemsCount) }
@@ -156,7 +151,6 @@ export const foldersReducer = createReducer(
 
   on(FoldersActions.removeItemFromFolderFailure, (state, { error }): FoldersState => ({
     ...state,
-    loading: false,
     error
   })),
 

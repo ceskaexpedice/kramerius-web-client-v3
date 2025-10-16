@@ -240,6 +240,7 @@
   "folders.messages.updated": "Seznam byl úspěšně aktualizován",
   "folders.messages.deleted": "Seznam byl úspěšně odstraněn",
   "folders.messages.items-updated": "Položky seznamu byly úspěšně aktualizovány",
+  "folders.messages.items-removed": "Položka byla úspěšně odstraněna ze seznamu",
   "months.january": "Leden",
   "months.february": "Únor",
   "months.march": "Březen",

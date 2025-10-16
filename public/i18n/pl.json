@@ -238,6 +238,7 @@
   "folders.messages.updated": "Lista została pomyślnie zaktualizowana",
   "folders.messages.deleted": "Lista została pomyślnie usunięta",
   "folders.messages.items-updated": "Elementy listy zostały pomyślnie zaktualizowane",
+  "folders.messages.items-removed": "Element został pomyślnie usunięty z listy",
   "months.january": "Styczeń",
   "months.february": "Luty",
   "months.march": "Marzec",
