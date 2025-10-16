@@ -110,7 +110,7 @@
         }
 
         i {
-          font-size: 16px;
+          font-size: var(--font-size-base);
         }
       }
 
@@ -154,7 +154,7 @@
     flex-shrink: 0; // Prevent content from shrinking
 
     .title {
-      font-size: 16px;
+      font-size: var(--font-size-base);
       line-height: 20px;
       font-weight: 600;
 

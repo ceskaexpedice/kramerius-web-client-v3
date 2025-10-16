@@ -12,7 +12,7 @@
     background: var(--color-bg-base);
     color: var(--color-text-light);
     border-radius: 6px;
-    font-size: 14px;
+    font-size: var(--font-size-small);
     border: 1px solid var(--color-border, #dee2e6);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -20,7 +20,7 @@
     min-width: 0;
 
     i {
-      font-size: 14px;
+      font-size: var(--font-size-small);
       color: var(--color-tertiary);
       transition: color 0.2s ease;
       flex-shrink: 0;
@@ -42,11 +42,11 @@
 
   &.lg .date-display {
     padding: var(--spacing-x2) var(--spacing-x3);
-    font-size: 16px;
+    font-size: var(--font-size-base);
     line-height: 24px;
 
     i {
-      font-size: 16px;
+      font-size: var(--font-size-base);
     }
   }
 

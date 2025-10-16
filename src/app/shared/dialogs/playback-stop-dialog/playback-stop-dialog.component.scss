@@ -21,7 +21,7 @@ p {
 }
 
 .reopen-message {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-tertiary);
   display: flex;
   align-items: center;

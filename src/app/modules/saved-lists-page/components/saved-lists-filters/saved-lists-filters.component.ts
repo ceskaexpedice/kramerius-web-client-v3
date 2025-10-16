@@ -19,7 +19,7 @@ import {combineLatest} from 'rxjs';
   standalone: true,
   styles: `
     .filter-section-title {
-      font-size: 14px;
+      font-size: var(--font-size-small);
       font-weight: 500;
       color: var(--color-text-base);
       margin-bottom: var(--spacing-x3);

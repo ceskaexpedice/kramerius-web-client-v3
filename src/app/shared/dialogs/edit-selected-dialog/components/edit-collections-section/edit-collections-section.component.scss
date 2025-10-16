@@ -9,7 +9,7 @@
 
     h3 {
       margin: 0 0 16px 0;
-      font-size: 16px;
+      font-size: var(--font-size-base);
       font-weight: 500;
       color: #333;
     }
@@ -20,7 +20,7 @@
       }
 
       .radio-button {
-        font-size: 14px;
+        font-size: var(--font-size-small);
 
         ::ng-deep .mat-radio-label-content {
           padding-left: 8px;
@@ -47,7 +47,7 @@
 
         .section-description {
           margin: 0;
-          font-size: 14px;
+          font-size: var(--font-size-small);
           color: #666;
           line-height: 1.4;
         }

@@ -81,7 +81,7 @@
       z-index: $input-focus;
       display: flex;
       align-items: center;
-      font-size: 16px;
+      font-size: var(--font-size-base);
     }
 
     // Postfix icon styles
@@ -95,7 +95,7 @@
       z-index: $input-focus;
       display: flex;
       align-items: center;
-      font-size: 16px;
+      font-size: var(--font-size-base);
     }
 
     // When no action icons are present, move postfix icon closer to edge
@@ -172,7 +172,7 @@ input[type="number"] {
     left: 12px;
     color: var(--color-primary);
     pointer-events: none;
-    font-size: 14px;
+    font-size: var(--font-size-small);
   }
 
 }

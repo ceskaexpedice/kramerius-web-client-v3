@@ -7,7 +7,7 @@
   color: white;
   padding: 6px 10px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   white-space: nowrap;
   pointer-events: none;
   transition: opacity 0.2s ease;

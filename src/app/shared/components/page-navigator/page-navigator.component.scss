@@ -5,7 +5,7 @@
   gap: var(--spacing-x2);
 
   .label {
-    font-size: 14px;
+    font-size: var(--font-size-small);
     font-weight: 500;
     color: var(--color-text-tertiary);
     white-space: nowrap;
@@ -28,7 +28,7 @@
 
   input.current-input {
     font-weight: 600;
-    font-size: 16px;
+    font-size: var(--font-size-base);
     line-height: 17px;
     text-align: right;
     border: none;
@@ -45,7 +45,7 @@
   .divider,
   .total {
     color: var(--color-text-light);
-    font-size: 16px;
+    font-size: var(--font-size-base);
   }
 
   button {

@@ -195,7 +195,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
     }
 
     .loading-spinner span {
-      font-size: 14px;
+      font-size: var(--font-size-small);
       color: #666;
       font-weight: 500;
     }

@@ -44,7 +44,7 @@
 
             .license-name {
               font-weight: 500;
-              font-size: 14px;
+              font-size: var(--font-size-small);
             }
           }
         }
@@ -78,7 +78,7 @@
 
       p {
         margin: 0;
-        font-size: 14px;
+        font-size: var(--font-size-small);
       }
     }
   }

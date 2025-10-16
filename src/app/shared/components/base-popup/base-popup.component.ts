@@ -63,7 +63,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 
     .base-popup__header h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: var(--font-size-base);
       font-weight: 500;
       color: var(--color-text-base);
     }

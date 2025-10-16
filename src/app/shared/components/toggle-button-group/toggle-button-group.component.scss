@@ -5,7 +5,7 @@
 }
 
 label {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-light);
   line-height: 20px;
 }
@@ -24,7 +24,7 @@ label {
   background: transparent;
   padding: 6px 12px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   color: var(--color-text-light);
   display: flex;

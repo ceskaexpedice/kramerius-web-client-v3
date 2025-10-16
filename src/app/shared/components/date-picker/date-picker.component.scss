@@ -72,7 +72,7 @@ hr {
 
 .selected-days-label {
   color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   line-height: 20px;
 }
 
@@ -230,7 +230,7 @@ hr {
         transform: translateX(-50%);
         height: 16px;
         line-height: 16px;
-        font-size: 13px;
+        font-size: var(--font-size-small);
         padding: 0 var(--spacing-x1);
         color: var(--color-text-on-color);
         background-color: var(--color-primary);
@@ -280,7 +280,7 @@ hr {
         transform: translateX(-50%);
         height: 16px;
         line-height: 16px;
-        font-size: 13px;
+        font-size: var(--font-size-small);
         padding: 0 var(--spacing-x1);
         color: var(--color-text-on-color);
         background-color: var(--color-primary);
@@ -343,7 +343,7 @@ hr {
         transform: translateX(-50%);
         height: 16px;
         line-height: 16px;
-        font-size: 13px;
+        font-size: var(--font-size-small);
         padding: 0 var(--spacing-x1);
         color: var(--color-text-on-color);
         background-color: var(--color-border-additional);

@@ -24,7 +24,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
       gap: var(--spacing-x2);
       color: var(--color-text-base);
       margin-top: var(--spacing-x4);
-      font-size: 13px;
+      font-size: var(--font-size-small);
       font-weight: 500;
 
       i {
@@ -42,7 +42,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
     }
 
     .filter-section-title {
-      font-size: 14px;
+      font-size: var(--font-size-small);
       font-weight: 600;
       color: var(--color-text-base);
       margin-bottom: var(--spacing-x3);

@@ -22,13 +22,13 @@
       gap: var(--spacing-x1);
 
       .title {
-        font-size: 16px;
+        font-size: var(--font-size-base);
         line-height: 20px;
         -webkit-line-clamp: 3;
       }
 
       .subtitle {
-        font-size: 14px;
+        font-size: var(--font-size-small);
         line-height: 1.1;
         -webkit-line-clamp: 2;
       }

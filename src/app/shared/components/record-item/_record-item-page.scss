@@ -37,7 +37,7 @@
   }
 
   .text-ocr {
-    font-size: 14px;
+    font-size: var(--font-size-small);
     line-height: 20px;
     color: var(--color-text-base);
     display: -webkit-box;

@@ -91,7 +91,7 @@
 .info {
   flex: 1;
   .title {
-    font-size: 14px;
+    font-size: var(--font-size-small);
   }
 }
 

@@ -7,7 +7,7 @@ $filter-height: 44px;
 :host {
   display: inline-block;
   position: relative;
-  font-size: 14px;
+  font-size: var(--font-size-small);
 }
 
 .select-wrapper {
@@ -21,7 +21,7 @@ $filter-height: 44px;
   justify-content: space-between;
   user-select: none;
   outline: none;
-  font-weight: bold;
+  //font-weight: bold;
 
   &.light {
     background-color: var(--color-bg-light);

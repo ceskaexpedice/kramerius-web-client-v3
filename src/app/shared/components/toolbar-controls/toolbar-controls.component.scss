@@ -51,7 +51,7 @@
   &.link.tertiary {
     color: var(--color-primary);
     padding: var(--spacing-x2);
-    font-size: 16px;
+    font-size: var(--font-size-base);
     //border-left: 1px solid var(--color-border-light);
   }
 
