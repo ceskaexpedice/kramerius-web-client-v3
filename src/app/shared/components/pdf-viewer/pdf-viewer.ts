@@ -21,11 +21,7 @@ export class PdfViewer implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit');
-    console.log('metadata', this.metadata);
-
     this.pdfService.uuid = this.metadata?.uuid || null;
-    console.log('url::', this.pdfService.url);
   }
 
 }
