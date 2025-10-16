@@ -1,0 +1,7 @@
+<p>pdf-viewer works!</p>
+
+@if (pdfService && pdfService.url) {
+  <ngx-extended-pdf-viewer
+    [src]="pdfService.url"
+  ></ngx-extended-pdf-viewer>
+}

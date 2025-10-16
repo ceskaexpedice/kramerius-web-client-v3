@@ -81,6 +81,7 @@
 <!--        </app-tab-item>-->
       </app-tabs>
     </div>
+
   </ng-container>
 
   <ng-container main-content>
@@ -132,8 +133,15 @@
 
       <div class="detail-view--page--content--body">
         <div class="detail-view--page--content--wrapper">
-          <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-               class="app-document-thumbnail">
+
+          @if (document.pdf) {
+
+            <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+
+          } @else {
+            <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
+                 class="app-document-thumbnail">
+          }
         </div>
       </div>
     </ng-container>

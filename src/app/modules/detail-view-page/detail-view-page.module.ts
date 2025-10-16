@@ -20,6 +20,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {AdminActionsComponent} from '../../shared/components/admin-actions';
+import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
 
 const routes: Routes = [
   {
@@ -52,6 +53,7 @@ const routes: Routes = [
 		DetailLayoutComponent,
 		TranslatePipe,
 		AdminActionsComponent,
+		PdfViewer,
 	],
 })
 

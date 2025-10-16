@@ -86,6 +86,9 @@ export class Metadata {
   public reviews: Metadata[] = [];
   public volumeMetadata: Metadata | null = null;
   public extraParentMetadata: Metadata | null = null;
+
+  public pdf: boolean = false;
+  public epub: boolean = false
 }
 
 export class TitleInfo {
@@ -286,6 +289,9 @@ export function fromSolrToMetadata(doc: any): Metadata {
   metadata.dateStr = doc['date.str'] ?? '';
   metadata.dateMin = doc['date.min'] ?? '';
   metadata.dateMax = doc['date.max'] ?? '';
+
+  metadata.pdf = doc['ds.img_full.mime'] === 'application/pdf';
+  metadata.epub = doc['ds.img_full.mime'] === 'application/epub+zip';
 
   return metadata;
 }
