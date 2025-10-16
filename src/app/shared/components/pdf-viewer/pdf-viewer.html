@@ -1,8 +1,22 @@
-<p>pdf-viewer works!</p>
-
 @if (pdfService.url) {
   <ngx-extended-pdf-viewer
     [src]="pdfService.url"
-    [height]="'auto'"
+    [height]="'100%'"
+    [showToolbar]="false"
+    [showSidebarButton]="false"
+    [showFindButton]="false"
+    [showPagingButtons]="false"
+    [showZoomButtons]="false"
+    [showPresentationModeButton]="false"
+    [showOpenFileButton]="false"
+    [showPrintButton]="false"
+    [showDownloadButton]="false"
+    [showBookModeButton]="false"
+    [showSecondaryToolbarButton]="false"
+    [showRotateButton]="false"
+    [showHandToolButton]="false"
+    [showScrollingButtons]="false"
+    [showSpreadButton]="false"
+    [showPropertiesButton]="false"
   ></ngx-extended-pdf-viewer>
 }
