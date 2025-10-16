@@ -73,7 +73,7 @@
         </button>
         <button
           class="button primary sm"
-          [disabled]="!hasSelectedLists() && !newListName().trim()"
+          [disabled]="!hasChanges()"
           (click)="onDone()">
           {{ 'done' | translate }}
         </button>

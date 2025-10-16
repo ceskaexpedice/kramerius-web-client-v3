@@ -353,6 +353,21 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     return this.selectedFolderIds().size > 0;
   }
 
+  hasChanges(): boolean {
+    // Has changes if:
+    // 1. User has selected lists, OR
+    // 2. User has entered a new list name, OR
+    // 3. User has unchecked folders that originally contained the item
+    const selectedIds = this.selectedFolderIds();
+    const originalFolderIds = this.foldersContainingItem();
+    const newListName = this.newListName().trim();
+
+    // Check if any original folders were unchecked (removal)
+    const hasRemovals = originalFolderIds.some(folderId => !selectedIds.has(folderId));
+
+    return selectedIds.size > 0 || newListName.length > 0 || hasRemovals;
+  }
+
   onCancel() {
     this.close.emit();
   }
