@@ -175,7 +175,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         const favoritesName = this.foldersService.getFavoritesFolderName().toLowerCase();
         const mappedFolders = filteredFolders.map(folder => ({
           folder,
-          isSelected: selectedFolderIds.has(folder.uuid) || foldersContainingItem.includes(folder.uuid),
+          isSelected: selectedFolderIds.has(folder.uuid),
           containsItem: foldersContainingItem.includes(folder.uuid),
           isFakeFolder: folder.uuid === this.FAKE_FAVORITES_UUID,
           isFavoritesFolder: folder.name.toLowerCase() === favoritesName,
