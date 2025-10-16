@@ -74,7 +74,8 @@ export class FoldersEffects {
         this.foldersService.updateFolderItems(action.request).pipe(
           map(() => FoldersActions.updateFolderItemsSuccess({
             uuid: action.request.uuid,
-            itemsCount: action.request.items.length
+            itemsCount: action.request.items.length,
+            items: action.request.items
           })),
           catchError(error => of(FoldersActions.updateFolderItemsFailure({ error: error.message })))
         )
@@ -87,13 +88,11 @@ export class FoldersEffects {
       ofType(FoldersActions.removeItemFromFolder),
       switchMap(action =>
         this.foldersService.removeItemFromFolder(action.request).pipe(
-          switchMap(() => [
-            FoldersActions.removeItemFromFolderSuccess({
-              uuid: action.request.uuid,
-              itemsCount: action.request.items.length
-            }),
-            FoldersActions.loadFolderDetails({ uuid: action.request.uuid })
-          ]),
+          map(() => FoldersActions.removeItemFromFolderSuccess({
+            uuid: action.request.uuid,
+            itemsCount: action.request.items.length,
+            items: action.request.items
+          })),
           catchError(error => of(FoldersActions.removeItemFromFolderFailure({ error: error.message })))
         )
       )
@@ -352,12 +351,11 @@ export class FoldersEffects {
     )
   );
 
-  // Reload folder items mapping when items are updated
+  // Reload folder items mapping only when folders are created or deleted
+  // Item additions/removals are handled optimistically in the reducer
   reloadFolderItemsOnUpdate$ = createEffect(() =>
     this.actions$.pipe(
       ofType(
-        FoldersActions.updateFolderItemsSuccess,
-        FoldersActions.removeItemFromFolderSuccess,
         FoldersActions.createFolderSuccess,
         FoldersActions.deleteFolderSuccess
       ),
@@ -369,10 +367,20 @@ export class FoldersEffects {
   // Save cache to localStorage when mapping updates
   saveCacheToStorage$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(FoldersActions.loadAllFolderItemsSuccess),
-      tap(action => {
-        this.folderItemsService.saveCacheToStorage(action.folderItemsMapping);
-      })
+      ofType(
+        FoldersActions.loadAllFolderItemsSuccess,
+        FoldersActions.updateFolderItemsSuccess,
+        FoldersActions.removeItemFromFolderSuccess
+      ),
+      switchMap(() =>
+        // Get the current mapping from state and save it
+        this.store.select(FoldersSelectors.selectFolderItemsMapping).pipe(
+          take(1),
+          tap(mapping => {
+            this.folderItemsService.saveCacheToStorage(mapping);
+          })
+        )
+      )
     ), { dispatch: false }
   );
 

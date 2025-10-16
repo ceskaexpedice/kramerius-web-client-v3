@@ -312,15 +312,6 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         }
       }
     });
-
-    // Listen for successful item updates to reload folders
-    this.actions$.pipe(
-      ofType(FoldersActions.updateFolderItemsSuccess),
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      // Reload folders to get updated item counts
-      this.store.dispatch(FoldersActions.loadFolders());
-    });
   }
 
   ngOnDestroy() {

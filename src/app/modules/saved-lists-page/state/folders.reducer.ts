@@ -92,15 +92,28 @@ export const foldersReducer = createReducer(
     error: null
   })),
 
-  on(FoldersActions.updateFolderItemsSuccess, (state, { uuid, itemsCount }): FoldersState => ({
-    ...state,
-    folders: state.folders.map(f => f.uuid === uuid ? { ...f, itemsCount } : f),
-    loading: false,
-    error: null,
-    selectedFolder: state.selectedFolder?.uuid === uuid 
-      ? { ...state.selectedFolder, itemsCount } 
-      : state.selectedFolder
-  })),
+  on(FoldersActions.updateFolderItemsSuccess, (state, { uuid, itemsCount, items }): FoldersState => {
+    const updatedFolders = state.folders.map(f =>
+      f.uuid === uuid ? { ...f, itemsCount: f.itemsCount + itemsCount } : f
+    );
+
+    // Optimistically update the folder items mapping
+    const updatedMapping = new Map(state.folderItemsMapping);
+    const existingItems = updatedMapping.get(uuid) || new Set<string>();
+    const newItems = new Set([...existingItems, ...items]);
+    updatedMapping.set(uuid, newItems);
+
+    return {
+      ...state,
+      folders: updatedFolders,
+      folderItemsMapping: updatedMapping,
+      loading: false,
+      error: null,
+      selectedFolder: state.selectedFolder?.uuid === uuid
+        ? { ...state.selectedFolder, itemsCount: state.selectedFolder.itemsCount + itemsCount }
+        : state.selectedFolder
+    };
+  }),
 
   on(FoldersActions.updateFolderItemsFailure, (state, { error }): FoldersState => ({
     ...state,
@@ -114,18 +127,32 @@ export const foldersReducer = createReducer(
     error: null
   })),
 
-  on(FoldersActions.removeItemFromFolderSuccess, (state, { uuid }): FoldersState => ({
-    ...state,
-    folders: state.folders.map(f => f.uuid === uuid ? { ...f, itemsCount: Math.max(0, f.itemsCount - 1) } : f),
-    loading: false,
-    error: null,
-    selectedFolder: state.selectedFolder?.uuid === uuid 
-      ? { ...state.selectedFolder, itemsCount: Math.max(0, state.selectedFolder.itemsCount - 1) } 
-      : state.selectedFolder,
-    folderDetails: state.folderDetails?.uuid === uuid 
-      ? { ...state.folderDetails, itemsCount: Math.max(0, state.folderDetails.itemsCount - 1) } 
-      : state.folderDetails
-  })),
+  on(FoldersActions.removeItemFromFolderSuccess, (state, { uuid, itemsCount, items }): FoldersState => {
+    const updatedFolders = state.folders.map(f =>
+      f.uuid === uuid ? { ...f, itemsCount: Math.max(0, f.itemsCount - itemsCount) } : f
+    );
+
+    // Optimistically update the folder items mapping
+    const updatedMapping = new Map(state.folderItemsMapping);
+    const existingItems = updatedMapping.get(uuid) || new Set<string>();
+    const newItems = new Set(existingItems);
+    items.forEach(item => newItems.delete(item));
+    updatedMapping.set(uuid, newItems);
+
+    return {
+      ...state,
+      folders: updatedFolders,
+      folderItemsMapping: updatedMapping,
+      loading: false,
+      error: null,
+      selectedFolder: state.selectedFolder?.uuid === uuid
+        ? { ...state.selectedFolder, itemsCount: Math.max(0, state.selectedFolder.itemsCount - itemsCount) }
+        : state.selectedFolder,
+      folderDetails: state.folderDetails?.uuid === uuid
+        ? { ...state.folderDetails, itemsCount: Math.max(0, state.folderDetails.itemsCount - itemsCount) }
+        : state.folderDetails
+    };
+  }),
 
   on(FoldersActions.removeItemFromFolderFailure, (state, { error }): FoldersState => ({
     ...state,

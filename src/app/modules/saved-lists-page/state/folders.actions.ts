@@ -66,7 +66,7 @@ export const updateFolderItems = createAction(
 
 export const updateFolderItemsSuccess = createAction(
   '[Folders] Update Folder Items Success',
-  props<{ uuid: string; itemsCount: number }>()
+  props<{ uuid: string; itemsCount: number; items: string[] }>()
 );
 
 export const updateFolderItemsFailure = createAction(
@@ -81,7 +81,7 @@ export const removeItemFromFolder = createAction(
 
 export const removeItemFromFolderSuccess = createAction(
   '[Folders] Remove Item From Folder Success',
-  props<{ uuid: string; itemsCount: number }>()
+  props<{ uuid: string; itemsCount: number; items: string[] }>()
 );
 
 export const removeItemFromFolderFailure = createAction(
