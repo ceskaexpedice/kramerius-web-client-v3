@@ -70,8 +70,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
             <span>Loading...</span>
           </div>
         </div>
-        <mat-calendar *ngIf="!isLoadingCalendar()"
-                      class="custom-label"
+        <mat-calendar class="custom-label"
                       [class.loading]="isLoadingCalendar()"
                       [dateClass]="dateClass"
                       [startAt]="currentDate()"
@@ -377,21 +376,23 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     const preselectedDateObj = this.parseDate(this.preselectedDate);
     if (preselectedDateObj) {
-      this.isLoadingCalendar.set(true);
-
       const newMonth = preselectedDateObj.getMonth();
       const newYear = preselectedDateObj.getFullYear();
 
-      // Only update if month/year changed
       if (newMonth !== this.currentMonth() || newYear !== this.currentYear()) {
+        this.isLoadingCalendar.set(true);
         this.currentMonth.set(newMonth);
         this.currentYear.set(newYear);
         this.updateCurrentDate();
         this.loadCurrentMonthIssues(); // Lazy load the new month
+      } else {
+        setTimeout(() => {
+          if (this.calendar) {
+            this.calendar.updateTodaysDate();
+          }
+          this.refreshCalendar();
+        }, 0);
       }
-      this.refreshCalendar();
-
-      this.isLoadingCalendar.set(false);
     }
   }
 
@@ -648,8 +649,11 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     this.issueMap.set(map);
 
+    // Force calendar to update its date classes
     setTimeout(() => {
-      console.log('refreshing calendar')
+      if (this.calendar) {
+        this.calendar.updateTodaysDate();
+      }
       this.refreshCalendar();
     }, 20);
   }
