@@ -1,9 +1,14 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {map, Observable, Subscription} from 'rxjs';
+import {combineLatest, map, Observable, Subscription} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
-import {customDefinedFacets, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
+import { toObservable } from '@angular/core/rxjs-interop';
+import {
+  customDefinedFacets,
+  customDefinedFacetsEnum,
+  facetKeysEnum,
+} from '../../../modules/search-results-page/const/facets';
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
 import {UserService} from '../../services/user.service';
@@ -15,6 +20,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   abstract facetKeys: string[];
   selectedFilters: string[] = [];
   facets$: Observable<any> = new Observable<any>();
+  private userLicenses$: Observable<string[]>;
 
   expandLicenses = false;
 
@@ -62,13 +68,15 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
     protected userService: UserService,
     protected router: Router
   ) {
-
+    this.userLicenses$ = toObservable(this.userService.licenses$);
   }
 
   ngOnInit() {
     this.initializeFilters();
 
     this.getFacets();
+
+    this.enrichFacetsWithUserData();
 
     this.sortFacets();
 
@@ -101,20 +109,43 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   }
 
   getFacets() {
-    this.facets$ = this.filterService.getFacets().pipe(
-      map(facets => {
+    this.facets$ = this.filterService.getFacets();
+  }
+
+  enrichFacetsWithUserData() {
+    this.facets$ = combineLatest([
+      this.facets$,
+      this.userLicenses$
+    ]).pipe(
+      map(([facets, userLicenses]) => {
         const updated = { ...facets };
 
+        // Add availability and icons to license facet
         if (updated[facetKeysEnum.license]) {
           updated[facetKeysEnum.license] = updated[facetKeysEnum.license].map((item: FacetItem) => ({
             ...item,
-            available: this.userService.licenses.includes(item.name),
-            icon: this.userService.licenses.includes(item.name)
+            available: userLicenses.includes(item.name),
+            icon: userLicenses.includes(item.name)
               ? 'icon-eye'
               : ONLINE_LICENSES.includes(item.name)
                 ? 'icon-lock'
                 : 'icon-home'
           }));
+        }
+
+        // Recalculate accessibility facet counts
+        if (updated[customDefinedFacetsEnum.accessibility]) {
+          const licenseFacet = updated[facetKeysEnum.license];
+
+          updated[customDefinedFacetsEnum.accessibility] = updated[customDefinedFacetsEnum.accessibility].map((item: FacetItem) => {
+            if (item.name === 'available') {
+              const newCount = userLicenses.reduce((sum, lic) => {
+                return sum + (licenseFacet?.find((f: FacetItem) => f.name === lic)?.count || 0);
+              }, 0);
+              return { ...item, count: newCount };
+            }
+            return item;
+          });
         }
 
         return updated;

@@ -30,6 +30,8 @@ export class UserService {
 
   get licenses() { return this._licenses(); }
 
+  get licenses$() { return this._licenses.asReadonly(); }
+
   public async loadLicenses(): Promise<void> {
     const session = await firstValueFrom(this.getUserSession());
     this._licenses.set(session.licenses);
