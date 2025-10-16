@@ -102,6 +102,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   selectedFolderIds = signal<Set<string>>(new Set());
   showSuccess = signal(false);
   lastUsedFolderId = signal<string | null>(null);
+  foldersContainingItem = signal<string[]>([]);
 
   ownedFolders$ = this.store.select(selectUserOwnedFolders);
   followedFolders$ = this.store.select(selectUserFollowedFolders);
@@ -237,6 +238,9 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     this.folderItemsService.getFolderIdsContainingItem(this.itemId).pipe(
       takeUntil(this.destroy$)
     ).subscribe(folderIds => {
+      // Store the folders that originally contain the item
+      this.foldersContainingItem.set(folderIds);
+
       const selected = new Set(this.selectedFolderIds());
 
       if (folderIds.length > 0) {
@@ -376,6 +380,7 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   onDone() {
     const newListName = this.newListName().trim();
     const selectedIds = Array.from(this.selectedFolderIds());
+    const originalFolderIds = this.foldersContainingItem();
 
     // Store the first selected folder as last used (excluding fake favorites)
     const realSelectedIds = selectedIds.filter(id => id !== this.FAKE_FAVORITES_UUID);
@@ -405,6 +410,17 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     // Add item to selected existing lists (excluding fake folder)
     realSelectedIds.forEach(folderId => {
       this.store.dispatch(FoldersActions.updateFolderItems({
+        request: {
+          uuid: folderId,
+          items: [this.itemId]
+        }
+      }));
+    });
+
+    // Remove item from folders that were unchecked
+    const foldersToRemoveFrom = originalFolderIds.filter(folderId => !selectedIds.includes(folderId));
+    foldersToRemoveFrom.forEach(folderId => {
+      this.store.dispatch(FoldersActions.removeItemFromFolder({
         request: {
           uuid: folderId,
           items: [this.itemId]
