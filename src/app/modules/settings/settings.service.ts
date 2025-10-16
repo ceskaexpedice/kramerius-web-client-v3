@@ -94,8 +94,6 @@ export class SettingsService {
       }
     }
 
-    // fallback to system preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return new Settings(prefersDark ? AppSettingsThemeEnum.DARK : AppSettingsThemeEnum.LIGHT);
+    return new Settings(AppSettingsThemeEnum.LIGHT);
   }
 }
