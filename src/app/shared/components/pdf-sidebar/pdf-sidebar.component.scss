@@ -3,6 +3,18 @@
   flex-direction: column;
   height: 100%;
   background: var(--color-bg-base);
+  overflow: hidden;
+
+  .sidebar--wrapper {
+    flex-shrink: 0;
+  }
+
+  app-pdf-content-tree {
+    flex: 1;
+    display: block;
+    overflow: hidden;
+    min-height: 0;
+  }
 
   &__content {
     flex: 1;

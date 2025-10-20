@@ -10,7 +10,7 @@
       [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage"
       (click)="navigateToPage(page.pageNumber)">
       <div class="pdf-pages-grid__thumbnail">
-        <img [src]="page.thumbnailUrl" [alt]="'Strana ' + page.pageNumber">
+        <img [src]="getThumbnailUrl(page.pageNumber)" [alt]="'Strana ' + page.pageNumber">
       </div>
       <div class="pdf-pages-grid__number">
         {{ page.pageNumber }}

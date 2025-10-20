@@ -17,15 +17,32 @@ export class PdfPagesGridComponent implements OnInit {
   public pdfService = inject(PdfService);
   public pages: PdfPageThumbnail[] = [];
   public currentPage = 1;
+  public loadedThumbnails: Map<number, string> = new Map();
 
   ngOnInit(): void {
     this.pdfService.pages$.subscribe(pages => {
       this.pages = pages || [];
+      // Load thumbnails for visible pages
+      this.loadVisibleThumbnails();
     });
 
     this.pdfService.currentPage$.subscribe(page => {
       this.currentPage = page;
     });
+  }
+
+  async loadVisibleThumbnails(): Promise<void> {
+    // Load thumbnails for all pages (they will be cached in the service)
+    for (const page of this.pages) {
+      if (!this.loadedThumbnails.has(page.pageNumber)) {
+        const thumbnail = await this.pdfService.getPageThumbnail(page.pageNumber);
+        this.loadedThumbnails.set(page.pageNumber, thumbnail);
+      }
+    }
+  }
+
+  getThumbnailUrl(pageNumber: number): string {
+    return this.loadedThumbnails.get(pageNumber) || '';
   }
 
   navigateToPage(pageNumber: number): void {

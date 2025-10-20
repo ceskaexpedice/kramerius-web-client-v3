@@ -11,6 +11,8 @@ export class PdfService {
 
   _uuid: string | null = null;
   private _pdfDocument: any = null;
+  private thumbnailCache: Map<number, string> = new Map();
+  private generatingThumbnails: Set<number> = new Set();
 
   // Observables for PDF state
   private outlineSubject = new BehaviorSubject<PdfOutlineItem[]>([]);
@@ -95,10 +97,71 @@ export class PdfService {
     return this.totalPagesSubject.value;
   }
 
-  // Get page thumbnail URL
+  // Get page thumbnail - returns cached base64 image or generates it
+  async getPageThumbnail(pageNumber: number): Promise<string> {
+    // Check cache first
+    if (this.thumbnailCache.has(pageNumber)) {
+      return this.thumbnailCache.get(pageNumber)!;
+    }
+
+    // Check if already generating
+    if (this.generatingThumbnails.has(pageNumber)) {
+      // Wait for generation to complete
+      return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (this.thumbnailCache.has(pageNumber)) {
+            clearInterval(checkInterval);
+            resolve(this.thumbnailCache.get(pageNumber)!);
+          }
+        }, 100);
+      });
+    }
+
+    // Generate thumbnail
+    if (!this._pdfDocument) {
+      return ''; // Return empty if no document loaded
+    }
+
+    this.generatingThumbnails.add(pageNumber);
+
+    try {
+      const page = await this._pdfDocument.getPage(pageNumber);
+      const viewport = page.getViewport({ scale: 0.3 }); // Smaller thumbnails
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        throw new Error('Could not get canvas context');
+      }
+
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+
+      await page.render(renderContext).promise;
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.8); // Use JPEG with 80% quality for smaller size
+
+      // Cache the thumbnail
+      this.thumbnailCache.set(pageNumber, imgData);
+      this.generatingThumbnails.delete(pageNumber);
+
+      return imgData;
+    } catch (error) {
+      console.error(`Error generating thumbnail for page ${pageNumber}:`, error);
+      this.generatingThumbnails.delete(pageNumber);
+      return '';
+    }
+  }
+
+  // Get page thumbnail URL (for backward compatibility, but returns empty now)
   getPageThumbnailUrl(pageNumber: number): string {
-    if (!this.uuid) return '';
-    return `${this.API_URL}/${this.uuid}/thumb/${pageNumber}`;
+    // This method is deprecated - use getPageThumbnail() instead
+    return '';
   }
 
   // Set the PDF document reference for page resolution
@@ -173,7 +236,7 @@ export class PdfService {
         title: item.title || item.name || item.label || 'Untitled',
         page: page,
         items: item.items || item.children ? await this.parseOutlineItems(item.items || item.children) : undefined,
-        expanded: false
+        expanded: true
       };
       return parsed;
     }));
@@ -254,6 +317,8 @@ export class PdfService {
     this.currentPageSubject.next(1);
     this.totalPagesSubject.next(0);
     this.navigateToPageSubject.next(null);
+    this.thumbnailCache.clear();
+    this.generatingThumbnails.clear();
   }
 
 }

@@ -1,4 +1,9 @@
 .pdf-content-tree {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-x4);
+
   &__empty {
     padding: 20px;
     text-align: center;
@@ -9,16 +14,16 @@
   &__items {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--spacing-x2);
   }
 
   &__item {
     &--sub {
-      padding-left: 20px;
+      padding-left: 16px;
     }
 
     &--subsub {
-      padding-left: 40px;
+      padding-left: 32px;
     }
   }
 
@@ -26,17 +31,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: var(--spacing-x2);
     cursor: pointer;
-    border-radius: 4px;
     transition: background 0.2s ease;
-
-    &:hover {
-      background: var(--color-background-hover, rgba(0, 0, 0, 0.05));
-    }
+    color: var(--color-text-secondary);
 
     &--active {
-      background: var(--color-primary-light, rgba(0, 123, 255, 0.1));
+      border-left: 2px solid var(--color-primary);
 
       .pdf-content-tree__title {
         font-weight: 700;
@@ -78,6 +79,7 @@
   }
 
   &__subitems {
+    color: var(--color-text-tertiary);
     display: flex;
     flex-direction: column;
     gap: 4px;
