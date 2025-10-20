@@ -1,0 +1,58 @@
+<div class="pdf-metadata-sidebar">
+  <app-tabs>
+    <app-tab-item label="Metadáta">
+      <div class="pdf-metadata-sidebar__metadata">
+        <div *ngIf="metadata" class="metadata-section">
+          <div class="metadata-item" *ngIf="metadata.mainTitle">
+            <div class="metadata-item__label">Názov:</div>
+            <div class="metadata-item__value">{{ metadata.mainTitle }}</div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.authors.length > 0">
+            <div class="metadata-item__label">Autori:</div>
+            <div class="metadata-item__value">
+              <div *ngFor="let author of metadata.authors">{{ author.name }}</div>
+            </div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.publishers.length > 0">
+            <div class="metadata-item__label">Vydavateľ:</div>
+            <div class="metadata-item__value">
+              <div *ngFor="let publisher of metadata.publishers">{{ publisher.fullDetail() }}</div>
+            </div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.dateStr">
+            <div class="metadata-item__label">Dátum:</div>
+            <div class="metadata-item__value">{{ metadata.dateStr }}</div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.languages.length > 0">
+            <div class="metadata-item__label">Jazyk:</div>
+            <div class="metadata-item__value">{{ metadata.languages.join(', ') }}</div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.extent">
+            <div class="metadata-item__label">Rozsah:</div>
+            <div class="metadata-item__value">{{ metadata.extent }}</div>
+          </div>
+
+          <div class="metadata-item" *ngIf="metadata.uuid">
+            <div class="metadata-item__label">UUID:</div>
+            <div class="metadata-item__value">{{ metadata.uuid }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="!metadata" class="empty-state">
+          Žiadne metadáta nie sú k dispozícii
+        </div>
+      </div>
+    </app-tab-item>
+
+    <app-tab-item label="Export">
+    </app-tab-item>
+
+    <app-tab-item label="Funkcie">
+    </app-tab-item>
+  </app-tabs>
+</div>

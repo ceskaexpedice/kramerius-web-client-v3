@@ -1,7 +1,12 @@
 @if (pdfService.url) {
   <ngx-extended-pdf-viewer
+    #pdfViewer
     [src]="pdfService.url"
+    [page]="(pdfService.currentPage$ | async) || 1"
     [height]="'100%'"
+    [scrollMode]="0"
+    [spread]="'off'"
+    pageViewMode="single"
     [showToolbar]="false"
     [showSidebarButton]="false"
     [showFindButton]="false"
@@ -18,5 +23,8 @@
     [showScrollingButtons]="false"
     [showSpreadButton]="false"
     [showPropertiesButton]="false"
+    (outlineLoaded)="onOutlineLoaded($event)"
+    (pdfLoaded)="onPdfLoaded($event)"
+    (pageChange)="onPageChange($event)"
   ></ngx-extended-pdf-viewer>
 }

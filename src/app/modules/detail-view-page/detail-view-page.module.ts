@@ -21,6 +21,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
+import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
+import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
 
 const routes: Routes = [
   {
@@ -32,29 +34,31 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		MatDatepickerModule,
-		MatNativeDateModule,
-		NgIf,
-		AsyncPipe,
-		JsonPipe,
-		ActionToolbarComponent,
-		FilterSidebarComponent,
-		ToolbarControlsComponent,
-		ToolbarHeaderComponent,
-		DetailPagesGridComponent,
-		InputComponent,
-		DetailViewBottomToolbarComponent,
-		PageNavigatorComponent,
-		TabsComponent,
-		TabItemComponent,
-		DateNavigatorComponent,
-		DetailLayoutComponent,
-		TranslatePipe,
-		AdminActionsComponent,
-		PdfViewer,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    MatDatepickerModule,
+    MatNativeDateModule,
+    NgIf,
+    AsyncPipe,
+    JsonPipe,
+    ActionToolbarComponent,
+    FilterSidebarComponent,
+    ToolbarControlsComponent,
+    ToolbarHeaderComponent,
+    DetailPagesGridComponent,
+    InputComponent,
+    DetailViewBottomToolbarComponent,
+    PageNavigatorComponent,
+    TabsComponent,
+    TabItemComponent,
+    DateNavigatorComponent,
+    DetailLayoutComponent,
+    TranslatePipe,
+    AdminActionsComponent,
+    PdfViewer,
+    PdfSidebarComponent,
+    PdfMetadataSidebarComponent,
+  ],
 })
 
 export class DetailViewPageModule { }

@@ -11,15 +11,17 @@
 
     </app-filter-sidebar>
 
-<!--    <aside class="detail-layout&#45;&#45;sidebar-left">-->
-<!--      <ng-content select="[left-sidebar]"></ng-content>-->
-<!--    </aside>-->
-
     <main class="detail-layout--main">
 
-      <div class="detail-layout--main-content">
+      <div class="detail-layout--main-content" [class.detail-layout--main-content--with-right-sidebar]="showRightSidebar">
 
         <ng-content select="[main-content]"></ng-content>
+
+        @if (showRightSidebar) {
+          <aside class="detail-layout--sidebar-right" [class.collapsed]="rightSidebarCollapsed">
+            <ng-content select="[right-sidebar]"></ng-content>
+          </aside>
+        }
 
       </div>
 

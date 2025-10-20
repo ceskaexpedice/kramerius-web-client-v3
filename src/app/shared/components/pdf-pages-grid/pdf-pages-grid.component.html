@@ -1,0 +1,20 @@
+<div class="pdf-pages-grid">
+  <div *ngIf="pages.length === 0" class="pdf-pages-grid__empty">
+    Načítavanie strán...
+  </div>
+
+  <div *ngIf="pages.length > 0" class="pdf-pages-grid__container">
+    <div
+      *ngFor="let page of pages"
+      class="pdf-pages-grid__item"
+      [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage"
+      (click)="navigateToPage(page.pageNumber)">
+      <div class="pdf-pages-grid__thumbnail">
+        <img [src]="page.thumbnailUrl" [alt]="'Strana ' + page.pageNumber">
+      </div>
+      <div class="pdf-pages-grid__number">
+        {{ page.pageNumber }}
+      </div>
+    </div>
+  </div>
+</div>

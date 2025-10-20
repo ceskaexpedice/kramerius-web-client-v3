@@ -1,85 +1,98 @@
-<app-detail-layout [constrainBottomToolbar]="true">
+<app-detail-layout
+  [showBottomToolbar]="!detailViewService.document?.pdf"
+  [constrainBottomToolbar]="true"
+  [showRightSidebar]="detailViewService.document?.pdf || false"
+  [rightSidebarCollapsed]="false">
 
   <ng-container left-sidebar>
 
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
-      <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
-        <div class="sidebar--wrapper">
-          <app-input
-            [placeholder]="'search-in-document--placeholder' | translate"
-            [theme]="'dark'"
-            [size]="'sm'"
-            [showMicButton]="true"
-          ></app-input>
-
-          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
-            <hr>
-            <app-page-navigator
-              [currentPage]="detailViewService.currentPageIndex + 1"
-              [totalPages]="detailViewService.totalPages"
-              (next)="detailViewService.goToNext()"
-              (prev)="detailViewService.goToPrevious()"
-              (pageChange)="detailViewService.goToPage($event)"
-            ></app-page-navigator>
-          </ng-container>
-
-          <div class="sidebar--wrapper--scroll-content">
-            <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
-          </div>
-        </div>
+      <!-- PDF Sidebar for PDF documents -->
+      <ng-container *ngIf="document.pdf">
+        <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">
-        <app-tab-item label="Stránky">
+      <!-- Original sidebar for non-PDF documents -->
+      <ng-container *ngIf="!document.pdf">
+        <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
           <div class="sidebar--wrapper">
-
             <app-input
               [placeholder]="'search-in-document--placeholder' | translate"
               [theme]="'dark'"
               [size]="'sm'"
               [showMicButton]="true"
             ></app-input>
-            <hr>
-            <app-page-navigator
-              [currentPage]="detailViewService.currentPageIndex + 1"
-              [totalPages]="detailViewService.totalPages"
-              (next)="detailViewService.goToNext()"
-              (prev)="detailViewService.goToPrevious()"
-              (pageChange)="detailViewService.goToPage($event)"
-            ></app-page-navigator>
 
-            <ng-container>
-
+            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
               <hr>
-
-              <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminSelectionService.adminMode()">
-                <app-admin-actions [compact]="true"></app-admin-actions>
-              </div>
-
-              <div class="flex flex--align-center flex--justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">
-                <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">
-                  {{'multi-page-choice' | translate}}
-                  <i class="icon-tick-square"></i>
-                </button>
-              </div>
-
-              <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
-                {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
-              </div>
-
+              <app-page-navigator
+                [currentPage]="detailViewService.currentPageIndex + 1"
+                [totalPages]="detailViewService.totalPages"
+                (next)="detailViewService.goToNext()"
+                (prev)="detailViewService.goToPrevious()"
+                (pageChange)="detailViewService.goToPage($event)"
+              ></app-page-navigator>
             </ng-container>
 
             <div class="sidebar--wrapper--scroll-content">
-              <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>
+              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
             </div>
           </div>
-        </app-tab-item>
+        </ng-container>
+
+        <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">
+          <app-tab-item label="Stránky">
+            <div class="sidebar--wrapper">
+
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+              <hr>
+              <app-page-navigator
+                [currentPage]="detailViewService.currentPageIndex + 1"
+                [totalPages]="detailViewService.totalPages"
+                (next)="detailViewService.goToNext()"
+                (prev)="detailViewService.goToPrevious()"
+                (pageChange)="detailViewService.goToPage($event)"
+              ></app-page-navigator>
+
+              <ng-container>
+
+                <hr>
+
+                <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminSelectionService.adminMode()">
+                  <app-admin-actions [compact]="true"></app-admin-actions>
+                </div>
+
+                <div class="flex flex--align-center flex--justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">
+                  <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">
+                    {{'multi-page-choice' | translate}}
+                    <i class="icon-tick-square"></i>
+                  </button>
+                </div>
+
+                <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
+                  {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
+                </div>
+
+              </ng-container>
+
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>
+              </div>
+            </div>
+          </app-tab-item>
 <!--        <app-tab-item label="Články">-->
 <!--        </app-tab-item>-->
 <!--        <app-tab-item label="Obrázky">-->
 <!--        </app-tab-item>-->
-      </app-tabs>
+        </app-tabs>
+      </ng-container>
+
     </div>
 
   </ng-container>
@@ -132,7 +145,7 @@
       </app-action-toolbar>
 
       <div class="detail-view--page--content--body">
-        <div class="detail-view--page--content--wrapper">
+        <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf">
 
           @if (document.pdf) {
 
@@ -147,7 +160,16 @@
     </ng-container>
   </ng-container>
 
-  <ng-container bottom-toolbar>
+  <ng-container right-sidebar>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
+      @if (document.pdf) {
+        <app-pdf-metadata-sidebar [metadata]="document"></app-pdf-metadata-sidebar>
+      }
+    </ng-container>
+  </ng-container>
+
+  <ng-container bottom-toolbar *ngIf="!detailViewService.document?.pdf">
     <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
   </ng-container>
+
 </app-detail-layout>
