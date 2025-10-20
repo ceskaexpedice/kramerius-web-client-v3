@@ -1,0 +1,97 @@
+<div class="data" *ngIf="data">
+  <!-- Title -->
+  <section *ngIf="data.mainTitle || data.titles?.length">
+    <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
+    <div *ngIf="data.titles.length > 1">
+      <div *ngFor="let title of data.titles">
+        <span>{{ title.title }}</span>
+        <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Authors -->
+  <section *ngIf="data.authors?.length">
+    <h3>{{ 'authors' | translate }}</h3>
+    <ul>
+      <li *ngFor="let author of data.authors">
+        {{ author.name }}
+        <span *ngIf="author.date">({{ author.date }})</span>
+        <span *ngIf="author.roles?.length">– {{ author.roles.join(', ') }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Publishers -->
+  <section *ngIf="data.publishers.length">
+    <h3>{{ 'publishers' | translate }}</h3>
+    <ul>
+      <li *ngFor="let publisher of data.publishers">
+        {{ publisher.fullDetail() }}
+      </li>
+    </ul>
+  </section>
+
+  <!-- Languages -->
+  <section *ngIf="data.languages.length">
+    <h3>{{ 'languages' | translate }}</h3>
+    <p>{{ data.languages.join(', ') }}</p>
+  </section>
+
+  <!-- Abstracts -->
+  <section *ngIf="data.abstracts.length">
+    <h3>{{ 'abstract' | translate }}</h3>
+    <p *ngFor="let abs of data.abstracts">{{ abs }}</p>
+  </section>
+
+  <!-- Notes -->
+  <section *ngIf="data.notes.length">
+    <h3>{{ 'notes' | translate }}</h3>
+    <ul>
+      <li *ngFor="let note of data.notes">{{ note }}</li>
+    </ul>
+  </section>
+
+  <!-- Identifiers -->
+  <section *ngIf="data.identifiers && objectKeys(data.identifiers).length">
+    <h3>{{ 'identifiers' | translate }}</h3>
+    <ul>
+      <li *ngFor="let key of objectKeys(data.identifiers)">
+        <strong>{{ key }}:</strong> {{ data.identifiers[key] }}
+      </li>
+    </ul>
+  </section>
+
+  <!-- Genres -->
+  <section *ngIf="data.genres.length">
+    <h3>{{ 'genres' | translate }}</h3>
+    <p>{{ data.genres.join(', ') }}</p>
+  </section>
+
+  <!-- Keywords -->
+  <section *ngIf="data.keywords.length">
+    <h3>{{ 'keywords' | translate }}</h3>
+    <p>{{ data.keywords.join(', ') }}</p>
+  </section>
+
+  <!-- Physical Description -->
+  <section *ngIf="data.physicalDescriptions.length">
+    <h3>{{ 'physical-description' | translate }}</h3>
+    <ul>
+      <li *ngFor="let desc of data.physicalDescriptions">
+        {{ desc.extent }} <span *ngIf="desc.note">– {{ desc.note }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Cartographic Data -->
+  <section *ngIf="data.cartographicData.length">
+    <h3>{{ 'cartographic-data' | translate }}</h3>
+    <ul>
+      <li *ngFor="let cart of data.cartographicData">
+        <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
+        <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
+      </li>
+    </ul>
+  </section>
+</div>

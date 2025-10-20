@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Metadata} from '../../models/metadata.model';
 import {NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
+import {MetadataSection} from '../../components/metadata-section/metadata-section';
 
 @Component({
   selector: 'app-record-info-dialog',
@@ -12,6 +13,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     NgIf,
     NgForOf,
     TranslatePipe,
+    MetadataSection,
   ],
   templateUrl: './record-info-dialog.component.html',
   styleUrl: './record-info-dialog.component.scss'
@@ -30,14 +32,12 @@ export class RecordInfoDialogComponent implements OnInit {
   activeSection = signal<string>('meta');
 
   private dialogRef = inject(MatDialogRef<RecordInfoDialogComponent>);
-  data = inject<Metadata>(MAT_DIALOG_DATA);
+  uuid = inject<string>(MAT_DIALOG_DATA);
 
   ngOnInit() {
-    console.log('MODS Metadata:', this.data);
+    console.log('MODS UUID Metadata:', this.uuid);
 
   }
-
-  objectKeys = Object.keys;
 
   save() {
     this.dialogRef.close();
