@@ -1,5 +1,23 @@
 <div class="pdf-sidebar">
   <app-tabs>
+    <div tab-common-up class="sidebar--wrapper">
+      <app-input
+        [placeholder]="'search-in-document--placeholder' | translate"
+        [theme]="'dark'"
+        [size]="'sm'"
+        [showMicButton]="true"
+      ></app-input>
+      <hr>
+      <app-page-navigator
+        [currentPage]="(pdfService.currentPage$ | async) || 1"
+        [totalPages]="(pdfService.totalPages$ | async) || 0"
+        (next)="goToNext()"
+        (prev)="goToPrevious()"
+        (pageChange)="goToPage($event)"
+      ></app-page-navigator>
+      <hr>
+    </div>
+
     <app-tab-item label="Obsah">
       <app-pdf-content-tree></app-pdf-content-tree>
     </app-tab-item>

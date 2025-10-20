@@ -85,6 +85,16 @@ export class PdfService {
     this.setCurrentPage(page);
   }
 
+  // Get current page value
+  getCurrentPage(): number {
+    return this.currentPageSubject.value;
+  }
+
+  // Get total pages value
+  getTotalPages(): number {
+    return this.totalPagesSubject.value;
+  }
+
   // Get page thumbnail URL
   getPageThumbnailUrl(pageNumber: number): string {
     if (!this.uuid) return '';
@@ -113,28 +123,21 @@ export class PdfService {
     // The outline event has a 'source' property which is the PDFOutlineViewer
     // We need to get the outline data from the viewer
     if (outline.source && outline.source.outline) {
-      console.log('processOutlineLoaded - Found outline in source.outline');
       const outlineData = outline.source.outline;
-      console.log('processOutlineLoaded - Outline data:', outlineData);
       const outlineItems = await this.parseOutlineItems(outlineData);
-      console.log('processOutlineLoaded - Parsed items:', outlineItems);
       this.setOutline(outlineItems);
     }
     // Fallback: check for other possible locations
     else if (outline.source && outline.source._outline) {
-      console.log('processOutlineLoaded - Found outline in source._outline');
       const outlineData = outline.source._outline;
       const outlineItems = await this.parseOutlineItems(outlineData);
       this.setOutline(outlineItems);
     }
     // Check the PDFDocument for outline
     else if (outline.source && outline.source._pdfDocument) {
-      console.log('processOutlineLoaded - Getting outline from PDFDocument');
       const outlineData = await outline.source._pdfDocument.getOutline();
-      console.log('processOutlineLoaded - Outline from document:', outlineData);
       if (outlineData) {
         const outlineItems = await this.parseOutlineItems(outlineData);
-        console.log('processOutlineLoaded - Parsed items:', outlineItems);
         this.setOutline(outlineItems);
       }
     } else {
@@ -146,15 +149,12 @@ export class PdfService {
   private async parseOutlineItems(items: any): Promise<PdfOutlineItem[]> {
     // If items is not an array, try to extract array from it
     if (!Array.isArray(items)) {
-      console.log('parseOutlineItems - Not an array, type:', typeof items);
-
       // Check if it's an object with properties that might contain the array
       if (items && typeof items === 'object') {
         // Try common property names
         const possibleArrays = ['outline', 'items', 'children', 'bookmarks'];
         for (const prop of possibleArrays) {
           if (items[prop] && Array.isArray(items[prop])) {
-            console.log(`parseOutlineItems - Found array in property: ${prop}`);
             items = items[prop];
             break;
           }
@@ -163,15 +163,11 @@ export class PdfService {
 
       // If still not an array, return empty
       if (!Array.isArray(items)) {
-        console.warn('parseOutlineItems - Could not convert to array:', items);
         return [];
       }
     }
 
-    console.log('parseOutlineItems - Processing array with', items.length, 'items');
-
     const parsedItems = await Promise.all(items.map(async (item, index) => {
-      console.log(`parseOutlineItems - Item ${index}:`, item);
       const page = await this.extractPageNumber(item);
       const parsed = {
         title: item.title || item.name || item.label || 'Untitled',
@@ -179,7 +175,6 @@ export class PdfService {
         items: item.items || item.children ? await this.parseOutlineItems(item.items || item.children) : undefined,
         expanded: false
       };
-      console.log(`parseOutlineItems - Parsed ${index}:`, parsed);
       return parsed;
     }));
 
@@ -188,12 +183,9 @@ export class PdfService {
 
   // Extract page number from outline item
   private async extractPageNumber(item: any): Promise<number> {
-    console.log('extractPageNumber - item:', item);
-
     // Check if there's a direct page property first
     if (item.page !== undefined && item.page !== null) {
       if (typeof item.page === 'number') {
-        console.log('extractPageNumber - Using item.page:', item.page);
         return item.page;
       }
     }
@@ -201,18 +193,15 @@ export class PdfService {
     // Check for pageNumber property
     if (item.pageNumber !== undefined && item.pageNumber !== null) {
       if (typeof item.pageNumber === 'number') {
-        console.log('extractPageNumber - Using item.pageNumber:', item.pageNumber);
         return item.pageNumber;
       }
     }
 
     // Handle destination formats from PDF.js
     if (item.dest) {
-      console.log('extractPageNumber - dest:', item.dest, 'type:', typeof item.dest);
 
       // If dest is a string, it's a named destination - need to resolve it
       if (typeof item.dest === 'string') {
-        console.log('extractPageNumber - Named destination (string)');
         if (this._pdfDocument) {
           try {
             const dest = await this._pdfDocument.getDestination(item.dest);
@@ -232,22 +221,18 @@ export class PdfService {
       // If dest is an array, first element contains page reference
       if (Array.isArray(item.dest) && item.dest.length > 0) {
         const pageRef = item.dest[0];
-        console.log('extractPageNumber - dest[0]:', pageRef, 'type:', typeof pageRef);
 
         // Direct number (page index, 0-based)
         if (typeof pageRef === 'number') {
-          console.log('extractPageNumber - Using dest[0] as page index:', pageRef + 1);
           return pageRef + 1; // Convert 0-based to 1-based
         }
 
         // Object with num property (page reference object)
         if (pageRef && typeof pageRef === 'object' && 'num' in pageRef) {
-          console.log('extractPageNumber - Page reference object:', pageRef);
           // This is a PDF object reference, need to resolve it to actual page number
           if (this._pdfDocument) {
             try {
               const pageIndex = await this._pdfDocument.getPageIndex(pageRef);
-              console.log('extractPageNumber - Resolved page reference to index:', pageIndex, 'page:', pageIndex + 1);
               return pageIndex + 1; // Convert 0-based to 1-based
             } catch (error) {
               console.warn('extractPageNumber - Error resolving page reference:', error);
@@ -259,7 +244,6 @@ export class PdfService {
       }
     }
 
-    console.log('extractPageNumber - No valid page found, defaulting to 1');
     return 1; // Default to page 1
   }
 

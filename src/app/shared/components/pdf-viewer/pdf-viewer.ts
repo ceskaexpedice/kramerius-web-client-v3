@@ -43,31 +43,19 @@ export class PdfViewer implements OnInit, OnDestroy {
     console.log('onPdfLoaded - event:', event);
 
     // The event structure varies, try to find the PDF document
-    let pdfDocument = null;
-
-    if (event.source && event.source.pdfDocument) {
-      pdfDocument = event.source.pdfDocument;
-    } else if (event.source && typeof event.source.numPages === 'number') {
-      pdfDocument = event.source;
-    } else if (event.pdfDocument) {
-      pdfDocument = event.pdfDocument;
-    } else {
-      console.error('onPdfLoaded - Could not find PDF document in event');
-      return;
-    }
-
-    console.log('onPdfLoaded - pdfDocument:', pdfDocument);
+    let pdfDocument = {
+      pagesCount: event.pagesCount || 0,
+    };
 
     // Store the PDF document reference in the service for page resolution
     this.pdfService.setPdfDocument(pdfDocument);
 
     // Set total pages
-    if (pdfDocument.numPages) {
-      this.pdfService.setTotalPages(pdfDocument.numPages);
-      console.log('onPdfLoaded - Total pages:', pdfDocument.numPages);
+    if (pdfDocument.pagesCount) {
+      this.pdfService.setTotalPages(pdfDocument.pagesCount);
 
       // Generate page thumbnails
-      this.generatePageThumbnails(pdfDocument.numPages);
+      this.generatePageThumbnails(pdfDocument.pagesCount);
     }
 
     // Note: outline is now loaded via onOutlineLoaded event handler
