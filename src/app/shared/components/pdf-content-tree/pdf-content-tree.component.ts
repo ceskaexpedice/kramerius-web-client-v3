@@ -1,6 +1,7 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {PdfService} from '../../services/pdf.service';
 import {NgFor, NgIf} from '@angular/common';
+import {Subscription} from 'rxjs';
 
 export interface PdfOutlineItem {
   title: string;
@@ -15,21 +16,32 @@ export interface PdfOutlineItem {
   templateUrl: './pdf-content-tree.component.html',
   styleUrl: './pdf-content-tree.component.scss'
 })
-export class PdfContentTreeComponent implements OnInit {
+export class PdfContentTreeComponent implements OnInit, OnDestroy {
   public pdfService = inject(PdfService);
+  private cdr = inject(ChangeDetectorRef);
   public outlineItems: PdfOutlineItem[] = [];
   public currentPage: number = 1;
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    this.pdfService.outline$.subscribe(outline => {
-      console.log('outlines::', outline)
+    const outlineSub = this.pdfService.outline$.subscribe(outline => {
       this.outlineItems = outline || [];
+      // Trigger change detection manually
+      this.cdr.detectChanges();
     });
+    this.subscriptions.push(outlineSub);
 
     // Subscribe to current page changes
-    this.pdfService.currentPage$.subscribe(page => {
+    const pageSub = this.pdfService.currentPage$.subscribe(page => {
       this.currentPage = page;
+      // Trigger change detection manually
+      this.cdr.detectChanges();
     });
+    this.subscriptions.push(pageSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   navigateToPage(item: PdfOutlineItem): void {
@@ -48,7 +60,22 @@ export class PdfContentTreeComponent implements OnInit {
     const nextItem = this.findNextItem(item);
     const endPage = nextItem ? nextItem.page - 1 : Infinity;
 
-    return this.currentPage >= item.page && this.currentPage <= endPage;
+    // Check if current page is in this item's range
+    const inRange = this.currentPage >= item.page && this.currentPage <= endPage;
+
+    if (!inRange) return false;
+
+    // If this item has children, check if any child is active
+    // If a child is active, this parent should NOT be active (only the deepest item should be active)
+    if (item.items && item.items.length > 0) {
+      for (const childItem of item.items) {
+        if (this.isItemActive(childItem)) {
+          return false; // Child is active, so parent should not be
+        }
+      }
+    }
+
+    return true;
   }
 
   // Find the next outline item to determine the section range

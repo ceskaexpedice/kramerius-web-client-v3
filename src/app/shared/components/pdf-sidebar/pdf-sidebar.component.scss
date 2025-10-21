@@ -1,3 +1,20 @@
+.sidebar--container {
+  height: 100%;
+}
+
+hr {
+  margin: 0;
+}
+
+.sidebar--wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x4);
+  padding: var(--spacing-x4) var(--spacing-x4) 0 var(--spacing-x4);
+  flex: 1;
+  overflow: hidden;
+}
+
 .pdf-sidebar {
   display: flex;
   flex-direction: column;

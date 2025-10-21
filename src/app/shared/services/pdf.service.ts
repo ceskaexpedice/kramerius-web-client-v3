@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import {EnvironmentService} from './environment.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
@@ -32,7 +32,8 @@ export class PdfService {
   public navigateToPage$: Observable<number | null> = this.navigateToPageSubject.asObservable();
 
   constructor(
-    private env: EnvironmentService
+    private env: EnvironmentService,
+    private ngZone: NgZone
   ) {
   }
 
@@ -183,29 +184,32 @@ export class PdfService {
       this._pdfDocument = outline.source._pdfDocument;
     }
 
-    // The outline event has a 'source' property which is the PDFOutlineViewer
-    // We need to get the outline data from the viewer
-    if (outline.source && outline.source.outline) {
-      const outlineData = outline.source.outline;
-      const outlineItems = await this.parseOutlineItems(outlineData);
-      this.setOutline(outlineItems);
-    }
-    // Fallback: check for other possible locations
-    else if (outline.source && outline.source._outline) {
-      const outlineData = outline.source._outline;
-      const outlineItems = await this.parseOutlineItems(outlineData);
-      this.setOutline(outlineItems);
-    }
-    // Check the PDFDocument for outline
-    else if (outline.source && outline.source._pdfDocument) {
-      const outlineData = await outline.source._pdfDocument.getOutline();
-      if (outlineData) {
+    // Run inside NgZone to ensure change detection is triggered
+    this.ngZone.run(async () => {
+      // The outline event has a 'source' property which is the PDFOutlineViewer
+      // We need to get the outline data from the viewer
+      if (outline.source && outline.source.outline) {
+        const outlineData = outline.source.outline;
         const outlineItems = await this.parseOutlineItems(outlineData);
         this.setOutline(outlineItems);
       }
-    } else {
-      console.warn('processOutlineLoaded - Could not find outline data in event');
-    }
+      // Fallback: check for other possible locations
+      else if (outline.source && outline.source._outline) {
+        const outlineData = outline.source._outline;
+        const outlineItems = await this.parseOutlineItems(outlineData);
+        this.setOutline(outlineItems);
+      }
+      // Check the PDFDocument for outline
+      else if (outline.source && outline.source._pdfDocument) {
+        const outlineData = await outline.source._pdfDocument.getOutline();
+        if (outlineData) {
+          const outlineItems = await this.parseOutlineItems(outlineData);
+          this.setOutline(outlineItems);
+        }
+      } else {
+        console.warn('processOutlineLoaded - Could not find outline data in event');
+      }
+    });
   }
 
   // Parse outline items recursively
