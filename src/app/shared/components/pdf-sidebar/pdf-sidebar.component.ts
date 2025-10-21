@@ -1,9 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {PdfService} from '../../services/pdf.service';
 import {PdfContentTreeComponent} from '../pdf-content-tree/pdf-content-tree.component';
-import {PdfPagesGridComponent} from '../pdf-pages-grid/pdf-pages-grid.component';
-import {TabsComponent} from '../tabs/tabs.component';
-import {TabItemComponent} from '../tabs/tab-item.component';
 import {InputComponent} from '../input/input.component';
 import {PageNavigatorComponent} from '../page-navigator/page-navigator.component';
 import {TranslateModule} from '@ngx-translate/core';
@@ -13,9 +10,6 @@ import {AsyncPipe} from '@angular/common';
   selector: 'app-pdf-sidebar',
   imports: [
     PdfContentTreeComponent,
-    PdfPagesGridComponent,
-    TabsComponent,
-    TabItemComponent,
     InputComponent,
     PageNavigatorComponent,
     TranslateModule,
@@ -44,5 +38,10 @@ export class PdfSidebarComponent {
 
   goToPage(page: number): void {
     this.pdfService.navigateToPage(page);
+  }
+
+  onSearchChange(query: string | number): void {
+    const searchQuery = typeof query === 'string' ? query : query.toString();
+    this.pdfService.setSearchQuery(searchQuery);
   }
 }

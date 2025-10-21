@@ -3,7 +3,7 @@ import {EnvironmentService} from './environment.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
 import {PdfPageThumbnail} from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import {PageViewModeType} from 'ngx-extended-pdf-viewer';
+import {FindState, NgxExtendedPdfViewerService, PageViewModeType} from 'ngx-extended-pdf-viewer';
 
 export interface PdfProperties {
   zoom: number;
@@ -17,6 +17,25 @@ export interface PdfProperties {
 })
 export class PdfService {
 
+  pdfFindProperties = {
+    highlightAll: true,
+    matchCase: false,
+    wholeWord: false,
+    matchDiacritics: false,
+    dontScrollIntoView: false,
+    multiple: false,
+    matchRegExp: false
+  }
+
+  findState: FindState | undefined = undefined;
+
+  pdfFindResult = {
+    currentMatchNumber: undefined as number | undefined,
+    totalMatches: undefined as number | undefined,
+    findState: undefined as 'found' | 'notfound' | 'pending' | undefined,
+    pagesWithResult: [] as number[]
+  }
+
   pdfProperties: PdfProperties = {
     zoom: 100,
     rotation: 0,
@@ -27,6 +46,7 @@ export class PdfService {
   private _pdfDocument: any = null;
   private thumbnailCache: Map<number, string> = new Map();
   private generatingThumbnails: Set<number> = new Set();
+  private pdfViewerReady: boolean = false;
 
   // Observables for PDF state
   private outlineSubject = new BehaviorSubject<PdfOutlineItem[]>([]);
@@ -51,7 +71,8 @@ export class PdfService {
 
   constructor(
     private env: EnvironmentService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService
   ) {
   }
 
@@ -119,11 +140,88 @@ export class PdfService {
   // Set search query
   setSearchQuery(query: string): void {
     this.searchQuerySubject.next(query);
+
+    if (this.pdfViewerReady) {
+      this.find();
+    }
+  }
+
+  // Mark PDF viewer as ready
+  setPdfViewerReady(): void {
+    this.pdfViewerReady = true;
   }
 
   // Get current search query
   getSearchQuery(): string {
     return this.searchQuerySubject.value;
+  }
+
+  public updateFindState(result: FindState) {
+    this.findState = result;
+  }
+
+  private find(): Array<Promise<number>> | undefined {
+    this.pdfFindResult.pagesWithResult = [];
+
+    let searchtext = this.getSearchQuery();
+
+    // If search text is empty, clear results
+    if (!searchtext || searchtext.trim() === '') {
+      this.pdfFindResult.findState = undefined;
+      this.pdfFindResult.currentMatchNumber = undefined;
+      this.pdfFindResult.totalMatches = undefined;
+
+      // Clear search highlights
+      try {
+        this.ngxExtendedPdfViewerService.find('', {
+          highlightAll: false,
+          matchCase: false,
+          wholeWords: false,
+          matchDiacritics: false,
+          dontScrollIntoView: false,
+          useSecondaryFindcontroller: false,
+          findMultiple: false,
+          regexp: false
+        });
+      } catch (e) {
+        // Ignore errors when clearing
+      }
+
+      return undefined;
+    }
+
+    // Check if the service is actually ready
+    if (!this.ngxExtendedPdfViewerService || typeof this.ngxExtendedPdfViewerService.find !== 'function') {
+      return undefined;
+    }
+
+    const numberOfResultsPromises = this.ngxExtendedPdfViewerService.find(searchtext, {
+      highlightAll: this.pdfFindProperties.highlightAll,
+      matchCase: this.pdfFindProperties.matchCase,
+      wholeWords: this.pdfFindProperties.wholeWord,
+      matchDiacritics: this.pdfFindProperties.matchDiacritics,
+      dontScrollIntoView: this.pdfFindProperties.dontScrollIntoView,
+      useSecondaryFindcontroller: false,
+      findMultiple: this.pdfFindProperties.multiple,
+      regexp: this.pdfFindProperties.matchRegExp
+    });
+
+    numberOfResultsPromises?.forEach(async (numberOfResultsPromise, pageIndex) => {
+      const numberOfResultsPerPage = await numberOfResultsPromise;
+      if (numberOfResultsPerPage > 0) {
+        this.pdfFindResult.pagesWithResult.push(pageIndex);
+      }
+    });
+
+    return numberOfResultsPromises;
+  }
+
+  public findNext(): void {
+    this.ngxExtendedPdfViewerService.findNext();
+  }
+
+  public findPrevious(): void {
+    this.ngxExtendedPdfViewerService.findPrevious();
   }
 
   // Get page thumbnail - returns cached base64 image or generates it
@@ -352,6 +450,7 @@ export class PdfService {
     this.searchQuerySubject.next('');
     this.thumbnailCache.clear();
     this.generatingThumbnails.clear();
+    this.pdfViewerReady = false;
   }
 
   zoomIn(): void {

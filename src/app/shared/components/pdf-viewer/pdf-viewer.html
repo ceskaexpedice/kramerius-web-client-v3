@@ -28,9 +28,11 @@
     [showPropertiesButton]="false"
     [textLayer]="true"
     [findbarVisible]="false"
+    (updateFindState)="pdfService.updateFindState($event)"
     (outlineLoaded)="onOutlineLoaded($event)"
     (pdfLoaded)="onPdfLoaded($event)"
     (pageChange)="onPageChange($event)"
+    (pagesLoaded)="onPagesLoaded($event)"
   ></ngx-extended-pdf-viewer>
 
   <app-pdf-viewer-controls

@@ -2,8 +2,6 @@ import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/c
 import {NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent} from 'ngx-extended-pdf-viewer';
 import {Metadata} from '../../models/metadata.model';
 import {PdfService} from '../../services/pdf.service';
-import {PdfOutlineItem} from '../pdf-content-tree/pdf-content-tree.component';
-import {PdfPageThumbnail} from '../pdf-pages-grid/pdf-pages-grid.component';
 import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -42,12 +40,6 @@ export class PdfViewer implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(pageChangeSub);
-
-    // Subscribe to search query changes
-    const searchSub = this.pdfService.searchQuery$.subscribe(query => {
-      this.performSearch(query);
-    });
-    this.subscriptions.push(searchSub);
 
     this.checkAndNavigateToUrlPage();
   }
@@ -112,76 +104,16 @@ export class PdfViewer implements OnInit, OnDestroy {
     // Set total pages
     if (pdfDocument.pagesCount) {
       this.pdfService.setTotalPages(pdfDocument.pagesCount);
-
-      // Generate page thumbnails
-      this.generatePageThumbnails(pdfDocument.pagesCount);
     }
+  }
 
-    // Note: outline is now loaded via onOutlineLoaded event handler
+  onPagesLoaded(event: any): void {
+    // Pages are fully loaded, PDF viewer is now ready for search
+    this.pdfService.setPdfViewerReady();
   }
 
   onPageChange(page: number): void {
     this.pdfService.setCurrentPage(page);
-  }
-
-  private performSearch(query: string): void {
-    // Use the global PDFViewerApplication to perform search
-    const PDFViewerApplication = (window as any).PDFViewerApplication;
-    if (PDFViewerApplication && PDFViewerApplication.eventBus) {
-      if (query && query.trim() !== '') {
-        // Dispatch find event to search in PDF
-        PDFViewerApplication.eventBus.dispatch('find', {
-          source: PDFViewerApplication,
-          type: '',
-          query: query,
-          caseSensitive: false,
-          entireWord: false,
-          highlightAll: true,
-          findPrevious: false,
-          matchDiacritics: false
-        });
-      } else {
-        // Clear search if query is empty
-        PDFViewerApplication.eventBus.dispatch('find', {
-          source: PDFViewerApplication,
-          type: '',
-          query: '',
-          caseSensitive: false,
-          entireWord: false,
-          highlightAll: false,
-          findPrevious: false,
-          matchDiacritics: false
-        });
-      }
-    }
-  }
-
-  private parseOutline(outline: any[]): PdfOutlineItem[] {
-    return outline.map(item => ({
-      title: item.title,
-      page: item.dest ? this.getPageNumberFromDest(item.dest) : 1,
-      items: item.items ? this.parseOutline(item.items) : undefined,
-      expanded: false
-    }));
-  }
-
-  private getPageNumberFromDest(dest: any): number {
-    // PDF.js destination format varies, this is a simplified version
-    if (Array.isArray(dest) && dest.length > 0) {
-      return dest[0].num || 1;
-    }
-    return 1;
-  }
-
-  private generatePageThumbnails(totalPages: number): void {
-    const pages: PdfPageThumbnail[] = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push({
-        pageNumber: i,
-        thumbnailUrl: this.pdfService.getPageThumbnailUrl(i)
-      });
-    }
-    this.pdfService.setPages(pages);
   }
 
 }
