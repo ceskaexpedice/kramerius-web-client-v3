@@ -7,12 +7,14 @@ import {PdfPageThumbnail} from '../pdf-pages-grid/pdf-pages-grid.component';
 import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
+import {PdfViewerControls} from './pdf-viewer-controls/pdf-viewer-controls';
 
 @Component({
   selector: 'app-pdf-viewer',
   imports: [
     NgxExtendedPdfViewerModule,
     AsyncPipe,
+    PdfViewerControls,
   ],
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'
@@ -40,6 +42,12 @@ export class PdfViewer implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(pageChangeSub);
+
+    // Subscribe to search query changes
+    const searchSub = this.pdfService.searchQuery$.subscribe(query => {
+      this.performSearch(query);
+    });
+    this.subscriptions.push(searchSub);
 
     this.checkAndNavigateToUrlPage();
   }
@@ -114,6 +122,38 @@ export class PdfViewer implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.pdfService.setCurrentPage(page);
+  }
+
+  private performSearch(query: string): void {
+    // Use the global PDFViewerApplication to perform search
+    const PDFViewerApplication = (window as any).PDFViewerApplication;
+    if (PDFViewerApplication && PDFViewerApplication.eventBus) {
+      if (query && query.trim() !== '') {
+        // Dispatch find event to search in PDF
+        PDFViewerApplication.eventBus.dispatch('find', {
+          source: PDFViewerApplication,
+          type: '',
+          query: query,
+          caseSensitive: false,
+          entireWord: false,
+          highlightAll: true,
+          findPrevious: false,
+          matchDiacritics: false
+        });
+      } else {
+        // Clear search if query is empty
+        PDFViewerApplication.eventBus.dispatch('find', {
+          source: PDFViewerApplication,
+          type: '',
+          query: '',
+          caseSensitive: false,
+          entireWord: false,
+          highlightAll: false,
+          findPrevious: false,
+          matchDiacritics: false
+        });
+      }
+    }
   }
 
   private parseOutline(outline: any[]): PdfOutlineItem[] {

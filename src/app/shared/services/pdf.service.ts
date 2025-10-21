@@ -3,11 +3,25 @@ import {EnvironmentService} from './environment.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
 import {PdfPageThumbnail} from '../components/pdf-pages-grid/pdf-pages-grid.component';
+import {PageViewModeType} from 'ngx-extended-pdf-viewer';
+
+export interface PdfProperties {
+  zoom: number;
+  rotation: 0 | 90 | 180 | 270;
+  fullscreen: boolean;
+  pageViewMode?: PageViewModeType;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class PdfService {
+
+  pdfProperties: PdfProperties = {
+    zoom: 100,
+    rotation: 0,
+    fullscreen: false,
+  }
 
   _uuid: string | null = null;
   private _pdfDocument: any = null;
@@ -30,6 +44,10 @@ export class PdfService {
   // Subject for triggering page navigation
   private navigateToPageSubject = new BehaviorSubject<number | null>(null);
   public navigateToPage$: Observable<number | null> = this.navigateToPageSubject.asObservable();
+
+  // Subject for search query
+  private searchQuerySubject = new BehaviorSubject<string>('');
+  public searchQuery$: Observable<string> = this.searchQuerySubject.asObservable();
 
   constructor(
     private env: EnvironmentService,
@@ -96,6 +114,16 @@ export class PdfService {
   // Get total pages value
   getTotalPages(): number {
     return this.totalPagesSubject.value;
+  }
+
+  // Set search query
+  setSearchQuery(query: string): void {
+    this.searchQuerySubject.next(query);
+  }
+
+  // Get current search query
+  getSearchQuery(): string {
+    return this.searchQuerySubject.value;
   }
 
   // Get page thumbnail - returns cached base64 image or generates it
@@ -321,8 +349,45 @@ export class PdfService {
     this.currentPageSubject.next(1);
     this.totalPagesSubject.next(0);
     this.navigateToPageSubject.next(null);
+    this.searchQuerySubject.next('');
     this.thumbnailCache.clear();
     this.generatingThumbnails.clear();
+  }
+
+  zoomIn(): void {
+    this.pdfProperties.zoom += 5;
+  }
+
+  zoomOut(): void {
+    this.pdfProperties.zoom -= 5;
+  }
+
+  setRotation(rotation: 0 | 90 | 180 | 270): void {
+    this.pdfProperties.rotation = rotation;
+  }
+
+  toggleRotation(): void {
+    if (this.pdfProperties.rotation === 0) {
+      this.pdfProperties.rotation = 90;
+    } else if (this.pdfProperties.rotation === 90) {
+      this.pdfProperties.rotation = 180;
+    } else if (this.pdfProperties.rotation === 180) {
+      this.pdfProperties.rotation = 270;
+    } else {
+      this.pdfProperties.rotation = 0;
+    }
+  }
+
+  toggleFullscreen(): void {
+    this.pdfProperties.fullscreen = !this.pdfProperties.fullscreen;
+  }
+
+  togglePageViewMode(): void {
+    if (this.pdfProperties.pageViewMode === 'single') {
+      this.pdfProperties.pageViewMode = 'multiple';
+    } else {
+      this.pdfProperties.pageViewMode = 'single';
+    }
   }
 
 }

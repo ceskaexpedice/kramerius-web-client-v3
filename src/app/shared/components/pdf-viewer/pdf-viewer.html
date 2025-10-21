@@ -3,6 +3,9 @@
     #pdfViewer
     [src]="pdfService.url"
     [page]="(pdfService.currentPage$ | async) || 1"
+    [(zoom)]="pdfService.pdfProperties.zoom"
+    [(rotation)]="pdfService.pdfProperties.rotation"
+    [pageViewMode]="pdfService.pdfProperties.pageViewMode || 'multiple'"
     [height]="'100%'"
     [scrollMode]="0"
     [spread]="'off'"
@@ -23,8 +26,17 @@
     [showScrollingButtons]="false"
     [showSpreadButton]="false"
     [showPropertiesButton]="false"
+    [textLayer]="true"
+    [findbarVisible]="false"
     (outlineLoaded)="onOutlineLoaded($event)"
     (pdfLoaded)="onPdfLoaded($event)"
     (pageChange)="onPageChange($event)"
   ></ngx-extended-pdf-viewer>
+
+  <app-pdf-viewer-controls
+    (zoomIn)="pdfService.zoomIn()"
+    (zoomOut)="pdfService.zoomOut()"
+    (toggleScrollMode)="pdfService.togglePageViewMode()"
+    (rotate)="pdfService.toggleRotation()"
+  ></app-pdf-viewer-controls>
 }
