@@ -1,4 +1,12 @@
 ::ng-deep {
+  pdf-sidebar {
+    display: none !important;
+  }
+
+  html[dir=ltr] ngx-extended-pdf-viewer #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+    left: 0 !important;
+  }
+
   .pdf-viewer-container {
     background: transparent !important;
   }
