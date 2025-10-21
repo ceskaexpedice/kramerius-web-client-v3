@@ -68,6 +68,7 @@ resource "docker_image" "cdk_klient" {
 # Create Docker Container using the cdk_klient image.
 resource "docker_container" "cdk_klient" {
   count             = 1
+  memory            = 256
   image             = docker_image.cdk_klient.image_id
   name              = var.docker_container_name
   must_run          = true
