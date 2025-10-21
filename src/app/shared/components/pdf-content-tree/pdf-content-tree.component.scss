@@ -2,7 +2,6 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--spacing-x4);
 
   &__empty {
     padding: 20px;
@@ -92,9 +91,26 @@
   }
 
   &__subitems {
-    color: var(--color-text-tertiary);
     display: flex;
     flex-direction: column;
     gap: 4px;
+
+    .pdf-content-tree__title {
+      color: var(--color-text-tertiary);
+    }
+
+    .pdf-content-tree__page {
+      color: var(--color-text-tertiary);
+    }
+
+    .pdf-content-tree__item-header--active {
+      .pdf-content-tree__title {
+        color: var(--color-primary);
+      }
+
+      .pdf-content-tree__page {
+        color: var(--color-primary);
+      }
+    }
   }
 }

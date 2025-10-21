@@ -65,17 +65,39 @@ export class PdfContentTreeComponent implements OnInit, OnDestroy {
 
     if (!inRange) return false;
 
-    // If this item has children, check if any child is active
-    // If a child is active, this parent should NOT be active (only the deepest item should be active)
+    // If this item has children, check if any descendant (at any depth) is active
+    // If a descendant is active, this parent should NOT be active (only the deepest item should be active)
     if (item.items && item.items.length > 0) {
-      for (const childItem of item.items) {
-        if (this.isItemActive(childItem)) {
-          return false; // Child is active, so parent should not be
-        }
+      if (this.hasActiveDescendant(item.items)) {
+        return false; // A descendant is active, so parent should not be
       }
     }
 
     return true;
+  }
+
+  // Recursively check if any descendant item is active
+  private hasActiveDescendant(items: PdfOutlineItem[]): boolean {
+    for (const childItem of items) {
+      // Check if this child is in range
+      const nextItem = this.findNextItem(childItem);
+      const endPage = nextItem ? nextItem.page - 1 : Infinity;
+      const inRange = this.currentPage >= childItem.page && this.currentPage <= endPage;
+
+      if (inRange) {
+        // This child is in range, so it or one of its descendants is active
+        return true;
+      }
+
+      // Recursively check this child's descendants
+      if (childItem.items && childItem.items.length > 0) {
+        if (this.hasActiveDescendant(childItem.items)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   // Find the next outline item to determine the section range

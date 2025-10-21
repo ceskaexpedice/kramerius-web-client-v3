@@ -2,7 +2,10 @@
 <main [style.--playback-bar-height]="showPlaybackBar() ? '52px' : '0px'">
   <router-outlet />
 </main>
-<app-playback-bar />
+
+@if (showPlaybackBar()) {
+  <app-playback-bar />
+}
 
 <app-loading-overlay />
 
