@@ -73,7 +73,7 @@ resource "docker_container" "cdk_klient" {
   name              = var.docker_container_name
   must_run          = true
   publish_all_ports = true
-  # restart           = "always" # default "no"
+  restart           = "always" # default "no"
   env = [
     "APP_DEV_MODE=${var.APP_DEV_MODE}",
     "APP_ENV_NAME=${var.APP_ENV_NAME}",
