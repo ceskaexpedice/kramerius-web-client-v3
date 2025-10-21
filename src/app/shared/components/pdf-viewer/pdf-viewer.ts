@@ -6,6 +6,7 @@ import {PdfOutlineItem} from '../pdf-content-tree/pdf-content-tree.component';
 import {PdfPageThumbnail} from '../pdf-pages-grid/pdf-pages-grid.component';
 import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -22,17 +23,67 @@ export class PdfViewer implements OnInit, OnDestroy {
   @ViewChild(NgxExtendedPdfViewerComponent) pdfViewer?: NgxExtendedPdfViewerComponent;
 
   public pdfService = inject(PdfService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private subscriptions: Subscription[] = [];
+  private isInitialLoad = true;
 
   constructor() {
   }
 
   ngOnInit(): void {
     this.pdfService.uuid = this.metadata?.uuid || null;
+
+    const pageChangeSub = this.pdfService.currentPage$.subscribe(page => {
+      if (!this.isInitialLoad && page > 0) {
+        this.updateUrlWithPage(page);
+      }
+    });
+    this.subscriptions.push(pageChangeSub);
+
+    this.checkAndNavigateToUrlPage();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private checkAndNavigateToUrlPage(): void {
+    const pageParam = this.route.snapshot.queryParams['page'];
+
+    if (pageParam && this.metadata?.uuid) {
+      // Format: uuid:xxxx_{pageNumber}
+      const expectedPrefix = `${this.metadata.uuid}_`;
+      if (pageParam.startsWith(expectedPrefix)) {
+        const pageNumberStr = pageParam.substring(expectedPrefix.length);
+        const pageNumber = parseInt(pageNumberStr, 10);
+
+        if (!isNaN(pageNumber) && pageNumber > 0) {
+          setTimeout(() => {
+            this.pdfService.navigateToPage(pageNumber);
+            this.isInitialLoad = false;
+          }, 500); // Give PDF time to load
+          return;
+        }
+      }
+    }
+
+    // No valid page param, mark as loaded
+    this.isInitialLoad = false;
+  }
+
+  private updateUrlWithPage(pageNumber: number): void {
+    if (!this.metadata?.uuid) return;
+
+    // Format: uuid:xxxx_{pageNumber}
+    const pageParam = `${this.metadata.uuid}_${pageNumber}`;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: pageParam },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   onOutlineLoaded(outline: OutlineLoadedEvent) {
