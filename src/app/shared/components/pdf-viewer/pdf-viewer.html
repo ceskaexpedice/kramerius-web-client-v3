@@ -6,10 +6,10 @@
     [(zoom)]="pdfService.pdfProperties.zoom"
     [(rotation)]="pdfService.pdfProperties.rotation"
     [pageViewMode]="pdfService.pdfProperties.pageViewMode || 'multiple'"
+    [showBorders]="false"
     [height]="'100%'"
     [scrollMode]="0"
     [spread]="'off'"
-    pageViewMode="single"
     [showToolbar]="false"
     [showSidebarButton]="false"
     [showFindButton]="false"
@@ -40,5 +40,7 @@
     (zoomOut)="pdfService.zoomOut()"
     (toggleScrollMode)="pdfService.togglePageViewMode()"
     (rotate)="pdfService.toggleRotation()"
+    (bookMode)="pdfService.bookModeToggle()"
+    (toggleFitToScreen)="pdfService.fitToScreen()"
   ></app-pdf-viewer-controls>
 }

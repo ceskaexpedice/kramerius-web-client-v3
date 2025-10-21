@@ -3,13 +3,14 @@ import {EnvironmentService} from './environment.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
 import {PdfPageThumbnail} from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import {FindState, NgxExtendedPdfViewerService, PageViewModeType} from 'ngx-extended-pdf-viewer';
+import {FindState, NgxExtendedPdfViewerService, PageViewModeType, ZoomType} from 'ngx-extended-pdf-viewer';
 
 export interface PdfProperties {
-  zoom: number;
+  zoom: ZoomType;
   rotation: 0 | 90 | 180 | 270;
   fullscreen: boolean;
   pageViewMode?: PageViewModeType;
+  bookMode?: boolean;
 }
 
 @Injectable({
@@ -40,6 +41,7 @@ export class PdfService {
     zoom: 100,
     rotation: 0,
     fullscreen: false,
+    bookMode: false,
   }
 
   _uuid: string | null = null;
@@ -454,10 +456,17 @@ export class PdfService {
   }
 
   zoomIn(): void {
+    // check if zoom is a number, if not make it and add 5
+    if (typeof this.pdfProperties.zoom !== 'number') {
+      this.pdfProperties.zoom = 100;
+    }
     this.pdfProperties.zoom += 5;
   }
 
   zoomOut(): void {
+    if (typeof this.pdfProperties.zoom !== 'number') {
+      this.pdfProperties.zoom = 100;
+    }
     this.pdfProperties.zoom -= 5;
   }
 
@@ -487,6 +496,18 @@ export class PdfService {
     } else {
       this.pdfProperties.pageViewMode = 'single';
     }
+  }
+
+  bookModeToggle() {
+    if (this.pdfProperties.pageViewMode === 'book') {
+      this.pdfProperties.pageViewMode = 'single';
+    } else {
+      this.pdfProperties.pageViewMode = 'book';
+    }
+  }
+
+  fitToScreen() {
+    this.pdfProperties.zoom = 'page-fit';
   }
 
 }

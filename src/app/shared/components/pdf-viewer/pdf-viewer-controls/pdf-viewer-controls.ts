@@ -9,11 +9,13 @@ import {Component, EventEmitter, Output} from '@angular/core';
 export class PdfViewerControls {
   @Output() zoomIn = new EventEmitter<void>();
   @Output() zoomOut = new EventEmitter<void>();
+  @Output() toggleFitToScreen = new EventEmitter<void>();
   @Output() toggleFullscreen = new EventEmitter<void>();
   @Output() toggleScrollMode = new EventEmitter<void>();
   @Output() toggleGridView = new EventEmitter<void>();
   @Output() toggleTextView = new EventEmitter<void>();
   @Output() rotate = new EventEmitter<void>();
+  @Output() bookMode = new EventEmitter<void>();
 
   onZoomIn() {
     this.zoomIn.emit();
@@ -41,5 +43,13 @@ export class PdfViewerControls {
 
   onTextView() {
     this.toggleTextView.emit();
+  }
+
+  onBookMode() {
+    this.bookMode.emit();
+  }
+
+  onFitToScreen() {
+    this.toggleFitToScreen.emit();
   }
 }
