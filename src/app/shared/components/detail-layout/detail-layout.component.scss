@@ -1,5 +1,7 @@
 @import "_z-index.scss";
 
+$top-toolbar-height: 56px;
+
 .detail-layout {
   height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
@@ -39,6 +41,37 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    gap: var(--small-gap);
+    padding-right: var(--small-gap);
+    position: relative;
+
+    &--with-right-sidebar {
+      //flex-direction: row;
+    }
+  }
+
+  &--sidebar-right {
+    position: absolute;
+    right: var(--spacing-x4);
+    top: calc(var(--spacing-x4) + $top-toolbar-height);
+    height: calc(100% - $top-toolbar-height - var(--spacing-x4) - var(--spacing-x4));
+    width: 285px;
+    min-width: 285px;
+    max-width: 285px;
+    border-radius: var(--spacing-x2);
+    background: var(--color-background-primary, #fff);
+    overflow: hidden;
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease;
+    transform: translateX(0);
+    opacity: 1;
+
+    &.collapsed {
+      width: 0;
+      min-width: 0;
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: none;
+    }
   }
 
   &--bottom-toolbar {

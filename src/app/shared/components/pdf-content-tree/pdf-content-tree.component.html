@@ -1,0 +1,46 @@
+<div class="pdf-content-tree">
+  <div *ngIf="outlineItems.length === 0" class="pdf-content-tree__empty">
+    Žiadny obsah nie je k dispozícii
+  </div>
+
+  <div *ngIf="outlineItems.length > 0" class="pdf-content-tree__items">
+    <ng-container *ngFor="let item of outlineItems">
+      <div class="pdf-content-tree__item">
+        <div class="pdf-content-tree__item-header"
+             [class.pdf-content-tree__item-header--active]="isItemActive(item)"
+             (click)="navigateToPage(item)">
+
+          <span class="pdf-content-tree__title">{{ item.title }}</span>
+<!--          <span class="pdf-content-tree__page">{{ item.page }}</span>-->
+        </div>
+
+        <div *ngIf="item.expanded && item.items" class="pdf-content-tree__subitems">
+          <ng-container *ngFor="let subitem of item.items">
+            <div class="pdf-content-tree__item pdf-content-tree__item--sub">
+              <div class="pdf-content-tree__item-header"
+                   [class.pdf-content-tree__item-header--active]="isItemActive(subitem)"
+                   (click)="navigateToPage(subitem)">
+
+                <span class="pdf-content-tree__title">{{ subitem.title }}</span>
+<!--                <span class="pdf-content-tree__page">{{ subitem.page }}</span>-->
+              </div>
+
+              <div *ngIf="subitem.expanded && subitem.items" class="pdf-content-tree__subitems">
+                <ng-container *ngFor="let subsubitem of subitem.items">
+                  <div class="pdf-content-tree__item pdf-content-tree__item--subsub">
+                    <div class="pdf-content-tree__item-header"
+                         [class.pdf-content-tree__item-header--active]="isItemActive(subsubitem)"
+                         (click)="navigateToPage(subsubitem)">
+                      <span class="pdf-content-tree__title">{{ subsubitem.title }}</span>
+<!--                      <span class="pdf-content-tree__page">{{ subsubitem.page }}</span>-->
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

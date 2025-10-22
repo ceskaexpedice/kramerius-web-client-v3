@@ -1,0 +1,27 @@
+<div class="pdf-metadata-sidebar">
+  <app-tabs>
+    <app-tab-item [label]="'description' | translate">
+      <app-metadata-section
+        [showTitle]="false"
+        [uuid]="detailService.document?.uuid || ''"></app-metadata-section>
+    </app-tab-item>
+
+    <app-tab-item [label]="'export' | translate">
+    </app-tab-item>
+
+<!--    <app-tab-item label="Funkcie">-->
+<!--    </app-tab-item>-->
+
+    <div tab-common-down>
+      <div class="pdf-metadata-sidebar--footer">
+        <button
+          class="button outlined tertiary with-icon"
+          (click)="closeMetadataSidebar()">
+          <i class="icon-sidebar-bottom"></i>
+          {{ 'hide--metadata-sidebar' | translate}}
+        </button>
+      </div>
+    </div>
+
+  </app-tabs>
+</div>

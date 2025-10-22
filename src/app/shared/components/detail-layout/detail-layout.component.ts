@@ -18,6 +18,10 @@ export class DetailLayoutComponent {
 
   @Input() showBottomToolbar = true;
 
+  @Input() showRightSidebar = false;
+
+  @Input() rightSidebarCollapsed = false;
+
   private detailViewService = inject(DetailViewService);
 
   @HostListener('document:keydown', ['$event'])

@@ -28,6 +28,7 @@ import {LocalStorageService} from '../../../shared/services/local-storage.servic
 export class DetailViewService {
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
+  _metadataSidebarVisible = signal<boolean>(true);
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
@@ -86,6 +87,10 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  get metadataSidebarVisible(): boolean {
+    return this._metadataSidebarVisible();
   }
 
   get title(): string {
@@ -346,5 +351,17 @@ export class DetailViewService {
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
       });
     });
+  }
+
+  toggleMetadataSidebar(): void {
+    this._metadataSidebarVisible.set(!this._metadataSidebarVisible());
+  }
+
+  showMetadataSidebar(): void {
+    this._metadataSidebarVisible.set(true);
+  }
+
+  hideMetadataSidebar(): void {
+    this._metadataSidebarVisible.set(false);
   }
 }

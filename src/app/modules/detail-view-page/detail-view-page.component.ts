@@ -65,4 +65,5 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+  protected readonly document = document;
 }

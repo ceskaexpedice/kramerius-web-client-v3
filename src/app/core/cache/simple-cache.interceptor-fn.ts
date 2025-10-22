@@ -14,6 +14,7 @@ const NO_CACHE_PATTERNS = [
   '/auth',             // Authentication endpoints
   '/user',             // User-specific data
   '/session',           // Session-related endpoints
+  '/search'
 ] as const;
 
 interface CacheEntry {
@@ -38,12 +39,12 @@ function shouldCache(url: string): boolean {
  */
 function compressData(data: any): { data: string; compressed: boolean } {
   const jsonString = JSON.stringify(data);
-  
+
   // If data is small, don't compress
   if (jsonString.length < 5000) {
     return { data: jsonString, compressed: false };
   }
-  
+
   try {
     // Remove unnecessary whitespace and round numbers to reduce size
     const minified = JSON.stringify(data, (key, value) => {
@@ -52,10 +53,10 @@ function compressData(data: any): { data: string; compressed: boolean } {
       }
       return value;
     });
-    
-    return { 
-      data: minified, 
-      compressed: minified.length < jsonString.length 
+
+    return {
+      data: minified,
+      compressed: minified.length < jsonString.length
     };
   } catch {
     return { data: jsonString, compressed: false };
@@ -100,7 +101,7 @@ export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
     // Update last accessed time for LRU
     cached.lastAccessed = Date.now();
     setCachedEntry(cacheKey, cached);
-    
+
     // Handle decompression if needed
     let responseBody = cached.response;
     if (cached.compressed) {
@@ -112,7 +113,7 @@ export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
         return next(req);
       }
     }
-    
+
     // Recreate HttpResponse from cached data
     const headers = new HttpHeaders(cached.headers);
     const response = new HttpResponse({
@@ -252,7 +253,7 @@ function performIntelligentCleanup(): void {
           localStorage.removeItem(key);
           continue;
         }
-        
+
         entries.push({
           key,
           entry,
@@ -267,12 +268,12 @@ function performIntelligentCleanup(): void {
   if (currentSize > MAX_CACHE_SIZE * CLEANUP_THRESHOLD) {
     // Sort by last accessed time (oldest first)
     entries.sort((a, b) => a.lastAccessed - b.lastAccessed);
-    
+
     const targetRemoval = Math.ceil(entries.length * 0.2); // Remove 20% of entries
     const toRemove = entries.slice(0, targetRemoval);
-    
+
     toRemove.forEach(({ key }) => localStorage.removeItem(key));
-    
+
     console.log(`[SimpleCache] Intelligent cleanup: removed ${toRemove.length} LRU entries, cache size reduced from ${currentSize} to ${getCacheSize()} bytes`);
   }
 }
@@ -329,7 +330,7 @@ export function getCacheStats() {
       const value = localStorage.getItem(key);
       if (value) {
         totalSize += key.length + value.length;
-        
+
         try {
           const entry = JSON.parse(value) as CacheEntry;
           if (entry.compressed) compressedEntries++;

@@ -292,5 +292,10 @@
   "exact-match": "Odróżnić wielkość liter i uwzględnić znaki diakrytyczne",
   "date--from": "Od",
   "date--to": "Do",
-  "date-picker-selected-days--label": "Wybrane"
+  "date-picker-selected-days--label": "Wybrane",
+  "show--metadata-sidebar": "Pokaż panel",
+  "hide--metadata-sidebar": "Ukryj panel",
+  "description": "Opis",
+  "author": "Autor",
+  "publisher-data": "Dane wydawcy"
 }

@@ -289,5 +289,10 @@
   "exact-match": "Rozlišovať veľké písmená a diakritiku",
   "date--from": "Od",
   "date--to": "Do",
-  "date-picker-selected-days--label": "Vybrané"
+  "date-picker-selected-days--label": "Vybrané",
+  "show--metadata-sidebar": "Zobraziť panel",
+  "hide--metadata-sidebar": "Skryť panel",
+  "description": "Popis",
+  "author": "Autor",
+  "publisher-data": "Nakladateľské údaje"
 }

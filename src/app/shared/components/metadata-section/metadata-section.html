@@ -1,0 +1,143 @@
+<div class="data" *ngIf="data">
+
+  <!-- Title -->
+  @if (showTitle) {
+    <section *ngIf="data.mainTitle || data.titles?.length">
+      <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
+      <div *ngIf="data.titles.length > 1">
+        <div *ngFor="let title of data.titles">
+          <span>{{ title.title }}</span>
+          <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ISBN (standalone) -->
+  <app-metadata-section-item
+    *ngIf="getIsbn()"
+    [label]="'ISBN' | translate"
+    type="text"
+    [value]="getIsbn()!">
+  </app-metadata-section-item>
+
+  <!-- Authors -->
+  <app-metadata-section-item
+    *ngIf="data.authors?.length"
+    [label]="'author' | translate"
+    type="clickable-list"
+    [items]="data.authors"
+    [displayFn]="getAuthorName"
+    [onItemClick]="clickedAuthor">
+  </app-metadata-section-item>
+
+  <!-- Document Type -->
+  <app-metadata-section-item
+    *ngIf="data.model"
+    [label]="'model' | translate"
+    type="badge"
+    [value]="data.model"
+    [onItemClick]="clickedDocumentType">
+  </app-metadata-section-item>
+
+  <!-- Accessibility -->
+  <app-metadata-section-item
+    *ngIf="data.isPublic !== undefined"
+    [label]="'accessibility' | translate"
+    type="badge"
+    [onItemClick]="clickedAccessibility">
+
+    <div class="flex" metadata-section-item-content>
+
+      <app-accessibility-badge
+        [isLocked]="data.isPublic"
+      ></app-accessibility-badge>
+
+    </div>
+
+  </app-metadata-section-item>
+
+  <!-- Languages -->
+  <app-metadata-section-item
+    *ngIf="data.languages?.length"
+    [label]="'languages' | translate"
+    type="clickable-list"
+    [items]="data.languages"
+    [onItemClick]="clickedLanguage"
+  >
+  </app-metadata-section-item>
+
+  <!-- Abstracts -->
+  <app-metadata-section-item
+    *ngIf="data.abstracts?.length"
+    [label]="'abstract' | translate"
+    type="list"
+    [items]="data.abstracts">
+  </app-metadata-section-item>
+
+  <!-- Genres -->
+  <app-metadata-section-item
+    *ngIf="data.genres?.length"
+    [label]="'genres' | translate"
+    type="clickable-list"
+    [items]="data.genres"
+    [onItemClick]="clickedGenre">
+  </app-metadata-section-item>
+
+  <!-- Publishers -->
+  <app-metadata-section-item
+    *ngIf="data.publishers?.length"
+    [label]="'publisher-data' | translate"
+    type="list"
+    [items]="data.publishers"
+    [displayFn]="getPublisherFullDetail">
+  </app-metadata-section-item>
+
+  <!-- Keywords -->
+  <app-metadata-section-item
+    *ngIf="data.keywords?.length"
+    [label]="'keywords' | translate"
+    [showListBullets]="true"
+    type="clickable-list"
+    [items]="data.keywords"
+    [onItemClick]="clickedKeyword">
+  </app-metadata-section-item>
+
+  <!-- Physical Description -->
+  <app-metadata-section-item
+    *ngIf="data.physicalDescriptions?.length"
+    [label]="'physical-description' | translate"
+    type="list"
+    [items]="data.physicalDescriptions"
+    [displayFn]="getPhysicalDescription">
+  </app-metadata-section-item>
+
+  <!-- Cartographic Data -->
+  <section *ngIf="data.cartographicData.length">
+    <h3>{{ 'cartographic-data' | translate }}</h3>
+    <ul>
+      <li *ngFor="let cart of data.cartographicData">
+        <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
+        <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Other Identifiers (excluding ISBN) -->
+  <app-metadata-section-item
+    *ngIf="getIdentifiersWithoutIsbn()"
+    [label]="'identifiers' | translate"
+    [listKeyUppercase]="true"
+    type="key-value"
+    [keyValuePairs]="getIdentifiersWithoutIsbn()">
+  </app-metadata-section-item>
+
+  <!-- Notes -->
+  <app-metadata-section-item
+    *ngIf="data.notes?.length"
+    [label]="'notes' | translate"
+    type="list"
+    [items]="data.notes">
+  </app-metadata-section-item>
+
+</div>
