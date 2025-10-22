@@ -25,14 +25,14 @@ export class PdfSidebarComponent {
     const currentPage = this.pdfService.getCurrentPage();
     const totalPages = this.pdfService.getTotalPages();
     if (currentPage < totalPages) {
-      this.pdfService.navigateToPage(currentPage + 1);
+      this.pdfService.navigateToPage(currentPage + (this.pdfService.pdfProperties.bookMode ? 2 : 1));
     }
   }
 
   goToPrevious(): void {
     const currentPage = this.pdfService.getCurrentPage();
     if (currentPage > 1) {
-      this.pdfService.navigateToPage(currentPage - 1);
+      this.pdfService.navigateToPage(currentPage - (this.pdfService.pdfProperties.bookMode ? 2 : 1));
     }
   }
 

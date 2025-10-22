@@ -9,8 +9,9 @@ export interface PdfProperties {
   zoom: ZoomType;
   rotation: 0 | 90 | 180 | 270;
   fullscreen: boolean;
-  pageViewMode?: PageViewModeType;
+  pageViewMode: PageViewModeType;
   bookMode?: boolean;
+  textLayerMode: boolean;
 }
 
 @Injectable({
@@ -42,6 +43,8 @@ export class PdfService {
     rotation: 0,
     fullscreen: false,
     bookMode: false,
+    pageViewMode: 'single',
+    textLayerMode: false
   }
 
   _uuid: string | null = null;
@@ -491,11 +494,13 @@ export class PdfService {
   }
 
   togglePageViewMode(): void {
-    if (this.pdfProperties.pageViewMode === 'single') {
-      this.pdfProperties.pageViewMode = 'multiple';
-    } else {
+    // Toggle between single and multiple
+    if (this.pdfProperties.pageViewMode === 'multiple') {
       this.pdfProperties.pageViewMode = 'single';
+    } else {
+      this.pdfProperties.pageViewMode = 'multiple';
     }
+    console.log('togglePageViewMode', this.pdfProperties.pageViewMode);
   }
 
   bookModeToggle() {
@@ -504,6 +509,11 @@ export class PdfService {
     } else {
       this.pdfProperties.pageViewMode = 'book';
     }
+    this.pdfProperties.bookMode = this.pdfProperties.pageViewMode === 'book';
+  }
+
+  toggleTextLayerMode() {
+    this.pdfProperties.textLayerMode = !this.pdfProperties.textLayerMode;
   }
 
   fitToScreen() {
