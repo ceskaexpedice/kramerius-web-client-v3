@@ -1,0 +1,37 @@
+<section class="metadata-section--item">
+
+  <h3 class="metadata-section--item-label">{{ label }}</h3>
+
+  <div class="metadata-section--item-value">
+
+    <!-- Text type: simple paragraph -->
+    <p *ngIf="type === 'text'">{{ value }}</p>
+
+    <!-- List type: non-clickable vertical list -->
+    <ul *ngIf="type === 'list'">
+      <li *ngFor="let item of items">{{ getDisplayText(item) }}</li>
+    </ul>
+
+    <!-- Clickable list type: vertical list with underlined clickable items -->
+    <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
+      <li *ngFor="let item of items" (click)="handleClick(item)" class="clickable">
+        {{ getDisplayText(item) }}
+      </li>
+    </ul>
+
+    <!-- Badge type: pill-styled clickable badge -->
+    <span *ngIf="type === 'badge'" class="badge" (click)="handleClick(value)">
+      <i *ngIf="icon" [class]="icon"></i>
+      {{ value }}
+    </span>
+
+    <!-- Key-value type: display object properties as key-value pairs -->
+    <ul *ngIf="type === 'key-value'" [class.with-bullets]="showListBullets">
+      <li *ngFor="let key of getKeys()">
+        <strong [class.uppercase]="listKeyUppercase">{{ key }}:</strong> {{ getKeyValue(key) }}
+      </li>
+    </ul>
+
+  </div>
+
+</section>

@@ -1,88 +1,97 @@
 <div class="data" *ngIf="data">
+
   <!-- Title -->
-  <section *ngIf="data.mainTitle || data.titles?.length">
-    <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
-    <div *ngIf="data.titles.length > 1">
-      <div *ngFor="let title of data.titles">
-        <span>{{ title.title }}</span>
-        <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
+  @if (showTitle) {
+    <section *ngIf="data.mainTitle || data.titles?.length">
+      <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
+      <div *ngIf="data.titles.length > 1">
+        <div *ngFor="let title of data.titles">
+          <span>{{ title.title }}</span>
+          <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  }
+
+  <!-- ISBN (standalone) -->
+  <app-metadata-section-item
+    *ngIf="getIsbn()"
+    [label]="'ISBN' | translate"
+    type="text"
+    [value]="getIsbn()!">
+  </app-metadata-section-item>
 
   <!-- Authors -->
-  <section *ngIf="data.authors?.length">
-    <h3>{{ 'authors' | translate }}</h3>
-    <ul>
-      <li *ngFor="let author of data.authors">
-        {{ author.name }}
-        <span *ngIf="author.date">({{ author.date }})</span>
-        <span *ngIf="author.roles?.length">– {{ author.roles.join(', ') }}</span>
-      </li>
-    </ul>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.authors?.length"
+    [label]="'author' | translate"
+    type="clickable-list"
+    [items]="data.authors"
+    [displayFn]="getAuthorName"
+    [onItemClick]="clickedAuthor">
+  </app-metadata-section-item>
 
-  <!-- Publishers -->
-  <section *ngIf="data.publishers.length">
-    <h3>{{ 'publishers' | translate }}</h3>
-    <ul>
-      <li *ngFor="let publisher of data.publishers">
-        {{ publisher.fullDetail() }}
-      </li>
-    </ul>
-  </section>
+  <!-- Document Type -->
+  <app-metadata-section-item
+    *ngIf="data.model"
+    [label]="'documentType' | translate"
+    type="badge"
+    [value]="data.model"
+    [onItemClick]="clickedDocumentType">
+  </app-metadata-section-item>
 
   <!-- Languages -->
-  <section *ngIf="data.languages.length">
-    <h3>{{ 'languages' | translate }}</h3>
-    <p>{{ data.languages.join(', ') }}</p>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.languages?.length"
+    [label]="'languages' | translate"
+    type="text"
+    [value]="data.languages.join(', ')">
+  </app-metadata-section-item>
 
   <!-- Abstracts -->
-  <section *ngIf="data.abstracts.length">
-    <h3>{{ 'abstract' | translate }}</h3>
-    <p *ngFor="let abs of data.abstracts">{{ abs }}</p>
-  </section>
-
-  <!-- Notes -->
-  <section *ngIf="data.notes.length">
-    <h3>{{ 'notes' | translate }}</h3>
-    <ul>
-      <li *ngFor="let note of data.notes">{{ note }}</li>
-    </ul>
-  </section>
-
-  <!-- Identifiers -->
-  <section *ngIf="data.identifiers && objectKeys(data.identifiers).length">
-    <h3>{{ 'identifiers' | translate }}</h3>
-    <ul>
-      <li *ngFor="let key of objectKeys(data.identifiers)">
-        <strong>{{ key }}:</strong> {{ data.identifiers[key] }}
-      </li>
-    </ul>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.abstracts?.length"
+    [label]="'abstract' | translate"
+    type="list"
+    [items]="data.abstracts">
+  </app-metadata-section-item>
 
   <!-- Genres -->
-  <section *ngIf="data.genres.length">
-    <h3>{{ 'genres' | translate }}</h3>
-    <p>{{ data.genres.join(', ') }}</p>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.genres?.length"
+    [label]="'genres' | translate"
+    type="clickable-list"
+    [items]="data.genres"
+    [onItemClick]="clickedGenre">
+  </app-metadata-section-item>
+
+  <!-- Publishers -->
+  <app-metadata-section-item
+    *ngIf="data.publishers?.length"
+    [label]="'publishers' | translate"
+    type="list"
+    [items]="data.publishers"
+    [displayFn]="getPublisherFullDetail">
+  </app-metadata-section-item>
 
   <!-- Keywords -->
-  <section *ngIf="data.keywords.length">
-    <h3>{{ 'keywords' | translate }}</h3>
-    <p>{{ data.keywords.join(', ') }}</p>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.keywords?.length"
+    [label]="'keywords' | translate"
+    [showListBullets]="true"
+    type="clickable-list"
+    [items]="data.keywords"
+    [onItemClick]="clickedKeyword">
+  </app-metadata-section-item>
 
   <!-- Physical Description -->
-  <section *ngIf="data.physicalDescriptions.length">
-    <h3>{{ 'physical-description' | translate }}</h3>
-    <ul>
-      <li *ngFor="let desc of data.physicalDescriptions">
-        {{ desc.extent }} <span *ngIf="desc.note">– {{ desc.note }}</span>
-      </li>
-    </ul>
-  </section>
+  <app-metadata-section-item
+    *ngIf="data.physicalDescriptions?.length"
+    [label]="'physical-description' | translate"
+    type="list"
+    [items]="data.physicalDescriptions"
+    [displayFn]="getPhysicalDescription">
+  </app-metadata-section-item>
 
   <!-- Cartographic Data -->
   <section *ngIf="data.cartographicData.length">
@@ -94,4 +103,22 @@
       </li>
     </ul>
   </section>
+
+  <!-- Other Identifiers (excluding ISBN) -->
+  <app-metadata-section-item
+    *ngIf="getIdentifiersWithoutIsbn()"
+    [label]="'identifiers' | translate"
+    [listKeyUppercase]="true"
+    type="key-value"
+    [keyValuePairs]="getIdentifiersWithoutIsbn()">
+  </app-metadata-section-item>
+
+  <!-- Notes -->
+  <app-metadata-section-item
+    *ngIf="data.notes?.length"
+    [label]="'notes' | translate"
+    type="list"
+    [items]="data.notes">
+  </app-metadata-section-item>
+
 </div>

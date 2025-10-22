@@ -1,7 +1,9 @@
 <div class="pdf-metadata-sidebar">
   <app-tabs>
     <app-tab-item label="Metadáta">
-      <app-metadata-section [uuid]="detailService.document?.uuid || ''"></app-metadata-section>
+      <app-metadata-section
+        [showTitle]="false"
+        [uuid]="detailService.document?.uuid || ''"></app-metadata-section>
     </app-tab-item>
 
     <app-tab-item label="Export">

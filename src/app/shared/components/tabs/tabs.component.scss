@@ -39,6 +39,7 @@
 
 .tabs-content {
   flex: 1;
-  overflow: visible;
+  overflow-y: auto;
   height: calc(100% - 100px);
+  padding: var(--spacing-x2);
 }
