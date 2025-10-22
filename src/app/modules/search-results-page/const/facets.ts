@@ -256,3 +256,45 @@ export const customDefinedFacets = [
     data: []
   }
 ]
+
+// mapper for facets, for example if facetKey is 'keywords.facet', it will map to 'keywords.search'
+export const facetToSearchFieldMapper: { [key: string]: string[] } = {
+  [facetKeysEnum.authors]: ['authors.search'],
+  [facetKeysEnum.keywords]: ['keywords.search'],
+  [facetKeysEnum.genres]: ['genres.search']
+};
+
+/**
+ * Maps filter strings from facet keys to search field keys.
+ * For example: 'keywords.facet:value' becomes ['keywords.search:value', 'keywords_exact.search:value']
+ * @param filters - Array of filter strings in format 'facetKey:value'
+ * @returns Array of mapped filter strings
+ */
+export function mapFacetsToSearchFields(filters: string[]): string[] {
+  const mappedFilters: string[] = [];
+
+  for (const filter of filters) {
+    const colonIndex = filter.indexOf(':');
+    if (colonIndex === -1) {
+      // No colon found, keep filter as is
+      mappedFilters.push(filter);
+      continue;
+    }
+
+    const facetKey = filter.substring(0, colonIndex);
+    const value = filter.substring(colonIndex + 1);
+
+    // Check if this facet key has a mapping
+    if (facetToSearchFieldMapper[facetKey]) {
+      // Map to multiple search fields
+      for (const searchField of facetToSearchFieldMapper[facetKey]) {
+        mappedFilters.push(`${searchField}:${value}`);
+      }
+    } else {
+      // No mapping found, keep original filter
+      mappedFilters.push(filter);
+    }
+  }
+
+  return mappedFilters;
+}

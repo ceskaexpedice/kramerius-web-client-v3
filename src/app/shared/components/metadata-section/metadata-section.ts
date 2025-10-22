@@ -7,6 +7,7 @@ import {DetailViewService} from '../../../modules/detail-view-page/services/deta
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {SearchService} from '../../services/search.service';
 import {MetadataSectionItem} from './metadata-section-item/metadata-section-item';
+import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-metadata-section',
@@ -86,19 +87,22 @@ export class MetadataSection implements OnInit {
 
   // Click handlers
   clickedAuthor = (author: Author): void => {
-    console.log('author clicked:', author);
-    this.redirectToAuthor(author.name);
+    const url = `?fq=${facetKeysEnum.authors}:${author.name}&${facetKeysEnum.authors}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
   };
 
+  clickedLanguage = (language: string): void => {
+    const url = `?fq=${facetKeysEnum.languages}:${encodeURIComponent(language)}&${facetKeysEnum.languages}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
   clickedKeyword = (keyword: string): void => {
-    console.log('keyword clicked:', keyword);
-    const url = `?fq=keywords.facet:${encodeURIComponent(keyword)}&keywords.facet_operator=OR`;
+    const url = `?fq=${facetKeysEnum.keywords}:${encodeURIComponent(keyword)}&${facetKeysEnum.keywords}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
 
   clickedGenre = (genre: string): void => {
-    console.log('genre clicked:', genre);
-    const url = `?fq=genres:${encodeURIComponent(genre)}`;
+    const url = `?fq=${facetKeysEnum.genres}:${encodeURIComponent(genre)}&${facetKeysEnum.genres}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
 
@@ -107,13 +111,6 @@ export class MetadataSection implements OnInit {
     const url = `?fq=model:${encodeURIComponent(model)}`;
     this.searchService.redirectDirectlyToUrl(url);
   };
-
-  redirectToAuthor(authorName: string) {
-    // encode author name for URL
-    authorName = encodeURIComponent(`${authorName}`);
-    const url = `?fq=authors.facet:${authorName}&authors.facet_operator=OR`;
-    this.searchService.redirectDirectlyToUrl(url);
-  }
 
   objectKeys = Object.keys;
 

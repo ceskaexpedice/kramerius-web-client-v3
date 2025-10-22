@@ -16,7 +16,7 @@ import {SolrOperators} from '../../core/solr/solr-helpers';
 import {SolrService} from '../../core/solr/solr.service';
 import {AdvancedSearchService} from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {facetKeysEnum} from '../../modules/search-results-page/const/facets';
+import {facetKeysEnum, mapFacetsToSearchFields} from '../../modules/search-results-page/const/facets';
 import {BaseFilterService} from './base-filter.service';
 
 @Injectable({
@@ -297,6 +297,9 @@ export class SearchService extends BaseFilterService {
     let filters: string[];
 
     filters = [...baseFilters, ...customFilters];
+
+    // use mapFacetsToSearchFields to map filters to correct search fields
+    filters = mapFacetsToSearchFields(filters);
 
     this.store.dispatch(loadSearchResults({
       query,

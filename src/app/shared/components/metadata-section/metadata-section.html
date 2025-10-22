@@ -44,8 +44,10 @@
   <app-metadata-section-item
     *ngIf="data.languages?.length"
     [label]="'languages' | translate"
-    type="text"
-    [value]="data.languages.join(', ')">
+    type="clickable-list"
+    [items]="data.languages"
+    [onItemClick]="clickedLanguage"
+  >
   </app-metadata-section-item>
 
   <!-- Abstracts -->

@@ -7,14 +7,14 @@
   &__content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: var(--spacing-x4);
   }
 
   &__metadata {
     .metadata-section {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: var(--spacing-x4);
     }
 
     .metadata-item {
@@ -32,5 +32,14 @@
         line-height: 1.5;
       }
     }
+  }
+}
+
+.pdf-metadata-sidebar--footer {
+  width: 100%;
+  padding: var(--spacing-x4);
+
+  button {
+    width: 100%;
   }
 }

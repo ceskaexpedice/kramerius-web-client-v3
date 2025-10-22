@@ -1,11 +1,12 @@
 import {Component, Input} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'key-value';
 
 @Component({
   selector: 'app-metadata-section-item',
-  imports: [NgIf, NgForOf],
+  imports: [NgIf, NgForOf, TranslatePipe],
   templateUrl: './metadata-section-item.html',
   styleUrl: './metadata-section-item.scss'
 })
