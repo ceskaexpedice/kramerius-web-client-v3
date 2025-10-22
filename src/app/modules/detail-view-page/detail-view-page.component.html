@@ -2,7 +2,7 @@
   [showBottomToolbar]="!detailViewService.document?.pdf"
   [constrainBottomToolbar]="true"
   [showRightSidebar]="detailViewService.document?.pdf || false"
-  [rightSidebarCollapsed]="false">
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <ng-container left-sidebar>
 
@@ -145,6 +145,16 @@
           @if (document.pdf) {
 
             <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+
+            @if (!detailViewService.metadataSidebarVisible) {
+
+              <button
+                class="floating-sidebar-toggle button outlined tertiary with-icon"
+                (click)="detailViewService.showMetadataSidebar()">
+                <i class="icon-sidebar-bottom"></i>
+                {{ 'show--metadata-sidebar' | translate}}
+              </button>
+            }
 
           } @else {
             <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"

@@ -302,5 +302,10 @@
   "exact-match": "Distinguish between uppercase letters and diacritics",
   "date--from": "From",
   "date--to": "To",
-  "date-picker-selected-days--label": "Selected"
+  "date-picker-selected-days--label": "Selected",
+  "show--metadata-sidebar": "Show panel",
+  "hide--metadata-sidebar": "Hide panel",
+  "description": "Description",
+  "author": "Author",
+  "publisher-data": "Publisher data"
 }

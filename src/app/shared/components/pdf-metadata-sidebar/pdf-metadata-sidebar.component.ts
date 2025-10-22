@@ -36,6 +36,6 @@ export class PdfMetadataSidebarComponent {
   }
 
   closeMetadataSidebar(): void {
-    // this.detailService.closeMetadataSidebar();
+    this.detailService.hideMetadataSidebar();
   }
 }

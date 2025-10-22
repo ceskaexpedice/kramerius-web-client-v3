@@ -71,3 +71,12 @@ hr {
   font-size: var(--font-size-small);
   text-align: left;
 }
+
+.floating-sidebar-toggle {
+  position: fixed;
+  right: var(--spacing-x4);
+  bottom: var(--spacing-x4);
+  transition: all 0.2s ease;
+  background-color: var(--color-secondary);
+  z-index: 1000;
+}
