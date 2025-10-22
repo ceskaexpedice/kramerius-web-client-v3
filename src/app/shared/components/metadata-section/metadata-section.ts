@@ -8,15 +8,20 @@ import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {SearchService} from '../../services/search.service';
 import {MetadataSectionItem} from './metadata-section-item/metadata-section-item';
 import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
+import {Store} from '@ngrx/store';
+import {selectDocumentDetail} from '../../state/document-detail/document-detail.selectors';
+import {take} from 'rxjs';
+import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 
 @Component({
   selector: 'app-metadata-section',
-	imports: [
-		NgForOf,
-		NgIf,
-		TranslatePipe,
-		MetadataSectionItem,
-	],
+  imports: [
+    NgForOf,
+    NgIf,
+    TranslatePipe,
+    MetadataSectionItem,
+    AccessibilityBadgeComponent,
+  ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
 })
@@ -26,6 +31,7 @@ export class MetadataSection implements OnInit {
 
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
+  store = inject(Store);
 
   @Input() uuid: string = '';
 
@@ -36,11 +42,25 @@ export class MetadataSection implements OnInit {
   }
 
   async loadMetadata() {
-    this.modsParser
-      .getMods(this.uuid)
-      .then((metadata: Metadata) => {
-        this.data = metadata;
-      });
+    // Load MODS data
+    const modsData = await this.modsParser.getMods(this.uuid);
+
+    // Get Solr data from store to supplement with model, accessibility, and license
+    this.store.select(selectDocumentDetail).pipe(take(1)).subscribe(solrData => {
+      if (solrData && solrData.uuid === this.uuid) {
+        // Merge MODS data with Solr-specific fields
+        this.data = {
+          ...modsData,
+          model: solrData.model,
+          isPublic: solrData.isPublic,
+          licence: solrData.licence,
+          licences: solrData.licences
+        };
+      } else {
+        // If no Solr data available, use MODS data only
+        this.data = modsData;
+      }
+    });
   }
 
   // Helper methods for display functions
@@ -109,6 +129,18 @@ export class MetadataSection implements OnInit {
   clickedDocumentType = (model: string): void => {
     console.log('document type clicked:', model);
     const url = `?fq=model:${encodeURIComponent(model)}`;
+    this.searchService.redirectDirectlyToUrl(url);
+  };
+
+  clickedAccessibility = (accessibility: string): void => {
+    console.log('accessibility clicked:', accessibility);
+    const url = `?fq=${facetKeysEnum.accessibility}:${encodeURIComponent(accessibility)}`;
+    this.searchService.redirectDirectlyToUrl(url);
+  };
+
+  clickedLicense = (license: string): void => {
+    console.log('license clicked:', license);
+    const url = `?fq=${facetKeysEnum.license}:${encodeURIComponent(license)}&${facetKeysEnum.license}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
 

@@ -61,11 +61,11 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-x0-5);
-  padding: var(--spacing-x0-5) var(--spacing-x1-5);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  background: var(--color-background-secondary);
+  gap: var(--spacing-x1);
+  padding: var(--spacing-x1) var(--spacing-x2);
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-base);
   cursor: pointer;
   font-size: var(--font-size-small);
   transition: background-color 0.2s ease, border-color 0.2s ease;

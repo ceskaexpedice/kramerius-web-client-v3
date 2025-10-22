@@ -38,8 +38,24 @@
 .pdf-metadata-sidebar--footer {
   width: 100%;
   padding: var(--spacing-x4);
+  position: relative;
+
+  // Fade out effect at the top of footer
+  &::before {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--spacing-x8));
+    left: 0;
+    right: 0;
+    height: var(--spacing-x8);
+    background: linear-gradient(to bottom, transparent, var(--color-bg-base));
+    pointer-events: none;
+    z-index: 1;
+  }
 
   button {
     width: 100%;
+    position: relative;
+    z-index: 2;
   }
 }

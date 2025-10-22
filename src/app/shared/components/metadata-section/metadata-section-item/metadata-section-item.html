@@ -5,7 +5,7 @@
   <div class="metadata-section--item-value">
 
     <!-- Text type: simple paragraph -->
-    <p *ngIf="type === 'text'">{{ value | translate }}</p>
+    <p *ngIf="type === 'text' && value">{{ value | translate }}</p>
 
     <!-- List type: non-clickable vertical list -->
     <ul *ngIf="type === 'list'">
@@ -20,7 +20,7 @@
     </ul>
 
     <!-- Badge type: pill-styled clickable badge -->
-    <span *ngIf="type === 'badge'" class="badge" (click)="handleClick(value)">
+    <span *ngIf="type === 'badge' && value" class="badge" (click)="handleClick(value)">
       <i *ngIf="icon" [class]="icon"></i>
       {{ value | translate }}
     </span>
@@ -31,6 +31,10 @@
         <strong [class.uppercase]="listKeyUppercase">{{ key }}:</strong> {{ getKeyValue(key) | translate }}
       </li>
     </ul>
+
+    <ng-content
+      select="[metadata-section-item-content]"
+    ></ng-content>
 
   </div>
 
