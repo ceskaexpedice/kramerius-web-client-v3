@@ -265,6 +265,29 @@ export const facetToSearchFieldMapper: { [key: string]: string[] } = {
 };
 
 /**
+ * Mapper for advanced search fields. Maps solr field keys to their corresponding search field keys.
+ * This allows different mappings for advanced search compared to regular facet filtering.
+ * For example: 'authors.facet' might map to ['authors.search', 'authors_exact.search'] in advanced search
+ */
+export const advancedSearchFieldMapper: { [key: string]: string[] } = {
+  [facetKeysEnum.authors]: ['authors.search'],
+  [facetKeysEnum.keywords]: ['keywords.search'],
+  ['title.search']: ['title.search']
+};
+
+/**
+ * Maps a solr field to its corresponding search fields for advanced search.
+ * @param solrField - The solr field key to map
+ * @returns Array of mapped search field keys, or the original field if no mapping exists
+ */
+export function mapAdvancedSearchField(solrField: string): string[] {
+  if (advancedSearchFieldMapper[solrField]) {
+    return advancedSearchFieldMapper[solrField];
+  }
+  return [solrField];
+}
+
+/**
  * Maps filter strings from facet keys to search field keys.
  * For example: 'keywords.facet:value' becomes ['keywords.search:value', 'keywords_exact.search:value']
  * @param filters - Array of filter strings in format 'facetKey:value'

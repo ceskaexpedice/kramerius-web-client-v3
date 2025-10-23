@@ -13,6 +13,7 @@ import {QueryParamsService} from '../../core/services/QueryParamsManager';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {take} from 'rxjs';
+import {mapAdvancedSearchField} from '../../modules/search-results-page/const/facets';
 
 export interface FilterGroup {
   filters: AdvancedFilterDefinition[];
@@ -173,7 +174,7 @@ export class AdvancedSearchService {
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
         .filter(filter => !!filter.solrValue?.trim())
-        .map(filter => {
+        .flatMap(filter => {
           console.log('Processing filter:', filter);
 
           let isRange = false;
@@ -232,11 +233,17 @@ export class AdvancedSearchService {
             useRaw = true;
           }
 
-          return isRange
-            ? `${fieldPrefix}${filter.solrField}:${value}`
-            : useRaw
-              ? `${fieldPrefix}${filter.solrField}:(${value})`
-              : `${fieldPrefix}${filter.solrField}:"${value}"`;
+          // Map the solr field to search fields if applicable
+          const mappedFields = mapAdvancedSearchField(filter.solrField || '');
+
+          // Generate query parts for each mapped field
+          return mappedFields.map((mappedField: any) => {
+            return isRange
+              ? `${fieldPrefix}${mappedField}:${value}`
+              : useRaw
+                ? `${fieldPrefix}${mappedField}:(${value})`
+                : `${fieldPrefix}${mappedField}:"${value}"`;
+          });
         });
 
       return parts.length > 0
