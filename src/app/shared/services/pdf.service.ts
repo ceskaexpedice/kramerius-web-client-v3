@@ -520,4 +520,29 @@ export class PdfService {
     this.pdfProperties.zoom = 'page-fit';
   }
 
+  async getPageAsText(pageNumber?: number): Promise<string | undefined> {
+    const currentPage = pageNumber || this.getCurrentPage();
+
+    try {
+      const text = await this.ngxExtendedPdfViewerService.getPageAsText(currentPage);
+      return text;
+    } catch (error) {
+      console.error(`Error extracting text from page ${currentPage}:`, error);
+      return undefined;
+    }
+  }
+
+  async extractCurrentPageText(): Promise<void> {
+    const currentPage = this.getCurrentPage();
+    console.log(`Extracting text from page ${currentPage}...`);
+
+    const text = await this.getPageAsText(currentPage);
+
+    if (text) {
+      console.log(`Text from page ${currentPage}:`, text);
+    } else {
+      console.log(`No text found on page ${currentPage}`);
+    }
+  }
+
 }

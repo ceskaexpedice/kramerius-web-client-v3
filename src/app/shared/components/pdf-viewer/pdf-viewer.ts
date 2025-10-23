@@ -116,4 +116,8 @@ export class PdfViewer implements OnInit, OnDestroy {
     this.pdfService.setCurrentPage(page);
   }
 
+  async onTextViewToggle(): Promise<void> {
+    await this.pdfService.extractCurrentPageText();
+  }
+
 }

@@ -58,9 +58,18 @@ export class SearchEffects {
         }).pipe(
           switchMap(({resultsRes, facetsRes, facetsAllRes}) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-              doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
-                return parseSearchDocument(doc)
-              },
+              // Try to get highlighting by pid first, then check for keys containing "!" (rootPid!pagePid format)
+              let highlighting = resultsRes.highlighting?.[doc.pid];
+              if (!highlighting || Object.keys(highlighting).length === 0) {
+                // Look for highlighting key with format "rootPid!pagePid" where the part after "!" matches doc.pid
+                const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
+                  key.includes('!') && key.split('!')[1] === doc.pid
+                );
+                highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
+              }
+              doc['highlighting'] = highlighting || {};
+              return parseSearchDocument(doc)
+            },
             );
 
             const facets = handleFacetsWithOperators(
