@@ -40,7 +40,7 @@ export class AuthEffects {
       tap(() => {
         // Clean up the callback URL from browser history before navigation
         this.cleanCallbackFromHistory();
-        
+
         const originalRoute = this.authService.getOriginalRoute();
         if (originalRoute) {
           this.authService.clearOriginalRoute();
@@ -84,7 +84,8 @@ export class AuthEffects {
             return of(AuthActions.loginSuccess({ tokens, user }));
           }
         }
-        return of(AuthActions.logout());
+        // No valid token - just return empty, don't trigger logout
+        return of({ type: 'NO_ACTION' });
       })
     )
   );
