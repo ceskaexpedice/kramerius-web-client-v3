@@ -78,7 +78,7 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
       transform: transform.join(' '),
       width: props.fitToScreen ? '100%' : 'auto',
       height: props.fitToScreen ? '100%' : 'auto',
-      objectFit: props.fitToScreen ? 'contain' : 'none'
+      objectFit: props.fitToScreen ? 'contain' : 'fill'
     };
   }
 
