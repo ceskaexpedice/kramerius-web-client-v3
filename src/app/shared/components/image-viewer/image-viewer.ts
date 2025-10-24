@@ -70,15 +70,31 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
       transform.push(`rotate(${props.rotation}deg)`);
     }
 
-    if (props.zoom && !props.fitToScreen) {
-      transform.push(`scale(${props.zoom / 100})`);
+    // Apply zoom using width/height instead of scale transform
+    let widthStyle = 'auto';
+    let heightStyle = 'auto';
+    let maxWidthStyle = '100%';
+    let maxHeightStyle = '100%';
+
+    if (props.fitToScreen) {
+      // Fit to height of available space
+      heightStyle = '100%';
+      widthStyle = 'auto';
+      maxWidthStyle = 'none';
+      maxHeightStyle = 'none';
+    } else if (props.zoom && props.zoom !== 100) {
+      // Apply zoom by changing max-width/max-height
+      maxWidthStyle = `${props.zoom}%`;
+      maxHeightStyle = `${props.zoom}%`;
     }
 
     this.imageStyles = {
-      transform: transform.join(' '),
-      width: props.fitToScreen ? '100%' : 'auto',
-      height: props.fitToScreen ? '100%' : 'auto',
-      objectFit: props.fitToScreen ? 'contain' : 'fill'
+      transform: transform.join(' ') || 'none',
+      width: widthStyle,
+      height: heightStyle,
+      maxWidth: maxWidthStyle,
+      maxHeight: maxHeightStyle,
+      objectFit: props.fitToScreen ? 'contain' : 'initial'
     };
   }
 

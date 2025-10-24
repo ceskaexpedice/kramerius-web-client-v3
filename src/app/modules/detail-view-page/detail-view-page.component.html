@@ -92,7 +92,7 @@
 
   </ng-container>
 
-  <ng-container main-content>
+  <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical">
         <div class="max-width-100" left>
@@ -139,7 +139,11 @@
           </div>
         </div>
       </app-action-toolbar>
+    </ng-container>
+  </ng-container>
 
+  <ng-container main-content>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
         <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf">
 

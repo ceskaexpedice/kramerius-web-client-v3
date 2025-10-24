@@ -30,12 +30,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .detail-view--page--content--wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-x4);
+  padding: 0 var(--spacing-x4);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);

@@ -18,7 +18,7 @@ export class ImageViewerService {
     zoom: 100,
     rotation: 0,
     fullscreen: false,
-    fitToScreen: false
+    fitToScreen: true
   }
 
   _uuid: string | null = null;
@@ -107,7 +107,7 @@ export class ImageViewerService {
       zoom: 100,
       rotation: 0,
       fullscreen: false,
-      fitToScreen: false
+      fitToScreen: true
     };
     this.propertiesSubject.next(this.imageViewerProperties);
   }
@@ -117,7 +117,7 @@ export class ImageViewerService {
     if (this.imageViewerProperties.fitToScreen) {
       this.imageViewerProperties.fitToScreen = false;
     }
-    this.imageViewerProperties.zoom += 10;
+    this.imageViewerProperties.zoom = Math.min(500, this.imageViewerProperties.zoom + 10);
     this.propertiesSubject.next(this.imageViewerProperties);
   }
 

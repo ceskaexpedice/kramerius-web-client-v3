@@ -13,6 +13,10 @@
 
     <main class="detail-layout--main">
 
+      <div class="detail-layout--action-toolbar">
+        <ng-content select="[action-toolbar]"></ng-content>
+      </div>
+
       <div class="detail-layout--main-content" [class.detail-layout--main-content--with-right-sidebar]="showRightSidebar">
 
         <ng-content select="[main-content]"></ng-content>

@@ -39,7 +39,7 @@ export class PdfService {
   }
 
   pdfProperties: PdfProperties = {
-    zoom: 100,
+    zoom: 'page-fit',
     rotation: 0,
     fullscreen: false,
     bookMode: false,
