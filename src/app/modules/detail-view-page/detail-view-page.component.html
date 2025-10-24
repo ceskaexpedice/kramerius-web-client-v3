@@ -1,7 +1,7 @@
 <app-detail-layout
   [showBottomToolbar]="!detailViewService.document?.pdf"
   [constrainBottomToolbar]="true"
-  [showRightSidebar]="detailViewService.document?.pdf || false"
+  [showRightSidebar]="true"
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <ng-container left-sidebar>
@@ -64,12 +64,12 @@
               <app-admin-actions [compact]="true"></app-admin-actions>
             </div>
 
-            <div class="flex flex--align-center flex--justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">
-              <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">
-                {{'multi-page-choice' | translate}}
-                <i class="icon-tick-square"></i>
-              </button>
-            </div>
+<!--            <div class="flex flex&#45;&#45;align-center flex&#45;&#45;justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">-->
+<!--              <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">-->
+<!--                {{'multi-page-choice' | translate}}-->
+<!--                <i class="icon-tick-square"></i>-->
+<!--              </button>-->
+<!--            </div>-->
 
             <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
               {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
@@ -132,6 +132,7 @@
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (editClicked)="adminSelectionService.toggleAdminMode()"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
@@ -146,19 +147,19 @@
 
             <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
 
-            @if (!detailViewService.metadataSidebarVisible) {
-
-              <button
-                class="floating-sidebar-toggle button outlined tertiary with-icon"
-                (click)="detailViewService.showMetadataSidebar()">
-                <i class="icon-sidebar-bottom"></i>
-                {{ 'show--metadata-sidebar' | translate}}
-              </button>
-            }
-
           } @else {
             <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
                  class="app-document-thumbnail">
+          }
+
+          @if (!detailViewService.metadataSidebarVisible) {
+
+            <button
+              class="floating-sidebar-toggle button outlined tertiary with-icon"
+              (click)="detailViewService.showMetadataSidebar()">
+              <i class="icon-sidebar-bottom"></i>
+              {{ 'show--metadata-sidebar' | translate}}
+            </button>
           }
         </div>
       </div>
@@ -167,9 +168,7 @@
 
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      @if (document.pdf) {
         <app-pdf-metadata-sidebar [metadata]="document"></app-pdf-metadata-sidebar>
-      }
     </ng-container>
   </ng-container>
 
