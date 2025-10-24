@@ -1,0 +1,12 @@
+<div class="image-viewer-container" [class.fullscreen]="(imageViewerService.properties$ | async)?.fullscreen">
+  <div class="image-viewer-main">
+    <div class="image-wrapper">
+      <img
+        *ngIf="imageUrl"
+        [src]="imageUrl"
+        [ngStyle]="imageStyles"
+        alt="Document preview"
+        class="image-viewer-image">
+    </div>
+  </div>
+</div>

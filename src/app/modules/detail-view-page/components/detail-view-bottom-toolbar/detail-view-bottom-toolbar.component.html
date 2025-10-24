@@ -1,31 +1,10 @@
-<!--<button>-->
-<!--  <i class="icon-profile-delete"></i>-->
-<!--</button>-->
-
 <div class="actions">
-
-  <button class="button tertiary outlined">
-    <i class="icon-search-zoom-in"></i>
-  </button>
-
-  <button class="button tertiary outlined">
-    <i class="icon-search-zoom-out"></i></button>
-
-  <button class="button tertiary outlined">
-    <i class="icon-maximize-3"></i>
-  </button>
-
-  <button class="button tertiary outlined">
-    <i class="icon-pharagraphspacing"></i>
-  </button>
-
-  <button class="button tertiary outlined">
-    <i class="icon-grid-lock"></i>
-  </button>
-
-  <button class="button tertiary outlined">
-    <i class="icon-rotate-right"></i>
-  </button>
-
-
+  <app-image-viewer-controls
+    (zoomIn)="onZoomIn()"
+    (zoomOut)="onZoomOut()"
+    (rotate)="onRotate()"
+    (toggleFullscreen)="onFullscreen()"
+    (toggleFitToScreen)="onFitToScreen()"
+    (resetView)="onResetView()">
+  </app-image-viewer-controls>
 </div>

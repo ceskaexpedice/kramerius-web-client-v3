@@ -148,8 +148,11 @@
             <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
 
           } @else {
-            <img *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)" [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-                 class="app-document-thumbnail">
+            <app-image-viewer
+              *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+              [metadata]="document"
+              [imagePid]="detailViewService.currentPagePid">
+            </app-image-viewer>
           }
 
           @if (!detailViewService.metadataSidebarVisible) {
