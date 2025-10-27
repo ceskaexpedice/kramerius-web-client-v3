@@ -73,6 +73,7 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
     let heightStyle = 'auto';
     let maxWidthStyle = '100%';
     let maxHeightStyle = '100%';
+    let objectFitStyle = 'initial';
 
     if (props.fitToScreen) {
       // Fit to height of available space
@@ -80,6 +81,14 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
       widthStyle = 'auto';
       maxWidthStyle = 'none';
       maxHeightStyle = 'none';
+      objectFitStyle = 'contain';
+    } else if (props.fitToWidth) {
+      // Fit to width of available space
+      widthStyle = '100%';
+      heightStyle = 'auto';
+      maxWidthStyle = 'none';
+      maxHeightStyle = 'none';
+      objectFitStyle = 'contain';
     } else if (props.zoom && props.zoom !== 100) {
       // Apply zoom by changing max-width/max-height
       maxWidthStyle = `${props.zoom}%`;
@@ -92,7 +101,7 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
       height: heightStyle,
       maxWidth: maxWidthStyle,
       maxHeight: maxHeightStyle,
-      objectFit: props.fitToScreen ? 'contain' : 'initial'
+      objectFit: objectFitStyle
     };
   }
 

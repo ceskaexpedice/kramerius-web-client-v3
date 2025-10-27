@@ -17,10 +17,10 @@ export class ViewerControls {
   @Output() toggleFitToScreen = new EventEmitter<void>();
   @Output() toggleFullscreen = new EventEmitter<void>();
   @Output() rotate = new EventEmitter<void>();
+  @Output() toggleFitToWidth = new EventEmitter<void>();
 
   // PDF-specific events
   @Output() toggleScrollMode = new EventEmitter<void>();
-  @Output() toggleGridView = new EventEmitter<void>();
   @Output() toggleTextView = new EventEmitter<void>();
   @Output() bookMode = new EventEmitter<void>();
 
@@ -51,8 +51,8 @@ export class ViewerControls {
     this.toggleScrollMode.emit();
   }
 
-  onGridView() {
-    this.toggleGridView.emit();
+  onToggleFitToWidth() {
+    this.toggleFitToWidth.emit();
   }
 
   onTextView() {

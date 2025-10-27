@@ -71,11 +71,17 @@ export class PdfService {
 
   // Subject for triggering page navigation
   private navigateToPageSubject = new BehaviorSubject<number | null>(null);
-  public navigateToPage$: Observable<number | null> = this.navigateToPageSubject.asObservable();
 
   // Subject for search query
   private searchQuerySubject = new BehaviorSubject<string>('');
   public searchQuery$: Observable<string> = this.searchQuerySubject.asObservable();
+
+  // Subject for PDF properties changes
+  private propertiesSubject = new BehaviorSubject<PdfProperties>(this.pdfProperties);
+  public properties$: Observable<PdfProperties> = this.propertiesSubject.asObservable();
+
+  // Observable for pages with search results
+  private pagesWithResultSubject = new BehaviorSubject<number[]>([]);
 
   constructor(
     private env: EnvironmentService,
@@ -231,6 +237,13 @@ export class PdfService {
         findMultiple: this.pdfFindProperties.multiple,
         regexp: this.pdfFindProperties.matchRegExp
       });
+
+      // Collect pages with results and emit them
+      if (numberOfResultsPromises) {
+        Promise.all(numberOfResultsPromises).then(() => {
+          this.pagesWithResultSubject.next([...this.pdfFindResult.pagesWithResult]);
+        });
+      }
 
       numberOfResultsPromises?.forEach(async (numberOfResultsPromise: any, pageIndex: any) => {
         const numberOfResultsPerPage = await numberOfResultsPromise;
@@ -502,9 +515,19 @@ export class PdfService {
     this.totalPagesSubject.next(0);
     this.navigateToPageSubject.next(null);
     this.searchQuerySubject.next('');
+    this.pagesWithResultSubject.next([]);
     this.thumbnailCache.clear();
     this.generatingThumbnails.clear();
     this.pdfViewerReady = false;
+    this.pdfProperties = {
+      zoom: 'page-fit',
+      rotation: 0,
+      fullscreen: false,
+      bookMode: false,
+      pageViewMode: 'single',
+      textLayerMode: true
+    };
+    this.propertiesSubject.next(this.pdfProperties);
   }
 
   private getCurrentScaleFactor(): number {
@@ -558,6 +581,7 @@ export class PdfService {
 
   toggleFullscreen(): void {
     this.pdfProperties.fullscreen = !this.pdfProperties.fullscreen;
+    this.propertiesSubject.next(this.pdfProperties);
   }
 
   togglePageViewMode(): void {
@@ -589,6 +613,10 @@ export class PdfService {
 
   fitToScreen() {
     this.pdfProperties.zoom = 'page-fit';
+  }
+
+  fitToWidth() {
+    this.pdfProperties.zoom = 'page-width';
   }
 
   async getPageAsText(pageNumber?: number): Promise<string | undefined> {

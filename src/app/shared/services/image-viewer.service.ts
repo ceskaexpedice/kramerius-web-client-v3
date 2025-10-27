@@ -7,6 +7,7 @@ export interface ImageViewerProperties {
   rotation: 0 | 90 | 180 | 270;
   fullscreen: boolean;
   fitToScreen: boolean;
+  fitToWidth: boolean;
 }
 
 @Injectable({
@@ -18,7 +19,8 @@ export class ImageViewerService {
     zoom: 100,
     rotation: 0,
     fullscreen: false,
-    fitToScreen: true
+    fitToScreen: true,
+    fitToWidth: false
   }
 
   _uuid: string | null = null;
@@ -107,23 +109,32 @@ export class ImageViewerService {
       zoom: 100,
       rotation: 0,
       fullscreen: false,
-      fitToScreen: true
+      fitToScreen: true,
+      fitToWidth: false
     };
     this.propertiesSubject.next(this.imageViewerProperties);
   }
 
   // Zoom controls
   zoomIn(): void {
+    // Manual zoom disables both fit modes
     if (this.imageViewerProperties.fitToScreen) {
       this.imageViewerProperties.fitToScreen = false;
+    }
+    if (this.imageViewerProperties.fitToWidth) {
+      this.imageViewerProperties.fitToWidth = false;
     }
     this.imageViewerProperties.zoom = Math.min(500, this.imageViewerProperties.zoom + 10);
     this.propertiesSubject.next(this.imageViewerProperties);
   }
 
   zoomOut(): void {
+    // Manual zoom disables both fit modes
     if (this.imageViewerProperties.fitToScreen) {
       this.imageViewerProperties.fitToScreen = false;
+    }
+    if (this.imageViewerProperties.fitToWidth) {
+      this.imageViewerProperties.fitToWidth = false;
     }
     this.imageViewerProperties.zoom = Math.max(10, this.imageViewerProperties.zoom - 10);
     this.propertiesSubject.next(this.imageViewerProperties);
@@ -158,7 +169,19 @@ export class ImageViewerService {
   fitToScreen(): void {
     this.imageViewerProperties.fitToScreen = !this.imageViewerProperties.fitToScreen;
     if (this.imageViewerProperties.fitToScreen) {
-      this.imageViewerProperties.zoom = 100; // Reset zoom when fitting to screen
+      // When enabling fitToScreen, disable fitToWidth and reset zoom
+      this.imageViewerProperties.fitToWidth = false;
+      this.imageViewerProperties.zoom = 100;
+    }
+    this.propertiesSubject.next(this.imageViewerProperties);
+  }
+
+  fitToWidth(): void {
+    this.imageViewerProperties.fitToWidth = !this.imageViewerProperties.fitToWidth;
+    if (this.imageViewerProperties.fitToWidth) {
+      // When enabling fitToWidth, disable fitToScreen and reset zoom
+      this.imageViewerProperties.fitToScreen = false;
+      this.imageViewerProperties.zoom = 100;
     }
     this.propertiesSubject.next(this.imageViewerProperties);
   }
@@ -168,6 +191,7 @@ export class ImageViewerService {
     this.imageViewerProperties.zoom = 100;
     this.imageViewerProperties.rotation = 0;
     this.imageViewerProperties.fitToScreen = false;
+    this.imageViewerProperties.fitToWidth = false;
     this.propertiesSubject.next(this.imageViewerProperties);
   }
 }

@@ -31,6 +31,10 @@ export class DetailViewBottomToolbarComponent {
     this.imageViewerService.fitToScreen();
   }
 
+  onFitToWidth(): void {
+    this.imageViewerService.fitToWidth();
+  }
+
   onResetView(): void {
     this.imageViewerService.resetView();
   }

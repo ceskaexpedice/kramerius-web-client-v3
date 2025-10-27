@@ -1,3 +1,20 @@
+.pdf-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  &.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+  }
+}
+
 ::ng-deep {
   pdf-sidebar {
     display: none !important;
@@ -18,6 +35,10 @@
 
   .pdfViewer {
     background: transparent !important;
+  }
+
+  .pdf-viewer-container.fullscreen #viewer, .pdf-viewer-container.fullscreen #viewerContainer {
+    background: var(--color-bg-base) !important;
   }
 
   .page {
