@@ -1,12 +1,16 @@
-<div class="image-viewer-container" [class.fullscreen]="(imageViewerService.properties$ | async)?.fullscreen" (wheel)="onWheel($event)">
-  <div class="image-viewer-main">
-    <div class="image-wrapper">
-      <img
-        *ngIf="imageUrl"
-        [src]="imageUrl"
-        [ngStyle]="imageStyles"
-        alt="Document preview"
-        class="image-viewer-image">
+<app-fullscreen
+  [isFullscreen]="(imageViewerService.properties$ | async)?.fullscreen || false"
+  (closeFullscreen)="imageViewerService.toggleFullscreen()">
+  <div class="image-viewer-container" (wheel)="onWheel($event)">
+    <div class="image-viewer-main">
+      <div class="image-wrapper">
+        <img
+          *ngIf="imageUrl"
+          [src]="imageUrl"
+          [ngStyle]="imageStyles"
+          alt="Document preview"
+          class="image-viewer-image">
+      </div>
     </div>
   </div>
-</div>
+</app-fullscreen>

@@ -4,6 +4,7 @@ import { Metadata } from '../../models/metadata.model';
 import { ImageViewerService } from '../../services/image-viewer.service';
 import { Subscription } from 'rxjs';
 import { EnvironmentService } from '../../services/environment.service';
+import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 
 @Component({
   selector: 'app-image-viewer',
@@ -11,6 +12,7 @@ import { EnvironmentService } from '../../services/environment.service';
     AsyncPipe,
     NgStyle,
     NgIf,
+    FullscreenComponent,
   ],
   templateUrl: './image-viewer.html',
   styleUrl: './image-viewer.scss'

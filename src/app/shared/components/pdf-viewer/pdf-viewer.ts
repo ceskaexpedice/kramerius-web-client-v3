@@ -6,6 +6,7 @@ import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ViewerControls} from '../viewer-controls/viewer-controls';
+import {FullscreenComponent} from '../fullscreen/fullscreen.component';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -13,6 +14,7 @@ import {ViewerControls} from '../viewer-controls/viewer-controls';
     NgxExtendedPdfViewerModule,
     AsyncPipe,
     ViewerControls,
+    FullscreenComponent,
   ],
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'
