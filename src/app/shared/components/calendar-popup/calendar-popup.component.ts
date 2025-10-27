@@ -90,7 +90,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
       border-radius: var(--spacing-x2);
       box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
       width: 280px;
-      z-index: var(--calendar-popup-overlay-ts);
+      z-index: 800;
       margin-top: 4px;
       padding: var(--spacing-x2) var(--spacing-x5) var(--spacing-x5) var(--spacing-x5);
     }
