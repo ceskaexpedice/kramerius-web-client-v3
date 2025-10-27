@@ -37,7 +37,8 @@
     (wheel)="onWheel($event)"
   ></ngx-extended-pdf-viewer>
 
-  <app-pdf-viewer-controls
+  <app-viewer-controls
+    type="pdf"
     (zoomIn)="pdfService.zoomIn()"
     (zoomOut)="pdfService.zoomOut()"
     (toggleScrollMode)="pdfService.togglePageViewMode()"
@@ -45,5 +46,5 @@
     (bookMode)="pdfService.bookModeToggle()"
     (toggleFitToScreen)="pdfService.fitToScreen()"
     (toggleTextView)="onTextViewToggle()"
-  ></app-pdf-viewer-controls>
+  ></app-viewer-controls>
 }

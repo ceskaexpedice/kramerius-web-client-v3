@@ -1,10 +1,11 @@
 <div class="actions">
-  <app-image-viewer-controls
+  <app-viewer-controls
+    type="image"
     (zoomIn)="onZoomIn()"
     (zoomOut)="onZoomOut()"
     (rotate)="onRotate()"
     (toggleFullscreen)="onFullscreen()"
     (toggleFitToScreen)="onFitToScreen()"
     (resetView)="onResetView()">
-  </app-image-viewer-controls>
+  </app-viewer-controls>
 </div>

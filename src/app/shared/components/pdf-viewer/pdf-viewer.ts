@@ -5,14 +5,14 @@ import {PdfService} from '../../services/pdf.service';
 import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import {PdfViewerControls} from './pdf-viewer-controls/pdf-viewer-controls';
+import {ViewerControls} from '../viewer-controls/viewer-controls';
 
 @Component({
   selector: 'app-pdf-viewer',
   imports: [
     NgxExtendedPdfViewerModule,
     AsyncPipe,
-    PdfViewerControls,
+    ViewerControls,
   ],
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'

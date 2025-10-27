@@ -458,17 +458,35 @@ export class PdfService {
     this.pdfViewerReady = false;
   }
 
+  private getCurrentScaleFactor(): number {
+    // Try to get the scale factor from the viewer element
+    const viewerElement = document.getElementById('viewer');
+    if (viewerElement) {
+      const scaleFactor = getComputedStyle(viewerElement).getPropertyValue('--scale-factor');
+      if (scaleFactor) {
+        const scale = parseFloat(scaleFactor);
+        if (!isNaN(scale) && scale > 0) {
+          return scale;
+        }
+      }
+    }
+    // Default to 1.0 if we can't get the scale factor
+    return 1.0;
+  }
+
   zoomIn(): void {
-    // check if zoom is a number, if not make it and add 5
+    // check if zoom is a number, if not calculate it from current scale
     if (typeof this.pdfProperties.zoom !== 'number') {
-      this.pdfProperties.zoom = 100;
+      const currentScale = this.getCurrentScaleFactor();
+      this.pdfProperties.zoom = Math.round(currentScale * 100);
     }
     this.pdfProperties.zoom += 5;
   }
 
   zoomOut(): void {
     if (typeof this.pdfProperties.zoom !== 'number') {
-      this.pdfProperties.zoom = 100;
+      const currentScale = this.getCurrentScaleFactor();
+      this.pdfProperties.zoom = Math.round(currentScale * 100);
     }
     this.pdfProperties.zoom -= 5;
   }

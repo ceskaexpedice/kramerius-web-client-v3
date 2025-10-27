@@ -1,0 +1,52 @@
+<div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'">
+  <!-- Common buttons for both viewers -->
+  <button (click)="onZoomIn()" class="button tertiary outlined" title="Zoom In">
+    <i class="icon icon-search-zoom-in"></i>
+  </button>
+
+  <button (click)="onZoomOut()" class="button tertiary outlined" title="Zoom Out">
+    <i class="icon icon-search-zoom-out"></i>
+  </button>
+
+  <button (click)="onFitToScreen()" class="button tertiary outlined" title="Fit to screen">
+    <i class="icon icon-maximize-3"></i>
+  </button>
+
+  <!-- PDF-specific buttons -->
+  <ng-container *ngIf="type === 'pdf'">
+    <button (click)="onScrollMode()" class="button tertiary outlined" title="Toggle Scroll Mode">
+      <i class="icon icon-pharagraphspacing"></i>
+    </button>
+
+    <button (click)="onGridView()" class="button tertiary outlined" title="Toggle Grid View">
+      <i class="icon icon-grid-lock"></i>
+    </button>
+
+    <button (click)="onRotate()" class="button tertiary outlined" title="Rotate">
+      <i class="icon icon-rotate-right"></i>
+    </button>
+
+    <button (click)="onTextView()" class="button tertiary outlined" title="Toggle Text View">
+      <i class="icon icon-text"></i>
+    </button>
+
+    <button (click)="onBookMode()" class="button tertiary outlined" title="Book mode">
+      <i class="icon icon-book"></i>
+    </button>
+  </ng-container>
+
+  <!-- Image-specific buttons -->
+  <ng-container *ngIf="type === 'image'">
+    <button class="button tertiary outlined" (click)="onFullscreen()" title="Fullscreen">
+      <i class="icon icon-pharagraphspacing"></i>
+    </button>
+
+    <button class="button tertiary outlined" (click)="onRotate()" title="Rotate">
+      <i class="icon icon-rotate-right"></i>
+    </button>
+
+    <button class="button tertiary outlined" (click)="onResetView()" title="Reset View">
+      <i class="icon icon-grid-lock"></i>
+    </button>
+  </ng-container>
+</div>

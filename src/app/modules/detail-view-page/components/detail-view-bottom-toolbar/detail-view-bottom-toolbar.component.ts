@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { ImageViewerControls } from '../../../../shared/components/image-viewer/image-viewer-controls/image-viewer-controls';
+import { ViewerControls } from '../../../../shared/components/viewer-controls/viewer-controls';
 import { ImageViewerService } from '../../../../shared/services/image-viewer.service';
 
 @Component({
   selector: 'app-detail-view-bottom-toolbar',
-  imports: [ImageViewerControls, ImageViewerControls],
+  imports: [ViewerControls],
   templateUrl: './detail-view-bottom-toolbar.component.html',
   styleUrl: './detail-view-bottom-toolbar.component.scss'
 })

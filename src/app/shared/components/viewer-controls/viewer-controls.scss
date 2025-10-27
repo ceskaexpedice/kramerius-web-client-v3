@@ -1,0 +1,23 @@
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  button {
+    width: 32px;
+    height: 32px;
+  }
+
+  &.pdf-layout {
+    flex-direction: column;
+    background-color: var(--color-bg-base);
+    border-radius: 12px;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  &.image-layout {
+    flex-direction: row;
+    gap: var(--spacing-x2);
+  }
+}
