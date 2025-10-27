@@ -44,7 +44,7 @@ export class PdfService {
     fullscreen: false,
     bookMode: false,
     pageViewMode: 'single',
-    textLayerMode: false
+    textLayerMode: true
   }
 
   _uuid: string | null = null;
@@ -512,13 +512,17 @@ export class PdfService {
   }
 
   togglePageViewMode(): void {
-    // Toggle between single and multiple
-    if (this.pdfProperties.pageViewMode === 'multiple') {
-      this.pdfProperties.pageViewMode = 'single';
-    } else {
-      this.pdfProperties.pageViewMode = 'multiple';
-    }
-    console.log('togglePageViewMode', this.pdfProperties.pageViewMode);
+    const current = this.pdfProperties.pageViewMode;
+    const next = current === 'multiple' ? 'single' : 'multiple';
+
+    setTimeout(() => {
+      this.pdfProperties = {
+        ...this.pdfProperties,
+        pageViewMode: next
+      };
+    }, 0);
+
+    console.log('Switched to view mode:', next);
   }
 
   bookModeToggle() {
