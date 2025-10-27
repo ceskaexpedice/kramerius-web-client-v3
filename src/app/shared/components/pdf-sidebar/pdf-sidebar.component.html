@@ -11,16 +11,50 @@
         [showMicButton]="true"
         (valueChange)="onSearchChange($event)"
       ></app-input>
-      <hr>
-      <app-page-navigator
-        [currentPage]="(pdfService.currentPage$ | async) || 1"
-        [totalPages]="(pdfService.totalPages$ | async) || 0"
-        (next)="goToNext()"
-        (prev)="goToPrevious()"
-        (pageChange)="goToPage($event)"
-      ></app-page-navigator>
-      <hr>
-    <app-pdf-content-tree></app-pdf-content-tree>
+
+      @if (pdfService.searchQuery$ | async) {
+        <div class="search-navigation">
+
+          <div class="search-results-count">
+            @if (pdfService.totalMatches && pdfService.totalMatches > 0) {
+              <span>{{ pdfService.currentMatchNumber }} / {{ pdfService.totalMatches }}</span>
+            } @else if (pdfService.findState === FindState.PENDING) {
+              <span>Searching...</span>
+            } @else {
+              <span>No results</span>
+            }
+          </div>
+
+          <div class="actions">
+
+            <button class="button tertiary outlined"
+                    (click)="findPreviousMatch()"
+                    [disabled]="!pdfService.totalMatches">
+              <i class="icon-arrow-left-1"></i>
+            </button>
+
+            <button class="button tertiary outlined"
+                    (click)="findNextMatch()"
+                    [disabled]="!pdfService.totalMatches">
+              <i class="icon-arrow-right-1"></i>
+            </button>
+
+          </div>
+
+        </div>
+        <hr>
+      } @else {
+        <hr>
+        <app-page-navigator
+          [currentPage]="(pdfService.currentPage$ | async) || 1"
+          [totalPages]="(pdfService.totalPages$ | async) || 0"
+          (next)="goToNext()"
+          (prev)="goToPrevious()"
+          (pageChange)="goToPage($event)"
+        ></app-page-navigator>
+        <hr>
+        <app-pdf-content-tree></app-pdf-content-tree>
+      }
 
   </div>
 

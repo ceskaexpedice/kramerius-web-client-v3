@@ -93,23 +93,38 @@ export class PdfViewer implements OnInit, OnDestroy {
   onPdfLoaded(event: any): void {
     console.log('onPdfLoaded - event:', event);
 
-    // The event structure varies, try to find the PDF document
-    let pdfDocument = {
-      pagesCount: event.pagesCount || 0,
-    };
+    // Store the actual PDF document reference from the event
+    // The event can contain the document in different ways depending on the library version
+    const pdfDocument = event.source?._pdfDocument || event.pdfDocument || event;
 
     // Store the PDF document reference in the service for page resolution
     this.pdfService.setPdfDocument(pdfDocument);
 
     // Set total pages
-    if (pdfDocument.pagesCount) {
-      this.pdfService.setTotalPages(pdfDocument.pagesCount);
+    const pagesCount = event.pagesCount || pdfDocument?.numPages || 0;
+    if (pagesCount) {
+      this.pdfService.setTotalPages(pagesCount);
     }
   }
 
   onPagesLoaded(event: any): void {
-    // Pages are fully loaded, PDF viewer is now ready for search
-    this.pdfService.setPdfViewerReady();
+    // Pages are loaded - pass the component reference and mark as ready
+    console.log('Pages loaded, passing viewer component to service...');
+
+    // Pass the ViewChild component reference to the service
+    if (this.pdfViewer) {
+      this.pdfService.setPdfViewerComponent(this.pdfViewer);
+      console.log('PDF viewer component set');
+    }
+
+    // Wait 1 second for the component service to be fully initialized
+    setTimeout(() => {
+      this.pdfService.setPdfViewerReady();
+      console.log('PDF viewer marked as ready for search');
+    }, 1000);
+  }
+
+  onTextLayerRendered(event: any): void {
   }
 
   onPageChange(page: number): void {

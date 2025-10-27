@@ -39,3 +39,32 @@ hr {
     padding: 16px;
   }
 }
+
+.search-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-x2);
+}
+
+.search-results-count {
+  flex: 1;
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: var(--font-size-small);
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+
+  button {
+    flex-shrink: 0;
+    padding: 12px;
+  }
+}

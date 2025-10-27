@@ -3,7 +3,7 @@ import {EnvironmentService} from './environment.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
 import {PdfPageThumbnail} from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import {FindState, NgxExtendedPdfViewerService, PageViewModeType, ZoomType} from 'ngx-extended-pdf-viewer';
+import {FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType} from 'ngx-extended-pdf-viewer';
 
 export interface PdfProperties {
   zoom: ZoomType;
@@ -30,6 +30,8 @@ export class PdfService {
   }
 
   findState: FindState | undefined = undefined;
+  currentMatchNumber: number | undefined = undefined;
+  totalMatches: number | undefined = undefined;
 
   pdfFindResult = {
     currentMatchNumber: undefined as number | undefined,
@@ -51,7 +53,8 @@ export class PdfService {
   private _pdfDocument: any = null;
   private thumbnailCache: Map<number, string> = new Map();
   private generatingThumbnails: Set<number> = new Set();
-  private pdfViewerReady: boolean = false;
+  public pdfViewerReady: boolean = false;
+  private pdfViewerComponent: any = null;
 
   // Observables for PDF state
   private outlineSubject = new BehaviorSubject<PdfOutlineItem[]>([]);
@@ -145,10 +148,11 @@ export class PdfService {
   // Set search query
   setSearchQuery(query: string): void {
     this.searchQuerySubject.next(query);
+  }
 
-    if (this.pdfViewerReady) {
-      this.find();
-    }
+  // Set the PDF viewer component reference
+  setPdfViewerComponent(component: any): void {
+    this.pdfViewerComponent = component;
   }
 
   // Mark PDF viewer as ready
@@ -163,70 +167,115 @@ export class PdfService {
 
   public updateFindState(result: FindState) {
     this.findState = result;
+    // Map FindState enum to our string type
+    if (result === FindState.FOUND) {
+      this.pdfFindResult.findState = 'found';
+    } else if (result === FindState.NOT_FOUND) {
+      this.pdfFindResult.findState = 'notfound';
+    } else if (result === FindState.PENDING) {
+      this.pdfFindResult.findState = 'pending';
+    } else {
+      this.pdfFindResult.findState = undefined;
+    }
   }
 
-  private find(): Array<Promise<number>> | undefined {
+  public updateFindMatchesCount(result: FindResultMatchesCount) {
+    this.currentMatchNumber = result.current;
+    this.totalMatches = result.total;
+    this.pdfFindResult.currentMatchNumber = result.current;
+    this.pdfFindResult.totalMatches = result.total;
+  }
+
+  public find(): Array<Promise<number>> | undefined {
     this.pdfFindResult.pagesWithResult = [];
 
     let searchtext = this.getSearchQuery();
 
     // If search text is empty, clear results
     if (!searchtext || searchtext.trim() === '') {
+      this.findState = undefined;
+      this.currentMatchNumber = undefined;
+      this.totalMatches = undefined;
       this.pdfFindResult.findState = undefined;
       this.pdfFindResult.currentMatchNumber = undefined;
       this.pdfFindResult.totalMatches = undefined;
-
-      // Clear search highlights
-      try {
-        this.ngxExtendedPdfViewerService.find('', {
-          highlightAll: false,
-          matchCase: false,
-          wholeWords: false,
-          matchDiacritics: false,
-          dontScrollIntoView: false,
-          useSecondaryFindcontroller: false,
-          findMultiple: false,
-          regexp: false
-        });
-      } catch (e) {
-        // Ignore errors when clearing
-      }
-
       return undefined;
     }
 
-    // Check if the service is actually ready
-    if (!this.ngxExtendedPdfViewerService || typeof this.ngxExtendedPdfViewerService.find !== 'function') {
+    // Check if viewer is ready
+    if (!this.pdfViewerReady || !this.pdfViewerComponent) {
+      console.log('PDF viewer not ready yet, search will be deferred');
       return undefined;
     }
 
-    const numberOfResultsPromises = this.ngxExtendedPdfViewerService.find(searchtext, {
-      highlightAll: this.pdfFindProperties.highlightAll,
-      matchCase: this.pdfFindProperties.matchCase,
-      wholeWords: this.pdfFindProperties.wholeWord,
-      matchDiacritics: this.pdfFindProperties.matchDiacritics,
-      dontScrollIntoView: this.pdfFindProperties.dontScrollIntoView,
-      useSecondaryFindcontroller: false,
-      findMultiple: this.pdfFindProperties.multiple,
-      regexp: this.pdfFindProperties.matchRegExp
-    });
+    // Use the service instance from the component, not the global injection
+    const componentService = (this.pdfViewerComponent as any).service;
 
-    numberOfResultsPromises?.forEach(async (numberOfResultsPromise, pageIndex) => {
-      const numberOfResultsPerPage = await numberOfResultsPromise;
-      if (numberOfResultsPerPage > 0) {
-        this.pdfFindResult.pagesWithResult.push(pageIndex);
-      }
-    });
+    if (!componentService || typeof componentService.find !== 'function') {
+      console.warn('Component service not available');
+      return undefined;
+    }
 
-    return numberOfResultsPromises;
+    try {
+      // Handle multiple search terms if needed
+      const searchQuery = this.pdfFindProperties.multiple ? searchtext.split(' ') : searchtext;
+
+      console.log('Calling find on component service with:', searchQuery);
+      const numberOfResultsPromises = componentService.find(searchQuery, {
+        highlightAll: this.pdfFindProperties.highlightAll,
+        matchCase: this.pdfFindProperties.matchCase,
+        wholeWords: this.pdfFindProperties.wholeWord,
+        matchDiacritics: this.pdfFindProperties.matchDiacritics,
+        dontScrollIntoView: this.pdfFindProperties.dontScrollIntoView,
+        useSecondaryFindcontroller: false,
+        findMultiple: this.pdfFindProperties.multiple,
+        regexp: this.pdfFindProperties.matchRegExp
+      });
+
+      numberOfResultsPromises?.forEach(async (numberOfResultsPromise: any, pageIndex: any) => {
+        const numberOfResultsPerPage = await numberOfResultsPromise;
+        if (numberOfResultsPerPage > 0) {
+          this.pdfFindResult.pagesWithResult.push(pageIndex);
+        }
+      });
+
+      return numberOfResultsPromises;
+    } catch (error: any) {
+      console.error('Error during PDF search:', error);
+      return undefined;
+    }
   }
 
   public findNext(): void {
-    this.ngxExtendedPdfViewerService.findNext();
+    if (!this.pdfViewerComponent) return;
+
+    const componentService = (this.pdfViewerComponent as any).service;
+    if (!componentService || typeof componentService.findNext !== 'function') {
+      console.warn('Component service not available for findNext');
+      return;
+    }
+
+    try {
+      componentService.findNext();
+    } catch (error) {
+      console.warn('Could not navigate to next search result:', error);
+    }
   }
 
   public findPrevious(): void {
-    this.ngxExtendedPdfViewerService.findPrevious();
+    if (!this.pdfViewerComponent) return;
+
+    const componentService = (this.pdfViewerComponent as any).service;
+    if (!componentService || typeof componentService.findPrevious !== 'function') {
+      console.warn('Component service not available for findPrevious');
+      return;
+    }
+
+    try {
+      componentService.findPrevious();
+    } catch (error) {
+      console.warn('Could not navigate to previous search result:', error);
+    }
   }
 
   // Get page thumbnail - returns cached base64 image or generates it

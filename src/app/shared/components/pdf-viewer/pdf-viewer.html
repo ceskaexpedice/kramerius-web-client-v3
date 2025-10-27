@@ -30,10 +30,12 @@
     [textLayer]="pdfService.pdfProperties.textLayerMode"
     [findbarVisible]="false"
     (updateFindState)="pdfService.updateFindState($event)"
+    (updateFindMatchesCount)="pdfService.updateFindMatchesCount($event)"
     (outlineLoaded)="onOutlineLoaded($event)"
     (pdfLoaded)="onPdfLoaded($event)"
     (pageChange)="onPageChange($event)"
     (pagesLoaded)="onPagesLoaded($event)"
+    (textLayerRendered)="onTextLayerRendered($event)"
     (wheel)="onWheel($event)"
   ></ngx-extended-pdf-viewer>
 

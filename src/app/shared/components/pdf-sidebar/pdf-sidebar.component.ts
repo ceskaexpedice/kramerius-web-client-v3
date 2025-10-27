@@ -5,6 +5,7 @@ import {InputComponent} from '../input/input.component';
 import {PageNavigatorComponent} from '../page-navigator/page-navigator.component';
 import {TranslateModule} from '@ngx-translate/core';
 import {AsyncPipe} from '@angular/common';
+import {FindState} from 'ngx-extended-pdf-viewer';
 
 @Component({
   selector: 'app-pdf-sidebar',
@@ -20,6 +21,7 @@ import {AsyncPipe} from '@angular/common';
 })
 export class PdfSidebarComponent {
   public pdfService = inject(PdfService);
+  private searchTimeout: any;
 
   goToNext(): void {
     const currentPage = this.pdfService.getCurrentPage();
@@ -43,5 +45,25 @@ export class PdfSidebarComponent {
   onSearchChange(query: string | number): void {
     const searchQuery = typeof query === 'string' ? query : query.toString();
     this.pdfService.setSearchQuery(searchQuery);
+
+    // Clear existing timeout
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    // Debounce the search - wait 500ms after user stops typing
+    this.searchTimeout = setTimeout(() => {
+      this.pdfService.find();
+    }, 500);
   }
+
+  findNextMatch(): void {
+    this.pdfService.findNext();
+  }
+
+  findPreviousMatch(): void {
+    this.pdfService.findPrevious();
+  }
+
+  protected readonly FindState = FindState;
 }
