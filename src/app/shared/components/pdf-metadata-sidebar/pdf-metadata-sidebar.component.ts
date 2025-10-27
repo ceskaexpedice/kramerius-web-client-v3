@@ -1,6 +1,5 @@
 import {Component, inject, Input} from '@angular/core';
 import {Metadata} from '../../models/metadata.model';
-import {NgFor, NgIf} from '@angular/common';
 import {TabsComponent} from '../tabs/tabs.component';
 import {TabItemComponent} from '../tabs/tab-item.component';
 import {MetadataSection} from '../metadata-section/metadata-section';
@@ -10,7 +9,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pdf-metadata-sidebar',
-  imports: [NgFor, NgIf, TabsComponent, TabItemComponent, MetadataSection, TranslatePipe],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe],
   templateUrl: './pdf-metadata-sidebar.component.html',
   styleUrl: './pdf-metadata-sidebar.component.scss'
 })

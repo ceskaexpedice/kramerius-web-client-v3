@@ -1,18 +1,12 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
 import {DialogConfig, SidebarDialogLayoutComponent} from '../sidebar-dialog-layout/sidebar-dialog-layout.component';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {Metadata} from '../../models/metadata.model';
-import {NgForOf, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
 import {MetadataSection} from '../../components/metadata-section/metadata-section';
 
 @Component({
   selector: 'app-record-info-dialog',
   imports: [
     SidebarDialogLayoutComponent,
-    NgIf,
-    NgForOf,
-    TranslatePipe,
     MetadataSection,
   ],
   templateUrl: './record-info-dialog.component.html',

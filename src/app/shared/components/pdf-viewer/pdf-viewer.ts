@@ -120,4 +120,24 @@ export class PdfViewer implements OnInit, OnDestroy {
     await this.pdfService.extractCurrentPageText();
   }
 
+  onWheel(event: WheelEvent): void {
+    // Only enable wheel zoom when in single page view mode
+    if (this.pdfService.pdfProperties.pageViewMode !== 'single') {
+      return;
+    }
+
+    // Prevent default scroll behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Determine zoom direction based on wheel delta
+    // deltaY > 0 means scrolling down (zoom out)
+    // deltaY < 0 means scrolling up (zoom in)
+    if (event.deltaY < 0) {
+      this.pdfService.zoomIn();
+    } else if (event.deltaY > 0) {
+      this.pdfService.zoomOut();
+    }
+  }
+
 }

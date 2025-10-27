@@ -2,7 +2,6 @@ import { Component, inject, Input, OnInit, OnDestroy, OnChanges, SimpleChanges }
 import {AsyncPipe, NgIf, NgStyle} from '@angular/common';
 import { Metadata } from '../../models/metadata.model';
 import { ImageViewerService } from '../../services/image-viewer.service';
-import { ImageViewerControls } from './image-viewer-controls/image-viewer-controls';
 import { Subscription } from 'rxjs';
 import { EnvironmentService } from '../../services/environment.service';
 
@@ -11,7 +10,6 @@ import { EnvironmentService } from '../../services/environment.service';
   imports: [
     AsyncPipe,
     NgStyle,
-    ImageViewerControls,
     NgIf,
   ],
   templateUrl: './image-viewer.html',
@@ -120,5 +118,20 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
 
   onResetView(): void {
     this.imageViewerService.resetView();
+  }
+
+  onWheel(event: WheelEvent): void {
+    // Prevent default scroll behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Determine zoom direction based on wheel delta
+    // deltaY > 0 means scrolling down (zoom out)
+    // deltaY < 0 means scrolling up (zoom in)
+    if (event.deltaY < 0) {
+      this.imageViewerService.zoomIn();
+    } else if (event.deltaY > 0) {
+      this.imageViewerService.zoomOut();
+    }
   }
 }
