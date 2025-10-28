@@ -517,14 +517,7 @@ export class SolrService {
       .set('sort', 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc')
       .set('wt', 'json');
 
-    // Append each filter as its own fq param: &fq=...&fq=...
-    if (filters?.length) {
-      filters.forEach(fq => {
-        if (fq && fq.trim()) {
-          params = params.append('fq', fq.trim());
-        }
-      });
-    }
+    this.buildFqParams(filters, {}).forEach(fq => params = params.append('fq', fq));
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
