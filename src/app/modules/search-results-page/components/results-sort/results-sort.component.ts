@@ -28,6 +28,7 @@ export class ResultsSortComponent {
   @Output() sortChange: EventEmitter<SortChangeEvent> = new EventEmitter<SortChangeEvent>();
 
   sortOptions: SortOption[] = [
+    { label: 'sort-newest-added', value: SolrSortFields.createdAt, direction: SolrSortDirections.desc },
     { label: 'sort-relevance', value: SolrSortFields.relevance, direction: SolrSortDirections.desc },
     { label: 'sort-alphabetical', value: SolrSortFields.title, direction: SolrSortDirections.asc },
     { label: 'sort-date-newest', value: SolrSortFields.dateMax, direction: SolrSortDirections.desc },
