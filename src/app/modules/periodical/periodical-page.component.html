@@ -7,6 +7,7 @@
 
     <div class="page-content" *ngIf="periodical.viewMode() as mode">
 
+      <div class="page-content__filters">
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults && !selectionService.selectionMode()">
 
@@ -86,6 +87,7 @@
           </div>
 
         </app-action-toolbar>
+      </div>
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper">
