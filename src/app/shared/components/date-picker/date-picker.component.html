@@ -18,7 +18,7 @@
     <div class="date-picker--backdrop" (click)="closePopup()"></div>
   }
 
-  <div class="date-picker--popup-calendar" #popupCalendar [class.range-mode-active]="isRangeModeActive">
+  <div class="date-picker--popup-calendar" appClickOutside (clickOutside)="closePopup()" #popupCalendar [class.range-mode-active]="isRangeModeActive">
 
   <div class="popup-content">
 

@@ -29,6 +29,7 @@ import {
 import {Subject, take} from 'rxjs';
 import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
 import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selector/month-year-selector.component';
+import {ClickOutsideDirective} from '../../directives/click-outside/click-outside.directive';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -36,6 +37,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
     MatCalendar,
     NgIf,
     MonthYearSelectorComponent,
+    ClickOutsideDirective,
   ],
   providers: [
     {
@@ -45,7 +47,7 @@ import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selecto
     },
   ],
   template: `
-    <div class="calendar-dropdown">
+    <div class="calendar-dropdown" appClickOutside (clickOutside)="close()">
 <!--      <div class="calendar-popup-header">-->
 <!--        <button class="nav-btn" (click)="previousMonth()">-->
 <!--          <i class="icon-arrow-left-1"></i>-->
@@ -300,6 +302,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   currentYear = signal(2024);
   currentDate = signal(new Date());
   isLoadingCalendar = signal(false);
+  isOpen = false;
 
   // Data map for current month only
   issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
@@ -330,7 +333,10 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   ngOnInit(): void {
-
+    // Set calendar as open after a small delay to prevent immediate close from click-outside
+    setTimeout(() => {
+      this.isOpen = true;
+    }, 0);
   }
 
   ngAfterViewInit(): void {
@@ -500,6 +506,8 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   close(): void {
+    if (!this.isOpen) return;
+    this.isOpen = false;
     this.closePopup.emit();
   }
 

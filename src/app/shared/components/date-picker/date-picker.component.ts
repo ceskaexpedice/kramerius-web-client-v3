@@ -20,6 +20,7 @@ import {InputComponent} from '../input/input.component';
 import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
 import {FormsModule} from '@angular/forms';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {ClickOutsideDirective} from '../../directives/click-outside';
 
 export interface DatePickerOutput {
   dateFrom: Date;
@@ -37,6 +38,7 @@ export interface DatePickerOutput {
     MonthYearSelectorComponent,
     FormsModule,
     MatSlideToggle,
+    ClickOutsideDirective,
   ],
   templateUrl: './date-picker.component.html',
   styleUrl: './date-picker.component.scss'
@@ -45,6 +47,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   openedPopupCalendar: boolean = false;
   isRangeModeActive = false;
+  isOpen = false;
 
   // Temporary working values (for popup)
   selectedDateFrom = signal<Date | null>(null);
@@ -136,8 +139,11 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     if (this.openedPopupCalendar) {
       this.initializePopupValues();
       setTimeout(() => {
-        this.positionPopup()
+        this.positionPopup();
+        this.isOpen = true;
       }, 0);
+    } else {
+      this.isOpen = false;
     }
   }
 
@@ -147,13 +153,16 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       this.openedPopupCalendar = true;
       this.initializePopupValues();
       setTimeout(() => {
-        this.positionPopup()
+        this.positionPopup();
+        this.isOpen = true;
       }, 0);
     }
   }
 
   // Public method to close the popup
   closePopup() {
+    if (!this.isOpen) return;
+    this.isOpen = false;
     this.openedPopupCalendar = false;
   }
 
@@ -559,6 +568,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   // Action button methods
   onDiscard(): void {
+    this.isOpen = false;
     this.openedPopupCalendar = false;
     // Reset to initial values
     this.fromDate.set(this.initialDateFrom || undefined);
@@ -576,6 +586,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.toDate.set(this.selectedDateTo() || undefined);
     this.offset.set(this.selectedOffset());
 
+    this.isOpen = false;
     this.openedPopupCalendar = false;
     this.emitChanges();
   }
