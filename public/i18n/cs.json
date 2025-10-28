@@ -304,5 +304,6 @@
   "occurrence": "Výskyt",
   "searching": "Vyhledávam",
   "no-results": "Žádné výsledky",
-  "selected-day-label": "Vybraný den"
+  "selected-day-label": "Vybraný den",
+  "DD.MM.YYYY": "DD.MM.RRRR"
 }

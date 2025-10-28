@@ -299,5 +299,6 @@
   "occurrence": "Výskyt",
   "searching": "Vyhľadávam",
   "no-results": "Žiadne výsledky",
-  "selected-day-label": "Vybraný deň"
+  "selected-day-label": "Vybraný deň",
+  "DD.MM.YYYY": "DD.MM.RRRR"
 }

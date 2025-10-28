@@ -302,5 +302,6 @@
   "occurrence": "Wystąpienie",
   "searching": "Wyszukiwanie",
   "no-results": "Brak wyników",
-  "selected-day-label": "Wybrany dzień"
+  "selected-day-label": "Wybrany dzień",
+  "DD.MM.YYYY": "DD.MM.RRRR"
 }

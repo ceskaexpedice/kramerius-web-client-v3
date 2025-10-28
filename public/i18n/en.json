@@ -312,5 +312,6 @@
   "occurrence": "Occurrence",
   "searching": "Searching",
   "no-results": "No results",
-  "selected-day-label": "Selected day"
+  "selected-day-label": "Selected day",
+  "DD.MM.YYYY": "DD.MM.YYYY"
 }
