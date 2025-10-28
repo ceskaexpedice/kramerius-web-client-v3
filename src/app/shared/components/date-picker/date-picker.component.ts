@@ -568,16 +568,22 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   // Action button methods
   onDiscard(): void {
+    // Clear all date values completely
+    this.fromDate.set(undefined);
+    this.toDate.set(undefined);
+    this.offset.set(0);
+    this.selectedDateFrom.set(null);
+    this.selectedDateTo.set(null);
+    this.selectedOffset.set(0);
+    this.isRangeModeActive = false;
+
+    // Close the popup
     this.isOpen = false;
     this.openedPopupCalendar = false;
-    // Reset to initial values
-    this.fromDate.set(this.initialDateFrom || undefined);
-    this.toDate.set(this.initialDateTo || undefined);
-    this.offset.set(this.initialOffset || 0);
-    this.selectedDateFrom.set(this.initialDateFrom || null);
-    this.selectedDateTo.set(this.initialDateTo || null);
-    this.selectedOffset.set(this.initialOffset || 0);
-    this.isRangeModeActive = !!(this.initialDateFrom && this.initialDateTo);
+
+    // Emit empty/null values to parent to clear the filter
+    this.dateRangeChange.emit({ from: null as any, to: null as any });
+    this.datePickerChange.emit({ dateFrom: null as any, offset: 0, dateTo: null as any });
   }
 
   onSubmit(): void {
