@@ -302,5 +302,6 @@
   "publisher-data": "Nakladatelské údaje",
   "occurrence": "Výskyt",
   "searching": "Vyhledávam",
-  "no-results": "Žádné výsledky"
+  "no-results": "Žádné výsledky",
+  "selected-day-label": "Vybraný den"
 }

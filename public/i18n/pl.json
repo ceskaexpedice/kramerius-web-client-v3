@@ -300,5 +300,6 @@
   "publisher-data": "Dane wydawcy",
   "occurrence": "Wystąpienie",
   "searching": "Wyszukiwanie",
-  "no-results": "Brak wyników"
+  "no-results": "Brak wyników",
+  "selected-day-label": "Wybrany dzień"
 }

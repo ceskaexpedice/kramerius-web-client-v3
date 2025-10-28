@@ -56,7 +56,7 @@
         <div class="date-input-section">
           <app-input
             [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
-            [label]="'period-from-label' | translate"
+            [label]="showDualCalendarMode ? ('period-from-label' | translate) : ('selected-day-label' | translate)"
             [size]="'sm'"
             [theme]="'dark'"
             [readonly]="true"

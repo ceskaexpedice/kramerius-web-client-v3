@@ -310,5 +310,6 @@
   "publisher-data": "Publisher data",
   "occurrence": "Occurrence",
   "searching": "Searching",
-  "no-results": "No results"
+  "no-results": "No results",
+  "selected-day-label": "Selected day"
 }

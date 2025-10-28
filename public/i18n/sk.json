@@ -297,5 +297,6 @@
   "publisher-data": "Nakladateľské údaje",
   "occurrence": "Výskyt",
   "searching": "Vyhľadávam",
-  "no-results": "Žiadne výsledky"
+  "no-results": "Žiadne výsledky",
+  "selected-day-label": "Vybraný deň"
 }
