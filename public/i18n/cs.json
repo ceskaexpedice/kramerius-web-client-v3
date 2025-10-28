@@ -299,5 +299,8 @@
   "hide--metadata-sidebar": "Skrýt panel",
   "description": "Popis",
   "author": "Autor",
-  "publisher-data": "Nakladatelské údaje"
+  "publisher-data": "Nakladatelské údaje",
+  "occurrence": "Výskyt",
+  "searching": "Vyhledávam",
+  "no-results": "Žádné výsledky"
 }

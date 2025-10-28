@@ -14,6 +14,7 @@ export class RecordInfoService {
   public openRecordInfoDialog(uuid: string): void {
     this.dialog.open(RecordInfoDialogComponent, {
       width: '80vw',
+      height: '80vh',
       data: uuid,
     });
   }

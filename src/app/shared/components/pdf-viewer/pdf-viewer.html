@@ -2,6 +2,11 @@
   <app-fullscreen
     [isFullscreen]="(pdfService.properties$ | async)?.fullscreen || false"
     (closeFullscreen)="pdfService.toggleFullscreen()">
+
+    @if (!pdfService.pdfLoaded) {
+      <app-inline-loader></app-inline-loader>
+    }
+
     <div class="pdf-viewer-container">
       <ngx-extended-pdf-viewer
         #pdfViewer

@@ -297,5 +297,8 @@
   "hide--metadata-sidebar": "Ukryj panel",
   "description": "Opis",
   "author": "Autor",
-  "publisher-data": "Dane wydawcy"
+  "publisher-data": "Dane wydawcy",
+  "occurrence": "Wystąpienie",
+  "searching": "Wyszukiwanie",
+  "no-results": "Brak wyników"
 }

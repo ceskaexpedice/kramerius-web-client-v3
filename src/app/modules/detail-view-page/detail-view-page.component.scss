@@ -36,13 +36,13 @@
 .detail-view--page--content--wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 0 var(--spacing-x4);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
 
   &.pdf-document {
-    padding: 0 var(--spacing-x4) 0 var(--spacing-x4);
+    padding: 0;
   }
 }
 

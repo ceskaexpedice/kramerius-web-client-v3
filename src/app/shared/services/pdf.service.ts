@@ -55,6 +55,7 @@ export class PdfService {
   private generatingThumbnails: Set<number> = new Set();
   public pdfViewerReady: boolean = false;
   private pdfViewerComponent: any = null;
+  public pdfLoaded: boolean = false;
 
   // Observables for PDF state
   private outlineSubject = new BehaviorSubject<PdfOutlineItem[]>([]);
@@ -361,6 +362,7 @@ export class PdfService {
   // Set the PDF document reference for page resolution
   setPdfDocument(pdfDocument: any): void {
     this._pdfDocument = pdfDocument;
+    this.pdfLoaded = true;
   }
 
   // Process outline loaded event from ngx-extended-pdf-viewer

@@ -7,6 +7,7 @@ import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ViewerControls} from '../viewer-controls/viewer-controls';
 import {FullscreenComponent} from '../fullscreen/fullscreen.component';
+import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -15,6 +16,7 @@ import {FullscreenComponent} from '../fullscreen/fullscreen.component';
     AsyncPipe,
     ViewerControls,
     FullscreenComponent,
+    InlineLoaderComponent,
   ],
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'

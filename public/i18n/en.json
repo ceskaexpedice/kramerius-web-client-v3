@@ -307,5 +307,8 @@
   "hide--metadata-sidebar": "Hide panel",
   "description": "Description",
   "author": "Author",
-  "publisher-data": "Publisher data"
+  "publisher-data": "Publisher data",
+  "occurrence": "Occurrence",
+  "searching": "Searching",
+  "no-results": "No results"
 }

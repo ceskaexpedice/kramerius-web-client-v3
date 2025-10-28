@@ -9,6 +9,7 @@
         [theme]="'dark'"
         [size]="'sm'"
         [showMicButton]="true"
+        [showClearButton]="true"
         (valueChange)="onSearchChange($event)"
       ></app-input>
 
@@ -17,11 +18,11 @@
 
           <div class="search-results-count">
             @if (pdfService.totalMatches && pdfService.totalMatches > 0) {
-              <span>{{ pdfService.currentMatchNumber }} / {{ pdfService.totalMatches }}</span>
+              <span class="occurence--text">{{'occurrence' | translate}}:</span> <span class="currentMatchNumber">{{ pdfService.currentMatchNumber }}</span> / <span class="totalMatches"> {{ pdfService.totalMatches }}</span>
             } @else if (pdfService.findState === FindState.PENDING) {
-              <span>Searching...</span>
+              <span>{{ 'searching' | translate }}...</span>
             } @else {
-              <span>No results</span>
+              <span>{{'no-results' | translate}}</span>
             }
           </div>
 
