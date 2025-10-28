@@ -16,7 +16,7 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   protected _page = signal(1);
   protected _pageSize = signal(60);
   protected _totalCount = signal(0);
-  protected _sortBy = signal(SolrSortFields.relevance);
+  protected _sortBy = signal(SolrSortFields.createdAt);
   protected _sortDirection = signal(SolrSortDirections.desc);
   protected _pageReset = signal(false);
   protected initialized = false;
