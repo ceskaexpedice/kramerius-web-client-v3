@@ -300,5 +300,14 @@
   "searching": "Vyhľadávam",
   "no-results": "Žiadne výsledky",
   "selected-day-label": "Vybraný deň",
-  "DD.MM.YYYY": "DD.MM.RRRR"
+  "DD.MM.YYYY": "DD.MM.RRRR",
+  "available": "dostupné",
+  "mzk_public-muo": "Hudobniny Kromeříž",
+  "mzk_public-contract": "Zmluvne zverejnené diela",
+  "public": "Voľné diela",
+  "dnnto": "Diela nedostupná na trhu - online",
+  "dnntt": "Diela nedostupná na trhu - študovňa",
+  "onsite": "Študovňa",
+  "onsite-sheetmusic": "Študovňa - hudobniny",
+  "_private": "Dokument nie je verejne prístupný"
 }

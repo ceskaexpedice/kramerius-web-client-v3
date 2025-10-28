@@ -303,5 +303,13 @@
   "searching": "Wyszukiwanie",
   "no-results": "Brak wyników",
   "selected-day-label": "Wybrany dzień",
-  "DD.MM.YYYY": "DD.MM.RRRR"
+  "DD.MM.YYYY": "DD.MM.RRRR",
+  "mzk_public-muo": "Nutowe rękopisy Kromieryż",
+  "mzk_public-contract": "Utwory opublikowane na podstawie umowy",
+  "public": "Domena publiczna",
+  "dnnto": "Utwory niedostępne w handlu – online",
+  "dnntt": "Utwory niedostępne w handlu – terminal biblioteczny",
+  "onsite": "Czytelnia",
+  "onsite-sheetmusic": "Czytelnia – nuty",
+  "_private": "Dokument nie jest publicznie dostępny"
 }
