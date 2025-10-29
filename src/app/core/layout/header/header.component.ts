@@ -116,7 +116,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       krameriusId: this.envService.get('krameriusId'),
       krameriusBaseUrl: this.envService.getKrameriusUrl(),
-      
+
       gitCommitHash: this.envService.get('git_commit_hash'),
       gitTag: this.envService.get('git_tag'),
       buildDate: this.envService.get('build_date'),
@@ -131,4 +131,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     console.log('Dev Info:', devInfo);
   }
+
+  protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;
 }
