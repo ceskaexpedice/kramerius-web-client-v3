@@ -1,7 +1,10 @@
 <section>
   <div class="section-header">
     <h2>{{ 'periodical' | translate }}</h2>
-    <a class="show-all" (click)="showMore()">{{'btn_show_more' | translate}} →</a>
+    <button class="show-all with-icon p-right-0" (click)="showMore()">
+      {{'btn_show_more' | translate}}
+      <i class="icon-arrow-right"></i>
+    </button>
   </div>
 
   <div class="carousel-wrapper">
