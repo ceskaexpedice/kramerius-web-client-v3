@@ -180,6 +180,7 @@ button.link {
 button.outlined {
   background: transparent;
   border: 1px solid;
+  cursor: pointer;
 
   &.primary {
     border-color: var(--color-border-primary-default);
