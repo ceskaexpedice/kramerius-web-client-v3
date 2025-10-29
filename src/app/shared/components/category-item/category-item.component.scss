@@ -9,6 +9,10 @@
   cursor: pointer;
   transition: 0.2s;
 
+  &:hover {
+    color: var(--color-text-link);
+  }
+
   img {
     width: 16px;
     height: 16px;
