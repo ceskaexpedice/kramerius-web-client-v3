@@ -1,3 +1,5 @@
+@import '_mixins';
+
 .search-hero {
   text-align: center;
   padding: 64px 24px;
@@ -26,8 +28,12 @@
     max-width: 720px;
     margin: 0 auto 24px;
 
+    @include respond(sm) {
+      flex-direction: column;
+    }
+
     app-autocomplete {
-      flex: 1;
+      flex: 1 0 auto;
     }
 
   }
