@@ -672,7 +672,12 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   getDayTranslationKey(): string {
     const count = this.getSelectedDaysCount();
-    return count === 1 ? 'one-day' : 'more-days';
+
+    // Slovak and Czech: 1 = singular, 2-4 = few, 5+ = many
+    // Polish and English: 1 = singular, 2+ = few (many form same as few)
+    if (count === 1) return 'day-singular';
+    if (count >= 2 && count <= 4) return 'day-plural-few';
+    return 'day-plural-many';
   }
 
   private addLabelsToCalendarCells(): void {
