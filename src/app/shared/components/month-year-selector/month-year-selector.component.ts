@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, signal, inject} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output, signal, inject} from '@angular/core';
 import {SelectComponent} from '../select/select.component';
 import {ENVIRONMENT} from '../../../app.config';
 import { TranslateService } from '@ngx-translate/core';
@@ -65,7 +65,7 @@ export interface MonthYearChange {
     }
   `
 })
-export class MonthYearSelectorComponent implements OnInit {
+export class MonthYearSelectorComponent implements OnInit, OnChanges {
   private translateService = inject(TranslateService);
 
   @Input() month: number = 0; // 0-based month
@@ -84,6 +84,23 @@ export class MonthYearSelectorComponent implements OnInit {
     this.generateMonthOptions();
     this.generateYearOptions();
     this.setInitialValues();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Update signals when month or year inputs change from parent
+    if (changes['month'] && !changes['month'].firstChange && this.monthOptions.length > 0) {
+      const monthOption = this.monthOptions.find(m => m.value === this.month);
+      if (monthOption) {
+        this.selectedMonth.set(monthOption);
+      }
+    }
+
+    if (changes['year'] && !changes['year'].firstChange && this.yearOptions.length > 0) {
+      const yearOption = this.yearOptions.find(y => y.value === this.year);
+      if (yearOption) {
+        this.selectedYear.set(yearOption);
+      }
+    }
   }
 
   private generateMonthOptions() {
