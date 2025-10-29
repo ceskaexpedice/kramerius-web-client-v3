@@ -477,9 +477,11 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       if (dateStr === fromStr && dateStr === toStr) {
         return 'range-start range-end';
       } else if (dateStr === fromStr) {
+        // FROM calendar: ONLY show range-start
         return 'range-start';
       } else if (dateStr === toStr) {
-        return 'range-end';
+        // FROM calendar: DO NOT show range-end styling
+        return '';
       } else {
         // Check if date is between fromDate and toDate
         const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -525,8 +527,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       if (dateStr === fromStr && dateStr === toStr) {
         return 'range-start range-end';
       } else if (dateStr === fromStr) {
-        return 'range-start';
+        // TO calendar: DO NOT show range-start styling
+        return '';
       } else if (dateStr === toStr) {
+        // TO calendar: ONLY show range-end
         return 'range-end';
       } else {
         // Check if date is between fromDate and toDate
@@ -682,7 +686,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       fromDate.getMonth() === toDate.getMonth() &&
       fromDate.getDate() === toDate.getDate();
 
-    // Handle cells in the FROM calendar
+    // Handle cells in the FROM calendar - ONLY show range-start label
     if (this.calendarFrom) {
       const fromCalendarElement = this.calendarFrom['_elementRef'].nativeElement;
 
@@ -693,15 +697,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
           cell.setAttribute('label', fromLabel);
         });
       } else {
-        // When dates are different, show "from" for range-start and "to" for range-end
+        // When dates are different, ONLY show "from" for range-start (not range-end)
         const rangeStartCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start:not(.range-end)');
         rangeStartCells.forEach((cell: HTMLElement) => {
           cell.setAttribute('label', fromLabel);
-        });
-
-        const rangeEndCells = fromCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-end');
-        rangeEndCells.forEach((cell: HTMLElement) => {
-          cell.setAttribute('label', toLabel);
         });
       }
 
@@ -712,7 +711,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       });
     }
 
-    // Handle cells in the TO calendar
+    // Handle cells in the TO calendar - ONLY show range-end label
     if (this.calendarTo) {
       const toCalendarElement = this.calendarTo['_elementRef'].nativeElement;
 
@@ -723,13 +722,8 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
           cell.setAttribute('label', toLabel);
         });
       } else {
-        // When dates are different, show "from" for range-start and "to" for range-end
-        const rangeStartCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-start:not(.range-end)');
-        rangeStartCells.forEach((cell: HTMLElement) => {
-          cell.setAttribute('label', fromLabel);
-        });
-
-        const rangeEndCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-end');
+        // When dates are different, ONLY show "to" for range-end (not range-start)
+        const rangeEndCells = toCalendarElement.querySelectorAll('.mat-calendar-body-cell.range-end:not(.range-start)');
         rangeEndCells.forEach((cell: HTMLElement) => {
           cell.setAttribute('label', toLabel);
         });
