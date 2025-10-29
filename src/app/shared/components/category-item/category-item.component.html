@@ -2,7 +2,9 @@
    [href]="url"
    (click)="recordHandler.onNavigate($event, url)">
 
-  <img [src]="icon" alt="" />
+  @if (icon) {
+    <img [src]="icon" [alt]="label | translate" />
+  }
 
   <span class="label">{{ label | translate }}</span>
 
