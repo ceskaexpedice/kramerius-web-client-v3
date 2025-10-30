@@ -85,3 +85,11 @@ hr {
 app-image-viewer, app-iiif-viewer {
   height: 100%;
 }
+
+// Viewer controls positioning - similar to pdf-viewer
+app-viewer-controls {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 10;
+}

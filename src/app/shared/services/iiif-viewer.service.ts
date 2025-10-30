@@ -123,11 +123,11 @@ export class IIIFViewerService {
   toggleFullscreen(): void {
     if (this.viewer) {
       this.viewerProperties.fullscreen = !this.viewerProperties.fullscreen;
-      if (this.viewerProperties.fullscreen) {
-        this.viewer.setFullScreen(true);
-      } else {
-        this.viewer.setFullScreen(false);
-      }
+      // if (this.viewerProperties.fullscreen) {
+      //   this.viewer.setFullScreen(true);
+      // } else {
+      //   this.viewer.setFullScreen(false);
+      // }
       this.propertiesSubject.next(this.viewerProperties);
     }
   }
@@ -143,19 +143,20 @@ export class IIIFViewerService {
 
   // Fit to width control
   fitToWidth(): void {
-    if (this.viewer) {
-      // Fit to width by adjusting viewport bounds
-      const bounds = this.viewer.viewport.getBounds();
-      const containerSize = this.viewer.viewport.getContainerSize();
-      const aspectRatio = containerSize.y / containerSize.x;
+    if (!this.viewer) return;
+    const viewport = this.viewer.viewport;
+    const item = this.viewer.world.getItemAt(0);
 
-      // Adjust bounds to fit width
-      bounds.height = bounds.width * aspectRatio;
-      this.viewer.viewport.fitBounds(bounds, true);
+    const containerWidth = viewport.getContainerSize().x;
+    const imageWidth = item.getContentSize().x;
 
-      this.viewerProperties.zoom = this.viewer.viewport.getZoom();
-      this.propertiesSubject.next(this.viewerProperties);
-    }
+    const zoom = viewport.imageToViewportZoom(containerWidth / imageWidth);
+
+    viewport.zoomTo(zoom);
+    viewport.panTo(viewport.getHomeBounds().getCenter());
+
+    this.viewerProperties.zoom = zoom;
+    this.propertiesSubject.next(this.viewerProperties);
   }
 
   // Reset zoom and rotation

@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PdfService } from '../../services/pdf.service';
+import { IIIFViewerService } from '../../services/iiif-viewer.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -11,59 +13,78 @@ import { CommonModule } from '@angular/common';
 export class ViewerControls {
   @Input() type: 'pdf' | 'image' = 'pdf';
 
-  // Common events for both viewers
-  @Output() zoomIn = new EventEmitter<void>();
-  @Output() zoomOut = new EventEmitter<void>();
-  @Output() toggleFitToScreen = new EventEmitter<void>();
-  @Output() toggleFullscreen = new EventEmitter<void>();
-  @Output() rotate = new EventEmitter<void>();
-  @Output() toggleFitToWidth = new EventEmitter<void>();
-
-  // PDF-specific events
-  @Output() toggleScrollMode = new EventEmitter<void>();
-  @Output() toggleTextView = new EventEmitter<void>();
-  @Output() bookMode = new EventEmitter<void>();
-
-  // Image-specific events
-  @Output() resetView = new EventEmitter<void>();
+  private pdfService = inject(PdfService);
+  private iiifViewerService = inject(IIIFViewerService);
 
   onZoomIn() {
-    this.zoomIn.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.zoomIn();
+    } else {
+      this.iiifViewerService.zoomIn();
+    }
   }
 
   onZoomOut() {
-    this.zoomOut.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.zoomOut();
+    } else {
+      this.iiifViewerService.zoomOut();
+    }
   }
 
   onFitToScreen() {
-    this.toggleFitToScreen.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.fitToScreen();
+    } else {
+      this.iiifViewerService.fitToScreen();
+    }
   }
 
   onFullscreen() {
-    this.toggleFullscreen.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.toggleFullscreen();
+    } else {
+      this.iiifViewerService.toggleFullscreen();
+    }
   }
 
   onRotate() {
-    this.rotate.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.toggleRotation();
+    } else {
+      this.iiifViewerService.toggleRotation();
+    }
   }
 
   onScrollMode() {
-    this.toggleScrollMode.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.togglePageViewMode();
+    }
   }
 
   onToggleFitToWidth() {
-    this.toggleFitToWidth.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.fitToWidth();
+    } else {
+      this.iiifViewerService.fitToWidth();
+    }
   }
 
   onTextView() {
-    this.toggleTextView.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.toggleTextLayerMode();
+    }
   }
 
   onBookMode() {
-    this.bookMode.emit();
+    if (this.type === 'pdf') {
+      this.pdfService.bookModeToggle();
+    }
   }
 
   onResetView() {
-    this.resetView.emit();
+    if (this.type === 'image') {
+      this.iiifViewerService.resetView();
+    }
   }
 }

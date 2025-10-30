@@ -24,6 +24,7 @@ import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
 import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
 import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
 import {IIIFViewer} from '../../shared/components/iiif-viewer/iiif-viewer';
+import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
 
 const routes: Routes = [
   {
@@ -60,6 +61,7 @@ const routes: Routes = [
     PdfSidebarComponent,
     PdfMetadataSidebarComponent,
     IIIFViewer,
+    ViewerControls,
   ],
 })
 

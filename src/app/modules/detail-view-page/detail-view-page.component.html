@@ -1,5 +1,5 @@
 <app-detail-layout
-  [showBottomToolbar]="!detailViewService.document?.pdf"
+  [showBottomToolbar]="false"
   [constrainBottomToolbar]="true"
   [showRightSidebar]="true"
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
@@ -245,6 +245,17 @@
               {{ 'show--metadata-sidebar' | translate }}
             </button>
           }
+
+          <!-- Viewer controls for both PDF and IIIF viewers -->
+          @if (document.pdf) {
+            @if (!(pdfService.properties$ | async)?.fullscreen) {
+              <app-viewer-controls type="pdf"></app-viewer-controls>
+            }
+          } @else {
+            @if (!(iiifViewerService.properties$ | async)?.fullscreen) {
+              <app-viewer-controls type="image"></app-viewer-controls>
+            }
+          }
         </div>
       </div>
     </ng-container>
@@ -256,8 +267,8 @@
     </ng-container>
   </ng-container>
 
-  <ng-container bottom-toolbar *ngIf="!detailViewService.document?.pdf">
-    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
-  </ng-container>
+<!--  <ng-container bottom-toolbar *ngIf="!detailViewService.document?.pdf">-->
+<!--    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>-->
+<!--  </ng-container>-->
 
 </app-detail-layout>

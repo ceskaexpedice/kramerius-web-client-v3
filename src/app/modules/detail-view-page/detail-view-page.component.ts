@@ -6,6 +6,8 @@ import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
 import {AdminSelectionService} from '../../shared/services';
 import {Subscription} from 'rxjs';
+import {PdfService} from '../../shared/services/pdf.service';
+import {IIIFViewerService} from '../../shared/services/iiif-viewer.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -21,6 +23,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
   public adminSelectionService = inject(AdminSelectionService);
+  public pdfService = inject(PdfService);
+  public iiifViewerService = inject(IIIFViewerService);
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();

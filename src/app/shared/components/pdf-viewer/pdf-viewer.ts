@@ -5,7 +5,6 @@ import {PdfService} from '../../services/pdf.service';
 import {Subscription} from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ViewerControls} from '../viewer-controls/viewer-controls';
 import {FullscreenComponent} from '../fullscreen/fullscreen.component';
 import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
 
@@ -14,7 +13,6 @@ import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
   imports: [
     NgxExtendedPdfViewerModule,
     AsyncPipe,
-    ViewerControls,
     FullscreenComponent,
     InlineLoaderComponent,
   ],

@@ -48,21 +48,6 @@
         (wheel)="onWheel($event)"
       ></ngx-extended-pdf-viewer>
 
-      @if (!(pdfService.properties$ | async)?.fullscreen) {
-        <app-viewer-controls
-          type="pdf"
-          (zoomIn)="pdfService.zoomIn()"
-          (zoomOut)="pdfService.zoomOut()"
-          (toggleScrollMode)="pdfService.togglePageViewMode()"
-          (rotate)="pdfService.toggleRotation()"
-          (bookMode)="pdfService.bookModeToggle()"
-          (toggleFitToScreen)="pdfService.fitToScreen()"
-          (toggleFitToWidth)="pdfService.fitToWidth()"
-          (toggleTextView)="onTextViewToggle()"
-          (toggleFullscreen)="pdfService.toggleFullscreen()"
-        ></app-viewer-controls>
-      }
-
     </div>
   </app-fullscreen>
 }
