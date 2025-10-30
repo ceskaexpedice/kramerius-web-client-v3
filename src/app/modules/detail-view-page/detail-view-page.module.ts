@@ -23,7 +23,7 @@ import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
 import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
 import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
-import {ImageViewer} from '../../shared/components/image-viewer/image-viewer';
+import {IIIFViewer} from '../../shared/components/iiif-viewer/iiif-viewer';
 
 const routes: Routes = [
   {
@@ -59,7 +59,7 @@ const routes: Routes = [
     PdfViewer,
     PdfSidebarComponent,
     PdfMetadataSidebarComponent,
-    ImageViewer,
+    IIIFViewer,
   ],
 })
 

@@ -229,11 +229,11 @@
             <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
 
           } @else {
-            <app-image-viewer
+            <app-iiif-viewer
               *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
               [metadata]="document"
               [imagePid]="detailViewService.currentPagePid">
-            </app-image-viewer>
+            </app-iiif-viewer>
           }
 
           @if (!detailViewService.metadataSidebarVisible) {

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ViewerControls } from '../../../../shared/components/viewer-controls/viewer-controls';
-import { ImageViewerService } from '../../../../shared/services/image-viewer.service';
+import { IIIFViewerService } from '../../../../shared/services/iiif-viewer.service';
 
 @Component({
   selector: 'app-detail-view-bottom-toolbar',
@@ -9,7 +9,7 @@ import { ImageViewerService } from '../../../../shared/services/image-viewer.ser
   styleUrl: './detail-view-bottom-toolbar.component.scss'
 })
 export class DetailViewBottomToolbarComponent {
-  public imageViewerService = inject(ImageViewerService);
+  public imageViewerService = inject(IIIFViewerService);
 
   onZoomIn(): void {
     this.imageViewerService.zoomIn();
