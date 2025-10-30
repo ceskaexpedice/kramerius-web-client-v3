@@ -87,4 +87,16 @@ export class ViewerControls {
       this.iiifViewerService.resetView();
     }
   }
+
+  onDrawRectangle() {
+    if (this.type === 'image') {
+      this.iiifViewerService.addRectangleAtDefaultPosition();
+    }
+  }
+
+  onSelectArea() {
+    if (this.type === 'image') {
+      this.iiifViewerService.toggleSelectArea();
+    }
+  }
 }
