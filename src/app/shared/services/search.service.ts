@@ -80,23 +80,25 @@ export class SearchService extends BaseFilterService {
 
   onSearch(term: string | null): void {
     const query = (term && term.length > 0) ? `${term}` : '';
-    this._submittedTerm.set(query);
     // reset page to 1
     this._page.set(1);
     if (query.length > 0) {
       this.setSortByToRelevance();
+    } else {
+      this.setSortByCreated();
     }
+    this._submittedTerm.set(query);
     this.search(query);
   }
 
   onSubmit(term: string): void {
     this.customSearchService.clear();
-    this.resetPage();
+    this._page.set(1);
     this.onSearch(term);
   }
 
   onSuggestionSelected(suggestion: string): void {
-    this.resetPage();
+    this._page.set(1);
     this.setSortByToRelevance();
     this._submittedTerm.set(suggestion);
     this.search(suggestion);
@@ -104,6 +106,10 @@ export class SearchService extends BaseFilterService {
 
   setSortByToRelevance() {
     this._sortBy.set(SolrSortFields.relevance);
+  }
+
+  setSortByCreated() {
+    this._sortBy.set(SolrSortFields.createdAt);
   }
 
   constructor(
