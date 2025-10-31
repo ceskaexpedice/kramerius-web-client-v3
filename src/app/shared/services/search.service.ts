@@ -86,10 +86,12 @@ export class SearchService extends BaseFilterService {
 
   onSubmit(term: string): void {
     this.customSearchService.clear();
+    this.resetPage();
     this.onSearch(term);
   }
 
   onSuggestionSelected(suggestion: string): void {
+    this.resetPage();
     this._submittedTerm.set(suggestion);
     this.search(suggestion);
   }
