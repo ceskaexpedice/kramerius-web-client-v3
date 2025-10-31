@@ -4,8 +4,13 @@ import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/a
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  FilterElementType, getOriginalSolrKey, isFilterWithCaseSensitiveSupport,
+  FilterElementType,
+  getOriginalSolrKey,
+  isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
+  getSolrFieldName,
+  applyCaseSensitiveToFields,
+  isExactOn,
 } from '../dialogs/advanced-search-dialog/solr-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
 import {QueryParamsService} from '../../core/services/QueryParamsManager';
@@ -140,18 +145,20 @@ export class AdvancedSearchService {
           let useRaw = filter.userRawQueryFormat || false;
           const isEquals = filter.isEquals !== false; // default true if undefined
 
-
           if (value.startsWith('*') || value.endsWith('*')) {
             useRaw = true;
           }
 
           const fieldPrefix = isEquals ? '' : '-';
 
+          // Use the helper to get the correct field name with/without .exact
+          const fieldName = getSolrFieldName(filter);
+
           return isRange
-            ? `${fieldPrefix}${filter.solrField}:${value}`
+            ? `${fieldPrefix}${fieldName}:${value}`
             : useRaw
-              ? `${fieldPrefix}${filter.solrField}:(${value})`
-              : `${fieldPrefix}${filter.solrField}:"${value}"`;
+              ? `${fieldPrefix}${fieldName}:(${value})`
+              : `${fieldPrefix}${fieldName}:"${value}"`;
         });
 
       return parts.length > 0
@@ -232,8 +239,16 @@ export class AdvancedSearchService {
             useRaw = true;
           }
 
+          // Get the base field name (without .exact suffix)
+          const baseField = getOriginalSolrKey(filter.solrField || '');
+
           // Map the solr field to search fields if applicable
-          const mappedFields = mapAdvancedSearchField(filter.solrField || '');
+          let mappedFields = mapAdvancedSearchField(baseField);
+
+          // Apply case-sensitive suffix to all mapped fields if needed
+          if (filter.caseSensitive) {
+            mappedFields = applyCaseSensitiveToFields(mappedFields, true);
+          }
 
           // Generate query parts for each mapped field
           return mappedFields.map((mappedField: any) => {
@@ -497,30 +512,34 @@ export class AdvancedSearchService {
 
         if (!solrField || !value) continue;
 
-        let base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
+        // Check if this field has case-sensitive enabled (has .exact suffix)
+        const isCaseSensitive = isExactOn(solrField);
+        const baseFieldName = getOriginalSolrKey(solrField);
 
-        const isCaseSensitiveFilter = isFilterWithCaseSensitiveSupport(solrField);
-
-
-        if (isCaseSensitiveFilter) {
-          base = ADVANCED_FILTERS.find(f => f.solrField === getOriginalSolrKey(solrField));
-        }
+        // Find the base filter definition using the base field name
+        let base = ADVANCED_FILTERS.find(f => f.solrField === baseFieldName || f.key === baseFieldName);
 
         if (base) {
-          filters.push({...base, solrValue: value.trim(), elementValue: value.trim(), isEquals});
-
-          if (isCaseSensitiveFilter) {
-            filters[filters.length - 1].solrField = solrField;
-          }
-        } else {
+          // Create filter with caseSensitive property set appropriately
           filters.push({
-            key: solrField as any,
-            label: solrField,
-            inputType: FilterElementType.Text as any,
-            solrField,
+            ...base,
             solrValue: value.trim(),
             elementValue: value.trim(),
-            isEquals
+            isEquals,
+            caseSensitive: isCaseSensitive,
+            solrField: baseFieldName  // Store the base field name
+          });
+        } else {
+          // Unknown filter type - create a basic one
+          filters.push({
+            key: baseFieldName as any,
+            label: baseFieldName,
+            inputType: FilterElementType.Text as any,
+            solrField: baseFieldName,
+            solrValue: value.trim(),
+            elementValue: value.trim(),
+            isEquals,
+            caseSensitive: isCaseSensitive
           });
         }
       }

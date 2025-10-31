@@ -31,7 +31,7 @@
         [inputTheme]="'dark'"
         [withIcons]="false"
         [size]="'sm'"
-        [isCaseSensitive]="exactMatch"
+        [isCaseSensitive]="filter.caseSensitive || false"
         (onCaseSensitiveEvent)="onExactMatchToggle()"
       ></app-autocomplete>
 
@@ -49,7 +49,7 @@
             [theme]="'dark'"
             [withIcons]="false"
             [size]="'sm'"
-            [isCaseSensitive]="exactMatch"
+            [isCaseSensitive]="filter.caseSensitive || false"
             (onCaseSensitiveEvent)="onExactMatchToggle()"
           ></app-input>
 

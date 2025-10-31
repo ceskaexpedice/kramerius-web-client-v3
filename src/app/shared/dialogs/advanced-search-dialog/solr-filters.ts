@@ -32,9 +32,25 @@ export enum SolrFacetKey {
   Identifier = 'identifier'
 }
 
+/**
+ * Solr field names used in advanced search filters
+ * These are the "facet" field names used in the filter definitions
+ */
 export enum SolrField {
   Title = 'title.search',
   Author = 'authors.facet',
+  Fulltext = 'text_ocr'
+}
+
+/**
+ * Solr search field names used in actual queries
+ * Some facet fields get mapped to different search fields for querying
+ */
+export enum SolrSearchField {
+  Title = 'title.search',
+  Author = 'authors.search',
+  Keywords = 'keywords.search',
+  Genres = 'genres.search',
   Fulltext = 'text_ocr'
 }
 
@@ -55,6 +71,7 @@ export interface AdvancedFilterDefinition {
     step?: number;
   };
   userRawQueryFormat?: boolean;
+  caseSensitive?: boolean; // If true, case-sensitive search will be used (adds .exact suffix to solrField)
 }
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
@@ -84,6 +101,17 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
 
 export const DEFAULT_ADVANCED_FILTER: AdvancedFilterDefinition = {...ADVANCED_FILTERS[0]};
 
+// Fields that support case-sensitive search (will have .exact suffix option)
+// Includes both the original facet field names and their mapped search field names
+export const CASE_SENSITIVE_SUPPORTED_FIELDS: Set<string> = new Set([
+  SolrField.Title,         // 'title.search' (facet field)
+  SolrSearchField.Title,   // 'title.search' (search field - same as facet)
+  SolrField.Author,        // 'authors.facet' (facet field)
+  SolrSearchField.Author,  // 'authors.search' (search field - mapped from facet)
+  SolrField.Fulltext,      // 'text_ocr' (facet field)
+  SolrSearchField.Fulltext // 'text_ocr' (search field - same as facet)
+]);
+
 export const FRONTEND_FILTERED_FACET_KEYS: SolrFacetKey[] = [
   SolrFacetKey.Language, SolrFacetKey.Doctype, SolrFacetKey.PhysicalLocations
 ]
@@ -98,36 +126,79 @@ export function isFrontendFilteredFacetKey(key: string): boolean {
   return FRONTEND_FILTERED_FACET_KEYS.includes(mapped);
 }
 
-export function isFilterWithCaseSensitiveSupport(key: string) {
-  if (key.includes(SolrField.Fulltext) || key.includes(SolrField.Title) || key.includes(SolrField.Author)) {
-    return true;
-  }
-  return false;
+/**
+ * Checks if a field supports case-sensitive search
+ * @param fieldName The solr field name (may include .exact suffix)
+ * @returns true if the field supports case-sensitive search
+ */
+export function isFilterWithCaseSensitiveSupport(fieldName: string): boolean {
+  if (!fieldName) return false;
+
+  // Remove .exact suffix if present to check the base field
+  const baseField = getOriginalSolrKey(fieldName);
+
+  return CASE_SENSITIVE_SUPPORTED_FIELDS.has(baseField);
 }
 
-export function getOriginalSolrKey(key: string) {
-  // if key includes fulltext|title|author but with .exact, we need to get its original solrKey
+/**
+ * Removes the .exact suffix from a field name to get the base field name
+ * @param key The field name (e.g., 'title.search.exact')
+ * @returns The base field name without .exact suffix (e.g., 'title.search')
+ */
+export function getOriginalSolrKey(key: string): string {
   return key.replace('.exact', '');
 }
 
-export function isExactOn(key: string) {
+/**
+ * Checks if a field name has the .exact suffix (indicating case-sensitive search)
+ * @param key The field name
+ * @returns true if the field name includes '.exact' suffix
+ */
+export function isExactOn(key: string): boolean {
   return key.includes('.exact');
 }
 
-// if we change fulltext to match case, we need to change solrField to text_ocr.exact
+/**
+ * @deprecated Use the caseSensitive property on the filter instead
+ * Legacy function that modifies the solrField to add/remove .exact suffix
+ */
 export function changeFieldForExactMatch(filter: AdvancedFilterDefinition, exactMatch = false): AdvancedFilterDefinition {
-  if (filter.key === SolrFacetKey.Fulltext || filter.key === SolrFacetKey.Title || filter.key === SolrFacetKey.Author) {
-    const newFilter = {...filter};
-    if (exactMatch) {
-      // Add .exact suffix if not already present
-      newFilter.solrField = filter.solrField?.endsWith('.exact')
-        ? filter.solrField
-        : `${filter.solrField}.exact`;
-    } else {
-      // Remove .exact suffix if present
-      newFilter.solrField = filter.solrField?.replace(/\.exact$/, '') || filter.solrField;
-    }
-    return newFilter;
+  const newFilter = {...filter, caseSensitive: exactMatch};
+  return newFilter;
+}
+
+/**
+ * Gets the appropriate Solr field name for a filter, with or without .exact suffix
+ * @param filter The filter definition
+ * @returns The field name with .exact suffix if caseSensitive is true and field supports it
+ */
+export function getSolrFieldName(filter: AdvancedFilterDefinition): string {
+  if (!filter.solrField) return '';
+
+  const baseField = getOriginalSolrKey(filter.solrField);
+
+  // Add .exact suffix if case-sensitive is enabled and field supports it
+  if (filter.caseSensitive && CASE_SENSITIVE_SUPPORTED_FIELDS.has(baseField)) {
+    return `${baseField}.exact`;
   }
-  return filter;
+
+  return baseField;
+}
+
+/**
+ * Applies case-sensitive suffix to an array of field names
+ * @param fields Array of field names
+ * @param caseSensitive Whether to add .exact suffix
+ * @returns Array of field names with .exact suffix applied if caseSensitive is true
+ */
+export function applyCaseSensitiveToFields(fields: string[], caseSensitive: boolean): string[] {
+  if (!caseSensitive) return fields;
+
+  return fields.map(field => {
+    const baseField = getOriginalSolrKey(field);
+    if (CASE_SENSITIVE_SUPPORTED_FIELDS.has(baseField)) {
+      return `${baseField}.exact`;
+    }
+    return field;
+  });
 }
