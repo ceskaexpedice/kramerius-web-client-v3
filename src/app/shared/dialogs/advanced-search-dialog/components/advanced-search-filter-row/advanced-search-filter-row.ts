@@ -1,12 +1,11 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  changeFulltextFieldForExactMatch,
-  FilterElementType,
-  isFulltextFilter,
+  changeFieldForExactMatch,
+  FilterElementType, getOriginalSolrKey, isExactOn, isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
 } from '../../solr-filters';
 import {AutocompleteComponent} from '../../../../components/autocomplete/autocomplete.component';
@@ -33,7 +32,8 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
   styleUrl: './advanced-search-filter-row.scss',
 })
 export class AdvancedSearchFilterRow implements OnInit {
-  fulltextExactMatch = false;
+  exactMatch = false;
+  showCaseSensitiveButton = false;
 
   private solrService = inject(SolrService);
   private translateService = inject(TranslateService);
@@ -49,10 +49,11 @@ export class AdvancedSearchFilterRow implements OnInit {
 
     this.loadData();
 
+    this.showCaseSensitiveButton = isFilterWithCaseSensitiveSupport(this.filter.solrField || this.filter.key || '');
   }
 
   loadData() {
-    this.checkFulltextFilter();
+    this.checkFilterWithCaseSensitive();
 
     if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
@@ -77,21 +78,21 @@ export class AdvancedSearchFilterRow implements OnInit {
     }
   }
 
-  checkFulltextFilter() {
-    const isFulltext = isFulltextFilter(this.filter.solrField || '');
+  checkFilterWithCaseSensitive() {
+    const isCaseSensitiveSupportFilter = isFilterWithCaseSensitiveSupport(this.filter.solrField || '');
 
-    if (isFulltext) {
-      const fulltext = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Fulltext);
-      if (fulltext) {
+    if (isCaseSensitiveSupportFilter) {
+      const filter = ADVANCED_FILTERS.find(f => f.key === getOriginalSolrKey(this.filter.key));
+      if (filter) {
         this.filter = {
-          ...fulltext,
+          ...filter,
           solrField: this.filter.solrField,
           elementValue: this.filter.elementValue,
           solrValue: this.filter.solrValue
         };
       }
 
-      this.fulltextExactMatch = this.filter.solrField === 'text_ocr.exact';
+      this.exactMatch = isExactOn(this.filter.solrField || '');
     }
   }
 
@@ -148,10 +149,10 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.emitChange();
   }
 
-  onChangeFulltextExactMatch(exact: boolean) {
-    this.filter = changeFulltextFieldForExactMatch(this.filter, exact);
+  onExactMatchToggle() {
+    this.exactMatch = !this.exactMatch;
+    this.filter = changeFieldForExactMatch(this.filter, this.exactMatch);
     this.emitChange();
-    console.log('Changed fulltext filter:', this.filter);
   }
 
   onRangeSliderChange(range: { from: number; to: number }) {

@@ -32,6 +32,12 @@ export enum SolrFacetKey {
   Identifier = 'identifier'
 }
 
+export enum SolrField {
+  Title = 'title.search',
+  Author = 'authors.facet',
+  Fulltext = 'text_ocr'
+}
+
 export interface AdvancedFilterDefinition {
   key: SolrFacetKey;
   label: string;
@@ -52,9 +58,9 @@ export interface AdvancedFilterDefinition {
 }
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
-  { key: SolrFacetKey.Author, label: `filter-${SolrFacetKey.Author}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Author}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'authors.facet', userRawQueryFormat: false, isEquals: true },
-  { key: SolrFacetKey.Title, label: `filter-${SolrFacetKey.Title}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Title}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'title.search', userRawQueryFormat: true, isEquals: true },
-  { key: SolrFacetKey.Fulltext, label: `filter-${SolrFacetKey.Fulltext}-label`, inputType: FilterElementType.Text, placeholder: `advanced-filter-${SolrFacetKey.Fulltext}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'text_ocr', userRawQueryFormat: true, isEquals: true },
+  { key: SolrFacetKey.Author, label: `filter-${SolrFacetKey.Author}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Author}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: SolrField.Author, userRawQueryFormat: false, isEquals: true },
+  { key: SolrFacetKey.Title, label: `filter-${SolrFacetKey.Title}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Title}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: SolrField.Title, userRawQueryFormat: true, isEquals: true },
+  { key: SolrFacetKey.Fulltext, label: `filter-${SolrFacetKey.Fulltext}-label`, inputType: FilterElementType.Text, placeholder: `advanced-filter-${SolrFacetKey.Fulltext}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: SolrField.Fulltext, userRawQueryFormat: true, isEquals: true },
   { key: SolrFacetKey.Year, label: `filter-${SolrFacetKey.Year}-label`, inputType: FilterElementType.Slider, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'date.str', meta: {
       min: ENVIRONMENT.dateRangeStartYear,
       max: new Date().getFullYear(),
@@ -92,21 +98,34 @@ export function isFrontendFilteredFacetKey(key: string): boolean {
   return FRONTEND_FILTERED_FACET_KEYS.includes(mapped);
 }
 
-export function isFulltextFilter(key: string) {
-  if (key.includes('text_ocr')) {
+export function isFilterWithCaseSensitiveSupport(key: string) {
+  if (key.includes(SolrField.Fulltext) || key.includes(SolrField.Title) || key.includes(SolrField.Author)) {
     return true;
   }
   return false;
 }
 
+export function getOriginalSolrKey(key: string) {
+  // if key includes fulltext|title|author but with .exact, we need to get its original solrKey
+  return key.replace('.exact', '');
+}
+
+export function isExactOn(key: string) {
+  return key.includes('.exact');
+}
+
 // if we change fulltext to match case, we need to change solrField to text_ocr.exact
-export function changeFulltextFieldForExactMatch(filter: AdvancedFilterDefinition, exactMatch = false): AdvancedFilterDefinition {
-  if (filter.key === SolrFacetKey.Fulltext) {
+export function changeFieldForExactMatch(filter: AdvancedFilterDefinition, exactMatch = false): AdvancedFilterDefinition {
+  if (filter.key === SolrFacetKey.Fulltext || filter.key === SolrFacetKey.Title || filter.key === SolrFacetKey.Author) {
     const newFilter = {...filter};
     if (exactMatch) {
-      newFilter.solrField = 'text_ocr.exact';
+      // Add .exact suffix if not already present
+      newFilter.solrField = filter.solrField?.endsWith('.exact')
+        ? filter.solrField
+        : `${filter.solrField}.exact`;
     } else {
-      newFilter.solrField = 'text_ocr';
+      // Remove .exact suffix if present
+      newFilter.solrField = filter.solrField?.replace(/\.exact$/, '') || filter.solrField;
     }
     return newFilter;
   }

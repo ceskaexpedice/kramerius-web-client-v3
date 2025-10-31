@@ -4,8 +4,7 @@ import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/a
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  FilterElementType,
-  isFulltextFilter,
+  FilterElementType, getOriginalSolrKey, isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
 } from '../dialogs/advanced-search-dialog/solr-filters';
 import {SolrOperators} from '../../core/solr/solr-helpers';
@@ -500,16 +499,17 @@ export class AdvancedSearchService {
 
         let base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
 
-        const isFulltext = isFulltextFilter(solrField);
+        const isCaseSensitiveFilter = isFilterWithCaseSensitiveSupport(solrField);
 
-        if (isFulltext) {
-          base = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Fulltext);
+
+        if (isCaseSensitiveFilter) {
+          base = ADVANCED_FILTERS.find(f => f.solrField === getOriginalSolrKey(solrField));
         }
 
         if (base) {
           filters.push({...base, solrValue: value.trim(), elementValue: value.trim(), isEquals});
 
-          if (isFulltext) {
+          if (isCaseSensitiveFilter) {
             filters[filters.length - 1].solrField = solrField;
           }
         } else {
@@ -624,7 +624,7 @@ export class AdvancedSearchService {
 
   hasFulltextFilter(): boolean {
     return this.appliedGroupsSignal().some(group =>
-      group.filters.some(f => isFulltextFilter(f.solrField || '') && !!f.elementValue?.trim())
+      group.filters.some(f => f.key.includes(SolrFacetKey.Fulltext) && !!f.elementValue?.trim())
     );
   }
 

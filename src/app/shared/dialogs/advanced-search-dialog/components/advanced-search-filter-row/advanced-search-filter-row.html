@@ -22,13 +22,17 @@
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
         [showClearButton]="true"
+        [showCaseSensitiveButton]="showCaseSensitiveButton"
         (search)="emitChange()"
         (submit)="autocompleteSubmit($event)"
+        (onBlurEvent)="inputBlur()"
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
         [inputTheme]="'dark'"
         [withIcons]="false"
         [size]="'sm'"
+        [isCaseSensitive]="exactMatch"
+        (onCaseSensitiveEvent)="onExactMatchToggle()"
       ></app-autocomplete>
 
       @if (filter.inputType === AdvancedFilterType.Text) {
@@ -39,22 +43,15 @@
             [showHelpButton]="false"
             [showSubmitButton]="false"
             [showClearButton]="true"
+            [showCaseSensitiveButton]="showCaseSensitiveButton"
             (valueChange)="inputChange($event)"
             (onBlurEvent)="inputBlur()"
             [theme]="'dark'"
             [withIcons]="false"
             [size]="'sm'"
+            [isCaseSensitive]="exactMatch"
+            (onCaseSensitiveEvent)="onExactMatchToggle()"
           ></app-input>
-
-          <div class="filter-controls">
-            <mat-slide-toggle
-              [(ngModel)]="fulltextExactMatch"
-              [hideIcon]="true"
-              [class]="'size-sm'"
-              (change)="onChangeFulltextExactMatch(fulltextExactMatch)">
-              {{ 'exact-match' | translate }}
-            </mat-slide-toggle>
-          </div>
 
         </div>
       }
