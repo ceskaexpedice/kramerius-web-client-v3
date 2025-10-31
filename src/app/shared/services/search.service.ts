@@ -5,17 +5,19 @@ import {filter, map, Observable, takeUntil} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
-  selectFacets, selectNonPageSearchResults, selectPageSearchResults,
+  selectFacets,
+  selectNonPageSearchResults,
+  selectPageSearchResults,
   selectSearchResults,
-  selectSearchResultsTotalCount,
   selectSearchResultsLoading,
+  selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
 import {SearchDocument} from '../../modules/models/search-document';
 import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
-import {SolrOperators} from '../../core/solr/solr-helpers';
+import {SolrOperators, SolrSortFields} from '../../core/solr/solr-helpers';
 import {SolrService} from '../../core/solr/solr.service';
 import {AdvancedSearchService} from './advanced-search.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {facetKeysEnum, mapFacetsToSearchFields} from '../../modules/search-results-page/const/facets';
 import {BaseFilterService} from './base-filter.service';
 
@@ -81,6 +83,9 @@ export class SearchService extends BaseFilterService {
     this._submittedTerm.set(query);
     // reset page to 1
     this._page.set(1);
+    if (query.length > 0) {
+      this.setSortByToRelevance();
+    }
     this.search(query);
   }
 
@@ -92,8 +97,13 @@ export class SearchService extends BaseFilterService {
 
   onSuggestionSelected(suggestion: string): void {
     this.resetPage();
+    this.setSortByToRelevance();
     this._submittedTerm.set(suggestion);
     this.search(suggestion);
+  }
+
+  setSortByToRelevance() {
+    this._sortBy.set(SolrSortFields.relevance);
   }
 
   constructor(
