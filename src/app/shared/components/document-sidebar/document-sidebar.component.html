@@ -1,0 +1,38 @@
+<div class="document-sidebar">
+  <div class="sidebar--wrapper">
+    <app-input
+      [placeholder]="'search-in-document--placeholder' | translate"
+      [theme]="'dark'"
+      [size]="'sm'"
+      [showMicButton]="true"
+    ></app-input>
+
+    @if (shouldShowPageNavigator) {
+      <hr>
+      <app-page-navigator
+        [currentPage]="detailViewService.currentPageIndex + 1"
+        [totalPages]="detailViewService.totalPages"
+        (next)="detailViewService.goToNext()"
+        (prev)="detailViewService.goToPrevious()"
+        (pageChange)="detailViewService.goToPage($event)"
+      ></app-page-navigator>
+    }
+
+    @if (!isSoundRecording) {
+      <hr>
+
+      <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminSelectionService.adminMode()">
+        <app-admin-actions [compact]="true"></app-admin-actions>
+      </div>
+
+      <div class="admin-selection-count"
+           *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
+        {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
+      </div>
+    }
+
+    <div class="sidebar--wrapper--scroll-content">
+      <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+    </div>
+  </div>
+</div>

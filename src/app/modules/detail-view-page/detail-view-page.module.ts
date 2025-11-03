@@ -22,6 +22,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
 import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
+import {DocumentSidebarComponent} from '../../shared/components/document-sidebar/document-sidebar.component';
 import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
 import {IIIFViewer} from '../../shared/components/iiif-viewer/iiif-viewer';
 import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
@@ -59,6 +60,7 @@ const routes: Routes = [
     AdminActionsComponent,
     PdfViewer,
     PdfSidebarComponent,
+    DocumentSidebarComponent,
     PdfMetadataSidebarComponent,
     IIIFViewer,
     ViewerControls,
