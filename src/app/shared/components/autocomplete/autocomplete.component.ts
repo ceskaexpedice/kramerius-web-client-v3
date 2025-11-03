@@ -8,7 +8,7 @@ import {
   EventEmitter,
   Output,
   ViewChild,
-  Signal, WritableSignal, inject, computed,
+  Signal, WritableSignal, inject, computed, OnChanges, SimpleChanges, ChangeDetectorRef,
 } from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -58,10 +58,12 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showHelpButton: boolean = true;
   @Input() showSubmitButton: boolean = true;
   @Input() showClearButton: boolean = false;
+  @Input() showCaseSensitiveButton: boolean = false;
   @Input() withIcons: boolean = true;
   @Input() size: 'sm' | 'md' = 'md';
   @Input() showHistorySuggestions: boolean = false;
   @Input() prefixIcon = '';
+  @Input() isCaseSensitive: boolean = false;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');
@@ -70,6 +72,8 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Output() submit = new EventEmitter<string>();
   @Output() termChange = new EventEmitter<string>();
   @Output() suggestionSelected = new EventEmitter<string>();
+  @Output() onCaseSensitiveEvent = new EventEmitter<void>();
+  @Output() onBlurEvent = new EventEmitter<void>();
 
   public historyService = inject(SearchHistoryService);
 
@@ -175,10 +179,18 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     this.submit.emit(this.inputTerm());
   }
 
+  onBlur() {
+    this.onBlurEvent.emit();
+  }
+
   saveToHistory(term: string) {
     if (this.showHistorySuggestions) {
       this.historyService.add(term);
     }
+  }
+
+  toggledCaseSensitive() {
+    this.onCaseSensitiveEvent.emit();
   }
 
   highlight(text: string, term: string): string {

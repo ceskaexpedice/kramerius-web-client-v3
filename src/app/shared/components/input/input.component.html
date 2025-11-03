@@ -91,7 +91,19 @@
       </button>
     </div>
 
-    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear">
+    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear || showCaseSensitiveButton">
+
+      @if (showCaseSensitiveButton) {
+        <button
+          class="icon-button button link tertiary case-sensitive-button-toggle" [class.active]="isCaseSensitive"
+          type="button"
+          [attr.aria-label]="'case-sensitive-toggle' | translate"
+          (click)="toggleCaseSensitive()"
+        >
+        <span>Aa</span>
+      </button>
+      }
+
       <button
         class="icon-button button link tertiary"
         *ngIf="showMicButtonActual"

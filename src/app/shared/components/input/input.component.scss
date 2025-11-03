@@ -181,3 +181,32 @@ input[type="number"] {
 input::placeholder {
   color: var(--color-text-light);
 }
+
+.case-sensitive-button-toggle {
+  padding: var(--spacing-x1);
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-base);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--color-bg-base);
+  width: 24px;
+  height: 24px;
+  font-weight: 600;
+  line-height: 1;
+  overflow: hidden;
+  letter-spacing: -0.5px;
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &.active {
+    background: var(--color-primary);
+    color: var(--color-secondary);
+  }
+
+  span {
+    overflow: hidden;
+    text-align: center;
+    margin-left: -2px;
+  }
+}

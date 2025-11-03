@@ -10,12 +10,16 @@
     [showHelpButton]="showHelpButton"
     [showSubmitButton]="showSubmitButton"
     [showClearButton]="showClearButton"
+    [showCaseSensitiveButton]="showCaseSensitiveButton"
     [signalInput]="inputTerm"
     [submitIcon]="'icon-search-normal'"
     [withIcons]="withIcons"
     [prefixIcon]="prefixIcon"
     (valueChange)="onInputValueChange($event.toString())"
     (enter)="onSearch()"
+    [isCaseSensitive]="isCaseSensitive"
+    (onCaseSensitiveEvent)="toggledCaseSensitive()"
+    (onBlurEvent)="onBlur()"
     (submit)="onSubmit()">
   </app-input>
 

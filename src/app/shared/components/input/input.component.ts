@@ -7,7 +7,7 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef,
+  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges,
 } from '@angular/core';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -58,11 +58,14 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() submitIcon: string = 'icon-search-normal';
   @Input() changeMicToClearOnFocus: boolean = true;
   @Input() showNumberStepper: boolean = true;
+  @Input() showCaseSensitiveButton: boolean = false;
+  @Input() isCaseSensitive: boolean = false;
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();
   @Output() submit = new EventEmitter<string | number>();
   @Output() onBlurEvent = new EventEmitter<void>();
+  @Output() onCaseSensitiveEvent = new EventEmitter<void>();
 
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
   @ViewChild('inputModel', { static: true }) inputModel!: NgModel;
@@ -169,6 +172,10 @@ export class InputComponent implements OnInit, AfterViewInit {
     return this.showMicButton && !this.showClear;
   }
 
+  toggleCaseSensitive() {
+    this.onCaseSensitiveEvent.emit();
+  }
+
   stepUp() {
     const step = 1;
     this.value = (Number(this.value) || 0) + step;
@@ -209,6 +216,10 @@ export class InputComponent implements OnInit, AfterViewInit {
       right += 32;
     }
 
+    if (this.showCaseSensitiveButton) {
+      right += 32;
+    }
+
     return `${right}px`;
   }
 
@@ -222,6 +233,7 @@ export class InputComponent implements OnInit, AfterViewInit {
       if (this.showMicButton) actionIconsWidth += 32;
       if (this.showHelpButton) actionIconsWidth += 32;
       if (this.showClearButton) actionIconsWidth += 32;
+      if (this.showCaseSensitiveButton) actionIconsWidth += 32;
       right += actionIconsWidth;
     }
 
@@ -243,6 +255,10 @@ export class InputComponent implements OnInit, AfterViewInit {
 
     // if there is micButton add 32
     if (this.showMicButton) {
+      width += 32;
+    }
+
+    if (this.showCaseSensitiveButton) {
       width += 32;
     }
 

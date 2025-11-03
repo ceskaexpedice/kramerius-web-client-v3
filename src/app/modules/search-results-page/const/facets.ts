@@ -1,3 +1,5 @@
+import { SolrSearchField } from '../../../shared/dialogs/advanced-search-dialog/solr-filters';
+
 export enum FacetElementType {
   checkbox = 'checkbox',
   radio = 'radio',
@@ -257,22 +259,27 @@ export const customDefinedFacets = [
   }
 ]
 
-// mapper for facets, for example if facetKey is 'keywords.facet', it will map to 'keywords.search'
+/**
+ * Mapper for facets to search fields. Maps facet field keys to search field keys.
+ * Uses SolrSearchField enum to ensure consistency and avoid magic strings.
+ * For example: 'keywords.facet' maps to ['keywords.search'] for querying
+ */
 export const facetToSearchFieldMapper: { [key: string]: string[] } = {
-  [facetKeysEnum.authors]: ['authors.search'],
-  [facetKeysEnum.keywords]: ['keywords.search'],
-  [facetKeysEnum.genres]: ['genres.search']
+  [facetKeysEnum.authors]: [SolrSearchField.Author],      // 'authors.facet' → ['authors.search']
+  [facetKeysEnum.keywords]: [SolrSearchField.Keywords],   // 'keywords.facet' → ['keywords.search']
+  [facetKeysEnum.genres]: [SolrSearchField.Genres]        // 'genres.facet' → ['genres.search']
 };
 
 /**
  * Mapper for advanced search fields. Maps solr field keys to their corresponding search field keys.
  * This allows different mappings for advanced search compared to regular facet filtering.
- * For example: 'authors.facet' might map to ['authors.search', 'authors_exact.search'] in advanced search
+ * Uses SolrSearchField enum to ensure consistency and avoid magic strings.
+ * For example: 'authors.facet' maps to ['authors.search'] for querying
  */
 export const advancedSearchFieldMapper: { [key: string]: string[] } = {
-  [facetKeysEnum.authors]: ['authors.search'],
-  [facetKeysEnum.keywords]: ['keywords.search'],
-  ['title.search']: ['title.search']
+  [facetKeysEnum.authors]: [SolrSearchField.Author],      // 'authors.facet' → ['authors.search']
+  [facetKeysEnum.keywords]: [SolrSearchField.Keywords],   // 'keywords.facet' → ['keywords.search']
+  [SolrSearchField.Title]: [SolrSearchField.Title]        // 'title.search' → ['title.search'] (no change)
 };
 
 /**

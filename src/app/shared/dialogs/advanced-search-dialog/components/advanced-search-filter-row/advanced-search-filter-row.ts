@@ -4,9 +4,8 @@ import {FormsModule} from '@angular/forms';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  changeFulltextFieldForExactMatch,
   FilterElementType,
-  isFulltextFilter,
+  isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
 } from '../../solr-filters';
 import {AutocompleteComponent} from '../../../../components/autocomplete/autocomplete.component';
@@ -14,26 +13,25 @@ import {SelectComponent} from '../../../../components/select/select.component';
 import {Observable, of} from 'rxjs';
 import {SolrService} from '../../../../../core/solr/solr.service';
 import {RangeSliderComponent} from '../../../../components/range-slider/range-slider.component';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AdvancedDateFilterComponent} from '../advanced-date-filter/advanced-date-filter.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 import {InputComponent} from '../../../../components/input/input.component';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'advanced-search-filter-row',
   imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, AdvancedDateFilterComponent, MatDatepickerModule,
-    MatNativeDateModule, InputComponent, MatSlideToggle, TranslatePipe],
+    MatNativeDateModule, InputComponent],
   providers: [
     provideNativeDateAdapter(),
-
-    MatDatepickerModule],
+    MatDatepickerModule
+  ],
   templateUrl: './advanced-search-filter-row.html',
   styleUrl: './advanced-search-filter-row.scss',
 })
 export class AdvancedSearchFilterRow implements OnInit {
-  fulltextExactMatch = false;
+  showCaseSensitiveButton = false;
 
   private solrService = inject(SolrService);
   private translateService = inject(TranslateService);
@@ -46,14 +44,14 @@ export class AdvancedSearchFilterRow implements OnInit {
   filterTypes = ADVANCED_FILTERS;
 
   ngOnInit() {
-
     this.loadData();
 
+    // Check if this filter type supports case-sensitive search
+    this.showCaseSensitiveButton = isFilterWithCaseSensitiveSupport(this.filter.solrField || '');
   }
 
   loadData() {
-    this.checkFulltextFilter();
-
+    // Load dropdown options if this is a dropdown filter
     if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
 
@@ -74,24 +72,6 @@ export class AdvancedSearchFilterRow implements OnInit {
           this.filter.elementValue = sorted[0];
         }
       });
-    }
-  }
-
-  checkFulltextFilter() {
-    const isFulltext = isFulltextFilter(this.filter.solrField || '');
-
-    if (isFulltext) {
-      const fulltext = ADVANCED_FILTERS.find(f => f.key === SolrFacetKey.Fulltext);
-      if (fulltext) {
-        this.filter = {
-          ...fulltext,
-          solrField: this.filter.solrField,
-          elementValue: this.filter.elementValue,
-          solrValue: this.filter.solrValue
-        };
-      }
-
-      this.fulltextExactMatch = this.filter.solrField === 'text_ocr.exact';
     }
   }
 
@@ -148,10 +128,10 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.emitChange();
   }
 
-  onChangeFulltextExactMatch(exact: boolean) {
-    this.filter = changeFulltextFieldForExactMatch(this.filter, exact);
+  onExactMatchToggle() {
+    // Toggle the case-sensitive property on the filter
+    this.filter.caseSensitive = !this.filter.caseSensitive;
     this.emitChange();
-    console.log('Changed fulltext filter:', this.filter);
   }
 
   onRangeSliderChange(range: { from: number; to: number }) {
