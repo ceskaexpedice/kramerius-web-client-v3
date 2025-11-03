@@ -221,6 +221,21 @@ export class DetailViewService {
     }
   }
 
+  /**
+   * Navigates to a specific page by its PID
+   * @param pid - Page PID to navigate to
+   */
+  navigateToPage(pid: string): void {
+    const pages = this._pages();
+    const pageIndex = pages.findIndex(page => page.pid === pid);
+
+    if (pageIndex !== -1) {
+      this.goToPage(pageIndex);
+    } else {
+      console.warn(`Page with PID ${pid} not found in pages array`);
+    }
+  }
+
   changePageUrl() {
     console.log('changePageUrl');
     const currentPage = this.getCurrentPage();

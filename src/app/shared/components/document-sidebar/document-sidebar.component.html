@@ -1,11 +1,19 @@
 <div class="document-sidebar">
   <div class="sidebar--wrapper">
-    <app-input
+    <app-autocomplete
       [placeholder]="'search-in-document--placeholder' | translate"
-      [theme]="'dark'"
+      [inputTheme]="'dark'"
       [size]="'sm'"
-      [showMicButton]="true"
-    ></app-input>
+      [showMicrophoneButton]="false"
+      [showHelpButton]="false"
+      [showHistorySuggestions]="false"
+      [showSubmitButton]="false"
+      [minTermLength]="2"
+      [getSuggestions]="getSuggestionsFn"
+      [inputTerm]="searchTerm"
+      (suggestionSelected)="onSuggestionSelected($event)"
+      (search)="onSearch($event)"
+    ></app-autocomplete>
 
     @if (shouldShowPageNavigator) {
       <hr>

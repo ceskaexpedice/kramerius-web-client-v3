@@ -550,6 +550,71 @@ export class SolrService {
     return `${this.API_BASE_URL}items/${pid}/image/thumb`;
   }
 
+  /**
+   * Searches within a specific document's OCR text and returns highlighted results
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Search term (supports wildcards like "text*")
+   * @param rows - Number of results to return (default: 20)
+   * @returns Observable with search results including highlighting information
+   */
+  searchInDocument(parentPid: string, searchTerm: string, rows: number = 20): Observable<any> {
+    // Build the search term with wildcard if not already present
+    const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
+
+    const paramsObject = {
+      fl: 'pid',
+      hl: 'true',
+      'hl.fl': 'text_ocr',
+      'hl.fragsize': '1',
+      'hl.method': 'original',
+      'hl.simple.post': '<<',
+      'hl.simple.pre': '>>',
+      'hl.snippets': '10',
+      fq: `own_parent.pid:"${parentPid}"`,
+      q: `text_ocr:${ocrSearchTerm}`,
+      rows: rows.toString(),
+      wt: 'json'
+    };
+
+    const params = this.createHttpParams(paramsObject);
+    return this.http.get<any>(this.API_URL, { params });
+  }
+
+  /**
+   * Gets autocomplete suggestions for in-document search
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Partial search term
+   * @param rows - Number of suggestions to return (default: 10)
+   * @returns Observable with array of suggestion objects containing pid and highlighted text
+   */
+  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10): Observable<Array<{pid: string, highlights: string[]}>> {
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+
+    return this.searchInDocument(parentPid, searchTerm, rows).pipe(
+      map(response => {
+        const results: Array<{pid: string, highlights: string[]}> = [];
+
+        if (response.highlighting) {
+          Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
+            if (highlightData.text_ocr && highlightData.text_ocr.length > 0) {
+              results.push({
+                pid: pid,
+                highlights: highlightData.text_ocr
+              });
+            }
+          });
+        }
+
+        return results;
+      })
+    );
+  }
+
   private addFilterQueries(params: HttpParams, filters: string[], operators: Record<string, string> = {}): HttpParams {
     this.buildFqParams(filters, operators).forEach(fq => params = params.append('fq', fq));
     return params;

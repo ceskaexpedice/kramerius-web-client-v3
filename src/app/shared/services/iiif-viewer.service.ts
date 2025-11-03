@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EnvironmentService } from './environment.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
+import { AltoService } from './alto.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -33,6 +34,8 @@ export class IIIFViewerService {
   private rectangleCounter: number = 0;
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
+
+  private altoService = inject(AltoService);
 
   constructor(
     private env: EnvironmentService
@@ -392,5 +395,74 @@ export class IIIFViewerService {
     if (!this.viewer) return;
     this.viewer.removeOverlay(overlay);
     this.rectangles.delete(overlay);
+  }
+
+  /**
+   * Displays search result highlights on the IIIF viewer
+   * Handles ALTO XML parsing, coordinate conversion, and rectangle drawing
+   * @param altoXml - ALTO XML string
+   * @param searchTerm - Search term to highlight
+   * @returns Number of rectangles displayed, or -1 if error
+   */
+  displaySearchHighlights(altoXml: string, searchTerm: string): number {
+    if (!this.viewer) {
+      console.warn('IIIF Viewer not initialized');
+      return -1;
+    }
+
+    // Get the image dimensions from the viewer
+    const tiledImage = this.viewer.world.getItemAt(0);
+    if (!tiledImage) {
+      console.warn('No tiled image found in viewer');
+      return -1;
+    }
+
+    const contentSize = tiledImage.getContentSize();
+    const imageWidth = contentSize.x;
+    const imageHeight = contentSize.y;
+
+    // Get ALTO dimensions
+    const altoDims = this.altoService.getAltoDimensions(altoXml);
+
+    if (altoDims.width === 0 || altoDims.height === 0) {
+      console.error('Invalid ALTO dimensions');
+      return -1;
+    }
+
+    // Parse ALTO and get bounding boxes (in ALTO coordinates)
+    const boxes = this.altoService.getBoxes(altoXml, searchTerm);
+
+    if (boxes.length === 0) {
+      console.warn('No matches found in ALTO for search term:', searchTerm);
+      return 0;
+    }
+
+    // Calculate scale factors
+    const scaleX = imageWidth / altoDims.width;
+    const scaleY = imageHeight / altoDims.height;
+
+    // Clear existing overlays first
+    this.clearAllOverlays();
+
+    // Add rectangles for each match
+    // OpenSeadragon normalizes based on image WIDTH, not height!
+    boxes.forEach((box) => {
+      // Scale to image coordinates
+      const imgX = box.x * scaleX;
+      const imgY = box.y * scaleY;
+      const imgW = box.width * scaleX;
+      const imgH = box.height * scaleY;
+
+      // Normalize to OpenSeadragon coordinates
+      // IMPORTANT: OpenSeadragon uses width as the normalization basis!
+      const normalizedX = imgX / imageWidth;
+      const normalizedY = imgY / imageWidth;
+      const normalizedW = imgW / imageWidth;
+      const normalizedH = imgH / imageWidth;
+
+      this.addRectangle(normalizedX, normalizedY, normalizedW, normalizedH);
+    });
+
+    return boxes.length;
   }
 }
