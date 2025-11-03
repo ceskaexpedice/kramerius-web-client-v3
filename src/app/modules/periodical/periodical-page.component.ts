@@ -9,6 +9,7 @@ import {Subscription} from 'rxjs';
 import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
 import {SelectionService} from '../../shared/services';
+import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -27,6 +28,12 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   protected readonly ViewMode = ViewMode;
+
+  // View toggle options for calendar/grid layout - static to prevent re-rendering
+  readonly viewToggleOptions: ViewToggleOption[] = [
+    { label: 'layout--calendar', icon: 'icon-calendar', value: 'calendar' },
+    { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
+  ];
 
   constructor() {
     //this.periodical.watchRouteParams();

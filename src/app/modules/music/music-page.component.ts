@@ -5,6 +5,7 @@ import {EnvironmentService} from "../../shared/services/environment.service";
 import {DocumentTypeEnum} from "../constants/document-type";
 import {MusicService} from "./services/music.service";
 import {SoundService} from '../../shared/services/sound.service';
+import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-music-page',
@@ -20,6 +21,12 @@ export class MusicPageComponent implements OnInit {
   public recordHandler = inject(RecordHandlerService);
   public musicService = inject(MusicService);
   public soundService = inject(SoundService);
+
+  // View toggle options for sound recordings - static to prevent re-rendering
+  readonly viewToggleOptions: ViewToggleOption[] = [
+    { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
+    { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
+  ];
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();

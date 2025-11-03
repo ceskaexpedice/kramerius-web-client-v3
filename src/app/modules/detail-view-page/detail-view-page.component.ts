@@ -4,10 +4,11 @@ import {DetailViewService} from './services/detail-view.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
-import {AdminSelectionService} from '../../shared/services';
+import {SelectionService} from '../../shared/services';
 import {Subscription} from 'rxjs';
 import {PdfService} from '../../shared/services/pdf.service';
 import {IIIFViewerService} from '../../shared/services/iiif-viewer.service';
+import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -22,9 +23,15 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
-  public adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
+
+  // View toggle options for sound recordings - static to prevent re-rendering
+  readonly viewToggleOptions: ViewToggleOption[] = [
+    { label: 'Nahrávky', icon: 'icon-music-filter', value: 'records' },
+    { label: 'Obrázky', icon: 'icon-gallery', value: 'images' }
+  ];
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();
@@ -46,7 +53,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
             licenses: [],
             access: 'public'
           }));
-          this.adminSelectionService.updateCurrentPageItems(pageItems);
+          this.selectionService.updateCurrentPageItems(pageItems);
         }
       })
     );
@@ -57,7 +64,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   toggleAdminMode(): void {
-    this.adminSelectionService.toggleAdminMode();
+    this.selectionService.toggleSelectionMode();
   }
 
   goBackClicked() {
@@ -69,5 +76,4 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
-  protected readonly document = document;
 }

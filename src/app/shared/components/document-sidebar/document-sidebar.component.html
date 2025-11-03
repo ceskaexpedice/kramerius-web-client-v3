@@ -21,13 +21,13 @@
     @if (!isSoundRecording) {
       <hr>
 
-      <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminSelectionService.adminMode()">
+      <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="selectionService.selectionMode()">
         <app-admin-actions [compact]="true"></app-admin-actions>
       </div>
 
       <div class="admin-selection-count"
-           *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">
-        {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}
+           *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+        {{ 'count' | translate }}: {{ selectionService.selectedCount() }}
       </div>
     }
 

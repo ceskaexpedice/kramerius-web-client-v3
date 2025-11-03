@@ -45,3 +45,9 @@ hr {
   color: var(--color-text-tertiary);
   padding: var(--spacing-x2) 0;
 }
+
+.sidebar--wrapper--scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}

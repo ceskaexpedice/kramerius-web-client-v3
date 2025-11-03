@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 
@@ -34,7 +34,7 @@ export interface ToolbarActionEvent {
   templateUrl: './toolbar-controls.component.html',
   styleUrl: './toolbar-controls.component.scss'
 })
-export class ToolbarControlsComponent {
+export class ToolbarControlsComponent implements OnChanges {
 
   @Input() showViewToggle = false;
   @Input() viewToggleOptions: ViewToggleOption[] = [];
@@ -65,8 +65,19 @@ export class ToolbarControlsComponent {
   @Output() selectClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
-  // Get merged actions from both new config approach and legacy boolean approach
-  get mergedActions(): ToolbarAction[] {
+  // Memoized merged actions - only recalculated when inputs change
+  mergedActions: ToolbarAction[] = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Recalculate mergedActions only when relevant inputs change
+    if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
+        changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
+        changes['showDownload'] || changes['showEdit'] || changes['showSelect']) {
+      this.updateMergedActions();
+    }
+  }
+
+  private updateMergedActions(): void {
     const configActions = this.actions.filter(action => action.visible !== false);
 
     // Legacy boolean actions converted to config format
@@ -99,8 +110,12 @@ export class ToolbarControlsComponent {
     }
 
     // Combine both sets of actions
+    this.mergedActions = [...configActions, ...legacyActions];
+  }
 
-    return [...configActions, ...legacyActions];
+  // TrackBy function for *ngFor to help Angular track button identity
+  trackByActionId(index: number, action: ToolbarAction): string {
+    return action.id;
   }
 
   onToggle(option: ViewToggleOption): void {

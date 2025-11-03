@@ -6,9 +6,9 @@ import { PageNavigatorComponent } from '../page-navigator/page-navigator.compone
 import { AdminActionsComponent } from '../admin-actions/admin-actions.component';
 import { DetailPagesGridComponent } from '../../../modules/detail-view-page/components/detail-pages-grid/detail-pages-grid.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
-import { AdminSelectionService } from '../../services/admin-selection.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { Metadata } from '../../models/metadata.model';
+import {SelectionService} from '../../services';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -27,7 +27,7 @@ export class DocumentSidebarComponent {
   @Input() document!: Metadata;
 
   public detailViewService = inject(DetailViewService);
-  public adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 

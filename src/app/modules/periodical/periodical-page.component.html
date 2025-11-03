@@ -53,10 +53,7 @@
                   [showQuote]="true"
                   [showInfo]="true"
                   [showSelect]="true"
-                  [viewToggleOptions]="[
-                  { label: 'layout--calendar', icon: 'icon-calendar', value: 'calendar' },
-                  { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
-                ]"
+                  [viewToggleOptions]="viewToggleOptions"
                   [activeViewValue]="periodical.activeCalendarGridControl()"
                   (viewChanged)="periodical.setView($event)"
                   (infoClicked)="openRecordInfo()"

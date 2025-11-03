@@ -1,8 +1,8 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {EnvironmentService} from '../../../../shared/services/environment.service';
 import {NgClass, NgIf} from '@angular/common';
-import {AdminSelectionService} from '../../../../shared/services/admin-selection.service';
 import {CheckboxComponent} from '../../../../shared/components/checkbox/checkbox.component';
+import {SelectionService} from '../../../../shared/services';
 
 @Component({
   selector: 'app-detail-page-item',
@@ -18,7 +18,7 @@ export class DetailPageItemComponent {
   private krameriusBaseUrl: string;
 
   private envService = inject(EnvironmentService);
-  public adminSelectionService = inject(AdminSelectionService);
+  public selectionService = inject(SelectionService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: string = '0';
@@ -37,9 +37,9 @@ export class DetailPageItemComponent {
   }
 
   onPageClicked(event: MouseEvent) {
-    if (this.adminSelectionService.adminMode()) {
+    if (this.selectionService.selectionMode()) {
       event.preventDefault();
-      this.adminSelectionService.toggleItem(this.page.pid);
+      this.selectionService.toggleItem(this.page.pid);
     } else {
       this.pageClicked.emit();
     }
@@ -47,9 +47,9 @@ export class DetailPageItemComponent {
 
   onSelectionChange(selected: boolean): void {
     if (selected) {
-      this.adminSelectionService.selectItem(this.page.pid);
+      this.selectionService.selectItem(this.page.pid);
     } else {
-      this.adminSelectionService.deselectItem(this.page.pid);
+      this.selectionService.deselectItem(this.page.pid);
     }
   }
 

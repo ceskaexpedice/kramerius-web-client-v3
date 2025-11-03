@@ -1,14 +1,14 @@
 <a class="page--item"
    [ngClass]="'type-' + type"
    [class.selected]="isSelected"
-   [class.admin-mode]="adminSelectionService.adminMode()"
-   [class.admin-selected]="adminSelectionService.adminMode() && adminSelectionService.isSelected(page.pid)"
+   [class.admin-mode]="selectionService.selectionMode()"
+   [class.admin-selected]="selectionService.selectionMode() && selectionService.isSelected(page.pid)"
    (click)="onPageClicked($event)">
 
   <!-- Selection checkbox for admin mode -->
-  <div class="page--item__selection" *ngIf="adminSelectionService.adminMode()">
+  <div class="page--item__selection" *ngIf="selectionService.selectionMode()">
     <app-checkbox
-      [model]="adminSelectionService.isSelected(page.pid)"
+      [model]="selectionService.isSelected(page.pid)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
@@ -20,7 +20,7 @@
     loading="lazy"
   />
 
-  <span class="page--number" *ngIf="!adminSelectionService.adminMode()">
+  <span class="page--number" *ngIf="!selectionService.selectionMode()">
     {{pageNumber}}
   </span>
 
