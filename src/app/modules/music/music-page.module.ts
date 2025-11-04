@@ -16,6 +16,8 @@ import {
 } from "../detail-view-page/components/detail-view-bottom-toolbar/detail-view-bottom-toolbar.component";
 import {MusicTrackListComponent} from "./components/music-track-list/music-track-list.component";
 import {TranslatePipe} from '@ngx-translate/core';
+import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
+import {ImageViewer} from '../../shared/components/image-viewer/image-viewer';
 
 const routes: Routes = [
   {
@@ -27,23 +29,25 @@ const routes: Routes = [
   declarations: [
     MusicPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		DetailLayoutComponent,
-		InputComponent,
-		NgIf,
-		AsyncPipe,
-		PageNavigatorComponent,
-		DetailPagesGridComponent,
-		ActionToolbarComponent,
-		ToolbarHeaderComponent,
-		DateNavigatorComponent,
-		ToolbarControlsComponent,
-		DetailViewBottomToolbarComponent,
-		NgForOf,
-		MusicTrackListComponent,
-		TranslatePipe,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    DetailLayoutComponent,
+    InputComponent,
+    NgIf,
+    AsyncPipe,
+    PageNavigatorComponent,
+    DetailPagesGridComponent,
+    ActionToolbarComponent,
+    ToolbarHeaderComponent,
+    DateNavigatorComponent,
+    ToolbarControlsComponent,
+    DetailViewBottomToolbarComponent,
+    NgForOf,
+    MusicTrackListComponent,
+    TranslatePipe,
+    ViewerControls,
+    ImageViewer,
+  ],
   providers: [
   ]
 

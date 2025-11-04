@@ -1,5 +1,5 @@
 <app-detail-layout
-  [showBottomToolbar]="detailViewService.soundRecordingViewMode() === 'images'"
+  [showBottomToolbar]="false"
   [constrainBottomToolbar]="true">
 
   <ng-container left-sidebar>
@@ -73,8 +73,10 @@
 
           @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-              class="app-document-thumbnail">
+            <app-image-viewer [imagePid]="detailViewService.currentPagePid"></app-image-viewer>
+
+<!--            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"-->
+<!--              class="app-document-thumbnail">-->
 
           }
 
@@ -94,6 +96,10 @@
 
 
           </ng-container>
+
+<!--          @if (detailViewService.soundRecordingViewMode() === 'images') {-->
+<!--            <app-viewer-controls type="image"></app-viewer-controls>-->
+<!--          }-->
 
         </div>
 
