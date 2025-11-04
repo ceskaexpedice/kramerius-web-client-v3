@@ -6,6 +6,7 @@ import {PageNavigatorComponent} from '../page-navigator/page-navigator.component
 import {TranslateModule} from '@ngx-translate/core';
 import {AsyncPipe} from '@angular/common';
 import {FindState} from 'ngx-extended-pdf-viewer';
+import {SearchNavigationComponent} from '../search-navigation/search-navigation.component';
 
 @Component({
   selector: 'app-pdf-sidebar',
@@ -14,7 +15,8 @@ import {FindState} from 'ngx-extended-pdf-viewer';
     InputComponent,
     PageNavigatorComponent,
     TranslateModule,
-    AsyncPipe
+    AsyncPipe,
+    SearchNavigationComponent
   ],
   templateUrl: './pdf-sidebar.component.html',
   styleUrl: './pdf-sidebar.component.scss'

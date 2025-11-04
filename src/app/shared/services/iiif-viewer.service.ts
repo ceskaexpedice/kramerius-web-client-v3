@@ -37,6 +37,24 @@ export class IIIFViewerService {
 
   private altoService = inject(AltoService);
 
+  // Search matches tracking
+  private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
+  private currentMatchIndexSubject = new BehaviorSubject<number>(-1);
+  private totalMatchesSubject = new BehaviorSubject<number>(0);
+  private searchQuerySubject = new BehaviorSubject<string>('');
+
+  public currentMatchIndex$ = this.currentMatchIndexSubject.asObservable();
+  public totalMatches$ = this.totalMatchesSubject.asObservable();
+  public searchQuery$ = this.searchQuerySubject.asObservable();
+
+  get currentMatchNumber(): number {
+    return this.currentMatchIndexSubject.value + 1;
+  }
+
+  get totalMatches(): number {
+    return this.totalMatchesSubject.value;
+  }
+
   constructor(
     private env: EnvironmentService
   ) {
@@ -123,6 +141,17 @@ export class IIIFViewerService {
     this.rectangleCounter = 0;
     this.dimOverlays = [];
     this.rectangles.clear();
+
+    // Clear search state
+    this.clearSearchState();
+  }
+
+  // Clear search state
+  private clearSearchState(): void {
+    this.searchMatches = [];
+    this.currentMatchIndexSubject.next(-1);
+    this.totalMatchesSubject.next(0);
+    this.searchQuerySubject.next('');
   }
 
   // Zoom controls
@@ -410,6 +439,9 @@ export class IIIFViewerService {
       return -1;
     }
 
+    // Update search query
+    this.searchQuerySubject.next(searchTerm);
+
     // Get the image dimensions from the viewer
     const tiledImage = this.viewer.world.getItemAt(0);
     if (!tiledImage) {
@@ -434,19 +466,23 @@ export class IIIFViewerService {
 
     if (boxes.length === 0) {
       console.warn('No matches found in ALTO for search term:', searchTerm);
+      this.clearSearchState();
       return 0;
     }
+
+    console.log(`Found ${boxes.length} matches for "${searchTerm}"`);
 
     // Calculate scale factors
     const scaleX = imageWidth / altoDims.width;
     const scaleY = imageHeight / altoDims.height;
 
-    // Clear existing overlays first
+    // Clear existing overlays and search state
     this.clearAllOverlays();
+    this.searchMatches = [];
 
     // Add rectangles for each match
     // OpenSeadragon normalizes based on image WIDTH, not height!
-    boxes.forEach((box) => {
+    boxes.forEach((box, index) => {
       // Scale to image coordinates
       const imgX = box.x * scaleX;
       const imgY = box.y * scaleY;
@@ -456,13 +492,85 @@ export class IIIFViewerService {
       // Normalize to OpenSeadragon coordinates
       // IMPORTANT: OpenSeadragon uses width as the normalization basis!
       const normalizedX = imgX / imageWidth;
-      const normalizedY = imgY / imageWidth;
+      const normalizedY = imgY / imageWidth;  // Divide by WIDTH, not height!
       const normalizedW = imgW / imageWidth;
-      const normalizedH = imgH / imageWidth;
+      const normalizedH = imgH / imageWidth;  // Divide by WIDTH, not height!
 
-      this.addRectangle(normalizedX, normalizedY, normalizedW, normalizedH);
+      const rect = new OpenSeadragon.Rect(normalizedX, normalizedY, normalizedW, normalizedH);
+      const overlay = this.createSearchOverlay(index === 0); // Highlight first match
+
+      this.viewer?.addOverlay(overlay, rect);
+      this.rectangles.set(overlay, rect);
+      this.searchMatches.push({ rect, overlay });
     });
 
+    // Update search state
+    this.totalMatchesSubject.next(boxes.length);
+    this.currentMatchIndexSubject.next(0);
+
     return boxes.length;
+  }
+
+  /**
+   * Creates an overlay element for search results
+   * @param isActive - Whether this is the currently active match
+   * @returns HTMLElement for the overlay
+   */
+  private createSearchOverlay(isActive: boolean = false): HTMLElement {
+    const overlay = document.createElement('div');
+    overlay.style.background = isActive ? 'rgba(255, 165, 0, 0.4)' : 'rgba(255, 0, 0, 0.3)';
+    overlay.style.border = isActive ? '2px solid #ff8c00' : '2px solid #007bff';
+    overlay.style.cursor = 'pointer';
+    overlay.style.transition = 'background 0.2s ease, border 0.2s ease';
+    overlay.style.pointerEvents = 'none';
+    return overlay;
+  }
+
+  /**
+   * Updates the styling of search overlays to highlight the active match
+   * @param activeIndex - Index of the active match
+   */
+  private updateSearchOverlayStyles(activeIndex: number): void {
+    this.searchMatches.forEach((match, index) => {
+      const isActive = index === activeIndex;
+      match.overlay.style.background = isActive ? 'rgba(255, 165, 0, 0.4)' : 'rgba(255, 0, 0, 0.3)';
+      match.overlay.style.border = isActive ? '2px solid #ff8c00' : '2px solid #007bff';
+    });
+  }
+
+  /**
+   * Navigate to the next search match
+   */
+  goToNextMatch(): void {
+    const current = this.currentMatchIndexSubject.value;
+    const total = this.totalMatchesSubject.value;
+
+    if (total === 0) return;
+
+    const nextIndex = (current + 1) % total;
+    this.currentMatchIndexSubject.next(nextIndex);
+    this.updateSearchOverlayStyles(nextIndex);
+  }
+
+  /**
+   * Navigate to the previous search match
+   */
+  goToPreviousMatch(): void {
+    const current = this.currentMatchIndexSubject.value;
+    const total = this.totalMatchesSubject.value;
+
+    if (total === 0) return;
+
+    const prevIndex = (current - 1 + total) % total;
+    this.currentMatchIndexSubject.next(prevIndex);
+    this.updateSearchOverlayStyles(prevIndex);
+  }
+
+  /**
+   * Clear search query and highlights
+   */
+  clearSearch(): void {
+    this.clearAllOverlays();
+    this.clearSearchState();
   }
 }
