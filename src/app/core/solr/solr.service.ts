@@ -557,8 +557,12 @@ export class SolrService {
    * @param rows - Number of results to return (default: 20)
    * @returns Observable with search results including highlighting information
    */
-  searchInDocument(parentPid: string, searchTerm: string, rows: number = 300, forAutocomplete: boolean = false): Observable<any> {
-    // Build the search term with wildcard if not already present
+  searchInDocument(
+    parentPid: string,
+    searchTerm: string,
+    rows: number = 300,
+    forAutocomplete: boolean = false
+  ): Observable<any> {
     const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
 
     const paramsObject = {
@@ -571,8 +575,7 @@ export class SolrService {
       'hl.simple.pre': forAutocomplete ? '>>' : '<strong>',
       'hl.snippets': forAutocomplete ? '10' : '1',
       fq: `(own_parent.pid:"${parentPid}") AND model:page`,
-      q: `_query_:"{!edismax qf='text_ocr' v=$q1}"`,
-      q1: searchTerm,
+      q: `text_ocr:${ocrSearchTerm}`,
       rows: rows.toString(),
       wt: 'json'
     };
