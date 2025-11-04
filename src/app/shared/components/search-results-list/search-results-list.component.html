@@ -1,0 +1,29 @@
+<div class="search-results-list">
+  @for (result of results; track result.pid) {
+    <div
+      class="search-result-item"
+      [class.active]="isActive(result)"
+      (click)="onResultClick(result)">
+
+      <app-detail-page-item
+        [page]="result"
+        [type]="'page'"
+        [pageNumber]="null"
+      >
+      </app-detail-page-item>
+
+      <div class="search-result-item--content">
+
+<!--        @if (result.pageNumber) {-->
+<!--          <div class="page-number">Page {{ result.pageNumber }}</div>-->
+<!--        }-->
+        <div class="highlighted-text" [innerHTML]="result.highlightedText"></div>
+
+      </div>
+
+    </div>
+  }
+  @if (results.length === 0) {
+    <div class="no-results">No search results</div>
+  }
+</div>
