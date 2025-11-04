@@ -64,6 +64,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();
   @Output() submit = new EventEmitter<string | number>();
+  @Output() clearEmit = new EventEmitter<string | number>();
   @Output() onBlurEvent = new EventEmitter<void>();
   @Output() onCaseSensitiveEvent = new EventEmitter<void>();
 
@@ -153,6 +154,7 @@ export class InputComponent implements OnInit, AfterViewInit {
     this.value = '';
     this.valueChange.emit('');
     setTimeout(() => this.inputElement?.nativeElement?.focus(), 0);
+    this.clearEmit.emit('');
   }
 
   get showClear(): boolean {

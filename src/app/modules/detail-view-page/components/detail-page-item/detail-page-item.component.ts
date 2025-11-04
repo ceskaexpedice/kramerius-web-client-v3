@@ -21,7 +21,7 @@ export class DetailPageItemComponent {
   public selectionService = inject(SelectionService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
-  @Input() pageNumber: string = '0';
+  @Input() pageNumber: string | null = '0';
   @Input() isSelected: boolean = false;
 
   @Input() type: 'recording' | 'page' = 'page';

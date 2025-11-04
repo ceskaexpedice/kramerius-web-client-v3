@@ -572,5 +572,20 @@ export class IIIFViewerService {
   clearSearch(): void {
     this.clearAllOverlays();
     this.clearSearchState();
+
+    // Remove fulltext parameter from URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('fulltext');
+    window.history.replaceState({}, '', url.toString());
+    console.log('Removed fulltext parameter from URL');
+  }
+
+  /**
+   * Sets the search query without displaying highlights
+   * Used when restoring search state from URL
+   * @param searchTerm - The search term to set
+   */
+  setSearchQuery(searchTerm: string): void {
+    this.searchQuerySubject.next(searchTerm);
   }
 }

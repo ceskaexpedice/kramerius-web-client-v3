@@ -124,14 +124,10 @@ export class DetailViewService {
   }
 
   private loadPeriodicalChildren(doc: any) {
-    console.log('Loading periodical children for:', doc);
-
     if (doc?.rootModel === DocumentTypeEnum.periodical || doc?.model === DocumentTypeEnum.periodicalitem) {
 
       // Fallback: If document is directly a periodicalitem, try to get parent info
       if (doc?.model === DocumentTypeEnum.periodicalitem && doc?.ownParentPid) {
-        console.log('Direct periodicalitem - dispatching loadPeriodicalItems for parentPid:', doc.ownParentPid);
-
         this.store.dispatch(loadPeriodicalItems({
           parentVolumeUuid: doc.ownParentPid
         }));
@@ -142,8 +138,6 @@ export class DetailViewService {
       // Default fallback: Load entire periodical structure
       const rootPid = doc?.rootPid || doc?.uuid;
       if (rootPid) {
-        console.log('Fallback - dispatching loadPeriodical for rootPid:', rootPid);
-
         this.store.dispatch(loadPeriodical({
           uuid: rootPid,
           filters: [],
@@ -158,11 +152,9 @@ export class DetailViewService {
   }
 
   loadPages() {
-    console.log('loadPages called');
     this.store.select(selectDocumentDetailPages)
       .pipe(take(1))
       .subscribe(pages => {
-        console.log('selectDocumentDetailPages', pages);
         const safePages = pages ?? [];
         this._pages.set(safePages);
         this._currentPageIndex.set(0);
@@ -203,20 +195,13 @@ export class DetailViewService {
   }
 
   goToPage(index: number) {
-    console.log('goToPage', index);
-    console.log('_pages', this._pages());
     if (index >= 0 && index < this._pages().length) {
-      console.log('ide sem')
-      console.log('index', index);
       this._currentPageIndex.set(index);
-      console.log('currentPageIndex set to', this._currentPageIndex());
 
-      console.log('document', this.document);
       if (this.document?.model === DocumentTypeEnum.soundrecording && this.soundRecordingViewMode() === 'records') {
         this.soundRecordingViewMode.set('images');
       }
 
-      console.log('index set to', index);
       this.changePageUrl();
     }
   }
@@ -237,16 +222,30 @@ export class DetailViewService {
   }
 
   changePageUrl() {
-    console.log('changePageUrl');
     const currentPage = this.getCurrentPage();
     // add to url ?page=PAGE_PID
 
-    console.log('changePageUrl', currentPage);
     if (currentPage) {
       const url = new URL(window.location.href);
       url.searchParams.set('page', currentPage.pid);
       window.history.replaceState({}, '', url.toString());
     }
+  }
+
+  /**
+   * Updates the fulltext query parameter in the URL
+   * @param searchTerm - The search term to add to the URL, or null to remove it
+   */
+  setFulltextParam(searchTerm: string | null): void {
+    const url = new URL(window.location.href);
+
+    if (searchTerm && searchTerm.trim().length > 0) {
+      url.searchParams.set('fulltext', searchTerm.trim());
+    } else {
+      url.searchParams.delete('fulltext');
+    }
+
+    window.history.replaceState({}, '', url.toString());
   }
 
   goToNext(pagesToGoForward: number = 1) {
@@ -262,7 +261,6 @@ export class DetailViewService {
     if (!currentDoc?.uuid) return;
 
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
-      console.log('goToNextPeriodicalIssue', children);
       const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
       if (currentIndex !== -1 && currentIndex < children.length - 1) {
         const nextIssue = children[currentIndex + 1];
@@ -349,8 +347,6 @@ export class DetailViewService {
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
         return;
       }
-
-      console.log(`Loading periodical items for year ${year} with volume UUID: ${uuid}`);
 
       // Dispatch action to load the year's children
       this.store.dispatch(loadPeriodicalItems({

@@ -20,7 +20,7 @@
     loading="lazy"
   />
 
-  <span class="page--number" *ngIf="!selectionService.selectionMode()">
+  <span class="page--number" *ngIf="!selectionService.selectionMode() && pageNumber">
     {{pageNumber}}
   </span>
 

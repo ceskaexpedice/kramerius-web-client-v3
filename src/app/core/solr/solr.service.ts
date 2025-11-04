@@ -557,21 +557,22 @@ export class SolrService {
    * @param rows - Number of results to return (default: 20)
    * @returns Observable with search results including highlighting information
    */
-  searchInDocument(parentPid: string, searchTerm: string, rows: number = 20): Observable<any> {
+  searchInDocument(parentPid: string, searchTerm: string, rows: number = 300, forAutocomplete: boolean = false): Observable<any> {
     // Build the search term with wildcard if not already present
     const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
 
     const paramsObject = {
-      fl: 'pid',
+      fl: 'pid,root.pid',
       hl: 'true',
       'hl.fl': 'text_ocr',
-      'hl.fragsize': '1',
+      'hl.fragsize': forAutocomplete ? '1' : '120',
       'hl.method': 'original',
-      'hl.simple.post': '<<',
-      'hl.simple.pre': '>>',
-      'hl.snippets': '10',
-      fq: `own_parent.pid:"${parentPid}"`,
-      q: `text_ocr:${ocrSearchTerm}`,
+      'hl.simple.post': forAutocomplete ? '<<' : '</strong>',
+      'hl.simple.pre': forAutocomplete ? '>>' : '<strong>',
+      'hl.snippets': forAutocomplete ? '10' : '1',
+      fq: `(own_parent.pid:"${parentPid}") AND model:page`,
+      q: `_query_:"{!edismax qf='text_ocr' v=$q1}"`,
+      q1: searchTerm,
       rows: rows.toString(),
       wt: 'json'
     };
@@ -595,7 +596,7 @@ export class SolrService {
       });
     }
 
-    return this.searchInDocument(parentPid, searchTerm, rows).pipe(
+    return this.searchInDocument(parentPid, searchTerm, rows, true).pipe(
       map(response => {
         const results: Array<{pid: string, highlights: string[]}> = [];
 
@@ -605,6 +606,40 @@ export class SolrService {
               results.push({
                 pid: pid,
                 highlights: highlightData.text_ocr
+              });
+            }
+          });
+        }
+
+        return results;
+      })
+    );
+  }
+
+  /**
+   * Gets full search results with highlighted snippets for displaying in search results list
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Search term
+   * @returns Observable with array of search results including highlighted text snippets
+   */
+  getInDocumentSearchResults(parentPid: string, searchTerm: string): Observable<Array<{pid: string, highlightedText: string}>> {
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+
+    return this.searchInDocument(parentPid, searchTerm, 300, false).pipe(
+      map(response => {
+        const results: Array<{pid: string, highlightedText: string}> = [];
+
+        if (response.highlighting) {
+          Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
+            if (highlightData.text_ocr && highlightData.text_ocr.length > 0) {
+              results.push({
+                pid: pid,
+                highlightedText: highlightData.text_ocr[0] // Get first snippet
               });
             }
           });

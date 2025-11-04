@@ -74,6 +74,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Output() suggestionSelected = new EventEmitter<string>();
   @Output() onCaseSensitiveEvent = new EventEmitter<void>();
   @Output() onBlurEvent = new EventEmitter<void>();
+  @Output() onClearEvent = new EventEmitter<void>();
 
   public historyService = inject(SearchHistoryService);
 
@@ -181,6 +182,10 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
   onBlur() {
     this.onBlurEvent.emit();
+  }
+
+  onClearClicked() {
+    this.onClearEvent.emit();
   }
 
   saveToHistory(term: string) {

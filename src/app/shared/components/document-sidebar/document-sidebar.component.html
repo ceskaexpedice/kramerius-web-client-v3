@@ -8,11 +8,13 @@
       [showHelpButton]="false"
       [showHistorySuggestions]="false"
       [showSubmitButton]="false"
+      [showClearButton]="true"
       [minTermLength]="2"
       [getSuggestions]="getSuggestionsFn"
       [inputTerm]="searchTerm"
       (suggestionSelected)="onSuggestionSelected($event)"
       (search)="onSearch($event)"
+      (onClearEvent)="onAutocompleteClear()"
     ></app-autocomplete>
 
     @if (iiifViewerService.searchQuery$ | async) {
@@ -50,7 +52,15 @@
     }
 
     <div class="sidebar--wrapper--scroll-content">
-      <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+      @if (iiifViewerService.searchQuery$ | async) {
+        <app-search-results-list
+          [results]="searchResults()"
+          [currentPid]="detailViewService.currentPagePid"
+          (resultClick)="onSearchResultClick($event)"
+        ></app-search-results-list>
+      } @else {
+        <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+      }
     </div>
   </div>
 </div>
