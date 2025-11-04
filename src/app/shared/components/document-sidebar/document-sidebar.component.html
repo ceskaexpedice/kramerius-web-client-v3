@@ -54,7 +54,7 @@
     <div class="sidebar--wrapper--scroll-content">
       @if (iiifViewerService.searchQuery$ | async) {
         <app-search-results-list
-          [results]="searchResults()"
+          [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>

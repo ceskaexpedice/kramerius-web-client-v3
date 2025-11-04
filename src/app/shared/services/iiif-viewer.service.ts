@@ -15,6 +15,57 @@ export interface IIIFViewerProperties {
 })
 export class IIIFViewerService {
 
+  // Box/Overlay Styling Configuration - Customize these values to change appearance
+  private readonly BOX_STYLES = {
+    // Search highlight boxes
+    search: {
+      default: {
+        background: 'rgba(0, 123, 255, 0.1)',
+        border: '2px solid var(--color-primary)',
+        borderRadius: '4px',
+        cursor: 'pointer'
+      },
+      active: {
+        background: 'rgba(0, 123, 255, 0.1)',
+        border: '2px solid var(--color-primary)',
+        cursor: 'pointer'
+      },
+      hover: {
+        background: 'rgba(0, 123, 255, 0.2)',
+      }
+    },
+    // Selection mode overlays
+    selection: {
+      frame: {
+        border: '3px solid #00ff00',
+        boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
+        background: 'transparent'
+      },
+      dim: {
+        background: 'rgba(0, 0, 0, 0.6)'
+      }
+    },
+    // Generic rectangles
+    rectangle: {
+      default: {
+        background: 'rgba(255, 0, 0, 0.3)',
+        border: '2px solid #007bff',
+        cursor: 'pointer'
+      },
+      hover: {
+        background: 'rgba(255, 0, 0, 0.5)'
+      },
+      clicked: {
+        border: '3px solid #00ff00'
+      }
+    },
+    // Common properties
+    common: {
+      transition: 'background 0.2s ease, border 0.2s ease',
+      pointerEvents: 'none' as const
+    }
+  };
+
   viewerProperties: IIIFViewerProperties = {
     zoom: 1,
     rotation: 0,
@@ -253,15 +304,15 @@ export class IIIFViewerService {
 
     const rect = new OpenSeadragon.Rect(x, y, width, height);
     const overlay = document.createElement('div');
-    overlay.style.background = 'rgba(255, 0, 0, 0.3)';
-    overlay.style.border = '2px solid #007bff';
-    overlay.style.cursor = 'pointer';
-    overlay.style.transition = 'background 0.2s ease';
-    overlay.style.pointerEvents = 'none';
+    overlay.style.background = this.BOX_STYLES.rectangle.default.background;
+    overlay.style.border = this.BOX_STYLES.rectangle.default.border;
+    overlay.style.cursor = this.BOX_STYLES.rectangle.default.cursor;
+    overlay.style.transition = this.BOX_STYLES.common.transition;
+    overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
 
     // Add hover handlers
-    overlay.addEventListener('mouseenter', () => overlay.style.background = 'rgba(255, 0, 0, 0.5)');
-    overlay.addEventListener('mouseleave', () => overlay.style.background = 'rgba(255, 0, 0, 0.3)');
+    overlay.addEventListener('mouseenter', () => overlay.style.background = this.BOX_STYLES.rectangle.hover.background);
+    overlay.addEventListener('mouseleave', () => overlay.style.background = this.BOX_STYLES.rectangle.default.background);
 
     this.viewer.addOverlay(overlay, rect);
     this.rectangles.set(overlay, rect);
@@ -279,7 +330,7 @@ export class IIIFViewerService {
 
     // Visual feedback
     const originalBorder = overlay.style.border;
-    overlay.style.border = '3px solid #00ff00';
+    overlay.style.border = this.BOX_STYLES.rectangle.clicked.border;
     setTimeout(() => overlay.style.border = originalBorder, 300);
   }
 
@@ -340,10 +391,10 @@ export class IIIFViewerService {
 
         // Create selection frame
         this.selectionOverlay = document.createElement('div');
-        this.selectionOverlay.style.border = '3px solid #00ff00';
-        this.selectionOverlay.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.5)';
-        this.selectionOverlay.style.pointerEvents = 'none';
-        this.selectionOverlay.style.background = 'transparent';
+        this.selectionOverlay.style.border = this.BOX_STYLES.selection.frame.border;
+        this.selectionOverlay.style.boxShadow = this.BOX_STYLES.selection.frame.boxShadow;
+        this.selectionOverlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+        this.selectionOverlay.style.background = this.BOX_STYLES.selection.frame.background;
         this.viewer!.addOverlay(this.selectionOverlay, rect);
 
         this.createDimOverlays(rect);
@@ -374,8 +425,8 @@ export class IIIFViewerService {
     const home = this.viewer.viewport.getHomeBounds();
     const addDimOverlay = (x: number, y: number, w: number, h: number) => {
       const overlay = document.createElement('div');
-      overlay.style.background = 'rgba(0, 0, 0, 0.6)';
-      overlay.style.pointerEvents = 'none';
+      overlay.style.background = this.BOX_STYLES.selection.dim.background;
+      overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
       this.viewer!.addOverlay(overlay, new OpenSeadragon.Rect(x, y, w, h));
       this.dimOverlays.push(overlay);
     };
@@ -518,11 +569,13 @@ export class IIIFViewerService {
    */
   private createSearchOverlay(isActive: boolean = false): HTMLElement {
     const overlay = document.createElement('div');
-    overlay.style.background = isActive ? 'rgba(255, 165, 0, 0.4)' : 'rgba(255, 0, 0, 0.3)';
-    overlay.style.border = isActive ? '2px solid #ff8c00' : '2px solid #007bff';
-    overlay.style.cursor = 'pointer';
-    overlay.style.transition = 'background 0.2s ease, border 0.2s ease';
-    overlay.style.pointerEvents = 'none';
+    const style = isActive ? this.BOX_STYLES.search.active : this.BOX_STYLES.search.default;
+    overlay.style.background = style.background;
+    overlay.style.border = style.border;
+    overlay.style.cursor = style.cursor;
+    overlay.style.transition = this.BOX_STYLES.common.transition;
+    overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+    overlay.style.borderRadius = this.BOX_STYLES.search.default.borderRadius;
     return overlay;
   }
 
@@ -533,8 +586,10 @@ export class IIIFViewerService {
   private updateSearchOverlayStyles(activeIndex: number): void {
     this.searchMatches.forEach((match, index) => {
       const isActive = index === activeIndex;
-      match.overlay.style.background = isActive ? 'rgba(255, 165, 0, 0.4)' : 'rgba(255, 0, 0, 0.3)';
-      match.overlay.style.border = isActive ? '2px solid #ff8c00' : '2px solid #007bff';
+      const style = isActive ? this.BOX_STYLES.search.active : this.BOX_STYLES.search.default;
+      match.overlay.style.background = style.background;
+      match.overlay.style.border = style.border;
+      match.overlay.style.borderRadius = this.BOX_STYLES.search.default.borderRadius;
     });
   }
 
