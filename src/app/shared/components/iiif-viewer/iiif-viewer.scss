@@ -19,3 +19,7 @@
   height: 100%;
   background-color: transparent;
 }
+
+:host ::ng-deep .openseadragon-canvas {
+  outline: none !important;
+}
