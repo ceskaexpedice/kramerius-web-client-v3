@@ -60,12 +60,16 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       combineLatest([
         this.searchService.nonPageResults$,
-        this.searchService.pageResults$
+        this.searchService.articleResults$,
+        this.searchService.pageResults$,
+        this.searchService.attachmentResults$
       ]).pipe(
-        map(([nonPageResults, pageResults]) => {
+        map(([nonPageResults, articleResults, pageResults, attachmentResults]) => {
           const allResults: SearchDocument[] = [];
           if (nonPageResults) allResults.push(...nonPageResults);
+          if (articleResults) allResults.push(...articleResults);
           if (pageResults) allResults.push(...pageResults);
+          if (attachmentResults) allResults.push(...attachmentResults);
           return allResults;
         })
       ).subscribe(allCurrentItems => {

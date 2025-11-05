@@ -139,6 +139,8 @@
   "track-removed-from-queue": "Track removed from queue",
   "track-downloaded": "Track downloaded",
   "titles-section-header": "Titles",
+  "attachments-section-header": "Attachments",
+  "articles-section-header": "Articles",
   "pages-section-header": "Individual pages",
   "periodicalvolume-part-subtitle": "issue number",
   "search-in-periodicals--placeholder": "Search within periodical",

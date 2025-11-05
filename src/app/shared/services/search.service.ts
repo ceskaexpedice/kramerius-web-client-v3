@@ -5,6 +5,8 @@ import {filter, map, Observable, takeUntil} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {
   selectActiveFilters,
+  selectArticleSearchResults,
+  selectAttachmentSearchResults,
   selectFacets,
   selectNonPageSearchResults,
   selectPageSearchResults,
@@ -35,7 +37,9 @@ export class SearchService extends BaseFilterService {
 
   results$: Observable<SearchDocument[]>;
   nonPageResults$: Observable<SearchDocument[]>;
+  articleResults$: Observable<SearchDocument[]>;
   pageResults$: Observable<SearchDocument[]>;
+  attachmentResults$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
@@ -121,8 +125,10 @@ export class SearchService extends BaseFilterService {
     this.load();
 
     this.results$ = this.store.select(selectSearchResults);
-    this.pageResults$ = this.store.select(selectPageSearchResults);
     this.nonPageResults$ = this.store.select(selectNonPageSearchResults);
+    this.articleResults$ = this.store.select(selectArticleSearchResults);
+    this.pageResults$ = this.store.select(selectPageSearchResults);
+    this.attachmentResults$ = this.store.select(selectAttachmentSearchResults);
     this.loading$ = this.store.select(selectSearchResultsLoading);
 
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
