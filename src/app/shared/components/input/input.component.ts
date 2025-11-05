@@ -206,40 +206,32 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   get iconsRight(): string {
     // Calculate right position for action icons
-    let right = 0;
+    let right = 11; // base padding from right edge
 
-    // if there is submitButton add 55px
+    // Position after submit button if present
     if (this.showSubmitButton) {
       right += 55;
-    }
-
-    // if there is postfix icon add 32px
-    if (this.postfixIcon) {
-      right += 32;
-    }
-
-    if (this.showCaseSensitiveButton) {
-      right += 32;
     }
 
     return `${right}px`;
   }
 
   get postfixIconRight(): string {
-    // Calculate right position for postfix icon
+    // Calculate right position for postfix icon (start from right edge)
     let right = 12; // base margin
 
-    // if there are action buttons, position postfix icon before them
-    if (this.showMicButton || this.showHelpButton || this.showClearButton) {
-      let actionIconsWidth = 0;
-      if (this.showMicButton) actionIconsWidth += 32;
-      if (this.showHelpButton) actionIconsWidth += 32;
-      if (this.showClearButton) actionIconsWidth += 32;
-      if (this.showCaseSensitiveButton) actionIconsWidth += 32;
-      right += actionIconsWidth;
+    // Count action icons to the right of postfix
+    if (this.showMicButtonActual || this.showClear) {
+      right += 32;
+    }
+    if (this.showHelpButton) {
+      right += 32;
+    }
+    if (this.showCaseSensitiveButton) {
+      right += 32;
     }
 
-    // if there is submitButton, position before it
+    // Position before submit button if present
     if (this.showSubmitButton) {
       right += 55;
     }
@@ -248,40 +240,33 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get iconsWidth(): string {
-    // Calculate total width of right-side icons
+    // Calculate total width of right-side icons for input padding
     let width = 0;
 
+    // Submit button
     if (this.showSubmitButton) {
       width += 55;
     }
 
-    // if there is micButton add 32
-    if (this.showMicButton) {
+    // Action icons (each 32px)
+    if (this.showMicButtonActual || this.showClear) {
       width += 32;
     }
-
+    if (this.showHelpButton) {
+      width += 32;
+    }
     if (this.showCaseSensitiveButton) {
       width += 32;
     }
 
-    // if there is helpButton add 32
-    if (this.showHelpButton) {
-      width += 32;
-    }
-
-    // if there is clearButton add 32
-    if (this.showClearButton) {
-      width += 32;
-    }
-
-    // if there is postfix icon add 32
+    // Postfix icon
     if (this.postfixIcon) {
       width += 32;
     }
 
-    // default
-    if (width === 0) {
-      width = 14; // default icon width
+    // Add base padding if there are any icons
+    if (width > 0) {
+      width += 11;
     }
 
     return `${width}px`;

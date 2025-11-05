@@ -65,7 +65,7 @@
       transform: translateY(-50%);
       display: flex;
       align-items: center;
-      gap: 0px;
+      gap: var(--spacing-x1);
       color: var(--color-icon-tertiary-default);
       z-index: $input-focus;
     }
@@ -182,14 +182,24 @@ input::placeholder {
   color: var(--color-text-light);
 }
 
+.input--icons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+
+  button {
+    padding: var(--spacing-x1);
+    border-radius: var(--spacing-x1);
+    font-size: var(--font-size-base);
+    width: 24px;
+    height: 24px;
+  }
+
+}
+
 .case-sensitive-button-toggle {
-  padding: var(--spacing-x1);
-  border-radius: var(--spacing-x1);
   background: var(--color-bg-base);
-  font-size: var(--font-size-base);
   border: 1px solid var(--color-bg-base);
-  width: 24px;
-  height: 24px;
   font-weight: 600;
   line-height: 1;
   overflow: hidden;
