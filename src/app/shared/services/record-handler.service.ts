@@ -98,7 +98,7 @@ export class RecordHandlerService {
     this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
   }
 
-  private navigateToMusic(pid: string): void {
+  public navigateToMusic(pid: string): void {
     this.router.navigate([APP_ROUTES_ENUM.MUSIC_VIEW, pid]);
   }
 

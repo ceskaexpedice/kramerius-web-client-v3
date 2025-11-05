@@ -533,7 +533,7 @@ export class SolrService {
 
     const params = {
       q: query,
-      fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length',
+      fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid',
       rows: '10000',
       sort
     };

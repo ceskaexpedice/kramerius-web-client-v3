@@ -167,6 +167,12 @@ export class MusicService {
     this.soundService.play(track);
   }
 
+  openTrackDetails(track: SoundTrackModel) {
+    if (track && track['root.pid']) {
+      this.recordHandler.navigateToMusic(track['root.pid']);
+    }
+  }
+
   addTracksFromListToQueueAndPlayFirst(track: SoundTrackModel, tracks: SoundTrackModel[]): void {
     if (!tracks || tracks.length === 0) {
       this.addTrackToQueue(track);

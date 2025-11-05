@@ -10,6 +10,7 @@ export interface SoundTrackModel {
   licenses_of_ancestors: string[];
   model: DocumentTypeEnum;
   pid: string;
+  ['root.pid']: string;
   ['title.search']: string;
   ['track.length']: number;
   url: string;
@@ -24,6 +25,7 @@ export const parseSoundTrack = (doc: any): SoundTrackModel => ({
   licenses_of_ancestors: doc.licenses_of_ancestors || [],
   model: doc.model,
   pid: doc.pid,
+  'root.pid': doc.root.pid,
   'title.search': doc['title.search'],
   'track.length': doc['track.length'] || 0,
   url: doc.url || '',

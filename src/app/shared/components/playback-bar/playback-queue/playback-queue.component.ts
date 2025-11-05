@@ -4,6 +4,7 @@ import {SoundService} from '../../../services/sound.service';
 import {SoundTrackModel} from '../../../../modules/models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {ToastService} from '../../../services/toast.service';
+import {ClickOutsideDirective} from '../../../directives/click-outside';
 
 @Component({
   selector: 'app-playback-queue',
@@ -11,6 +12,7 @@ import {ToastService} from '../../../services/toast.service';
     NgIf,
     NgForOf,
     TranslatePipe,
+    ClickOutsideDirective,
   ],
   templateUrl: './playback-queue.component.html',
   styleUrl: './playback-queue.component.scss'
@@ -31,7 +33,9 @@ export class PlaybackQueueComponent {
   }
 
   close() {
-    this.isOpen.set(false);
+    if (this.isOpen()) {
+      this.isOpen.set(false);
+    }
   }
 
   isActive(track: SoundTrackModel): boolean {

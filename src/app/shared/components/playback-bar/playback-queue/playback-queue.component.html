@@ -1,4 +1,4 @@
-<div class="queue-panel" *ngIf="isOpen()">
+<div class="queue-panel" *ngIf="isOpen()" appClickOutside (clickOutside)="close()">
   <div class="header">
     <i class="icon-music-filter"></i>
     <span>{{'now-playing--header' | translate}}</span>

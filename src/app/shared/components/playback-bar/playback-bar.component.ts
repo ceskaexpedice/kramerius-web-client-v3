@@ -61,9 +61,8 @@ export class PlaybackBarComponent {
 
   openTrackDetails() {
     const track = this.soundService.getCurrentTrack();
-    console.log('track', track);
     if (track) {
-      // this.musicService.openTrackDetails(track);
+      this.musicService.openTrackDetails(track);
     }
   }
 
