@@ -2,7 +2,7 @@
   <div class="left">
     <img class="cover" [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)" alt="Cover" />
     <div class="info">
-      <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+      <div class="title cursor-pointer" (click)="openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
       <div class="meta cursor-pointer" (click)="openTrackDetails()">
         @if (soundService.getCurrentTrack()?.authors && soundService.getCurrentTrack()!.authors!.length > 0) {
           {{ soundService.getCurrentTrack()!.authors![0] }}
