@@ -262,7 +262,7 @@ export class DocumentSearchService {
     // Wait for page to load, then display ALTO highlights
     setTimeout(() => {
       this.fetchAndDisplayHighlights(result.pid, this.searchTermSubject.value);
-    }, 100);
+    }, 500);
   }
 
   /**
