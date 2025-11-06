@@ -316,11 +316,6 @@ export class IIIFViewerService {
   toggleFullscreen(): void {
     if (this.viewer) {
       this.viewerProperties.fullscreen = !this.viewerProperties.fullscreen;
-      // if (this.viewerProperties.fullscreen) {
-      //   this.viewer.setFullScreen(true);
-      // } else {
-      //   this.viewer.setFullScreen(false);
-      // }
       this.propertiesSubject.next(this.viewerProperties);
     }
   }
@@ -582,7 +577,7 @@ export class IIIFViewerService {
 
     if (boxes.length === 0) {
       console.warn('No matches found in ALTO for search term:', searchTerm);
-      this.clearSearchState();
+      //this.clearSearchState();
       return 0;
     }
 

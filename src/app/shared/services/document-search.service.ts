@@ -7,6 +7,7 @@ import { IIIFViewerService } from './iiif-viewer.service';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { ActivatedRoute } from '@angular/router';
 import { SearchResult } from '../components/search-results-list/search-results-list.component';
+import {removeInterpunction} from '../utils/remove-interpunction';
 
 /**
  * Service to manage in-document search functionality
@@ -32,6 +33,7 @@ export class DocumentSearchService {
   private currentMatchedPageIndexSubject = new BehaviorSubject<number>(0);
   public currentMatchedPageIndex$ = this.currentMatchedPageIndexSubject.asObservable();
 
+  isCaseSensitive: boolean = false;
   private allMatchedPages: string[] = [];
   private suggestionToPidMap = new Map<string, string>();
   private hasRestoredSearch = false;
@@ -48,6 +50,12 @@ export class DocumentSearchService {
    */
   getTotalMatchedPages(): number {
     return this.allMatchedPages.length;
+  }
+
+  caseSensitiveChanged(documentUuid: string, term: string) {
+    this.isCaseSensitive = !this.isCaseSensitive;
+
+    this.fetchSearchResults(documentUuid, term);
   }
 
   /**
@@ -72,16 +80,26 @@ export class DocumentSearchService {
         this.suggestionToPidMap.clear();
 
         // Build suggestions array and store PID mapping
-        return results.map(result => {
-          // Remove the highlighting markers (>> <<) for display
-          const cleanText = result.highlights[0]?.replace(/>>|<</g, '').trim() || '';
+        return results
+          .map(result => {
+          // Remove the highlighting markers (>> <<) for display, also remove interpunction, space before word
+          let cleanText = result.highlights[0]?.replace(/>>|<</g, '').trim() || '';
+
+          cleanText = removeInterpunction(cleanText);
+          // Normalize spaces: replace multiple spaces with single space and trim again
+          cleanText = cleanText.replace(/\s+/g, ' ').trim();
           const suggestion = `${cleanText}`;
 
-          // Store the PID for this suggestion
-          this.suggestionToPidMap.set(suggestion, result.pid);
+          // Store the PID for this suggestion (only store first occurrence to avoid overwriting)
+          if (!this.suggestionToPidMap.has(suggestion)) {
+            this.suggestionToPidMap.set(suggestion, result.pid);
+          }
+
+          console.log('suggestionToPidMap::', this.suggestionToPidMap.values())
 
           return suggestion;
-        });
+        })
+        .filter((suggestion, index, self) => self.indexOf(suggestion) === index); // Remove duplicates
       })
     );
   }
@@ -93,15 +111,14 @@ export class DocumentSearchService {
   selectSuggestion(documentUuid: string, suggestion: string): void {
     console.log('Suggestion selected:', suggestion);
 
-    const pid = this.suggestionToPidMap.get(suggestion);
-
-    if (!pid || !documentUuid) {
-      console.warn('No PID found, no search term, or no document UUID:', {
-        pid,
-        term: suggestion,
-        documentUuid
-      });
-      return;
+    // Find PID by comparing suggestion with map keys (both without interpunction)
+    let pid: string | undefined;
+    for (const [key, value] of this.suggestionToPidMap.entries()) {
+      const normalizedKey = removeInterpunction(key);
+      if (normalizedKey === suggestion) {
+        pid = value;
+        break;
+      }
     }
 
     console.log('Fetching full search results for term:', suggestion);
@@ -113,64 +130,7 @@ export class DocumentSearchService {
     this.detailViewService.setFulltextParam(suggestion);
 
     // Fetch full search results with highlighted snippets
-    this.solrService.getInDocumentSearchResults(documentUuid, suggestion).subscribe({
-      next: (results) => {
-        console.log(`Received ${results.length} search results with highlights`);
-
-        const searchResults = this.mapAndSortResults(results);
-        this.searchResultsSubject.next(searchResults);
-        this.allMatchedPages = searchResults.map(r => r.pid);
-        //this.currentMatchedPageIndexSubject.next(this.allMatchedPages.indexOf(pid));
-        this.currentMatchedPageIndexSubject.next(0);
-
-        const firstPagePid = this.allMatchedPages[0];
-
-        // Navigate to the selected page
-        this.detailViewService.navigateToPage(firstPagePid);
-
-        // Wait for image to fully load, then display ALTO highlights
-        this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
-          this.fetchAndDisplayHighlights(firstPagePid, suggestion);
-        });
-      },
-      error: (error) => {
-        console.error('Error fetching search results:', error);
-      }
-    });
-  }
-
-  /**
-   * Handles search submission (when user presses enter)
-   * Searches on the current page only (not across all pages)
-   */
-  executeSearch(documentUuid: string, term: string): void {
-    console.log('executeSearch called with term:', term);
-
-    this.searchTermSubject.next(term);
-
-    if (!term || !this.detailViewService.currentPagePid) {
-      // Clear overlays if search is cleared
-      if (!term) {
-        console.log('🧹 Clearing search');
-        this.clearSearch();
-      }
-      return;
-    }
-
-    console.log('Searching on current page only:', {
-      term,
-      currentPagePid: this.detailViewService.currentPagePid
-    });
-
-    // Update URL with fulltext parameter
-    this.detailViewService.setFulltextParam(term);
-
-    // Clear page navigation since we're only searching current page
-    this.allMatchedPages = [this.detailViewService.currentPagePid];
-    this.currentMatchedPageIndexSubject.next(0);
-
-    // Fetch ALTO for current page and display results
-    this.fetchAndDisplayHighlights(this.detailViewService.currentPagePid, term);
+    this.fetchSearchResults(documentUuid, suggestion, pid);
   }
 
   /**
@@ -182,7 +142,6 @@ export class DocumentSearchService {
     this.allMatchedPages = [];
     this.currentMatchedPageIndexSubject.next(0);
     this.searchResultsSubject.next([]);
-    // Remove fulltext parameter from URL
     this.detailViewService.setFulltextParam(null);
   }
 
@@ -284,27 +243,52 @@ export class DocumentSearchService {
       const searchTerm = fulltextParam.trim();
       this.searchTermSubject.next(searchTerm);
 
-      // Fetch full search results
-      this.solrService.getInDocumentSearchResults(documentUuid, searchTerm).subscribe({
-        next: (results) => {
-          console.log(`Restored ${results.length} search results from URL`);
+      // Fetch full search results (skipNavigation=true to stay on current page)
+      this.fetchSearchResults(documentUuid, searchTerm, undefined, true);
+    }
+  }
 
-          const searchResults = this.mapAndSortResults(results);
-          this.searchResultsSubject.next(searchResults);
-          this.allMatchedPages = searchResults.map(r => r.pid);
+  /**
+   * Resets the restoration flag (call when document changes)
+   */
+  resetRestorationFlag(): void {
+    this.hasRestoredSearch = false;
+  }
 
-          // IMPORTANT: Set the search query in the service to show search navigation
-          // This is normally done in displaySearchHighlights, but we need it set
-          // even if the current page doesn't have matches
-          this.iiifViewerService.setSearchQuery(searchTerm);
-          console.log('Set search query in iiifViewerService:', searchTerm);
+  /**
+   * Fetches search results and handles navigation to the appropriate page
+   * @param documentUuid - Document UUID
+   * @param searchTerm - Search term
+   * @param targetPid - Optional target PID to navigate to. If not provided, navigates to first result
+   * @param skipNavigation - If true, doesn't navigate to any page (used in restore from URL)
+   */
+  private fetchSearchResults(
+    documentUuid: string,
+    searchTerm: string,
+    targetPid?: string,
+    skipNavigation: boolean = false
+  ): void {
+    this.solrService.getInDocumentSearchResults(documentUuid, searchTerm, this.isCaseSensitive).subscribe({
+      next: (results) => {
+        console.log(`Received ${results.length} search results with highlights`);
 
-          // Find current page in results
+        const searchResults = this.mapAndSortResults(results);
+        this.searchResultsSubject.next(searchResults);
+        this.allMatchedPages = searchResults.map(r => r.pid);
+
+        // Set search query in viewer service
+        this.iiifViewerService.setSearchQuery(searchTerm);
+
+        // Determine which page to navigate to
+        let pageToNavigate: string | undefined;
+        let pageIndex = 0;
+
+        if (skipNavigation) {
+          // For restore from URL: stay on current page if it has matches
           const currentPid = this.detailViewService.currentPagePid;
           if (currentPid) {
             const currentIndex = this.allMatchedPages.indexOf(currentPid);
             this.currentMatchedPageIndexSubject.next(currentIndex);
-
             console.log('Current page index in results:', currentIndex + 1, '/', this.allMatchedPages.length);
 
             // If current page has matches, display ALTO highlights
@@ -316,19 +300,36 @@ export class DocumentSearchService {
               console.log('Current page not in search results');
             }
           }
-        },
-        error: (error) => {
-          console.error('Error restoring search results from URL:', error);
+          return;
         }
-      });
-    }
-  }
 
-  /**
-   * Resets the restoration flag (call when document changes)
-   */
-  resetRestorationFlag(): void {
-    this.hasRestoredSearch = false;
+        if (targetPid && this.allMatchedPages.includes(targetPid)) {
+          // Navigate to specific target PID
+          pageToNavigate = targetPid;
+          pageIndex = this.allMatchedPages.indexOf(targetPid);
+        } else {
+          // Navigate to first page with results
+          pageToNavigate = this.allMatchedPages[0];
+          pageIndex = 0;
+        }
+
+        this.currentMatchedPageIndexSubject.next(pageIndex);
+
+        if (pageToNavigate) {
+          // Navigate to the selected page
+          this.detailViewService.navigateToPage(pageToNavigate);
+
+          // Wait for image to fully load, then display ALTO highlights
+          this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
+            console.log('image loaded');
+            this.fetchAndDisplayHighlights(pageToNavigate!, searchTerm);
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching search results:', error);
+      }
+    });
   }
 
   /**
@@ -366,6 +367,7 @@ export class DocumentSearchService {
    * @param searchTerm - Search term to highlight
    */
   private fetchAndDisplayHighlights(pid: string, searchTerm: string): void {
+    this.iiifViewerService.setSearchQuery(searchTerm);
     this.altoService.fetchAltoXml(pid).subscribe({
       next: (altoXml) => {
         const count = this.iiifViewerService.displaySearchHighlights(altoXml, searchTerm);

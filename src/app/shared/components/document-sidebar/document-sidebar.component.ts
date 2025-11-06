@@ -117,6 +117,10 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
     this.documentSearchService.selectSuggestion(this.document.uuid, suggestion);
   }
 
+  caseSensitiveChanged() {
+    this.documentSearchService.caseSensitiveChanged(this.document.uuid, this.searchTerm())
+  }
+
   /**
    * Handles when autocomplete is cleared
    */
@@ -131,7 +135,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
     if (!this.document?.uuid) {
       return;
     }
-    this.documentSearchService.executeSearch(this.document.uuid, term);
+    this.documentSearchService.selectSuggestion(this.document.uuid, term);
   }
 
   /**

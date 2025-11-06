@@ -108,10 +108,9 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
         const sorted = unique
           .map(s => ({ s, index: s.toLowerCase().indexOf(term) }))
-          .filter(item => item.index !== -1)
           .sort((a, b) => a.index - b.index)
           .map(item => item.s);
-
+        //          .filter(item => item.index !== -1)
         this.suggestions.set(sorted);
         this.isLoading.set(false);
       }

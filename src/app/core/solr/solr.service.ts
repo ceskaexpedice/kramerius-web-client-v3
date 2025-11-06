@@ -561,13 +561,15 @@ export class SolrService {
     parentPid: string,
     searchTerm: string,
     rows: number = 300,
-    forAutocomplete: boolean = false
+    forAutocomplete: boolean = false,
+    caseSensitive: boolean = false,
   ): Observable<any> {
     const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
 
     const paramsObject = {
       fl: 'pid,root.pid',
       hl: 'true',
+      q: '',
       'hl.fl': 'text_ocr',
       'hl.fragsize': forAutocomplete ? '1' : '120',
       'hl.method': 'original',
@@ -575,10 +577,15 @@ export class SolrService {
       'hl.simple.pre': forAutocomplete ? '>>' : '<strong>',
       'hl.snippets': forAutocomplete ? '10' : '1',
       fq: `(own_parent.pid:"${parentPid}") AND model:page`,
-      q: `text_ocr:${ocrSearchTerm}`,
       rows: rows.toString(),
       wt: 'json'
     };
+
+    if (caseSensitive) {
+      paramsObject['q'] = `text_ocr.exact:${ocrSearchTerm}`;
+    } else {
+      paramsObject['q'] = `text_ocr:${ocrSearchTerm}`;
+    }
 
     const params = this.createHttpParams(paramsObject);
     return this.http.get<any>(this.API_URL, { params });
@@ -625,7 +632,7 @@ export class SolrService {
    * @param searchTerm - Search term
    * @returns Observable with array of search results including highlighted text snippets
    */
-  getInDocumentSearchResults(parentPid: string, searchTerm: string): Observable<Array<{pid: string, highlightedText: string}>> {
+  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false): Observable<Array<{pid: string, highlightedText: string}>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       return new Observable(observer => {
         observer.next([]);
@@ -633,7 +640,7 @@ export class SolrService {
       });
     }
 
-    return this.searchInDocument(parentPid, searchTerm, 300, false).pipe(
+    return this.searchInDocument(parentPid, searchTerm, 300, false, caseSensitive).pipe(
       map(response => {
         const results: Array<{pid: string, highlightedText: string}> = [];
 
