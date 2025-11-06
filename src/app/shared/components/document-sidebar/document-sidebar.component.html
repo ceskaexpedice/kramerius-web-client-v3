@@ -28,6 +28,15 @@
         (nextMatch)="findNextMatch()"
       ></app-search-navigation>
       <hr>
+
+      <mat-slide-toggle
+        [(ngModel)]="showAllPages"
+        [hideIcon]="true"
+        [class]="'size-sm'"
+        (change)="onShowAllPagesToggle()">
+        {{ 'show-all-pages' | translate }}
+      </mat-slide-toggle>
+
     } @else {
       @if (shouldShowPageNavigator) {
         <hr>

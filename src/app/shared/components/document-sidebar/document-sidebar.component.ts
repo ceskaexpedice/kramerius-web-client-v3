@@ -14,6 +14,8 @@ import { Observable } from 'rxjs';
 import { SearchNavigationComponent } from '../search-navigation/search-navigation.component';
 import { SearchResultsListComponent, SearchResult } from '../search-results-list/search-results-list.component';
 import { DocumentSearchService } from '../../services/document-search.service';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -26,7 +28,9 @@ import { DocumentSearchService } from '../../services/document-search.service';
     DetailPagesGridComponent,
     AutocompleteComponent,
     SearchNavigationComponent,
-    SearchResultsListComponent
+    SearchResultsListComponent,
+    MatSlideToggle,
+    FormsModule,
   ],
   templateUrl: './document-sidebar.component.html',
   styleUrl: './document-sidebar.component.scss'
@@ -41,6 +45,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
 
   // Local signal that syncs with the service's observable for the autocomplete component
   public searchTerm = signal('');
+  public showAllPages = false;
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 
@@ -157,5 +162,9 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
    */
   onSearchResultClick(result: SearchResult): void {
     this.documentSearchService.navigateToResult(result);
+  }
+
+  onShowAllPagesToggle() {
+
   }
 }
