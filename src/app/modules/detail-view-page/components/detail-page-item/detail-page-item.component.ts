@@ -22,6 +22,7 @@ export class DetailPageItemComponent {
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: string | null = '0';
+  @Input() pageNumberPosition: 'left' | 'right' = 'right';
   @Input() isSelected: boolean = false;
 
   @Input() type: 'recording' | 'page' = 'page';

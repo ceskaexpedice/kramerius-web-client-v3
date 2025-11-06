@@ -12,6 +12,19 @@
   align-items: center;
   gap: var(--spacing-x2);
   border-radius: var(--Spacing-x2, 8px);
+  width: fit-content;
+  max-width: 100%;
+
+  &:not(.with-content) {
+    gap: 0;
+  }
+
+  app-detail-page-item {
+    flex-shrink: 0;
+    height: 104px;
+    width: 69px;
+    overflow: hidden;
+  }
 
   &:hover {
     border: 2px solid var(--color-border-base);
@@ -24,10 +37,16 @@
   }
 }
 
+.search-result-item--content {
+  flex: 1;
+  overflow: hidden;
+}
+
 .highlighted-text {
   font-size: var(--font-size-small);
   color: var(--color-text-base);
   line-height: var(--line-height-1);
+  overflow: hidden;
 }
 
 .no-results {

@@ -16,6 +16,7 @@ import { SearchResultsListComponent, SearchResult } from '../search-results-list
 import { DocumentSearchService } from '../../services/document-search.service';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -47,6 +48,9 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
   public searchTerm = signal('');
   public showAllPages = false;
 
+  // Convert searchQuery$ observable to a signal for reactive checks
+  public searchQuery = toSignal(this.iiifViewerService.searchQuery$, { initialValue: null });
+
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 
   constructor() {
@@ -76,6 +80,8 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
   }
 
   get shouldShowPageNavigator(): boolean {
+    if (this.searchQuery() && !this.showAllPages) return false;
+
     if (this.isSoundRecording) {
       return this.detailViewService.soundRecordingViewMode() === 'images';
     }

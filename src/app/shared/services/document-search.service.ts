@@ -342,19 +342,20 @@ export class DocumentSearchService {
     // Convert to SearchResult format and add page numbers
     const searchResults: SearchResult[] = results.map(r => {
       const pageIndex = pages.findIndex(p => p.pid === r.pid);
+      const page = pages[pageIndex];
       return {
         pid: r.pid,
         highlightedText: r.highlightedText,
-        pageNumber: pageIndex !== -1 ? pageIndex + 1 : undefined
+        pageNumber: page['page.number']
       };
     });
 
     // Sort by page number
-    searchResults.sort((a, b) => {
-      if (a.pageNumber === undefined) return 1;
-      if (b.pageNumber === undefined) return -1;
-      return a.pageNumber - b.pageNumber;
-    });
+    // searchResults.sort((a, b) => {
+    //   if (a.pageNumber === undefined) return 1;
+    //   if (b.pageNumber === undefined) return -1;
+    //   return a.pageNumber - b.pageNumber;
+    // });
 
     console.log(`Search results sorted by page number (1-${searchResults.length})`);
 

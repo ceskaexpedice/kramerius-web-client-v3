@@ -37,9 +37,13 @@
         {{ 'show-all-pages' | translate }}
       </mat-slide-toggle>
 
-    } @else {
+    }
       @if (shouldShowPageNavigator) {
-        <hr>
+
+        @if (!(iiifViewerService.searchQuery$ | async)) {
+          <hr>
+        }
+
         <app-page-navigator
           [currentPage]="detailViewService.currentPageIndex + 1"
           [totalPages]="detailViewService.totalPages"
@@ -47,7 +51,6 @@
           (prev)="detailViewService.goToPrevious()"
           (pageChange)="detailViewService.goToPage($event)"
         ></app-page-navigator>
-      }
 
       @if (!isSoundRecording) {
         <hr>
@@ -68,6 +71,8 @@
         <app-search-results-list
           [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
+          [showAllPages]="showAllPages"
+          [allPages]="detailViewService.pages"
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>
       } @else {

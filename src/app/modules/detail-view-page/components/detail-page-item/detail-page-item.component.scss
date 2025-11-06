@@ -130,10 +130,17 @@
   }
 }
 
+.page--number-right .page--number {
+  right: 2px;
+}
+
+.page--number-left .page--number {
+  left: 2px;
+}
+
 .page--number {
   position: absolute;
   top: 2px;
-  right: 2px;
   border-radius: var(--spacing-x2);
   padding: var(--spacing-x2);
   display: flex;

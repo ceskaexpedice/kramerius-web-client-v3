@@ -1,5 +1,5 @@
 <a class="page--item"
-   [ngClass]="'type-' + type"
+   [ngClass]="['type-' + type, `page--number-${pageNumberPosition}`]"
    [class.selected]="isSelected"
    [class.admin-mode]="selectionService.selectionMode()"
    [class.admin-selected]="selectionService.selectionMode() && selectionService.isSelected(page.pid)"
