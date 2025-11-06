@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { SolrService } from '../../core/solr/solr.service';
 import { AltoService } from './alto.service';
 import { IIIFViewerService } from './iiif-viewer.service';
@@ -128,10 +128,10 @@ export class DocumentSearchService {
         // Navigate to the selected page
         this.detailViewService.navigateToPage(firstPagePid);
 
-        // Wait a bit for the page to load, then display ALTO highlights
-        setTimeout(() => {
+        // Wait for image to fully load, then display ALTO highlights
+        this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
           this.fetchAndDisplayHighlights(firstPagePid, suggestion);
-        }, 100);
+        });
       },
       error: (error) => {
         console.error('Error fetching search results:', error);
@@ -209,10 +209,10 @@ export class DocumentSearchService {
     // Navigate to the page
     this.detailViewService.navigateToPage(nextPid);
 
-    // Wait for page to load, then display results
-    setTimeout(() => {
+    // Wait for image to fully load, then display results
+    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
       this.fetchAndDisplayHighlights(nextPid, this.searchTermSubject.value);
-    }, 500);
+    });
   }
 
   /**
@@ -238,10 +238,10 @@ export class DocumentSearchService {
     // Navigate to the page
     this.detailViewService.navigateToPage(prevPid);
 
-    // Wait for page to load, then display results
-    setTimeout(() => {
+    // Wait for image to fully load, then display results
+    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
       this.fetchAndDisplayHighlights(prevPid, this.searchTermSubject.value);
-    }, 500);
+    });
   }
 
   /**
@@ -259,10 +259,10 @@ export class DocumentSearchService {
     // Navigate to the page
     this.detailViewService.navigateToPage(result.pid);
 
-    // Wait for page to load, then display ALTO highlights
-    setTimeout(() => {
+    // Wait for image to fully load, then display ALTO highlights
+    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
       this.fetchAndDisplayHighlights(result.pid, this.searchTermSubject.value);
-    }, 500);
+    });
   }
 
   /**
@@ -309,9 +309,9 @@ export class DocumentSearchService {
 
             // If current page has matches, display ALTO highlights
             if (currentIndex !== -1) {
-              setTimeout(() => {
+              this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
                 this.fetchAndDisplayHighlights(currentPid, searchTerm);
-              }, 300);
+              });
             } else {
               console.log('Current page not in search results');
             }

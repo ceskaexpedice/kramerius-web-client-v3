@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { EnvironmentService } from './environment.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService } from './alto.service';
 
@@ -98,6 +98,10 @@ export class IIIFViewerService {
   public totalMatches$ = this.totalMatchesSubject.asObservable();
   public searchQuery$ = this.searchQuerySubject.asObservable();
 
+  // Image loading events
+  private imageLoadedSubject = new Subject<void>();
+  public imageLoaded$ = this.imageLoadedSubject.asObservable();
+
   get currentMatchNumber(): number {
     return this.currentMatchIndexSubject.value + 1;
   }
@@ -140,6 +144,67 @@ export class IIIFViewerService {
   setViewer(viewer: OpenSeadragon.Viewer): void {
     this.viewer = viewer;
     this.setupRectangleClickHandler();
+    this.setupImageLoadedHandler();
+  }
+
+  // Setup handler to emit when image is fully loaded
+  private setupImageLoadedHandler(): void {
+    if (!this.viewer) return;
+
+    let imageLoadTimeout: any = null;
+
+    // Listen for when all tiles at the current level are fully loaded
+    this.viewer.addHandler('tile-loaded', () => {
+      // Clear any existing timeout
+      if (imageLoadTimeout) {
+        clearTimeout(imageLoadTimeout);
+      }
+
+      // Debounce: wait a bit to ensure all visible tiles are loaded
+      imageLoadTimeout = setTimeout(() => {
+        const tiledImage = this.viewer?.world.getItemAt(0);
+        if (tiledImage) {
+
+          const fullyLoaded = tiledImage.getFullyLoaded();
+          if (fullyLoaded) {
+            console.log('Image fully loaded and ready');
+            this.imageLoadedSubject.next();
+          }
+        }
+        imageLoadTimeout = null;
+      }, 50);
+    });
+
+    // Listen for when the viewer finishes updating (after pan, zoom, or navigation)
+    this.viewer.addHandler('update-viewport', () => {
+      // Clear any existing timeout
+      if (imageLoadTimeout) {
+        clearTimeout(imageLoadTimeout);
+      }
+
+      // Debounce: wait for viewport updates to settle
+      imageLoadTimeout = setTimeout(() => {
+        const tiledImage = this.viewer?.world.getItemAt(0);
+        if (tiledImage) {
+          const fullyLoaded = tiledImage.getFullyLoaded();
+          if (fullyLoaded) {
+            console.log('Viewport updated, image ready');
+            this.imageLoadedSubject.next();
+          }
+        }
+        imageLoadTimeout = null;
+      }, 50);
+    });
+
+    // Listen for the open event (when a new image starts loading)
+    this.viewer.addHandler('open', () => {
+      console.log('New image opened in viewer');
+      // Clear any pending timeouts when a new image opens
+      if (imageLoadTimeout) {
+        clearTimeout(imageLoadTimeout);
+        imageLoadTimeout = null;
+      }
+    });
   }
 
   // Setup global click handler for rectangles
