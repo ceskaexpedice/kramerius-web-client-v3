@@ -1,5 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { FacetItem } from '../../../modules/models/facet-item';
+import { Metadata } from '../../models/metadata.model';
 import * as CollectionsActions from './collections.actions';
 
 export interface CollectionsState {
@@ -8,6 +9,9 @@ export interface CollectionsState {
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
   error: any;
+  detail: Metadata | null;
+  detailLoading: boolean;
+  detailError: any;
 }
 
 export const initialState: CollectionsState = {
@@ -16,6 +20,9 @@ export const initialState: CollectionsState = {
   facets: {},
   loading: false,
   error: null,
+  detail: null,
+  detailLoading: false,
+  detailError: null,
 };
 
 export const collectionsReducer = createReducer(
@@ -51,6 +58,25 @@ export const collectionsReducer = createReducer(
       ...state.facets,
       [facet]: items,
     },
+  })),
+
+  on(CollectionsActions.loadCollectionDetail, (state) => ({
+    ...state,
+    detailLoading: true,
+    detailError: null,
+  })),
+
+  on(CollectionsActions.loadCollectionDetailSuccess, (state, { detail }) => ({
+    ...state,
+    detail,
+    detailLoading: false,
+    detailError: null,
+  })),
+
+  on(CollectionsActions.loadCollectionDetailFailure, (state, { error }) => ({
+    ...state,
+    detailLoading: false,
+    detailError: error,
   })),
 
   on(CollectionsActions.clearCollectionSearch, () => ({

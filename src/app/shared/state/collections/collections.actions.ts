@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { FacetItem } from '../../../modules/models/facet-item';
 import { SolrOperators, SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
+import { Metadata } from '../../models/metadata.model';
 
 export const loadCollectionSearchResults = createAction(
   '[Collections] Load Search Results',
@@ -29,6 +30,23 @@ export const loadCollectionFacetsSuccess = createAction(
 
 export const loadCollectionSearchResultsFailure = createAction(
   '[Collections] Load Search Results Failure',
+  props<{ error: any }>()
+);
+
+export const loadCollectionDetail = createAction(
+  '[Collections] Load Detail',
+  props<{
+    uuid: string;
+  }>()
+);
+
+export const loadCollectionDetailSuccess = createAction(
+  '[Collections] Load Detail Success',
+  props<{ detail: Metadata }>()
+);
+
+export const loadCollectionDetailFailure = createAction(
+  '[Collections] Load Detail Failure',
   props<{ error: any }>()
 );
 

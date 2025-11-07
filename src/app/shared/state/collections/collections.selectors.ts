@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { CollectionsState } from './collections.reducer';
 import { selectRouterQueryParams } from '../router/router.selectors';
 import { SolrOperators } from '../../../core/solr/solr-helpers';
+import { Metadata } from '../../models/metadata.model';
 
 export const selectCollectionsState = createFeatureSelector<CollectionsState>('collections');
 
@@ -13,6 +14,21 @@ export const selectCollectionSearchResults = createSelector(
 export const selectCollectionSearchResultsTotalCount = createSelector(
   selectCollectionsState,
   (state: CollectionsState) => state?.totalCount ?? 0
+);
+
+export const selectCollectionDetail = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState): Metadata | null => state?.detail ?? null
+);
+
+export const selectCollectionDetailLoading = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state?.detailLoading ?? false
+);
+
+export const selectCollectionDetailError = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state?.detailError ?? null
 );
 
 export const selectCollectionFacets = createSelector(

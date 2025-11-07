@@ -11,18 +11,21 @@ import {
   loadCollectionSearchResultsFailure,
   loadCollectionFacet,
   loadCollectionFacetSuccess,
-  loadCollectionFacetFailure
+  loadCollectionDetail,
+  loadCollectionDetailSuccess,
+  loadCollectionDetailFailure,
 } from './collections.actions';
 import { parseSearchDocument } from '../../../modules/models/search-document';
 import {
   selectCollectionFacets,
   selectCollectionFacetOperators
 } from './collections.selectors';
-import { SolrResponseParser } from '../../../core/solr/solr-response-parser';
 import { DEFAULT_FACET_FIELDS } from '../../../modules/search-results-page/const/facet-fields';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
+import { AppTranslationService } from '../../translation/app-translation.service';
+import { fromSolrToMetadata } from '../../models/metadata.model';
 
 @Injectable()
 export class CollectionsEffects {
@@ -30,7 +33,8 @@ export class CollectionsEffects {
     private actions$: Actions,
     private solr: SolrService,
     private store: Store,
-    private userService: UserService
+    private userService: UserService,
+    private translationService: AppTranslationService
   ) {}
 
   loadCollectionSearchResults$ = createEffect(() =>
@@ -123,6 +127,25 @@ export class CollectionsEffects {
             ];
           }),
           catchError(error => of(loadCollectionSearchResultsFailure({ error })))
+        );
+      })
+    )
+  );
+
+  loadCollectionDetail$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadCollectionDetail),
+      switchMap(({ uuid }) => {
+        const currentLang = this.translationService.currentLanguage().code;
+        return this.solr.getDetailItem(uuid).pipe(
+          map(detail => {
+            const metadata = fromSolrToMetadata(detail, currentLang);
+            return loadCollectionDetailSuccess({ detail: metadata });
+          }),
+          catchError(error => {
+            console.error('Error loading collection detail:', error);
+            return of(loadCollectionDetailFailure({ error }));
+          })
         );
       })
     )
