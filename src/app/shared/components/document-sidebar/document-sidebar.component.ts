@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, effect } from '@angular/core';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, effect, OnDestroy} from '@angular/core';
 import { NgIf, AsyncPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
@@ -36,7 +36,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './document-sidebar.component.html',
   styleUrl: './document-sidebar.component.scss'
 })
-export class DocumentSidebarComponent implements OnInit, OnChanges {
+export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() document!: Metadata;
 
   public detailViewService = inject(DetailViewService);
@@ -73,6 +73,10 @@ export class DocumentSidebarComponent implements OnInit, OnChanges {
       this.documentSearchService.resetRestorationFlag();
       this.documentSearchService.restoreSearchFromUrl(this.document.uuid);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.documentSearchService.clearSearch();
   }
 
   get isSoundRecording(): boolean {
