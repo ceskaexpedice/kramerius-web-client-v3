@@ -13,6 +13,7 @@ export enum APP_ROUTES_ENUM {
   PROFILE = 'profile',
   HELP = 'help',
   UUID_REDIRECT = 'uuid',
+  COLLECTION = 'collection',
 }
 
 export const routes: Routes = [
@@ -51,6 +52,10 @@ export const routes: Routes = [
     path: APP_ROUTES_ENUM.SAVED_LISTS,
     loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: APP_ROUTES_ENUM.COLLECTION,
+    loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule)
   },
   {
     path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
