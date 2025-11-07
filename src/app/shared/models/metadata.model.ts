@@ -1,6 +1,5 @@
 import { Page } from './page.model';
 import { Article } from './article.model';
-import { DocumentItem } from './document_item.model';
 import { PeriodicalItem } from './periodicalItem.model';
 import { InternalPart } from './internal_part.model';
 
@@ -88,7 +87,13 @@ export class Metadata {
   public extraParentMetadata: Metadata | null = null;
 
   public pdf: boolean = false;
-  public epub: boolean = false
+  public epub: boolean = false;
+
+  // Collection-specific fields (empty/null for non-collection documents)
+  public collectionDescription: string = '';
+  public collectionDescriptions: { [lang: string]: string } = {};
+  public collectionTitles: { [lang: string]: string } = {};
+  public collectionIsStandalone: boolean = false;
 }
 
 export class TitleInfo {
@@ -191,7 +196,9 @@ export class InCollections {
   public name: string = '';
 }
 
-export function fromSolrToMetadata(doc: any): Metadata {
+import { getLocalizedField, getAllLanguageVersions, getLocalizedTitle } from '../utils/language-utils';
+
+export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metadata {
   const metadata = new Metadata();
 
   metadata.uuid = doc.pid;
@@ -292,6 +299,20 @@ export function fromSolrToMetadata(doc: any): Metadata {
 
   metadata.pdf = doc['ds.img_full.mime'] === 'application/pdf';
   metadata.epub = doc['ds.img_full.mime'] === 'application/epub+zip';
+
+  // Handle collection-specific fields
+  if (doc.model === 'collection') {
+    metadata.collectionDescription = getLocalizedField(doc, 'collection.desc', currentLang);
+    metadata.collectionDescriptions = getAllLanguageVersions(doc, 'collection.desc');
+    metadata.collectionTitles = getAllLanguageVersions(doc, 'title.search');
+    metadata.collectionIsStandalone = doc['collection.is_standalone'] ?? false;
+
+    // Use localized title for collections
+    const localizedTitle = getLocalizedTitle(doc, currentLang);
+    if (localizedTitle) {
+      metadata.mainTitle = localizedTitle;
+    }
+  }
 
   return metadata;
 }

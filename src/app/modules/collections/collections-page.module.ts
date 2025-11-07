@@ -5,8 +5,10 @@ import {FilterSidebarComponent} from '../search-results-page/components/filter-s
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {CollectionsService} from '../../shared/services/collections.service';
 import {FILTER_SERVICE} from '../../shared/services/filter.service';
-import {AsyncPipe, NgForOf} from '@angular/common';
+import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
+import {AdminActionsComponent} from '../../shared/components/admin-actions';
+import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 
 const routes: Routes = [
   {
@@ -23,6 +25,10 @@ const routes: Routes = [
     NgForOf,
     RecordItemComponent,
     AsyncPipe,
+    JsonPipe,
+    AdminActionsComponent,
+    NgIf,
+    ToolbarHeaderComponent,
   ],
   providers: [
     CollectionsService,

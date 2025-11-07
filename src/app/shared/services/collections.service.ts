@@ -13,9 +13,12 @@ import {
   selectCollectionSearchResultsTotalCount,
   selectCollectionSearchResultsLoading,
   selectCollectionSearchResultsError,
-  selectCollectionFacets
+  selectCollectionFacets,
+  selectCollectionDetail,
+  selectCollectionDetailLoading,
+  selectCollectionDetailError
 } from '../state/collections/collections.selectors';
-import { loadCollectionSearchResults } from '../state/collections/collections.actions';
+import { loadCollectionSearchResults, loadCollectionDetail } from '../state/collections/collections.actions';
 
 @Injectable()
 export class CollectionsService extends BaseFilterService {
@@ -27,6 +30,10 @@ export class CollectionsService extends BaseFilterService {
   loading$ = this.store.select(selectCollectionSearchResultsLoading);
   searchResults$ = this.store.select(selectCollectionSearchResults);
   error$ = this.store.select(selectCollectionSearchResultsError);
+
+  detail$ = this.store.select(selectCollectionDetail);
+  detailLoading$ = this.store.select(selectCollectionDetailLoading);
+  detailError$ = this.store.select(selectCollectionDetailError);
 
   POSSIBLE_FILTERS = [
     customDefinedFacetsEnum.accessibility,
@@ -86,6 +93,12 @@ export class CollectionsService extends BaseFilterService {
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTION)) {
+        // Load collection detail
+        if (this.uuid) {
+          this.store.dispatch(loadCollectionDetail({ uuid: this.uuid }));
+        }
+
+        // Load collection search results if there are query params
         this.dispatchCollectionsSearch(Object.keys(queryParams).length ? queryParams : null);
       }
     });
