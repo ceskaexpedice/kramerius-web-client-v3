@@ -5,7 +5,7 @@
       [page]="page"
       [type]="type"
       [pageNumber]="page['page.number']"
-      [isSelected]="detailViewService.currentPageIndex === index"
+      [isSelected]="detailViewService.isPageActive(index)"
       (pageClicked)="clickedPage(index)"
     >
     </app-detail-page-item>

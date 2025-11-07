@@ -79,6 +79,8 @@ export class ViewerControls {
   onBookMode() {
     if (this.type === 'pdf') {
       this.pdfService.bookModeToggle();
+    } else if (this.type === 'image') {
+      this.iiifViewerService.toggleBookMode();
     }
   }
 

@@ -20,7 +20,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {DocumentTypeEnum} from '../../constants/document-type';
 import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/periodical-detail/periodical-detail.actions';
 import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
-import {LocalStorageService} from '../../../shared/services/local-storage.service';
+import {IIIFViewerService} from '../../../shared/services/iiif-viewer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,7 @@ export class DetailViewService {
   private recordInfoService = inject(RecordInfoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private iiifViewerService = inject(IIIFViewerService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -248,12 +249,16 @@ export class DetailViewService {
     window.history.replaceState({}, '', url.toString());
   }
 
-  goToNext(pagesToGoForward: number = 1) {
-    this.goToPage(this._currentPageIndex() + pagesToGoForward);
+  goToNext(pagesToGoForward?: number) {
+    // If book mode is active and no explicit step is provided, move by 2
+    const step = pagesToGoForward ?? (this.iiifViewerService.isBookMode() ? 2 : 1);
+    this.goToPage(this._currentPageIndex() + step);
   }
 
-  goToPrevious(pagesToGoBack: number = 1) {
-    this.goToPage(this._currentPageIndex() - pagesToGoBack);
+  goToPrevious(pagesToGoBack?: number) {
+    // If book mode is active and no explicit step is provided, move by 2
+    const step = pagesToGoBack ?? (this.iiifViewerService.isBookMode() ? 2 : 1);
+    this.goToPage(this._currentPageIndex() - step);
   }
 
   goToNextPeriodicalIssue() {
@@ -374,5 +379,23 @@ export class DetailViewService {
 
   hideMetadataSidebar(): void {
     this._metadataSidebarVisible.set(false);
+  }
+
+  /**
+   * Check if a page index is currently active/selected
+   * In book mode, both the current page and the next page are considered active
+   * @param index - Page index to check
+   * @returns true if the page is active
+   */
+  isPageActive(index: number): boolean {
+    const currentIndex = this._currentPageIndex();
+
+    if (this.iiifViewerService.isBookMode()) {
+      // In book mode, both current and next page are active
+      return index === currentIndex || index === currentIndex + 1;
+    }
+
+    // In single page mode, only the current page is active
+    return index === currentIndex;
   }
 }

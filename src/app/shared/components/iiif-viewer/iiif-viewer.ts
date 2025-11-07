@@ -15,6 +15,7 @@ import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { Subscription } from 'rxjs';
 import { FullscreenComponent } from '../fullscreen/fullscreen.component';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
 
 @Component({
@@ -34,6 +35,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
 
   public iiifViewerService = inject(IIIFViewerService);
+  private detailViewService = inject(DetailViewService);
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
@@ -43,6 +45,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
+
+    // Subscribe to book mode changes
+    this.subscriptions.push(
+      this.iiifViewerService.bookMode$.subscribe(() => {
+        this.updateViewerForBookMode();
+      })
+    );
   }
 
   ngAfterViewInit(): void {
@@ -59,7 +68,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
-      this.updateViewerSource();
+      this.updateViewerForBookMode();
     }
   }
 
@@ -114,5 +123,38 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
     this.viewer.open(infoUrl);
+  }
+
+  /**
+   * Updates the viewer to handle book mode
+   * If book mode is enabled, displays current and next page side by side
+   * Otherwise, displays only the current page
+   */
+  private updateViewerForBookMode(): void {
+    if (!this.viewer) return;
+
+    const currentPid = this.imagePid || this.metadata?.uuid;
+    if (!currentPid) return;
+
+    // Get next page PID for book mode
+    const nextPagePid = this.getNextPagePid();
+
+    // Update display based on book mode state
+    this.iiifViewerService.updateBookModeDisplay(currentPid, nextPagePid);
+  }
+
+  /**
+   * Gets the PID of the next page from DetailViewService
+   * Returns null if there is no next page
+   */
+  private getNextPagePid(): string | null {
+    const pages = this.detailViewService.pages;
+    const currentPageIndex = this.detailViewService.currentPageIndex;
+
+    if (currentPageIndex < pages.length - 1) {
+      return pages[currentPageIndex + 1].pid;
+    }
+
+    return null;
   }
 }

@@ -8,6 +8,7 @@ export interface IIIFViewerProperties {
   zoom: number;
   rotation: 0 | 90 | 180 | 270;
   fullscreen: boolean;
+  bookMode: boolean;
 }
 
 @Injectable({
@@ -69,7 +70,8 @@ export class IIIFViewerService {
   viewerProperties: IIIFViewerProperties = {
     zoom: 1,
     rotation: 0,
-    fullscreen: false
+    fullscreen: false,
+    bookMode: false
   };
 
   _uuid: string | null = null;
@@ -85,6 +87,9 @@ export class IIIFViewerService {
   private rectangleCounter: number = 0;
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
+
+  private bookModeSubject = new BehaviorSubject<boolean>(false);
+  public bookMode$ = this.bookModeSubject.asObservable();
 
   private altoService = inject(AltoService);
 
@@ -243,7 +248,8 @@ export class IIIFViewerService {
     this.viewerProperties = {
       zoom: 1,
       rotation: 0,
-      fullscreen: false
+      fullscreen: false,
+      bookMode: false
     };
     this.propertiesSubject.next(this.viewerProperties);
 
@@ -260,6 +266,7 @@ export class IIIFViewerService {
 
     // Clear search state
     this.clearSearchState();
+    this.bookModeSubject.next(false);
   }
 
   // Clear search state
@@ -692,7 +699,6 @@ export class IIIFViewerService {
     const url = new URL(window.location.href);
     url.searchParams.delete('fulltext');
     window.history.replaceState({}, '', url.toString());
-    console.log('Removed fulltext parameter from URL');
   }
 
   /**
@@ -702,5 +708,65 @@ export class IIIFViewerService {
    */
   setSearchQuery(searchTerm: string): void {
     this.searchQuerySubject.next(searchTerm);
+  }
+
+  /**
+   * Toggle book mode (dual-page view)
+   * When enabled, displays two pages side by side
+   */
+  toggleBookMode(): void {
+    const newBookMode = !this.viewerProperties.bookMode;
+    this.viewerProperties.bookMode = newBookMode;
+    this.bookModeSubject.next(newBookMode);
+    this.propertiesSubject.next(this.viewerProperties);
+  }
+
+  /**
+   * Check if book mode is currently active
+   */
+  isBookMode(): boolean {
+    return this.viewerProperties.bookMode;
+  }
+
+  /**
+   * Update viewer to display pages according to book mode state
+   * @param currentPagePid - The current page PID
+   * @param nextPagePid - The next page PID (for book mode)
+   */
+  updateBookModeDisplay(currentPagePid: string, nextPagePid: string | null): void {
+    if (!this.viewer) {
+      console.warn('Viewer not initialized');
+      return;
+    }
+
+    // Clear existing overlays when changing pages
+    this.clearAllOverlays();
+
+    if (this.viewerProperties.bookMode && nextPagePid) {
+      // Book mode: Display two pages side by side
+      const leftPageUrl = this.getIIIFInfoUrl(currentPagePid);
+      const rightPageUrl = this.getIIIFInfoUrl(nextPagePid);
+
+
+      // Open both pages with positioning
+      this.viewer.open([
+        {
+          tileSource: leftPageUrl,
+          x: 0,
+          y: 0,
+          width: 0.5
+        },
+        {
+          tileSource: rightPageUrl,
+          x: 0.5,
+          y: 0,
+          width: 0.5
+        }
+      ]);
+    } else {
+      // Single page mode
+      const pageUrl = this.getIIIFInfoUrl(currentPagePid);
+      this.viewer.open(pageUrl);
+    }
   }
 }
