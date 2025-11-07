@@ -1,5 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { filter, map, Observable, of, takeUntil } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
@@ -8,6 +8,14 @@ import { SolrService } from '../../core/solr/solr.service';
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
+import {
+  selectCollectionSearchResults,
+  selectCollectionSearchResultsTotalCount,
+  selectCollectionSearchResultsLoading,
+  selectCollectionSearchResultsError,
+  selectCollectionFacets
+} from '../state/collections/collections.selectors';
+import { loadCollectionSearchResults } from '../state/collections/collections.actions';
 
 @Injectable()
 export class CollectionsService extends BaseFilterService {
@@ -15,12 +23,10 @@ export class CollectionsService extends BaseFilterService {
 
   inputSearchTerm = '';
 
-  // TODO: Add store selectors when collections state is implemented
-  // totalCount$ = this.store.select(selectCollectionsSearchStateTotalCount);
-  // loading$ = this.store.select(selectCollectionsLoading);
-  // searchResults$ = this.store.select(selectCollectionsSearchStateResults);
-  // metadata$ = this.store.select(selectCollectionsMetadata);
-  // error$ = this.store.select(selectCollectionsError);
+  totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
+  loading$ = this.store.select(selectCollectionSearchResultsLoading);
+  searchResults$ = this.store.select(selectCollectionSearchResults);
+  error$ = this.store.select(selectCollectionSearchResultsError);
 
   POSSIBLE_FILTERS = [
     customDefinedFacetsEnum.accessibility,
@@ -44,13 +50,12 @@ export class CollectionsService extends BaseFilterService {
     this.load();
     this.initialize();
 
-    // TODO: Subscribe to totalCount when state is implemented
-    // effect(() => {
-    //   const subscription = this.totalCount$
-    //     .pipe(filter(count => count !== undefined && count !== null))
-    //     .subscribe(count => this._totalCount.set(count));
-    //   return () => subscription.unsubscribe();
-    // });
+    effect(() => {
+      const subscription = this.totalCount$
+        .pipe(filter(count => count !== undefined && count !== null))
+        .subscribe(count => this._totalCount.set(count));
+      return () => subscription.unsubscribe();
+    });
   }
 
   async initialize() {
@@ -69,22 +74,21 @@ export class CollectionsService extends BaseFilterService {
       return match?.[1] ?? null;
     };
 
-    // TODO: Subscribe to navigation events when routing is set up
-    // this.router.events.pipe(
-    //   filter(event => event instanceof NavigationEnd),
-    //   takeUntil(this.destroy$)
-    // ).subscribe(() => {
-    //   const rawUrl = this.router.url;
-    //   const currentRoute = rawUrl.split('?')[0];
-    //   const queryParams = this.route.snapshot.queryParams;
-    //
-    //   this.uuid = extractUuid(rawUrl);
-    //   console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
-    //
-    //   if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTIONS_VIEW)) {
-    //     this.dispatchCollectionsSearch(Object.keys(queryParams).length ? queryParams : null);
-    //   }
-    // });
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      const rawUrl = this.router.url;
+      const currentRoute = rawUrl.split('?')[0];
+      const queryParams = this.route.snapshot.queryParams;
+
+      this.uuid = extractUuid(rawUrl);
+      console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
+
+      if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTION)) {
+        this.dispatchCollectionsSearch(Object.keys(queryParams).length ? queryParams : null);
+      }
+    });
 
     this.initialized = true;
   }
@@ -145,18 +149,17 @@ export class CollectionsService extends BaseFilterService {
     console.log('query collections:', query);
     console.log('filters:', filters);
 
-    // TODO: Dispatch action to load collections search results
-    // this.store.dispatch(loadCollectionsSearchResults({
-    //   uuid: this.uuid,
-    //   query: query,
-    //   filters: filters,
-    //   advancedQuery,
-    //   advancedQueryMainOperator,
-    //   page: (page - 1) * pageSize,
-    //   pageCount: pageSize,
-    //   sortBy,
-    //   sortDirection
-    // }));
+    this.store.dispatch(loadCollectionSearchResults({
+      uuid: this.uuid,
+      query: query,
+      filters: filters,
+      advancedQuery,
+      advancedQueryMainOperator,
+      page: (page - 1) * pageSize,
+      pageCount: pageSize,
+      sortBy,
+      sortDirection
+    }));
   }
 
   // Implementation of abstract methods from BaseFilterService
@@ -165,9 +168,7 @@ export class CollectionsService extends BaseFilterService {
   }
 
   getFacets(): Observable<any> {
-    // TODO: Return actual facets from store when state is implemented
-    // return this.store.select(selectCollectionsSearchStateFacets);
-    return of({});
+    return this.store.select(selectCollectionFacets);
   }
 
   getFiltersWithOperators(): Observable<Record<string, string>> {
@@ -198,18 +199,16 @@ export class CollectionsService extends BaseFilterService {
   }
 
   search(query: string): void {
-    // TODO: Update route when collections routing is set up
-    // this.router.navigate([`/${APP_ROUTES_ENUM.COLLECTIONS_VIEW}/${this.uuid}`], {
-    //   queryParams: {
-    //     query,
-    //     page: this._page(),
-    //     pageSize: this._pageSize(),
-    //     sortBy: this._sortBy(),
-    //     sortDirection: this._sortDirection()
-    //   },
-    //   queryParamsHandling: 'merge'
-    // });
-    console.log('Search called with query:', query);
+    this.router.navigate([`/${APP_ROUTES_ENUM.COLLECTION}/${this.uuid}`], {
+      queryParams: {
+        query,
+        page: this._page(),
+        pageSize: this._pageSize(),
+        sortBy: this._sortBy(),
+        sortDirection: this._sortDirection()
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   override get hasSubmittedQuery() {

@@ -1,67 +1,59 @@
 import { createReducer, on } from '@ngrx/store';
-import { SearchDocument } from '../../../modules/models/search-document';
+import { FacetItem } from '../../../modules/models/facet-item';
 import * as CollectionsActions from './collections.actions';
 
 export interface CollectionsState {
-  loading: boolean;
-  data: SearchDocument[];
-  error: any;
-  query: string;
-  currentPage: number;
-  pageSize: number;
+  results: any[];
   totalCount: number;
-  hasMore: boolean;
+  facets: { [key: string]: FacetItem[] };
+  loading: boolean;
+  error: any;
 }
 
 export const initialState: CollectionsState = {
-  loading: false,
-  data: [],
-  error: null,
-  query: '',
-  currentPage: 0,
-  pageSize: 10000,
+  results: [],
   totalCount: 0,
-  hasMore: false
+  facets: {},
+  loading: false,
+  error: null,
 };
 
 export const collectionsReducer = createReducer(
   initialState,
-  on(CollectionsActions.loadCollections, (state, { reset }) => ({
+
+  on(CollectionsActions.loadCollectionSearchResults, state => ({
     ...state,
     loading: true,
     error: null,
-    ...(reset && { data: [], currentPage: 0, totalCount: 0, hasMore: false })
   })),
-  on(CollectionsActions.loadCollectionsSuccess, (state, { data, totalCount, page, hasMore }) => ({
+
+  on(CollectionsActions.loadCollectionSearchResultsSuccess, (state, { results, totalCount }) => ({
     ...state,
-    loading: false,
-    data: page === 0 ? data : [...state.data, ...data],
+    results,
     totalCount,
-    currentPage: page,
-    hasMore,
-    error: null
+    loading: false,
   })),
-  on(CollectionsActions.loadCollectionsFailure, (state, { error }) => ({
+
+  on(CollectionsActions.loadCollectionFacetsSuccess, (state, { facets }) => ({
+    ...state,
+    facets
+  })),
+
+  on(CollectionsActions.loadCollectionSearchResultsFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    error,
   })),
-  on(CollectionsActions.searchCollections, (state, { query }) => ({
+
+  on(CollectionsActions.loadCollectionFacetSuccess, (state, { facet, items }) => ({
     ...state,
-    query,
-    data: [],
-    currentPage: 0,
-    totalCount: 0,
-    hasMore: false,
-    loading: true,
-    error: null
+    facets: {
+      ...state.facets,
+      [facet]: items,
+    },
   })),
-  on(CollectionsActions.loadMoreCollections, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
-  on(CollectionsActions.clearCollectionsSearch, () => ({
+
+  on(CollectionsActions.clearCollectionSearch, () => ({
     ...initialState
   }))
 );

@@ -17,6 +17,16 @@
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper">
 
+        <div>
+
+          <div class="grid--container">
+
+            <app-record-item *ngFor="let doc of collectionsService.searchResults$ | async" [item]="toRecordItem(doc)"></app-record-item>
+
+          </div>
+
+        </div>
+
       </div>
 
     </div>

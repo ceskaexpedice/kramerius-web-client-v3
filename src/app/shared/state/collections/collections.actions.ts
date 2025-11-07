@@ -1,36 +1,60 @@
 import { createAction, props } from '@ngrx/store';
-import { SearchDocument } from '../../../modules/models/search-document';
+import { FacetItem } from '../../../modules/models/facet-item';
+import { SolrOperators, SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
 
-export const loadCollections = createAction(
-  '[Collections] Load',
+export const loadCollectionSearchResults = createAction(
+  '[Collections] Load Search Results',
   props<{
-    query?: string;
-    page?: number;
-    pageSize?: number;
-    reset?: boolean;
-  }>()
-);
-
-export const loadCollectionsSuccess = createAction(
-  '[Collections] Load Success',
-  props<{
-    data: SearchDocument[];
-    totalCount: number;
+    uuid: string;
+    query: string;
+    filters: string[];
+    advancedQuery?: string;
+    advancedQueryMainOperator?: SolrOperators;
     page: number;
-    hasMore: boolean;
+    pageCount: number;
+    sortBy: SolrSortFields;
+    sortDirection: SolrSortDirections;
   }>()
 );
 
-export const loadCollectionsFailure = createAction(
-  '[Collections] Load Failure',
+export const loadCollectionSearchResultsSuccess = createAction(
+  '[Collections] Load Search Results Success',
+  props<{ results: any[]; totalCount: number }>()
+);
+
+export const loadCollectionFacetsSuccess = createAction(
+  '[Collections] Load Facets Success',
+  props<{ facets: { [key: string]: FacetItem[] } }>()
+);
+
+export const loadCollectionSearchResultsFailure = createAction(
+  '[Collections] Load Search Results Failure',
   props<{ error: any }>()
 );
 
-export const searchCollections = createAction(
-  '[Collections] Search',
-  props<{ query: string }>()
+export const loadCollectionFacet = createAction(
+  '[Collections] Load Facet',
+  props<{
+    uuid: string;
+    query: string;
+    filters: string[];
+    facet: string;
+    contains?: string;
+    ignoreCase?: boolean;
+    facetLimit?: number;
+    facetOffset?: number;
+    sortBy?: 'count' | 'name';
+  }>()
 );
 
-export const loadMoreCollections = createAction('[Collections] Load More');
+export const loadCollectionFacetSuccess = createAction(
+  '[Collections] Load Facet Success',
+  props<{ facet: string; items: FacetItem[] }>()
+);
 
-export const clearCollectionsSearch = createAction('[Collections] Clear Search');
+export const loadCollectionFacetFailure = createAction(
+  '[Collections] Load Facet Failure',
+  props<{ facet: string; error: any }>()
+);
+
+export const clearCollectionSearch = createAction('[Collections] Clear Search');
