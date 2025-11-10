@@ -19,6 +19,11 @@ import {
   selectCollectionDetailError
 } from '../state/collections/collections.selectors';
 import { loadCollectionSearchResults, loadCollectionDetail } from '../state/collections/collections.actions';
+import { BreadcrumbsService } from './breadcrumbs.service';
+import { Breadcrumb } from '../models/breadcrumb.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Metadata } from '../models/metadata.model';
+import {TranslateService} from '@ngx-translate/core';
 
 @Injectable()
 export class CollectionsService extends BaseFilterService {
@@ -45,6 +50,11 @@ export class CollectionsService extends BaseFilterService {
 
   private solrService = inject(SolrService);
   override advancedSearchService = inject(AdvancedSearchService);
+  private breadcrumbsService = inject(BreadcrumbsService);
+  private translationService = inject(TranslateService);
+
+  // Convert detail$ to signal for reactive breadcrumb updates
+  private detailSignal = toSignal(this.detail$);
 
   constructor(
     private store: Store,
@@ -62,6 +72,14 @@ export class CollectionsService extends BaseFilterService {
         .pipe(filter(count => count !== undefined && count !== null))
         .subscribe(count => this._totalCount.set(count));
       return () => subscription.unsubscribe();
+    });
+
+    // Watch for collection detail changes and update breadcrumbs
+    effect(() => {
+      const detail = this.detailSignal();
+      if (detail && detail.model === 'collection') {
+        this.updateBreadcrumbs(detail);
+      }
     });
   }
 
@@ -269,5 +287,84 @@ export class CollectionsService extends BaseFilterService {
       queryParams: { page: 1, pageSize: size },
       queryParamsHandling: 'merge'
     });
+  }
+
+  /**
+   * Gets the collection title in the current language
+   */
+  private getLocalizedTitle(metadata: Metadata): string {
+    if (!metadata || !metadata.collectionTitles) return metadata?.mainTitle || '';
+
+    const currentLang = this.translationService.getCurrentLang();
+
+    // Try current language
+    if (metadata.collectionTitles[currentLang]) {
+      return metadata.collectionTitles[currentLang];
+    }
+
+    // Fall back to English
+    if (metadata.collectionTitles['en']) {
+      return metadata.collectionTitles['en'];
+    }
+
+    // Fall back to any available language
+    const availableLanguages = Object.keys(metadata.collectionTitles);
+    if (availableLanguages.length > 0) {
+      return metadata.collectionTitles[availableLanguages[0]];
+    }
+
+    // Last resort: use mainTitle
+    return metadata.mainTitle || '';
+  }
+
+  /**
+   * Update breadcrumbs with collection title
+   */
+  private updateBreadcrumbs(metadata: Metadata): void {
+    const title = this.getLocalizedTitle(metadata);
+    const collectionBreadcrumb: Breadcrumb = {
+      label: title,
+      url: `/collection/${metadata.uuid}`,
+      clickable: true
+    };
+
+    // Check if we should append to existing breadcrumbs or create new ones
+    if (this.breadcrumbsService.shouldAppendBreadcrumb()) {
+      // Get current breadcrumbs
+      const currentBreadcrumbs = this.breadcrumbsService.breadcrumbs();
+      const lastBreadcrumb = currentBreadcrumbs[currentBreadcrumbs.length - 1];
+
+      if (!lastBreadcrumb || lastBreadcrumb.url !== collectionBreadcrumb.url) {
+        // Make previous last breadcrumb clickable
+        if (lastBreadcrumb && currentBreadcrumbs.length > 0) {
+          const updatedBreadcrumbs = [...currentBreadcrumbs];
+          updatedBreadcrumbs[updatedBreadcrumbs.length - 1] = {
+            ...lastBreadcrumb,
+            clickable: true
+          };
+          this.breadcrumbsService.setBreadcrumbs(updatedBreadcrumbs, false);
+        }
+
+        // Append new collection breadcrumb (not clickable as it's the current page)
+        collectionBreadcrumb.clickable = false;
+        this.breadcrumbsService.addBreadcrumb(collectionBreadcrumb, true);
+      }
+    } else {
+      // Create fresh breadcrumbs (direct navigation or refresh)
+      const breadcrumbs: Breadcrumb[] = [
+        {
+          label: 'search',
+          translationKey: 'search',
+          url: '/',
+          clickable: true
+        },
+        {
+          ...collectionBreadcrumb,
+          clickable: false
+        }
+      ];
+
+      this.breadcrumbsService.setBreadcrumbs(breadcrumbs, true);
+    }
   }
 }

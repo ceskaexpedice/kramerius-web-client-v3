@@ -8,6 +8,7 @@
     <div class="page-content">
 
       <div class="page-content__filters">
+
         <!-- Action Toolbar -->
         <app-action-toolbar>
           @if (collectionsService.detail$ | async; as metadata) {
@@ -29,10 +30,14 @@
 
           }
         </app-action-toolbar>
+
       </div>
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper">
+
+        <!-- Breadcrumbs Navigation -->
+<!--        <app-breadcrumbs></app-breadcrumbs>-->
 
         @if (collectionsService.detail$ | async; as metadata) {
 

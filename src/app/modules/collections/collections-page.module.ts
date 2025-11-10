@@ -9,6 +9,8 @@ import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
+import {BreadcrumbsComponent} from '../../shared/components/breadcrumbs/breadcrumbs.component';
+import {TranslateModule} from '@ngx-translate/core';
 
 const routes: Routes = [
   {
@@ -17,7 +19,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [CollectionsPage],
+  declarations: [CollectionsPage, BreadcrumbsComponent],
   imports: [
     RouterModule.forChild(routes),
     FilterSidebarComponent,
@@ -29,6 +31,7 @@ const routes: Routes = [
     AdminActionsComponent,
     NgIf,
     ToolbarHeaderComponent,
+    TranslateModule,
   ],
   providers: [
     CollectionsService,

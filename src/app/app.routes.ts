@@ -55,7 +55,8 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.COLLECTION,
-    loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule)
+    loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule),
+    data: { breadcrumb: false } // Will be set dynamically with collection name
   },
   {
     path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
