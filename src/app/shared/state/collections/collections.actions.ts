@@ -9,8 +9,8 @@ export const loadCollectionSearchResults = createAction(
     uuid: string;
     query: string;
     filters: string[];
-    advancedQuery?: string;
-    advancedQueryMainOperator?: SolrOperators;
+    advancedQuery?: string | undefined;
+    advancedQueryMainOperator?: SolrOperators | undefined;
     page: number;
     pageCount: number;
     sortBy: SolrSortFields;

@@ -5,7 +5,11 @@ import { filter, map, Observable, of, takeUntil } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
-import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
+import {
+  customDefinedFacetsEnum,
+  facetKeysEnum,
+  mapFacetsToSearchFields,
+} from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
 import {
@@ -24,6 +28,7 @@ import { Breadcrumb } from '../models/breadcrumb.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Metadata } from '../models/metadata.model';
 import {TranslateService} from '@ngx-translate/core';
+import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 
 @Injectable()
 export class CollectionsService extends BaseFilterService {
@@ -40,6 +45,7 @@ export class CollectionsService extends BaseFilterService {
   detailLoading$ = this.store.select(selectCollectionDetailLoading);
   detailError$ = this.store.select(selectCollectionDetailError);
 
+  activeFilters$: Observable<string[]> = this.store.select(selectActiveFilters);
   POSSIBLE_FILTERS = [
     customDefinedFacetsEnum.accessibility,
     facetKeysEnum.license,
@@ -151,10 +157,49 @@ export class CollectionsService extends BaseFilterService {
       baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
     }
 
-    const { advancedQuery, advancedQueryMainOperator } = {
-      advancedQuery: undefined,
+    let { advancedQuery, advancedQueryMainOperator } = {
+      advancedQuery: '',
       advancedQueryMainOperator: undefined
     };
+
+    // Handle year range filter as a separate advanced query
+    const yearFrom = params && params['yearFrom'];
+    const yearTo = params && params['yearTo'];
+
+    if (yearFrom !== undefined || yearTo !== undefined) {
+      const from = yearFrom ? parseInt(yearFrom, 10) : 0;
+      const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
+      const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
+
+      advancedQuery = yearRangeQuery;
+    }
+
+    // Handle date range filter as a separate advanced query
+    const dateFrom = params && params['dateFrom'];
+    const dateTo = params && params['dateTo'];
+
+    if (dateFrom || dateTo) {
+      let dateRangeQuery = '';
+
+      if (dateFrom && dateTo) {
+        // Both dates provided - create range query
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO ${dateTo}T23:59:59Z])`;
+      } else if (dateFrom) {
+        // Only start date provided
+        dateRangeQuery = `(date.min:[${dateFrom}T00:00:00Z TO *])`;
+      } else if (dateTo) {
+        // Only end date provided
+        dateRangeQuery = `(date.min:[* TO ${dateTo}T23:59:59Z])`;
+      }
+
+      if (dateRangeQuery && advancedQuery && advancedQuery.length > 0) {
+        // Combine existing advanced query with date range
+        advancedQuery = `${advancedQuery} AND ${dateRangeQuery}`;
+      } else if (dateRangeQuery) {
+        // Just use date range as advanced query
+        advancedQuery = dateRangeQuery;
+      }
+    }
 
     let page = 1;
     if (!this._pageReset()) {
@@ -179,6 +224,9 @@ export class CollectionsService extends BaseFilterService {
 
     console.log('query collections:', query);
     console.log('filters:', filters);
+    console.log('advancedQuery:', advancedQuery);
+
+    filters = mapFacetsToSearchFields(filters);
 
     this.store.dispatch(loadCollectionSearchResults({
       uuid: this.uuid,
@@ -195,7 +243,7 @@ export class CollectionsService extends BaseFilterService {
 
   // Implementation of abstract methods from BaseFilterService
   getBaseFilters(): Observable<string[]> {
-    return of([] as string[]);
+    return this.activeFilters$;
   }
 
   getFacets(): Observable<any> {

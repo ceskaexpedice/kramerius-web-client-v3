@@ -26,6 +26,7 @@ import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { AppTranslationService } from '../../translation/app-translation.service';
 import { fromSolrToMetadata } from '../../models/metadata.model';
+import {CollectionsService} from '../../services/collections.service';
 
 @Injectable()
 export class CollectionsEffects {
@@ -33,6 +34,7 @@ export class CollectionsEffects {
     private actions$: Actions,
     private solr: SolrService,
     private store: Store,
+    private collectionsService: CollectionsService,
     private userService: UserService,
     private translationService: AppTranslationService
   ) {}
@@ -55,8 +57,8 @@ export class CollectionsEffects {
         advancedQuery,
         advancedQueryMainOperator
       }, currentFacets, facetOperators]) => {
-        const includePeriodicalItem = filters.some(f => f.toLowerCase().includes('date'));
-        const includePage = query && query.trim().length > 0;
+        const includePeriodicalItem = this.collectionsService.filtersContainDate() || this.collectionsService.hasFulltextFilter();
+        const includePage = this.collectionsService.hasSubmittedQuery() || this.collectionsService.hasFulltextFilter();
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 

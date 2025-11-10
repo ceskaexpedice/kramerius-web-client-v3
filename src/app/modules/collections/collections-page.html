@@ -2,7 +2,7 @@
   <div class="page-container__inner">
 
     <app-filter-sidebar [isDisabled]="selectionService.selectionMode()">
-
+      <app-collection-filters></app-collection-filters>
     </app-filter-sidebar>
 
     <div class="page-content">
@@ -39,6 +39,18 @@
         <!-- Breadcrumbs Navigation -->
 <!--        <app-breadcrumbs></app-breadcrumbs>-->
 
+        <app-selected-tags
+          *ngIf="((collectionsService.selectedTags | async) || []).length > 0"
+          [items]="(collectionsService.selectedTags | async) || []"
+          [operators]="(collectionsService.getFiltersWithOperators() | async) || {}"
+          [showOperators]="false"
+          [translateItems]="true"
+          (remove)="collectionsService.removeFilter($event)"
+          (removeGroup)="collectionsService.resetOperator($event)"
+          (clearAll)="collectionsService.clearAllFilters()"
+          clearButtonPosition="left">
+        </app-selected-tags>
+
         @if (collectionsService.detail$ | async; as metadata) {
 
           {{ getLocalizedDescription(metadata) }}
@@ -47,11 +59,21 @@
 
         <div>
 
-          <div class="grid--container">
+          @if (!(collectionsService.loading$ | async)) {
 
-            <app-record-item *ngFor="let doc of collectionsService.searchResults$ | async" [item]="toRecordItem(doc)"></app-record-item>
+            <div class="grid--container">
 
-          </div>
+              <app-record-item *ngFor="let doc of collectionsService.searchResults$ | async" [item]="toRecordItem(doc)"></app-record-item>
+
+            </div>
+
+          } @else {
+            <div class="loading-container">
+              <div class="loading-message">
+                <p>{{ 'loading-search-results' | translate }}</p>
+              </div>
+            </div>
+          }
 
         </div>
 

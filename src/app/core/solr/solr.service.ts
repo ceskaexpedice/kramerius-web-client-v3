@@ -280,7 +280,7 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject)
-      // .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+       // .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
 
     // Add collection filter
     params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);

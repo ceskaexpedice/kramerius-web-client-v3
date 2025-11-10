@@ -11,6 +11,10 @@ import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
 import {BreadcrumbsComponent} from '../../shared/components/breadcrumbs/breadcrumbs.component';
 import {TranslateModule} from '@ngx-translate/core';
+import {CollectionFiltersComponent} from './components/collection-filters/collection-filters.component';
+import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
+import {EffectsModule} from '@ngrx/effects';
+import {CollectionsEffects} from '../../shared/state/collections/collections.effects';
 
 const routes: Routes = [
   {
@@ -32,10 +36,13 @@ const routes: Routes = [
     NgIf,
     ToolbarHeaderComponent,
     TranslateModule,
+    CollectionFiltersComponent,
+    SelectedTagsComponent,
+    EffectsModule.forFeature([CollectionsEffects])
   ],
   providers: [
     CollectionsService,
-    {provide: FILTER_SERVICE, useValue: CollectionsService},
+    {provide: FILTER_SERVICE, useExisting: CollectionsService},
   ]
 })
 
