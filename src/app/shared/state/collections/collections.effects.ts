@@ -115,7 +115,8 @@ export class CollectionsEffects {
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
               facetsAllRes.facet_counts?.facet_fields ?? {},
-              this.userService.licenses
+              this.userService.licenses,
+              resultsRes.response.numFound
             );
 
             return [

@@ -12,7 +12,8 @@ export function handleFacetsWithOperators(
   operatorFacets: Record<string, any[]>,
   facetOperators: Record<string, SolrOperators>,
   unfilteredFacets: Record<string, any[]> = {},
-  userLicenses: string[] = []
+  userLicenses: string[] = [],
+  numFound?: number
 ): Record<string, FacetItem[]> {
   const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
   const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
@@ -65,6 +66,11 @@ export function handleFacetsWithOperators(
           // if we dont have any modelsUnfiltered, we can use the count from the licenses
           if (modelsUnfiltered.length === 0) {
             count = licenses.reduce((sum, lic) => sum + lic.count, 0);
+
+            // if still no count and numFound is provided, use numFound as final fallback
+            if (count === 0 && numFound !== undefined) {
+              count = numFound;
+            }
           }
         } else if (item.key === FacetAccessibilityTypes.available) {
           item.fq = userLicenses;
