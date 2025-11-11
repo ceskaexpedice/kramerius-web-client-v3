@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {SelectionService} from '../../shared/services';
@@ -7,6 +7,9 @@ import {SearchDocument} from '../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
 import {AppTranslationService} from '../../shared/translation/app-translation.service';
 import {Metadata} from '../../shared/models/metadata.model';
+import {ViewMode} from '../periodical/models/view-mode.enum';
+import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 
 @Component({
   selector: 'app-collections-page',
@@ -14,11 +17,15 @@ import {Metadata} from '../../shared/models/metadata.model';
   styleUrl: './collections-page.scss',
   standalone: false
 })
-export class CollectionsPage {
+export class CollectionsPage implements OnInit {
 
   public selectionService = inject(SelectionService);
   public collectionsService = inject(CollectionsService);
   public translationService = inject(AppTranslationService);
+  public recordHandler = inject(RecordHandlerService);
+
+  ngOnInit() {
+  }
 
   toRecordItem(doc: SearchDocument): RecordItem {
     return searchDocumentToRecordItem(doc);
@@ -79,4 +86,13 @@ export class CollectionsPage {
     return metadata.mainTitle || '';
   }
 
+  onExportSelected(): void {
+  }
+
+  onEditSelected(selectedIds: string[]): void {
+  }
+
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.collectionsService.changeSortBy(event.value, event.direction);
+  }
 }

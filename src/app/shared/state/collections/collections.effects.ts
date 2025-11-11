@@ -34,8 +34,8 @@ export class CollectionsEffects {
     private actions$: Actions,
     private solr: SolrService,
     private store: Store,
-    private collectionsService: CollectionsService,
     private userService: UserService,
+    //private collectionsService: CollectionsService,
     private translationService: AppTranslationService
   ) {}
 
@@ -57,8 +57,8 @@ export class CollectionsEffects {
         advancedQuery,
         advancedQueryMainOperator
       }, currentFacets, facetOperators]) => {
-        const includePeriodicalItem = this.collectionsService.filtersContainDate() || this.collectionsService.hasFulltextFilter();
-        const includePage = this.collectionsService.hasSubmittedQuery() || this.collectionsService.hasFulltextFilter();
+        const includePeriodicalItem = true; //this.collectionsService.filtersContainDate() || this.collectionsService.hasFulltextFilter();
+        const includePage = true; //this.collectionsService.hasSubmittedQuery() || this.collectionsService.hasFulltextFilter();
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 

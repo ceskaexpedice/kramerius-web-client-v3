@@ -15,6 +15,8 @@ import {CollectionFiltersComponent} from './components/collection-filters/collec
 import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 import {EffectsModule} from '@ngrx/effects';
 import {CollectionsEffects} from '../../shared/state/collections/collections.effects';
+import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 const routes: Routes = [
   {
@@ -38,7 +40,9 @@ const routes: Routes = [
     TranslateModule,
     CollectionFiltersComponent,
     SelectedTagsComponent,
-    EffectsModule.forFeature([CollectionsEffects])
+    EffectsModule.forFeature([CollectionsEffects]),
+    ResultsSortComponent,
+    ToolbarControlsComponent,
   ],
   providers: [
     CollectionsService,
