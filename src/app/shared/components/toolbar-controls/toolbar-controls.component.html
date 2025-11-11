@@ -15,7 +15,7 @@
   <!-- Configuration-based action buttons -->
   <button
     *ngFor="let action of mergedActions; trackBy: trackByActionId"
-    class="icon-button outlined sm tertiary"
+    class="icon-button primary sm"
     [class.disabled]="action.disabled"
     [disabled]="action.disabled"
     [title]="action.tooltip"
