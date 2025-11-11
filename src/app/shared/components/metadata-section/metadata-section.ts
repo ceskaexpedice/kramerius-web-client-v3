@@ -1,7 +1,7 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
-import {Author, Metadata, Publisher, PhysicalDescription} from '../../models/metadata.model';
+import {Author, Metadata, Publisher, PhysicalDescription, NoteInfo} from '../../models/metadata.model';
 import {ModsParserService} from '../../services/mods-parser.service';
 import {DetailViewService} from '../../../modules/detail-view-page/services/detail-view.service';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
@@ -75,6 +75,11 @@ export class MetadataSection implements OnInit {
     }
     return text;
   };
+
+  getNotes(notes: NoteInfo[]) {
+    const items = notes.map(note => note.text);
+    return items;
+  }
 
   getIsbn(): string | null {
     if (!this.data?.identifiers) {
