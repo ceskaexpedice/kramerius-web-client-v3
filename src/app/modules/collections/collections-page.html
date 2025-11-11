@@ -94,7 +94,21 @@
 
         @if (collectionsService.detail$ | async; as metadata) {
 
-          {{ getLocalizedDescription(metadata) }}
+          <div class="collection-description-wrapper">
+            <div
+              #descriptionElement
+              class="collection--notes"
+              [class.expanded]="isDescriptionExpanded"
+              [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
+            </div>
+            <button
+              *ngIf="isDescriptionTruncated"
+              class="button link primary with-icon show-more-btn p-left-0"
+              (click)="toggleDescription()">
+              {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
+              <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
+            </button>
+          </div>
 
         }
 

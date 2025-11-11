@@ -131,8 +131,6 @@ export class CollectionsService extends BaseFilterService {
   }
 
   private dispatchCollectionsSearch(params: any): void {
-    console.log('uuid:', this.uuid);
-
     if (!this.uuid) return;
 
     const query = params && params['query'] || '';

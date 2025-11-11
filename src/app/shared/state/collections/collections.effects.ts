@@ -25,8 +25,9 @@ import { facetKeysEnum } from '../../../modules/search-results-page/const/facets
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { AppTranslationService } from '../../translation/app-translation.service';
-import { fromSolrToMetadata } from '../../models/metadata.model';
+import {fromSolrToMetadata, mergeMetadata, Metadata} from '../../models/metadata.model';
 import {CollectionsService} from '../../services/collections.service';
+import { ModsParserService } from '../../services/mods-parser.service';
 
 @Injectable()
 export class CollectionsEffects {
@@ -36,7 +37,8 @@ export class CollectionsEffects {
     private store: Store,
     private userService: UserService,
     //private collectionsService: CollectionsService,
-    private translationService: AppTranslationService
+    private translationService: AppTranslationService,
+    private modsParserService: ModsParserService
   ) {}
 
   loadCollectionSearchResults$ = createEffect(() =>
@@ -140,9 +142,23 @@ export class CollectionsEffects {
       ofType(loadCollectionDetail),
       switchMap(({ uuid }) => {
         const currentLang = this.translationService.currentLanguage().code;
-        return this.solr.getDetailItem(uuid).pipe(
-          map(detail => {
-            const metadata = fromSolrToMetadata(detail, currentLang);
+
+        return forkJoin({
+          solrDetail: this.solr.getDetailItem(uuid),
+          modsMetadata: this.modsParserService.getMods(uuid).catch(err => {
+            console.warn('Failed to load MODS data, continuing with Solr data only:', err);
+            return null;
+          })
+        }).pipe(
+          map(({ solrDetail, modsMetadata }) => {
+            // Convert Solr data to metadata
+            let metadata = fromSolrToMetadata(solrDetail, currentLang);
+
+            // Merge MODS data if available
+            if (modsMetadata) {
+              metadata = mergeMetadata(metadata, modsMetadata);
+            }
+
             return loadCollectionDetailSuccess({ detail: metadata });
           }),
           catchError(error => {

@@ -5,7 +5,7 @@ import {FilterSidebarComponent} from '../search-results-page/components/filter-s
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {CollectionsService} from '../../shared/services/collections.service';
 import {FILTER_SERVICE} from '../../shared/services/filter.service';
-import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, JsonPipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {RecordItemComponent} from '../../shared/components/record-item/record-item.component';
 import {AdminActionsComponent} from '../../shared/components/admin-actions';
 import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
@@ -17,6 +17,7 @@ import {EffectsModule} from '@ngrx/effects';
 import {CollectionsEffects} from '../../shared/state/collections/collections.effects';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {SafeHtmlPipe} from '../../shared/pipes/safe-html.pipe';
 
 const routes: Routes = [
   {
@@ -43,6 +44,8 @@ const routes: Routes = [
     EffectsModule.forFeature([CollectionsEffects]),
     ResultsSortComponent,
     ToolbarControlsComponent,
+    SafeHtmlPipe,
+    NgClass,
   ],
   providers: [
     CollectionsService,
