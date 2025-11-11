@@ -1,78 +1,184 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, withLatestFrom, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../core/solr/solr.service';
 import {
-  loadCollections,
-  loadCollectionsFailure,
-  loadCollectionsSuccess,
-  searchCollections,
-  loadMoreCollections
+  loadCollectionSearchResults,
+  loadCollectionSearchResultsSuccess,
+  loadCollectionFacetsSuccess,
+  loadCollectionSearchResultsFailure,
+  loadCollectionFacet,
+  loadCollectionFacetSuccess,
+  loadCollectionDetail,
+  loadCollectionDetailSuccess,
+  loadCollectionDetailFailure,
 } from './collections.actions';
 import { parseSearchDocument } from '../../../modules/models/search-document';
 import {
-  selectCollectionsQuery,
-  selectCollectionsCurrentPage,
-  selectCollectionsPageSize
+  selectCollectionFacets,
+  selectCollectionFacetOperators
 } from './collections.selectors';
+import { DEFAULT_FACET_FIELDS } from '../../../modules/search-results-page/const/facet-fields';
+import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
+import { UserService } from '../../services/user.service';
+import { handleFacetsWithOperators } from '../../utils/facet-utils';
+import { AppTranslationService } from '../../translation/app-translation.service';
+import {fromSolrToMetadata, mergeMetadata, Metadata} from '../../models/metadata.model';
+import {CollectionsService} from '../../services/collections.service';
+import { ModsParserService } from '../../services/mods-parser.service';
 
 @Injectable()
 export class CollectionsEffects {
   constructor(
     private actions$: Actions,
     private solr: SolrService,
-    private store: Store
+    private store: Store,
+    private userService: UserService,
+    //private collectionsService: CollectionsService,
+    private translationService: AppTranslationService,
+    private modsParserService: ModsParserService
   ) {}
 
-  loadCollections$ = createEffect(() =>
+  loadCollectionSearchResults$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(loadCollections),
-      switchMap(({ query, page = 0, pageSize = 10000, reset }) =>
-        this.solr.getCollections(query, page, pageSize).pipe(
-          map(response => {
-            const collections = (response.response?.docs ?? []).map((doc: any) => parseSearchDocument(doc));
-            const totalCount = response.response?.numFound ?? 0;
-            // const hasMore = (page + 1) * pageSize < totalCount;
-            const hasMore = false;
+      ofType(loadCollectionSearchResults),
+      withLatestFrom(
+        this.store.select(selectCollectionFacets),
+        this.store.select(selectCollectionFacetOperators)
+      ),
+      switchMap(([{
+        uuid,
+        query,
+        filters,
+        page,
+        pageCount,
+        sortBy,
+        sortDirection,
+        advancedQuery,
+        advancedQueryMainOperator
+      }, currentFacets, facetOperators]) => {
+        const includePeriodicalItem = true; //this.collectionsService.filtersContainDate() || this.collectionsService.hasFulltextFilter();
+        const includePage = true; //this.collectionsService.hasSubmittedQuery() || this.collectionsService.hasFulltextFilter();
 
-            return loadCollectionsSuccess({
-              data: collections,
-              totalCount,
-              page,
-              hasMore
+        const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
+
+        return forkJoin({
+          resultsRes: this.solr.searchInCollection(
+            uuid,
+            query,
+            filters,
+            facetOperators,
+            page,
+            pageCount,
+            sortBy,
+            sortDirection,
+            advancedQuery,
+            includePeriodicalItem,
+            includePage || false
+          ),
+          facetsRes: this.solr.getFacetsInCollection(
+            uuid,
+            query,
+            filters,
+            DEFAULT_FACET_FIELDS,
+            facetOperators,
+            advancedQuery,
+            includePeriodicalItem,
+            includePage || false
+          ),
+          facetsAllRes: this.solr.getFacetsInCollection(
+            uuid,
+            query,
+            filtersWithoutLicenses,
+            DEFAULT_FACET_FIELDS,
+            facetOperators,
+            advancedQuery,
+            includePeriodicalItem,
+            includePage || false
+          )
+        }).pipe(
+          switchMap(({ resultsRes, facetsRes, facetsAllRes }) => {
+            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
+              // Try to get highlighting by pid first, then check for keys containing "!" (rootPid!pagePid format)
+              let highlighting = resultsRes.highlighting?.[doc.pid];
+              if (!highlighting || Object.keys(highlighting).length === 0) {
+                // Look for highlighting key with format "rootPid!pagePid" where the part after "!" matches doc.pid
+                const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
+                  key.includes('!') && key.split('!')[1] === doc.pid
+                );
+                highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
+              }
+              doc['highlighting'] = highlighting || {};
+              return parseSearchDocument(doc);
             });
+
+            const facets = handleFacetsWithOperators(
+              resultsRes.facet_counts?.facet_fields ?? {},
+              facetsRes.facet_counts?.facet_fields ?? {},
+              facetOperators,
+              facetsAllRes.facet_counts?.facet_fields ?? {},
+              this.userService.licenses,
+              resultsRes.response.numFound
+            );
+
+            return [
+              loadCollectionSearchResultsSuccess({
+                results: parsedResults,
+                totalCount: resultsRes.response.numFound
+              }),
+              loadCollectionFacetsSuccess({ facets })
+            ];
+          }),
+          catchError(error => of(loadCollectionSearchResultsFailure({ error })))
+        );
+      })
+    )
+  );
+
+  loadCollectionDetail$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadCollectionDetail),
+      switchMap(({ uuid }) => {
+        const currentLang = this.translationService.currentLanguage().code;
+
+        return forkJoin({
+          solrDetail: this.solr.getDetailItem(uuid),
+          modsMetadata: this.modsParserService.getMods(uuid).catch(err => {
+            console.warn('Failed to load MODS data, continuing with Solr data only:', err);
+            return null;
+          })
+        }).pipe(
+          map(({ solrDetail, modsMetadata }) => {
+            // Convert Solr data to metadata
+            let metadata = fromSolrToMetadata(solrDetail, currentLang);
+
+            // Merge MODS data if available
+            if (modsMetadata) {
+              metadata = mergeMetadata(metadata, modsMetadata);
+            }
+
+            return loadCollectionDetailSuccess({ detail: metadata });
           }),
           catchError(error => {
-            console.error('Error loading collections:', error);
-            return of(loadCollectionsFailure({ error }));
+            console.error('Error loading collection detail:', error);
+            return of(loadCollectionDetailFailure({ error }));
           })
-        )
-      )
+        );
+      })
     )
   );
 
-  searchCollections$ = createEffect(() =>
+  loadCollectionFacet$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(searchCollections),
-      debounceTime(300),
-      distinctUntilChanged((prev, curr) => prev.query === curr.query),
-      map(({ query }) => loadCollections({ query, page: 0, reset: true }))
-    )
-  );
-
-  loadMoreCollections$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(loadMoreCollections),
-      withLatestFrom(
-        this.store.select(selectCollectionsQuery),
-        this.store.select(selectCollectionsCurrentPage),
-        this.store.select(selectCollectionsPageSize)
-      ),
-      map(([action, query, currentPage, pageSize]) =>
-        loadCollections({ query, page: currentPage + 1, pageSize })
-      )
+      ofType(loadCollectionFacet),
+      withLatestFrom(this.store.select(selectCollectionFacets)),
+      switchMap(([{ uuid, query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
+        // TODO: Implement loadFacet for collections if needed
+        // For now, return empty array
+        return of(loadCollectionFacetSuccess({ facet, items: [] }));
+      })
     )
   );
 }

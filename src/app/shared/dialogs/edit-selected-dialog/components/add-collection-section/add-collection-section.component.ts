@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import {CollectionsListComponent} from '../../../../components/collections-list/collections-list.component';
-import {selectCollectionsTotalCount} from '../../../../state/collections/collections.selectors';
+import {selectCollectionSearchResultsTotalCount} from '../../../../state/collections/collections.selectors';
 
 export interface AddCollectionSectionData {
   selectedIds: string[];
@@ -32,7 +32,7 @@ export class AddCollectionSectionComponent {
   totalCount$: Observable<number>;
 
   constructor(private store: Store) {
-    this.totalCount$ = this.store.select(selectCollectionsTotalCount);
+    this.totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
   }
 
   onCollectionsSelectionChange(selectedCollections: string[]) {

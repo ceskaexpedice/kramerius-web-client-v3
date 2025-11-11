@@ -14,6 +14,8 @@ import {AdvancedSearchService} from '../../../shared/services/advanced-search.se
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import {RecordHandlerService} from '../../../shared/services/record-handler.service';
 import {UserInfoComponent} from '../../auth/user-info/user-info.component';
+import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 
 @Component({
   selector: 'app-header',
@@ -107,6 +109,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.advancedSearch.openDialog();
   }
 
+  goToCollections() {
+    this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.collection, true);
+  }
+
   logDevInfo(): void {
     const devInfo = {
       useStaticRuntimeConfig: this.envService.get('useStaticRuntimeConfig'),
@@ -133,4 +139,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;
+  protected readonly APP_ROUTES_ENUM = APP_ROUTES_ENUM;
 }

@@ -22,7 +22,7 @@
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error$ | async as error" class="error-container">
+  <div *ngIf="collectionsService.error$ | async as error" class="error-container">
     <p class="error-message">{{ 'error-loading-collections' | translate }}: {{ error }}</p>
   </div>
 
@@ -30,7 +30,7 @@
   <div class="collections-container" #scrollContainer>
 
     <!-- Collections Items -->
-    <div *ngIf="filteredCollections$ | async as collections" class="collections-items">
+    <div *ngIf="collectionsService.searchResults$ | async as collections" class="collections-items">
       <div
         *ngFor="let collection of collections; trackBy: trackByPid"
         class="collection-item">
@@ -45,13 +45,13 @@
     </div>
 
     <!-- Loading Indicator -->
-    <div *ngIf="loading$ | async" class="loading-indicator">
+    <div *ngIf="collectionsService.loading$ | async" class="loading-indicator">
       <mat-spinner diameter="24"></mat-spinner>
       <span>{{ 'loading-collections' | translate }}</span>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="(filteredCollections$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
+    <div *ngIf="(collectionsService.searchResults$ | async)?.length === 0 && !(collectionsService.loading$ | async)" class="empty-state">
       <mat-icon>search_off</mat-icon>
       <p *ngIf="searchQuery; else noCollectionsTemplate">
         {{ 'no-collections-found-for-search' | translate: { query: searchQuery } }}

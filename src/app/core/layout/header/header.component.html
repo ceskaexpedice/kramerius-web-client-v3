@@ -35,7 +35,9 @@
 
   <nav class="app-header__right">
 
-<!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
+        <a (click)="goToCollections()" class="cursor-pointer">{{'collections' | translate}}</a>
+
+    <!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
 
     <app-user-info></app-user-info>
 

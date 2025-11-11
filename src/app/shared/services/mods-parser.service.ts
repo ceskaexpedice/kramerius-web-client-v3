@@ -1,6 +1,16 @@
 import { Injectable } from '@angular/core';
-import {Author, CartographicData, Metadata, PhysicalDescription, Publisher, TitleInfo, Location} from '../models/metadata.model';
+import {
+  Author,
+  CartographicData,
+  Metadata,
+  PhysicalDescription,
+  Publisher,
+  TitleInfo,
+  Location,
+  NoteInfo,
+} from '../models/metadata.model';
 import {EnvironmentService} from './environment.service';
+import {APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG} from '../utils/language-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +36,10 @@ export class ModsParserService {
         }
         return response.text();
       })
-      .then(modsXml => this.parseMods(modsXml, uuid, type))
+      .then(modsXml => {
+        const metadata = this.parseMods(modsXml, uuid, type);
+        return metadata;
+      })
       .catch(error => {
         console.error('Failed to fetch or parse MODS data:', error);
         throw error;
@@ -76,7 +89,7 @@ export class ModsParserService {
     this.processParts(this.getElements(modsElement, 'part'), metadata);
     this.processReview(modsElement, metadata);
     this.processPhysicalDescriptions(this.getElements(modsElement, 'physicalDescription'), metadata);
-    this.processSimpleArray(this.getElements(modsElement, 'note'), metadata.notes, null);
+    this.processNotes(this.getElements(modsElement, 'note'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
     this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, { key: 'authority', value: 'czenas' });
@@ -97,7 +110,6 @@ export class ModsParserService {
     this.processLanguages(this.getElements(modsElement, 'language'), metadata);
     this.processParts(this.getElements(modsElement, 'part'), metadata);
     this.processPhysicalDescriptions(this.getElements(modsElement, 'physicalDescription'), metadata);
-    this.processSimpleArray(this.getElements(modsElement, 'note'), metadata.notes, null);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
     this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, { key: 'authority', value: 'czenas' });
@@ -147,6 +159,26 @@ export class ModsParserService {
       titleInfo.partName = this.getText(item.querySelector('partName'));
 
       metadata.titles.push(titleInfo);
+    }
+  }
+
+  private processNotes(elements: Element[], metadata: Metadata) {
+    for (const item of elements) {
+      const noteInfo = new NoteInfo();
+
+      const lang = item.getAttribute('lang');
+      if (lang) {
+
+        const mappedLang =  SOLR_LANG_TO_APP_LANG[lang];
+
+        if (mappedLang) {
+          noteInfo.lang = mappedLang;
+        }
+      }
+
+      noteInfo.text = this.replaceHTMLTags(this.getText(item) || '');
+
+      metadata.notes.push(noteInfo);
     }
   }
 
@@ -315,7 +347,7 @@ export class ModsParserService {
       this.processSubjects(this.getElements(ri, 'subject'), review);
       this.processParts(this.getElements(ri, 'part'), review);
       this.processLanguages(this.getElements(ri, 'language'), review);
-      this.processSimpleArray(this.getElements(ri, 'note'), review.notes, null);
+      this.processNotes(this.getElements(ri, 'note'), review);
       this.processSimpleArray(this.getElements(ri, 'abstract'), review.abstracts, null);
       this.processSimpleArray(this.getElements(ri, 'genre'), review.genres, { key: 'authority', value: 'czenas' });
 
@@ -488,9 +520,13 @@ export class ModsParserService {
 
       if (text && !output.includes(text) && shouldInclude) {
         output.push(
-          text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+          this.replaceHTMLTags(text)
         );
       }
     }
+  }
+
+  private replaceHTMLTags(text: string): string {
+    return text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
   }
 }

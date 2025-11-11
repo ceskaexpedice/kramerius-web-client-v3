@@ -56,7 +56,6 @@ import { PeriodicalDetailEffects } from './modules/periodical/state/periodical-d
 import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-search/periodical-search.effects';
 import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
 import { FoldersEffects } from './modules/saved-lists-page/state/folders.effects';
-import { CollectionsEffects } from './shared/state/collections/collections.effects';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
 
 export function initApp(envService: EnvironmentService) {
@@ -116,7 +115,6 @@ export function initApp(envService: EnvironmentService) {
       PeriodicalSearchEffects,
       MusicDetailEffects,
       FoldersEffects,
-      CollectionsEffects,
       LicensesEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),

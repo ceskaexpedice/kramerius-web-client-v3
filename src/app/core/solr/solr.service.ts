@@ -247,6 +247,82 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
+  searchInCollection(
+    collectionUuid: string,
+    query: string,
+    filters: string[] = [],
+    facetOperators: { [field: string]: SolrOperators } = {},
+    page = 0,
+    pageCount = 60,
+    sortBy: SolrSortFields,
+    sortDirection: SolrSortDirections,
+    advancedQuery?: string,
+    includePeriodicalItem = false,
+    includePage = false
+  ): Observable<SearchResultResponse> {
+    console.log('solr search in collection:', collectionUuid);
+
+    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+
+    let paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
+      ...SolrQueryBuilder.pagination(page, pageCount)
+    };
+
+    if (includePage) {
+      paramsObject = {
+        ...paramsObject,
+        ...SolrQueryBuilder.highlight()
+      }
+    }
+
+    let params = this.createHttpParams(paramsObject)
+       // .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+
+    // Add collection filter
+    params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);
+
+    // Add other filters
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
+  getFacetsInCollection(
+    collectionUuid: string,
+    query: string,
+    filters: string[],
+    facetFields: string[] = DEFAULT_FACET_FIELDS,
+    facetOperators: { [field: string]: SolrOperators } = {},
+    advancedQuery?: string,
+    includePeriodicalItem = false,
+    includePage = false
+  ): Observable<SearchResultResponse> {
+    const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    const filtersByField = this.groupFiltersByField(filters);
+
+    const paramsObject = {
+      ...this.createFacetBaseParams({}),
+      ...baseFilters
+    };
+
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+
+    // Add collection filter
+    params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);
+
+    this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
+      params = params.append('facet.field', field);
+    });
+
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
                          includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
 
