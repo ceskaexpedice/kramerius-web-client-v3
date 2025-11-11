@@ -13,6 +13,14 @@ export const APP_LANG_TO_SOLR_SUFFIX: Record<string, string> = {
   'pl': 'pol',  // Polish
 };
 
+export const SOLR_LANG_TO_APP_LANG: Record<string, string> = {
+  'cze': 'cs',
+  'eng': 'en',
+  'ger': 'de',
+  'pol': 'pl',
+  'slo': 'sk'
+};
+
 /**
  * Gets a localized field value from a Solr document based on the current language.
  * Tries language-specific field first, falls back to English if available, then base field.
