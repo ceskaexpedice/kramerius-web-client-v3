@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, Injector } from '@angular/core';
 import {Router, NavigationEnd, RouterLink} from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -16,6 +16,7 @@ import {RecordHandlerService} from '../../../shared/services/record-handler.serv
 import {UserInfoComponent} from '../../auth/user-info/user-info.component';
 import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import {CollectionsService} from '../../../shared/services/collections.service';
 
 @Component({
   selector: 'app-header',
@@ -46,6 +47,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public searchService: SearchService,
     private advancedSearch: AdvancedSearchService,
     private recordHandler: RecordHandlerService,
+    private injector: Injector,
   ) {}
 
   ngOnInit() {
@@ -76,6 +78,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   get showSearchBar(): boolean {
     return this.router.url !== `/${APP_ROUTES_ENUM.SEARCH}`;
+  }
+
+  get isOnCollectionRoute(): boolean {
+    return this.router.url.includes(`/${APP_ROUTES_ENUM.COLLECTION}/`);
+  }
+
+  get autocompleteService() {
+    if (this.isOnCollectionRoute) {
+      try {
+        const collectionsService = this.injector.get(CollectionsService, null);
+        if (collectionsService) {
+          return collectionsService;
+        }
+      } catch (e) {
+        // CollectionsService not available, fall back to searchService
+      }
+    }
+    return this.searchService;
+  }
+
+  get autocompletePlaceholder(): string {
+    return this.isOnCollectionRoute ? 'search-in-collection-placeholder' : 'search-input-placeholder';
   }
 
   logoClicked() {

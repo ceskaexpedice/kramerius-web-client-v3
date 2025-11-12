@@ -25,8 +25,7 @@ import { facetKeysEnum } from '../../../modules/search-results-page/const/facets
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { AppTranslationService } from '../../translation/app-translation.service';
-import {fromSolrToMetadata, mergeMetadata, Metadata} from '../../models/metadata.model';
-import {CollectionsService} from '../../services/collections.service';
+import {fromSolrToMetadata, mergeMetadata} from '../../models/metadata.model';
 import { ModsParserService } from '../../services/mods-parser.service';
 
 @Injectable()
@@ -36,7 +35,6 @@ export class CollectionsEffects {
     private solr: SolrService,
     private store: Store,
     private userService: UserService,
-    //private collectionsService: CollectionsService,
     private translationService: AppTranslationService,
     private modsParserService: ModsParserService
   ) {}
@@ -57,10 +55,10 @@ export class CollectionsEffects {
         sortBy,
         sortDirection,
         advancedQuery,
-        advancedQueryMainOperator
+        advancedQueryMainOperator,
+        includePeriodicalItem,
+        includePage
       }, currentFacets, facetOperators]) => {
-        const includePeriodicalItem = true; //this.collectionsService.filtersContainDate() || this.collectionsService.hasFulltextFilter();
-        const includePage = true; //this.collectionsService.hasSubmittedQuery() || this.collectionsService.hasFulltextFilter();
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 

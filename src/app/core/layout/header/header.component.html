@@ -12,17 +12,17 @@
 
     <app-autocomplete
       [inputTheme]="'dark'"
-      [placeholder]="'search-input-placeholder' | translate"
+      [placeholder]="autocompletePlaceholder | translate"
       [minTermLength]="2"
-      [initialValue]="searchService.searchTerm()"
-      [getSuggestions]="searchService.getSuggestionsFn"
+      [initialValue]="autocompleteService.searchTerm()"
+      [getSuggestions]="autocompleteService.getSuggestionsFn"
       [showHelpButton]="false"
       [showMicrophoneButton]="false"
-      (search)="searchService.onSearch($event)"
-      (submit)="searchService.onSubmit($event)"
-      [inputTerm]="searchService.searchTerm"
+      (search)="autocompleteService.onSearch($event)"
+      (submit)="autocompleteService.onSubmit($event)"
+      [inputTerm]="autocompleteService.searchTerm"
       [showHistorySuggestions]="true"
-      (suggestionSelected)="searchService.onSuggestionSelected($event)">
+      (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
     <button class="outlined light"

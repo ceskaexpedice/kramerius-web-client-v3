@@ -15,6 +15,8 @@ export const loadCollectionSearchResults = createAction(
     pageCount: number;
     sortBy: SolrSortFields;
     sortDirection: SolrSortDirections;
+    includePeriodicalItem?: boolean;
+    includePage?: boolean;
   }>()
 );
 

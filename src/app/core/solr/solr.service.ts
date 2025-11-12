@@ -261,6 +261,7 @@ export class SolrService {
     includePage = false
   ): Observable<SearchResultResponse> {
     console.log('solr search in collection:', collectionUuid);
+    console.log('solr search query::', query)
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
 
@@ -280,7 +281,7 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject)
-       // .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+        //.set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
 
     // Add collection filter
     params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);

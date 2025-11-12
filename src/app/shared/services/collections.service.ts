@@ -30,7 +30,9 @@ import { Metadata } from '../models/metadata.model';
 import {TranslateService} from '@ngx-translate/core';
 import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class CollectionsService extends BaseFilterService {
   uuid: string | null = null;
 
@@ -92,13 +94,6 @@ export class CollectionsService extends BaseFilterService {
   async initialize() {
     if (this.initialized) return;
 
-    // Set default sort if not present
-    if (!this.route.snapshot.queryParams['sortBy']) {
-      this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.desc);
-    }
-
-    this.customSearchService.initializeFromRoute();
-
     // Extract UUID from URL
     const extractUuid = (url: string): string | null => {
       const match = url.match(/(uuid:[a-f0-9\-]+)/i);
@@ -117,6 +112,14 @@ export class CollectionsService extends BaseFilterService {
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTION)) {
+
+        // Set default sort if not present
+        if (!this.route.snapshot.queryParams['sortBy']) {
+          this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.desc);
+        }
+
+        this.customSearchService.initializeFromRoute();
+
         // Load collection detail
         if (this.uuid) {
           this.store.dispatch(loadCollectionDetail({ uuid: this.uuid }));
@@ -226,6 +229,9 @@ export class CollectionsService extends BaseFilterService {
 
     filters = mapFacetsToSearchFields(filters);
 
+    const includePeriodicalItem = this.filtersContainDate() || this.hasFulltextFilter();
+    const includePage = this.hasSubmittedQuery() || this.hasFulltextFilter();
+
     this.store.dispatch(loadCollectionSearchResults({
       uuid: this.uuid,
       query: query,
@@ -235,7 +241,9 @@ export class CollectionsService extends BaseFilterService {
       page: (page - 1) * pageSize,
       pageCount: pageSize,
       sortBy,
-      sortDirection
+      sortDirection,
+      includePeriodicalItem,
+      includePage
     }));
   }
 

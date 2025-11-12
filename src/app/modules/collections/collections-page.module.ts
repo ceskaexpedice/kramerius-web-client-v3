@@ -48,7 +48,6 @@ const routes: Routes = [
     NgClass,
   ],
   providers: [
-    CollectionsService,
     {provide: FILTER_SERVICE, useExisting: CollectionsService},
   ]
 })
