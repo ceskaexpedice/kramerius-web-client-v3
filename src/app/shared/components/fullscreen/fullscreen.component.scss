@@ -3,15 +3,36 @@
   height: 100%;
   width: 100%;
 
-  &.active {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
+  // When in fullscreen mode, ensure container fills the screen
+  &:fullscreen,
+  &:-webkit-full-screen,
+  &:-moz-full-screen,
+  &:-ms-fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
     background: var(--color-bg-base);
   }
+}
+
+.fullscreen-container:fullscreen .fullscreen-content,
+.fullscreen-container:-webkit-full-screen .fullscreen-content,
+.fullscreen-container:-moz-full-screen .fullscreen-content,
+.fullscreen-container:-ms-fullscreen .fullscreen-content {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+}
+
+// Force ALL descendants to inherit fullscreen sizing
+.fullscreen-container:fullscreen *,
+.fullscreen-container:-webkit-full-screen *,
+.fullscreen-container:-moz-full-screen *,
+.fullscreen-container:-ms-fullscreen * {
+  max-width: 100vw !important;
+  max-height: 100vh !important;
 }
 
 .fullscreen-close-button {

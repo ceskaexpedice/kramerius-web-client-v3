@@ -1,6 +1,4 @@
-<app-fullscreen
-  [isFullscreen]="(iiifViewerService.properties$ | async)?.fullscreen || false"
-  (closeFullscreen)="iiifViewerService.toggleFullscreen()">
+<app-fullscreen>
   <div class="iiif-viewer-container">
     <div class="iiif-viewer-main">
       <div #viewerContainer class="openseadragon-container"></div>

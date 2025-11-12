@@ -84,6 +84,8 @@ export class PdfService {
   // Observable for pages with search results
   private pagesWithResultSubject = new BehaviorSubject<number[]>([]);
 
+  private fullscreenComponentGetter: (() => any) | null = null;
+
   constructor(
     private env: EnvironmentService,
     private ngZone: NgZone,
@@ -581,9 +583,17 @@ export class PdfService {
     }
   }
 
+  setFullscreenComponent(getter: () => any): void {
+    this.fullscreenComponentGetter = getter;
+  }
+
   toggleFullscreen(): void {
-    this.pdfProperties.fullscreen = !this.pdfProperties.fullscreen;
-    this.propertiesSubject.next(this.pdfProperties);
+    if (this.fullscreenComponentGetter) {
+      const component = this.fullscreenComponentGetter();
+      if (component) {
+        component.toggle();
+      }
+    }
   }
 
   togglePageViewMode(): void {

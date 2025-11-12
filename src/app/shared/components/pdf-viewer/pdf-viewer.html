@@ -1,7 +1,5 @@
 @if (pdfService.url) {
-  <app-fullscreen
-    [isFullscreen]="(pdfService.properties$ | async)?.fullscreen || false"
-    (closeFullscreen)="pdfService.toggleFullscreen()">
+  <app-fullscreen>
 
     @if (!pdfService.pdfLoaded) {
       <app-inline-loader></app-inline-loader>

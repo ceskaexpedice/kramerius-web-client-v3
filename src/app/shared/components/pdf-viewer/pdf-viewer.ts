@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent} from 'ngx-extended-pdf-viewer';
 import {Metadata} from '../../models/metadata.model';
 import {PdfService} from '../../services/pdf.service';
@@ -19,10 +19,11 @@ import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'
 })
-export class PdfViewer implements OnInit, OnDestroy {
+export class PdfViewer implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() metadata: Metadata | null = null;
   @ViewChild(NgxExtendedPdfViewerComponent) pdfViewer?: NgxExtendedPdfViewerComponent;
+  @ViewChild(FullscreenComponent, { static: false }) fullscreenComponent!: FullscreenComponent;
 
   public pdfService = inject(PdfService);
   private route = inject(ActivatedRoute);
@@ -44,6 +45,11 @@ export class PdfViewer implements OnInit, OnDestroy {
     this.subscriptions.push(pageChangeSub);
 
     this.checkAndNavigateToUrlPage();
+  }
+
+  ngAfterViewInit(): void {
+    // Set the fullscreen component reference in the service after view is initialized
+    this.pdfService.setFullscreenComponent(() => this.fullscreenComponent);
   }
 
   ngOnDestroy(): void {

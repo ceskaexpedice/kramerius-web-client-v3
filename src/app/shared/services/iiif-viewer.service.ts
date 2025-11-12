@@ -87,6 +87,7 @@ export class IIIFViewerService {
   private rectangleCounter: number = 0;
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
+  private fullscreenComponentGetter: (() => any) | null = null;
 
   private bookModeSubject = new BehaviorSubject<boolean>(false);
   public bookMode$ = this.bookModeSubject.asObservable();
@@ -320,10 +321,16 @@ export class IIIFViewerService {
   }
 
   // Fullscreen control
+  setFullscreenComponent(getter: () => any): void {
+    this.fullscreenComponentGetter = getter;
+  }
+
   toggleFullscreen(): void {
-    if (this.viewer) {
-      this.viewerProperties.fullscreen = !this.viewerProperties.fullscreen;
-      this.propertiesSubject.next(this.viewerProperties);
+    if (this.fullscreenComponentGetter) {
+      const component = this.fullscreenComponentGetter();
+      if (component) {
+        component.toggle();
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core';
 import {AsyncPipe, NgIf, NgStyle} from '@angular/common';
 import { Metadata } from '../../models/metadata.model';
 import { ImageViewerService } from '../../services/image-viewer.service';
@@ -17,10 +17,11 @@ import { FullscreenComponent } from '../fullscreen/fullscreen.component';
   templateUrl: './image-viewer.html',
   styleUrl: './image-viewer.scss'
 })
-export class ImageViewer implements OnInit, OnDestroy, OnChanges {
+export class ImageViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   @Input() metadata: Metadata | null = null;
   @Input() imagePid: string | null = null;
+  @ViewChild(FullscreenComponent, { static: false }) fullscreenComponent!: FullscreenComponent;
 
   public imageViewerService = inject(ImageViewerService);
   private envService = inject(EnvironmentService);
@@ -41,6 +42,11 @@ export class ImageViewer implements OnInit, OnDestroy, OnChanges {
       this.updateImageStyles(props);
     });
     this.subscriptions.push(propsSub);
+  }
+
+  ngAfterViewInit(): void {
+    // Set the fullscreen component reference in the service after view is initialized
+    this.imageViewerService.setFullscreenComponent(() => this.fullscreenComponent);
   }
 
   ngOnDestroy(): void {

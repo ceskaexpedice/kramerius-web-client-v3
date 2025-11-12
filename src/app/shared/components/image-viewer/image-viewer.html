@@ -1,6 +1,4 @@
-<app-fullscreen
-  [isFullscreen]="(imageViewerService.properties$ | async)?.fullscreen || false"
-  (closeFullscreen)="imageViewerService.toggleFullscreen()">
+<app-fullscreen>
   <div class="image-viewer-container" (wheel)="onWheel($event)">
     <div class="image-viewer-main">
       <div class="image-wrapper">

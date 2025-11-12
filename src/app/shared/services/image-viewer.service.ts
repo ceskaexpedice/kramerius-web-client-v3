@@ -34,6 +34,8 @@ export class ImageViewerService {
   private propertiesSubject = new BehaviorSubject<ImageViewerProperties>(this.imageViewerProperties);
   public properties$: Observable<ImageViewerProperties> = this.propertiesSubject.asObservable();
 
+  private fullscreenComponentGetter: (() => any) | null = null;
+
   constructor(
     private env: EnvironmentService
   ) {
@@ -160,9 +162,17 @@ export class ImageViewerService {
   }
 
   // Fullscreen control
+  setFullscreenComponent(getter: () => any): void {
+    this.fullscreenComponentGetter = getter;
+  }
+
   toggleFullscreen(): void {
-    this.imageViewerProperties.fullscreen = !this.imageViewerProperties.fullscreen;
-    this.propertiesSubject.next(this.imageViewerProperties);
+    if (this.fullscreenComponentGetter) {
+      const component = this.fullscreenComponentGetter();
+      if (component) {
+        component.toggle();
+      }
+    }
   }
 
   // Fit to screen control
