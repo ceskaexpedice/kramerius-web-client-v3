@@ -174,7 +174,7 @@ export const customDefinedFacets = [
       {
         key: 'collection',
         fq: [
-          '(model:collection AND collection.is_standalone:true)'
+          'collection'
         ],
         name: 'collection',
         count: 0
