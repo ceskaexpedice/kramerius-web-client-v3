@@ -129,8 +129,8 @@ export class SolrService {
     }
 
     // Add boosted model query for proper ranking
-    // const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
-    // parts.push(boostedModelQuery);
+    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
+    parts.push(boostedModelQuery);
 
     // Handle advanced query
     if (advancedQuery?.trim()) {

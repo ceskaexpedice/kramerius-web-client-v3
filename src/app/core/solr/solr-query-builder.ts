@@ -45,7 +45,7 @@ export class SolrQueryBuilder {
       'model:soundrecording^2',
       'model:sheetmusic^2',
       'model:convolute^2',
-      '(model:collection AND collection.is_standalone:true)^2',
+      'model:collection^2',
       'model:monographunit^2',
       'model:supplement^2',
       'model:article^2'
@@ -84,7 +84,7 @@ export class SolrQueryBuilder {
         'model:soundrecording^2',
         'model:sheetmusic^2',
         'model:convolute^2',
-        '(model:collection AND collection.is_standalone:true)^2',
+        'model:collection^2',
         'model:monographunit^2',
         'model:supplement^2',
         'model:article^2'
