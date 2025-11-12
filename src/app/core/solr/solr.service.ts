@@ -93,7 +93,7 @@ export class SolrService {
     return params;
   }
 
-  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null): string {
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null): string {
     const parts: string[] = [];
 
     const hasSpecialSyntax = (input: string): boolean => {
@@ -109,17 +109,28 @@ export class SolrService {
     if (query?.trim()) {
       if (hasSpecialSyntax(query)) {
         const escapedQuery = query.trim();
-        parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+        if (collectionUuid) {
+          // For collections, search across all relevant fields with boosts
+          parts.push(`((titles.search:${escapedQuery}^10 OR authors.search:${escapedQuery}^2 OR keywords.search:${escapedQuery} OR publishers.search:${escapedQuery} OR genres.search:${escapedQuery} OR geographic_names.search:${escapedQuery} OR text_ocr:${escapedQuery}^0.1 OR id_isbn:${escapedQuery} OR shelf_locators:${escapedQuery}))`);
+        } else {
+          parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+        }
       } else {
-        parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+        if (collectionUuid) {
+          // For collections, build query across multiple fields
+          const searchFields = ['titles.search', 'authors.search', 'keywords.search', 'publishers.search', 'genres.search', 'geographic_names.search', 'text_ocr', 'id_isbn', 'shelf_locators'];
+          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.or, searchFields)})`);
+        } else {
+          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+        }
       }
     } else {
       parts.push('*:*');
     }
 
     // Add boosted model query for proper ranking
-    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
-    parts.push(boostedModelQuery);
+    // const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
+    // parts.push(boostedModelQuery);
 
     // Handle advanced query
     if (advancedQuery?.trim()) {
@@ -130,6 +141,29 @@ export class SolrService {
         finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
       }
       parts.push(`${finalAdvancedQuery}`);
+    }
+
+    // Handle collection filter as part of query (not fq)
+    if (collectionUuid) {
+      const modelParts: string[] = [];
+
+      if (includePage) {
+        modelParts.push('model:page');
+        modelParts.push('model:article');
+      }
+
+      if (includePeriodicalItem) {
+        modelParts.push('model:periodicalitem');
+      }
+
+      let collectionFilter = `in_collections.direct:"${collectionUuid}"`;
+
+      if (modelParts.length > 0) {
+        const modelQuery = modelParts.join(' OR ');
+        collectionFilter = `((${collectionFilter}) OR ((${modelQuery}) AND in_collections:"${collectionUuid}"))`;
+      }
+
+      parts.push(collectionFilter);
     }
 
     return parts.length ? parts.join(' AND ') : '*:*';
@@ -263,7 +297,7 @@ export class SolrService {
     console.log('solr search in collection:', collectionUuid);
     console.log('solr search query::', query)
 
-    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    // const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
 
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
@@ -281,12 +315,9 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject)
-        //.set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+        .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
 
-    // Add collection filter
-    params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);
-
-    // Add other filters
+    // Add other filters (collection filter is now part of q parameter)
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -302,18 +333,15 @@ export class SolrService {
     includePeriodicalItem = false,
     includePage = false
   ): Observable<SearchResultResponse> {
-    const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
     const filtersByField = this.groupFiltersByField(filters);
 
     const paramsObject = {
-      ...this.createFacetBaseParams({}),
-      ...baseFilters
+      ...this.createFacetBaseParams({})
     };
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
 
-    // Add collection filter
-    params = params.append('fq', `in_collections.direct:"${collectionUuid}"`);
+    // Collection filter is now part of q parameter
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);
