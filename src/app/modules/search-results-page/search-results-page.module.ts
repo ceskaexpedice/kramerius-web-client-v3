@@ -23,6 +23,7 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import {AdminActionsComponent} from '../../shared/components/admin-actions/admin-actions.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 
 const routes: Routes = [
   {
@@ -33,32 +34,33 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SearchResultsPageComponent],
-  imports: [
-    RouterModule.forChild(routes),
-    FilterSidebarComponent,
-    NgIf,
-    AsyncPipe,
-    NgForOf,
-    RecordItemComponent,
-    SelectedTagsComponent,
-    PaginatorComponent,
-    PaginatorInfoComponent,
-    ResultsSortComponent,
-    SearchFiltersComponent,
-    ActionToolbarComponent,
-    RecordTypeTabsComponent,
-    TranslatePipe,
-    UpperCasePipe,
-    AdvancedSearchIndicatorComponent,
-    ToggleButtonGroupComponent,
-    NgClass,
-    RecordItemListComponent,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSlideToggle,
-    FormsModule,
-    AdminActionsComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		FilterSidebarComponent,
+		NgIf,
+		AsyncPipe,
+		NgForOf,
+		RecordItemComponent,
+		SelectedTagsComponent,
+		PaginatorComponent,
+		PaginatorInfoComponent,
+		ResultsSortComponent,
+		SearchFiltersComponent,
+		ActionToolbarComponent,
+		RecordTypeTabsComponent,
+		TranslatePipe,
+		UpperCasePipe,
+		AdvancedSearchIndicatorComponent,
+		ToggleButtonGroupComponent,
+		NgClass,
+		RecordItemListComponent,
+		MatDatepickerModule,
+		MatNativeDateModule,
+		MatSlideToggle,
+		FormsModule,
+		AdminActionsComponent,
+		ToolbarControlsComponent,
+	],
   providers: [
     { provide: 'FilterService', useExisting: SearchService },
   ]

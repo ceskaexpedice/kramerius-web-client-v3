@@ -13,7 +13,7 @@ $filter-height: 44px;
 .select-wrapper {
   background-color: var(--color-bg-base);
   border-radius: var(--base-border-radius);
-  padding: 12px 16px;
+  padding: var(--spacing-x3) var(--spacing-x4);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -143,4 +143,10 @@ $filter-height: 44px;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+.result-sort-select {
+  border-radius: var(--spacing-x2);
+  border: 1px solid var(--color-border-bright);
+  padding: var(--spacing-x2) var(--spacing-x4);
 }

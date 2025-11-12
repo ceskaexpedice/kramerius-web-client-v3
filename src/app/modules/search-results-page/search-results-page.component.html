@@ -43,13 +43,18 @@
 
                 <div class="flex flex--align-center flex--gap-x2 margin-side--x2">
 
-                  <button class="button outlined tertiary sm square-button" aria-label="{{'Download' | translate}}">
-                    <i class="icon-download"></i>
-                  </button>
-
-                  <button class="button outlined tertiary sm square-button" (click)="selectionService.setSelectionMode(true)" aria-label="{{'Select items' | translate}}">
-                    <i class="icon-tick-square"></i>
-                  </button>
+                  <app-toolbar-controls
+                    [showViewToggle]="false"
+                    [showFavorites]="false"
+                    [showShare]="false"
+                    [showQuote]="false"
+                    [showInfo]="false"
+                    [showSelect]="true"
+                    [showDownload]="true"
+                    [themeDefault]="true"
+                    (selectClicked)="selectionService.setSelectionMode(true)"
+                  >
+                  </app-toolbar-controls>
 
                 </div>
 

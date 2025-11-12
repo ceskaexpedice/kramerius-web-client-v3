@@ -9,6 +9,7 @@ import {Subscription, combineLatest} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {SearchDocument} from '../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
+import {ViewMode} from '../periodical/models/view-mode.enum';
 
 @Component({
   selector: 'app-search-results-page',
@@ -111,4 +112,5 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     // TODO: Implement edit functionality specific to search results
   }
 
+  protected readonly ViewMode = ViewMode;
 }

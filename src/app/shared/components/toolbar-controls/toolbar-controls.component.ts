@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 
 export type CalendarGridControl = 'calendar' | 'grid';
@@ -30,6 +30,7 @@ export interface ToolbarActionEvent {
     NgIf,
     NgForOf,
     TranslatePipe,
+    NgClass,
   ],
   templateUrl: './toolbar-controls.component.html',
   styleUrl: './toolbar-controls.component.scss'
@@ -53,6 +54,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showDownload = false;
   @Input() showEdit = false;
   @Input() showSelect = false;
+  @Input() themeDefault = false;
 
   // Legacy outputs - maintained for backward compatibility
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();

@@ -25,6 +25,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   private searchBuffer = '';
   private searchTimeout?: any;
 
+  @Input() class = '';
   @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');

@@ -5,7 +5,7 @@
   [attr.aria-expanded]="open()"
   role="button"
   tabindex="0"
-  [ngClass]="theme"
+  [ngClass]="[theme, class]"
   (keydown)="onKeyDown($event)"
 >
   <span>{{ displayFn(value) | translate }}</span>
