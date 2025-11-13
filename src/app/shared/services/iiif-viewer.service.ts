@@ -146,6 +146,12 @@ export class IIIFViewerService {
     return `${this.API_URL}/search/iiif/${pid}/info.json`;
   }
 
+  // Get direct image URL (fallback when IIIF fails)
+  getDirectImageUrl(pid: string): string {
+    const itemsUrl = this.env.getApiUrl('items');
+    return `${itemsUrl}/${pid}/image`;
+  }
+
   // Set viewer instance
   setViewer(viewer: OpenSeadragon.Viewer): void {
     this.viewer = viewer;

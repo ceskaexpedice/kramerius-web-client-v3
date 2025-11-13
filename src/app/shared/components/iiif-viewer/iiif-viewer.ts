@@ -83,7 +83,12 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
+    // TESTING: Set to true to test fallback to direct image
+    const TEST_FALLBACK = false;
+
+    const infoUrl = TEST_FALLBACK
+      ? 'https://invalid-url.example.com/fake-info.json'
+      : this.iiifViewerService.getIIIFInfoUrl(pid);
 
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
@@ -114,6 +119,20 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       maxZoomLevel: 10,
       visibilityRatio: 1,
       constrainDuringPan: false
+    });
+
+    // Add error handler for failed IIIF loading - fallback to simple image
+    this.viewer.addHandler('open-failed', (event: any) => {
+      console.warn('IIIF image failed to load, falling back to direct image URL', event);
+      const directImageUrl = this.iiifViewerService.getDirectImageUrl(pid);
+
+      // OpenSeadragon can display simple images too
+      if (this.viewer) {
+        this.viewer.open({
+          type: 'image',
+          url: directImageUrl
+        });
+      }
     });
 
     this.iiifViewerService.setViewer(this.viewer);
