@@ -269,6 +269,9 @@ export class BreadcrumbsService {
 
     if (breadcrumb.queryParams) {
       this.router.navigate([breadcrumb.url], { queryParams: breadcrumb.queryParams });
+    } else if (breadcrumb.url.includes('?')) {
+      // URL already contains query params, use navigateByUrl to avoid double-encoding
+      this.router.navigateByUrl(breadcrumb.url);
     } else {
       this.router.navigate([breadcrumb.url]);
     }

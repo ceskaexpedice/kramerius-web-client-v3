@@ -362,6 +362,11 @@ export class RecordHandlerService {
 
       // Check if this is a navigation to a periodical page
       const isPeriodicalNavigation = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
+      const isSearchResultsUrl = this.router.url.includes(APP_ROUTES_ENUM.SEARCH_RESULTS);
+
+      if (isSearchResultsUrl) {
+        this.searchService.backupCurrentSearchUrl();
+      }
 
       if (isPeriodicalNavigation) {
         // Preserve specific filters from current route when navigating to periodicals

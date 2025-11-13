@@ -379,8 +379,8 @@ export class SearchService extends BaseFilterService {
     );
   }
 
-  backupCurrentSearchUrl(): void {
-    const currentUrl = this.router.url;
+  backupCurrentSearchUrl(url: string | null = null): void {
+    const currentUrl = url || this.router.url;
     sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
   }
 

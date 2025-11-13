@@ -29,6 +29,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { fromSolrToMetadata, Metadata } from '../models/metadata.model';
 import {TranslateService} from '@ngx-translate/core';
 import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
+import {SearchService} from './search.service';
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +72,8 @@ export class CollectionsService extends BaseFilterService {
   constructor(
     private store: Store,
     protected override router: Router,
-    protected override route: ActivatedRoute
+    protected override route: ActivatedRoute,
+    protected searchService: SearchService
   ) {
     super();
     console.log('CollectionsService initialized');
@@ -460,6 +462,8 @@ export class CollectionsService extends BaseFilterService {
     this.collectionStructureTree = [];
     this.collectionPaths = [];
 
+    const searchUrl = this.searchService.getBackupSearchUrl() || APP_ROUTES_ENUM.SEARCH_RESULTS;
+
     // Build the collection hierarchy tree
     this.buildCollectionStructureTree(metadata.uuid).subscribe({
       next: () => {
@@ -480,7 +484,7 @@ export class CollectionsService extends BaseFilterService {
             {
               label: 'search',
               translationKey: 'search',
-              url: '/',
+              url: `${searchUrl}`,
               clickable: true
             }
           ];
@@ -491,7 +495,7 @@ export class CollectionsService extends BaseFilterService {
             const title = this.getLocalizedTitle(col);
             breadcrumbs.push({
               label: title,
-              url: `/collection/${col.uuid}`,
+              url: `/${APP_ROUTES_ENUM.COLLECTION}/${col.uuid}`,
               clickable: i !== collectionPath.length - 1 // Last item (current collection) is not clickable
             });
           }
@@ -515,12 +519,12 @@ export class CollectionsService extends BaseFilterService {
           {
             label: 'search',
             translationKey: 'search',
-            url: '/',
+            url: `${searchUrl}`,
             clickable: true
           },
           {
             label: title,
-            url: `/collection/${metadata.uuid}`,
+            url: `/${APP_ROUTES_ENUM.COLLECTION}/${metadata.uuid}`,
             clickable: false
           }
         ];
