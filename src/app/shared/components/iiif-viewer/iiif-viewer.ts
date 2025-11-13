@@ -85,9 +85,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
 
-    // Detect Safari browser
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
@@ -97,10 +94,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       showHomeControl: false,
       showZoomControl: false,
       showFullPageControl: false,
-      // Safari-specific CORS handling
-      crossOriginPolicy: isSafari ? false : 'Anonymous',
-      loadTilesWithAjax: isSafari ? false : true,
-      ajaxWithCredentials: false,
+      crossOriginPolicy: 'Anonymous', // Enable CORS for images from different domains
+      ajaxWithCredentials: false, // Don't send credentials with CORS requests
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
