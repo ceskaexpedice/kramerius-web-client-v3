@@ -113,9 +113,18 @@ export class CollectionsService extends BaseFilterService {
 
       if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTION)) {
 
-        // Set default sort if not present
+        // Set default sort if not present - navigate once with defaults
         if (!this.route.snapshot.queryParams['sortBy']) {
-          this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.desc);
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+              sortBy: SolrSortFields.relevance,
+              sortDirection: SolrSortDirections.desc
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+          });
+          return;
         }
 
         this.customSearchService.initializeFromRoute();
