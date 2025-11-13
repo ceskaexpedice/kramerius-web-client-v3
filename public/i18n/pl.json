@@ -319,5 +319,6 @@
   "onsite": "Czytelnia",
   "onsite-sheetmusic": "Czytelnia – nuty",
   "_private": "Dokument nie jest publicznie dostępny",
-  "show-all-pages": "Pokaż wszystkie strony"
+  "show-all-pages": "Pokaż wszystkie strony",
+  "part-of-collection--title": "Jest to również część kolekcji"
 }

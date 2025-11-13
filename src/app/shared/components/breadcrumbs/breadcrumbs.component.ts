@@ -31,6 +31,20 @@ export class BreadcrumbsComponent {
   }
 
   /**
+   * Check if there are multiple breadcrumb paths
+   */
+  get hasMultiplePaths(): boolean {
+    return this.breadcrumbsService.multiplePaths().length > 1;
+  }
+
+  /**
+   * Get multiple breadcrumb paths
+   */
+  get multipleBreadcrumbPaths(): Breadcrumb[][] {
+    return this.breadcrumbsService.multiplePaths();
+  }
+
+  /**
    * Get separator from config
    */
   get separator(): string {

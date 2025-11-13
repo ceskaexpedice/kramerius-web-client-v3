@@ -25,6 +25,11 @@ export class BreadcrumbsService {
   public breadcrumbs = signal<Breadcrumb[]>([]);
 
   /**
+   * Multiple breadcrumb paths (for collections with multiple parent paths)
+   */
+  public multiplePaths = signal<Breadcrumb[][]>([]);
+
+  /**
    * Configuration for breadcrumb behavior
    */
   public config = signal<BreadcrumbConfig>({
@@ -170,10 +175,29 @@ export class BreadcrumbsService {
    */
   public setBreadcrumbs(breadcrumbs: Breadcrumb[], saveAsOverride = false): void {
     this.breadcrumbs.set(breadcrumbs);
+    // Clear multiple paths when setting single breadcrumb
+    this.multiplePaths.set([]);
 
     if (saveAsOverride) {
       const currentUrl = this.router.url.split('?')[0];
       this.manualOverrides.set(currentUrl, breadcrumbs);
+    }
+  }
+
+  /**
+   * Set multiple breadcrumb paths (for items with multiple parent paths)
+   */
+  public setMultiplePaths(paths: Breadcrumb[][], saveAsOverride = false): void {
+    this.multiplePaths.set(paths);
+    // Clear single breadcrumb when setting multiple paths
+    this.breadcrumbs.set([]);
+
+    if (saveAsOverride) {
+      const currentUrl = this.router.url.split('?')[0];
+      // Store the first path as override, but keep multiplePaths in memory
+      if (paths.length > 0) {
+        this.manualOverrides.set(currentUrl, paths[0]);
+      }
     }
   }
 

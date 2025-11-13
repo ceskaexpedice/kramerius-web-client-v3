@@ -1,49 +1,112 @@
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-  <ol class="breadcrumbs__list">
-    @for (breadcrumb of displayBreadcrumbs; track breadcrumb.url; let i = $index) {
-      <li [class]="getBreadcrumbClasses(breadcrumb, i).join(' ')">
+<!-- Multiple breadcrumb paths (for items in multiple collections) -->
+@if (hasMultiplePaths) {
+  <div class="breadcrumbs-multiple">
+    @for (pathBreadcrumbs of multipleBreadcrumbPaths; track $index; let pathIndex = $index) {
 
-        @if (breadcrumb.clickable !== false) {
-          <a
-            [href]="breadcrumb.url"
-            class="breadcrumb-link"
-            (click)="onBreadcrumbClick(breadcrumb, $event)"
-            [attr.aria-current]="i === displayBreadcrumbs.length - 1 ? 'page' : null">
+      @if ($index === 1) {
+        <span class="part-of-collection--title">{{ 'part-of-collection--title' | translate }}</span>
+      }
 
-            @if (breadcrumb.icon) {
-              <i [class]="breadcrumb.icon"></i>
-            }
+      <nav class="breadcrumbs" [class.breadcrumbs--path]="pathIndex > 0" aria-label="Breadcrumb path {{ pathIndex + 1 }}">
+        <ol class="breadcrumbs__list">
+          @for (breadcrumb of pathBreadcrumbs; track breadcrumb.url; let i = $index) {
+            <li [class]="getBreadcrumbClasses(breadcrumb, i).join(' ')">
 
-            <span class="breadcrumb-label">
-              @if (breadcrumb.translationKey) {
-                {{ breadcrumb.translationKey | translate }}
+              @if (breadcrumb.clickable !== false) {
+                <a
+                  [href]="breadcrumb.url"
+                  class="breadcrumb-link"
+                  (click)="onBreadcrumbClick(breadcrumb, $event)"
+                  [attr.aria-current]="i === pathBreadcrumbs.length - 1 ? 'page' : null">
+
+                  @if (breadcrumb.icon) {
+                    <i [class]="breadcrumb.icon"></i>
+                  }
+
+                  <span class="breadcrumb-label">
+                    @if (breadcrumb.translationKey) {
+                      {{ breadcrumb.translationKey | translate }}
+                    } @else {
+                      {{ breadcrumb.label }}
+                    }
+                  </span>
+                </a>
               } @else {
-                {{ breadcrumb.label }}
-              }
-            </span>
-          </a>
-        } @else {
-          <span class="breadcrumb-text">
-            @if (breadcrumb.icon) {
-              <i [class]="breadcrumb.icon"></i>
-            }
+                <span class="breadcrumb-text">
+                  @if (breadcrumb.icon) {
+                    <i [class]="breadcrumb.icon"></i>
+                  }
 
-            <span class="breadcrumb-label">
-              @if (breadcrumb.translationKey) {
-                {{ breadcrumb.translationKey | translate }}
-              } @else {
-                {{ breadcrumb.label }}
+                  <span class="breadcrumb-label">
+                    @if (breadcrumb.translationKey) {
+                      {{ breadcrumb.translationKey | translate }}
+                    } @else {
+                      {{ breadcrumb.label }}
+                    }
+                  </span>
+                </span>
               }
-            </span>
-          </span>
-        }
 
-        @if (shouldShowSeparator(i)) {
-          <span class="breadcrumb-separator" aria-hidden="true">
-            <i class="icon-arrow-right-1"></i>
-          </span>
-        }
-      </li>
+              @if (i < pathBreadcrumbs.length - 1) {
+                <span class="breadcrumb-separator" aria-hidden="true">
+                  <i class="icon-arrow-right-1"></i>
+                </span>
+              }
+            </li>
+          }
+        </ol>
+      </nav>
     }
-  </ol>
-</nav>
+  </div>
+} @else {
+  <!-- Single breadcrumb path -->
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <ol class="breadcrumbs__list">
+      @for (breadcrumb of displayBreadcrumbs; track breadcrumb.url; let i = $index) {
+        <li [class]="getBreadcrumbClasses(breadcrumb, i).join(' ')">
+
+          @if (breadcrumb.clickable !== false) {
+            <a
+              [href]="breadcrumb.url"
+              class="breadcrumb-link"
+              (click)="onBreadcrumbClick(breadcrumb, $event)"
+              [attr.aria-current]="i === displayBreadcrumbs.length - 1 ? 'page' : null">
+
+              @if (breadcrumb.icon) {
+                <i [class]="breadcrumb.icon"></i>
+              }
+
+              <span class="breadcrumb-label">
+                @if (breadcrumb.translationKey) {
+                  {{ breadcrumb.translationKey | translate }}
+                } @else {
+                  {{ breadcrumb.label }}
+                }
+              </span>
+            </a>
+          } @else {
+            <span class="breadcrumb-text">
+              @if (breadcrumb.icon) {
+                <i [class]="breadcrumb.icon"></i>
+              }
+
+              <span class="breadcrumb-label">
+                @if (breadcrumb.translationKey) {
+                  {{ breadcrumb.translationKey | translate }}
+                } @else {
+                  {{ breadcrumb.label }}
+                }
+              </span>
+            </span>
+          }
+
+          @if (shouldShowSeparator(i)) {
+            <span class="breadcrumb-separator" aria-hidden="true">
+              <i class="icon-arrow-right-1"></i>
+            </span>
+          }
+        </li>
+      }
+    </ol>
+  </nav>
+}

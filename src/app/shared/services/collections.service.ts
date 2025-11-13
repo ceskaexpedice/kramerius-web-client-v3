@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, map, Observable, of, takeUntil } from 'rxjs';
+import { filter, forkJoin, map, Observable, of, takeUntil } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
@@ -26,7 +26,7 @@ import { loadCollectionSearchResults, loadCollectionDetail } from '../state/coll
 import { BreadcrumbsService } from './breadcrumbs.service';
 import { Breadcrumb } from '../models/breadcrumb.model';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Metadata } from '../models/metadata.model';
+import { fromSolrToMetadata, Metadata } from '../models/metadata.model';
 import {TranslateService} from '@ngx-translate/core';
 import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
 
@@ -63,6 +63,10 @@ export class CollectionsService extends BaseFilterService {
 
   // Convert detail$ to signal for reactive breadcrumb updates
   private detailSignal = toSignal(this.detail$);
+
+  // Collection structure tree for breadcrumb generation
+  private collectionStructureTree: Metadata[] = [];
+  private collectionPaths: Metadata[][] = [];
 
   constructor(
     private store: Store,
@@ -353,6 +357,74 @@ export class CollectionsService extends BaseFilterService {
   }
 
   /**
+   * Recursively builds the collection structure tree by fetching parent collections
+   */
+  private buildCollectionStructureTree(uuid: string): Observable<void> {
+    return new Observable<void>((subscriber) => {
+      this.solrService.getDetailItem(uuid).subscribe({
+        next: (solrDoc) => {
+          if (!solrDoc) {
+            subscriber.complete();
+            return;
+          }
+
+          const currentLang = this.translationService.getCurrentLang();
+          const metadata = fromSolrToMetadata(solrDoc, currentLang);
+          this.collectionStructureTree.unshift(metadata);
+
+          // If this collection has parent collections, fetch them recursively
+          if (metadata.inCollections && metadata.inCollections.length > 0) {
+            const observables = metadata.inCollections.map((col) =>
+              this.buildCollectionStructureTree(col.uuid)
+            );
+
+            forkJoin(observables).subscribe({
+              next: () => {
+                subscriber.next();
+                subscriber.complete();
+              },
+              error: (error) => {
+                console.error('Error building collection tree:', error);
+                subscriber.error(error);
+              }
+            });
+          } else {
+            // No parent collections - this is a root collection
+            subscriber.next();
+            subscriber.complete();
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching collection:', uuid, error);
+          subscriber.error(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Recursively finds all paths from the current collection to root collections
+   */
+  private findPaths(col: Metadata | undefined, path: Metadata[] = []): void {
+    if (!col) {
+      return;
+    }
+
+    const newPath = [col, ...path];
+
+    // If this collection has parent collections, continue recursively
+    if (col.inCollections && col.inCollections.length > 0) {
+      for (const parentRef of col.inCollections) {
+        const parentCol = this.collectionStructureTree.find(x => x.uuid === parentRef.uuid);
+        this.findPaths(parentCol, newPath);
+      }
+    } else {
+      // No parent collections - this is a root collection, save the path
+      this.collectionPaths.push(newPath);
+    }
+  }
+
+  /**
    * Gets the collection title in the current language
    */
   private getLocalizedTitle(metadata: Metadata): string {
@@ -381,53 +453,80 @@ export class CollectionsService extends BaseFilterService {
   }
 
   /**
-   * Update breadcrumbs with collection title
+   * Update breadcrumbs with collection hierarchy
    */
   private updateBreadcrumbs(metadata: Metadata): void {
-    const title = this.getLocalizedTitle(metadata);
-    const collectionBreadcrumb: Breadcrumb = {
-      label: title,
-      url: `/collection/${metadata.uuid}`,
-      clickable: true
-    };
+    // Reset collections tree and paths
+    this.collectionStructureTree = [];
+    this.collectionPaths = [];
 
-    // Check if we should append to existing breadcrumbs or create new ones
-    if (this.breadcrumbsService.shouldAppendBreadcrumb()) {
-      // Get current breadcrumbs
-      const currentBreadcrumbs = this.breadcrumbsService.breadcrumbs();
-      const lastBreadcrumb = currentBreadcrumbs[currentBreadcrumbs.length - 1];
+    // Build the collection hierarchy tree
+    this.buildCollectionStructureTree(metadata.uuid).subscribe({
+      next: () => {
+        // Find all paths from current collection to root
+        const startingCol = this.collectionStructureTree.find(x => x.uuid === metadata.uuid);
+        this.findPaths(startingCol);
 
-      if (!lastBreadcrumb || lastBreadcrumb.url !== collectionBreadcrumb.url) {
-        // Make previous last breadcrumb clickable
-        if (lastBreadcrumb && currentBreadcrumbs.length > 0) {
-          const updatedBreadcrumbs = [...currentBreadcrumbs];
-          updatedBreadcrumbs[updatedBreadcrumbs.length - 1] = {
-            ...lastBreadcrumb,
+        // If no paths found, create a simple path with just the current collection
+        if (this.collectionPaths.length === 0) {
+          this.collectionPaths = [[metadata]];
+        }
+
+        // Build breadcrumb arrays for all paths
+        const allBreadcrumbPaths: Breadcrumb[][] = [];
+
+        for (const collectionPath of this.collectionPaths) {
+          const breadcrumbs: Breadcrumb[] = [
+            {
+              label: 'search',
+              translationKey: 'search',
+              url: '/',
+              clickable: true
+            }
+          ];
+
+          // Add collection breadcrumbs (root to current - path is already in correct order)
+          for (let i = 0; i < collectionPath.length; i++) {
+            const col = collectionPath[i];
+            const title = this.getLocalizedTitle(col);
+            breadcrumbs.push({
+              label: title,
+              url: `/collection/${col.uuid}`,
+              clickable: i !== collectionPath.length - 1 // Last item (current collection) is not clickable
+            });
+          }
+
+          allBreadcrumbPaths.push(breadcrumbs);
+        }
+
+        // If only one path, use setBreadcrumbs, otherwise use setMultiplePaths
+        if (allBreadcrumbPaths.length === 1) {
+          this.breadcrumbsService.setBreadcrumbs(allBreadcrumbPaths[0], true);
+        } else {
+          this.breadcrumbsService.setMultiplePaths(allBreadcrumbPaths, true);
+        }
+      },
+      error: (error) => {
+        console.error('Error building breadcrumbs:', error);
+
+        // Fallback to simple breadcrumb if hierarchy building fails
+        const title = this.getLocalizedTitle(metadata);
+        const breadcrumbs: Breadcrumb[] = [
+          {
+            label: 'search',
+            translationKey: 'search',
+            url: '/',
             clickable: true
-          };
-          this.breadcrumbsService.setBreadcrumbs(updatedBreadcrumbs, false);
-        }
+          },
+          {
+            label: title,
+            url: `/collection/${metadata.uuid}`,
+            clickable: false
+          }
+        ];
 
-        // Append new collection breadcrumb (not clickable as it's the current page)
-        collectionBreadcrumb.clickable = false;
-        this.breadcrumbsService.addBreadcrumb(collectionBreadcrumb, true);
+        this.breadcrumbsService.setBreadcrumbs(breadcrumbs, true);
       }
-    } else {
-      // Create fresh breadcrumbs (direct navigation or refresh)
-      const breadcrumbs: Breadcrumb[] = [
-        {
-          label: 'search',
-          translationKey: 'search',
-          url: '/',
-          clickable: true
-        },
-        {
-          ...collectionBreadcrumb,
-          clickable: false
-        }
-      ];
-
-      this.breadcrumbsService.setBreadcrumbs(breadcrumbs, true);
-    }
+    });
   }
 }

@@ -1,3 +1,9 @@
+.breadcrumbs-multiple {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+}
+
 .breadcrumbs {
   padding: 0;
   font-size: var(--font-size-small);
@@ -82,4 +88,10 @@
       font-size: 0.875rem;
     }
   }
+}
+
+.part-of-collection--title {
+  padding-top: var(--spacing-x2);
+  font-size: var(--font-size-small);
+  color: var(--color-tertiary);
 }
