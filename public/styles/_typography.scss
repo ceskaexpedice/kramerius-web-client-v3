@@ -3,8 +3,8 @@
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+  color: var(--color-primary);
+  text-decoration: underline;
 
   &:hover {
     text-decoration: underline;
