@@ -38,6 +38,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
+  private isUpdating = false; // Guard against concurrent updates
+  private failedPids = new Set<string>(); // Track failed PIDs to prevent retry loops
+
+  private readonly TEST_FALLBACK = false;
 
   constructor() {
   }
@@ -65,6 +69,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     if (this.viewer) {
       this.viewer.destroy();
     }
+    // Disable test mode when component is destroyed
+    this.iiifViewerService.setTestFallbackMode(false);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -81,12 +87,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    // TESTING: Set to true to test fallback to direct image
-    const TEST_FALLBACK = false;
+    // Enable test mode in service if TEST_FALLBACK is true
+    this.iiifViewerService.setTestFallbackMode(this.TEST_FALLBACK);
 
-    const infoUrl = TEST_FALLBACK
-      ? 'https://invalid-url.example.com/fake-info.json'
-      : this.iiifViewerService.getIIIFInfoUrl(pid);
+    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
 
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
@@ -119,18 +123,38 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
-    // Add error handler for failed IIIF loading - fallback to simple image
     this.viewer.addHandler('open-failed', (event: any) => {
-      console.warn('IIIF image failed to load, falling back to direct image URL', event);
-      const directImageUrl = this.iiifViewerService.getDirectImageUrl(pid);
+      // Get current PID from state, not stale closure
+      const currentPid = this.imagePid || this.metadata?.uuid;
+      if (!currentPid) {
+        console.error('No PID available for fallback');
+        return;
+      }
 
-      // OpenSeadragon can display simple images too
+      // Check if we've already tried and failed this PID to prevent loops
+      if (this.failedPids.has(currentPid)) {
+        console.error(`Fallback already failed for PID: ${currentPid}. Stopping to prevent infinite loop.`);
+        return;
+      }
+
+      // Mark this PID as having failed
+      this.failedPids.add(currentPid);
+
+      // Try fallback to direct image
+      const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
+      console.log(`Attempting fallback image: ${directImageUrl}`);
+
       if (this.viewer) {
         this.viewer.open({
           type: 'image',
           url: directImageUrl
         });
       }
+
+      // Clear failed PID after a delay to allow retry on next page change
+      setTimeout(() => {
+        this.failedPids.delete(currentPid);
+      }, 5000);
     });
 
     this.iiifViewerService.setViewer(this.viewer);
@@ -154,14 +178,27 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private updateViewerForBookMode(): void {
     if (!this.viewer) return;
 
+    // Prevent concurrent updates
+    if (this.isUpdating) {
+      console.log('Update already in progress, skipping');
+      return;
+    }
+
     const currentPid = this.imagePid || this.metadata?.uuid;
     if (!currentPid) return;
 
-    // Get next page PID for book mode
-    const nextPagePid = this.getNextPagePid();
+    this.isUpdating = true;
 
-    // Update display based on book mode state
-    this.iiifViewerService.updateBookModeDisplay(currentPid, nextPagePid);
+    try {
+      // Get next page PID for book mode
+      const nextPagePid = this.getNextPagePid();
+
+      this.iiifViewerService.updateBookModeDisplay(currentPid, nextPagePid);
+    } finally {
+      setTimeout(() => {
+        this.isUpdating = false;
+      }, 100);
+    }
   }
 
   /**

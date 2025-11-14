@@ -92,6 +92,8 @@ export class IIIFViewerService {
   private bookModeSubject = new BehaviorSubject<boolean>(false);
   public bookMode$ = this.bookModeSubject.asObservable();
 
+  private testFallbackMode = false;
+
   private altoService = inject(AltoService);
 
   // Search matches tracking
@@ -143,7 +145,18 @@ export class IIIFViewerService {
 
   // Get IIIF info.json URL
   getIIIFInfoUrl(pid: string): string {
+    // If testing fallback, return invalid URL to trigger error
+    if (this.testFallbackMode) {
+      console.warn('TEST_FALLBACK is enabled - returning invalid URL to test error handling');
+      return `https://invalid-url.example.com/fake-${pid}-info.json`;
+    }
     return `${this.API_URL}/search/iiif/${pid}/info.json`;
+  }
+
+  // Enable/disable test fallback mode
+  setTestFallbackMode(enabled: boolean): void {
+    this.testFallbackMode = enabled;
+    console.log(`Test fallback mode ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
 
   // Get direct image URL (fallback when IIIF fails)
@@ -755,31 +768,35 @@ export class IIIFViewerService {
     // Clear existing overlays when changing pages
     this.clearAllOverlays();
 
-    if (this.viewerProperties.bookMode && nextPagePid) {
-      // Book mode: Display two pages side by side
-      const leftPageUrl = this.getIIIFInfoUrl(currentPagePid);
-      const rightPageUrl = this.getIIIFInfoUrl(nextPagePid);
+    try {
+      if (this.viewerProperties.bookMode && nextPagePid) {
+        // Book mode: Display two pages side by side
+        const leftPageUrl = this.getIIIFInfoUrl(currentPagePid);
+        const rightPageUrl = this.getIIIFInfoUrl(nextPagePid);
 
-
-      // Open both pages with positioning
-      this.viewer.open([
-        {
-          tileSource: leftPageUrl,
-          x: 0,
-          y: 0,
-          width: 0.5
-        },
-        {
-          tileSource: rightPageUrl,
-          x: 0.5,
-          y: 0,
-          width: 0.5
-        }
-      ]);
-    } else {
-      // Single page mode
-      const pageUrl = this.getIIIFInfoUrl(currentPagePid);
-      this.viewer.open(pageUrl);
+        this.viewer.open([
+          {
+            tileSource: leftPageUrl,
+            x: 0,
+            y: 0,
+            width: 0.5
+          },
+          {
+            tileSource: rightPageUrl,
+            x: 0.5,
+            y: 0,
+            width: 0.5
+          }
+        ]);
+      } else {
+        // Single page mode
+        const pageUrl = this.getIIIFInfoUrl(currentPagePid);
+        console.log(`Opening single page: ${currentPagePid}`);
+        this.viewer.open(pageUrl);
+      }
+    } catch (error) {
+      console.error('Error updating book mode display:', error);
+      // Error will be caught by open-failed handler in component
     }
   }
 }
