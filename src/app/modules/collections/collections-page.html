@@ -80,18 +80,6 @@
         <!-- Breadcrumbs Navigation -->
         <app-breadcrumbs></app-breadcrumbs>
 
-        <app-selected-tags
-          *ngIf="((collectionsService.selectedTags | async) || []).length > 0"
-          [items]="(collectionsService.selectedTags | async) || []"
-          [operators]="(collectionsService.getFiltersWithOperators() | async) || {}"
-          [showOperators]="false"
-          [translateItems]="true"
-          (remove)="collectionsService.removeFilter($event)"
-          (removeGroup)="collectionsService.resetOperator($event)"
-          (clearAll)="collectionsService.clearAllFilters()"
-          clearButtonPosition="left">
-        </app-selected-tags>
-
         @if (collectionsService.detail$ | async; as metadata) {
 
           <div class="collection-description-wrapper">
@@ -111,6 +99,18 @@
           </div>
 
         }
+
+        <app-selected-tags
+          *ngIf="((collectionsService.selectedTags | async) || []).length > 0"
+          [items]="(collectionsService.selectedTags | async) || []"
+          [operators]="(collectionsService.getFiltersWithOperators() | async) || {}"
+          [showOperators]="false"
+          [translateItems]="true"
+          (remove)="collectionsService.removeFilter($event)"
+          (removeGroup)="collectionsService.resetOperator($event)"
+          (clearAll)="collectionsService.clearAllFilters()"
+          clearButtonPosition="left">
+        </app-selected-tags>
 
         <div>
 

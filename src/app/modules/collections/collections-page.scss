@@ -2,6 +2,10 @@
   margin-bottom: var(--spacing-3);
 }
 
+:host ::ng-deep a {
+  color: var(--color-primary) !important;
+}
+
 .collection--notes {
   font-size: var(--font-size-base);
   line-height: var(--line-height-2);

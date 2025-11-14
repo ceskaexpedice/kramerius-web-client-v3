@@ -36,6 +36,7 @@
 
   &--non-clickable {
     .breadcrumb-text {
+      color: var(--color-text-tertiary);
       cursor: default;
     }
   }
