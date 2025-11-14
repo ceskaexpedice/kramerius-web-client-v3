@@ -8,7 +8,7 @@
     <div class="sidebar--content-section">
 
       <div class="sidebar--content-section--title">
-        typ dokumentu
+        {{ 'model' | translate }}
       </div>
 
       <div class="sidebar--content-section--content">
@@ -20,11 +20,21 @@
     <div class="sidebar--content-section">
 
       <div class="sidebar--content-section--title">
-        In collection
+        {{ 'in-colection--title' | translate }}
       </div>
 
       <div class="sidebar--content-section--content">
-        {{ metadata?.model | translate }}
+        @if (collectionNames().length > 0) {
+          <div class="collections-list">
+            @for (name of collectionNames(); track $index) {
+              <div class="collection-item">
+                {{ name }}
+              </div>
+            }
+          </div>
+        } @else {
+          <span class="no-collection">{{ 'no-collection-info' | translate }}</span>
+        }
       </div>
 
     </div>

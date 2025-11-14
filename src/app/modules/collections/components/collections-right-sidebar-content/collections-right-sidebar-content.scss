@@ -66,3 +66,19 @@ h4 {
   margin: 0;
   font-weight: bold;
 }
+
+.collections-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+}
+
+.collection-item {
+  font-size: var(--font-size-base);
+  color: var(--color-text-base);
+}
+
+.no-collection {
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
+}
