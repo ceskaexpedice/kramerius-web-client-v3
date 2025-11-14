@@ -74,6 +74,20 @@ export class RecordHandlerService {
         return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
       case DocumentTypeEnum.collection:
         return this.router.createUrlTree([APP_ROUTES_ENUM.COLLECTION, pid]).toString();
+      case DocumentTypeEnum.article:
+        // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
+        if (rootPid) {
+          const fulltext = this.searchService.submittedTerm;
+          const queryParams: any = {
+            page: pid
+          }
+          if (fulltext && fulltext.trim().length > 0) {
+            queryParams['fulltext']= fulltext;
+          }
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], {queryParams}).toString();
+        } else {
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+        }
       case DocumentTypeEnum.page:
         // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
         if (rootPid) {
