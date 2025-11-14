@@ -181,15 +181,24 @@ export class PeriodicalDetailEffects {
 
   private mapAvailableYears(volumes: any[]): PeriodicalItemYear[] {
     return volumes
-      .filter(v => !!v['date.str'] && !!v['pid'] && !!v['accessibility'])
-      .map(v => ({
-        year: v['date.str'],
-        model: v['model'] || '',
-        pid: v['pid'],
-        licenses: v['licenses.facet'],
-        exists: true as const,
-        accessibility: v['accessibility'] as DocumentAccessibilityEnum
-      }));
+      .filter(v => !!v['date.str'] && !!v['pid'])
+      .map(v => {
+        const volumeLicenses = v['licenses.facet'] || v['licenses'] || [];
+        const userLicenses = this.userService.licenses || [];
+
+        // Determine accessibility: if volume has no licenses OR user has matching license, it's public
+        const hasAccess = volumeLicenses.length === 0 ||
+          volumeLicenses.some((license: string) => userLicenses.includes(license));
+
+        return {
+          year: v['date.str'],
+          model: v['model'] || '',
+          pid: v['pid'],
+          licenses: volumeLicenses,
+          exists: true as const,
+          accessibility: hasAccess ? DocumentAccessibilityEnum.PUBLIC : DocumentAccessibilityEnum.PRIVATE
+        };
+      });
   }
 
   private buildYearList(document: any, availableYears: PeriodicalItemYear[]): PeriodicalItemYear[] {
