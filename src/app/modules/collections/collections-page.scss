@@ -43,6 +43,23 @@
 
 .page-content__wrapper {
   position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+  padding: 0 var(--spacing-x4);
+
+  &--with-sidebar {
+    // When sidebar is visible, ensure proper layout
+  }
+}
+
+.page-content__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: var(--spacing-x4);
 }
 
 .page-content__sidebar-right {
