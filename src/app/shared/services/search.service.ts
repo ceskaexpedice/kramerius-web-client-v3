@@ -201,13 +201,12 @@ export class SearchService extends BaseFilterService {
   async initialize() {
     if (this.initialized) return;
 
-    this.customSearchService.initializeFromRoute();
-
     this.route.queryParams.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
       if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+        this.customSearchService.initializeFromRoute();
 
         this.advancedSearchService.resetFromParams(params);
 
