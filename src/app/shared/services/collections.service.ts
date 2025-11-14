@@ -483,7 +483,7 @@ export class CollectionsService extends BaseFilterService {
           const breadcrumbs: Breadcrumb[] = [
             {
               label: 'search',
-              translationKey: 'search',
+              translationKey: 'search-breadcrumb--label',
               url: `${searchUrl}`,
               clickable: true
             }
@@ -518,7 +518,7 @@ export class CollectionsService extends BaseFilterService {
         const breadcrumbs: Breadcrumb[] = [
           {
             label: 'search',
-            translationKey: 'search',
+            translationKey: 'search-breadcrumb--label',
             url: `${searchUrl}`,
             clickable: true
           },

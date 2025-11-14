@@ -332,5 +332,6 @@
   "_private": "The document is not publicly accessible",
   "show-all-pages": "Show all pages",
   "in-colection--title": "In collection",
-  "part-of-collection--title": "It is also part of the collection"
+  "part-of-collection--title": "It is also part of the collection",
+  "search-breadcrumb--label": "Search"
 }
