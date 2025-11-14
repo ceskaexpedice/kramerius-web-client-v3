@@ -1,0 +1,42 @@
+<div class="sidebar-container">
+  <div class="sidebar-content">
+
+    <h4>
+      {{ metadata?.mainTitle }}
+    </h4>
+
+    <div class="sidebar--content-section">
+
+      <div class="sidebar--content-section--title">
+        typ dokumentu
+      </div>
+
+      <div class="sidebar--content-section--content">
+        {{ metadata?.model | translate }}
+      </div>
+
+    </div>
+
+    <div class="sidebar--content-section">
+
+      <div class="sidebar--content-section--title">
+        In collection
+      </div>
+
+      <div class="sidebar--content-section--content">
+        {{ metadata?.model | translate }}
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="sidebar-actions">
+    <button
+      class="button outlined tertiary with-icon"
+      (click)="close()">
+      <i class="icon-sidebar-bottom"></i>
+      {{ 'hide--metadata-sidebar' | translate }}
+    </button>
+  </div>
+</div>

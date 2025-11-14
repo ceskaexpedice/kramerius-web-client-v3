@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, Output, EventEmitter, Optional} from '@angular/core';
 import {Metadata} from '../../models/metadata.model';
 import {TabsComponent} from '../tabs/tabs.component';
 import {TabItemComponent} from '../tabs/tab-item.component';
@@ -15,9 +15,10 @@ import {TranslatePipe} from '@ngx-translate/core';
 })
 export class PdfMetadataSidebarComponent {
   @Input() metadata: Metadata | null = null;
+  @Output() close = new EventEmitter<void>();
 
   recordHandler = inject(RecordHandlerService);
-  detailService = inject(DetailViewService);
+  detailService = inject(DetailViewService, { optional: true });
 
   exportAsPdf(): void {
     // TODO: Implement PDF export
@@ -35,6 +36,12 @@ export class PdfMetadataSidebarComponent {
   }
 
   closeMetadataSidebar(): void {
-    this.detailService.hideMetadataSidebar();
+    // First try to emit the close event for custom handling
+    if (this.close.observed) {
+      this.close.emit();
+    } else if (this.detailService) {
+      // Fall back to DetailViewService if available (for backward compatibility)
+      this.detailService.hideMetadataSidebar();
+    }
   }
 }

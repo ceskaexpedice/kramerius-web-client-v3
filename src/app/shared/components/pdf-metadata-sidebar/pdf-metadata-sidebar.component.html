@@ -3,7 +3,7 @@
     <app-tab-item [label]="'description' | translate">
       <app-metadata-section
         [showTitle]="false"
-        [uuid]="detailService.document?.uuid || ''"></app-metadata-section>
+        [uuid]="detailService?.document?.uuid || metadata?.uuid || ''"></app-metadata-section>
     </app-tab-item>
 
     <app-tab-item [label]="'export' | translate">

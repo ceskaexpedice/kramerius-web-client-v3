@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy} from '@angular/core';
+import {Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal} from '@angular/core';
 import {SelectionService} from '../../shared/services';
 import {CollectionsService} from '../../shared/services/collections.service';
 import {SearchDocument} from '../models/search-document';
@@ -26,6 +26,8 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
   isDescriptionExpanded = false;
   isDescriptionTruncated = false;
+  rightSidebarVisible = signal(true);
+  sidebarPositionMode: 'absolute' | 'relative' = 'absolute'; // 'absolute' = over content, 'relative' = beside content
 
   private destroy$ = new Subject<void>();
 
@@ -140,5 +142,13 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
     this.collectionsService.changeSortBy(event.value, event.direction);
+  }
+
+  showRightSidebar() {
+    this.rightSidebarVisible.set(true);
+  }
+
+  hideRightSidebar() {
+    this.rightSidebarVisible.set(false);
   }
 }

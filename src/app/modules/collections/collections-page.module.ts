@@ -18,6 +18,9 @@ import {CollectionsEffects} from '../../shared/state/collections/collections.eff
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {SafeHtmlPipe} from '../../shared/pipes/safe-html.pipe';
+import {
+  CollectionsRightSidebarContent
+} from './components/collections-right-sidebar-content/collections-right-sidebar-content';
 
 const routes: Routes = [
   {
@@ -46,6 +49,7 @@ const routes: Routes = [
     ToolbarControlsComponent,
     SafeHtmlPipe,
     NgClass,
+    CollectionsRightSidebarContent,
   ],
   providers: [
     {provide: FILTER_SERVICE, useExisting: CollectionsService},
