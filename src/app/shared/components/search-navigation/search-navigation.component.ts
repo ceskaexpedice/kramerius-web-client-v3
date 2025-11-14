@@ -1,11 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-search-navigation',
   standalone: true,
-  imports: [NgIf, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './search-navigation.component.html',
   styleUrl: './search-navigation.component.scss'
 })

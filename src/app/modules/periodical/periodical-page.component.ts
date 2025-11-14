@@ -4,7 +4,6 @@ import {RecordInfoService} from '../../shared/services/record-info.service';
 import {PeriodicalService} from '../../shared/services/periodical.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {AdminActionsService} from '../../shared/services/admin-actions.service';
 import {Subscription} from 'rxjs';
 import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
@@ -23,7 +22,6 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public recordHandler = inject(RecordHandlerService);
 
   public selectionService = inject(SelectionService);
-  private adminActionsService = inject(AdminActionsService);
 
   private subscriptions: Subscription[] = [];
 

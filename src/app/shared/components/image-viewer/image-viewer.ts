@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core';
-import {AsyncPipe, NgIf, NgStyle} from '@angular/common';
+import {NgIf, NgStyle} from '@angular/common';
 import { Metadata } from '../../models/metadata.model';
 import { ImageViewerService } from '../../services/image-viewer.service';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,6 @@ import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 @Component({
   selector: 'app-image-viewer',
   imports: [
-    AsyncPipe,
     NgStyle,
     NgIf,
     FullscreenComponent,

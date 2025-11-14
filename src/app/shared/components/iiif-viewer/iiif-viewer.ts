@@ -10,7 +10,6 @@ import {
   ViewChild,
   AfterViewInit
 } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { Subscription } from 'rxjs';
@@ -21,7 +20,6 @@ import OpenSeadragon from 'openseadragon';
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
-    AsyncPipe,
     FullscreenComponent,
   ],
   templateUrl: './iiif-viewer.html',

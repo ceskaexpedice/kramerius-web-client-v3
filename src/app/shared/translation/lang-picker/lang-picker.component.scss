@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index" as *;
 
 .lang-switcher-pos {
   position: relative;

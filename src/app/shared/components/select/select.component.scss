@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index" as *;
 
 $option-height: 36px;
 $num-options: 8;
