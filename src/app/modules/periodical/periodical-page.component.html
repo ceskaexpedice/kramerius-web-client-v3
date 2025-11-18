@@ -9,7 +9,9 @@
 
       <div class="page-content__filters">
         <!-- Action Toolbar -->
-        <app-action-toolbar [hasCenterContent]="periodical.viewMode() !== ViewMode.SearchResults && !selectionService.selectionMode()">
+        <app-action-toolbar
+          [hasCenterContent]="(!!periodical.selectedYear())"
+        >
 
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header
