@@ -336,5 +336,6 @@
   "show-all-pages": "Show all pages",
   "in-colection--title": "In collection",
   "part-of-collection--title": "It is also part of the collection",
-  "search-breadcrumb--label": "Search"
+  "search-breadcrumb--label": "Search",
+  "more-from-queue--title": "More from queue"
 }

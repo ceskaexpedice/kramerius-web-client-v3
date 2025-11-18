@@ -7,11 +7,13 @@
   width: 390px;
   max-height: 490px;
   background: var(--color-bg-base);
-  border-radius: 16px;
+  border-radius: var(--spacing-x2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: $playback-queue;
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
 }
 
 .header {
@@ -21,6 +23,11 @@
   font-weight: bold;
   padding: 16px 16px 8px 16px;
   border-bottom: 1px solid var(--color-border);
+
+  i.icon {
+    font-size: 24px;
+    color: var(--color-icon-tertiary-default);
+  }
 }
 
 .close-btn {
@@ -29,7 +36,7 @@
 
 .track-list {
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 0 0 var(--spacing-x2) 0;
 }
 
 .track {
@@ -39,9 +46,15 @@
   gap: var(--spacing-x2);
   cursor: pointer;
   border-bottom: 1px solid var(--color-border-light);
+  transition: .4s ease;
 
-  &.active {
+  &.current-track {
     color: var(--color-primary);
+    background-color: var(--color-bg-subtle);
+  }
+
+  &:hover {
+    background: var(--color-secondary-hover);
   }
 
 }

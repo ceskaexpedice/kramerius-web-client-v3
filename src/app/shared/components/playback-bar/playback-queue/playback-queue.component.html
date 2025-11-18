@@ -1,20 +1,53 @@
 <div class="queue-panel" *ngIf="isOpen()" appClickOutside (clickOutside)="close()">
   <div class="header">
-    <i class="icon-play-circle"></i>
+    <i class="icon icon-play-circle"></i>
     <span>{{'now-playing--header' | translate}}</span>
     <button class="icon-button rounded light close-btn" (click)="close()"><i class="icon-x"></i></button>
   </div>
 
   <div class="track-list">
+    <!-- Currently playing track -->
+    <div
+      class="track current-track"
+      *ngIf="getCurrentTrack() as currentTrack"
+    >
+      <div class="thumb-wrapper" (click)="togglePlayPause(currentTrack)">
+        <img class="thumb" [src]="soundService.getImageThumbnailUrl(currentTrack.parentPid)" alt="" />
+        <div class="thumb-overlay">
+          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+        </div>
+      </div>
+
+      <div class="info" (click)="play(currentTrack)">
+        <div class="title">{{ currentTrack['title.search'] }}</div>
+      </div>
+      <div class="actions">
+        <button class="icon-button rounded light" (click)="remove(currentTrack)">
+          <i class="icon-trash"></i>
+        </button>
+        <button class="icon-button rounded light"
+                [class.favorited]="isItemFavorited$ | async"
+        >
+          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- More from queue header -->
+    <div class="header" *ngIf="getRemainingTracks().length > 0">
+      <i class="icon icon-music-filter"></i>
+      <span>{{'more-from-queue--title' | translate}}</span>
+    </div>
+
+    <!-- Remaining tracks -->
     <div
       class="track"
-      *ngFor="let track of soundService.getQueue()"
-      [class.active]="isActive(track)"
+      *ngFor="let track of getRemainingTracks()"
     >
       <div class="thumb-wrapper" (click)="play(track)">
         <img class="thumb" [src]="soundService.getImageThumbnailUrl(track.parentPid)" alt="" />
-        <div class="thumb-overlay" *ngIf="isActive(track)">
-          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+        <div class="thumb-overlay">
+          <i class="icon-play"></i>
         </div>
       </div>
 
@@ -25,8 +58,10 @@
         <button class="icon-button rounded light" (click)="remove(track)">
           <i class="icon-trash"></i>
         </button>
-        <button class="icon-button rounded light">
-          <i class="icon-heart"></i>
+        <button class="icon-button rounded light"
+                [class.favorited]="isItemFavorited$ | async"
+        >
+          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
         </button>
       </div>
     </div>
