@@ -199,11 +199,12 @@ input::placeholder {
 
 .case-sensitive-button-toggle {
   background: var(--color-bg-base);
-  border: 1px solid var(--color-bg-base);
-  font-weight: 600;
+  border: 1px solid var(--color-border-contrast);
+  padding-top: var(--spacing-x1);
+  color: var(--color-icon-tertiary-default);
   line-height: 1;
   overflow: hidden;
-  letter-spacing: -0.5px;
+  font-size: var(--font-size-base);
 
   &:hover {
     border-color: var(--color-primary);
@@ -212,11 +213,5 @@ input::placeholder {
   &.active {
     background: var(--color-primary);
     color: var(--color-secondary);
-  }
-
-  span {
-    overflow: hidden;
-    text-align: center;
-    margin-left: -2px;
   }
 }
