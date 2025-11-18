@@ -6,6 +6,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { LoginPromptDialogComponent } from '../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { FolderItemsService } from '../../modules/saved-lists-page/services/folder-items.service';
 import { PopupPositioningService, PopupState } from './popup-positioning.service';
+import {DontShowAgainService, DontShowDialogs} from './dont-show-again.service';
 
 export interface FavoriteToggleResult {
   shouldShowPopup: boolean;
@@ -21,6 +22,7 @@ export class FavoritesService {
   private router = inject(Router);
   private folderItemsService = inject(FolderItemsService);
   private popupPositioning = inject(PopupPositioningService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   /**
    * Handle favorite toggle action with authentication check
@@ -36,6 +38,14 @@ export class FavoritesService {
   ): boolean {
     // Check if user is authenticated
     if (!this.authService.hasValidToken()) {
+
+      const showDialog = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesLoginDialog);
+
+      if (!showDialog) {
+        this.authService.login(currentUrl);
+        return true;
+      }
+
       // Show login prompt dialog
       const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
         width: '60vw',

@@ -16,6 +16,7 @@ import {DontShowAgainService} from '../../services';
 import {DontShowDialogs} from '../../services/dont-show-again.service';
 import {FolderItemsService} from '../../../modules/saved-lists-page/services/folder-items.service';
 import {LocalStorageService} from '../../services/local-storage.service';
+import {ToastService} from '../../services/toast.service';
 
 
 @Component({
@@ -435,15 +436,16 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     });
 
     // Show success state only if no new folder is being created (otherwise the subscription will handle it)
-    if (!newListName && !isFakeFavoritesSelected) {
-      const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
-
-      if (showSuccessPopup) {
-        this.showSuccess.set(true);
-      } else {
-        this.onCloseSuccess();
-      }
-    }
+    this.onCloseSuccess();
+    // if (!newListName && !isFakeFavoritesSelected) {
+    //   const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
+    //
+    //   if (showSuccessPopup) {
+    //     this.showSuccess.set(true);
+    //   } else {
+    //     this.onCloseSuccess();
+    //   }
+    // }
   }
 
   onCloseSuccess() {

@@ -3,11 +3,11 @@
   <!-- Main Form State -->
   <div *ngIf="!showSuccess()" class="favorites-popup__content">
     <div class="favorites-popup__header">
-      <h3>{{ 'add-to-favorites' | translate }}</h3>
+      <h3>{{ 'move-to' | translate }}:</h3>
     </div>
 
     <!-- Search existing lists -->
-    <div class="favorites-popup__section" *ngIf="shouldShowSearch$ | async">
+    <div class="favorites-popup__section p-top-0" *ngIf="shouldShowSearch$ | async">
       <app-input
         [theme]="'dark'"
         [placeholder]="'search-saved-lists' | translate"
@@ -58,15 +58,15 @@
 
     <!-- Actions -->
     <div class="favorites-popup__actions">
-      <div class="favorites-popup__actions-left">
-        <button
-          *ngIf="currentFolderId && showRemoveButton"
-          class="button sm transparent primary with-icon remove-button"
-          (click)="onRemoveFromCurrentFolder()">
-          <i class="icon-trash" aria-hidden="true"></i>
-          {{ 'remove-from-favorites' | translate }}
-        </button>
-      </div>
+<!--      <div class="favorites-popup__actions-left">-->
+<!--        <button-->
+<!--          *ngIf="currentFolderId && showRemoveButton"-->
+<!--          class="button sm transparent primary with-icon remove-button"-->
+<!--          (click)="onRemoveFromCurrentFolder()">-->
+<!--          <i class="icon-trash" aria-hidden="true"></i>-->
+<!--          {{ 'remove-from-favorites' | translate }}-->
+<!--        </button>-->
+<!--      </div>-->
       <div class="favorites-popup__actions-right">
         <button class="button sm outlined tertiary" (click)="onCancel()">
           {{ 'cancel' | translate }}

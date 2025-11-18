@@ -41,3 +41,7 @@
 .music-section--actions {
   margin-bottom: var(--spacing-x4);
 }
+
+:has(> .grid--container) ~ .music-section .music-section--actions {
+  margin-top: var(--spacing-x4);
+}

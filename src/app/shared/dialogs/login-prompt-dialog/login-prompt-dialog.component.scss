@@ -6,7 +6,7 @@
       padding: 0 24px 24px 24px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: var(--spacing-x4);
       text-align: start;
 
       p {

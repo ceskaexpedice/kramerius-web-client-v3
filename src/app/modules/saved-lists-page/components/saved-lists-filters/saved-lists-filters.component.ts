@@ -13,6 +13,7 @@ import {AsyncPipe} from '@angular/common';
 import {InputComponent} from '../../../../shared/components/input/input.component';
 import {map, startWith} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
+import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
 @Component({
   selector: 'app-saved-lists-filters',
@@ -147,10 +148,8 @@ export class SavedListsFiltersComponent {
 
 
   changeFolder(folder: Folder) {
-    console.log('📂 Changing to folder:', folder.name, folder.uuid);
-
     // Update the URL to the selected folder
-    this.router.navigate(['/folders', folder.uuid]);
+    this.router.navigate([`/${APP_ROUTES_ENUM.SAVED_LISTS}`, folder.uuid]);
 
     // Select the folder and load its details
     this.store.dispatch(FoldersActions.selectFolder({ folder }));

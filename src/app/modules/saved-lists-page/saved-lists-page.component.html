@@ -52,6 +52,7 @@
               <app-toolbar-controls
                 [actions]="getToolbarActions((activeFolder | async) || null)"
                 (actionClicked)="onToolbarAction($event)"
+                [themeDefault]="true"
               >
               </app-toolbar-controls>
 
