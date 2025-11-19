@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject} from '@angular/core';
 import {MusicTrackItemComponent} from "../music-track-item/music-track-item.component";
 import {NgForOf} from "@angular/common";
 import {TranslatePipe} from '@ngx-translate/core';
@@ -6,7 +6,6 @@ import {FavoritesPopupComponent} from '../../../../shared/components/favorites-p
 import {PopupPositioningService, PopupState} from '../../../../shared/services/popup-positioning.service';
 import {TrackViewType} from '../../../models/sound-track.model';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
 
 @Component({
@@ -20,7 +19,7 @@ import {FavoritesService} from '../../../../shared/services/favorites.service';
   templateUrl: './music-track-list.component.html',
   styleUrls: ['./music-track-list.component.scss', '../music-track-list-table.scss'],
 })
-export class MusicTrackListComponent implements OnInit, OnDestroy {
+export class MusicTrackListComponent implements OnDestroy {
   @Input() tracks: any[] = [];
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
@@ -40,19 +39,9 @@ export class MusicTrackListComponent implements OnInit, OnDestroy {
   favoritesPopupState: PopupState;
   currentTrackId = signal<string>('');
   currentTrackName = signal<string>('');
-  favoritedPidsMap = new Map<string, Observable<boolean>>();
 
   constructor() {
     this.favoritesPopupState = this.favoritesService.createPopupState();
-  }
-
-  ngOnInit() {
-    // Initialize favorited status for all tracks
-    this.tracks.forEach(track => {
-      if (track.pid) {
-        this.favoritedPidsMap.set(track.pid, this.favoritesService.getFavoritedStatus(track.pid));
-      }
-    });
   }
 
   onSelect(track: any) {

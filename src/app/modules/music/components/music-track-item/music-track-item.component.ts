@@ -1,9 +1,9 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {SoundTrackModel, TrackViewType} from '../../../models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
-import {Observable, of} from 'rxjs';
+import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
 
 @Component({
@@ -18,17 +18,17 @@ import {FavoritesService} from '../../../../shared/services/favorites.service';
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],
   standalone: true
 })
-export class MusicTrackItemComponent {
+export class MusicTrackItemComponent implements OnInit {
 
   isMouseOverFavorite = false;
 
   public musicService = inject(MusicService);
+  private favoritesService = inject(FavoritesService);
 
   @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
-  @Input() isFavorited$: Observable<boolean> | undefined;
   @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() trackSelected = new EventEmitter<SoundTrackModel>();
@@ -37,10 +37,10 @@ export class MusicTrackItemComponent {
   @Output() downloadClicked = new EventEmitter<SoundTrackModel>();
   @Output() removeClicked = new EventEmitter<SoundTrackModel>();
 
-  favoritesService = inject(FavoritesService);
+  isFavorited$: Observable<boolean> = EMPTY;
 
-  constructor() {
-    if (this.track && this.track.pid) {
+  ngOnInit() {
+    if (this.track?.pid) {
       this.isFavorited$ = this.favoritesService.getFavoritedStatus(this.track.pid);
     }
   }
