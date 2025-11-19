@@ -4,6 +4,7 @@ import {SoundTrackModel, TrackViewType} from '../../../models/sound-track.model'
 import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
 import {Observable, of} from 'rxjs';
+import {FavoritesService} from '../../../../shared/services/favorites.service';
 
 @Component({
   selector: '[app-music-track-item]',
@@ -35,6 +36,14 @@ export class MusicTrackItemComponent {
   @Output() toggleFavoriteClicked = new EventEmitter<{track: SoundTrackModel, event: Event}>();
   @Output() downloadClicked = new EventEmitter<SoundTrackModel>();
   @Output() removeClicked = new EventEmitter<SoundTrackModel>();
+
+  favoritesService = inject(FavoritesService);
+
+  constructor() {
+    if (this.track && this.track.pid) {
+      this.isFavorited$ = this.favoritesService.getFavoritedStatus(this.track.pid);
+    }
+  }
 
   get isSelected(): boolean {
     return this.track?.pid === this.selectedPid;
