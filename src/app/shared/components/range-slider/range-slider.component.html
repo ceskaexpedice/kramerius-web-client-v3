@@ -26,6 +26,7 @@
         [signalInput]="from"
         [withIcons]="false"
         [showNumberStepper]="showInputNumberStepper"
+        [ariaLabel]="'date-from-input--arialabel' | translate"
       ></app-input>
 
       <!-- Slider -->
@@ -39,6 +40,11 @@
           [value]="from()"
           [class.on-top]="from() === to() && lastMoved === 'from'"
           (input)="onSliderFromChange($any($event.target).valueAsNumber)"
+          [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+          [attr.aria-valuemin]="getSliderMin()"
+          [attr.aria-valuemax]="getSliderMax()"
+          [attr.aria-valuenow]="from()"
+          [attr.aria-valuetext]="getDisplayValue('from')"
         />
         <input
           class="range to-slider"
@@ -49,6 +55,11 @@
           [value]="to()"
           [class.on-top]="from() === to() && lastMoved === 'to'"
           (input)="onSliderToChange($any($event.target).valueAsNumber)"
+          [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+          [attr.aria-valuemin]="getSliderMin()"
+          [attr.aria-valuemax]="getSliderMax()"
+          [attr.aria-valuenow]="to()"
+          [attr.aria-valuetext]="getDisplayValue('to')"
         />
       </div>
 
@@ -74,6 +85,7 @@
         [signalInput]="to"
         [withIcons]="false"
         [showNumberStepper]="showInputNumberStepper"
+        [ariaLabel]="'date-to-input--arialabel' | translate"
       ></app-input>
 
     </div>
@@ -92,6 +104,11 @@
         [value]="from()"
         [class.on-top]="from() === to() && lastMoved === 'from'"
         (input)="onSliderFromChange($any($event.target).valueAsNumber)"
+        [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+        [attr.aria-valuemin]="getSliderMin()"
+        [attr.aria-valuemax]="getSliderMax()"
+        [attr.aria-valuenow]="from()"
+        [attr.aria-valuetext]="getDisplayValue('from')"
       />
       <input
         class="range to-slider"
@@ -102,6 +119,11 @@
         [value]="to()"
         [class.on-top]="from() === to() && lastMoved === 'to'"
         (input)="onSliderToChange($any($event.target).valueAsNumber)"
+        [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+        [attr.aria-valuemin]="getSliderMin()"
+        [attr.aria-valuemax]="getSliderMax()"
+        [attr.aria-valuenow]="to()"
+        [attr.aria-valuetext]="getDisplayValue('to')"
       />
     </div>
 
@@ -115,6 +137,7 @@
             class="date-input"
             [value]="fromDate() | date:'yyyy-MM-dd'"
             (change)="onFromDateChange($event)"
+            aria-label="Start date"
           />
         </div>
         <app-input
@@ -129,6 +152,7 @@
           [signalInput]="from"
           [withIcons]="false"
           [showNumberStepper]="showInputNumberStepper"
+          [ariaLabel]="'date-from-input--arialabel' | translate"
         ></app-input>
       </div>
 
@@ -143,6 +167,7 @@
             class="date-input"
             [value]="toDate() | date:'yyyy-MM-dd'"
             (change)="onToDateChange($event)"
+            aria-label="End date"
           />
         </div>
         <app-input
@@ -157,6 +182,7 @@
           [signalInput]="to"
           [withIcons]="false"
           [showNumberStepper]="showInputNumberStepper"
+          [ariaLabel]="'date-to-input--arialabel' | translate"
         ></app-input>
       </div>
     </div>

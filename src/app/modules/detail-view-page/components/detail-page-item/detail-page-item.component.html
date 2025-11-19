@@ -16,6 +16,7 @@
 
   <img
     class="page--item__image"
+    [alt]="('page--number') + '-' + pageNumber"
     [src]="`${getImageUrl()}`"
     loading="lazy"
   />

@@ -329,5 +329,22 @@
   "in-colection--title": "Ve sbírce",
   "part-of-collection--title": "Je také součástí sbírky",
   "search-breadcrumb--label": "Vyhledávání",
-  "more-from-queue--title": "Další z fronty"
+  "more-from-queue--title": "Další z fronty",
+  "date-from-input--arialabel": "Rok od",
+  "date-to-input--arialabel": "Rok do",
+  "document-locked--button": "Dokument je uzamčený",
+  "go-to-prev-page--arialabel": "Předchozí stránka",
+  "go-to-next-page--arialabel": "Následující stránka",
+  "go-back--arialabel": "Zpět",
+  "go-prev-date-navigator--arialabel": "Jít zpět v datepickeru",
+  "go-next-date-navigator--arialabel": "Jít dál v datepickeru",
+  "page--number": "Číslo stránky",
+  "current-page-input--arialabel": "Aktuální číslo stránky",
+  "edit-title-button--arialabel": "Upravit název seznamu",
+  "view-grid--arialabel": "Zobrazení mřížky",
+  "view-list--arialabel": "Zobrazení seznamu",
+  "download-track-button--arialabel": "Stáhnout skladbu",
+  "save-track-to-list--arialabel": "Přidat skladbu do seznamu",
+  "remove-track-from-list--arialabel": "Odebrat skladbu ze seznamu",
+  "add-to-queue--arialabel": "Přidat do fronty"
 }

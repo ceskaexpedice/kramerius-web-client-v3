@@ -1,6 +1,6 @@
 <div class="year-navigator">
 
-  <button (click)="prev()">
+  <button (click)="prev()" [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate">
     <i class="icon-arrow-left-1"></i>
   </button>
 
@@ -10,7 +10,7 @@
     {{ value }}
   </h2>
 
-  <button (click)="next()">
+  <button (click)="next()" [attr.aria-label]="'go-next-date-navigator--arialabel' | translate">
     <i class="icon-arrow-right-1"></i>
   </button>
 

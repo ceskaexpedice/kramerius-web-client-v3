@@ -22,6 +22,7 @@
                 @if (isCurrentUserOwner(folder)) {
                   <button
                     class="icon-button transparent"
+                    [attr.aria-label]="'edit-title-button--arialabel' | translate"
                     (click)="startEditingTitle(folder.uuid, folder.name, $event)"
                   >
                     <i class="icon-edit-2"></i>

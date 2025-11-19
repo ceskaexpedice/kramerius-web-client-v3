@@ -324,5 +324,22 @@
   "in-colection--title": "V zbierke",
   "part-of-collection--title": "Je tiež súčasťou zbierky",
   "search-breadcrumb--label": "Vyhľadávanie",
-  "more-from-queue--title": "Viac z fronty"
+  "more-from-queue--title": "Viac z fronty",
+  "date-from-input--arialabel": "Rok od",
+  "date-to-input--arialabel": "Rok do",
+  "document-locked--button": "Dokument je zamknutý",
+  "go-to-prev-page--arialabel": "Predchádzajúca strana",
+  "go-to-next-page--arialabel": "Nasledujúca strana",
+  "go-back--arialabel": "Späť",
+  "go-prev-date-navigator--arialabel": "Ísť späť v rámci datepickera",
+  "go-next-date-navigator--arialabel": "Ísť ďalej v rámci datepickera",
+  "page--number": "Číslo strany",
+  "current-page-input--arialabel": "Aktuálne číslo strany",
+  "edit-title-button--arialabel": "Upraviť názov zoznamu",
+  "view-grid--arialabel": "Zobrazenie mriežky",
+  "view-list--arialabel": "Zobrazenie zoznamu",
+  "download-track-button--arialabel": "Stiahnuť skladbu",
+  "save-track-to-list--arialabel": "Pridať skladbu do zoznamu",
+  "remove-track-from-list--arialabel": "Odstrániť skladbu zo zoznamu",
+  "add-to-queue--arialabel": "Pridať do fronty"
 }

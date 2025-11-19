@@ -1,8 +1,11 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-toolbar-header',
-	imports: [],
+  imports: [
+    TranslatePipe,
+  ],
   templateUrl: './toolbar-header.component.html',
   styleUrl: './toolbar-header.component.scss'
 })

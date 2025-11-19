@@ -6,6 +6,7 @@
   <div class="indicator">
     <input type="text"
            class="current-input"
+           [attr.aria-label]="'current-page-input--arialabel' | translate"
            [value]="currentPageString"
            (change)="onInputChange($event)"
            (keydown.enter)="onInputConfirm($event)" />
@@ -14,12 +15,14 @@
   </div>
 
   <button class="button tertiary outlined"
+          [attr.aria-label]="'go-to-prev-page--arialabel' | translate"
           (click)="goPrev()"
           [disabled]="currentPage <= 1">
     <i class="icon-arrow-left-1"></i>
   </button>
 
   <button class="button tertiary outlined"
+          [attr.aria-label]="'go-to-next-page--arialabel' | translate"
           (click)="goNext()"
           [disabled]="currentPage >= totalPages">
     <i class="icon-arrow-right-1"></i>

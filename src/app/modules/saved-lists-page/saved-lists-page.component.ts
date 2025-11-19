@@ -41,8 +41,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   );
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-element-3' },
-    { value: AppResultsViewType.list, icon: 'icon-row-vertical' }
+    { value: AppResultsViewType.grid, icon: 'icon-element-3', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-row-vertical', ariaLabel: 'view-list--arialabel' }
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
@@ -160,7 +160,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       actions.push({
         id: 'delete',
         icon: 'icon-trash',
-        tooltip: 'Delete folder'
+        tooltip: 'Delete folder',
+        label: 'Delete'
       });
     }
 
@@ -168,14 +169,16 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     actions.push({
       id: 'share',
       icon: 'icon-send-2',
-      tooltip: 'Share folder link'
+      tooltip: 'Share folder link',
+      label: 'Share',
     });
 
     // Download/Export action - always visible
     actions.push({
       id: 'download',
       icon: 'icon-download',
-      tooltip: 'Export folder contents'
+      tooltip: 'Export folder contents',
+      label: 'Download'
     });
 
     return actions;

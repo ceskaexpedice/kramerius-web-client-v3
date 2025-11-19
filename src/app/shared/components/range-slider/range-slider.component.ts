@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, signal, Simp
 import {DatePipe, NgClass, NgIf} from '@angular/common';
 import { InputComponent } from '../input/input.component';
 import {InputDateComponent} from '../input-date/input-date.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export interface DateRange {
   from: Date;
@@ -16,7 +17,7 @@ export interface NumberRange {
 @Component({
   selector: 'app-range-slider',
   standalone: true,
-  imports: [NgIf, NgClass, InputComponent, DatePipe, InputDateComponent],
+  imports: [NgIf, NgClass, InputComponent, DatePipe, InputDateComponent, TranslatePipe],
   templateUrl: './range-slider.component.html',
   styleUrl: './range-slider.component.scss',
 })

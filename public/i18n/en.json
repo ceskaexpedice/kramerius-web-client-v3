@@ -337,5 +337,22 @@
   "in-colection--title": "In collection",
   "part-of-collection--title": "It is also part of the collection",
   "search-breadcrumb--label": "Search",
-  "more-from-queue--title": "More from queue"
+  "more-from-queue--title": "More from queue",
+  "date-from-input--arialabel": "Year from",
+  "date-to-input--arialabel": "Year to",
+  "document-locked--button": "Document is locked",
+  "go-to-prev-page--arialabel": "Previous page",
+  "go-to-next-page--arialabel": "Next page",
+  "go-back--arialabel": "Back",
+  "go-prev-date-navigator--arialabel": "Go back in datepicker",
+  "go-next-date-navigator--arialabel": "Go forward in datepicker",
+  "page--number": "Page number",
+  "current-page-input--arialabel": "Current page number",
+  "edit-title-button--arialabel": "Edit list title",
+  "view-grid--arialabel": "Grid view",
+  "view-list--arialabel": "List view",
+  "download-track-button--arialabel": "Download track",
+  "save-track-to-list--arialabel": "Add track to list",
+  "remove-track-from-list--arialabel": "Remove track from list",
+  "add-to-queue--arialabel": "Add to queue"
 }

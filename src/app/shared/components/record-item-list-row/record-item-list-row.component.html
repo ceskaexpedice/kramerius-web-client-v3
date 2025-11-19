@@ -1,7 +1,7 @@
 <td class="record-title">
   <!-- Selection checkbox for admin mode -->
   <div class="record-row-selection" *ngIf="selectionService.selectionMode()">
-    <app-checkbox 
+    <app-checkbox
       [model]="selectionService.isSelected(record.pid)"
       (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
@@ -21,7 +21,7 @@
 
       <ng-container *ngIf="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])">
         <div class="record-item-card__image-lock-overlay">
-          <button class="button secondary rounded icon-button">
+          <button class="button secondary rounded icon-button" [attr.aria-label]="'document-locked--button'">
             <i class="icon-lock-1"></i>
           </button>
         </div>

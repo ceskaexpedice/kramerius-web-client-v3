@@ -20,6 +20,7 @@
     [class.disabled]="action.disabled"
     [disabled]="action.disabled"
     [title]="action.tooltip"
+    [attr.aria-label]="action.label"
     (click)="onActionClick(action)"
   >
     <i [class]="action.icon"></i>

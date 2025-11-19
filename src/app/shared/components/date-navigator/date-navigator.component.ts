@@ -1,10 +1,11 @@
 import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {CalendarPopupComponent} from '../calendar-popup/calendar-popup.component';
 import {NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-date-navigator',
-  imports: [CalendarPopupComponent, NgIf],
+  imports: [CalendarPopupComponent, NgIf, TranslatePipe],
   templateUrl: './date-navigator.component.html',
   styleUrl: './date-navigator.component.scss'
 })

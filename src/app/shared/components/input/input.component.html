@@ -24,6 +24,7 @@
         [matAutocomplete]="autocomplete"
         (focus)="onFocus()"
         (blur)="onBlur()"
+        [attr.aria-label]="ariaLabel"
         [attr.name]="name"
         [attr.id]="id"
         [attr.pattern]="pattern"
@@ -31,6 +32,7 @@
         [attr.min]="min"
         [attr.max]="max"
         [class.with-icons]="withIcons"
+        [attr.aria-required]="required ? 'true' : null"
       />
     </ng-container>
 
@@ -50,6 +52,7 @@
           (keyup.enter)="onEnter()"
           (focus)="onFocus()"
           (blur)="onBlur()"
+          [attr.aria-label]="ariaLabel"
           [attr.name]="name"
           [attr.id]="id"
           [attr.pattern]="pattern"
@@ -58,6 +61,7 @@
           [attr.max]="max"
           [readonly]="readonly"
           [class.with-icons]="withIcons"
+          [attr.aria-required]="required ? 'true' : null"
         />
       </div>
     </ng-template>

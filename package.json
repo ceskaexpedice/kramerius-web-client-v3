@@ -8,7 +8,9 @@
     "prebuild": "node scripts/generate_file_env-json.js && node scripts/collect-build-info.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:a11y": "ng test --include='**/*.a11y.spec.ts'",
+    "axe": "axe http://localhost:4200 --save axe-results.json --tags wcag2aa"
   },
   "private": true,
   "dependencies": {
@@ -45,9 +47,12 @@
     "@angular-devkit/build-angular": "^20.3.10",
     "@angular/cli": "^20.3.10",
     "@angular/compiler-cli": "^20.3.11",
+    "@axe-core/cli": "^4.11.0",
     "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~5.1.12",
     "@types/openseadragon": "^5.0.1",
+    "axe-core": "^4.11.0",
+    "jasmine-axe": "^1.1.0",
     "jasmine-core": "~5.12.1",
     "karma": "~6.4.4",
     "karma-chrome-launcher": "~3.2.0",

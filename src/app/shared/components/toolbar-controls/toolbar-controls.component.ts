@@ -17,6 +17,7 @@ export interface ToolbarAction {
   tooltip?: string;
   disabled?: boolean;
   visible?: boolean;
+  label?: string;
 }
 
 export interface ToolbarActionEvent {
@@ -86,29 +87,29 @@ export class ToolbarControlsComponent implements OnChanges {
     const legacyActions: ToolbarAction[] = [];
 
     if (this.showInfo) {
-      legacyActions.push({ id: 'info', icon: 'icon-info-circle', tooltip: 'Information' });
+      legacyActions.push({ id: 'info', icon: 'icon-info-circle', tooltip: 'Information', label: 'Info' });
     }
     if (this.showFavorites) {
-      legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'Add to Favorites' });
+      legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'Add to Favorites', label: 'Favorites' });
     }
     if (this.showShare) {
-      legacyActions.push({ id: 'share', icon: 'icon-send-2', tooltip: 'Share' });
+      legacyActions.push({ id: 'share', icon: 'icon-send-2', tooltip: 'Share', label: 'Share' });
     }
     if (this.showQuote) {
-      legacyActions.push({ id: 'quote', icon: 'icon-quote-down', tooltip: 'Quote' });
+      legacyActions.push({ id: 'quote', icon: 'icon-quote-down', tooltip: 'Quote', label: 'Quote' });
     }
     if (this.showDelete) {
-      legacyActions.push({ id: 'delete', icon: 'icon-trash', tooltip: 'Delete' });
+      legacyActions.push({ id: 'delete', icon: 'icon-trash', tooltip: 'Delete', label: 'Delete' });
     }
     if (this.showDownload) {
-      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download' });
+      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download', label: 'Download' });
     }
     if (this.showEdit) {
-      legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit' });
+      legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit', label: 'Edit' });
     }
 
     if (this.showSelect) {
-      legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'Select', disabled: false });
+      legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'Select', disabled: false, label: 'Select' });
     }
 
     // Combine both sets of actions

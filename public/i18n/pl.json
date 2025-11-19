@@ -328,5 +328,22 @@
   "in-colection--title": "W kolekcji",
   "part-of-collection--title": "Jest to również część kolekcji",
   "search-breadcrumb--label": "Wyszukiwanie",
-  "more-from-queue--title": "Więcej z kolejki"
+  "more-from-queue--title": "Więcej z kolejki",
+  "date-from-input--arialabel": "Rok od",
+  "date-to-input--arialabel": "Rok do",
+  "document-locked--button": "Dokument jest zablokowany",
+  "go-to-prev-page--arialabel": "Poprzednia strona",
+  "go-to-next-page--arialabel": "Następna strona",
+  "go-back--arialabel": "Wróć",
+  "go-prev-date-navigator--arialabel": "Wróć w selektorze dat",
+  "go-next-date-navigator--arialabel": "Przejdź dalej w selektorze dat",
+  "page--number": "Numer strony",
+  "current-page-input--arialabel": "Aktualny numer strony",
+  "edit-title-button--arialabel": "Edytuj nazwę listy",
+  "view-grid--arialabel": "Widok siatki",
+  "view-list--arialabel": "Widok listy",
+  "download-track-button--arialabel": "Pobierz utwór",
+  "save-track-to-list--arialabel": "Dodaj utwór do listy",
+  "remove-track-from-list--arialabel": "Usuń utwór z listy",
+  "add-to-queue--arialabel": "Dodaj do kolejki"
 }

@@ -42,6 +42,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() prefixIcon = '';
   @Input() postfixIcon = '';
   @Input() clickable = false;
+  @Input() ariaLabel: string = '';
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';
