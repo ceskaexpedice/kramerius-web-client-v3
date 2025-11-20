@@ -5,7 +5,7 @@
       <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
     </span>
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
-      <i class="icon-x"></i>
+      <i class="icon-close"></i>
     </button>
   </h2>
 
@@ -33,7 +33,7 @@
                 <i class="{{ child.icon }}"></i>
                 {{ child.label | translate }}
               </label>
-              <i class="icon-arrow-right-2"></i>
+              <i class="icon-arrow-right-1"></i>
             </li>
           </div>
 
@@ -57,7 +57,7 @@
               <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
               {{ section.label | translate }}
             </label>
-            <i class="icon-arrow-right-2"></i>
+            <i class="icon-arrow-right-1"></i>
           </li>
         </ng-container>
       </ul>

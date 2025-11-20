@@ -105,7 +105,7 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download', label: 'Download' });
     }
     if (this.showEdit) {
-      legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit', label: 'Edit' });
+      legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'Edit', label: 'Edit' });
     }
 
     if (this.showSelect) {

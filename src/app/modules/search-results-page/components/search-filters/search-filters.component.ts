@@ -34,7 +34,7 @@ import { TranslatePipe } from '@ngx-translate/core';
           <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-2"></i>
+              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up"></i>
             </div>
 
             <app-filter-category
