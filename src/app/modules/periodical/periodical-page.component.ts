@@ -29,7 +29,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   // View toggle options for calendar/grid layout - static to prevent re-rendering
   readonly viewToggleOptions: ViewToggleOption[] = [
-    { label: 'layout--calendar', icon: 'icon-calendar', value: 'calendar' },
+    { label: 'layout--calendar', icon: 'icon-calendar-1', value: 'calendar' },
     { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
   ];
 

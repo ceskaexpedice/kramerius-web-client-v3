@@ -33,6 +33,8 @@ export class AccessibilityService {
     const scale = this.settings().textScale;
     if (scale === 125) return 'text-scale-125';
     if (scale === 150) return 'text-scale-150';
+    if (scale === 200) return 'text-scale-200';
+    if (scale === 300) return 'text-scale-300';
     return 'text-scale-100';
   });
 
@@ -67,7 +69,7 @@ export class AccessibilityService {
     this.settingsSignal.set(DEFAULT_ACCESSIBILITY_SETTINGS);
   }
 
-  setTextScale(scale: 100 | 125 | 150): void {
+  setTextScale(scale: 100 | 125 | 150 | 200 | 300): void {
     this.updateSettings({ textScale: scale });
   }
 
@@ -114,7 +116,7 @@ export class AccessibilityService {
 
     // Remove existing accessibility classes
     body.classList.remove(
-      'text-scale-100', 'text-scale-125', 'text-scale-150',
+      'text-scale-100', 'text-scale-125', 'text-scale-150', 'text-scale-200', 'text-scale-300',
       'high-contrast', 'large-components', 'reduce-motion',
       'focus-visible', 'screen-reader-optimized'
     );

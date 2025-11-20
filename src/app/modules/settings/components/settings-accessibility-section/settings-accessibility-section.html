@@ -1,0 +1,13 @@
+<div class="toggle-buttons--container">
+
+  <app-toggle-button-group
+    [options]="textSizeOptions"
+    [value]="accessibilityService.settings().textScale"
+    [label]="'zoom-interface-settings'"
+    [showLabel]="true"
+    (valueChange)="onTextScaleChange($event)"
+    [size]="'lg'"
+  >
+  </app-toggle-button-group>
+
+</div>

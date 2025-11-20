@@ -38,7 +38,7 @@
 
   .text-ocr {
     font-size: var(--font-size-small);
-    line-height: 20px;
+    line-height: calc(20px * var(--accessibility-text-scale));
     color: var(--color-text-base);
     display: -webkit-box;
     -webkit-line-clamp: 4; // Max 4 lines as specified
@@ -46,7 +46,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
-    max-height: 80px; // ~4 lines at 20px line-height
+    max-height: calc(80px * var(--accessibility-text-scale)); // ~4 lines at 20px line-height
     flex: 1; // Takes remaining space
   }
 }

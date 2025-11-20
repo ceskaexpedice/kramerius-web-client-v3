@@ -11,7 +11,7 @@
   .carousel-content {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 195px;
+    grid-auto-columns: calc(195px * var(--accessibility-text-scale));
     gap: 16px;
     overflow-x: auto;
     scroll-behavior: smooth;

@@ -341,5 +341,7 @@
   "download-track-button--arialabel": "Stiahnuť skladbu",
   "save-track-to-list--arialabel": "Pridať skladbu do zoznamu",
   "remove-track-from-list--arialabel": "Odstrániť skladbu zo zoznamu",
-  "add-to-queue--arialabel": "Pridať do fronty"
+  "add-to-queue--arialabel": "Pridať do fronty",
+  "zoom-interface-settings": "Zväčšenie rozhrania (lupa)",
+  "settings-section-accessibility": "Prístupnosť"
 }

@@ -16,13 +16,13 @@
     <button class="button tertiary outlined"
             [attr.aria-label]="'go-to-previous-page' | translate"
             (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
-      <i class="icon-arrow-left"></i>
+      <i class="icon-arrow-left-2"></i>
     </button>
 
     <button class="button tertiary outlined"
             [attr.aria-label]="'go-to-next-page' | translate"
             (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
-      <i class="icon-arrow-right"></i>
+      <i class="icon-arrow-right-2"></i>
     </button>
   </div>
 

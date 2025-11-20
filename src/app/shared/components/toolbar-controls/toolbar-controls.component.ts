@@ -87,7 +87,7 @@ export class ToolbarControlsComponent implements OnChanges {
     const legacyActions: ToolbarAction[] = [];
 
     if (this.showInfo) {
-      legacyActions.push({ id: 'info', icon: 'icon-info-circle', tooltip: 'Information', label: 'Info' });
+      legacyActions.push({ id: 'info', icon: 'icon-info', tooltip: 'Information', label: 'Info' });
     }
     if (this.showFavorites) {
       legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'Add to Favorites', label: 'Favorites' });

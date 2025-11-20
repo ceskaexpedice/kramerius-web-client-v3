@@ -354,5 +354,7 @@
   "download-track-button--arialabel": "Download track",
   "save-track-to-list--arialabel": "Add track to list",
   "remove-track-from-list--arialabel": "Remove track from list",
-  "add-to-queue--arialabel": "Add to queue"
+  "add-to-queue--arialabel": "Add to queue",
+  "zoom-interface-settings": "Interface zoom (magnifier)",
+  "settings-section-accessibility": "Accessibility"
 }

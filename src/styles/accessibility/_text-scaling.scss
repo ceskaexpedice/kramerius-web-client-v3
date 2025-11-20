@@ -78,9 +78,89 @@
   }
 }
 
+.text-scale-200 {
+  --accessibility-text-scale: 2;
+
+  // Adjust spacing proportionally
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 2) calc(1em * 2);
+  }
+
+  // Adjust form elements
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 2);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 2) calc(1em * 2);
+  }
+
+  // Adjust navigation elements
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 2);
+  }
+
+  // Adjust grid layouts for larger text
+  .search-grid,
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  // Ensure readability with increased line spacing
+  p,
+  .text-content {
+    line-height: calc(1.6 * var(--accessibility-text-scale));
+  }
+}
+
+.text-scale-300 {
+  --accessibility-text-scale: 3;
+
+  // Adjust spacing proportionally
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 3) calc(1em * 3);
+  }
+
+  // Adjust form elements
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 3);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 3) calc(1em * 3);
+  }
+
+  // Adjust navigation elements
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 3);
+  }
+
+  // Adjust grid layouts for larger text
+  .search-grid,
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  // Ensure readability with increased line spacing
+  p,
+  .text-content {
+    line-height: calc(1.6 * var(--accessibility-text-scale));
+  }
+}
+
 // Component-specific text scaling adjustments
 body.text-scale-125,
-body.text-scale-150 {
+body.text-scale-150,
+body.text-scale-200,
+body.text-scale-300 {
 
   // Header adjustments
   header {
@@ -130,7 +210,9 @@ body.text-scale-150 {
 
   // Table scaling
   .mat-table {
-    th, td {
+
+    th,
+    td {
       padding: calc(12px * var(--accessibility-text-scale));
     }
   }

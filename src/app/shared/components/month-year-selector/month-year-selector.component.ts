@@ -36,10 +36,10 @@ export interface MonthYearChange {
         <div class="month-navigation">
 
           <button class="button outlined tertiary sm" (click)="prevMonth()">
-            <i class="icon-arrow-left"></i>
+            <i class="icon-arrow-left-2"></i>
           </button>
           <button class="button outlined tertiary sm" (click)="nextMonth()">
-            <i class="icon-arrow-right"></i>
+            <i class="icon-arrow-right-2"></i>
           </button>
 
         </div>
