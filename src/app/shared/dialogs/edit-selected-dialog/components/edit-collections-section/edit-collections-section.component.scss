@@ -30,9 +30,7 @@
   }
 
   .section-content {
-    .content-section {
-      // Each section component will handle its own styling
-    }
+
 
     .replace-section {
       .section-header {
@@ -40,7 +38,7 @@
 
         h3 {
           margin: 0 0 8px 0;
-          font-size: 18px;
+          font-size: calc(18px * var(--accessibility-text-scale));
           font-weight: 600;
           color: #1976d2;
         }

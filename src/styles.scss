@@ -16,3 +16,5 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 body {
   transition: background-color 0.3s, color 0.3s;
 }
+
+@import 'styles/accessibility/text-scaling';

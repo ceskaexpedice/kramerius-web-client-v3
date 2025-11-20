@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import {
@@ -9,7 +9,7 @@ import {
   facetKeys,
   facetKeysEnum,
 } from '../../const/facets';
-import {TranslatePipe} from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-search-filters',
@@ -136,7 +136,7 @@ import {TranslatePipe} from '@ngx-translate/core';
       .submit-year-range-btn {
         margin-top: var(--spacing-x3);
         cursor: pointer;
-        font-size: 12px;
+        font-size: calc(12px * var(--accessibility-text-scale));
         transition: background-color 0.2s ease;
 
         &.disabled, &:disabled {

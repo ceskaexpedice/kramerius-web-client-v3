@@ -13,7 +13,7 @@
 h2.title {
   margin: 0;
   font-weight: normal;
-  font-size: 22px;
+  font-size: calc(22px * var(--accessibility-text-scale));
   line-height: 36px;
   color: var(--color-text-base);
 

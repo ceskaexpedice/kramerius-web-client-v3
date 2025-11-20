@@ -14,7 +14,7 @@
 }
 
 .year-header {
-  font-size: 20px;
+  font-size: calc(20px * var(--accessibility-text-scale));
   line-height: 32px;
   font-weight: 600;
   color: var(--color-text-base);

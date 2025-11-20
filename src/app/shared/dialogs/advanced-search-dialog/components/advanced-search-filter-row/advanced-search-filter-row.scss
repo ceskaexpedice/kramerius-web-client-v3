@@ -11,7 +11,11 @@
     flex-grow: 1;
     //gap: 8px;
 
-    app-select, app-autocomplete, app-date-stepper, app-date-picker, advanced-date-filter {
+    app-select,
+    app-autocomplete,
+    app-date-stepper,
+    app-date-picker,
+    advanced-date-filter {
       flex: 1 1 50%;
     }
 
@@ -42,7 +46,7 @@
     background: none;
     border: none;
     color: var(--color-icon);
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
     cursor: pointer;
     padding: 4px;
     display: flex;

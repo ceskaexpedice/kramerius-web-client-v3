@@ -32,7 +32,7 @@
 
   .record-item-card__image-lock-overlay {
     i {
-      font-size: 20px;
+      font-size: calc(20px * var(--accessibility-text-scale));
     }
   }
 

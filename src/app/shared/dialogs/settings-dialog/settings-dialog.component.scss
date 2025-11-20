@@ -9,7 +9,7 @@
 }
 
 .close-button {
-  font-size: 24px;
+  font-size: calc(24px * var(--accessibility-text-scale));
   padding: 5px;
 }
 

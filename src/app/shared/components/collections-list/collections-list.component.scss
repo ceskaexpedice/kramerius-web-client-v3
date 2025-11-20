@@ -92,7 +92,7 @@
       text-align: center;
 
       mat-icon {
-        font-size: 48px;
+        font-size: calc(48px * var(--accessibility-text-scale));
         width: 48px;
         height: 48px;
         color: var(--color-text-disabled);

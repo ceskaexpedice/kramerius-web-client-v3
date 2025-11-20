@@ -7,7 +7,7 @@
     padding: 20px;
     text-align: center;
     color: var(--color-text-secondary);
-    font-size: 14px;
+    font-size: calc(14px * var(--accessibility-text-scale));
   }
 
   &__items {
@@ -74,18 +74,18 @@
     color: var(--color-text-secondary);
 
     i {
-      font-size: 12px;
+      font-size: calc(12px * var(--accessibility-text-scale));
     }
   }
 
   &__title {
     flex: 1;
-    font-size: 14px;
+    font-size: calc(14px * var(--accessibility-text-scale));
     color: var(--color-text-secondary);
   }
 
   &__page {
-    font-size: 12px;
+    font-size: calc(12px * var(--accessibility-text-scale));
     color: var(--color-text-secondary);
     font-weight: 500;
   }

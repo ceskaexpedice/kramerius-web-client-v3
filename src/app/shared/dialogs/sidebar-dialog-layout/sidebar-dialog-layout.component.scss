@@ -8,7 +8,7 @@
   height: 100%;
 
   .close-button {
-    font-size: 24px;
+    font-size: calc(24px * var(--accessibility-text-scale));
     padding: 5px;
   }
 
@@ -22,6 +22,7 @@
       display: flex;
       align-items: baseline;
       gap: 8px;
+      font-size: var(--font-size-large);
 
       .dialog-subtitle {
         font-weight: 400;
@@ -111,6 +112,7 @@
             display: flex;
             gap: var(--spacing-x3);
             align-items: flex-start;
+            font-size: var(--font-size-base);
           }
         }
 

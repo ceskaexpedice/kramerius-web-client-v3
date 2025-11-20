@@ -10,6 +10,7 @@
   padding: 20px 16px;
   cursor: pointer;
   color: var(--color-text-light);
+  font-size: var(--font-size-base);
 
   &.active {
     font-weight: 600;
