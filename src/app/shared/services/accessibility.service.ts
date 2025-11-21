@@ -9,6 +9,11 @@ export interface AccessibilitySettings {
   focusVisible: boolean;
   screenReaderOptimized: boolean;
   dyslexiaFriendly: boolean;
+  darkMode: boolean;
+  grayscaleMode: boolean;
+  lowVisionMode: boolean;
+  tritanopiaMode: boolean;
+  photophobiaMode: boolean;
 }
 
 export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
@@ -16,9 +21,14 @@ export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
   highContrast: false,
   largeComponents: false,
   reduceMotion: false,
-  focusVisible: true,
+  focusVisible: false,
   screenReaderOptimized: false,
-  dyslexiaFriendly: false
+  dyslexiaFriendly: false,
+  darkMode: false,
+  grayscaleMode: false,
+  lowVisionMode: false,
+  tritanopiaMode: false,
+  photophobiaMode: false
 };
 
 @Injectable({
@@ -50,6 +60,11 @@ export class AccessibilityService {
     if (settings.focusVisible) classes.push('focus-visible');
     if (settings.screenReaderOptimized) classes.push('screen-reader-optimized');
     if (settings.dyslexiaFriendly) classes.push('dyslexia-friendly');
+    if (settings.darkMode) classes.push('dark');
+    if (settings.grayscaleMode) classes.push('grayscale-mode');
+    if (settings.lowVisionMode) classes.push('low-vision-mode');
+    if (settings.tritanopiaMode) classes.push('tritanopia-mode');
+    if (settings.photophobiaMode) classes.push('photophobia-mode');
 
     return classes;
   });
@@ -76,10 +91,6 @@ export class AccessibilityService {
     this.updateSettings({ textScale: scale });
   }
 
-  toggleHighContrast(): void {
-    this.updateSettings({ highContrast: !this.settings().highContrast });
-  }
-
   toggleLargeComponents(): void {
     this.updateSettings({ largeComponents: !this.settings().largeComponents });
   }
@@ -94,6 +105,30 @@ export class AccessibilityService {
 
   toggleDyslexiaFriendly(): void {
     this.updateSettings({ dyslexiaFriendly: !this.settings().dyslexiaFriendly });
+  }
+
+  toggleHighContrast(): void {
+    this.updateSettings({ highContrast: !this.settings().highContrast });
+  }
+
+  toggleDarkMode(): void {
+    this.updateSettings({ darkMode: !this.settings().darkMode });
+  }
+
+  toggleGrayscaleMode(): void {
+    this.updateSettings({ grayscaleMode: !this.settings().grayscaleMode });
+  }
+
+  toggleLowVisionMode(): void {
+    this.updateSettings({ lowVisionMode: !this.settings().lowVisionMode });
+  }
+
+  toggleTritanopiaMode(): void {
+    this.updateSettings({ tritanopiaMode: !this.settings().tritanopiaMode });
+  }
+
+  togglePhotophobiaMode(): void {
+    this.updateSettings({ photophobiaMode: !this.settings().photophobiaMode });
   }
 
   private loadSettings(): AccessibilitySettings {
@@ -125,7 +160,9 @@ export class AccessibilityService {
     body.classList.remove(
       'text-scale-100', 'text-scale-125', 'text-scale-150', 'text-scale-200', 'text-scale-300',
       'high-contrast', 'large-components', 'reduce-motion',
-      'focus-visible', 'screen-reader-optimized', 'dyslexia-friendly'
+      'focus-visible', 'screen-reader-optimized', 'dyslexia-friendly',
+      'dark', 'grayscale-mode', 'low-vision-mode',
+      'tritanopia-mode', 'photophobia-mode'
     );
 
     // Apply current accessibility classes

@@ -343,5 +343,14 @@
   "remove-track-from-list--arialabel": "Odstrániť skladbu zo zoznamu",
   "add-to-queue--arialabel": "Pridať do fronty",
   "zoom-interface-settings": "Zväčšenie rozhrania (lupa)",
-  "settings-section-accessibility": "Prístupnosť"
+  "settings-section-accessibility": "Prístupnosť",
+  "settings-accessibility-color-title": "Nastavenia farieb",
+  "high-contrast-mode": "Zvýšiť kontrast (texty, ikony)",
+  "dark-mode": "Tmavý režim (invertuje farebnú schému rozhrania)",
+  "grayscale-mode": "Čierno-biely režim (všetko v odtieňoch šedej)",
+  "low-vision-mode": "Slabozrakosť, katarakta - biele pozadie prepnúť na svetlo šedé, prvky s obrysmi",
+  "tritanopia-mode": "Tritanopia - hlavnú modrú farbu prepnúť na purpurovú",
+  "photophobia-mode": "Fotofóbia - hlavnú modrú farbu prepnúť na tehlovú",
+  "dyslexia-friendly-mode": "Dyslexia - všetky odkazy a aktívne tlačidlá budú podčiarknuté",
+  "settings-accessibility-font-title": "Písmo"
 }

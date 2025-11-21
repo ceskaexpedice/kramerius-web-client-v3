@@ -46,4 +46,28 @@ export class SettingsAccessibilitySection {
     this.accessibilityService.toggleDyslexiaFriendly();
   }
 
+  onHighContrastChange() {
+    this.accessibilityService.toggleHighContrast();
+  }
+
+  onDarkModeChange() {
+    this.accessibilityService.toggleDarkMode();
+  }
+
+  onGrayscaleModeChange() {
+    this.accessibilityService.toggleGrayscaleMode();
+  }
+
+  onLowVisionModeChange() {
+    this.accessibilityService.toggleLowVisionMode();
+  }
+
+  onTritanopiaChange() {
+    this.accessibilityService.toggleTritanopiaMode();
+  }
+
+  onPhotophobiaChange() {
+    this.accessibilityService.togglePhotophobiaMode();
+  }
+
 }

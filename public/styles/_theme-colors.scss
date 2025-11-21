@@ -4,26 +4,24 @@
 
 // Updated color palettes using variables.scss colors
 $_palettes: (
-  primary: (
-    0: #000000,
+  primary: (0: #000000,
     10: #001d43,
     20: #00336e,
-    25: #003A79, // --color-primary-pressed
+    25: var(--color-primary-pressed), // --color-primary-pressed
     30: #00499a,
-    35: #004D9E, // --color-primary-hover
-    40: #0063CC, // --color-primary
+    35: var(--color-primary-hover), // --color-primary-hover
+    40: var(--color-primary), // --color-primary
     50: #0e77e8,
     60: #3d8fff,
     70: #63a9ff,
     80: #8ac2ff,
     90: #b8daff,
-    95: #CCE5FF, // --color-primary-disabled
+    95: var(--color-primary-disabled), // --color-primary-disabled
     98: #f3f7ff,
     99: #fcfcff,
     100: #ffffff,
   ),
-  secondary: (
-    0: #000000,
+  secondary: (0: #000000,
     10: #171E26, // --color-secondary (dark)
     20: #303030,
     25: #3b3b3b,
@@ -34,32 +32,30 @@ $_palettes: (
     60: #919191,
     70: #ababab,
     80: #c6c6c6,
-    90: #EFF2F5, // --color-secondary-hover
-    95: #F6F7F9, // --color-secondary-disabled
+    90: var(--color-secondary-hover), // --color-secondary-hover
+    95: var(--color-secondary-disabled), // --color-secondary-disabled
     98: #f9f9f9,
     99: #fcfcfc,
-    100: #ffffff, // --color-secondary
+    100: var(--color-secondary), // --color-secondary
   ),
-  tertiary: (
-    0: #000000,
+  tertiary: (0: #000000,
     10: #171e26,
     20: #263340,
     25: #394C60, // --color-tertiary-hover (dark)
     30: #4C6580, // --color-tertiary-pressed (dark)
     35: #8099B3, // --color-tertiary (dark)
-    40: #9FB2C6, // --color-tertiary-pressed
-    50: #BFCCD9, // --color-tertiary-hover
-    60: #DFE5EC, // --color-tertiary
+    40: var(--color-tertiary-pressed), // --color-tertiary-pressed
+    50: var(--color-tertiary-hover), // --color-tertiary-hover
+    60: var(--color-tertiary), // --color-tertiary
     70: #eff2f5,
-    80: #F6F7F9, // --color-tertiary-disabled
+    80: var(--color-tertiary-disabled), // --color-tertiary-disabled
     90: #f9f9f9,
     95: #fcfcfc,
     98: #fefefe,
     99: #ffffff,
     100: #ffffff,
   ),
-  neutral: (
-    0: #000000,
+  neutral: (0: #000000,
     10: #101d26,
     20: #26323c,
     25: #313d47,
@@ -86,8 +82,7 @@ $_palettes: (
     94: #e2effd,
     96: #ebf5ff,
   ),
-  neutral-variant: (
-    0: #000000,
+  neutral-variant: (0: #000000,
     10: #191c20,
     20: #2d3135,
     25: #383c40,
@@ -104,15 +99,14 @@ $_palettes: (
     99: #fcfcff,
     100: #ffffff,
   ),
-  error: (
-    0: #000000,
+  error: (0: #000000,
     10: #410002,
     20: #690005,
     25: #7e0007,
     30: #93000a,
     35: #a80710,
-    40: #FF3A30, // --color-error
-    50: #FF443A, // --color-error (dark)
+    40: var(--color-error), // --color-error
+    50: var(--color-error), // --color-error (dark)
     60: #ff5449,
     70: #ff897d,
     80: #ffb4ab,
@@ -127,7 +121,7 @@ $_palettes: (
 $_rest: (
   secondary: map.get($_palettes, secondary),
   neutral: map.get($_palettes, neutral),
-  neutral-variant: map.get($_palettes,  neutral-variant),
+  neutral-variant: map.get($_palettes, neutral-variant),
   error: map.get($_palettes, error),
 );
 

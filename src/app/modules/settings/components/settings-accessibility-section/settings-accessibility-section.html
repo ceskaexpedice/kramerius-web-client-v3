@@ -1,23 +1,84 @@
 <div class="section--row">
 
-  <h3 class="section--row--title">Pismo</h3>
+  <h3 class="section--row--title">{{'settings-accessibility-color-title' | translate}}</h3>
 
-  <div class="toggle-buttons--container">
+  <div class="settings-row">
 
-    <app-toggle-button-group [options]="textSizeOptions" [value]="accessibilityService.settings().textScale"
-                             [label]="'zoom-interface-settings'" [showLabel]="true" (valueChange)="onTextScaleChange($event)" [size]="'lg'">
-    </app-toggle-button-group>
-
+    <mat-slide-toggle [checked]="accessibilityService.settings().highContrast" (change)="onHighContrastChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'high-contrast-mode' | translate }}
+    </mat-slide-toggle>
   </div>
 
   <div class="settings-row">
 
-    <mat-slide-toggle
-      [checked]="accessibilityService.settings().dyslexiaFriendly" (change)="onDyslexiaFriendlyChange()"
-      [hideIcon]="true"
-      [class]="'size-sm'">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().darkMode" (change)="onDarkModeChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'dark-mode' | translate }}
+    </mat-slide-toggle>
+  </div>
+
+  <div class="settings-row">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().grayscaleMode" (change)="onGrayscaleModeChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'grayscale-mode' | translate }}
+    </mat-slide-toggle>
+  </div>
+
+  <div class="settings-row">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().lowVisionMode" (change)="onLowVisionModeChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'low-vision-mode' | translate }}
+    </mat-slide-toggle>
+  </div>
+
+  <div class="settings-row">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().tritanopiaMode" (change)="onTritanopiaChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'tritanopia-mode' | translate }}
+    </mat-slide-toggle>
+  </div>
+
+  <div class="settings-row">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().photophobiaMode" (change)="onPhotophobiaChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
+      {{ 'photophobia-mode' | translate }}
+    </mat-slide-toggle>
+
+  </div>
+
+</div>
+
+<div class="section--row">
+
+  <h3 class="section--row--title">{{'settings-accessibility-font-title' | translate}}</h3>
+
+  <div class="settings-row">
+
+    <mat-slide-toggle [checked]="accessibilityService.settings().dyslexiaFriendly" (change)="onDyslexiaFriendlyChange()"
+                      [hideIcon]="true" [class]="'size-sm'">
       {{ 'dyslexia-friendly-mode' | translate }}
     </mat-slide-toggle>
+
+  </div>
+
+</div>
+
+<div class="section--row">
+
+  <h3 class="section--row--title">{{'zoom-interface-settings' | translate}}</h3>
+
+  <div class="toggle-buttons--container">
+
+    <app-toggle-button-group [options]="textSizeOptions" [value]="accessibilityService.settings().textScale"
+                             [showLabel]="false"
+                             (valueChange)="onTextScaleChange($event)" [size]="'lg'">
+    </app-toggle-button-group>
 
   </div>
 

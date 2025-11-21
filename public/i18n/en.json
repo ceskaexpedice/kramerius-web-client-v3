@@ -356,5 +356,14 @@
   "remove-track-from-list--arialabel": "Remove track from list",
   "add-to-queue--arialabel": "Add to queue",
   "zoom-interface-settings": "Interface zoom (magnifier)",
-  "settings-section-accessibility": "Accessibility"
+  "settings-section-accessibility": "Accessibility",
+  "settings-accessibility-color-title": "Color settings",
+  "high-contrast-mode": "Increase contrast (text, icons)",
+  "dark-mode": "Dark mode (inverts the interface color scheme)",
+  "grayscale-mode": "Grayscale mode (everything in shades of gray)",
+  "low-vision-mode": "Low vision, cataracts – switch white background to light gray, add outlined elements",
+  "tritanopia-mode": "Tritanopia – change primary blue color to purple",
+  "photophobia-mode": "Photophobia – change primary blue color to brick red",
+  "dyslexia-friendly-mode": "Dyslexia – all links and active buttons will be underlined",
+  "settings-accessibility-font-title": "Font"
 }
