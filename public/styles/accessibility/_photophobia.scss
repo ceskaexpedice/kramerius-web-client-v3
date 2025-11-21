@@ -1,0 +1,7 @@
+// Photophobia Mode (Light Sensitivity)
+// Reduces brightness and contrast to reduce eye strain
+
+.photophobia-mode {
+    // Shift colors (Blue -> Cyan approx) and reduce brightness
+    filter: hue-rotate(-40deg) brightness(0.9);
+}

@@ -1,18 +1,37 @@
-html, body {
+html,
+body {
   height: 100%;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 body {
   transition: background-color 0.3s, color 0.3s;
 }
+
+@import '../public/styles/accessibility/text-scaling';
+@import '../public/styles/accessibility/dyslexia-friendly';
+@import '../public/styles/accessibility/tritanopia';
+@import '../public/styles/accessibility/photophobia';
+@import '../public/styles/accessibility/grayscale';
+@import '../public/styles/accessibility/low-vision';
+@import '../public/styles/accessibility/high-contrast';

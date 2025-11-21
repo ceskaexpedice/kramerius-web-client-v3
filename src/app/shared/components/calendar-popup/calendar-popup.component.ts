@@ -13,23 +13,23 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import {MatCalendar} from '@angular/material/datepicker';
-import {NgIf} from '@angular/common';
-import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
-import {TranslateService} from '@ngx-translate/core';
-import {RecordHandlerService} from '../../services/record-handler.service';
-import {Store} from '@ngrx/store';
-import {loadMonthIssues} from '../../../modules/periodical/state/periodical-detail/periodical-detail.actions';
+import { MatCalendar } from '@angular/material/datepicker';
+import { NgIf } from '@angular/common';
+import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
+import { TranslateService } from '@ngx-translate/core';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { Store } from '@ngrx/store';
+import { loadMonthIssues } from '../../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import {
   selectMonthIssues,
   selectMonthLoading,
   selectPidFromAvailableYears,
   selectPeriodicalState,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import {Subject, take} from 'rxjs';
-import {takeUntil, distinctUntilChanged} from 'rxjs/operators';
-import {MonthYearSelectorComponent, MonthYearChange} from '../month-year-selector/month-year-selector.component';
-import {ClickOutsideDirective} from '../../directives/click-outside/click-outside.directive';
+import { Subject, take } from 'rxjs';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
+import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
+import { ClickOutsideDirective } from '../../directives/click-outside/click-outside.directive';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -109,7 +109,7 @@ import {ClickOutsideDirective} from '../../directives/click-outside/click-outsid
 
     .calendar-popup-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: calc(18px * var(--accessibility-text-scale));
       font-weight: 600;
       color: #333;
       flex: 1;
@@ -136,7 +136,7 @@ import {ClickOutsideDirective} from '../../directives/click-outside/click-outsid
     .close-btn {
       background: none;
       border: none;
-      font-size: 20px;
+      font-size: calc(20px * var(--accessibility-text-scale));
       cursor: pointer;
       color: #666;
       padding: 4px;
@@ -248,7 +248,7 @@ import {ClickOutsideDirective} from '../../directives/click-outside/click-outsid
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 10px;
+      font-size: calc(10px * var(--accessibility-text-scale));
       line-height: 1;
       color: var(--color-text-btn-tertiary-default);
     }
@@ -260,7 +260,7 @@ import {ClickOutsideDirective} from '../../directives/click-outside/click-outsid
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 10px;
+      font-size: calc(10px * var(--accessibility-text-scale));
       line-height: 1;
       color: var(--color-text-btn-tertiary-default);
       letter-spacing: 1px;
@@ -273,7 +273,7 @@ import {ClickOutsideDirective} from '../../directives/click-outside/click-outsid
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 10px;
+      font-size: calc(10px * var(--accessibility-text-scale));
       line-height: 1;
       color: var(--color-text-btn-tertiary-default);
       letter-spacing: 1px;
@@ -294,7 +294,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
   @Input() year!: string;
   @Input() preselectedDate?: string;
-  @Output() dateSelected = new EventEmitter<{pid: string, year: number}>();
+  @Output() dateSelected = new EventEmitter<{ pid: string, year: number }>();
   @Output() closePopup = new EventEmitter<void>();
 
   // Current view state

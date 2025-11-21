@@ -1,7 +1,7 @@
 @import "_z-index.scss";
 
 :host {
-  background-color: var(--color-secondary);
+  background-color: var(--color-bg-base);
   cursor: pointer;
   border-bottom: 1px solid var(--color-border-light);
 

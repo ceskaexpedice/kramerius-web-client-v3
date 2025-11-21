@@ -3,7 +3,7 @@
     padding: 20px;
     text-align: center;
     color: var(--color-text-secondary, #666);
-    font-size: 14px;
+    font-size: calc(14px * var(--accessibility-text-scale));
   }
 
   &__container {
@@ -51,7 +51,7 @@
     padding: 8px;
     text-align: center;
     background: var(--color-background-secondary, #f5f5f5);
-    font-size: 12px;
+    font-size: calc(12px * var(--accessibility-text-scale));
     font-weight: 500;
     color: var(--color-text-primary, #333);
   }

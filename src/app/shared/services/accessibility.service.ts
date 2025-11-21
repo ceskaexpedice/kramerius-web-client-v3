@@ -8,6 +8,12 @@ export interface AccessibilitySettings {
   reduceMotion: boolean;
   focusVisible: boolean;
   screenReaderOptimized: boolean;
+  dyslexiaFriendly: boolean;
+  darkMode: boolean;
+  grayscaleMode: boolean;
+  lowVisionMode: boolean;
+  tritanopiaMode: boolean;
+  photophobiaMode: boolean;
 }
 
 export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
@@ -15,8 +21,14 @@ export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
   highContrast: false,
   largeComponents: false,
   reduceMotion: false,
-  focusVisible: true,
-  screenReaderOptimized: false
+  focusVisible: false,
+  screenReaderOptimized: false,
+  dyslexiaFriendly: false,
+  darkMode: false,
+  grayscaleMode: false,
+  lowVisionMode: false,
+  tritanopiaMode: false,
+  photophobiaMode: false
 };
 
 @Injectable({
@@ -33,6 +45,8 @@ export class AccessibilityService {
     const scale = this.settings().textScale;
     if (scale === 125) return 'text-scale-125';
     if (scale === 150) return 'text-scale-150';
+    if (scale === 200) return 'text-scale-200';
+    if (scale === 300) return 'text-scale-300';
     return 'text-scale-100';
   });
 
@@ -45,6 +59,12 @@ export class AccessibilityService {
     if (settings.reduceMotion) classes.push('reduce-motion');
     if (settings.focusVisible) classes.push('focus-visible');
     if (settings.screenReaderOptimized) classes.push('screen-reader-optimized');
+    if (settings.dyslexiaFriendly) classes.push('dyslexia-friendly');
+    if (settings.darkMode) classes.push('dark');
+    if (settings.grayscaleMode) classes.push('grayscale-mode');
+    if (settings.lowVisionMode) classes.push('low-vision-mode');
+    if (settings.tritanopiaMode) classes.push('tritanopia-mode');
+    if (settings.photophobiaMode) classes.push('photophobia-mode');
 
     return classes;
   });
@@ -67,12 +87,8 @@ export class AccessibilityService {
     this.settingsSignal.set(DEFAULT_ACCESSIBILITY_SETTINGS);
   }
 
-  setTextScale(scale: 100 | 125 | 150): void {
+  setTextScale(scale: 100 | 125 | 150 | 200 | 300): void {
     this.updateSettings({ textScale: scale });
-  }
-
-  toggleHighContrast(): void {
-    this.updateSettings({ highContrast: !this.settings().highContrast });
   }
 
   toggleLargeComponents(): void {
@@ -85,6 +101,34 @@ export class AccessibilityService {
 
   toggleScreenReaderOptimization(): void {
     this.updateSettings({ screenReaderOptimized: !this.settings().screenReaderOptimized });
+  }
+
+  toggleDyslexiaFriendly(): void {
+    this.updateSettings({ dyslexiaFriendly: !this.settings().dyslexiaFriendly });
+  }
+
+  toggleHighContrast(): void {
+    this.updateSettings({ highContrast: !this.settings().highContrast });
+  }
+
+  toggleDarkMode(): void {
+    this.updateSettings({ darkMode: !this.settings().darkMode });
+  }
+
+  toggleGrayscaleMode(): void {
+    this.updateSettings({ grayscaleMode: !this.settings().grayscaleMode });
+  }
+
+  toggleLowVisionMode(): void {
+    this.updateSettings({ lowVisionMode: !this.settings().lowVisionMode });
+  }
+
+  toggleTritanopiaMode(): void {
+    this.updateSettings({ tritanopiaMode: !this.settings().tritanopiaMode });
+  }
+
+  togglePhotophobiaMode(): void {
+    this.updateSettings({ photophobiaMode: !this.settings().photophobiaMode });
   }
 
   private loadSettings(): AccessibilitySettings {
@@ -114,9 +158,11 @@ export class AccessibilityService {
 
     // Remove existing accessibility classes
     body.classList.remove(
-      'text-scale-100', 'text-scale-125', 'text-scale-150',
+      'text-scale-100', 'text-scale-125', 'text-scale-150', 'text-scale-200', 'text-scale-300',
       'high-contrast', 'large-components', 'reduce-motion',
-      'focus-visible', 'screen-reader-optimized'
+      'focus-visible', 'screen-reader-optimized', 'dyslexia-friendly',
+      'dark', 'grayscale-mode', 'low-vision-mode',
+      'tritanopia-mode', 'photophobia-mode'
     );
 
     // Apply current accessibility classes

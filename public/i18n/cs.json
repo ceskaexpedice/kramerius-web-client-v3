@@ -346,5 +346,16 @@
   "download-track-button--arialabel": "Stáhnout skladbu",
   "save-track-to-list--arialabel": "Přidat skladbu do seznamu",
   "remove-track-from-list--arialabel": "Odebrat skladbu ze seznamu",
-  "add-to-queue--arialabel": "Přidat do fronty"
+  "add-to-queue--arialabel": "Přidat do fronty",
+  "zoom-interface-settings": "Zvětšení rozhraní (lupa)",
+  "settings-section-accessibility": "Přístupnost",
+  "settings-accessibility-color-title": "Nastavení barev",
+  "high-contrast-mode": "Zvýšit kontrast (texty, ikony)",
+  "dark-mode": "Tmavý režim (invertuje barevné schéma rozhraní)",
+  "grayscale-mode": "Černobílý režim (vše v odstínech šedé)",
+  "low-vision-mode": "Slabozrakost, katarakta – bílé pozadí změnit na světle šedé, prvky s obrysy",
+  "tritanopia-mode": "Tritanopie – hlavní modrou barvu změnit na purpurovou",
+  "photophobia-mode": "Fotofobie – hlavní modrou barvu změnit na cihlovou",
+  "dyslexia-friendly-mode": "Dyslexie – všechny odkazy a aktivní tlačítka budou podtrženy",
+  "settings-accessibility-font-title": "Písmo"
 }

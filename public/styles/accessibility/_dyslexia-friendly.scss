@@ -1,0 +1,24 @@
+// Dyslexia Friendly Mode
+.dyslexia-friendly {
+
+    // Underline all links
+    a {
+        text-decoration: underline !important;
+    }
+
+    // Underline buttons
+    button,
+    .mat-button,
+    .mat-raised-button,
+    .mat-stroked-button,
+    .mat-flat-button,
+    .mat-icon-button {
+        text-decoration: underline !important;
+    }
+
+    .active,
+    .selected {
+        text-decoration: underline !important;
+        font-weight: 700 !important;
+    }
+}

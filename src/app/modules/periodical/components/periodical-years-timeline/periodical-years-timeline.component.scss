@@ -40,7 +40,7 @@
   }
 
   .year-item {
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
     font-weight: bold;
     padding: var(--spacing-x2);
     background-color: var(--color-bg-base);
@@ -57,12 +57,12 @@
       justify-content: center;
     }
 
-    &.with-icon > .year-item--wrapper {
+    &.with-icon>.year-item--wrapper {
       display: flex;
       gap: 2px;
       justify-content: center;
       align-items: center;
-      font-size: 17px;
+      font-size: calc(17px * var(--accessibility-text-scale));
     }
   }
 
@@ -128,7 +128,7 @@
   }
 
   .range-year-label {
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
     font-weight: bold;
     padding: var(--spacing-x2);
     border-radius: 4px;

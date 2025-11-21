@@ -15,7 +15,6 @@
 .text-scale-125 {
   --accessibility-text-scale: 1.25;
 
-  // Adjust spacing proportionally
   .mat-button,
   .mat-raised-button,
   .mat-stroked-button,
@@ -23,7 +22,6 @@
     padding: calc(0.5em * 1.25) calc(1em * 1.25);
   }
 
-  // Adjust form elements
   .mat-form-field {
     margin-bottom: calc(1.25em * 1.25);
   }
@@ -32,7 +30,6 @@
     padding: calc(0.75em * 1.25) calc(1em * 1.25);
   }
 
-  // Adjust navigation elements
   nav,
   .nav-menu {
     gap: calc(1rem * 1.25);
@@ -42,7 +39,6 @@
 .text-scale-150 {
   --accessibility-text-scale: 1.5;
 
-  // Adjust spacing proportionally
   .mat-button,
   .mat-raised-button,
   .mat-stroked-button,
@@ -50,7 +46,6 @@
     padding: calc(0.5em * 1.5) calc(1em * 1.5);
   }
 
-  // Adjust form elements
   .mat-form-field {
     margin-bottom: calc(1.25em * 1.5);
   }
@@ -59,40 +54,103 @@
     padding: calc(0.75em * 1.5) calc(1em * 1.5);
   }
 
-  // Adjust navigation elements
   nav,
   .nav-menu {
     gap: calc(1rem * 1.5);
   }
 
-  // Adjust grid layouts for larger text
   .search-grid,
   .results-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
 
-  // Ensure readability with increased line spacing
   p,
   .text-content {
     line-height: calc(1.6 * var(--accessibility-text-scale));
   }
 }
 
-// Component-specific text scaling adjustments
-body.text-scale-125,
-body.text-scale-150 {
+.text-scale-200 {
+  --accessibility-text-scale: 2;
 
-  // Header adjustments
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 2) calc(1em * 2);
+  }
+
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 2);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 2) calc(1em * 2);
+  }
+
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 2);
+  }
+
+  .search-grid,
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  p,
+  .text-content {
+    line-height: calc(1.6 * var(--accessibility-text-scale));
+  }
+}
+
+.text-scale-300 {
+  --accessibility-text-scale: 3;
+
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    padding: calc(0.5em * 3) calc(1em * 3);
+  }
+
+  .mat-form-field {
+    margin-bottom: calc(1.25em * 3);
+  }
+
+  .mat-input-element {
+    padding: calc(0.75em * 3) calc(1em * 3);
+  }
+
+  nav,
+  .nav-menu {
+    gap: calc(1rem * 3);
+  }
+
+  .search-grid,
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  p,
+  .text-content {
+    line-height: calc(1.6 * var(--accessibility-text-scale));
+  }
+}
+
+body.text-scale-125,
+body.text-scale-150,
+body.text-scale-200,
+body.text-scale-300 {
+
   header {
     min-height: calc(64px * var(--accessibility-text-scale));
   }
 
-  // Search input scaling
   .search-input {
     min-height: calc(48px * var(--accessibility-text-scale));
   }
 
-  // Card component scaling
   .mat-card {
     padding: calc(16px * var(--accessibility-text-scale));
   }
@@ -105,12 +163,10 @@ body.text-scale-150 {
     margin: calc(16px * var(--accessibility-text-scale)) 0;
   }
 
-  // List item scaling
   .mat-list-item {
     min-height: calc(48px * var(--accessibility-text-scale));
   }
 
-  // Dialog scaling
   .mat-dialog-container {
     padding: calc(24px * var(--accessibility-text-scale));
   }
@@ -123,44 +179,39 @@ body.text-scale-150 {
     margin: calc(16px * var(--accessibility-text-scale)) 0;
   }
 
-  // Toolbar scaling
   .mat-toolbar {
     min-height: calc(64px * var(--accessibility-text-scale));
   }
 
-  // Table scaling
   .mat-table {
-    th, td {
+
+    th,
+    td {
       padding: calc(12px * var(--accessibility-text-scale));
     }
   }
 
-  // Chip scaling
   .mat-chip {
     padding: calc(4px * var(--accessibility-text-scale)) calc(8px * var(--accessibility-text-scale));
     min-height: calc(32px * var(--accessibility-text-scale));
   }
 
-  // Menu scaling
   .mat-menu-item {
     min-height: calc(48px * var(--accessibility-text-scale));
     padding: 0 calc(16px * var(--accessibility-text-scale));
   }
 
-  // Tooltip scaling
   .mat-tooltip {
     font-size: calc(12px * var(--accessibility-text-scale));
     padding: calc(6px * var(--accessibility-text-scale)) calc(8px * var(--accessibility-text-scale));
   }
 
-  // Icon scaling
   .mat-icon {
     width: calc(24px * var(--accessibility-text-scale));
     height: calc(24px * var(--accessibility-text-scale));
     font-size: calc(24px * var(--accessibility-text-scale));
   }
 
-  // Responsive text scaling for mobile
   @media (max-width: 768px) {
     .mat-dialog-container {
       max-width: 95vw;

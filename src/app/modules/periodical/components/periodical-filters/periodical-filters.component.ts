@@ -1,16 +1,16 @@
-import {Component, inject} from '@angular/core';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
-import {TranslatePipe} from '@ngx-translate/core';
-import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import {
   customDefinedFacets,
   customDefinedFacetsEnum,
   FacetElementType,
   facetKeysEnum,
 } from '../../../search-results-page/const/facets';
-import {PeriodicalService} from '../../../../shared/services/periodical.service';
+import { PeriodicalService } from '../../../../shared/services/periodical.service';
 
 @Component({
   selector: 'app-periodical-filters',
@@ -51,7 +51,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
     .submit-year-range-btn {
       margin-top: var(--spacing-x3);
       cursor: pointer;
-      font-size: 12px;
+      font-size: calc(12px * var(--accessibility-text-scale));
       transition: background-color 0.2s ease;
 
       &.disabled, &:disabled {
@@ -96,7 +96,7 @@ import {PeriodicalService} from '../../../../shared/services/periodical.service'
           <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
+              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-2"></i>
             </div>
 
             <app-filter-category

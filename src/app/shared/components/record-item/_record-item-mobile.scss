@@ -34,7 +34,7 @@
       }
 
       .authors {
-        font-size: 12px;
+        font-size: calc(12px * var(--accessibility-text-scale));
       }
     }
 

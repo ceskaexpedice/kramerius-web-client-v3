@@ -345,5 +345,16 @@
   "download-track-button--arialabel": "Pobierz utwór",
   "save-track-to-list--arialabel": "Dodaj utwór do listy",
   "remove-track-from-list--arialabel": "Usuń utwór z listy",
-  "add-to-queue--arialabel": "Dodaj do kolejki"
+  "add-to-queue--arialabel": "Dodaj do kolejki",
+  "zoom-interface-settings": "Powiększenie interfejsu (lupa)",
+  "settings-section-accessibility": "Dostępność",
+  "settings-accessibility-color-title": "Ustawienia kolorów",
+  "high-contrast-mode": "Zwiększony kontrast (teksty, ikony)",
+  "dark-mode": "Tryb ciemny (odwraca schemat kolorów interfejsu)",
+  "grayscale-mode": "Tryb czarno-biały (wszystko w odcieniach szarości)",
+  "low-vision-mode": "Niedowidzenie, zaćma – białe tło zmienić na jasnoszare, elementy z obrysami",
+  "tritanopia-mode": "Tritanopia – główny niebieski kolor zmienić na purpurowy",
+  "photophobia-mode": "Fotofobia – główny niebieski kolor zmienić na ceglasty",
+  "dyslexia-friendly-mode": "Dysleksja – wszystkie linki i aktywne przyciski będą podkreślone",
+  "settings-accessibility-font-title": "Czcionka"
 }

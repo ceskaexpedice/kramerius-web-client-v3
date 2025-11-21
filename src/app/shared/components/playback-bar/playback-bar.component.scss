@@ -36,8 +36,9 @@
         font-size: var(--font-size-small);
         line-height: 1.2;
       }
+
       .meta {
-        font-size: 12px;
+        font-size: calc(12px * var(--accessibility-text-scale));
         color: var(--color-text-tertiary);
       }
     }
@@ -79,7 +80,7 @@
   max-width: 400px;
 
   span {
-    font-size: 12px;
+    font-size: calc(12px * var(--accessibility-text-scale));
     width: 40px;
     text-align: center;
   }

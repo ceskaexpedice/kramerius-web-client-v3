@@ -4,7 +4,7 @@
       [placeholder]="getSelectedDateText()"
       [size]="size"
       [theme]="'dark'"
-      [postfixIcon]="'icon-calendar'"
+      [postfixIcon]="'icon-calendar-1'"
       [clickable]="true"
       [readonly]="true"
       (click)="toggleOpenPopupCalendar()"
@@ -37,7 +37,7 @@
 
           @if (!showDualCalendarMode) {
             <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
-              <i class="icon-x" ></i>
+              <i class="icon-close" ></i>
             </button>
           }
 
@@ -46,7 +46,7 @@
         @if (showDualCalendarMode) {
           <div class="right-controls">
             <button (click)="toggleOpenPopupCalendar()" class="button icon-button transparent">
-              <i class="icon-x" ></i>
+              <i class="icon-close" ></i>
             </button>
           </div>
         }

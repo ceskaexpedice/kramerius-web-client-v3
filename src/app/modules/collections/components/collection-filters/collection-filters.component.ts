@@ -128,7 +128,7 @@ import {
     .submit-date-range-btn {
       margin-top: var(--spacing-x3);
       cursor: pointer;
-      font-size: 12px;
+      font-size: calc(12px * var(--accessibility-text-scale));
       transition: background-color 0.2s ease;
 
       &.disabled,

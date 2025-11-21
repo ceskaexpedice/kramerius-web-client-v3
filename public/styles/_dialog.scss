@@ -7,7 +7,7 @@
 }
 
 h2 {
-  font-size: 20px;
+  font-size: calc(20px * var(--accessibility-text-scale));
   font-weight: 700;
   color: var(--color-text-base);
   line-height: 32px;
@@ -19,7 +19,7 @@ h2 {
 }
 
 .close-button {
-  font-size: 24px;
+  font-size: calc(24px * var(--accessibility-text-scale));
   padding: 5px;
 }
 
@@ -31,6 +31,5 @@ h2 {
 }
 
 hr {
-  margin: 10px 0 ;
+  margin: 10px 0;
 }
-

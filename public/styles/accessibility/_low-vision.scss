@@ -1,0 +1,26 @@
+// Low Vision Mode
+// Enhances visual clarity with stronger borders and fonts
+
+.low-vision-mode {
+
+    // Increase font weight for better legibility
+    * {
+        font-weight: 500 !important;
+    }
+
+    // Ensure borders are visible and thicker
+    button,
+    .mat-button,
+    .mat-raised-button,
+    .mat-stroked-button,
+    .mat-flat-button,
+    .mat-icon-button,
+    input,
+    select,
+    textarea,
+    .card,
+    .record-item {
+        border-width: 2px !important;
+        border-style: solid !important;
+    }
+}

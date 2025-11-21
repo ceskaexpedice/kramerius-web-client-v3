@@ -1,6 +1,7 @@
-import {Component, computed, inject, OnInit} from '@angular/core';
-import {SoundService} from './shared/services/sound.service';
-import {AppLoaderService} from './shared/services/app-loader.service';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { SoundService } from './shared/services/sound.service';
+import { AppLoaderService } from './shared/services/app-loader.service';
+import { AccessibilityService } from './shared/services/accessibility.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ export class AppComponent implements OnInit {
 
   private soundService = inject(SoundService);
   private appLoader = inject(AppLoaderService);
+  private accessibilityService = inject(AccessibilityService);
 
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 

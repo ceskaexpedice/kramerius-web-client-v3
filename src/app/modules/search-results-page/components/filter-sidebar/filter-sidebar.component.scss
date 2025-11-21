@@ -16,11 +16,13 @@
 
   /* Responsive width based on breakpoints */
   @media (min-width: 854px) and (max-width: 1279px) {
-    width: 250px; /* Tablet: 250px */
+    width: 250px;
+    /* Tablet: 250px */
   }
 
   @media (min-width: 1280px) {
-    width: 300px; /* Desktop: 300px */
+    width: 300px;
+    /* Desktop: 300px */
   }
 
   &:not(.disabled).scrollable {
@@ -33,7 +35,8 @@
     top: 0;
     left: 0;
     z-index: $filter-sidebar;
-    width: 280px; /* Fixed width for overlay */
+    width: 280px;
+    /* Fixed width for overlay */
     transform: translateX(-100%);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 
@@ -74,7 +77,7 @@
   }
 
   i {
-    font-size: 20px;
+    font-size: calc(20px * var(--accessibility-text-scale));
   }
 }
 

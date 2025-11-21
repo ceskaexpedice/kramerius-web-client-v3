@@ -19,7 +19,7 @@
 
     .metadata-item {
       &__label {
-        font-size: 12px;
+        font-size: calc(12px * var(--accessibility-text-scale));
         font-weight: 600;
         color: var(--color-text-secondary);
         margin-bottom: 4px;
@@ -27,7 +27,7 @@
       }
 
       &__value {
-        font-size: 14px;
+        font-size: calc(14px * var(--accessibility-text-scale));
         color: var(--color-text-secondary);
         line-height: 1.5;
       }

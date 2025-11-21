@@ -11,10 +11,11 @@ import {
 } from '../settings-user-preferences-section/settings-user-preferences-section.component';
 import {FormsModule} from '@angular/forms';
 import {Settings} from '../../settings.model';
+import {SettingsAccessibilitySection} from '../settings-accessibility-section/settings-accessibility-section';
 
 @Component({
   selector: 'app-settings-content',
-	imports: [
+  imports: [
     FormsModule,
     NgSwitchCase,
     NgSwitch,
@@ -23,7 +24,8 @@ import {Settings} from '../../settings.model';
     SettingsUserPreferencesSectionComponent,
     SettingsExperimentalSectionComponent,
     SettingsGdprSectionComponent,
-	],
+    SettingsAccessibilitySection,
+  ],
   templateUrl: './settings-content.component.html',
   styleUrl: './settings-content.component.scss'
 })

@@ -87,7 +87,7 @@ export class ToolbarControlsComponent implements OnChanges {
     const legacyActions: ToolbarAction[] = [];
 
     if (this.showInfo) {
-      legacyActions.push({ id: 'info', icon: 'icon-info-circle', tooltip: 'Information', label: 'Info' });
+      legacyActions.push({ id: 'info', icon: 'icon-info', tooltip: 'Information', label: 'Info' });
     }
     if (this.showFavorites) {
       legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'Add to Favorites', label: 'Favorites' });
@@ -105,7 +105,7 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download', label: 'Download' });
     }
     if (this.showEdit) {
-      legacyActions.push({ id: 'edit', icon: 'icon-edit', tooltip: 'Edit', label: 'Edit' });
+      legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'Edit', label: 'Edit' });
     }
 
     if (this.showSelect) {

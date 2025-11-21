@@ -8,6 +8,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x2);
+
+  label {
+    font-size: var(--font-size-small);
+  }
 }
 
 .date-picker--popup-calendar {
@@ -125,7 +129,7 @@ hr {
   button {
     padding: var(--spacing-x1) var(--spacing-x2);
     flex: 1;
-    font-size: 12px;
+    font-size: calc(12px * var(--accessibility-text-scale));
   }
 
   .selected {

@@ -33,7 +33,7 @@
 
 .arrow {
   color: var(--color-icon-secondary-default);
-  font-size: 18px;
+  font-size: calc(18px * var(--accessibility-text-scale));
   transition: transform 0.2s ease;
 }
 

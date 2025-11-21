@@ -1,11 +1,12 @@
 <div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'">
   <!-- Common buttons for both viewers -->
+
   <button (click)="onZoomIn()" class="button tertiary outlined" title="Zoom In">
-    <i class="icon icon-search-zoom-in"></i>
+    <i class="icon icon-search-zoom-in-1"></i>
   </button>
 
   <button (click)="onZoomOut()" class="button tertiary outlined" title="Zoom Out">
-    <i class="icon icon-search-zoom-out"></i>
+    <i class="icon icon-search-zoom-out-1"></i>
   </button>
 
   <button (click)="onFullscreen()" class="button tertiary outlined" title="Fullscreen">
@@ -37,7 +38,7 @@
   </ng-container>
 
   <button (click)="onBookMode()" class="button tertiary outlined" title="Book mode">
-    <i class="icon icon-book"></i>
+    <i class="icon icon-book-1"></i>
   </button>
 
   <button class="button tertiary outlined" (click)="onRotate()" title="Rotate">

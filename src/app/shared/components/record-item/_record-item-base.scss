@@ -12,7 +12,7 @@
 
   width: 100%;
   max-width: 100%;
-  min-width: 170px;
+  min-width: calc(170px * var(--accessibility-text-scale));
   min-height: 100%;
   box-sizing: border-box;
 
@@ -22,7 +22,7 @@
   &:hover {
     border: 1px solid var(--color-border-contrast);
 
-    .record-item-card__image > .record-item-card__actions {
+    .record-item-card__image>.record-item-card__actions {
       opacity: 1;
 
       .favorites-button {
@@ -73,7 +73,7 @@
       left: 0;
       background: var(--color-bg-base);
       color: var(--color-text-base);
-      font-size: 12px;
+      font-size: calc(12px * var(--accessibility-text-scale));
       padding: 4px 6px;
       border-radius: 0 4px 4px 0;
       z-index: $record-item-overlay;
@@ -144,7 +144,7 @@
     }
 
     i {
-      font-size: 24px;
+      font-size: calc(24px * var(--accessibility-text-scale));
     }
   }
 
@@ -159,7 +159,7 @@
 
     .title {
       font-size: var(--font-size-base);
-      line-height: 20px;
+      line-height: calc(20px * var(--accessibility-text-scale));
       font-weight: 600;
 
       display: -webkit-box;
@@ -167,7 +167,7 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-height: 60px; // 3 lines × 20px line-height
+      max-height: calc(60px * var(--accessibility-text-scale)); // 3 lines × 20px line-height
       flex-shrink: 0; // Don't let title shrink
     }
 
@@ -238,6 +238,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

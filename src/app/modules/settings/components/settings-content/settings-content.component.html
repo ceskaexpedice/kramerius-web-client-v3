@@ -12,6 +12,10 @@
     <app-settings-user-preferences-section></app-settings-user-preferences-section>
   </ng-container>
 
+  <ng-container *ngSwitchCase="'accessibility'">
+    <app-settings-accessibility-section></app-settings-accessibility-section>
+  </ng-container>
+
   <ng-container *ngSwitchCase="'experimental'">
     <app-settings-experimental-section></app-settings-experimental-section>
   </ng-container>
