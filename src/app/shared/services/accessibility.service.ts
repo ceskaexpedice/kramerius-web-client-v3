@@ -8,6 +8,7 @@ export interface AccessibilitySettings {
   reduceMotion: boolean;
   focusVisible: boolean;
   screenReaderOptimized: boolean;
+  dyslexiaFriendly: boolean;
 }
 
 export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
@@ -16,7 +17,8 @@ export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
   largeComponents: false,
   reduceMotion: false,
   focusVisible: true,
-  screenReaderOptimized: false
+  screenReaderOptimized: false,
+  dyslexiaFriendly: false
 };
 
 @Injectable({
@@ -47,6 +49,7 @@ export class AccessibilityService {
     if (settings.reduceMotion) classes.push('reduce-motion');
     if (settings.focusVisible) classes.push('focus-visible');
     if (settings.screenReaderOptimized) classes.push('screen-reader-optimized');
+    if (settings.dyslexiaFriendly) classes.push('dyslexia-friendly');
 
     return classes;
   });
@@ -89,6 +92,10 @@ export class AccessibilityService {
     this.updateSettings({ screenReaderOptimized: !this.settings().screenReaderOptimized });
   }
 
+  toggleDyslexiaFriendly(): void {
+    this.updateSettings({ dyslexiaFriendly: !this.settings().dyslexiaFriendly });
+  }
+
   private loadSettings(): AccessibilitySettings {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -118,7 +125,7 @@ export class AccessibilityService {
     body.classList.remove(
       'text-scale-100', 'text-scale-125', 'text-scale-150', 'text-scale-200', 'text-scale-300',
       'high-contrast', 'large-components', 'reduce-motion',
-      'focus-visible', 'screen-reader-optimized'
+      'focus-visible', 'screen-reader-optimized', 'dyslexia-friendly'
     );
 
     // Apply current accessibility classes
