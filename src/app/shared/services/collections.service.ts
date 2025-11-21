@@ -504,11 +504,11 @@ export class CollectionsService extends BaseFilterService {
         }
 
         // If only one path, use setBreadcrumbs, otherwise use setMultiplePaths
-        if (allBreadcrumbPaths.length === 1) {
+        // if (allBreadcrumbPaths.length === 1) {
           this.breadcrumbsService.setBreadcrumbs(allBreadcrumbPaths[0], true);
-        } else {
-          this.breadcrumbsService.setMultiplePaths(allBreadcrumbPaths, true);
-        }
+        // } else {
+        //   this.breadcrumbsService.setMultiplePaths(allBreadcrumbPaths, true);
+        // }
       },
       error: (error) => {
         console.error('Error building breadcrumbs:', error);
