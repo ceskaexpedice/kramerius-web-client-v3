@@ -1,0 +1,24 @@
+.export-document--item {
+  padding: var(--spacing-x3) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+}
+
+h3 {
+  margin: 0;
+  font-weight: normal;
+}
+
+.export-document--item--title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  font-size: var(--font-size-base);
+  color: var(--color-text-base);
+  font-weight: normal;
+
+  i {
+    font-size: 20px;
+  }
+}

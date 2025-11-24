@@ -6,10 +6,11 @@ import {MetadataSection} from '../metadata-section/metadata-section';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {DetailViewService} from '../../../modules/detail-view-page/services/detail-view.service';
 import {TranslatePipe} from '@ngx-translate/core';
+import {ExportDocumentSectionComponent} from './export-document-section-component/export-document-section-component';
 
 @Component({
   selector: 'app-pdf-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent],
   templateUrl: './pdf-metadata-sidebar.component.html',
   styleUrl: './pdf-metadata-sidebar.component.scss'
 })
