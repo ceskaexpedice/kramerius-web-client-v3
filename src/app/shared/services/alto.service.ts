@@ -34,7 +34,7 @@ export class AltoService {
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
-  ) {}
+  ) { }
 
   private get API_URL(): string {
     const url = this.env.getBaseApiUrl();
@@ -328,10 +328,11 @@ export class AltoService {
     const scaleY = height / altoDims.height;
 
     // Convert box coordinates to ALTO coordinates
-    const w1 = box[0] / scaleX;
-    const w2 = box[2] / scaleX;
-    const h1 = Math.abs(box[3]) / scaleY;
-    const h2 = Math.abs(box[1]) / scaleY;
+    // box format is [x1, y1, x2, y2]
+    const w1 = box[0] / scaleX;  // left
+    const w2 = box[2] / scaleX;  // right
+    const h1 = box[1] / scaleY;  // top (y1)
+    const h2 = box[3] / scaleY;  // bottom (y2)
 
     let text = '';
     const textLines = Array.from(xmlDoc.getElementsByTagName('TextLine'));
@@ -342,9 +343,12 @@ export class AltoService {
       const textLineWidth = parseInt(textLine.getAttribute('WIDTH') || '0', 10);
       const textLineHeight = parseInt(textLine.getAttribute('HEIGHT') || '0', 10);
 
-      // Check if text line is within the box
-      if (hpos >= w1 && hpos + textLineWidth <= w2 &&
-          vpos >= h1 && vpos + textLineHeight <= h2) {
+      // Check if text line overlaps with the box (not strict containment)
+      const lineRight = hpos + textLineWidth;
+      const lineBottom = vpos + textLineHeight;
+
+      if (hpos < w2 && lineRight > w1 &&
+        vpos < h2 && lineBottom > h1) {
 
         const strings = Array.from(textLine.getElementsByTagName('String'));
 
@@ -354,9 +358,12 @@ export class AltoService {
           const stringWidth = parseInt(stringEl.getAttribute('WIDTH') || '0', 10);
           const stringHeight = parseInt(stringEl.getAttribute('HEIGHT') || '0', 10);
 
-          // Check if string is within the box
-          if (stringHpos >= w1 && stringHpos + stringWidth <= w2 &&
-              stringVpos >= h1 && stringVpos + stringHeight <= h2) {
+          // Check if string overlaps with the box
+          const stringRight = stringHpos + stringWidth;
+          const stringBottom = stringVpos + stringHeight;
+
+          if (stringHpos < w2 && stringRight > w1 &&
+            stringVpos < h2 && stringBottom > h1) {
 
             let content = stringEl.getAttribute('CONTENT') || '';
             const subsContent = stringEl.getAttribute('SUBS_CONTENT') || '';
@@ -482,7 +489,7 @@ export class AltoService {
 
         // Create a new block after meaningful sentence endings
         if (lines >= 3 && block.text.length > 120 &&
-            (content.endsWith('.') || content.endsWith(';'))) {
+          (content.endsWith('.') || content.endsWith(';'))) {
           if (block.text.length > 0) {
             blocks.push(block);
           }

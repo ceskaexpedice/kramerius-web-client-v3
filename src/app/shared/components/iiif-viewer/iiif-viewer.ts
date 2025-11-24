@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExportService } from '../../services/export.service';
+import { AltoService } from '../../services/alto.service';
 
 @Component({
   selector: 'app-iiif-viewer',
@@ -45,6 +46,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private detailViewService = inject(DetailViewService);
   private recordHandlerService = inject(RecordHandlerService);
   private exportService = inject(ExportService);
+  private altoService = inject(AltoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private ngZone = inject(NgZone);
@@ -307,7 +309,51 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   onText() {
-    console.log('Text action triggered');
+    if (this.currentImageRect && this.imagePid && this.viewer) {
+      // Get image dimensions from the viewer
+      const tiledImage = this.viewer.world.getItemAt(0);
+      if (!tiledImage) {
+        console.warn('No tiled image available');
+        return;
+      }
+
+      const imageSize = tiledImage.getContentSize();
+      const imageWidth = imageSize.x;
+      const imageHeight = imageSize.y;
+
+      console.log('Image dimensions:', { imageWidth, imageHeight });
+      console.log('Selection rect (image coords):', this.currentImageRect);
+
+      // Convert selection rect to the format expected by getTextInBox: [x1, y1, x2, y2]
+      const box = [
+        this.currentImageRect.x,
+        this.currentImageRect.y,
+        this.currentImageRect.x + this.currentImageRect.width,
+        this.currentImageRect.y + this.currentImageRect.height
+      ];
+
+      console.log('Box coordinates [x1, y1, x2, y2]:', box);
+
+      // Fetch ALTO XML and extract text
+      this.altoService.fetchAltoXml(this.imagePid).subscribe({
+        next: (altoXml) => {
+          const altoDims = this.altoService.getAltoDimensions(altoXml);
+          console.log('ALTO dimensions:', altoDims);
+
+          const extractedText = this.altoService.getTextInBox(altoXml, box, imageWidth, imageHeight);
+          console.log('Extracted text from selection:', extractedText);
+
+          if (!extractedText) {
+            console.warn('No text found in selection. This might be due to coordinate mismatch.');
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching ALTO XML:', error);
+        }
+      });
+    } else {
+      console.warn('No selection or image PID available for text extraction');
+    }
   }
 
   onExport() {

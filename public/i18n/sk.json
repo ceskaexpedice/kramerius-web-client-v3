@@ -87,7 +87,6 @@
   "advanced-filter-keyword-placeholder": "Zadajte kľúčové slovo",
   "advanced-filter-genre-placeholder": "Zadajte žáner",
   "advanced-filter-geoName-placeholder": "Zadajte geografický názov",
-
   "author-not-filled": "Autor nevyplnený",
   "record-info-dialog-title": "Podrobný popis",
   "record-info-section-meta": "Meta informácie",
@@ -115,7 +114,6 @@
   "platform-x": "Platforma X",
   "citation-dialog--header": "Citácia podľa normy ČSN ISO 690",
   "wiki": "Wikipédia",
-
   "playback-stop-dialog--stop-button": "Zastaviť prehrávanie",
   "cancel-button": "Zrušiť",
   "playback-stop-dialog--header": "Skutočne chcete zastaviť prehrávanie?",
@@ -136,6 +134,7 @@
   "custom-year-range": "Rok od-do",
   "custom-date-range": "Dátum vydania",
   "submit": "Potvrdiť",
+  "confirm": "Potvrdiť",
   "one-day": "Deň",
   "more-days": "Dni",
   "day-singular": "deň",
@@ -352,5 +351,13 @@
   "tritanopia-mode": "Tritanopia - hlavnú modrú farbu prepnúť na purpurovú",
   "photophobia-mode": "Fotofóbia - hlavnú modrú farbu prepnúť na tehlovú",
   "dyslexia-friendly-mode": "Dyslexia - všetky odkazy a aktívne tlačidlá budú podčiarknuté",
-  "settings-accessibility-font-title": "Písmo"
+  "settings-accessibility-font-title": "Písmo",
+  "export-jpeg-title": "Export JPEG",
+  "export-pdf-title": "Export PDF",
+  "export-print-title": "Tlač",
+  "current-page": "Aktuálna strana",
+  "crop-page": "Výrez strany",
+  "whole-document": "Celý dokument",
+  "select-pages": "Vybrať strany",
+  "select-area-drag": "Vyberte oblasť ťahaním"
 }

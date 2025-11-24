@@ -12,7 +12,6 @@
   "results": "Results",
   "delete-all": "Delete all",
   "display-mode": "Appearance mode",
-
   "admin-mode": "Admin mode",
   "select-all-visible": "Select all visible",
   "deselect-all-visible": "Deselect all visible",
@@ -20,7 +19,6 @@
   "export-selected": "Export selected",
   "delete-selected": "Delete selected",
   "bulk-add-to-favorites": "Add to favorites",
-
   "about-project": "About the project",
   "log-in": "Log in",
   "settings": "Settings",
@@ -36,13 +34,11 @@
   "close": "Close",
   "save": "Save",
   "advanced-search": "Advanced search",
-
   "btn_show_more": "Show more",
   "search-input-placeholder": "Search public documents",
   "search-in-collection-placeholder": "Search in collections",
   "search-hero-section-title": "Czech digital library",
   "search-hero-section-subtitle": "Looking for historical books, newspapers, maps or manuscripts? The digital library opens the gates to a rich collection of digitized documents – both freely available and copyright-protected.",
-
   "sort-newest-added": "Newest added",
   "sort-relevance": "Relevance",
   "sort-alphabetical": "Alphabetical",
@@ -51,14 +47,12 @@
   "paginator-page-size": "Number of results per page",
   "search-images-by-title": "Explore images by title",
   "search-image-button": "Search images",
-
   "filter-all": "All",
   "filter-images": "Images",
   "filter-periodicals": "Periodicals",
   "filter-maps": "Maps",
   "accessibility-label-public": "Public",
   "accessibility-label-private": "After login",
-
   "active-filters": "Active filters",
   "not-selected-yet": "Not selected yet",
   "search": "Search",
@@ -100,7 +94,6 @@
   "advanced-filter-keyword-placeholder": "Enter keyword",
   "advanced-filter-genre-placeholder": "Enter genre",
   "advanced-filter-geoName-placeholder": "Enter geographic name",
-
   "author-not-filled": "Author not filled",
   "record-info-dialog-title": "Detailed description",
   "record-info-section-meta": "Meta information",
@@ -128,7 +121,6 @@
   "platform-x": "Platform X",
   "citation-dialog--header": "Citation according to ISO 690",
   "wiki": "Wikipedia",
-
   "playback-stop-dialog--stop-button": "Stop playback",
   "cancel-button": "Cancel",
   "playback-stop-dialog--header": "Are you sure you want to stop playback?",
@@ -149,6 +141,7 @@
   "custom-year-range": "Year from-to",
   "custom-date-range": "Publication date",
   "submit": "Submit",
+  "confirm": "Confirm",
   "one-day": "Day",
   "more-days": "Days",
   "day-singular": "day",
@@ -365,5 +358,13 @@
   "tritanopia-mode": "Tritanopia – change primary blue color to purple",
   "photophobia-mode": "Photophobia – change primary blue color to brick red",
   "dyslexia-friendly-mode": "Dyslexia – all links and active buttons will be underlined",
-  "settings-accessibility-font-title": "Font"
+  "settings-accessibility-font-title": "Font",
+  "export-jpeg-title": "Export JPEG",
+  "export-pdf-title": "Export PDF",
+  "export-print-title": "Print",
+  "current-page": "Current page",
+  "crop-page": "Crop page",
+  "whole-document": "Whole document",
+  "select-pages": "Select pages",
+  "select-area-drag": "Select area by dragging"
 }

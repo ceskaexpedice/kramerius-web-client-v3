@@ -12,7 +12,6 @@
   "results": "Wyniki",
   "delete-all": "Usuń wszystko",
   "display-mode": "Tryb wyglądu",
-
   "about-project": "O projekcie",
   "log-in": "Zaloguj się",
   "settings": "Ustawienia",
@@ -28,13 +27,11 @@
   "close": "Zamknij",
   "save": "Zapisz",
   "advanced-search": "Wyszukiwanie zaawansowane",
-
   "btn_show_more": "Pokaż więcej",
   "search-input-placeholder": "Szukaj w publicznych dokumentach",
   "search-in-collection-placeholder": "Szukaj w zbiorach",
   "search-hero-section-title": "Czeską biblioteka cyfrową",
   "search-hero-section-subtitle": "Szukasz historycznych książek, gazet, map lub rękopisów? Biblioteka cyfrowa otwiera drzwi do bogatej kolekcji zdigitalizowanych dokumentów – zarówno ogólnodostępnych, jak i chronionych prawem autorskim.",
-
   "sort-newest-added": "Najnowsze dodane",
   "sort-relevance": "Trafność",
   "sort-alphabetical": "Alfabetycznie",
@@ -43,14 +40,12 @@
   "paginator-page-size": "Liczba wyników na stronę",
   "search-images-by-title": "Przeglądaj obrazy według tytułu",
   "search-image-button": "Szukaj obrazów",
-
   "filter-all": "Wszystko",
   "filter-images": "Obrazy",
   "filter-periodicals": "Czasopisma",
   "filter-maps": "Mapy",
   "accessibility-label-public": "Publiczny",
   "accessibility-label-private": "Po zalogowaniu",
-
   "active-filters": "Aktywne filtry",
   "not-selected-yet": "Jeszcze nie wybrane",
   "search": "Szukaj",
@@ -92,7 +87,6 @@
   "advanced-filter-keyword-placeholder": "Wprowadź słowo kluczowe",
   "advanced-filter-genre-placeholder": "Wprowadź gatunek",
   "advanced-filter-geoName-placeholder": "Wprowadź nazwę geograficzną",
-
   "author-not-filled": "Autor nie wypełniony",
   "record-info-dialog-title": "Szczegółowy opis",
   "record-info-section-meta": "Informacje meta",
@@ -120,7 +114,6 @@
   "platform-x": "Platforma X",
   "citation-dialog--header": "Cytowanie zgodnie z ČSN ISO 690",
   "wiki": "Wikipedia",
-
   "playback-stop-dialog--stop-button": "Zatrzymaj odtwarzanie",
   "cancel-button": "Anuluj",
   "playback-stop-dialog--header": "Czy na pewno chcesz zatrzymać odtwarzanie?",
@@ -141,6 +134,7 @@
   "custom-year-range": "Rok od-do",
   "custom-date-range": "Data wydania",
   "submit": "Zatwierdź",
+  "confirm": "Potwierdź",
   "one-day": "Dzień",
   "more-days": "Dni",
   "day-singular": "dzień",
@@ -356,5 +350,13 @@
   "tritanopia-mode": "Tritanopia – główny niebieski kolor zmienić na purpurowy",
   "photophobia-mode": "Fotofobia – główny niebieski kolor zmienić na ceglasty",
   "dyslexia-friendly-mode": "Dysleksja – wszystkie linki i aktywne przyciski będą podkreślone",
-  "settings-accessibility-font-title": "Czcionka"
+  "settings-accessibility-font-title": "Czcionka",
+  "export-jpeg-title": "Eksport JPEG",
+  "export-pdf-title": "Eksport PDF",
+  "export-print-title": "Drukuj",
+  "current-page": "Bieżąca strona",
+  "crop-page": "Wycinek strony",
+  "whole-document": "Cały dokument",
+  "select-pages": "Wybierz strony",
+  "select-area-drag": "Wybierz obszar przeciągając"
 }
