@@ -3,8 +3,8 @@ import {AuthGuard} from './core/auth/auth.guard';
 import {authCallbackGuard} from './core/auth/auth-callback.guard';
 
 export enum APP_ROUTES_ENUM {
-  SEARCH = 'search',
-  SEARCH_RESULTS = 'search-results',
+  SEARCH = '',
+  SEARCH_RESULTS = 'search',
   DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical',
   MUSIC_VIEW = 'music',

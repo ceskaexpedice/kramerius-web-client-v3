@@ -25,7 +25,6 @@
         [showCaseSensitiveButton]="showCaseSensitiveButton"
         (search)="emitChange()"
         (submit)="autocompleteSubmit($event)"
-        (onBlurEvent)="inputBlur()"
         (suggestionSelected)="suggestionSelected($event)"
         [getSuggestions]="getSuggestionsFn"
         [inputTheme]="'dark'"

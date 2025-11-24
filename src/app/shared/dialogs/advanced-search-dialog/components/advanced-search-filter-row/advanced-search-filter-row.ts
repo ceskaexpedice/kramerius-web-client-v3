@@ -108,6 +108,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   }
 
   suggestionSelected(value: string) {
+    console.log('suggestionSelected', value);
     this.filter.elementValue = value;
     this.filter.solrValue = value;
     this.emitChange();
