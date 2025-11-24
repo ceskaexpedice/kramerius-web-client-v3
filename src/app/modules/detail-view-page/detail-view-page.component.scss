@@ -82,7 +82,8 @@ hr {
   z-index: 1000;
 }
 
-app-image-viewer, app-iiif-viewer {
+app-image-viewer,
+app-iiif-viewer {
   height: 100%;
 }
 
@@ -92,4 +93,24 @@ app-viewer-controls {
   top: 12px;
   left: 16px;
   z-index: 10;
+}
+
+.selection-mode-info {
+  background-color: var(--color-bg-base);
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-x2) var(--spacing-x3);
+  border-radius: var(--spacing-x3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  z-index: 100;
+  box-shadow: 0 4px 20px 2px rgba(0, 0, 0, 0.16);
+
+  span {
+    font-weight: 700;
+    color: var(--color-text-base);
+  }
 }

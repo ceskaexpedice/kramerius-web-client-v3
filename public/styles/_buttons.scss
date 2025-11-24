@@ -268,6 +268,28 @@ button.outlined {
   }
 }
 
+button.danger {
+  border-color: var(--color-border-error);
+  color: var(--color-text-on-color);
+  background-color: var(--color-error);
+
+  &:hover {
+    color: var(--color-text-on-color);
+    background-color: var(--color-error);
+  }
+
+  &:active {
+    color: var(--color-text-on-color);
+    background-color: var(--color-error);
+  }
+
+  &:disabled {
+    color: var(--color-text-on-color);
+    background-color: rgba(255, 68, 68, 0.55);
+    cursor: not-allowed;
+  }
+}
+
 // OUTLINED DARK
 button.outlined-dark {
   background: transparent;

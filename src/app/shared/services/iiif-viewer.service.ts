@@ -38,12 +38,11 @@ export class IIIFViewerService {
     // Selection mode overlays
     selection: {
       frame: {
-        border: '3px solid #00ff00',
-        boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
+        boxShadow: '',
         background: 'transparent'
       },
       dim: {
-        background: 'rgba(0, 0, 0, 0.6)'
+        background: 'rgba(0, 0, 0, 0.4)'
       }
     },
     // Generic rectangles
@@ -112,6 +111,9 @@ export class IIIFViewerService {
 
   private selectedAreaSubject = new BehaviorSubject<OpenSeadragon.Rect | null>(null);
   public selectedArea$ = this.selectedAreaSubject.asObservable();
+
+  private isSelectionModeSubject = new BehaviorSubject<boolean>(false);
+  public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
 
   get currentMatchNumber(): number {
     return this.currentMatchIndexSubject.value + 1;
@@ -280,6 +282,7 @@ export class IIIFViewerService {
     if (this.isSelectionMode) {
       this.disableSelectionMode();
       this.isSelectionMode = false;
+      this.isSelectionModeSubject.next(false);
     }
 
     // Clear all overlays and counters
@@ -457,9 +460,11 @@ export class IIIFViewerService {
 
     if (enabled && !this.isSelectionMode) {
       this.isSelectionMode = true;
+      this.isSelectionModeSubject.next(true);
       this.enableSelectionMode();
     } else if (!enabled && this.isSelectionMode) {
       this.isSelectionMode = false;
+      this.isSelectionModeSubject.next(false);
       this.disableSelectionMode();
     }
   }
@@ -491,7 +496,7 @@ export class IIIFViewerService {
 
         // Create selection frame
         this.selectionOverlay = document.createElement('div');
-        this.selectionOverlay.style.border = this.BOX_STYLES.selection.frame.border;
+        // this.selectionOverlay.style.border = this.BOX_STYLES.selection.frame.border;
         this.selectionOverlay.style.boxShadow = this.BOX_STYLES.selection.frame.boxShadow;
         this.selectionOverlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
         this.selectionOverlay.style.background = this.BOX_STYLES.selection.frame.background;
