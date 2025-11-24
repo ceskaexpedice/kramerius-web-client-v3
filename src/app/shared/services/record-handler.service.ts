@@ -1,18 +1,18 @@
-import {inject, Injectable} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {DocumentTypeEnum} from '../../modules/constants/document-type';
-import {APP_ROUTES_ENUM} from '../../app.routes';
-import {SearchDocument} from '../../modules/models/search-document';
-import {SearchService} from './search.service';
-import {MatDialog} from '@angular/material/dialog';
-import {CitationDialogComponent} from '../dialogs/citation-dialog/citation-dialog.component';
-import {ShareDialogComponent} from '../dialogs/share-dialog/share-dialog.component';
-import {Metadata} from '../models/metadata.model';
-import {ONLINE_LICENSES, PUBLIC_LICENSES} from '../../core/solr/solr-misc';
-import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
-import {AdminSelectionService} from './admin-selection.service';
-import {RecordItem, searchDocumentToRecordItem} from '../components/record-item/record-item.model';
-import {PeriodicalItemChild, PeriodicalItemYear} from '../../modules/models/periodical-item';
+import { inject, Injectable } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DocumentTypeEnum } from '../../modules/constants/document-type';
+import { APP_ROUTES_ENUM } from '../../app.routes';
+import { SearchDocument } from '../../modules/models/search-document';
+import { SearchService } from './search.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CitationDialogComponent } from '../dialogs/citation-dialog/citation-dialog.component';
+import { ShareDialogComponent } from '../dialogs/share-dialog/share-dialog.component';
+import { Metadata } from '../models/metadata.model';
+import { ONLINE_LICENSES, PUBLIC_LICENSES } from '../../core/solr/solr-misc';
+import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
+import { AdminSelectionService } from './admin-selection.service';
+import { RecordItem, searchDocumentToRecordItem } from '../components/record-item/record-item.model';
+import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/periodical-item';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class RecordHandlerService {
   constructor(
     private router: Router,
     private searchService: SearchService
-  ) {}
+  ) { }
 
   /**
    * Handle navigation based on the document type.
@@ -82,9 +82,9 @@ export class RecordHandlerService {
             page: pid
           }
           if (fulltext && fulltext.trim().length > 0) {
-            queryParams['fulltext']= fulltext;
+            queryParams['fulltext'] = fulltext;
           }
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], {queryParams}).toString();
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], { queryParams }).toString();
         } else {
           return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
         }
@@ -96,9 +96,9 @@ export class RecordHandlerService {
             page: pid
           }
           if (fulltext && fulltext.trim().length > 0) {
-            queryParams['fulltext']= fulltext;
+            queryParams['fulltext'] = fulltext;
           }
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], {queryParams}).toString();
+          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], { queryParams }).toString();
         } else {
           return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
         }
@@ -146,18 +146,18 @@ export class RecordHandlerService {
     }
     this.dialog.open(CitationDialogComponent, {
       width: '60vw',
-      data: {document},
+      data: { document },
     });
   }
 
-  openShareDialog(document: Metadata | null) {
+  openShareDialog(document: Metadata | null, queryParams?: { [key: string]: string }) {
     if (!document) {
       console.warn('No document provided for share dialog.');
       return;
     }
     this.dialog.open(ShareDialogComponent, {
       width: '60vw',
-      data: {document},
+      data: { document, queryParams },
     })
   }
 
@@ -474,7 +474,7 @@ export class RecordHandlerService {
     }
 
     if (document.ownParentPid) {
-      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW , document.ownParentPid])
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid])
     }
     //window.history.back();
   }

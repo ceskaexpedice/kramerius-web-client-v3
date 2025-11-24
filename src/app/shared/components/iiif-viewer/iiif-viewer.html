@@ -2,6 +2,10 @@
   <div class="iiif-viewer-container">
     <div class="iiif-viewer-main">
       <div #viewerContainer class="openseadragon-container"></div>
+      <app-selection-controls *ngIf="showSelectionControls && selectionRect" [style.top.px]="selectionRect.top"
+        [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
+        (share)="onShare()">
+      </app-selection-controls>
     </div>
   </div>
 </app-fullscreen>

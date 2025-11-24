@@ -23,6 +23,7 @@ export class DocumentHierarchySelectorComponent implements OnInit {
   @Input() selectedModel: string = ''; // New: track selection by model
   @Output() selectionChanged = new EventEmitter<DocumentHierarchyItem>();
   @Input() allHierarchyLevels = false; // If true, show all levels even if not present in documents
+  @Input() allowedModels: string[] | null = null; // Optional filter for models
 
   hierarchyItems: DocumentHierarchyItem[] = [];
   private _documents: Metadata[] = [];
@@ -94,10 +95,16 @@ export class DocumentHierarchySelectorComponent implements OnInit {
     // Process each document
     this._documents.forEach(document => {
       const shareableTypes = this.allHierarchyLevels ? this.recordHandlerService.getDocumentHierarchyLevels(document) : this.recordHandlerService.getShareableDocumentTypes(document);
-      const mappedItems = shareableTypes.map(type => ({
+
+      let mappedItems = shareableTypes.map(type => ({
         model: type.model,
         pid: type.pid ?? ''
       }));
+
+      if (this.allowedModels) {
+        mappedItems = mappedItems.filter(item => this.allowedModels!.includes(item.model));
+      }
+
       allHierarchyItems.push(...mappedItems);
     });
 

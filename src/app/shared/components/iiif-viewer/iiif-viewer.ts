@@ -8,7 +8,8 @@ import {
   SimpleChanges,
   ElementRef,
   ViewChild,
-  AfterViewInit
+  AfterViewInit,
+  NgZone
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
@@ -16,11 +17,18 @@ import { Subscription } from 'rxjs';
 import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
+import { SelectionControls } from '../selection-controls/selection-controls';
+import { CommonModule } from '@angular/common';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ExportService } from '../../services/export.service';
 
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
     FullscreenComponent,
+    SelectionControls,
+    CommonModule
   ],
   templateUrl: './iiif-viewer.html',
   styleUrl: './iiif-viewer.scss'
@@ -35,11 +43,20 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   public iiifViewerService = inject(IIIFViewerService);
   private detailViewService = inject(DetailViewService);
+  private recordHandlerService = inject(RecordHandlerService);
+  private exportService = inject(ExportService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private ngZone = inject(NgZone);
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
-  private isUpdating = false; // Guard against concurrent updates
-  private failedPids = new Set<string>(); // Track failed PIDs to prevent retry loops
+  private isUpdating = false;
+  private failedPids = new Set<string>();
+
+  public selectionRect: { top: number, left: number } | null = null;
+  public showSelectionControls = false;
+
 
   private readonly TEST_FALLBACK = false;
 
@@ -53,6 +70,47 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.subscriptions.push(
       this.iiifViewerService.bookMode$.subscribe(() => {
         this.updateViewerForBookMode();
+      })
+    );
+
+    this.subscriptions.push(
+      this.iiifViewerService.selectedArea$.subscribe(rect => {
+        this.ngZone.run(() => {
+          if (rect) {
+            this.showSelectionControls = true;
+            this.updateSelectionControlsPosition(rect);
+          } else {
+            this.showSelectionControls = false;
+          }
+        });
+      })
+    );
+
+    // Check for selection in URL
+    this.subscriptions.push(
+      this.iiifViewerService.imageLoaded$.subscribe(() => {
+        const bb = this.route.snapshot.queryParamMap.get('bb');
+        if (bb) {
+          const parts = bb.split(',');
+          if (parts.length === 4) {
+            const x = parseFloat(parts[0]);
+            const y = parseFloat(parts[1]);
+            const w = parseFloat(parts[2]);
+            const h = parseFloat(parts[3]);
+
+            if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+              const rect = new OpenSeadragon.Rect(x, y, w, h);
+              this.iiifViewerService.setSelection(rect);
+
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { bb: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+              });
+            }
+          }
+        }
       })
     );
   }
@@ -123,24 +181,38 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
+    this.viewer.addHandler('update-viewport', () => {
+      if (this.showSelectionControls) {
+
+      }
+    });
+
+    this.viewer.addHandler('animation', () => {
+      this.ngZone.run(() => {
+        this.updateControlsPosition();
+      });
+    });
+    this.viewer.addHandler('update-viewport', () => {
+      this.ngZone.run(() => {
+        this.updateControlsPosition();
+      });
+    });
+
+
     this.viewer.addHandler('open-failed', (event: any) => {
-      // Get current PID from state, not stale closure
       const currentPid = this.imagePid || this.metadata?.uuid;
       if (!currentPid) {
         console.error('No PID available for fallback');
         return;
       }
 
-      // Check if we've already tried and failed this PID to prevent loops
       if (this.failedPids.has(currentPid)) {
         console.error(`Fallback already failed for PID: ${currentPid}. Stopping to prevent infinite loop.`);
         return;
       }
 
-      // Mark this PID as having failed
       this.failedPids.add(currentPid);
 
-      // Try fallback to direct image
       const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
       console.log(`Attempting fallback image: ${directImageUrl}`);
 
@@ -151,7 +223,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         });
       }
 
-      // Clear failed PID after a delay to allow retry on next page change
       setTimeout(() => {
         this.failedPids.delete(currentPid);
       }, 5000);
@@ -214,5 +285,54 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     return null;
+  }
+
+  private currentImageRect: OpenSeadragon.Rect | null = null;
+
+  private updateSelectionControlsPosition(imageRect: OpenSeadragon.Rect) {
+    this.currentImageRect = imageRect;
+    this.updateControlsPosition();
+  }
+
+  private updateControlsPosition() {
+    if (!this.viewer || !this.currentImageRect || !this.showSelectionControls) return;
+
+    const viewportRect = this.viewer.viewport.imageToViewportRectangle(this.currentImageRect);
+    const elementRect = this.viewer.viewport.viewportToViewerElementRectangle(viewportRect);
+
+    this.selectionRect = {
+      top: elementRect.y,
+      left: elementRect.x + elementRect.width + 10
+    };
+  }
+
+  onText() {
+    console.log('Text action triggered');
+  }
+
+  onExport() {
+    if (this.currentImageRect && this.imagePid) {
+      const rect = {
+        x: this.currentImageRect.x,
+        y: this.currentImageRect.y,
+        width: this.currentImageRect.width,
+        height: this.currentImageRect.height
+      };
+      this.exportService.exportJpegCrop(this.imagePid, rect);
+    } else {
+      console.warn('No selection or image PID available for export');
+    }
+  }
+
+  onShare() {
+    if (this.currentImageRect && this.metadata) {
+      const x = Math.round(this.currentImageRect.x);
+      const y = Math.round(this.currentImageRect.y);
+      const w = Math.round(this.currentImageRect.width);
+      const h = Math.round(this.currentImageRect.height);
+      const bb = `${x},${y},${w},${h}`;
+
+      this.recordHandlerService.openShareDialog(this.metadata, { bb });
+    }
   }
 }

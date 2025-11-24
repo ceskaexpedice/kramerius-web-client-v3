@@ -469,19 +469,62 @@ export class IIIFViewerService {
     }
   }
 
+  // Set selection from image coordinates
+  setSelection(imageRect: OpenSeadragon.Rect): void {
+    if (!this.viewer) return;
+
+    // Convert image coordinates to viewport coordinates
+    const viewportRect = this.viewer.viewport.imageToViewportRectangle(imageRect);
+
+    this.clearSelectionOverlays();
+
+    // Create selection frame
+    this.selectionOverlay = document.createElement('div');
+    this.selectionOverlay.style.boxShadow = this.BOX_STYLES.selection.frame.boxShadow;
+    this.selectionOverlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+    this.selectionOverlay.style.background = this.BOX_STYLES.selection.frame.background;
+    this.viewer.addOverlay(this.selectionOverlay, viewportRect);
+
+    this.createDimOverlays(viewportRect);
+
+    // Enable selection mode if not already enabled, or if tracker is missing
+    if (!this.isSelectionMode || !this.mouseTracker) {
+      this.isSelectionMode = true;
+      this.isSelectionModeSubject.next(true);
+      this.enableSelectionMode();
+    }
+
+    this.selectedAreaSubject.next(imageRect);
+  }
+
   // Enable selection mode
   private enableSelectionMode(): void {
     if (!this.viewer) return;
+    if (this.mouseTracker) return; // Already enabled
 
+    console.log('Enabling selection mode and mouse tracker');
     this.viewer.setMouseNavEnabled(false);
 
     this.mouseTracker = new OpenSeadragon.MouseTracker({
       element: this.viewer.element,
       pressHandler: (event: any) => {
+        console.log('MouseTracker: press');
         this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
         event.preventDefaultAction = true;
       },
+      clickHandler: (event: any) => {
+        console.log('MouseTracker: click', event.quick);
+        // Clear selection on click
+        if (event.quick) {
+          console.log('Click detected via clickHandler, clearing selection');
+          this.clearSelectionOverlays();
+          this.selectedAreaSubject.next(null);
+          event.preventDefaultAction = true;
+        }
+      },
       dragHandler: (event: any) => {
+        // console.log('MouseTracker: drag');
+        if (!this.drawStartPoint) return;
         if (!this.drawStartPoint) return;
 
         const currentPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
@@ -516,12 +559,19 @@ export class IIIFViewerService {
           Math.abs(endPoint.y - this.drawStartPoint.y)
         );
 
-        console.log('Selected area (viewport):', rect);
+        // Check if selection is too small (likely a click)
+        const minSize = 0.005;
+        if (rect.width < minSize || rect.height < minSize) {
+          console.log('Selection too small, treating as click/clear');
+          this.clearSelectionOverlays();
+          this.selectedAreaSubject.next(null);
+        } else {
+          console.log('Selected area (viewport):', rect);
 
-        // Convert to image coordinates
-        const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
-        console.log('Selected area (image):', imageRect);
-        this.selectedAreaSubject.next(imageRect);
+          const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
+          console.log('Selected area (image):', imageRect);
+          this.selectedAreaSubject.next(imageRect);
+        }
 
         this.drawStartPoint = null;
         event.preventDefaultAction = true;
@@ -569,6 +619,7 @@ export class IIIFViewerService {
       this.mouseTracker = null;
     }
     this.clearSelectionOverlays();
+    this.selectedAreaSubject.next(null);
     this.drawStartPoint = null;
   }
 
