@@ -2,10 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
 import { SelectionService } from './selection.service';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
 import { TranslateService } from '@ngx-translate/core';
+import { EnvironmentService } from './environment.service';
 
 export enum ExportFormat {
   JSON = 'json',
@@ -29,6 +30,20 @@ export class ExportService {
   private solrService = inject(SolrService);
   private selectionService = inject(SelectionService);
   private translateService = inject(TranslateService);
+  private environmentService = inject(EnvironmentService);
+
+  exportJpeg(pid: string): void {
+    const baseUrl = this.environmentService.getBaseApiUrl();
+    const url = `${baseUrl}/search/iiif/${pid}/full/max/0/default.jpg`;
+    window.open(url, '_blank');
+  }
+
+  exportJpegCrop(pid: string, rect: { x: number, y: number, width: number, height: number }): void {
+    const baseUrl = this.environmentService.getBaseApiUrl();
+    const region = `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`;
+    const url = `${baseUrl}/search/iiif/${pid}/${region}/max/0/default.jpg`;
+    window.open(url, '_blank');
+  }
 
   exportSelectedItems(itemIds: string[], options: ExportOptions): Observable<void> {
     // Fetch full details for selected items
@@ -266,7 +281,7 @@ export class ExportService {
   }
 
   // Helper method to get available export formats
-  getAvailableFormats(): Array<{value: ExportFormat, label: string}> {
+  getAvailableFormats(): Array<{ value: ExportFormat, label: string }> {
     return [
       { value: ExportFormat.JSON, label: this.translateService.instant('export.formats.json') },
       { value: ExportFormat.CSV, label: this.translateService.instant('export.formats.csv') },

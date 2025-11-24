@@ -1,3 +1,6 @@
 .export-document--container {
   padding: var(--spacing-x4);
+  display: flex;
+  gap: var(--spacing-x1);
+  flex-direction: column;
 }

@@ -110,6 +110,9 @@ export class IIIFViewerService {
   private imageLoadedSubject = new Subject<void>();
   public imageLoaded$ = this.imageLoadedSubject.asObservable();
 
+  private selectedAreaSubject = new BehaviorSubject<OpenSeadragon.Rect | null>(null);
+  public selectedArea$ = this.selectedAreaSubject.asObservable();
+
   get currentMatchNumber(): number {
     return this.currentMatchIndexSubject.value + 1;
   }
@@ -253,9 +256,9 @@ export class IIIFViewerService {
   // Check if point is inside rectangle
   private isPointInRect(point: OpenSeadragon.Point, rect: OpenSeadragon.Rect): boolean {
     return point.x >= rect.x &&
-           point.x <= rect.x + rect.width &&
-           point.y >= rect.y &&
-           point.y <= rect.y + rect.height;
+      point.x <= rect.x + rect.width &&
+      point.y >= rect.y &&
+      point.y <= rect.y + rect.height;
   }
 
   // Get viewer instance
@@ -433,8 +436,8 @@ export class IIIFViewerService {
   }
 
   // Get all rectangles
-  getAllRectangles(): Array<{overlay: HTMLElement, rect: OpenSeadragon.Rect}> {
-    return Array.from(this.rectangles.entries()).map(([overlay, rect]) => ({overlay, rect}));
+  getAllRectangles(): Array<{ overlay: HTMLElement, rect: OpenSeadragon.Rect }> {
+    return Array.from(this.rectangles.entries()).map(([overlay, rect]) => ({ overlay, rect }));
   }
 
   // Adds rectangle at center of current viewport - just for TEST
@@ -446,13 +449,17 @@ export class IIIFViewerService {
 
   // Toggle area selection mode
   toggleSelectArea(): void {
+    this.setSelectionMode(!this.isSelectionMode);
+  }
+
+  setSelectionMode(enabled: boolean): void {
     if (!this.viewer) return;
 
-    this.isSelectionMode = !this.isSelectionMode;
-
-    if (this.isSelectionMode) {
+    if (enabled && !this.isSelectionMode) {
+      this.isSelectionMode = true;
       this.enableSelectionMode();
-    } else {
+    } else if (!enabled && this.isSelectionMode) {
+      this.isSelectionMode = false;
       this.disableSelectionMode();
     }
   }
@@ -504,7 +511,13 @@ export class IIIFViewerService {
           Math.abs(endPoint.y - this.drawStartPoint.y)
         );
 
-        console.log('Selected area:', rect);
+        console.log('Selected area (viewport):', rect);
+
+        // Convert to image coordinates
+        const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
+        console.log('Selected area (image):', imageRect);
+        this.selectedAreaSubject.next(imageRect);
+
         this.drawStartPoint = null;
         event.preventDefaultAction = true;
       }
