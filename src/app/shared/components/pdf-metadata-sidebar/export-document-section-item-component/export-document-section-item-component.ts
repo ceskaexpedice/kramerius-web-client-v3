@@ -7,6 +7,7 @@ import { NgFor, NgIf } from '@angular/common';
 export interface ExportOption {
   label: string;
   value: string;
+  disabled: boolean;
 }
 
 @Component({

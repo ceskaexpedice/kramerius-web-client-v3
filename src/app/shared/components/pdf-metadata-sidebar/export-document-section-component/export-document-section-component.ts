@@ -1,10 +1,11 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import {
   ExportDocumentSectionItemComponent
 } from '../export-document-section-item-component/export-document-section-item-component';
 import { ExportService } from '../../../services/export.service';
 import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 import { take } from 'rxjs';
+import { DocumentInfoService } from '../../../services/document-info.service';
 
 @Component({
   selector: 'app-export-document-section-component',
@@ -20,20 +21,25 @@ export class ExportDocumentSectionComponent {
 
   exportService = inject(ExportService);
   iiifViewerService = inject(IIIFViewerService);
+  documentInfoService = inject(DocumentInfoService);
 
-  jpegOptions = [
-    { label: 'current-page', value: 'current-page' },
-    { label: 'crop-page', value: 'crop-page' }
-  ];
+  // Computed signal that updates jpegOptions based on license access
+  jpegOptions = computed(() => {
+    const canAccess = this.documentInfoService.canAccessDocument();
+    return [
+      { label: 'current-page', value: 'current-page', disabled: !canAccess },
+      { label: 'crop-page', value: 'crop-page', disabled: !canAccess }
+    ];
+  });
 
   pdfOptions = [
-    { label: 'whole-document', value: 'whole-document' },
-    { label: 'select-pages', value: 'select-pages' }
+    { label: 'whole-document', value: 'whole-document', disabled: false },
+    { label: 'select-pages', value: 'select-pages', disabled: false }
   ];
 
   printOptions = [
-    { label: 'whole-document', value: 'whole-document' },
-    { label: 'select-pages', value: 'select-pages' }
+    { label: 'whole-document', value: 'whole-document', disabled: false },
+    { label: 'select-pages', value: 'select-pages', disabled: false }
   ];
 
   onJpegOptionChange(value: string) {

@@ -1,21 +1,22 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {forkJoin, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {SolrResponseParser} from './solr-response-parser';
-import {SolrQueryBuilder} from './solr-query-builder';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
-import {SearchResultResponse} from '../../modules/models/search-result-response';
-import {FacetItem} from '../../modules/models/facet-item';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SolrResponseParser } from './solr-response-parser';
+import { SolrQueryBuilder } from './solr-query-builder';
+import { SolrOperators, SolrSortDirections, SolrSortFields } from './solr-helpers';
+import { SearchResultResponse } from '../../modules/models/search-result-response';
+import { FacetItem } from '../../modules/models/facet-item';
 import {
   DEFAULT_FACET_FIELDS,
   DEFAULT_PERIODICAL_FACET_FIELDS,
 } from '../../modules/search-results-page/const/facet-fields';
-import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
-import {EnvironmentService} from '../../shared/services/environment.service';
-import {SolrUtils} from './solr-utils';
-import {DocumentTypeEnum} from '../../modules/constants/document-type';
-import {SearchDocument} from '../../modules/models/search-document';
+import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
+import { EnvironmentService } from '../../shared/services/environment.service';
+import { SolrUtils } from './solr-utils';
+import { DocumentTypeEnum } from '../../modules/constants/document-type';
+import { SearchDocument } from '../../modules/models/search-document';
+import { DocumentInfo } from '../../shared/models/document-info';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -653,6 +654,16 @@ export class SolrService {
 
   getImageThumbnailUrl(pid: string): string {
     return `${this.API_BASE_URL}items/${pid}/image/thumb`;
+  }
+
+  /**
+   * Gets page/item info from Kramerius API
+   * @param uuid - Page/item identifier
+   * @returns Observable with page info including available data formats and licenses
+   */
+  getPageInfo(uuid: string): Observable<DocumentInfo> {
+    const url = `${this.API_BASE_URL}items/${uuid}/info`;
+    return this.http.get<DocumentInfo>(url);
   }
 
   /**

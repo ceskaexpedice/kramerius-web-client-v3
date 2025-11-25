@@ -12,6 +12,7 @@ import {Store} from '@ngrx/store';
 import {selectDocumentDetail} from '../../state/document-detail/document-detail.selectors';
 import {take} from 'rxjs';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
+import {DocumentInfoService} from '../../services/document-info.service';
 
 @Component({
   selector: 'app-metadata-section',
@@ -31,6 +32,7 @@ export class MetadataSection implements OnInit {
 
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
+  documentInfoService = inject(DocumentInfoService);
   store = inject(Store);
 
   @Input() uuid: string = '';

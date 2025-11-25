@@ -20,7 +20,7 @@
   <div class="export-document--item--content">
     <mat-radio-group class="radio-group" [(ngModel)]="selectedOption" [name]="groupName"
       (change)="onOptionChange($event)">
-      <mat-radio-button *ngFor="let option of options" [value]="option.value" class="radio-button">
+      <mat-radio-button *ngFor="let option of options" [disabled]="option.disabled" [value]="option.value" class="radio-button">
         {{ option.label | translate }}
       </mat-radio-button>
     </mat-radio-group>

@@ -1,8 +1,8 @@
-import {inject, Injectable, signal} from '@angular/core';
-import {Page} from '../../../shared/models/page.model';
-import {Store} from '@ngrx/store';
-import {ActivatedRoute, Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../../app.routes';
+import { inject, Injectable, signal } from '@angular/core';
+import { Page } from '../../../shared/models/page.model';
+import { Store } from '@ngrx/store';
+import { ActivatedRoute, Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../../app.routes';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
@@ -10,17 +10,18 @@ import {
   selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
-import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {Observable, skip, take, filter} from 'rxjs';
-import {selectPeriodicalChildren, selectPidFromAvailableYears} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
-import {RecordInfoService} from '../../../shared/services/record-info.service';
-import {Metadata} from '../../../shared/models/metadata.model';
-import {SoundRecordGridControl} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {DocumentTypeEnum} from '../../constants/document-type';
-import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/periodical-detail/periodical-detail.actions';
-import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
-import {IIIFViewerService} from '../../../shared/services/iiif-viewer.service';
+import { loadDocumentDetail } from '../../../shared/state/document-detail/document-detail.actions';
+import { Observable, skip, take, filter } from 'rxjs';
+import { selectPeriodicalChildren, selectPidFromAvailableYears } from '../../periodical/state/periodical-detail/periodical-detail.selectors';
+import { RecordInfoService } from '../../../shared/services/record-info.service';
+import { Metadata } from '../../../shared/models/metadata.model';
+import { SoundRecordGridControl } from '../../../shared/components/toolbar-controls/toolbar-controls.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DocumentTypeEnum } from '../../constants/document-type';
+import { loadPeriodical, loadPeriodicalItems } from '../../periodical/state/periodical-detail/periodical-detail.actions';
+import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
+import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
+import { DocumentInfoService } from '../../../shared/services/document-info.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,7 @@ export class DetailViewService {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private iiifViewerService = inject(IIIFViewerService);
+  private documentInfoService = inject(DocumentInfoService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -163,6 +165,9 @@ export class DetailViewService {
         if (this.document?.model !== DocumentTypeEnum.soundrecording) {
           this.checkAndSetCurrentPageFromUrl();
         }
+
+        // Load page info for the initial/current page
+        this.loadPageInfo();
       });
   }
 
@@ -230,7 +235,23 @@ export class DetailViewService {
       const url = new URL(window.location.href);
       url.searchParams.set('page', currentPage.pid);
       window.history.replaceState({}, '', url.toString());
+
+      // Fetch page info from API
+      this.loadPageInfo();
     }
+  }
+
+  /**
+   * Loads page info for the current page from the API
+   */
+  private loadPageInfo() {
+    const currentPage = this.getCurrentPage();
+    if (!currentPage) {
+      this.documentInfoService.clearPageInfo();
+      return;
+    }
+
+    this.documentInfoService.loadPageInfo(currentPage.pid);
   }
 
   /**

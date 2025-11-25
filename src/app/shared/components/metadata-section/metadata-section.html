@@ -57,6 +57,10 @@
 
   </app-metadata-section-item>
 
+  @for (license of documentInfoService.getRuntimeLicenses(); track license) {
+    {{license}}
+  }
+
   <!-- Languages -->
   <app-metadata-section-item
     *ngIf="data.languages?.length"
