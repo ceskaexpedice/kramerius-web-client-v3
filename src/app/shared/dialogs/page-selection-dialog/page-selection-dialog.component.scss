@@ -36,6 +36,22 @@
     font-size: calc(14px * var(--accessibility-text-scale));
     color: var(--color-text-secondary);
   }
+
+  .limit-info {
+    font-size: calc(14px * var(--accessibility-text-scale));
+    color: var(--color-text-secondary);
+    margin-left: var(--spacing-x2);
+
+    &.limit-reached {
+      color: var(--color-error);
+      font-weight: bold;
+    }
+  }
+}
+
+.disabled-selection {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .page-selection-grid {

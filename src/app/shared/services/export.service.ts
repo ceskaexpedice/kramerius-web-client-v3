@@ -45,6 +45,55 @@ export class ExportService {
     window.open(url, '_blank');
   }
 
+  /**
+   * Export PDF from selected pages
+   * @param pageUuids Array of page UUIDs to include in the PDF
+   */
+  exportPdfSelection(pageUuids: string[]): void {
+    if (!pageUuids || pageUuids.length === 0) {
+      console.warn('No pages selected for PDF export');
+      return;
+    }
+
+    const baseUrl = this.environmentService.getBaseApiUrl();
+    const currentLanguage = this.translateService.currentLang || 'cs';
+
+    // Join UUIDs with comma
+    const pidsParam = pageUuids.join(',');
+
+    // Construct the PDF selection API URL
+    const url = `${baseUrl}/search/api/client/v7.0/pdf/selection?pids=${pidsParam}&language=${currentLanguage}`;
+
+    // Open in new tab to trigger download
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Print PDF from selected pages
+   * @param pageUuids Array of page UUIDs to include in the print PDF
+   * @param pageSize Page size for printing (default: A4)
+   * @param imgOp Image operation (default: FULL)
+   */
+  printPdfSelection(pageUuids: string[], pageSize: string = 'A4', imgOp: string = 'FULL'): void {
+    if (!pageUuids || pageUuids.length === 0) {
+      console.warn('No pages selected for print');
+      return;
+    }
+
+    const baseUrl = this.environmentService.getBaseApiUrl();
+
+    // Join UUIDs with comma
+    const pidsParam = pageUuids.join(',');
+
+    // Construct the local print PDF API URL
+    const url = `${baseUrl}/search/localPrintPDF?pids=${pidsParam}&pagesize=${pageSize}&imgop=${imgOp}`;
+
+    // Open in new tab to trigger print dialog
+    window.open(url, '_blank');
+  }
+
+
+
   exportSelectedItems(itemIds: string[], options: ExportOptions): Observable<void> {
     // Fetch full details for selected items
     return this.fetchItemDetails(itemIds).pipe(

@@ -11,26 +11,23 @@
 
       <div class="select-all-container">
 
-        <mat-slide-toggle
-          [checked]="allSelected()"
-          [hideIcon]="true"
-          [class]="'size-sm'"
-          (change)="toggleSelectAll()">
+        <mat-slide-toggle [checked]="allSelected()" [hideIcon]="true" [class]="'size-sm'" (change)="toggleSelectAll()">
           {{ 'select-all-pages' | translate }} ({{ pages.length }})
         </mat-slide-toggle>
 
         <span class="selected-info">
-                  <i class="icon-bulb"></i>
+          <i class="icon-bulb"></i>
           {{ 'press-shift-for-multiselect' | translate }}
-                </span>
+        </span>
       </div>
 
       <div class="page-selection-grid">
         @for (page of pages; track page.pid; let index = $index) {
-          <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="null" [localSelectionMode]="true"
-                                [localIsSelected]="isPageSelected(page.pid)"
-                                (selectionToggled)="togglePageSelection(page.pid)">
-          </app-detail-page-item>
+        <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="null" [localSelectionMode]="true"
+          [localIsSelected]="isPageSelected(page.pid)"
+          [class.disabled-selection]="!isPageSelected(page.pid) && isLimitReached()"
+          (selectionToggled)="togglePageSelection(page.pid, $event.event)">
+        </app-detail-page-item>
         }
       </div>
 

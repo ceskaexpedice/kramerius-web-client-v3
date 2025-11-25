@@ -9,6 +9,7 @@ import { DocumentInfoService } from '../../../services/document-info.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../../dialogs/page-selection-dialog/page-selection-dialog.component';
+import { AppConfigService } from '../../../services/app-config.service';
 
 @Component({
   selector: 'app-export-document-section-component',
@@ -27,6 +28,7 @@ export class ExportDocumentSectionComponent {
   documentInfoService = inject(DocumentInfoService);
   dialog = inject(MatDialog);
   detailViewService = inject(DetailViewService);
+  appConfig = inject(AppConfigService);
 
   // Computed signal that updates jpegOptions based on license access
   jpegOptions = computed(() => {
@@ -37,15 +39,27 @@ export class ExportDocumentSectionComponent {
     ];
   });
 
-  pdfOptions = [
-    { label: 'whole-document', value: 'whole-document', disabled: false },
-    { label: 'select-pages', value: 'select-pages', disabled: false }
-  ];
+  pdfOptions = computed(() => {
+    const pages = this.detailViewService.pages;
+    const maxRange = this.appConfig.pdfMaxRange();
+    const disableWholeDocument = pages && pages.length > maxRange;
 
-  printOptions = [
-    { label: 'whole-document', value: 'whole-document', disabled: false },
-    { label: 'select-pages', value: 'select-pages', disabled: false }
-  ];
+    return [
+      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument },
+      { label: 'select-pages', value: 'select-pages', disabled: false }
+    ];
+  });
+
+  printOptions = computed(() => {
+    const pages = this.detailViewService.pages;
+    const maxRange = this.appConfig.pdfMaxRange();
+    const disableWholeDocument = pages && pages.length > maxRange;
+
+    return [
+      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument },
+      { label: 'select-pages', value: 'select-pages', disabled: false }
+    ];
+  });
 
   onJpegOptionChange(value: string) {
     if (value === 'crop-page') {
@@ -73,26 +87,34 @@ export class ExportDocumentSectionComponent {
 
   onPdfSubmit(value: string) {
     if (value === 'select-pages') {
-      this.openPageSelectionDialog('page-selection-dialog--header-pdf');
+      this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
     } else if (value === 'whole-document') {
-      // TODO: Implement whole document PDF export
-      console.log('PDF Export: whole-document');
+      const pageUuids = this.detailViewService.pages.map(page => page.pid);
+      if (pageUuids.length > 0) {
+        this.exportService.exportPdfSelection(pageUuids);
+      } else {
+        console.warn('No pages available for PDF export');
+      }
     }
   }
 
   onPrintSubmit(value: string) {
     if (value === 'select-pages') {
-      this.openPageSelectionDialog('page-selection-dialog--header-print');
+      this.openPageSelectionDialog('page-selection-dialog--header-print', 'print');
     } else if (value === 'whole-document') {
-      // TODO: Implement whole document print
-      console.log('Print: whole-document');
+      const pageUuids = this.detailViewService.pages.map(page => page.pid);
+      if (pageUuids.length > 0) {
+        this.exportService.printPdfSelection(pageUuids);
+      } else {
+        console.warn('No pages available for print');
+      }
     }
   }
 
   /**
    * Opens the page selection dialog
    */
-  private openPageSelectionDialog(titleKey: string): void {
+  private openPageSelectionDialog(titleKey: string, exportType: 'pdf' | 'print'): void {
     const pages = this.detailViewService.pages;
 
     if (!pages || pages.length === 0) {
@@ -103,7 +125,8 @@ export class ExportDocumentSectionComponent {
     const dialogRef = this.dialog.open(PageSelectionDialogComponent, {
       data: {
         pages: pages,
-        title: titleKey
+        title: titleKey,
+        maxSelectionCount: this.appConfig.pdfMaxRange()
       },
       width: '90vw',
       maxWidth: '1200px',
@@ -113,7 +136,14 @@ export class ExportDocumentSectionComponent {
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
       if (result && result.selectedPagePids && result.selectedPagePids.length > 0) {
         console.log('Selected pages:', result.selectedPagePids);
-        // TODO: Handle the selected pages for export/print
+
+        if (exportType === 'pdf') {
+          // Export PDF with selected pages
+          this.exportService.exportPdfSelection(result.selectedPagePids);
+        } else if (exportType === 'print') {
+          // Print selected pages
+          this.exportService.printPdfSelection(result.selectedPagePids);
+        }
       }
     });
   }

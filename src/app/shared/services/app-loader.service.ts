@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from './local-storage.service';
+import { AppConfigService, AppConfig } from './app-config.service';
+import { EnvironmentService } from './environment.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +14,9 @@ export class AppLoaderService {
 
   private store = inject(Store);
   private storage = inject(LocalStorageService);
+  private http = inject(HttpClient);
+  private appConfig = inject(AppConfigService);
+  private env = inject(EnvironmentService);
 
   /**
    * Main app initialization method
@@ -70,11 +77,20 @@ export class AppLoaderService {
   }
 
   /**
-   * Load app-wide configuration
-   * Placeholder for future config loading needs
+   * Load app-wide configuration from Kramerius API
+   * Fetches configuration including pdfMaxRange, version, etc.
    */
   private async loadAppConfig(): Promise<void> {
-    // Future: Load feature flags, app settings, etc.
-    console.log('AppLoaderService: App config loaded');
+    try {
+      const language = this.storage.get('language') || 'cs';
+      const apiUrl = this.env.getApiUrl(`info?language=${language}`);
+
+      const config = await firstValueFrom(this.http.get<AppConfig>(apiUrl));
+
+      this.appConfig.setConfig(config);
+    } catch (error) {
+      console.error('AppLoaderService: Failed to load API configuration, using defaults', error);
+      // AppConfigService already has default values, so we don't need to do anything
+    }
   }
 }

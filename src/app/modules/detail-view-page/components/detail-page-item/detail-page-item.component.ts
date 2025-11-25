@@ -32,7 +32,7 @@ export class DetailPageItemComponent {
   @Input() localIsSelected: boolean = false; // Local selection state
 
   @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
-  @Output() selectionToggled: EventEmitter<boolean> = new EventEmitter<boolean>(); // Emits new selection state
+  @Output() selectionToggled: EventEmitter<{ selected: boolean; event?: MouseEvent }> = new EventEmitter<{ selected: boolean; event?: MouseEvent }>();
 
   constructor() {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -46,7 +46,7 @@ export class DetailPageItemComponent {
     // Check if we're in local selection mode first
     if (this.localSelectionMode) {
       event.preventDefault();
-      this.selectionToggled.emit(!this.localIsSelected);
+      this.selectionToggled.emit({ selected: !this.localIsSelected, event });
     } else if (this.selectionService.selectionMode()) {
       event.preventDefault();
       this.selectionService.toggleItem(this.page.pid);
@@ -58,7 +58,7 @@ export class DetailPageItemComponent {
   onSelectionChange(selected: boolean): void {
     // Check if we're in local selection mode first
     if (this.localSelectionMode) {
-      this.selectionToggled.emit(selected);
+      this.selectionToggled.emit({ selected });
     } else {
       if (selected) {
         this.selectionService.selectItem(this.page.pid);
