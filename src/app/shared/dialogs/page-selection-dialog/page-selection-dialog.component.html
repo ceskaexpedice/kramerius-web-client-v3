@@ -1,0 +1,51 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ dialogTitle | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+
+      <div class="select-all-container">
+
+        <mat-slide-toggle
+          [checked]="allSelected()"
+          [hideIcon]="true"
+          [class]="'size-sm'"
+          (change)="toggleSelectAll()">
+          {{ 'select-all-pages' | translate }} ({{ pages.length }})
+        </mat-slide-toggle>
+
+        <span class="selected-info">
+                  <i class="icon-bulb"></i>
+          {{ 'press-shift-for-multiselect' | translate }}
+                </span>
+      </div>
+
+      <div class="page-selection-grid">
+        @for (page of pages; track page.pid; let index = $index) {
+          <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="null" [localSelectionMode]="true"
+                                [localIsSelected]="isPageSelected(page.pid)"
+                                (selectionToggled)="togglePageSelection(page.pid)">
+          </app-detail-page-item>
+        }
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Dialog Actions -->
+  <div class="dialog-actions">
+    <button class="button outlined tertiary" (click)="onClose()">
+      {{ 'cancel' | translate }}
+    </button>
+
+    <button class="button primary" [disabled]="selectedCount() === 0" (click)="onSubmit()">
+      {{ 'download' | translate }} ({{ selectedCount() }})
+    </button>
+  </div>
+
+</div>

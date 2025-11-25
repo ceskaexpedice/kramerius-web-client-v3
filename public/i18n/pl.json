@@ -358,5 +358,11 @@
   "crop-page": "Wycinek strony",
   "whole-document": "Cały dokument",
   "select-pages": "Wybierz strony",
-  "select-area-drag": "Wybierz obszar przeciągając"
+  "select-area-drag": "Wybierz obszar przeciągając",
+  "select-all-pages": "Wybierz wszystkie strony",
+  "page-selection-dialog--header": "Wybierz konkretne strony",
+  "page-selection-dialog--header-pdf": "Wybierz konkretne strony do eksportu PDF",
+  "page-selection-dialog--header-print": "Wybierz konkretne strony do druku",
+  "press-shift-for-multiselect": "Aby zaznaczyć wiele stron, naciśnij Shift",
+  "download": "Pobierz"
 }

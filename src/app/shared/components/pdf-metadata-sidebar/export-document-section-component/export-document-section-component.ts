@@ -6,6 +6,9 @@ import { ExportService } from '../../../services/export.service';
 import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 import { take } from 'rxjs';
 import { DocumentInfoService } from '../../../services/document-info.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
+import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../../dialogs/page-selection-dialog/page-selection-dialog.component';
 
 @Component({
   selector: 'app-export-document-section-component',
@@ -22,6 +25,8 @@ export class ExportDocumentSectionComponent {
   exportService = inject(ExportService);
   iiifViewerService = inject(IIIFViewerService);
   documentInfoService = inject(DocumentInfoService);
+  dialog = inject(MatDialog);
+  detailViewService = inject(DetailViewService);
 
   // Computed signal that updates jpegOptions based on license access
   jpegOptions = computed(() => {
@@ -67,11 +72,50 @@ export class ExportDocumentSectionComponent {
   }
 
   onPdfSubmit(value: string) {
-    console.log('PDF Export:', value);
+    if (value === 'select-pages') {
+      this.openPageSelectionDialog('page-selection-dialog--header-pdf');
+    } else if (value === 'whole-document') {
+      // TODO: Implement whole document PDF export
+      console.log('PDF Export: whole-document');
+    }
   }
 
   onPrintSubmit(value: string) {
-    console.log('Print:', value);
+    if (value === 'select-pages') {
+      this.openPageSelectionDialog('page-selection-dialog--header-print');
+    } else if (value === 'whole-document') {
+      // TODO: Implement whole document print
+      console.log('Print: whole-document');
+    }
+  }
+
+  /**
+   * Opens the page selection dialog
+   */
+  private openPageSelectionDialog(titleKey: string): void {
+    const pages = this.detailViewService.pages;
+
+    if (!pages || pages.length === 0) {
+      console.warn('No pages available for selection');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(PageSelectionDialogComponent, {
+      data: {
+        pages: pages,
+        title: titleKey
+      },
+      width: '90vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh'
+    });
+
+    dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
+      if (result && result.selectedPagePids && result.selectedPagePids.length > 0) {
+        console.log('Selected pages:', result.selectedPagePids);
+        // TODO: Handle the selected pages for export/print
+      }
+    });
   }
 
 }

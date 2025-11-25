@@ -1,8 +1,8 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {EnvironmentService} from '../../../../shared/services/environment.service';
-import {NgClass, NgIf} from '@angular/common';
-import {CheckboxComponent} from '../../../../shared/components/checkbox/checkbox.component';
-import {SelectionService} from '../../../../shared/services';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { EnvironmentService } from '../../../../shared/services/environment.service';
+import { NgClass, NgIf } from '@angular/common';
+import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
+import { SelectionService } from '../../../../shared/services';
 
 @Component({
   selector: 'app-detail-page-item',
@@ -27,7 +27,12 @@ export class DetailPageItemComponent {
 
   @Input() type: 'recording' | 'page' = 'page';
 
+  // Local selection mode inputs (when not using global SelectionService)
+  @Input() localSelectionMode: boolean = false; // If true, use local selection instead of SelectionService
+  @Input() localIsSelected: boolean = false; // Local selection state
+
   @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectionToggled: EventEmitter<boolean> = new EventEmitter<boolean>(); // Emits new selection state
 
   constructor() {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -38,7 +43,11 @@ export class DetailPageItemComponent {
   }
 
   onPageClicked(event: MouseEvent) {
-    if (this.selectionService.selectionMode()) {
+    // Check if we're in local selection mode first
+    if (this.localSelectionMode) {
+      event.preventDefault();
+      this.selectionToggled.emit(!this.localIsSelected);
+    } else if (this.selectionService.selectionMode()) {
       event.preventDefault();
       this.selectionService.toggleItem(this.page.pid);
     } else {
@@ -47,11 +56,28 @@ export class DetailPageItemComponent {
   }
 
   onSelectionChange(selected: boolean): void {
-    if (selected) {
-      this.selectionService.selectItem(this.page.pid);
+    // Check if we're in local selection mode first
+    if (this.localSelectionMode) {
+      this.selectionToggled.emit(selected);
     } else {
-      this.selectionService.deselectItem(this.page.pid);
+      if (selected) {
+        this.selectionService.selectItem(this.page.pid);
+      } else {
+        this.selectionService.deselectItem(this.page.pid);
+      }
     }
+  }
+
+  // Helper method to determine if selection mode is active (global or local)
+  isInSelectionMode(): boolean {
+    return this.localSelectionMode || this.selectionService.selectionMode();
+  }
+
+  // Helper method to determine if this item is selected (global or local)
+  isItemSelected(): boolean {
+    return this.localSelectionMode
+      ? this.localIsSelected
+      : this.selectionService.isSelected(this.page.pid);
   }
 
 }

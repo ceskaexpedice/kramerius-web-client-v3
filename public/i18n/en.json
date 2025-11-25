@@ -366,5 +366,11 @@
   "crop-page": "Crop page",
   "whole-document": "Whole document",
   "select-pages": "Select pages",
-  "select-area-drag": "Select area by dragging"
+  "select-area-drag": "Select area by dragging",
+  "select-all-pages": "Select all pages",
+  "page-selection-dialog--header": "Select specific pages",
+  "page-selection-dialog--header-pdf": "Select specific pages for PDF export",
+  "page-selection-dialog--header-print": "Select specific pages for printing",
+  "press-shift-for-multiselect": "For multiple selection of pages press Shift",
+  "download": "Download"
 }

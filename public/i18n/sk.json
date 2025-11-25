@@ -359,5 +359,11 @@
   "crop-page": "Výrez strany",
   "whole-document": "Celý dokument",
   "select-pages": "Vybrať strany",
-  "select-area-drag": "Vyberte oblasť ťahaním"
+  "select-area-drag": "Vyberte oblasť ťahaním",
+  "select-all-pages": "Vybrať všetky strany",
+  "page-selection-dialog--header": "Vybrať konkrétne strany",
+  "page-selection-dialog--header-pdf": "Vybrať konkrétne strany pre export PDF",
+  "page-selection-dialog--header-print": "Vybrať konkrétne strany pre tlač",
+  "press-shift-for-multiselect": "Pre viacnásobné vybranie stránok stlačte Shift",
+  "download": "Stiahnuť"
 }
