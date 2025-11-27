@@ -23,6 +23,7 @@ import {
 import {ToastService} from '../../../shared/services/toast.service';
 import {DontShowAgainService} from '../../../shared/services';
 import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
+import {DocumentAccessibilityEnum} from "../../constants/document-accessibility";
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +96,12 @@ export class MusicService {
 
     if (!this.tracks || this.tracks.length === 0) {
       console.warn('No tracks available to add to queue.');
+      return;
+    }
+
+    if (track.accessibility && track.accessibility === DocumentAccessibilityEnum.PRIVATE) {
+      console.warn('track is private, cannot add to queue.');
+
       return;
     }
 

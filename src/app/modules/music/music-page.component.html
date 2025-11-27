@@ -73,7 +73,10 @@
 
           @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-            <app-image-viewer [imagePid]="detailViewService.currentPagePid"></app-image-viewer>
+            <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+            </app-iiif-viewer>
+
+<!--            <app-image-viewer [imagePid]="detailViewService.currentPagePid"></app-image-viewer>-->
 
 <!--            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"-->
 <!--              class="app-document-thumbnail">-->

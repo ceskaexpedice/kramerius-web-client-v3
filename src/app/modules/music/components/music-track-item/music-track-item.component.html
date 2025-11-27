@@ -67,9 +67,12 @@
         <i [ngClass]="(isFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
       </button>
     }
-    <button class="icon-button rounded light"
-            [attr.aria-label]="'download-track-button--arialabel' | translate"
-            (click)="download(); $event.stopPropagation()">
-      <i class="icon icon-download"></i>
-    </button>
+
+    @if (track.accessibility === DocumentAccessibilityEnum.PUBLIC) {
+      <button class="icon-button rounded light"
+              [attr.aria-label]="'download-track-button--arialabel' | translate"
+              (click)="download(); $event.stopPropagation()">
+        <i class="icon icon-download"></i>
+      </button>
+    }
   </td>

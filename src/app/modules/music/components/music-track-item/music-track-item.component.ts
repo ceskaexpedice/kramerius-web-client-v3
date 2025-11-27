@@ -5,6 +5,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
 import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
+import {DocumentAccessibilityEnum} from "../../../constants/document-accessibility";
 
 @Component({
   selector: '[app-music-track-item]',
@@ -100,4 +101,6 @@ export class MusicTrackItemComponent implements OnInit {
   remove(): void {
     this.removeClicked.emit(this.track);
   }
+
+  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }
