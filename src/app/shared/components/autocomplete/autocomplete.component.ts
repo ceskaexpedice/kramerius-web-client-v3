@@ -44,6 +44,8 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   suggestions = signal<string[]>([]);
   isLoading = signal(false);
 
+  @ViewChild(InputComponent) inputComponent!: InputComponent;
+
   private justSelected = false;
 
   private termChangeSubject = new EventEmitter<string>();
@@ -64,6 +66,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showHistorySuggestions: boolean = false;
   @Input() prefixIcon = '';
   @Input() isCaseSensitive: boolean = false;
+  @Input() autofocus: boolean = false;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');

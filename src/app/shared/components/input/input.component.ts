@@ -61,6 +61,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() showNumberStepper: boolean = true;
   @Input() showCaseSensitiveButton: boolean = false;
   @Input() isCaseSensitive: boolean = false;
+  @Input() autofocus: boolean = false;
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();
@@ -69,8 +70,8 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Output() onBlurEvent = new EventEmitter<void>();
   @Output() onCaseSensitiveEvent = new EventEmitter<void>();
 
-  @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
-  @ViewChild('inputModel', { static: true }) inputModel!: NgModel;
+  @ViewChild('inputElement', { static: false }) inputElement!: ElementRef<HTMLInputElement>;
+  @ViewChild('inputModel', { static: false }) inputModel!: NgModel;
 
   value: string | number = '';
   isFocused = false;
@@ -106,6 +107,13 @@ export class InputComponent implements OnInit, AfterViewInit {
           }
         });
       });
+    }
+
+    // Programmatically focus the input if autofocus is enabled
+    if (this.autofocus) {
+      setTimeout(() => {
+        this.inputElement?.nativeElement?.focus();
+      }, 0);
     }
   }
 
