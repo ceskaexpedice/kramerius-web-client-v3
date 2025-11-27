@@ -3,13 +3,12 @@ import {
   OnInit,
   EventEmitter,
   Output,
-  signal,
   Input,
   ElementRef,
   ViewChild,
   WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges,
 } from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {FormsModule, NgModel} from '@angular/forms';
@@ -101,9 +100,11 @@ export class InputComponent implements OnInit, AfterViewInit {
           const castedValue = this.castValue(newValue);
 
           if (this.value !== castedValue) {
-            this.value = castedValue;
-            this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
-            this.cdr.detectChanges();
+            Promise.resolve().then(() => {
+              this.value = castedValue;
+              this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
+              this.cdr.detectChanges();
+            });
           }
         });
       });
