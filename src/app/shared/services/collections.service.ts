@@ -1,9 +1,9 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, forkJoin, map, Observable, of, takeUntil } from 'rxjs';
+import { filter, forkJoin, map, Observable, of, takeUntil, combineLatest } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
-import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { SolrSortDirections, SolrSortFields, SolrOperators } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
 import {
   customDefinedFacetsEnum,
@@ -25,11 +25,12 @@ import {
 import { loadCollectionSearchResults, loadCollectionDetail } from '../state/collections/collections.actions';
 import { BreadcrumbsService } from './breadcrumbs.service';
 import { Breadcrumb } from '../models/breadcrumb.model';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { fromSolrToMetadata, Metadata } from '../models/metadata.model';
-import {TranslateService} from '@ngx-translate/core';
-import {selectActiveFilters} from '../../modules/search-results-page/state/search.selectors';
-import {SearchService} from './search.service';
+import { TranslateService } from '@ngx-translate/core';
+import { selectActiveFilters } from '../../modules/search-results-page/state/search.selectors';
+import { SearchService } from './search.service';
+import { EnvironmentService } from './environment.service';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,6 @@ export class CollectionsService extends BaseFilterService {
 
   totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
   loading$ = this.store.select(selectCollectionSearchResultsLoading);
-  searchResults$ = this.store.select(selectCollectionSearchResults);
   error$ = this.store.select(selectCollectionSearchResultsError);
 
   detail$ = this.store.select(selectCollectionDetail);
@@ -61,6 +61,7 @@ export class CollectionsService extends BaseFilterService {
   override advancedSearchService = inject(AdvancedSearchService);
   private breadcrumbsService = inject(BreadcrumbsService);
   private translationService = inject(TranslateService);
+  private env = inject(EnvironmentService);
 
   // Convert detail$ to signal for reactive breadcrumb updates
   private detailSignal = toSignal(this.detail$);
@@ -96,6 +97,43 @@ export class CollectionsService extends BaseFilterService {
       }
     });
   }
+
+  private structureOrder = signal<string[]>([]);
+
+  private loadStructure(uuid: string) {
+    const url = `${this.env.getApiUrl('items')}/${uuid}/info/structure`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const children = data.children?.foster || [];
+        const order = children.map((c: any) => c.pid);
+        this.structureOrder.set(order);
+      })
+      .catch(err => {
+        console.error('Error loading structure:', err);
+        this.structureOrder.set([]);
+      });
+  }
+
+  searchResults$ = combineLatest([
+    this.store.select(selectCollectionSearchResults),
+    toObservable(this.structureOrder)
+  ]).pipe(
+    map(([results, order]) => {
+      if (!order.length || !results) return results;
+
+      return [...results].sort((a, b) => {
+        const indexA = order.indexOf(a.pid);
+        const indexB = order.indexOf(b.pid);
+
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+
+        return indexA - indexB;
+      });
+    })
+  );
 
   async initialize() {
     if (this.initialized) return;
@@ -137,7 +175,11 @@ export class CollectionsService extends BaseFilterService {
 
         // Load collection detail
         if (this.uuid) {
-          this.store.dispatch(loadCollectionDetail({ uuid: this.uuid }));
+          const uuid = this.uuid;
+          this.store.dispatch(loadCollectionDetail({ uuid }));
+          this.loadStructure(uuid);
+        } else {
+          this.structureOrder.set([]);
         }
 
         // Load collection search results if there are query params
@@ -150,6 +192,7 @@ export class CollectionsService extends BaseFilterService {
 
   private dispatchCollectionsSearch(params: any): void {
     if (!this.uuid) return;
+    const uuid = this.uuid;
 
     const query = params && params['query'] || '';
 
@@ -163,7 +206,7 @@ export class CollectionsService extends BaseFilterService {
 
     // Remove duplicate license filters
     if (baseFilters.some(f => f.includes(facetKeysEnum.license)) &&
-        customFilters.some(f => f.includes(facetKeysEnum.license))) {
+      customFilters.some(f => f.includes(facetKeysEnum.license))) {
       customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
     }
 
@@ -173,10 +216,8 @@ export class CollectionsService extends BaseFilterService {
       baseFilters = baseFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));
     }
 
-    let { advancedQuery, advancedQueryMainOperator } = {
-      advancedQuery: '',
-      advancedQueryMainOperator: undefined
-    };
+    let advancedQuery: string | undefined = '';
+    let advancedQueryMainOperator: SolrOperators | undefined = undefined;
 
     // Handle year range filter as a separate advanced query
     const yearFrom = params && params['yearFrom'];
@@ -248,15 +289,15 @@ export class CollectionsService extends BaseFilterService {
     const includePage = this.hasSubmittedQuery() || this.hasFulltextFilter();
 
     this.store.dispatch(loadCollectionSearchResults({
-      uuid: this.uuid,
-      query: query,
-      filters: filters,
+      uuid,
+      query,
+      filters,
       advancedQuery,
       advancedQueryMainOperator,
       page: (page - 1) * pageSize,
       pageCount: pageSize,
-      sortBy,
-      sortDirection,
+      sortBy: sortBy as SolrSortFields,
+      sortDirection: sortDirection as SolrSortDirections,
       includePeriodicalItem,
       includePage
     }));
@@ -505,7 +546,7 @@ export class CollectionsService extends BaseFilterService {
 
         // If only one path, use setBreadcrumbs, otherwise use setMultiplePaths
         // if (allBreadcrumbPaths.length === 1) {
-          this.breadcrumbsService.setBreadcrumbs(allBreadcrumbPaths[0], true);
+        this.breadcrumbsService.setBreadcrumbs(allBreadcrumbPaths[0], true);
         // } else {
         //   this.breadcrumbsService.setMultiplePaths(allBreadcrumbPaths, true);
         // }
