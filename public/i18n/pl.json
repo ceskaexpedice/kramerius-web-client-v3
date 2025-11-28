@@ -358,6 +358,8 @@
   "export-pdf-title": "Eksport PDF",
   "export-print-title": "Drukuj",
   "current-page": "Bieżąca strona",
+  "current-left-page": "Bieżąca lewa strona",
+  "current-right-page": "Bieżąca prawa strona",
   "crop-page": "Wycinek strony",
   "whole-document": "Cały dokument",
   "select-pages": "Wybierz strony",

@@ -10,6 +10,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../../dialogs/page-selection-dialog/page-selection-dialog.component';
 import { AppConfigService } from '../../../services/app-config.service';
+import { PdfService } from '../../../services/pdf.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-export-document-section-component',
@@ -29,14 +31,47 @@ export class ExportDocumentSectionComponent {
   dialog = inject(MatDialog);
   detailViewService = inject(DetailViewService);
   appConfig = inject(AppConfigService);
+  pdfService = inject(PdfService);
+
+  iiifBookMode = toSignal(this.iiifViewerService.bookMode$, { initialValue: false });
+  pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
 
   // Computed signal that updates jpegOptions based on license access
   jpegOptions = computed(() => {
     const canAccess = this.documentInfoService.canAccessDocument();
-    return [
-      { label: 'current-page', value: 'current-page', disabled: !canAccess },
-      { label: 'crop-page', value: 'crop-page', disabled: !canAccess }
-    ];
+
+    // Check if we are in book mode (either IIIF or PDF)
+    const isIiifBookMode = this.iiifBookMode();
+    const isPdfBookMode = this.pdfProperties()?.bookMode;
+    const isBookMode = isIiifBookMode || isPdfBookMode;
+
+    if (isBookMode) {
+      const pages = this.detailViewService.pages;
+      const currentIndex = this.detailViewService.currentPageIndex;
+
+      // Check if left and right pages exist
+      const hasLeftPage = pages && pages[currentIndex];
+      const hasRightPage = pages && pages[currentIndex + 1];
+
+      const options = [];
+
+      if (hasLeftPage) {
+        options.push({ label: 'current-left-page', value: 'current-left-page', disabled: !canAccess });
+      }
+
+      if (hasRightPage) {
+        options.push({ label: 'current-right-page', value: 'current-right-page', disabled: !canAccess });
+      }
+
+      options.push({ label: 'crop-page', value: 'crop-page', disabled: !canAccess });
+
+      return options;
+    } else {
+      return [
+        { label: 'current-page', value: 'current-page', disabled: !canAccess },
+        { label: 'crop-page', value: 'crop-page', disabled: !canAccess }
+      ];
+    }
   });
 
   pdfOptions = computed(() => {
@@ -72,6 +107,20 @@ export class ExportDocumentSectionComponent {
   onJpegSubmit(value: string) {
     if (value === 'current-page' && this.pagePid) {
       this.exportService.exportJpeg(this.pagePid);
+    } else if (value === 'current-left-page') {
+      const pages = this.detailViewService.pages;
+      const currentIndex = this.detailViewService.currentPageIndex;
+      const leftPage = pages[currentIndex];
+      if (leftPage) {
+        this.exportService.exportJpeg(leftPage.pid);
+      }
+    } else if (value === 'current-right-page') {
+      const pages = this.detailViewService.pages;
+      const currentIndex = this.detailViewService.currentPageIndex;
+      const rightPage = pages[currentIndex + 1];
+      if (rightPage) {
+        this.exportService.exportJpeg(rightPage.pid);
+      }
     } else if (value === 'crop-page' && this.pagePid) {
       this.iiifViewerService.selectedArea$.pipe(take(1)).subscribe(rect => {
         if (rect) {

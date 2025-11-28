@@ -366,6 +366,8 @@
   "export-pdf-title": "Export PDF",
   "export-print-title": "Print",
   "current-page": "Current page",
+  "current-left-page": "Current left page",
+  "current-right-page": "Current right page",
   "crop-page": "Crop page",
   "whole-document": "Whole document",
   "select-pages": "Select pages",

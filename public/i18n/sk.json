@@ -359,6 +359,8 @@
   "export-pdf-title": "Export PDF",
   "export-print-title": "Tlač",
   "current-page": "Aktuálna strana",
+  "current-left-page": "Aktuálna ľavá strana",
+  "current-right-page": "Aktuálna pravá strana",
   "crop-page": "Výrez strany",
   "whole-document": "Celý dokument",
   "select-pages": "Vybrať strany",
