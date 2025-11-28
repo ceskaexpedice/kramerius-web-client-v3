@@ -55,7 +55,7 @@
 <td>{{ record.model | translate }}</td>
 
 <td>
-  {{record.count_page ? record.count_page : '—'}}
+  {{record.count_page ? (record.count_page | pluralize:'count-pages') : '—'}}
 </td>
 
 <td>

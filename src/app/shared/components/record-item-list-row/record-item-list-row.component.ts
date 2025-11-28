@@ -9,6 +9,7 @@ import { EnvironmentService } from '../../services/environment.service';
 import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
+import { PluralizePipe } from '../../pipes/pluralize.pipe';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -18,6 +19,7 @@ import { SelectionService } from '../../services';
     NgForOf,
     AccessibilityBadgeComponent,
     CheckboxComponent,
+    PluralizePipe,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
