@@ -72,6 +72,8 @@ function getDocumentTitle(doc: any): string {
   switch (doc.model) {
     case 'monograph':
       return doc.title || '';
+      case 'monographunit':
+        return doc['title.search'];
     case 'periodical':
     case 'periodicalvolume':
     case 'page':

@@ -8,6 +8,7 @@ export enum APP_ROUTES_ENUM {
   DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical',
   MUSIC_VIEW = 'music',
+  MONOGRAPH_VIEW = 'monograph',
   AUTH_CALLBACK = 'auth/callback',
   SAVED_LISTS = 'folders',
   PROFILE = 'profile',
@@ -47,6 +48,10 @@ export const routes: Routes = [
   {
     path: APP_ROUTES_ENUM.MUSIC_VIEW,
     loadChildren: () => import('./modules/music/music-page.module').then(m => m.MusicPageModule)
+  },
+  {
+    path: `${APP_ROUTES_ENUM.MONOGRAPH_VIEW}/:uuid`,
+    loadComponent: () => import('./modules/monograph-volumes-page/monograph-volumes-page.component').then(c => c.MonographVolumesPageComponent)
   },
   {
     path: APP_ROUTES_ENUM.SAVED_LISTS,

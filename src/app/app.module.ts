@@ -44,6 +44,7 @@ import { periodicalSearchReducer } from './modules/periodical/state/periodical-s
 import { foldersReducer } from './modules/saved-lists-page/state/folders.reducer';
 import { collectionsReducer } from './shared/state/collections/collections.reducer';
 import { licensesReducer } from './shared/state/licenses/licenses.reducer';
+import { monographVolumesReducer } from './shared/state/monograph-volumes/monograph-volumes.reducer';
 
 // NgRx Feature Effects
 import { PeriodicalsEffects } from './modules/search/state/periodicals/periodicals.effects';
@@ -57,6 +58,7 @@ import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-s
 import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
 import { FoldersEffects } from './modules/saved-lists-page/state/folders.effects';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
+import { MonographVolumesEffects } from './shared/state/monograph-volumes/monograph-volumes.effects';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -101,6 +103,7 @@ export function initApp(envService: EnvironmentService) {
       folders: foldersReducer,
       collections: collectionsReducer,
       licenses: licensesReducer,
+      'monograph-volumes': monographVolumesReducer,
     }, {}),
     EffectsModule.forRoot([
       AuthEffects,
@@ -116,6 +119,7 @@ export function initApp(envService: EnvironmentService) {
       MusicDetailEffects,
       FoldersEffects,
       LicensesEffects,
+      MonographVolumesEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
