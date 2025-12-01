@@ -513,7 +513,7 @@ export class RecordHandlerService {
       id: item.pid,
       title: getItemTitle(item),
       subtitle: `${subtitlePrefix} ${item['part.number.str']}`,
-      model: item.model,
+      model: item.model as DocumentTypeEnum,
       licenses: item['licenses.facet'] || [],
       className: 'card--fluid',
       showFavoriteButton: false,
@@ -535,7 +535,7 @@ export class RecordHandlerService {
     const recordItem: RecordItem = {
       id: year.pid,
       title: year.year,
-      model: year.model,
+      model: year.model as DocumentTypeEnum,
       licenses: year.licenses || [],
       className: 'card--fluid',
       showFavoriteButton: false,

@@ -10,6 +10,7 @@ import {Router} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
 import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
+import {DocumentTypeEnum} from "../../../constants/document-type";
 
 @Component({
   selector: 'app-periodical-year-issues-grid',
@@ -58,7 +59,7 @@ export class PeriodicalYearIssuesGridComponent {
       id: item.pid,
       title: this.getItemTitle(item),
       subtitle: `${subtitlePrefix} ${item['part.number.str']}`,
-      model: item.model,
+      model: item.model as DocumentTypeEnum,
       licenses: item['licenses.facet'] || [],
       className: 'card--fluid',
       showFavoriteButton: false,

@@ -46,13 +46,12 @@
           <i class="icon-trash"></i>
         </button>
 
-        <!-- Future buttons will go here and will use class="other-button" -->
-        <!-- Example: <button class="button secondary rounded icon-button other-button">...</button> -->
       </div>
 
-      @if (item.model !== DocumentTypeEnum.page && item.model !== DocumentTypeEnum.periodicalvolume && item.model !== DocumentTypeEnum.periodicalitem) {
-        <span class="badge model">{{ item.model | translate }}</span>
-      }
+      <app-model-badge
+        [model]="item.model"
+        [monographUnitCount]="item.monographUnitCount || 0">
+      </app-model-badge>
 
       @if (isRecordLocked()) {
         <div class="record-item-card__image-lock-overlay">
@@ -107,7 +106,6 @@
 
 </a>
 
-<!-- Favorites Popup positioned outside the card to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {
   <div class="favorites-popup-wrapper"
        [class.positioned]="favoritesPopupState.popupPositioned()">

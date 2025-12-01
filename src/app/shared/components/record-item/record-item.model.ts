@@ -1,3 +1,5 @@
+import {DocumentTypeEnum} from "../../../modules/constants/document-type";
+
 /**
  * Simplified model for RecordItemComponent
  * Contains only the essential properties needed for display and functionality
@@ -13,7 +15,7 @@ export interface RecordItem {
   subtitle?: string;
 
   /** Document model/type for styling and URL generation */
-  model: string;
+  model: DocumentTypeEnum | '';
 
   /** Licenses array for lock detection */
   licenses?: string[];
@@ -38,6 +40,8 @@ export interface RecordItem {
 
   /** Whether to show accessibility badge */
   showAccessibilityBadge?: boolean;
+
+  monographUnitCount?: number;
 }
 
 /**
@@ -48,7 +52,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     id: doc.pid || '',
     title: getDocumentTitle(doc),
     subtitle: getDocumentSubtitle(doc),
-    model: doc.model || '',
+    model: (doc.model as DocumentTypeEnum) || '',
     licenses: doc.containsLicenses || doc.licenses || [],
     authors: doc.authors,
     date: doc.date,
@@ -56,7 +60,8 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     highlighting: doc.highlighting,
     className: '',
     showFavoriteButton: true,
-    showAccessibilityBadge: true
+    showAccessibilityBadge: true,
+    monographUnitCount: doc.monographUnit_count || 0
   };
 }
 
@@ -89,5 +94,36 @@ function getDocumentSubtitle(doc: any): string {
       return doc.rootTitle || '';
     default:
       return '';
+  }
+}
+
+export function getModelIcon(model: DocumentTypeEnum | string, monographUnitCount: number = 0): string | null {
+  const modelKey = model.toLowerCase();
+
+  switch (modelKey) {
+    case DocumentTypeEnum.monograph:
+      return monographUnitCount > 0 ? null : 'icon-book-1';
+    case DocumentTypeEnum.monographunit:
+      return 'icon-folder-open';
+    case DocumentTypeEnum.periodical:
+      return 'icon-firstline';
+    case DocumentTypeEnum.collection:
+      return 'icon-layer';
+    case DocumentTypeEnum.map:
+      return 'icon-map';
+    case DocumentTypeEnum.graphic:
+      return 'icon-brush-2';
+    case DocumentTypeEnum.soundrecording:
+      return 'icon-volume-high';
+    case DocumentTypeEnum.sheetmusic:
+      return 'icon-music';
+    case DocumentTypeEnum.archive:
+      return 'icon-folder-open';
+    case DocumentTypeEnum.manuscript:
+      return 'icon-path';
+    case DocumentTypeEnum.convolute:
+      return 'icon-archive-book';
+    default:
+      return null;
   }
 }

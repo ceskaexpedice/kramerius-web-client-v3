@@ -15,6 +15,7 @@ import {SavedListsService} from '../../../modules/saved-lists-page/services/save
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
+import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 
 @Component({
   selector: 'app-record-item',
@@ -26,6 +27,7 @@ import { FavoritesService } from '../../services/favorites.service';
     CheckboxComponent,
     NgClass,
     NgIf,
+    ModelBadgeComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -98,7 +100,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
       return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
     }
-    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id);
+    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model as DocumentTypeEnum, this.item.id);
   }
 
   getTitle(): string {

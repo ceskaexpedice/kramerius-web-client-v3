@@ -67,16 +67,10 @@
     border-radius: var(--spacing-x1);
     min-height: 0;
 
-    .badge.model {
+    app-model-badge {
       position: absolute;
       bottom: 10px;
       left: 0;
-      background: var(--color-bg-base);
-      color: var(--color-text-base);
-      font-size: calc(12px * var(--accessibility-text-scale));
-      padding: 4px 6px;
-      border-radius: 0 4px 4px 0;
-      z-index: $record-item-overlay;
     }
 
     .record-item-card__actions {

@@ -4,6 +4,7 @@ import {NgForOf} from '@angular/common';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
+import {DocumentTypeEnum} from "../../../constants/document-type";
 
 @Component({
   selector: 'app-periodical-years-grid',
@@ -25,7 +26,7 @@ export class PeriodicalYearsGridComponent {
     return {
       id: year.pid,
       title: year.year,
-      model: year.model,
+      model: year.model as DocumentTypeEnum || '',
       licenses: year.licenses || [],
       className: 'card--fluid',
       showFavoriteButton: false,
