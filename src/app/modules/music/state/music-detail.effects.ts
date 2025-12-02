@@ -36,7 +36,7 @@ export class MusicDetailEffects {
             const mergedTracks: SoundTrackModel[] = [];
 
             results.forEach(({ uuid, tracks }, uuidIndex) => {
-              tracks.forEach((track, trackIndex) => {
+              tracks.forEach((track: any, trackIndex: number) => {
                 track.part = `${uuidIndex + 1}.${trackIndex + 1}`;
                 track.url = this.solrService.getAudioTrackMp3Url(track.pid);
                 track.parentPid = uuid;

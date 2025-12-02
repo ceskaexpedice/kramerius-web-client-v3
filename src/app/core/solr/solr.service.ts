@@ -630,21 +630,48 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null): Observable<any[]> {
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}): Observable<any> {
     let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
 
     if (model) {
       query += ` AND model:${model}`;
     }
 
-    const params = {
-      q: query,
-      fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors',
-      rows: '10000',
-      sort
-    };
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => res.response?.docs ?? [])
+    let httpParams = new HttpParams({
+      fromObject: {
+        q: query,
+        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors',
+        rows: '10000',
+        sort
+      }
+    });
+
+    if (includeFacets && facetFields.length > 0) {
+      httpParams = httpParams.set('facet', 'true');
+      httpParams = httpParams.set('facet.mincount', '1');
+      facetFields.forEach(field => {
+        httpParams = httpParams.append('facet.field', field);
+      });
+    }
+
+    // Add filter queries
+    this.buildFqParams(filters, facetOperators).forEach(fq => {
+      httpParams = httpParams.append('fq', fq);
+    });
+
+    return this.http.get<any>(this.API_URL, { params: httpParams }).pipe(
+      map(res => {
+        if (includeFacets) {
+          // Return full response with both docs and facets
+          return {
+            docs: res.response?.docs ?? [],
+            facets: res.facet_counts?.facet_fields ?? {},
+            numFound: res.response?.numFound ?? 0
+          };
+        }
+        // Return just docs for backward compatibility
+        return res.response?.docs ?? [];
+      })
     );
   }
 

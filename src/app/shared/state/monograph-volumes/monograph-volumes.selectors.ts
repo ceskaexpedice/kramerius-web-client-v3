@@ -28,3 +28,18 @@ export const selectMonographVolumesUuid = createSelector(
   selectRouterParams,
   params => params['uuid']
 );
+
+export const selectMonographVolumesFacets = createSelector(
+  selectMonographVolumesState,
+  state => state?.facets
+);
+
+export const selectMonographVolumesFacetsLoading = createSelector(
+  selectMonographVolumesState,
+  state => state?.facetsLoading
+);
+
+export const selectMonographVolumesFacetsError = createSelector(
+  selectMonographVolumesState,
+  state => state?.facetsError
+);

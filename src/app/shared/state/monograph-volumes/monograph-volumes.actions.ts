@@ -3,12 +3,12 @@ import { Metadata } from '../../models/metadata.model';
 
 export const loadMonographVolumes = createAction(
   '[MonographVolumes] Load',
-  props<{ uuid: string }>()
+  props<{ uuid: string; filters: string[] }>()
 );
 
 export const loadMonographVolumesSuccess = createAction(
   '[MonographVolumes] Load Success',
-  props<{ parent: Metadata; volumes: any[] }>()
+  props<{ parent: Metadata; volumes: any[]; facets: any }>()
 );
 
 export const loadMonographVolumesFailure = createAction(

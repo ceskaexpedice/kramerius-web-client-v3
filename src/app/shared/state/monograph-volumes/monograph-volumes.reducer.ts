@@ -7,6 +7,9 @@ export interface MonographVolumesState {
   parent: Metadata | null;
   volumes: any[];
   error: any;
+  facets: any;
+  facetsLoading: boolean;
+  facetsError: any;
 }
 
 export const initialState: MonographVolumesState = {
@@ -14,6 +17,9 @@ export const initialState: MonographVolumesState = {
   parent: null,
   volumes: [],
   error: null,
+  facets: {},
+  facetsLoading: false,
+  facetsError: null,
 };
 
 export const monographVolumesReducer = createReducer(
@@ -21,19 +27,26 @@ export const monographVolumesReducer = createReducer(
   on(MonographVolumesActions.loadMonographVolumes, state => ({
     ...state,
     loading: true,
-    error: null
+    facetsLoading: true,
+    error: null,
+    facetsError: null
   })),
-  on(MonographVolumesActions.loadMonographVolumesSuccess, (state, { parent, volumes }) => ({
+  on(MonographVolumesActions.loadMonographVolumesSuccess, (state, { parent, volumes, facets }) => ({
     ...state,
     loading: false,
+    facetsLoading: false,
     parent,
     volumes: volumes || [],
-    error: null
+    facets: facets || {},
+    error: null,
+    facetsError: null
   })),
   on(MonographVolumesActions.loadMonographVolumesFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error
+    facetsLoading: false,
+    error,
+    facetsError: error
   })),
   on(MonographVolumesActions.clearMonographVolumes, () => initialState)
 );
