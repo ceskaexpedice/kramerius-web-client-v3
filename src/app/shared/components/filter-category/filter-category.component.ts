@@ -1,26 +1,26 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal, effect} from '@angular/core';
-import {NgForOf, NgIf, SlicePipe} from '@angular/common';
-import {FilterItemComponent} from '../filter-item/filter-item.component';
-import {FacetItem} from '../../../modules/models/facet-item';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal, effect } from '@angular/core';
+import { NgForOf, NgIf, SlicePipe } from '@angular/common';
+import { FilterItemComponent } from '../filter-item/filter-item.component';
+import { FacetItem } from '../../../modules/models/facet-item';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   FilterDialogComponent
 } from '../../../modules/search-results-page/components/filter-dialog/filter-dialog.component';
-import {ActivatedRoute} from '@angular/router';
-import {MatDialog} from '@angular/material/dialog';
-import {SearchService} from '../../services/search.service';
-import {expandCollapseAnimation} from '../../animations';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { SearchService } from '../../services/search.service';
+import { expandCollapseAnimation } from '../../animations';
 import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
   facetKeysInfinityCount,
 } from '../../../modules/search-results-page/const/facets';
-import {CustomSearchService} from '../../services/custom-search.service';
-import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radio.component';
-import {RangeSliderComponent} from '../range-slider/range-slider.component';
-import {DatePickerComponent} from '../date-picker/date-picker.component';
-import {FilterElementType} from '../../dialogs/advanced-search-dialog/solr-filters';
-import {getModelIcon, getLanguageFlagIcon} from '../../utils/filter-icons.utils';
+import { CustomSearchService } from '../../services/custom-search.service';
+import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-radio.component';
+import { RangeSliderComponent } from '../range-slider/range-slider.component';
+import { DatePickerComponent } from '../date-picker/date-picker.component';
+import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
+import { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
 
 @Component({
   selector: 'app-filter-category',
@@ -259,6 +259,11 @@ export class FilterCategoryComponent implements OnChanges {
 
   onRangeChange(event: any) {
     this.rangeChange.emit(event);
+  }
+
+  // TrackBy function to prevent unnecessary rerenders
+  trackByItemName(index: number, item: FacetItem): string {
+    return item.name;
   }
 
   protected readonly AdvancedFilterType = FilterElementType;

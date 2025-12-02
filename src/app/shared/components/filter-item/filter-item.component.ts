@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import {MatCheckbox} from '@angular/material/checkbox';
-import {TranslatePipe} from '@ngx-translate/core';
-import {NgClass, NgIf} from '@angular/common';
-import {FormatNumberPipe} from '../../pipes/format-number.pipe';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslatePipe } from '@ngx-translate/core';
+import { NgClass, NgIf } from '@angular/common';
+import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 
 @Component({
   selector: 'app-filter-item',
@@ -14,7 +14,8 @@ import {FormatNumberPipe} from '../../pipes/format-number.pipe';
     FormatNumberPipe,
   ],
   templateUrl: './filter-item.component.html',
-  styleUrl: './filter-item.component.scss'
+  styleUrl: './filter-item.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterItemComponent {
 
