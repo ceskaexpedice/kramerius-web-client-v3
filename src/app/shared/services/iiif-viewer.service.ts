@@ -602,18 +602,29 @@ export class IIIFViewerService {
   // Clear selection and dim overlays
   private clearSelectionOverlays(): void {
     if (!this.viewer) return;
-    if (this.selectionOverlay) {
-      this.viewer.removeOverlay(this.selectionOverlay);
+    try {
+      if (this.selectionOverlay) {
+        this.viewer.removeOverlay(this.selectionOverlay);
+        this.selectionOverlay = null;
+      }
+      this.dimOverlays.forEach(overlay => this.viewer!.removeOverlay(overlay));
+      this.dimOverlays = [];
+    } catch (e) {
+      // Viewer might not be fully initialized yet, ignore the error
+      console.warn('Failed to clear selection overlays, viewer not fully initialized:', e);
       this.selectionOverlay = null;
+      this.dimOverlays = [];
     }
-    this.dimOverlays.forEach(overlay => this.viewer!.removeOverlay(overlay));
-    this.dimOverlays = [];
   }
 
   // Disable selection mode
   private disableSelectionMode(): void {
     if (!this.viewer) return;
-    this.viewer.setMouseNavEnabled(true);
+    try {
+      this.viewer.setMouseNavEnabled(true);
+    } catch (e) {
+      console.warn('Failed to set mouse nav enabled, viewer not fully initialized:', e);
+    }
     if (this.mouseTracker) {
       this.mouseTracker.destroy();
       this.mouseTracker = null;
@@ -627,7 +638,12 @@ export class IIIFViewerService {
   clearAllOverlays(): void {
     if (!this.viewer) return;
     this.clearSelectionOverlays();
-    this.viewer.clearOverlays();
+    try {
+      this.viewer.clearOverlays();
+    } catch (e) {
+      // Viewer might not be fully initialized yet, ignore the error
+      console.warn('Failed to clear overlays, viewer not fully initialized:', e);
+    }
     this.rectangles.clear();
     this.rectangleCounter = 0;
   }

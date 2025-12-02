@@ -54,7 +54,8 @@ export class DocumentDetailEffects {
         // Redirect to monograph volumes page if it's a multi-volume monograph
         if (isMonograph && hasMonographUnits) {
           console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
-          this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid]);
+          // Use replaceUrl to replace history entry, preventing back button issues
+          this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
         }
       }),
       map(({ detailItem, children }) => {
