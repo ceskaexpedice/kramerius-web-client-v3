@@ -1,4 +1,4 @@
-import {DocumentTypeEnum} from "../../../modules/constants/document-type";
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 
 /**
  * Simplified model for RecordItemComponent
@@ -61,7 +61,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     className: '',
     showFavoriteButton: true,
     showAccessibilityBadge: true,
-    monographUnitCount: doc.monographUnit_count || 0
+    monographUnitCount: doc.monographUnit_count || 0,
   };
 }
 
@@ -70,16 +70,16 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
  */
 function getDocumentTitle(doc: any): string {
   switch (doc.model) {
-    case 'monograph':
+    case DocumentTypeEnum.monograph:
       return doc.title || '';
-      case 'monographunit':
-        return doc['title.search'];
-    case 'periodical':
-    case 'periodicalvolume':
-    case 'page':
+    case DocumentTypeEnum.monographunit:
+      return doc.title || doc.rootTitle || doc['title.search'] ;
+    case DocumentTypeEnum.periodical:
+    case DocumentTypeEnum.periodicalvolume:
+    case DocumentTypeEnum.page:
       return doc.rootTitle || '';
-    case 'article':
-    case 'supplement':
+    case DocumentTypeEnum.article:
+    case DocumentTypeEnum.supplement:
       return doc.title || '';
     default:
       return doc.rootTitle || doc.title || '';
@@ -91,41 +91,13 @@ function getDocumentTitle(doc: any): string {
  */
 function getDocumentSubtitle(doc: any): string {
   switch (doc.model) {
-    case 'article':
-    case 'supplement':
+    case DocumentTypeEnum.article:
+    case DocumentTypeEnum.supplement:
       return doc.rootTitle || '';
     default:
       return '';
   }
 }
 
-export function getModelIcon(model: DocumentTypeEnum | string, monographUnitCount: number = 0): string | null {
-  const modelKey = model.toLowerCase();
-
-  switch (modelKey) {
-    case DocumentTypeEnum.monograph:
-      return monographUnitCount > 0 ? null : 'icon-book-1';
-    case DocumentTypeEnum.monographunit:
-      return 'icon-folder-open';
-    case DocumentTypeEnum.periodical:
-      return 'icon-firstline';
-    case DocumentTypeEnum.collection:
-      return 'icon-layer';
-    case DocumentTypeEnum.map:
-      return 'icon-map';
-    case DocumentTypeEnum.graphic:
-      return 'icon-brush-2';
-    case DocumentTypeEnum.soundrecording:
-      return 'icon-volume-high';
-    case DocumentTypeEnum.sheetmusic:
-      return 'icon-music';
-    case DocumentTypeEnum.archive:
-      return 'icon-folder-open';
-    case DocumentTypeEnum.manuscript:
-      return 'icon-path';
-    case DocumentTypeEnum.convolute:
-      return 'icon-archive-book';
-    default:
-      return null;
-  }
-}
+// Re-export icon utility functions for backward compatibility
+export { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';

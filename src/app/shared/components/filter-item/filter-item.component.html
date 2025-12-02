@@ -16,6 +16,14 @@
     >({{ count | formatNumber }})</span>
   </mat-checkbox>
 
-  <i *ngIf="icon" [ngClass]="icon"></i>
+  @if (icon) {
+    <span class="icon">
+      @if (isImageIcon) {
+        <img [src]="icon" [alt]="label" class="flag-icon">
+      } @else {
+        <i [ngClass]="icon"></i>
+      }
+    </span>
+  }
 
 </label>

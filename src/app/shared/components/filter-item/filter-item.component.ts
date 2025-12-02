@@ -26,4 +26,8 @@ export class FilterItemComponent {
   @Input() disabled = false;
   @Output() toggled = new EventEmitter<void>();
 
+  get isImageIcon(): boolean {
+    return this.icon?.includes('/') || this.icon?.includes('.') || false;
+  }
+
 }

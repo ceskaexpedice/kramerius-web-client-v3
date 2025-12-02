@@ -20,6 +20,7 @@ import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radi
 import {RangeSliderComponent} from '../range-slider/range-slider.component';
 import {DatePickerComponent} from '../date-picker/date-picker.component';
 import {FilterElementType} from '../../dialogs/advanced-search-dialog/solr-filters';
+import {getModelIcon, getLanguageFlagIcon} from '../../utils/filter-icons.utils';
 
 @Component({
   selector: 'app-filter-category',
@@ -149,6 +150,22 @@ export class FilterCategoryComponent implements OnChanges {
         if (this.showPeriodicalItemFacet && item.name === 'periodicalvolume') return true;
         return !['periodicalitem', 'page', 'periodicalvolume'].includes(item.name);
       });
+    }
+
+    // Add icons for model facets
+    if (this.facetKey === customDefinedFacetsEnum.model) {
+      sorted = sorted.map(item => ({
+        ...item,
+        icon: getModelIcon(item.name, 0) || undefined
+      }));
+    }
+
+    // Add flag icons for language facets
+    if (this.facetKey === facetKeysEnum.languages) {
+      sorted = sorted.map(item => ({
+        ...item,
+        icon: getLanguageFlagIcon(item.name) || undefined
+      }));
     }
 
     this.visibleItems.set(sorted);

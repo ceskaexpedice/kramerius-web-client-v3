@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass } from '@angular/common';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
-import {getModelIcon, RecordItem} from "../record-item/record-item.model";
+import { getModelIcon } from "../../utils/filter-icons.utils";
 
 @Component({
   selector: 'app-model-badge',

@@ -10,6 +10,10 @@
   }
 }
 
+.form-control {
+  justify-content: space-between;
+}
+
 .count {
   color: var(--color-text-light);
   font-size: var(--font-size-small);
@@ -18,5 +22,26 @@
 
   &.checked {
     color: var(--color-text-tertiary);
+  }
+}
+
+.icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 1px;
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-light);
+
+  i {
+    font-size: var(--font-size-base);
+  }
+
+  .flag-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: cover;
   }
 }
