@@ -370,5 +370,12 @@
   "page-selection-dialog--header-pdf": "Vybrat konkrétní strany pro export PDF",
   "page-selection-dialog--header-print": "Vybrat konkrétní strany pro tisk",
   "press-shift-for-multiselect": "Pro vícenásobné vybrání stránek stiskněte Shift",
-  "download": "Stáhnout"
+  "download": "Stáhnout",
+  "error.not_found.title": "Stránka nenalezena",
+  "error.not_found.message": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+  "error.not_found.go_home": "Zpět na hlavní stránku",
+  "error.server_error.title": "Chyba serveru",
+  "error.server_error.message": "Něco se pokazilo na naší straně. Zkuste to prosím znovu později.",
+  "error.server_error.reload": "Znovu načíst stránku",
+  "error.server_error.go_home": "Zpět na hlavní stránku"
 }

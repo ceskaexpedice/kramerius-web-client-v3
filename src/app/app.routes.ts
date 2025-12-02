@@ -15,6 +15,8 @@ export enum APP_ROUTES_ENUM {
   HELP = 'help',
   UUID_REDIRECT = 'uuid',
   COLLECTION = 'collection',
+  NOT_FOUND = '404',
+  SERVER_ERROR = '500',
 }
 
 export const routes: Routes = [
@@ -66,5 +68,17 @@ export const routes: Routes = [
   {
     path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
     loadComponent: () => import('./shared/components/uuid-redirect/uuid-redirect.component').then(c => c.UuidRedirectComponent)
+  },
+  {
+    path: APP_ROUTES_ENUM.NOT_FOUND,
+    loadComponent: () => import('./core/pages/not-found/not-found.component').then(c => c.NotFoundComponent)
+  },
+  {
+    path: APP_ROUTES_ENUM.SERVER_ERROR,
+    loadComponent: () => import('./core/pages/server-error/server-error.component').then(c => c.ServerErrorComponent)
+  },
+  {
+    path: '**',
+    redirectTo: APP_ROUTES_ENUM.NOT_FOUND
   }
 ];

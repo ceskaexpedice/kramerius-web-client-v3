@@ -377,5 +377,12 @@
   "page-selection-dialog--header-pdf": "Select specific pages for PDF export",
   "page-selection-dialog--header-print": "Select specific pages for printing",
   "press-shift-for-multiselect": "For multiple selection of pages press Shift",
-  "download": "Download"
+  "download": "Download",
+  "error.not_found.title": "Page Not Found",
+  "error.not_found.message": "The page you are looking for does not exist or has been moved.",
+  "error.not_found.go_home": "Go to Homepage",
+  "error.server_error.title": "Server Error",
+  "error.server_error.message": "Something went wrong on our end. Please try again later.",
+  "error.server_error.reload": "Reload Page",
+  "error.server_error.go_home": "Go to Homepage"
 }

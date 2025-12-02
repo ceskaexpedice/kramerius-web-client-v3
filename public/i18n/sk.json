@@ -370,5 +370,12 @@
   "page-selection-dialog--header-pdf": "Vybrať konkrétne strany pre export PDF",
   "page-selection-dialog--header-print": "Vybrať konkrétne strany pre tlač",
   "press-shift-for-multiselect": "Pre viacnásobné vybranie stránok stlačte Shift",
-  "download": "Stiahnuť"
+  "download": "Stiahnuť",
+  "error.not_found.title": "Stránka nenájdená",
+  "error.not_found.message": "Stránka, ktorú hľadáte, neexistuje alebo bola presunutá.",
+  "error.not_found.go_home": "Späť na hlavnú stránku",
+  "error.server_error.title": "Chyba servera",
+  "error.server_error.message": "Niečo sa pokazilo na našej strane. Skúste to prosím znova neskôr.",
+  "error.server_error.reload": "Znovu načítať stránku",
+  "error.server_error.go_home": "Späť na hlavnú stránku"
 }
