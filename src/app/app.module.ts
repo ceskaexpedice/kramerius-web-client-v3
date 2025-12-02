@@ -151,6 +151,6 @@ export function initApp(envService: EnvironmentService) {
 
 export class AppModule {
   constructor(translate: TranslateService) {
-    translate.setDefaultLang(ENVIRONMENT.defaultLanguage);
+    translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
   }
 }

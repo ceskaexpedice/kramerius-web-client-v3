@@ -6,7 +6,9 @@ export const ENVIRONMENT = {
   enableDebug: true,
   availableLanguages: ['cs', 'en', 'sk', 'pl'],
   defaultLanguage: 'cs',
-  dateRangeStartYear: 1162
+  fallbackLanguage: 'en',
+  dateRangeStartYear: 1162,
+  translationVersion: '1.0.0'
 };
 
 export const API_URL = new InjectionToken<string>('API_URL');
