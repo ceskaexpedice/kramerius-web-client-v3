@@ -13,6 +13,8 @@ import {selectDocumentDetail} from '../../state/document-detail/document-detail.
 import {take} from 'rxjs';
 import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
 import {DocumentInfoService} from '../../services/document-info.service';
+import {UserService} from '../../services/user.service';
+import {isDocumentPublic} from '../record-item/record-item.model';
 
 @Component({
   selector: 'app-metadata-section',
@@ -27,12 +29,15 @@ import {DocumentInfoService} from '../../services/document-info.service';
   styleUrl: './metadata-section.scss'
 })
 export class MetadataSection implements OnInit {
+  isPublic = false;
 
   data: Metadata | null = null;
 
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
   documentInfoService = inject(DocumentInfoService);
+  userService = inject(UserService);
+
   store = inject(Store);
 
   @Input() uuid: string = '';
@@ -41,6 +46,8 @@ export class MetadataSection implements OnInit {
 
   ngOnInit() {
     this.loadMetadata();
+
+    this.isPublic = isDocumentPublic(this.data?.licences || [], this.userService.licenses);
   }
 
   async loadMetadata() {
@@ -49,6 +56,8 @@ export class MetadataSection implements OnInit {
 
     // Get Solr data from store to supplement with model, accessibility, and license
     this.store.select(selectDocumentDetail).pipe(take(1)).subscribe(solrData => {
+      console.log('modsData', modsData);
+      console.log(solrData);
       if (solrData && solrData.uuid === this.uuid) {
         // Merge MODS data with Solr-specific fields
         this.data = {

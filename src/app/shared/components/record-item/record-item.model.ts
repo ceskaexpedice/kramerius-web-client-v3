@@ -99,5 +99,10 @@ function getDocumentSubtitle(doc: any): string {
   }
 }
 
+export function isDocumentPublic(licenses: string[], userLicenses: string[]) {
+  // if there is some license in userLicenses that is in licenses, return true
+  return userLicenses.some(userLicense => licenses.includes(userLicense));
+}
+
 // Re-export icon utility functions for backward compatibility
 export { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';

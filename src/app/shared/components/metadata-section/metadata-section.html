@@ -42,7 +42,6 @@
 
   <!-- Accessibility -->
   <app-metadata-section-item
-    *ngIf="data.isPublic !== undefined"
     [label]="'accessibility' | translate"
     type="badge"
     [onItemClick]="clickedAccessibility">
@@ -50,7 +49,7 @@
     <div class="flex" metadata-section-item-content>
 
       <app-accessibility-badge
-        [isLocked]="data.isPublic"
+        [isLocked]="isPublic"
       ></app-accessibility-badge>
 
     </div>
