@@ -189,7 +189,8 @@ export class DetailViewService {
     } else {
       console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
       // add first page as param
-      if (this._pages().length > 0) {
+      const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit);
+      if (this._pages().length > 0 && !isMonographUnit) {
         this._currentPageIndex.set(0);
         this.router.navigate([], {
           relativeTo: this.route,
