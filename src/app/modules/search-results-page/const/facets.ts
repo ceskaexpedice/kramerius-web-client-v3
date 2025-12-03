@@ -178,14 +178,6 @@ export const customDefinedFacets = [
         ],
         name: 'collection',
         count: 0
-      },
-      {
-        key: 'monographunit',
-        fq: [
-          'monographunit'
-        ],
-        name: 'monographunit',
-        count: 0
       }
     ]
   },
