@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Author, Metadata, Publisher, PhysicalDescription, NoteInfo} from '../../models/metadata.model';
@@ -28,7 +28,7 @@ import {isDocumentPublic} from '../record-item/record-item.model';
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
 })
-export class MetadataSection implements OnInit {
+export class MetadataSection implements OnInit, OnChanges {
   isPublic = false;
 
   data: Metadata | null = null;
@@ -48,6 +48,12 @@ export class MetadataSection implements OnInit {
     this.loadMetadata();
 
     this.isPublic = isDocumentPublic(this.data?.licences || [], this.userService.licenses);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['uuid'] && !changes['uuid'].firstChange) {
+      this.loadMetadata();
+    }
   }
 
   async loadMetadata() {
