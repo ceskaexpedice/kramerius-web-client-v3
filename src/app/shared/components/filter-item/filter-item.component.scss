@@ -35,6 +35,10 @@
   border-radius: var(--spacing-x1);
   background: var(--color-bg-light);
 
+  &.icon--flag {
+    border-radius: 50%;
+  }
+
   i {
     font-size: var(--font-size-base);
   }

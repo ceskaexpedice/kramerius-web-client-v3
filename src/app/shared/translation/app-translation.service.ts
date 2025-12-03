@@ -15,7 +15,7 @@ export class AppTranslationService {
   private languagesMap: Language[] = this.availableLanguageCodes.map((code: string) => ({
     code,
     name: this.languageName(code),
-    icon: `img/flags/flag_${code}.png`,
+    icon: `img/flag/${code}.svg`,
   }));
 
   private _currentLanguage = signal<Language>(this.detectInitialLanguage());

@@ -128,7 +128,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
             icon: userLicenses.includes(item.name)
               ? 'icon-eye'
               : ONLINE_LICENSES.includes(item.name)
-                ? 'icon-lock'
+                ? 'icon-lock-1'
                 : 'icon-home-1'
           }));
         }

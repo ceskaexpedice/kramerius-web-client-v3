@@ -17,9 +17,9 @@
   </mat-checkbox>
 
   @if (icon) {
-    <span class="icon">
+    <span class="icon" [class.icon--flag]="isImageIcon">
       @if (isImageIcon) {
-        <img [src]="icon" [alt]="label" class="flag-icon">
+        <img [src]="icon" [alt]="label" class="flag-icon flag rounded">
       } @else {
         <i [ngClass]="icon"></i>
       }

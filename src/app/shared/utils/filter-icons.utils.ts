@@ -79,7 +79,7 @@ export function getLanguageFlagIcon(languageCode: string): string | null {
   const availableFlags = ['cs', 'de', 'en', 'es', 'et', 'fr', 'hu', 'it', 'lat', 'lt', 'lv', 'pl', 'pt', 'ru', 'sk', 'sl', 'sv', 'uk'];
 
   if (availableFlags.includes(flagCode)) {
-    return `/img/flags/flag_${flagCode}.png`;
+    return `/img/flag/${flagCode}.svg`;
   }
 
   return null;

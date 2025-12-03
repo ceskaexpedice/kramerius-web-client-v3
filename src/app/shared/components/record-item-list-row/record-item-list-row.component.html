@@ -62,7 +62,7 @@
   <ng-container *ngFor="let lang of record.languages">
     <img
       *ngIf="languageMap[lang]"
-      [src]="'/img/flags/flag_' + languageMap[lang] + '.png'"
+      [src]="'/img/flag/' + languageMap[lang] + '.svg'"
       [alt]="lang"
       class="flag"
     />
