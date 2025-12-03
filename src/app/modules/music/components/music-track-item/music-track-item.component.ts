@@ -6,6 +6,7 @@ import {MusicService} from '../../services/music.service';
 import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
 import {DocumentAccessibilityEnum} from "../../../constants/document-accessibility";
+import {CdkTooltipDirective} from '../../../../shared/directives';
 
 @Component({
   selector: '[app-music-track-item]',
@@ -14,6 +15,7 @@ import {DocumentAccessibilityEnum} from "../../../constants/document-accessibili
     TranslatePipe,
     AsyncPipe,
     NgClass,
+    CdkTooltipDirective,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],

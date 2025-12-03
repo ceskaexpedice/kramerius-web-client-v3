@@ -129,7 +129,7 @@
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="viewToggleOptions" [showFavorites]="false" [showShare]="true" [showQuote]="true"
-              [showInfo]="true" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
+              [showInfo]="false" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (editClicked)="selectionService.toggleSelectionMode()"

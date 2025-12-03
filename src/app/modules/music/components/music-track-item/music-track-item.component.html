@@ -50,18 +50,21 @@
   <td class="duration duration-col">{{ duration }}</td>
   <td class="actions actions-col">
     <button class="icon-button rounded light"
+            [appCdkTooltip]="'add-to-queue' | translate"
             [attr.aria-label]="'add-to-queue--arialabel' | translate"
             (click)="addToQueue(); $event.stopPropagation()" [title]="'add-to-queue' | translate">
       <i class="icon icon-additem"></i>
     </button>
     @if (showRemoveButton) {
       <button class="icon-button rounded light"
+              [appCdkTooltip]="'remove-from-list' | translate"
               [attr.aria-label]="'remove-track-from-list--arialabel' | translate"
               (click)="remove(); $event.stopPropagation()" [title]="'remove-from-list' | translate">
         <i class="icon icon-trash"></i>
       </button>
     } @else {
       <button class="icon-button rounded light"
+              [appCdkTooltip]="'save-to-list' | translate"
               [attr.aria-label]="'save-track-to-list--arialabel' | translate"
               (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited$ | async" [title]="'save-to-list' | translate">
         <i [ngClass]="(isFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
@@ -70,6 +73,7 @@
 
     @if (track.accessibility === DocumentAccessibilityEnum.PUBLIC) {
       <button class="icon-button rounded light"
+              [appCdkTooltip]="'download' | translate"
               [attr.aria-label]="'download-track-button--arialabel' | translate"
               (click)="download(); $event.stopPropagation()">
         <i class="icon icon-download"></i>
