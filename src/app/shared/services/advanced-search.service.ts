@@ -1,6 +1,6 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
@@ -12,12 +12,12 @@ import {
   applyCaseSensitiveToFields,
   isExactOn,
 } from '../dialogs/advanced-search-dialog/solr-filters';
-import {SolrOperators} from '../../core/solr/solr-helpers';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {ActivatedRoute, Params, Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../app.routes';
-import {take} from 'rxjs';
-import {mapAdvancedSearchField} from '../../modules/search-results-page/const/facets';
+import { SolrOperators } from '../../core/solr/solr-helpers';
+import { QueryParamsService } from '../../core/services/QueryParamsManager';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../app.routes';
+import { take } from 'rxjs';
+import { mapAdvancedSearchField } from '../../modules/search-results-page/const/facets';
 
 export interface FilterGroup {
   filters: AdvancedFilterDefinition[];
@@ -154,10 +154,16 @@ export class AdvancedSearchService {
           // Use the helper to get the correct field name with/without .exact
           const fieldName = getSolrFieldName(filter);
 
+          // For raw format queries, check if value has multiple words (contains spaces)
+          // If so, we need to quote it to prevent Solr syntax errors
+          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+
           return isRange
             ? `${fieldPrefix}${fieldName}:${value}`
             : useRaw
-              ? `${fieldPrefix}${fieldName}:(${value})`
+              ? hasMultipleWords
+                ? `${fieldPrefix}${fieldName}:("${value}")`
+                : `${fieldPrefix}${fieldName}:(${value})`
               : `${fieldPrefix}${fieldName}:"${value}"`;
         });
 
@@ -250,12 +256,18 @@ export class AdvancedSearchService {
             mappedFields = applyCaseSensitiveToFields(mappedFields, true);
           }
 
+          // For raw format queries, check if value has multiple words (contains spaces)
+          // If so, we need to quote it to prevent Solr syntax errors
+          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+
           // Generate query parts for each mapped field
           return mappedFields.map((mappedField: any) => {
             return isRange
               ? `${fieldPrefix}${mappedField}:${value}`
               : useRaw
-                ? `${fieldPrefix}${mappedField}:(${value})`
+                ? hasMultipleWords
+                  ? `${fieldPrefix}${mappedField}:("${value}")`
+                  : `${fieldPrefix}${mappedField}:(${value})`
                 : `${fieldPrefix}${mappedField}:"${value}"`;
           });
         });
@@ -277,7 +289,7 @@ export class AdvancedSearchService {
     const advancedQueryMainOperator = (params['advOp'] as SolrOperators) || SolrOperators.and;
 
     if (!advancedQueryFromUrl) {
-      return {advancedQueryMainOperator};
+      return { advancedQueryMainOperator };
     }
 
     // If we have reset from params, use the solr-specific query
@@ -317,7 +329,7 @@ export class AdvancedSearchService {
 
   addGroup(): void {
     const current = this.filterGroupsSignal();
-    this.filterGroupsSignal.set([...current, {filters: [], operator: SolrOperators.and}]);
+    this.filterGroupsSignal.set([...current, { filters: [], operator: SolrOperators.and }]);
   }
 
   removeGroup(index: number): void {
@@ -334,7 +346,7 @@ export class AdvancedSearchService {
   updateGroupFilters(index: number, filters: AdvancedFilterDefinition[]): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = {...current[index], filters};
+      current[index] = { ...current[index], filters };
       this.filterGroupsSignal.set(current);
     }
   }
@@ -342,7 +354,7 @@ export class AdvancedSearchService {
   updateGroupOperator(index: number, operator: SolrOperators): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = {...current[index], operator};
+      current[index] = { ...current[index], operator };
       this.filterGroupsSignal.set(current);
     }
   }
@@ -545,7 +557,7 @@ export class AdvancedSearchService {
       }
 
       if (filters.length > 0) {
-        groups.push({filters, operator: groupOperator});
+        groups.push({ filters, operator: groupOperator });
       }
     }
 
@@ -555,7 +567,7 @@ export class AdvancedSearchService {
     this.appliedGroupsSignal.set(groups);
   }
 
-// Helper method to split by top-level operators (ignoring operators inside parentheses)
+  // Helper method to split by top-level operators (ignoring operators inside parentheses)
   private splitByTopLevelOperator(query: string, operator: string): string[] {
     const parts: string[] = [];
     let current = '';
