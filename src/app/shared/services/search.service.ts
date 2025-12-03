@@ -218,11 +218,26 @@ export class SearchService extends BaseFilterService {
   }
 
   private dispatchSearch(params: any): void {
-    if (Object.keys(params).length === 0) return;
-
     console.log('dispatching search with params:', params)
 
     const query = params['query'] || '';
+
+    // If no params exist, add default params to URL
+    if (Object.keys(params).length === 0) {
+      const defaultParams = {
+        page: this._page(),
+        pageSize: this._pageSize(),
+        sortBy: this._sortBy(),
+        sortDirection: this._sortDirection()
+      };
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: defaultParams,
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+      return;
+    }
 
     if (query && query.length > 0 && !this.hasSubmittedQuery()) {
       this._searchTerm.set(query);
