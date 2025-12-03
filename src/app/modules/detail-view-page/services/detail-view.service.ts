@@ -188,6 +188,15 @@ export class DetailViewService {
       }
     } else {
       console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
+      // add first page as param
+      if (this._pages().length > 0) {
+        this._currentPageIndex.set(0);
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { page: this.pages[0].pid},
+          queryParamsHandling: "merge"
+        })
+      }
     }
   }
 
