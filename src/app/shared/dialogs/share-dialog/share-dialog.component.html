@@ -31,7 +31,7 @@
 
       <div class="share-options--container">
 
-        <button class="with-icon outlined tertiary">
+        <button class="with-icon outlined tertiary" (click)="share('facebook')">
 
           <i class="icon-facebook"></i>
 
@@ -39,7 +39,7 @@
 
         </button>
 
-        <button class="with-icon outlined tertiary">
+        <button class="with-icon outlined tertiary" (click)="share('linkedin')">
 
           <i class="icon-LinkedIn"></i>
 
@@ -47,11 +47,19 @@
 
         </button>
 
-        <button class="with-icon outlined tertiary">
+        <button class="with-icon outlined tertiary" (click)="share('twitter')">
 
           <i class="icon-platform-X"></i>
 
           {{ 'platform-x' | translate }}
+
+        </button>
+
+        <button class="with-icon outlined tertiary" (click)="shareIIIF()">
+
+          <img src="/img/ic_share_iiif.png" alt="IIIF" class="button-icon">
+
+          {{ 'IIIF' | translate }}
 
         </button>
 

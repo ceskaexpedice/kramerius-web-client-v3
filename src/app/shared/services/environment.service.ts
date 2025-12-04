@@ -53,7 +53,7 @@ export class EnvironmentService {
         }
     }
 
-    getKrameriusUrl(): string {
+    getKrameriusUrl(withParam = true): string {
       const krameriusId = this.get('krameriusId');
       let baseUrl = '';
 
@@ -65,9 +65,15 @@ export class EnvironmentService {
         default: baseUrl = 'https://api.kramerius.mzk.cz'; break;
       }
 
-      baseUrl += '/search/api/client/v7.0/';
+      if (withParam) {
+        baseUrl += '/search/api/client/v7.0/';
+      }
 
       return baseUrl;
+    }
+
+    getKrameriusId(): string {
+      return this.get('krameriusId') || 'mzk';
     }
 
   getApiUrl(path: string = ''): string {
@@ -76,6 +82,11 @@ export class EnvironmentService {
     const baseUrl = this.getKrameriusUrl();
 
     return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
+  }
+
+  getPureApiUrl(path: string = ''): string {
+      const baseUrl = this.getKrameriusUrl(false);
+      return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
   }
 
   getBaseApiUrl(): string {

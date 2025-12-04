@@ -7,6 +7,7 @@ import { RecordHandlerService } from '../../services/record-handler.service';
 import { Metadata } from '../../models/metadata.model';
 import { copyTextToClipboard } from '../../misc/misc-functions';
 import { ToastService } from '../../services/toast.service';
+import {SolrService} from '../../../core/solr/solr.service';
 
 @Component({
   selector: 'app-share-dialog',
@@ -20,6 +21,7 @@ import { ToastService } from '../../services/toast.service';
 export class ShareDialogComponent {
   document!: Metadata;
   selectedPid: string = '';
+  selectedModel: string = '';
   currentShareUrl: string = '';
   queryParams: { [key: string]: string } = {};
   allowedModels: string[] | null = null;
@@ -29,6 +31,7 @@ export class ShareDialogComponent {
   public shareService = inject(ShareService);
   private recordHandlerService = inject(RecordHandlerService);
   private toastService = inject(ToastService);
+  private solr = inject(SolrService);
 
   private dialogRef = inject(MatDialogRef<ShareDialogComponent>, { optional: true });
   data = inject<any>(MAT_DIALOG_DATA);
@@ -67,6 +70,7 @@ export class ShareDialogComponent {
 
   onHierarchySelectionChanged(selectedItem: DocumentHierarchyItem): void {
     this.selectedPid = selectedItem.pid;
+    this.selectedModel = selectedItem.model;
     this.currentShareUrl = this.getCurrentShareUrl(selectedItem);
   }
 
@@ -77,6 +81,44 @@ export class ShareDialogComponent {
 
   copyToClipboard() {
     copyTextToClipboard(this.currentShareUrl);
+    this.toastService.show('copy-to-clipboard-success');
+  }
+
+  share(site: 'facebook' | 'twitter' | 'linkedin') {
+    if (!this.currentShareUrl) {
+      return;
+    }
+
+    let baseUrl = '';
+    if (site === 'facebook') {
+      baseUrl = 'https://www.facebook.com/sharer/sharer.php?u=';
+    } else if (site === 'twitter') {
+      baseUrl = 'https://www.twitter.com/intent/tweet?url=';
+    } else if (site === 'linkedin') {
+      baseUrl = 'https://www.linkedin.com/sharing/share-offsite/?url=';
+    } else {
+      return;
+    }
+
+    const width = 500;
+    const height = 500;
+    window.open(
+      baseUrl + encodeURIComponent(this.currentShareUrl),
+      'sharer',
+      'toolbar=0,status=0,width=' + width + ',height=' + height +
+      ',top=' + (window.innerHeight - height) / 2 + ',left=' + (window.innerWidth - width) / 2
+    );
+  }
+
+  shareIIIF() {
+    let text = '';
+    if (this.selectedModel === 'page') {
+      text = this.solr.imageManifest(this.solr.getIiifBaseUrl(this.selectedPid));
+    } else {
+      text = this.solr.getIiifPresentationUrl(this.selectedPid);
+    }
+
+    copyTextToClipboard(text);
     this.toastService.show('copy-to-clipboard-success');
   }
 

@@ -21,6 +21,8 @@ import { DocumentInfo } from '../../shared/models/document-info';
 @Injectable({ providedIn: 'root' })
 export class SolrService {
 
+  private IIIF_BASE_URL = 'https://iiif.digitalniknihovna.cz';
+
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
@@ -806,5 +808,18 @@ export class SolrService {
   private addFilterQueries(params: HttpParams, filters: string[], operators: Record<string, string> = {}): HttpParams {
     this.buildFqParams(filters, operators).forEach(fq => params = params.append('fq', fq));
     return params;
+  }
+
+  getIiifBaseUrl(uuid: string): string {
+    let baseUrl = this.env.getPureApiUrl();
+    return baseUrl + 'search/iiif/' + uuid;
+  }
+
+  imageManifest(url: string): string {
+    return `${url}/info.json`;
+  }
+
+  getIiifPresentationUrl(uuid: string): string {
+    return `${this.IIIF_BASE_URL}/${this.env.getKrameriusId()}/${uuid}`;
   }
 }
