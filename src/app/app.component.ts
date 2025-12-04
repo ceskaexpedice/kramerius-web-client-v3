@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { SoundService } from './shared/services/sound.service';
 import { AppLoaderService } from './shared/services/app-loader.service';
 import { AccessibilityService } from './shared/services/accessibility.service';
+import { ErrorDialogService } from './shared/services/error-dialog.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ export class AppComponent implements OnInit {
   private soundService = inject(SoundService);
   private appLoader = inject(AppLoaderService);
   private accessibilityService = inject(AccessibilityService);
+  private errorDialogService = inject(ErrorDialogService);
 
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 
@@ -25,5 +27,10 @@ export class AppComponent implements OnInit {
     this.appLoader.appInit().catch(error => {
       console.error('App initialization failed:', error);
     });
+  }
+
+  // TEMPORARY: Test 500 error dialog
+  testErrorDialog() {
+    this.errorDialogService.openServerErrorDialog();
   }
 }
