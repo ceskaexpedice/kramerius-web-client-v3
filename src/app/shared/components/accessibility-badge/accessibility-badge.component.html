@@ -2,6 +2,8 @@
 
   <span>{{ 'accessibility-label-' + accessibility | translate }}</span>
 
-  <i [class]="accessibility === DocumentAccessibilityEnum.PUBLIC ? 'icon-eye' : 'icon-lock-1'"></i>
+  @if (showIcon) {
+    <i [class]="accessibility === DocumentAccessibilityEnum.PUBLIC ? 'icon-eye' : 'icon-lock-1'"></i>
+  }
 
 </div>

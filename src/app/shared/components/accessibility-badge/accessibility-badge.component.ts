@@ -15,6 +15,7 @@ import {DocumentAccessibilityEnum} from '../../../modules/constants/document-acc
 export class AccessibilityBadgeComponent {
 
   @Input() isLocked = false;
+  @Input() showIcon = true;
 
   protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 

@@ -49,7 +49,7 @@
 <td>{{ record.date || '—' }}</td>
 
 <td>
-  <app-accessibility-badge [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"></app-accessibility-badge>
+  <app-accessibility-badge [showIcon]="false" [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"></app-accessibility-badge>
 </td>
 
 <td>{{ record.model | translate }}</td>
