@@ -1,11 +1,23 @@
-<div class="error-page">
-  <div class="error-content">
-    <div class="error-code">404</div>
-    <h1 class="error-title">{{ 'error.not_found.title' | translate }}</h1>
-    <p class="error-message">{{ 'error.not_found.message' | translate }}</p>
-    <div class="error-actions">
+<div class="not-found-page">
+  <div class="not-found-container">
+    <div class="image-container">
+      <img src="/img/404_letter.png" alt="404" class="letter-image" />
+      <img src="/img/404_book.png" alt="404" class="book-image" />
+    </div>
+    <div class="content-container">
+      <h1 class="title">{{ 'error.not_found.page_title' | translate }}</h1>
+      <p class="description">{{ 'error.not_found.description' | translate }}</p>
+      <ul class="suggestions-list">
+        <li>{{ 'error.not_found.suggestion_1' | translate }}</li>
+        <li>{{ 'error.not_found.suggestion_2' | translate }}</li>
+        <li>{{ 'error.not_found.suggestion_3' | translate }}</li>
+        <li>
+          {{ 'error.not_found.suggestion_4_prefix' | translate }}
+          <a [href]="'mailto:' + contactEmail" class="contact-link">{{ contactEmail }}</a>
+        </li>
+      </ul>
       <button class="button primary" (click)="goHome()">
-        {{ 'error.not_found.go_home' | translate }}
+        {{ 'error.not_found.return_button' | translate }}
       </button>
     </div>
   </div>
