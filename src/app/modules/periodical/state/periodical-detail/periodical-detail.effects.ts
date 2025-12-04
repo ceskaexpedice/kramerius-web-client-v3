@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {catchError, map, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
+import {catchError, map, mergeMap, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {of} from 'rxjs';
 import * as PeriodicalDetailActions from './periodical-detail.actions';
 import {
@@ -27,6 +27,8 @@ import {DocumentTypeEnum} from '../../../constants/document-type';
 import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
 import {UserService} from '../../../../shared/services/user.service';
 import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {Router} from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -34,7 +36,8 @@ export class PeriodicalDetailEffects {
     private actions$: Actions,
     private solr: SolrService,
     private store: Store,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {}
 
   triggerDocumentLoad$ = createEffect(() =>
@@ -76,6 +79,27 @@ export class PeriodicalDetailEffects {
           sortBy: 'date.min',
           sortDirection: 'asc'
         };
+
+        // Backward compatibility: Handle old /periodical/ URLs that point to monographs
+        if (data.model === DocumentTypeEnum.monograph) {
+          // Check if this monograph has monograph units (multi-volume monograph)
+          return this.solr.getChildrenByModel(data.uuid, 'rels_ext_index.sort asc', null).pipe(
+            tap((children) => {
+              const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
+
+              if (hasMonographUnits) {
+                console.log('Backward compatibility: redirecting from /periodical/ to /monograph/ for multi-volume monograph:', data.uuid);
+                // Use replaceUrl to replace history entry, preventing back button issues
+                this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, data.uuid], { replaceUrl: true });
+              }
+            }),
+            switchMap(() => of(loadPeriodicalFailure({ error: 'Redirecting to monograph view' }))),
+            catchError(error => {
+              console.error('Error checking monograph children:', error);
+              return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
+            })
+          );
+        }
 
         if (data.model !== DocumentTypeEnum.periodical && data.model !== DocumentTypeEnum.periodicalvolume) {
           return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
