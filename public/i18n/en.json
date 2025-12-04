@@ -384,5 +384,14 @@
   "error.server_error.title": "Server Error",
   "error.server_error.message": "Something went wrong on our end. Please try again later.",
   "error.server_error.reload": "Reload Page",
-  "error.server_error.go_home": "Go to Homepage"
+  "error.server_error.go_home": "Go to Homepage",
+  "viewer-controls.zoom-in": "Zoom in",
+  "viewer-controls.zoom-out": "Zoom out",
+  "viewer-controls.fullscreen": "Fullscreen",
+  "viewer-controls.fit-to-screen": "Fit to screen",
+  "viewer-controls.fit-to-width": "Fit to width",
+  "viewer-controls.toggle-scroll-mode": "Toggle scroll mode",
+  "viewer-controls.book-mode": "Book mode",
+  "viewer-controls.rotate": "Rotate",
+  "viewer-controls.select-area": "Select area"
 }

@@ -1,30 +1,30 @@
 <div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'">
   <!-- Common buttons for both viewers -->
 
-  <button (click)="onZoomIn()" class="button tertiary outlined" title="Zoom In">
+  <button (click)="onZoomIn()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.zoom-in' | translate" >
     <i class="icon icon-search-zoom-in-1"></i>
   </button>
 
-  <button (click)="onZoomOut()" class="button tertiary outlined" title="Zoom Out">
+  <button (click)="onZoomOut()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.zoom-out' | translate">
     <i class="icon icon-search-zoom-out-1"></i>
   </button>
 
-  <button (click)="onFullscreen()" class="button tertiary outlined" title="Fullscreen">
+  <button (click)="onFullscreen()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.fullscreen' | translate">
     <i class="icon icon-maximize-3"></i>
   </button>
 
-  <button (click)="onFitToScreen()" class="button tertiary outlined" title="Fit to screen">
+  <button (click)="onFitToScreen()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate">
     <i class="icon icon-maximize-1"></i>
   </button>
 
-  <button (click)="onToggleFitToWidth()" class="button tertiary outlined" title="Fit to width">
+  <button (click)="onToggleFitToWidth()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.fit-to-width' | translate">
     <i class="icon icon-grid-lock"></i>
   </button>
 
   <!-- PDF-specific buttons -->
   <ng-container *ngIf="type === 'pdf'">
 
-    <button (click)="onScrollMode()" class="button tertiary outlined" title="Toggle Scroll Mode">
+    <button (click)="onScrollMode()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | translate">
       <i class="icon icon-pharagraphspacing"></i>
     </button>
 
@@ -37,11 +37,11 @@
 <!--    </button>-->
   </ng-container>
 
-  <button (click)="onBookMode()" class="button tertiary outlined" title="Book mode">
+  <button (click)="onBookMode()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.book-mode' | translate">
     <i class="icon icon-book-1"></i>
   </button>
 
-  <button class="button tertiary outlined" (click)="onRotate()" title="Rotate">
+  <button class="button tertiary outlined" (click)="onRotate()" [appCdkTooltip]="'viewer-controls.rotate' | translate">
     <i class="icon icon-rotate-right"></i>
   </button>
 
@@ -50,7 +50,7 @@
 <!--    <button (click)="onDrawRectangle()" class="button tertiary outlined" title="Draw Rectangle">-->
 <!--      <i class="icon icon-square"></i>-->
 <!--    </button>-->
-    <button (click)="onSelectArea()" class="button tertiary outlined" title="Select Area">
+    <button (click)="onSelectArea()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.select-area' | translate">
       <i class="icon icon-crop"></i>
     </button>
   </ng-container>

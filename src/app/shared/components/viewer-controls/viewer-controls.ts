@@ -2,11 +2,13 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfService } from '../../services/pdf.service';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
+import {CdkTooltipDirective} from '../../directives';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-viewer-controls',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CdkTooltipDirective, TranslatePipe],
   templateUrl: './viewer-controls.html',
   styleUrl: './viewer-controls.scss'
 })

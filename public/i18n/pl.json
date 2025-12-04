@@ -376,5 +376,14 @@
   "error.server_error.title": "Błąd serwera",
   "error.server_error.message": "Coś poszło nie tak po naszej stronie. Spróbuj ponownie później.",
   "error.server_error.reload": "Odśwież stronę",
-  "error.server_error.go_home": "Wróć do strony głównej"
+  "error.server_error.go_home": "Wróć do strony głównej",
+  "viewer-controls.zoom-in": "Powiększ",
+  "viewer-controls.zoom-out": "Pomniejsz",
+  "viewer-controls.fullscreen": "Pełny ekran",
+  "viewer-controls.fit-to-screen": "Dopasuj do ekranu",
+  "viewer-controls.fit-to-width": "Dopasuj do szerokości",
+  "viewer-controls.toggle-scroll-mode": "Przełącz tryb przewijania",
+  "viewer-controls.book-mode": "Tryb książki",
+  "viewer-controls.rotate": "Obróć",
+  "viewer-controls.select-area": "Wybierz obszar"
 }

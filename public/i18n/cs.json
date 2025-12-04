@@ -377,5 +377,14 @@
   "error.server_error.title": "Chyba serveru",
   "error.server_error.message": "Něco se pokazilo na naší straně. Zkuste to prosím znovu později.",
   "error.server_error.reload": "Znovu načíst stránku",
-  "error.server_error.go_home": "Zpět na hlavní stránku"
+  "error.server_error.go_home": "Zpět na hlavní stránku",
+  "viewer-controls.zoom-in": "Přiblížit",
+  "viewer-controls.zoom-out": "Oddálit",
+  "viewer-controls.fullscreen": "Celá obrazovka",
+  "viewer-controls.fit-to-screen": "Přizpůsobit obrazovce",
+  "viewer-controls.fit-to-width": "Přizpůsobit šířce",
+  "viewer-controls.toggle-scroll-mode": "Přepnout režim posouvání",
+  "viewer-controls.book-mode": "Režim knihy",
+  "viewer-controls.rotate": "Otočit",
+  "viewer-controls.select-area": "Vybrat oblast"
 }
