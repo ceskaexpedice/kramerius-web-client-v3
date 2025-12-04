@@ -87,6 +87,7 @@ export class IIIFViewerService {
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
   private fullscreenComponentGetter: (() => any) | null = null;
+  private keyboardHandler: ((event: KeyboardEvent) => void) | null = null;
 
   private bookModeSubject = new BehaviorSubject<boolean>(false);
   public bookMode$ = this.bookModeSubject.asObservable();
@@ -505,6 +506,15 @@ export class IIIFViewerService {
     console.log('Enabling selection mode and mouse tracker');
     this.viewer.setMouseNavEnabled(false);
 
+    // Add keyboard event listener for ESC key
+    this.keyboardHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && this.isSelectionMode) {
+        console.log('ESC pressed, disabling selection mode');
+        this.setSelectionMode(false);
+      }
+    };
+    document.addEventListener('keydown', this.keyboardHandler);
+
     this.mouseTracker = new OpenSeadragon.MouseTracker({
       element: this.viewer.element,
       pressHandler: (event: any) => {
@@ -628,6 +638,11 @@ export class IIIFViewerService {
     if (this.mouseTracker) {
       this.mouseTracker.destroy();
       this.mouseTracker = null;
+    }
+    // Remove keyboard event listener
+    if (this.keyboardHandler) {
+      document.removeEventListener('keydown', this.keyboardHandler);
+      this.keyboardHandler = null;
     }
     this.clearSelectionOverlays();
     this.selectedAreaSubject.next(null);
