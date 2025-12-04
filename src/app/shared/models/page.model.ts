@@ -26,6 +26,7 @@ export class Page {
   'date.str': string = '';
   'page.number': string = '';
   model?: DocumentTypeEnum | string | null;
+  licenses_of_ancestors: string[] = [];
 }
 
 export enum PagePosition {

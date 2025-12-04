@@ -7,6 +7,7 @@ import { switchMap } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
 import { TranslateService } from '@ngx-translate/core';
 import { EnvironmentService } from './environment.service';
+import {Page} from '../models/page.model';
 
 export enum ExportFormat {
   JSON = 'json',
@@ -27,6 +28,9 @@ export interface ExportOptions {
   providedIn: 'root'
 })
 export class ExportService {
+
+  private readonly allowedLicenses = ['public', 'onsite'];
+
   private solrService = inject(SolrService);
   private selectionService = inject(SelectionService);
   private translateService = inject(TranslateService);
@@ -336,5 +340,17 @@ export class ExportService {
       { value: ExportFormat.CSV, label: this.translateService.instant('export.formats.csv') },
       { value: ExportFormat.TXT, label: this.translateService.instant('export.formats.text') }
     ];
+  }
+
+  /**
+   * Helper method to check if a page has exportable license
+   * A page is exportable if it has at least one of allowed license
+   */
+  hasExportableLicense(page: Page | undefined): boolean {
+
+    if (!page) return false;
+    const pageLicenses = page.licences || page.licenses_of_ancestors || [];
+    // Check if there's any overlap between user licenses and page licenses
+    return pageLicenses.some(license => this.allowedLicenses.includes(license));
   }
 }
