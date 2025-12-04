@@ -117,10 +117,14 @@ export class CollectionsService extends BaseFilterService {
 
   searchResults$ = combineLatest([
     this.store.select(selectCollectionSearchResults),
-    toObservable(this.structureOrder)
+    toObservable(this.structureOrder),
+    toObservable(this._sortBy)
   ]).pipe(
-    map(([results, order]) => {
-      if (!order.length || !results) return results;
+    map(([results, order, sortBy]) => {
+      // Only apply structure sorting when sorting by relevance
+      if (!order.length || !results || sortBy !== SolrSortFields.relevance) {
+        return results;
+      }
 
       return [...results].sort((a, b) => {
         const indexA = order.indexOf(a.pid);
