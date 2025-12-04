@@ -1,8 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Page } from '../../../shared/models/page.model';
-import { Store } from '@ngrx/store';
-import { ActivatedRoute, Router } from '@angular/router';
-import { APP_ROUTES_ENUM } from '../../../app.routes';
+import {inject, Injectable, signal} from '@angular/core';
+import {Page} from '../../../shared/models/page.model';
+import {Store} from '@ngrx/store';
+import {ActivatedRoute, Router} from '@angular/router';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
@@ -10,18 +10,21 @@ import {
   selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
-import { loadDocumentDetail } from '../../../shared/state/document-detail/document-detail.actions';
-import { Observable, skip, take, filter } from 'rxjs';
-import { selectPeriodicalChildren, selectPidFromAvailableYears } from '../../periodical/state/periodical-detail/periodical-detail.selectors';
-import { RecordInfoService } from '../../../shared/services/record-info.service';
-import { Metadata } from '../../../shared/models/metadata.model';
-import { SoundRecordGridControl } from '../../../shared/components/toolbar-controls/toolbar-controls.component';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { DocumentTypeEnum } from '../../constants/document-type';
-import { loadPeriodical, loadPeriodicalItems } from '../../periodical/state/periodical-detail/periodical-detail.actions';
-import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
-import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
-import { DocumentInfoService } from '../../../shared/services/document-info.service';
+import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
+import {filter, Observable, skip, take} from 'rxjs';
+import {
+  selectPeriodicalChildren,
+  selectPidFromAvailableYears,
+} from '../../periodical/state/periodical-detail/periodical-detail.selectors';
+import {RecordInfoService} from '../../../shared/services/record-info.service';
+import {Metadata} from '../../../shared/models/metadata.model';
+import {SoundRecordGridControl} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {DocumentTypeEnum} from '../../constants/document-type';
+import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/periodical-detail/periodical-detail.actions';
+import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
+import {IIIFViewerService} from '../../../shared/services/iiif-viewer.service';
+import {DocumentInfoService} from '../../../shared/services/document-info.service';
 
 @Injectable({
   providedIn: 'root'
@@ -189,7 +192,7 @@ export class DetailViewService {
     } else {
       console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
       // add first page as param
-      const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit);
+      const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit || page.model === DocumentTypeEnum.periodicalvolume || page.model === DocumentTypeEnum.periodicalitem);
       if (this._pages().length > 0 && !isMonographUnit) {
         this._currentPageIndex.set(0);
         this.router.navigate([], {
