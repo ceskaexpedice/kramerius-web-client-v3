@@ -6,10 +6,11 @@ import {SettingsService} from '../settings/settings.service';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {AdminSelectionService, SelectionService} from '../../shared/services';
 import {Subscription, combineLatest} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, filter} from 'rxjs/operators';
 import {SearchDocument} from '../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
 import {ViewMode} from '../periodical/models/view-mode.enum';
+import {ScrollPositionService} from '../../shared/services/scroll-position.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -38,6 +39,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public settingsService = inject(SettingsService);
   public selectionService = inject(SelectionService);
   public adminSelectionService = inject(AdminSelectionService);
+  private scrollPositionService = inject(ScrollPositionService);
 
   private subscriptions: Subscription[] = [];
 
@@ -75,6 +77,15 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
         })
       ).subscribe(allCurrentItems => {
         this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
+      })
+    );
+
+    // Notify scroll service when content has finished loading
+    this.subscriptions.push(
+      this.searchService.loading$.pipe(
+        filter(loading => loading === false)
+      ).subscribe(() => {
+        this.scrollPositionService.notifyContentLoaded();
       })
     );
   }

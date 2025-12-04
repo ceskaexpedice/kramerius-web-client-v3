@@ -42,10 +42,10 @@ import { musicDetailReducer } from './modules/music/state/music-detail.reducer';
 import { documentDetailReducer } from './shared/state/document-detail/document-detail.reducer';
 import { periodicalDetailReducer } from './modules/periodical/state/periodical-detail/periodical-detail.reducer';
 import { periodicalSearchReducer } from './modules/periodical/state/periodical-search/periodical-search.reducer';
-import { foldersReducer } from './modules/saved-lists-page/state/folders.reducer';
+import { foldersReducer } from './modules/saved-lists-page/state';
 import { collectionsReducer } from './shared/state/collections/collections.reducer';
 import { licensesReducer } from './shared/state/licenses/licenses.reducer';
-import { monographVolumesReducer } from './shared/state/monograph-volumes/monograph-volumes.reducer';
+import { monographVolumesReducer } from './shared/state/monograph-volumes';
 
 // NgRx Feature Effects
 import { PeriodicalsEffects } from './modules/search/state/periodicals/periodicals.effects';
@@ -57,9 +57,9 @@ import { DocumentDetailEffects } from './shared/state/document-detail/document-d
 import { PeriodicalDetailEffects } from './modules/periodical/state/periodical-detail/periodical-detail.effects';
 import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-search/periodical-search.effects';
 import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
-import { FoldersEffects } from './modules/saved-lists-page/state/folders.effects';
+import { FoldersEffects } from './modules/saved-lists-page/state';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
-import { MonographVolumesEffects } from './shared/state/monograph-volumes/monograph-volumes.effects';
+import { MonographVolumesEffects } from './shared/state/monograph-volumes';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -72,7 +72,10 @@ export function initApp(envService: EnvironmentService) {
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, {
+      scrollPositionRestoration: 'disabled',
+      anchorScrolling: 'enabled'
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
