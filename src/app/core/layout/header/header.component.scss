@@ -111,5 +111,39 @@
     .desktop-only {
       display: none;
     }
+
+    // Mobile search functionality
+    .search-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: var(--spacing-x3);
+      background-color: var(--color-bg-base);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+
+      &.mobile-search-active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .advanced-search-btn {
+        display: none;
+      }
+    }
+
+    .hide-on-search-active {
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .mobile-search-active ~ .app-header__right .hide-on-search-active,
+    .app-header__right.mobile-search-active .hide-on-search-active {
+      opacity: 0;
+      pointer-events: none;
+    }
   }
 }

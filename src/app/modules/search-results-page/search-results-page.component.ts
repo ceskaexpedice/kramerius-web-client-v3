@@ -11,6 +11,7 @@ import {SearchDocument} from '../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
 import {ViewMode} from '../periodical/models/view-mode.enum';
 import {ScrollPositionService} from '../../shared/services/scroll-position.service';
+import {BreakpointService} from '../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -21,8 +22,8 @@ import {ScrollPositionService} from '../../shared/services/scroll-position.servi
 export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-element-3', ariaLabel: 'Grid view' },
-    { value: AppResultsViewType.list, icon: 'icon-row-vertical', ariaLabel: 'List View' },
+    { value: AppResultsViewType.grid, icon: 'icon-row-vertical', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
@@ -40,6 +41,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
   public adminSelectionService = inject(AdminSelectionService);
   private scrollPositionService = inject(ScrollPositionService);
+  public breakpointService = inject(BreakpointService);
 
   private subscriptions: Subscription[] = [];
 

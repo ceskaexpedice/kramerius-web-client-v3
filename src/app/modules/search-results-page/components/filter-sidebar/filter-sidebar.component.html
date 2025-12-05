@@ -1,6 +1,6 @@
 
 <!-- Sidebar toggle button for mobile/tablet -->
-<button *ngIf="!breakpointService.sidebarVisible() && !isVisible()"
+<button *ngIf="!breakpointService.sidebarVisible() && !breakpointService.isVisible()"
         class="sidebar-toggle-btn"
         (click)="breakpointService.toggleSidebar()"
         [attr.aria-label]="'open-filters' | translate">
@@ -8,21 +8,29 @@
 </button>
 
 <!-- Backdrop for mobile overlay -->
-<div *ngIf="isVisible() && isOverlay()"
+<div *ngIf="breakpointService.isVisible() && isOverlay()"
      class="sidebar-backdrop"
      (click)="onBackdropClick()"></div>
 
 <div class="filter-sidebar"
      [class.scrollable]="scrollable"
      [class.overlay]="isOverlay()"
-     [class.visible]="isVisible()"
+     [class.visible]="breakpointService.isVisible()"
      [class.disabled]="isDisabled"
+     [class.expanded]="isExpanded"
      [ngClass]="['padding-' + padding]">
 
+  <!-- Drag handle for mobile bottom sheet -->
+  <div *ngIf="isOverlay() && breakpointService.isVisible()"
+       class="bottom-sheet-handle"
+       (click)="toggleExpanded()">
+    <div class="handle-bar"></div>
+  </div>
+
   <!-- Close button for overlay mode -->
-  <button *ngIf="isOverlay() && isVisible()"
+  <button *ngIf="isOverlay() && breakpointService.isVisible()"
           class="sidebar-close-btn"
-          (click)="closeSidebar()"
+          (click)="breakpointService.toggleSidebar()"
           [attr.aria-label]="'close-filters' | translate">
     <i class="icon-close"></i>
   </button>

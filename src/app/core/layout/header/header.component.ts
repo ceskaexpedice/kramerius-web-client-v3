@@ -45,6 +45,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Mobile menu state
   isMobileMenuOpen = false;
 
+  // Mobile search state
+  isMobileSearchOpen = false;
+
   constructor(
     private envService: EnvironmentService,
     private router: Router,
@@ -62,6 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.updateHeaderType();
         this.isMobileMenuOpen = false; // Close mobile menu on route change
+        this.isMobileSearchOpen = false; // Close mobile search on route change
       });
 
     // Subscribe to app theme changes
@@ -145,13 +149,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-
   }
 
   closeMobileMenu() {
     if (this.isMobileMenuOpen) {
       setTimeout(() => this.isMobileMenuOpen = false, 25);
     }
+  }
+
+  toggleMobileSearch() {
+    this.isMobileSearchOpen = !this.isMobileSearchOpen;
+  }
+
+  closeMobileSearch() {
+    this.isMobileSearchOpen = false;
   }
 
   logDevInfo(): void {

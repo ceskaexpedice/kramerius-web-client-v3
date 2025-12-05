@@ -41,8 +41,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   );
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-element-3', ariaLabel: 'view-grid--arialabel' },
-    { value: AppResultsViewType.list, icon: 'icon-row-vertical', ariaLabel: 'view-list--arialabel' }
+    { value: AppResultsViewType.grid, icon: 'icon-row-vertical', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);

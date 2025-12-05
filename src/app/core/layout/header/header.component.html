@@ -8,7 +8,7 @@
 
   </div>
 
-  <div *ngIf="showSearchBar" class="search-bar">
+  <div *ngIf="showSearchBar" class="search-bar" [class.mobile-search-active]="isMobileSearchOpen">
 
     <app-autocomplete
       [inputTheme]="'dark'"
@@ -25,7 +25,7 @@
       (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light"
+    <button class="outlined light advanced-search-btn"
             aria-label="{{'advanced-search' | translate}}"
             (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
@@ -33,7 +33,7 @@
 
   </div>
 
-  <nav class="app-header__right">
+  <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen">
 
     <a (click)="goToCollections()" class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
@@ -43,16 +43,29 @@
       <app-user-info></app-user-info>
     </div>
 
-    <app-lang-picker></app-lang-picker>
+    <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
 
-    <button class="icon-button outlined light" aria-label="{{'settings' | translate}}" (click)="openSettings()">
-      <i class="icon-settings-1"></i>
+    <!-- Mobile search toggle button -->
+    <button *ngIf="showSearchBar"
+            class="icon-button outlined light mobile-only mobile-search-toggle"
+            [class.hide-on-search-active]="isMobileSearchOpen"
+            aria-label="Search"
+            (click)="toggleMobileSearch()">
+      <i class="icon-search-normal"></i>
+    </button>
+
+    <button class="icon-button outlined light"
+            [class.mobile-search-close]="isMobileSearchOpen"
+            aria-label="{{'settings' | translate}}"
+            (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
+      <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-1'"></i>
     </button>
 
     <button class="icon-button mobile-only hamburger-menu--btn"
             [class.primary]="isMobileMenuOpen"
             [class.outlined]="!isMobileMenuOpen"
             [class.light]="!isMobileMenuOpen"
+            [class.hide-on-search-active]="isMobileSearchOpen"
             aria-label="Menu"
             (click)="toggleMobileMenu()">
       <i class="icon-hamburger-menu"></i>

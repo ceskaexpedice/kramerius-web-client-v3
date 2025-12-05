@@ -23,6 +23,9 @@ export class FilterSidebarComponent {
   // Manual toggle state for mobile/tablet overlay
   manualToggle = signal(false);
 
+  // Bottom sheet expanded state (mobile only)
+  isExpanded = false;
+
   // Computed visibility: responsive + manual toggle
   isVisible = computed(() => {
     const responsiveVisible = this.breakpointService.sidebarVisible();
@@ -34,9 +37,15 @@ export class FilterSidebarComponent {
     return this.breakpointService.isMobile() || !this.breakpointService.sidebarVisible();
   });
 
+  // Toggle expanded state for bottom sheet
+  toggleExpanded() {
+    this.isExpanded = !this.isExpanded;
+  }
+
   // Close sidebar
   closeSidebar() {
     this.manualToggle.set(false);
+    this.isExpanded = false;
   }
 
   // Backdrop click handler
