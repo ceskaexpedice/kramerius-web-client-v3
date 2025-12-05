@@ -17,6 +17,7 @@ import {UserInfoComponent} from '../../auth/user-info/user-info.component';
 import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
 import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 import {CollectionsService} from '../../../shared/services/collections.service';
+import {ClickOutsideDirective} from '../../../shared/directives';
 
 @Component({
   selector: 'app-header',
@@ -29,6 +30,7 @@ import {CollectionsService} from '../../../shared/services/collections.service';
     RouterLink,
     TranslatePipe,
     UserInfoComponent,
+    ClickOutsideDirective,
   ],
   styleUrl: './header.component.scss'
 })
@@ -39,6 +41,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Track the application's current theme
   currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
+
+  // Mobile menu state
+  isMobileMenuOpen = false;
 
   constructor(
     private envService: EnvironmentService,
@@ -56,6 +61,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updateHeaderType();
+        this.isMobileMenuOpen = false; // Close mobile menu on route change
       });
 
     // Subscribe to app theme changes
@@ -135,6 +141,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   goToCollections() {
     this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.collection, true);
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+
+  }
+
+  closeMobileMenu() {
+    if (this.isMobileMenuOpen) {
+      setTimeout(() => this.isMobileMenuOpen = false, 25);
+    }
   }
 
   logDevInfo(): void {

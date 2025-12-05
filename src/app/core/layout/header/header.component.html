@@ -35,18 +35,36 @@
 
   <nav class="app-header__right">
 
-        <a (click)="goToCollections()" class="cursor-pointer">{{'collections' | translate}}</a>
+    <a (click)="goToCollections()" class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
     <!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
 
-    <app-user-info></app-user-info>
+    <div class="desktop-only">
+      <app-user-info></app-user-info>
+    </div>
+
+    <app-lang-picker></app-lang-picker>
 
     <button class="icon-button outlined light" aria-label="{{'settings' | translate}}" (click)="openSettings()">
       <i class="icon-settings-1"></i>
     </button>
 
-    <app-lang-picker></app-lang-picker>
+    <button class="icon-button mobile-only hamburger-menu--btn"
+            [class.primary]="isMobileMenuOpen"
+            [class.outlined]="!isMobileMenuOpen"
+            [class.light]="!isMobileMenuOpen"
+            aria-label="Menu"
+            (click)="toggleMobileMenu()">
+      <i class="icon-hamburger-menu"></i>
+    </button>
 
   </nav>
+
+  <div class="mobile-menu" appClickOutside (clickOutside)="closeMobileMenu()" [class.open]="isMobileMenuOpen">
+    <div class="mobile-menu__content">
+      <a (click)="goToCollections()" class="cursor-pointer">{{'collections' | translate}}</a>
+      <app-user-info></app-user-info>
+    </div>
+  </div>
 
 </header>

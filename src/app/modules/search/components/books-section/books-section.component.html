@@ -17,6 +17,7 @@
       <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
         <app-record-item
           *ngFor="let item of books"
+          [showModel]="false"
           [item]="toRecordItem(item)"
         >
         </app-record-item>

@@ -48,10 +48,12 @@
 
       </div>
 
-      <app-model-badge
-        [model]="item.model"
-        [monographUnitCount]="item.monographUnitCount || 0">
-      </app-model-badge>
+      @if (showModel) {
+        <app-model-badge
+          [model]="item.model"
+          [monographUnitCount]="item.monographUnitCount || 0">
+        </app-model-badge>
+      }
 
       @if (isRecordLocked()) {
         <div class="record-item-card__image-lock-overlay">

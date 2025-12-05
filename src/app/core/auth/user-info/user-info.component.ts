@@ -72,4 +72,9 @@ export class UserInfoComponent {
     this.store.dispatch(AuthActions.logout());
   }
 
+  truncateDisplayName(name: string | null | undefined): string {
+    if (!name) return '-';
+    return name.length > 13 ? name.substring(0, 13) + '...' : name;
+  }
+
 }

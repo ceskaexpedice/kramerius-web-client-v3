@@ -59,6 +59,7 @@ button.icon-button {
 button.primary {
   background: var(--color-primary);
   color: var(--color-text-on-color);
+  border: 1px solid var(--color-primary);
 
   &:hover {
     background: var(--color-primary-hover);

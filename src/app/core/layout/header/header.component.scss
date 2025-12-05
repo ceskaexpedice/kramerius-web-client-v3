@@ -1,3 +1,5 @@
+@import 'mixins';
+
 .app-header {
   display: flex;
   justify-content: space-between;
@@ -5,6 +7,7 @@
   padding: var(--spacing-x3) var(--spacing-x4);
   height: var(--header-height);
   gap: 5%;
+  position: relative;
 
   &.transparent {
     background-color: transparent;
@@ -48,6 +51,65 @@
       &:hover {
         text-decoration: underline;
       }
+    }
+  }
+
+  // Desktop/Mobile visibility
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: flex;
+  }
+
+  // Mobile Menu
+  .mobile-menu {
+    position: fixed;
+    top: calc(var(--header-height) - var(--spacing-x3));
+    right: var(--spacing-x3);
+    width: 200px;
+    background-color: var(--color-bg-base);
+    transform: scaleY(0);
+    transform-origin: top right;
+    opacity: 0;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    z-index: 1000;
+    box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
+    border-radius: var(--spacing-x2);
+    border: 1px solid var(--color-border-additional);
+
+    &.open {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-x4);
+      gap: var(--spacing-x4);
+      font-size: var(--font-size-small);
+    }
+  }
+
+  // Responsive styles
+  @include respond(md) {
+
+    header.app-header {
+      padding: var(--spacing-x3);
+    }
+
+    .app-header__right {
+      gap: var(--spacing-x2);
+    }
+
+    .mobile-only {
+      display: flex;
+    }
+
+    .desktop-only {
+      display: none;
     }
   }
 }

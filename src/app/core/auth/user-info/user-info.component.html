@@ -8,7 +8,7 @@
 @if ((isAuthenticated | async)) {
 
   <app-menu
-    [displayName]="(user | async)?.name ?? '-'"
+    [displayName]="truncateDisplayName((user | async)?.name)"
     [items]="userMenuItems"
     placement="bottom-end"
     (select)="onUserMenu($event)"

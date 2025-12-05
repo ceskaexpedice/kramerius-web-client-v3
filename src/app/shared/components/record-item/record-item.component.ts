@@ -44,6 +44,8 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   private krameriusBaseUrl: string;
 
+  @Input() showModel = true;
+
   @Input() item: RecordItem = {
     id: '',
     title: '',

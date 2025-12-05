@@ -38,3 +38,22 @@
 
   }
 }
+
+// Responsive styles
+@include respond(md) {
+
+  .search-hero {
+    padding: var(--spacing-x4) 0;
+  }
+
+  h1 {
+    font-size: calc(28px * var(--accessibility-text-scale));
+    margin-top: 0;
+    margin-bottom: var(--spacing-x4);
+  }
+
+  p {
+    max-width: 100%;
+  }
+
+}
