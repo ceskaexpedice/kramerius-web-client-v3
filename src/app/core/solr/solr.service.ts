@@ -17,6 +17,7 @@ import { SolrUtils } from './solr-utils';
 import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
+import { DisplayConfigService } from '../../shared/services/display-config.service';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -25,7 +26,8 @@ export class SolrService {
 
   constructor(
     private http: HttpClient,
-    private env: EnvironmentService
+    private env: EnvironmentService,
+    private displayConfigService: DisplayConfigService
   ) {
   }
 
@@ -233,10 +235,14 @@ export class SolrService {
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
 
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
     let paramsObject = {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
@@ -261,9 +267,13 @@ export class SolrService {
 
     const simpleBaseFilters = SolrQueryBuilder.pageFilter();
 
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
       ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount),
@@ -302,9 +312,13 @@ export class SolrService {
 
     // const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
 
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)

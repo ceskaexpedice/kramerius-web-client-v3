@@ -1,9 +1,11 @@
 import {AppSettingsThemeEnum, Settings} from './settings.model';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/settings-dialog.component';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
+import {DisplayConfigService} from '../../shared/services/display-config.service';
+import {OPTIONAL_SOLR_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +16,18 @@ export class SettingsService {
   private _settings = new BehaviorSubject<Settings>(this.loadInitialSettings());
   settings$ = this._settings.asObservable();
 
+  // Subject to emit reload events
+  private _reloadSearchResults = new Subject<void>();
+  reloadSearchResults$ = this._reloadSearchResults.asObservable();
+
+  private displayConfigService = inject(DisplayConfigService);
+
   constructor(
     private dialog: MatDialog,
     private localStorage: LocalStorageService
   ) {
     this.applyTheme(this._settings.value.theme);
+    this.displayConfigService.loadFromSettings(this._settings.value.displayConfig);
   }
 
   get settings(): Settings {
@@ -26,13 +35,70 @@ export class SettingsService {
   }
 
   getSettingsCopy(): Settings {
-    return { ...this._settings.value };
+    const current = this._settings.value;
+    const copy: Settings = {
+      ...current,
+      displayConfig: current.displayConfig ? {
+        tableColumns: current.displayConfig.tableColumns.map(col => ({ ...col }))
+      } : undefined
+    };
+    return copy;
   }
 
   set settings(settings: Settings) {
+    const oldSettings = this._settings.value;
+    const needsReload = this.checkIfSearchReloadNeeded(oldSettings, settings);
+
+    // Update DisplayConfigService with the incoming displayConfig
+    if (settings.displayConfig) {
+      this.displayConfigService.loadFromSettings(settings.displayConfig);
+    }
+
     this._settings.next(settings);
     this.saveToStorage(settings);
     this.applyTheme(settings.theme);
+
+    // Reload search if new optional columns were enabled
+    if (needsReload) {
+      this.reloadSearchResults();
+    }
+  }
+
+  /**
+   * Checks if search results need to be reloaded due to new optional columns being enabled
+   */
+  private checkIfSearchReloadNeeded(oldSettings: Settings, newSettings: Settings): boolean {
+    if (!newSettings.displayConfig || !newSettings.displayConfig.tableColumns) {
+      return false;
+    }
+
+    // Get old visible column IDs
+    const oldVisibleColumnIds = new Set(
+      (oldSettings.displayConfig?.tableColumns || [])
+        .filter(col => col.visible)
+        .map(col => col.id)
+    );
+
+    // Get new visible column IDs
+    const newVisibleColumnIds = new Set(
+      newSettings.displayConfig.tableColumns
+        .filter(col => col.visible)
+        .map(col => col.id)
+    );
+
+    // Check if any NEW optional columns were made visible
+    const newlyVisibleOptionalColumns = Array.from(newVisibleColumnIds).filter(
+      colId => !oldVisibleColumnIds.has(colId) && OPTIONAL_SOLR_FIELDS[colId]
+    );
+
+    return newlyVisibleOptionalColumns.length > 0;
+  }
+
+  /**
+   * Reloads search results by emitting a reload event
+   */
+  private reloadSearchResults(): void {
+    this._reloadSearchResults.next();
   }
 
   saveImmediately() {
@@ -88,7 +154,7 @@ export class SettingsService {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return new Settings(parsed.theme, parsed.searchResultsView);
+        return new Settings(parsed.theme, parsed.searchResultsView, parsed.displayConfig);
       } catch (e) {
         console.warn('⚠️ Could not parse settings from localStorage', e);
       }

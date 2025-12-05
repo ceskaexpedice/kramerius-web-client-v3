@@ -10,6 +10,7 @@ import {DocumentAccessibilityEnum} from '../../../modules/constants/document-acc
 import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
+import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -33,11 +34,13 @@ export class RecordItemListRowComponent {
 
   @Input() record!: SearchDocument;
   @Input() url!: string;
+  @Input() visibleColumns: TableColumnConfig[] = [];
 
   recordHandler = inject(RecordHandlerService);
   public selectionService = inject(SelectionService);
 
   protected readonly languageMap = languageMap;
+  protected readonly ColumnRenderType = ColumnRenderType;
 
   private krameriusBaseUrl: string;
 
@@ -47,6 +50,43 @@ export class RecordItemListRowComponent {
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
+  }
+
+  /**
+   * Gets the value for a column from the record
+   */
+  getColumnValue(column: TableColumnConfig): any {
+    return (this.record as any)[column.field];
+  }
+
+  /**
+   * Formats an array field for display
+   */
+  formatArrayValue(value: string[] | undefined, maxLength: number = 50): string {
+    if (!value || value.length === 0) {
+      return '—';
+    }
+
+    const joined = value.join(', ');
+    if (joined.length > maxLength) {
+      return joined.slice(0, maxLength) + '...';
+    }
+    return joined;
+  }
+
+  /**
+   * Formats author array
+   */
+  formatAuthors(authors: string[] | undefined): string {
+    if (!authors || authors.length === 0) {
+      return '';
+    }
+
+    const joined = authors.join(', ');
+    if (joined.length > 35) {
+      return joined.slice(0, 35) + '...';
+    }
+    return joined;
   }
 
   onRowClick(event: MouseEvent): void {

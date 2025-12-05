@@ -1,8 +1,9 @@
-import {computed, effect, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {APP_ROUTES_ENUM} from '../../app.routes';
 import {ActivatedRoute} from '@angular/router';
 import {filter, map, Observable, takeUntil} from 'rxjs';
 import {Store} from '@ngrx/store';
+import {SettingsService} from '../../modules/settings/settings.service';
 import {
   selectActiveFilters,
   selectArticleSearchResults,
@@ -116,6 +117,8 @@ export class SearchService extends BaseFilterService {
     this._sortBy.set(SolrSortFields.createdAt);
   }
 
+  private settingsService = inject(SettingsService);
+
   constructor(
     private store: Store,
     private solrService: SolrService,
@@ -140,6 +143,34 @@ export class SearchService extends BaseFilterService {
         .subscribe(count => this._totalCount.set(count));
       return () => subscription.unsubscribe();
     });
+
+    // Listen for reload event from settings changes
+    this.setupReloadListener();
+  }
+
+  /**
+   * Sets up listener for reload events triggered by settings changes
+   */
+  private setupReloadListener(): void {
+    this.settingsService.reloadSearchResults$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Only reload if we're on the search results page
+        const currentRoute = this.router.url.split('?')[0];
+        if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+          this.reloadCurrentSearch();
+        }
+      });
+  }
+
+  /**
+   * Reloads the current search with existing parameters
+   */
+  public reloadCurrentSearch(): void {
+    const params = this.route.snapshot.queryParams;
+    if (params && Object.keys(params).length > 0) {
+      this.dispatchSearch(params);
+    }
   }
 
 
