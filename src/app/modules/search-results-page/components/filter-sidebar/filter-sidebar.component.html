@@ -13,17 +13,17 @@
      (click)="onBackdropClick()"></div>
 
 <div class="filter-sidebar"
-     [class.scrollable]="scrollable"
      [class.overlay]="isOverlay()"
      [class.visible]="breakpointService.isVisible()"
      [class.disabled]="isDisabled"
      [class.expanded]="isExpanded"
-     [ngClass]="['padding-' + padding]">
+     [style.height.vh]="isOverlay() && breakpointService.isVisible() && breakpointService.isMobile() ? currentHeight : null">
 
   <!-- Drag handle for mobile bottom sheet -->
   <div *ngIf="isOverlay() && breakpointService.isVisible()"
        class="bottom-sheet-handle"
-       (click)="toggleExpanded()">
+       (mousedown)="onDragStart($event)"
+       (touchstart)="onDragStart($event)">
     <i class="icon-line-vertical"></i>
   </div>
 
@@ -46,7 +46,12 @@
     <i class="icon-close"></i>
   </button>
 
-  <ng-content></ng-content>
+  <!-- Scrollable content area -->
+  <div class="filter-content"
+       [class.scrollable]="scrollable"
+       [ngClass]="['padding-' + padding]">
+    <ng-content></ng-content>
+  </div>
 
   @if (isDisabled) {
     <div class="sidebar-disabled--overlay"></div>

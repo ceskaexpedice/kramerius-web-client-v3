@@ -144,6 +144,9 @@ import { TranslatePipe } from '@ngx-translate/core';
         }
       }
 
+      :host {
+        display: block;
+      }
   `]
 })
 export class SearchFiltersComponent extends BaseFiltersComponent {

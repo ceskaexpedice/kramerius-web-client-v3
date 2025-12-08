@@ -395,5 +395,6 @@
   "viewer-controls.toggle-scroll-mode": "Přepnout režim posouvání",
   "viewer-controls.book-mode": "Režim knihy",
   "viewer-controls.rotate": "Otočit",
-  "viewer-controls.select-area": "Vybrat oblast"
+  "viewer-controls.select-area": "Vybrat oblast",
+  "filters": "Filtry"
 }

@@ -394,5 +394,6 @@
   "viewer-controls.toggle-scroll-mode": "Przełącz tryb przewijania",
   "viewer-controls.book-mode": "Tryb książki",
   "viewer-controls.rotate": "Obróć",
-  "viewer-controls.select-area": "Wybierz obszar"
+  "viewer-controls.select-area": "Wybierz obszar",
+  "filters": "Filtry"
 }

@@ -3,17 +3,25 @@
 
 :host {
   height: 100%;
-  overflow: hidden;
   position: relative;
 }
 
 .filter-sidebar {
-  display: block;
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-bg-base);
   height: 100%;
   font-family: inherit;
   transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
   position: relative;
+  overflow: hidden;
+
+  @include respond(md) {
+    &.overlay {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+  }
 
   /* Responsive width based on breakpoints */
   @media (min-width: 854px) and (max-width: 1279px) {
@@ -24,10 +32,6 @@
   @media (min-width: 1280px) {
     width: 300px;
     /* Desktop: 300px */
-  }
-
-  &:not(.disabled).scrollable {
-    overflow-y: auto;
   }
 
   /* Mobile/tablet overlay mode */
@@ -52,18 +56,14 @@
       left: 0;
       right: 0;
       width: 100%;
-      height: 50vh;
-      max-height: 50vh;
+      height: auto;
       border-radius: var(--spacing-x3) var(--spacing-x3) 0 0;
       transform: translateY(100%);
-      transition: transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out, height 0.2s ease-out;
+      box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
 
       &.visible {
         transform: translateY(0);
-      }
-
-      &.expanded {
-        max-height: 90vh;
       }
     }
   }
@@ -161,20 +161,29 @@
 
 /* Bottom sheet handle */
 .bottom-sheet-handle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 10;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   i {
     font-size: 24px;
     color: var(--icon-grey);
+    pointer-events: none;
+  }
+
+  @include respond(md) {
+    .filter-sidebar.overlay & {
+      grid-row: 1;
+    }
   }
 }
 
@@ -188,7 +197,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--spacing-x3);
+    padding: 0 var(--spacing-x2);
+    grid-row: 2;
 
     button {
       padding: 0;
@@ -205,6 +215,27 @@
 
   .desktop-close-btn {
     display: none !important;
+  }
+}
+
+/* Filter content area */
+.filter-content {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  overscroll-behavior: contain;
+
+  &.scrollable {
+    overflow-y: auto;
+  }
+
+  @include respond(md) {
+    .filter-sidebar.overlay & {
+      grid-row: 3;
+      overflow-y: auto;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 }
 

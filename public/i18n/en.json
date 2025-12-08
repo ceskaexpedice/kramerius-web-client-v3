@@ -402,5 +402,6 @@
   "viewer-controls.toggle-scroll-mode": "Toggle scroll mode",
   "viewer-controls.book-mode": "Book mode",
   "viewer-controls.rotate": "Rotate",
-  "viewer-controls.select-area": "Select area"
+  "viewer-controls.select-area": "Select area",
+  "filters": "Filters"
 }
