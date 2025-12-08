@@ -5,7 +5,11 @@
 
   <div class="detail-layout--body">
 
-    <app-filter-sidebar [padding]="'0'" [scrollable]="false">
+    <app-filter-sidebar
+      [padding]="'0'"
+      [scrollable]="false"
+      [toggleButtonPosition]="'left'"
+      [toggleButtonIcon]="'icon-sidebar-bottom'">
 
       <ng-content select="[left-sidebar]"></ng-content>
 

@@ -20,6 +20,8 @@ export class FilterSidebarComponent implements OnDestroy {
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
   @Input() scrollable = true;
   @Input() isDisabled = false;
+  @Input() toggleButtonPosition: 'left' | 'right' = 'right';
+  @Input() toggleButtonIcon: string = 'icon-filter';
 
   // Manual toggle state for mobile/tablet overlay
   manualToggle = signal(false);

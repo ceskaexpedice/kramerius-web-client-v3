@@ -97,6 +97,11 @@
   justify-content: center;
   transition: all 0.3s ease;
 
+  &.left {
+    left: 12px;
+    right: auto;
+  }
+
   &:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);

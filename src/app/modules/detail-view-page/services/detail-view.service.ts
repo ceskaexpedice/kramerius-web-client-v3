@@ -25,14 +25,17 @@ import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/period
 import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 import {IIIFViewerService} from '../../../shared/services/iiif-viewer.service';
 import {DocumentInfoService} from '../../../shared/services/document-info.service';
+import {BreakpointService} from '../../../shared/services/breakpoint.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DetailViewService {
+  private breakpointService = inject(BreakpointService);
+
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
-  _metadataSidebarVisible = signal<boolean>(true);
+  _metadataSidebarVisible = signal<boolean>(!this.breakpointService.isMobile());
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
