@@ -59,11 +59,22 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
 
-  // Swipe detection
-  private dragStartPoint: OpenSeadragon.Point | null = null;
-  private dragStartTime = 0;
-  private readonly SWIPE_THRESHOLD = 50; // Minimum distance for swipe in pixels
-  private readonly SWIPE_TIME_LIMIT = 300; // Maximum time for swipe in ms
+  // Swipe detection configuration
+  private readonly SWIPE_CONFIG = {
+    minDistance: 50,        // Minimum horizontal distance in pixels
+    maxTime: 600,           // Maximum gesture duration in ms
+    maxVerticalRatio: 0.5,  // Max vertical/horizontal ratio (prevents diagonal swipes)
+    zoomTolerance: 1.15     // Zoom level tolerance (15% above home zoom)
+  } as const;
+
+  // Touch tracking state
+  private touchState = {
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    isSwiping: false,
+    touchCount: 0
+  };
 
   private readonly TEST_FALLBACK = false;
 
@@ -131,6 +142,15 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+
+    // Clean up native touch event listeners
+    if (this.viewerContainer?.nativeElement) {
+      const container = this.viewerContainer.nativeElement;
+      container.removeEventListener('touchstart', this.onTouchStart);
+      container.removeEventListener('touchmove', this.onTouchMove);
+      container.removeEventListener('touchend', this.onTouchEnd);
+    }
+
     if (this.viewer) {
       this.viewer.destroy();
     }
@@ -178,7 +198,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       gestureSettingsTouch: {
         clickToZoom: false,
         dblClickToZoom: true,
-        flickEnabled: true,
+        flickEnabled: false, // Disable flick to prevent interference with swipe
         pinchToZoom: true,
         scrollToZoom: false
       },
@@ -205,32 +225,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       });
     });
 
-    // Swipe gesture detection using OpenSeadragon press/release events
-    this.viewer.addHandler('canvas-press', (event: any) => {
-      // Record start position and time
-      this.dragStartPoint = event.position;
-      this.dragStartTime = Date.now();
-    });
-
-    this.viewer.addHandler('canvas-release', (event: any) => {
-      this.handleSwipeGesture(event);
-    });
-
-    // Disable panning at base zoom to allow swipe gestures
-    const updatePanState = () => {
-      if (this.viewer) {
-        const currentZoom = this.viewer.viewport.getZoom();
-        const minZoom = this.viewer.viewport.getMinZoom();
-        const isAtBaseZoom = currentZoom <= minZoom * 1.05;
-
-        // Disable panning when at base zoom to allow swipe gestures
-        // this.viewer.panHorizontal = !isAtBaseZoom;
-        // this.viewer.panVertical = !isAtBaseZoom;
-      }
-    };
-
-    this.viewer.addHandler('zoom', updatePanState);
-    this.viewer.addHandler('open', updatePanState);
+    // Setup native touch event listeners for swipe navigation
+    // Note: We use native touch events instead of OpenSeadragon's gesture system
+    // because they're more reliable across different browsers and devices
+    this.setupNativeTouchListeners();
 
     this.viewer.addHandler('open-failed', (event: any) => {
       const currentPid = this.imagePid || this.metadata?.uuid;
@@ -413,46 +411,117 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
   }
 
-  private handleSwipeGesture(event: any): void {
-    if (!this.viewer || !this.dragStartPoint) {
-      this.dragStartPoint = null;
+  /**
+   * Check if viewer is at base zoom level (not zoomed in)
+   */
+  private isAtBaseZoom(): boolean {
+    if (!this.viewer) return false;
+
+    const currentZoom = this.viewer.viewport.getZoom();
+    const homeZoom = this.viewer.viewport.getHomeZoom();
+
+    return currentZoom <= homeZoom * this.SWIPE_CONFIG.zoomTolerance;
+  }
+
+  /**
+   * Navigate to previous or next page based on swipe direction
+   */
+  private navigateBySwipe(direction: 'left' | 'right'): void {
+    this.ngZone.run(() => {
+      if (direction === 'left') {
+        this.detailViewService.goToNext();
+      } else {
+        this.detailViewService.goToPrevious();
+      }
+    });
+  }
+
+  /**
+   * Setup native touch event listeners for swipe navigation
+   * Uses native events for maximum compatibility across browsers and devices
+   */
+  private setupNativeTouchListeners(): void {
+    const container = this.viewerContainer.nativeElement;
+
+    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
+    container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true });
+    container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+  }
+
+  /**
+   * Handle touch start - record initial touch position and time
+   */
+  private onTouchStart = (e: TouchEvent): void => {
+    // Only track single-finger swipes (multi-touch is for pinch-zoom)
+    if (e.touches.length !== 1) {
+      this.touchState.isSwiping = false;
       return;
     }
 
-    const endPoint = event.position;
-    const gestureTime = Date.now() - this.dragStartTime;
+    this.touchState.startX = e.touches[0].clientX;
+    this.touchState.startY = e.touches[0].clientY;
+    this.touchState.startTime = Date.now();
+    this.touchState.touchCount = e.touches.length;
+    this.touchState.isSwiping = false;
+  };
 
-    // Calculate gesture distance in viewport coordinates
-    const deltaX = endPoint.x - this.dragStartPoint.x;
-    const deltaY = endPoint.y - this.dragStartPoint.y;
-
-    // Convert to pixel distance
-    const pixelDeltaX = Math.abs(deltaX) * this.viewer.container.clientWidth;
-    const pixelDeltaY = Math.abs(deltaY) * this.viewer.container.clientHeight;
-
-    // Check if at base zoom level (allow small tolerance)
-    const currentZoom = this.viewer.viewport.getZoom();
-    const minZoom = this.viewer.viewport.getMinZoom();
-    const isAtBaseZoom = currentZoom <= minZoom * 1.05;
-
-    // Check if this is a quick horizontal swipe
-    const isHorizontalSwipe = pixelDeltaX > pixelDeltaY && pixelDeltaX > this.SWIPE_THRESHOLD;
-    const isQuickGesture = gestureTime < this.SWIPE_TIME_LIMIT;
-
-    if (isAtBaseZoom && isHorizontalSwipe && isQuickGesture) {
-      // Navigate based on swipe direction
-      this.ngZone.run(() => {
-        if (deltaX < 0) {
-          // Swipe left (right to left) - go to next page
-          this.detailViewService.goToNext();
-        } else {
-          // Swipe right (left to right) - go to previous page
-          this.detailViewService.goToPrevious();
-        }
-      });
+  /**
+   * Handle touch move - mark as swiping if user is dragging
+   */
+  private onTouchMove = (e: TouchEvent): void => {
+    // Ignore if multi-touch (pinch-zoom)
+    if (e.touches.length > 1 || this.touchState.touchCount > 1) {
+      this.touchState.isSwiping = false;
+      return;
     }
 
-    // Reset tracking
-    this.dragStartPoint = null;
+    this.touchState.isSwiping = true;
+  };
+
+  /**
+   * Handle touch end - detect and handle swipe gestures
+   */
+  private onTouchEnd = (e: TouchEvent): void => {
+    // Validate gesture prerequisites
+    if (!this.viewer || !this.touchState.isSwiping || e.changedTouches.length !== 1) {
+      this.resetTouchState();
+      return;
+    }
+
+    // Ignore if multi-touch was used (pinch-zoom)
+    if (this.touchState.touchCount > 1) {
+      this.resetTouchState();
+      return;
+    }
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - this.touchState.startX;
+    const deltaY = touch.clientY - this.touchState.startY;
+    const duration = Date.now() - this.touchState.startTime;
+
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+
+    // Check swipe validity
+    const isHorizontal = absDeltaX > absDeltaY * (1 / this.SWIPE_CONFIG.maxVerticalRatio);
+    const isLongEnough = absDeltaX >= this.SWIPE_CONFIG.minDistance;
+    const isFastEnough = duration <= this.SWIPE_CONFIG.maxTime;
+    const isAtBase = this.isAtBaseZoom();
+
+    // Execute navigation if all conditions met
+    if (isHorizontal && isLongEnough && isFastEnough && isAtBase) {
+      e.preventDefault();
+      this.navigateBySwipe(deltaX < 0 ? 'left' : 'right');
+    }
+
+    this.resetTouchState();
+  };
+
+  /**
+   * Reset touch state after gesture completes
+   */
+  private resetTouchState(): void {
+    this.touchState.isSwiping = false;
+    this.touchState.touchCount = 0;
   }
 }
