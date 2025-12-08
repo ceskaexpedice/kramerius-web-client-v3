@@ -59,6 +59,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
 
+  // Swipe detection
+  private dragStartPoint: OpenSeadragon.Point | null = null;
+  private dragStartTime = 0;
+  private readonly SWIPE_THRESHOLD = 50; // Minimum distance for swipe in pixels
+  private readonly SWIPE_TIME_LIMIT = 300; // Maximum time for swipe in ms
 
   private readonly TEST_FALLBACK = false;
 
@@ -200,6 +205,32 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       });
     });
 
+    // Swipe gesture detection using OpenSeadragon press/release events
+    this.viewer.addHandler('canvas-press', (event: any) => {
+      // Record start position and time
+      this.dragStartPoint = event.position;
+      this.dragStartTime = Date.now();
+    });
+
+    this.viewer.addHandler('canvas-release', (event: any) => {
+      this.handleSwipeGesture(event);
+    });
+
+    // Disable panning at base zoom to allow swipe gestures
+    const updatePanState = () => {
+      if (this.viewer) {
+        const currentZoom = this.viewer.viewport.getZoom();
+        const minZoom = this.viewer.viewport.getMinZoom();
+        const isAtBaseZoom = currentZoom <= minZoom * 1.05;
+
+        // Disable panning when at base zoom to allow swipe gestures
+        this.viewer.panHorizontal = !isAtBaseZoom;
+        this.viewer.panVertical = !isAtBaseZoom;
+      }
+    };
+
+    this.viewer.addHandler('zoom', updatePanState);
+    this.viewer.addHandler('open', updatePanState);
 
     this.viewer.addHandler('open-failed', (event: any) => {
       const currentPid = this.imagePid || this.metadata?.uuid;
@@ -380,5 +411,48 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
       this.recordHandlerService.openShareDialog(this.metadata, { bb });
     }
+  }
+
+  private handleSwipeGesture(event: any): void {
+    if (!this.viewer || !this.dragStartPoint) {
+      this.dragStartPoint = null;
+      return;
+    }
+
+    const endPoint = event.position;
+    const gestureTime = Date.now() - this.dragStartTime;
+
+    // Calculate gesture distance in viewport coordinates
+    const deltaX = endPoint.x - this.dragStartPoint.x;
+    const deltaY = endPoint.y - this.dragStartPoint.y;
+
+    // Convert to pixel distance
+    const pixelDeltaX = Math.abs(deltaX) * this.viewer.container.clientWidth;
+    const pixelDeltaY = Math.abs(deltaY) * this.viewer.container.clientHeight;
+
+    // Check if at base zoom level (allow small tolerance)
+    const currentZoom = this.viewer.viewport.getZoom();
+    const minZoom = this.viewer.viewport.getMinZoom();
+    const isAtBaseZoom = currentZoom <= minZoom * 1.05;
+
+    // Check if this is a quick horizontal swipe
+    const isHorizontalSwipe = pixelDeltaX > pixelDeltaY && pixelDeltaX > this.SWIPE_THRESHOLD;
+    const isQuickGesture = gestureTime < this.SWIPE_TIME_LIMIT;
+
+    if (isAtBaseZoom && isHorizontalSwipe && isQuickGesture) {
+      // Navigate based on swipe direction
+      this.ngZone.run(() => {
+        if (deltaX < 0) {
+          // Swipe left (right to left) - go to next page
+          this.detailViewService.goToNext();
+        } else {
+          // Swipe right (left to right) - go to previous page
+          this.detailViewService.goToPrevious();
+        }
+      });
+    }
+
+    // Reset tracking
+    this.dragStartPoint = null;
   }
 }
