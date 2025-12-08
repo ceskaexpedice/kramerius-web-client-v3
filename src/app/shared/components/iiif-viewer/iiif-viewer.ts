@@ -224,8 +224,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         const isAtBaseZoom = currentZoom <= minZoom * 1.05;
 
         // Disable panning when at base zoom to allow swipe gestures
-        this.viewer.panHorizontal = !isAtBaseZoom;
-        this.viewer.panVertical = !isAtBaseZoom;
+        // this.viewer.panHorizontal = !isAtBaseZoom;
+        // this.viewer.panVertical = !isAtBaseZoom;
       }
     };
 

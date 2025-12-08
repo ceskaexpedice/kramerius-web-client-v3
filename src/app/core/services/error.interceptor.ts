@@ -17,9 +17,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         errorDialogService.openServerErrorDialog();
       }
 
-      // Handle not found errors (404)
+      // Handle network errors and CORS issues (status 0)
+      if (error.status === 0) {
+        errorDialogService.openServerErrorDialog();
+      }
+
+      // Handle not found errors (404) - show 404 page without changing URL
       if (error.status === 404) {
-        router.navigate([APP_ROUTES_ENUM.NOT_FOUND]);
+        router.navigate([APP_ROUTES_ENUM.NOT_FOUND], { skipLocationChange: true });
       }
 
       return throwError(() => error);

@@ -9,10 +9,17 @@ export class ErrorDialogService {
   private dialog = inject(MatDialog);
 
   public openServerErrorDialog(): void {
-    this.dialog.open(ServerErrorDialogComponent, {
-      maxWidth: '90vw',
-      disableClose: false,
-      panelClass: 'server-error-dialog-panel'
-    });
+    // Check if a server error dialog is already open to prevent multiple dialogs
+    const isDialogOpen = this.dialog.openDialogs.some(
+      dialog => dialog.componentInstance instanceof ServerErrorDialogComponent
+    );
+
+    if (!isDialogOpen) {
+      this.dialog.open(ServerErrorDialogComponent, {
+        maxWidth: '90vw',
+        disableClose: false,
+        panelClass: 'server-error-dialog-panel'
+      });
+    }
   }
 }
