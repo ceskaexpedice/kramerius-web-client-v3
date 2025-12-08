@@ -143,8 +143,6 @@ export class FilterSidebarComponent implements OnDestroy {
   // Close sidebar
   closeSidebar() {
     this.manualToggle.set(false);
-    this.isExpanded = false;
-    this.currentHeight = 50;
   }
 
   // Backdrop click handler

@@ -19,7 +19,7 @@
      [class.disabled]="isDisabled"
      [class.expanded]="isExpanded"
      [class.dragging]="isDragging"
-     [style.height.vh]="isOverlay() && breakpointService.isVisible() && breakpointService.isMobile() ? currentHeight : null">
+     [style.height.vh]="isOverlay() && breakpointService.isMobile() ? currentHeight : null">
 
   <!-- Drag handle for mobile bottom sheet -->
   <div *ngIf="isOverlay() && breakpointService.isVisible()"
