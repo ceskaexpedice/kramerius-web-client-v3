@@ -28,7 +28,7 @@ export class FilterSidebarComponent implements OnDestroy {
   isExpanded = false;
 
   // Drag state
-  private isDragging = false;
+  isDragging = false;
   private startY = 0;
   private startHeight = 0;
   currentHeight = 50; // Current height in vh

@@ -17,6 +17,7 @@
      [class.visible]="breakpointService.isVisible()"
      [class.disabled]="isDisabled"
      [class.expanded]="isExpanded"
+     [class.dragging]="isDragging"
      [style.height.vh]="isOverlay() && breakpointService.isVisible() && breakpointService.isMobile() ? currentHeight : null">
 
   <!-- Drag handle for mobile bottom sheet -->

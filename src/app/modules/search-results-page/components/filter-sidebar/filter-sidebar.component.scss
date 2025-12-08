@@ -65,6 +65,10 @@
       &.visible {
         transform: translateY(0);
       }
+
+      &.dragging {
+        transition: transform 0.3s ease-in-out;
+      }
     }
   }
 
@@ -161,7 +165,8 @@
 
 /* Bottom sheet handle */
 .bottom-sheet-handle {
-  height: 20px;
+  height: 40px;
+  padding: var(--spacing-x2) 0;
   display: flex;
   align-items: center;
   justify-content: center;
