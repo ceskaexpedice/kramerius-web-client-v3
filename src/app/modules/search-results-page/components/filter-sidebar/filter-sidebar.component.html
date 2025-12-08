@@ -24,12 +24,23 @@
   <div *ngIf="isOverlay() && breakpointService.isVisible()"
        class="bottom-sheet-handle"
        (click)="toggleExpanded()">
-    <div class="handle-bar"></div>
+    <i class="icon-line-vertical"></i>
   </div>
 
-  <!-- Close button for overlay mode -->
-  <button *ngIf="isOverlay() && breakpointService.isVisible()"
-          class="sidebar-close-btn"
+  <!-- Mobile header with title and close button -->
+  <div *ngIf="isOverlay() && breakpointService.isVisible()"
+       class="mobile-header">
+    <h3>{{'filters' | translate}}</h3>
+    <button class="icon-button transparent icon-button p-right-0"
+            (click)="breakpointService.toggleSidebar()"
+            [attr.aria-label]="'close-filters' | translate">
+      <i class="icon-close"></i>
+    </button>
+  </div>
+
+  <!-- Close button for desktop overlay mode (left sidebar) -->
+  <button *ngIf="isOverlay() && breakpointService.isVisible() && !breakpointService.isMobile()"
+          class="sidebar-close-btn desktop-close-btn"
           (click)="breakpointService.toggleSidebar()"
           [attr.aria-label]="'close-filters' | translate">
     <i class="icon-close"></i>
