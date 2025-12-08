@@ -25,10 +25,23 @@
       (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light advanced-search-btn"
+    <button class="outlined light advanced-search-btn desktop-btn"
             aria-label="{{'advanced-search' | translate}}"
             (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
+    </button>
+
+    <!-- Mobile search buttons -->
+    <button class="icon-button outlined light mobile-search-btn"
+            aria-label="{{'advanced-search' | translate}}"
+            (click)="openAdvancedSearch()">
+      <i class="icon-settings-4"></i>
+    </button>
+
+    <button class="icon-button outlined light mobile-search-btn"
+            aria-label="Close search"
+            (click)="closeMobileSearch()">
+      <i class="icon-close"></i>
     </button>
 
   </div>

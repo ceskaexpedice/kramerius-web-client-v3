@@ -25,6 +25,10 @@
     & > :first-child {
       flex: 1;
     }
+
+    .mobile-search-btn {
+      display: none;
+    }
   }
 
   &__left {
@@ -125,14 +129,19 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease-in-out;
+      gap: var(--spacing-x2);
 
       &.mobile-search-active {
         opacity: 1;
         pointer-events: all;
       }
 
-      .advanced-search-btn {
+      .desktop-btn {
         display: none;
+      }
+
+      .mobile-search-btn {
+        display: flex;
       }
     }
 
