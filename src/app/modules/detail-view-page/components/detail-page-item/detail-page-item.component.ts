@@ -3,6 +3,9 @@ import { EnvironmentService } from '../../../../shared/services/environment.serv
 import { NgClass, NgIf } from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
 import { SelectionService } from '../../../../shared/services';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ImagePreviewPopupComponent } from '../../../../shared/components/image-preview-popup/image-preview-popup.component';
+import { PopupPositioningService, PopupState } from '../../../../shared/services/popup-positioning.service';
 
 @Component({
   selector: 'app-detail-page-item',
@@ -10,6 +13,8 @@ import { SelectionService } from '../../../../shared/services';
     NgClass,
     NgIf,
     CheckboxComponent,
+    TranslatePipe,
+    ImagePreviewPopupComponent,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'
@@ -19,6 +24,7 @@ export class DetailPageItemComponent {
 
   private envService = inject(EnvironmentService);
   public selectionService = inject(SelectionService);
+  private popupPositioningService = inject(PopupPositioningService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: string | null = '0';
@@ -31,15 +37,42 @@ export class DetailPageItemComponent {
   @Input() localSelectionMode: boolean = false; // If true, use local selection instead of SelectionService
   @Input() localIsSelected: boolean = false; // Local selection state
 
+  // Show preview button
+  @Input() showPreviewButton: boolean = false;
+
   @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectionToggled: EventEmitter<{ selected: boolean; event?: MouseEvent }> = new EventEmitter<{ selected: boolean; event?: MouseEvent }>();
 
+  previewPopupState: PopupState;
+
   constructor() {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
+    this.previewPopupState = this.popupPositioningService.createPopupState();
   }
 
   getImageUrl(): string {
     return this.krameriusBaseUrl + '/' + this.page.pid + '/image/thumb';
+  }
+
+  getFullImageUrl(): string {
+    return this.krameriusBaseUrl + '/' + this.page.pid + '/image';
+  }
+
+  onPreviewClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.popupPositioningService.showPopup(
+      this.previewPopupState,
+      {
+        triggerEvent: event,
+        popupWidth: 600,
+        popupHeight: 500,
+        preferredSide: 'center',
+        offsetY: 10
+      },
+      '.preview-popup-wrapper'
+    );
   }
 
   onPageClicked(event: MouseEvent) {

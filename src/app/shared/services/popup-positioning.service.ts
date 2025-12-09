@@ -35,7 +35,7 @@ export class PopupPositioningService {
       showPopup.set(false);
       popupPositioned.set(false);
       this.removeClickOutsideListener();
-      
+
       // Clear static reference if this was the current popup
       if (PopupPositioningService.currentOpenPopup?.closePopup === closePopup) {
         PopupPositioningService.currentOpenPopup = null;
@@ -58,7 +58,7 @@ export class PopupPositioningService {
     popupSelector: string = '.favorites-popup-wrapper'
   ): void {
     // Close any existing popup first
-    if (PopupPositioningService.currentOpenPopup && 
+    if (PopupPositioningService.currentOpenPopup &&
         PopupPositioningService.currentOpenPopup !== popupState) {
       PopupPositioningService.currentOpenPopup.closePopup();
     }
@@ -79,7 +79,7 @@ export class PopupPositioningService {
   /**
    * Positions the popup based on configuration
    */
-  private positionPopup(
+  public positionPopup(
     popupState: PopupState,
     config: PopupPositionConfig,
     popupSelector: string

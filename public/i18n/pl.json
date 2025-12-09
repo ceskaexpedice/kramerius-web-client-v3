@@ -370,6 +370,7 @@
   "page-selection-dialog--header-print": "Wybierz konkretne strony do druku",
   "press-shift-for-multiselect": "Aby zaznaczyć wiele stron, naciśnij Shift",
   "page-range-placeholder": "np. 1,2,3-7,10",
+  "preview-image": "Podgląd obrazu",
   "download": "Pobierz",
   "error.not_found.title": "Strona nie znaleziona",
   "error.not_found.message": "Strona, której szukasz, nie istnieje lub została przeniesiona.",

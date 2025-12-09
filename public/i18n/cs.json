@@ -371,6 +371,7 @@
   "page-selection-dialog--header-print": "Vybrat konkrétní strany pro tisk",
   "press-shift-for-multiselect": "Pro vícenásobné vybrání stránek stiskněte Shift",
   "page-range-placeholder": "např. 1,2,3-7,10",
+  "preview-image": "Náhled obrázku",
   "download": "Stáhnout",
   "error.not_found.title": "Stránka nenalezena",
   "error.not_found.message": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",

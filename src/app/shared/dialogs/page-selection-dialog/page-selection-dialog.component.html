@@ -37,6 +37,7 @@
         @for (page of pages; track page.pid; let index = $index) {
         <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="null" [localSelectionMode]="true"
           [localIsSelected]="isPageSelected(page.pid)"
+          [showPreviewButton]="true"
           [class.disabled-selection]="!isPageSelected(page.pid) && isLimitReached()"
           (selectionToggled)="togglePageSelection(page.pid, $event.event)">
         </app-detail-page-item>

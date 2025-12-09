@@ -117,6 +117,37 @@
     // Animation for selection overlay appearance
     animation: fadeInScale 0.2s ease-out;
   }
+
+  // Action buttons
+  &__actions {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: $detail-page-selection;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .preview-button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg-base);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+      i {
+        font-size: 16px;
+      }
+    }
+  }
+
+  &:hover &__actions {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInScale {
@@ -150,4 +181,13 @@
   background-color: var(--color-bg-base);
   font-size: var(--font-size-small);
   line-height: 11px;
+}
+
+.preview-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: $detail-page-selection + 1;
+  pointer-events: auto;
+  transition: opacity 0.1s ease;
 }
