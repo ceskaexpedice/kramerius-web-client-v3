@@ -13,6 +13,7 @@ import {
 import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
 import {filter, Observable, skip, take} from 'rxjs';
 import {
+  selectAvailableYears,
   selectPeriodicalChildren,
   selectPidFromAvailableYears,
 } from '../../periodical/state/periodical-detail/periodical-detail.selectors';
@@ -304,10 +305,64 @@ export class DetailViewService {
 
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
       const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
+
       if (currentIndex !== -1 && currentIndex < children.length - 1) {
+        // Navigate to next issue in current volume
         const nextIssue = children[currentIndex + 1];
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, nextIssue.pid]);
+      } else if (currentIndex === children.length - 1) {
+        // At last issue of volume, try to navigate to first issue of next volume
+        this.navigateToNextVolume();
       }
+    });
+  }
+
+  private navigateToNextVolume() {
+    const currentDoc = this.document;
+    if (!currentDoc?.ownParentPid) {
+      console.warn('Cannot navigate to next volume: no parent volume information');
+      return;
+    }
+
+    this.store.select(selectAvailableYears).pipe(take(1)).subscribe(availableYears => {
+      if (!availableYears || availableYears.length === 0) {
+        console.warn('Cannot navigate to next volume: no available years data');
+        return;
+      }
+
+      // Find current volume in available years
+      const currentVolumeIndex = availableYears.findIndex(
+        year => year.pid === currentDoc.ownParentPid
+      );
+
+      if (currentVolumeIndex === -1) {
+        console.warn('Cannot navigate to next volume: current volume not found in available years');
+        return;
+      }
+
+      if (currentVolumeIndex >= availableYears.length - 1) {
+        console.log('Already at last volume');
+        return;
+      }
+
+      // Get next volume
+      const nextVolume = availableYears[currentVolumeIndex + 1];
+
+      // Load issues for next volume
+      this.store.dispatch(loadPeriodicalItems({
+        parentVolumeUuid: nextVolume.pid
+      }));
+
+      // Wait for NEW issues to load (skip current emission), then navigate to first issue
+      this.store.select(selectPeriodicalChildren).pipe(
+        skip(1), // Skip the current volume's children
+        filter(children => children && children.length > 0),
+        take(1)
+      ).subscribe(children => {
+        // Navigate to first issue of next volume
+        const firstIssue = children[0];
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, firstIssue.pid]);
+      });
     });
   }
 
@@ -317,10 +372,64 @@ export class DetailViewService {
 
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
       const currentIndex = children.findIndex(child => child.pid === currentDoc.uuid);
+
       if (currentIndex > 0) {
+        // Navigate to previous issue in current volume
         const previousIssue = children[currentIndex - 1];
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, previousIssue.pid]);
+      } else if (currentIndex === 0) {
+        // At first issue of volume, try to navigate to last issue of previous volume
+        this.navigateToPreviousVolume();
       }
+    });
+  }
+
+  private navigateToPreviousVolume() {
+    const currentDoc = this.document;
+    if (!currentDoc?.ownParentPid) {
+      console.warn('Cannot navigate to previous volume: no parent volume information');
+      return;
+    }
+
+    this.store.select(selectAvailableYears).pipe(take(1)).subscribe(availableYears => {
+      if (!availableYears || availableYears.length === 0) {
+        console.warn('Cannot navigate to previous volume: no available years data');
+        return;
+      }
+
+      // Find current volume in available years
+      const currentVolumeIndex = availableYears.findIndex(
+        year => year.pid === currentDoc.ownParentPid
+      );
+
+      if (currentVolumeIndex === -1) {
+        console.warn('Cannot navigate to previous volume: current volume not found in available years');
+        return;
+      }
+
+      if (currentVolumeIndex <= 0) {
+        console.log('Already at first volume');
+        return;
+      }
+
+      // Get previous volume
+      const previousVolume = availableYears[currentVolumeIndex - 1];
+
+      // Load issues for previous volume
+      this.store.dispatch(loadPeriodicalItems({
+        parentVolumeUuid: previousVolume.pid
+      }));
+
+      // Wait for NEW issues to load (skip current emission), then navigate to last issue
+      this.store.select(selectPeriodicalChildren).pipe(
+        skip(1), // Skip the current volume's children
+        filter(children => children && children.length > 0),
+        take(1)
+      ).subscribe(children => {
+        // Navigate to last issue of previous volume
+        const lastIssue = children[children.length - 1];
+        this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, lastIssue.pid]);
+      });
     });
   }
 
