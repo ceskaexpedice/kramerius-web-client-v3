@@ -29,12 +29,14 @@ export class FavoritesService {
    * @param currentUrl - Current route URL for redirect after login
    * @param event - Click event for popup positioning
    * @param popupState - Popup state to manage
+   * @param popupWidth - Optional popup width (default: 265, use 480 for hierarchy)
    * @returns Observable indicating whether to show popup
    */
   handleFavoriteToggle(
     currentUrl: string,
     event: Event,
-    popupState: PopupState
+    popupState: PopupState,
+    popupWidth: number = 265
   ): boolean {
     // Check if user is authenticated
     if (!this.authService.hasValidToken()) {
@@ -64,7 +66,7 @@ export class FavoritesService {
     // User is authenticated, show favorites popup
     this.popupPositioning.showPopup(popupState, {
       triggerEvent: event,
-      popupWidth: 265,
+      popupWidth: popupWidth,
       popupHeight: 400,
       preferredSide: 'right'
     });

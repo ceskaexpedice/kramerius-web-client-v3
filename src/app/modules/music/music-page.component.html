@@ -52,13 +52,14 @@
             <app-toolbar-controls
               [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="viewToggleOptions"
-              [showFavorites]="false"
+              [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="false"
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
@@ -118,3 +119,18 @@
 
   </ng-container>
 </app-detail-layout>
+
+<!-- Favorites Popup positioned fixed to avoid overflow clipping -->
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="favoritesHelper.currentItemId()"
+      [itemName]="favoritesHelper.currentItemName()"
+      [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
+      [document]="detailViewService.document$ | async"
+      (close)="onFavoritesPopupClose()"
+      (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
+}

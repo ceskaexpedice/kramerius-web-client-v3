@@ -17,6 +17,7 @@ import {DontShowDialogs} from '../../services/dont-show-again.service';
 import {FolderItemsService} from '../../../modules/saved-lists-page/services/folder-items.service';
 import {LocalStorageService} from '../../services/local-storage.service';
 import {ToastService} from '../../services/toast.service';
+import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../document-hierarchy-selector/document-hierarchy-selector.component';
 
 
 @Component({
@@ -30,6 +31,7 @@ import {ToastService} from '../../services/toast.service';
     InputComponent,
     MatCheckbox,
     FormsModule,
+    DocumentHierarchySelectorComponent,
   ],
   templateUrl: './favorites-popup.component.html',
   styleUrl: './favorites-popup.component.scss'
@@ -41,8 +43,15 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Input() itemName?: string;
   @Input() currentFolderId?: string;
   @Input() showRemoveButton = false;
+  @Input() showHierarchySelector = false;
+  @Input() document?: any;
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
+
+  // Store original itemId to revert if hierarchy selection is not used
+  private originalItemId: string = '';
+  selectedHierarchyItemId = signal<string>('');
+  selectedHierarchyItemName = signal<string>('');
 
   private store = inject(Store);
   private actions$ = inject(Actions);
@@ -154,6 +163,9 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   filteredLists$!: Observable<any[]>;
 
   ngOnInit() {
+    // Store original itemId
+    this.originalItemId = this.itemId;
+
     // Initialize filteredLists$ observable now that itemId is available
     this.filteredLists$ = combineLatest([
       this.allFolders$,
@@ -454,5 +466,17 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     }
     this.success.emit();
     this.close.emit();
+  }
+
+  onHierarchySelectionChanged(selectedItem: DocumentHierarchyItem): void {
+    // Update the itemId to the selected hierarchy item
+    this.itemId = selectedItem.pid;
+    this.selectedHierarchyItemId.set(selectedItem.pid);
+    this.selectedHierarchyItemName.set(selectedItem.model);
+
+    // Update the itemName if available
+    if (this.itemName) {
+      this.itemName = this.itemName + ' (' + selectedItem.model + ')';
+    }
   }
 }

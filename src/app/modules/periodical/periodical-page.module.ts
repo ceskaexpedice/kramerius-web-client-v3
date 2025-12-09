@@ -33,6 +33,7 @@ import {AdminActionsComponent} from '../../shared/components/admin-actions/admin
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import {TranslatePipe} from '@ngx-translate/core';
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -70,6 +71,7 @@ const routes: Routes = [
     MatSlideToggle,
     FormsModule,
     TranslatePipe,
+    FavoritesPopupComponent,
   ],
   providers: [
     PeriodicalService,

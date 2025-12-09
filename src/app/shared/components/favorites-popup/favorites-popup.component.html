@@ -1,10 +1,22 @@
-<div class="favorites-popup" [class.success-state]="showSuccess()">
+<div class="favorites-popup"
+     [class.with-hierarchy]="showHierarchySelector"
+     [class.success-state]="showSuccess()">
 
   <!-- Main Form State -->
   <div *ngIf="!showSuccess()" class="favorites-popup__content">
     <div class="favorites-popup__header">
       <h3>{{ 'move-to' | translate }}:</h3>
     </div>
+
+    <!-- Hierarchy Selector (only shown when enabled) -->
+    <div class="favorites-popup__section p-top-0" *ngIf="showHierarchySelector && document">
+      <app-document-hierarchy-selector
+        [document]="document"
+        (selectionChanged)="onHierarchySelectionChanged($event)">
+      </app-document-hierarchy-selector>
+    </div>
+
+    <hr *ngIf="showHierarchySelector && document">
 
     <!-- Search existing lists -->
     <div class="favorites-popup__section p-top-0" *ngIf="shouldShowSearch$ | async">

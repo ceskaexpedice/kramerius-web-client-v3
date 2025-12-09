@@ -1,6 +1,6 @@
 .favorites-popup {
   width: 265px;
-  max-height: 400px;
+  //max-height: 400px;
   background: var(--color-bg-base);
   border: 1px solid var(--color-primary);
   border-radius: 8px;
@@ -10,6 +10,10 @@
   &.success-state {
     width: 300px;
     max-height: none;
+  }
+
+  &.with-hierarchy {
+    width: 480px;
   }
 }
 

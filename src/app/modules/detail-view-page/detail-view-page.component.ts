@@ -9,6 +9,10 @@ import {Subscription} from 'rxjs';
 import {PdfService} from '../../shared/services/pdf.service';
 import {IIIFViewerService} from '../../shared/services/iiif-viewer.service';
 import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {FavoritesService} from '../../shared/services/favorites.service';
+import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
+import {Router} from '@angular/router';
+import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -27,14 +31,23 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
 
+  // Favorites popup helper
+  public favoritesHelper: FavoritesPopupHelper;
+
   // View toggle options for sound recordings - static to prevent re-rendering
   readonly viewToggleOptions: ViewToggleOption[] = [
     { label: 'Nahrávky', icon: 'icon-music-filter', value: 'records' },
     { label: 'Obrázky', icon: 'icon-gallery', value: 'images' }
   ];
 
-  constructor(private envService: EnvironmentService) {
+  constructor(
+    private envService: EnvironmentService,
+    favoritesService: FavoritesService,
+    popupPositioning: PopupPositioningService,
+    router: Router
+  ) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();
+    this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
   }
 
   ngOnInit() {
@@ -61,6 +74,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.favoritesHelper.cleanup();
   }
 
   toggleAdminMode(): void {
@@ -69,6 +83,15 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   goBackClicked() {
     window.history.back();
+  }
+
+  onFavoritesClicked(event: Event) {
+    // Enable hierarchy selector for detail view (not for music pages)
+    this.favoritesHelper.onFavoritesClicked(event, this.detailViewService.document$, true);
+  }
+
+  onFavoritesPopupClose() {
+    this.favoritesHelper.onFavoritesPopupClose();
   }
 
   getKrameriusBaseUrl(): string {

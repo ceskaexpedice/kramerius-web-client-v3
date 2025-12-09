@@ -128,11 +128,12 @@
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="viewToggleOptions" [showFavorites]="false" [showShare]="true" [showQuote]="true"
+              [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
               [showInfo]="false" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (editClicked)="selectionService.toggleSelectionMode()"
+              (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
@@ -201,3 +202,17 @@
   <!--  </ng-container>-->
 
 </app-detail-layout>
+
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="favoritesHelper.currentItemId()"
+      [itemName]="favoritesHelper.currentItemName()"
+      [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
+      [document]="detailViewService.document$ | async"
+      (close)="onFavoritesPopupClose()"
+      (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
+}

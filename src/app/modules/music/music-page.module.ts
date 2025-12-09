@@ -19,6 +19,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
 import {ImageViewer} from '../../shared/components/image-viewer/image-viewer';
 import {IIIFViewer} from "../../shared/components/iiif-viewer/iiif-viewer";
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -49,6 +50,7 @@ const routes: Routes = [
         ViewerControls,
         ImageViewer,
         IIIFViewer,
+        FavoritesPopupComponent,
     ],
   providers: [
   ]

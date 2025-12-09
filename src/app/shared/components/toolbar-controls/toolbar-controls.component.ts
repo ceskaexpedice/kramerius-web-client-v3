@@ -127,7 +127,7 @@ export class ToolbarControlsComponent implements OnChanges {
   }
 
   // New configuration-based action handler
-  onActionClick(action: ToolbarAction): void {
+  onActionClick(action: ToolbarAction, event: Event): void {
     if (action.disabled) return;
 
     // Emit new event
@@ -139,7 +139,7 @@ export class ToolbarControlsComponent implements OnChanges {
         this.infoClicked.emit();
         break;
       case 'favorites':
-        this.favoritesClicked.emit();
+        this.favoritesClicked.emit(event);
         break;
       case 'share':
         this.shareClicked.emit();

@@ -9,6 +9,10 @@ import {DocumentTypeEnum} from '../constants/document-type';
 import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
 import {SelectionService} from '../../shared/services';
 import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {FavoritesService} from '../../shared/services/favorites.service';
+import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
+import {Router} from '@angular/router';
+import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -20,10 +24,12 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
-
   public selectionService = inject(SelectionService);
 
   private subscriptions: Subscription[] = [];
+
+  // Favorites popup helper
+  public favoritesHelper: FavoritesPopupHelper;
 
   protected readonly ViewMode = ViewMode;
 
@@ -33,8 +39,13 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
   ];
 
-  constructor() {
+  constructor(
+    favoritesService: FavoritesService,
+    popupPositioning: PopupPositioningService,
+    router: Router
+  ) {
     //this.periodical.watchRouteParams();
+    this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
   }
 
   ngOnInit(): void {
@@ -86,6 +97,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.favoritesHelper.cleanup();
   }
 
   openRecordInfo() {
@@ -111,6 +123,15 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   onEditSelected(selectedIds: string[]): void {
+  }
+
+  onFavoritesClicked(event: Event) {
+    // Enable hierarchy selector for periodical page
+    this.favoritesHelper.onFavoritesClicked(event, this.periodical.metadata, true);
+  }
+
+  onFavoritesPopupClose() {
+    this.favoritesHelper.onFavoritesPopupClose();
   }
 
 }

@@ -21,7 +21,7 @@
     [disabled]="action.disabled"
     [title]="action.tooltip"
     [attr.aria-label]="action.label"
-    (click)="onActionClick(action)"
+    (click)="onActionClick(action, $event)"
   >
     <i [class]="action.icon"></i>
   </button>

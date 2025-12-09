@@ -59,6 +59,7 @@
                   [activeViewValue]="periodical.activeCalendarGridControl()"
                   (viewChanged)="periodical.setView($event)"
                   (infoClicked)="openRecordInfo()"
+                  (favoritesClicked)="onFavoritesClicked($event)"
                   (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
                   (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
                   (selectClicked)="toggleSelectionMode()"
@@ -139,3 +140,18 @@
     </div>
   </div>
 </div>
+
+<!-- Favorites Popup positioned fixed to avoid overflow clipping -->
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="favoritesHelper.currentItemId()"
+      [itemName]="favoritesHelper.currentItemName()"
+      [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
+      [document]="periodical.metadata"
+      (close)="onFavoritesPopupClose()"
+      (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
+}

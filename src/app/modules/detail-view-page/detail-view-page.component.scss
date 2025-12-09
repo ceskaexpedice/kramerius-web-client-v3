@@ -122,3 +122,20 @@ app-viewer-controls {
     color: var(--color-text-base);
   }
 }
+
+.favorites-popup-wrapper {
+  position: fixed;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.positioned {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  app-favorites-popup {
+    display: block;
+  }
+}
