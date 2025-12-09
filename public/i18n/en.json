@@ -377,6 +377,7 @@
   "page-selection-dialog--header-pdf": "Select specific pages for PDF export",
   "page-selection-dialog--header-print": "Select specific pages for printing",
   "press-shift-for-multiselect": "For multiple selection of pages press Shift",
+  "page-range-placeholder": "e.g. 1,2,3-7,10",
   "download": "Download",
   "error.not_found.title": "Page Not Found",
   "error.not_found.message": "The page you are looking for does not exist or has been moved.",
