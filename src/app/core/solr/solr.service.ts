@@ -66,7 +66,15 @@ export class SolrService {
   private groupFiltersByField(filters: string[]): Map<string, string[]> {
     const filtersByField = new Map<string, string[]>();
     filters.forEach(filter => {
-      const [field, value] = filter.split(':');
+      const colonIndex = filter.indexOf(':');
+      if (colonIndex === -1) {
+        console.warn(`SolrService: Invalid filter format (missing colon): ${filter}`);
+        return;
+      }
+
+      const field = filter.substring(0, colonIndex);
+      const value = filter.substring(colonIndex + 1);
+
       if (!filtersByField.has(field)) {
         filtersByField.set(field, []);
       }
@@ -204,7 +212,14 @@ export class SolrService {
 
     grouped.forEach((values, field) => {
       const op = operators[field] || SolrOperators.or;
-      const escaped = values.map(v => `"${v}"`);
+      // Don't quote range queries (values starting with [ or {)
+      const escaped = values.map(v => {
+        const trimmed = v.trim();
+        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+          return trimmed; // Range query - don't quote
+        }
+        return `"${v}"`;
+      });
       let fqParam = '';
 
       if (op === SolrOperators.or) {
