@@ -145,7 +145,7 @@
   <ng-container main-content>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
-        <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf">
+        <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf" [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
           @if (document.pdf) {
 

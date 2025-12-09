@@ -44,6 +44,14 @@
   &.pdf-document {
     padding: 0;
   }
+
+  &.selection-mode {
+    cursor: crosshair;
+
+    * {
+      cursor: crosshair !important;
+    }
+  }
 }
 
 .app-document-thumbnail {
