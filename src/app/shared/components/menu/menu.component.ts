@@ -14,6 +14,7 @@ import {Router} from '@angular/router';
 import {CdkConnectedOverlay} from '@angular/cdk/overlay';
 import {CdkTrapFocus} from '@angular/cdk/a11y';
 import {TranslatePipe} from '@ngx-translate/core';
+import {ClickOutsideDirective} from '../../directives';
 
 export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 
@@ -35,6 +36,7 @@ export interface MenuItem {
     CdkConnectedOverlay,
     CdkTrapFocus,
     TranslatePipe,
+    ClickOutsideDirective,
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss'
@@ -105,6 +107,12 @@ export class MenuComponent {
     const idx = els.findIndex(e => e.nativeElement === document.activeElement);
     const next = (idx + delta + els.length) % els.length;
     this.focusIndex(next);
+  }
+
+  outsideClicked() {
+    if (this.open()) {
+      this.close();
+    }
   }
 
 }

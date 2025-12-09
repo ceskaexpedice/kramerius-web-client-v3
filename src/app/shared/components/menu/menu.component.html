@@ -34,6 +34,8 @@
     (keydown.arrowUp)="focusPrev()"
     (keydown.home)="focusIndex(0)"
     (keydown.end)="focusIndex(items().length - 1)"
+    appClickOutside
+    (clickOutside)="outsideClicked()"
   >
     <ul class="menu-list">
       @for (item of items(); track item.id; let i = $index) {
