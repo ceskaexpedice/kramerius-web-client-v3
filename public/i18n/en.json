@@ -437,5 +437,15 @@
   "remove-license-error": "Failed to remove license",
   "remove-license-success": "License removed successfully",
   "save-confirmation-dialog--header": "Save Changes",
-  "save-confirmation-dialog--message": "Do you want to save the changes?"
+  "save-confirmation-dialog--message": "Do you want to save the changes?",
+
+  "table-columns-visibility": "Select the columns you want to see in the table",
+  "filter-publication-places-label": "Place of publication",
+  "filter-keywords-label": "Keyword",
+  "filter-mdt-label": "MDT",
+  "filter-shelf-locators-label": "Geographical name",
+  "filter-id-urnnbn-label": "URNNBN ID",
+  "filter-id-other-label": "Other ID",
+  "filter-physical-locations-label": "Location",
+  "filter-genres-label": "Genre"
 }

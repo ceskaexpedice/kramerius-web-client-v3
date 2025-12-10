@@ -1,3 +1,5 @@
+@import "mixins";
+
 .cdk-overlay-pane.mat-mdc-dialog-panel {
   max-width: none !important;
 }
@@ -32,4 +34,16 @@ h2 {
 
 hr {
   margin: 10px 0;
+}
+
+// Mobile fullscreen dialog class
+.cdk-overlay-pane.mobile-fullscreen-dialog {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+
+  .mat-mdc-dialog-surface {
+    border-radius: 0;
+  }
 }

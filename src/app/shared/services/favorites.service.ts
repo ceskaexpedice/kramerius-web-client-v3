@@ -6,7 +6,8 @@ import { AuthService } from '../../core/auth/auth.service';
 import { LoginPromptDialogComponent } from '../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { FolderItemsService } from '../../modules/saved-lists-page/services/folder-items.service';
 import { PopupPositioningService, PopupState } from './popup-positioning.service';
-import {DontShowAgainService, DontShowDialogs} from './dont-show-again.service';
+import { DontShowAgainService, DontShowDialogs } from './dont-show-again.service';
+import { BreakpointService } from './breakpoint.service';
 
 export interface FavoriteToggleResult {
   shouldShowPopup: boolean;
@@ -23,6 +24,7 @@ export class FavoritesService {
   private folderItemsService = inject(FolderItemsService);
   private popupPositioning = inject(PopupPositioningService);
   private dontShowAgainService = inject(DontShowAgainService);
+  private breakpointService = inject(BreakpointService);
 
   /**
    * Handle favorite toggle action with authentication check
@@ -49,8 +51,9 @@ export class FavoritesService {
       }
 
       // Show login prompt dialog
+      const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
       const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
-        width: '60vw',
+        width: isMobileOrTablet ? '90vw' : '60vw',
         disableClose: false
       });
 

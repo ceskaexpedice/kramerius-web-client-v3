@@ -13,6 +13,7 @@ import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-res
 import { AdminSelectionService } from './admin-selection.service';
 import { RecordItem, searchDocumentToRecordItem } from '../components/record-item/record-item.model';
 import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/periodical-item';
+import { BreakpointService } from './breakpoint.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class RecordHandlerService {
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
   private adminSelectionService = inject(AdminSelectionService);
+  private breakpointService = inject(BreakpointService);
 
   // Filter keys that should be preserved when navigating to periodicals
   private readonly FILTERS_TO_PRESERVE = ['yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
@@ -144,8 +146,9 @@ export class RecordHandlerService {
       console.warn('No document provided for citation dialog.');
       return;
     }
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     this.dialog.open(CitationDialogComponent, {
-      width: '60vw',
+      width: isMobileOrTablet ? '100vw' : '60vw',
       data: { document },
     });
   }
@@ -155,8 +158,9 @@ export class RecordHandlerService {
       console.warn('No document provided for share dialog.');
       return;
     }
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     this.dialog.open(ShareDialogComponent, {
-      width: '60vw',
+      width: isMobileOrTablet ? '100vw' : '60vw',
       data: { document, queryParams },
     })
   }

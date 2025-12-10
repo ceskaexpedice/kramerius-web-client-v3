@@ -430,5 +430,15 @@
   "remove-license-error": "Nepodarilo sa odobrať licenciu",
   "remove-license-success": "Licencia bola úspešne odobraná",
   "save-confirmation-dialog--header": "Uložiť zmeny",
-  "save-confirmation-dialog--message": "Chcete uložiť zmeny?"
+  "save-confirmation-dialog--message": "Chcete uložiť zmeny?",
+
+  "table-columns-visibility": "Vyberte stĺpce, ktoré chcete v tabuľke vidieť",
+  "filter-publication-places-label": "Miesto vydania",
+  "filter-keywords-label": "Kľúčové slovo",
+  "filter-mdt-label": "MDT",
+  "filter-shelf-locators-label": "Geografický názov",
+  "filter-id-urnnbn-label": "ID URNNBN",
+  "filter-id-other-label": "ID Ostatné",
+  "filter-physical-locations-label": "Miesto uloženia",
+  "filter-genres-label": "Žáner"
 }

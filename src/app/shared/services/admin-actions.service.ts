@@ -6,6 +6,7 @@ import { SelectionService } from './selection.service';
 import { ExportService, ExportFormat } from './export.service';
 import { ToastService } from './toast.service';
 import { UserService } from './user.service';
+import { BreakpointService } from './breakpoint.service';
 import { EditSelectedDialogComponent, EditSelectedDialogData, EditSelectedDialogSections } from '../dialogs/edit-selected-dialog/edit-selected-dialog.component';
 import { ExportSelectedDialogComponent, ExportSelectedDialogData } from '../dialogs/export-selected-dialog/export-selected-dialog.component';
 import { AdminReindexService } from '../../core/admin/admin-reindex.service';
@@ -34,6 +35,7 @@ export class AdminActionsService {
   private exportService = inject(ExportService);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
+  private breakpointService = inject(BreakpointService);
   private reindexService = inject(AdminReindexService);
   private licensesService = inject(AdminLicensesService);
   private collectionsService = inject(AdminCollectionsService);
@@ -79,10 +81,14 @@ export class AdminActionsService {
       selectedCount: ids.length
     };
 
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
     const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
-      width: '80vw',
-      maxWidth: '1000px',
-      height: '85vh',
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
+      height: isMobileOrTablet ? '100vh' : '85vh',
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: dialogData,
       disableClose: false
     });
@@ -108,10 +114,14 @@ export class AdminActionsService {
       selectedCount: ids.length
     };
 
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
     const dialogRef: MatDialogRef<ExportSelectedDialogComponent> = this.dialog.open(ExportSelectedDialogComponent, {
-      width: '80vw',
-      maxWidth: '1000px',
-      height: '80vh',
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
+      height: isMobileOrTablet ? '100vh' : '80vh',
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: dialogData,
       disableClose: false
     });

@@ -429,5 +429,15 @@
   "remove-license-error": "Nie udało się usunąć licencji",
   "remove-license-success": "Licencja została pomyślnie usunięta",
   "save-confirmation-dialog--header": "Zapisz zmiany",
-  "save-confirmation-dialog--message": "Czy chcesz zapisać zmiany?"
+  "save-confirmation-dialog--message": "Czy chcesz zapisać zmiany?",
+
+  "table-columns-visibility": "Wybierz kolumny, które chcesz zobaczyć w tabeli",
+  "filter-publication-places-label": "Miejsce publikacji",
+  "filter-keywords-label": "Słowo kluczowe",
+  "filter-mdt-label": "MDT",
+  "filter-shelf-locators-label": "Nazwa geograficzna",
+  "filter-id-urnnbn-label": "Identyfikator URNNBN",
+  "filter-id-other-label": "Inny identyfikator",
+  "filter-physical-locations-label": "Lokalizacja",
+  "filter-genres-label": "Gatunek"
 }

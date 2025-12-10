@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .server-error-dialog {
   position: relative;
   background: var(--color-bg-base);
@@ -5,6 +7,12 @@
   padding: 20px;
   max-width: 820px;
   width: 100%;
+
+  @include respond(md) {
+    height: 100%;
+    max-width: 100%;
+    border-radius: 0;
+  }
 }
 
 .close-button {

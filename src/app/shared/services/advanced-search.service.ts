@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import { BreakpointService } from './breakpoint.service';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
@@ -46,6 +47,7 @@ export class AdvancedSearchService {
   private queryParamsService = inject(QueryParamsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private breakpointService = inject(BreakpointService);
 
   initializeFromRoute(): void {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
@@ -311,9 +313,14 @@ export class AdvancedSearchService {
     this.filterGroupsSignal.set(structuredClone(this.appliedGroupsSignal()));
     this.mainOperatorSignal.set(this.appliedMainOperatorSignal());
 
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
-      width: '80vw',
-      height: '80vh',
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      height: isMobileOrTablet ? '100vh' : '80vh',
+      maxWidth: isMobileOrTablet ? '100vw' : undefined,
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {

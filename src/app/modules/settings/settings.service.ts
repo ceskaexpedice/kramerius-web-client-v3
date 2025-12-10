@@ -6,6 +6,7 @@ import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/sett
 import {LocalStorageService} from '../../shared/services/local-storage.service';
 import {DisplayConfigService} from '../../shared/services/display-config.service';
 import {OPTIONAL_SOLR_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
+import {BreakpointService} from '../../shared/services/breakpoint.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class SettingsService {
   reloadSearchResults$ = this._reloadSearchResults.asObservable();
 
   private displayConfigService = inject(DisplayConfigService);
+  private breakpointService = inject(BreakpointService);
 
   constructor(
     private dialog: MatDialog,
@@ -131,8 +133,14 @@ export class SettingsService {
   }
 
   openSettingsDialog(): void {
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
     const dialogRef = this.dialog.open(SettingsDialogComponent, {
-      width: '80vw',
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      height: isMobileOrTablet ? '100vh' : undefined,
+      maxWidth: isMobileOrTablet ? '100vw' : undefined,
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
     });
 
     dialogRef.afterClosed().subscribe(() => {

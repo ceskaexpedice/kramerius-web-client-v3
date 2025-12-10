@@ -32,11 +32,9 @@
 
   .columns-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: var(--spacing-x2);
     padding: var(--spacing-x2);
-    background-color: var(--color-bg-light);
-    border-radius: var(--spacing-x2);
 
     .column-item {
       display: flex;

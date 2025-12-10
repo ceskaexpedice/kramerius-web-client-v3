@@ -1,3 +1,5 @@
+@import "mixins";
+
 :host {
   padding: 24px 20px 12px 20px;
   max-height: 80vh;
@@ -6,6 +8,19 @@
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+}
+
+@include respond(md) {
+  :host {
+    padding: 0;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  app-sidebar-dialog-layout {
+    height: 100%;
+  }
 }
 
 .close-button {

@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .generic-dialog-container {
   padding: 24px 20px 12px 20px;
   overflow: hidden;
@@ -10,6 +12,17 @@
   .close-button {
     font-size: calc(24px * var(--accessibility-text-scale));
     padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back-button {
+    font-size: calc(24px * var(--accessibility-text-scale));
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   h2 {
@@ -36,6 +49,16 @@
         }
       }
     }
+  }
+
+  // Desktop header visible by default, hidden on mobile
+  .desktop-header {
+    display: flex;
+  }
+
+  // Mobile headers hidden by default
+  .mobile-header {
+    display: none;
   }
 
   hr {
@@ -156,6 +179,75 @@
       i {
         font-size: var(--font-size-small);
       }
+    }
+  }
+
+  // Utility class for hiding elements
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  // Mobile responsive styles
+  @include respond(md) {
+    padding: 16px 16px 12px 16px;
+    border-radius: 0;
+
+    // Hide desktop header on mobile
+    .desktop-header {
+      display: none;
+    }
+
+    // Show mobile headers on mobile
+    .mobile-header {
+      display: flex;
+    }
+
+    // Mobile content header has specific layout
+    .mobile-content-header {
+      .dialog-title {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+        font-size: var(--font-size-base);
+        font-weight: 600;
+      }
+    }
+
+    .dialog-body {
+      .sidebar {
+        // Full width on mobile, no border
+        flex: 1;
+        border-right: none;
+        padding: var(--spacing-x4) 0;
+        width: 100%;
+
+        ul {
+          li {
+            padding: var(--spacing-x4);
+
+            label {
+              font-size: var(--font-size-base);
+            }
+          }
+
+          .section-group {
+            li {
+              min-height: 44px;
+            }
+          }
+        }
+      }
+
+      .content {
+        // Full width on mobile
+        flex: 1;
+        padding: var(--spacing-x4);
+        width: 100%;
+      }
+    }
+
+    .footer {
+      gap: var(--spacing-x3);
     }
   }
 }

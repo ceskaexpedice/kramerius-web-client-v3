@@ -1,5 +1,6 @@
 <div class="generic-dialog-container">
-  <h2>
+  <!-- Desktop Header (always visible on desktop, hidden on mobile) -->
+  <h2 class="desktop-header">
     <span class="dialog-title">
       {{ config.title | translate }}
       <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
@@ -9,10 +10,35 @@
     </button>
   </h2>
 
+  <!-- Mobile Header - Sidebar View (only on mobile when NOT showing content) -->
+  <h2 class="mobile-header mobile-sidebar-header" *ngIf="isMobile() && !showMobileContent()">
+    <span class="dialog-title">
+      {{ config.title | translate }}
+      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
+    </span>
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <!-- Mobile Header - Content View (only on mobile when showing content) -->
+  <h2 class="mobile-header mobile-content-header" *ngIf="isMobile() && showMobileContent()">
+    <button class="button link tertiary icon-button back-button" (click)="goBackToSidebar()">
+      <i class="icon-arrow-left-1"></i>
+    </button>
+    <span class="dialog-title">
+      {{ getActiveSectionLabel() | translate }}
+    </span>
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
   <hr>
 
   <div class="dialog-body">
-    <div class="sidebar">
+    <!-- Sidebar: visible on desktop OR on mobile when not showing content -->
+    <div class="sidebar" [class.mobile-hidden]="isMobile() && showMobileContent()">
       <ul>
         <ng-container *ngFor="let section of config.sections">
           <!-- Section with Children -->
@@ -63,7 +89,8 @@
       </ul>
     </div>
 
-    <div class="content">
+    <!-- Content: visible on desktop OR on mobile when showing content -->
+    <div class="content" [class.mobile-hidden]="isMobile() && !showMobileContent()">
       <ng-content></ng-content>
     </div>
   </div>
