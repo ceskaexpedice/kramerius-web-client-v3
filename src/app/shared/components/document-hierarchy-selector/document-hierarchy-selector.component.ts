@@ -108,13 +108,13 @@ export class DocumentHierarchySelectorComponent implements OnInit {
       allHierarchyItems.push(...mappedItems);
     });
 
-    // Remove duplicates based on model type, not pid
+    // Remove duplicates based on model type
     // For each model type, keep only the first occurrence
-    // const uniqueItemsByModel = allHierarchyItems.filter((item, index, self) =>
-    //   index === self.findIndex(t => t.model === item.model)
-    // );
+    const uniqueItemsByModel = allHierarchyItems.filter((item, index, self) =>
+      index === self.findIndex(t => t.model === item.model)
+    );
 
-    this.hierarchyItems = allHierarchyItems;
+    this.hierarchyItems = uniqueItemsByModel;
 
     // Auto-select first item if no selection provided
     if (!this.getSelectedValue() && this.hierarchyItems.length > 0) {

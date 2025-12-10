@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NgIf } from '@angular/common';
 import {
@@ -8,20 +8,21 @@ import {
 import { EditReindexSectionComponent, ReindexSectionData } from './components/edit-reindex-section/edit-reindex-section.component';
 import { EditCollectionsSectionComponent, CollectionsSectionData } from './components/edit-collections-section/edit-collections-section.component';
 import { EditLicenceSectionComponent, LicenceSectionData } from './components/edit-licence-section/edit-licence-section.component';
-import {AddCollectionSectionComponent} from './components/add-collection-section/add-collection-section.component';
+import { AddCollectionSectionComponent } from './components/add-collection-section/add-collection-section.component';
 import {
   RemoveCollectionSectionComponent
 } from './components/remove-collection-section/remove-collection-section.component';
-import {AddLicenseSectionComponent, AddLicenseSectionData} from './components/add-license-section/add-license-section.component';
-import {RemoveLicenseSectionComponent, RemoveLicenseSectionData} from './components/remove-license-section/remove-license-section.component';
+import { AddLicenseSectionComponent, AddLicenseSectionData } from './components/add-license-section/add-license-section.component';
+import { RemoveLicenseSectionComponent, RemoveLicenseSectionData } from './components/remove-license-section/remove-license-section.component';
 import {
   DocumentHierarchyItem,
   DocumentHierarchySelectorComponent,
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {SelectionService} from '../../services';
-import {CloseConfirmationDialogComponent} from './components/close-confirmation-dialog/close-confirmation-dialog.component';
-import {ActionConfirmationDialogComponent, ActionConfirmationDialogData} from './components/action-confirmation-dialog/action-confirmation-dialog.component';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SelectionService } from '../../services';
+import { CloseConfirmationDialogComponent } from './components/close-confirmation-dialog/close-confirmation-dialog.component';
+import { ActionConfirmationDialogComponent, ActionConfirmationDialogData } from './components/action-confirmation-dialog/action-confirmation-dialog.component';
+import { RecordHandlerService } from '../../services/record-handler.service';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -48,7 +49,9 @@ export enum EditSelectedDialogSections {
     AddCollectionSectionComponent,
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
-    RemoveLicenseSectionComponent
+    RemoveLicenseSectionComponent,
+    TranslatePipe,
+    DocumentHierarchySelectorComponent
   ],
   templateUrl: './edit-selected-dialog.component.html',
   styleUrl: './edit-selected-dialog.component.scss'
@@ -103,7 +106,7 @@ export class EditSelectedDialogComponent {
 
   EditSelectedDialogSections = EditSelectedDialogSections;
 
-  selectedHierarchyItem: DocumentHierarchyItem | null = null;
+  selectedHierarchyItem = signal<DocumentHierarchyItem | null>(null);
   showHierarchySelector = false;
 
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
@@ -111,24 +114,46 @@ export class EditSelectedDialogComponent {
   private selectionService = inject(SelectionService);
   private translateService = inject(TranslateService);
   private dialog = inject(MatDialog);
+  private recordHandlerService = inject(RecordHandlerService);
 
   selectedDocuments = computed(() => {
     return this.selectionService.getSelectedItemsAsMetadata();
   });
 
+  effectiveSelectedIds = computed(() => {
+    const hierarchyItem = this.selectedHierarchyItem();
+    if (!hierarchyItem) {
+      return this.data.selectedIds;
+    }
+
+    const model = hierarchyItem.model;
+    const ids = new Set<string>();
+
+    this.selectedDocuments().forEach(doc => {
+      const shareableTypes = this.recordHandlerService.getShareableDocumentTypes(doc);
+      const matchingType = shareableTypes.find(t => t.model === model);
+      if (matchingType && matchingType.pid) {
+        ids.add(matchingType.pid);
+      }
+    });
+
+    return Array.from(ids);
+  });
+
   constructor() {
-    // Set the subtitle with selected count
-    this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects--count')}: ${this.data.selectedCount}`;
+    effect(() => {
+      const count = this.effectiveSelectedIds().length;
+      this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects--count')}: ${count}`;
+      this.dialogConfig = { ...this.dialogConfig };
+    });
 
     // we show the hierarchy selector only if all items have same rootUuid
     const rootUuids = new Set(this.selectedDocuments().map(doc => doc.rootPid));
     this.showHierarchySelector = rootUuids.size === 1;
   }
 
-  // Get selected documents as Metadata array for hierarchy selector
-
   onHierarchySelectionChanged(hierarchyItem: DocumentHierarchyItem) {
-    this.selectedHierarchyItem = hierarchyItem;
+    this.selectedHierarchyItem.set(hierarchyItem);
   }
 
   save() {
@@ -209,8 +234,8 @@ export class EditSelectedDialogComponent {
       cancelButtonLabel: 'cancel'
     }, () => {
       // TODO: Implement navigation to admin interface with selected items
-      console.log('Go to admin interface with items:', this.data.selectedIds);
-      this.dialogRef.close({ action: 'admin', selectedIds: this.data.selectedIds });
+      console.log('Go to admin interface with items:', this.effectiveSelectedIds());
+      this.dialogRef.close({ action: 'admin', selectedIds: this.effectiveSelectedIds() });
     });
   }
 

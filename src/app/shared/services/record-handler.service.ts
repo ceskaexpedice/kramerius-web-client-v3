@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CitationDialogComponent } from '../dialogs/citation-dialog/citation-dialog.component';
 import { ShareDialogComponent } from '../dialogs/share-dialog/share-dialog.component';
 import { Metadata } from '../models/metadata.model';
-import { ONLINE_LICENSES, PUBLIC_LICENSES } from '../../core/solr/solr-misc';
+import { PUBLIC_LICENSES } from '../../core/solr/solr-misc';
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { AdminSelectionService } from './admin-selection.service';
 import { RecordItem, searchDocumentToRecordItem } from '../components/record-item/record-item.model';
@@ -189,11 +189,11 @@ export class RecordHandlerService {
     // Determine hierarchy based on document type
     switch (document.model as DocumentTypeEnum) {
       case DocumentTypeEnum.periodical:
-        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.page);
+        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.periodicalitem, DocumentTypeEnum.page);
         break;
 
       case DocumentTypeEnum.periodicalvolume:
-        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.page);
+        hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.periodicalitem, DocumentTypeEnum.page);
         break;
 
       case DocumentTypeEnum.periodicalitem:
@@ -283,31 +283,45 @@ export class RecordHandlerService {
     hierarchyLevels.forEach(level => {
       let pid = '';
 
-      switch (level) {
+      switch (level.model) {
         case DocumentTypeEnum.periodical:
           pid = document.rootPid || (document.model === DocumentTypeEnum.periodical ? document.uuid : '');
           break;
         case DocumentTypeEnum.periodicalvolume:
-          pid = document.model === DocumentTypeEnum.periodicalvolume ? document.uuid : (document.volume?.uuid || '');
+          if (document.model === DocumentTypeEnum.periodicalvolume) {
+            pid = document.uuid;
+          } else if (document.model === DocumentTypeEnum.page) {
+            if (document.ownParentModel === DocumentTypeEnum.periodicalvolume) {
+              pid = document.ownParentPid || (document.volume?.uuid || '');
+            } else if (document.ownParentModel === DocumentTypeEnum.periodicalitem) {
+              pid = document.volume?.uuid || '';
+            }
+          } else if (document.model === DocumentTypeEnum.periodicalitem) {
+            pid = document.volume?.uuid || '';
+          }
           break;
         case DocumentTypeEnum.periodicalitem:
-          pid = document.model === DocumentTypeEnum.periodicalitem ? document.uuid : '';
+          if (document.model === DocumentTypeEnum.periodicalitem) {
+            pid = document.uuid;
+          } else if (document.model === DocumentTypeEnum.page && document.ownParentModel === DocumentTypeEnum.periodicalitem) {
+            pid = document.ownParentPid;
+          }
           break;
         case DocumentTypeEnum.page:
           // Check if page is in URL params
           const urlParams = new URLSearchParams(window.location.search);
-          pid = urlParams.get('page') || '';
+          pid = urlParams.get('page') || (document.model === DocumentTypeEnum.page ? document.uuid : '');
           break;
         default:
           // For other document types (monograph, graphic, map, etc.)
-          pid = document.model === level ? document.uuid : '';
+          pid = document.model === level.model ? document.uuid : '';
           break;
       }
 
       // Only add if we have a valid PID
       if (pid) {
         shareableTypes.push({
-          model: level,
+          model: level.model,
           pid: pid
         });
       }
@@ -329,10 +343,12 @@ export class RecordHandlerService {
           pid: document.uuid
         });
       } else if (!shareableTypes.find(item => item.model === 'periodicalvolume')) {
-        shareableTypes.push({
-          model: 'periodicalvolume',
-          pid: document.volume.uuid
-        })
+        if (document.volume.uuid) {
+          shareableTypes.push({
+            model: 'periodicalvolume',
+            pid: document.volume.uuid
+          })
+        }
       }
     }
 
