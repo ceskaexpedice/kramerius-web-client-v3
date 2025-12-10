@@ -51,23 +51,28 @@ export class PageSelectionDialogComponent {
 
     pageRangeInput = signal<string>('');
     private lastUpdateSource: 'input' | 'programmatic' = 'programmatic';
+    private lastProgrammaticValue: string | null = null;
 
     constructor() {
         this.pages = this.data.pages || [];
         if (this.data.title) {
             this.dialogTitle = this.data.title;
         }
-        this.maxSelectionCount = this.data.maxSelectionCount;
+        if (typeof this.data.maxSelectionCount === 'number' && !isNaN(this.data.maxSelectionCount)) {
+            this.maxSelectionCount = this.data.maxSelectionCount;
+        }
 
         // Update input field when selection changes (bidirectional binding)
         effect(() => {
             const selectedPids = this.selectedPagePids();
+
             // Only update the input if the change came from a programmatic source (e.g. clicking items)
             if (this.lastUpdateSource === 'programmatic') {
                 const rangeString = this.convertSelectionToRangeString(selectedPids);
+                this.lastProgrammaticValue = rangeString;
                 this.pageRangeInput.set(rangeString);
             }
-        });
+        }, { allowSignalWrites: true });
     }
 
     /**
@@ -75,6 +80,16 @@ export class PageSelectionDialogComponent {
      */
     onPageRangeInput(value: string | number): void {
         const rangeString = String(value);
+
+        // If the last update was programmatic AND the value coming back matches exactly what we set,
+        // then this is just the echo of our update. Ignore it.
+        // If the value is DIFFERENT, it means the user typed something new.
+        if (this.lastUpdateSource === 'programmatic') {
+            if (rangeString === this.lastProgrammaticValue) {
+                return;
+            }
+        }
+
         this.lastUpdateSource = 'input';
 
         // Update the signal for the input value
@@ -94,16 +109,13 @@ export class PageSelectionDialogComponent {
         const formatted = this.convertSelectionToRangeString(currentSelection);
 
         // We treat this update as programmatic to force the input to match the clean format
-        // But we need to be careful: if we set lastUpdateSource = 'programmatic', the effect might trigger again? 
-        // No, the effect triggers on `selectedPagePids` change. Here we are just setting the input signal.
-        // Actually, if we just set the input signal, valid.
+        // This also resets the source so future external changes are allowed to update the input
+        this.lastUpdateSource = 'programmatic';
 
         if (formatted !== this.pageRangeInput()) {
+            this.lastProgrammaticValue = formatted;
             this.pageRangeInput.set(formatted);
         }
-
-        // Reset source to programmatic so subsequent external changes (like clicks) will continue to update input
-        this.lastUpdateSource = 'programmatic';
     }
 
     /**
