@@ -57,12 +57,14 @@ export class EnvironmentService {
       const krameriusId = this.get('krameriusId');
       let baseUrl = '';
 
+      // https://kramerius.difmoe.trinera.cloud
+
       switch (krameriusId) {
-        case 'mzk': baseUrl = 'https://kramerius.difmoe.trinera.cloud'; break;
+        case 'mzk': baseUrl = 'https://api.kramerius.mzk.cz'; break;
         case 'cdk': baseUrl = 'https://api.ceskadigitalniknihovna.cz'; break;
         case 'knav': baseUrl = 'https://kramerius.lib.cas.cz/'; break;
         case 'cdk-test': baseUrl = 'https://api-npo.val.ceskadigitalniknihovna.cz'; break;
-        default: baseUrl = 'https://kramerius.difmoe.trinera.cloud'; break;
+        default: baseUrl = 'https://api.kramerius.mzk.cz'; break;
       }
 
       if (withParam) {
