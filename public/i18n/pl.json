@@ -439,5 +439,7 @@
   "filter-id-urnnbn-label": "Identyfikator URNNBN",
   "filter-id-other-label": "Inny identyfikator",
   "filter-physical-locations-label": "Lokalizacja",
-  "filter-genres-label": "Gatunek"
+  "filter-genres-label": "Gatunek",
+
+  "type-in-index": "Wpisz indeks"
 }

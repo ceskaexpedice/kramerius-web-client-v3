@@ -447,5 +447,7 @@
   "filter-id-urnnbn-label": "URNNBN ID",
   "filter-id-other-label": "Other ID",
   "filter-physical-locations-label": "Location",
-  "filter-genres-label": "Genre"
+  "filter-genres-label": "Genre",
+
+  "type-in-index": "Type an index"
 }

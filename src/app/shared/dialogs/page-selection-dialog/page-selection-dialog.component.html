@@ -9,23 +9,26 @@
   <div class="dialog-body">
     <div class="content">
 
-      <div class="page-range-input-container">
-        <app-input
-          [type]="'text'"
-          [placeholder]="'page-range-placeholder'"
-          [signalInput]="pageRangeInput"
-          [showClearButton]="true"
-          (valueChange)="onPageRangeInput($event)"
-          (onBlurEvent)="onPageRangeBlur()"
-          [size]="'sm'"
-        ></app-input>
-      </div>
-
       <div class="select-all-container">
 
         <mat-slide-toggle [checked]="allSelected()" [hideIcon]="true" [class]="'size-sm'" (change)="toggleSelectAll()">
           {{ 'select-all-pages' | translate }} ({{ pages.length }})
         </mat-slide-toggle>
+
+        <div class="page-range-input-container">
+
+          <span>{{'type-in-index' | translate}}</span>
+
+          <app-input
+            [type]="'text'"
+            [placeholder]="'page-range-placeholder'"
+            [signalInput]="pageRangeInput"
+            [showClearButton]="true"
+            (valueChange)="onPageRangeInput($event)"
+            (onBlurEvent)="onPageRangeBlur()"
+            [size]="'sm'"
+          ></app-input>
+        </div>
 
         <span class="selected-info">
           <i class="icon-bulb"></i>
@@ -35,7 +38,8 @@
 
       <div class="page-selection-grid">
         @for (page of pages; track page.pid; let index = $index) {
-        <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="null" [localSelectionMode]="true"
+        <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="index + 1" [pageNumberPosition]="'bottom-left'"
+          [showPageNumberInSelectionMode]="true" [localSelectionMode]="true"
           [localIsSelected]="isPageSelected(page.pid)"
           [showPreviewButton]="true"
           [class.disabled-selection]="!isPageSelected(page.pid) && isLimitReached()"

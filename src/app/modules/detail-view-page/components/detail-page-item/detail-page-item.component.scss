@@ -162,11 +162,29 @@
 }
 
 .page--number-right .page--number {
+  top: 2px;
   right: 2px;
 }
 
 .page--number-left .page--number {
+  top: 2px;
   left: 2px;
+}
+
+.page--number-bottom-left .page--number {
+  top: auto;
+  bottom: 0;
+  left: 0;
+  border-radius: 0 var(--spacing-x2) 0 0;
+  padding: var(--spacing-x2);
+}
+
+.page--number-bottom-right .page--number {
+  top: auto;
+  bottom: 0;
+  right: 0;
+  border-radius: var(--spacing-x2) 0 0 0;
+  padding: var(--spacing-x2);
 }
 
 .page--number {

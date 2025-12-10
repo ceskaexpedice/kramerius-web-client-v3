@@ -440,5 +440,7 @@
   "filter-id-urnnbn-label": "ID URNNBN",
   "filter-id-other-label": "ID Ostatní",
   "filter-physical-locations-label": "Místo uložení",
-  "filter-genres-label": "Žánr"
+  "filter-genres-label": "Žánr",
+
+  "type-in-index": "Zadejte index"
 }

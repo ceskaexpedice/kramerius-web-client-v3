@@ -22,7 +22,7 @@
   <img class="page--item__image" [alt]="('page--number') + '-' + pageNumber" [src]="`${getImageUrl()}`"
     loading="lazy" />
 
-  <span class="page--number" *ngIf="!isInSelectionMode() && pageNumber">
+  <span class="page--number" *ngIf="(!isInSelectionMode() || showPageNumberInSelectionMode) && pageNumber">
     {{pageNumber}}
   </span>
 

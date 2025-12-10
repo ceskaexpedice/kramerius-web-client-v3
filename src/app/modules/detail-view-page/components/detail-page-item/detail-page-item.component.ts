@@ -27,8 +27,9 @@ export class DetailPageItemComponent {
   private popupPositioningService = inject(PopupPositioningService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
-  @Input() pageNumber: string | null = '0';
-  @Input() pageNumberPosition: 'left' | 'right' = 'right';
+  @Input() pageNumber: string | number | null = '0';
+  @Input() pageNumberPosition: 'left' | 'right' | 'bottom-left' | 'bottom-right' = 'right';
+  @Input() showPageNumberInSelectionMode: boolean = false;
   @Input() isSelected: boolean = false;
 
   @Input() type: 'recording' | 'page' = 'page';

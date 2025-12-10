@@ -10,11 +10,15 @@
 }
 
 .page-range-input-container {
+  display: flex;
+  gap: var(--spacing-x2);
+  align-items: center;
 }
 
 .select-all-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-x2);
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border);
@@ -35,7 +39,6 @@
       font-size: calc(16px * var(--accessibility-text-scale));
     }
 
-    margin-left: auto;
     font-size: calc(14px * var(--accessibility-text-scale));
     color: var(--color-text-secondary);
   }
