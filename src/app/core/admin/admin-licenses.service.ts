@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import { AdminApiService, ProcessResponse, ItemLicensesResponse } from './admin-api.service';
 
 export interface AdminLicense {
   name: string;
@@ -14,12 +15,9 @@ export interface AdminLicense {
 
 @Injectable({ providedIn: 'root' })
 export class AdminLicensesService {
-
-  constructor(
-    private http: HttpClient,
-    private env: EnvironmentService
-  ) {
-  }
+  private http = inject(HttpClient);
+  private env = inject(EnvironmentService);
+  private adminApi = inject(AdminApiService);
 
   private get API_URL(): string {
     return this.env.getBaseApiUrl() + '/search/api/admin/v7.0/licenses';
@@ -60,5 +58,49 @@ export class AdminLicensesService {
         };
       })
     );
+  }
+
+  /**
+   * Get licenses for a specific item
+   * @param uuid Item UUID
+   */
+  getItemLicenses(uuid: string): Observable<ItemLicensesResponse> {
+    return this.adminApi.getItemLicenses(uuid);
+  }
+
+  /**
+   * Add license to a single object
+   * @param uuid Object UUID
+   * @param licenseName License name
+   */
+  addLicense(uuid: string, licenseName: string): Observable<ProcessResponse> {
+    return this.adminApi.addLicense(uuid, licenseName);
+  }
+
+  /**
+   * Add license to multiple objects (bulk operation)
+   * @param uuids Array of object UUIDs
+   * @param licenseName License name
+   */
+  addLicenseBulk(uuids: string[], licenseName: string): Observable<ProcessResponse[]> {
+    return this.adminApi.addLicenseBulk(uuids, licenseName);
+  }
+
+  /**
+   * Remove license from a single object
+   * @param uuid Object UUID
+   * @param licenseName License name
+   */
+  removeLicense(uuid: string, licenseName: string): Observable<ProcessResponse> {
+    return this.adminApi.removeLicense(uuid, licenseName);
+  }
+
+  /**
+   * Remove license from multiple objects (bulk operation)
+   * @param uuids Array of object UUIDs
+   * @param licenseName License name
+   */
+  removeLicenseBulk(uuids: string[], licenseName: string): Observable<ProcessResponse[]> {
+    return this.adminApi.removeLicenseBulk(uuids, licenseName);
   }
 }

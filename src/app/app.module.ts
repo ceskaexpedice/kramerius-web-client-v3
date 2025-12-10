@@ -60,6 +60,7 @@ import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
 import { FoldersEffects } from './modules/saved-lists-page/state';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
 import { MonographVolumesEffects } from './shared/state/monograph-volumes';
+import {CollectionsEffects} from './shared/state/collections/collections.effects';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -123,6 +124,7 @@ export function initApp(envService: EnvironmentService) {
       MusicDetailEffects,
       FoldersEffects,
       LicensesEffects,
+      CollectionsEffects,
       MonographVolumesEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),

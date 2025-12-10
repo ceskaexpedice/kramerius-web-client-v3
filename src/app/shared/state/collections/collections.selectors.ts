@@ -83,3 +83,24 @@ export const selectCollectionActiveFilters = createSelector(
     return filters;
   }
 );
+
+// Selectors for ALL collections (for admin operations, dialogs, etc.)
+export const selectAllCollections = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state.allCollections
+);
+
+export const selectAllCollectionsLoading = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state.allCollectionsLoading
+);
+
+export const selectAllCollectionsError = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state.allCollectionsError
+);
+
+export const selectAllCollectionsTotalCount = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state.allCollectionsTotalCount
+);

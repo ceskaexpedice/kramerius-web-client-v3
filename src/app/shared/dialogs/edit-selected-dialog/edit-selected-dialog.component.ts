@@ -254,31 +254,55 @@ export class EditSelectedDialogComponent {
   onSectionActionClick() {
     const currentSection = this.activeSection();
     let sectionData = null;
+    let confirmationTitle = 'action-confirmation-dialog--header';
+    let confirmationMessage = 'action-confirmation-dialog--message';
 
     switch (currentSection) {
       case EditSelectedDialogSections.reindex:
         sectionData = this.reindexData;
+        confirmationTitle = 'reindex-confirmation-dialog--header';
+        confirmationMessage = 'reindex-confirmation-dialog--message';
         break;
       case EditSelectedDialogSections.addCollection:
         sectionData = this.collectionsData;
+        confirmationTitle = 'add-collection-confirmation-dialog--header';
+        confirmationMessage = 'add-collection-confirmation-dialog--message';
         break;
       case EditSelectedDialogSections.removeCollection:
         sectionData = this.collectionsData;
+        confirmationTitle = 'remove-collection-confirmation-dialog--header';
+        confirmationMessage = 'remove-collection-confirmation-dialog--message';
         break;
       case EditSelectedDialogSections.addLicence:
         sectionData = this.addLicenseData;
+        confirmationTitle = 'add-license-confirmation-dialog--header';
+        confirmationMessage = 'add-license-confirmation-dialog--message';
         break;
       case EditSelectedDialogSections.removeLicence:
         sectionData = this.removeLicenseData;
+        confirmationTitle = 'remove-license-confirmation-dialog--header';
+        confirmationMessage = 'remove-license-confirmation-dialog--message';
         break;
     }
 
+    // Validate that we have data to process
+    if (!sectionData) {
+      console.warn('No data available for section:', currentSection);
+      return;
+    }
+
     this.openActionConfirmationDialog({
+      title: confirmationTitle,
+      message: confirmationMessage,
+      confirmButtonLabel: 'yes-execute--button',
       cancelButtonLabel: 'cancel'
     }, () => {
       console.log('Execute action for section:', currentSection, sectionData);
-      // TODO: Implement actual action execution logic here
-      // This is where you would call the appropriate service method based on the section
+      // Close dialog and return the action data
+      this.dialogRef.close({
+        section: currentSection,
+        data: sectionData
+      });
     });
   }
 }

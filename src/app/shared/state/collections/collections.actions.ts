@@ -78,3 +78,19 @@ export const loadCollectionFacetFailure = createAction(
 );
 
 export const clearCollectionSearch = createAction('[Collections] Clear Search');
+
+// Actions for loading ALL collections (for admin operations, dialogs, etc.)
+export const loadAllCollections = createAction(
+  '[Collections] Load All Collections',
+  props<{ reset?: boolean }>()
+);
+
+export const loadAllCollectionsSuccess = createAction(
+  '[Collections] Load All Collections Success',
+  props<{ collections: any[]; totalCount: number }>()
+);
+
+export const loadAllCollectionsFailure = createAction(
+  '[Collections] Load All Collections Failure',
+  props<{ error: any }>()
+);

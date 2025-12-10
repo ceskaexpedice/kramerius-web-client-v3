@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {CollectionsListComponent} from '../../../../components/collections-list/collections-list.component';
@@ -23,7 +23,7 @@ export interface RemoveCollectionSectionData {
   templateUrl: './remove-collection-section.component.html',
   styleUrls: ['./remove-collection-section.component.scss', '../edit-selected-dialog-section.scss']
 })
-export class RemoveCollectionSectionComponent {
+export class RemoveCollectionSectionComponent implements OnInit, OnChanges {
 
   totalCount$: Observable<number>;
 
@@ -35,6 +35,18 @@ export class RemoveCollectionSectionComponent {
 
   constructor(private store: Store) {
     this.totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
+  }
+
+  ngOnInit() {
+    // Emit initial data when component initializes
+    this.emitChange();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Emit data when selectedIds input changes
+    if (changes['selectedIds']) {
+      this.emitChange();
+    }
   }
 
   onCollectionsSelectionChange(selectedCollections: string[]) {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
@@ -23,7 +23,7 @@ export interface AddCollectionSectionData {
   templateUrl: './add-collection-section.component.html',
   styleUrls: ['./add-collection-section.component.scss', '../edit-selected-dialog-section.scss']
 })
-export class AddCollectionSectionComponent {
+export class AddCollectionSectionComponent implements OnInit, OnChanges {
   @Input() selectedIds: string[] = [];
   @Output() dataChange = new EventEmitter<AddCollectionSectionData>();
   @Output() actionClick = new EventEmitter<void>();
@@ -33,6 +33,18 @@ export class AddCollectionSectionComponent {
 
   constructor(private store: Store) {
     this.totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
+  }
+
+  ngOnInit() {
+    // Emit initial data when component initializes
+    this.emitChange();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Emit data when selectedIds input changes
+    if (changes['selectedIds']) {
+      this.emitChange();
+    }
   }
 
   onCollectionsSelectionChange(selectedCollections: string[]) {

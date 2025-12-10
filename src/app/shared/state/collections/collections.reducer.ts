@@ -12,6 +12,11 @@ export interface CollectionsState {
   detail: Metadata | null;
   detailLoading: boolean;
   detailError: any;
+  // State for loading ALL collections
+  allCollections: any[];
+  allCollectionsTotalCount: number;
+  allCollectionsLoading: boolean;
+  allCollectionsError: any;
 }
 
 export const initialState: CollectionsState = {
@@ -23,6 +28,10 @@ export const initialState: CollectionsState = {
   detail: null,
   detailLoading: false,
   detailError: null,
+  allCollections: [],
+  allCollectionsTotalCount: 0,
+  allCollectionsLoading: false,
+  allCollectionsError: null,
 };
 
 export const collectionsReducer = createReducer(
@@ -81,5 +90,25 @@ export const collectionsReducer = createReducer(
 
   on(CollectionsActions.clearCollectionSearch, () => ({
     ...initialState
+  })),
+
+  // Reducers for loading ALL collections
+  on(CollectionsActions.loadAllCollections, state => ({
+    ...state,
+    allCollectionsLoading: true,
+    allCollectionsError: null,
+  })),
+
+  on(CollectionsActions.loadAllCollectionsSuccess, (state, { collections, totalCount }) => ({
+    ...state,
+    allCollections: collections,
+    allCollectionsTotalCount: totalCount,
+    allCollectionsLoading: false,
+  })),
+
+  on(CollectionsActions.loadAllCollectionsFailure, (state, { error }) => ({
+    ...state,
+    allCollectionsLoading: false,
+    allCollectionsError: error,
   }))
 );
