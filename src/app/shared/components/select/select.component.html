@@ -19,6 +19,7 @@
   *ngIf="open()"
   class="options-container"
   [class.above]="showAbove"
+  [style.z-index]="zIndex"
   role="listbox"
   [attr.aria-activedescendant]="'option-' + focusedIndex"
 >

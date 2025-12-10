@@ -33,6 +33,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() filterable: boolean = false;
   @Input() filterPlaceholder: string = 'Search...';
   @Input() disabled: boolean = false;
+  @Input() zIndex: number = 10;
   @Output() valueChange = new EventEmitter<T>();
 
   open = signal(false);
