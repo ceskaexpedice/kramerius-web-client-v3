@@ -60,7 +60,7 @@ button.primary {
   background: var(--color-primary);
   color: var(--color-text-on-color);
 
-  &:not(.link) {
+  &:not(.link):not(:disabled) {
     border: 1px solid var(--color-primary);
   }
 
