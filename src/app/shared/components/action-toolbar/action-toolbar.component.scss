@@ -47,5 +47,11 @@
       justify-content: space-between;
       margin-left: 0;
     }
+
+    .toolbar-left,
+    .toolbar-center,
+    .toolbar-right {
+      width: 100%;
+    }
   }
 }
