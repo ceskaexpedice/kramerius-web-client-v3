@@ -1,5 +1,5 @@
-@import "_z-index.scss";
-@import "mixins";
+@use "_z-index.scss" as *;
+@use "mixins" as *;
 
 :host {
   height: 100%;

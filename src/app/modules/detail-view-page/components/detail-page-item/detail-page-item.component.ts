@@ -4,8 +4,12 @@ import { NgClass, NgIf } from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
 import { SelectionService } from '../../../../shared/services';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ImagePreviewPopupComponent } from '../../../../shared/components/image-preview-popup/image-preview-popup.component';
-import { PopupPositioningService, PopupState } from '../../../../shared/services/popup-positioning.service';
+
+export interface PreviewClickEvent {
+  page: any;
+  pageNumber: string | number | null;
+  imageUrl: string;
+}
 
 @Component({
   selector: 'app-detail-page-item',
@@ -14,7 +18,6 @@ import { PopupPositioningService, PopupState } from '../../../../shared/services
     NgIf,
     CheckboxComponent,
     TranslatePipe,
-    ImagePreviewPopupComponent,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'
@@ -24,7 +27,6 @@ export class DetailPageItemComponent {
 
   private envService = inject(EnvironmentService);
   public selectionService = inject(SelectionService);
-  private popupPositioningService = inject(PopupPositioningService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: string | number | null = '0';
@@ -43,12 +45,10 @@ export class DetailPageItemComponent {
 
   @Output() pageClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectionToggled: EventEmitter<{ selected: boolean; event?: MouseEvent }> = new EventEmitter<{ selected: boolean; event?: MouseEvent }>();
-
-  previewPopupState: PopupState;
+  @Output() previewClicked: EventEmitter<PreviewClickEvent> = new EventEmitter<PreviewClickEvent>();
 
   constructor() {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
-    this.previewPopupState = this.popupPositioningService.createPopupState();
   }
 
   getImageUrl(): string {
@@ -63,17 +63,11 @@ export class DetailPageItemComponent {
     event.preventDefault();
     event.stopPropagation();
 
-    this.popupPositioningService.showPopup(
-      this.previewPopupState,
-      {
-        triggerEvent: event,
-        popupWidth: 600,
-        popupHeight: 500,
-        preferredSide: 'center',
-        offsetY: 10
-      },
-      '.preview-popup-wrapper'
-    );
+    this.previewClicked.emit({
+      page: this.page,
+      pageNumber: this.pageNumber,
+      imageUrl: this.getFullImageUrl()
+    });
   }
 
   onPageClicked(event: MouseEvent) {

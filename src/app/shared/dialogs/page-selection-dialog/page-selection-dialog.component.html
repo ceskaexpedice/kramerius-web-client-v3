@@ -44,7 +44,8 @@
           [localIsSelected]="isPageSelected(page.pid)"
           [showPreviewButton]="true"
           [class.disabled-selection]="!isPageSelected(page.pid) && isLimitReached()"
-          (selectionToggled)="togglePageSelection(page.pid, $event.event)">
+          (selectionToggled)="togglePageSelection(page.pid, $event.event)"
+          (previewClicked)="onPreviewClicked($event)">
         </app-detail-page-item>
         }
       </div>
@@ -64,3 +65,16 @@
   </div>
 
 </div>
+
+<!-- Image Preview Overlay -->
+@if (showPreviewOverlay()) {
+  <app-image-preview-overlay
+    [imageUrl]="previewImageUrl()"
+    [altText]="'page-preview'"
+    [currentIndex]="previewCurrentIndex()"
+    [totalItems]="pages.length"
+    (previous)="onPreviewPrevious()"
+    (next)="onPreviewNext()"
+    (close)="onPreviewClose()">
+  </app-image-preview-overlay>
+}

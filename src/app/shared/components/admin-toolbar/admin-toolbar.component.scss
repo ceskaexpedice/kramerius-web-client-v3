@@ -1,4 +1,5 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as *;
+@use "mixins" as *;
 
 .admin-toolbar {
   position: fixed;
@@ -107,7 +108,7 @@
 }
 
 // Responsive design
-@media (max-width: 768px) {
+@include respond(md) {
   .admin-toolbar {
     left: 1rem;
     right: 1rem;

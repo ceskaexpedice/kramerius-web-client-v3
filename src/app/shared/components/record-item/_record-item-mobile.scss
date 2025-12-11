@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 // xs screen < 408px one single row as card
 @media (max-width: 408px) {
   .record-item-card {

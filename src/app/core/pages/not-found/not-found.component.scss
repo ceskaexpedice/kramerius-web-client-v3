@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .not-found-page {
   display: flex;
   align-items: center;

@@ -11,13 +11,15 @@
 
   <!-- Action buttons -->
   <div class="page--item__actions" *ngIf="showPreviewButton">
-    <button class="button secondary rounded icon-button preview-button"
-            (click)="onPreviewClick($event)"
-            [attr.aria-label]="'preview-image' | translate"
-            [title]="'preview-image' | translate">
-      <i class="icon-eye"></i>
-    </button>
+
   </div>
+
+  <button class="button transparent icon-button preview-button"
+          (click)="onPreviewClick($event)"
+          [attr.aria-label]="'preview-image' | translate"
+          [title]="'preview-image' | translate">
+    <i class="icon-search-zoom-in-1"></i>
+  </button>
 
   <img class="page--item__image" [alt]="('page--number') + '-' + pageNumber" [src]="`${getImageUrl()}`"
     loading="lazy" />
@@ -27,15 +29,3 @@
   </span>
 
 </a>
-
-<!-- Image Preview Popup -->
-@if (previewPopupState.showPopup()) {
-  <div class="preview-popup-wrapper"
-       [class.positioned]="previewPopupState.popupPositioned()">
-    <app-image-preview-popup
-      [imageUrl]="getFullImageUrl()"
-      [altText]="('page--number') + '-' + pageNumber"
-      (close)="previewPopupState.closePopup()">
-    </app-image-preview-popup>
-  </div>
-}

@@ -2,10 +2,12 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Page } from '../../models/page.model';
-import { DetailPageItemComponent } from '../../../modules/detail-view-page/components/detail-page-item/detail-page-item.component';
+import { DetailPageItemComponent, PreviewClickEvent } from '../../../modules/detail-view-page/components/detail-page-item/detail-page-item.component';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../components/input/input.component';
+import { ImagePreviewOverlayComponent } from '../../components/image-preview-overlay/image-preview-overlay.component';
+import { EnvironmentService } from '../../services/environment.service';
 
 export interface PageSelectionDialogData {
     pages: Page[];
@@ -25,17 +27,24 @@ export interface PageSelectionDialogResult {
         MatSlideToggle,
         FormsModule,
         InputComponent,
+        ImagePreviewOverlayComponent,
     ],
     templateUrl: './page-selection-dialog.component.html',
     styleUrls: ['./page-selection-dialog.component.scss', '../generic-dialog.scss'],
 })
 export class PageSelectionDialogComponent {
     private dialogRef = inject(MatDialogRef<PageSelectionDialogComponent>);
+    private envService = inject(EnvironmentService);
     data = inject<PageSelectionDialogData>(MAT_DIALOG_DATA);
 
     pages: Page[] = [];
     dialogTitle: string = 'page-selection-dialog--header';
     maxSelectionCount: number | undefined;
+
+    // Preview overlay state
+    showPreviewOverlay = signal(false);
+    previewCurrentIndex = signal(1);
+    previewImageUrl = signal('');
 
     selectedPagePids = signal<Set<string>>(new Set());
     selectedCount = computed(() => this.selectedPagePids().size);
@@ -307,5 +316,55 @@ export class PageSelectionDialogComponent {
      */
     onClose(): void {
         this.dialogRef.close();
+    }
+
+    /**
+     * Handle preview click from detail-page-item
+     */
+    onPreviewClicked(event: PreviewClickEvent): void {
+        const index = this.pages.findIndex(p => p.pid === event.page.pid);
+        if (index !== -1) {
+            this.previewCurrentIndex.set(index + 1);
+            this.previewImageUrl.set(this.getFullImageUrl(this.pages[index].pid));
+            this.showPreviewOverlay.set(true);
+        }
+    }
+
+    /**
+     * Navigate to previous page in preview
+     */
+    onPreviewPrevious(): void {
+        const currentIndex = this.previewCurrentIndex();
+        if (currentIndex > 1) {
+            const newIndex = currentIndex - 1;
+            this.previewCurrentIndex.set(newIndex);
+            this.previewImageUrl.set(this.getFullImageUrl(this.pages[newIndex - 1].pid));
+        }
+    }
+
+    /**
+     * Navigate to next page in preview
+     */
+    onPreviewNext(): void {
+        const currentIndex = this.previewCurrentIndex();
+        if (currentIndex < this.pages.length) {
+            const newIndex = currentIndex + 1;
+            this.previewCurrentIndex.set(newIndex);
+            this.previewImageUrl.set(this.getFullImageUrl(this.pages[newIndex - 1].pid));
+        }
+    }
+
+    /**
+     * Close the preview overlay
+     */
+    onPreviewClose(): void {
+        this.showPreviewOverlay.set(false);
+    }
+
+    /**
+     * Get full image URL for a page
+     */
+    private getFullImageUrl(pid: string): string {
+        return this.envService.getApiUrl('items') + '/' + pid + '/image';
     }
 }
