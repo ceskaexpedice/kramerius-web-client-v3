@@ -31,10 +31,13 @@
           ></app-input>
         </div>
 
-        <span class="selected-info">
+        @if (breakpointService.isDesktop()) {
+          <span class="selected-info">
           <i class="icon-bulb"></i>
-          {{ 'press-shift-for-multiselect' | translate }}
+            {{ 'press-shift-for-multiselect' | translate }}
         </span>
+        }
+
       </div>
 
       <div class="page-selection-grid">
@@ -65,16 +68,3 @@
   </div>
 
 </div>
-
-<!-- Image Preview Overlay -->
-@if (showPreviewOverlay()) {
-  <app-image-preview-overlay
-    [imageUrl]="previewImageUrl()"
-    [altText]="'page-preview'"
-    [currentIndex]="previewCurrentIndex()"
-    [totalItems]="pages.length"
-    (previous)="onPreviewPrevious()"
-    (next)="onPreviewNext()"
-    (close)="onPreviewClose()">
-  </app-image-preview-overlay>
-}

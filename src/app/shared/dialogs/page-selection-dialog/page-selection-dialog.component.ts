@@ -6,8 +6,9 @@ import { DetailPageItemComponent, PreviewClickEvent } from '../../../modules/det
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../components/input/input.component';
-import { ImagePreviewOverlayComponent } from '../../components/image-preview-overlay/image-preview-overlay.component';
+import { ImagePreviewService } from '../../services/image-preview.service';
 import { EnvironmentService } from '../../services/environment.service';
+import {BreakpointService} from '../../services/breakpoint.service';
 
 export interface PageSelectionDialogData {
     pages: Page[];
@@ -27,7 +28,6 @@ export interface PageSelectionDialogResult {
         MatSlideToggle,
         FormsModule,
         InputComponent,
-        ImagePreviewOverlayComponent,
     ],
     templateUrl: './page-selection-dialog.component.html',
     styleUrls: ['./page-selection-dialog.component.scss', '../generic-dialog.scss'],
@@ -35,16 +35,13 @@ export interface PageSelectionDialogResult {
 export class PageSelectionDialogComponent {
     private dialogRef = inject(MatDialogRef<PageSelectionDialogComponent>);
     private envService = inject(EnvironmentService);
+    private imagePreviewService = inject(ImagePreviewService);
+    public breakpointService = inject(BreakpointService);
     data = inject<PageSelectionDialogData>(MAT_DIALOG_DATA);
 
     pages: Page[] = [];
     dialogTitle: string = 'page-selection-dialog--header';
     maxSelectionCount: number | undefined;
-
-    // Preview overlay state
-    showPreviewOverlay = signal(false);
-    previewCurrentIndex = signal(1);
-    previewImageUrl = signal('');
 
     selectedPagePids = signal<Set<string>>(new Set());
     selectedCount = computed(() => this.selectedPagePids().size);
@@ -324,41 +321,16 @@ export class PageSelectionDialogComponent {
     onPreviewClicked(event: PreviewClickEvent): void {
         const index = this.pages.findIndex(p => p.pid === event.page.pid);
         if (index !== -1) {
-            this.previewCurrentIndex.set(index + 1);
-            this.previewImageUrl.set(this.getFullImageUrl(this.pages[index].pid));
-            this.showPreviewOverlay.set(true);
-        }
-    }
+            // Convert all pages to ImagePreviewItem array
+            const images = this.pages.map((page, idx) => ({
+                url: this.getFullImageUrl(page.pid),
+                altText: `Page ${idx + 1}`,
+                metadata: { page, pageNumber: idx + 1 }
+            }));
 
-    /**
-     * Navigate to previous page in preview
-     */
-    onPreviewPrevious(): void {
-        const currentIndex = this.previewCurrentIndex();
-        if (currentIndex > 1) {
-            const newIndex = currentIndex - 1;
-            this.previewCurrentIndex.set(newIndex);
-            this.previewImageUrl.set(this.getFullImageUrl(this.pages[newIndex - 1].pid));
+            // Show the preview starting at the clicked image
+            this.imagePreviewService.show(images, index);
         }
-    }
-
-    /**
-     * Navigate to next page in preview
-     */
-    onPreviewNext(): void {
-        const currentIndex = this.previewCurrentIndex();
-        if (currentIndex < this.pages.length) {
-            const newIndex = currentIndex + 1;
-            this.previewCurrentIndex.set(newIndex);
-            this.previewImageUrl.set(this.getFullImageUrl(this.pages[newIndex - 1].pid));
-        }
-    }
-
-    /**
-     * Close the preview overlay
-     */
-    onPreviewClose(): void {
-        this.showPreviewOverlay.set(false);
     }
 
     /**

@@ -24,6 +24,7 @@ import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
 import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
+import {ImagePreviewOverlayComponent} from './shared/components/image-preview-overlay/image-preview-overlay.component';
 import {FILTER_SERVICE} from './shared/services/filter.service';
 import {SearchService} from './shared/services/search.service';
 import { authReducer, authFeatureKey } from './core/auth/store';
@@ -133,6 +134,7 @@ export function initApp(envService: EnvironmentService) {
     FooterComponent,
     PlaybackBarComponent,
     LoadingOverlayComponent,
+    ImagePreviewOverlayComponent,
   ],
   providers: [
     provideHttpClient(

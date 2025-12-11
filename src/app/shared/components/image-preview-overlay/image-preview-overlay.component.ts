@@ -1,6 +1,7 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { PreviewNavigationBarComponent } from '../preview-navigation-bar/preview-navigation-bar.component';
+import { ImagePreviewService } from '../../services/image-preview.service';
 
 @Component({
   selector: 'app-image-preview-overlay',
@@ -10,19 +11,39 @@ import { PreviewNavigationBarComponent } from '../preview-navigation-bar/preview
   styleUrl: './image-preview-overlay.component.scss'
 })
 export class ImagePreviewOverlayComponent {
-  @Input() imageUrl: string = '';
-  @Input() altText: string = '';
-  @Input() currentIndex: number = 1;
-  @Input() totalItems: number = 1;
+  private previewService = inject(ImagePreviewService);
 
-  @Output() previous = new EventEmitter<void>();
-  @Output() next = new EventEmitter<void>();
-  @Output() close = new EventEmitter<void>();
+  // Subscribe to service state
+  isOpen = this.previewService.isOpen;
+  images = this.previewService.images;
+  currentIndex = this.previewService.currentIndex;
 
-  isLoading: boolean = true;
+  // Computed values
+  currentImage = computed(() => {
+    const images = this.images();
+    const index = this.currentIndex();
+    return images[index] || null;
+  });
+
+  displayIndex = computed(() => this.currentIndex() + 1);
+  totalItems = computed(() => this.images().length);
+
+  isLoading = signal(true);
+
+  constructor() {
+    // Reset loading state when image changes
+    effect(() => {
+      const image = this.currentImage();
+      if (image) {
+        this.isLoading.set(true);
+      }
+    });
+  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
+    if (!this.isOpen()) return;
+
     switch (event.key) {
       case 'Escape':
         this.onClose();
@@ -37,21 +58,15 @@ export class ImagePreviewOverlayComponent {
   }
 
   onPrevious(): void {
-    if (this.currentIndex > 1) {
-      this.isLoading = true;
-      this.previous.emit();
-    }
+    this.previewService.previous();
   }
 
   onNext(): void {
-    if (this.currentIndex < this.totalItems) {
-      this.isLoading = true;
-      this.next.emit();
-    }
+    this.previewService.next();
   }
 
   onClose(): void {
-    this.close.emit();
+    this.previewService.close();
   }
 
   onBackdropClick(event: MouseEvent): void {
@@ -61,10 +76,10 @@ export class ImagePreviewOverlayComponent {
   }
 
   onImageLoad(): void {
-    this.isLoading = false;
+    this.isLoading.set(false);
   }
 
   onImageError(): void {
-    this.isLoading = false;
+    this.isLoading.set(false);
   }
 }

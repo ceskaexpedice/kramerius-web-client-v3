@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-preview-navigation-bar',
   standalone: true,
-  imports: [NgIf, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './preview-navigation-bar.component.html',
   styleUrl: './preview-navigation-bar.component.scss'
 })

@@ -1,3 +1,5 @@
+@import 'mixins';
+
 .generic-dialog-container {
   .dialog-body {
     .content {
@@ -77,3 +79,16 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
+
+@include respond(md) {
+  .select-all-container {
+    flex-direction: column;
+    gap: var(--spacing-x3);
+
+    & > * {
+      flex: 1;
+    }
+  }
+}
+
+
