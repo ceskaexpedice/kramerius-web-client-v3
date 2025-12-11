@@ -20,7 +20,7 @@ export class ModelBadgeComponent {
     if (!this.model) return false;
     const modelKey = this.model.toLowerCase();
     return (
-      (modelKey === DocumentTypeEnum.monograph || modelKey === DocumentTypeEnum.monographunit) &&
+      (modelKey === DocumentTypeEnum.monograph || modelKey === DocumentTypeEnum.monographunit || modelKey === DocumentTypeEnum.convolute) &&
       this.monographUnitCount > 0
     );
   }

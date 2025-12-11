@@ -24,6 +24,7 @@
     i {
       position: absolute;
       font-size: calc(14px * var(--accessibility-text-scale));
+      background-color: var(--color-bg-base);
 
       &:first-child {
         left: 0;
@@ -31,7 +32,7 @@
       }
 
       &:last-child {
-        left: calc(4px * var(--accessibility-text-scale));
+        left: calc(6px * var(--accessibility-text-scale));
         top: 0;
       }
     }

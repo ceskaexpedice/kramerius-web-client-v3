@@ -10,11 +10,12 @@
   </div>
 
   <!-- Action buttons -->
-  <div class="page--item__actions" *ngIf="showPreviewButton">
+  <div class="page--item__actions">
 
   </div>
 
   <button class="button transparent icon-button preview-button"
+          *ngIf="showPreviewButton"
           (click)="onPreviewClick($event)"
           [attr.aria-label]="'preview-image' | translate"
           [title]="'preview-image' | translate">

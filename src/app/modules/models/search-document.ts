@@ -22,6 +22,7 @@ export interface SearchDocument {
   month?: number;
   day?: number;
 
+  monographUnitCount?: number;
   publicationPlaces?: string[];
   keywords?: string[];
   mdt?: string;
@@ -51,6 +52,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   year: doc['date_range_start.year'] ? parseInt(doc['date_range_start.year'], 10) : undefined,
   month: doc['date_range_start.month'] ? parseInt(doc['date_range_start.month'], 10) : undefined,
   day: doc['date_range_start.day'] ? parseInt(doc['date_range_start.day'], 10) : undefined,
+  monographUnitCount: doc['count_monograph_unit'] ? parseInt(doc['count_monograph_unit'], 10) : undefined,
 
   publicationPlaces: doc['publication_places.search'] ? doc['publication_places.search'] : undefined,
   keywords: doc['keywords.search'] ? doc['keywords.search'] : undefined,

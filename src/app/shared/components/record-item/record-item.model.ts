@@ -61,7 +61,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     className: '',
     showFavoriteButton: true,
     showAccessibilityBadge: true,
-    monographUnitCount: doc.monographUnit_count || 0,
+    monographUnitCount: doc.monographUnitCount || 0,
   };
 }
 
