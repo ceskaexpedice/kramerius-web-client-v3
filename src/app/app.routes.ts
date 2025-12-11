@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import {AuthGuard} from './core/auth/auth.guard';
-import {authCallbackGuard} from './core/auth/auth-callback.guard';
+import { AuthGuard } from './core/auth/auth.guard';
+import { authCallbackGuard } from './core/auth/auth-callback.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = '',
@@ -15,6 +15,7 @@ export enum APP_ROUTES_ENUM {
   HELP = 'help',
   UUID_REDIRECT = 'uuid',
   COLLECTION = 'collection',
+  DEV_TOOLS = 'devtools',
   NOT_FOUND = '404',
   SERVER_ERROR = '500',
 }
@@ -64,6 +65,10 @@ export const routes: Routes = [
     path: APP_ROUTES_ENUM.COLLECTION,
     loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule),
     data: { breadcrumb: false } // Will be set dynamically with collection name
+  },
+  {
+    path: APP_ROUTES_ENUM.DEV_TOOLS,
+    loadComponent: () => import('./core/pages/dev-tools/dev-tools.component').then(c => c.DevToolsComponent)
   },
   {
     path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
