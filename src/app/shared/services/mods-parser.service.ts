@@ -9,8 +9,8 @@ import {
   Location,
   NoteInfo,
 } from '../models/metadata.model';
-import {EnvironmentService} from './environment.service';
-import {APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG} from '../utils/language-utils';
+import { EnvironmentService } from './environment.service';
+import { APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG } from '../utils/language-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -169,7 +169,7 @@ export class ModsParserService {
       const lang = item.getAttribute('lang');
       if (lang) {
 
-        const mappedLang =  SOLR_LANG_TO_APP_LANG[lang];
+        const mappedLang = SOLR_LANG_TO_APP_LANG[lang];
 
         if (mappedLang) {
           noteInfo.lang = mappedLang;
@@ -210,82 +210,13 @@ export class ModsParserService {
     let anyPrimary = false;
 
     for (const item of elements) {
-      const author = new Author();
-      let given = '';
-      let family = '';
-      let termsOfAddress = '';
-
-      const namePartElements = this.getElements(item, 'namePart');
-      if (namePartElements.length === 0) {
-        continue;
-      }
-
-      const type = item.getAttribute('type');
-      if (type) {
-        author.type = type;
-      }
-
-      const usage = item.getAttribute('usage');
-      if (usage === 'primary') {
-        anyPrimary = true;
-        author.primary = true;
-      }
-
-      for (const partName of namePartElements) {
-        const partType = partName.getAttribute('type');
-        const text = this.getText(partName);
-
-        if (partType === 'given') {
-          given = text;
-        } else if (partType === 'family') {
-          family = text;
-        } else if (partType === 'termsOfAddress') {
-          termsOfAddress = text;
-        } else if (partType === 'date') {
-          author.date = text;
-        } else {
-          if (author.name) {
-            author.name += ' ' + text;
-          } else {
-            author.name = text;
-          }
+      const author = this.parseAuthor(item);
+      if (author) {
+        if (author.primary) {
+          anyPrimary = true;
         }
+        metadata.authors.push(author);
       }
-
-      let name = '';
-      if (family) {
-        name = family;
-      }
-      if (given) {
-        if (name !== '') {
-          name += ', ';
-        }
-        name += given;
-      }
-      if (name !== '') {
-        author.name = name;
-      }
-      if (termsOfAddress) {
-        if (author.name !== '') {
-          author.name += ' ';
-        }
-        author.name += termsOfAddress;
-      }
-
-      // Process roles
-      const roleElements = this.getElements(item, 'role');
-      for (const role of roleElements) {
-        const roleTermElements = this.getElements(role, 'roleTerm');
-        for (const roleTerm of roleTermElements) {
-          const roleText = this.getText(roleTerm);
-          const roleType = roleTerm.getAttribute('type');
-          if (roleText && roleType === 'code') {
-            author.roles.push(roleText);
-          }
-        }
-      }
-
-      metadata.authors.push(author);
     }
 
     if (!anyPrimary) {
@@ -293,6 +224,84 @@ export class ModsParserService {
         author.primary = true;
       }
     }
+  }
+
+  private parseAuthor(item: Element): Author | null {
+    const author = new Author();
+    let given = '';
+    let family = '';
+    let termsOfAddress = '';
+
+    const namePartElements = this.getElements(item, 'namePart');
+    if (namePartElements.length === 0) {
+      return null;
+    }
+
+    const type = item.getAttribute('type');
+    if (type) {
+      author.type = type;
+    }
+
+    const usage = item.getAttribute('usage');
+    if (usage === 'primary') {
+      author.primary = true;
+    }
+
+    for (const partName of namePartElements) {
+      const partType = partName.getAttribute('type');
+      const text = this.getText(partName);
+
+      if (partType === 'given') {
+        given = text;
+      } else if (partType === 'family') {
+        family = text;
+      } else if (partType === 'termsOfAddress') {
+        termsOfAddress = text;
+      } else if (partType === 'date') {
+        author.date = text;
+      } else {
+        if (author.name) {
+          author.name += ' ' + text;
+        } else {
+          author.name = text;
+        }
+      }
+    }
+
+    let name = '';
+    if (family) {
+      name = family;
+    }
+    if (given) {
+      if (name !== '') {
+        name += ', ';
+      }
+      name += given;
+    }
+    if (name !== '') {
+      author.name = name;
+    }
+    if (termsOfAddress) {
+      if (author.name !== '') {
+        author.name += ' ';
+      }
+      author.name += termsOfAddress;
+    }
+
+    // Process roles
+    const roleElements = this.getElements(item, 'role');
+    for (const role of roleElements) {
+      const roleTermElements = this.getElements(role, 'roleTerm');
+      for (const roleTerm of roleTermElements) {
+        const roleText = this.getText(roleTerm);
+        const roleType = roleTerm.getAttribute('type');
+        if (roleText && roleType === 'code') {
+          author.roles.push(roleText);
+        }
+      }
+    }
+
+    return author;
   }
 
   private processIdentifiers(elements: Element[], metadata: Metadata) {
@@ -464,6 +473,28 @@ export class ModsParserService {
         }
       }
 
+      // Process temporals
+      const temporalElements = this.getElements(item, 'temporal');
+      for (const temporal of temporalElements) {
+        const text = this.getText(temporal);
+        if (text && metadata.subjectTemporals.indexOf(text) < 0) {
+          metadata.subjectTemporals.push(text);
+        }
+      }
+
+      // Process names inside subjects
+      const nameElements = this.getElements(item, 'name');
+      for (const nameEl of nameElements) {
+        const author = this.parseAuthor(nameEl);
+        if (author) {
+          if (author.type === 'personal') {
+            metadata.subjectNamesPersonal.push(author);
+          } else if (author.type === 'corporate') {
+            metadata.subjectNamesCorporate.push(author);
+          }
+        }
+      }
+
       // Process cartographics
       const cartographicsElements = this.getElements(item, 'cartographics');
       for (const cartographics of cartographicsElements) {
@@ -484,6 +515,7 @@ export class ModsParserService {
       }
     }
   }
+
 
   private processLanguages(elements: Element[], metadata: Metadata) {
     for (const item of elements) {

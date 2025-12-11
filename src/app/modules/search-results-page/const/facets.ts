@@ -27,6 +27,9 @@ export const facetKeysEnum = {
   publishers: 'publishers.facet',
   publication_places: 'publication_places.facet',
   physical_locations: 'physical_locations.facet',
+  subjectNamesPersonal: 'subject_names_personal.facet',
+  subjectNamesCorporate: 'subject_names_corporate.facet',
+  subjectTemporals: 'subject_temporals.facet'
 }
 
 export const facetKeys: string[] = [
@@ -40,6 +43,9 @@ export const facetKeys: string[] = [
   facetKeysEnum.publishers,
   facetKeysEnum.publication_places,
   facetKeysEnum.physical_locations,
+  facetKeysEnum.subjectNamesPersonal,
+  facetKeysEnum.subjectNamesCorporate,
+  facetKeysEnum.subjectTemporals
 ];
 
 export enum customDefinedFacetsEnum {

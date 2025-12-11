@@ -133,6 +133,21 @@ export class MetadataSection implements OnInit, OnChanges {
     this.searchService.redirectDirectlyToUrl(url);
   };
 
+  clickedSubjectNamePersonal = (subject: Author): void => {
+    const url = `?fq=${facetKeysEnum.subjectNamesPersonal}:${encodeURIComponent(subject.name)}&${facetKeysEnum.subjectNamesPersonal}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
+  clickedSubjectNameCorporate = (subject: Author): void => {
+    const url = `?fq=${facetKeysEnum.subjectNamesCorporate}:${encodeURIComponent(subject.name)}&${facetKeysEnum.subjectNamesCorporate}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
+  clickedSubjectTemporal = (subjectTemporal: string): void => {
+    const url = `?fq=${facetKeysEnum.subjectTemporals}:${encodeURIComponent(subjectTemporal)}&${facetKeysEnum.subjectTemporals}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
   clickedLanguage = (language: string): void => {
     const url = `?fq=${facetKeysEnum.languages}:${encodeURIComponent(language)}&${facetKeysEnum.languages}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);

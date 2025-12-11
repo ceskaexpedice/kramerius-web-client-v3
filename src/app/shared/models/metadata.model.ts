@@ -22,6 +22,10 @@ export class Metadata {
   public physicalDescriptions: PhysicalDescription[] = [];
   public identifiers: any = {};
 
+  public subjectNamesPersonal: Author[] = [];
+  public subjectNamesCorporate: Author[] = [];
+  public subjectTemporals: string[] = [];
+
   public model: string = '';
   public doctype: string = '';
   public volume: Volume = new Volume('', '', '');
@@ -111,7 +115,7 @@ export class NoteInfo {
 }
 
 export class Volume {
-  constructor(public uuid: string = '', public year: string = '', public number: string = '') {}
+  constructor(public uuid: string = '', public year: string = '', public number: string = '') { }
 }
 
 export class Author {
@@ -137,7 +141,7 @@ export class Location {
 }
 
 export class PhysicalDescription {
-  constructor(public note: string = '', public extent: string = '') {}
+  constructor(public note: string = '', public extent: string = '') { }
 
   empty() {
     return !(this.extent || this.note);
@@ -491,6 +495,36 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
             merged.identifiers[key].push(value);
           }
         }
+      }
+    }
+  }
+
+  // Subject Names Personal
+  if (modsMetadata.subjectNamesPersonal && modsMetadata.subjectNamesPersonal.length > 0) {
+    const existingPersonal = new Set(merged.subjectNamesPersonal.map(a => a.name));
+    for (const author of modsMetadata.subjectNamesPersonal) {
+      if (author.name && !existingPersonal.has(author.name)) {
+        merged.subjectNamesPersonal.push(author);
+      }
+    }
+  }
+
+  // Subject Names Corporate
+  if (modsMetadata.subjectNamesCorporate && modsMetadata.subjectNamesCorporate.length > 0) {
+    const existingCorporate = new Set(merged.subjectNamesCorporate.map(a => a.name));
+    for (const author of modsMetadata.subjectNamesCorporate) {
+      if (author.name && !existingCorporate.has(author.name)) {
+        merged.subjectNamesCorporate.push(author);
+      }
+    }
+  }
+
+  // Subject Temporals
+  if (modsMetadata.subjectTemporals && modsMetadata.subjectTemporals.length > 0) {
+    const existingTemporals = new Set(merged.subjectTemporals);
+    for (const temporal of modsMetadata.subjectTemporals) {
+      if (!existingTemporals.has(temporal)) {
+        merged.subjectTemporals.push(temporal);
       }
     }
   }
