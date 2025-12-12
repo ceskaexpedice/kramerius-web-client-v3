@@ -33,14 +33,20 @@ export interface TableColumnConfig extends ConfigurableItem {
 }
 
 /**
+ * Configuration for a single facet filter
+ */
+export interface FacetFilterConfig extends ConfigurableItem {
+  facetKey: string;
+  defaultVisible: boolean;
+  isCustomDefined: boolean;
+}
+
+/**
  * Complete display configuration that can be extended with other UI configurations
  */
 export interface DisplayConfig {
   tableColumns: TableColumnConfig[];
-  // Future extensions:
-  // filters?: ConfigurableItem[];
-  // facets?: ConfigurableItem[];
-  // sortOptions?: ConfigurableItem[];
+  facetFilters?: FacetFilterConfig[];
 }
 
 /**
@@ -200,5 +206,156 @@ export const DEFAULT_TABLE_COLUMNS: TableColumnConfig[] = [
     defaultVisible: false,
     order: 14,
     width: '200px'
+  }
+];
+
+/**
+ * Default facet filters configuration
+ * Based on facets from the search-results-page const/facets.ts
+ */
+export const DEFAULT_FACET_FILTERS: FacetFilterConfig[] = [
+  {
+    id: 'custom-accessibility',
+    labelKey: 'facet-accessibility-label',
+    facetKey: 'custom-accessibility',
+    visible: true,
+    defaultVisible: true,
+    order: 0,
+    isCustomDefined: true
+  },
+  {
+    id: 'custom-root-model',
+    labelKey: 'facet-document-type-label',
+    facetKey: 'custom-root-model',
+    visible: true,
+    defaultVisible: true,
+    order: 1,
+    isCustomDefined: true
+  },
+  {
+    id: 'custom-where-to-search.model',
+    labelKey: 'facet-where-to-search-label',
+    facetKey: 'custom-where-to-search.model',
+    visible: true,
+    defaultVisible: true,
+    order: 4,
+    isCustomDefined: true
+  },
+  {
+    id: 'custom-date-range',
+    labelKey: 'facet-date-range-label',
+    facetKey: 'custom-date-range',
+    visible: true,
+    defaultVisible: true,
+    order: 2,
+    isCustomDefined: true
+  },
+  {
+    id: 'custom-year-range',
+    labelKey: 'facet-year-range-label',
+    facetKey: 'custom-year-range',
+    visible: true,
+    defaultVisible: true,
+    order: 3,
+    isCustomDefined: true
+  },
+  {
+    id: 'authors.facet',
+    labelKey: 'filter-author-label',
+    facetKey: 'authors.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 5,
+    isCustomDefined: false
+  },
+  {
+    id: 'languages.facet',
+    labelKey: 'filter-languages-label',
+    facetKey: 'languages.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 6,
+    isCustomDefined: false
+  },
+  {
+    id: 'genres.facet',
+    labelKey: 'filter-genres-label',
+    facetKey: 'genres.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 7,
+    isCustomDefined: false
+  },
+  {
+    id: 'keywords.facet',
+    labelKey: 'filter-keywords-label',
+    facetKey: 'keywords.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 8,
+    isCustomDefined: false
+  },
+  {
+    id: 'geographic_names.facet',
+    labelKey: 'facet-geographic-names-label',
+    facetKey: 'geographic_names.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 9,
+    isCustomDefined: false
+  },
+  {
+    id: 'publishers.facet',
+    labelKey: 'facet-publishers-label',
+    facetKey: 'publishers.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 10,
+    isCustomDefined: false
+  },
+  {
+    id: 'publication_places.facet',
+    labelKey: 'filter-publication-places-label',
+    facetKey: 'publication_places.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 11,
+    isCustomDefined: false
+  },
+  {
+    id: 'physical_locations.facet',
+    labelKey: 'filter-physical-locations-label',
+    facetKey: 'physical_locations.facet',
+    visible: true,
+    defaultVisible: true,
+    order: 12,
+    isCustomDefined: false
+  },
+  {
+    id: 'subject_names_personal.facet',
+    labelKey: 'subject_names_personal.facet',
+    facetKey: 'subject_names_personal.facet',
+    visible: false,
+    defaultVisible: false,
+    order: 13,
+    isCustomDefined: false
+  },
+  {
+    id: 'subject_names_corporate.facet',
+    labelKey: 'subject_names_corporate.facet',
+    facetKey: 'subject_names_corporate.facet',
+    visible: false,
+    defaultVisible: false,
+    order: 14,
+    isCustomDefined: false
+  },
+  {
+    id: 'subject_temporals.facet',
+    labelKey: 'subject_temporals.facet',
+    facetKey: 'subject_temporals.facet',
+    visible: false,
+    defaultVisible: false,
+    order: 15,
+    isCustomDefined: false
   }
 ];

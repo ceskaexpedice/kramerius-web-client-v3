@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
@@ -10,6 +10,8 @@ import {
   facetKeysEnum,
 } from '../../const/facets';
 import { TranslatePipe } from '@ngx-translate/core';
+import { DisplayConfigService } from '../../../../shared/services/display-config.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-search-filters',
@@ -21,7 +23,49 @@ import { TranslatePipe } from '@ngx-translate/core';
       <ng-container
         *ngFor="let facetKey of getFacetKeys"
       >
+        <!-- Date Range Filter -->
         <app-filter-category
+          *ngIf="facetKey === customDefinedFacetsEnum.dateRange"
+          [label]="customDefinedFacetsEnum.dateRange"
+          [facetKey]="customDefinedFacetsEnum.dateRange"
+          [showToggleExpand]="true"
+          [items]="[]"
+          [selected]="selectedFilters"
+          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.dateRange)"
+          [dateFrom]="dateFrom"
+          [dateTo]="dateTo"
+          [dateOffset]="dateOffset"
+          (datePickerChange)="onDateRangeChange($event)"
+        >
+        </app-filter-category>
+
+        <!-- Year Range Filter -->
+        <app-filter-category
+          *ngIf="facetKey === customDefinedFacetsEnum.yearRange"
+          [label]="customDefinedFacetsEnum.yearRange"
+          [facetKey]="customDefinedFacetsEnum.yearRange"
+          [showToggleExpand]="true"
+          [items]="[]"
+          [selected]="selectedFilters"
+          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.yearRange)"
+          [yearRangeMin]="defaultYearRangeFrom"
+          [yearRangeMax]="currentYear"
+          [yearRangeFrom]="yearRangeFrom"
+          [yearRangeTo]="yearRangeTo"
+          (rangeChange)="onYearRangeChange($event)"
+        >
+          <button
+            class="outlined submit-year-range-btn w-100"
+            [class.disabled]="!hasYearRangeChanged"
+            [disabled]="!hasYearRangeChanged"
+            (click)="submitYearRange()">
+            {{ 'submit' | translate }}
+          </button>
+        </app-filter-category>
+
+        <!-- Regular Facet Filters -->
+        <app-filter-category
+          *ngIf="facetKey !== customDefinedFacetsEnum.dateRange && facetKey !== customDefinedFacetsEnum.yearRange"
           [label]="facetKey"
           [facetKey]="facetKey"
           [items]="(facets$ | async)?.[facetKey] || []"
@@ -51,53 +95,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 
           </ng-container>
 
-        </app-filter-category>
-
-        <!-- Date Range Filter -->
-        <app-filter-category
-          *ngIf="facetKey === customDefinedFacetsEnum.model"
-          [label]="customDefinedFacetsEnum.dateRange"
-          [facetKey]="customDefinedFacetsEnum.dateRange"
-          [showToggleExpand]="true"
-          [items]="[]"
-          [selected]="selectedFilters"
-          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.dateRange)"
-          [dateFrom]="dateFrom"
-          [dateTo]="dateTo"
-          [dateOffset]="dateOffset"
-          (datePickerChange)="onDateRangeChange($event)"
-        >
-<!--          <button-->
-<!--            class="outlined submit-year-range-btn w-100"-->
-<!--            [class.disabled]="!hasDateRangeChanged"-->
-<!--            [disabled]="!hasDateRangeChanged"-->
-<!--            (click)="submitDateRange()">-->
-<!--            {{ 'submit' | translate }}-->
-<!--          </button>-->
-        </app-filter-category>
-
-        <!-- Year Range Filter -->
-        <app-filter-category
-          *ngIf="facetKey === customDefinedFacetsEnum.model"
-          [label]="customDefinedFacetsEnum.yearRange"
-          [facetKey]="customDefinedFacetsEnum.yearRange"
-          [showToggleExpand]="true"
-          [items]="[]"
-          [selected]="selectedFilters"
-          [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.yearRange)"
-          [yearRangeMin]="defaultYearRangeFrom"
-          [yearRangeMax]="currentYear"
-          [yearRangeFrom]="yearRangeFrom"
-          [yearRangeTo]="yearRangeTo"
-          (rangeChange)="onYearRangeChange($event)"
-        >
-          <button
-            class="outlined submit-year-range-btn w-100"
-            [class.disabled]="!hasYearRangeChanged"
-            [disabled]="!hasYearRangeChanged"
-            (click)="submitYearRange()">
-            {{ 'submit' | translate }}
-          </button>
         </app-filter-category>
 
       </ng-container>
@@ -149,13 +146,44 @@ import { TranslatePipe } from '@ngx-translate/core';
       }
   `]
 })
-export class SearchFiltersComponent extends BaseFiltersComponent {
+export class SearchFiltersComponent extends BaseFiltersComponent implements OnInit, OnDestroy {
 
   facetKeys = facetKeys;
+  private displayConfigService = inject(DisplayConfigService);
+  private cdr = inject(ChangeDetectorRef);
+  private visibleFacetKeys: string[] = [];
+  private configSubscription?: Subscription;
+
+  override ngOnInit() {
+    // Call parent initialization first (critical!)
+    super.ngOnInit();
+
+    // Subscribe to display config changes to update visible filters dynamically
+    this.configSubscription = this.displayConfigService.displayConfig$.subscribe(config => {
+      const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
+      this.visibleFacetKeys = visibleFilters.map(filter => filter.facetKey);
+      // Trigger change detection to update the template
+      this.cdr.markForCheck();
+    });
+  }
+
+  override ngOnDestroy() {
+    // Call parent cleanup first
+    super.ngOnDestroy();
+
+    // Clean up our subscription to prevent memory leaks
+    this.configSubscription?.unsubscribe();
+  }
 
   get getFacetKeys(): string[] {
-    // we are showing licenses under accessibility facet so we need to return all facet keys except 'licenses.facet'
-    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license && key !== customDefinedFacetsEnum.dateRange && key !== customDefinedFacetsEnum.yearRange);
+    // If we have visible facet keys from configuration, use them
+    if (this.visibleFacetKeys.length > 0) {
+      // Only filter out licenses as it's nested under accessibility
+      return this.visibleFacetKeys.filter(key => key !== facetKeysEnum.license);
+    }
+
+    // Fallback to default behavior if no configuration exists
+    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {

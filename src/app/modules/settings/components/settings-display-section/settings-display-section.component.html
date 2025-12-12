@@ -37,4 +37,40 @@
       </label>
     </div>
   </div>
+
+  <div class="facet-filters-config">
+    <div class="config-header">
+      <h4>{{ 'facet-filters-visibility' | translate }}:</h4>
+<!--      <button-->
+<!--        class="button tertiary outlined sm"-->
+<!--        (click)="resetFacetFiltersToDefaults()"-->
+<!--        type="button">-->
+<!--        {{ 'reset-to-defaults' | translate }}-->
+<!--      </button>-->
+    </div>
+
+<!--    <p class="config-description">{{ 'facet-filters-description' | translate }}</p>-->
+
+    <div
+      cdkDropList
+      class="filters-list"
+      (cdkDropListDropped)="onFacetFilterDrop($event)">
+      <div
+        *ngFor="let filter of facetFilters"
+        cdkDrag
+        [cdkDragPreviewContainer]="'parent'"
+        (click)="clickedFilterItem(filter)"
+        class="filter-item">
+        <div class="drag-handle" cdkDragHandle>
+          <i class="icon-line-vertical"></i>
+        </div>
+        <app-checkbox
+          [model]="filter.visible"
+          (modelChange)="onFacetFilterVisibilityChange(filter.id, $event)"
+        >
+        </app-checkbox>
+        <span class="filter-label">{{ filter.facetKey | translate }}</span>
+      </div>
+    </div>
+  </div>
 </div>

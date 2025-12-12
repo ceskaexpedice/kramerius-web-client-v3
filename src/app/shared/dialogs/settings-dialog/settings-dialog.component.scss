@@ -2,24 +2,24 @@
 
 :host {
   padding: 24px 20px 12px 20px;
-  max-height: 80vh;
+  height: 80vh;
   overflow: hidden;
   background-color: var(--color-bg-base);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+
+  app-sidebar-dialog-layout {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 @include respond(md) {
   :host {
     padding: 0;
     height: 100%;
-    max-height: 100%;
     border-radius: 0;
-  }
-
-  app-sidebar-dialog-layout {
-    height: 100%;
   }
 }
 
