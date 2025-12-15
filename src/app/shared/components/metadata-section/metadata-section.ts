@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef} from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Author, Metadata, Publisher, PhysicalDescription, NoteInfo} from '../../models/metadata.model';
@@ -37,8 +37,11 @@ export class MetadataSection implements OnInit, OnChanges {
   searchService = inject(SearchService);
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
+  private cdr = inject(ChangeDetectorRef);
 
   store = inject(Store);
+
+  runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
   @Input() uuid: string = '';
 
@@ -62,21 +65,20 @@ export class MetadataSection implements OnInit, OnChanges {
 
     // Get Solr data from store to supplement with model, accessibility, and license
     this.store.select(selectDocumentDetail).pipe(take(1)).subscribe(solrData => {
-      console.log('modsData', modsData);
-      console.log(solrData);
-      if (solrData && solrData.uuid === this.uuid) {
-        // Merge MODS data with Solr-specific fields
-        this.data = {
-          ...modsData,
-          model: solrData.model,
-          isPublic: solrData.isPublic,
-          licence: solrData.licence,
-          licences: solrData.licences
-        };
-      } else {
-        // If no Solr data available, use MODS data only
-        this.data = modsData;
-      }
+      setTimeout(() => {
+        if (solrData && solrData.uuid === this.uuid) {
+          this.data = {
+            ...modsData,
+            model: solrData.model,
+            isPublic: solrData.isPublic,
+            licence: solrData.licence,
+            licences: solrData.licences
+          };
+        } else {
+          this.data = modsData;
+        }
+        this.cdr.markForCheck();
+      });
     });
   }
 

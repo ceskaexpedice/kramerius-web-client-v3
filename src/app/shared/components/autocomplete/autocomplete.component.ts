@@ -121,15 +121,19 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
     effect(() => {
       const term = this.inputTerm();
-      this.termChange.emit(term);
 
-      if (term === '') {
-        this.justSelected = false;
-      }
+      setTimeout(() => {
+        this.termChange.emit(term);
 
-      if (!this.justSelected) {
-        this.termChangeSubject.emit(term);
-      }
+        if (term === '') {
+          this.justSelected = false;
+        }
+
+        if (!this.justSelected) {
+          this.termChangeSubject.emit(term);
+        }
+      }, 5);
+
     });
   }
 

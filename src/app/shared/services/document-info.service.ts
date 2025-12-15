@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { SolrService } from '../../core/solr/solr.service';
 import { DocumentInfo } from '../models/document-info';
 import { UserService } from './user.service';
+import {delay} from 'rxjs';
 
 /**
  * Service for managing document/page info data
@@ -41,7 +42,9 @@ export class DocumentInfoService {
         this._isLoading.set(true);
         this._error.set(null);
 
-        this.solrService.getPageInfo(pageUuid).subscribe({
+        this.solrService.getPageInfo(pageUuid)
+          .pipe(delay(0))
+          .subscribe({
             next: (pageInfo: DocumentInfo) => {
                 this._currentPageInfo.set(pageInfo);
                 this._isLoading.set(false);
