@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 // ============================================================================
 // CONTAINER & POPUP
@@ -16,7 +16,7 @@
 
 .date-picker--popup-calendar {
   position: fixed;
-  z-index: $date-picker-overlay;
+  z-index: z.$date-picker-overlay;
   background-color: var(--color-bg-base);
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
@@ -39,7 +39,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  z-index: $date-picker-calendar;
+  z-index: z.$date-picker-calendar;
   backdrop-filter: blur(2px);
 }
 
@@ -253,7 +253,7 @@ hr {
         background-color: var(--color-subdued-blue) !important;
         border: 2px solid var(--color-primary);
         border-radius: 0 0 8px 8px;
-        z-index: $date-picker-navigation;
+        z-index: z.$date-picker-navigation;
       }
 
       .mat-calendar-body-cell-content {
@@ -266,7 +266,7 @@ hr {
         border-radius: 0 0 8px 8px !important;
         font-weight: bold;
         position: relative;
-        z-index: $date-picker-navigation-active;
+        z-index: z.$date-picker-navigation-active;
       }
     }
 
@@ -303,7 +303,7 @@ hr {
         background-color: var(--color-subdued-blue) !important;
         border: 2px solid var(--color-primary);
         border-radius: 0 0 8px 8px;
-        z-index: $date-picker-navigation;
+        z-index: z.$date-picker-navigation;
       }
 
       .mat-calendar-body-cell-content {
@@ -316,7 +316,7 @@ hr {
         border-radius: 0 0 8px 8px !important;
         font-weight: bold;
         position: relative;
-        z-index: $date-picker-navigation-active;
+        z-index: z.$date-picker-navigation-active;
       }
     }
 
@@ -367,7 +367,7 @@ hr {
         background-color: transparent !important;
         border: 2px dashed var(--color-border-additional);
         border-radius: 0 0 8px 8px;
-        z-index: $date-picker-navigation;
+        z-index: z.$date-picker-navigation;
       }
 
       .mat-calendar-body-cell-content {
@@ -380,7 +380,7 @@ hr {
         border-radius: 0 0 8px 8px !important;
         font-weight: bold;
         position: relative;
-        z-index: $date-picker-navigation-active;
+        z-index: z.$date-picker-navigation-active;
       }
     }
   }

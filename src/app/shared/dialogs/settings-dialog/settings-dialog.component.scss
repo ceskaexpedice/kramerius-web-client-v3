@@ -1,4 +1,4 @@
-@import "mixins";
+@use "mixins" as m;
 
 :host {
   padding: 24px 20px 12px 20px;
@@ -15,7 +15,7 @@
   }
 }
 
-@include respond(md) {
+@include m.respond(md) {
   :host {
     padding: 0;
     height: 100%;

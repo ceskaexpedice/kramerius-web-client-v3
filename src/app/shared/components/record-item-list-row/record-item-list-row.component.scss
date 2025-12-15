@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 :host {
   background-color: var(--color-bg-base);
@@ -126,7 +126,7 @@ td {
   left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: $record-list-row-selection;
+  z-index: z.$record-list-row-selection;
   animation: fadeInScale 0.2s ease-out;
 
   app-checkbox {
@@ -161,6 +161,7 @@ td {
     opacity: 0;
     transform: translateY(-50%) scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: translateY(-50%) scale(1);

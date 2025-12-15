@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 .years-timeline {
   display: flex;
@@ -21,13 +21,13 @@
     right: 0;
     height: 1px;
     background-color: var(--color-border-additional);
-    z-index: $timeline-background;
+    z-index: z.$timeline-background;
   }
 }
 
 .year-item--container {
   position: relative;
-  z-index: $timeline-items;
+  z-index: z.$timeline-items;
   display: flex;
   justify-content: center;
   flex: 1 1 0;

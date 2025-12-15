@@ -1,4 +1,4 @@
-// Base styles for all record item cards
+@use "_z-index.scss" as z;
 
 .record-item-card {
   position: relative;
@@ -79,7 +79,7 @@
       left: 8px;
       opacity: 1;
       transition: opacity 0.2s ease;
-      z-index: $record-item-admin-selection;
+      z-index: z.$record-item-admin-selection;
       gap: var(--spacing-x2);
       display: flex;
       flex-direction: column;
@@ -158,6 +158,7 @@
 
       display: -webkit-box;
       -webkit-line-clamp: 3; // Updated to allow 3 lines as per design
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -170,6 +171,7 @@
       flex: 1; // Take remaining space
       display: -webkit-box;
       -webkit-line-clamp: 2; // Max 2 rows for subtitle
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -213,7 +215,7 @@
     position: absolute;
     top: 7px;
     right: 7px;
-    z-index: $item-card-selection;
+    z-index: z.$item-card-selection;
 
     app-checkbox {
       display: block;

@@ -1,8 +1,8 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 .cdk-tooltip {
   position: relative;
-  z-index: $tooltip;
+  z-index: z.$tooltip;
   display: block;
   pointer-events: none;
 

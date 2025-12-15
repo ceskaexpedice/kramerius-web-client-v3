@@ -1,4 +1,4 @@
-@import '_mixins';
+@use 'mixins' as m;
 
 .search-hero {
   text-align: center;
@@ -28,7 +28,7 @@
     max-width: 720px;
     margin: 0 auto 24px;
 
-    @include respond(sm) {
+    @include m.respond(sm) {
       flex-direction: column;
     }
 
@@ -40,7 +40,7 @@
 }
 
 // Responsive styles
-@include respond(md) {
+@include m.respond(md) {
 
   .search-hero {
     padding: var(--spacing-x4) 0;

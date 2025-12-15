@@ -1,11 +1,11 @@
-// Favorites functionality styles for record item cards
+@use "_z-index.scss" as z;
 
 // Favorites popup wrapper positioned outside the card
 .favorites-popup-wrapper {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: $record-item-favorites-popup;
+  z-index: z.$record-item-favorites-popup;
   pointer-events: auto;
   opacity: 0; // Start hidden to prevent flicker
   transition: opacity 0.1s ease;

@@ -1,4 +1,4 @@
-@import 'mixins';
+@use 'mixins' as m;
 
 .generic-dialog-container {
   .dialog-body {
@@ -80,15 +80,13 @@
   }
 }
 
-@include respond(md) {
+@include m.respond(md) {
   .select-all-container {
     flex-direction: column;
     gap: var(--spacing-x3);
 
-    & > * {
+    &>* {
       flex: 1;
     }
   }
 }
-
-

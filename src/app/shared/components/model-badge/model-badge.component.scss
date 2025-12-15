@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 .badge.model {
   background: var(--color-bg-base);
@@ -6,7 +6,7 @@
   font-size: calc(12px * var(--accessibility-text-scale));
   padding: 4px 6px;
   border-radius: 0 4px 4px 0;
-  z-index: $record-item-overlay;
+  z-index: z.$record-item-overlay;
   display: flex;
   align-items: center;
   gap: 4px;

@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 $slider-height: 4px;
 
@@ -30,7 +30,7 @@ $slider-height: 4px;
     appearance: none;
     background: none;
     pointer-events: none;
-    z-index: $slider-thumb;
+    z-index: z.$slider-thumb;
     border: none;
 
     &::-webkit-slider-thumb {
@@ -55,7 +55,7 @@ $slider-height: 4px;
     }
 
     &.on-top {
-      z-index: $slider-thumb-active;
+      z-index: z.$slider-thumb-active;
     }
   }
 }

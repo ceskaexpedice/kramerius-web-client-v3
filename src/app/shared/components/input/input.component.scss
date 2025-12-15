@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 .input-field {
   position: relative;
@@ -69,7 +69,7 @@
       align-items: center;
       gap: var(--spacing-x1);
       color: var(--color-icon-tertiary-default);
-      z-index: $input-focus;
+      z-index: z.$input-focus;
     }
 
     // Prefix icon styles
@@ -80,7 +80,7 @@
       transform: translateY(-50%);
       color: var(--color-icon-tertiary-default);
       pointer-events: none;
-      z-index: $input-focus;
+      z-index: z.$input-focus;
       display: flex;
       align-items: center;
       font-size: var(--font-size-base);
@@ -94,7 +94,7 @@
       transform: translateY(-50%);
       color: var(--color-icon-tertiary-default);
       pointer-events: none;
-      z-index: $input-focus;
+      z-index: z.$input-focus;
       display: flex;
       align-items: center;
       font-size: var(--font-size-base);
@@ -120,6 +120,7 @@
 
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor } from '@angular/common';
 
 export interface ExportOption {
   label: string;
@@ -17,7 +17,7 @@ export interface ExportOption {
     MatRadioModule,
     FormsModule,
     NgFor,
-    NgIf,
+
   ],
   templateUrl: './export-document-section-item-component.html',
   styleUrl: './export-document-section-item-component.scss',

@@ -1,4 +1,4 @@
-@import 'mixins';
+@use 'mixins' as m;
 
 .section-header {
   display: flex;
@@ -31,11 +31,11 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 
-    @include respond(lg) {
+    @include m.respond(lg) {
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @include respond(md) {
+    @include m.respond(md) {
       grid-template-columns: 1fr;
     }
   }

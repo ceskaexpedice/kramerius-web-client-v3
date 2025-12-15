@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 :host {
   display: block;
@@ -101,7 +101,7 @@
     position: absolute;
     top: var(--spacing-x1);
     right: var(--spacing-x1);
-    z-index: $detail-page-selection;
+    z-index: z.$detail-page-selection;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     app-checkbox {
@@ -123,14 +123,15 @@
     position: absolute;
     top: 8px;
     left: 8px;
-    z-index: $detail-page-selection;
+    z-index: z.$detail-page-selection;
     display: flex;
     gap: 8px;
     opacity: 0;
     transition: opacity 0.2s ease;
   }
 
-  &:hover &__actions, &:hover .preview-button {
+  &:hover &__actions,
+  &:hover .preview-button {
     opacity: 1;
   }
 
@@ -162,6 +163,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -212,7 +214,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: $detail-page-selection + 1;
+  z-index: z.$detail-page-selection + 1;
   pointer-events: auto;
   transition: opacity 0.1s ease;
 }

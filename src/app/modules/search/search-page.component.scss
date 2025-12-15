@@ -1,4 +1,4 @@
-@import '_mixins';
+@use 'mixins' as m;
 
 :host {
   display: flex;
@@ -10,7 +10,7 @@
 }
 
 // Responsive styles
-@include respond(md) {
+@include m.respond(md) {
 
   :host {
     padding: 0 var(--spacing-x3);

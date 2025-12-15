@@ -1,3 +1,11 @@
+@use '../public/styles/accessibility/text-scaling';
+@use '../public/styles/accessibility/dyslexia-friendly';
+@use '../public/styles/accessibility/tritanopia';
+@use '../public/styles/accessibility/photophobia';
+@use '../public/styles/accessibility/grayscale';
+@use '../public/styles/accessibility/low-vision';
+@use '../public/styles/accessibility/high-contrast';
+
 html,
 body {
   height: 100%;
@@ -28,11 +36,3 @@ body {
 body {
   transition: background-color 0.3s, color 0.3s;
 }
-
-@import '../public/styles/accessibility/text-scaling';
-@import '../public/styles/accessibility/dyslexia-friendly';
-@import '../public/styles/accessibility/tritanopia';
-@import '../public/styles/accessibility/photophobia';
-@import '../public/styles/accessibility/grayscale';
-@import '../public/styles/accessibility/low-vision';
-@import '../public/styles/accessibility/high-contrast';

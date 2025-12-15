@@ -1,4 +1,4 @@
-@import 'mixins';
+@use 'mixins' as m;
 
 .app-header {
   display: flex;
@@ -22,7 +22,7 @@
     display: flex;
     gap: 20px;
 
-    & > :first-child {
+    &> :first-child {
       flex: 1;
     }
 
@@ -98,7 +98,7 @@
   }
 
   // Responsive styles
-  @include respond(md) {
+  @include m.respond(md) {
 
     header.app-header {
       padding: var(--spacing-x3);
@@ -149,7 +149,7 @@
       transition: opacity 0.2s ease-in-out;
     }
 
-    .mobile-search-active ~ .app-header__right .hide-on-search-active,
+    .mobile-search-active~.app-header__right .hide-on-search-active,
     .app-header__right.mobile-search-active .hide-on-search-active {
       opacity: 0;
       pointer-events: none;

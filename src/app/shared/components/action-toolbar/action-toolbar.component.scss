@@ -1,5 +1,5 @@
-@import "_z-index.scss";
-@import "mixins";
+@use "_z-index.scss" as z;
+@use "mixins" as m;
 
 .action-toolbar {
   display: flex;
@@ -20,7 +20,7 @@
 
   .toolbar-left {
     min-width: 0;
-    z-index: $action-toolbar-left;
+    z-index: z.$action-toolbar-left;
   }
 
   .toolbar-center {
@@ -38,7 +38,7 @@
 }
 
 /* Mobile bottom sheet */
-@include respond(md) {
+@include m.respond(md) {
   .action-toolbar {
     flex-direction: column;
 

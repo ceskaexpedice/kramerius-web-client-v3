@@ -1,4 +1,4 @@
-@import "mixins";
+@use "mixins" as m;
 
 .pagination-info {
   display: flex;
@@ -14,7 +14,7 @@
 }
 
 /* Mobile bottom sheet */
-@include respond(md) {
+@include m.respond(md) {
   .pagination-info {
     flex-direction: column;
     align-items: start;

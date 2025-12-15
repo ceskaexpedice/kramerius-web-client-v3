@@ -1,25 +1,22 @@
 // Record Item Component Styles
 // This file imports all the specialized styles for different document types
 
-@import "_z-index.scss";
-
 // Base styles for all cards
-@import "record-item-base";
+@use "record-item-base";
 
 // Admin mode and selection styles
-@import "record-item-admin";
+@use "record-item-admin";
 
 // Document type specific styles
-@import "record-item-page";
-@import "record-item-periodical";
-@import "record-item-periodical-volume";
+@use "record-item-page";
+@use "record-item-periodical";
+@use "record-item-periodical-volume";
 
 // Mobile single-row layout styles
-@import "record-item-mobile";
+@use "record-item-mobile";
 
 // Favorites functionality styles
-@import "record-item-favorites";
+@use "record-item-favorites";
 
 // Utility classes
-@import "record-item-utility";
-
+@use "record-item-utility";

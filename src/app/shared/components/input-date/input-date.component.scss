@@ -1,4 +1,4 @@
-@import "_z-index.scss";
+@use "_z-index.scss" as z;
 
 .date-input-wrapper {
   position: relative;
@@ -16,7 +16,7 @@
     border: 1px solid var(--color-border, #dee2e6);
     cursor: pointer;
     transition: all 0.2s ease;
-    z-index: $input-date-background;
+    z-index: z.$input-date-background;
     min-width: 0;
 
     i {
@@ -72,7 +72,7 @@
     height: 100%;
     opacity: 0;
     cursor: pointer;
-    z-index: $input-date-foreground;
+    z-index: z.$input-date-foreground;
     padding: 0;
 
     &::-webkit-calendar-picker-indicator {

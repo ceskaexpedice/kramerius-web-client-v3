@@ -333,7 +333,7 @@ export const DEFAULT_FACET_FILTERS: FacetFilterConfig[] = [
   },
   {
     id: 'subject_names_personal.facet',
-    labelKey: 'subject_names_personal.facet',
+    labelKey: 'filter-subject_names_personal-label',
     facetKey: 'subject_names_personal.facet',
     visible: false,
     defaultVisible: false,
