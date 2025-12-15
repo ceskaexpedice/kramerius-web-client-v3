@@ -1,8 +1,8 @@
-import {inject, Injectable, signal} from '@angular/core';
-import {Page} from '../../../shared/models/page.model';
-import {Store} from '@ngrx/store';
-import {ActivatedRoute, Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../../app.routes';
+import { inject, Injectable, signal } from '@angular/core';
+import { Page } from '../../../shared/models/page.model';
+import { Store } from '@ngrx/store';
+import { ActivatedRoute, Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../../app.routes';
 import {
   selectDocumentDetail,
   selectDocumentDetailError,
@@ -10,23 +10,23 @@ import {
   selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
-import {loadDocumentDetail} from '../../../shared/state/document-detail/document-detail.actions';
-import {filter, Observable, skip, take} from 'rxjs';
+import { loadDocumentDetail } from '../../../shared/state/document-detail/document-detail.actions';
+import { filter, Observable, skip, take } from 'rxjs';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
   selectPidFromAvailableYears,
 } from '../../periodical/state/periodical-detail/periodical-detail.selectors';
-import {RecordInfoService} from '../../../shared/services/record-info.service';
-import {Metadata} from '../../../shared/models/metadata.model';
-import {SoundRecordGridControl} from '../../../shared/components/toolbar-controls/toolbar-controls.component';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {DocumentTypeEnum} from '../../constants/document-type';
-import {loadPeriodical, loadPeriodicalItems} from '../../periodical/state/periodical-detail/periodical-detail.actions';
-import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
-import {IIIFViewerService} from '../../../shared/services/iiif-viewer.service';
-import {DocumentInfoService} from '../../../shared/services/document-info.service';
-import {BreakpointService} from '../../../shared/services/breakpoint.service';
+import { RecordInfoService } from '../../../shared/services/record-info.service';
+import { Metadata } from '../../../shared/models/metadata.model';
+import { SoundRecordGridControl } from '../../../shared/components/toolbar-controls/toolbar-controls.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DocumentTypeEnum } from '../../constants/document-type';
+import { loadPeriodical, loadPeriodicalItems } from '../../periodical/state/periodical-detail/periodical-detail.actions';
+import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
+import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
+import { DocumentInfoService } from '../../../shared/services/document-info.service';
+import { BreakpointService } from '../../../shared/services/breakpoint.service';
 
 @Injectable({
   providedIn: 'root'
@@ -201,8 +201,9 @@ export class DetailViewService {
         this._currentPageIndex.set(0);
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: { page: this.pages[0].pid},
-          queryParamsHandling: "merge"
+          queryParams: { page: this.pages[0].pid },
+          queryParamsHandling: "merge",
+          replaceUrl: true
         })
       }
     }
