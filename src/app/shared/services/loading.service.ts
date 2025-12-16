@@ -33,22 +33,22 @@ export class LoadingService {
     //   );
     // });
 
-    combineLatest([
-      this.safeSelect(selectSearchResultsLoading),
-      this.safeSelect(selectPeriodicalLoading),
-      this.safeSelect(selectDocumentDetailLoading),
-      this.safeSelect(selectFoldersLoading),
-      this.safeSelect(selectFolderDetailsLoading),
-      this.safeSelect(selectFolderSearchResultsLoading)
-    ]).subscribe(([res, periodical, documentDetail, folders, folderDetails, folderSearchResults]) => {
-      console.log('🌀 Loading flags:', {
-        res, periodical, documentDetail, folders, folderDetails, folderSearchResults
-      });
-
-      this.isLoadingSignal.set(
-        res || periodical || documentDetail || folders || folderDetails || folderSearchResults
-      );
-    });
+    // combineLatest([
+    //   // this.safeSelect(selectSearchResultsLoading), // Removing global blocking capability for search
+    //   // this.safeSelect(selectPeriodicalLoading),    // Removing global blocking capability for periodical
+    //   // this.safeSelect(selectDocumentDetailLoading),// Removing global blocking capability for document detail
+    //   this.safeSelect(selectFoldersLoading),
+    //   this.safeSelect(selectFolderDetailsLoading),
+    //   this.safeSelect(selectFolderSearchResultsLoading)
+    // ]).subscribe(([folders, folderDetails, folderSearchResults]) => {
+    //   // console.log('🌀 Loading flags:', {
+    //   //   folders, folderDetails, folderSearchResults
+    //   // });
+    //
+    //   this.isLoadingSignal.set(
+    //     folders || folderDetails || folderSearchResults
+    //   );
+    // });
 
   }
 

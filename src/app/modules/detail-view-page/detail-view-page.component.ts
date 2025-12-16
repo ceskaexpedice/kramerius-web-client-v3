@@ -1,18 +1,19 @@
-import {Component, inject, OnInit, OnDestroy} from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
-import {DetailViewService} from './services/detail-view.service';
-import {RecordHandlerService} from '../../shared/services/record-handler.service';
-import {DocumentTypeEnum} from '../constants/document-type';
-import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
-import {SelectionService} from '../../shared/services';
-import {Subscription} from 'rxjs';
-import {PdfService} from '../../shared/services/pdf.service';
-import {IIIFViewerService} from '../../shared/services/iiif-viewer.service';
-import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {FavoritesService} from '../../shared/services/favorites.service';
-import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
-import {Router} from '@angular/router';
-import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import { DetailViewService } from './services/detail-view.service';
+import { RecordHandlerService } from '../../shared/services/record-handler.service';
+import { DocumentTypeEnum } from '../constants/document-type';
+import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
+import { SelectionService } from '../../shared/services';
+import { Subscription } from 'rxjs';
+import { PdfService } from '../../shared/services/pdf.service';
+import { IIIFViewerService } from '../../shared/services/iiif-viewer.service';
+import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { FavoritesService } from '../../shared/services/favorites.service';
+import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
+import { Router } from '@angular/router';
+import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-detail-view-page',

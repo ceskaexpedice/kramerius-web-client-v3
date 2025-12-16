@@ -103,7 +103,7 @@
       </div>
 
       <!-- Loading and error states -->
-      <div *ngIf="periodical.loading$ | async">{{ 'loading' | translate }}</div>
+      <app-inline-loader *ngIf="periodical.loading$ | async" [overlay]="true"></app-inline-loader>
 
     </div>
 

@@ -27,6 +27,7 @@ import { MetadataSidebarComponent } from '../../shared/components/metadata-sideb
 import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
+import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 
 const routes: Routes = [
   {
@@ -66,6 +67,7 @@ const routes: Routes = [
     IIIFViewer,
     ViewerControls,
     FavoritesPopupComponent,
+    InlineLoaderComponent,
   ],
 })
 

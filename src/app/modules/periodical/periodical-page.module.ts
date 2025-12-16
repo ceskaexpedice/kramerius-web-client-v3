@@ -35,6 +35,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 
 const routes: Routes = [
   {
@@ -75,6 +76,7 @@ const routes: Routes = [
     TranslatePipe,
     FavoritesPopupComponent,
     MetadataSidebarComponent,
+    InlineLoaderComponent
   ],
   providers: [
     PeriodicalService,
