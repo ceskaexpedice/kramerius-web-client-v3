@@ -1,0 +1,47 @@
+<div class="search-sidebar-container">
+
+  <div *ngIf="searchService.loading$ | async" class="loading-message">
+    <p>{{ 'loading-search-results' | translate }}</p>
+  </div>
+
+  <ng-container *ngIf="!(searchService.loading$ | async)">
+
+    <div class="paginator-top">
+      <button class="button tertiary outlined"
+              [disabled]="searchService.page <= 1 && results.indexOf(results[0]) === getCurrentItemIndex()"
+              (click)="onPreviousResult($event)" [title]="'previous' | translate">
+        <i class="icon-arrow-left-3"></i>
+        {{ 'previous' | translate }}
+      </button>
+
+      <button class="button tertiary outlined" (click)="onNextResult($event)"
+              [title]="'next' | translate">
+        {{ 'next' | translate }}
+        <i class="icon-arrow-right-3"></i>
+      </button>
+    </div>
+
+    <div class="results-list">
+
+      @for (doc of results; track doc.pid) {
+        <app-record-item [item]="toRecordItem(doc)" layout="horizontal"></app-record-item>
+      }
+
+
+      <div *ngIf="results.length === 0" class="no-results">
+        {{ 'no-results-found' | translate }}
+      </div>
+    </div>
+
+    <div class="paginator-bottom">
+      <app-paginator [disabledPagination]="false" [page]="searchService.page"
+                     [showPageSizeOptions]="false"
+                     [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                     [pageSizeOptions]="[60, 120, 180]" (pageChange)="onPageChange($event)"
+                     (pageSizeChange)="onPageSizeChange($event)" layout="compact">
+      </app-paginator>
+
+    </div>
+
+  </ng-container>
+</div>

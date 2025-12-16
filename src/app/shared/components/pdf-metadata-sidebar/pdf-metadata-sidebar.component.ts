@@ -1,16 +1,19 @@
-import {Component, inject, Input, Output, EventEmitter, Optional} from '@angular/core';
-import {Metadata} from '../../models/metadata.model';
-import {TabsComponent} from '../tabs/tabs.component';
-import {TabItemComponent} from '../tabs/tab-item.component';
-import {MetadataSection} from '../metadata-section/metadata-section';
-import {RecordHandlerService} from '../../services/record-handler.service';
-import {DetailViewService} from '../../../modules/detail-view-page/services/detail-view.service';
-import {TranslatePipe} from '@ngx-translate/core';
-import {ExportDocumentSectionComponent} from './export-document-section-component/export-document-section-component';
+import { Component, inject, Input, Output, EventEmitter, Optional } from '@angular/core';
+import { Metadata } from '../../models/metadata.model';
+import { TabsComponent } from '../tabs/tabs.component';
+import { TabItemComponent } from '../tabs/tab-item.component';
+import { MetadataSection } from '../metadata-section/metadata-section';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ExportDocumentSectionComponent } from './export-document-section-component/export-document-section-component';
+import { SearchResultsSidebarComponent } from './search-results-sidebar/search-results-sidebar.component';
+import { SearchService } from '../../services/search.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-pdf-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe],
   templateUrl: './pdf-metadata-sidebar.component.html',
   styleUrl: './pdf-metadata-sidebar.component.scss'
 })
@@ -20,8 +23,10 @@ export class PdfMetadataSidebarComponent {
 
   recordHandler = inject(RecordHandlerService);
   detailService = inject(DetailViewService, { optional: true });
+  searchService = inject(SearchService);
 
   exportAsPdf(): void {
+
     // TODO: Implement PDF export
     console.log('Export as PDF');
   }

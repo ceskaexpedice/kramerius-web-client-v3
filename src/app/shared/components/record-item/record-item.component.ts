@@ -1,17 +1,17 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {AsyncPipe, NgClass, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
-import {Router} from '@angular/router';
-import {RecordHandlerService} from '../../services/record-handler.service';
-import {DocumentTypeEnum} from '../../../modules/constants/document-type';
-import {SolrService} from '../../../core/solr/solr.service';
-import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
-import {FavoritesPopupComponent} from '../favorites-popup/favorites-popup.component';
-import {PopupPositioningService, PopupState} from '../../services/popup-positioning.service';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { AsyncPipe, NgClass, NgIf } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
+import { SolrService } from '../../../core/solr/solr.service';
+import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.component';
+import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
 import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { Observable, EMPTY } from 'rxjs';
-import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
+import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
@@ -45,6 +45,8 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   private krameriusBaseUrl: string;
 
   @Input() showModel = true;
+  @Input() layout: 'vertical' | 'horizontal' = 'vertical';
+
 
   @Input() item: RecordItem = {
     id: '',

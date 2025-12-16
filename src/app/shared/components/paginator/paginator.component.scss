@@ -8,18 +8,40 @@
 
   .pages {
     display: flex;
-    gap: 0.25rem;
+    gap: var(--spacing-x2);
     align-items: baseline;
 
+    .arrow-button {
+
+      &:not(:disabled) {
+        background-color: var(--color-bg-base);
+      }
+
+      &:first-child {
+        margin-left: var(--spacing-x6);
+      }
+
+      &:disabled {
+        opacity: .6;
+        color: var(--color-icon-tertiary-disabled);
+        border-color: var(--color-border-secondary-disabled)
+      }
+
+    }
+
     button {
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
+      padding: var(--spacing-x2) var(--spacing-x3);
+      border-radius: var(--spacing-x2);
       cursor: pointer;
       color: var(--color-text-btn-tertiary-default);
 
+      &:not(.active) {
+        border: 1px solid var(--color-border-tertiary-default);
+      }
+
       &.active {
-        background: var(--color-bg-base);
-        font-weight: bold;
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
       }
     }
 

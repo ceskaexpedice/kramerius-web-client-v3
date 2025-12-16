@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
-import {MatButton} from '@angular/material/button';
-import {SelectComponent} from '../select/select.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { MatButton } from '@angular/material/button';
+import { SelectComponent } from '../select/select.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-paginator',
@@ -22,11 +22,13 @@ export class PaginatorComponent implements OnChanges {
   @Input() disabledPagination = false;
   @Input() disabledPageSize = false;
 
+  @Input() layout: 'normal' | 'compact' = 'normal';
+
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['totalCount'] || changes['pageSize'] || changes['page']) {
+    if (changes['totalCount'] || changes['pageSize'] || changes['page'] || changes['layout']) {
       this.generatePages();
     }
   }
@@ -34,35 +36,60 @@ export class PaginatorComponent implements OnChanges {
   private generatePages(): void {
     const totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
     const pages: number[] = [];
-
     const last = totalPages;
 
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
+    if (this.layout === 'compact') {
+      // Always show first
+      pages.push(1);
+
+      if (totalPages > 1) {
+        // If current page is far from start
+        if (this.page > 2) {
+          pages.push(-1); // ...
+        }
+
+        // Show current page if it's not first or last
+        if (this.page > 1 && this.page < totalPages) {
+          pages.push(this.page);
+        }
+
+        // If current page is far from end
+        if (this.page < totalPages - 1) {
+          pages.push(-1); // ...
+        }
+
+        // Always show last
+        pages.push(totalPages);
       }
-    } else if (this.page <= 2) {
-      pages.push(1, 2, 3);
-      pages.push(-1); // ...
-      pages.push(last);
-    } else if (this.page === 3) {
-      pages.push(1, 2, 3, 4);
-      pages.push(-1);
-      pages.push(last);
-    } else if (this.page >= last - 2) {
-      pages.push(1);
-      pages.push(-1);
-      pages.push(last - 3, last - 2, last - 1, last);
     } else {
-      pages.push(1);
-      pages.push(-1);
-      pages.push(this.page - 1, this.page, this.page + 1);
-      pages.push(-1);
-      pages.push(last);
+      if (totalPages <= 5) {
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else if (this.page <= 2) {
+        pages.push(1, 2, 3);
+        pages.push(-1); // ...
+        pages.push(last);
+      } else if (this.page === 3) {
+        pages.push(1, 2, 3, 4);
+        pages.push(-1);
+        pages.push(last);
+      } else if (this.page >= last - 2) {
+        pages.push(1);
+        pages.push(-1);
+        pages.push(last - 3, last - 2, last - 1, last);
+      } else {
+        pages.push(1);
+        pages.push(-1);
+        pages.push(this.page - 1, this.page, this.page + 1);
+        pages.push(-1);
+        pages.push(last);
+      }
     }
 
     this.pages.set(pages);
   }
+
 
   goToPage(page: number): void {
     const totalPages = Math.ceil(this.totalCount / this.pageSize);

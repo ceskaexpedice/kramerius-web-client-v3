@@ -10,6 +10,13 @@
         [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
     </app-tab-item>
 
+    @if ((searchService.totalCount$ | async)! > 0) {
+    <app-tab-item [label]="'search' | translate">
+      <app-search-results-sidebar></app-search-results-sidebar>
+    </app-tab-item>
+    }
+
+
     <!--    <app-tab-item label="Funkcie">-->
     <!--    </app-tab-item>-->
 
