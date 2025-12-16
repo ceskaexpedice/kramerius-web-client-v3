@@ -2,31 +2,31 @@ import { NgModule } from '@angular/core';
 import { DetailViewPageComponent } from './detail-view-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
-import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
-import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
-import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/toolbar-header.component';
-import {DetailPagesGridComponent} from './components/detail-pages-grid/detail-pages-grid.component';
-import {InputComponent} from '../../shared/components/input/input.component';
+import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
+import { FilterSidebarComponent } from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
+import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
+import { DetailPagesGridComponent } from './components/detail-pages-grid/detail-pages-grid.component';
+import { InputComponent } from '../../shared/components/input/input.component';
 import {
   DetailViewBottomToolbarComponent
 } from './components/detail-view-bottom-toolbar/detail-view-bottom-toolbar.component';
-import {PageNavigatorComponent} from '../../shared/components/page-navigator/page-navigator.component';
-import {TabsComponent} from '../../shared/components/tabs/tabs.component';
-import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
-import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
-import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
-import {TranslatePipe} from '@ngx-translate/core';
+import { PageNavigatorComponent } from '../../shared/components/page-navigator/page-navigator.component';
+import { TabsComponent } from '../../shared/components/tabs/tabs.component';
+import { TabItemComponent } from '../../shared/components/tabs/tab-item.component';
+import { DateNavigatorComponent } from '../../shared/components/date-navigator/date-navigator.component';
+import { DetailLayoutComponent } from "../../shared/components/detail-layout/detail-layout.component";
+import { TranslatePipe } from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import {AdminActionsComponent} from '../../shared/components/admin-actions';
-import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
-import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
-import {DocumentSidebarComponent} from '../../shared/components/document-sidebar/document-sidebar.component';
-import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
-import {IIIFViewer} from '../../shared/components/iiif-viewer/iiif-viewer';
-import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
-import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
+import { AdminActionsComponent } from '../../shared/components/admin-actions';
+import { PdfViewer } from '../../shared/components/pdf-viewer/pdf-viewer';
+import { PdfSidebarComponent } from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
+import { DocumentSidebarComponent } from '../../shared/components/document-sidebar/document-sidebar.component';
+import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
+import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
+import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -62,7 +62,7 @@ const routes: Routes = [
     PdfViewer,
     PdfSidebarComponent,
     DocumentSidebarComponent,
-    PdfMetadataSidebarComponent,
+    MetadataSidebarComponent,
     IIIFViewer,
     ViewerControls,
     FavoritesPopupComponent,

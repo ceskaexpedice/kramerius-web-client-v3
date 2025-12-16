@@ -1,18 +1,18 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {ViewMode} from './models/view-mode.enum';
-import {RecordInfoService} from '../../shared/services/record-info.service';
-import {PeriodicalService} from '../../shared/services/periodical.service';
-import {RecordHandlerService} from '../../shared/services/record-handler.service';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {Subscription} from 'rxjs';
-import {DocumentTypeEnum} from '../constants/document-type';
-import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
-import {SelectionService} from '../../shared/services';
-import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {FavoritesService} from '../../shared/services/favorites.service';
-import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
-import {Router} from '@angular/router';
-import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ViewMode } from './models/view-mode.enum';
+import { RecordInfoService } from '../../shared/services/record-info.service';
+import { PeriodicalService } from '../../shared/services/periodical.service';
+import { RecordHandlerService } from '../../shared/services/record-handler.service';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { Subscription } from 'rxjs';
+import { DocumentTypeEnum } from '../constants/document-type';
+import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
+import { SelectionService } from '../../shared/services';
+import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { FavoritesService } from '../../shared/services/favorites.service';
+import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
+import { Router } from '@angular/router';
+import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -27,6 +27,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
 
   private subscriptions: Subscription[] = [];
+  public showMetadataSidebar = signal(false);
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
@@ -101,9 +102,11 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   openRecordInfo() {
-    // get uuid from document
-    if (!this.periodical.uuid) return;
-    this.recordInfoService.openRecordInfoDialog(this.periodical.uuid);
+    this.toggleMetadataSidebar();
+  }
+
+  toggleMetadataSidebar() {
+    this.showMetadataSidebar.update(v => !v);
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

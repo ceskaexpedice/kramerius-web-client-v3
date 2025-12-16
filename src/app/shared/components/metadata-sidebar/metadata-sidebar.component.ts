@@ -1,4 +1,6 @@
 import { Component, inject, Input, Output, EventEmitter, Optional } from '@angular/core';
+import { NgIf } from '@angular/common';
+
 import { Metadata } from '../../models/metadata.model';
 import { TabsComponent } from '../tabs/tabs.component';
 import { TabItemComponent } from '../tabs/tab-item.component';
@@ -12,18 +14,23 @@ import { SearchService } from '../../services/search.service';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-pdf-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe],
-  templateUrl: './pdf-metadata-sidebar.component.html',
-  styleUrl: './pdf-metadata-sidebar.component.scss'
+  selector: 'app-metadata-sidebar',
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf],
+  templateUrl: './metadata-sidebar.component.html',
+  styleUrl: './metadata-sidebar.component.scss'
 })
-export class PdfMetadataSidebarComponent {
+export class MetadataSidebarComponent {
   @Input() metadata: Metadata | null = null;
+  @Input() mode: 'floating' | 'docked' = 'floating';
+  @Input() tools = { search: true, export: true, description: false }; // Configurable tools
+  @Input() customDescription = false;
+
   @Output() close = new EventEmitter<void>();
 
   recordHandler = inject(RecordHandlerService);
   detailService = inject(DetailViewService, { optional: true });
   searchService = inject(SearchService);
+
 
   exportAsPdf(): void {
 

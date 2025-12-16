@@ -1,20 +1,20 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
-import {Author, Metadata, Publisher, PhysicalDescription, NoteInfo} from '../../models/metadata.model';
-import {ModsParserService} from '../../services/mods-parser.service';
-import {DetailViewService} from '../../../modules/detail-view-page/services/detail-view.service';
-import {APP_ROUTES_ENUM} from '../../../app.routes';
-import {SearchService} from '../../services/search.service';
-import {MetadataSectionItem} from './metadata-section-item/metadata-section-item';
-import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
-import {Store} from '@ngrx/store';
-import {selectDocumentDetail} from '../../state/document-detail/document-detail.selectors';
-import {take} from 'rxjs';
-import {AccessibilityBadgeComponent} from '../accessibility-badge/accessibility-badge.component';
-import {DocumentInfoService} from '../../services/document-info.service';
-import {UserService} from '../../services/user.service';
-import {isDocumentPublic} from '../record-item/record-item.model';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo } from '../../models/metadata.model';
+import { ModsParserService } from '../../services/mods-parser.service';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
+import { APP_ROUTES_ENUM } from '../../../app.routes';
+import { SearchService } from '../../services/search.service';
+import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
+import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
+import { Store } from '@ngrx/store';
+import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
+import { take } from 'rxjs';
+import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { DocumentInfoService } from '../../services/document-info.service';
+import { UserService } from '../../services/user.service';
+import { isDocumentPublic } from '../record-item/record-item.model';
 
 @Component({
   selector: 'app-metadata-section',
@@ -29,9 +29,18 @@ import {isDocumentPublic} from '../record-item/record-item.model';
   styleUrl: './metadata-section.scss'
 })
 export class MetadataSection implements OnInit, OnChanges {
-  isPublic = false;
+  // Use signal for data to enable reactive computed properties
+  private _data = signal<Metadata | null>(null);
+  get data() { return this._data(); }
 
-  data: Metadata | null = null;
+  // Computed isPublic that reacts to both data changes AND user license changes
+  private _isPublic = computed(() => {
+    const data = this._data();
+    // Accessing userService.licenses (which is a signal getter) registers the dependency
+    return isDocumentPublic(data?.licences || [], this.userService.licenses);
+  });
+
+  get isPublic() { return this._isPublic(); }
 
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
@@ -49,8 +58,6 @@ export class MetadataSection implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadMetadata();
-
-    this.isPublic = isDocumentPublic(this.data?.licences || [], this.userService.licenses);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -67,15 +74,16 @@ export class MetadataSection implements OnInit, OnChanges {
     this.store.select(selectDocumentDetail).pipe(take(1)).subscribe(solrData => {
       setTimeout(() => {
         if (solrData && solrData.uuid === this.uuid) {
-          this.data = {
+          const mergedData = {
             ...modsData,
             model: solrData.model,
             isPublic: solrData.isPublic,
             licence: solrData.licence,
             licences: solrData.licences
           };
+          this._data.set(mergedData);
         } else {
-          this.data = modsData;
+          this._data.set(modsData);
         }
         this.cdr.markForCheck();
       });
@@ -106,8 +114,8 @@ export class MetadataSection implements OnInit, OnChanges {
     }
     // Check for ISBN in different possible keys
     const isbn = this.data.identifiers['isbn'] ||
-                 this.data.identifiers['ISBN'] ||
-                 this.data.identifiers['id_isbn'];
+      this.data.identifiers['ISBN'] ||
+      this.data.identifiers['id_isbn'];
 
     if (isbn) {
       return Array.isArray(isbn) ? isbn.join(', ') : String(isbn);
@@ -115,11 +123,11 @@ export class MetadataSection implements OnInit, OnChanges {
     return null;
   }
 
-  getIdentifiersWithoutIsbn(): {[key: string]: any} | undefined {
+  getIdentifiersWithoutIsbn(): { [key: string]: any } | undefined {
     if (!this.data?.identifiers) {
       return undefined;
     }
-    const filtered: {[key: string]: any} = {};
+    const filtered: { [key: string]: any } = {};
     for (const key of Object.keys(this.data.identifiers)) {
       // Exclude ISBN-related keys
       if (!['isbn', 'ISBN', 'id_isbn'].includes(key)) {

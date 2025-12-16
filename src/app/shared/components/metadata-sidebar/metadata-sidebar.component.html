@@ -1,27 +1,33 @@
-<div class="pdf-metadata-sidebar">
+<div class="metadata-sidebar" [class.docked]="mode === 'docked'">
   <app-tabs>
+
+    @if (tools.description) {
     <app-tab-item [label]="'description' | translate">
+      <!-- Allow projecting custom description content, fallback to default metadata section -->
+      @if (customDescription) {
+      <ng-content select="[description-content]"></ng-content>
+      } @else {
       <app-metadata-section [showTitle]="false"
         [uuid]="detailService?.document?.uuid || metadata?.uuid || ''"></app-metadata-section>
+      }
     </app-tab-item>
+    }
 
+    @if (tools.export) {
     <app-tab-item [label]="'export' | translate">
       <app-export-document-section-component
         [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
     </app-tab-item>
+    }
 
-    @if ((searchService.totalCount$ | async)! > 0) {
+    @if (tools.search && (searchService.totalCount$ | async)! > 0) {
     <app-tab-item [label]="'search' | translate">
-      <app-search-results-sidebar></app-search-results-sidebar>
+      <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
     </app-tab-item>
     }
 
-
-    <!--    <app-tab-item label="Funkcie">-->
-    <!--    </app-tab-item>-->
-
     <div tab-common-down>
-      <div class="pdf-metadata-sidebar--footer">
+      <div class="metadata-sidebar--footer">
         <button class="button outlined tertiary with-icon" (click)="closeMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
           {{ 'hide--metadata-sidebar' | translate}}

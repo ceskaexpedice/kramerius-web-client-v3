@@ -1,8 +1,15 @@
-.pdf-metadata-sidebar {
+.metadata-sidebar {
   display: flex;
   flex-direction: column;
   height: 100%;
   background: var(--color-bg-base);
+
+  &.docked {
+    // Docked mode specific overrides if needed
+    border-left: 1px solid var(--color-border-light); // e.g., separator
+    width: 320px;
+    flex-shrink: 0;
+  }
 
   &__content {
     flex: 1;
@@ -35,7 +42,7 @@
   }
 }
 
-.pdf-metadata-sidebar--footer {
+.metadata-sidebar--footer {
   width: 100%;
   padding: var(--spacing-x4);
   position: relative;
@@ -60,8 +67,8 @@
   }
 }
 
-.pdf-metadata-sidebar:has(app-paginator) {
-  .pdf-metadata-sidebar--footer::before {
+.metadata-sidebar:has(app-paginator) {
+  .metadata-sidebar--footer::before {
     display: none;
   }
 }

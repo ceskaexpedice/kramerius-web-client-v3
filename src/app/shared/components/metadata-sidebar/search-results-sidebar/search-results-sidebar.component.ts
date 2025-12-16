@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../../services/search.service';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
@@ -8,27 +8,28 @@ import { Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PaginatorComponent } from '../../paginator/paginator.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { RecordItemListComponent } from '../../record-item-list/record-item-list.component';
-import {RecordItemComponent} from '../../record-item/record-item.component';
-import {RecordItem, searchDocumentToRecordItem} from '../../record-item/record-item.model';
+import { RecordItemComponent } from '../../record-item/record-item.component';
+import { RecordItem, searchDocumentToRecordItem } from '../../record-item/record-item.model';
+import { Metadata } from '../../../models/metadata.model';
 
 @Component({
     selector: 'app-search-results-sidebar',
     standalone: true,
-  imports: [
-    CommonModule,
-    PaginatorComponent,
-    TranslateModule,
-    RecordItemListComponent,
-    RecordItemComponent,
-  ],
+    imports: [
+        CommonModule,
+        PaginatorComponent,
+        TranslateModule,
+        RecordItemComponent,
+    ],
     templateUrl: './search-results-sidebar.component.html',
     styleUrls: ['./search-results-sidebar.component.scss']
 })
 export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     public searchService = inject(SearchService);
-    public detailService = inject(DetailViewService);
+    public detailService = inject(DetailViewService, { optional: true });
     public recordHandler = inject(RecordHandlerService);
+
+    @Input() currentDocument: SearchDocument | Metadata | null = null;
 
     // Combined results from all categories
     results: SearchDocument[] = [];
@@ -107,8 +108,9 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     }
 
     public getCurrentItemIndex(): number {
-        const currentDoc = this.detailService.document;
-        const currentPid = currentDoc?.uuid;
+        const currentDoc = this.currentDocument || this.detailService?.document;
+        // SearchDocument uses 'pid', Metadata uses 'uuid'
+        const currentPid = (currentDoc as any)?.pid || (currentDoc as any)?.uuid;
         if (!currentPid) return -1;
         return this.results.findIndex(r => r.pid === currentPid);
     }
@@ -146,7 +148,7 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
         this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
-  toRecordItem(doc: SearchDocument): RecordItem {
-    return searchDocumentToRecordItem(doc);
-  }
+    toRecordItem(doc: SearchDocument): RecordItem {
+        return searchDocumentToRecordItem(doc);
+    }
 }
