@@ -59,3 +59,9 @@
     z-index: 2;
   }
 }
+
+.pdf-metadata-sidebar:has(app-paginator) {
+  .pdf-metadata-sidebar--footer::before {
+    display: none;
+  }
+}

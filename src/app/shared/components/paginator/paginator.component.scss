@@ -47,6 +47,28 @@
 
   }
 
+  &.compact {
+    padding-bottom: 0;
+
+    .pages {
+      width: 100%;
+
+      .prev-button {
+        margin-left: auto;
+      }
+    }
+
+    .ellipsis-button {
+      padding: var(--spacing-x2) var(--spacing-x3);
+      border-radius: var(--spacing-x2);
+      border: 1px solid var(--color-border-tertiary-default);
+      background: transparent;
+      color: var(--color-text-btn-tertiary-default);
+      cursor: default;
+      opacity: 1;
+    }
+  }
+
   .page-size {
     display: flex;
     align-items: center;
@@ -58,6 +80,7 @@
     }
   }
 }
+
 
 @include m.respond(md) {
   .paginator {

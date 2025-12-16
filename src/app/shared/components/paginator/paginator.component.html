@@ -1,43 +1,38 @@
-<div class="paginator" *ngIf="pages().length > 0 && totalCount > pageSize">
+<div class="paginator" [class.compact]="layout === 'compact'" *ngIf="pages().length > 0 && totalCount > pageSize">
   <div class="pages">
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
         <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)"
-                [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)"
-                [disabled]="disabledPagination">
+          [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)" [disabled]="disabledPagination">
           {{ p }}
         </button>
-        <span *ngIf="p === -1">...</span>
+        <button *ngIf="p === -1" class="ellipsis-button" disabled>...</button>
       </ng-container>
 
     </ng-container>
 
-    <button class="button tertiary outlined arrow-button"
-            [attr.aria-label]="'go-to-previous-page' | translate"
-            (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
-      <i class="icon-arrow-left-3"></i>
+    <button class="button tertiary outlined arrow-button prev-button"
+      [attr.aria-label]="'go-to-previous-page' | translate" (click)="goToPage(page - 1)"
+      [disabled]="page === 1 || disabledPagination">
+      <i class="icon-arrow-left-1"></i>
     </button>
 
-    <button class="button tertiary outlined arrow-button"
-            [attr.aria-label]="'go-to-next-page' | translate"
-            (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
-      <i class="icon-arrow-right-3"></i>
+    <button class="button tertiary outlined arrow-button next-button" [attr.aria-label]="'go-to-next-page' | translate"
+      (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
+      <i class="icon-arrow-right-1"></i>
     </button>
   </div>
 
   <div class="page-size" *ngIf="showPageSizeOptions">
     {{'paginator-page-size' | translate}}:
 
-    <app-select
-      [disabled]="disabledPageSize"
-      [options]="pageSizeOptions"
-      [value]="pageSize"
+    <app-select [disabled]="disabledPageSize" [options]="pageSizeOptions" [value]="pageSize"
       (valueChange)="changePageSize($event)">
     </app-select>
-<!--    -->
-<!--    <select [value]="pageSize" (change)="changePageSize($event)">-->
-<!--      <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>-->
-<!--    </select>-->
+    <!--    -->
+    <!--    <select [value]="pageSize" (change)="changePageSize($event)">-->
+    <!--      <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>-->
+    <!--    </select>-->
   </div>
 </div>

@@ -39,29 +39,16 @@ export class PaginatorComponent implements OnChanges {
     const last = totalPages;
 
     if (this.layout === 'compact') {
-      // Always show first
-      pages.push(1);
+      pages.push(this.page);
 
-      if (totalPages > 1) {
-        // If current page is far from start
-        if (this.page > 2) {
-          pages.push(-1); // ...
-        }
-
-        // Show current page if it's not first or last
-        if (this.page > 1 && this.page < totalPages) {
-          pages.push(this.page);
-        }
-
-        // If current page is far from end
+      if (this.page < totalPages) {
         if (this.page < totalPages - 1) {
           pages.push(-1); // ...
         }
-
-        // Always show last
         pages.push(totalPages);
       }
     } else {
+
       if (totalPages <= 5) {
         for (let i = 1; i <= totalPages; i++) {
           pages.push(i);
