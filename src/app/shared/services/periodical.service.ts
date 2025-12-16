@@ -1,13 +1,13 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
-import {ActivatedRoute, NavigationEnd} from '@angular/router';
-import {Store} from '@ngrx/store';
-import {filter, map, Observable, of, take, takeUntil} from 'rxjs';
-import {APP_ROUTES_ENUM} from '../../app.routes';
-import {ViewMode} from '../../modules/periodical/models/view-mode.enum';
-import {CalendarGridControl} from '../components/toolbar-controls/toolbar-controls.component';
-import {PeriodicalItemYear} from '../../modules/models/periodical-item';
-import {LocalStorageService} from './local-storage.service';
-import {RecordHandlerService} from './record-handler.service';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { filter, map, Observable, of, take, takeUntil } from 'rxjs';
+import { APP_ROUTES_ENUM } from '../../app.routes';
+import { ViewMode } from '../../modules/periodical/models/view-mode.enum';
+import { CalendarGridControl } from '../components/toolbar-controls/toolbar-controls.component';
+import { PeriodicalItemYear } from '../../modules/models/periodical-item';
+import { LocalStorageService } from './local-storage.service';
+import { RecordHandlerService } from './record-handler.service';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
@@ -16,21 +16,21 @@ import {
   selectPeriodicalLoading,
   selectPeriodicalMetadata,
 } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import {loadPeriodical} from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {DetailViewService} from '../../modules/detail-view-page/services/detail-view.service';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {SolrService} from '../../core/solr/solr.service';
-import {loadPeriodicalSearchResults} from '../../modules/periodical/state/periodical-search/periodical-search.actions';
+import { loadPeriodical } from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { SolrService } from '../../core/solr/solr.service';
+import { loadPeriodicalSearchResults } from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
   selectPeriodicalSearchStateFacets,
   selectPeriodicalSearchStateResults,
   selectPeriodicalSearchStateTotalCount,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
-import {customDefinedFacetsEnum, facetKeysEnum} from '../../modules/search-results-page/const/facets';
-import {AdvancedSearchService} from './advanced-search.service';
-import {BaseFilterService} from './base-filter.service';
-import {SearchService} from './search.service';
+import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
+import { AdvancedSearchService } from './advanced-search.service';
+import { BaseFilterService } from './base-filter.service';
+import { SearchService } from './search.service';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -66,8 +66,8 @@ export class PeriodicalService extends BaseFilterService {
   error$ = this.store.select(selectPeriodicalError);
   searchResults$ = this.store.select(selectPeriodicalSearchStateResults);
 
-  private documentSignal = toSignal(this.document$, {initialValue: null});
-  private metadataSignal = toSignal(this.metadata$, {initialValue: null});
+  private documentSignal = toSignal(this.document$, { initialValue: null });
+  private metadataSignal = toSignal(this.metadata$, { initialValue: null });
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
 
@@ -122,11 +122,6 @@ export class PeriodicalService extends BaseFilterService {
 
     this.customSearchService.initializeFromRoute();
 
-    const extractUuid = (url: string): string | null => {
-      const match = url.match(/(uuid:[a-f0-9\-]+)/i);
-      return match?.[1] ?? null;
-    };
-
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       takeUntil(this.destroy$)
@@ -135,10 +130,25 @@ export class PeriodicalService extends BaseFilterService {
       const currentRoute = rawUrl.split('?')[0];
       const queryParams = this.route.snapshot.queryParams;
 
-      this.uuid = extractUuid(rawUrl);
+      // Robust UUID extraction from Router State instead of Regex
+      let route = this.router.routerState.root;
+      let foundUuid: string | null = null;
+      while (route) {
+        if (route.snapshot.params['uuid']) {
+          foundUuid = route.snapshot.params['uuid'];
+          break;
+        }
+        if (route.firstChild) {
+          route = route.firstChild;
+        } else {
+          break;
+        }
+      }
+
+      this.uuid = foundUuid;
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
-      if (currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+      if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
         this.dispatchPeriodicalSearch(Object.keys(queryParams).length ? queryParams : null);
       }
     });
@@ -165,7 +175,7 @@ export class PeriodicalService extends BaseFilterService {
 
     console.log('uuid:', this.uuid);
 
-    if (!this.uuid) return;
+    if (!this.uuid || this.uuid === 'undefined') return;
 
     const query = params && params['query'] || '';
 
@@ -553,8 +563,8 @@ export class PeriodicalService extends BaseFilterService {
 
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
-      .map(y => ({...y, exists: true}))
-      //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      .map(y => ({ ...y, exists: true }))
+    //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {

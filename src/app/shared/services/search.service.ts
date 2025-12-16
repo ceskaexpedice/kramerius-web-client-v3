@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable } from '@angular/core';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, Observable, takeUntil } from 'rxjs';
+import { filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { SettingsService } from '../../modules/settings/settings.service';
 import {
@@ -44,6 +44,8 @@ export class SearchService extends BaseFilterService {
   loading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
+
+  private queryParamsSubscription: Subscription | null = null;
 
   // Implementation of abstract methods from BaseFilterService
   getBaseFilters(): Observable<string[]> {
@@ -232,7 +234,7 @@ export class SearchService extends BaseFilterService {
   async initialize() {
     if (this.initialized) return;
 
-    this.route.queryParams.pipe(
+    this.queryParamsSubscription = this.route.queryParams.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
@@ -246,6 +248,14 @@ export class SearchService extends BaseFilterService {
     });
 
     this.initialized = true;
+  }
+
+  cleanup() {
+    if (this.queryParamsSubscription) {
+      this.queryParamsSubscription.unsubscribe();
+      this.queryParamsSubscription = null;
+    }
+    this.initialized = false;
   }
 
   public dispatchSearch(params: any): void {
@@ -349,7 +359,13 @@ export class SearchService extends BaseFilterService {
       page = Number(params['page']) || this._page();
     } else {
       this._pageReset.set(false);
-      this.goToPage(page);
+      const paramsPage = Number(params['page']);
+      // If page is undefined (implicit 1) or already 1, we don't need to navigate/wait for router.
+      if (paramsPage && paramsPage !== 1) {
+        this.goToPage(page);
+        return;
+      }
+      // If we are already on page 1, continue to search
     }
 
     const pageSize = Number(params['pageSize']) || this._pageSize();

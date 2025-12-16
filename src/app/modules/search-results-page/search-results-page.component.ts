@@ -1,17 +1,17 @@
-import {Component, inject, OnInit, OnDestroy, signal} from '@angular/core';
-import {SearchService} from '../../shared/services/search.service';
-import {AdvancedSearchService} from '../../shared/services/advanced-search.service';
-import {AppResultsViewType} from '../settings/settings.model';
-import {SettingsService} from '../settings/settings.service';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {AdminSelectionService, SelectionService} from '../../shared/services';
-import {Subscription, combineLatest} from 'rxjs';
-import {map, filter} from 'rxjs/operators';
-import {SearchDocument} from '../models/search-document';
-import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
-import {ViewMode} from '../periodical/models/view-mode.enum';
-import {ScrollPositionService} from '../../shared/services/scroll-position.service';
-import {BreakpointService} from '../../shared/services/breakpoint.service';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { SearchService } from '../../shared/services/search.service';
+import { AdvancedSearchService } from '../../shared/services/advanced-search.service';
+import { AppResultsViewType } from '../settings/settings.model';
+import { SettingsService } from '../settings/settings.service';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { AdminSelectionService, SelectionService } from '../../shared/services';
+import { Subscription, combineLatest } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+import { SearchDocument } from '../models/search-document';
+import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { ViewMode } from '../periodical/models/view-mode.enum';
+import { ScrollPositionService } from '../../shared/services/scroll-position.service';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -94,6 +94,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.searchService.cleanup();
   }
 
   setView(view: AppResultsViewType) {
