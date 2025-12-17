@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import {NgFor, NgOptimizedImage} from '@angular/common';
 import { AppTranslationService } from '../app-translation.service';
 import { Language } from './language';
+import {ClickOutsideDirective} from '../../directives/click-outside';
 
 @Component({
   selector: 'app-lang-picker',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, ClickOutsideDirective],
   templateUrl: './lang-picker.component.html',
   styleUrl: './lang-picker.component.scss'
 })
@@ -19,6 +20,12 @@ export class LangPickerComponent {
 
   clickedIcon() {
     this.expanded = !this.expanded;
+  }
+
+  close() {
+    if (this.expanded) {
+      this.expanded = false;
+    }
   }
 
   changeLang(langCode: string) {

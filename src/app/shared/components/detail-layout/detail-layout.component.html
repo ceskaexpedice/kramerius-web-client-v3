@@ -1,32 +1,48 @@
 <div class="detail-layout">
-  <header class="detail-layout--top-toolbar">
-    <ng-content select="[top-toolbar]"></ng-content>
-  </header>
+<!--  <header class="detail-layout&#45;&#45;top-toolbar">-->
+<!--    <ng-content select="[top-toolbar]"></ng-content>-->
+<!--  </header>-->
 
   <div class="detail-layout--body">
 
-    <app-filter-sidebar [padding]="'0'" [scrollable]="false">
+    <app-filter-sidebar
+      [padding]="'0'"
+      [scrollable]="false"
+      [toggleButtonPosition]="'left'"
+      [toggleButtonIcon]="'icon-sidebar-bottom'">
 
       <ng-content select="[left-sidebar]"></ng-content>
 
     </app-filter-sidebar>
 
-<!--    <aside class="detail-layout&#45;&#45;sidebar-left">-->
-<!--      <ng-content select="[left-sidebar]"></ng-content>-->
-<!--    </aside>-->
+    <main class="detail-layout--main">
 
-    <main class="detail-layout--main-content">
+      <div class="detail-layout--action-toolbar">
+        <ng-content select="[action-toolbar]"></ng-content>
+      </div>
 
-      <ng-content select="[main-content]"></ng-content>
+      <div class="detail-layout--main-content" [class.detail-layout--main-content--with-right-sidebar]="showRightSidebar">
+
+        <ng-content select="[main-content]"></ng-content>
+
+        @if (showRightSidebar) {
+          <aside class="detail-layout--sidebar-right" [class.collapsed]="rightSidebarCollapsed">
+            <ng-content select="[right-sidebar]"></ng-content>
+          </aside>
+        }
+
+      </div>
+
+      @if (showBottomToolbar) {
+        <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
+          <ng-content select="[bottom-toolbar]"></ng-content>
+        </footer>
+      }
 
     </main>
 
   </div>
 
-  @if (showBottomToolbar) {
-    <footer class="detail-layout--bottom-toolbar" [class.constrained]="constrainBottomToolbar">
-      <ng-content select="[bottom-toolbar]"></ng-content>
-    </footer>
-  }
+
 
 </div>

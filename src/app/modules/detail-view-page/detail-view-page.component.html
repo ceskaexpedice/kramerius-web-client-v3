@@ -1,113 +1,218 @@
-<app-detail-layout [constrainBottomToolbar]="true">
+<app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true" [showRightSidebar]="true"
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
+
+  <!--  <ng-container left-sidebar>-->
+
+  <!--    <div class="sidebar&#45;&#45;container" *ngIf="detailViewService.document$ | async as document">-->
+
+  <!--      &lt;!&ndash; PDF Sidebar for PDF documents &ndash;&gt;-->
+  <!--      <ng-container *ngIf="document.pdf">-->
+  <!--        <app-pdf-sidebar></app-pdf-sidebar>-->
+  <!--      </ng-container>-->
+
+  <!--      &lt;!&ndash; Original sidebar for non-PDF documents &ndash;&gt;-->
+  <!--      <ng-container *ngIf="!document.pdf">-->
+  <!--        <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">-->
+  <!--          <div class="sidebar&#45;&#45;wrapper">-->
+  <!--            <app-input-->
+  <!--              [placeholder]="'search-in-document&#45;&#45;placeholder' | translate"-->
+  <!--              [theme]="'dark'"-->
+  <!--              [size]="'sm'"-->
+  <!--              [showMicButton]="true"-->
+  <!--            ></app-input>-->
+
+  <!--            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">-->
+  <!--              <hr>-->
+  <!--              <app-page-navigator-->
+  <!--                [currentPage]="detailViewService.currentPageIndex + 1"-->
+  <!--                [totalPages]="detailViewService.totalPages"-->
+  <!--                (next)="detailViewService.goToNext()"-->
+  <!--                (prev)="detailViewService.goToPrevious()"-->
+  <!--                (pageChange)="detailViewService.goToPage($event)"-->
+  <!--              ></app-page-navigator>-->
+  <!--            </ng-container>-->
+
+  <!--            <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
+  <!--              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>-->
+  <!--            </div>-->
+  <!--          </div>-->
+  <!--        </ng-container>-->
+
+  <!--        <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">-->
+  <!--          <div tab-common-up class="sidebar&#45;&#45;wrapper">-->
+  <!--            <app-input-->
+  <!--              [placeholder]="'search-in-document&#45;&#45;placeholder' | translate"-->
+  <!--              [theme]="'dark'"-->
+  <!--              [size]="'sm'"-->
+  <!--              [showMicButton]="true"-->
+  <!--            ></app-input>-->
+  <!--            <hr>-->
+  <!--            <app-page-navigator-->
+  <!--              [currentPage]="detailViewService.currentPageIndex + 1"-->
+  <!--              [totalPages]="detailViewService.totalPages"-->
+  <!--              (next)="detailViewService.goToNext()"-->
+  <!--              (prev)="detailViewService.goToPrevious()"-->
+  <!--              (pageChange)="detailViewService.goToPage($event)"-->
+  <!--            ></app-page-navigator>-->
+
+  <!--            <hr>-->
+
+  <!--            <div class="flex mb-2 w-100 max-width-100 flex&#45;&#45;wrap" *ngIf="adminSelectionService.adminMode()">-->
+  <!--              <app-admin-actions [compact]="true"></app-admin-actions>-->
+  <!--            </div>-->
+
+  <!--&lt;!&ndash;            <div class="flex flex&#45;&#45;align-center flex&#45;&#45;justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">&ndash;&gt;-->
+  <!--&lt;!&ndash;              <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">&ndash;&gt;-->
+  <!--&lt;!&ndash;                {{'multi-page-choice' | translate}}&ndash;&gt;-->
+  <!--&lt;!&ndash;                <i class="icon-tick-square"></i>&ndash;&gt;-->
+  <!--&lt;!&ndash;              </button>&ndash;&gt;-->
+  <!--&lt;!&ndash;            </div>&ndash;&gt;-->
+
+  <!--            <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">-->
+  <!--              {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}-->
+  <!--            </div>-->
+  <!--          </div>-->
+
+  <!--          <app-tab-item label="Stránky">-->
+  <!--            <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
+  <!--              <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>-->
+  <!--            </div>-->
+  <!--          </app-tab-item>-->
+  <!--&lt;!&ndash;        <app-tab-item label="Články">&ndash;&gt;-->
+  <!--&lt;!&ndash;        </app-tab-item>&ndash;&gt;-->
+  <!--&lt;!&ndash;        <app-tab-item label="Obrázky">&ndash;&gt;-->
+  <!--&lt;!&ndash;        </app-tab-item>&ndash;&gt;-->
+  <!--        </app-tabs>-->
+  <!--      </ng-container>-->
+
+  <!--    </div>-->
+
+  <!--  </ng-container>-->
 
   <ng-container left-sidebar>
-
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
-      <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
-        <div class="sidebar--wrapper">
-          <app-input
-            [placeholder]="'search-in-document--placeholder' | translate"
-            [theme]="'dark'"
-            [size]="'sm'"
-            [showMicButton]="true"
-          ></app-input>
-
-          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
-            <hr>
-            <app-page-navigator
-              [currentPage]="detailViewService.currentPageIndex + 1"
-              [totalPages]="detailViewService.totalPages"
-              (next)="detailViewService.goToNext()"
-              (prev)="detailViewService.goToPrevious()"
-              (pageChange)="detailViewService.goToPage($event)"
-            ></app-page-navigator>
-          </ng-container>
-
-          <div class="sidebar--wrapper--scroll-content">
-            <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
-          </div>
-        </div>
+      <!-- PDF Sidebar for PDF documents -->
+      <ng-container *ngIf="document.pdf">
+        <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">
-        <app-tab-item label="Stránky">
-          <div class="sidebar--wrapper">
-            <app-input
-              [placeholder]="'search-in-document--placeholder' | translate"
-              [theme]="'dark'"
-              [size]="'sm'"
-              [showMicButton]="true"
-            ></app-input>
-            <hr>
-            <app-page-navigator
-              [currentPage]="detailViewService.currentPageIndex + 1"
-              [totalPages]="detailViewService.totalPages"
-              (next)="detailViewService.goToNext()"
-              (prev)="detailViewService.goToPrevious()"
-              (pageChange)="detailViewService.goToPage($event)"
-            ></app-page-navigator>
-            <div class="sidebar--wrapper--scroll-content">
-              <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>
-            </div>
-          </div>
-        </app-tab-item>
-<!--        <app-tab-item label="Články">-->
-<!--        </app-tab-item>-->
-<!--        <app-tab-item label="Obrázky">-->
-<!--        </app-tab-item>-->
-      </app-tabs>
+      <!-- Document Sidebar for non-PDF documents -->
+      <ng-container *ngIf="!document.pdf">
+        <app-document-sidebar [document]="document"></app-document-sidebar>
+      </ng-container>
+
     </div>
   </ng-container>
 
-  <ng-container main-content>
+  <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical">
         <div class="max-width-100" left>
-          <app-toolbar-header
-            [title]="document?.mainTitle || ''"
-            (goBack)="goBackClicked()">
+          <app-toolbar-header [title]="document?.mainTitle || ''"
+            [showBackButton]="recordHandler.shouldShowBackButton(document)"
+            (titleClick)="recordHandler.clickedToolbarTitle(document.model, document.rootPid)"
+            (goBack)="recordHandler.goBackClicked(document)">
           </app-toolbar-header>
         </div>
         <div center>
-          <app-date-navigator
-            [value]="document.dateStr || ''"
-            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
-          </app-date-navigator>
+          <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
+            <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="true"
+              [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
+              (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+              (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+              (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
+            </app-date-navigator>
+          </ng-container>
         </div>
         <div right>
           <div class="flex flex--align-center">
-            <app-toolbar-controls
-              [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="[
-                { label: 'Nahrávky', icon: 'icon-music-filter', value: 'records' },
-                { label: 'Obrázky', icon: 'icon-gallery', value: 'images' }
-              ]"
-              [showFavorites]="false"
-              [showShare]="true"
-              [showQuote]="true"
-              [showInfo]="true"
-              (infoClicked)="detailViewService.openRecordInfo()"
+            <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
+              [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
+              [showInfo]="false" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (editClicked)="selectionService.toggleSelectionMode()"
+              (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
           </div>
         </div>
       </app-action-toolbar>
+    </ng-container>
+  </ng-container>
 
+  <ng-container main-content>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
-        <div class="detail-view--page--content--wrapper">
-          <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-               class="app-document-thumbnail">
+        <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf" [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
+
+          @if (document.pdf) {
+
+          <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+
+          } @else {
+          <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+            [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+          </app-iiif-viewer>
+          }
+
+          @if (!detailViewService.metadataSidebarVisible) {
+
+          <button class="floating-sidebar-toggle button outlined tertiary with-icon"
+            (click)="detailViewService.showMetadataSidebar()">
+            <i class="icon-sidebar-bottom"></i>
+            {{ 'show--metadata-sidebar' | translate }}
+          </button>
+          }
+
+          <!-- Viewer controls for both PDF and IIIF viewers -->
+          @if (document.pdf) {
+          @if (!(pdfService.properties$ | async)?.fullscreen) {
+          <app-viewer-controls type="pdf"></app-viewer-controls>
+          }
+          } @else {
+          @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+          <app-viewer-controls type="image"></app-viewer-controls>
+          }
+
+          @if (iiifViewerService.isSelectionMode$ | async) {
+          <div class="selection-mode-info">
+            <span>{{ 'select-area-drag' | translate }}</span>
+            <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
+              {{ 'cancel' | translate }}
+            </button>
+          </div>
+          }
+          }
         </div>
       </div>
     </ng-container>
   </ng-container>
 
-  <ng-container bottom-toolbar>
-    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>
+  <ng-container right-sidebar>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
+      <app-pdf-metadata-sidebar [metadata]="document"></app-pdf-metadata-sidebar>
+    </ng-container>
   </ng-container>
+
+  <!--  <ng-container bottom-toolbar *ngIf="!detailViewService.document?.pdf">-->
+  <!--    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>-->
+  <!--  </ng-container>-->
+
 </app-detail-layout>
+
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="favoritesHelper.currentItemId()"
+      [itemName]="favoritesHelper.currentItemName()"
+      [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
+      [document]="detailViewService.document$ | async"
+      (close)="onFavoritesPopupClose()"
+      (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
+}

@@ -8,11 +8,24 @@
 //  max-height: fit-content;
 //}
 
+/* Base grid container */
 .grid--container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
   gap: 16px;
+  width: 100%;
 }
+
+/* Responsive Grid */
+.grid--container {
+  // Automatically calculate columns based on item width and available space
+  // Item width scales with accessibility text setting
+  grid-template-columns: repeat(auto-fill, minmax(calc(170px * var(--accessibility-text-scale)), 1fr));
+
+  /* Ensure no overflow and consistent sizing */
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 
 //.list--container {
 //  display: flex;
@@ -50,6 +63,10 @@
 
 .flex--space-evenly {
   justify-content: space-evenly;
+}
+
+.flex--space-start {
+  justify-content: flex-start;
 }
 
 .flex--align-center {
@@ -108,6 +125,34 @@
   padding-left: 0;
 }
 
+.p-top-0 {
+  padding-top: 0 !important;
+}
+
 .p-right-0 {
   padding-right: 0;
+}
+
+.pt-1 {
+  padding-top: var(--spacing-x1);
+}
+
+.m-left-auto {
+  margin-left: auto;
+}
+
+.m-right-auto {
+  margin-right: auto;
+}
+
+.d-block-inline {
+  display: inline-block;
+}
+
+.margin-side--x1 {
+  margin: 0 var(--spacing-x1);
+}
+
+.margin-side--x2 {
+  margin: 0 var(--spacing-x2);
 }

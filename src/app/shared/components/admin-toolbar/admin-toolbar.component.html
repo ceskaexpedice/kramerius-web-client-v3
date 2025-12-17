@@ -1,0 +1,62 @@
+<div class="admin-toolbar" *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+  <div class="admin-toolbar__inner">
+    
+    <!-- Selection Info -->
+    <div class="admin-toolbar__selection-info">
+      <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="admin-toolbar__actions">
+      
+      <!-- Select All / Deselect All Toggle -->
+      <button 
+        class="button secondary"
+        [class.active]="selectionService.isAllVisibleSelected()"
+        (click)="onToggleAllVisible()"
+        [title]="selectionService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate)">
+        <i class="icon-tick-square" *ngIf="!selectionService.isAllVisibleSelected()"></i>
+        <i class="icon-close-square" *ngIf="selectionService.isAllVisibleSelected()"></i>
+        <span>{{ selectionService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate) }}</span>
+      </button>
+
+      <!-- Clear Selection -->
+      <button 
+        class="button secondary"
+        (click)="onClearSelection()"
+        [title]="'clear-selection' | translate">
+        <i class="icon-close-circle"></i>
+        <span>{{ 'clear-selection' | translate }}</span>
+      </button>
+
+      <!-- Export Selected -->
+      <button 
+        class="button primary"
+        (click)="onExportSelected()"
+        [title]="'export-selected' | translate">
+        <i class="icon-export"></i>
+        <span>{{ 'export-selected' | translate }}</span>
+      </button>
+
+      <!-- Add to Favorites -->
+      <button 
+        class="button secondary"
+        (click)="onBulkAddToFavorites()"
+        [title]="'bulk-add-to-favorites' | translate">
+        <i class="icon-heart"></i>
+        <span>{{ 'bulk-add-to-favorites' | translate }}</span>
+      </button>
+
+      <!-- Delete Selected -->
+      <button 
+        class="button danger"
+        (click)="onDeleteSelected()"
+        [title]="'delete-selected' | translate">
+        <i class="icon-trash"></i>
+        <span>{{ 'delete-selected' | translate }}</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>

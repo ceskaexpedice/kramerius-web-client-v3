@@ -1,0 +1,20 @@
+.section--row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x3);
+
+  &:not(:last-child) {
+    margin-bottom: 40px;
+  }
+}
+
+.section--row--title {
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.toggle-buttons--container {
+  display: inline-flex;
+}

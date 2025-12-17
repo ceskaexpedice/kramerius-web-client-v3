@@ -1,6 +1,8 @@
 <app-select
+  [class]="'result-sort-select'"
   [options]="sortOptions"
-  [value]="selectedSortOption()"
+  [value]="selectedSortOption"
   [displayFn]="sortOptionDisplayFn"
+  [zIndex]="101"
   (valueChange)="onSortChange($event)">
 </app-select>

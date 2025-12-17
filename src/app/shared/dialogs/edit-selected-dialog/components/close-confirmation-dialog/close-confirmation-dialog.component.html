@@ -1,0 +1,23 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'close-confirmation-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onCancel()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <p>{{ 'close-confirmation-dialog--message' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="dialog-footer">
+    <button class="button secondary" (click)="onCancel()">
+      {{ 'cancel' | translate }}
+    </button>
+    <button class="button primary" (click)="onConfirm()">
+      {{ 'yes-close--button' | translate }}
+    </button>
+  </div>
+</div>

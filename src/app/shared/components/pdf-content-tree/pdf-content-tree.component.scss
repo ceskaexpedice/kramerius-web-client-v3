@@ -1,0 +1,116 @@
+.pdf-content-tree {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &__empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: calc(14px * var(--accessibility-text-scale));
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x2);
+  }
+
+  &__item {
+    &--sub {
+      .pdf-content-tree__item-header {
+        padding-left: calc(var(--spacing-x2) + 16px);
+      }
+    }
+
+    &--subsub {
+      .pdf-content-tree__item-header {
+        padding-left: calc(var(--spacing-x2) + 32px);
+      }
+    }
+  }
+
+  &__item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--spacing-x2);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    color: var(--color-text-secondary);
+
+    &--active {
+      border-left: 2px solid var(--color-primary);
+      padding-left: calc(var(--spacing-x2) - 2px);
+
+      .pdf-content-tree__title {
+        font-weight: 700;
+        color: var(--color-primary);
+      }
+
+      .pdf-content-tree__page {
+        font-weight: 700;
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  &__item--sub &__item-header--active {
+    padding-left: calc(var(--spacing-x2) + 16px - 2px);
+  }
+
+  &__item--subsub &__item-header--active {
+    padding-left: calc(var(--spacing-x2) + 32px - 2px);
+  }
+
+  &__expand-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+
+    i {
+      font-size: calc(12px * var(--accessibility-text-scale));
+    }
+  }
+
+  &__title {
+    flex: 1;
+    font-size: calc(14px * var(--accessibility-text-scale));
+    color: var(--color-text-secondary);
+  }
+
+  &__page {
+    font-size: calc(12px * var(--accessibility-text-scale));
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  &__subitems {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .pdf-content-tree__title {
+      color: var(--color-text-tertiary);
+    }
+
+    .pdf-content-tree__page {
+      color: var(--color-text-tertiary);
+    }
+
+    .pdf-content-tree__item-header--active {
+      .pdf-content-tree__title {
+        color: var(--color-primary);
+      }
+
+      .pdf-content-tree__page {
+        color: var(--color-primary);
+      }
+    }
+  }
+}

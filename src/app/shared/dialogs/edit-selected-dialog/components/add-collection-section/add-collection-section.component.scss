@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  height: 100%;
+}
+
+.add-collection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+}

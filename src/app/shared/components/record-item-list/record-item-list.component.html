@@ -1,23 +1,22 @@
-<table class="record-table" *ngIf="records.length">
-  <thead>
-  <tr>
-    <th>{{'filter-title-label' | translate}}</th>
-    <th>{{ 'filter-author-label' | translate }}</th>
-    <th>{{ 'filter-year-label' | translate }}</th>
-    <th>{{ 'filter-license-label' | translate }}</th>
-    <th>{{ 'filter-doctype-label' | translate }}</th>
-    <th>{{ 'filter-count-label' | translate }}</th>
-    <th>{{'filter-languages-label' | translate}}</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr app-record-item-list-row
-    *ngFor="let record of records"
-    [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
-    [record]="record">
-  </tr>
-  </tbody>
-</table>
+<div class="table-wrapper">
+  <table class="record-table" *ngIf="records.length">
+    <thead>
+    <tr>
+      <th *ngFor="let column of visibleColumns" [style.min-width]="column.width">
+        {{ column.labelKey | translate }}
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr app-record-item-list-row
+      *ngFor="let record of records"
+      [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+      [record]="record"
+      [visibleColumns]="visibleColumns">
+    </tr>
+    </tbody>
+  </table>
+</div>
 
 <div class="no-results" *ngIf="!records.length">
   <p>Žiadne výsledky na zobrazenie.</p>

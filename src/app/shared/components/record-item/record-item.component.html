@@ -1,7 +1,24 @@
 <a class="record-item-card"
-   [class.page]="record.model === DocumentTypeEnum.page"
-   [class.periodical]="record.model === DocumentTypeEnum.periodical"
-   [href]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)">
+   [class.page]="item.model === DocumentTypeEnum.page"
+   [class.periodical]="item.model === 'periodical'"
+   [class.periodicalvolume]="item.model === 'periodicalvolume'"
+   [class.periodicalitem]="item.model === 'periodicalitem'"
+   [class.selection-mode]="selectionService.selectionMode()"
+   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(item.id)"
+   [class.with-badge]="shouldShowAccessibilityBadge()"
+   [ngClass]="[item.className || '', item.model || '']"
+   [href]="getDocumentUrl()"
+   [attr.aria-label]="getTitle()"
+   (click)="onRecordClick($event)">
+
+  <!-- Selection checkbox for admin mode (positioned at card level) -->
+  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
+    <app-checkbox
+      [model]="selectionService.isSelected(item.id)"
+      (modelChange)="onSelectionChange($event)"
+      (click)="$event.stopPropagation()">
+    </app-checkbox>
+  </div>
 
   <div class="record-item-card__inner">
 
@@ -9,14 +26,39 @@
          [style.background-image] = "`url(${getImageThumbnailUrl()})`"
     >
 
-      @if (record.model !== DocumentTypeEnum.page) {
-        <span class="badge model">{{ record.model | translate }}</span>
+      <!-- Action buttons -->
+      <div class="record-item-card__actions">
+        <button class="button secondary rounded icon-button favorites-button"
+                *ngIf="shouldShowFavoriteButton()"
+                [class.favorited]="isItemFavorited$ | async"
+                (click)="onToggleFavorites($event)"
+                aria-label="{{'add-to-favorites' | translate}}"
+                [title]="'add-to-favorites' | translate">
+          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+        </button>
+
+        <button class="button secondary rounded icon-button favorites-button"
+                *ngIf="!selectionService.selectionMode() && (isItemFavorited$ | async) && currentFolderId"
+                (click)="onRemoveFromCurrentFolder($event)"
+                [title]="'remove-from-favorites' | translate"
+                aria-label="{{'remove-from-favorites' | translate}}"
+        >
+          <i class="icon-trash"></i>
+        </button>
+
+      </div>
+
+      @if (showModel) {
+        <app-model-badge
+          [model]="item.model"
+          [monographUnitCount]="item.monographUnitCount || 0">
+        </app-model-badge>
       }
 
-      @if (record.accessibility === DocumentAccessibilityEnum.PRIVATE) {
+      @if (isRecordLocked()) {
         <div class="record-item-card__image-lock-overlay">
 
-          <button class="button secondary rounded icon-button">
+          <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}" [title]="'record-locked' | translate">
 
             <i class="icon-lock-1"></i>
 
@@ -33,18 +75,18 @@
         {{ getTitle() }}
       </div>
 
-      <div class="subtitle" *ngIf="record.authors?.length || record.date">
+      <div class="subtitle" *ngIf="getSubtitle() || (item.authors?.length || item.date)">
 
         {{getSubtitle()}}
 
-        <span class="authors">
-          {{ record.authors?.join(', ') }}<span class="date" *ngIf="record.date">{{ record.authors?.length ? ', ' : '' }}{{ record.date }}</span>
+        <span class="authors" *ngIf="item.authors?.length || item.date">
+          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{ item.date }}</span>
         </span>
       </div>
 
-      @if (record.model === DocumentTypeEnum.page) {
+      @if (item.model === DocumentTypeEnum.page && item.highlighting) {
 
-          @for (text of record.highlighting; track $index) {
+          @for (text of item.highlighting; track $index) {
 
             <div class="text-ocr" [innerHTML]="text"></div>
 
@@ -52,16 +94,30 @@
 
       }
 
-      @if (record.accessibility !== DocumentAccessibilityEnum.PUBLIC) {
-
-        <div class="access-label">
-          <app-accessibility-badge [accessibility]="record.accessibility"></app-accessibility-badge>
-        </div>
-
-      }
-
     </div>
+
+    @if (shouldShowAccessibilityBadge()) {
+
+      <div class="access-label">
+        <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
+      </div>
+
+    }
 
   </div>
 
 </a>
+
+@if (favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="item.id"
+      [itemName]="item.title"
+      [currentFolderId]="currentFolderId"
+      [showRemoveButton]="!!currentFolderId"
+      (close)="favoritesPopupState.closePopup()">
+    </app-favorites-popup>
+  </div>
+}
+

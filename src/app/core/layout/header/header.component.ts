@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, Injector } from '@angular/core';
 import {Router, NavigationEnd, RouterLink} from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -12,6 +12,12 @@ import {SearchService} from '../../../shared/services/search.service';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import {RecordHandlerService} from '../../../shared/services/record-handler.service';
+import {UserInfoComponent} from '../../auth/user-info/user-info.component';
+import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import {CollectionsService} from '../../../shared/services/collections.service';
+import {ClickOutsideDirective} from '../../../shared/directives';
 
 @Component({
   selector: 'app-header',
@@ -23,6 +29,8 @@ import { EnvironmentService } from '../../../shared/services/environment.service
     LangPickerComponent,
     RouterLink,
     TranslatePipe,
+    UserInfoComponent,
+    ClickOutsideDirective,
   ],
   styleUrl: './header.component.scss'
 })
@@ -34,12 +42,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Track the application's current theme
   currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
 
+  // Mobile menu state
+  isMobileMenuOpen = false;
+
+  // Mobile search state
+  isMobileSearchOpen = false;
+
   constructor(
     private envService: EnvironmentService,
     private router: Router,
     private settingsService: SettingsService,
     public searchService: SearchService,
-    private advancedSearch: AdvancedSearchService
+    private advancedSearch: AdvancedSearchService,
+    private recordHandler: RecordHandlerService,
+    private injector: Injector,
   ) {}
 
   ngOnInit() {
@@ -48,6 +64,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updateHeaderType();
+        this.isMobileMenuOpen = false; // Close mobile menu on route change
+        this.isMobileSearchOpen = false; // Close mobile search on route change
       });
 
     // Subscribe to app theme changes
@@ -72,8 +90,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.router.url !== `/${APP_ROUTES_ENUM.SEARCH}`;
   }
 
+  get isOnCollectionRoute(): boolean {
+    return this.router.url.includes(`/${APP_ROUTES_ENUM.COLLECTION}/`);
+  }
+
+  get autocompleteService() {
+    if (this.isOnCollectionRoute) {
+      try {
+        const collectionsService = this.injector.get(CollectionsService, null);
+        if (collectionsService) {
+          return collectionsService;
+        }
+      } catch (e) {
+        // CollectionsService not available, fall back to searchService
+      }
+    }
+    return this.searchService;
+  }
+
+  get autocompletePlaceholder(): string {
+    return this.isOnCollectionRoute ? 'search-in-collection-placeholder' : 'search-input-placeholder';
+  }
+
   logoClicked() {
-    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
+    this.recordHandler.navigateToEmptySearch();
   }
 
   updateHeaderType() {
@@ -103,6 +143,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.advancedSearch.openDialog();
   }
 
+  goToCollections() {
+    this.searchService.searchWithFacet(`${customDefinedFacetsEnum.model}`, DocumentTypeEnum.collection, true);
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    if (this.isMobileMenuOpen) {
+      setTimeout(() => this.isMobileMenuOpen = false, 25);
+    }
+  }
+
+  toggleMobileSearch() {
+    this.isMobileSearchOpen = !this.isMobileSearchOpen;
+  }
+
+  closeMobileSearch() {
+    this.isMobileSearchOpen = false;
+  }
+
   logDevInfo(): void {
     const devInfo = {
       useStaticRuntimeConfig: this.envService.get('useStaticRuntimeConfig'),
@@ -110,7 +172,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       environmentCode: this.envService.get('environmentCode'),
       environmentName: this.envService.get('environmentName'),
 
-      krameriusBaseUrl: this.envService.get('krameriusBaseUrl'),
+      krameriusId: this.envService.get('krameriusId'),
+      krameriusBaseUrl: this.envService.getKrameriusUrl(),
 
       gitCommitHash: this.envService.get('git_commit_hash'),
       gitTag: this.envService.get('git_tag'),
@@ -126,4 +189,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     console.log('Dev Info:', devInfo);
   }
+
+  protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;
+  protected readonly APP_ROUTES_ENUM = APP_ROUTES_ENUM;
 }

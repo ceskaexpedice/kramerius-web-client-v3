@@ -1,0 +1,19 @@
+<div class="auth-callback-container">
+  <div class="auth-callback-content">
+    @if (loading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <h2>{{ 'completing-authentication' | translate }}</h2>
+        <p>{{ 'authentication-wait' | translate }}</p>
+      </div>
+    }
+    
+    @if (error) {
+      <div class="error">
+        <h2>{{ 'authentication-error' | translate }}</h2>
+        <p>{{ error }}</p>
+        <p>{{ 'redirecting-home' | translate }}</p>
+      </div>
+    }
+  </div>
+</div>

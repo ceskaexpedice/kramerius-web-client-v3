@@ -19,7 +19,15 @@ export class FilterService {
     const filtersByField = new Map<string, string[]>();
 
     filters.forEach(filter => {
-      const [field, value] = filter.split(':');
+      const colonIndex = filter.indexOf(':');
+      if (colonIndex === -1) {
+        console.warn(`FilterService: Invalid filter format (missing colon): ${filter}`);
+        return;
+      }
+
+      const field = filter.substring(0, colonIndex);
+      const value = filter.substring(colonIndex + 1);
+
       if (!filtersByField.has(field)) {
         filtersByField.set(field, []);
       }

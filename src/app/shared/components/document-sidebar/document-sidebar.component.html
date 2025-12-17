@@ -1,0 +1,83 @@
+<div class="document-sidebar">
+  <div class="sidebar--wrapper">
+    <app-autocomplete
+      [placeholder]="'search-in-document--placeholder' | translate"
+      [inputTheme]="'dark'"
+      [size]="'sm'"
+      [showMicrophoneButton]="false"
+      [showHelpButton]="false"
+      [showHistorySuggestions]="false"
+      [showCaseSensitiveButton]="true"
+      [showSubmitButton]="false"
+      [showClearButton]="true"
+      [minTermLength]="2"
+      [isCaseSensitive]="documentSearchService.isCaseSensitive"
+      [getSuggestions]="getSuggestionsFn"
+      [inputTerm]="searchTerm"
+      (onCaseSensitiveEvent)="caseSensitiveChanged()"
+      (suggestionSelected)="onSuggestionSelected($event)"
+      (search)="onSearch($event)"
+      (onClearEvent)="onAutocompleteClear()"
+    ></app-autocomplete>
+
+    @if (iiifViewerService.searchQuery$ | async) {
+      <app-search-navigation
+        [currentMatchNumber]="getCurrentMatchedPageNumber()"
+        [totalMatches]="getTotalMatchedPages()"
+        (previousMatch)="findPreviousMatch()"
+        (nextMatch)="findNextMatch()"
+      ></app-search-navigation>
+      <hr>
+
+      <mat-slide-toggle
+        [(ngModel)]="showAllPages"
+        [hideIcon]="true"
+        [class]="'size-sm'"
+        (change)="onShowAllPagesToggle()">
+        {{ 'show-all-pages' | translate }}
+      </mat-slide-toggle>
+
+    }
+      @if (shouldShowPageNavigator) {
+
+        @if (!(iiifViewerService.searchQuery$ | async)) {
+          <hr>
+        }
+
+        <app-page-navigator
+          [currentPage]="detailViewService.currentPageIndex + 1"
+          [totalPages]="detailViewService.totalPages"
+          (next)="detailViewService.goToNext()"
+          (prev)="detailViewService.goToPrevious()"
+          (pageChange)="detailViewService.goToPage($event)"
+        ></app-page-navigator>
+
+      @if (!isSoundRecording) {
+        <hr>
+
+        <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="selectionService.selectionMode()">
+          <app-admin-actions [compact]="true"></app-admin-actions>
+        </div>
+
+        <div class="admin-selection-count"
+             *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+          {{ 'count' | translate }}: {{ selectionService.selectedCount() }}
+        </div>
+      }
+    }
+
+    <div class="sidebar--wrapper--scroll-content">
+      @if (iiifViewerService.searchQuery$ | async) {
+        <app-search-results-list
+          [results]="(documentSearchService.searchResults$ | async) || []"
+          [currentPid]="detailViewService.currentPagePid"
+          [showAllPages]="showAllPages"
+          [allPages]="detailViewService.pages"
+          (resultClick)="onSearchResultClick($event)"
+        ></app-search-results-list>
+      } @else {
+        <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+      }
+    </div>
+  </div>
+</div>

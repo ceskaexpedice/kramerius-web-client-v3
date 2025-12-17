@@ -1,0 +1,13 @@
+@if (model !== DocumentTypeEnum.page && model !== DocumentTypeEnum.periodicalvolume && model !== DocumentTypeEnum.periodicalitem) {
+  <span class="badge model">
+    {{ model | translate }}@if (shouldShowCount()) { ({{ monographUnitCount }})}
+    @if (hasDoubleBookIcon()) {
+      <span class="icon-stack">
+        <i class="icon-book-2"></i>
+        <i class="icon-book-2"></i>
+      </span>
+    } @else if (getModelIcon(model, monographUnitCount)) {
+      <i [ngClass]="getModelIcon(model, monographUnitCount)"></i>
+    }
+  </span>
+}

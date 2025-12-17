@@ -1,4 +1,4 @@
-<ng-container *ngIf="visibleItems().length > 0">
+<ng-container *ngIf="visibleItems().length > 0 || type === 'dateRange' || type === 'yearRange'">
 
   <div>
     <div class="category--header">
@@ -7,7 +7,7 @@
 
         {{label | translate}}
 
-        <span *ngIf="hasAndOperator" class="and-indicator">AND</span>
+        <span *ngIf="hasAndOperator" class="and-indicator">{{ 'and-operator' | translate }}</span>
 
       </h4>
 
@@ -15,43 +15,51 @@
 
     </div>
 
-    <div [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
+    <div class="flex flex--gap-x2 flex--column pt-1" [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
-      <ng-container *ngIf="type !== 'radio'">
-        <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems">
-          <app-filter-item
-            [label]="item.name"
-            [checked]="isSelected(item.name)"
-            [icon]="item.icon || null"
-            [count]="item.count"
-            [truncateLabel]="true"
-            (toggled)="onToggle(item.name)"
-          ></app-filter-item>
+      <ng-container *ngIf="type === 'checkbox'">
+        <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems; trackBy: trackByItemName">
+          <app-filter-item [label]="item.name" [checked]="isSelected(item.name)" [icon]="item.icon || null"
+            [count]="item.count" [truncateLabel]="true" (toggled)="onToggle(item.name)"></app-filter-item>
         </ng-container>
       </ng-container>
 
       <ng-container *ngIf="type === 'radio'">
-        <app-filter-items-radio
-          [items]="visibleItems()"
-          [selected]="getSelectedRadioValue()"
-          (changed)="onRadioChange($event)"
-        ></app-filter-items-radio>
+        <app-filter-items-radio [items]="visibleItems()" [selected]="getSelectedRadioValue()"
+          (changed)="onRadioChange($event)"></app-filter-items-radio>
       </ng-container>
 
-      <button class="button primary link" *ngIf="shouldShowMoreButton" (click)="openFilterDialog(facetKey, label, items)">
+      <ng-container *ngIf="type === 'range'">
+        <app-range-slider [min]="getRangeMin()" [max]="getRangeMax()" [step]="1" [initialFrom]="getRangeFrom()"
+          [initialTo]="getRangeTo()" (rangeChange)="onRangeChange($event)"
+          [showInputNumberStepper]="false"></app-range-slider>
+      </ng-container>
+
+      <ng-container *ngIf="type === 'dateRange'">
+        <app-date-picker [initialDateFrom]="getDateFrom()" [initialDateTo]="getDateTo()"
+          [initialOffset]="getDateOffset()" (datePickerChange)="onDatePickerChange($event)"></app-date-picker>
+      </ng-container>
+
+      <ng-container *ngIf="type === 'yearRange'">
+        <app-range-slider [min]="getRangeMin()" [max]="getRangeMax()" [step]="1" [initialFrom]="getRangeFrom()"
+          [initialTo]="getRangeTo()" (rangeChange)="onRangeChange($event)" [inputStyle]="'wide'"
+          [showInputNumberStepper]="false"></app-range-slider>
+      </ng-container>
+
+      <button class="button primary link p-left-0 flex--space-start" *ngIf="shouldShowMoreButton"
+        (click)="openFilterDialog(facetKey, label, items)">
         {{ 'show-more' | translate }}
 
         <i class="icon-arrow-right-1"></i>
       </button>
 
+      <ng-content #categoryContent></ng-content>
+
     </div>
 
   </div>
 
-  <ng-content #categoryContent></ng-content>
 
   <hr *ngIf="showBottomBorder">
 
 </ng-container>
-
-

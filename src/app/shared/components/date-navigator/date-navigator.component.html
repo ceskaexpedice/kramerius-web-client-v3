@@ -1,14 +1,25 @@
 <div class="year-navigator">
 
-  <button (click)="prev()">
+  <button (click)="prev()" [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate">
     <i class="icon-arrow-left-1"></i>
   </button>
 
-  <h2>{{ value }}</h2>
+  <h2
+    [class.clickable]="enableCalendarPopup"
+    (click)="toggleCalendar()">
+    {{ value }}
+  </h2>
 
-  <button (click)="next()">
+  <button (click)="next()" [attr.aria-label]="'go-next-date-navigator--arialabel' | translate">
     <i class="icon-arrow-right-1"></i>
   </button>
 
+  <app-calendar-popup
+    *ngIf="showCalendarPopup()"
+    [year]="getYearFromValue()"
+    [preselectedDate]="value"
+    (dateSelected)="onCalendarDateSelected($event)"
+    (closePopup)="closeCalendar()">
+  </app-calendar-popup>
 
 </div>

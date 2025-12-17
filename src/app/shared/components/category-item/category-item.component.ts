@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
+import {RecordHandlerService} from '../../services/record-handler.service';
 
 @Component({
   selector: 'app-category-item',
@@ -17,6 +18,8 @@ export class CategoryItemComponent {
   @Input() active: boolean = false;
 
   @Output() clicked: EventEmitter<string> = new EventEmitter<string>();
+
+  recordHandler = inject(RecordHandlerService);
 
   onClick(): void {
     this.clicked.emit(this.label);

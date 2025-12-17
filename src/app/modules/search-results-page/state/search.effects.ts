@@ -8,18 +8,14 @@ import {SolrResponseParser} from '../../../core/solr/solr-response-parser';
 import {parseSearchDocument} from '../../models/search-document';
 import {Store} from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
-import {FacetItem} from '../../models/facet-item';
-import {SolrOperators} from '../../../core/solr/solr-helpers';
 import {DEFAULT_FACET_FIELDS} from '../const/facet-fields';
 import {
-  customDefinedFacets,
-  customDefinedFacetsEnum,
-  FacetAccessibilityTypes,
-  FacetElementType,
   facetKeysEnum,
 } from '../const/facets';
 import {SearchService} from '../../../shared/services/search.service';
 import {UserService} from '../../../shared/services/user.service';
+import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
+import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
 
 @Injectable()
 export class SearchEffects {
@@ -28,6 +24,7 @@ export class SearchEffects {
     private solr: SolrService,
     private store: Store,
     private searchService: SearchService,
+    private advancedSearchService: AdvancedSearchService,
     private userService: UserService,
   ) {
   }
@@ -49,8 +46,8 @@ export class SearchEffects {
         advancedQuery,
         advancedQueryMainOperator,
       }, currentFacets, facetOperators]) => {
-        const includePeriodicalItem = this.searchService.filtersContainDate();
-        const includePage = this.searchService.hasSubmittedQuery();
+        const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
+        const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 
@@ -61,16 +58,27 @@ export class SearchEffects {
         }).pipe(
           switchMap(({resultsRes, facetsRes, facetsAllRes}) => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-              doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
-                return parseSearchDocument(doc)
-              },
+              // Try to get highlighting by pid first, then check for keys containing "!" (rootPid!pagePid format)
+              let highlighting = resultsRes.highlighting?.[doc.pid];
+              if (!highlighting || Object.keys(highlighting).length === 0) {
+                // Look for highlighting key with format "rootPid!pagePid" where the part after "!" matches doc.pid
+                const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
+                  key.includes('!') && key.split('!')[1] === doc.pid
+                );
+                highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
+              }
+              doc['highlighting'] = highlighting || {};
+              return parseSearchDocument(doc)
+            },
             );
 
-            const facets = this.handleFacetsWithOperators(
+            const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
               facetsAllRes.facet_counts?.facet_fields ?? {},
+              this.userService.licenses,
+              resultsRes.response.numFound
             );
 
             return [
@@ -86,76 +94,6 @@ export class SearchEffects {
       }),
     ),
   );
-
-  private handleFacetsWithOperators(
-    searchFacets: Record<string, any[]>,
-    operatorFacets: Record<string, any[]>,
-    facetOperators: Record<string, SolrOperators>,
-    unfilteredFacets: Record<string, any[]> = {},
-  ): Record<string, FacetItem[]> {
-    const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
-    const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
-    const parsedUnfilteredFacets = SolrResponseParser.parseAllFacets(unfilteredFacets);
-
-    const result: Record<string, FacetItem[]> = {};
-    const allFacetKeys = new Set([
-      ...Object.keys(parsedSearchFacets),
-      ...Object.keys(parsedOperatorFacets),
-    ]);
-
-    for (const facetKey of allFacetKeys) {
-      const operator = facetOperators[facetKey] ?? SolrOperators.or;
-      const primaryValues = operator === SolrOperators.and
-        ? parsedSearchFacets[facetKey] || []
-        : parsedOperatorFacets[facetKey] || [];
-      const fallbackValues = operator === SolrOperators.and
-        ? parsedOperatorFacets[facetKey] || []
-        : parsedSearchFacets[facetKey] || [];
-
-      const valueMap = new Map(primaryValues.map(item => [item.name, item]));
-      fallbackValues.forEach(item => {
-        if (!valueMap.has(item.name)) {
-          primaryValues.push(item);
-        }
-      });
-
-      result[facetKey] = primaryValues;
-    }
-
-    for (const custom of customDefinedFacets) {
-      const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
-        const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
-        let count = fqList.reduce((sum: number, fq: any) => {
-          return sum + (result[custom.solrFacetKeyForCount]?.find(f => f.name === fq)?.count || 0);
-        }, 0);
-
-        if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
-          const licenses = result[facetKeysEnum.license] || [];
-          const modelsUnfiltered = parsedUnfilteredFacets[facetKeysEnum.model] || [];
-          const userLicenses = this.userService.licenses;
-
-          if (item.key === FacetAccessibilityTypes.all) {
-            count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
-          } else if (item.key === FacetAccessibilityTypes.available) {
-            item.fq = userLicenses;
-            count = userLicenses.reduce((sum, lic) => {
-              return sum + (licenses.find(f => f.name === lic)?.count || 0);
-            }, 0);
-          }
-        }
-
-        return {
-          ...item,
-          count,
-          type: item.type ?? FacetElementType.checkbox,
-        };
-      });
-
-      result[custom.title] = enrichedItems;
-    }
-
-    return result;
-  }
 
   loadFacet$ = createEffect(() =>
     this.actions$.pipe(

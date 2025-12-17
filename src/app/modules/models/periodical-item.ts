@@ -18,16 +18,25 @@ export interface PeriodicalItem {
   modified?: string;
   hasTiles?: boolean;
 
-  model?: string;
-  'root.pid'?: string;
+  model: string;
+  'root.pid': string;
   'root.title'?: string;
   'date.str'?: string;
+  ownParentPid?: string;
   children?: PeriodicalItemChild[];
 }
 
 export interface PeriodicalItemChild {
   'date.str': string;
+  'part.number.str': string;
+  'date_range_end.day'?: string;
+  'date_range_end.month'?: string;
+  'date_range_end.year'?: string;
   pid: string;
+  model: string;
+  licenses: string[];
+  'licenses.facet'?: string[];
+  ownParentPid?: string;
 }
 
 export interface PeriodicalItemYear {
@@ -36,6 +45,8 @@ export interface PeriodicalItemYear {
   pid: string;
   model: string;
   accessibility: DocumentAccessibilityEnum;
+  licenses: string[];
+  'licenses.facet'?: string[];
 }
 
 export function parsePeriodicalItemFromMetadata(metadata: Metadata): PeriodicalItem {
@@ -60,6 +71,7 @@ export function parsePeriodicalItemFromMetadata(metadata: Metadata): PeriodicalI
     'root.pid': metadata.rootPid,
     'root.title': metadata.mainTitle,
     'date.str': metadata.dateStr,
+    ownParentPid: metadata.ownParentPid,
 
     children: [],
   };

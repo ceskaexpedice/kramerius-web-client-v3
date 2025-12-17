@@ -1,0 +1,92 @@
+@use 'mixins' as m;
+
+.generic-dialog-container {
+  .dialog-body {
+    .content {
+      padding: 0 var(--spacing-x6) var(--spacing-x6) var(--spacing-x6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x2);
+    }
+  }
+}
+
+.page-range-input-container {
+  display: flex;
+  gap: var(--spacing-x2);
+  align-items: center;
+}
+
+.select-all-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-x2);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+
+  .select-all-label {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+  }
+
+  .selected-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x1);
+
+    i {
+      color: var(--color-warning);
+      font-size: calc(16px * var(--accessibility-text-scale));
+    }
+
+    font-size: calc(14px * var(--accessibility-text-scale));
+    color: var(--color-text-secondary);
+  }
+
+  .limit-info {
+    font-size: calc(14px * var(--accessibility-text-scale));
+    color: var(--color-text-secondary);
+    margin-left: var(--spacing-x2);
+
+    &.limit-reached {
+      color: var(--color-error);
+      font-weight: bold;
+    }
+  }
+}
+
+.disabled-selection {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
+
+  // At 1440px width, cards will be approximately 124px
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  }
+
+  // On larger screens, allow cards to grow a bit more
+  @media (min-width: 1600px) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+@include m.respond(md) {
+  .select-all-container {
+    flex-direction: column;
+    gap: var(--spacing-x3);
+
+    &>* {
+      flex: 1;
+    }
+  }
+}

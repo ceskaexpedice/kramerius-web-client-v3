@@ -1,3 +1,5 @@
+import {DocumentTypeEnum} from '../../modules/constants/document-type';
+
 export class Page {
   snippet: string = '';
   loaded: boolean = false;
@@ -22,6 +24,9 @@ export class Page {
 
   pid: string = '';
   'date.str': string = '';
+  'page.number': string = '';
+  model?: DocumentTypeEnum | string | null;
+  licenses_of_ancestors: string[] = [];
 }
 
 export enum PagePosition {

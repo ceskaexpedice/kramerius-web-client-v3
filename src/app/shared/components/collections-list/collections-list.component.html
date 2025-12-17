@@ -1,0 +1,66 @@
+<div class="collections-list">
+
+  <!-- Header with counts and selection info -->
+  <div class="collections-header">
+
+    <!-- Search Input -->
+    <div class="search-controls">
+
+      <app-input
+        [placeholder]="'search-collections-placeholder' | translate"
+        [initialValue]="searchQuery"
+        [theme]="'dark'"
+        [name]="'collection-search'"
+        aria-label="{{ 'search-collections-placeholder' | translate }}"
+        (valueChange)="onSearchInput($event)"
+        [showClearButton]="true"
+        [showHelpButton]="false"
+        [showSubmitButton]="false"
+      ></app-input>
+
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="error-container">
+    <p class="error-message">{{ 'error-loading-collections' | translate }}: {{ error }}</p>
+  </div>
+
+  <!-- Collections List Container -->
+  <div class="collections-container" #scrollContainer>
+
+    <!-- Collections Items -->
+    <div *ngIf="filteredCollections$ | async as collections" class="collections-items">
+      <div
+        *ngFor="let collection of collections; trackBy: trackByPid"
+        class="collection-item">
+        <mat-checkbox
+          [checked]="isCollectionSelected(collection.pid)"
+          (change)="onCollectionToggle(collection.pid, $event.checked)">
+          <div class="collection-info">
+            <div class="collection-title">{{ collection.title }}</div>
+          </div>
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="loading$ | async" class="loading-indicator">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>{{ 'loading-collections' | translate }}</span>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="(filteredCollections$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <p *ngIf="searchQuery; else noCollectionsTemplate">
+        {{ 'no-collections-found-for-search' | translate: { query: searchQuery } }}
+      </p>
+      <ng-template #noCollectionsTemplate>
+        <p>{{ 'no-collections-found' | translate }}</p>
+      </ng-template>
+    </div>
+
+  </div>
+
+</div>

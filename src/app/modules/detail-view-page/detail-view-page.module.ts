@@ -1,10 +1,6 @@
 import { NgModule } from '@angular/core';
 import { DetailViewPageComponent } from './detail-view-page.component';
 import { RouterModule, Routes } from '@angular/router';
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
-import { documentDetailReducer } from '../../shared/state/document-detail/document-detail.reducer';
-import { DocumentDetailEffects } from '../../shared/state/document-detail/document-detail.effects';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
 import {ActionToolbarComponent} from '../../shared/components/action-toolbar/action-toolbar.component';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
@@ -21,8 +17,16 @@ import {TabItemComponent} from '../../shared/components/tabs/tab-item.component'
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
 import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
 import {TranslatePipe} from '@ngx-translate/core';
-import {musicDetailReducer} from '../music/state/music-detail.reducer';
-import {routerReducer} from '@ngrx/router-store';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import {AdminActionsComponent} from '../../shared/components/admin-actions';
+import {PdfViewer} from '../../shared/components/pdf-viewer/pdf-viewer';
+import {PdfSidebarComponent} from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
+import {DocumentSidebarComponent} from '../../shared/components/document-sidebar/document-sidebar.component';
+import {PdfMetadataSidebarComponent} from '../../shared/components/pdf-metadata-sidebar/pdf-metadata-sidebar.component';
+import {IIIFViewer} from '../../shared/components/iiif-viewer/iiif-viewer';
+import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -34,29 +38,35 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		StoreModule.forFeature('document-detail', documentDetailReducer),
-    StoreModule.forFeature('music', musicDetailReducer),
-    StoreModule.forFeature('router', routerReducer),
-		EffectsModule.forFeature([DocumentDetailEffects]),
-		NgIf,
-		AsyncPipe,
-		JsonPipe,
-		ActionToolbarComponent,
-		FilterSidebarComponent,
-		ToolbarControlsComponent,
-		ToolbarHeaderComponent,
-		DetailPagesGridComponent,
-		InputComponent,
-		DetailViewBottomToolbarComponent,
-		PageNavigatorComponent,
-		TabsComponent,
-		TabItemComponent,
-		DateNavigatorComponent,
-		DetailLayoutComponent,
-		TranslatePipe,
-	],
+  imports: [
+    RouterModule.forChild(routes),
+    MatDatepickerModule,
+    MatNativeDateModule,
+    NgIf,
+    AsyncPipe,
+    JsonPipe,
+    ActionToolbarComponent,
+    FilterSidebarComponent,
+    ToolbarControlsComponent,
+    ToolbarHeaderComponent,
+    DetailPagesGridComponent,
+    InputComponent,
+    DetailViewBottomToolbarComponent,
+    PageNavigatorComponent,
+    TabsComponent,
+    TabItemComponent,
+    DateNavigatorComponent,
+    DetailLayoutComponent,
+    TranslatePipe,
+    AdminActionsComponent,
+    PdfViewer,
+    PdfSidebarComponent,
+    DocumentSidebarComponent,
+    PdfMetadataSidebarComponent,
+    IIIFViewer,
+    ViewerControls,
+    FavoritesPopupComponent,
+  ],
 })
 
 export class DetailViewPageModule { }

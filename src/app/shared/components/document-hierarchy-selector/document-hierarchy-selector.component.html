@@ -1,0 +1,7 @@
+<app-button-toggle
+  *ngFor="let item of hierarchyItems; trackBy: trackByPid"
+  [label]="item.model"
+  [value]="item.pid"
+  [checked]="isSelected(item)"
+  (toggled)="onToggled($event, item)">
+</app-button-toggle>

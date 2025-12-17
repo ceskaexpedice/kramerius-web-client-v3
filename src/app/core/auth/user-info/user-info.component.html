@@ -1,0 +1,17 @@
+@if (!(isAuthenticated | async)) {
+  <a class="cursor-pointer" (click)="login()">{{'log-in' | translate}}</a>
+}
+
+<!--{{(user | async)?.name}}-->
+<!--<a class="cursor-pointer" (click)="logout()">{{'log-out' | translate}}</a>-->
+
+@if ((isAuthenticated | async)) {
+
+  <app-menu
+    [displayName]="truncateDisplayName((user | async)?.name)"
+    [items]="userMenuItems"
+    placement="bottom-end"
+    (select)="onUserMenu($event)"
+  />
+
+}

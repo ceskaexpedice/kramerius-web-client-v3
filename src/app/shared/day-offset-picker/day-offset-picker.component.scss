@@ -5,7 +5,7 @@
   background: var(--color-bg-base);
   color: var(--color-text-light);
   padding: 11px 14px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,7 +38,7 @@
       border: none;
       cursor: pointer;
       padding: 0;
-      font-size: 18px;
+      font-size: calc(18px * var(--accessibility-text-scale));
       color: var(--color-icon-tertiary-default);
       display: flex;
       align-items: center;

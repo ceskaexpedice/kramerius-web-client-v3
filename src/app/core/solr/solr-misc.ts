@@ -6,6 +6,10 @@ export const ONSITE_LICENSES = [
   'dnntt', 'onsite'
 ]
 
+export const PUBLIC_LICENSES = [
+  'public', 'mzk_public-contract', 'mzk_public-muo'
+]
+
 export const allDoctypes = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',
   'archive', 'soundrecording', 'manuscript', 'monographunit',
   'soundunit', 'track', 'periodicalvolume', 'periodicalitem',

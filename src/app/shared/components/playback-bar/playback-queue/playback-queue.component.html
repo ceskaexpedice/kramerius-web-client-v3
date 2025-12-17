@@ -1,35 +1,36 @@
-<div class="queue-panel" *ngIf="isOpen()">
+<div class="queue-panel" *ngIf="isOpen()" appClickOutside (clickOutside)="close()">
   <div class="header">
-    <i class="icon-music-filter"></i>
+    <i class="icon icon-play-circle"></i>
     <span>{{'now-playing--header' | translate}}</span>
-    <button class="icon-button rounded light close-btn" (click)="close()"><i class="icon-x"></i></button>
+    <button class="icon-button rounded light close-btn" (click)="close()"><i class="icon-close"></i></button>
   </div>
 
   <div class="track-list">
-    <div
-      class="track"
-      *ngFor="let track of soundService.getQueue()"
-      [class.active]="isActive(track)"
-    >
-      <div class="thumb-wrapper" (click)="play(track)">
-        <img class="thumb" [src]="soundService.getImageThumbnailUrl(track.parentPid)" alt="" />
-        <div class="thumb-overlay" *ngIf="isActive(track)">
-          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
-        </div>
-      </div>
+    <!-- Currently playing track -->
+    <app-playback-queue-item
+      *ngIf="getCurrentTrack() as currentTrack"
+      [track]="currentTrack"
+      [isCurrentTrack]="true"
+      (onPlay)="onPlay($event)"
+      (onRemove)="onRemove($event)"
+      (onTogglePlayPause)="onTogglePlayPause($event)"
+    ></app-playback-queue-item>
 
-      <div class="info" (click)="play(track)">
-        <div class="title">{{ track['title.search'] }}</div>
-      </div>
-      <div class="actions">
-        <button class="icon-button rounded light" (click)="remove(track)">
-          <i class="icon-trash"></i>
-        </button>
-        <button class="icon-button rounded light">
-          <i class="icon-heart"></i>
-        </button>
-      </div>
+    <!-- More from queue header -->
+    <div class="header" *ngIf="getRemainingTracks().length > 0">
+      <i class="icon icon-music-filter"></i>
+      <span>{{'more-from-queue--title' | translate}}</span>
     </div>
+
+    <!-- Remaining tracks -->
+    <app-playback-queue-item
+      *ngFor="let track of getRemainingTracks()"
+      [track]="track"
+      [isCurrentTrack]="false"
+      (onPlay)="onPlay($event)"
+      (onRemove)="onRemove($event)"
+      (onTogglePlayPause)="onTogglePlayPause($event)"
+    ></app-playback-queue-item>
   </div>
 
   <div class="fade-bottom" *ngIf="soundService.getQueue().length > 5"></div>

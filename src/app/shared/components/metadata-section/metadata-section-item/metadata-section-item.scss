@@ -1,0 +1,81 @@
+.metadata-section--item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x1);
+  margin-bottom: var(--spacing-x2);
+}
+
+.metadata-section--item-label {
+  color: var(--color-text-secondary);
+  font-weight: bold;
+  font-size: var(--font-size-base);
+  margin: 0 0 var(--spacing-x0-5) 0;
+
+  &.uppercase {
+    text-transform: uppercase;
+  }
+}
+
+.metadata-section--item-value {
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  ul.with-bullets {
+    list-style: disc;
+    margin: 0;
+    padding-left: var(--spacing-x5);
+  }
+
+  ul:not(.with-bullets) {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+
+    li {
+      padding: var(--spacing-x0-5) 0;
+    }
+  }
+
+  .uppercase {
+    text-transform: uppercase;
+  }
+}
+
+// Clickable list items
+.clickable-list {
+  li.clickable {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+
+// Badge/pill styling
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+  padding: var(--spacing-x1) var(--spacing-x2);
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-base);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: var(--color-background-hover);
+    border-color: var(--color-primary);
+  }
+
+  i {
+    font-size: var(--font-size-small);
+  }
+}

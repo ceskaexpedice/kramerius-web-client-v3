@@ -5,6 +5,13 @@
 
 $custom-radius: 4px;
 
+:root {
+  --mdc-checkbox-state-layer-size: 20px;
+  --mat-checkbox-state-layer-size: 20px;
+  --mdc-radio-state-layer-size: 20px;
+  --mat-radio-state-layer-size: 20px;
+}
+
 html {
   @include mat.theme((
     color: (
@@ -83,6 +90,10 @@ div.mat-mdc-autocomplete-panel {
   margin: var(--mat-switch-unselected-handle-horizontal-margin, 0 5px) !important;
 }
 
+.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {
+  margin: var(--mat-switch-unselected-handle-horizontal-margin, 0 15px) !important;
+}
+
 .mdc-switch__track::before {
   background-color: var(--color-bg-bright) !important;
 }
@@ -100,6 +111,9 @@ mat-checkbox {
   padding-left: 0 !important;
 }
 
+.mat-mdc-checkbox .mdc-checkbox {
+}
+
 .mdc-checkbox__background {
   border-radius: 4px !important;
 }
@@ -112,4 +126,30 @@ mat-checkbox {
 .mat-mdc-radio-button .mat-internal-form-field {
   color: var(--color-text-light) !important;
   font-size: var(--font-size-small) !important;
+}
+
+mat-slide-toggle.size-sm {
+  --mdc-switch-track-width: 32px;
+  --mdc-switch-track-height: 20px;
+  --mat-switch-unselected-handle-size: 14px;
+  --mat-switch-selected-handle-size: 14px;
+  --mdc-switch-state-layer-size: 14px;
+  --mdc-switch-unselected-state-layer-size: 14px;
+  --mat-switch-selected-handle-horizontal-margin: 0 14px;
+}
+
+mat-slide-toggle.size-sm .mdc-switch {
+  width: 32px !important;
+  height: 20px !important;
+}
+
+mat-slide-toggle.size-sm .mdc-switch__track {
+  width: 32px !important;
+  height: 20px !important;
+  border-radius: 10px !important;
+}
+
+mat-slide-toggle.size-sm .mdc-switch__handle {
+  width: 14px !important;
+  height: 14px !important;
 }

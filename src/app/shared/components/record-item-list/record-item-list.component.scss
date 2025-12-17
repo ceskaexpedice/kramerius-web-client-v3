@@ -1,17 +1,36 @@
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+}
+
 .record-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   color: var(--color-text-base);
-  background-color: var(--color-secondary);
+  background-color: var(--color-bg-base);
   border-radius: var(--spacing-x2);
 
   th {
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--font-size-small);
     padding: 8px 16px;
     text-align: left;
     border-bottom: 1px solid var(--color-border-light);
     color: var(--color-text-tertiary);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background-color: var(--color-bg-base);
+    z-index: 10;
+  }
+
+  td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   tr:last-child {

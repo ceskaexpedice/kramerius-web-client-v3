@@ -1,0 +1,76 @@
+<app-sidebar-dialog-layout [config]="dialogConfig" (save)="save()" (close)="close()"
+  (sectionChange)="onSectionChange($event)" (customButtonClick)="onCustomButtonClick($event)"
+  (actionClick)="onActionClick($event)">
+
+  <div class="edit-selected-content">
+
+    <div class="section-content">
+
+      <!-- Document Hierarchy Selector -->
+      <div class="hierarchy-section" *ngIf="showHierarchySelector">
+        <h3>{{ 'select-hierarchy-level' | translate }}</h3>
+        <app-document-hierarchy-selector [documents]="selectedDocuments()" [allHierarchyLevels]="true"
+          (selectionChanged)="onHierarchySelectionChanged($event)">
+        </app-document-hierarchy-selector>
+      </div>
+
+
+      @switch (activeSection()) {
+
+      @case (EditSelectedDialogSections.reindex) {
+
+      <!-- Reindex Section -->
+      <app-edit-reindex-section [selectedIds]="effectiveSelectedIds()" (dataChange)="onReindexDataChange($event)"
+        (actionClick)="onSectionActionClick()">
+      </app-edit-reindex-section>
+
+      }
+
+      @case (EditSelectedDialogSections.addCollection) {
+
+      <app-add-collection-section [selectedIds]="effectiveSelectedIds()" (dataChange)="onCollectionsDataChange($event)"
+        (actionClick)="onSectionActionClick()">
+      </app-add-collection-section>
+
+
+      }
+
+      @case (EditSelectedDialogSections.removeCollection) {
+      <app-remove-collection-section [selectedIds]="effectiveSelectedIds()"
+        (dataChange)="onCollectionsDataChange($event)" (actionClick)="onSectionActionClick()">
+      </app-remove-collection-section>
+      }
+
+      @case (EditSelectedDialogSections.addLicence) {
+      <app-add-license-section [selectedIds]="effectiveSelectedIds()" (dataChange)="onAddLicenseDataChange($event)"
+        (actionClick)="onSectionActionClick()">
+      </app-add-license-section>
+      }
+
+      @case (EditSelectedDialogSections.removeLicence) {
+      <app-remove-license-section [selectedIds]="effectiveSelectedIds()"
+        (dataChange)="onRemoveLicenseDataChange($event)" (actionClick)="onSectionActionClick()">
+      </app-remove-license-section>
+      }
+
+      }
+
+    </div>
+
+    <!--    &lt;!&ndash; Collections Section &ndash;&gt;-->
+    <!--    <div *ngIf="activeSection() === 'add-collection'" class="section-content">-->
+    <!--      <app-edit-collections-section-->
+    <!--        [selectedIds]="data.selectedIds"-->
+    <!--        (dataChange)="onCollectionsDataChange($event)">-->
+    <!--      </app-edit-collections-section>-->
+    <!--    </div>-->
+
+    <!-- Licence Section -->
+    <div *ngIf="activeSection() === 'licence'" class="section-content">
+      <app-edit-licence-section [selectedIds]="data.selectedIds" (dataChange)="onLicenceDataChange($event)">
+      </app-edit-licence-section>
+    </div>
+
+  </div>
+
+</app-sidebar-dialog-layout>

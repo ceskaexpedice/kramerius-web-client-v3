@@ -1,14 +1,76 @@
-<div class="toggle-buttons--container">
+<div class="settings-display-section">
+  <div class="toggle-buttons--container">
+    <app-toggle-button-group
+      [options]="options"
+      [value]="settings.theme"
+      [label]="'display-mode'"
+      [showLabel]="true"
+      (valueChange)="onThemeChange($event)"
+      [size]="'lg'"
+    >
+    </app-toggle-button-group>
+  </div>
 
-  <app-toggle-button-group
-    [options]="options"
-    [value]="settings.theme"
-    [label]="'display-mode'"
-    [showLabel]="true"
-    (valueChange)="onThemeChange($event)"
-    [size]="'lg'"
-  >
+  <div class="table-columns-config">
+    <div class="config-header">
+      <h4>{{ 'table-columns-visibility' | translate }}:</h4>
+<!--      <button-->
+<!--        class="button tertiary outlined sm"-->
+<!--        (click)="resetColumnsToDefaults()"-->
+<!--        type="button">-->
+<!--        {{ 'reset-to-defaults' | translate }}-->
+<!--      </button>-->
+    </div>
 
-  </app-toggle-button-group>
+<!--    <p class="config-description">{{ 'table-columns-description' | translate }}</p>-->
 
+    <div class="columns-list">
+      <label
+        *ngFor="let column of tableColumns"
+        class="column-item">
+        <app-checkbox
+          [model]="column.visible"
+          (modelChange)="onColumnVisibilityChange(column.id, $event)"
+        >
+        </app-checkbox>
+        <span class="column-label">{{ column.labelKey | translate }}</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="facet-filters-config">
+    <div class="config-header">
+      <h4>{{ 'facet-filters-visibility' | translate }}:</h4>
+<!--      <button-->
+<!--        class="button tertiary outlined sm"-->
+<!--        (click)="resetFacetFiltersToDefaults()"-->
+<!--        type="button">-->
+<!--        {{ 'reset-to-defaults' | translate }}-->
+<!--      </button>-->
+    </div>
+
+<!--    <p class="config-description">{{ 'facet-filters-description' | translate }}</p>-->
+
+    <div
+      cdkDropList
+      class="filters-list"
+      (cdkDropListDropped)="onFacetFilterDrop($event)">
+      <div
+        *ngFor="let filter of facetFilters"
+        cdkDrag
+        [cdkDragPreviewContainer]="'parent'"
+        (click)="clickedFilterItem(filter)"
+        class="filter-item">
+        <div class="drag-handle" cdkDragHandle>
+          <i class="icon-line-vertical"></i>
+        </div>
+        <app-checkbox
+          [model]="filter.visible"
+          (modelChange)="onFacetFilterVisibilityChange(filter.id, $event)"
+        >
+        </app-checkbox>
+        <span class="filter-label">{{ filter.facetKey | translate }}</span>
+      </div>
+    </div>
+  </div>
 </div>

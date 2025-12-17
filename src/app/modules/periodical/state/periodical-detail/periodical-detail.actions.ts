@@ -1,0 +1,37 @@
+import { createAction, props } from '@ngrx/store';
+import {PeriodicalItem, PeriodicalItemYear} from '../../../models/periodical-item';
+import {Metadata} from '../../../../shared/models/metadata.model';
+import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {FacetItem} from '../../../models/facet-item';
+
+export const loadPeriodical = createAction('[Periodical] Load', props<{ uuid: string; filters: string[], advancedQuery?: string, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>());
+export const loadPeriodicalSuccess = createAction('[Periodical] Load Success', props<{ document: PeriodicalItem; metadata: Metadata; years: PeriodicalItemYear[]; availableYears: PeriodicalItemYear[]; children?: any[]; facets?: { [key: string]: FacetItem[] } }>());
+export const loadPeriodicalFailure = createAction('[Periodical] Load Failure', props<{ error: any }>());
+
+export const setPeriodicalSearchParams = createAction('[Periodical] Set Search Params', props<{
+  filters: string[];
+  advancedQuery?: string;
+  page: number;
+  pageCount: number;
+  sortBy: SolrSortFields;
+  sortDirection: SolrSortDirections;
+}>());
+
+export const loadPeriodicalItems = createAction('[Periodical] Load Items', props<{ parentVolumeUuid: string }>());
+export const loadPeriodicalItemsSuccess = createAction('[Periodical] Load Items Success', props<{ children: any[]; availableYears?: PeriodicalItemYear[] }>());
+export const loadPeriodicalItemsFailure = createAction('[Periodical] Load Items Failure', props<{ error: any }>());
+
+export const loadMonthIssues = createAction(
+  '[Periodical] Load Month Issues',
+  props<{ parentVolumeUuid: string; year: number; month: number }>() // month: 1-12
+);
+
+export const loadMonthIssuesSuccess = createAction(
+  '[Periodical] Load Month Issues Success',
+  props<{ year: number; month: number; issues: any[] }>()
+);
+
+export const loadMonthIssuesFailure = createAction(
+  '[Periodical] Load Month Issues Failure',
+  props<{ year: number; month: number; error: any }>()
+);

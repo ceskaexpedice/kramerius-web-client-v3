@@ -9,8 +9,13 @@
     [value]="item.name"
     class="radio-button"
   >
-    {{ (item.name + '-label') | translate }}
-    <span class="count">({{ item.count }})</span>
+    <label
+      class="cursor-pointer"
+      (click)="onLabelClick(item.name)"
+      [class.selected]="item.name === selected"
+    >{{ (item.name + '-label') | translate }}</label>
+    <span class="count"
+          [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
     <i *ngIf="item.icon" [ngClass]="item.icon"></i>
   </mat-radio-button>
 </mat-radio-group>

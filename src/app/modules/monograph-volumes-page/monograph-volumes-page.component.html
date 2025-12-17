@@ -1,0 +1,102 @@
+<div class="page-container">
+  <div class="page-container__inner">
+
+    <!-- Left Sidebar with filters -->
+    <app-filter-sidebar [isDisabled]="false">
+      <app-monograph-filters></app-monograph-filters>
+    </app-filter-sidebar>
+
+    <div class="page-content">
+
+      <div class="page-content__filters">
+
+        @if (parent()) {
+
+          <!-- Action Toolbar -->
+          <app-action-toolbar [hasCenterContent]="false">
+
+            <div class="max-width-100" left>
+
+              <app-toolbar-header
+                [showBackButton]="false"
+                [title]="(parent()?.mainTitle + '(' + volumeItems().length + ')') || ''">
+              </app-toolbar-header>
+            </div>
+
+            <div right>
+            </div>
+
+          </app-action-toolbar>
+        }
+
+
+      </div>
+
+      <!-- Content with right sidebar wrapper -->
+      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()">
+
+        <div class="page-content__main">
+
+          <!-- Loading State -->
+          @if (loading()) {
+            <div class="loading-container">
+              <div class="loading-message">
+                <p>{{ 'loading-document' | translate }}</p>
+              </div>
+            </div>
+          }
+
+          <!-- Error State -->
+          @if (error() && !loading()) {
+            <div class="error-container">
+              <p>{{ 'error-loading-document' | translate }}</p>
+            </div>
+          }
+
+          <!-- Content -->
+          @if (!loading() && !error() && parent()) {
+            <!-- Volumes Grid -->
+            @if (volumeItems().length > 0) {
+
+              <div class="grid--container">
+                @for (volume of volumeItems(); track volume.id) {
+                  <app-record-item [item]="volume"></app-record-item>
+                }
+              </div>
+            } @else {
+              <p class="no-volumes">{{ 'no-volumes-found' | translate }}</p>
+            }
+
+          }
+
+          <!-- Floating sidebar toggle button when sidebar is hidden -->
+          @if (!rightSidebarVisible()) {
+            <button
+              class="floating-sidebar-toggle button icon-button primary rounded"
+              (click)="showRightSidebar()">
+              <i class="icon-info"></i>
+            </button>
+          }
+
+        </div>
+
+        <!-- Right Sidebar -->
+        @if (parent()) {
+          <div
+            class="page-content__sidebar-right"
+            [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
+            [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
+            [class.collapsed]="!rightSidebarVisible()">
+            <app-monograph-right-sidebar-content
+              [setMetadata]="parent()!"
+              (onClose)="hideRightSidebar()">
+            </app-monograph-right-sidebar-content>
+          </div>
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

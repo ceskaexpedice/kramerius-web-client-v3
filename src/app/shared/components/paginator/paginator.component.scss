@@ -1,3 +1,5 @@
+@use 'mixins' as m;
+
 .paginator {
   display: flex;
   justify-content: space-between;
@@ -33,4 +35,18 @@
       border-radius: 4px;
     }
   }
+}
+
+@include m.respond(md) {
+  .paginator {
+    flex-direction: column;
+    gap: var(--spacing-x4);
+    margin-top: var(--spacing-x6);
+    padding: 0;
+
+    &>* {
+      flex: 1;
+    }
+  }
+
 }

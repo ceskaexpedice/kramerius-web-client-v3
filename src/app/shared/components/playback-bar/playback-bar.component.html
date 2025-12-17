@@ -1,12 +1,20 @@
 <div class="playback-bar" *ngIf="show()">
   <div class="left">
-    <img class="cover" [src]="musicService.getCoverImageForTrack()" alt="Cover" />
+    <img class="cover" [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)" alt="Cover" />
     <div class="info">
-      <div class="title">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
-      <div class="meta">
-        {{ musicService.authorForTrack }}
-        · {{ musicService.metadata?.dateStr }}
-        · {{ 'page' | translate }} {{ soundService.getCurrentTrack()?.part }}
+      <div class="title cursor-pointer" (click)="openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+      <div class="meta cursor-pointer" (click)="openTrackDetails()">
+        @if (soundService.getCurrentTrack()?.authors && soundService.getCurrentTrack()!.authors!.length > 0) {
+          {{ soundService.getCurrentTrack()!.authors![0] }}
+        } @else if (musicService.authorForTrack) {
+          {{ musicService.authorForTrack }}
+        }
+        @if (soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr) {
+          · {{ soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr }}
+        }
+        @if (soundService.getCurrentTrack()?.part) {
+          · {{ 'page' | translate }} {{ soundService.getCurrentTrack()!.part }}
+        }
       </div>
     </div>
   </div>
@@ -27,6 +35,7 @@
       type="range"
       min="0"
       max="100"
+      class="hide-thumb"
       [style.--progress]="(soundService.getProgress() * 100) + '%'"
       [value]="soundService.getProgress() * 100"
       (input)="seekTo($event)"
@@ -44,7 +53,7 @@
       (volumeChange)="onVolumeChange($event)"
     ></app-volume-control>
 
-    <button (click)="close()" class="icon-button rounded light"><i class="icon-x"></i></button>
+    <button (click)="close()" class="icon-button rounded light"><i class="icon-close"></i></button>
   </div>
 </div>
 

@@ -1,8 +1,11 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
+import {CalendarPopupComponent} from '../calendar-popup/calendar-popup.component';
+import {NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-date-navigator',
-  imports: [],
+  imports: [CalendarPopupComponent, NgIf, TranslatePipe],
   templateUrl: './date-navigator.component.html',
   styleUrl: './date-navigator.component.scss'
 })
@@ -10,9 +13,14 @@ export class DateNavigatorComponent {
 
   @Input() mode: 'year' | 'date' = 'date';
   @Input() value!: string;
+  @Input() enableCalendarPopup: boolean = false;
+  @Input() periodicalChildren: any[] = [];
 
   @Output() goToNext = new EventEmitter<void>();
   @Output() goToPrevious = new EventEmitter<void>();
+  @Output() dateSelected = new EventEmitter<{pid: string, year: number}>();
+
+  showCalendarPopup = signal(false);
 
   prev() {
     this.goToPrevious.emit();
@@ -20,6 +28,30 @@ export class DateNavigatorComponent {
 
   next() {
     this.goToNext.emit();
+  }
+
+  toggleCalendar() {
+    if (this.enableCalendarPopup) {
+      this.showCalendarPopup.set(!this.showCalendarPopup());
+    }
+  }
+
+  onCalendarDateSelected(dateInfo: {pid: string, year: number}) {
+    this.dateSelected.emit(dateInfo);
+    this.showCalendarPopup.set(false);
+  }
+
+  closeCalendar() {
+    this.showCalendarPopup.set(false);
+  }
+
+  getYearFromValue(): string {
+    // Extract year from date string (DD.MM.YYYY format)
+    if (this.value && this.value.includes('.')) {
+      const parts = this.value.split('.');
+      return parts[2] || '';
+    }
+    return this.value;
   }
 
 }

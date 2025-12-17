@@ -3,13 +3,12 @@ import {
   OnInit,
   EventEmitter,
   Output,
-  signal,
   Input,
   ElementRef,
   ViewChild,
-  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef,
+  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges,
 } from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {FormsModule, NgModel} from '@angular/forms';
@@ -37,7 +36,12 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() id?: string;
   @Input() pattern?: string;
   @Input() withIcons: boolean = true;
+  @Input() label?: string; // Label text above input
   @Input() prefix?: string;
+  @Input() prefixIcon = '';
+  @Input() postfixIcon = '';
+  @Input() clickable = false;
+  @Input() ariaLabel: string = '';
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';
@@ -53,13 +57,20 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() showClearButton: boolean = false;
   @Input() submitIcon: string = 'icon-search-normal';
   @Input() changeMicToClearOnFocus: boolean = true;
+  @Input() showNumberStepper: boolean = true;
+  @Input() showCaseSensitiveButton: boolean = false;
+  @Input() isCaseSensitive: boolean = false;
+  @Input() autofocus: boolean = false;
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();
   @Output() submit = new EventEmitter<string | number>();
+  @Output() clearEmit = new EventEmitter<string | number>();
+  @Output() onBlurEvent = new EventEmitter<void>();
+  @Output() onCaseSensitiveEvent = new EventEmitter<void>();
 
-  @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
-  @ViewChild('inputModel', { static: true }) inputModel!: NgModel;
+  @ViewChild('inputElement', { static: false }) inputElement!: ElementRef<HTMLInputElement>;
+  @ViewChild('inputModel', { static: false }) inputModel!: NgModel;
 
   value: string | number = '';
   isFocused = false;
@@ -89,12 +100,21 @@ export class InputComponent implements OnInit, AfterViewInit {
           const castedValue = this.castValue(newValue);
 
           if (this.value !== castedValue) {
-            this.value = castedValue;
-            this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
-            this.cdr.detectChanges();
+            Promise.resolve().then(() => {
+              this.value = castedValue;
+              this.inputModel?.control?.setValue(castedValue, { emitEvent: false });
+              this.cdr.detectChanges();
+            });
           }
         });
       });
+    }
+
+    // Programmatically focus the input if autofocus is enabled
+    if (this.autofocus) {
+      setTimeout(() => {
+        this.inputElement?.nativeElement?.focus();
+      }, 0);
     }
   }
 
@@ -124,6 +144,7 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   onBlur() {
     this.isFocused = false;
+    this.onBlurEvent.emit();
   }
 
   onEnter() {
@@ -143,6 +164,7 @@ export class InputComponent implements OnInit, AfterViewInit {
     this.value = '';
     this.valueChange.emit('');
     setTimeout(() => this.inputElement?.nativeElement?.focus(), 0);
+    this.clearEmit.emit('');
   }
 
   get showClear(): boolean {
@@ -160,6 +182,10 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   get showMicButtonActual(): boolean {
     return this.showMicButton && !this.showClear;
+  }
+
+  toggleCaseSensitive() {
+    this.onCaseSensitiveEvent.emit();
   }
 
   stepUp() {
@@ -189,10 +215,33 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get iconsRight(): string {
-    // if showMic is true and showHelp is true and showSubmit is true, right is 55px
-    let right = 0;
+    // Calculate right position for action icons
+    let right = 11; // base padding from right edge
 
-    // if there is submitButton add 55px
+    // Position after submit button if present
+    if (this.showSubmitButton) {
+      right += 55;
+    }
+
+    return `${right}px`;
+  }
+
+  get postfixIconRight(): string {
+    // Calculate right position for postfix icon (start from right edge)
+    let right = 12; // base margin
+
+    // Count action icons to the right of postfix
+    if (this.showMicButtonActual || this.showClear) {
+      right += 32;
+    }
+    if (this.showHelpButton) {
+      right += 32;
+    }
+    if (this.showCaseSensitiveButton) {
+      right += 32;
+    }
+
+    // Position before submit button if present
     if (this.showSubmitButton) {
       right += 55;
     }
@@ -201,31 +250,33 @@ export class InputComponent implements OnInit, AfterViewInit {
   }
 
   get iconsWidth(): string {
-    // if showMic is true and showHelp is true and showSubmit is true, width is 55px
+    // Calculate total width of right-side icons for input padding
     let width = 0;
 
+    // Submit button
     if (this.showSubmitButton) {
       width += 55;
     }
 
-    // if there is micButton add 32
-    if (this.showMicButton) {
+    // Action icons (each 32px)
+    if (this.showMicButtonActual || this.showClear) {
       width += 32;
     }
-
-    // if there is helpButton add 32
     if (this.showHelpButton) {
       width += 32;
     }
-
-    // if there is clearButton add 32
-    if (this.showClearButton) {
+    if (this.showCaseSensitiveButton) {
       width += 32;
     }
 
-    // default
-    if (width === 0) {
-      width = 14; // default icon width
+    // Postfix icon
+    if (this.postfixIcon) {
+      width += 32;
+    }
+
+    // Add base padding if there are any icons
+    if (width > 0) {
+      width += 11;
     }
 
     return `${width}px`;

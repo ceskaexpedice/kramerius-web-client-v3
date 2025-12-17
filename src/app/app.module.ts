@@ -9,7 +9,7 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import {HttpBackend, provideHttpClient, withFetch} from '@angular/common/http';
+import {HttpBackend, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -24,6 +24,44 @@ import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
 import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
+import {ImagePreviewOverlayComponent} from './shared/components/image-preview-overlay/image-preview-overlay.component';
+import {FILTER_SERVICE} from './shared/services/filter.service';
+import {SearchService} from './shared/services/search.service';
+import { authReducer, authFeatureKey } from './core/auth/store';
+import { AuthEffects } from './core/auth/store';
+import {tokenInterceptor} from './core/auth/token.interceptor';
+import {simpleCacheInterceptor} from './core/cache/simple-cache.interceptor-fn';
+import {errorInterceptor} from './core/services/error.interceptor';
+
+// NgRx Feature Reducers
+import { periodicalsReducer } from './modules/search/state/periodicals/periodicals.reducer';
+import { booksReducer } from './modules/search/state/books/books.reducer';
+import { genresReducer } from './modules/search/state/genres/genres.reducer';
+import { documentTypesReducer } from './modules/search/state/document-types/document-types.reducer';
+import { searchReducer } from './modules/search-results-page/state/search.reducer';
+import { musicDetailReducer } from './modules/music/state/music-detail.reducer';
+import { documentDetailReducer } from './shared/state/document-detail/document-detail.reducer';
+import { periodicalDetailReducer } from './modules/periodical/state/periodical-detail/periodical-detail.reducer';
+import { periodicalSearchReducer } from './modules/periodical/state/periodical-search/periodical-search.reducer';
+import { foldersReducer } from './modules/saved-lists-page/state';
+import { collectionsReducer } from './shared/state/collections/collections.reducer';
+import { licensesReducer } from './shared/state/licenses/licenses.reducer';
+import { monographVolumesReducer } from './shared/state/monograph-volumes';
+
+// NgRx Feature Effects
+import { PeriodicalsEffects } from './modules/search/state/periodicals/periodicals.effects';
+import { BooksEffects } from './modules/search/state/books/books.effects';
+import { GenresEffects } from './modules/search/state/genres/genres.effects';
+import { DocumentTypesEffects } from './modules/search/state/document-types/document-types.effects';
+import { SearchEffects } from './modules/search-results-page/state/search.effects';
+import { DocumentDetailEffects } from './shared/state/document-detail/document-detail.effects';
+import { PeriodicalDetailEffects } from './modules/periodical/state/periodical-detail/periodical-detail.effects';
+import { PeriodicalSearchEffects } from './modules/periodical/state/periodical-search/periodical-search.effects';
+import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
+import { FoldersEffects } from './modules/saved-lists-page/state';
+import { LicensesEffects } from './shared/state/licenses/licenses.effects';
+import { MonographVolumesEffects } from './shared/state/monograph-volumes';
+import {CollectionsEffects} from './shared/state/collections/collections.effects';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -36,7 +74,10 @@ export function initApp(envService: EnvironmentService) {
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, {
+      scrollPositionRestoration: 'disabled',
+      anchorScrolling: 'enabled'
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -54,23 +95,62 @@ export function initApp(envService: EnvironmentService) {
     }),
     StoreModule.forRoot({
       router: routerReducer,
+      [authFeatureKey]: authReducer,
+      // Feature states moved to root to avoid warnings with root services
+      periodicals: periodicalsReducer,
+      books: booksReducer,
+      genres: genresReducer,
+      'document-types': documentTypesReducer,
+      'search-results': searchReducer,
+      music: musicDetailReducer,
+      'document-detail': documentDetailReducer,
+      'periodical-detail': periodicalDetailReducer,
+      'periodical-search': periodicalSearchReducer,
+      folders: foldersReducer,
+      collections: collectionsReducer,
+      licenses: licensesReducer,
+      'monograph-volumes': monographVolumesReducer,
     }, {}),
-    EffectsModule.forRoot([]),
+    EffectsModule.forRoot([
+      AuthEffects,
+      // Feature effects moved to root to avoid warnings with root services
+      PeriodicalsEffects,
+      BooksEffects,
+      GenresEffects,
+      DocumentTypesEffects,
+      SearchEffects,
+      DocumentDetailEffects,
+      PeriodicalDetailEffects,
+      PeriodicalSearchEffects,
+      MusicDetailEffects,
+      FoldersEffects,
+      LicensesEffects,
+      CollectionsEffects,
+      MonographVolumesEffects,
+    ]),
     StoreRouterConnectingModule.forRoot(),
     StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
     HeaderComponent,
     FooterComponent,
     PlaybackBarComponent,
     LoadingOverlayComponent,
+    ImagePreviewOverlayComponent,
   ],
   providers: [
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([simpleCacheInterceptor, tokenInterceptor, errorInterceptor])
+    ),
     AppMissingTranslationService,
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
       deps: [EnvironmentService],
       multi: true
+    },
+    {
+      provide: FILTER_SERVICE,
+      useExisting: SearchService
     }
   ],
   bootstrap: [AppComponent]
@@ -78,6 +158,6 @@ export function initApp(envService: EnvironmentService) {
 
 export class AppModule {
   constructor(translate: TranslateService) {
-    translate.setDefaultLang(ENVIRONMENT.defaultLanguage);
+    translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
   }
 }

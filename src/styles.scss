@@ -1,17 +1,37 @@
-html, body {
+@use '../public/styles/accessibility/text-scaling';
+@use '../public/styles/accessibility/dyslexia-friendly';
+@use '../public/styles/accessibility/tritanopia';
+@use '../public/styles/accessibility/photophobia';
+@use '../public/styles/accessibility/grayscale';
+@use '../public/styles/accessibility/low-vision';
+@use '../public/styles/accessibility/high-contrast';
+
+html,
+body {
   height: 100%;
+  scroll-behavior: auto !important;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 body {
   transition: background-color 0.3s, color 0.3s;

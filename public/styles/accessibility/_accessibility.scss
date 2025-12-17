@@ -1,0 +1,75 @@
+// Accessibility Module Imports
+@import 'text-scaling';
+@import 'high-contrast';
+@import 'large-components';
+@import 'motion-reduction';
+@import 'focus-visibility';
+@import 'screen-reader';
+
+// Accessibility Base Variables
+:root {
+  --accessibility-text-scale: 1;
+  --accessibility-transition-duration: 300ms;
+  --accessibility-animation-duration: 300ms;
+  --accessibility-focus-outline-width: 2px;
+  --accessibility-focus-outline-offset: 2px;
+  --accessibility-focus-outline-color: var(--color-primary);
+  --accessibility-min-touch-target: 44px;
+  --accessibility-large-spacing: 1.5;
+  --accessibility-large-border-radius: 1.2;
+}
+
+// WCAG Compliance Utilities
+.wcag-compliant {
+  // Ensure minimum color contrast ratios
+  &.text-on-light {
+    color: var(--color-text-base);
+  }
+
+  &.text-on-dark {
+    color: var(--color-text-on-color);
+  }
+
+  // Ensure minimum touch targets
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  a {
+    min-height: var(--accessibility-min-touch-target);
+    min-width: var(--accessibility-min-touch-target);
+  }
+}
+
+// Screen reader only content
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// Skip to content link
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-bg-base);
+  color: var(--color-text-base);
+  padding: 8px;
+  text-decoration: none;
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: 600;
+
+  &:focus {
+    top: 6px;
+  }
+}

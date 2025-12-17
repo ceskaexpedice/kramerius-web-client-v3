@@ -2,15 +2,16 @@
   <div class="group-content">
     <div class="filter-items">
       <advanced-search-filter-row
-        *ngFor="let filter of filters; let i = index"
+        *ngFor="let filter of filters; let i = index; trackBy: trackByFn"
         [filter]="filter"
         (filterChange)="updateFilter(i, $event)"
-        (remove)="removeFilter(i)">
+        (remove)="removeFilter(i)"
+        (addYearFilter)="addYearFilterRow()">
       </advanced-search-filter-row>
     </div>
 
     <div class="group-actions">
-      <button class="button link primary with-icon" (click)="addFilter()">
+      <button class="button link primary with-icon p-left-0" (click)="addFilter()">
         <i class="icon-add-square"></i>
         {{ 'next-condition-button-label' | translate }}
       </button>

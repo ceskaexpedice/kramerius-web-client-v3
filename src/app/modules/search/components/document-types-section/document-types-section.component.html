@@ -1,14 +1,22 @@
 <section class="facet-grid-section">
   <h3>{{ 'doctypes' | translate }}</h3>
 
-  <div class="facet-grid" *ngIf="documentTypes$ | async as documentTypes">
-    <app-category-item
-      *ngFor="let genre of documentTypes?.slice(0, 16)"
-      [icon]="genre.icon"
-      [label]="genre.name"
-      [count]="genre.count"
-      [url]="getDocumentTypeUrl(genre.name)"
-      (clicked)="clickedDocumentType($event)"
-    ></app-category-item>
+  <app-inline-loader 
+    *ngIf="loading$ | async" 
+    message="loading-document-types"
+    minHeight="160px">
+  </app-inline-loader>
+
+  <div *ngIf="!(loading$ | async)">
+    <div class="facet-grid" *ngIf="documentTypes$ | async as documentTypes">
+      <app-category-item
+        *ngFor="let genre of documentTypes?.slice(0, 16)"
+        [icon]="genre.icon"
+        [label]="genre.name"
+        [count]="genre.count"
+        [url]="getDocumentTypeUrl(genre.name)"
+        (clicked)="clickedDocumentType($event)"
+      ></app-category-item>
+    </div>
   </div>
 </section>

@@ -1,0 +1,40 @@
+@use "_z-index.scss" as z;
+
+.badge.model {
+  background: var(--color-bg-base);
+  color: var(--color-text-base);
+  font-size: calc(12px * var(--accessibility-text-scale));
+  padding: 4px 6px;
+  border-radius: 0 4px 4px 0;
+  z-index: z.$record-item-overlay;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  i {
+    font-size: calc(14px * var(--accessibility-text-scale));
+  }
+
+  .icon-stack {
+    position: relative;
+    display: inline-block;
+    width: calc(16px * var(--accessibility-text-scale));
+    height: calc(14px * var(--accessibility-text-scale));
+
+    i {
+      position: absolute;
+      font-size: calc(14px * var(--accessibility-text-scale));
+      background-color: var(--color-bg-base);
+
+      &:first-child {
+        left: 0;
+        top: 0;
+      }
+
+      &:last-child {
+        left: calc(6px * var(--accessibility-text-scale));
+        top: 0;
+      }
+    }
+  }
+}

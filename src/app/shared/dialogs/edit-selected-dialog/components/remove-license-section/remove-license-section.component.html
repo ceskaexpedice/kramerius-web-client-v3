@@ -1,0 +1,28 @@
+<div class="remove-license-section">
+
+  <div class="section-header selected-dialog--header">
+    <h3>{{ 'select-licenses-to-remove' | translate }} <span *ngIf="totalCount$ | async as totalCount">({{ totalCount }})</span></h3>
+  </div>
+
+  <div class="licenses-selection selected-dialog--section">
+    <app-licenses-list
+      [title]="'select-licenses-to-remove' | translate"
+      [selectedLicenses]="selectedLicenses"
+      (selectionChange)="onLicensesSelectionChange($event)">
+    </app-licenses-list>
+  </div>
+
+  <div class="selected-dialog--actions">
+
+    <button class="primary"
+            [disabled]="selectedLicenses.length === 0"
+            (click)="onActionClick()">
+      {{'remove--button-label' | translate}}
+      @if (selectedLicenses && selectedLicenses.length > 0) {
+        ({{ selectedLicenses.length }})
+      }
+    </button>
+
+  </div>
+
+</div>

@@ -17,9 +17,24 @@
       [index]="i"
       [selectedPid]="selectedPid"
       [playingPid]="playingPid"
+      [viewType]="viewType"
       (toggleFavoriteClicked)="onFavoriteToggled($event)"
       (addToQueueClicked)="onAddToQueue($event)"
       (downloadClicked)="onDownload($event)"
+      (removeClicked)="onRemove($event)"
   ></tr>
   </tbody>
 </table>
+
+<!-- Favorites Popup positioned fixed to avoid overflow clipping -->
+@if (favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper" 
+       [class.positioned]="favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="currentTrackId()"
+      [itemName]="currentTrackName()"
+      [currentFolderId]="currentFolderId"
+      (close)="favoritesPopupState.closePopup()">
+    </app-favorites-popup>
+  </div>
+}

@@ -25,12 +25,15 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   private searchBuffer = '';
   private searchTimeout?: any;
 
+  @Input() class = '';
   @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');
   @Input() value: T | null = null;
   @Input() filterable: boolean = false;
   @Input() filterPlaceholder: string = 'Search...';
+  @Input() disabled: boolean = false;
+  @Input() zIndex: number = 10;
   @Output() valueChange = new EventEmitter<T>();
 
   open = signal(false);
@@ -57,11 +60,15 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   }
 
   toggle() {
+    if (this.disabled) return;
     this.open.update((v) => {
       if (!v) {
         this.filterText = '';
         this.updateFilteredOptions();
         this.focusedIndex = this.filteredOptions.findIndex((o) => o === this.value);
+        if (this.focusedIndex >= 0) {
+          this.scrollFocusedIntoView();
+        }
       }
       return !v;
     });

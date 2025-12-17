@@ -1,6 +1,6 @@
 input {
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   border: 1px solid var(--color-border-bright);
   border-radius: 4px;
 }
@@ -45,9 +45,8 @@ input[type=range] {
     border-radius: 50%;
     background: var(--color-bg-base);
     border: 1px solid var(--color-primary);
-    margin-top: -6px;
+    margin-top: -8px;
     cursor: pointer;
-    opacity: 0; // Hide by default
     transition: opacity 0.2s ease; // Smooth transition
   }
 
@@ -74,7 +73,6 @@ input[type=range] {
     background: var(--color-bg-base);
     border: 1px solid var(--color-primary);
     cursor: pointer;
-    opacity: 0; // Hide by default
     transition: opacity 0.2s ease; // Smooth transition
   }
 
@@ -87,5 +85,24 @@ input[type=range] {
     background: var(--color-primary);
     height: 4px;
     border-radius: 8px;
+  }
+}
+
+input[type=range].hide-thumb {
+  &::-webkit-slider-thumb {
+    margin-top: -6px;
+    opacity: 0;
+  }
+
+  &:hover::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  &::-moz-range-thumb {
+    opacity: 0;
+  }
+
+  &:hover::-moz-range-thumb {
+    opacity: 1;
   }
 }

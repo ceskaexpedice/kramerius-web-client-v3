@@ -1,15 +1,64 @@
+@use "mixins" as *;
+
 .generic-dialog-container {
   padding: 24px 20px 12px 20px;
-  max-height: 80vh;
   overflow: hidden;
   background-color: var(--color-bg-base);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .close-button {
-    font-size: 24px;
+    font-size: calc(24px * var(--accessibility-text-scale));
     padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back-button {
+    font-size: calc(24px * var(--accessibility-text-scale));
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 var(--spacing-x4) 0;
+
+    .dialog-title {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: var(--font-size-large);
+
+      .dialog-subtitle {
+        font-weight: 400;
+        color: var(--color-tertiary);
+
+        &::before {
+          content: " · ";
+          font-weight: 600;
+          color: var(--color-tertiary);
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+
+  // Desktop header visible by default, hidden on mobile
+  .desktop-header {
+    display: flex;
+  }
+
+  // Mobile headers hidden by default
+  .mobile-header {
+    display: none;
   }
 
   hr {
@@ -35,6 +84,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-x2);
+        height: 100%;
 
         li {
           display: flex;
@@ -60,17 +110,55 @@
             }
           }
 
+          &.section-title {
+            cursor: default;
+            color: var(--color-text-primary);
+            font-weight: 600;
+            padding: var(--spacing-x2) var(--spacing-x4);
+            background: none;
+
+            &:hover {
+              background: none;
+            }
+
+            i {
+              color: var(--color-icon-primary-default);
+            }
+          }
+
+          &.action-section {
+            cursor: pointer;
+            margin-top: auto;
+          }
+
           label {
             display: flex;
             gap: var(--spacing-x3);
             align-items: flex-start;
+            font-size: var(--font-size-base);
+          }
+        }
+
+        .section-group {
+          border: 1px solid var(--color-border-light);
+          border-radius: var(--spacing-x2);
+          margin-bottom: var(--spacing-x3);
+          background: var(--color-bg-tertiary);
+          padding: var(--spacing-x2) 0;
+
+          li {
+            margin-bottom: var(--spacing-x1);
+
+            &:last-child {
+              margin-bottom: 0;
+            }
           }
         }
       }
     }
 
     .content {
-      padding: 36px 24px;
+      padding: 24px;
       flex: 3;
       overflow-y: auto;
       min-height: 0;
@@ -82,5 +170,84 @@
     justify-content: center;
     margin-top: var(--spacing-x3);
     gap: var(--spacing-x4);
+
+    .button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      i {
+        font-size: var(--font-size-small);
+      }
+    }
+  }
+
+  // Utility class for hiding elements
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  // Mobile responsive styles
+  @include respond(md) {
+    padding: 16px 16px 12px 16px;
+    border-radius: 0;
+
+    // Hide desktop header on mobile
+    .desktop-header {
+      display: none;
+    }
+
+    // Show mobile headers on mobile
+    .mobile-header {
+      display: flex;
+    }
+
+    // Mobile content header has specific layout
+    .mobile-content-header {
+      .dialog-title {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+        font-size: var(--font-size-base);
+        font-weight: 600;
+      }
+    }
+
+    .dialog-body {
+      .sidebar {
+        // Full width on mobile, no border
+        flex: 1;
+        border-right: none;
+        padding: var(--spacing-x4) 0;
+        width: 100%;
+
+        ul {
+          li {
+            padding: var(--spacing-x4);
+
+            label {
+              font-size: var(--font-size-base);
+            }
+          }
+
+          .section-group {
+            li {
+              min-height: 44px;
+            }
+          }
+        }
+      }
+
+      .content {
+        // Full width on mobile
+        flex: 1;
+        padding: var(--spacing-x4);
+        width: 100%;
+      }
+    }
+
+    .footer {
+      gap: var(--spacing-x3);
+    }
   }
 }

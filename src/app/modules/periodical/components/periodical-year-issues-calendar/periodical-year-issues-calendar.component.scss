@@ -1,3 +1,4 @@
+@use "mixins" as *;
 
 :host {
   display: block;
@@ -13,7 +14,7 @@ h2 {
 h3 {
   padding-bottom: 15px;
   text-align: left;
-  font-size: 20px;
+  font-size: calc(20px * var(--accessibility-text-scale));
   margin-top: 0;
   border-bottom: 1px solid var(--color-border-bright);
 }
@@ -24,7 +25,7 @@ h3 {
   gap: 16px;
 
   /* Responsive layout adjustments */
-  @media (max-width: 1200px) {
+  @include respond(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -32,7 +33,7 @@ h3 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 600px) {
+  @include respond(sm) {
     grid-template-columns: 1fr;
   }
 
@@ -61,9 +62,51 @@ h3 {
 
     /* Adjust calendar cells for better fit */
     ::ng-deep .mat-calendar-body-cell {
-      height: 28px;
-      width: 28px;
+      height: 32px;
+      width: 32px;
+    }
+
+    /* Style for cells with issues */
+    //::ng-deep .mat-calendar-body-cell.has-issue {
+    //  position: relative;
+    //}
+
+    /* Single dot for single issue */
+    ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
+      content: '•';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: calc(12px * var(--accessibility-text-scale));
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+    }
+
+    /* Two dots for 2 issues */
+    ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-2::after {
+      content: '••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: calc(12px * var(--accessibility-text-scale));
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
+    }
+
+    /* Three dots for 3+ issues */
+    ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-3plus::after {
+      content: '•••';
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: calc(12px * var(--accessibility-text-scale));
+      line-height: 1;
+      color: var(--color-text-btn-tertiary-default);
+      letter-spacing: 1px;
     }
   }
 }
-

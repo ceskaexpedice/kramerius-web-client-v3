@@ -2,7 +2,7 @@
   <h2>
     {{ 'citation-dialog--header' | translate }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
-      <i class="icon-x"></i>
+      <i class="icon-close"></i>
     </button>
   </h2>
 
@@ -20,30 +20,27 @@
 
           <div class="tab--content">
 
-            <div class="citation-types--container">
+            <div class="hierarchy-selector--container">
 
-              <app-button-toggle
-                *ngFor="let type of shareableDocumentTypes"
-                [label]="type.model"
-                [value]="type.pid"
-                [checked]="type.pid === activeCitationPid"
-                (toggled)="toggledActiveCitationType($event, type.pid)">
-              </app-button-toggle>
+              <app-document-hierarchy-selector
+                [document]="document"
+                (selectionChanged)="onHierarchySelectionChanged($event)">
+              </app-document-hierarchy-selector>
 
             </div>
           </div>
 
         </div>
 
-        <app-tab-item label="HTML">
-          <div class="tab-item--content" [innerHTML]="citationResponse?.iso690html"></div>
-        </app-tab-item>
-
         <app-tab-item label="text">
           <div class="tab-item--content" [innerHTML]="citationResponse?.iso690"></div>
         </app-tab-item>
 
-        <app-tab-item label="BibTeX">
+        <app-tab-item [label]="'html' | translate">
+          <div class="tab-item--content">{{citationResponse?.iso690html}}</div>
+        </app-tab-item>
+
+        <app-tab-item [label]="'bibtex' | translate">
           <div class="tab-item--content" [innerHTML]="citationResponse?.bibtex"></div>
         </app-tab-item>
 

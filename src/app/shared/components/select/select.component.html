@@ -5,12 +5,12 @@
   [attr.aria-expanded]="open()"
   role="button"
   tabindex="0"
-  [ngClass]="theme"
+  [ngClass]="[theme, class]"
   (keydown)="onKeyDown($event)"
 >
   <span>{{ displayFn(value) | translate }}</span>
   <i
-    class="icon-arrow-down-1 arrow-icon"
+    class="icon-arrow-down arrow-icon"
     [class.open]="open()"
   ></i>
 </div>
@@ -19,6 +19,7 @@
   *ngIf="open()"
   class="options-container"
   [class.above]="showAbove"
+  [style.z-index]="zIndex"
   role="listbox"
   [attr.aria-activedescendant]="'option-' + focusedIndex"
 >

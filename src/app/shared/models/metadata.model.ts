@@ -1,6 +1,5 @@
 import { Page } from './page.model';
 import { Article } from './article.model';
-import { DocumentItem } from './document_item.model';
 import { PeriodicalItem } from './periodicalItem.model';
 import { InternalPart } from './internal_part.model';
 
@@ -13,7 +12,7 @@ export class Metadata {
   public extent: string = '';
   public keywords: string[] = [];
   public geonames: string[] = [];
-  public notes: string[] = [];
+  public notes: NoteInfo[] = [];
   public languages: string[] = [];
   public locations: Location[] = [];
   public abstracts: string[] = [];
@@ -22,6 +21,10 @@ export class Metadata {
   public cartographicData: CartographicData[] = [];
   public physicalDescriptions: PhysicalDescription[] = [];
   public identifiers: any = {};
+
+  public subjectNamesPersonal: Author[] = [];
+  public subjectNamesCorporate: Author[] = [];
+  public subjectTemporals: string[] = [];
 
   public model: string = '';
   public doctype: string = '';
@@ -86,6 +89,15 @@ export class Metadata {
   public reviews: Metadata[] = [];
   public volumeMetadata: Metadata | null = null;
   public extraParentMetadata: Metadata | null = null;
+
+  public pdf: boolean = false;
+  public epub: boolean = false;
+
+  // Collection-specific fields (empty/null for non-collection documents)
+  public collectionDescription: string = '';
+  public collectionDescriptions: { [lang: string]: string } = {};
+  public collectionTitles: { [lang: string]: string } = {};
+  public collectionIsStandalone: boolean = false;
 }
 
 export class TitleInfo {
@@ -97,8 +109,13 @@ export class TitleInfo {
   public partNumber: string = '';
 }
 
+export class NoteInfo {
+  public lang: string = '';
+  public text: string = '';
+}
+
 export class Volume {
-  constructor(public uuid: string = '', public year: string = '', public number: string = '') {}
+  constructor(public uuid: string = '', public year: string = '', public number: string = '') { }
 }
 
 export class Author {
@@ -124,7 +141,7 @@ export class Location {
 }
 
 export class PhysicalDescription {
-  constructor(public note: string = '', public extent: string = '') {}
+  constructor(public note: string = '', public extent: string = '') { }
 
   empty() {
     return !(this.extent || this.note);
@@ -188,7 +205,9 @@ export class InCollections {
   public name: string = '';
 }
 
-export function fromSolrToMetadata(doc: any): Metadata {
+import { getLocalizedField, getAllLanguageVersions, getLocalizedTitle } from '../utils/language-utils';
+
+export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metadata {
   const metadata = new Metadata();
 
   metadata.uuid = doc.pid;
@@ -287,7 +306,229 @@ export function fromSolrToMetadata(doc: any): Metadata {
   metadata.dateMin = doc['date.min'] ?? '';
   metadata.dateMax = doc['date.max'] ?? '';
 
+  metadata.pdf = doc['ds.img_full.mime'] === 'application/pdf';
+  metadata.epub = doc['ds.img_full.mime'] === 'application/epub+zip';
+
+  // Handle collection-specific fields
+  if (doc.model === 'collection') {
+    metadata.collectionDescription = getLocalizedField(doc, 'collection.desc', currentLang);
+    metadata.collectionDescriptions = getAllLanguageVersions(doc, 'collection.desc');
+    metadata.collectionTitles = getAllLanguageVersions(doc, 'title.search');
+    metadata.collectionIsStandalone = doc['collection.is_standalone'] ?? false;
+
+    // Use localized title for collections
+    const localizedTitle = getLocalizedTitle(doc, currentLang);
+    if (localizedTitle) {
+      metadata.mainTitle = localizedTitle;
+    }
+  }
+
   return metadata;
 }
 
+/**
+ * Merges MODS metadata into Solr metadata, filling in missing fields
+ * @param solrMetadata Base metadata from Solr
+ * @param modsMetadata Additional metadata from MODS
+ * @returns Merged metadata object
+ */
+export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): Metadata {
+  const merged = { ...solrMetadata };
+
+  // Merge simple string fields - use MODS if Solr field is empty
+  if (!merged.mainTitle && modsMetadata.mainTitle) {
+    merged.mainTitle = modsMetadata.mainTitle;
+  }
+  if (!merged.extent && modsMetadata.extent) {
+    merged.extent = modsMetadata.extent;
+  }
+
+  // Merge array fields - add unique items from MODS that aren't in Solr
+  // Titles
+  if (modsMetadata.titles && modsMetadata.titles.length > 0) {
+    const existingTitles = new Set(merged.titles.map(t => t.title));
+    for (const title of modsMetadata.titles) {
+      if (title.title && !existingTitles.has(title.title)) {
+        merged.titles.push(title);
+      }
+    }
+  }
+
+  // Authors
+  if (modsMetadata.authors && modsMetadata.authors.length > 0) {
+    const existingAuthors = new Set(merged.authors.map(a => a.name));
+    for (const author of modsMetadata.authors) {
+      if (author.name && !existingAuthors.has(author.name)) {
+        merged.authors.push(author);
+      }
+    }
+  }
+
+  // Publishers
+  if (modsMetadata.publishers && modsMetadata.publishers.length > 0) {
+    const existingPublishers = new Set(merged.publishers.map(p => `${p.name}|${p.place}|${p.date}`));
+    for (const publisher of modsMetadata.publishers) {
+      const key = `${publisher.name}|${publisher.place}|${publisher.date}`;
+      if (!existingPublishers.has(key)) {
+        merged.publishers.push(publisher);
+      }
+    }
+  }
+
+  // Languages
+  if (modsMetadata.languages && modsMetadata.languages.length > 0) {
+    const existingLanguages = new Set(merged.languages);
+    for (const lang of modsMetadata.languages) {
+      if (!existingLanguages.has(lang)) {
+        merged.languages.push(lang);
+      }
+    }
+  }
+
+  // Keywords
+  if (modsMetadata.keywords && modsMetadata.keywords.length > 0) {
+    const existingKeywords = new Set(merged.keywords);
+    for (const keyword of modsMetadata.keywords) {
+      if (!existingKeywords.has(keyword)) {
+        merged.keywords.push(keyword);
+      }
+    }
+  }
+
+  // Geonames
+  if (modsMetadata.geonames && modsMetadata.geonames.length > 0) {
+    const existingGeonames = new Set(merged.geonames);
+    for (const geoname of modsMetadata.geonames) {
+      if (!existingGeonames.has(geoname)) {
+        merged.geonames.push(geoname);
+      }
+    }
+  }
+
+  // Genres
+  if (modsMetadata.genres && modsMetadata.genres.length > 0) {
+    const existingGenres = new Set(merged.genres);
+    for (const genre of modsMetadata.genres) {
+      if (!existingGenres.has(genre)) {
+        merged.genres.push(genre);
+      }
+    }
+  }
+
+  console.log('modsMetadata notes::', modsMetadata)
+
+  // Notes
+  if (modsMetadata.notes && modsMetadata.notes.length > 0) {
+    const existingNotes = new Set(merged.notes);
+    const newNotes = new Set(modsMetadata.notes);
+    merged.notes = [];
+    for (const note of newNotes) {
+      merged.notes.push(note);
+    }
+  }
+
+  // Abstracts
+  if (modsMetadata.abstracts && modsMetadata.abstracts.length > 0) {
+    const existingAbstracts = new Set(merged.abstracts);
+    for (const abstract of modsMetadata.abstracts) {
+      if (!existingAbstracts.has(abstract)) {
+        merged.abstracts.push(abstract);
+      }
+    }
+  }
+
+  // Contents (table of contents)
+  if (modsMetadata.contents && modsMetadata.contents.length > 0) {
+    const existingContents = new Set(merged.contents);
+    for (const content of modsMetadata.contents) {
+      if (!existingContents.has(content)) {
+        merged.contents.push(content);
+      }
+    }
+  }
+
+  // Locations
+  if (modsMetadata.locations && modsMetadata.locations.length > 0) {
+    const existingLocations = new Set(merged.locations.map(l => `${l.physicalLocation}|${l.shelfLocator}`));
+    for (const location of modsMetadata.locations) {
+      const key = `${location.physicalLocation}|${location.shelfLocator}`;
+      if (!existingLocations.has(key)) {
+        merged.locations.push(location);
+      }
+    }
+  }
+
+  // Physical descriptions
+  if (modsMetadata.physicalDescriptions && modsMetadata.physicalDescriptions.length > 0) {
+    const existingDescriptions = new Set(merged.physicalDescriptions.map(pd => `${pd.note}|${pd.extent}`));
+    for (const description of modsMetadata.physicalDescriptions) {
+      const key = `${description.note}|${description.extent}`;
+      if (!existingDescriptions.has(key)) {
+        merged.physicalDescriptions.push(description);
+      }
+    }
+  }
+
+  // Cartographic data
+  if (modsMetadata.cartographicData && modsMetadata.cartographicData.length > 0) {
+    const existingCartographic = new Set(merged.cartographicData.map(cd => `${cd.scale}|${cd.coordinates}`));
+    for (const cartographic of modsMetadata.cartographicData) {
+      const key = `${cartographic.scale}|${cartographic.coordinates}`;
+      if (!existingCartographic.has(key)) {
+        merged.cartographicData.push(cartographic);
+      }
+    }
+  }
+
+  // Identifiers - merge object keys
+  if (modsMetadata.identifiers) {
+    for (const [key, values] of Object.entries(modsMetadata.identifiers)) {
+      if (!Array.isArray(values)) continue; // Skip non-array values
+
+      if (!merged.identifiers[key]) {
+        merged.identifiers[key] = values;
+      } else {
+        // Add unique values
+        const existingValues = new Set(merged.identifiers[key]);
+        for (const value of values) {
+          if (!existingValues.has(value)) {
+            merged.identifiers[key].push(value);
+          }
+        }
+      }
+    }
+  }
+
+  // Subject Names Personal
+  if (modsMetadata.subjectNamesPersonal && modsMetadata.subjectNamesPersonal.length > 0) {
+    const existingPersonal = new Set(merged.subjectNamesPersonal.map(a => a.name));
+    for (const author of modsMetadata.subjectNamesPersonal) {
+      if (author.name && !existingPersonal.has(author.name)) {
+        merged.subjectNamesPersonal.push(author);
+      }
+    }
+  }
+
+  // Subject Names Corporate
+  if (modsMetadata.subjectNamesCorporate && modsMetadata.subjectNamesCorporate.length > 0) {
+    const existingCorporate = new Set(merged.subjectNamesCorporate.map(a => a.name));
+    for (const author of modsMetadata.subjectNamesCorporate) {
+      if (author.name && !existingCorporate.has(author.name)) {
+        merged.subjectNamesCorporate.push(author);
+      }
+    }
+  }
+
+  // Subject Temporals
+  if (modsMetadata.subjectTemporals && modsMetadata.subjectTemporals.length > 0) {
+    const existingTemporals = new Set(merged.subjectTemporals);
+    for (const temporal of modsMetadata.subjectTemporals) {
+      if (!existingTemporals.has(temporal)) {
+        merged.subjectTemporals.push(temporal);
+      }
+    }
+  }
+
+  return merged;
+}
 

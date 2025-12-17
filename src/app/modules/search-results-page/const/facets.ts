@@ -1,6 +1,11 @@
+import { SolrSearchField } from '../../../shared/dialogs/advanced-search-dialog/solr-filters';
+
 export enum FacetElementType {
   checkbox = 'checkbox',
-  radio = 'radio'
+  radio = 'radio',
+  range = 'range',
+  dateRange = 'dateRange',
+  yearRange = 'yearRange',
 }
 
 export enum FacetAccessibilityTypes {
@@ -22,6 +27,9 @@ export const facetKeysEnum = {
   publishers: 'publishers.facet',
   publication_places: 'publication_places.facet',
   physical_locations: 'physical_locations.facet',
+  subjectNamesPersonal: 'subject_names_personal.facet',
+  subjectNamesCorporate: 'subject_names_corporate.facet',
+  subjectTemporals: 'subject_temporals.facet'
 }
 
 export const facetKeys: string[] = [
@@ -35,18 +43,25 @@ export const facetKeys: string[] = [
   facetKeysEnum.publishers,
   facetKeysEnum.publication_places,
   facetKeysEnum.physical_locations,
+  facetKeysEnum.subjectNamesPersonal,
+  facetKeysEnum.subjectNamesCorporate,
+  facetKeysEnum.subjectTemporals
 ];
 
 export enum customDefinedFacetsEnum {
   accessibility = 'custom-accessibility',
   model = 'custom-root-model',
   whereToSearchModel = 'custom-where-to-search.model',
+  dateRange = 'custom-date-range',
+  yearRange = 'custom-year-range',
 }
 
 export const customDefinedFacetsKeys: string[] = [
   customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
-  customDefinedFacetsEnum.whereToSearchModel
+  customDefinedFacetsEnum.whereToSearchModel,
+  customDefinedFacetsEnum.dateRange,
+  customDefinedFacetsEnum.yearRange
 ]
 
 export const facetKeysInfinityCount: string[] = [
@@ -55,7 +70,9 @@ export const facetKeysInfinityCount: string[] = [
   facetKeysEnum.model,
   customDefinedFacetsEnum.accessibility,
   customDefinedFacetsEnum.model,
-  customDefinedFacetsEnum.whereToSearchModel
+  customDefinedFacetsEnum.whereToSearchModel,
+  customDefinedFacetsEnum.dateRange,
+  customDefinedFacetsEnum.yearRange
 ]
 
 export const customDefinedFacets = [
@@ -163,17 +180,9 @@ export const customDefinedFacets = [
       {
         key: 'collection',
         fq: [
-          '(model:collection AND collection.is_standalone:true)'
+          'collection'
         ],
         name: 'collection',
-        count: 0
-      },
-      {
-        key: 'monographunit',
-        fq: [
-          'monographunit'
-        ],
-        name: 'monographunit',
         count: 0
       }
     ]
@@ -233,5 +242,87 @@ export const customDefinedFacets = [
         count: 0
       }
     ]
+  },
+  {
+    facetKey: customDefinedFacetsEnum.dateRange,
+    title: 'date',
+    type: FacetElementType.dateRange,
+    data: []
+  },
+  {
+    facetKey: customDefinedFacetsEnum.yearRange,
+    title: 'year-range',
+    type: FacetElementType.yearRange,
+    data: []
   }
 ]
+
+/**
+ * Mapper for facets to search fields. Maps facet field keys to search field keys.
+ * Uses SolrSearchField enum to ensure consistency and avoid magic strings.
+ * For example: 'keywords.facet' maps to ['keywords.search'] for querying
+ */
+export const facetToSearchFieldMapper: { [key: string]: string[] } = {
+  [facetKeysEnum.authors]: [SolrSearchField.Author],      // 'authors.facet' → ['authors.search']
+  [facetKeysEnum.keywords]: [SolrSearchField.Keywords],   // 'keywords.facet' → ['keywords.search']
+  [facetKeysEnum.genres]: [SolrSearchField.Genres]        // 'genres.facet' → ['genres.search']
+};
+
+/**
+ * Mapper for advanced search fields. Maps solr field keys to their corresponding search field keys.
+ * This allows different mappings for advanced search compared to regular facet filtering.
+ * Uses SolrSearchField enum to ensure consistency and avoid magic strings.
+ * For example: 'authors.facet' maps to ['authors.search'] for querying
+ */
+export const advancedSearchFieldMapper: { [key: string]: string[] } = {
+  [facetKeysEnum.authors]: [SolrSearchField.Author],      // 'authors.facet' → ['authors.search']
+  [facetKeysEnum.keywords]: [SolrSearchField.Keywords],   // 'keywords.facet' → ['keywords.search']
+  [SolrSearchField.Title]: [SolrSearchField.Title]        // 'title.search' → ['title.search'] (no change)
+};
+
+/**
+ * Maps a solr field to its corresponding search fields for advanced search.
+ * @param solrField - The solr field key to map
+ * @returns Array of mapped search field keys, or the original field if no mapping exists
+ */
+export function mapAdvancedSearchField(solrField: string): string[] {
+  if (advancedSearchFieldMapper[solrField]) {
+    return advancedSearchFieldMapper[solrField];
+  }
+  return [solrField];
+}
+
+/**
+ * Maps filter strings from facet keys to search field keys.
+ * For example: 'keywords.facet:value' becomes ['keywords.search:value', 'keywords_exact.search:value']
+ * @param filters - Array of filter strings in format 'facetKey:value'
+ * @returns Array of mapped filter strings
+ */
+export function mapFacetsToSearchFields(filters: string[]): string[] {
+  const mappedFilters: string[] = [];
+
+  for (const filter of filters) {
+    const colonIndex = filter.indexOf(':');
+    if (colonIndex === -1) {
+      // No colon found, keep filter as is
+      mappedFilters.push(filter);
+      continue;
+    }
+
+    const facetKey = filter.substring(0, colonIndex);
+    const value = filter.substring(colonIndex + 1);
+
+    // Check if this facet key has a mapping
+    if (facetToSearchFieldMapper[facetKey]) {
+      // Map to multiple search fields
+      for (const searchField of facetToSearchFieldMapper[facetKey]) {
+        mappedFilters.push(`${searchField}:${value}`);
+      }
+    } else {
+      // No mapping found, keep original filter
+      mappedFilters.push(filter);
+    }
+  }
+
+  return mappedFilters;
+}

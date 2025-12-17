@@ -1,7 +1,12 @@
 <div class="months-calendar-container" *ngIf="shouldShowCalendars()">
-  <div class="month-calendar" *ngFor="let month of months; let i = index">
+  <div class="month-calendar" 
+       *ngFor="let month of months; let i = index"
+       [class.month-placeholder]="!isMonthVisible(i)">
     <h3>{{ monthNames[i] }}</h3>
+    
+    <!-- Show calendar if month is visible -->
     <mat-calendar
+      *ngIf="isMonthVisible(i)"
       class="custom-label"
       [dateClass]="dateClass"
       [startAt]="getMonthDate(i)"
@@ -10,5 +15,15 @@
       [maxDate]="getMonthMaxDate(i)"
       (selectedChange)="onDateSelected($event)">
     </mat-calendar>
+    
+    <!-- Show placeholder for lazy-loaded months -->
+    <div *ngIf="!isMonthVisible(i)" 
+         class="month-loading-placeholder"
+         (click)="loadMonthIfNeeded(i)">
+      <div class="loading-content">
+        <div class="loading-spinner" *ngIf="periodicalService.monthlyIssuesLoading()"></div>
+        <p>{{ lazyLoadingEnabled() ? ('click-to-load-month' | translate) : ('loading' | translate) }}</p>
+      </div>
+    </div>
   </div>
 </div>

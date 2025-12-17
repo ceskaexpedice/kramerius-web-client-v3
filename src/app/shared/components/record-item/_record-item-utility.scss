@@ -1,0 +1,9 @@
+// Utility classes for record item cards
+
+// Card fluid class for item-card compatibility
+.record-item-card.card--fluid {
+  width: 100%;
+  max-width: 100%;
+  min-width: 170px;
+  box-sizing: border-box;
+}

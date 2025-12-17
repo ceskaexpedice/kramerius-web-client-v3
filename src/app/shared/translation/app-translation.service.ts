@@ -15,13 +15,13 @@ export class AppTranslationService {
   private languagesMap: Language[] = this.availableLanguageCodes.map((code: string) => ({
     code,
     name: this.languageName(code),
-    icon: `img/flags/flag_${code}.png`,
+    icon: `img/flag/${code}.svg`,
   }));
 
   private _currentLanguage = signal<Language>(this.detectInitialLanguage());
 
   constructor() {
-    this.translate.setDefaultLang(this.defaultLanguageCode);
+    this.translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
     this.translate.use(this._currentLanguage().code);
   }
 

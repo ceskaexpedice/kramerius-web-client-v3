@@ -1,3 +1,5 @@
+@use "_z-index" as *;
+
 .lang-switcher-pos {
   position: relative;
   display: inline-block;
@@ -31,7 +33,7 @@
 
 .arrow {
   color: var(--color-icon-secondary-default);
-  font-size: 18px;
+  font-size: calc(18px * var(--accessibility-text-scale));
   transition: transform 0.2s ease;
 }
 
@@ -53,7 +55,7 @@
   padding: 8px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 100;
+  z-index: $lang-picker-dropdown;
 }
 
 .available-languages--hidden {
@@ -78,6 +80,7 @@
   img {
     width: 24px;
     height: 24px;
+    object-fit: contain;
   }
 
   &:hover {

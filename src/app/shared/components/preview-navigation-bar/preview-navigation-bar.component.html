@@ -1,0 +1,30 @@
+<div class="preview-navigation-bar">
+  <div class="preview-navigation-bar__center">
+    <span class="preview-navigation-bar__index">
+      {{ 'Index' | translate }} {{ currentIndex }}/{{ totalItems }}
+    </span>
+
+    <button
+      class="button tertiary outlined icon-button"
+      [disabled]="!hasPrevious"
+      (click)="onPrevious()"
+      [attr.aria-label]="'previous' | translate">
+      <i class="icon-arrow-left-1"></i>
+    </button>
+
+    <button
+      class="button tertiary outlined icon-button"
+      [disabled]="!hasNext"
+      (click)="onNext()"
+      [attr.aria-label]="'next' | translate">
+      <i class="icon-arrow-right-1"></i>
+    </button>
+  </div>
+
+  <button
+    class="button tertiary outlined icon-button preview-navigation-bar__close"
+    (click)="onClose()"
+    [attr.aria-label]="'close' | translate">
+    <i class="icon-close"></i>
+  </button>
+</div>

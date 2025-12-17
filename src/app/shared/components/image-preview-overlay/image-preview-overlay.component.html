@@ -1,0 +1,33 @@
+@if (isOpen()) {
+  <div class="image-preview-overlay">
+    <div class="image-preview-overlay__backdrop" (click)="onBackdropClick($event)">
+      <div class="image-preview-overlay__content">
+        <div class="image-preview-overlay__image-container">
+          <div class="image-preview-overlay__loader" *ngIf="isLoading()">
+            <div class="spinner"></div>
+          </div>
+          @if (currentImage(); as image) {
+            <img
+              class="image-preview-overlay__image"
+              [src]="image.url"
+              [alt]="image.altText || 'Preview image'"
+              [class.loading]="isLoading()"
+              (load)="onImageLoad()"
+              (error)="onImageError()"
+            />
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="image-preview-overlay__navigation">
+      <app-preview-navigation-bar
+        [currentIndex]="displayIndex()"
+        [totalItems]="totalItems()"
+        (previous)="onPrevious()"
+        (next)="onNext()"
+        (close)="onClose()">
+      </app-preview-navigation-bar>
+    </div>
+  </div>
+}

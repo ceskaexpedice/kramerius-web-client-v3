@@ -1,4 +1,4 @@
-<div class="range-slider" [ngClass]="layout">
+<div class="range-slider" [ngClass]="[layout, inputStyle]">
   <!-- VARIANT: INLINE -->
   <ng-container *ngIf="layout === 'inline'; else verticalLayout">
 
@@ -25,6 +25,8 @@
         (valueChange)="onFromInput($event)"
         [signalInput]="from"
         [withIcons]="false"
+        [showNumberStepper]="showInputNumberStepper"
+        [ariaLabel]="'date-from-input--arialabel' | translate"
       ></app-input>
 
       <!-- Slider -->
@@ -38,6 +40,11 @@
           [value]="from()"
           [class.on-top]="from() === to() && lastMoved === 'from'"
           (input)="onSliderFromChange($any($event.target).valueAsNumber)"
+          [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+          [attr.aria-valuemin]="getSliderMin()"
+          [attr.aria-valuemax]="getSliderMax()"
+          [attr.aria-valuenow]="from()"
+          [attr.aria-valuetext]="getDisplayValue('from')"
         />
         <input
           class="range to-slider"
@@ -48,6 +55,11 @@
           [value]="to()"
           [class.on-top]="from() === to() && lastMoved === 'to'"
           (input)="onSliderToChange($any($event.target).valueAsNumber)"
+          [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+          [attr.aria-valuemin]="getSliderMin()"
+          [attr.aria-valuemax]="getSliderMax()"
+          [attr.aria-valuenow]="to()"
+          [attr.aria-valuetext]="getDisplayValue('to')"
         />
       </div>
 
@@ -72,6 +84,8 @@
         (valueChange)="onToInput($event)"
         [signalInput]="to"
         [withIcons]="false"
+        [showNumberStepper]="showInputNumberStepper"
+        [ariaLabel]="'date-to-input--arialabel' | translate"
       ></app-input>
 
     </div>
@@ -90,6 +104,11 @@
         [value]="from()"
         [class.on-top]="from() === to() && lastMoved === 'from'"
         (input)="onSliderFromChange($any($event.target).valueAsNumber)"
+        [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+        [attr.aria-valuemin]="getSliderMin()"
+        [attr.aria-valuemax]="getSliderMax()"
+        [attr.aria-valuenow]="from()"
+        [attr.aria-valuetext]="getDisplayValue('from')"
       />
       <input
         class="range to-slider"
@@ -100,11 +119,16 @@
         [value]="to()"
         [class.on-top]="from() === to() && lastMoved === 'to'"
         (input)="onSliderToChange($any($event.target).valueAsNumber)"
+        [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+        [attr.aria-valuemin]="getSliderMin()"
+        [attr.aria-valuemax]="getSliderMax()"
+        [attr.aria-valuenow]="to()"
+        [attr.aria-valuetext]="getDisplayValue('to')"
       />
     </div>
 
     <div class="inputs">
-      <div>
+      <div class="date--input">
         <!-- From Input -->
         <div class="date-input-wrapper" *ngIf="type === 'date'">
           <span class="date-display">{{ getDisplayValue('from') }}</span>
@@ -113,6 +137,7 @@
             class="date-input"
             [value]="fromDate() | date:'yyyy-MM-dd'"
             (change)="onFromDateChange($event)"
+            aria-label="Start date"
           />
         </div>
         <app-input
@@ -126,12 +151,14 @@
           (valueChange)="onFromInput($event)"
           [signalInput]="from"
           [withIcons]="false"
+          [showNumberStepper]="showInputNumberStepper"
+          [ariaLabel]="'date-from-input--arialabel' | translate"
         ></app-input>
       </div>
 
       <div class="separator">-</div>
 
-      <div>
+      <div class="date--input">
         <!-- To Input -->
         <div class="date-input-wrapper" *ngIf="type === 'date'">
           <span class="date-display">{{ getDisplayValue('to') }}</span>
@@ -140,6 +167,7 @@
             class="date-input"
             [value]="toDate() | date:'yyyy-MM-dd'"
             (change)="onToDateChange($event)"
+            aria-label="End date"
           />
         </div>
         <app-input
@@ -153,6 +181,8 @@
           (valueChange)="onToInput($event)"
           [signalInput]="to"
           [withIcons]="false"
+          [showNumberStepper]="showInputNumberStepper"
+          [ariaLabel]="'date-to-input--arialabel' | translate"
         ></app-input>
       </div>
     </div>

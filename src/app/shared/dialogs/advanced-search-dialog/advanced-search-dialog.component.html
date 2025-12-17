@@ -1,7 +1,7 @@
 <h2>
   {{ 'advanced-search' | translate }}
   <button class="button link tertiary icon-button close-button" (click)="close()">
-    <i class="icon-x"></i>
+    <i class="icon-close"></i>
   </button>
 </h2>
 
@@ -69,7 +69,7 @@
           class="add-group"
           [class.full-width]="advancedSearchService.pendingGroups().length > 1"
         >
-          <button class="button link primary with-icon" (click)="advancedSearchService.addGroup()">
+          <button class="button link primary with-icon p-left-0" (click)="advancedSearchService.addGroup()">
             <i class="icon-add-square"></i>
             {{ 'add-group-button-label' | translate }}
           </button>

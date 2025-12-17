@@ -1,0 +1,42 @@
+<div class="track-item-wrapper">
+  <div
+    class="track"
+    [class.current-track]="isCurrentTrack"
+  >
+    <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()">
+      <img class="thumb" [src]="soundService.getImageThumbnailUrl(track.parentPid)" alt="" />
+      <div class="thumb-overlay">
+        <i *ngIf="isCurrentTrack"
+           [class.icon-play]="!soundService.isPlayingSignal()"
+           [class.icon-pause]="soundService.isPlayingSignal()"></i>
+        <i *ngIf="!isCurrentTrack" class="icon-play"></i>
+      </div>
+    </div>
+
+    <div class="info" (click)="play()">
+      <div class="title">{{ track['title.search'] }}</div>
+    </div>
+
+    <div class="actions">
+      <button class="icon-button rounded light" (click)="remove($event)">
+        <i class="icon-trash"></i>
+      </button>
+      <button class="icon-button rounded light"
+              [class.favorited]="isItemFavorited$ | async"
+              (click)="toggleFavorite($event)">
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Favorites Popup positioned outside to avoid overflow clipping -->
+  <div class="favorites-popup-wrapper"
+       *ngIf="favoritesPopupState.showPopup()"
+       [class.positioned]="favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="currentTrackId()"
+      [itemName]="currentTrackName()"
+      (close)="favoritesPopupState.closePopup()">
+    </app-favorites-popup>
+  </div>
+</div>

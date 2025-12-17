@@ -30,15 +30,28 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .detail-view--page--content--wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-x4);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
+
+  &.pdf-document {
+    padding: 0;
+  }
+
+  &.selection-mode {
+    cursor: crosshair;
+
+    * {
+      cursor: crosshair !important;
+    }
+  }
 }
 
 .app-document-thumbnail {
@@ -56,4 +69,73 @@
 
 hr {
   margin: 0;
+}
+
+.admin-selection-count {
+  color: var(--color-text-base);
+  background: var(--color-bg-elevated);
+  padding: 4px 12px;
+  border-radius: var(--base-border-radius);
+  border: 1px solid var(--color-border-base);
+  font-size: var(--font-size-small);
+  text-align: left;
+}
+
+.floating-sidebar-toggle {
+  position: fixed;
+  right: var(--spacing-x4);
+  bottom: var(--spacing-x4);
+  transition: all 0.2s ease;
+  background-color: var(--color-secondary);
+  z-index: 1000;
+}
+
+app-image-viewer,
+app-iiif-viewer {
+  height: 100%;
+}
+
+// Viewer controls positioning - similar to pdf-viewer
+app-viewer-controls {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 10;
+}
+
+.selection-mode-info {
+  background-color: var(--color-bg-base);
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-x2) var(--spacing-x3);
+  border-radius: var(--spacing-x3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  z-index: 100;
+  box-shadow: 0 4px 20px 2px rgba(0, 0, 0, 0.16);
+
+  span {
+    font-weight: 700;
+    color: var(--color-text-base);
+  }
+}
+
+.favorites-popup-wrapper {
+  position: fixed;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.positioned {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  app-favorites-popup {
+    display: block;
+  }
 }

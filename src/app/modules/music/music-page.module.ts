@@ -14,14 +14,12 @@ import {ToolbarControlsComponent} from "../../shared/components/toolbar-controls
 import {
   DetailViewBottomToolbarComponent
 } from "../detail-view-page/components/detail-view-bottom-toolbar/detail-view-bottom-toolbar.component";
-import {StoreModule} from "@ngrx/store";
-import {documentDetailReducer} from "../../shared/state/document-detail/document-detail.reducer";
-import {EffectsModule} from "@ngrx/effects";
-import {DocumentDetailEffects} from "../../shared/state/document-detail/document-detail.effects";
-import {musicDetailReducer} from "./state/music-detail.reducer";
-import {MusicDetailEffects} from "./state/music-detail.effects";
 import {MusicTrackListComponent} from "./components/music-track-list/music-track-list.component";
 import {TranslatePipe} from '@ngx-translate/core';
+import {ViewerControls} from '../../shared/components/viewer-controls/viewer-controls';
+import {ImageViewer} from '../../shared/components/image-viewer/image-viewer';
+import {IIIFViewer} from "../../shared/components/iiif-viewer/iiif-viewer";
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -33,26 +31,27 @@ const routes: Routes = [
   declarations: [
     MusicPageComponent
   ],
-	imports: [
-		RouterModule.forChild(routes),
-		StoreModule.forFeature('document-detail', documentDetailReducer),
-		StoreModule.forFeature('music', musicDetailReducer),
-		EffectsModule.forFeature([DocumentDetailEffects, MusicDetailEffects]),
-		DetailLayoutComponent,
-		InputComponent,
-		NgIf,
-		AsyncPipe,
-		PageNavigatorComponent,
-		DetailPagesGridComponent,
-		ActionToolbarComponent,
-		ToolbarHeaderComponent,
-		DateNavigatorComponent,
-		ToolbarControlsComponent,
-		DetailViewBottomToolbarComponent,
-		NgForOf,
-		MusicTrackListComponent,
-		TranslatePipe,
-	],
+    imports: [
+        RouterModule.forChild(routes),
+        DetailLayoutComponent,
+        InputComponent,
+        NgIf,
+        AsyncPipe,
+        PageNavigatorComponent,
+        DetailPagesGridComponent,
+        ActionToolbarComponent,
+        ToolbarHeaderComponent,
+        DateNavigatorComponent,
+        ToolbarControlsComponent,
+        DetailViewBottomToolbarComponent,
+        NgForOf,
+        MusicTrackListComponent,
+        TranslatePipe,
+        ViewerControls,
+        ImageViewer,
+        IIIFViewer,
+        FavoritesPopupComponent,
+    ],
   providers: [
   ]
 

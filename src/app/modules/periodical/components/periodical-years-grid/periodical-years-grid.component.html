@@ -1,12 +1,6 @@
 <div class="grid--container">
-  <app-item-card
+  <app-record-item
     *ngFor="let year of years"
-    [title]="year.year"
-    [uuid]="year.pid"
-    [model]="year.model"
-    [showFavoriteButton]="false"
-    [showAccessibilityBadge]="true"
-    [accessibility]="year.accessibility"
-    [className]="'card--fluid'"
-  ></app-item-card>
+    [item]="toRecordItemWithBadgeLayout(year, years)"
+  ></app-record-item>
 </div>

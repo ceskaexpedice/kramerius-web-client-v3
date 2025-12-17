@@ -1,0 +1,47 @@
+@use "_z-index.scss" as z;
+
+// Component-specific styles only
+// Common layout styles moved to /public/styles/_page-layout.scss
+
+.items-count-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+  font-size: var(--font-size-small);
+
+  .count-label {
+    color: var(--color-text-tertiary);
+  }
+
+  .count-value {
+    color: var(--color-text-tertiary);
+    min-width: 20px;
+  }
+}
+
+.title-edit-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: z.$saved-lists-popup;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+
+  &.positioned {
+    opacity: 1;
+  }
+
+  app-title-edit-popup {
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
+}
+
+.music-section--actions {
+  margin-bottom: var(--spacing-x4);
+}
+
+:has(> .grid--container)~.music-section .music-section--actions {
+  margin-top: var(--spacing-x4);
+}

@@ -8,7 +8,7 @@ import {
   EventEmitter,
   Output,
   ViewChild,
-  Signal, WritableSignal, inject, computed,
+  Signal, WritableSignal, inject, computed, OnChanges, SimpleChanges, ChangeDetectorRef,
 } from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -44,6 +44,8 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   suggestions = signal<string[]>([]);
   isLoading = signal(false);
 
+  @ViewChild(InputComponent) inputComponent!: InputComponent;
+
   private justSelected = false;
 
   private termChangeSubject = new EventEmitter<string>();
@@ -58,9 +60,13 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showHelpButton: boolean = true;
   @Input() showSubmitButton: boolean = true;
   @Input() showClearButton: boolean = false;
+  @Input() showCaseSensitiveButton: boolean = false;
   @Input() withIcons: boolean = true;
   @Input() size: 'sm' | 'md' = 'md';
   @Input() showHistorySuggestions: boolean = false;
+  @Input() prefixIcon = '';
+  @Input() isCaseSensitive: boolean = false;
+  @Input() autofocus: boolean = false;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');
@@ -69,6 +75,9 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Output() submit = new EventEmitter<string>();
   @Output() termChange = new EventEmitter<string>();
   @Output() suggestionSelected = new EventEmitter<string>();
+  @Output() onCaseSensitiveEvent = new EventEmitter<void>();
+  @Output() onBlurEvent = new EventEmitter<void>();
+  @Output() onClearEvent = new EventEmitter<void>();
 
   public historyService = inject(SearchHistoryService);
 
@@ -102,10 +111,9 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
         const sorted = unique
           .map(s => ({ s, index: s.toLowerCase().indexOf(term) }))
-          .filter(item => item.index !== -1)
           .sort((a, b) => a.index - b.index)
           .map(item => item.s);
-
+        //          .filter(item => item.index !== -1)
         this.suggestions.set(sorted);
         this.isLoading.set(false);
       }
@@ -113,15 +121,19 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
     effect(() => {
       const term = this.inputTerm();
-      this.termChange.emit(term);
 
-      if (term === '') {
-        this.justSelected = false;
-      }
+      setTimeout(() => {
+        this.termChange.emit(term);
 
-      if (!this.justSelected) {
-        this.termChangeSubject.emit(term);
-      }
+        if (term === '') {
+          this.justSelected = false;
+        }
+
+        if (!this.justSelected) {
+          this.termChangeSubject.emit(term);
+        }
+      }, 5);
+
     });
   }
 
@@ -174,10 +186,22 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     this.submit.emit(this.inputTerm());
   }
 
+  onBlur() {
+    this.onBlurEvent.emit();
+  }
+
+  onClearClicked() {
+    this.onClearEvent.emit();
+  }
+
   saveToHistory(term: string) {
     if (this.showHistorySuggestions) {
       this.historyService.add(term);
     }
+  }
+
+  toggledCaseSensitive() {
+    this.onCaseSensitiveEvent.emit();
   }
 
   highlight(text: string, term: string): string {

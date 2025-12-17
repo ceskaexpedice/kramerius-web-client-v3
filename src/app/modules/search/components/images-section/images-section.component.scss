@@ -9,7 +9,7 @@
   justify-content: space-between;
   height: 300px;
 
-  & > div {
+  &>div {
     padding: 0 3rem;
   }
 
@@ -20,7 +20,7 @@
     gap: var(--base-gap);
 
     h2 {
-      font-size: 22px;
+      font-size: calc(22px * var(--accessibility-text-scale));
       font-weight: 700;
       margin: 0;
     }
@@ -40,7 +40,7 @@
         border: 1px solid var(--color-border-bright);
         padding: 5px 10px;
         border-radius: 16px;
-        font-size: 14px;
+        font-size: var(--font-size-small);
         white-space: nowrap;
       }
     }

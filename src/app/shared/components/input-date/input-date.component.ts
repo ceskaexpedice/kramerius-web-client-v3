@@ -17,7 +17,10 @@ export class InputDateComponent {
   @Input() minDate?: Date;
   @Input() maxDate?: Date;
   @Input() theme: string = 'light';
-  @Input() size: 'sm' | 'md' = 'md';
+  @Input() size: 'sm' | 'md' | 'lg' = 'md';
+
+  @Input() prefixIcon = '';
+  @Input() postfixIcon = '';
 
   @Output() valueChange = new EventEmitter<Date>();
   @ViewChild('dateInput', { static: true }) dateInputRef!: ElementRef<HTMLInputElement>;
@@ -30,7 +33,7 @@ export class InputDateComponent {
 
   get displayValue(): string {
     const val = this.valueSignal();
-    return val ? this.formatDate(val) : '';
+    return val ? this.formatDate(val) : (this.label ? this.label : '');
   }
 
   onDateChange(event: Event) {

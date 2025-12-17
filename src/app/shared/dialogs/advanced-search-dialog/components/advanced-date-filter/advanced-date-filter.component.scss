@@ -1,0 +1,45 @@
+.advanced-date-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+
+  .filter-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    mat-slide-toggle {
+      flex: 1;
+
+      ::ng-deep .mdc-label {
+        font-size: var(--font-size-small);
+      }
+    }
+
+    .add-year-btn {
+      font-size: calc(12px * var(--accessibility-text-scale));
+      padding: 4px 8px;
+      min-width: auto;
+      white-space: nowrap;
+    }
+  }
+
+  .day-month-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    app-input {
+      flex: 1;
+    }
+
+    .separator {
+      color: #666;
+      font-weight: bold;
+      font-size: var(--font-size-small);
+      margin: 0 4px;
+    }
+  }
+}

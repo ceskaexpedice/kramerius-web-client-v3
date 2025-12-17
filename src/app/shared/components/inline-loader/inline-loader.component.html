@@ -1,0 +1,4 @@
+<div class="inline-loader" [style.min-height]="minHeight">
+  <div class="loader-spinner" [class]="'size-' + size"></div>
+  <p *ngIf="message" class="loader-message">{{ message | translate }}</p>
+</div>

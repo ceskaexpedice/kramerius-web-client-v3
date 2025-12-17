@@ -1,0 +1,41 @@
+<div class="reindex-section">
+
+  <h3>{{ 'reindex' | translate }}</h3>
+
+  <!-- Reindex Scope Options -->
+  <div class="scope-section selected-dialog--section">
+    <mat-radio-group
+      class="radio-group"
+      [value]="selectedScope"
+      [name]="'reindexScope'"
+      (change)="onScopeChange()"
+    >
+
+      <div class="flex flex--column flex--gap-x2">
+
+        <mat-radio-button
+          [value]="'object'"
+          class="radio-button"
+        >
+          {{ 'reindex-object-only' | translate }}
+        </mat-radio-button>
+
+        <mat-radio-button
+          [value]="'object-and-children'"
+          class="radio-button"
+        >
+          {{ 'reindex-object-and-children' | translate }}
+        </mat-radio-button>
+
+      </div>
+    </mat-radio-group>
+  </div>
+
+  <div class="selected-dialog--actions">
+
+    <button class="primary" (click)="onActionClick()">{{'reindex' | translate}}</button>
+
+  </div>
+
+</div>
+

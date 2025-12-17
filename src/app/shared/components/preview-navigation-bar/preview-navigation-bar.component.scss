@@ -1,0 +1,26 @@
+.preview-navigation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-x2) var(--spacing-x6);
+  background-color: var(--color-bg-base);
+  border-top: 1px solid var(--color-border-light);
+  position: relative;
+
+  &__center {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x3);
+  }
+
+  &__index {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  &__close {
+    position: absolute;
+    right: var(--spacing-x4);
+  }
+}

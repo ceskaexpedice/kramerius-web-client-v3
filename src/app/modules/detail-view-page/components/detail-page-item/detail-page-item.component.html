@@ -1,15 +1,32 @@
-<div class="page--item"
-     [ngClass]="'type-' + type"
-     [class.selected]="isSelected" (click)="onPageClicked()">
+<a class="page--item" [ngClass]="['type-' + type, `page--number-${pageNumberPosition}`]" [class.selected]="isSelected"
+  [class.admin-mode]="isInSelectionMode()" [class.admin-selected]="isInSelectionMode() && isItemSelected()"
+  (click)="onPageClicked($event)">
 
-  <img
-    class="page--item__image"
-    [src]="`${getImageUrl()}`"
-    loading="lazy"
-  />
+  <!-- Selection checkbox for admin mode or local selection mode -->
+  <div class="page--item__selection" *ngIf="isInSelectionMode()">
+    <app-checkbox [model]="isItemSelected()" (modelChange)="onSelectionChange($event)"
+      (click)="$event.stopPropagation()">
+    </app-checkbox>
+  </div>
 
-  <span class="page--number">
+  <!-- Action buttons -->
+  <div class="page--item__actions">
+
+  </div>
+
+  <button class="button transparent icon-button preview-button"
+          *ngIf="showPreviewButton"
+          (click)="onPreviewClick($event)"
+          [attr.aria-label]="'preview-image' | translate"
+          [title]="'preview-image' | translate">
+    <i class="icon-search-zoom-in-1"></i>
+  </button>
+
+  <img class="page--item__image" [alt]="('page--number') + '-' + pageNumber" [src]="`${getImageUrl()}`"
+    loading="lazy" />
+
+  <span class="page--number" *ngIf="(!isInSelectionMode() || showPageNumberInSelectionMode) && pageNumber">
     {{pageNumber}}
   </span>
 
-</div>
+</a>

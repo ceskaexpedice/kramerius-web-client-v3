@@ -1,0 +1,13 @@
+<div #fullscreenContainer class="fullscreen-container">
+  <button
+    *ngIf="isFullscreen"
+    class="fullscreen-close-button button tertiary outlined"
+    (click)="onClose()"
+    title="Exit fullscreen">
+    <i class="icon-close"></i>
+  </button>
+
+  <div class="fullscreen-content">
+    <ng-content></ng-content>
+  </div>
+</div>

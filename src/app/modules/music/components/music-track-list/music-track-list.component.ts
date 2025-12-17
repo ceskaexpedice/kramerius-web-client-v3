@@ -1,7 +1,12 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnDestroy, signal, inject} from '@angular/core';
 import {MusicTrackItemComponent} from "../music-track-item/music-track-item.component";
 import {NgForOf} from "@angular/common";
 import {TranslatePipe} from '@ngx-translate/core';
+import {FavoritesPopupComponent} from '../../../../shared/components/favorites-popup/favorites-popup.component';
+import {PopupPositioningService, PopupState} from '../../../../shared/services/popup-positioning.service';
+import {TrackViewType} from '../../../models/sound-track.model';
+import {Router} from '@angular/router';
+import {FavoritesService} from '../../../../shared/services/favorites.service';
 
 @Component({
   selector: 'app-music-track-list',
@@ -9,26 +14,56 @@ import {TranslatePipe} from '@ngx-translate/core';
     MusicTrackItemComponent,
     NgForOf,
     TranslatePipe,
+    FavoritesPopupComponent,
   ],
   templateUrl: './music-track-list.component.html',
   styleUrls: ['./music-track-list.component.scss', '../music-track-list-table.scss'],
 })
-export class MusicTrackListComponent {
+export class MusicTrackListComponent implements OnDestroy {
   @Input() tracks: any[] = [];
   @Input() selectedPid: string | null = null;
   @Input() playingPid: string | null = null;
+  @Input() currentFolderId?: string;
+  @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() select = new EventEmitter<any>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
+  @Output() remove = new EventEmitter<any>();
+
+  popupPositioning = inject(PopupPositioningService);
+  favoritesService = inject(FavoritesService);
+  router = inject(Router);
+
+  favoritesPopupState: PopupState;
+  currentTrackId = signal<string>('');
+  currentTrackName = signal<string>('');
+
+  constructor() {
+    this.favoritesPopupState = this.favoritesService.createPopupState();
+  }
 
   onSelect(track: any) {
     this.select.emit(track);
   }
 
-  onFavoriteToggled(track: any) {
-    this.favoriteToggled.emit(track);
+  onFavoriteToggled(data: {track: any, event: Event}) {
+    // Set current track
+    this.currentTrackId.set(data.track.pid);
+    this.currentTrackName.set(data.track['title.search'] || '');
+
+    // Handle favorite toggle with authentication check
+    this.favoritesService.handleFavoriteToggle(
+      this.router.url,
+      data.event,
+      this.favoritesPopupState
+    );
+  }
+
+  ngOnDestroy() {
+    // Clean up popup positioning service
+    this.popupPositioning.cleanup();
   }
 
   onAddToQueue(track: any) {
@@ -37,5 +72,9 @@ export class MusicTrackListComponent {
 
   onDownload(track: any) {
     this.download.emit(track);
+  }
+
+  onRemove(track: any) {
+    this.remove.emit(track);
   }
 }

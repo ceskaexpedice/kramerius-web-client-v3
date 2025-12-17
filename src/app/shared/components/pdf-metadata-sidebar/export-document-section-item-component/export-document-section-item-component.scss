@@ -1,0 +1,54 @@
+.export-document--item {
+  padding: var(--spacing-x3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x3);
+}
+
+h3 {
+  margin: 0;
+  font-weight: normal;
+}
+
+.export-document--item--title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  font-size: var(--font-size-base);
+  color: var(--color-text-base);
+  font-weight: normal;
+
+  i {
+    font-size: 20px;
+  }
+}
+
+.export-document--item--content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x3);
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x2);
+  }
+
+  ::ng-deep .mat-mdc-radio-button {
+    --mdc-radio-state-layer-size: 20px;
+    padding: 0;
+
+    .mdc-label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+
+    &.mat-mdc-radio-checked .mdc-label {
+      color: var(--color-text-base);
+    }
+  }
+
+  button {
+    width: fit-content;
+  }
+}

@@ -1,0 +1,19 @@
+.generic-dialog-container {
+
+  .dialog-body {
+
+    .content {
+      padding: 0 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x4);
+      text-align: start;
+
+      p {
+        margin: 0;
+        color: var(--color-text-secondary);
+        line-height: 1.5;
+      }
+    }
+  }
+}

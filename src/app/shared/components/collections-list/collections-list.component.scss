@@ -1,0 +1,109 @@
+.collections-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  max-height: 100%;
+
+  .search-section {
+    .search-field {
+      width: 100%;
+
+      ::ng-deep .mat-form-field-infix {
+        padding: 8px 0;
+      }
+    }
+  }
+
+  .collections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+
+    .search-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 50%;
+
+      app-input {
+        width: 100%;
+      }
+    }
+  }
+
+  .collections-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+
+    .collections-items {
+      .collection-item {
+        padding: var(--spacing-x2) var(--spacing-x4);
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: var(--color-background-hover);
+        }
+
+        ::ng-deep .mat-checkbox {
+          width: 100%;
+
+          .mat-checkbox-layout {
+            width: 100%;
+            white-space: normal;
+          }
+
+          .mat-checkbox-label {
+            width: 100%;
+          }
+        }
+
+        .collection-info {
+          margin-left: var(--spacing-x2);
+
+          .collection-title {
+            font-weight: 500;
+            font-size: var(--font-size-small);
+          }
+        }
+      }
+    }
+
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+
+      span {
+        font-size: var(--font-size-small);
+        color: var(--color-text-secondary);
+      }
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+
+      mat-icon {
+        font-size: calc(48px * var(--accessibility-text-scale));
+        width: 48px;
+        height: 48px;
+        color: var(--color-text-disabled);
+        margin-bottom: 16px;
+      }
+
+      p {
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-style: italic;
+      }
+    }
+  }
+}

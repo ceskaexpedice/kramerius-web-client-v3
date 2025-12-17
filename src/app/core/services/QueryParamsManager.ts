@@ -12,7 +12,7 @@ export class QueryParamsService {
    * Get filters from query params
    */
   getFilters(params: Params): string[] {
-    const fq = params['fq'];
+    const fq = params && params['fq'];
     if (!fq) return [];
     const filters = Array.isArray(fq) ? fq : [fq];
     return filters.filter(f => f && f !== 'undefined');

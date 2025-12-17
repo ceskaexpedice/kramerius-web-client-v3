@@ -1,0 +1,52 @@
+// Page document type specific styles for record item cards
+
+.record-item-card.page {
+  // More compact aspect ratio for pages
+  // Based on design: roughly 1:1.4 ratio (width:height)
+  aspect-ratio: 140/196;
+
+  &.with-badge {
+    aspect-ratio: 170/260;
+  }
+
+  .record-item-card__image {
+    // Smaller image for pages
+    // Based on design: ~48px image height
+    aspect-ratio: 140/48;
+    //flex: 1;
+    min-height: 0;
+  }
+
+  .record-item-card__content {
+    // More content space for pages to include OCR text
+    // Based on design: ~64px content + ~80px text = 144px total
+    flex: 1;
+    height: auto;
+    gap: var(--spacing-x1);
+
+    .title {
+      // Smaller title for pages to make room for text
+      -webkit-line-clamp: 2;
+    }
+  }
+
+  .record-item-card__image-lock-overlay {
+    i {
+      font-size: calc(20px * var(--accessibility-text-scale));
+    }
+  }
+
+  .text-ocr {
+    font-size: var(--font-size-small);
+    line-height: calc(20px * var(--accessibility-text-scale));
+    color: var(--color-text-base);
+    display: -webkit-box;
+    -webkit-line-clamp: 4; // Max 4 lines as specified
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    max-height: calc(80px * var(--accessibility-text-scale)); // ~4 lines at 20px line-height
+    flex: 1; // Takes remaining space
+  }
+}

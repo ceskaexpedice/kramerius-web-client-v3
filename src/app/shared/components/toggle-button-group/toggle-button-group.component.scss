@@ -5,7 +5,7 @@
 }
 
 label {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-light);
   line-height: 20px;
 }
@@ -15,16 +15,16 @@ label {
   background-color: var(--color-bg-light);
   border-radius: var(--base-border-radius);
   padding: 2px;
-  gap: 2px;
-  flex-wrap: wrap;
+  gap: 4px;
+  //flex-wrap: wrap;
 }
 
 .toggle-btn {
   border: none;
   background: transparent;
-  padding: 6px 12px;
+  padding: 6px 8px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   cursor: pointer;
   color: var(--color-text-light);
   display: flex;

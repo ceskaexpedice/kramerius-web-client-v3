@@ -1,0 +1,39 @@
+.pdf-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+::ng-deep {
+  pdf-sidebar {
+    display: none !important;
+  }
+
+  html[dir=ltr] ngx-extended-pdf-viewer #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+    left: 0 !important;
+  }
+
+  .pdf-viewer-container {
+    background: transparent !important;
+  }
+
+  #viewerContainer {
+    background: transparent !important;
+    scroll-behavior: smooth !important;
+    top: 32px !important;
+  }
+
+  .pdfViewer {
+    background: transparent !important;
+  }
+
+  .fullscreen-container.active #viewer, .fullscreen-container.active #viewerContainer {
+    background: var(--color-bg-base) !important;
+  }
+
+  .page {
+    transition: opacity 0.2s ease-in-out;
+  }
+}

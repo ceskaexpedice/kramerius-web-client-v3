@@ -1,0 +1,46 @@
+<div class="pdf-sidebar">
+<!--  <app-tabs>-->
+<!--    <div -->
+<!--      tab-common-up -->
+  <div
+      class="sidebar--wrapper">
+      <app-input
+        [placeholder]="'search-in-document--placeholder' | translate"
+        [theme]="'dark'"
+        [size]="'sm'"
+        [showMicButton]="true"
+        [showClearButton]="true"
+        (valueChange)="onSearchChange($event)"
+      ></app-input>
+
+      @if (pdfService.searchQuery$ | async) {
+        <app-search-navigation
+          [currentMatchNumber]="pdfService.currentMatchNumber || 0"
+          [totalMatches]="pdfService.totalMatches || 0"
+          [isSearching]="pdfService.findState === FindState.PENDING"
+          (previousMatch)="findPreviousMatch()"
+          (nextMatch)="findNextMatch()"
+        ></app-search-navigation>
+        <hr>
+      } @else {
+        <hr>
+        <app-page-navigator
+          [currentPage]="(pdfService.currentPage$ | async) || 1"
+          [totalPages]="(pdfService.totalPages$ | async) || 0"
+          (next)="goToNext()"
+          (prev)="goToPrevious()"
+          (pageChange)="goToPage($event)"
+        ></app-page-navigator>
+        <hr>
+        <app-pdf-content-tree></app-pdf-content-tree>
+      }
+
+  </div>
+
+<!--    <app-tab-item label="Obsah">-->
+<!--    </app-tab-item>-->
+<!--    <app-tab-item label="Stránky">-->
+<!--      <app-pdf-pages-grid></app-pdf-pages-grid>-->
+<!--    </app-tab-item>-->
+<!--  </app-tabs>-->
+</div>

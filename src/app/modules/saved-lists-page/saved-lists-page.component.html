@@ -1,0 +1,152 @@
+<div class="page-container">
+  <div class="page-container__inner">
+
+    <app-filter-sidebar>
+      <app-saved-lists-filters
+        [activeFolder]="(activeFolder | async) ?? null"
+      ></app-saved-lists-filters>
+    </app-filter-sidebar>
+
+    <div class="page-content">
+
+      <div class="page-content__filters">
+        <app-action-toolbar>
+
+          @if (activeFolder | async; as folder) {
+            <div left class="max-width-100">
+              <div class="flex flex--align-center flex--gap-2">
+                <app-toolbar-header
+                  [title]="folder.name"
+                  [showBackButton]="false">
+                </app-toolbar-header>
+                @if (isCurrentUserOwner(folder)) {
+                  <button
+                    class="icon-button transparent"
+                    [attr.aria-label]="'edit-title-button--arialabel' | translate"
+                    (click)="startEditingTitle(folder.uuid, folder.name, $event)"
+                  >
+                    <i class="icon-edit-2"></i>
+                  </button>
+                }
+              </div>
+            </div>
+
+          }
+
+          <div right>
+
+            <div class="flex flex--align-center flex--gap-x2">
+
+              @if (activeFolder | async; as folder) {
+                <div class="items-count-display">
+                  <span class="count-label">{{ 'count' | translate }}:</span>
+                  <span class="count-value">{{ folder.itemsCount || 0 }}</span>
+                </div>
+              }
+
+              <app-toggle-button-group
+                [options]="viewOptions"
+                [value]="view()"
+                (valueChange)="setView($event)"
+              />
+
+              <app-toolbar-controls
+                [actions]="getToolbarActions((activeFolder | async) || null)"
+                (actionClicked)="onToolbarAction($event)"
+                [themeDefault]="true"
+              >
+              </app-toolbar-controls>
+
+              @if (sortParams | async; as sort) {
+                <app-results-sort
+                  [selectedSort]="sort.sortBy"
+                  [selectedDirection]="sort.sortDirection"
+                  (sortChange)="onSortChange($event)">
+                </app-results-sort>
+              }
+
+            </div>
+
+          </div>
+
+        </app-action-toolbar>
+      </div>
+
+      <div class="page-content__wrapper">
+
+        <!-- OTHER ITEMS SECTION -->
+        <ng-container *ngIf="nonSoundRecordingItems | async as otherItems">
+          @if (otherItems.length > 0) {
+            <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
+
+              <!-- GRID VIEW -->
+              @if (view() === ViewOptions.grid) {
+                <div class="grid--container">
+                  <app-record-item
+                    *ngFor="let doc of otherItems"
+                    [item]="toRecordItem(doc)"
+                    [currentFolderId]="(activeFolder | async)?.uuid">
+                  </app-record-item>
+                </div>
+
+              } @else {
+
+                <!-- LIST VIEW -->
+                <app-record-item-list
+                  [records]="otherItems"
+                  [currentFolderId]="(activeFolder | async)?.uuid">
+                </app-record-item-list>
+              }
+
+            </div>
+          }
+        </ng-container>
+
+        <!-- SOUND RECORDINGS SECTION -->
+        <ng-container *ngIf="soundRecordingItems | async as soundRecordings">
+
+          @if (soundRecordings.length > 0) {
+
+            <div class="music-section">
+
+              <div class="music-section--actions">
+                <button class="with-icon primary"
+                        (click)="playAllTracks()"
+                        [title]="'play-all-tracks' | translate"
+                >
+                  <i class="icon-play"></i>
+                  {{ 'play-all' | translate }}
+                </button>
+              </div>
+
+              <app-music-track-list
+                [tracks]="soundRecordings"
+                [playingPid]="soundService.currentTrackPid"
+                [viewType]="TrackViewType.FOLDER"
+                (select)="onTrackSelect($event)"
+                (addToQueue)="onTrackAddToQueue($event)"
+                (download)="onTrackDownload($event)"
+                (remove)="onTrackRemove($event)"
+                [currentFolderId]="(activeFolder | async)?.uuid">
+              </app-music-track-list>
+            </div>
+          }
+        </ng-container>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Title Edit Popup -->
+@if (titleEditPopupState.showPopup() && currentEditingFolder()) {
+  <div class="title-edit-popup-wrapper"
+       [class.positioned]="titleEditPopupState.popupPositioned()">
+    <app-title-edit-popup
+      [initialTitle]="currentEditingFolder()!.name"
+      (close)="onTitleEditClose()"
+      (save)="onTitleEditSave($event)">
+    </app-title-edit-popup>
+  </div>
+}

@@ -1,7 +1,9 @@
+@use "mixins" as *;
+
 .genres-section {
   h3 {
     margin-bottom: 12px;
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
   }
 
   .genres-grid {

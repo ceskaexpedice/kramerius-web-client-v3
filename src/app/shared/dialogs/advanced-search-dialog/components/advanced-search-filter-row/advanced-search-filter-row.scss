@@ -1,17 +1,21 @@
 .filter-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  padding: 6px 0;
+  //padding: 6px 0;
   width: 100%;
 
   .filter-wrapper {
     display: flex;
     align-items: flex-start;
     flex-grow: 1;
-    gap: 8px;
+    //gap: 8px;
 
-    app-select, app-autocomplete, app-date-stepper {
+    app-select,
+    app-autocomplete,
+    app-date-stepper,
+    app-date-picker,
+    advanced-date-filter {
       flex: 1 1 50%;
     }
 
@@ -42,7 +46,7 @@
     background: none;
     border: none;
     color: var(--color-icon);
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
     cursor: pointer;
     padding: 4px;
     display: flex;

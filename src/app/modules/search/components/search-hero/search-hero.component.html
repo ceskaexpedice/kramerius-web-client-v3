@@ -10,7 +10,7 @@
       [inputTheme]="'light'"
       [placeholder]="'search-input-placeholder' | translate"
       [minTermLength]="2"
-      [initialValue]="searchService.inputSearchTerm"
+      [initialValue]="searchService.searchTerm()"
       [getSuggestions]="searchService.getSuggestionsFn"
       (search)="searchService.onSearch($event)"
       (submit)="searchService.onSubmit($event)"
@@ -18,10 +18,13 @@
       [showHistorySuggestions]="true"
       [showMicrophoneButton]="false"
       [showHelpButton]="false"
+      [autofocus]="true"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined" (click)="openAdvancedSearch()">
+    <button class="outlined light"
+            aria-label="{{'advanced-search' | translate}}"
+            (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
   </div>

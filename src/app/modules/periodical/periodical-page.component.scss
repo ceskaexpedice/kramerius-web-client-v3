@@ -1,27 +1,30 @@
-.search-results-page {
-  height: calc(100vh - var(--header-height));
-  overflow: hidden;
+// Component-specific styles only
+// Common layout styles moved to /public/styles/_page-layout.scss
 
-  .search-results-page--inner {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    padding-top: var(--small-gap);
-    gap: var(--small-gap);
+.selection-count {
+  font-weight: 500;
+  color: var(--color-text-base);
+  background: var(--color-bg-elevated);
+  padding: 4px 12px;
+  border-radius: var(--base-border-radius);
+  border: 1px solid var(--color-border-base);
+  font-size: var(--font-size-small);
+  margin-right: var(--base-gap);
+}
+
+.favorites-popup-wrapper {
+  position: fixed;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.positioned {
+    opacity: 1;
+    pointer-events: all;
   }
 
-  .results-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .results-content--wrapper {
-    padding: var(--spacing-x4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-x4);
+  app-favorites-popup {
+    display: block;
   }
 }

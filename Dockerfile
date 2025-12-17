@@ -20,6 +20,8 @@ FROM nginx:alpine
 COPY --from=builder \
   /app/dist/cdk-client/browser/ /usr/share/nginx/html
 COPY docker/etc/nginx/conf.d/default.conf /etc/nginx/conf.d/
+# add `mjs` to application/javascript mimetype
+RUN sed -i '/javascript/ s/;$/ mjs;/' /etc/nginx/mime.types
 
 # ⬇️ nový entrypoint skript
 COPY docker/entrypoint.sh /entrypoint.sh

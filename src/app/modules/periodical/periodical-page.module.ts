@@ -1,10 +1,6 @@
 import {NgModule} from '@angular/core';
 import {PeriodicalPageComponent} from './periodical-page.component';
 import {RouterModule, Routes} from '@angular/router';
-import {StoreModule} from '@ngrx/store';
-import {EffectsModule} from '@ngrx/effects';
-import {periodicalDetailReducer} from './state/periodical-detail.reducer';
-import {PeriodicalDetailEffects} from './state/periodical-detail.effects';
 import {AsyncPipe, JsonPipe, NgForOf, NgIf} from '@angular/common';
 import {FilterSidebarComponent} from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -27,7 +23,17 @@ import {ToolbarHeaderComponent} from '../../shared/components/toolbar-header/too
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {DateNavigatorComponent} from '../../shared/components/date-navigator/date-navigator.component';
-import {DocumentDetailEffects} from '../../shared/state/document-detail/document-detail.effects';
+import {FILTER_SERVICE} from '../../shared/services/filter.service';
+import {PeriodicalService} from '../../shared/services/periodical.service';
+import {
+  PeriodicalSearchResultsComponent
+} from './components/periodical-search-results/periodical-search-results.component';
+import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
+import {AdminActionsComponent} from '../../shared/components/admin-actions/admin-actions.component';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {FormsModule} from '@angular/forms';
+import {TranslatePipe} from '@ngx-translate/core';
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -41,8 +47,6 @@ const routes: Routes = [
   ],
   imports: [
     RouterModule.forChild(routes),
-    StoreModule.forFeature('periodical', periodicalDetailReducer),
-    EffectsModule.forFeature([PeriodicalDetailEffects, DocumentDetailEffects]),
     AsyncPipe,
     JsonPipe,
     NgIf,
@@ -61,9 +65,17 @@ const routes: Routes = [
     ToolbarControlsComponent,
     ResultsSortComponent,
     DateNavigatorComponent,
+    PeriodicalSearchResultsComponent,
+    SelectedTagsComponent,
+    AdminActionsComponent,
+    MatSlideToggle,
+    FormsModule,
+    TranslatePipe,
+    FavoritesPopupComponent,
   ],
   providers: [
-    { provide: 'FilterService', useClass: PeriodicalFilterService }
+    PeriodicalService,
+    { provide: FILTER_SERVICE, useExisting: PeriodicalService }
   ]
 
 })

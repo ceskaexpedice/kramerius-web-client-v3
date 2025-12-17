@@ -1,8 +1,17 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, OnDestroy, signal} from '@angular/core';
 import {SearchService} from '../../shared/services/search.service';
 import {AdvancedSearchService} from '../../shared/services/advanced-search.service';
 import {AppResultsViewType} from '../settings/settings.model';
 import {SettingsService} from '../settings/settings.service';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {AdminSelectionService, SelectionService} from '../../shared/services';
+import {Subscription, combineLatest} from 'rxjs';
+import {map, filter} from 'rxjs/operators';
+import {SearchDocument} from '../models/search-document';
+import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
+import {ViewMode} from '../periodical/models/view-mode.enum';
+import {ScrollPositionService} from '../../shared/services/scroll-position.service';
+import {BreakpointService} from '../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -10,20 +19,31 @@ import {SettingsService} from '../settings/settings.service';
   templateUrl: './search-results-page.component.html',
   styleUrl: './search-results-page.component.scss'
 })
-export class SearchResultsPageComponent implements OnInit {
+export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-element-3' },
-    { value: AppResultsViewType.list, icon: 'icon-row-vertical' }
+    { value: AppResultsViewType.grid, icon: 'icon-row-vertical', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
 
   protected readonly ViewOptions = AppResultsViewType;
 
+  // Convert SearchDocument to RecordItem
+  toRecordItem(doc: SearchDocument): RecordItem {
+    return searchDocumentToRecordItem(doc);
+  }
+
   public searchService = inject(SearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
+  public selectionService = inject(SelectionService);
+  public adminSelectionService = inject(AdminSelectionService);
+  private scrollPositionService = inject(ScrollPositionService);
+  public breakpointService = inject(BreakpointService);
+
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
 
@@ -41,6 +61,39 @@ export class SearchResultsPageComponent implements OnInit {
       this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
     }
 
+    // Set up admin selection service to track current page items
+    this.subscriptions.push(
+      combineLatest([
+        this.searchService.nonPageResults$,
+        this.searchService.articleResults$,
+        this.searchService.pageResults$,
+        this.searchService.attachmentResults$
+      ]).pipe(
+        map(([nonPageResults, articleResults, pageResults, attachmentResults]) => {
+          const allResults: SearchDocument[] = [];
+          if (nonPageResults) allResults.push(...nonPageResults);
+          if (articleResults) allResults.push(...articleResults);
+          if (pageResults) allResults.push(...pageResults);
+          if (attachmentResults) allResults.push(...attachmentResults);
+          return allResults;
+        })
+      ).subscribe(allCurrentItems => {
+        this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
+      })
+    );
+
+    // Notify scroll service when content has finished loading
+    this.subscriptions.push(
+      this.searchService.loading$.pipe(
+        filter(loading => loading === false)
+      ).subscribe(() => {
+        this.scrollPositionService.notifyContentLoaded();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   setView(view: AppResultsViewType) {
@@ -53,4 +106,24 @@ export class SearchResultsPageComponent implements OnInit {
     this.settingsService.saveToStorage(this.settingsService.settings);
   }
 
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.searchService.changeSortBy(event.value, event.direction);
+  }
+
+  toggleAdminMode(): void {
+    this.adminSelectionService.toggleAdminMode();
+  }
+
+  // Admin action methods (delegated from admin-actions component)
+  onExportSelected(): void {
+    // The AdminActionsComponent handles the export logic by default
+    // This method can be used to add additional page-specific export behavior if needed
+  }
+
+  onEditSelected(selectedIds: string[]): void {
+    console.log('Edit selected items:', selectedIds);
+    // TODO: Implement edit functionality specific to search results
+  }
+
+  protected readonly ViewMode = ViewMode;
 }

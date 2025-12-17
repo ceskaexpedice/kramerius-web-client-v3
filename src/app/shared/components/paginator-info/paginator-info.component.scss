@@ -1,12 +1,27 @@
+@use "mixins" as m;
+
 .pagination-info {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin: 10px 0;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-light);
 }
 
 .results-range {
   padding: 5px 10px;
+}
+
+/* Mobile bottom sheet */
+@include m.respond(md) {
+  .pagination-info {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .results-range {
+    padding: 0;
+  }
+
 }

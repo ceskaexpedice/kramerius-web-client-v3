@@ -56,6 +56,14 @@ export class PlaybackBarComponent {
 
   close() {
     this.musicService.openMusicStopDialog();
+    this.isQueueOpen.set(false);
+  }
+
+  openTrackDetails() {
+    const track = this.soundService.getCurrentTrack();
+    if (track) {
+      this.musicService.openTrackDetails(track);
+    }
   }
 
 }

@@ -1,6 +1,19 @@
+@use 'mixins' as m;
+
 :host {
   display: flex;
   flex-direction: column;
   gap: 40px;
   padding: 0 var(--search-page-padding);
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  overflow-y: auto;
+}
+
+// Responsive styles
+@include m.respond(md) {
+
+  :host {
+    padding: 0 var(--spacing-x3);
+  }
+
 }

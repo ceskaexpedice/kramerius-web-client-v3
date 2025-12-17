@@ -1,20 +1,23 @@
 <section>
   <div class="section-header">
     <h2>{{ 'periodical' | translate }}</h2>
-    <a class="show-all" (click)="showMore()">{{'btn_show_more' | translate}} →</a>
+    <button class="show-all with-icon p-right-0" (click)="showMore()">
+      {{'btn_show_more' | translate}}
+      <i class="icon-arrow-right-3"></i>
+    </button>
   </div>
 
   <div class="carousel-wrapper">
-    <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true">
-      <app-item-card
-        *ngFor="let item of periodicals"
-        [uuid]="item.pid"
-        [title]="item['title.search']"
-        [subtitle]="item.year"
-        [model]="item.model"
-        [link]="'/detail/' + item.title"
-      ></app-item-card>
-    </app-carousel>
-  </div>
+    <app-inline-loader
+      *ngIf="loading$ | async">
+    </app-inline-loader>
 
+    <div *ngIf="!(loading$ | async)">
+      <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true">
+        <ng-container *ngFor="let item of periodicals">
+          <app-record-item [showModel]="false" [item]="toRecordItem(item)"></app-record-item>
+        </ng-container>
+      </app-carousel>
+    </div>
+  </div>
 </section>

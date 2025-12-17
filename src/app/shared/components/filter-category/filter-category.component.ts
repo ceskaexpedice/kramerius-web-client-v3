@@ -1,22 +1,26 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal, effect} from '@angular/core';
-import {NgForOf, NgIf, SlicePipe} from '@angular/common';
-import {FilterItemComponent} from '../filter-item/filter-item.component';
-import {FacetItem} from '../../../modules/models/facet-item';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal, effect } from '@angular/core';
+import { NgForOf, NgIf, SlicePipe } from '@angular/common';
+import { FilterItemComponent } from '../filter-item/filter-item.component';
+import { FacetItem } from '../../../modules/models/facet-item';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   FilterDialogComponent
 } from '../../../modules/search-results-page/components/filter-dialog/filter-dialog.component';
-import {ActivatedRoute} from '@angular/router';
-import {MatDialog} from '@angular/material/dialog';
-import {SearchService} from '../../services/search.service';
-import {expandCollapseAnimation} from '../../animations';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { SearchService } from '../../services/search.service';
+import { expandCollapseAnimation } from '../../animations';
 import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
   facetKeysInfinityCount,
 } from '../../../modules/search-results-page/const/facets';
-import {CustomSearchService} from '../../services/custom-search.service';
-import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radio.component';
+import { CustomSearchService } from '../../services/custom-search.service';
+import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-radio.component';
+import { RangeSliderComponent } from '../range-slider/range-slider.component';
+import { DatePickerComponent } from '../date-picker/date-picker.component';
+import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
+import { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
 
 @Component({
   selector: 'app-filter-category',
@@ -27,6 +31,8 @@ import {FilterItemsRadioComponent} from '../filter-items-radio/filter-items-radi
     TranslatePipe,
     SlicePipe,
     FilterItemsRadioComponent,
+    RangeSliderComponent,
+    DatePickerComponent,
   ],
   templateUrl: './filter-category.component.html',
   styleUrl: './filter-category.component.scss',
@@ -49,8 +55,21 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() showBottomBorder = true;
   @Input() type: FacetElementType = FacetElementType.checkbox;
 
+  // Date range inputs
+  @Input() dateFrom: Date | null = null;
+  @Input() dateTo: Date | null = null;
+  @Input() dateOffset: number = 0;
+
+  // Year range inputs
+  @Input() yearRangeMin: number = 1400;
+  @Input() yearRangeMax: number = new Date().getFullYear();
+  @Input() yearRangeFrom: number = 1400;
+  @Input() yearRangeTo: number = new Date().getFullYear();
+
   @Output() toggle = new EventEmitter<string>();
   @Output() showMore = new EventEmitter<void>();
+  @Output() datePickerChange = new EventEmitter<any>();
+  @Output() rangeChange = new EventEmitter<any>();
 
   visibleItems = signal<FacetItem[]>([]);
 
@@ -79,8 +98,8 @@ export class FilterCategoryComponent implements OnChanges {
 
     effect(() => {
       if (this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
-        this.showPageFacet = this.searchService.hasSubmittedQuery();
-        this.showPeriodicalItemFacet = this.searchService.filtersContainDate();
+        this.showPageFacet = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+        this.showPeriodicalItemFacet = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         this.updateVisibleItems();
       }
     });
@@ -131,6 +150,22 @@ export class FilterCategoryComponent implements OnChanges {
         if (this.showPeriodicalItemFacet && item.name === 'periodicalvolume') return true;
         return !['periodicalitem', 'page', 'periodicalvolume'].includes(item.name);
       });
+    }
+
+    // Add icons for model facets
+    if (this.facetKey === customDefinedFacetsEnum.model) {
+      sorted = sorted.map(item => ({
+        ...item,
+        icon: getModelIcon(item.name, 0) || undefined
+      }));
+    }
+
+    // Add flag icons for language facets
+    if (this.facetKey === facetKeysEnum.languages) {
+      sorted = sorted.map(item => ({
+        ...item,
+        icon: getLanguageFlagIcon(item.name) || undefined
+      }));
     }
 
     this.visibleItems.set(sorted);
@@ -188,4 +223,48 @@ export class FilterCategoryComponent implements OnChanges {
     }
   }
 
+  // Date range methods
+  getDateFrom(): Date | null {
+    return this.dateFrom;
+  }
+
+  getDateTo(): Date | null {
+    return this.dateTo;
+  }
+
+  getDateOffset(): number {
+    return this.dateOffset;
+  }
+
+  onDatePickerChange(event: any) {
+    this.datePickerChange.emit(event);
+  }
+
+  // Year range methods
+  getRangeMin(): number {
+    return this.yearRangeMin;
+  }
+
+  getRangeMax(): number {
+    return this.yearRangeMax;
+  }
+
+  getRangeFrom(): number {
+    return this.yearRangeFrom;
+  }
+
+  getRangeTo(): number {
+    return this.yearRangeTo;
+  }
+
+  onRangeChange(event: any) {
+    this.rangeChange.emit(event);
+  }
+
+  // TrackBy function to prevent unnecessary rerenders
+  trackByItemName(index: number, item: FacetItem): string {
+    return item.name;
+  }
+
+  protected readonly AdvancedFilterType = FilterElementType;
 }

@@ -1,0 +1,15 @@
+<div class="error-page">
+  <div class="error-content">
+    <div class="error-code">500</div>
+    <h1 class="error-title">{{ 'error.server_error.title' | translate }}</h1>
+    <p class="error-message">{{ 'error.server_error.message' | translate }}</p>
+    <div class="error-actions">
+      <button class="button primary" (click)="reload()">
+        {{ 'error.server_error.reload' | translate }}
+      </button>
+      <button class="button secondary" (click)="goHome()">
+        {{ 'error.server_error.go_home' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

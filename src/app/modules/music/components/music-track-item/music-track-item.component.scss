@@ -21,44 +21,86 @@
 }
 
 td {
-    vertical-align: middle;
-    padding: var(--spacing-x2) var(--spacing-x4);
-    border-bottom: 1px solid var(--color-border);
-    font-size: 16px;
-    line-height: 20px;
+  vertical-align: middle;
+  padding: var(--spacing-x2) var(--spacing-x4);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  line-height: 20px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+  color: var(--color-text-base);
+
+  &.folder-view {
+    align-items: flex-start;
   }
+}
 
-  .title {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-x2);
-    color: var(--color-text-base);
-  }
+.track-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+}
 
-  .track-link {
-    color: var(--color-text);
-    text-decoration: none;
+.track-cover {
+  width: 36px;
+  height: 36px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+  background-color: var(--color-bg-secondary);
+}
 
-    &.active {
-      font-weight: bold;
-      color: var(--color-primary);
-    }
-  }
+.track-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x1);
+  flex: 1;
+}
 
-  .page-ref {
-    color: var(--color-text-tertiary)
-  }
+.track-title {
+  line-height: 1.2;
+}
 
-  .duration {
-    white-space: nowrap;
-  }
+.track-meta {
+  font-size: calc(0.85em * var(--accessibility-text-scale));
+  color: var(--color-text-tertiary);
+  line-height: 1;
+}
 
-  .actions {
-    display: flex;
-    gap: var(--spacing-x2);
-    //justify-content: flex-end;
-  }
+.track-author-year {
+  color: var(--color-text-secondary);
+}
 
-  .icon-button.favorited {
+.track-link {
+  color: var(--color-text);
+  text-decoration: none;
+
+  &.active {
+    font-weight: bold;
     color: var(--color-primary);
   }
+}
+
+.page-ref {
+  color: var(--color-text-tertiary)
+}
+
+.duration {
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-x2);
+  //justify-content: flex-end;
+}
+
+.icon-button.favorited {
+  color: var(--color-primary);
+}

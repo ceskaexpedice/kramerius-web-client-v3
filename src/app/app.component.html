@@ -1,8 +1,16 @@
 <app-header />
-<main [class.with-playback-bar]="showPlaybackBar()">
+<main [style.--playback-bar-height]="showPlaybackBar() ? '52px' : '0px'">
   <router-outlet />
-  <app-playback-bar />
 </main>
 
+@if (showPlaybackBar()) {
+  <app-playback-bar />
+}
+
 <app-loading-overlay />
+
+<app-image-preview-overlay></app-image-preview-overlay>
+<!--&lt;!&ndash; TEMPORARY: Test button for 500 error dialog &ndash;&gt;-->
+<!--<button class="test-error-button" (click)="testErrorDialog()" title="Test 500 Error Dialog">-->
+<!--</button>-->
 

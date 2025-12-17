@@ -8,7 +8,9 @@
 
   --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
 
-  --font-size-small: 14px;
+  --font-size-small: calc(14px * var(--accessibility-text-scale));
+  --font-size-base: calc(16px * var(--accessibility-text-scale));
+  --font-size-large: calc(18px * var(--accessibility-text-scale));
 
   --header-height: 71px;
   --toolbar-height: 56px;
@@ -20,6 +22,9 @@
   --spacing-x4: 16px;
   --spacing-x5: 20px;
   --spacing-x6: 24px;
+  --spacing-x7: 28px;
+  --spacing-x8: 32px;
 
-  --line-height-2: 24px;
+  --line-height-1: calc(20px * var(--accessibility-text-scale));
+  --line-height-2: calc(24px * var(--accessibility-text-scale));
 }

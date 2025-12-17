@@ -2,7 +2,7 @@
   <h2>
     {{ 'playback-stop-dialog--header' | translate }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
-      <i class="icon-x"></i>
+      <i class="icon-close"></i>
     </button>
   </h2>
 
@@ -13,7 +13,7 @@
       <p>{{'playback-stop-dialog--message' | translate}}</p>
 
       <div class="dont-ask-again--container">
-        <mat-checkbox class="p-left-0">
+        <mat-checkbox class="p-left-0" [(ngModel)]="dontShowAgain">
           <label>
             {{ 'dont-ask-again' | translate }}
           </label>

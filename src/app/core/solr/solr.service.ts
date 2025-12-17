@@ -1,35 +1,52 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {SolrResponseParser} from './solr-response-parser';
-import {SolrQueryBuilder} from './solr-query-builder';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
-import {SearchResultResponse} from '../../modules/models/search-result-response';
-import {PeriodicalItem} from '../../modules/models/periodical-item';
-import {BookItem} from '../../modules/models/book-item';
-import {FacetItem} from '../../modules/models/facet-item';
-import {DEFAULT_FACET_FIELDS} from '../../modules/search-results-page/const/facet-fields';
-import {SEARCH_RETURN_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
-import {EnvironmentService} from '../../shared/services/environment.service';
-import {SolrUtils} from './solr-utils';
-import {DocumentTypeEnum} from '../../modules/constants/document-type';
-import {ItemCard} from '../../shared/components/item-card/item-card.component';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SolrResponseParser } from './solr-response-parser';
+import { SolrQueryBuilder } from './solr-query-builder';
+import { SolrOperators, SolrSortDirections, SolrSortFields } from './solr-helpers';
+import { SearchResultResponse } from '../../modules/models/search-result-response';
+import { FacetItem } from '../../modules/models/facet-item';
+import {
+  DEFAULT_FACET_FIELDS,
+  DEFAULT_PERIODICAL_FACET_FIELDS,
+} from '../../modules/search-results-page/const/facet-fields';
+import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
+import { EnvironmentService } from '../../shared/services/environment.service';
+import { SolrUtils } from './solr-utils';
+import { DocumentTypeEnum } from '../../modules/constants/document-type';
+import { SearchDocument } from '../../modules/models/search-document';
+import { DocumentInfo } from '../../shared/models/document-info';
+import { DisplayConfigService } from '../../shared/services/display-config.service';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
 
-  API_URL = '';
-  API_BASE_URL = '';
+  private IIIF_BASE_URL = 'https://iiif.digitalniknihovna.cz';
 
   constructor(
     private http: HttpClient,
-    private env: EnvironmentService
+    private env: EnvironmentService,
+    private displayConfigService: DisplayConfigService
   ) {
+  }
 
-    this.API_URL = this.env.getApiUrl('search');
-    this.API_BASE_URL = this.env.getApiUrl();
+  private get API_URL(): string {
+    const url = this.env.getApiUrl('search');
+    if (!url) {
+      console.warn('AuthService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
+  }
 
+  private get API_BASE_URL(): string {
+    const url = this.env.getApiUrl();
+    if (!url) {
+      console.warn('AuthService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
   }
 
   private createHttpParams(rawParams: Record<string, any>): HttpParams {
@@ -49,7 +66,15 @@ export class SolrService {
   private groupFiltersByField(filters: string[]): Map<string, string[]> {
     const filtersByField = new Map<string, string[]>();
     filters.forEach(filter => {
-      const [field, value] = filter.split(':');
+      const colonIndex = filter.indexOf(':');
+      if (colonIndex === -1) {
+        console.warn(`SolrService: Invalid filter format (missing colon): ${filter}`);
+        return;
+      }
+
+      const field = filter.substring(0, colonIndex);
+      const value = filter.substring(colonIndex + 1);
+
       if (!filtersByField.has(field)) {
         filtersByField.set(field, []);
       }
@@ -67,85 +92,21 @@ export class SolrService {
       'facet.mincount': (options.minCount || 1).toString()
     };
 
-    if (baseFilters) {
-      params = {...params, ...baseFilters};
-    } else {
-      params = {...params, ...SolrQueryBuilder.baseFilters()};
-    }
-
-    // if (addBaseFilters) {
-    //   params = {
-    //     ...params,
-    //     ...SolrQueryBuilder.baseFilters()
-    //   }
+    // if (baseFilters) {
+    //   params = {...params, ...baseFilters};
+    // } else {
+    //   params = {...params, ...SolrQueryBuilder.baseFilters()};
     // }
 
     if (options.sortBy) Object.assign(params, SolrQueryBuilder.facetSortBy(options.sortBy));
     if (options.searchTerm) Object.assign(params, SolrQueryBuilder.facetContains(options.searchTerm, true));
     if (options.limit !== undefined) params['facet.limit'] = options.limit.toString();
     if (options.offset !== undefined) params['facet.offset'] = options.offset.toString();
+
     return params;
   }
 
-  // private buildQParam(query: string, advancedQuery?: string): string {
-  //   const parts = [];
-  //   if (query?.trim()) {
-  //     parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
-  //   } else {
-  //     parts.push('*:*');
-  //   }
-  //   if (advancedQuery?.trim()) {
-  //
-  //     let finalAdvancedQuery = '';
-  //
-  //     // if advancedQuery contains OR, we need to have brackets around it, otherwise we need to remove them
-  //     if (advancedQuery?.indexOf(SolrOperators.or) !== -1) {
-  //       finalAdvancedQuery = `${advancedQuery}`;
-  //     } else {
-  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
-  //     }
-  //     parts.push(`${finalAdvancedQuery}`);
-  //   }
-  //   return parts.length ? parts.join(' AND ') : '*:*';
-  // }
-
-  // private buildQParam(query: string, advancedQuery?: string): string {
-  //   const parts: string[] = [];
-  //
-  //   const hasSpecialSyntax = (input: string): boolean => {
-  //     const specialChars = ['?', '*', 'AND', 'OR', 'NOT', '"', '~'];
-  //     return specialChars.some(char => input.includes(char));
-  //   };
-  //
-  //   // Handle main query
-  //   if (query?.trim()) {
-  //     if (hasSpecialSyntax(query)) {
-  //       // Use raw query across all search fields
-  //       const escapedQuery = query.trim();
-  //       parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
-  //     } else {
-  //       // Use builder for normal input
-  //       parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
-  //     }
-  //   } else {
-  //     parts.push('*:*');
-  //   }
-  //
-  //   // Handle advanced query
-  //   if (advancedQuery?.trim()) {
-  //     let finalAdvancedQuery = '';
-  //     if (advancedQuery.includes(SolrOperators.or)) {
-  //       finalAdvancedQuery = advancedQuery;
-  //     } else {
-  //       finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
-  //     }
-  //     parts.push(`(${finalAdvancedQuery})`);
-  //   }
-  //
-  //   return parts.length ? parts.join(' AND ') : '*:*';
-  // }
-
-  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false): string {
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null): string {
     const parts: string[] = [];
 
     const hasSpecialSyntax = (input: string): boolean => {
@@ -153,22 +114,35 @@ export class SolrService {
       return specialChars.some(char => input.includes(char));
     };
 
+    if (rootUuid) {
+      parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
+    }
+
     // Handle main query
     if (query?.trim()) {
       if (hasSpecialSyntax(query)) {
-        // Use raw query across all search fields
         const escapedQuery = query.trim();
-        parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+        if (collectionUuid) {
+          // For collections, search across all relevant fields with boosts
+          parts.push(`((titles.search:${escapedQuery}^10 OR authors.search:${escapedQuery}^2 OR keywords.search:${escapedQuery} OR publishers.search:${escapedQuery} OR genres.search:${escapedQuery} OR geographic_names.search:${escapedQuery} OR text_ocr:${escapedQuery}^0.1 OR id_isbn:${escapedQuery} OR shelf_locators:${escapedQuery}))`);
+        } else {
+          parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
+        }
       } else {
-        // Use builder for normal input
-        parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+        if (collectionUuid) {
+          // For collections, build query across multiple fields
+          const searchFields = ['titles.search', 'authors.search', 'keywords.search', 'publishers.search', 'genres.search', 'geographic_names.search', 'text_ocr', 'id_isbn', 'shelf_locators'];
+          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.or, searchFields)})`);
+        } else {
+          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+        }
       }
     } else {
       parts.push('*:*');
     }
 
     // Add boosted model query for proper ranking
-    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage);
+    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
     parts.push(boostedModelQuery);
 
     // Handle advanced query
@@ -179,18 +153,73 @@ export class SolrService {
       } else {
         finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
       }
-      parts.push(`(${finalAdvancedQuery})`);
+      parts.push(`${finalAdvancedQuery}`);
+    }
+
+    // Handle collection filter as part of query (not fq)
+    if (collectionUuid) {
+      const modelParts: string[] = [];
+
+      if (includePage) {
+        modelParts.push('model:page');
+        modelParts.push('model:article');
+      }
+
+      if (includePeriodicalItem) {
+        modelParts.push('model:periodicalitem');
+      }
+
+      let collectionFilter = `in_collections.direct:"${collectionUuid}"`;
+
+      if (modelParts.length > 0) {
+        const modelQuery = modelParts.join(' OR ');
+        collectionFilter = `((${collectionFilter}) OR ((${modelQuery}) AND in_collections:"${collectionUuid}"))`;
+      }
+
+      parts.push(collectionFilter);
     }
 
     return parts.length ? parts.join(' AND ') : '*:*';
   }
 
+  /**
+   * Builds a specific query for periodical children (volumes/items)
+   */
+  private buildPeriodicalChildrenQuery(parentPid: string, model: string, advancedQuery?: string): string {
+    const baseParts = [
+      `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
+      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
+      `(model:${model})`
+    ];
+
+    // Handle advanced query like in buildQParam
+    if (advancedQuery?.trim()) {
+      let finalAdvancedQuery = '';
+      if (advancedQuery.includes(SolrOperators.or)) {
+        finalAdvancedQuery = advancedQuery;
+      } else {
+        finalAdvancedQuery = SolrUtils.removeBrackets(advancedQuery);
+      }
+      baseParts.push(`(${finalAdvancedQuery})`);
+    }
+
+    return SolrQueryBuilder.buildBooleanQuery(baseParts);
+  }
+
   private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
     const grouped = this.groupFiltersByField(filters);
     const fq: string[] = [];
+
     grouped.forEach((values, field) => {
       const op = operators[field] || SolrOperators.or;
-      const escaped = values.map(v => `"${v}"`);
+      // Don't quote range queries (values starting with [ or {)
+      const escaped = values.map(v => {
+        const trimmed = v.trim();
+        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+          return trimmed; // Range query - don't quote
+        }
+        return `"${v}"`;
+      });
       let fqParam = '';
 
       if (op === SolrOperators.or) {
@@ -217,12 +246,18 @@ export class SolrService {
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
          includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
 
+    console.log('solr search')
+
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
 
     let paramsObject = {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
-      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
       ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
@@ -235,25 +270,137 @@ export class SolrService {
       }
     }
 
-    // if (filters.length === 0 && query === '') {
-    //   paramsObject = {
-    //     ...paramsObject,
-    //     ...SolrQueryBuilder.baseFilters()
-    //   }
-    // }
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-                         includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+  searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
+                    includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
 
-    const baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    console.log('solr search periodicals')
+
+    const simpleBaseFilters = SolrQueryBuilder.pageFilter();
+
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
+    let paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
+      ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
+      ...SolrQueryBuilder.pagination(page, pageCount),
+      ...simpleBaseFilters
+    };
+
+    console.log('paramsObject', paramsObject);
+
+    if (includePage) {
+      paramsObject = {
+        ...paramsObject,
+        ...SolrQueryBuilder.highlight()
+      }
+    }
+
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, false, includePage, true, rootUuid));
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
+  searchInCollection(
+    collectionUuid: string,
+    query: string,
+    filters: string[] = [],
+    facetOperators: { [field: string]: SolrOperators } = {},
+    page = 0,
+    pageCount = 60,
+    sortBy: SolrSortFields,
+    sortDirection: SolrSortDirections,
+    advancedQuery?: string,
+    includePeriodicalItem = false,
+    includePage = false
+  ): Observable<SearchResultResponse> {
+    console.log('solr search in collection:', collectionUuid);
+    console.log('solr search query::', query)
+
+    // const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
+    let paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
+      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
+      ...SolrQueryBuilder.pagination(page, pageCount)
+    };
+
+    if (includePage) {
+      paramsObject = {
+        ...paramsObject,
+        ...SolrQueryBuilder.highlight()
+      }
+    }
+
+    let params = this.createHttpParams(paramsObject)
+        .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
+
+    // Add other filters (collection filter is now part of q parameter)
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
+  getFacetsInCollection(
+    collectionUuid: string,
+    query: string,
+    filters: string[],
+    facetFields: string[] = DEFAULT_FACET_FIELDS,
+    facetOperators: { [field: string]: SolrOperators } = {},
+    advancedQuery?: string,
+    includePeriodicalItem = false,
+    includePage = false
+  ): Observable<SearchResultResponse> {
+    const filtersByField = this.groupFiltersByField(filters);
+
+    const paramsObject = {
+      ...this.createFacetBaseParams({})
+    };
+
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
+
+    // Collection filter is now part of q parameter
+
+    this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
+      params = params.append('facet.field', field);
+    });
+
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
+  getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
+                         includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
+
+    let baseFilters;
+    if (rootPid) {
+      baseFilters = SolrQueryBuilder.basePeriodicalFilters(includePeriodicalItem, includePage, rootPid);
+    } else {
+      baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    }
 
     const filtersByField = this.groupFiltersByField(filters);
-    const paramsObject = this.createFacetBaseParams({}, filters.length === 0, baseFilters);
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
+    const paramsObject = {
+      ...this.createFacetBaseParams({}),
+      ...baseFilters
+    };
+
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);
@@ -263,9 +410,43 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
+  /**
+   * Gets facets specifically for periodical children (volumes or items)
+   */
+  getPeriodicalChildrenFacets(
+    parentPid: string,
+    model: string,
+    filters: string[],
+    facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
+    facetOperators: { [field: string]: SolrOperators } = {},
+    advancedQuery?: string
+  ): Observable<SearchResultResponse> {
+
+    console.log('getPeriodicalChildrenFacets', parentPid, model);
+
+    const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery);
+    const filtersByField = this.groupFiltersByField(filters);
+    const paramsObject = this.createFacetBaseParams({});
+
+    let params = this.createHttpParams(paramsObject).set('q', query);
+
+    // Add facet fields
+    this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
+      params = params.append('facet.field', field);
+    });
+
+
+    if (filters.length > 0) {
+      // Add filter queries
+      this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    }
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
   loadFacetWithPendingChanges(query: string, allFilters: string[], currentFacet: string, pendingSelections: Set<string>, pendingOperator: SolrOperators, otherOperators: Record<string, string> = {}, options: any = {}): Observable<any> {
     const { advancedQuery } = options;
-    const paramsObject = this.createFacetBaseParams(options, allFilters.length === 0);
+    const paramsObject = this.createFacetBaseParams(options);
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
     const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
     params = this.addFilterQueries(params, otherFilters, otherOperators);
@@ -291,7 +472,7 @@ export class SolrService {
       offset: facetOffset,
       sortBy,
       minCount
-    }, filters.length === 0);
+    });
     let params = this.createHttpParams(paramsObject).set('q', query || '*:*').append('facet.field', facetField);
     const otherFilters = filters.filter(f => !f.startsWith(`${facetField}:`));
     params = this.addFilterQueries(params, otherFilters, existingOperators);
@@ -299,7 +480,7 @@ export class SolrService {
   }
 
   getSuggestionsByFacetKey(solrField: string, term: string, facetLimit = 20): Observable<string[]> {
-    return this.loadFacet('*:*', [], solrField, term, true, facetLimit, 0, SolrSortFields.count, 1).pipe(
+    return this.loadFacet('*:* AND level:0', [], solrField, term, true, facetLimit, 0, SolrSortFields.count, 1).pipe(
       map(res => SolrResponseParser.parseFacet(res.facet_counts.facet_fields?.[solrField] || []).map(f => f.name))
     );
   }
@@ -309,7 +490,7 @@ export class SolrService {
     const paramsObject = {
       q: query,
       fl: 'pid,title.search',
-      fq: ['accessibility:public', 'level:0'],
+      fq: ['level:0'],
       rows: '50',
       wt: 'json',
     };
@@ -319,11 +500,11 @@ export class SolrService {
     );
   }
 
-  getPeriodicals(): Observable<ItemCard[]> {
+  getPeriodicals(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.periodical}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100),
       ...SolrQueryBuilder.start(0)
@@ -334,11 +515,11 @@ export class SolrService {
     );
   }
 
-  getBooks(): Observable<ItemCard[]> {
+  getBooks(): Observable<SearchDocument[]> {
     const paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       fq: ['accessibility:public', 'level:0', `model:${DocumentTypeEnum.monograph}`],
-      fl: 'pid,title.search,model,accessibility',
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
       ...SolrQueryBuilder.sortBy(),
       ...SolrQueryBuilder.rows(100)
     };
@@ -346,6 +527,23 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response.docs)
     );
+  }
+
+  getCollections(query?: string, page: number = 0, pageSize: number = 10000): Observable<any> {
+    const baseFilters = ['level:0', `model:${DocumentTypeEnum.collection}`];
+
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      fq: baseFilters,
+      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
+      ...SolrQueryBuilder.sortBy(),
+      ...SolrQueryBuilder.rows(pageSize),
+      ...SolrQueryBuilder.start(page * pageSize),
+      ...(query && query.trim() && { q: `title.search:${query}*` })
+    };
+
+    const params = new HttpParams({ fromObject: paramsObject });
+    return this.http.get<any>(this.API_URL, { params });
   }
 
   getGenres(): Observable<FacetItem[]> {
@@ -362,6 +560,7 @@ export class SolrService {
     );
   }
 
+
   getDetailItem(pid: string): Observable<any> {
     const params = new HttpParams({ fromObject: { q: `pid:"${pid}"`, ...SolrQueryBuilder.rows(1) } });
     return this.http.get<any>(this.API_URL, { params }).pipe(
@@ -369,51 +568,141 @@ export class SolrService {
     );
   }
 
-  getPeriodicalVolumes(pid: string): Observable<any[]> {
-    const query = SolrQueryBuilder.buildBooleanQuery([
-      `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `(model:periodicalvolume)`
-    ]);
-    const params = { q: query, fl: 'date.str, pid, accessibility, model', rows: '10000', sort: 'date.min asc', wt: 'json' };
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => res.response?.docs ?? [])
-    );
+  /**
+   * Improved method for getting periodical volumes with facets
+   */
+  getPeriodicalVolumesWithFacets(
+    uuid: string,
+    filters: string[],
+    facetOperators: Record<string, SolrOperators>,
+    page: number,
+    pageCount: number,
+    sortBy: any,
+    sortDirection: any,
+    advancedQuery?: string
+  ) {
+    console.log('filters:', filters)
+    return forkJoin({
+      volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
+      facets: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+    });
   }
 
-  getPeriodicalItems(pid: string): Observable<any[]> {
-    const query = SolrQueryBuilder.buildBooleanQuery([
-      `!pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(pid)}`,
-      `(model:periodicalitem OR model:supplement OR model:page)`
-    ]);
-    const params = {
+  /**
+   * Improved method for getting periodical items with facets
+   */
+  getPeriodicalItemsWithFacets(
+    uuid: string,
+    filters: string[],
+    facetOperators: Record<string, SolrOperators>,
+    page: number,
+    pageCount: number,
+    sortBy: any,
+    sortDirection: any,
+    advancedQuery?: string
+  ) {
+    console.log('filters:', filters)
+    return forkJoin({
+      children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery),
+      facets: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+    });
+  }
+
+  getPeriodicalVolumes(pid: string,
+                       filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
+                        advancedQuery?: string
+  ): Observable<any[]> {
+    const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
+
+    let params = this.createHttpParams({
       q: query,
-      fl: 'date.str, pid, accessibility,model',
-      rows: '10000',
-      sort: 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc',
+      fl: 'date.str, pid, accessibility, model, part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet,own_parent.pid',
+      rows: pageCount,
+      sort: `${sortBy} ${sortDirection}`,
       wt: 'json'
-    };
+    });
+
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
   }
 
-  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null): Observable<any[]> {
+  getPeriodicalItems(
+    pid: string,
+    filters: string[] = [],
+    page = 0,
+    pageCount = 60,
+    sortBy: SolrSortFields = SolrSortFields.dateMin,
+    sortDirection: SolrSortDirections = SolrSortDirections.asc,
+    advancedQuery?: string
+  ): Observable<any[]> {
+    const query = this.buildPeriodicalChildrenQuery(
+      pid,
+      `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`,
+      advancedQuery
+    );
+
+    // Build HttpParams so we can safely add repeated `fq` keys
+    let params = new HttpParams()
+      .set('q', query)
+      .set('fl', 'date.str, pid, accessibility,model,part.number.str,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid, own_parent.pid')
+      .set('rows', '10000')
+      .set('sort', 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc')
+      .set('wt', 'json');
+
+    this.buildFqParams(filters, {}).forEach(fq => params = params.append('fq', fq));
+
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs ?? [])
+    );
+  }
+
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}): Observable<any> {
     let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
 
     if (model) {
       query += ` AND model:${model}`;
     }
 
-    const params = {
-      q: query,
-      fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length',
-      rows: '10000',
-      sort
-    };
-    return this.http.get<any>(this.API_URL, { params }).pipe(
-      map(res => res.response?.docs ?? [])
+    let httpParams = new HttpParams({
+      fromObject: {
+        q: query,
+        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors',
+        rows: '10000',
+        sort
+      }
+    });
+
+    if (includeFacets && facetFields.length > 0) {
+      httpParams = httpParams.set('facet', 'true');
+      httpParams = httpParams.set('facet.mincount', '1');
+      facetFields.forEach(field => {
+        httpParams = httpParams.append('facet.field', field);
+      });
+    }
+
+    // Add filter queries
+    this.buildFqParams(filters, facetOperators).forEach(fq => {
+      httpParams = httpParams.append('fq', fq);
+    });
+
+    return this.http.get<any>(this.API_URL, { params: httpParams }).pipe(
+      map(res => {
+        if (includeFacets) {
+          // Return full response with both docs and facets
+          return {
+            docs: res.response?.docs ?? [],
+            facets: res.facet_counts?.facet_fields ?? {},
+            numFound: res.response?.numFound ?? 0
+          };
+        }
+        // Return just docs for backward compatibility
+        return res.response?.docs ?? [];
+      })
     );
   }
 
@@ -425,31 +714,141 @@ export class SolrService {
     return `${this.API_BASE_URL}items/${pid}/image/thumb`;
   }
 
-    /**
-   * Adds filters to params with proper operators
+  /**
+   * Gets page/item info from Kramerius API
+   * @param uuid - Page/item identifier
+   * @returns Observable with page info including available data formats and licenses
    */
-  private addFilterQueries(
-    params: HttpParams,
-    filters: string[],
-    operators: Record<string, string> = {},
-    skipField?: string
-  ): HttpParams {
-    const filtersByField = this.groupFiltersByField(filters);
-    let result = params;
+  getPageInfo(uuid: string): Observable<DocumentInfo> {
+    const url = `${this.API_BASE_URL}items/${uuid}/info`;
+    return this.http.get<DocumentInfo>(url);
+  }
 
-    filtersByField.forEach((values, field) => {
-      if (values.length > 0 && field !== skipField) {
-        const operator = operators[field] || SolrOperators.or;
-        const escapedValues = values.map(v => `"${v}"`);
+  /**
+   * Searches within a specific document's OCR text and returns highlighted results
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Search term (supports wildcards like "text*")
+   * @param rows - Number of results to return (default: 20)
+   * @returns Observable with search results including highlighting information
+   */
+  searchInDocument(
+    parentPid: string,
+    searchTerm: string,
+    rows: number = 300,
+    forAutocomplete: boolean = false,
+    caseSensitive: boolean = false,
+  ): Observable<any> {
+    const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
 
-        if (values.length === 1) {
-          result = result.append('fq', `${field}:${escapedValues[0]}`);
-        } else {
-          result = result.append('fq', `${field}:(${escapedValues.join(` ${operator} ${field}:`)})`);
+    const paramsObject = {
+      fl: 'pid,root.pid',
+      hl: 'true',
+      q: '',
+      'hl.fl': 'text_ocr',
+      'hl.fragsize': forAutocomplete ? '1' : '120',
+      'hl.method': 'original',
+      'hl.simple.post': forAutocomplete ? '<<' : '</strong>',
+      'hl.simple.pre': forAutocomplete ? '>>' : '<strong>',
+      'hl.snippets': forAutocomplete ? '10' : '1',
+      fq: `(own_parent.pid:"${parentPid}") AND model:page`,
+      rows: rows.toString(),
+      wt: 'json'
+    };
+
+    if (caseSensitive) {
+      paramsObject['q'] = `text_ocr.exact:${ocrSearchTerm}`;
+    } else {
+      paramsObject['q'] = `text_ocr:${ocrSearchTerm}`;
+    }
+
+    const params = this.createHttpParams(paramsObject);
+    return this.http.get<any>(this.API_URL, { params });
+  }
+
+  /**
+   * Gets autocomplete suggestions for in-document search
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Partial search term
+   * @param rows - Number of suggestions to return (default: 10)
+   * @returns Observable with array of suggestion objects containing pid and highlighted text
+   */
+  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10): Observable<Array<{pid: string, highlights: string[]}>> {
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+
+    return this.searchInDocument(parentPid, searchTerm, rows, true).pipe(
+      map(response => {
+        const results: Array<{pid: string, highlights: string[]}> = [];
+
+        if (response.highlighting) {
+          Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
+            if (highlightData.text_ocr && highlightData.text_ocr.length > 0) {
+              results.push({
+                pid: pid,
+                highlights: highlightData.text_ocr
+              });
+            }
+          });
         }
-      }
-    });
 
-    return result;
+        return results;
+      })
+    );
+  }
+
+  /**
+   * Gets full search results with highlighted snippets for displaying in search results list
+   * @param parentPid - Parent document PID
+   * @param searchTerm - Search term
+   * @returns Observable with array of search results including highlighted text snippets
+   */
+  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false): Observable<Array<{pid: string, highlightedText: string}>> {
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+
+    return this.searchInDocument(parentPid, searchTerm, 300, false, caseSensitive).pipe(
+      map(response => {
+        const results: Array<{pid: string, highlightedText: string}> = [];
+
+        if (response.highlighting) {
+          Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
+            if (highlightData.text_ocr && highlightData.text_ocr.length > 0) {
+              results.push({
+                pid: pid,
+                highlightedText: highlightData.text_ocr[0] // Get first snippet
+              });
+            }
+          });
+        }
+
+        return results;
+      })
+    );
+  }
+
+  private addFilterQueries(params: HttpParams, filters: string[], operators: Record<string, string> = {}): HttpParams {
+    this.buildFqParams(filters, operators).forEach(fq => params = params.append('fq', fq));
+    return params;
+  }
+
+  getIiifBaseUrl(uuid: string): string {
+    let baseUrl = this.env.getPureApiUrl();
+    return baseUrl + 'search/iiif/' + uuid;
+  }
+
+  imageManifest(url: string): string {
+    return `${url}/info.json`;
+  }
+
+  getIiifPresentationUrl(uuid: string): string {
+    return `${this.IIIF_BASE_URL}/${this.env.getKrameriusId()}/${uuid}`;
   }
 }

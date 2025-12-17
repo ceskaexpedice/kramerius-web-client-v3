@@ -1,0 +1,34 @@
+.image-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.image-viewer-main {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.image-wrapper {
+  display: inline-block;
+  min-height: 100%;
+  min-width: 100%;
+  text-align: center;
+  line-height: 0;
+  height: 100%;
+}
+
+.image-viewer-image {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  width: auto;
+  display: inline-block;
+  transition: width 0.3s ease, height 0.3s ease;
+}

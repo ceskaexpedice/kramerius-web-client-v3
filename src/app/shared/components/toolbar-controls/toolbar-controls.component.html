@@ -12,23 +12,18 @@
     </div>
   </ng-container>
 
-  <button class="icon-button link tertiary" *ngIf="showInfo" (click)="onInfo()">
-    <i class="icon-info-circle"></i>
-  </button>
-
-  <!-- Favorite Icon -->
-  <button class="icon-button link tertiary" *ngIf="showFavorites" (click)="onFavorite()">
-    <i class="icon-heart"></i>
-  </button>
-
-  <!-- Share Icon -->
-  <button class="icon-button link tertiary" *ngIf="showShare" (click)="onShare()">
-    <i class="icon-send-2"></i>
-  </button>
-
-  <!-- Quote Icon -->
-  <button class="icon-button link tertiary" *ngIf="showQuote" (click)="onQuote()">
-    <i class="icon-quote-down"></i>
+  <!-- Configuration-based action buttons -->
+  <button
+    *ngFor="let action of mergedActions; trackBy: trackByActionId"
+    class="icon-button"
+    [ngClass]="themeDefault ? 'outlined tertiary' : 'primary'"
+    [class.disabled]="action.disabled"
+    [disabled]="action.disabled"
+    [title]="action.tooltip"
+    [attr.aria-label]="action.label"
+    (click)="onActionClick(action, $event)"
+  >
+    <i [class]="action.icon"></i>
   </button>
 
 </div>

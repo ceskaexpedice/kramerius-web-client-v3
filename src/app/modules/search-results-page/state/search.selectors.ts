@@ -13,12 +13,26 @@ export const selectSearchResults = createSelector(
 
 export const selectNonPageSearchResults = createSelector(
   selectSearchState,
-  (state: SearchState) => state.results && state.results.filter(s => s.model !== DocumentTypeEnum.page)
+  (state: SearchState) => state.results && state.results.filter(s =>
+    s.model !== DocumentTypeEnum.page &&
+    s.model !== DocumentTypeEnum.article &&
+    s.model !== DocumentTypeEnum.supplement
+  )
+);
+
+export const selectArticleSearchResults = createSelector(
+  selectSearchState,
+  (state: SearchState) => state.results && state.results.filter(s => s.model === DocumentTypeEnum.article)
 );
 
 export const selectPageSearchResults = createSelector(
   selectSearchState,
   (state: SearchState) => state.results && state.results.filter(s => s.model === DocumentTypeEnum.page)
+);
+
+export const selectAttachmentSearchResults = createSelector(
+  selectSearchState,
+  (state: SearchState) => state.results && state.results.filter(s => s.model === DocumentTypeEnum.supplement)
 );
 
 export const selectSearchResultsTotalCount = createSelector(

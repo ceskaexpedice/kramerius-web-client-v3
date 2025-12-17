@@ -1,10 +1,29 @@
+@use "_z-index.scss" as z;
+
 .input-field {
   position: relative;
   width: 100%;
 
+  // Label styles
+  .input-label {
+    display: block;
+    margin-bottom: var(--spacing-x1);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-light);
+  }
+
   .input-container {
     width: 100%;
     position: relative;
+
+    &.clickable {
+      cursor: pointer;
+
+      input {
+        cursor: pointer;
+      }
+    }
 
     input {
       width: 100%;
@@ -21,7 +40,7 @@
       padding: 11px;
     }
 
-    .prefix + input {
+    .prefix+input {
       padding-left: 20px;
     }
 
@@ -35,7 +54,9 @@
       color: var(--color-text-light);
     }
 
-    input:focus, input:active, input:target {
+    input:focus,
+    input:active,
+    input:target {
       outline: none;
       border: 1px solid var(--color-primary);
     }
@@ -46,9 +67,42 @@
       transform: translateY(-50%);
       display: flex;
       align-items: center;
-      gap: 0px;
+      gap: var(--spacing-x1);
       color: var(--color-icon-tertiary-default);
-      z-index: 2;
+      z-index: z.$input-focus;
+    }
+
+    // Prefix icon styles
+    .prefix-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-icon-tertiary-default);
+      pointer-events: none;
+      z-index: z.$input-focus;
+      display: flex;
+      align-items: center;
+      font-size: var(--font-size-base);
+    }
+
+    // Postfix icon styles
+    .postfix-icon {
+      position: absolute;
+      right: 44px; // Position before action icons (32px + 12px margin)
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-icon-tertiary-default);
+      pointer-events: none;
+      z-index: z.$input-focus;
+      display: flex;
+      align-items: center;
+      font-size: var(--font-size-base);
+    }
+
+    // When no action icons are present, move postfix icon closer to edge
+    &:not(:has(.input--icons)) .postfix-icon {
+      right: 12px;
     }
   }
 
@@ -66,6 +120,7 @@
 
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -89,7 +144,7 @@ input[type="number"] {
     border: none;
     cursor: pointer;
     padding: 0;
-    font-size: 18px;
+    font-size: calc(18px * var(--accessibility-text-scale));
     color: var(--color-icon-tertiary-default);
     display: flex;
     align-items: center;
@@ -120,7 +175,46 @@ input[type="number"] {
     left: 12px;
     color: var(--color-primary);
     pointer-events: none;
-    font-size: 14px;
+    font-size: var(--font-size-small);
   }
 
+}
+
+// input placeholder color var(--text-light)
+input::placeholder {
+  color: var(--color-text-light);
+}
+
+.input--icons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+
+  button {
+    padding: var(--spacing-x1);
+    border-radius: var(--spacing-x1);
+    font-size: var(--font-size-base);
+    width: 24px;
+    height: 24px;
+  }
+
+}
+
+.case-sensitive-button-toggle {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-contrast);
+  padding-top: var(--spacing-x1);
+  color: var(--color-icon-tertiary-default);
+  line-height: 1;
+  overflow: hidden;
+  font-size: var(--font-size-base);
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &.active {
+    background: var(--color-primary);
+    color: var(--color-secondary);
+  }
 }

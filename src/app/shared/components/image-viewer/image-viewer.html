@@ -1,0 +1,14 @@
+<app-fullscreen>
+  <div class="image-viewer-container" (wheel)="onWheel($event)">
+    <div class="image-viewer-main">
+      <div class="image-wrapper">
+        <img
+          *ngIf="imageUrl"
+          [src]="imageUrl"
+          [ngStyle]="imageStyles"
+          alt="Document preview"
+          class="image-viewer-image">
+      </div>
+    </div>
+  </div>
+</app-fullscreen>

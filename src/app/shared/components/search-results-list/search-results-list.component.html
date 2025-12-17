@@ -1,0 +1,28 @@
+<div class="search-results-list">
+  @for (item of displayItems; track item.pid) {
+    <div
+      class="search-result-item"
+      [class.with-content]="item.highlightedText"
+      [class.active]="isActive(item)"
+      (click)="onResultClick(item)">
+
+      <app-detail-page-item
+        [page]="item.page || item"
+        [type]="'page'"
+        [pageNumberPosition]="'left'"
+        [pageNumber]="showAllPages ? (item.pageNumber?.toString() || null) : null"
+      >
+      </app-detail-page-item>
+
+<!--      @if (item.highlightedText) {-->
+        <div class="search-result-item--content">
+          <div class="highlighted-text" [innerHTML]="item.highlightedText || ' '"></div>
+        </div>
+<!--      }-->
+
+    </div>
+  }
+  @if (displayItems.length === 0) {
+    <div class="no-results">No search results</div>
+  }
+</div>

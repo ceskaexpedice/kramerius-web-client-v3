@@ -4,8 +4,8 @@
     <app-detail-page-item
       [page]="page"
       [type]="type"
-      [pageNumber]="index + 1"
-      [isSelected]="detailViewService.currentPageIndex === index"
+      [pageNumber]="page['page.number']"
+      [isSelected]="detailViewService.isPageActive(index)"
       (pageClicked)="clickedPage(index)"
     >
     </app-detail-page-item>

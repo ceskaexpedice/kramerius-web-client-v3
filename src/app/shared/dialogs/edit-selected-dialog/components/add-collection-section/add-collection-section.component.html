@@ -1,0 +1,28 @@
+<div class="add-collection-section">
+
+  <div class="section-header selected-dialog--header">
+    <h3>{{ 'select-collections-to-add' | translate }} <span *ngIf="totalCount$ | async as totalCount">({{ totalCount }})</span></h3>
+  </div>
+
+  <div class="collections-selection selected-dialog--section">
+    <app-collections-list
+      [title]="'select-collections-to-add' | translate"
+      [selectedCollections]="selectedCollections"
+      (selectionChange)="onCollectionsSelectionChange($event)">
+    </app-collections-list>
+  </div>
+
+  <div class="selected-dialog--actions">
+
+    <button class="primary"
+            [disabled]="selectedCollections.length === 0"
+            (click)="onActionClick()">
+      {{'add--button-label' | translate}}
+      @if (selectedCollections && selectedCollections.length > 0) {
+        ({{ selectedCollections.length }})
+      }
+    </button>
+
+  </div>
+
+</div>

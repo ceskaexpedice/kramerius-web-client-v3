@@ -3,7 +3,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   padding: 12px 16px;
   border-radius: var(--base-border-radius);
   cursor: pointer;
@@ -59,6 +59,10 @@ button.icon-button {
 button.primary {
   background: var(--color-primary);
   color: var(--color-text-on-color);
+
+  &:not(.link):not(:disabled) {
+    border: 1px solid var(--color-primary);
+  }
 
   &:hover {
     background: var(--color-primary-hover);
@@ -180,6 +184,7 @@ button.link {
 button.outlined {
   background: transparent;
   border: 1px solid;
+  cursor: pointer;
 
   &.primary {
     border-color: var(--color-border-primary-default);
@@ -267,6 +272,28 @@ button.outlined {
   }
 }
 
+button.danger {
+  border-color: var(--color-border-error);
+  color: var(--color-text-on-color);
+  background-color: var(--color-error);
+
+  &:hover {
+    color: var(--color-text-on-color);
+    background-color: var(--color-error);
+  }
+
+  &:active {
+    color: var(--color-text-on-color);
+    background-color: var(--color-error);
+  }
+
+  &:disabled {
+    color: var(--color-text-on-color);
+    background-color: rgba(255, 68, 68, 0.55);
+    cursor: not-allowed;
+  }
+}
+
 // OUTLINED DARK
 button.outlined-dark {
   background: transparent;
@@ -280,6 +307,24 @@ button.outlined-dark {
   }
 }
 
+button.transparent {
+  background: transparent;
+  color: var(--color-text-base);
+
+  &:hover {
+    background: var(--color-bg-hover);
+  }
+
+  &:active {
+    background: var(--color-bg-pressed);
+  }
+
+  &:disabled {
+    color: var(--color-bg-contrast);
+    cursor: not-allowed;
+  }
+}
+
 // General spacing for buttons with icon and text
 button.with-icon {
   display: inline-flex;
@@ -288,6 +333,12 @@ button.with-icon {
   i,
   svg {
     display: inline-block;
-    font-size: 16px;
+    font-size: var(--font-size-base);
   }
+}
+
+.square-button {
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 1/1;
 }

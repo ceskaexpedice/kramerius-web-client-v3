@@ -1,8 +1,19 @@
 <div class="input-field">
-  <div class="input-container" [ngClass]="[theme, size]">
+  <!-- Label -->
+  <label *ngIf="label" class="input-label" [attr.for]="id">
+    {{ label | translate }}
+  </label>
+
+  <div class="input-container" [ngClass]="[theme, size, clickable ? 'clickable' : '', withIcons ? 'with-icons' : '']">
+    <!-- Prefix Icon -->
+    <span class="prefix-icon" *ngIf="prefixIcon">
+      <i [class]="prefixIcon"></i>
+    </span>
+
     <ng-container *ngIf="autocomplete; else noAutocomplete">
       <input
         [style.padding-right]="iconsWidth"
+        [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
         [type]="type"
         #inputElement
         #inputModel="ngModel"
@@ -13,13 +24,16 @@
         [matAutocomplete]="autocomplete"
         (focus)="onFocus()"
         (blur)="onBlur()"
+        [attr.aria-label]="ariaLabel"
         [attr.name]="name"
         [attr.id]="id"
         [attr.pattern]="pattern"
         [attr.required]="required ? '' : null"
         [attr.min]="min"
         [attr.max]="max"
+        [attr.autofocus]="autofocus ? '' : null"
         [class.with-icons]="withIcons"
+        [attr.aria-required]="required ? 'true' : null"
       />
     </ng-container>
 
@@ -28,6 +42,7 @@
         <span class="prefix" *ngIf="prefix">{{ prefix }}</span>
         <input
           [style.padding-right]="iconsWidth"
+          [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
           [type]="type"
           inputmode="numeric"
           #inputElement
@@ -38,27 +53,36 @@
           (keyup.enter)="onEnter()"
           (focus)="onFocus()"
           (blur)="onBlur()"
+          [attr.aria-label]="ariaLabel"
           [attr.name]="name"
           [attr.id]="id"
           [attr.pattern]="pattern"
           [attr.required]="required ? '' : null"
           [attr.min]="min"
           [attr.max]="max"
+          [attr.autofocus]="autofocus ? '' : null"
           [readonly]="readonly"
           [class.with-icons]="withIcons"
+          [attr.aria-required]="required ? 'true' : null"
         />
       </div>
     </ng-template>
 
-    <div class="input-step-buttons" *ngIf="type === 'number'">
+    <!-- Postfix Icon -->
+    <span class="postfix-icon" *ngIf="postfixIcon">
+      <i [class]="postfixIcon"></i>
+    </span>
+
+    <div class="input-step-buttons" *ngIf="type === 'number' && showNumberStepper">
       <button
         type="button"
         class="step-btn up"
         [ngClass]="{ disabled: isAtMax() }"
         [disabled]="isAtMax()"
         (click)="stepUp()"
+        [attr.aria-label]="'increase-value' | translate"
       >
-        <i class="icon-arrow-up-1"></i>
+        <i class="icon-arrow-up"></i>
       </button>
 
       <button
@@ -67,16 +91,31 @@
         [ngClass]="{ disabled: isAtMin() }"
         [disabled]="isAtMin()"
         (click)="stepDown()"
+        [attr.aria-label]="'decrease-value' | translate"
       >
-        <i class="icon-arrow-up-1"></i>
+        <i class="icon-arrow-up"></i>
       </button>
     </div>
 
-    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear">
+    <span class="input--icons" [style.right]="iconsRight" *ngIf="showMicButton || showHelpButton || showClear || showCaseSensitiveButton">
+
+      @if (showCaseSensitiveButton) {
+        <button
+          class="icon-button button link tertiary case-sensitive-button-toggle" [class.active]="isCaseSensitive"
+          type="button"
+          [attr.aria-label]="'case-sensitive-toggle' | translate"
+          (click)="toggleCaseSensitive()"
+        >
+        <span>Aa</span>
+      </button>
+      }
+
       <button
         class="icon-button button link tertiary"
         *ngIf="showMicButtonActual"
-        type="button">
+        type="button"
+        [attr.aria-label]="'voice-input' | translate"
+      >
         <i class="icon-microphone-2 input--icon"></i>
       </button>
 
@@ -84,14 +123,18 @@
         class="icon-button button link tertiary"
         *ngIf="showClear"
         type="button"
-        (mousedown)="clearInput($event)">
-        <i class="icon-x input--icon"></i>
+        (mousedown)="clearInput($event)"
+        [attr.aria-label]="'clear-input' | translate"
+      >
+        <i class="icon-close input--icon"></i>
       </button>
 
       <button
         class="icon-button button link tertiary"
         *ngIf="showHelpButton"
-        type="button">
+        type="button"
+        [attr.aria-label]="'help' | translate"
+      >
         <i class="icon-question input--icon"></i>
       </button>
     </span>
@@ -101,6 +144,7 @@
     *ngIf="showSubmitButton"
     type="button"
     class="icon-button submit-btn"
+    [attr.aria-label]="'submit' | translate"
     (click)="onSubmitClick()">
     <i class="{{submitIcon}}"></i>
   </button>

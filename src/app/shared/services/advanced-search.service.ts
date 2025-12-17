@@ -1,17 +1,24 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {AdvancedSearchDialogComponent} from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AdvancedSearchDialogComponent } from '../dialogs/advanced-search-dialog/advanced-search-dialog.component';
+import { BreakpointService } from './breakpoint.service';
 import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
-  SolrFacetKey,
   FilterElementType,
+  getOriginalSolrKey,
+  isFilterWithCaseSensitiveSupport,
+  SolrFacetKey,
+  getSolrFieldName,
+  applyCaseSensitiveToFields,
+  isExactOn,
 } from '../dialogs/advanced-search-dialog/solr-filters';
-import {SolrOperators} from '../../core/solr/solr-helpers';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {ActivatedRoute, Params, Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../app.routes';
-import {take} from 'rxjs';
+import { SolrOperators } from '../../core/solr/solr-helpers';
+import { QueryParamsService } from '../../core/services/QueryParamsManager';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../app.routes';
+import { take } from 'rxjs';
+import { mapAdvancedSearchField } from '../../modules/search-results-page/const/facets';
 
 export interface FilterGroup {
   filters: AdvancedFilterDefinition[];
@@ -40,6 +47,7 @@ export class AdvancedSearchService {
   private queryParamsService = inject(QueryParamsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private breakpointService = inject(BreakpointService);
 
   initializeFromRoute(): void {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
@@ -89,6 +97,8 @@ export class AdvancedSearchService {
     const updatedFq = this.getFilters();
     const updatedOperators = this.getOperators();
 
+    console.log('advancedQuery:', advancedQuery);
+
     const queryParams: any = {
       advSearch: advancedQuery || null,
       advOp: mainOperator,
@@ -124,41 +134,6 @@ export class AdvancedSearchService {
     return this.pendingOperatorsSignal();
   }
 
-  // getAdvancedQueryString(): string | undefined {
-  //   const groups = this.filterGroupsSignal();
-  //   const mainOperator = this.mainOperatorSignal();
-  //
-  //   const advancedQueryParts: string[] = groups.map(group => {
-  //     const parts = group.filters
-  //       .filter(filter => !!filter.elementValue?.trim())
-  //       .map(filter => {
-  //         const value = filter.elementValue.trim();
-  //         const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
-  //         let useRaw = filter.userRawQueryFormat || false;
-  //
-  //         if (value.startsWith('*') || value.endsWith('*')) {
-  //           useRaw = true;
-  //         }
-  //
-  //         return isRange
-  //           ? `${filter.solrField}:${value}`
-  //           : useRaw
-  //             ? `${filter.solrField}:(${value})`
-  //             : `${filter.solrField}:"${value}"`;
-  //       });
-  //
-  //     return parts.length > 0
-  //       ? `(${parts.join(` ${group.operator} `)})`
-  //       : '';
-  //   }).filter(Boolean);
-  //
-  //   if (advancedQueryParts.length === 0) return undefined;
-  //
-  //   return advancedQueryParts.length > 1
-  //     ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
-  //     : advancedQueryParts[0];
-  // }
-
   getAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();
     const mainOperator = this.mainOperatorSignal();
@@ -178,11 +153,20 @@ export class AdvancedSearchService {
 
           const fieldPrefix = isEquals ? '' : '-';
 
+          // Use the helper to get the correct field name with/without .exact
+          const fieldName = getSolrFieldName(filter);
+
+          // For raw format queries, check if value has multiple words (contains spaces)
+          // If so, we need to quote it to prevent Solr syntax errors
+          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+
           return isRange
-            ? `${fieldPrefix}${filter.solrField}:${value}`
+            ? `${fieldPrefix}${fieldName}:${value}`
             : useRaw
-              ? `${fieldPrefix}${filter.solrField}:(${value})`
-              : `${fieldPrefix}${filter.solrField}:"${value}"`;
+              ? hasMultipleWords
+                ? `${fieldPrefix}${fieldName}:("${value}")`
+                : `${fieldPrefix}${fieldName}:(${value})`
+              : `${fieldPrefix}${fieldName}:"${value}"`;
         });
 
       return parts.length > 0
@@ -197,82 +181,6 @@ export class AdvancedSearchService {
       : advancedQueryParts[0];
   }
 
-  // getSolrAdvancedQueryString(): string | undefined {
-  //   const groups = this.filterGroupsSignal();
-  //   const mainOperator = this.mainOperatorSignal();
-  //
-  //   const advancedQueryParts: string[] = groups.map(group => {
-  //     const parts = group.filters
-  //       .filter(filter => !!filter.solrValue?.trim())
-  //       .map(filter => {
-  //         console.log('Processing filter:', filter);
-  //
-  //         let isRange = false;
-  //         let useRaw = filter.userRawQueryFormat || false;
-  //         const isEquals = filter.isEquals;
-  //
-  //         if (filter.key === SolrFacetKey.Date) {
-  //
-  //           // there are two formats for date filters: [YYYY-MM-DD TO YYYY-MM-DD] and YYYY-MM-DD+offset
-  //           // if the filter is in the first format, we can use it directly
-  //           if (filter.solrValue.startsWith('[') && filter.solrValue.endsWith(']')) {
-  //             isRange = true;
-  //             return `${filter.solrField}:${filter.solrValue}`;
-  //           }
-  //
-  //           // otherwise, we need to parse the date and offset
-  //           // Example: if filter.solrValue is "1989-12-31+360", we need to convert it to a range
-  //
-  //           // in elementValue we have date+offset, for example 1989-12-31+360, it means 31st December 1989 with offset of 360 days
-  //           // so we need to update solrValue to be in the format [start TO end]
-  //           const dateParts = filter.elementValue.split('+');
-  //           const dateStr = dateParts[0]; // Format: YYYY-MM-DD
-  //           const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
-  //
-  //           // Parse the date using UTC to avoid timezone issues
-  //           const [year, month, day] = dateStr.split('-').map(Number);
-  //           const date = new Date(Date.UTC(year, month - 1, day));
-  //
-  //           // Calculate start and end dates using UTC methods to maintain consistency
-  //           const startDate = new Date(date);
-  //           startDate.setUTCDate(startDate.getUTCDate());
-  //
-  //           const endDate = new Date(date);
-  //           endDate.setUTCDate(endDate.getUTCDate() + offset);
-  //
-  //           // Format as ISO strings for Solr
-  //           filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
-  //           isRange = true;
-  //
-  //         } else if (filter.key === SolrFacetKey.Year) {
-  //           return `(date_range_start.year:${filter.solrValue} OR date_range_end.year:${filter.solrValue})`;
-  //         }
-  //
-  //         const value = filter.solrValue.trim();
-  //
-  //         if (value.startsWith('*') || value.endsWith('*')) {
-  //           useRaw = true;
-  //         }
-  //
-  //         return isRange
-  //           ? `${filter.solrField}:${value}`
-  //           : useRaw
-  //             ? `${filter.solrField}:(${value})`
-  //             : `${filter.solrField}:"${value}"`;
-  //       });
-  //
-  //     return parts.length > 0
-  //       ? `(${parts.join(` ${group.operator} `)})`
-  //       : '';
-  //   }).filter(Boolean);
-  //
-  //   if (advancedQueryParts.length === 0) return undefined;
-  //
-  //   return advancedQueryParts.length > 1
-  //     ? `(${advancedQueryParts.join(` ${mainOperator} `)})`
-  //     : advancedQueryParts[0];
-  // }
-
   getSolrAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();
     const mainOperator = this.mainOperatorSignal();
@@ -280,7 +188,7 @@ export class AdvancedSearchService {
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
         .filter(filter => !!filter.solrValue?.trim())
-        .map(filter => {
+        .flatMap(filter => {
           console.log('Processing filter:', filter);
 
           let isRange = false;
@@ -298,6 +206,19 @@ export class AdvancedSearchService {
               return `${filter.solrField}:${value}`;
             }
 
+            // Check if it's a day-month range format (DD.MM-DD.MM)
+            const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
+            if (dayMonthRangePattern.test(filter.elementValue)) {
+              // Parse DD.MM-DD.MM format and build date range query
+              const [fromPart, toPart] = filter.elementValue.split('-');
+              const [startDay, startMonth] = fromPart.split('.').map(Number);
+              const [endDay, endMonth] = toPart.split('.').map(Number);
+
+              const dateRangeQuery = this.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
+              return `${fieldPrefix}${dateRangeQuery}`;
+            }
+
+            // Handle regular date format (YYYY-MM-DD+offset)
             const dateParts = filter.elementValue.split('+');
             const dateStr = dateParts[0];
             const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
@@ -326,11 +247,31 @@ export class AdvancedSearchService {
             useRaw = true;
           }
 
-          return isRange
-            ? `${fieldPrefix}${filter.solrField}:${value}`
-            : useRaw
-              ? `${fieldPrefix}${filter.solrField}:(${value})`
-              : `${fieldPrefix}${filter.solrField}:"${value}"`;
+          // Get the base field name (without .exact suffix)
+          const baseField = getOriginalSolrKey(filter.solrField || '');
+
+          // Map the solr field to search fields if applicable
+          let mappedFields = mapAdvancedSearchField(baseField);
+
+          // Apply case-sensitive suffix to all mapped fields if needed
+          if (filter.caseSensitive) {
+            mappedFields = applyCaseSensitiveToFields(mappedFields, true);
+          }
+
+          // For raw format queries, check if value has multiple words (contains spaces)
+          // If so, we need to quote it to prevent Solr syntax errors
+          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+
+          // Generate query parts for each mapped field
+          return mappedFields.map((mappedField: any) => {
+            return isRange
+              ? `${fieldPrefix}${mappedField}:${value}`
+              : useRaw
+                ? hasMultipleWords
+                  ? `${fieldPrefix}${mappedField}:("${value}")`
+                  : `${fieldPrefix}${mappedField}:(${value})`
+                : `${fieldPrefix}${mappedField}:"${value}"`;
+          });
         });
 
       return parts.length > 0
@@ -350,7 +291,7 @@ export class AdvancedSearchService {
     const advancedQueryMainOperator = (params['advOp'] as SolrOperators) || SolrOperators.and;
 
     if (!advancedQueryFromUrl) {
-      return {advancedQueryMainOperator};
+      return { advancedQueryMainOperator };
     }
 
     // If we have reset from params, use the solr-specific query
@@ -372,9 +313,14 @@ export class AdvancedSearchService {
     this.filterGroupsSignal.set(structuredClone(this.appliedGroupsSignal()));
     this.mainOperatorSignal.set(this.appliedMainOperatorSignal());
 
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
-      width: '80vw',
-      height: '80vh',
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      height: isMobileOrTablet ? '100vh' : '80vh',
+      maxWidth: isMobileOrTablet ? '100vw' : undefined,
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
@@ -390,7 +336,7 @@ export class AdvancedSearchService {
 
   addGroup(): void {
     const current = this.filterGroupsSignal();
-    this.filterGroupsSignal.set([...current, {filters: [], operator: SolrOperators.and}]);
+    this.filterGroupsSignal.set([...current, { filters: [], operator: SolrOperators.and }]);
   }
 
   removeGroup(index: number): void {
@@ -407,7 +353,7 @@ export class AdvancedSearchService {
   updateGroupFilters(index: number, filters: AdvancedFilterDefinition[]): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = {...current[index], filters};
+      current[index] = { ...current[index], filters };
       this.filterGroupsSignal.set(current);
     }
   }
@@ -415,7 +361,7 @@ export class AdvancedSearchService {
   updateGroupOperator(index: number, operator: SolrOperators): void {
     const current = [...this.filterGroupsSignal()];
     if (current[index]) {
-      current[index] = {...current[index], operator};
+      current[index] = { ...current[index], operator };
       this.filterGroupsSignal.set(current);
     }
   }
@@ -585,24 +531,40 @@ export class AdvancedSearchService {
 
         if (!solrField || !value) continue;
 
-        const base = ADVANCED_FILTERS.find(f => f.solrField === solrField || f.key === solrField);
+        // Check if this field has case-sensitive enabled (has .exact suffix)
+        const isCaseSensitive = isExactOn(solrField);
+        const baseFieldName = getOriginalSolrKey(solrField);
+
+        // Find the base filter definition using the base field name
+        let base = ADVANCED_FILTERS.find(f => f.solrField === baseFieldName || f.key === baseFieldName);
+
         if (base) {
-          filters.push({...base, solrValue: value.trim(), elementValue: value.trim(), isEquals});
-        } else {
+          // Create filter with caseSensitive property set appropriately
           filters.push({
-            key: solrField as any,
-            label: solrField,
-            inputType: FilterElementType.Text as any,
-            solrField,
+            ...base,
             solrValue: value.trim(),
             elementValue: value.trim(),
-            isEquals
+            isEquals,
+            caseSensitive: isCaseSensitive,
+            solrField: baseFieldName  // Store the base field name
+          });
+        } else {
+          // Unknown filter type - create a basic one
+          filters.push({
+            key: baseFieldName as any,
+            label: baseFieldName,
+            inputType: FilterElementType.Text as any,
+            solrField: baseFieldName,
+            solrValue: value.trim(),
+            elementValue: value.trim(),
+            isEquals,
+            caseSensitive: isCaseSensitive
           });
         }
       }
 
       if (filters.length > 0) {
-        groups.push({filters, operator: groupOperator});
+        groups.push({ filters, operator: groupOperator });
       }
     }
 
@@ -612,7 +574,7 @@ export class AdvancedSearchService {
     this.appliedGroupsSignal.set(groups);
   }
 
-// Helper method to split by top-level operators (ignoring operators inside parentheses)
+  // Helper method to split by top-level operators (ignoring operators inside parentheses)
   private splitByTopLevelOperator(query: string, operator: string): string[] {
     const parts: string[] = [];
     let current = '';
@@ -667,6 +629,41 @@ export class AdvancedSearchService {
         )
       );
     });
+  }
+
+  buildDateRangeFilter(startDay: number, startMonth: number, endDay: number, endMonth: number): string {
+    const filters: string[] = [];
+
+    if (startMonth === endMonth) {
+      // Same month - simple day range
+      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO ${endDay}])`);
+    } else {
+      // Cross multiple months
+
+      // Starting month (from startDay to end of month)
+      filters.push(`(date_range_start.month:${startMonth} AND date_range_start.day:[${startDay} TO 31])`);
+
+      // Full months in between
+      let currentMonth = startMonth + 1;
+      if (currentMonth > 12) currentMonth = 1; // Handle year wrap
+
+      while (currentMonth !== endMonth) {
+        filters.push(`(date_range_start.month:${currentMonth})`);
+        currentMonth++;
+        if (currentMonth > 12) currentMonth = 1; // Handle year wrap
+      }
+
+      // Ending month (from start of month to endDay)
+      filters.push(`(date_range_start.month:${endMonth} AND date_range_start.day:[1 TO ${endDay}])`);
+    }
+
+    return `(${filters.join(' OR ')})`;
+  }
+
+  hasFulltextFilter(): boolean {
+    return this.appliedGroupsSignal().some(group =>
+      group.filters.some(f => f.key.includes(SolrFacetKey.Fulltext) && !!f.elementValue?.trim())
+    );
   }
 
 }

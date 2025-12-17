@@ -1,51 +1,132 @@
 <div class="generic-dialog-container">
-  <h2>
-    {{ config.title | translate }}
+  <!-- Desktop Header (always visible on desktop, hidden on mobile) -->
+  <h2 class="desktop-header">
+    <span class="dialog-title">
+      {{ config.title | translate }}
+      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
+    </span>
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
-      <i class="icon-x"></i>
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <!-- Mobile Header - Sidebar View (only on mobile when NOT showing content) -->
+  <h2 class="mobile-header mobile-sidebar-header" *ngIf="isMobile() && !showMobileContent()">
+    <span class="dialog-title">
+      {{ config.title | translate }}
+      <span *ngIf="config.subtitle" class="dialog-subtitle">{{ config.subtitle | translate }}</span>
+    </span>
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <!-- Mobile Header - Content View (only on mobile when showing content) -->
+  <h2 class="mobile-header mobile-content-header" *ngIf="isMobile() && showMobileContent()">
+    <button class="button link tertiary icon-button back-button" (click)="goBackToSidebar()">
+      <i class="icon-arrow-left-1"></i>
+    </button>
+    <span class="dialog-title">
+      {{ getActiveSectionLabel() | translate }}
+    </span>
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
     </button>
   </h2>
 
   <hr>
 
   <div class="dialog-body">
-    <div class="sidebar">
+    <!-- Sidebar: visible on desktop OR on mobile when not showing content -->
+    <div class="sidebar" [class.mobile-hidden]="isMobile() && showMobileContent()">
       <ul>
-        <li
-          *ngFor="let section of config.sections"
-          [class.active]="activeSection() === section.key"
-          (click)="setActiveSection(section.key)">
+        <ng-container *ngFor="let section of config.sections">
+          <!-- Section with Children -->
+          <div *ngIf="section.isTitle && section.children" class="section-group">
+            <!-- Section Title (non-clickable) -->
+            <li *ngIf="section.isTitle" class="section-title">
+              <label>
+                <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
+                {{ section.label | translate }}
+              </label>
+            </li>
 
-          <label>
-            <i class="{{ section.icon }}"></i>
-            {{ section.label | translate }}
-          </label>
+            <li
+              *ngFor="let child of section.children"
+              [class.active]="activeSection() === child.key"
+              (click)="setActiveSection(child.key)">
+              <label>
+                <i class="{{ child.icon }}"></i>
+                {{ child.label | translate }}
+              </label>
+              <i class="icon-arrow-right-1"></i>
+            </li>
+          </div>
 
-          <i class="icon-arrow-right-1"></i>
-        </li>
+          <!-- Action Section (clickable button) -->
+          <li
+            *ngIf="!section.isTitle && section.isAction"
+            class="action-section cursor-pointer"
+            (click)="onActionClick(section.key)">
+            <label class="cursor-pointer">
+              {{ section.label | translate }}
+            </label>
+            <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
+          </li>
+
+          <!-- Regular Section (clickable) -->
+          <li
+            *ngIf="!section.isTitle && !section.isAction"
+            [class.active]="activeSection() === section.key"
+            (click)="setActiveSection(section.key)">
+            <label>
+              <i *ngIf="section.icon && section.icon.length > 0" class="{{ section.icon }}"></i>
+              {{ section.label | translate }}
+            </label>
+            <i class="icon-arrow-right-1"></i>
+          </li>
+        </ng-container>
       </ul>
     </div>
 
-    <div class="content">
+    <!-- Content: visible on desktop OR on mobile when showing content -->
+    <div class="content" [class.mobile-hidden]="isMobile() && !showMobileContent()">
       <ng-content></ng-content>
     </div>
   </div>
 
-  <hr>
+  @if (config.showCancelButton || config.showSaveButton || config.customButtons?.length) {
 
-  <div class="footer" *ngIf="config.showCancelButton || config.showSaveButton">
-    <button
-      *ngIf="config.showCancelButton"
-      class="button outlined secondary"
-      (click)="onClose()">
-      {{ (config.cancelButtonLabel || 'cancel') | translate }}
-    </button>
 
-    <button
-      *ngIf="config.showSaveButton"
-      class="button primary"
-      (click)="onSave()">
-      {{ (config.saveButtonLabel || 'save') | translate }}
-    </button>
-  </div>
+    <hr>
+
+    <div class="footer">
+      <!-- Cancel Button -->
+      <button
+        *ngIf="config.showCancelButton"
+        class="button outlined secondary"
+        (click)="onClose()">
+        {{ (config.cancelButtonLabel || 'cancel') | translate }}
+      </button>
+
+      <!-- Custom Buttons -->
+      <button
+        *ngFor="let button of config.customButtons"
+        [class]="'button ' + (button.class)"
+        [disabled]="isButtonDisabled(button)"
+        (click)="onCustomButtonClick(button.action)">
+        <i *ngIf="button.icon" [class]="button.icon"></i>
+        {{ button.label | translate }}
+      </button>
+
+      <!-- Save Button -->
+      <button
+        *ngIf="config.showSaveButton"
+        class="button primary"
+        (click)="onSave()">
+        {{ (config.saveButtonLabel || 'save') | translate }}
+      </button>
+    </div>
+
+  }
 </div>

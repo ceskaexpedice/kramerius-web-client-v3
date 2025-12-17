@@ -3,7 +3,9 @@
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
-        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)">
+        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)"
+                [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)"
+                [disabled]="disabledPagination">
           {{ p }}
         </button>
         <span *ngIf="p === -1">...</span>
@@ -11,12 +13,16 @@
 
     </ng-container>
 
-    <button class="button tertiary outlined" (click)="goToPage(page - 1)" [disabled]="page === 1">
-      <i class="icon-arrow-left"></i>
+    <button class="button tertiary outlined"
+            [attr.aria-label]="'go-to-previous-page' | translate"
+            (click)="goToPage(page - 1)" [disabled]="page === 1 || disabledPagination">
+      <i class="icon-arrow-left-1"></i>
     </button>
 
-    <button class="button tertiary outlined" (click)="goToPage(page + 1)" [disabled]="page === lastPage()">
-      <i class="icon-arrow-right"></i>
+    <button class="button tertiary outlined"
+            [attr.aria-label]="'go-to-next-page' | translate"
+            (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
+      <i class="icon-arrow-right-1"></i>
     </button>
   </div>
 
@@ -24,6 +30,7 @@
     {{'paginator-page-size' | translate}}:
 
     <app-select
+      [disabled]="disabledPageSize"
       [options]="pageSizeOptions"
       [value]="pageSize"
       (valueChange)="changePageSize($event)">

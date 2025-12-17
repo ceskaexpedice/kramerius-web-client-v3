@@ -1,0 +1,62 @@
+<div class="sidebar-container">
+  <div class="sidebar-content">
+
+    <h4>
+      {{ metadata?.mainTitle }}
+    </h4>
+
+    <div class="sidebar--content-section">
+
+      <div class="sidebar--content-section--title">
+        {{ 'model' | translate }}
+      </div>
+
+      <div class="sidebar--content-section--content">
+        {{ metadata?.model | translate }}
+      </div>
+
+    </div>
+
+    @if (metadata && metadata.authors && metadata.authors.length > 0) {
+      <div class="sidebar--content-section">
+
+        <div class="sidebar--content-section--title">
+          {{ 'authors' | translate }}
+        </div>
+
+        <div class="sidebar--content-section--content">
+          @for (author of metadata.authors; track author.name) {
+            <div>{{ author.name }}</div>
+          }
+        </div>
+
+      </div>
+    }
+
+    @if (metadata && metadata.publishers && metadata.publishers.length > 0) {
+      <div class="sidebar--content-section">
+
+        <div class="sidebar--content-section--title">
+          {{ 'publishers' | translate }}
+        </div>
+
+        <div class="sidebar--content-section--content">
+          @for (publisher of metadata.publishers; track $index) {
+            <div>{{ publisher.fullDetail() }}</div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+  <div class="sidebar-actions">
+    <button
+      class="button outlined tertiary with-icon"
+      (click)="close()">
+      <i class="icon-sidebar-bottom"></i>
+      {{ 'hide--metadata-sidebar' | translate }}
+    </button>
+  </div>
+</div>

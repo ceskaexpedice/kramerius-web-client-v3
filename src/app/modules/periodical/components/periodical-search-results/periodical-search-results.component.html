@@ -1,0 +1,36 @@
+<ng-container *ngIf="periodicalService.searchResults$ | async as searchResults">
+
+  @if (searchResults.length > 0) {
+
+<!--    <div class="sort&#45;&#45;container">-->
+<!--      <app-results-sort (sortChanged)="($event)"></app-results-sort>-->
+<!--    </div>-->
+
+    <!-- Show grouped by year if sorting by date -->
+    @if (shouldGroupByYear()) {
+      <ng-container *ngFor="let year of getSortedYears(groupResultsByYear(searchResults))">
+        <div class="year-section">
+          <h2 class="year-header">{{year}}</h2>
+          <div class="grid--container">
+            <app-record-item *ngFor="let doc of groupResultsByYear(searchResults)[year]" [item]="toRecordItemWithBadgeLayout(doc, groupResultsByYear(searchResults)[year])"></app-record-item>
+          </div>
+        </div>
+      </ng-container>
+    } @else {
+      <!-- Default view without year grouping -->
+      <div class="grid--container">
+        <app-record-item *ngFor="let doc of searchResults" [item]="toRecordItemWithBadgeLayout(doc, searchResults)"></app-record-item>
+      </div>
+    }
+
+    <app-paginator
+      [page]="periodicalService.page"
+      [totalCount]="periodicalService.totalCount"
+      [pageSize]="periodicalService.pageSize"
+      [pageSizeOptions]="[60, 120, 180]"
+      (pageChange)="periodicalService.goToPage($event)"
+      (pageSizeChange)="periodicalService.changePageSize($event)">
+    </app-paginator>
+
+  }
+</ng-container>

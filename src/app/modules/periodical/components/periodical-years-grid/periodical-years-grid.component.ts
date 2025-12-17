@@ -1,13 +1,16 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {PeriodicalItemYear} from '../../../models/periodical-item';
 import {NgForOf} from '@angular/common';
-import {ItemCardComponent} from '../../../../shared/components/item-card/item-card.component';
+import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
+import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
+import {DocumentTypeEnum} from "../../../constants/document-type";
 
 @Component({
   selector: 'app-periodical-years-grid',
   imports: [
     NgForOf,
-    ItemCardComponent,
+    RecordItemComponent,
   ],
   templateUrl: './periodical-years-grid.component.html',
   styleUrl: './periodical-years-grid.component.scss'
@@ -15,4 +18,24 @@ import {ItemCardComponent} from '../../../../shared/components/item-card/item-ca
 export class PeriodicalYearsGridComponent {
   @Input() years: PeriodicalItemYear[] = [];
   @Output() selectYear = new EventEmitter<string>();
+
+  private recordHandlerService = inject(RecordHandlerService);
+
+  // Convert PeriodicalItemYear to RecordItem
+  toRecordItem(year: PeriodicalItemYear): RecordItem {
+    return {
+      id: year.pid,
+      title: year.year,
+      model: year.model as DocumentTypeEnum || '',
+      licenses: year.licenses || [],
+      className: 'card--fluid',
+      showFavoriteButton: false,
+      showAccessibilityBadge: true
+    };
+  }
+
+  // Convert PeriodicalItemYear to RecordItem with badge layout consideration
+  toRecordItemWithBadgeLayout(year: PeriodicalItemYear, allYears: PeriodicalItemYear[]): RecordItem {
+    return this.recordHandlerService.periodicalYearToRecordItemWithBadgeLayout(year, allYears);
+  }
 }

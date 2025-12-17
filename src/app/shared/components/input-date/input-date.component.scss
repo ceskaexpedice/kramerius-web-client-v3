@@ -1,22 +1,52 @@
+@use "_z-index.scss" as z;
+
 .date-input-wrapper {
   position: relative;
-  min-width: 120px;
+  //min-width: 120px;
 
   .date-display {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
     padding: 11px;
     background: var(--color-bg-base);
     color: var(--color-text-light);
     border-radius: 6px;
-    font-size: 14px;
-    text-align: center;
+    font-size: var(--font-size-small);
     border: 1px solid var(--color-border, #dee2e6);
     cursor: pointer;
     transition: all 0.2s ease;
-    z-index: 0;
+    z-index: z.$input-date-background;
+    min-width: 0;
+
+    i {
+      font-size: var(--font-size-small);
+      color: var(--color-tertiary);
+      transition: color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .date-text {
+      flex: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      text-align: left;
+      min-width: 0;
+    }
 
     &:hover {
       background: var(--color-bg-dark-hover, #495057);
+    }
+  }
+
+  &.lg .date-display {
+    padding: var(--spacing-x2) var(--spacing-x3);
+    font-size: var(--font-size-base);
+    line-height: 24px;
+
+    i {
+      font-size: var(--font-size-base);
     }
   }
 
@@ -42,7 +72,7 @@
     height: 100%;
     opacity: 0;
     cursor: pointer;
-    z-index: 1;
+    z-index: z.$input-date-foreground;
     padding: 0;
 
     &::-webkit-calendar-picker-indicator {

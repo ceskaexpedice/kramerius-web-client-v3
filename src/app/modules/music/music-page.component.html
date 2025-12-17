@@ -1,13 +1,13 @@
 <app-detail-layout
-  [showBottomToolbar]="detailViewService.soundRecordingViewMode() === 'images'"
+  [showBottomToolbar]="false"
   [constrainBottomToolbar]="true">
 
   <ng-container left-sidebar>
 
-    <div class="sidebar-wrapper" *ngIf="detailViewService.document$ | async as document">
+    <div class="sidebar--wrapper" *ngIf="detailViewService.document$ | async as document">
 
-        @if (document.model === DocumentTypeEnum.soundrecording) {
-          <div class="sidebar--wrapper">
+
+      @if (document.model === DocumentTypeEnum.soundrecording) {
             <app-input
               [placeholder]="'search-in-document--placeholder' | translate"
               [theme]="'dark'"
@@ -29,8 +29,8 @@
             <div class="sidebar--wrapper--scroll-content">
               <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
             </div>
-          </div>
         }
+
 
     </div>
   </ng-container>
@@ -47,29 +47,19 @@
           </app-toolbar-header>
         </div>
 
-        <div center>
-          <app-date-navigator
-            [value]="document.dateStr || ''"
-            (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-            (goToNext)="detailViewService.goToNextPeriodicalIssue()">
-          </app-date-navigator>
-        </div>
-
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls
               [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="[
-                { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
-                { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
-              ]"
-              [showFavorites]="false"
+              [viewToggleOptions]="viewToggleOptions"
+              [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
-              [showInfo]="true"
+              [showInfo]="false"
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
@@ -84,8 +74,13 @@
 
           @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"
-              class="app-document-thumbnail">
+            <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+            </app-iiif-viewer>
+
+<!--            <app-image-viewer [imagePid]="detailViewService.currentPagePid"></app-image-viewer>-->
+
+<!--            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"-->
+<!--              class="app-document-thumbnail">-->
 
           }
 
@@ -106,6 +101,10 @@
 
           </ng-container>
 
+<!--          @if (detailViewService.soundRecordingViewMode() === 'images') {-->
+<!--            <app-viewer-controls type="image"></app-viewer-controls>-->
+<!--          }-->
+
         </div>
 
       </div>
@@ -120,3 +119,18 @@
 
   </ng-container>
 </app-detail-layout>
+
+<!-- Favorites Popup positioned fixed to avoid overflow clipping -->
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+  <div class="favorites-popup-wrapper"
+       [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup
+      [itemId]="favoritesHelper.currentItemId()"
+      [itemName]="favoritesHelper.currentItemName()"
+      [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
+      [document]="detailViewService.document$ | async"
+      (close)="onFavoritesPopupClose()"
+      (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
+}

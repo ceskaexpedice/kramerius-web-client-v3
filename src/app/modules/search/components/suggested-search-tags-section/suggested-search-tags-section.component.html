@@ -1,7 +1,9 @@
 <div class="tags-row">
 
   @for (tag of suggestedTags; track tag.text) {
-    <a class="tag" [href]="searchService.getRedirectUrl(tag.filter)" (click)="onTagSelected(tag.filter)">{{ tag.text }}</a>
+    <a class="tag"
+       aria-label="{{ 'search-for' | translate }} {{ tag.text }}"
+       [href]="searchService.getRedirectUrl(tag.filter)" (click)="onTagSelected(tag.filter)">{{ tag.text }}</a>
   }
 
 </div>

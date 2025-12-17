@@ -1,0 +1,31 @@
+<div class="search-navigation">
+
+  <div class="search-results-count">
+    @if (totalMatches > 0) {
+      <span class="occurence--text">{{'occurrence' | translate}}:</span>
+      <span class="currentMatchNumber">{{ currentMatchNumber }}</span> /
+      <span class="totalMatches">{{ totalMatches }}</span>
+    } @else if (isSearching) {
+      <span>{{ 'searching' | translate }}...</span>
+    } @else {
+      <span>{{'no-results' | translate}}</span>
+    }
+  </div>
+
+  <div class="actions">
+
+    <button class="button tertiary outlined"
+            (click)="onPreviousClick()"
+            [disabled]="!totalMatches">
+      <i class="icon-arrow-left-1"></i>
+    </button>
+
+    <button class="button tertiary outlined"
+            (click)="onNextClick()"
+            [disabled]="!totalMatches">
+      <i class="icon-arrow-right-1"></i>
+    </button>
+
+  </div>
+
+</div>

@@ -7,6 +7,7 @@
     *ngFor="let option of options"
     type="button"
     class="toggle-btn"
+    aria-label="{{ option.ariaLabel | translate }}"
     [class.active]="option.value === value"
     (click)="select(option)"
   >

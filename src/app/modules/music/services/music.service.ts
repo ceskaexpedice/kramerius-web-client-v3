@@ -21,6 +21,9 @@ import {
   PlaybackStopResult,
 } from '../../../shared/dialogs/playback-stop-dialog/playback-stop-dialog.component';
 import {ToastService} from '../../../shared/services/toast.service';
+import {DontShowAgainService} from '../../../shared/services';
+import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
+import {DocumentAccessibilityEnum} from "../../constants/document-accessibility";
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +50,8 @@ export class MusicService {
   constructor(
     private store: Store,
     private router: Router,
-    private recordHandler: RecordHandlerService
+    private recordHandler: RecordHandlerService,
+    private dontShowAgainService: DontShowAgainService
   ) {
   }
 
@@ -95,6 +99,12 @@ export class MusicService {
       return;
     }
 
+    if (track.accessibility && track.accessibility === DocumentAccessibilityEnum.PRIVATE) {
+      console.warn('track is private, cannot add to queue.');
+
+      return;
+    }
+
     // find the index of the track in the tracks array
     const index = this.tracks.findIndex((t: any) => t.pid === track.pid);
 
@@ -113,6 +123,10 @@ export class MusicService {
   addTrackToQueue(track: SoundTrackModel): void {
     this.soundService.addToQueue(track);
 
+    if (!this.soundService.getCurrentTrack()) {
+      this.soundService.loadTrack(track);
+    }
+
     this.toastService.show('track-added-to-queue');
   }
 
@@ -130,6 +144,15 @@ export class MusicService {
   }
 
   openMusicStopDialog() {
+
+    const show = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.PlaybackStopDialog);
+
+    if (!show) {
+      this.soundService.stop();
+      this.soundService.clearQueue();
+      return;
+    }
+
     this.dialog.open(PlaybackStopDialogComponent, {
       width: '60vw'
     })
@@ -144,5 +167,40 @@ export class MusicService {
           console.error('Error opening playback stop dialog:', err);
         }
       });
+  }
+
+  // Methods for saved-lists-page that don't rely on NgRx store
+  playTrackFromList(track: SoundTrackModel, tracks: SoundTrackModel[]): void {
+    this.soundService.play(track);
+  }
+
+  openTrackDetails(track: SoundTrackModel) {
+    if (track && track['root.pid']) {
+      this.recordHandler.navigateToMusic(track['root.pid']);
+    }
+  }
+
+  addTracksFromListToQueueAndPlayFirst(track: SoundTrackModel, tracks: SoundTrackModel[]): void {
+    if (!tracks || tracks.length === 0) {
+      this.addTrackToQueue(track);
+      return;
+    }
+
+    // find the index of the track in the provided tracks array
+    const index = tracks.findIndex((t: any) => t.pid === track.pid);
+
+    // if track is found add all tracks after it to the queue
+    if (index !== undefined && index >= 0) {
+      this.soundService.clearQueue();
+
+      const tracksToAdd = tracks.slice(index);
+      if (tracksToAdd && tracksToAdd.length > 0) {
+        this.soundService.addTracksToQueue(tracksToAdd);
+        this.soundService.play(tracksToAdd[0]);
+      }
+    } else {
+      // Track not found in list, just add it to queue
+      this.addTrackToQueue(track);
+    }
   }
 }

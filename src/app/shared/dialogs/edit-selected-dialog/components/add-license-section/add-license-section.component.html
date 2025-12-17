@@ -1,0 +1,37 @@
+<div class="add-license-section">
+
+
+    <div class="section-header selected-dialog--header">
+      <h3>{{ 'select-licenses-to-add' | translate }}
+        @if (totalCount$ | async; as totalCount) {
+          <span>({{ totalCount }})</span>
+        }
+      </h3>
+    </div>
+
+      <div class="licenses-selection selected-dialog--section">
+        <app-licenses-list
+          [title]="'select-licenses-to-add' | translate"
+          [selectedLicenses]="selectedLicenses"
+          (selectionChange)="onLicensesSelectionChange($event)">
+        </app-licenses-list>
+      </div>
+
+  @if (totalCount$ | async; as totalCount) {
+
+      <div class="selected-dialog--actions">
+
+        <button class="primary"
+                [disabled]="selectedLicenses.length === 0"
+                (click)="onActionClick()">
+          {{'add--button-label' | translate}}
+          @if (selectedLicenses && selectedLicenses.length > 0) {
+            ({{ selectedLicenses.length }})
+          }
+        </button>
+
+      </div>
+
+    }
+
+</div>

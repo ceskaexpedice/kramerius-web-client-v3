@@ -1,0 +1,34 @@
+<div class="export-document--item">
+
+  @if (title) {
+
+  <div class="export-document--item--title">
+
+    @if (icon) {
+    <i [class]="icon"></i>
+    }
+
+    <h3>
+      {{title | translate}}
+    </h3>
+
+  </div>
+
+  }
+
+  @if (options.length > 0) {
+  <div class="export-document--item--content">
+    <mat-radio-group class="radio-group" [(ngModel)]="selectedOption" [name]="groupName"
+      (change)="onOptionChange($event)">
+      <mat-radio-button *ngFor="let option of options" [disabled]="option.disabled" [value]="option.value" class="radio-button">
+        {{ option.label | translate }}
+      </mat-radio-button>
+    </mat-radio-group>
+
+    <button class="button primary small" [disabled]="!selectedOption" (click)="onSubmit()">
+      {{ 'confirm' | translate }}
+    </button>
+  </div>
+  }
+
+</div>

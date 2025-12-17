@@ -1,0 +1,50 @@
+.admin-actions {
+  gap: var(--base-gap);
+
+  .button {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.active {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    i {
+      font-size: var(--font-size-small);
+    }
+  }
+
+  // Compact mode for narrow containers
+  &.compact {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+
+    .button {
+      min-width: max-content;
+      justify-content: center;
+      padding: 8px 12px;
+      font-size: calc(12px * var(--accessibility-text-scale));
+
+      // Allow text to wrap if needed
+      span {
+        white-space: normal;
+        text-align: center;
+      }
+
+      i {
+        font-size: var(--font-size-small);
+      }
+    }
+  }
+
+}

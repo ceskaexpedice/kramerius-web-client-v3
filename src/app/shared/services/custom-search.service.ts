@@ -20,12 +20,37 @@ export class CustomSearchService {
   private userService = inject(UserService);
   private queryParamsService = inject(QueryParamsService);
 
+  // Date/Year range filter keys
+  private readonly DATE_FROM_KEY = 'dateFrom';
+  private readonly DATE_TO_KEY = 'dateTo';
+  private readonly DATE_OFFSET_KEY = 'dateOffset';
+  private readonly YEAR_FROM_KEY = 'yearFrom';
+  private readonly YEAR_TO_KEY = 'yearTo';
+
   initializeFromRoute(): void {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const raw = params['customSearch'];
-      const list: string[] = raw ? raw.split(',') as string[] : [];
+      let list: string[] = raw ? raw.split(',') as string[] : [];
+
+      // Also initialize from date/year range parameters
+      list = this.addDateYearRangeFromParams(params, list);
+
       this._appliedFilters.set(list);
     });
+  }
+
+  private addDateYearRangeFromParams(params: any, currentFilters: string[]): string[] {
+    // Remove any date/year range filters from currentFilters (they shouldn't be in customSearch)
+    // Date/year ranges are stored as individual query parameters only
+    let updated = [...currentFilters].filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
+      !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_TO_KEY}:`)
+    );
+
+    return updated;
   }
 
   isActive(): boolean {
@@ -36,10 +61,22 @@ export class CustomSearchService {
     return this._appliedFilters();
   }
 
-  getSolrFqFilters(): string[] {
+  getSolrFqFilters(possibleFilters: string[] | null = null): string[] {
     const result: string[] = [];
 
-    for (const key of this._appliedFilters()) {
+    let filters = this._appliedFilters();
+
+    // Filter out date/year range filters as they are handled separately in SearchService
+    const dateYearFilterKeys = [this.DATE_FROM_KEY, this.DATE_TO_KEY, this.DATE_OFFSET_KEY, this.YEAR_FROM_KEY, this.YEAR_TO_KEY];
+    filters = filters.filter(f => !dateYearFilterKeys.some(key => f.startsWith(`${key}:`)));
+
+    // If possibleFilters is provided, filter the applied filters - filters should only include those that are in possibleFilters
+    if (possibleFilters) {
+      // filter applied filters by checking if they are included in possibleFilters
+      filters = filters.filter(filter => possibleFilters.some(pf => filter.includes(pf)));
+    }
+
+    for (const key of filters) {
       const facetKey = key.split(':')[0];
       const value = key.split(':')[1];
 
@@ -70,7 +107,10 @@ export class CustomSearchService {
           }
           break;
         default:
-          result.push(`${filterItem?.solrFacetKey}:${value}`);
+          // Only add if we found a valid filterItem
+          if (filterItem?.solrFacetKey) {
+            result.push(`${filterItem.solrFacetKey}:${value}`);
+          }
           break;
       }
     }
@@ -156,6 +196,12 @@ export class CustomSearchService {
 
     this.queryParamsService.appendToQueryParams(this.route, {
       customSearch: null,
+      // Also clear date/year range parameters
+      [this.DATE_FROM_KEY]: null,
+      [this.DATE_TO_KEY]: null,
+      [this.DATE_OFFSET_KEY]: null,
+      [this.YEAR_FROM_KEY]: null,
+      [this.YEAR_TO_KEY]: null,
     });
   }
 
@@ -171,9 +217,148 @@ export class CustomSearchService {
   }
 
   private getLabelForKey(key: string): string {
-    switch (key) {
+    const [facetKey, value] = key.split(':');
+    switch (facetKey) {
+      case this.DATE_FROM_KEY:
+        return `Date From: ${value}`;
+      case this.DATE_TO_KEY:
+        return `Date To: ${value}`;
+      case this.DATE_OFFSET_KEY:
+        return `Date Offset: ${value} days`;
+      case this.YEAR_FROM_KEY:
+        return `Year From: ${value}`;
+      case this.YEAR_TO_KEY:
+        return `Year To: ${value}`;
       default:
         return key;
     }
+  }
+
+  // Date range methods
+  setDateRange(dateFrom: Date | null, dateTo: Date | null, offset: number): void {
+    // Remove date/year range filters from the applied filters (they shouldn't be in customSearch)
+    const current = this._appliedFilters();
+    const updated = current.filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
+      !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_TO_KEY}:`)
+    );
+
+    const queryParams: any = {};
+
+    // Set individual query parameters (not part of customSearch)
+    if (dateFrom) {
+      const dateFromParam = dateFrom.toISOString().split('T')[0];
+      queryParams[this.DATE_FROM_KEY] = dateFromParam;
+    } else {
+      queryParams[this.DATE_FROM_KEY] = null;
+    }
+
+    if (dateTo) {
+      const dateToParam = dateTo.toISOString().split('T')[0];
+      queryParams[this.DATE_TO_KEY] = dateToParam;
+    } else {
+      queryParams[this.DATE_TO_KEY] = null;
+    }
+
+    if (offset !== undefined && offset !== 0) {
+      queryParams[this.DATE_OFFSET_KEY] = offset;
+    } else {
+      queryParams[this.DATE_OFFSET_KEY] = null;
+    }
+
+    // Update customSearch with only non-date/year filters
+    queryParams.customSearch = updated.length > 0 ? updated.join(',') : null;
+    queryParams.page = 1; // Reset to first page
+
+    this._appliedFilters.set(updated);
+    this.queryParamsService.appendToQueryParams(this.route, queryParams);
+  }
+
+  // Year range methods
+  setYearRange(yearFrom: number, yearTo: number): void {
+    // Remove date/year range filters from the applied filters (they shouldn't be in customSearch)
+    const current = this._appliedFilters();
+    const updated = current.filter(f =>
+      !f.startsWith(`${this.DATE_FROM_KEY}:`) &&
+      !f.startsWith(`${this.DATE_TO_KEY}:`) &&
+      !f.startsWith(`${this.DATE_OFFSET_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_FROM_KEY}:`) &&
+      !f.startsWith(`${this.YEAR_TO_KEY}:`)
+    );
+
+    const queryParams: any = {};
+    const currentYear = new Date().getFullYear();
+
+    // Set individual query parameters (not part of customSearch)
+    if (yearFrom !== undefined && yearFrom !== 0) {
+      queryParams[this.YEAR_FROM_KEY] = yearFrom;
+    } else {
+      queryParams[this.YEAR_FROM_KEY] = null;
+    }
+
+    if (yearTo !== undefined && yearTo !== currentYear) {
+      queryParams[this.YEAR_TO_KEY] = yearTo;
+    } else {
+      queryParams[this.YEAR_TO_KEY] = null;
+    }
+
+    // Update customSearch with only non-date/year filters
+    queryParams.customSearch = updated.length > 0 ? updated.join(',') : null;
+    queryParams.page = 1; // Reset to first page
+
+    this._appliedFilters.set(updated);
+    this.queryParamsService.appendToQueryParams(this.route, queryParams);
+  }
+
+  // Get current date/year range values from route parameters
+  getDateFrom(): Date | null {
+    const params = this.route.snapshot.queryParams;
+    return params[this.DATE_FROM_KEY] ? new Date(params[this.DATE_FROM_KEY]) : null;
+  }
+
+  getDateTo(): Date | null {
+    const params = this.route.snapshot.queryParams;
+    return params[this.DATE_TO_KEY] ? new Date(params[this.DATE_TO_KEY]) : null;
+  }
+
+  getDateOffset(): number {
+    const params = this.route.snapshot.queryParams;
+    return params[this.DATE_OFFSET_KEY] ? parseInt(params[this.DATE_OFFSET_KEY], 10) : 0;
+  }
+
+  getYearFrom(): number | null {
+    const params = this.route.snapshot.queryParams;
+    return params[this.YEAR_FROM_KEY] ? parseInt(params[this.YEAR_FROM_KEY], 10) : null;
+  }
+
+  getYearTo(): number | null {
+    const params = this.route.snapshot.queryParams;
+    return params[this.YEAR_TO_KEY] ? parseInt(params[this.YEAR_TO_KEY], 10) : null;
+  }
+
+  // Remove specific date/year range filters
+  removeDateRange(): void {
+    // Date ranges are individual parameters, no need to modify applied filters
+    this.queryParamsService.appendToQueryParams(this.route, {
+      [this.DATE_FROM_KEY]: null,
+      [this.DATE_TO_KEY]: null,
+      [this.DATE_OFFSET_KEY]: null,
+    });
+  }
+
+  removeYearRange(): void {
+    // Year ranges are individual parameters, no need to modify applied filters
+    this.queryParamsService.appendToQueryParams(this.route, {
+      [this.YEAR_FROM_KEY]: null,
+      [this.YEAR_TO_KEY]: null,
+    });
+  }
+
+  get filtersContainDateOrYearRange(): boolean {
+    const dateYearFilterKeys = [this.DATE_FROM_KEY, this.DATE_TO_KEY, this.DATE_OFFSET_KEY, this.YEAR_FROM_KEY, this.YEAR_TO_KEY];
+    return this._appliedFilters().some(f => dateYearFilterKeys.some(key => f.startsWith(`${key}:`)));
   }
 }

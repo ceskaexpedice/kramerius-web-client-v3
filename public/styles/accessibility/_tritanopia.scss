@@ -1,0 +1,7 @@
+// Tritanopia Mode (Blue-Yellow Color Blindness)
+// Adjusts colors to improve distinction for users with tritanopia
+
+.tritanopia-mode {
+    // Shift colors (Blue -> Purple approx)
+    filter: hue-rotate(20deg);
+}

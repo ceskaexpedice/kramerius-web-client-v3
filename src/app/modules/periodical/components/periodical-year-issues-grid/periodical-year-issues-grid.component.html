@@ -1,12 +1,8 @@
-<div  class="grid--container">
+<div class="grid--container" *ngIf="children$ | async as children">
 
-  <app-item-card
-    *ngFor="let item of children$ | async; trackBy: trackByPid"
-    [uuid]="item.pid"
-    [title]="item['date.str']"
-    [showFavoriteButton]="false"
-    [showAccessibilityBadge]="true"
-    [className]="'card--fluid'"
-  ></app-item-card>
+  <app-record-item
+    *ngFor="let item of children; trackBy: trackByPid"
+    [item]="toRecordItemWithBadgeLayout(item, children)"
+  ></app-record-item>
 
 </div>

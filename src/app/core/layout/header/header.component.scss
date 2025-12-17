@@ -1,10 +1,13 @@
+@use 'mixins' as m;
+
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
+  padding: var(--spacing-x3) var(--spacing-x4);
   height: var(--header-height);
   gap: 5%;
+  position: relative;
 
   &.transparent {
     background-color: transparent;
@@ -19,8 +22,12 @@
     display: flex;
     gap: 20px;
 
-    & > :first-child {
+    &> :first-child {
       flex: 1;
+    }
+
+    .mobile-search-btn {
+      display: none;
     }
   }
 
@@ -31,7 +38,7 @@
   }
 
   &__left .logo img {
-    height: 32px;
+    height: 45px;
   }
 
   &__right {
@@ -43,11 +50,109 @@
       color: var(--color-text-secondary);
       text-decoration: none;
       font-weight: 500;
-      font-size: 14px;
+      font-size: var(--font-size-small);
 
       &:hover {
         text-decoration: underline;
       }
+    }
+  }
+
+  // Desktop/Mobile visibility
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: flex;
+  }
+
+  // Mobile Menu
+  .mobile-menu {
+    position: fixed;
+    top: calc(var(--header-height) - var(--spacing-x3));
+    right: var(--spacing-x3);
+    width: 200px;
+    background-color: var(--color-bg-base);
+    transform: scaleY(0);
+    transform-origin: top right;
+    opacity: 0;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    z-index: 1000;
+    box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
+    border-radius: var(--spacing-x2);
+    border: 1px solid var(--color-border-additional);
+
+    &.open {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-x4);
+      gap: var(--spacing-x4);
+      font-size: var(--font-size-small);
+    }
+  }
+
+  // Responsive styles
+  @include m.respond(md) {
+
+    header.app-header {
+      padding: var(--spacing-x3);
+    }
+
+    .app-header__right {
+      gap: var(--spacing-x2);
+    }
+
+    .mobile-only {
+      display: flex;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+
+    // Mobile search functionality
+    .search-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: var(--spacing-x3);
+      background-color: var(--color-bg-base);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+      gap: var(--spacing-x2);
+
+      &.mobile-search-active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .desktop-btn {
+        display: none;
+      }
+
+      .mobile-search-btn {
+        display: flex;
+      }
+    }
+
+    .hide-on-search-active {
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .mobile-search-active~.app-header__right .hide-on-search-active,
+    .app-header__right.mobile-search-active .hide-on-search-active {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }

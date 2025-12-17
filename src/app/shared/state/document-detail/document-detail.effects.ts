@@ -11,6 +11,9 @@ import {parseSearchDocument} from '../../../modules/models/search-document';
 import * as SearchActions from '../../../modules/search-results-page/state/search.actions';
 import {fromSolrToMetadata} from '../../models/metadata.model';
 import {loadDocumentDetail} from './document-detail.actions';
+import {Router} from '@angular/router';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import {APP_ROUTES_ENUM} from "../../../app.routes";
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -18,6 +21,7 @@ export class DocumentDetailEffects {
     private actions$: Actions,
     private solr: SolrService,
     private store: Store,
+    private router: Router,
   ) {
   }
 
@@ -42,14 +46,31 @@ export class DocumentDetailEffects {
       detailItem: this.solr.getDetailItem(uuid),
       children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null),
     }).pipe(
+      tap(({ detailItem, children }) => {
+        // Check if this is a multi-volume monograph
+        const isMonograph = detailItem?.model === DocumentTypeEnum.monograph;
+        const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
+
+        // Redirect to monograph volumes page if it's a multi-volume monograph
+        if (isMonograph && hasMonographUnits) {
+          console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
+          // Use replaceUrl to replace history entry, preventing back button issues
+          this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
+        }
+      }),
       map(({ detailItem, children }) => {
+        console.log('detailItem', detailItem);
+        console.log('children', children);
+        console.log('fromSolrToMetadata(detailItem)', fromSolrToMetadata(detailItem));
         return DocumentDetailActions.loadDocumentDetailSuccess({
           data: fromSolrToMetadata(detailItem),
           pages: children,
         });
       }),
-      catchError(error =>
-        of(DocumentDetailActions.loadDocumentDetailFailure({ error }))
+      catchError(error =>{
+        console.log('Error loading document detail:', error);
+       return of(DocumentDetailActions.loadDocumentDetailFailure({ error }))
+      }
       )
     );
   }

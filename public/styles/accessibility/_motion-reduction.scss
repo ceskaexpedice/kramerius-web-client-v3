@@ -1,0 +1,301 @@
+// Motion Reduction
+// Reduces or eliminates animations and transitions for users sensitive to motion
+
+.reduce-motion {
+  // Global motion reduction
+  *,
+  *::before,
+  *::after {
+    animation-duration: var(--accessibility-animation-duration) !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--accessibility-transition-duration) !important;
+    transition-delay: 0s !important;
+  }
+
+  // Completely disable problematic animations
+  .mat-progress-spinner svg {
+    animation: none !important;
+  }
+
+  .mat-spinner svg {
+    animation: none !important;
+  }
+
+  // Carousel and slider motion reduction
+  .carousel,
+  .slider {
+    .slide-transition,
+    .carousel-transition {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    // Disable auto-play
+    &[data-autoplay] {
+      animation-play-state: paused !important;
+    }
+  }
+
+  // Modal and dialog animations
+  .mat-dialog-container {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .mat-snack-bar-container {
+    animation: none !important;
+    transform: translateY(0) !important;
+  }
+
+  .mat-tooltip {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  // Menu animations
+  .mat-menu-panel {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  // Tab animations
+  .mat-tab-body {
+    animation: none !important;
+  }
+
+  .mat-tab-body-content {
+    transform: none !important;
+  }
+
+  // Expansion panel animations
+  .mat-expansion-panel {
+    .mat-expansion-panel-body {
+      animation: none !important;
+    }
+  }
+
+  // Stepper animations
+  .mat-stepper {
+    .mat-stepper-header {
+      animation: none !important;
+    }
+
+    .mat-stepper-content {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+
+  // Drawer and sidebar animations
+  .mat-drawer,
+  .mat-sidenav {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .mat-drawer-backdrop,
+  .mat-sidenav-backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  // Loading animations
+  .loading-spinner,
+  .mat-progress-bar {
+    .mat-progress-bar-background,
+    .mat-progress-bar-buffer,
+    .mat-progress-bar-primary {
+      animation: none !important;
+    }
+  }
+
+  // Ripple effects
+  .mat-ripple-element {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  // Custom loading animations
+  .inline-loader,
+  .loading-overlay {
+    .spinner,
+    .loading-animation {
+      animation: none !important;
+    }
+
+    // Replace with static loading indicator
+    &::after {
+      content: "Loading...";
+      display: block;
+      text-align: center;
+      padding: 20px;
+      font-weight: 500;
+    }
+  }
+
+  // Page transition animations
+  .page-transition,
+  .route-animation {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  // Hover effects - reduce to instant feedback
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    &:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  // Card hover effects
+  .mat-card {
+    &:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  // List item hover effects
+  .mat-list-item {
+    &:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  // Custom component animations
+  .search-hero {
+    .hero-animation,
+    .floating-elements {
+      animation: none !important;
+    }
+  }
+
+  .record-item {
+    &:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+
+    .record-image {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  .filter-category,
+  .category-item {
+    &:hover,
+    &:focus {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  // Navigation animations
+  .nav-menu {
+    .menu-item {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    .submenu {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  // Parallax and scroll animations
+  .parallax,
+  [data-aos],
+  .scroll-animation {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  // Image lazy loading animations
+  img {
+    &.lazy-loading,
+    &.fade-in {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  // Video controls
+  video {
+    &[autoplay] {
+      animation-play-state: paused !important;
+    }
+  }
+
+  // Notification animations
+  .notification,
+  .alert,
+  .toast {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  // Form validation animations
+  .mat-error {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  // Progress indicators - show static state
+  .progress-indicator {
+    .progress-animation {
+      animation: none !important;
+    }
+
+    // Replace with percentage text
+    &::after {
+      content: attr(data-progress) "%";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+
+  // Skeleton loading animations
+  .skeleton-loader {
+    animation: none !important;
+    background: var(--color-bg-light) !important;
+
+    &::before {
+      animation: none !important;
+    }
+  }
+}
+
+// Respect user's system preference for reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .reduce-motion {
+    // Apply all the above styles when user has system-level reduced motion
+  }
+}
+
+// For users who specifically want NO motion at all
+.no-motion {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,372 @@
+// Focus Visibility
+// Enhanced focus indicators for keyboard navigation and screen readers
+
+.focus-visible {
+  // Enhanced focus indicators for all interactive elements
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  a,
+  [tabindex]:not([tabindex="-1"]) {
+    &:focus {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+      box-shadow: 0 0 0 4px rgba(0, 99, 204, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    // Remove focus when clicked (mouse users)
+    &:focus:not(:focus-visible) {
+      outline: none;
+      box-shadow: none;
+    }
+
+    // Enhanced focus for keyboard users
+    &:focus-visible {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+      box-shadow: 0 0 0 4px rgba(0, 99, 204, 0.2);
+    }
+  }
+
+  // Material Design component focus overrides
+  .mat-button,
+  .mat-raised-button,
+  .mat-stroked-button,
+  .mat-flat-button {
+    &:focus {
+      background: var(--color-primary-hover);
+      color: var(--color-text-on-color);
+    }
+
+    &.mat-button-disabled:focus {
+      background: var(--color-primary-disabled);
+      outline-color: var(--color-text-disable);
+    }
+  }
+
+  .mat-icon-button {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      border-radius: 50%;
+    }
+  }
+
+  .mat-fab,
+  .mat-mini-fab {
+    &:focus {
+      box-shadow: 0 0 0 var(--accessibility-focus-outline-width) var(--accessibility-focus-outline-color),
+                  0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // Form field focus
+  .mat-form-field {
+    &.mat-focused {
+      .mat-form-field-outline {
+        border-color: var(--accessibility-focus-outline-color);
+        border-width: var(--accessibility-focus-outline-width);
+      }
+
+      .mat-form-field-label {
+        color: var(--accessibility-focus-outline-color);
+        font-weight: 500;
+      }
+    }
+
+    .mat-input-element:focus {
+      caret-color: var(--accessibility-focus-outline-color);
+    }
+  }
+
+  // Checkbox focus
+  .mat-checkbox {
+    &.mat-checkbox-focused {
+      .mat-checkbox-frame {
+        border-color: var(--accessibility-focus-outline-color);
+        border-width: var(--accessibility-focus-outline-width);
+      }
+    }
+
+    .mat-checkbox-input:focus + .mat-checkbox-inner-container {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+    }
+  }
+
+  // Radio button focus
+  .mat-radio-button {
+    &.mat-radio-focused {
+      .mat-radio-outer-circle {
+        border-color: var(--accessibility-focus-outline-color);
+        border-width: var(--accessibility-focus-outline-width);
+      }
+    }
+
+    .mat-radio-input:focus + .mat-radio-container {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+    }
+  }
+
+  // Select focus
+  .mat-select {
+    &.mat-select-focused {
+      .mat-select-trigger {
+        background: rgba(0, 99, 204, 0.05);
+        border-color: var(--accessibility-focus-outline-color);
+      }
+
+      .mat-select-arrow {
+        color: var(--accessibility-focus-outline-color);
+      }
+    }
+
+    &:focus {
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: var(--accessibility-focus-outline-offset);
+    }
+  }
+
+  .mat-option {
+    &.mat-active {
+      background: rgba(0, 99, 204, 0.1);
+      color: var(--color-text-base);
+    }
+
+    &:focus {
+      background: rgba(0, 99, 204, 0.15);
+      outline: none;
+    }
+  }
+
+  // List focus
+  .mat-list-item {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: -2px;
+    }
+
+    &.mat-list-item-focus {
+      background: rgba(0, 99, 204, 0.1);
+    }
+  }
+
+  // Menu focus
+  .mat-menu-item {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      outline: none;
+    }
+
+    &.mat-menu-item-highlighted {
+      background: rgba(0, 99, 204, 0.15);
+    }
+  }
+
+  // Tab focus
+  .mat-tab-label {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: -2px;
+    }
+
+    &.mat-tab-label-active {
+      &:focus {
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
+      }
+    }
+  }
+
+  // Table focus
+  .mat-table {
+    .mat-header-cell,
+    .mat-cell {
+      &:focus {
+        background: rgba(0, 99, 204, 0.05);
+        outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+        outline-offset: -1px;
+      }
+    }
+
+    .mat-row {
+      &:focus {
+        background: rgba(0, 99, 204, 0.05);
+        outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+        outline-offset: -1px;
+      }
+    }
+  }
+
+  // Card focus (when clickable)
+  .mat-card {
+    &[tabindex]:focus {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
+                  0 0 0 var(--accessibility-focus-outline-width) var(--accessibility-focus-outline-color);
+    }
+  }
+
+  // Dialog focus trap
+  .mat-dialog-container {
+    &:focus {
+      outline: none;
+    }
+
+    .mat-dialog-title {
+      outline: none;
+    }
+  }
+
+  // Slider focus
+  .mat-slider {
+    &:focus {
+      outline: none;
+
+      .mat-slider-thumb {
+        border: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+        box-shadow: 0 0 0 4px rgba(0, 99, 204, 0.2);
+      }
+    }
+  }
+
+  // Chip focus
+  .mat-chip {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: 1px;
+    }
+
+    .mat-chip-remove:focus {
+      background: rgba(255, 0, 0, 0.1);
+      outline: 2px solid #ff0000;
+      outline-offset: 1px;
+    }
+  }
+
+  // Custom component focus
+  .search-input {
+    &:focus {
+      border-color: var(--accessibility-focus-outline-color);
+      box-shadow: 0 0 0 4px rgba(0, 99, 204, 0.2);
+    }
+  }
+
+  .filter-category,
+  .category-item {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      border-color: var(--accessibility-focus-outline-color);
+      outline: var(--accessibility-focus-outline-width) solid var(--accessibility-focus-outline-color);
+      outline-offset: 2px;
+    }
+
+    &.selected:focus {
+      background: var(--color-primary);
+      color: var(--color-text-on-color);
+      outline-color: var(--color-text-on-color);
+    }
+  }
+
+  .record-item {
+    &[tabindex]:focus {
+      border-color: var(--accessibility-focus-outline-color);
+      box-shadow: 0 0 0 4px rgba(0, 99, 204, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  // Navigation focus
+  nav a,
+  .nav-link {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  // Breadcrumb focus
+  .breadcrumb a {
+    &:focus {
+      background: rgba(0, 99, 204, 0.1);
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+  }
+
+  // Pagination focus
+  .mat-paginator {
+    .mat-paginator-navigation-previous,
+    .mat-paginator-navigation-next {
+      &:focus {
+        background: rgba(0, 99, 204, 0.1);
+      }
+    }
+  }
+
+  // Link focus improvements
+  a {
+    &:focus {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--accessibility-focus-outline-color);
+    }
+
+    // Skip link special focus
+    &.skip-link:focus {
+      background: var(--color-primary);
+      color: var(--color-text-on-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  }
+
+  // Focus within containers
+  .focus-within {
+    &:focus-within {
+      border-color: var(--accessibility-focus-outline-color);
+      box-shadow: 0 0 0 1px var(--accessibility-focus-outline-color);
+    }
+  }
+
+  // High contrast focus adjustments
+  &.high-contrast {
+    button,
+    [role="button"],
+    input,
+    select,
+    textarea,
+    a,
+    [tabindex]:not([tabindex="-1"]) {
+      &:focus {
+        outline-width: 3px;
+        outline-color: #00ccff;
+        box-shadow: 0 0 0 6px rgba(0, 204, 255, 0.3);
+      }
+    }
+  }
+}
+
+// Focus management utilities
+.focus-trap {
+  // Ensure focus remains within modal/dialog
+  &:focus {
+    outline: none;
+  }
+}
+
+.focus-restore {
+  // Mark elements for focus restoration
+  &[data-focus-restore] {
+    position: relative;
+  }
+}

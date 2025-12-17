@@ -5,6 +5,7 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {NgIf} from '@angular/common';
 import {DateRange, RangeSliderComponent} from '../components/range-slider/range-slider.component';
 import {ENVIRONMENT} from '../../app.config';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export interface DateStepperChange {
   dateFrom: Date;
@@ -24,6 +25,7 @@ export enum DatePickerMode {
     MatSlideToggle,
     NgIf,
     RangeSliderComponent,
+    TranslatePipe,
   ],
   templateUrl: './date-stepper.component.html',
   styleUrl: './date-stepper.component.scss'
@@ -32,6 +34,7 @@ export class DateStepperComponent {
 
   dateMode = signal<DatePickerMode>(DatePickerMode.Manual);
 
+  @Input() mode: DatePickerMode = DatePickerMode.Manual;
   @Input() data: any = {};
   @Input() showModeToggle: boolean = false;
 
@@ -45,6 +48,11 @@ export class DateStepperComponent {
   maxDate: Date = new Date(2100, 11, 31);
 
   ngOnInit() {
+
+    if (this.mode) {
+      this.dateMode.set(this.mode);
+    }
+
     this.calculateMinMaxDates();
 
     this.parseFromString(this.data);

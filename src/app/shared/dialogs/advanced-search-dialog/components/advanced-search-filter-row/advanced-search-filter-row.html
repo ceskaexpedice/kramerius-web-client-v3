@@ -22,6 +22,7 @@
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
         [showClearButton]="true"
+        [showCaseSensitiveButton]="showCaseSensitiveButton"
         (search)="emitChange()"
         (submit)="autocompleteSubmit($event)"
         (suggestionSelected)="suggestionSelected($event)"
@@ -29,7 +30,30 @@
         [inputTheme]="'dark'"
         [withIcons]="false"
         [size]="'sm'"
+        [isCaseSensitive]="filter.caseSensitive || false"
+        (onCaseSensitiveEvent)="onExactMatchToggle()"
       ></app-autocomplete>
+
+      @if (filter.inputType === AdvancedFilterType.Text) {
+        <div class="w-100 flex flex--column flex--gap-x2">
+          <app-input
+            [initialValue]="filter.elementValue"
+            [placeholder]="filter.placeholder || filter.key"
+            [showHelpButton]="false"
+            [showSubmitButton]="false"
+            [showClearButton]="true"
+            [showCaseSensitiveButton]="showCaseSensitiveButton"
+            (valueChange)="inputChange($event)"
+            (onBlurEvent)="inputBlur()"
+            [theme]="'dark'"
+            [withIcons]="false"
+            [size]="'sm'"
+            [isCaseSensitive]="filter.caseSensitive || false"
+            (onCaseSensitiveEvent)="onExactMatchToggle()"
+          ></app-input>
+
+        </div>
+      }
 
       <app-range-slider
         *ngIf="filter.inputType === AdvancedFilterType.Slider"
@@ -50,12 +74,21 @@
         [filterable]="true"
       ></app-select>
 
-      <app-date-stepper
+<!--      <app-date-stepper-->
+<!--        *ngIf="filter.inputType === AdvancedFilterType.Date"-->
+<!--        [data]="filter.elementValue"-->
+<!--        (dateChange)="onDateChange($event)"-->
+<!--        [showModeToggle]="true"-->
+<!--      ></app-date-stepper>-->
+
+      <advanced-date-filter
         *ngIf="filter.inputType === AdvancedFilterType.Date"
-        [data]="filter.elementValue"
-        (dateChange)="onDateChange($event)"
-        [showModeToggle]="true"
-      ></app-date-stepper>
+        [initialValue]="filter.elementValue"
+        [solrField]="filter.solrField || ''"
+        (valueChange)="onDateFilterChange($event)"
+        (addYearFilter)="onAddYearFilter()"
+      ></advanced-date-filter>
+
     </ng-container>
   </div>
 

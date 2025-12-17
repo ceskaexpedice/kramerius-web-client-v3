@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {EnvironmentService} from './environment.service';
 import {Observable} from 'rxjs';
@@ -6,31 +6,111 @@ import {UserSession} from '../models/user-session.model';
 import {map} from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
+// Admin roles that grant access to admin features
+const ADMIN_ROLES = ['kramerius_admin', 'k4_admins'];
+
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private _licenses = signal<string[]>([]);
+  private _roles = signal<string[]>([]);
+  private _userSession = signal<UserSession | null>(null);
 
-  API_URL = '';
+  // Computed signal for admin status
+  private _isAdmin = computed(() => {
+    const roles = this._roles();
+    return roles.some(role => ADMIN_ROLES.includes(role));
+  });
 
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
-  ) {
-    this.API_URL = this.env.getApiUrl('user');
+  ) {}
+
+  private get API_URL(): string {
+    const url = this.env.getApiUrl('user');
+    if (!url) {
+      console.warn('UserService: API URL not available. Environment may not be loaded yet.');
+      return '';
+    }
+    return url;
   }
 
+  // Licenses getters
   get licenses() { return this._licenses(); }
+  get licenses$() { return this._licenses.asReadonly(); }
 
+  // Roles getters
+  get roles() { return this._roles(); }
+  get roles$() { return this._roles.asReadonly(); }
+
+  // User session getter
+  get userSession() { return this._userSession(); }
+  get userSession$() { return this._userSession.asReadonly(); }
+
+  // Admin status getters
+  get isAdmin() { return this._isAdmin(); }
+  get isAdmin$() { return this._isAdmin; }
+
+  /**
+   * Load user licenses from session
+   * @deprecated Use loadUserData() instead
+   */
   public async loadLicenses(): Promise<void> {
-    const session = await firstValueFrom(this.getUserSession());
-    this._licenses.set(session.licenses);
+    await this.loadUserData();
   }
 
+  /**
+   * Load user data including licenses, roles, and session information
+   */
+  public async loadUserData(): Promise<void> {
+    const session = await firstValueFrom(this.getUserSession());
+    this._userSession.set(session);
+    this._licenses.set(session.licenses || []);
+    this._roles.set(session.roles || []);
+  }
+
+  /**
+   * Get user session from API
+   */
   public getUserSession(): Observable<UserSession> {
     return this.http.get<UserSession>(`${this.API_URL}?sessionAttributes=true`).pipe(
       map(res => res)
     );
+  }
+
+  /**
+   * Check if user has admin privileges
+   * @returns true if user has kramerius_admin or k4_admins role
+   */
+  public hasAdminRole(): boolean {
+    return this.isAdmin;
+  }
+
+  /**
+   * Check if user has a specific role
+   * @param role Role name to check
+   */
+  public hasRole(role: string): boolean {
+    return this._roles().includes(role);
+  }
+
+  /**
+   * Check if user has any of the specified roles
+   * @param roles Array of role names to check
+   */
+  public hasAnyRole(roles: string[]): boolean {
+    const userRoles = this._roles();
+    return roles.some(role => userRoles.includes(role));
+  }
+
+  /**
+   * Clear all user data (licenses, roles, session)
+   */
+  public clearUserData(): void {
+    this._licenses.set([]);
+    this._roles.set([]);
+    this._userSession.set(null);
   }
 }

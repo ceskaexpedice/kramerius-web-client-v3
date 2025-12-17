@@ -1,13 +1,27 @@
-.form-control label {
-  color: var(--color-text-light);
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+}
+
+label {
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-small);
   line-height: 20px;
   font-weight: 500;
+
+  &.selected {
+    color: var(--color-text-base);
+  }
 }
 
 .count {
-  color: var(--color-text-disable);
+  color: var(--color-text-light);
   font-size: var(--font-size-small);
   line-height: 20px;
   margin-left: 5px;
+
+  &.selected {
+    color: var(--color-text-tertiary);
+  }
 }

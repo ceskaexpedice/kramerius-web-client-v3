@@ -4,6 +4,7 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FormsModule} from '@angular/forms';
+import {FormatNumberPipe} from '../../pipes/format-number.pipe';
 
 @Component({
   selector: 'app-filter-items-radio',
@@ -15,6 +16,7 @@ import {FormsModule} from '@angular/forms';
     NgClass,
     NgIf,
     FormsModule,
+    FormatNumberPipe,
   ],
   templateUrl: './filter-items-radio.component.html',
   styleUrl: './filter-items-radio.component.scss'
@@ -26,9 +28,12 @@ export class FilterItemsRadioComponent {
   @Input() selected: string | null = null;
   @Output() changed = new EventEmitter<string>();
 
-  onSelectionChange(event: any) {
-    console.log('Selection changed:', event.value); // ✅ Uistíme sa že sa volá
+  onLabelClick(name: string) {
+    this.selected = name;
+    this.changed.emit(name);
+  }
 
+  onSelectionChange(event: any) {
     this.changed.emit(event.value);
   }
 

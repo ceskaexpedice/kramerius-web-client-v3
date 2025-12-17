@@ -1,0 +1,27 @@
+<div class="server-error-dialog">
+  <button class="close-button" (click)="onClose()">
+    <i class="icon-close"></i>
+  </button>
+
+  <div class="dialog-content">
+    <div class="image-container">
+      <img src="/img/500_error.png" alt="Error" class="error-image" />
+    </div>
+
+    <div class="text-container">
+      <h2 class="title">{{ 'error.server_error.title' | translate }}</h2>
+      <p class="description">{{ 'error.server_error.message' | translate }}</p>
+
+      <ul class="suggestions-list">
+        <li>{{ 'error.server_error.suggestion_1' | translate }}</li>
+        <li>{{ 'error.server_error.suggestion_2' | translate }}</li>
+        <li>
+          {{ 'error.server_error.suggestion_3_prefix' | translate }}
+          <a [href]="'mailto:' + contactEmail" class="contact-link">{{ contactEmail }}</a>
+        </li>
+      </ul>
+
+      <p class="footer-text">{{ 'error.server_error.footer' | translate }}</p>
+    </div>
+  </div>
+</div>

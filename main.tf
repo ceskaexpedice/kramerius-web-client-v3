@@ -3,7 +3,7 @@ terraform {
     # https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs
     docker = {
       source  = "kreuzwerker/docker"
-      version = "3.0.2"
+      version = "3.6.2"
     }
   }
   required_version = "~> 1.11"
@@ -21,7 +21,7 @@ variable "APP_ENV_NAME" {
   type = string
 }
 
-variable "APP_KRAMERIUS_URL" {
+variable "APP_KRAMERIUS_ID" {
   type = string
 }
 
@@ -68,16 +68,17 @@ resource "docker_image" "cdk_klient" {
 # Create Docker Container using the cdk_klient image.
 resource "docker_container" "cdk_klient" {
   count             = 1
+  memory            = 256
   image             = docker_image.cdk_klient.image_id
   name              = var.docker_container_name
   must_run          = true
   publish_all_ports = true
-  # restart           = "always" # default "no"
+  restart           = "always" # default "no"
   env = [
     "APP_DEV_MODE=${var.APP_DEV_MODE}",
     "APP_ENV_NAME=${var.APP_ENV_NAME}",
     "APP_ENV_CODE=${var.APP_ENV_CODE}",
-    "APP_KRAMERIUS_URL=${var.APP_KRAMERIUS_URL}"
+    "APP_KRAMERIUS_ID=${var.APP_KRAMERIUS_ID}"
   ]
 
   labels {
