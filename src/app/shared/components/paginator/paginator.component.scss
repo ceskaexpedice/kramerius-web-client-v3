@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-x2);
+  padding: 40px 0;
 
   .pages {
     display: flex;
@@ -17,7 +17,7 @@
         background-color: var(--color-bg-base);
       }
 
-      &:first-child {
+      &.prev-button {
         margin-left: var(--spacing-x6);
       }
 
@@ -51,6 +51,7 @@
   }
 
   &.compact {
+    padding: var(--spacing-x2);
     padding-bottom: 0;
 
     .pages {
