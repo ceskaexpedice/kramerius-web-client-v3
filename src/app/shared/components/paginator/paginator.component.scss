@@ -64,9 +64,14 @@
       border: 1px solid var(--color-border-tertiary-default);
       background: transparent;
       color: var(--color-text-btn-tertiary-default);
-      cursor: default;
+      cursor: pointer;
       opacity: 1;
+
+      &:hover {
+        background-color: var(--color-bg-base-hover);
+      }
     }
+
   }
 
   .page-size {

@@ -456,5 +456,7 @@
   "filter-physical-locations-label": "Location",
   "filter-genres-label": "Genre",
 
-  "type-in-index": "Type an index"
+  "type-in-index": "Type an index",
+  "previous-search-button--label": "Previous",
+  "next-search-button--label": "Next"
 }

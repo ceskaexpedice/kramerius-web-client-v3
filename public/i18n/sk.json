@@ -449,5 +449,7 @@
   "filter-physical-locations-label": "Miesto uloženia",
   "filter-genres-label": "Žáner",
 
-  "type-in-index": "Zadajte index"
+  "type-in-index": "Zadajte index",
+  "previous-search-button--label": "Predchádzajúci",
+  "next-search-button--label": "Nasledujúci"
 }

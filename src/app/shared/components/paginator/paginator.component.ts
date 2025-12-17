@@ -40,42 +40,56 @@ export class PaginatorComponent implements OnChanges {
 
     if (this.layout === 'compact') {
       pages.push(this.page);
-
-      if (this.page < totalPages) {
-        if (this.page < totalPages - 1) {
-          pages.push(-1); // ...
+      if (this.page < last) {
+        if (this.page < last - 1) {
+          pages.push(-2); // Right Ellipsis
         }
-        pages.push(totalPages);
+        pages.push(last);
       }
     } else {
+      // Normal Mode
+      const delta = 1; // Number of pages around current to show
+      const left = this.page - delta;
+      const right = this.page + delta;
+      const range: number[] = [];
+      const rangeWithDots: number[] = [];
+      let l: number | undefined;
 
-      if (totalPages <= 5) {
-        for (let i = 1; i <= totalPages; i++) {
-          pages.push(i);
+      for (let i = 1; i <= last; i++) {
+        if (i === 1 || i === last || (i >= left && i <= right)) {
+          range.push(i);
         }
-      } else if (this.page <= 2) {
-        pages.push(1, 2, 3);
-        pages.push(-1); // ...
-        pages.push(last);
-      } else if (this.page === 3) {
-        pages.push(1, 2, 3, 4);
-        pages.push(-1);
-        pages.push(last);
-      } else if (this.page >= last - 2) {
-        pages.push(1);
-        pages.push(-1);
-        pages.push(last - 3, last - 2, last - 1, last);
-      } else {
-        pages.push(1);
-        pages.push(-1);
-        pages.push(this.page - 1, this.page, this.page + 1);
-        pages.push(-1);
-        pages.push(last);
       }
+
+      for (const i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(l + 1);
+          } else if (i - l !== 1) {
+            // Determine if it's left or right ellipsis based on position
+            if (i < this.page) {
+              rangeWithDots.push(-1); // Left Ellipsis
+            } else {
+              rangeWithDots.push(-2); // Right Ellipsis
+            }
+          }
+        }
+        rangeWithDots.push(i);
+        l = i;
+      }
+
+      // Copy to pages
+      pages.push(...rangeWithDots);
     }
 
     this.pages.set(pages);
   }
+
+  jump(offset: number): void {
+    const newPage = this.page + offset;
+    this.goToPage(newPage);
+  }
+
 
 
   goToPage(page: number): void {

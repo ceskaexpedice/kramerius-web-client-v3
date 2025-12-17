@@ -3,11 +3,22 @@
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
-        <button *ngIf="p !== -1" [class.active]="p === page" (click)="goToPage(p)"
+        <button *ngIf="p > 0" [class.active]="p === page" (click)="goToPage(p)"
           [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)" [disabled]="disabledPagination">
           {{ p }}
         </button>
-        <button *ngIf="p === -1" class="ellipsis-button" disabled>...</button>
+
+        <!-- Left Ellipsis (Jump Backward) -->
+        <button *ngIf="p === -1" class="ellipsis-button" (click)="jump(-5)"
+          [attr.aria-label]="'paginator-jump-backward' | translate" [title]="'paginator-jump-backward' | translate">
+          ...
+        </button>
+
+        <!-- Right Ellipsis (Jump Forward) -->
+        <button *ngIf="p === -2" class="ellipsis-button" (click)="jump(5)"
+          [attr.aria-label]="'paginator-jump-forward' | translate" [title]="'paginator-jump-forward' | translate">
+          ...
+        </button>
       </ng-container>
 
     </ng-container>

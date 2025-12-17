@@ -448,5 +448,7 @@
   "filter-physical-locations-label": "Lokalizacja",
   "filter-genres-label": "Gatunek",
 
-  "type-in-index": "Wpisz indeks"
+  "type-in-index": "Wpisz indeks",
+  "previous-search-button--label": "Poprzedni",
+  "next-search-button--label": "Następny"
 }

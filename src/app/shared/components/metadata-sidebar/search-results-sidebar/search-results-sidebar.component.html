@@ -10,14 +10,14 @@
       <button class="button tertiary outlined"
               [disabled]="searchService.page <= 1 && results.indexOf(results[0]) === getCurrentItemIndex()"
               (click)="onPreviousResult($event)" [title]="'previous' | translate">
-        <i class="icon-arrow-left-3"></i>
-        {{ 'previous' | translate }}
+        <i class="icon-arrow-left-1"></i>
+        {{ 'previous-search-button--label' | translate }}
       </button>
 
       <button class="button tertiary outlined" (click)="onNextResult($event)"
               [title]="'next' | translate">
-        {{ 'next' | translate }}
-        <i class="icon-arrow-right-3"></i>
+        {{ 'next-search-button--label' | translate }}
+        <i class="icon-arrow-right-1"></i>
       </button>
     </div>
 
