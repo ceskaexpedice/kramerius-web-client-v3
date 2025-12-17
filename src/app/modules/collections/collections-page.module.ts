@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CollectionsPage } from './collections-page';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { FilterSidebarComponent } from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
 import { CollectionsService } from '../../shared/services/collections.service';
@@ -53,6 +54,7 @@ const routes: Routes = [
     NgClass,
     CollectionsRightSidebarContent,
     MetadataSidebarComponent,
+    InlineLoaderComponent
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },

@@ -5,9 +5,7 @@
   background: var(--color-bg-base);
 
   &.docked {
-    // Docked mode specific overrides if needed
-    border-left: 1px solid var(--color-border-light); // e.g., separator
-    width: 320px;
+    border-left: 1px solid var(--color-border-light);
     flex-shrink: 0;
   }
 

@@ -1,5 +1,5 @@
 import { Component, inject, Input, Output, EventEmitter, Optional } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, NgTemplateOutlet } from '@angular/common';
 
 import { Metadata } from '../../models/metadata.model';
 import { TabsComponent } from '../tabs/tabs.component';
@@ -15,7 +15,7 @@ import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf, NgTemplateOutlet],
   templateUrl: './metadata-sidebar.component.html',
   styleUrl: './metadata-sidebar.component.scss'
 })

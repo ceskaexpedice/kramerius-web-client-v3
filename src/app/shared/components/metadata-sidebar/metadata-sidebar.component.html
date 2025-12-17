@@ -1,39 +1,61 @@
 <div class="metadata-sidebar" [class.docked]="mode === 'docked'">
-  <app-tabs>
-
-    @if (tools.description) {
-    <app-tab-item [label]="'description' | translate">
-      <!-- Allow projecting custom description content, fallback to default metadata section -->
+  <ng-container *ngIf="{ count: (searchService.totalCount$ | async) } as searchResult">
+    <!-- Define Description Content Template -->
+    <ng-template #descriptionContent>
       @if (customDescription) {
       <ng-content select="[description-content]"></ng-content>
       } @else {
       <app-metadata-section [showTitle]="false"
         [uuid]="detailService?.document?.uuid || metadata?.uuid || ''"></app-metadata-section>
       }
-    </app-tab-item>
-    }
+    </ng-template>
 
-    @if (tools.export) {
-    <app-tab-item [label]="'export' | translate">
-      <app-export-document-section-component
-        [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
-    </app-tab-item>
-    }
-
-    @if (tools.search && (searchService.totalCount$ | async)! > 0) {
-    <app-tab-item [label]="'search' | translate">
-      <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
-    </app-tab-item>
-    }
-
-    <div tab-common-down>
+    <!-- Footer Template -->
+    <ng-template #footerContent>
       <div class="metadata-sidebar--footer">
         <button class="button outlined tertiary with-icon" (click)="closeMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
           {{ 'hide--metadata-sidebar' | translate}}
         </button>
       </div>
-    </div>
+    </ng-template>
 
-  </app-tabs>
+    <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available -->
+    @if ((tools.search && (searchResult.count || 0) > 0) || tools.export) {
+    <app-tabs>
+
+      @if (tools.description) {
+      <app-tab-item [label]="'description' | translate">
+        <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
+      </app-tab-item>
+      }
+
+      @if (tools.export) {
+      <app-tab-item [label]="'export' | translate">
+        <app-export-document-section-component
+          [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
+      </app-tab-item>
+      }
+
+      @if (tools.search && (searchResult.count || 0) > 0) {
+      <app-tab-item [label]="'search' | translate">
+        <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
+      </app-tab-item>
+      }
+
+      <div tab-common-down>
+        <ng-container *ngTemplateOutlet="footerContent"></ng-container>
+      </div>
+
+    </app-tabs>
+    } @else {
+    <!-- Simple View (No Tabs) -->
+    <div class="metadata-sidebar__content simple">
+      <div class="metadata-sidebar__scroll">
+        <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
+      </div>
+      <ng-container *ngTemplateOutlet="footerContent"></ng-container>
+    </div>
+    }
+  </ng-container>
 </div>

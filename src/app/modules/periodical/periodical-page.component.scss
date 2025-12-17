@@ -1,5 +1,42 @@
-// Component-specific styles only
 // Common layout styles moved to /public/styles/_page-layout.scss
+
+.page-content__wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+  padding: 0 var(--spacing-x4);
+
+  &--with-sidebar {
+  }
+}
+
+.page-content__main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: var(--spacing-x4);
+  height: 100%;
+}
+
+.page-content__sidebar-right {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  height: calc(100% - 1px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-base);
+  border-left: 1px solid var(--color-border-light);
+
+  &.collapsed {
+    display: none;
+  }
+}
 
 .selection-count {
   font-weight: 500;
@@ -27,4 +64,12 @@
   app-favorites-popup {
     display: block;
   }
+}
+
+.floating-sidebar-toggle {
+  position: absolute;
+  top: var(--spacing-x4);
+  right: var(--spacing-x4);
+  z-index: 50;
+  box-shadow: var(--shadow-elevated);
 }

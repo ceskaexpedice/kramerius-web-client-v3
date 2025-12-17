@@ -13,6 +13,7 @@ import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
 import { Router } from '@angular/router';
 import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
+import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -25,9 +26,10 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
   public selectionService = inject(SelectionService);
+  private uiStateService = inject(UiStateService);
 
   private subscriptions: Subscription[] = [];
-  public showMetadataSidebar = signal(false);
+  public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
@@ -106,7 +108,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   toggleMetadataSidebar() {
-    this.showMetadataSidebar.update(v => !v);
+    this.uiStateService.toggleMetadataSidebar();
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

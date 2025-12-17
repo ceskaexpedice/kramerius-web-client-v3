@@ -1,13 +1,15 @@
-import {Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal} from '@angular/core';
-import {SelectionService} from '../../shared/services';
-import {CollectionsService} from '../../shared/services/collections.service';
-import {SearchDocument} from '../models/search-document';
-import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
-import {AppTranslationService} from '../../shared/translation/app-translation.service';
-import {Metadata} from '../../shared/models/metadata.model';
-import {RecordHandlerService} from '../../shared/services/record-handler.service';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {Subject, takeUntil} from 'rxjs';
+import { Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
+import { SelectionService } from '../../shared/services';
+import { CollectionsService } from '../../shared/services/collections.service';
+import { SearchDocument } from '../models/search-document';
+import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { AppTranslationService } from '../../shared/translation/app-translation.service';
+import { Metadata } from '../../shared/models/metadata.model';
+import { RecordHandlerService } from '../../shared/services/record-handler.service';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { Subject, takeUntil } from 'rxjs';
+import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-collections-page',
@@ -21,12 +23,13 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   public collectionsService = inject(CollectionsService);
   public translationService = inject(AppTranslationService);
   public recordHandler = inject(RecordHandlerService);
+  private uiStateService = inject(UiStateService);
 
   @ViewChild('descriptionElement') descriptionElement?: ElementRef<HTMLElement>;
 
   isDescriptionExpanded = false;
   isDescriptionTruncated = false;
-  rightSidebarVisible = signal(true);
+  rightSidebarVisible = this.uiStateService.metadataSidebarOpen;
   sidebarPositionMode: 'absolute' | 'relative' = 'absolute'; // 'absolute' = over content, 'relative' = beside content
 
   private destroy$ = new Subject<void>();
@@ -145,10 +148,10 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   showRightSidebar() {
-    this.rightSidebarVisible.set(true);
+    this.uiStateService.setMetadataSidebarState(true);
   }
 
   hideRightSidebar() {
-    this.rightSidebarVisible.set(false);
+    this.uiStateService.setMetadataSidebarState(false);
   }
 }

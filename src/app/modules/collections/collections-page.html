@@ -104,11 +104,7 @@
             </div>
 
             } @else {
-            <div class="loading-container">
-              <div class="loading-message">
-                <p>{{ 'loading-search-results' | translate }}</p>
-              </div>
-            </div>
+            <app-inline-loader *ngIf="collectionsService.loading$ | async" [overlay]="true"></app-inline-loader>
             }
 
           </div>

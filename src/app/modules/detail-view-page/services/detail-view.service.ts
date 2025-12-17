@@ -27,6 +27,7 @@ import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-help
 import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
 import { DocumentInfoService } from '../../../shared/services/document-info.service';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
+import { UiStateService } from '../../../shared/services/ui-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,6 @@ export class DetailViewService {
 
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
-  _metadataSidebarVisible = signal<boolean>(!this.breakpointService.isMobile());
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
@@ -46,6 +46,7 @@ export class DetailViewService {
   private route = inject(ActivatedRoute);
   private iiifViewerService = inject(IIIFViewerService);
   private documentInfoService = inject(DocumentInfoService);
+  private uiStateService = inject(UiStateService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   document$ = this.store.select(selectDocumentDetail);
@@ -56,6 +57,13 @@ export class DetailViewService {
   private documentSignal = toSignal(this.document$, { initialValue: null });
 
   constructor() {
+    // Initialize sidebar state based on device type if not already set by user interaction
+    if (!this.breakpointService.isMobile()) {
+      this.uiStateService.setMetadataSidebarState(true);
+    } else {
+      this.uiStateService.setMetadataSidebarState(false);
+    }
+
     // Listen to pages changes and update the signal automatically
     this.pages$.subscribe(pages => {
       if (pages) {
@@ -100,7 +108,7 @@ export class DetailViewService {
   }
 
   get metadataSidebarVisible(): boolean {
-    return this._metadataSidebarVisible();
+    return this.uiStateService.metadataSidebarOpen();
   }
 
   get title(): string {
@@ -517,15 +525,15 @@ export class DetailViewService {
   }
 
   toggleMetadataSidebar(): void {
-    this._metadataSidebarVisible.set(!this._metadataSidebarVisible());
+    this.uiStateService.toggleMetadataSidebar();
   }
 
   showMetadataSidebar(): void {
-    this._metadataSidebarVisible.set(true);
+    this.uiStateService.setMetadataSidebarState(true);
   }
 
   hideMetadataSidebar(): void {
-    this._metadataSidebarVisible.set(false);
+    this.uiStateService.setMetadataSidebarState(false);
   }
 
   /**
