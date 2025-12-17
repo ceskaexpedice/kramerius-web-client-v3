@@ -12,10 +12,11 @@ import { ExportDocumentSectionComponent } from './export-document-section-compon
 import { SearchResultsSidebarComponent } from './search-results-sidebar/search-results-sidebar.component';
 import { SearchService } from '../../services/search.service';
 import { AsyncPipe } from '@angular/common';
+import {CdkTooltipDirective} from '../../directives';
 
 @Component({
   selector: 'app-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf, NgTemplateOutlet],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf, NgTemplateOutlet, CdkTooltipDirective],
   templateUrl: './metadata-sidebar.component.html',
   styleUrl: './metadata-sidebar.component.scss'
 })

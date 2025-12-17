@@ -30,6 +30,9 @@ import {NgClass, NgIf} from '@angular/common';
   ],
 })
 export class TabItemComponent {
+  @Input() icon: string = '';
   @Input() label!: string;
+  @Input() onlyIcon: boolean = false;
+  @Input() tooltip: string = '';
   @ViewChild('content', { static: true }) content!: TemplateRef<unknown>;
 }

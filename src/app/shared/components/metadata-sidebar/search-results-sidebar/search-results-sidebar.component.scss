@@ -51,7 +51,9 @@
   }
 
   .paginator-bottom {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--color-border-light);
+    border-bottom: 1px solid var(--color-border-light);
+    padding-bottom: var(--spacing-x2);
   }
 
   .no-results {
