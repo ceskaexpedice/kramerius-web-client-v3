@@ -7,9 +7,6 @@
   height: 100%;
   overflow: hidden;
   padding: 0 var(--spacing-x4);
-
-  &--with-sidebar {
-  }
 }
 
 .page-content__main {
@@ -23,19 +20,7 @@
 }
 
 .page-content__sidebar-right {
-  position: absolute;
-  top: 1px;
-  right: 0;
-  height: calc(100% - 1px);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-bg-base);
-  border-left: 1px solid var(--color-border-light);
-
-  &.collapsed {
-    display: none;
-  }
+  margin-top: 1px;
 }
 
 .selection-count {
@@ -68,8 +53,10 @@
 
 .floating-sidebar-toggle {
   position: absolute;
-  top: var(--spacing-x4);
+  bottom: var(--spacing-x4);
   right: var(--spacing-x4);
+  width: 40px;
+  height: 40px;
   z-index: 50;
   box-shadow: var(--shadow-elevated);
 }

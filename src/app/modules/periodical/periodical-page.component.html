@@ -40,7 +40,7 @@
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
               <ng-container *ngIf="!selectionService.selectionMode()">
                 <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
-                  [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="true" [showSelect]="true"
+                  [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
                   [viewToggleOptions]="viewToggleOptions" [activeViewValue]="periodical.activeCalendarGridControl()"
                   (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
                   (favoritesClicked)="onFavoritesClicked($event)"
@@ -114,7 +114,10 @@
 
         <!-- Right Sidebar -->
         <ng-container *ngIf="periodical.metadata">
-          <div class="page-content__sidebar-right" [class.collapsed]="!showMetadataSidebar()">
+          <div class="page-content__sidebar-right"
+               [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
+               [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
+               [class.collapsed]="!showMetadataSidebar()">
             <app-metadata-sidebar [metadata]="periodical.metadata" mode="docked"
               [tools]="{search: true, export: false, description: true}" (close)="toggleMetadataSidebar()">
             </app-metadata-sidebar>
