@@ -40,11 +40,17 @@ export class PaginatorComponent implements OnChanges {
 
     if (this.layout === 'compact') {
       pages.push(this.page);
-      if (this.page < last) {
-        if (this.page < last - 1) {
-          pages.push(-2); // Right Ellipsis
+      const next = this.page + 1;
+
+      if (next < totalPages) {
+        pages.push(next);
+        if (next < totalPages - 1) {
+          pages.push(-3); // Static Ellipsis
         }
-        pages.push(last);
+      }
+
+      if (this.page < totalPages) {
+        pages.push(totalPages);
       }
     } else {
       // Normal Mode
@@ -56,7 +62,14 @@ export class PaginatorComponent implements OnChanges {
       let l: number | undefined;
 
       for (let i = 1; i <= last; i++) {
-        if (i === 1 || i === last || (i >= left && i <= right)) {
+        // Show: First, Last, Range (current +/- 1), or Start/End buffers (first 3 or last 3)
+        if (
+          i === 1 ||
+          i === last ||
+          (i >= left && i <= right) ||
+          (this.page < 3 && i <= 3) ||
+          (this.page > last - 2 && i >= last - 2)
+        ) {
           range.push(i);
         }
       }

@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: var(--spacing-x2);
 
   .pages {
     display: flex;
@@ -30,6 +30,9 @@
     }
 
     button {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
       padding: var(--spacing-x2) var(--spacing-x3);
       border-radius: var(--spacing-x2);
       cursor: pointer;
@@ -52,6 +55,7 @@
 
     .pages {
       width: 100%;
+      gap: var(--spacing-x1);
 
       .prev-button {
         margin-left: auto;
@@ -70,6 +74,12 @@
       &:hover {
         background-color: var(--color-bg-base-hover);
       }
+    }
+
+    .ellipsis-text {
+      display: inline-block;
+      color: var(--color-text-light);
+      cursor: default;
     }
 
   }

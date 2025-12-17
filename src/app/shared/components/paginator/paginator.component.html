@@ -19,6 +19,9 @@
           [attr.aria-label]="'paginator-jump-forward' | translate" [title]="'paginator-jump-forward' | translate">
           ...
         </button>
+
+        <!-- Static Ellipsis (Compact Mode) -->
+        <span *ngIf="p === -3" class="ellipsis-text">...</span>
       </ng-container>
 
     </ng-container>
@@ -26,12 +29,12 @@
     <button class="button tertiary outlined arrow-button prev-button"
       [attr.aria-label]="'go-to-previous-page' | translate" (click)="goToPage(page - 1)"
       [disabled]="page === 1 || disabledPagination">
-      <i class="icon-arrow-left-1"></i>
+      <i class="icon-arrow-left-3"></i>
     </button>
 
     <button class="button tertiary outlined arrow-button next-button" [attr.aria-label]="'go-to-next-page' | translate"
       (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
-      <i class="icon-arrow-right-1"></i>
+      <i class="icon-arrow-right-3"></i>
     </button>
   </div>
 
