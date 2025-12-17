@@ -8,6 +8,7 @@ export class UiStateService {
     // Default is false as requested for Periodical/Collections
     // DetailView might override this on initialization if it defaults to open
     readonly metadataSidebarOpen = signal<boolean>(false);
+    readonly metadataSidebarActiveTab = signal<string | null>(null);
 
     toggleMetadataSidebar() {
         this.metadataSidebarOpen.update(value => !value);
@@ -15,5 +16,9 @@ export class UiStateService {
 
     setMetadataSidebarState(isOpen: boolean) {
         this.metadataSidebarOpen.set(isOpen);
+    }
+
+    setMetadataSidebarActiveTab(tab: string) {
+        this.metadataSidebarActiveTab.set(tab);
     }
 }

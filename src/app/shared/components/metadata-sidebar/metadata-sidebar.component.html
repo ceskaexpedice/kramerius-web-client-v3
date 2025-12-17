@@ -22,23 +22,26 @@
 
     <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available -->
     @if ((tools.search && (searchResult.count || 0) > 0) || tools.export) {
-    <app-tabs>
+    <app-tabs (tabChanged)="onTabChanged($event)" [initialTab]="uiStateService.metadataSidebarActiveTab() || undefined">
 
       @if (tools.description) {
-      <app-tab-item [label]="'description' | translate" [icon]="'icon-note'" [onlyIcon]="true" [tooltip]="'description' | translate">
+      <app-tab-item [id]="'description'" [label]="'description' | translate" [icon]="'icon-note'" [onlyIcon]="true"
+        [tooltip]="'description' | translate">
         <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
       </app-tab-item>
       }
 
       @if (tools.export) {
-      <app-tab-item [label]="'export' | translate" [icon]="'icon-download'" [onlyIcon]="true" [tooltip]="'export' | translate">
+      <app-tab-item [id]="'export'" [label]="'export' | translate" [icon]="'icon-download'" [onlyIcon]="true"
+        [tooltip]="'export' | translate">
         <app-export-document-section-component
           [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
       </app-tab-item>
       }
 
       @if (tools.search && (searchResult.count || 0) > 0) {
-      <app-tab-item [label]="'search' | translate" [icon]="'icon-receipt-search'" [onlyIcon]="true" [tooltip]="'search' | translate">
+      <app-tab-item [id]="'search'" [label]="'search' | translate" [icon]="'icon-receipt-search'" [onlyIcon]="true"
+        [tooltip]="'search' | translate">
         <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
       </app-tab-item>
       }

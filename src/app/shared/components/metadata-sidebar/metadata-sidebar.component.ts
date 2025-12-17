@@ -12,7 +12,8 @@ import { ExportDocumentSectionComponent } from './export-document-section-compon
 import { SearchResultsSidebarComponent } from './search-results-sidebar/search-results-sidebar.component';
 import { SearchService } from '../../services/search.service';
 import { AsyncPipe } from '@angular/common';
-import {CdkTooltipDirective} from '../../directives';
+import { CdkTooltipDirective } from '../../directives';
+import { UiStateService } from "../../services/ui-state.service";
 
 @Component({
   selector: 'app-metadata-sidebar',
@@ -31,7 +32,7 @@ export class MetadataSidebarComponent {
   recordHandler = inject(RecordHandlerService);
   detailService = inject(DetailViewService, { optional: true });
   searchService = inject(SearchService);
-
+  uiStateService = inject(UiStateService);
 
   exportAsPdf(): void {
 
@@ -47,6 +48,10 @@ export class MetadataSidebarComponent {
   exportAsImages(): void {
     // TODO: Implement images export
     console.log('Export as images');
+  }
+
+  onTabChanged(tabLabel: string) {
+    this.uiStateService.setMetadataSidebarActiveTab(tabLabel);
   }
 
   closeMetadataSidebar(): void {
