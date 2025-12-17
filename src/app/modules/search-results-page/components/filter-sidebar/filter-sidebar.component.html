@@ -1,62 +1,46 @@
-
 <!-- Sidebar toggle button for mobile/tablet -->
-<button *ngIf="!breakpointService.sidebarVisible() && !breakpointService.isVisible()"
-        class="sidebar-toggle-btn"
-        [class.left]="toggleButtonPosition === 'left'"
-        (click)="breakpointService.toggleSidebar()"
-        [attr.aria-label]="'open-filters' | translate">
+<button *ngIf="!breakpointService.sidebarVisible() && !breakpointService.isVisible()" class="sidebar-toggle-btn"
+  [class.left]="toggleButtonPosition === 'left'" (click)="breakpointService.toggleSidebar()"
+  [attr.aria-label]="'open-filters' | translate">
   <i [class]="toggleButtonIcon"></i>
 </button>
 
 <!-- Backdrop for mobile overlay -->
-<div *ngIf="breakpointService.isVisible() && isOverlay()"
-     class="sidebar-backdrop"
-     (click)="onBackdropClick()"></div>
+<div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop" (click)="onBackdropClick()"></div>
 
-<div class="filter-sidebar"
-     [class.overlay]="isOverlay()"
-     [class.visible]="breakpointService.isVisible()"
-     [class.disabled]="isDisabled"
-     [class.expanded]="isExpanded"
-     [class.dragging]="isDragging"
-     [style.height.vh]="isOverlay() && breakpointService.isMobile() ? currentHeight : null">
+<div class="filter-sidebar" [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
+  [class.disabled]="isDisabled" [class.expanded]="isExpanded" [class.dragging]="isDragging"
+  [style.height]="isOverlay() && breakpointService.isMobile() ? currentHeight + 'vh' : null">
 
   <!-- Drag handle for mobile bottom sheet -->
-  <div *ngIf="isOverlay() && breakpointService.isVisible()"
-       class="bottom-sheet-handle"
-       (mousedown)="onDragStart($event)"
-       (touchstart)="onDragStart($event)">
+  <div *ngIf="isOverlay() && breakpointService.isVisible()" class="bottom-sheet-handle"
+    (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)">
     <i class="icon-line-vertical"></i>
   </div>
 
   <!-- Mobile header with title and close button -->
-  <div *ngIf="isOverlay() && breakpointService.isVisible()"
-       class="mobile-header">
+  <div *ngIf="isOverlay() && breakpointService.isVisible()" class="mobile-header">
     <h3>{{'filters' | translate}}</h3>
-    <button class="icon-button transparent icon-button p-right-0"
-            (click)="breakpointService.toggleSidebar()"
-            [attr.aria-label]="'close-filters' | translate">
+    <button class="icon-button transparent icon-button p-right-0" (click)="breakpointService.toggleSidebar()"
+      [attr.aria-label]="'close-filters' | translate">
       <i class="icon-close"></i>
     </button>
   </div>
 
   <!-- Close button for desktop overlay mode (left sidebar) -->
   <button *ngIf="isOverlay() && breakpointService.isVisible() && !breakpointService.isMobile()"
-          class="sidebar-close-btn desktop-close-btn"
-          (click)="breakpointService.toggleSidebar()"
-          [attr.aria-label]="'close-filters' | translate">
+    class="sidebar-close-btn desktop-close-btn" (click)="breakpointService.toggleSidebar()"
+    [attr.aria-label]="'close-filters' | translate">
     <i class="icon-close"></i>
   </button>
 
   <!-- Scrollable content area -->
-  <div class="filter-content"
-       [class.scrollable]="scrollable"
-       [ngClass]="['padding-' + padding]">
+  <div class="filter-content" [class.scrollable]="scrollable" [ngClass]="['padding-' + padding]">
     <ng-content></ng-content>
   </div>
 
   @if (isDisabled) {
-    <div class="sidebar-disabled--overlay"></div>
+  <div class="sidebar-disabled--overlay"></div>
   }
 
 </div>

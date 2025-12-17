@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, Input, inject, signal, computed, OnDestroy, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { NgClass, NgIf } from '@angular/common';
 import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -16,6 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class FilterSidebarComponent implements OnDestroy {
   protected breakpointService = inject(BreakpointService);
   private renderer = inject(Renderer2);
+  private cd = inject(ChangeDetectorRef);
 
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
   @Input() scrollable = true;
@@ -107,6 +108,8 @@ export class FilterSidebarComponent implements OnDestroy {
     if (event.cancelable) {
       event.preventDefault();
     }
+
+    this.cd.detectChanges();
   }
 
   onWindowEnd() {
