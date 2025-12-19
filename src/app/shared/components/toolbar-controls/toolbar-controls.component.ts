@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effect, inject } from '@angular/core';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+import { UserService } from '../../services/user.service';
 
 export type CalendarGridControl = 'calendar' | 'grid';
 export type SoundRecordGridControl = 'records' | 'images';
@@ -71,11 +72,21 @@ export class ToolbarControlsComponent implements OnChanges {
   // Memoized merged actions - only recalculated when inputs change
   mergedActions: ToolbarAction[] = [];
 
+  private userService = inject(UserService);
+
+  constructor() {
+    effect(() => {
+      // Re-run update when user permissions change
+      this.userService.userSession$();
+      this.updateMergedActions();
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     // Recalculate mergedActions only when relevant inputs change
     if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
-        changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
-        changes['showDownload'] || changes['showEdit'] || changes['showSelect']) {
+      changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
+      changes['showDownload'] || changes['showEdit'] || changes['showSelect']) {
       this.updateMergedActions();
     }
   }
@@ -108,7 +119,7 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'Edit', label: 'Edit' });
     }
 
-    if (this.showSelect) {
+    if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
       legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'Select', disabled: false, label: 'Select' });
     }
 

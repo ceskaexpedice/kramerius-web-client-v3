@@ -1,9 +1,9 @@
 import { Injectable, signal, computed } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {EnvironmentService} from './environment.service';
-import {Observable} from 'rxjs';
-import {UserSession} from '../models/user-session.model';
-import {map} from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { EnvironmentService } from './environment.service';
+import { Observable } from 'rxjs';
+import { UserSession } from '../models/user-session.model';
+import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
 // Admin roles that grant access to admin features
@@ -26,7 +26,7 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private env: EnvironmentService
-  ) {}
+  ) { }
 
   private get API_URL(): string {
     const url = this.env.getApiUrl('user');
@@ -52,6 +52,10 @@ export class UserService {
   // Admin status getters
   get isAdmin() { return this._isAdmin(); }
   get isAdmin$() { return this._isAdmin; }
+
+  // Logged in status getter
+  get isLoggedIn() { return !!this._userSession(); }
+  get isLoggedIn$() { return computed(() => !!this._userSession()); }
 
   /**
    * Load user licenses from session

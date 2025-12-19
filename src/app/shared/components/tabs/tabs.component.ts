@@ -1,12 +1,11 @@
 import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, signal } from '@angular/core';
 import { TabItemComponent } from './tab-item.component';
-import { NgForOf, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { CdkTooltipDirective } from '../../directives';
 
 @Component({
   selector: 'app-tabs',
   imports: [
-    NgForOf,
     NgTemplateOutlet,
     CdkTooltipDirective,
   ],
