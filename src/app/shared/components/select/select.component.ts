@@ -12,12 +12,14 @@ import {
 import { NgIf, NgForOf, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import {InputComponent} from '../input/input.component';
+import { InputComponent } from '../input/input.component';
+
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgIf, NgForOf, TranslatePipe, NgClass, FormsModule, InputComponent],
+  imports: [NgIf, NgForOf, TranslatePipe, NgClass, FormsModule, InputComponent, ScrollingModule],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
@@ -30,24 +32,34 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');
   @Input() value: T | null = null;
-  @Input() filterable: boolean = false;
-  @Input() filterPlaceholder: string = 'Search...';
-  @Input() disabled: boolean = false;
-  @Input() zIndex: number = 10;
+  @Input() filterable = false;
+  @Input() filterPlaceholder = 'Filter...';
+  @Input() disabled = false;
+  @Input() zIndex = 1000;
+
+  // Virtual Scroll Inputs
+  @Input() virtualScroll = false;
+  @Input() itemSize = 36;
+  @Input() visibleItemsCount = 8;
+
   @Output() valueChange = new EventEmitter<T>();
 
   open = signal(false);
-  showAbove = false;
-  focusedIndex = -1;
   filterText = '';
   filteredOptions: T[] = [];
+  focusedIndex = -1;
+  showAbove = false;
 
   @ViewChild('wrapper') wrapperRef?: ElementRef;
 
   constructor(
     private hostRef: ElementRef,
     private translate: TranslateService
-  ) {}
+  ) { }
+
+  getViewportHeight(): string {
+    return `${this.visibleItemsCount * this.itemSize}px`;
+  }
 
   ngAfterViewInit() {
     new ResizeObserver(() => this.checkPosition()).observe(document.body);
