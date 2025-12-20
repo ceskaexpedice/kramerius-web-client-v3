@@ -2,7 +2,7 @@
 
   <!-- Title -->
   @if (showTitle) {
-  <section *ngIf="data.mainTitle || data.titles.length">
+  <section *ngIf="data.mainTitle || hasValidTitles">
     <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
     <div *ngIf="data.titles.length > 1">
       <div *ngFor="let title of data.titles">

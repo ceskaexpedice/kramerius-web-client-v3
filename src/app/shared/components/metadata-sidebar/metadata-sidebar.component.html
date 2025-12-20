@@ -5,7 +5,8 @@
       @if (customDescription) {
       <ng-content select="[description-content]"></ng-content>
       } @else {
-      <app-metadata-section [showTitle]="false"
+      <app-metadata-section [showTitle]="true"
+                            [metadata]="metadata"
         [uuid]="detailService?.document?.uuid || metadata?.uuid || ''"></app-metadata-section>
       }
     </ng-template>

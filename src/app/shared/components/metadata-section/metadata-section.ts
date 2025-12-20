@@ -10,7 +10,7 @@ import { MetadataSectionItem } from './metadata-section-item/metadata-section-it
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
-import { take } from 'rxjs';
+import { take, firstValueFrom } from 'rxjs';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
@@ -42,6 +42,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   get isPublic() { return this._isPublic(); }
 
+  get hasValidTitles(): boolean {
+    return !!this.data?.titles.some(t => !!t.title);
+  }
+
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
   documentInfoService = inject(DocumentInfoService);
@@ -53,6 +57,8 @@ export class MetadataSection implements OnInit, OnChanges {
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
   @Input() uuid: string = '';
+
+  @Input() metadata: Metadata | null = null;
 
   @Input() showTitle: boolean = true;
 
@@ -71,24 +77,82 @@ export class MetadataSection implements OnInit, OnChanges {
     const modsData = await this.modsParser.getMods(this.uuid);
 
     // Get Solr data from store to supplement with model, accessibility, and license
-    this.store.select(selectDocumentDetail).pipe(take(1)).subscribe(solrData => {
-      setTimeout(() => {
-        if (solrData && solrData.uuid === this.uuid) {
-          const mergedData = {
-            ...modsData,
-            model: solrData.model,
-            isPublic: solrData.isPublic,
-            licence: solrData.licence,
-            licences: solrData.licences
-          };
-          this._data.set(mergedData);
-        } else {
-          this._data.set(modsData);
-        }
-        this.cdr.markForCheck();
-      });
-    });
+    const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
+
+    const baseMods: any = { ...modsData };
+
+    if (this.metadata) {
+      this.mergeMissing(baseMods, this.metadata);
+    }
+
+    if (solrData && solrData.uuid === this.uuid) {
+      const mergedData = {
+        ...baseMods,
+        model: solrData.model,
+        isPublic: solrData.isPublic,
+        licence: solrData.licence,
+        licences: solrData.licences
+      };
+      this._data.set(mergedData);
+    } else {
+      this._data.set(baseMods);
+    }
+
+    this.cdr.markForCheck();
   }
+
+  private isObject(v: any): boolean {
+    return v && typeof v === 'object' && !Array.isArray(v);
+  }
+
+  private isEmpty(v: any): boolean {
+    return v === null ||
+      v === undefined ||
+      (typeof v === 'string' && v.trim() === '') ||
+      (Array.isArray(v) && v.length === 0) ||
+      (this.isObject(v) && Object.keys(v).length === 0);
+  }
+
+  // Mutating merge: copy only missing/empty values from source into target
+  private mergeMissing(target: any, source: any): any {
+    if (!this.isObject(source) && !Array.isArray(source)) {
+      // primitive
+      if (this.isEmpty(target)) return source;
+      return target;
+    }
+
+    if (Array.isArray(source)) {
+      if (this.isEmpty(target)) return source.slice();
+      return target;
+    }
+
+    if (!this.isObject(target)) {
+      target = {};
+    }
+
+    for (const key of Object.keys(source)) {
+      const sVal = source[key];
+      const tVal = target[key];
+
+      if (this.isObject(sVal)) {
+        if (!this.isObject(tVal)) {
+          target[key] = {};
+        }
+        this.mergeMissing(target[key], sVal);
+      } else if (Array.isArray(sVal)) {
+        if (this.isEmpty(tVal)) {
+          target[key] = sVal.slice();
+        }
+      } else {
+        if (this.isEmpty(tVal)) {
+          target[key] = sVal;
+        }
+      }
+    }
+
+    return target;
+  }
+
 
   // Helper methods for display functions
   getAuthorName = (author: Author): string => author.name;
