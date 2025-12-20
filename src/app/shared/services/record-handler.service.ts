@@ -81,7 +81,7 @@ export class RecordHandlerService {
         if (rootPid) {
           const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
-            page: pid
+            article: pid
           }
           if (fulltext && fulltext.trim().length > 0) {
             queryParams['fulltext'] = fulltext;
@@ -129,7 +129,7 @@ export class RecordHandlerService {
 
   public navigateToEmptySearch(): void {
     this.searchService.searchTerm.set('');
-    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
+    this.router.navigate([APP_ROUTES_ENUM.SEARCH], { queryParams: {}, queryParamsHandling: null });
   }
 
   navigateFromPeriodicalToSearchResults(): void {

@@ -149,48 +149,54 @@
     <app-inline-loader *ngIf="detailViewService.loading$ | async" [overlay]="true"></app-inline-loader>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
-        <div class="detail-view--page--content--wrapper" [class.pdf-document]="document.pdf"
+        <div class="detail-view--page--content--wrapper"
+             [class.pdf-document]="document.pdf || (articleMetadata$ | async)?.pdf"
              [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
-          @if (document.pdf) {
-
-            <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
-
+          <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
+          @let articleMetadata = articleMetadata$ | async;
+          @if (articleMetadata) {
+            <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
           } @else {
-            <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-                             [metadata]="document" [imagePid]="detailViewService.currentPagePid">
-            </app-iiif-viewer>
-          }
 
-          @if (!detailViewService.metadataSidebarVisible) {
-
-            <button class="floating-sidebar-toggle button outlined tertiary with-icon"
-                    (click)="detailViewService.showMetadataSidebar()">
-              <i class="icon-sidebar-bottom"></i>
-              {{ 'show--metadata-sidebar' | translate }}
-            </button>
-          }
-
-          <!-- Viewer controls for both PDF and IIIF viewers -->
-          @if (document.pdf) {
-            @if (!(pdfService.properties$ | async)?.fullscreen) {
-              <app-viewer-controls type="pdf"></app-viewer-controls>
-            }
-          } @else {
-            @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
-              <app-viewer-controls type="image"></app-viewer-controls>
-            }
-
-            @if (iiifViewerService.isSelectionMode$ | async) {
-              <div class="selection-mode-info">
-                <span>{{ 'select-area-drag' | translate }}</span>
-                <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
-                  {{ 'cancel' | translate }}
-                </button>
-              </div>
+            <!-- Fallback to document/page viewer when no article -->
+            @if (document.pdf) {
+              <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+            } @else {
+              <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+                               [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+              </app-iiif-viewer>
             }
           }
         </div>
+
+        @if (!detailViewService.metadataSidebarVisible) {
+          <button class="floating-sidebar-toggle button outlined tertiary with-icon"
+                  (click)="detailViewService.showMetadataSidebar()">
+            <i class="icon-sidebar-bottom"></i>
+            {{ 'show--metadata-sidebar' | translate }}
+          </button>
+        }
+
+        <!-- Viewer controls for both PDF and IIIF viewers -->
+        @if (document.pdf || (articleMetadata$ | async)?.pdf) {
+          @if (!(pdfService.properties$ | async)?.fullscreen) {
+            <app-viewer-controls type="pdf"></app-viewer-controls>
+          }
+        } @else {
+          @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+            <app-viewer-controls type="image"></app-viewer-controls>
+          }
+
+          @if (iiifViewerService.isSelectionMode$ | async) {
+            <div class="selection-mode-info">
+              <span>{{ 'select-area-drag' | translate }}</span>
+              <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
+                {{ 'cancel' | translate }}
+              </button>
+            </div>
+          }
+        }
       </div>
     </ng-container>
   </ng-container>

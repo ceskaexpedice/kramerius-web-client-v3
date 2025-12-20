@@ -9,6 +9,7 @@ import {
   selectDocumentDetailLoading,
   selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
+  selectDocumentDetailOnlyArticles,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import { loadDocumentDetail } from '../../../shared/state/document-detail/document-detail.actions';
 import { filter, Observable, skip, take } from 'rxjs';
@@ -37,6 +38,8 @@ export class DetailViewService {
 
   _currentPageIndex = signal<number>(0);
   _pages = signal<Page[]>([]);
+  _currentArticleIndex = signal<number>(0);
+  _articles = signal<Page[]>([]);
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
@@ -49,6 +52,7 @@ export class DetailViewService {
   private uiStateService = inject(UiStateService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
+  articles$ = this.store.select(selectDocumentDetailOnlyArticles);
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
@@ -71,7 +75,22 @@ export class DetailViewService {
         this._currentPageIndex.set(0);
 
         // After pages are loaded, check if there's a page parameter in URL
-        this.checkAndSetCurrentPageFromUrl();
+        // Only do this if pages don't contain articles
+        const hasArticles = pages.some(p => p.model === DocumentTypeEnum.article);
+        if (!hasArticles) {
+          this.checkAndSetCurrentPageFromUrl();
+        }
+      }
+    });
+
+    // Listen to articles changes and update the signal automatically
+    this.articles$.subscribe(articles => {
+      if (articles) {
+        this._articles.set(articles);
+        this._currentArticleIndex.set(0);
+
+        // After articles are loaded, check if there's an article parameter in URL
+        this.checkAndSetCurrentArticleFromUrl();
       }
     });
   }
@@ -98,6 +117,18 @@ export class DetailViewService {
     return this._pages().length;
   }
 
+  get articles() {
+    return this._articles();
+  }
+
+  get currentArticleIndex() {
+    return this._currentArticleIndex();
+  }
+
+  get totalArticles(): number {
+    return this._articles().length;
+  }
+
   get viewerMode() {
     return this._viewerMode();
   }
@@ -105,6 +136,11 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  get currentArticlePid(): string | null {
+    const currentArticle = this.getCurrentArticle();
+    return currentArticle ? currentArticle.pid : null;
   }
 
   get metadataSidebarVisible(): boolean {
@@ -177,12 +213,16 @@ export class DetailViewService {
         this._pages.set(safePages);
         this._currentPageIndex.set(0);
 
-        if (this.document?.model !== DocumentTypeEnum.soundrecording) {
+        // Don't check/set page URL if articles are present or if sound recording
+        const hasArticles = safePages.some(p => p.model === DocumentTypeEnum.article);
+        if (this.document?.model !== DocumentTypeEnum.soundrecording && !hasArticles) {
           this.checkAndSetCurrentPageFromUrl();
         }
 
-        // Load page info for the initial/current page
-        this.loadPageInfo();
+        // Load page info for the initial/current page only if no articles
+        if (!hasArticles) {
+          this.loadPageInfo();
+        }
       });
   }
 
@@ -192,8 +232,16 @@ export class DetailViewService {
   }
 
   checkAndSetCurrentPageFromUrl() {
+    // Only run this logic if we are on the Detail View or Music View page
+    if (!this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) && !this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`)) {
+      return;
+    }
+
     // Check if there is a page parameter in the URL
-    const pageParam = this.route.snapshot.queryParams['page'];
+    // Use parseUrl to avoid ActivatedRoute scoping issues in Singleton service
+    const urlTree = this.router.parseUrl(this.router.url);
+    const queryParams = urlTree.queryParams;
+    const pageParam = queryParams['page'];
 
     if (pageParam) {
       const pageIndex = this._pages().findIndex(page => page.pid === pageParam);
@@ -202,6 +250,10 @@ export class DetailViewService {
         this._currentPageIndex.set(pageIndex);
       }
     } else {
+      // If article is selected, don't force a default page
+      if (queryParams['article']) {
+        return;
+      }
       console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
       // add first page as param
       const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit || page.model === DocumentTypeEnum.periodicalvolume || page.model === DocumentTypeEnum.periodicalitem);
@@ -213,6 +265,39 @@ export class DetailViewService {
           queryParamsHandling: "merge",
           replaceUrl: true
         })
+      }
+    }
+  }
+
+  checkAndSetCurrentArticleFromUrl() {
+    // Only run this logic if we are on the Detail View or Music View page
+    if (!this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) && !this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`)) {
+      return;
+    }
+
+    // Check if there is an article parameter in the URL
+    const articleParam = this.route.snapshot.queryParams['article'];
+
+    if (articleParam) {
+      const articleIndex = this._articles().findIndex(article => article.pid === articleParam);
+
+      if (articleIndex !== -1) {
+        this._currentArticleIndex.set(articleIndex);
+      }
+    } else {
+      console.log('checkAndSetCurrentArticleFromUrl - no article param');
+      // Auto-select first article if articles exist
+      if (this._articles().length > 0) {
+        this._currentArticleIndex.set(0);
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {
+            article: this.articles[0].pid,
+            page: null
+          },
+          queryParamsHandling: "merge",
+          replaceUrl: true
+        });
       }
     }
   }
@@ -253,14 +338,58 @@ export class DetailViewService {
     }
   }
 
+  goToArticle(index: number) {
+    if (index >= 0 && index < this._articles().length) {
+      this._currentArticleIndex.set(index);
+      this.changeArticleUrl();
+    }
+  }
+
+  /**
+   * Navigates to a specific article by its PID
+   * @param pid - Article PID to navigate to
+   */
+  navigateToArticle(pid: string): void {
+    const articles = this._articles();
+    const articleIndex = articles.findIndex(article => article.pid === pid);
+
+    if (articleIndex !== -1) {
+      this.goToArticle(articleIndex);
+    } else {
+      console.warn(`Article with PID ${pid} not found in articles array`);
+    }
+  }
+
+  changeArticleUrl() {
+    const currentArticle = this.getCurrentArticle();
+
+    if (currentArticle) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          article: currentArticle.pid,
+          page: null
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
+  }
+
   changePageUrl() {
     const currentPage = this.getCurrentPage();
     // add to url ?page=PAGE_PID
 
     if (currentPage) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('page', currentPage.pid);
-      window.history.replaceState({}, '', url.toString());
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          page: currentPage.pid,
+          article: null
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
 
       // Fetch page info from API
       this.loadPageInfo();
@@ -448,6 +577,11 @@ export class DetailViewService {
     return pages[this._currentPageIndex()] ?? null;
   }
 
+  getCurrentArticle(): Page | null {
+    const articles = this._articles();
+    return articles[this._currentArticleIndex()] ?? null;
+  }
+
   getCurrentPageDate(): string | null {
     const currentPage = this.getCurrentPage();
     if (currentPage && currentPage['date.str']) {
@@ -552,5 +686,14 @@ export class DetailViewService {
 
     // In single page mode, only the current page is active
     return index === currentIndex;
+  }
+
+  /**
+   * Check if an article index is currently active/selected
+   * @param index - Article index to check
+   * @returns true if the article is active
+   */
+  isArticleActive(index: number): boolean {
+    return index === this._currentArticleIndex();
   }
 }

@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as DocumentDetailActions from './document-detail.actions';
 import { SolrService } from '../../../core/solr/solr.service';
 import { Store } from '@ngrx/store';
 import * as DocumentDetailSelectors from './document-detail.selectors';
-import { parseDocumentDetail } from '../../../modules/models/document-detail';
-import { parseSearchDocument } from '../../../modules/models/search-document';
-import * as SearchActions from '../../../modules/search-results-page/state/search.actions';
 import { fromSolrToMetadata } from '../../models/metadata.model';
-import { loadDocumentDetail } from './document-detail.actions';
 import { Router } from '@angular/router';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { APP_ROUTES_ENUM } from "../../../app.routes";
+import { ROUTER_NAVIGATED } from '@ngrx/router-store';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -61,10 +58,10 @@ export class DocumentDetailEffects {
       map(({ detailItem, children }) => {
         console.log('detailItem', detailItem);
         console.log('children', children);
-        console.log('fromSolrToMetadata(detailItem)', fromSolrToMetadata(detailItem));
         if (!detailItem) {
           throw new Error('Document detail item is null');
         }
+        console.log('fromSolrToMetadata(detailItem)', fromSolrToMetadata(detailItem));
         return DocumentDetailActions.loadDocumentDetailSuccess({
           data: fromSolrToMetadata(detailItem),
           pages: children,
@@ -78,5 +75,33 @@ export class DocumentDetailEffects {
     );
   }
 
+  // Effect to watch for article UUID changes in query params and load article detail
+  loadArticleDetailOnQueryParamChange$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(ROUTER_NAVIGATED),
+      withLatestFrom(this.store.select(DocumentDetailSelectors.selectArticleUuidFromQuery)),
+      map(([_, articleUuid]) => articleUuid),
+      distinctUntilChanged(),
+      filter(articleUuid => !!articleUuid),
+      map(articleUuid => DocumentDetailActions.loadArticleDetail({ articleUuid: articleUuid! }))
+    );
+  });
+
+  loadArticleDetail$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(DocumentDetailActions.loadArticleDetail),
+      switchMap(({ articleUuid }) => {
+        return this.solr.getDetailItem(articleUuid).pipe(
+          map(articleDetail => {
+            return DocumentDetailActions.loadArticleDetailSuccess({ articleDetail });
+          }),
+          catchError(error => {
+            console.log('Error loading article detail:', error);
+            return of(DocumentDetailActions.loadArticleDetailFailure({ error }));
+          })
+        );
+      })
+    );
+  });
 
 }
