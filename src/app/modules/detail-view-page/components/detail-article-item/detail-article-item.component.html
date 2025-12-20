@@ -1,0 +1,9 @@
+<a class="article--item"
+   [class.selected]="isSelected"
+   (click)="onArticleClicked()">
+
+  <div class="article--item__content">
+    <span class="article--item__title">{{ getArticleTitle() }}</span>
+  </div>
+
+</a>

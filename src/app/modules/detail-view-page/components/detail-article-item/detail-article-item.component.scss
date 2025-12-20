@@ -1,0 +1,26 @@
+.article--item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-x2);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+
+  &.selected {
+    color: var(--color-primary);
+    border-left: 2px solid var(--color-primary);
+    font-weight: bold;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+  }
+
+  &__title {
+    font-size: var(--font-size-base);
+  }
+}

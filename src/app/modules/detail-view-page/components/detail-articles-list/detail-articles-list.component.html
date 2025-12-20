@@ -1,0 +1,11 @@
+<div class="articles--list" *ngIf="(detailViewService.articles$ | async) as articles">
+
+  @for (article of articles; track article.pid; let index = $index) {
+    <app-detail-article-item
+      [article]="article"
+      [isSelected]="detailViewService.isArticleActive(index)"
+      (articleClicked)="clickedArticle(index)"
+    >
+    </app-detail-article-item>
+  }
+</div>
