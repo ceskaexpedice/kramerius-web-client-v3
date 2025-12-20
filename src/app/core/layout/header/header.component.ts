@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, computed, Injector } from '@angular/core';
-import {Router, NavigationEnd, RouterLink} from '@angular/router';
+import { Component, OnInit, OnDestroy, Injector } from '@angular/core';
+import {Router, NavigationEnd} from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { HeaderType } from './header-types';
@@ -27,7 +27,6 @@ import {ClickOutsideDirective} from '../../../shared/directives';
     NgIf,
     AutocompleteComponent,
     LangPickerComponent,
-    RouterLink,
     TranslatePipe,
     UserInfoComponent,
     ClickOutsideDirective,

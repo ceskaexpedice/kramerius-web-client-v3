@@ -2,45 +2,35 @@
 
   <div class="app-header__left">
 
-    <a routerLink="/" class="logo" (click)="logoClicked()">
-      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? '/favicon.svg' : '/favicon-dark.svg'" alt="Česká digitální knihovna" />
+    <a class="logo cursor-pointer" (click)="logoClicked()">
+      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? '/favicon.svg' : '/favicon-dark.svg'"
+        alt="Česká digitální knihovna" />
     </a>
 
   </div>
 
   <div *ngIf="showSearchBar" class="search-bar" [class.mobile-search-active]="isMobileSearchOpen">
 
-    <app-autocomplete
-      [inputTheme]="'dark'"
-      [placeholder]="autocompletePlaceholder | translate"
-      [minTermLength]="2"
-      [initialValue]="autocompleteService.searchTerm()"
-      [getSuggestions]="autocompleteService.getSuggestionsFn"
-      [showHelpButton]="false"
-      [showMicrophoneButton]="false"
-      (search)="autocompleteService.onSearch($event)"
-      (submit)="autocompleteService.onSubmit($event)"
-      [inputTerm]="autocompleteService.searchTerm"
-      [showHistorySuggestions]="true"
-      (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
+    <app-autocomplete [inputTheme]="'dark'" [placeholder]="autocompletePlaceholder | translate" [minTermLength]="2"
+      [initialValue]="autocompleteService.searchTerm()" [getSuggestions]="autocompleteService.getSuggestionsFn"
+      [showHelpButton]="false" [showMicrophoneButton]="false" (search)="autocompleteService.onSearch($event)"
+      (submit)="autocompleteService.onSubmit($event)" [inputTerm]="autocompleteService.searchTerm"
+      [showHistorySuggestions]="true" (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light advanced-search-btn desktop-btn"
-            aria-label="{{'advanced-search' | translate}}"
-            (click)="openAdvancedSearch()">
+    <button class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
+      (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
 
     <!-- Mobile search buttons -->
-    <button class="icon-button outlined light mobile-search-btn"
-            aria-label="{{'advanced-search' | translate}}"
-            (click)="openAdvancedSearch()">
+    <button class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
+      (click)="openAdvancedSearch()">
       <i class="icon-settings-4"></i>
     </button>
 
-    <button class="icon-button outlined light mobile-search-btn"
-            aria-label="Close search"
-            (click)="closeMobileSearch()">
+    <button class="icon-button outlined light mobile-search-btn" aria-label="Close search"
+      (click)="closeMobileSearch()">
       <i class="icon-close"></i>
     </button>
 
@@ -59,28 +49,19 @@
     <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
 
     <!-- Mobile search toggle button -->
-    <button *ngIf="showSearchBar"
-            class="icon-button outlined light mobile-only mobile-search-toggle"
-            [class.hide-on-search-active]="isMobileSearchOpen"
-            aria-label="Search"
-            (click)="toggleMobileSearch()">
+    <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
+      [class.hide-on-search-active]="isMobileSearchOpen" aria-label="Search" (click)="toggleMobileSearch()">
       <i class="icon-search-normal"></i>
     </button>
 
-    <button class="icon-button outlined light"
-            [class.mobile-search-close]="isMobileSearchOpen"
-            aria-label="{{'settings' | translate}}"
-            (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
+    <button class="icon-button outlined light" [class.mobile-search-close]="isMobileSearchOpen"
+      aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
       <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-1'"></i>
     </button>
 
-    <button class="icon-button mobile-only hamburger-menu--btn"
-            [class.primary]="isMobileMenuOpen"
-            [class.outlined]="!isMobileMenuOpen"
-            [class.light]="!isMobileMenuOpen"
-            [class.hide-on-search-active]="isMobileSearchOpen"
-            aria-label="Menu"
-            (click)="toggleMobileMenu()">
+    <button class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
+      [class.outlined]="!isMobileMenuOpen" [class.light]="!isMobileMenuOpen"
+      [class.hide-on-search-active]="isMobileSearchOpen" aria-label="Menu" (click)="toggleMobileMenu()">
       <i class="icon-hamburger-menu"></i>
     </button>
 
