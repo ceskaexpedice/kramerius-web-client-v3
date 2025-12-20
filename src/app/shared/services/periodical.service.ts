@@ -116,9 +116,7 @@ export class PeriodicalService extends BaseFilterService {
     if (this.initialized) return;
 
     // if there is no sortBy in query params, set default sort
-    if (!this.route.snapshot.queryParams['sortBy']) {
-      this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc);
-    }
+    // Logic moved to router subscription below
 
     this.customSearchService.initializeFromRoute();
 
@@ -149,6 +147,11 @@ export class PeriodicalService extends BaseFilterService {
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+        // If sortBy is missing, we are about to redirect (see above), so don't dispatch search yet
+        if (!queryParams['sortBy']) {
+          this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc);
+          return;
+        }
         this.dispatchPeriodicalSearch(Object.keys(queryParams).length ? queryParams : null);
       }
     });
