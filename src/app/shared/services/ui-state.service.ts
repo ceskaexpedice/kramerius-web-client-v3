@@ -10,6 +10,9 @@ export class UiStateService {
     readonly metadataSidebarOpen = signal<boolean>(false);
     readonly metadataSidebarActiveTab = signal<string | null>(null);
 
+    // Header visibility state for scroll-hide behavior
+    readonly headerVisible = signal<boolean>(true);
+
     toggleMetadataSidebar() {
         this.metadataSidebarOpen.update(value => !value);
     }
@@ -20,5 +23,9 @@ export class UiStateService {
 
     setMetadataSidebarActiveTab(tab: string) {
         this.metadataSidebarActiveTab.set(tab);
+    }
+
+    setHeaderVisibility(visible: boolean) {
+        this.headerVisible.set(visible);
     }
 }

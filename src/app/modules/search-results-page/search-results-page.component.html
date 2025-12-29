@@ -64,7 +64,7 @@
       </div>
 
       <div class="page-content__wrapper"
-        [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0">
+        [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
 
         <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
           <app-selected-tags [items]="(searchService.selectedTags | async) || []"

@@ -36,6 +36,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 
 const routes: Routes = [
   {
@@ -76,7 +77,8 @@ const routes: Routes = [
     TranslatePipe,
     FavoritesPopupComponent,
     MetadataSidebarComponent,
-    InlineLoaderComponent
+    InlineLoaderComponent,
+    ScrollHideHeaderDirective
   ],
   providers: [
     PeriodicalService,

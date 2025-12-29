@@ -1,12 +1,14 @@
 import { Component, inject, Input } from '@angular/core';
 import { Breadcrumb } from '../../models/breadcrumb.model';
 import { BreadcrumbsService } from '../../services/breadcrumbs.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-breadcrumbs',
   templateUrl: './breadcrumbs.component.html',
   styleUrl: './breadcrumbs.component.scss',
-  standalone: false
+  standalone: true,
+  imports: [TranslateModule]
 })
 export class BreadcrumbsComponent {
 

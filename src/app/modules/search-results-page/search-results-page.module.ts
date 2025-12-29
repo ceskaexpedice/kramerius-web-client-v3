@@ -25,6 +25,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { AdminActionsComponent } from '../../shared/components/admin-actions/admin-actions.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 
 const routes: Routes = [
 	{
@@ -61,7 +62,8 @@ const routes: Routes = [
 		FormsModule,
 		AdminActionsComponent,
 		ToolbarControlsComponent,
-		InlineLoaderComponent
+		InlineLoaderComponent,
+		ScrollHideHeaderDirective
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

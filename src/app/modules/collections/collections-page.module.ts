@@ -19,10 +19,9 @@ import { CollectionsEffects } from '../../shared/state/collections/collections.e
 import { ResultsSortComponent } from '../search-results-page/components/results-sort/results-sort.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
-import {
-  CollectionsRightSidebarContent
-} from './components/collections-right-sidebar-content/collections-right-sidebar-content';
+import { CollectionsRightSidebarContent } from './components/collections-right-sidebar-content/collections-right-sidebar-content';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 
 const routes: Routes = [
   {
@@ -31,7 +30,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [CollectionsPage, BreadcrumbsComponent],
+  declarations: [CollectionsPage],
   imports: [
     RouterModule.forChild(routes),
     FilterSidebarComponent,
@@ -50,11 +49,12 @@ const routes: Routes = [
     ResultsSortComponent,
     ToolbarControlsComponent,
     SafeHtmlPipe,
-    SafeHtmlPipe,
     NgClass,
     CollectionsRightSidebarContent,
     MetadataSidebarComponent,
-    InlineLoaderComponent
+    InlineLoaderComponent,
+    ScrollHideHeaderDirective,
+    BreadcrumbsComponent
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },

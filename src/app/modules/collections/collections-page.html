@@ -62,7 +62,8 @@
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()"
-        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0">
+        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0"
+        appScrollHideHeader>
 
         <div class="page-content__main">
           <!-- Sticky Tags Bar -->
