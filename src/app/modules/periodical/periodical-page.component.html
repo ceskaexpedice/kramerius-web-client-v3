@@ -72,16 +72,19 @@
       </div>
 
       <!-- Content rendering based on view mode -->
-      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()">
+      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()"
+        [class.wrapper--no-top-padding]="((periodical.selectedTags | async) || []).length > 0">
 
         <div class="page-content__main">
 
-          <app-selected-tags *ngIf="((periodical.selectedTags | async) || []).length > 0"
-            [items]="(periodical.selectedTags | async) || []" [operators]="{}" [showOperators]="false"
-            [translateItems]="true" (remove)="periodical.removeFilter($event)"
-            (removeGroup)="periodical.resetOperator($event)" (clearAll)="periodical.clearAllFilters()"
-            clearButtonPosition="left">
-          </app-selected-tags>
+          <!-- Sticky Tags Bar -->
+          <div class="page-content__sticky-tags" *ngIf="((periodical.selectedTags | async) || []).length > 0">
+            <app-selected-tags [items]="(periodical.selectedTags | async) || []" [operators]="{}"
+              [showOperators]="false" [translateItems]="true" (remove)="periodical.removeFilter($event)"
+              (removeGroup)="periodical.resetOperator($event)" (clearAll)="periodical.clearAllFilters()"
+              clearButtonPosition="left">
+            </app-selected-tags>
+          </div>
 
           <app-periodical-years-timeline *ngIf="mode === ViewMode.Timeline" [years]="periodical.periodicalYears"
             (selectYear)="periodical.onSelectYear($event)">
@@ -115,9 +118,9 @@
         <!-- Right Sidebar -->
         <ng-container *ngIf="periodical.metadata">
           <div class="page-content__sidebar-right"
-               [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
-               [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
-               [class.collapsed]="!showMetadataSidebar()">
+            [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
+            [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
+            [class.collapsed]="!showMetadataSidebar()">
             <app-metadata-sidebar [metadata]="periodical.metadata" mode="docked"
               [tools]="{search: true, export: false, description: true}" (close)="toggleMetadataSidebar()">
             </app-metadata-sidebar>

@@ -54,6 +54,10 @@
     padding: var(--spacing-x2);
     gap: var(--spacing-x2);
   }
+
+  &.wrapper--no-top-padding {
+    padding-top: 0;
+  }
 }
 
 .page-content__filters {
@@ -65,8 +69,23 @@
   align-items: center;
   gap: 1px;
 
-  & > :first-child {
+  &> :first-child {
     flex: 1;
     min-width: 0;
+  }
+}
+
+.page-content__sticky-tags {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-bg-light);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x2) 0;
+  width: 100%;
+
+  @media (max-width: 603px) {
+    padding-left: var(--spacing-x2);
+    padding-right: var(--spacing-x2);
   }
 }

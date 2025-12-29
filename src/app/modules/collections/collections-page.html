@@ -58,14 +58,23 @@
           </div>
         </app-action-toolbar>
         }
-
-
       </div>
 
       <!-- Content rendering based on view mode -->
-      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()">
+      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()"
+        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0">
 
         <div class="page-content__main">
+          <!-- Sticky Tags Bar -->
+          <div class="page-content__sticky-tags" *ngIf="((collectionsService.selectedTags | async) || []).length > 0">
+            <app-selected-tags [items]="(collectionsService.selectedTags | async) || []"
+              [operators]="(collectionsService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
+              [translateItems]="true" (remove)="collectionsService.removeFilter($event)"
+              (removeGroup)="collectionsService.resetOperator($event)" (clearAll)="collectionsService.clearAllFilters()"
+              clearButtonPosition="left">
+            </app-selected-tags>
+          </div>
+
           <!-- Breadcrumbs Navigation -->
           <app-breadcrumbs></app-breadcrumbs>
 
@@ -84,13 +93,6 @@
 
           }
 
-          <app-selected-tags *ngIf="((collectionsService.selectedTags | async) || []).length > 0"
-            [items]="(collectionsService.selectedTags | async) || []"
-            [operators]="(collectionsService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
-            [translateItems]="true" (remove)="collectionsService.removeFilter($event)"
-            (removeGroup)="collectionsService.resetOperator($event)" (clearAll)="collectionsService.clearAllFilters()"
-            clearButtonPosition="left">
-          </app-selected-tags>
 
           <div>
 
