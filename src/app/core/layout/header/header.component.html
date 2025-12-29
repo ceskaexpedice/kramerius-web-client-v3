@@ -15,6 +15,7 @@
       [initialValue]="autocompleteService.searchTerm()" [getSuggestions]="autocompleteService.getSuggestionsFn"
       [showHelpButton]="false" [showMicrophoneButton]="false" (search)="autocompleteService.onSearch($event)"
       (submit)="autocompleteService.onSubmit($event)" [inputTerm]="autocompleteService.searchTerm"
+                      [showClearButton]="true"
       [showHistorySuggestions]="true" (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
