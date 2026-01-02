@@ -4,8 +4,6 @@
 .page-container {
   height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
-  transition: height 0.3s ease-in-out;
-  will-change: height;
 
   body.header-hidden & {
     height: calc(100vh - var(--playback-bar-height, 0px));
@@ -14,7 +12,6 @@
   /* Responsive layout adjustments */
   @media (max-width: 853px) {
     /* Mobile/small tablet - no sidebar gap */
-    height: calc(100% - var(--playback-bar-height, 0px));
   }
 }
 

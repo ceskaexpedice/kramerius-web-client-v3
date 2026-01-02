@@ -1,6 +1,6 @@
 import { Directive, ElementRef, OnDestroy, OnInit, NgZone, inject } from '@angular/core';
 import { UiStateService } from '../services/ui-state.service';
-import { Subscription, fromEvent } from 'rxjs';
+import { Subscription, fromEvent, merge } from 'rxjs';
 import { filter, map, pairwise, throttleTime } from 'rxjs/operators';
 
 @Directive({
@@ -16,14 +16,22 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.zone.runOutsideAngular(() => {
-            this.scrollSub = fromEvent(this.el.nativeElement, 'scroll').pipe(
+            const elScroll$ = fromEvent(this.el.nativeElement, 'scroll');
+            const windowScroll$ = fromEvent(window, 'scroll');
+
+            this.scrollSub = merge(elScroll$, windowScroll$).pipe(
                 throttleTime(10, undefined, { leading: true, trailing: true }),
-                map(() => this.el.nativeElement.scrollTop),
+                map(() => {
+                    const elTop = this.el.nativeElement.scrollTop;
+                    const winTop = window.scrollY || document.documentElement.scrollTop || 0;
+                    return Math.max(elTop, winTop);
+                }),
                 pairwise(),
                 filter(([prev, curr]) => Math.abs(prev - curr) > this.SCROLL_THRESHOLD),
                 map(([prev, curr]) => {
+                    // If at top (or near top), always show
                     if (curr < 50) return true;
-                    // Fixed: curr > prev means scrolling DOWN (hide), curr < prev means scrolling UP (show)
+                    // If scrolling down (curr > prev), hide. If scrolling up, show.
                     return curr < prev;
                 })
             ).subscribe((shouldShow) => {
