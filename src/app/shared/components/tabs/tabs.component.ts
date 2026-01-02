@@ -14,6 +14,8 @@ import { CdkTooltipDirective } from '../../directives';
 })
 export class TabsComponent {
 
+  @Input() noPadding = false;
+
   @ContentChildren(TabItemComponent) tabQueryList!: QueryList<TabItemComponent>;
   tabs: TabItemComponent[] = [];
   activeTabIndex = signal(0);

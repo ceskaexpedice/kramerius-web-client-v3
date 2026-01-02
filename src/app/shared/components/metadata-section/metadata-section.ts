@@ -15,6 +15,8 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
 import { isDocumentPublic } from '../record-item/record-item.model';
+import { MatDialog } from '@angular/material/dialog';
+import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 
 @Component({
   selector: 'app-metadata-section',
@@ -51,6 +53,7 @@ export class MetadataSection implements OnInit, OnChanges {
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   store = inject(Store);
 
@@ -254,6 +257,19 @@ export class MetadataSection implements OnInit, OnChanges {
     const url = `?fq=${facetKeysEnum.license}:${encodeURIComponent(license)}&${facetKeysEnum.license}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
+
+  openMetadataDialog() {
+    this.dialog.open(MetadataDialogComponent, {
+      data: {
+        document: this.data
+      },
+      autoFocus: false,
+      restoreFocus: false,
+      maxWidth: '1205px',
+      width: '90%',
+      maxHeight: '90vh'
+    });
+  }
 
   objectKeys = Object.keys;
 

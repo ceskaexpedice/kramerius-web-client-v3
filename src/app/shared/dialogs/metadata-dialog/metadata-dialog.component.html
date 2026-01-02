@@ -1,0 +1,91 @@
+<div class="generic-dialog-container">
+    <h2>
+        {{ 'metadata' | translate }}: {{ document.mainTitle }}
+        <button class="button link tertiary icon-button close-button" (click)="onClose()">
+            <i class="icon-close"></i>
+        </button>
+    </h2>
+
+    <div class="dialog-body">
+
+        <div class="content">
+
+            <app-tabs [noPadding]="true" (tabChanged)="onTabChanged($event)">
+
+                <div tab-common-up>
+                    <div class="tab--content">
+                        <div class="hierarchy-selector--container">
+                            <app-document-hierarchy-selector [document]="document"
+                                (selectionChanged)="onHierarchySelectionChanged($event)">
+                            </app-document-hierarchy-selector>
+                        </div>
+                    </div>
+                </div>
+
+                <app-tab-item label="mods">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. mods content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="dc">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. dc content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="solr">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. solr content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="foxml">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. foxml content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="alto">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. alto content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="ocr">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. ocr content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="item">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. item content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="children">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. children content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+                <app-tab-item label="iiif">
+                    <div class="tab-item--content">
+                        Lorem ipsum dolor sit amet. iiif content for {{ selectedPid }}
+                    </div>
+                </app-tab-item>
+
+              <div tab-common-down class="metadata--actions">
+                <button class="primary link with-icon p-left-0">
+                  <i class="icon-export-1"></i>
+                  URL
+                </button>
+              </div>
+
+            </app-tabs>
+        </div>
+
+    </div>
+
+</div>
