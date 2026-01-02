@@ -11,9 +11,9 @@ import {
   standalone: true
 })
 export class ClickOutsideDirective {
-  @Output() clickOutside = new EventEmitter<void>();
+  @Output() clickOutside = new EventEmitter<MouseEvent | void>();
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   @HostListener('document:mousedown', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -32,7 +32,7 @@ export class ClickOutsideDirective {
     }
 
     // If we got here, the click is truly outside
-    this.clickOutside.emit();
+    this.clickOutside.emit(event);
   }
 
   @HostListener('document:keydown.escape')

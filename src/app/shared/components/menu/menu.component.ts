@@ -8,13 +8,14 @@ import {
   QueryList,
   Signal,
   signal,
+  ViewChild,
   ViewChildren,
 } from '@angular/core';
-import {Router} from '@angular/router';
-import {CdkConnectedOverlay} from '@angular/cdk/overlay';
-import {CdkTrapFocus} from '@angular/cdk/a11y';
-import {TranslatePipe} from '@ngx-translate/core';
-import {ClickOutsideDirective} from '../../directives';
+import { Router } from '@angular/router';
+import { CdkConnectedOverlay } from '@angular/cdk/overlay';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ClickOutsideDirective } from '../../directives';
 
 export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 
@@ -46,9 +47,9 @@ export class MenuComponent {
 
   // Inputs (signals)
   displayName = input<string>('');
-  avatarUrl   = input<string | null>(null);
-  items       = input<MenuItem[]>([]);
-  placement   = input<MenuPlacement>('bottom-end');
+  avatarUrl = input<string | null>(null);
+  items = input<MenuItem[]>([]);
+  placement = input<MenuPlacement>('bottom-end');
 
   // Outputs (signals)
   select = output<MenuItem>();
@@ -57,6 +58,7 @@ export class MenuComponent {
   // Local state
   open = signal(false);
 
+  @ViewChild('trigger') private triggerEl!: ElementRef;
   @ViewChildren('menuItem', { read: ElementRef }) private itemEls!: QueryList<ElementRef<HTMLButtonElement>>;
 
   // Keep overlay positions in sync with placement input
@@ -65,9 +67,9 @@ export class MenuComponent {
     const base = { offsetX: 0, offsetY: 8 };
     const map: Record<MenuPlacement, any[]> = {
       'bottom-start': [{ ...base, originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' }],
-      'bottom-end'  : [{ ...base, originX: 'end',   originY: 'bottom', overlayX: 'end',   overlayY: 'top' }],
-      'top-start'   : [{ ...base, originX: 'start', originY: 'top',    overlayX: 'start', overlayY: 'bottom' }],
-      'top-end'     : [{ ...base, originX: 'end',   originY: 'top',    overlayX: 'end',   overlayY: 'bottom' }],
+      'bottom-end': [{ ...base, originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top' }],
+      'top-start': [{ ...base, originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }],
+      'top-end': [{ ...base, originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' }],
     };
     return map[p];
   });
@@ -83,14 +85,14 @@ export class MenuComponent {
   _ = effect(() => this.openedChange.emit(this.open()));
 
   toggle() { this.open.update(v => !v); }
-  close()  { this.open.set(false); }
+  close() { this.open.set(false); }
   openAndFocus(index = 0) { if (!this.open()) { this.open.set(true); } queueMicrotask(() => this.focusIndex(index)); }
 
   onItemClick(item: MenuItem) {
     this.select.emit(item);
     // built-in navigation helpers
     if (item.externalUrl) window.open(item.externalUrl, '_blank', 'noopener');
-    else if (item.route)  this.router.navigate(Array.isArray(item.route) ? item.route : [item.route]);
+    else if (item.route) this.router.navigate(Array.isArray(item.route) ? item.route : [item.route]);
     this.close();
   }
 
@@ -109,7 +111,10 @@ export class MenuComponent {
     this.focusIndex(next);
   }
 
-  outsideClicked() {
+  outsideClicked(event: MouseEvent | void) {
+    if (event && this.triggerEl.nativeElement.contains(event.target)) {
+      return;
+    }
     if (this.open()) {
       this.close();
     }
