@@ -1,12 +1,28 @@
 @use 'mixins' as m;
 
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+  display: block;
   padding: 0 var(--search-page-padding);
   height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
   overflow-y: auto;
+
+  app-search-hero {
+    display: block;
+    margin-bottom: var(--spacing-x12);
+  }
+
+  app-periodicals-section,
+  app-books-section,
+  app-genres-section,
+  app-document-types-section {
+    display: block;
+    margin-bottom: var(--spacing-x24);
+  }
+
+  app-footer {
+    margin-left: calc(var(--search-page-padding) * -1);
+    margin-right: calc(var(--search-page-padding) * -1);
+  }
 }
 
 // Responsive styles
@@ -14,6 +30,11 @@
 
   :host {
     padding: 0 var(--spacing-x3);
+
+    app-footer {
+      margin-left: calc(var(--spacing-x3) * -1);
+      margin-right: calc(var(--spacing-x3) * -1);
+    }
   }
 
 }

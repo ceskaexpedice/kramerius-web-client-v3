@@ -1,5 +1,8 @@
 <section class="facet-grid-section">
-  <h3>{{ 'genres' | translate }}</h3>
+
+  <div class="section-header">
+    <h2>{{ 'genres' | translate }}</h2>
+  </div>
 
   <app-inline-loader
     *ngIf="loading$ | async"

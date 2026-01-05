@@ -10,6 +10,8 @@ import {loadGenres} from '../../state/genres/genres.actions';
 import {SearchService} from '../../../../shared/services/search.service';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
+import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
+import {DocumentTypeEnum} from '../../../constants/document-type';
 
 @Component({
   selector: 'app-genres-section',
