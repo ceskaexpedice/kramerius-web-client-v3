@@ -149,6 +149,10 @@
                 a {
                     font-size: 14px;
                 }
+
+              &:last-child {
+                margin-top: 0;
+              }
             }
         }
     }

@@ -12,7 +12,7 @@
     </app-inline-loader>
 
     <div *ngIf="!(loading$ | async)">
-      <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true">
+      <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true" [actionsPosition]="'top'">
         <ng-container *ngFor="let item of periodicals">
           <app-record-item [showModel]="false" [item]="toRecordItem(item)"></app-record-item>
         </ng-container>

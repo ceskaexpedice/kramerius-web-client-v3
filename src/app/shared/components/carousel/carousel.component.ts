@@ -1,11 +1,13 @@
 import {Component, ElementRef, Input, ViewChild} from '@angular/core';
-import {NgClass, NgIf} from '@angular/common';
+import {NgClass, NgIf, NgTemplateOutlet} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-carousel',
   imports: [
     NgClass,
+    NgIf,
+    NgTemplateOutlet,
     TranslatePipe,
   ],
   templateUrl: './carousel.component.html',
@@ -19,6 +21,7 @@ export class CarouselComponent {
   @ViewChild('scrollContainer', { static: true }) scrollContainer!: ElementRef<HTMLDivElement>;
 
   @Input() edgeToEdge = false;
+  @Input() actionsPosition: 'top' | 'bottom' = 'bottom';
 
 
   scrollLeft() {

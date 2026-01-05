@@ -12,7 +12,7 @@
     </app-inline-loader>
 
     <div *ngIf="!(loading$ | async)">
-      <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true">
+      <app-carousel *ngIf="books$ | async as books" [edgeToEdge]="true" [actionsPosition]="'top'">
         <app-record-item *ngFor="let item of books" [showModel]="false" [item]="toRecordItem(item)">
         </app-record-item>
       </app-carousel>
