@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -32,7 +32,7 @@ import { ModelBadgeComponent } from '../model-badge/model-badge.component';
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
 })
-export class RecordItemComponent implements OnInit, OnDestroy {
+export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
 
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
@@ -46,9 +46,12 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   @Input() showModel = true;
   @Input() layout: 'vertical' | 'horizontal' = 'vertical';
+  @Input() loading = false;
+
+  imageLoaded = signal<boolean>(false);
 
 
-  @Input() item: RecordItem = {
+  @Input() item: RecordItem | null | undefined = {
     id: '',
     title: '',
     model: '',
@@ -73,12 +76,38 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Initialize the observable once we have the item
-    if (this.item.id) {
-      this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item.id);
+    if (this.item?.id) {
+      this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item!.id);
     }
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['loading']) {
+      if (this.loading) {
+        this.imageLoaded.set(false);
+      }
+    }
+
+    if (changes['item']) {
+      const prev = changes['item'].previousValue;
+      const curr = changes['item'].currentValue;
+
+      if (curr && (!prev || prev.id !== curr.id)) {
+        this.imageLoaded.set(false);
+      }
+    }
+  }
+
+  onImageLoad() {
+    this.imageLoaded.set(true);
+  }
+
+  onImageError() {
+    this.imageLoaded.set(true);
+  }
+
   onRecordClick(e: MouseEvent): void {
+    if (!this.item) return;
     if (this.selectionService.selectionMode()) {
       e.preventDefault();
       this.selectionService.toggleItem(this.item.id);
@@ -88,6 +117,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   onSelectionChange(selected: boolean): void {
+    if (!this.item) return;
     if (selected) {
       this.selectionService.selectItem(this.item.id);
     } else {
@@ -96,11 +126,13 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   getImageThumbnailUrl(): string {
+    if (!this.item) return '';
     // Use Kramerius API for thumbnail
     return this.krameriusBaseUrl + '/' + this.item.id + '/image/thumb';
   }
 
   getDocumentUrl(): string {
+    if (!this.item) return '';
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
       return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
     }
@@ -108,16 +140,18 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   getTitle(): string {
-    return this.item.title || '';
+    return this.item?.title || '';
   }
 
   getSubtitle(): string {
-    return this.item.subtitle || '';
+    return this.item?.subtitle || '';
   }
 
   onToggleFavorites(event: Event) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (!this.item) return;
 
     if (this.item.showFavoriteButton === false) return;
 
@@ -138,7 +172,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!this.currentFolderId) return;
+    if (!this.currentFolderId || !this.item) return;
 
     this.savedListsService.removeItemFromFolder(
       this.currentFolderId,
@@ -152,14 +186,17 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   // Helper methods
   isRecordLocked(): boolean {
+    if (!this.item) return false;
     return this.recordHandler.isRecordLocked(this.item.licenses || []);
   }
 
   shouldShowAccessibilityBadge(): boolean {
+    if (!this.item) return false;
     return this.item.showAccessibilityBadge === true && this.isRecordLocked();
   }
 
   shouldShowFavoriteButton(): boolean {
+    if (!this.item) return false;
     return this.item.showFavoriteButton !== false && !this.selectionService.selectionMode();
   }
 

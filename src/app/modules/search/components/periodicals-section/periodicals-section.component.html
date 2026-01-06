@@ -8,13 +8,10 @@
   </div>
 
   <div class="carousel-wrapper">
-    <app-inline-loader *ngIf="loading$ | async">
-    </app-inline-loader>
-
-    <div *ngIf="!(loading$ | async)">
-      <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true" [actionsPosition]="'top'">
-        <ng-container *ngFor="let item of periodicals">
-          <app-record-item [showModel]="false" [item]="toRecordItem(item)"></app-record-item>
+    <div class="carousel-container">
+      <app-carousel [attr.data-loading]="(loading$ | async)" [edgeToEdge]="true" [actionsPosition]="'top'">
+        <ng-container *ngFor="let item of (periodicals$ | async) | skeletonList:50:(loading$ | async)">
+          <app-record-item [showModel]="false" [item]="item ? toRecordItem(item) : undefined"></app-record-item>
         </ng-container>
       </app-carousel>
     </div>
