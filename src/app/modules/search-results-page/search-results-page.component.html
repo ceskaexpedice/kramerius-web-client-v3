@@ -79,29 +79,26 @@
           <app-advanced-search-indicator></app-advanced-search-indicator>
         </ng-container>
 
-        <!-- Loading State -->
-        <!-- Loading State -->
-        <app-inline-loader *ngIf="searchService.loading$ | async" [overlay]="true"></app-inline-loader>
-
         <!-- Results Container -->
-        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'" *ngIf="!(searchService.loading$ | async)">
+        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
 
           <!-- GRID VIEW -->
           @if (view() === ViewOptions.grid) {
 
-          <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
-            @if (nonPageResults.length > 0) {
+          <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
             <h3>{{'titles-section-header' | translate}}</h3>
 
             <div class="grid--container">
-
-              <app-record-item *ngFor="let doc of nonPageResults" [item]="toRecordItem(doc)"></app-record-item>
+              <app-record-item
+                *ngFor="let doc of (searchService.nonPageResults$ | async) | skeletonList:60:(searchService.loading$ | async)"
+                [item]="doc ? toRecordItem(doc) : undefined">
+              </app-record-item>
 
             </div>
-            }
           </ng-container>
 
-          <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async) as articleResults">
             @if (articleResults.length > 0) {
             <h3>{{'articles-section-header' | translate}}</h3>
 
@@ -113,7 +110,8 @@
             }
           </ng-container>
 
-          <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
             @if (pageResults.length > 0) {
             <h3>{{'pages-section-header' | translate}}</h3>
 
@@ -125,7 +123,8 @@
             }
           </ng-container>
 
-          <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async) as attachmentResults">
             @if (attachmentResults.length > 0) {
             <h3>{{'attachments-section-header' | translate}}</h3>
 
@@ -138,6 +137,8 @@
           </ng-container>
 
           } @else {
+
+          <app-inline-loader *ngIf="searchService.loading$ | async" [overlay]="true"></app-inline-loader>
 
           <!-- LIST VIEW -->
           <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">

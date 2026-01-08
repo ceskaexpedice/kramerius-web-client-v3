@@ -21,6 +21,7 @@ import { RangeSliderComponent } from '../range-slider/range-slider.component';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
 import { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
+import { SkeletonListPipe } from '../../pipes/skeleton-list.pipe';
 
 @Component({
   selector: 'app-filter-category',
@@ -33,6 +34,7 @@ import { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.util
     FilterItemsRadioComponent,
     RangeSliderComponent,
     DatePickerComponent,
+    SkeletonListPipe
   ],
   templateUrl: './filter-category.component.html',
   styleUrl: './filter-category.component.scss',
@@ -54,6 +56,7 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() showToggleExpand = true;
   @Input() showBottomBorder = true;
   @Input() type: FacetElementType = FacetElementType.checkbox;
+  @Input() loading = false;
 
   // Date range inputs
   @Input() dateFrom: Date | null = null;

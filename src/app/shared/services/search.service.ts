@@ -9,6 +9,7 @@ import {
   selectArticleSearchResults,
   selectAttachmentSearchResults,
   selectFacets,
+  selectFacetsLoading,
   selectNonPageSearchResults,
   selectPageSearchResults,
   selectSearchResults,
@@ -42,6 +43,7 @@ export class SearchService extends BaseFilterService {
   pageResults$: Observable<SearchDocument[]>;
   attachmentResults$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
+  override facetsLoading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
 
@@ -135,6 +137,7 @@ export class SearchService extends BaseFilterService {
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.attachmentResults$ = this.store.select(selectAttachmentSearchResults);
     this.loading$ = this.store.select(selectSearchResultsLoading);
+    this.facetsLoading$ = this.store.select(selectFacetsLoading);
 
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);

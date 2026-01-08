@@ -1,13 +1,14 @@
-import {createReducer, on} from '@ngrx/store';
-import {FacetItem} from '../../models/facet-item';
+import { createReducer, on } from '@ngrx/store';
+import { FacetItem } from '../../models/facet-item';
 import * as SearchActions from './search.actions';
-import {SolrResponseParser} from '../../../core/solr/solr-response-parser';
 
 export interface SearchState {
   results: any[];
   totalCount: number;
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
+  resultsLoading: boolean;
+  facetsLoading: boolean;
   error: any;
 }
 
@@ -16,6 +17,8 @@ export const initialState: SearchState = {
   totalCount: 0,
   facets: {},
   loading: false,
+  resultsLoading: false,
+  facetsLoading: false,
   error: null,
 };
 
@@ -25,28 +28,39 @@ export const searchReducer = createReducer(
   on(SearchActions.loadSearchResults, state => ({
     ...state,
     loading: true,
+    resultsLoading: true,
+    facetsLoading: true,
     error: null,
   })),
 
-  on(SearchActions.loadSearchResultsSuccess, (state, {results, totalCount}) => ({
+  on(SearchActions.loadSearchResultsSuccess, (state, { results, totalCount }) => ({
     ...state,
     results,
     totalCount,
     loading: false,
+    resultsLoading: false,
   })),
 
-  on(SearchActions.loadFacetsSuccess, (state, {facets}) => ({
+  on(SearchActions.loadFacetsSuccess, (state, { facets }) => ({
     ...state,
-    facets
+    facets,
+    facetsLoading: false
   })),
 
-  on(SearchActions.loadSearchResultsFailure, (state, {error}) => ({
+  on(SearchActions.loadSearchResultsFailure, (state, { error }) => ({
     ...state,
     loading: false,
+    resultsLoading: false,
+    facetsLoading: false,
     error,
   })),
 
-  on(SearchActions.loadFacetSuccess, (state, {facet, items}) => ({
+  on(SearchActions.loadFacetsFailure, (state, { error }) => ({
+    ...state,
+    facetsLoading: false
+  })),
+
+  on(SearchActions.loadFacetSuccess, (state, { facet, items }) => ({
     ...state,
     facets: {
       ...state.facets,

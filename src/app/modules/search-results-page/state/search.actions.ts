@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
-import {FacetItem} from '../../models/facet-item';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
+import { FacetItem } from '../../models/facet-item';
+import { SolrOperators, SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',
@@ -44,4 +44,9 @@ export const loadFacetSuccess = createAction(
 export const loadFacetFailure = createAction(
   '[SearchResults] Load Facet Failure',
   props<{ facet: string; error: any }>()
+);
+
+export const loadFacetsFailure = createAction(
+  '[SearchResults] Load Facets Failure',
+  props<{ error: any }>()
 );

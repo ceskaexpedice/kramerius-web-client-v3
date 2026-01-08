@@ -50,6 +50,8 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     });
   }
 
+  facetsLoading$: Observable<boolean | undefined> = of(false);
+
   // Common computed property that can be overridden by subclasses
   get filtersContainDate() {
     return computed(() => false); // Base implementation, can be overridden

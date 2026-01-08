@@ -12,6 +12,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { DisplayConfigService } from '../../../../shared/services/display-config.service';
 import { Subscription } from 'rxjs';
+import { SearchService } from '../../../../shared/services/search.service';
 
 @Component({
   selector: 'app-search-filters',
@@ -31,6 +32,7 @@ import { Subscription } from 'rxjs';
           [showToggleExpand]="true"
           [items]="[]"
           [selected]="selectedFilters"
+          [loading]="(searchService.facetsLoading$ | async) || false"
           [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.dateRange)"
           [dateFrom]="dateFrom"
           [dateTo]="dateTo"
@@ -47,6 +49,7 @@ import { Subscription } from 'rxjs';
           [showToggleExpand]="true"
           [items]="[]"
           [selected]="selectedFilters"
+          [loading]="(searchService.facetsLoading$ | async) || false"
           [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.yearRange)"
           [yearRangeMin]="defaultYearRangeFrom"
           [yearRangeMax]="currentYear"
@@ -70,6 +73,7 @@ import { Subscription } from 'rxjs';
           [facetKey]="facetKey"
           [items]="(facets$ | async)?.[facetKey] || []"
           [selected]="selectedFilters"
+          [loading]="(searchService.facetsLoading$ | async) || false"
           [operators]="(filterService.getFiltersWithOperators() | async) || {}"
           [showShowMoreButton]="true"
           [type]="getElementTypeByFacetKey(facetKey)"
@@ -103,6 +107,11 @@ import { Subscription } from 'rxjs';
 
   `,
   styles: [`
+      .filters-content {
+        position: relative;
+        min-height: 200px;
+      }
+
       .show-licenses--header {
         display: flex;
         align-items: center;
@@ -149,40 +158,33 @@ import { Subscription } from 'rxjs';
 export class SearchFiltersComponent extends BaseFiltersComponent implements OnInit, OnDestroy {
 
   facetKeys = facetKeys;
+  protected searchService = inject(SearchService);
   private displayConfigService = inject(DisplayConfigService);
   private cdr = inject(ChangeDetectorRef);
   private visibleFacetKeys: string[] = [];
   private configSubscription?: Subscription;
 
   override ngOnInit() {
-    // Call parent initialization first (critical!)
     super.ngOnInit();
 
-    // Subscribe to display config changes to update visible filters dynamically
     this.configSubscription = this.displayConfigService.displayConfig$.subscribe(config => {
       const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
       this.visibleFacetKeys = visibleFilters.map(filter => filter.facetKey);
-      // Trigger change detection to update the template
       this.cdr.markForCheck();
     });
   }
 
   override ngOnDestroy() {
-    // Call parent cleanup first
     super.ngOnDestroy();
 
-    // Clean up our subscription to prevent memory leaks
     this.configSubscription?.unsubscribe();
   }
 
   get getFacetKeys(): string[] {
-    // If we have visible facet keys from configuration, use them
     if (this.visibleFacetKeys.length > 0) {
-      // Only filter out licenses as it's nested under accessibility
       return this.visibleFacetKeys.filter(key => key !== facetKeysEnum.license);
     }
 
-    // Fallback to default behavior if no configuration exists
     return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
   }
 

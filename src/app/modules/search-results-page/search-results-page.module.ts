@@ -26,6 +26,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminActionsComponent } from '../../shared/components/admin-actions/admin-actions.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
+import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 
 const routes: Routes = [
 	{
@@ -63,7 +64,8 @@ const routes: Routes = [
 		AdminActionsComponent,
 		ToolbarControlsComponent,
 		InlineLoaderComponent,
-		ScrollHideHeaderDirective
+		ScrollHideHeaderDirective,
+		SkeletonListPipe
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

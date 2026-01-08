@@ -1,8 +1,8 @@
 import { createSelector } from '@ngrx/store';
 import { SearchState } from './search.reducer';
-import {selectRouterQueryParams} from '../../../shared/state/router/router.selectors';
-import {SolrOperators} from '../../../core/solr/solr-helpers';
-import {DocumentTypeEnum} from '../../constants/document-type';
+import { selectRouterQueryParams } from '../../../shared/state/router/router.selectors';
+import { SolrOperators } from '../../../core/solr/solr-helpers';
+import { DocumentTypeEnum } from '../../constants/document-type';
 
 export const selectSearchState = (state: any) => state['search-results'];
 
@@ -49,7 +49,12 @@ export const selectFacets = createSelector(
 
 export const selectSearchResultsLoading = createSelector(
   selectSearchState,
-  state => state?.loading
+  state => state?.resultsLoading
+);
+
+export const selectFacetsLoading = createSelector(
+  selectSearchState,
+  state => state?.facetsLoading
 );
 
 export const selectSearchResultsError = createSelector(
