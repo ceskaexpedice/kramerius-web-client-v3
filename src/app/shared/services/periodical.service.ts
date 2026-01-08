@@ -24,6 +24,8 @@ import { SolrService } from '../../core/solr/solr.service';
 import { loadPeriodicalSearchResults } from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
   selectPeriodicalSearchStateFacets,
+  selectPeriodicalSearchStateFacetsLoading,
+  selectPeriodicalSearchStateLoading,
   selectPeriodicalSearchStateResults,
   selectPeriodicalSearchStateTotalCount,
 } from '../../modules/periodical/state/periodical-search/periodical-search.selectors';
@@ -57,6 +59,7 @@ export class PeriodicalService extends BaseFilterService {
   inputSearchTerm = '';
 
   totalCount$ = this.store.select(selectPeriodicalSearchStateTotalCount);
+  override facetsLoading$ = this.store.select(selectPeriodicalSearchStateFacetsLoading);
 
   document$ = this.store.select(selectPeriodicalDocument);
   availableYears$ = this.store.select(selectAvailableYears);

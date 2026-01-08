@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {catchError, map, mergeMap, switchMap, tap, withLatestFrom} from 'rxjs/operators';
-import {of} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { catchError, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { forkJoin, merge, of } from 'rxjs';
 import * as PeriodicalDetailActions from './periodical-detail.actions';
 import {
   loadPeriodical,
@@ -11,24 +11,25 @@ import {
   loadPeriodicalItemsSuccess,
   loadPeriodicalSuccess,
 } from './periodical-detail.actions';
-import {Store} from '@ngrx/store';
-import {SolrService} from '../../../../core/solr/solr.service';
+import { Store } from '@ngrx/store';
+import { SolrService } from '../../../../core/solr/solr.service';
 import {
   selectAvailableYears,
   selectPeriodicalFacetOperators,
   selectPeriodicalSearchParams,
 } from './periodical-detail.selectors';
-import {parsePeriodicalItemFromMetadata, PeriodicalItemYear} from '../../../models/periodical-item';
-import {DocumentAccessibilityEnum} from '../../../constants/document-accessibility';
+import { parsePeriodicalItemFromMetadata, PeriodicalItemYear } from '../../../models/periodical-item';
+import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
-import {loadDocumentDetailSuccess} from '../../../../shared/state/document-detail/document-detail.actions';
+import { loadDocumentDetailSuccess } from '../../../../shared/state/document-detail/document-detail.actions';
 import * as PeriodicalSearchActions from '../periodical-search/periodical-search.actions';
-import {DocumentTypeEnum} from '../../../constants/document-type';
-import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
-import {UserService} from '../../../../shared/services/user.service';
-import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
-import {Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../../../app.routes';
+import { DocumentTypeEnum } from '../../../constants/document-type';
+import { handleFacetsWithOperators } from '../../../../shared/utils/facet-utils';
+import { UserService } from '../../../../shared/services/user.service';
+import { SolrSortDirections, SolrSortFields } from '../../../../core/solr/solr-helpers';
+import { Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../../../app.routes';
+import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -38,7 +39,7 @@ export class PeriodicalDetailEffects {
     private store: Store,
     private userService: UserService,
     private router: Router
-  ) {}
+  ) { }
 
   triggerDocumentLoad$ = createEffect(() =>
     this.actions$.pipe(
@@ -106,67 +107,94 @@ export class PeriodicalDetailEffects {
         }
 
         const periodical = parsePeriodicalItemFromMetadata(data);
+        const importFacetsFields = import('../../../search-results-page/const/facet-fields').then(m => m.DEFAULT_PERIODICAL_FACET_FIELDS);
 
-        if (data.model === DocumentTypeEnum.periodical) {
-          return this.solr.getPeriodicalVolumesWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
-            mergeMap(({ volumes, facets, facetsWithoutLicenses }) => {
-              const availableYears = this.mapAvailableYears(volumes);
-              const years = this.buildYearList(data, availableYears);
+        // Function to load facets independently
+        const loadFacets$ = (uuid: string, model: string) => importFacetsFields.then(DEFAULT_PERIODICAL_FACET_FIELDS => {
+          return forkJoin({
+            facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, model, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(uuid, model, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+          }).pipe(
+            map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
                 {},
-                facets?.facet_counts?.facet_fields ?? {},
+                facetsRes.facet_counts?.facet_fields ?? {},
                 facetOperators,
                 facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
                 this.userService.licenses
               );
+              return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
+            })
+          );
+        });
 
-              const successAction = loadPeriodicalSuccess({
+
+        if (data.model === DocumentTypeEnum.periodical) {
+
+          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
+            shareReplay(1)
+          );
+
+          const processVolumes$ = volumes$.pipe(
+            map(volumes => {
+              const availableYears = this.mapAvailableYears(volumes);
+              const years = this.buildYearList(data, availableYears);
+
+              return loadPeriodicalSuccess({
                 document: periodical,
                 metadata: data,
                 years,
                 availableYears,
-                facets: parsedFacets
+                facets: {} // Facets will load separately
               });
-
-              const facetsSuccessAction = PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
-
-              // Emit both actions
-              return of(successAction, facetsSuccessAction);
             }),
             catchError(error => of(loadPeriodicalFailure({ error })))
           );
+
+          const processFacets$ = forkJoin({
+            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+          }).pipe(
+            map(({ facetsRes, facetsWithoutLicenses }) => {
+              const parsedFacets = handleFacetsWithOperators(
+                {},
+                facetsRes.facet_counts?.facet_fields ?? {},
+                facetOperators,
+                facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
+                this.userService.licenses
+              );
+              return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
+            })
+          );
+          return merge(processVolumes$, processFacets$);
         }
 
 
         if (data.model === DocumentTypeEnum.periodicalvolume) {
-          return this.solr.getPeriodicalItemsWithFacets(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
+
+          const children$ = this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
+            shareReplay(1)
+          );
+
+          const processChildren$ = children$.pipe(
             withLatestFrom(this.store.select(selectAvailableYears)),
-            switchMap(([{ children, facets, facetsWithoutLicenses }, previousAvailableYears]) => {
+            switchMap(([children, previousAvailableYears]) => {
+
               children.map(i => {
                 if (!i['licenses'] || i['licenses'].length === 0 && i['licenses.facet']) {
                   i['licenses'] = i['licenses.facet'];
                 }
               })
 
-              const parsedFacets = handleFacetsWithOperators(
-                {},
-                facets?.facet_counts?.facet_fields ?? {},
-                facetOperators,
-                facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
-                this.userService.licenses
-              );
-
               if (previousAvailableYears?.length > 0) {
-                return of(
-                  loadPeriodicalSuccess({
+                return of(loadPeriodicalSuccess({
                   document: periodical,
                   metadata: data,
                   years: [],
                   availableYears: previousAvailableYears,
                   children,
-                  facets: parsedFacets
-                }),
-                  PeriodicalSearchActions.loadFacetsSuccess({facets: parsedFacets}));
+                  facets: {}
+                }));
               }
 
               const rootPid = data.rootPid;
@@ -175,27 +203,43 @@ export class PeriodicalDetailEffects {
               }
 
               return this.solr.getPeriodicalVolumes(rootPid).pipe(
-                mergeMap(volumes => {
+                map(volumes => {
                   const availableYears = this.mapAvailableYears(volumes);
-                  const successAction = loadPeriodicalSuccess({
+                  return loadPeriodicalSuccess({
                     document: periodical,
                     metadata: data,
                     years: [],
                     availableYears,
                     children,
-                    facets: parsedFacets
+                    facets: {}
                   });
-                  const facetsSuccessAction = PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
-
-                  // Emit both actions
-                  return of(successAction, facetsSuccessAction);
                 }),
                 catchError(error =>
                   of(loadPeriodicalFailure({ error: 'Failed to load parent periodical volumes: ' + error }))
                 )
               );
+            }),
+            catchError(error => of(loadPeriodicalFailure({ error })))
+          );
+
+          const facetsQueryModel = `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`;
+          const processFacets$ = forkJoin({
+            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+          }).pipe(
+            map(({ facetsRes, facetsWithoutLicenses }) => {
+              const parsedFacets = handleFacetsWithOperators(
+                {},
+                facetsRes.facet_counts?.facet_fields ?? {},
+                facetOperators,
+                facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
+                this.userService.licenses
+              );
+              return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
           );
+
+          return merge(processChildren$, processFacets$);
         }
 
         return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
@@ -324,7 +368,7 @@ export class PeriodicalDetailEffects {
       switchMap(({ parentVolumeUuid, year, month }) => {
         // build date range: [YYYY-MM-01 TO YYYY-MM-lastDay]
         const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
-        const end   = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+        const end = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
         const fq = [`date.min:[${start.toISOString()} TO ${end.toISOString()}]`];
 
