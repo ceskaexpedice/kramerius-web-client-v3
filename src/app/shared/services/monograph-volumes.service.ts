@@ -23,7 +23,7 @@ export class MonographVolumesService extends BaseFilterService {
   loading$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesLoading);
   error$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesError);
   facets$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesFacets);
-  facetsLoading$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesFacetsLoading);
+  override facetsLoading$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesFacetsLoading);
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
 
