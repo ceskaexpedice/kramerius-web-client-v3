@@ -32,6 +32,7 @@ import {
           [operators]="(filterService.getFiltersWithOperators() | async) || {}"
           [showShowMoreButton]="true"
           [type]="getElementTypeByFacetKey(facetKey)"
+          [loading]="!!(filterService.facetsLoading$ | async)"
           (toggle)="onToggleFacet($event)">
 
           <!-- Licenses nested under accessibility -->
@@ -61,6 +62,7 @@ import {
           *ngIf="facetKey === facetKeysEnum.model"
           [label]="customDefinedFacetsEnum.yearRange"
           [facetKey]="customDefinedFacetsEnum.yearRange"
+          [loading]="!!(filterService.facetsLoading$ | async)"
           [showToggleExpand]="true"
           [items]="[]"
           [selected]="selectedFilters"
@@ -84,6 +86,7 @@ import {
           *ngIf="facetKey === facetKeysEnum.model"
           [label]="customDefinedFacetsEnum.dateRange"
           [facetKey]="customDefinedFacetsEnum.dateRange"
+          [loading]="!!(filterService.facetsLoading$ | async)"
           [showToggleExpand]="true"
           [items]="[]"
           [selected]="selectedFilters"

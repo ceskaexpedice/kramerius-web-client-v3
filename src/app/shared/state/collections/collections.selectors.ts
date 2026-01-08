@@ -41,6 +41,11 @@ export const selectCollectionSearchResultsLoading = createSelector(
   state => state?.loading
 );
 
+export const selectCollectionFacetsLoading = createSelector(
+  selectCollectionsState,
+  state => state?.facetsLoading
+);
+
 export const selectCollectionSearchResultsError = createSelector(
   selectCollectionsState,
   state => state.error

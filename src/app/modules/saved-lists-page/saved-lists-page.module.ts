@@ -24,6 +24,7 @@ import { ToolbarControlsComponent } from '../../shared/components/toolbar-contro
 import { MusicTrackListComponent } from '../music/components/music-track-list/music-track-list.component';
 import { TitleEditPopupComponent } from '../../shared/components/title-edit-popup/title-edit-popup.component';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
+import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 
 const routes: Routes = [
   {
@@ -65,7 +66,8 @@ const routes: Routes = [
     ToolbarControlsComponent,
     MusicTrackListComponent,
     TitleEditPopupComponent,
-    InlineLoaderComponent
+    InlineLoaderComponent,
+    SkeletonListPipe
   ],
 })
 

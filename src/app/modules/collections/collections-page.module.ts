@@ -22,6 +22,7 @@ import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { CollectionsRightSidebarContent } from './components/collections-right-sidebar-content/collections-right-sidebar-content';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
+import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 
 const routes: Routes = [
   {
@@ -54,7 +55,9 @@ const routes: Routes = [
     MetadataSidebarComponent,
     InlineLoaderComponent,
     ScrollHideHeaderDirective,
-    BreadcrumbsComponent
+    ScrollHideHeaderDirective,
+    BreadcrumbsComponent,
+    SkeletonListPipe
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },
