@@ -451,5 +451,6 @@
 
   "type-in-index": "Zadajte index",
   "previous-search-button--label": "Predchádzajúci",
-  "next-search-button--label": "Nasledujúci"
+  "next-search-button--label": "Nasledujúci",
+  "range--label": "Rozsah"
 }

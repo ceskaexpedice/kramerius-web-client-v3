@@ -1,16 +1,16 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo } from '../../models/metadata.model';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ModsParserService } from '../../services/mods-parser.service';
-import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
-import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { SearchService } from '../../services/search.service';
 import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
-import { take, firstValueFrom } from 'rxjs';
+import { take, firstValueFrom, map, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
@@ -26,6 +26,7 @@ import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-
     TranslatePipe,
     MetadataSectionItem,
     AccessibilityBadgeComponent,
+    RouterLink
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -34,6 +35,15 @@ export class MetadataSection implements OnInit, OnChanges {
   // Use signal for data to enable reactive computed properties
   private _data = signal<Metadata | null>(null);
   get data() { return this._data(); }
+
+  private _articleData = signal<Metadata | null>(null);
+  get articleData() { return this._articleData(); }
+
+  articleExpanded = signal(true);
+
+  toggleArticle() {
+    this.articleExpanded.update(v => !v);
+  }
 
   // Computed isPublic that reacts to both data changes AND user license changes
   private _isPublic = computed(() => {
@@ -53,9 +63,12 @@ export class MetadataSection implements OnInit, OnChanges {
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
+
   private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
 
   store = inject(Store);
+  private destroyRef = inject(DestroyRef);
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
@@ -67,6 +80,14 @@ export class MetadataSection implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadMetadata();
+
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      map(params => params['article']),
+      distinctUntilChanged()
+    ).subscribe(articleUuid => {
+      this.loadArticle(articleUuid);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -82,7 +103,11 @@ export class MetadataSection implements OnInit, OnChanges {
     // Get Solr data from store to supplement with model, accessibility, and license
     const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
 
-    const baseMods: any = { ...modsData };
+    let baseMods: any = { ...modsData };
+
+
+
+
 
     if (this.metadata) {
       this.mergeMissing(baseMods, this.metadata);
@@ -102,6 +127,21 @@ export class MetadataSection implements OnInit, OnChanges {
     }
 
     this.cdr.markForCheck();
+  }
+
+  async loadArticle(articleUuid: string | undefined) {
+    if (articleUuid) {
+      try {
+        const articleMods = await this.modsParser.getMods(articleUuid);
+        if (articleMods) {
+          this._articleData.set(articleMods);
+        }
+      } catch (error) {
+        console.error('Failed to load article MODS:', error);
+      }
+    } else {
+      this._articleData.set(null);
+    }
   }
 
   private isObject(v: any): boolean {

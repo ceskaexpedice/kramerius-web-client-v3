@@ -57,6 +57,61 @@
     [items]="data.genres" [onItemClick]="clickedGenre">
   </app-metadata-section-item>
 
+  @if (articleData) {
+  <div class="article-card">
+    <div class="article-header">
+      <span class="label">{{ 'article' | translate }}</span>
+      <button class="toggle-btn" (click)="toggleArticle()">
+        <i [class]="articleExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      </button>
+    </div>
+
+    <div class="article-title">
+      <a [routerLink]="['/view', uuid]" [queryParams]="{article: articleData.uuid}">
+        {{ articleData.titles[0]?.title }}
+      </a>
+    </div>
+
+    <div class="article-details" *ngIf="articleExpanded()">
+
+
+      <!-- Authors -->
+      <div class="row" *ngIf="articleData.authors.length">
+        <app-metadata-section-item [label]="'author' | translate" type="clickable-list" [items]="articleData.authors"
+          [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+        </app-metadata-section-item>
+      </div>
+
+
+      <!-- DOI -->
+      <div class="detail-item" *ngIf="articleData.identifiers['doi']">
+        <span class="detail-label">DOI</span>
+        <div class="detail-value">
+          <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
+            https://doi.org/{{ articleData.identifiers['doi'] }}
+          </a>
+          <i class="icon-copy" title="Copy"></i>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <app-metadata-section-item *ngIf="articleData.languages.length" [label]="'languages' | translate"
+        type="clickable-list" [items]="articleData.languages" [onItemClick]="clickedLanguage">
+      </app-metadata-section-item>
+
+      <app-metadata-section-item *ngIf="articleData.extent" [label]="'range--label' | translate"
+                                 type="text" [value]="articleData.extent">
+      </app-metadata-section-item>
+
+<!--      &lt;!&ndash; Physical Description &ndash;&gt;-->
+<!--      <app-metadata-section-item *ngIf="articleData.physicalDescriptions.length" [label]="'extent' | translate"-->
+<!--        type="list" [items]="articleData.physicalDescriptions" [displayFn]="getPhysicalDescription">-->
+<!--      </app-metadata-section-item>-->
+
+    </div>
+  </div>
+  }
+
   <!-- Publishers -->
   <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
     [items]="data.publishers" [displayFn]="getPublisherFullDetail">

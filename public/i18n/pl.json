@@ -450,5 +450,6 @@
 
   "type-in-index": "Wpisz indeks",
   "previous-search-button--label": "Poprzedni",
-  "next-search-button--label": "Następny"
+  "next-search-button--label": "Następny",
+  "range--label": "Zakres"
 }
