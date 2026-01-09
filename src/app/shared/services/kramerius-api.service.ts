@@ -9,12 +9,14 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens'
 })
 export class KrameriusApiService {
     private apiUrl: string;
+    private krameriusId: string;
 
     constructor(
         private http: HttpClient,
         private env: EnvironmentService
     ) {
         this.apiUrl = this.env.getApiUrl('');
+        this.krameriusId = this.env.getKrameriusId();
     }
 
     getMods(uuid: string, skipErrorHandling = false): Observable<string> {
@@ -34,7 +36,7 @@ export class KrameriusApiService {
 
     getAlto(uuid: string, skipErrorHandling = false): Observable<string> {
         const context = new HttpContext().set(SKIP_ERROR_INTERCEPTOR, skipErrorHandling);
-        return this.http.get(`${this.apiUrl}/items/${uuid}/ocr/alto`, { responseType: 'text', context });
+        return this.http.get(`${this.apiUrl}items/${uuid}/ocr/alto`, { responseType: 'text', context });
     }
 
     getOcr(uuid: string, skipErrorHandling = false): Observable<string> {
@@ -63,22 +65,8 @@ export class KrameriusApiService {
     }
 
     getIiifPresentation(uuid: string, skipErrorHandling = false): Observable<any> {
-        // IIIF Presentation API is usually on a different URL or endpoint
-        // Based on requirements: https://iiif.digitalniknihovna.cz/mzk/{uuid}
-        // But the requirements say: "iiif -> api.getIiifPresentation(uuid) OR iiif.imageManifest() for pages"
-        // I will use a constructed URL based on the overview example for now, but strictly this might need environment config if the domain differs.
-        // The requirement example: https://iiif.digitalniknihovna.cz/mzk/uuid:...
-        // I'll try to find if there is a helper for this or assume it is handled via proxy or absolute URL.
-        // Actually, let's look at `iiif-viewer.service.ts` again, it has `getIIIFInfoUrl`.
-        // For now I'll assume the URL pattern from requirement or use a similar pattern if I can find it in config.
-        // Since I cannot be sure about the base URL for IIIF (it was different in example), I will stick to what seems to be the pattern or simply return the URL.
-        // However, for the dialog content, we likely want the JSON content of the manifest.
-
-        // Let's assume we can fetch it. If it's a different domain, CORS might be an issue, but let's try.
-        // If the requirement says `https://iiif.digitalniknihovna.cz/mzk/{uuid}`, I should probably check if this base url is in config.
-        // But for now, I will implementation a generic fetch.
         const context = new HttpContext().set(SKIP_ERROR_INTERCEPTOR, skipErrorHandling);
-        return this.http.get(`https://iiif.digitalniknihovna.cz/mzk/${uuid}`, { context });
+        return this.http.get(`https://iiif.digitalniknihovna.cz/${this.krameriusId}/${uuid}`, { context });
     }
 
     getSearchResults(query: string, skipErrorHandling = false): Observable<any> {
@@ -108,7 +96,7 @@ export class KrameriusApiService {
             case 'children':
                 return `${this.apiUrl}search?q=own_parent.pid:"${uuid}"`;
             case 'iiif':
-                return `https://iiif.digitalniknihovna.cz/mzk/${uuid}`;
+                return `https://iiif.digitalniknihovna.cz/${this.krameriusId}/${uuid}`;
             default:
                 return '';
         }

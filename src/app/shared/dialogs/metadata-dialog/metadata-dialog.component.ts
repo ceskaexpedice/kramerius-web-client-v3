@@ -11,13 +11,13 @@ import { LocalStorageService } from '../../services/local-storage.service';
 
 @Component({
     selector: 'app-metadata-dialog',
-  imports: [
-    TabsComponent,
-    TabItemComponent,
-    DocumentHierarchySelectorComponent,
-    NgIf,
-    NgFor,
-  ],
+    imports: [
+        TabsComponent,
+        TabItemComponent,
+        DocumentHierarchySelectorComponent,
+        NgIf,
+        NgFor,
+    ],
     templateUrl: './metadata-dialog.component.html',
     styleUrls: ['./metadata-dialog.component.scss', '../generic-dialog.scss']
 })
@@ -203,12 +203,12 @@ export class MetadataDialogComponent implements OnInit {
     get languageClass(): string {
         switch (this.activeTabLabel) {
             case 'mods':
-              return 'language-xml';
-          case 'dc':
-            return 'language-xml';
-          case 'foxml':
-            return 'language-xml';
-          case 'alto':
+                return 'language-xml';
+            case 'dc':
+                return 'language-xml';
+            case 'foxml':
+                return 'language-xml';
+            case 'alto':
                 return 'language-xml';
             case 'solr':
             case 'item':
