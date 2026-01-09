@@ -1,9 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
-import {EnvironmentService} from './environment.service';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {PdfOutlineItem} from '../components/pdf-content-tree/pdf-content-tree.component';
-import {PdfPageThumbnail} from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import {FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType} from 'ngx-extended-pdf-viewer';
+import { EnvironmentService } from './environment.service';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
+import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
+import { FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
 
 export interface PdfProperties {
   zoom: ZoomType;
@@ -511,6 +511,8 @@ export class PdfService {
     return 1; // Default to page 1
   }
 
+  private cachedPageViewMode: PageViewModeType = 'single';
+
   // Reset all state
   private resetState(): void {
     this.outlineSubject.next([]);
@@ -527,8 +529,8 @@ export class PdfService {
       zoom: 'page-fit',
       rotation: 0,
       fullscreen: false,
-      bookMode: false,
-      pageViewMode: 'single',
+      bookMode: this.cachedPageViewMode === 'book',
+      pageViewMode: this.cachedPageViewMode,
       textLayerMode: true
     };
     this.propertiesSubject.next(this.pdfProperties);
@@ -600,6 +602,8 @@ export class PdfService {
     const current = this.pdfProperties.pageViewMode;
     const next = current === 'multiple' ? 'single' : 'multiple';
 
+    this.cachedPageViewMode = next;
+
     setTimeout(() => {
       this.pdfProperties = {
         ...this.pdfProperties,
@@ -616,6 +620,7 @@ export class PdfService {
     } else {
       this.pdfProperties.pageViewMode = 'book';
     }
+    this.cachedPageViewMode = this.pdfProperties.pageViewMode;
     this.pdfProperties.bookMode = this.pdfProperties.pageViewMode === 'book';
   }
 
