@@ -142,9 +142,14 @@ export class DisplayConfigService {
 
   /**
    * Gets configuration to save to settings
+   * Returns a deep copy to prevent external modifications to internal state
    */
   getConfigForSettings(): DisplayConfig {
-    return this._displayConfig.value;
+    const config = this._displayConfig.value;
+    return {
+      tableColumns: config.tableColumns.map(col => ({ ...col })),
+      facetFilters: config.facetFilters?.map(filter => ({ ...filter }))
+    };
   }
 
   /**

@@ -43,7 +43,8 @@ export class SettingsDialogComponent {
   localSettings = signal<Settings>(this.settingsService.getSettingsCopy());
 
   save() {
-    this.settingsService.settings = this.localSettings();
+    const settingsToSave = this.localSettings();
+    this.settingsService.settings = settingsToSave;
     this.dialogRef.close();
   }
 
@@ -53,6 +54,10 @@ export class SettingsDialogComponent {
 
   onSectionChange(section: string) {
     this.activeSection.set(section);
+  }
+
+  onSettingsChange(settings: Settings) {
+    this.localSettings.set(settings);
   }
 
 }

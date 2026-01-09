@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AppSettingsThemeEnum, Settings } from '../../settings.model';
 import {
   ToggleButtonGroupComponent, ToggleOption,
@@ -25,8 +25,9 @@ import {CdkDragDrop, CdkDrag, CdkDropList, moveItemInArray, CdkDragHandle} from 
   templateUrl: './settings-display-section.component.html',
   styleUrl: './settings-display-section.component.scss'
 })
-export class SettingsDisplaySectionComponent implements OnInit {
+export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   @Input() settings!: Settings;
+  @Output() settingsChange = new EventEmitter<Settings>();
 
   options: ToggleOption<AppSettingsThemeEnum>[] = [];
   tableColumns: TableColumnConfig[] = [];
@@ -39,6 +40,13 @@ export class SettingsDisplaySectionComponent implements OnInit {
     this.generateToggleButtons();
     this.loadTableColumns();
     this.loadFacetFilters();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['settings'] && !changes['settings'].firstChange) {
+      this.loadTableColumns();
+      this.loadFacetFilters();
+    }
   }
 
   generateToggleButtons() {
@@ -79,12 +87,18 @@ export class SettingsDisplaySectionComponent implements OnInit {
       this.settings.displayConfig = this.displayConfigService.getConfigForSettings();
     }
 
-    const column = this.settings.displayConfig.tableColumns.find(col => col.id === columnId);
-    if (column) {
-      column.visible = visible;
-      // Refresh the local display
-      this.loadTableColumns();
-    }
+    // Create a new settings object with the updated column
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig.tableColumns.map(col =>
+          col.id === columnId ? { ...col, visible } : { ...col }
+        ),
+        facetFilters: this.settings.displayConfig.facetFilters?.map(f => ({ ...f }))
+      }
+    };
+
+    this.settingsChange.emit(updatedSettings);
   }
 
   resetColumnsToDefaults() {
@@ -113,12 +127,17 @@ export class SettingsDisplaySectionComponent implements OnInit {
       this.settings.displayConfig.facetFilters = this.displayConfigService.getAllFacetFilters();
     }
 
-    const filter = this.settings.displayConfig.facetFilters.find(f => f.id === filterId);
-    if (filter) {
-      filter.visible = visible;
-      // Refresh the local display
-      this.loadFacetFilters();
-    }
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig.tableColumns.map(col => ({ ...col })),
+        facetFilters: this.settings.displayConfig.facetFilters.map(f =>
+          f.id === filterId ? { ...f, visible } : { ...f }
+        )
+      }
+    };
+
+    this.settingsChange.emit(updatedSettings);
   }
 
   onFacetFilterDrop(event: CdkDragDrop<FacetFilterConfig[]>) {
@@ -131,16 +150,25 @@ export class SettingsDisplaySectionComponent implements OnInit {
       this.settings.displayConfig.facetFilters = this.displayConfigService.getAllFacetFilters();
     }
 
+    const reorderedFilters = [...this.settings.displayConfig.facetFilters.map(f => ({ ...f }))];
+
     // Move the item in the array
-    moveItemInArray(this.facetFilters, event.previousIndex, event.currentIndex);
+    moveItemInArray(reorderedFilters, event.previousIndex, event.currentIndex);
 
     // Update the order property for all filters
-    this.facetFilters.forEach((filter, index) => {
+    reorderedFilters.forEach((filter, index) => {
       filter.order = index;
     });
 
-    // Update the settings
-    this.settings.displayConfig.facetFilters = [...this.facetFilters];
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig.tableColumns.map(col => ({ ...col })),
+        facetFilters: reorderedFilters
+      }
+    };
+
+    this.settingsChange.emit(updatedSettings);
   }
 
   resetFacetFiltersToDefaults() {
