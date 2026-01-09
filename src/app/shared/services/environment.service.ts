@@ -54,7 +54,7 @@ export class EnvironmentService {
   }
 
   getKrameriusUrl(withParam = true): string {
-    const krameriusId = this.get('krameriusId');
+    const krameriusId = this.getKrameriusId();
     const devOverride = localStorage.getItem('CDK_DEV_BASE_URL');
     if (devOverride) {
       return ensureTrailingSlash(devOverride) + (withParam ? 'search/api/client/v7.0/' : '');
@@ -80,7 +80,8 @@ export class EnvironmentService {
   }
 
   getKrameriusId(): string {
-    return this.get('krameriusId') || 'mzk';
+    const devId = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    return devId || this.get('krameriusId') || 'mzk';
   }
 
   getApiUrl(path: string = ''): string {

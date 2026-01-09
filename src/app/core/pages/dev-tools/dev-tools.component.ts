@@ -24,6 +24,15 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
             placeholder="https://api..."
             [withIcons]="false"
           ></app-input>
+          
+          <p class="mt-4"><strong>Current Kramerius ID:</strong></p>
+          <app-input
+            [initialValue]="currentKrameriusId"
+            [theme]="'dark'"
+            [readonly]="true"
+            placeholder="mzk"
+            [withIcons]="false"
+          ></app-input>
         </div>
 
         <div class="form-group">
@@ -46,6 +55,17 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
             [withIcons]="false"
           ></app-input>
           <p class="hint">Enter the full base URL (e.g., https://api.kramerius.mzk.cz) or select from above.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Override Kramerius ID:</label>
+          <app-input
+            [theme]="'dark'"
+            [signalInput]="customKrameriusId"
+            placeholder="mzk"
+            [withIcons]="false"
+          ></app-input>
+          <p class="hint">Enter the kramerius ID (e.g., mzk, cdk, knav).</p>
         </div>
 
         <div class="actions">
@@ -74,6 +94,9 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
     }
     .form-group {
       margin-bottom: 1.5rem;
+    }
+    .mt-4 {
+      margin-top: 1rem;
     }
     app-select {
       width: 50%;
@@ -107,8 +130,10 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
 })
 export class DevToolsComponent implements OnInit {
   customBaseUrl: WritableSignal<string | number> = signal('');
+  customKrameriusId: WritableSignal<string | number> = signal('');
 
   currentBaseUrl: string = '';
+  currentKrameriusId: string = '';
   message: string = '';
   isError: boolean = false;
 
@@ -126,13 +151,19 @@ export class DevToolsComponent implements OnInit {
   });
 
   private readonly STORAGE_KEY = 'CDK_DEV_BASE_URL';
+  private readonly STORAGE_KEY_ID = 'CDK_DEV_KRAMERIUS_ID';
 
   constructor(private environmentService: EnvironmentService) { }
 
   ngOnInit() {
     const stored = localStorage.getItem(this.STORAGE_KEY) || '';
     this.customBaseUrl.set(stored);
+
+    const storedId = localStorage.getItem(this.STORAGE_KEY_ID) || '';
+    this.customKrameriusId.set(storedId);
+
     this.currentBaseUrl = this.environmentService.getKrameriusUrl(false);
+    this.currentKrameriusId = this.environmentService.getKrameriusId();
   }
 
   displayPreset = (preset: any) => preset ? preset.label : ' - Select Preset - ';
@@ -140,23 +171,45 @@ export class DevToolsComponent implements OnInit {
   onPresetChange(preset: any) {
     if (preset) {
       this.customBaseUrl.set(preset.url);
+
+      if (preset.url === 'https://api.kramerius.mzk.cz') {
+        this.customKrameriusId.set('mzk');
+      } else if (preset.url === 'https://api.ceskadigitalniknihovna.cz') {
+        this.customKrameriusId.set('cdk');
+      } else if (preset.url === 'https://kramerius.lib.cas.cz/') {
+        this.customKrameriusId.set('knav');
+      } else if (preset.url === 'https://api-npo.val.ceskadigitalniknihovna.cz') {
+        this.customKrameriusId.set('cdk-test');
+      }
     }
   }
 
   save() {
-    const val = String(this.customBaseUrl());
-    if (!val) {
+    const urlVal = String(this.customBaseUrl());
+    const idVal = String(this.customKrameriusId());
+
+    if (!urlVal && !idVal) {
       this.isError = true;
-      this.message = 'Please enter a URL';
+      this.message = 'Please enter a URL or Kramerius ID';
       return;
     }
 
     try {
-      // Basic validation
-      new URL(val);
+      // Basic validation for URL if provided
+      if (urlVal) {
+        new URL(urlVal);
+        localStorage.setItem(this.STORAGE_KEY, urlVal);
+      } else {
+        localStorage.removeItem(this.STORAGE_KEY);
+      }
 
-      localStorage.setItem(this.STORAGE_KEY, val);
-      this.message = 'Base URL saved. Reloading...';
+      if (idVal) {
+        localStorage.setItem(this.STORAGE_KEY_ID, idVal);
+      } else {
+        localStorage.removeItem(this.STORAGE_KEY_ID);
+      }
+
+      this.message = 'Configuration saved. Reloading...';
       this.isError = false;
 
       setTimeout(() => {
@@ -171,7 +224,9 @@ export class DevToolsComponent implements OnInit {
 
   clear() {
     localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.STORAGE_KEY_ID);
     this.customBaseUrl.set('');
+    this.customKrameriusId.set('');
     this.message = 'Override cleared. Reloading...';
     this.isError = false;
 
@@ -180,3 +235,4 @@ export class DevToolsComponent implements OnInit {
     }, 1000);
   }
 }
+
