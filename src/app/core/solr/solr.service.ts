@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SolrResponseParser } from './solr-response-parser';
@@ -19,6 +19,7 @@ import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
 import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -250,7 +251,7 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS): Observable<SearchResultResponse> {
 
     console.log('solr search')
 
@@ -264,7 +265,7 @@ export class SolrService {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.facetFields(facetFields),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -332,13 +333,9 @@ export class SolrService {
     sortDirection: SolrSortDirections,
     advancedQuery?: string,
     includePeriodicalItem = false,
-    includePage = false
+    includePage = false,
+    facetFields: string[] = DEFAULT_FACET_FIELDS
   ): Observable<SearchResultResponse> {
-    console.log('solr search in collection:', collectionUuid);
-    console.log('solr search query::', query)
-
-    // const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
-
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
     const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
@@ -346,7 +343,7 @@ export class SolrService {
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.facetFields(facetFields),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -733,7 +730,9 @@ export class SolrService {
    */
   getPageInfo(uuid: string): Observable<DocumentInfo> {
     const url = `${this.API_BASE_URL}items/${uuid}/info`;
-    return this.http.get<DocumentInfo>(url);
+    return this.http.get<DocumentInfo>(url, {
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    });
   }
 
   /**

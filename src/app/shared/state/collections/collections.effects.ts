@@ -21,13 +21,17 @@ import {
 import { parseSearchDocument } from '../../../modules/models/search-document';
 import { selectCollectionFacetOperators, selectCollectionFacets } from './collections.selectors';
 import { DEFAULT_FACET_FIELDS } from '../../../modules/search-results-page/const/facet-fields';
-import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
+import {
+  facetKeysEnum,
+  customDefinedFacets,
+} from '../../../modules/search-results-page/const/facets';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { AppTranslationService } from '../../translation/app-translation.service';
 import { fromSolrToMetadata, mergeMetadata } from '../../models/metadata.model';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
+import { DisplayConfigService } from '../../services/display-config.service';
 
 @Injectable()
 export class CollectionsEffects {
@@ -38,6 +42,7 @@ export class CollectionsEffects {
     private userService: UserService,
     private translationService: AppTranslationService,
     private modsParserService: ModsParserService,
+    private displayConfigService: DisplayConfigService,
   ) {
   }
 
@@ -76,6 +81,7 @@ export class CollectionsEffects {
           advancedQuery,
           includePeriodicalItem,
           includePage || false,
+          this.getRequestedFacets(),
         ).pipe(
           map(resultsRes => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
@@ -105,7 +111,7 @@ export class CollectionsEffects {
             uuid,
             query,
             filters,
-            DEFAULT_FACET_FIELDS,
+            this.getRequestedFacets(),
             facetOperators,
             advancedQuery,
             includePeriodicalItem,
@@ -115,7 +121,7 @@ export class CollectionsEffects {
             uuid,
             query,
             filtersWithoutLicenses,
-            DEFAULT_FACET_FIELDS,
+            this.getRequestedFacets(),
             facetOperators,
             advancedQuery,
             includePeriodicalItem,
@@ -223,4 +229,28 @@ export class CollectionsEffects {
     )
   },
   );
+
+  private getRequestedFacets(): string[] {
+    const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
+    if (!visibleFilters || visibleFilters.length === 0) {
+      return DEFAULT_FACET_FIELDS;
+    }
+
+    const set = new Set<string>();
+    visibleFilters.forEach(f => {
+      if (f.isCustomDefined) {
+        const custom = customDefinedFacets.find(c => c.facetKey === f.facetKey);
+        if (custom && custom.solrFacetKeyForCount) {
+          set.add(custom.solrFacetKeyForCount);
+        }
+      } else {
+        set.add(f.facetKey);
+      }
+    });
+
+    if (set.size === 0) {
+      return DEFAULT_FACET_FIELDS;
+    }
+    return Array.from(set);
+  }
 }

@@ -11,11 +11,13 @@ import * as SearchSelectors from './search.selectors';
 import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
 import {
   facetKeysEnum,
+  customDefinedFacets,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
 import { UserService } from '../../../shared/services/user.service';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
 import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
+import { DisplayConfigService } from '../../../shared/services/display-config.service';
 
 @Injectable()
 export class SearchEffects {
@@ -26,6 +28,7 @@ export class SearchEffects {
     private searchService: SearchService,
     private advancedSearchService: AdvancedSearchService,
     private userService: UserService,
+    private displayConfigService: DisplayConfigService,
   ) {
   }
 
@@ -51,7 +54,7 @@ export class SearchEffects {
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 
-        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage).pipe(
+        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets()).pipe(
           shareReplay(1)
         );
 
@@ -81,8 +84,8 @@ export class SearchEffects {
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, includePeriodicalItem, includePage),
-          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, DEFAULT_FACET_FIELDS, facetOperators, advancedQuery, includePeriodicalItem, includePage),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
+          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
         }).pipe(
           map(({ resultsRes, facetsRes, facetsAllRes }) => {
             const facets = handleFacetsWithOperators(
@@ -122,4 +125,29 @@ export class SearchEffects {
       ),
     ),
   );
+
+  private getRequestedFacets(): string[] {
+    const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
+    console.log('visibleFilters::', visibleFilters)
+    if (!visibleFilters || visibleFilters.length === 0) {
+      return DEFAULT_FACET_FIELDS;
+    }
+
+    const set = new Set<string>();
+    visibleFilters.forEach(f => {
+      if (f.isCustomDefined) {
+        const custom = customDefinedFacets.find(c => c.facetKey === f.facetKey);
+        if (custom && custom.solrFacetKeyForCount) {
+          set.add(custom.solrFacetKeyForCount);
+        }
+      } else {
+        set.add(f.facetKey);
+      }
+    });
+
+    if (set.size === 0) {
+      return DEFAULT_FACET_FIELDS;
+    }
+    return Array.from(set);
+  }
 }
