@@ -11,6 +11,7 @@ import {
   DEFAULT_FACET_FIELDS,
   DEFAULT_PERIODICAL_FACET_FIELDS,
 } from '../../modules/search-results-page/const/facet-fields';
+import { facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { SolrUtils } from './solr-utils';
@@ -239,6 +240,11 @@ export class SolrService {
     return fields.map(field => {
       const op = operators[field] || SolrOperators.or;
       const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
+
+      if (field === facetKeysEnum.model && filtersByField.has(facetKeysEnum.rootModel)) {
+        return `{!ex=${facetKeysEnum.rootModel}}${field}`;
+      }
+
       return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
   }
