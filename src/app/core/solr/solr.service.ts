@@ -577,6 +577,20 @@ export class SolrService {
     );
   }
 
+  getDocumentsByPids(pids: string[]): Observable<any[]> {
+    if (!pids || pids.length === 0) {
+      return new Observable(obs => {
+        obs.next([]);
+        obs.complete();
+      });
+    }
+    const query = `pid:(${pids.map(pid => `"${pid}"`).join(' OR ')})`;
+    const params = new HttpParams({ fromObject: { q: query, ...SolrQueryBuilder.rows(pids.length) } });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs ?? [])
+    );
+  }
+
   /**
    * Improved method for getting periodical volumes with facets
    */

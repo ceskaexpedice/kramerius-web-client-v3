@@ -49,14 +49,11 @@
 
   <app-metadata-section-item *ngIf="data.locations.length" [label]="'locations' | translate" type="clickable-list"
     [items]="data.locations" [displayFn]="getLocationLabel" [showListBullets]="true" [disableTranslate]="true"
-    [onItemClick]="clickedLocation"
-  >
+    [onItemClick]="clickedLocation">
   </app-metadata-section-item>
 
   <app-metadata-section-item *ngIf="data.geonames.length" [label]="'geonames' | translate" type="clickable-list"
-                             [items]="data.geonames" [showListBullets]="true" [disableTranslate]="true"
-                             [onItemClick]="clickedGeoName"
-  >
+    [items]="data.geonames" [showListBullets]="true" [disableTranslate]="true" [onItemClick]="clickedGeoName">
   </app-metadata-section-item>
 
   <!-- Abstracts -->
@@ -70,9 +67,8 @@
   </app-metadata-section-item>
 
   <app-metadata-section-item *ngIf="data.inCollections.length" [label]="'collections' | translate" type="clickable-list"
-                             [items]="data.inCollections" [showListBullets]="true" [disableTranslate]="true"
-                             [onItemClick]="clickedGeoName"
-  >
+    [items]="data.inCollections" [showListBullets]="true" [disableTranslate]="true" [displayFn]="getCollectionName"
+    [onItemClick]="clickedCollection">
   </app-metadata-section-item>
 
   @if (articleData) {
