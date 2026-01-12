@@ -53,6 +53,12 @@
   >
   </app-metadata-section-item>
 
+  <app-metadata-section-item *ngIf="data.geonames.length" [label]="'geonames' | translate" type="clickable-list"
+                             [items]="data.geonames" [showListBullets]="true" [disableTranslate]="true"
+                             [onItemClick]="clickedGeoName"
+  >
+  </app-metadata-section-item>
+
   <!-- Abstracts -->
   <app-metadata-section-item *ngIf="data.abstracts.length" [label]="'abstract' | translate" type="list"
     [items]="data.abstracts">
@@ -61,6 +67,12 @@
   <!-- Genres -->
   <app-metadata-section-item *ngIf="data.genres.length" [label]="'genres' | translate" type="clickable-list"
     [items]="data.genres" [onItemClick]="clickedGenre">
+  </app-metadata-section-item>
+
+  <app-metadata-section-item *ngIf="data.inCollections.length" [label]="'collections' | translate" type="clickable-list"
+                             [items]="data.inCollections" [showListBullets]="true" [disableTranslate]="true"
+                             [onItemClick]="clickedGeoName"
+  >
   </app-metadata-section-item>
 
   @if (articleData) {

@@ -297,6 +297,11 @@ export class MetadataSection implements OnInit, OnChanges {
     this.searchService.redirectDirectlyToUrl(url);
   };
 
+  clickedGeoName = (geoName: string): void => {
+    const url = `?fq=${facetKeysEnum.geographic_names}:${encodeURIComponent(geoName)}&${facetKeysEnum.geographic_names}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
   clickedDocumentType = (model: string): void => {
     console.log('document type clicked:', model);
     const url = `?fq=model:${encodeURIComponent(model)}`;
