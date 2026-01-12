@@ -1,3 +1,4 @@
+@use "mixins";
 @use "_z-index.scss" as z;
 
 $top-toolbar-height: 56px;
@@ -56,29 +57,7 @@ $top-toolbar-height: 56px;
   }
 
   &--sidebar-right {
-    flex: 0 0 285px;
-    width: 285px;
-    min-width: 285px;
-    max-width: 285px;
-    height: calc(100% - var(--spacing-x4) - var(--spacing-x4));
-    margin: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4) 0;
-    border-radius: var(--spacing-x2);
-    background: var(--color-background-primary, #fff);
-    overflow: hidden;
-    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease, margin 0.3s ease;
-    transform: translateX(0);
-    opacity: 1;
-
-    &.collapsed {
-      width: 0;
-      min-width: 0;
-      flex-basis: 0;
-      margin-right: 0;
-      margin-left: 0;
-      transform: translateX(100%);
-      opacity: 0;
-      pointer-events: none;
-    }
+    @include mixins.floating-sidebar;
   }
 
   &--bottom-toolbar {

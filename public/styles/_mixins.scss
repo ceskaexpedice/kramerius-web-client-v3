@@ -1,12 +1,52 @@
 // MEDIA QUERIES
 @mixin respond($breakpoint) {
-  @if $breakpoint == sm {
-    @media (max-width: 576px) { @content; }
-  } @else if $breakpoint == md {
-    @media (max-width: 768px) { @content; }
-  } @else if $breakpoint == lg {
-    @media (max-width: 992px) { @content; }
-  } @else if $breakpoint == xl {
-    @media (max-width: 1200px) { @content; }
+  @if $breakpoint ==sm {
+    @media (max-width: 576px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint ==md {
+    @media (max-width: 768px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint ==lg {
+    @media (max-width: 992px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint ==xl {
+    @media (max-width: 1200px) {
+      @content;
+    }
+  }
+}
+
+@mixin floating-sidebar($width: 285px) {
+  flex: 0 0 $width;
+  width: $width;
+  min-width: $width;
+  max-width: $width;
+  height: calc(100% - var(--spacing-x4) - var(--spacing-x4));
+  margin: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4) 0;
+  border-radius: var(--spacing-x2);
+  background: var(--color-background-primary, #fff);
+  overflow: hidden;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease, margin 0.3s ease;
+  transform: translateX(0);
+  opacity: 1;
+
+  &.collapsed {
+    width: 0;
+    min-width: 0;
+    flex-basis: 0;
+    margin-right: 0;
+    margin-left: 0;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
   }
 }

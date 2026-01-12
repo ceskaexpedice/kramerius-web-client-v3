@@ -1,3 +1,4 @@
+@use "mixins";
 // Common layout styles moved to /public/styles/_page-layout.scss
 
 .page-content__wrapper {
@@ -19,8 +20,9 @@
   height: 100%;
 }
 
+
 .page-content__sidebar-right {
-  margin-top: 1px;
+  @include mixins.floating-sidebar;
 }
 
 .selection-count {

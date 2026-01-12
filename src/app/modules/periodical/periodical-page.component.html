@@ -121,7 +121,7 @@
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
             [class.collapsed]="!showMetadataSidebar()">
-            <app-metadata-sidebar [metadata]="periodical.metadata" mode="docked"
+            <app-metadata-sidebar [metadata]="periodical.metadata" mode="floating"
               [tools]="{search: true, export: false, description: true}" (close)="toggleMetadataSidebar()">
             </app-metadata-sidebar>
           </div>

@@ -1,3 +1,5 @@
+@use "mixins";
+
 .collection-description-wrapper {
   margin-top: var(--spacing-x6);
   margin-bottom: var(--spacing-x6);
@@ -14,6 +16,7 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   overflow: hidden;
   align-self: stretch;
   margin: 0;
@@ -37,7 +40,7 @@
   margin-top: var(--spacing-2);
 }
 
-:host ::ng-deep .collection--notes > p {
+:host ::ng-deep .collection--notes>p {
   margin: 0;
 }
 
@@ -62,6 +65,7 @@
   padding-top: var(--spacing-x4);
 }
 
+
 .page-content__sidebar-right {
-  margin-top: 1px;
+  @include mixins.floating-sidebar;
 }
