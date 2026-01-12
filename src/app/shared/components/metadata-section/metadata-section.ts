@@ -1,7 +1,7 @@
 import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo } from '../../models/metadata.model';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import {Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location} from '../../models/metadata.model';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
@@ -63,6 +63,7 @@ export class MetadataSection implements OnInit, OnChanges {
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
@@ -215,6 +216,17 @@ export class MetadataSection implements OnInit, OnChanges {
     return items;
   }
 
+  getLocationLabel = (location: Location): string => {
+    let parts = [];
+    if (location.physicalLocation) {
+      parts.push(this.translate.instant(location.physicalLocation));
+    }
+    if (location.shelfLocator) {
+      parts.push(location.shelfLocator);
+    }
+    return parts.join(': ');
+  }
+
   getIsbn(): string | null {
     if (!this.data?.identifiers) {
       return null;
@@ -267,6 +279,11 @@ export class MetadataSection implements OnInit, OnChanges {
 
   clickedLanguage = (language: string): void => {
     const url = `?fq=${facetKeysEnum.languages}:${encodeURIComponent(language)}&${facetKeysEnum.languages}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
+  clickedLocation = (location: Location): void => {
+    const url = `?fq=${facetKeysEnum.physical_locations}:${encodeURIComponent(location.physicalLocation)}&${facetKeysEnum.physical_locations}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   }
 

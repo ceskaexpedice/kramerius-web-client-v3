@@ -1,6 +1,6 @@
-import {Component, Input} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, Input } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'key-value';
 
@@ -16,12 +16,13 @@ export class MetadataSectionItem {
   @Input() type: MetadataItemType = 'text';
   @Input() value?: string;
   @Input() items?: any[];
-  @Input() keyValuePairs?: {[key: string]: any};
+  @Input() keyValuePairs?: { [key: string]: any };
   @Input() displayFn?: (item: any) => string;
   @Input() onItemClick?: (item: any) => void;
   @Input() showListBullets: boolean = false;
   @Input() icon?: string;
   @Input() listKeyUppercase: boolean = false;
+  @Input() disableTranslate: boolean = false;
 
   getDisplayText(item: any): string {
     if (this.displayFn) {
@@ -43,7 +44,7 @@ export class MetadataSectionItem {
     return Object.keys(this.keyValuePairs).filter(key => {
       const value = this.keyValuePairs![key];
       return value !== null && value !== undefined && value !== '' &&
-             !(Array.isArray(value) && value.length === 0);
+        !(Array.isArray(value) && value.length === 0);
     });
   }
 
