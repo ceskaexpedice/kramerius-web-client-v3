@@ -14,144 +14,121 @@
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="false">
 
-            <div class="max-width-100" left>
+          <div class="max-width-100" left>
 
-                <app-toolbar-header
-                  [showBackButton]="false"
-                  [title]="getLocalizedTitle(metadata)">
+            <app-toolbar-header [showBackButton]="false" [title]="getLocalizedTitle(metadata)">
 
-                                  <app-admin-actions
-                                    *ngIf="selectionService.selectionMode()"
-                                    (exportRequested)="onExportSelected()"
-                                    (editRequested)="onEditSelected($event)">
-                                  </app-admin-actions>
+              <app-admin-actions *ngIf="selectionService.selectionMode()" (exportRequested)="onExportSelected()"
+                (editRequested)="onEditSelected($event)">
+              </app-admin-actions>
 
-                </app-toolbar-header>
-            </div>
+            </app-toolbar-header>
+          </div>
 
-            <div right>
+          <div right>
 
-              <div class="flex flex--align-center flex--gap-x2">
+            <div class="flex flex--align-center flex--gap-x2">
 
-                <!-- Show normal controls when not in admin mode or not in SearchResults -->
-                <ng-container *ngIf="!selectionService.selectionMode()">
-                  <app-toolbar-controls
-                    [showViewToggle]="false"
-                    [showFavorites]="true"
-                    [showShare]="true"
-                    [showQuote]="true"
-                    [showInfo]="false"
-                    [showSelect]="true"
-                    (shareClicked)="recordHandler.openShareDialog(metadata || null)"
-                    (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
-                    (selectClicked)="selectionService.toggleSelectionMode()"
-                  >
-                  </app-toolbar-controls>
+              <!-- Show normal controls when not in admin mode or not in SearchResults -->
+              <ng-container *ngIf="!selectionService.selectionMode()">
+                <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
+                  [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                  (shareClicked)="recordHandler.openShareDialog(metadata || null)"
+                  (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
+                  (selectClicked)="selectionService.toggleSelectionMode()">
+                </app-toolbar-controls>
 
-                  <app-results-sort
-                    [selectedSort]="collectionsService.sortBy"
-                    [selectedDirection]="collectionsService.sortDirection"
-                    (sortChange)="onSortChange($event)">
-                  </app-results-sort>
-                </ng-container>
+                <app-results-sort [selectedSort]="collectionsService.sortBy"
+                  [selectedDirection]="collectionsService.sortDirection" (sortChange)="onSortChange($event)">
+                </app-results-sort>
+              </ng-container>
 
-                <!-- Show selected count when in admin mode and items are selected -->
-                <ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
-                  <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
-                </ng-container>
+              <!-- Show selected count when in admin mode and items are selected -->
+              <ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+                <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
+              </ng-container>
 
-                <button class="button outlined tertiary sm square-button" *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
-                  <i class="icon-close"></i>
-                </button>
-
-              </div>
+              <button class="button outlined tertiary sm square-button" *ngIf="selectionService.selectionMode()"
+                (click)="selectionService.toggleSelectionMode()">
+                <i class="icon-close"></i>
+              </button>
 
             </div>
+
+          </div>
         </app-action-toolbar>
         }
-
-
       </div>
 
       <!-- Content rendering based on view mode -->
-      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()">
+      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()"
+        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0"
+        appScrollHideHeader>
 
         <div class="page-content__main">
+          <!-- Sticky Tags Bar -->
+          <div class="page-content__sticky-tags" *ngIf="((collectionsService.selectedTags | async) || []).length > 0">
+            <app-selected-tags [items]="(collectionsService.selectedTags | async) || []"
+              [operators]="(collectionsService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
+              [translateItems]="true" (remove)="collectionsService.removeFilter($event)"
+              (removeGroup)="collectionsService.resetOperator($event)" (clearAll)="collectionsService.clearAllFilters()"
+              clearButtonPosition="left">
+            </app-selected-tags>
+          </div>
+
           <!-- Breadcrumbs Navigation -->
           <app-breadcrumbs></app-breadcrumbs>
 
           @if (collectionsService.detail$ | async; as metadata) {
 
-            <div class="collection-description-wrapper">
-              <div
-                #descriptionElement
-                class="collection--notes"
-                [class.expanded]="isDescriptionExpanded"
-                [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
-              </div>
-              <button
-                *ngIf="isDescriptionTruncated"
-                class="button link primary with-icon show-more-btn p-left-0"
-                (click)="toggleDescription()">
-                {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
-                <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
-              </button>
+          <div class="collection-description-wrapper">
+            <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded"
+              [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
             </div>
+            <button *ngIf="isDescriptionTruncated" class="button link primary with-icon show-more-btn p-left-0"
+              (click)="toggleDescription()">
+              {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
+              <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
+            </button>
+          </div>
 
           }
 
-          <app-selected-tags
-            *ngIf="((collectionsService.selectedTags | async) || []).length > 0"
-            [items]="(collectionsService.selectedTags | async) || []"
-            [operators]="(collectionsService.getFiltersWithOperators() | async) || {}"
-            [showOperators]="false"
-            [translateItems]="true"
-            (remove)="collectionsService.removeFilter($event)"
-            (removeGroup)="collectionsService.resetOperator($event)"
-            (clearAll)="collectionsService.clearAllFilters()"
-            clearButtonPosition="left">
-          </app-selected-tags>
 
           <div>
 
-            @if (!(collectionsService.loading$ | async)) {
-
-              <div class="grid--container">
-
-                <app-record-item *ngFor="let doc of collectionsService.searchResults$ | async" [item]="toRecordItem(doc)"></app-record-item>
-
-              </div>
-
-            } @else {
-              <div class="loading-container">
-                <div class="loading-message">
-                  <p>{{ 'loading-search-results' | translate }}</p>
-                </div>
-              </div>
-            }
+            <div class="grid--container">
+              <app-record-item
+                *ngFor="let doc of (collectionsService.searchResults$ | async) | skeletonList:60:(collectionsService.loading$ | async)"
+                [item]="doc ? toRecordItem(doc) : null">
+              </app-record-item>
+            </div>
 
           </div>
 
           @if (!rightSidebarVisible()) {
-            <button
-              class="floating-sidebar-toggle button icon-button primary rounded"
-              (click)="showRightSidebar()">
-              <i class="icon-info"></i>
-            </button>
+          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
+            <i class="icon-info"></i>
+          </button>
           }
         </div>
 
         <!-- Right Sidebar -->
         @if (collectionsService.detail$ | async; as metadata) {
-          <div
-            class="page-content__sidebar-right"
-            [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
-            [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
-            [class.collapsed]="!rightSidebarVisible()">
-            <app-collections-right-sidebar-content
-              [setMetadata]="metadata"
-              (onClose)="hideRightSidebar()"></app-collections-right-sidebar-content>
-          </div>
+        <div class="page-content__sidebar-right"
+          [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
+          [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
+          [class.collapsed]="!rightSidebarVisible()">
+          <app-metadata-sidebar [metadata]="metadata" mode="docked"
+            [tools]="{search: true, export: false, description: true}" [customDescription]="true"
+            (close)="hideRightSidebar()">
+            <div description-content>
+              <app-collections-right-sidebar-content [setMetadata]="metadata" [showClose]="false"
+                (onClose)="hideRightSidebar()">
+              </app-collections-right-sidebar-content>
+            </div>
+          </app-metadata-sidebar>
+        </div>
         }
 
       </div>

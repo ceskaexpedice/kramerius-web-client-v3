@@ -19,10 +19,10 @@ export class Settings {
   constructor(
     public thm: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT,
     public view: AppResultsViewType = AppResultsViewType.grid,
-    public dispConfig?: DisplayConfig
+    displayConfig?: DisplayConfig
   ) {
     this.theme = thm;
     this.searchResultsView = view;
-    this.displayConfig = dispConfig;
+    this.displayConfig = displayConfig;
   }
 }

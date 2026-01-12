@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SolrResponseParser } from './solr-response-parser';
@@ -11,6 +11,7 @@ import {
   DEFAULT_FACET_FIELDS,
   DEFAULT_PERIODICAL_FACET_FIELDS,
 } from '../../modules/search-results-page/const/facet-fields';
+import { facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { SolrUtils } from './solr-utils';
@@ -18,6 +19,7 @@ import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
 import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
 export class SolrService {
@@ -83,7 +85,7 @@ export class SolrService {
     return filtersByField;
   }
 
-  private createFacetBaseParams(options: any = {}, addBaseFilters = false, baseFilters: { fq: string } | null  = null): Record<string, any> {
+  private createFacetBaseParams(options: any = {}, addBaseFilters = false, baseFilters: { fq: string } | null = null): Record<string, any> {
     let params: Record<string, any> = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn([]),
@@ -239,12 +241,17 @@ export class SolrService {
     return fields.map(field => {
       const op = operators[field] || SolrOperators.or;
       const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
+
+      if (field === facetKeysEnum.model && filtersByField.has(facetKeysEnum.rootModel)) {
+        return `{!ex=${facetKeysEnum.rootModel}}${field}`;
+      }
+
       return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-         includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS): Observable<SearchResultResponse> {
 
     console.log('solr search')
 
@@ -258,7 +265,7 @@ export class SolrService {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.facetFields(facetFields),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -276,7 +283,7 @@ export class SolrService {
   }
 
   searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-                    includePeriodicalItem = false, includePage = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, includeFacets = true): Observable<SearchResultResponse> {
 
     console.log('solr search periodicals')
 
@@ -289,11 +296,17 @@ export class SolrService {
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount),
       ...simpleBaseFilters
     };
+
+    if (includeFacets) {
+      paramsObject = {
+        ...paramsObject,
+        ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS)
+      };
+    }
 
     console.log('paramsObject', paramsObject);
 
@@ -320,13 +333,9 @@ export class SolrService {
     sortDirection: SolrSortDirections,
     advancedQuery?: string,
     includePeriodicalItem = false,
-    includePage = false
+    includePage = false,
+    facetFields: string[] = DEFAULT_FACET_FIELDS
   ): Observable<SearchResultResponse> {
-    console.log('solr search in collection:', collectionUuid);
-    console.log('solr search query::', query)
-
-    // const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
-
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
     const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
@@ -334,7 +343,7 @@ export class SolrService {
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(DEFAULT_FACET_FIELDS),
+      ...SolrQueryBuilder.facetFields(facetFields),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -347,7 +356,7 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject)
-        .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
+      .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
 
     // Add other filters (collection filter is now part of q parameter)
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
@@ -385,7 +394,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-                         includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -611,8 +620,8 @@ export class SolrService {
   }
 
   getPeriodicalVolumes(pid: string,
-                       filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
-                        advancedQuery?: string
+    filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
+    advancedQuery?: string
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
 
@@ -721,7 +730,9 @@ export class SolrService {
    */
   getPageInfo(uuid: string): Observable<DocumentInfo> {
     const url = `${this.API_BASE_URL}items/${uuid}/info`;
-    return this.http.get<DocumentInfo>(url);
+    return this.http.get<DocumentInfo>(url, {
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    });
   }
 
   /**
@@ -772,7 +783,7 @@ export class SolrService {
    * @param rows - Number of suggestions to return (default: 10)
    * @returns Observable with array of suggestion objects containing pid and highlighted text
    */
-  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10): Observable<Array<{pid: string, highlights: string[]}>> {
+  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10): Observable<Array<{ pid: string, highlights: string[] }>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       return new Observable(observer => {
         observer.next([]);
@@ -782,7 +793,7 @@ export class SolrService {
 
     return this.searchInDocument(parentPid, searchTerm, rows, true).pipe(
       map(response => {
-        const results: Array<{pid: string, highlights: string[]}> = [];
+        const results: Array<{ pid: string, highlights: string[] }> = [];
 
         if (response.highlighting) {
           Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
@@ -806,7 +817,7 @@ export class SolrService {
    * @param searchTerm - Search term
    * @returns Observable with array of search results including highlighted text snippets
    */
-  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false): Observable<Array<{pid: string, highlightedText: string}>> {
+  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false): Observable<Array<{ pid: string, highlightedText: string }>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       return new Observable(observer => {
         observer.next([]);
@@ -816,7 +827,7 @@ export class SolrService {
 
     return this.searchInDocument(parentPid, searchTerm, 300, false, caseSensitive).pipe(
       map(response => {
-        const results: Array<{pid: string, highlightedText: string}> = [];
+        const results: Array<{ pid: string, highlightedText: string }> = [];
 
         if (response.highlighting) {
           Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {

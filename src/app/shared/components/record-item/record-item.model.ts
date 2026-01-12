@@ -101,6 +101,8 @@ function getDocumentSubtitle(doc: any): string {
 
 export function isDocumentPublic(licenses: string[], userLicenses: string[]) {
   // if there is some license in userLicenses that is in licenses, return true
+  console.log('licenses', licenses);
+  console.log('userLicenses', userLicenses);
   return userLicenses.some(userLicense => licenses.includes(userLicense));
 }
 

@@ -42,4 +42,8 @@
   overflow-y: auto;
   height: calc(100% - 100px);
   padding: var(--spacing-x2);
+
+  &.no-padding {
+    padding: 0;
+  }
 }

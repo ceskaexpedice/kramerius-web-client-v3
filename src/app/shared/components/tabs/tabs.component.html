@@ -1,11 +1,18 @@
 <div class="tabs-header">
-  <button
-    *ngFor="let tab of tabs; let i = index"
-    class="tab-button"
-    [class.active]="i === activeTabIndex()"
-    (click)="selectTab(i)">
-    {{ tab.label }}
-  </button>
+  @for (tab of tabs; track tab; let i = $index) {
+    <button
+      class="tab-button"
+      [class.active]="i === activeTabIndex()"
+      [appCdkTooltip]="tab.tooltip"
+      (click)="selectTab(i)">
+      @if (tab.icon) {
+        <i [class]="tab.icon"></i>
+      }
+      @if (!tab.onlyIcon) {
+        {{ tab.label }}
+      }
+    </button>
+  }
 </div>
 
 <div class="tabs-common">
@@ -14,7 +21,7 @@
 
 @if (tabs.length) {
 
-  <div class="tabs-content">
+  <div class="tabs-content" [class.no-padding]="noPadding">
     <ng-container
       *ngTemplateOutlet="tabs[activeTabIndex()]?.content || null">
     </ng-container>

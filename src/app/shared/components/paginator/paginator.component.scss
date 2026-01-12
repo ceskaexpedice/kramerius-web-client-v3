@@ -4,23 +4,83 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 40px 0;
 
   .pages {
     display: flex;
-    gap: 0.25rem;
+    gap: var(--spacing-x2);
     align-items: baseline;
 
+    .arrow-button {
+
+      &:not(:disabled) {
+        background-color: var(--color-bg-base);
+      }
+
+      &.prev-button {
+        margin-left: var(--spacing-x6);
+      }
+
+      &:disabled {
+        opacity: .6;
+        color: var(--color-icon-tertiary-disabled);
+        border-color: var(--color-border-secondary-disabled)
+      }
+
+    }
+
     button {
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      padding: var(--spacing-x2) var(--spacing-x3);
+      border-radius: var(--spacing-x2);
       cursor: pointer;
       color: var(--color-text-btn-tertiary-default);
 
-      &.active {
-        background: var(--color-bg-base);
-        font-weight: bold;
+      &:not(.active) {
+        border: 1px solid var(--color-border-tertiary-default);
       }
+
+      &.active {
+        background: var(--color-primary);
+        color: var(--color-text-on-color);
+      }
+    }
+
+  }
+
+  &.compact {
+    padding: var(--spacing-x2);
+    padding-bottom: 0;
+
+    .pages {
+      width: 100%;
+      gap: var(--spacing-x1);
+
+      .prev-button {
+        margin-left: auto;
+      }
+    }
+
+    .ellipsis-button {
+      padding: var(--spacing-x2) var(--spacing-x3);
+      border-radius: var(--spacing-x2);
+      border: 1px solid var(--color-border-tertiary-default);
+      background: transparent;
+      color: var(--color-text-btn-tertiary-default);
+      cursor: pointer;
+      opacity: 1;
+
+      &:hover {
+        background-color: var(--color-bg-base-hover);
+      }
+    }
+
+    .ellipsis-text {
+      display: inline-block;
+      color: var(--color-text-light);
+      cursor: default;
     }
 
   }
@@ -36,6 +96,7 @@
     }
   }
 }
+
 
 @include m.respond(md) {
   .paginator {

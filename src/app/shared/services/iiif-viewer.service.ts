@@ -116,6 +116,8 @@ export class IIIFViewerService {
   private isSelectionModeSubject = new BehaviorSubject<boolean>(false);
   public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
 
+  private lastSelectionTime: number = 0;
+
   get currentMatchNumber(): number {
     return this.currentMatchIndexSubject.value + 1;
   }
@@ -517,6 +519,8 @@ export class IIIFViewerService {
 
     this.mouseTracker = new OpenSeadragon.MouseTracker({
       element: this.viewer.element,
+      clickDistThreshold: 5,
+      clickTimeThreshold: 300,
       pressHandler: (event: any) => {
         console.log('MouseTracker: press');
         this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
@@ -524,6 +528,12 @@ export class IIIFViewerService {
       },
       clickHandler: (event: any) => {
         console.log('MouseTracker: click', event.quick);
+        // Prevent clearing if selection was just made (within 300ms)
+        if (Date.now() - this.lastSelectionTime < 300) {
+          console.log('Click ignored due to recent selection');
+          return;
+        }
+
         // Clear selection on click
         if (event.quick) {
           console.log('Click detected via clickHandler, clearing selection');
@@ -534,7 +544,6 @@ export class IIIFViewerService {
       },
       dragHandler: (event: any) => {
         // console.log('MouseTracker: drag');
-        if (!this.drawStartPoint) return;
         if (!this.drawStartPoint) return;
 
         const currentPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
@@ -559,32 +568,38 @@ export class IIIFViewerService {
         event.preventDefaultAction = true;
       },
       releaseHandler: (event: any) => {
-        if (!this.drawStartPoint) return;
+        try {
+          if (!this.drawStartPoint) return;
 
-        const endPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
-        const rect = new OpenSeadragon.Rect(
-          Math.min(this.drawStartPoint.x, endPoint.x),
-          Math.min(this.drawStartPoint.y, endPoint.y),
-          Math.abs(endPoint.x - this.drawStartPoint.x),
-          Math.abs(endPoint.y - this.drawStartPoint.y)
-        );
+          const endPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
+          const rect = new OpenSeadragon.Rect(
+            Math.min(this.drawStartPoint.x, endPoint.x),
+            Math.min(this.drawStartPoint.y, endPoint.y),
+            Math.abs(endPoint.x - this.drawStartPoint.x),
+            Math.abs(endPoint.y - this.drawStartPoint.y)
+          );
 
-        // Check if selection is too small (likely a click)
-        const minSize = 0.005;
-        if (rect.width < minSize || rect.height < minSize) {
-          console.log('Selection too small, treating as click/clear');
-          this.clearSelectionOverlays();
-          this.selectedAreaSubject.next(null);
-        } else {
-          console.log('Selected area (viewport):', rect);
+          // Check if selection is too small (likely a click)
+          const minSize = 0.005;
+          if (rect.width < minSize || rect.height < minSize) {
+            console.log('Selection too small, treating as click/clear');
+            this.clearSelectionOverlays();
+            this.selectedAreaSubject.next(null);
+          } else {
+            console.log('Selected area (viewport):', rect);
 
-          const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
-          console.log('Selected area (image):', imageRect);
-          this.selectedAreaSubject.next(imageRect);
+            const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
+            console.log('Selected area (image):', imageRect);
+            this.selectedAreaSubject.next(imageRect);
+            this.lastSelectionTime = Date.now();
+          }
+
+          this.drawStartPoint = null;
+          event.preventDefaultAction = true;
+        } catch (error) {
+          console.error('Error in releaseHandler:', error);
+          this.drawStartPoint = null;
         }
-
-        this.drawStartPoint = null;
-        event.preventDefaultAction = true;
       }
     });
   }

@@ -1,28 +1,29 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
-import {APP_ROUTES_ENUM} from '../../app.routes';
-import {ActivatedRoute} from '@angular/router';
-import {filter, map, Observable, takeUntil} from 'rxjs';
-import {Store} from '@ngrx/store';
-import {SettingsService} from '../../modules/settings/settings.service';
+import { computed, effect, inject, Injectable } from '@angular/core';
+import { APP_ROUTES_ENUM } from '../../app.routes';
+import { ActivatedRoute } from '@angular/router';
+import { filter, map, Observable, Subscription, takeUntil } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { SettingsService } from '../../modules/settings/settings.service';
 import {
   selectActiveFilters,
   selectArticleSearchResults,
   selectAttachmentSearchResults,
   selectFacets,
+  selectFacetsLoading,
   selectNonPageSearchResults,
   selectPageSearchResults,
   selectSearchResults,
   selectSearchResultsLoading,
   selectSearchResultsTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
-import {SearchDocument} from '../../modules/models/search-document';
-import {loadSearchResults} from '../../modules/search-results-page/state/search.actions';
-import {SolrOperators, SolrSortFields} from '../../core/solr/solr-helpers';
-import {SolrService} from '../../core/solr/solr.service';
-import {AdvancedSearchService} from './advanced-search.service';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {facetKeysEnum, mapFacetsToSearchFields} from '../../modules/search-results-page/const/facets';
-import {BaseFilterService} from './base-filter.service';
+import { SearchDocument } from '../../modules/models/search-document';
+import { loadSearchResults } from '../../modules/search-results-page/state/search.actions';
+import { SolrOperators, SolrSortFields } from '../../core/solr/solr-helpers';
+import { SolrService } from '../../core/solr/solr.service';
+import { AdvancedSearchService } from './advanced-search.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
+import { BaseFilterService } from './base-filter.service';
 
 @Injectable({
   providedIn: 'root',
@@ -42,8 +43,11 @@ export class SearchService extends BaseFilterService {
   pageResults$: Observable<SearchDocument[]>;
   attachmentResults$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
+  override facetsLoading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
+
+  private queryParamsSubscription: Subscription | null = null;
 
   // Implementation of abstract methods from BaseFilterService
   getBaseFilters(): Observable<string[]> {
@@ -133,6 +137,7 @@ export class SearchService extends BaseFilterService {
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.attachmentResults$ = this.store.select(selectAttachmentSearchResults);
     this.loading$ = this.store.select(selectSearchResultsLoading);
+    this.facetsLoading$ = this.store.select(selectFacetsLoading);
 
     this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
@@ -232,7 +237,7 @@ export class SearchService extends BaseFilterService {
   async initialize() {
     if (this.initialized) return;
 
-    this.route.queryParams.pipe(
+    this.queryParamsSubscription = this.route.queryParams.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
@@ -248,7 +253,15 @@ export class SearchService extends BaseFilterService {
     this.initialized = true;
   }
 
-  private dispatchSearch(params: any): void {
+  cleanup() {
+    if (this.queryParamsSubscription) {
+      this.queryParamsSubscription.unsubscribe();
+      this.queryParamsSubscription = null;
+    }
+    this.initialized = false;
+  }
+
+  public dispatchSearch(params: any): void {
     console.log('dispatching search with params:', params)
 
     const query = params['query'] || '';
@@ -349,7 +362,13 @@ export class SearchService extends BaseFilterService {
       page = Number(params['page']) || this._page();
     } else {
       this._pageReset.set(false);
-      this.goToPage(page);
+      const paramsPage = Number(params['page']);
+      // If page is undefined (implicit 1) or already 1, we don't need to navigate/wait for router.
+      if (paramsPage && paramsPage !== 1) {
+        this.goToPage(page);
+        return;
+      }
+      // If we are already on page 1, continue to search
     }
 
     const pageSize = Number(params['pageSize']) || this._pageSize();
@@ -473,5 +492,69 @@ export class SearchService extends BaseFilterService {
     this.queryParamsService.updateFilters(route, facetKey, [value], operator);
   }
 
+
+  /**
+   * Updates only the local state and backup URL, then dispatches search.
+   * Does NOT update the browser URL.
+   */
+  goToPageLocal(page: number): void {
+    const params = this.getParamsFromBackupUrl();
+    if (!params) return;
+
+    params['page'] = page;
+
+    // Update backup URL so if we return to search, we are on the correct page
+    this.updateBackupUrlWithParams(params);
+    this.dispatchSearch(params);
+  }
+
+  /**
+   * Updates only the local state and backup URL, then dispatches search.
+   * Does NOT update the browser URL.
+   */
+  changePageSizeLocal(size: number): void {
+    const params = this.getParamsFromBackupUrl();
+    if (!params) return;
+
+    params['pageSize'] = size;
+    params['page'] = 1; // Reset to page 1 on size change
+
+    // Update backup URL
+    this.updateBackupUrlWithParams(params);
+    this.dispatchSearch(params);
+  }
+
+  private getParamsFromBackupUrl(): any {
+    const backupUrl = this.getBackupSearchUrl();
+    if (!backupUrl) return null;
+
+    // backupUrl contains path + query, e.g. /search-results?query=foo
+    // We need to parse query params
+    const dummyUrl = new URL('http://url' + backupUrl);
+    const params: any = {};
+    dummyUrl.searchParams.forEach((value, key) => {
+      params[key] = value;
+    });
+    return params;
+  }
+
+  private updateBackupUrlWithParams(params: any): void {
+    const backupUrl = this.getBackupSearchUrl();
+    if (!backupUrl) return;
+
+    const dummyUrl = new URL('http://url' + backupUrl);
+
+    // clear existing
+    const newSearchParams = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      newSearchParams.set(key, params[key]);
+    });
+
+    // We keep the pathname from original backupUrl
+    const path = dummyUrl.pathname;
+    const newUrl = `${path}?${newSearchParams.toString()}`;
+
+    this.backupCurrentSearchUrl(newUrl);
+  }
 
 }

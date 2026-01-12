@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output, signal, inject} from '@angular/core';
-import {SelectComponent} from '../select/select.component';
-import {ENVIRONMENT} from '../../../app.config';
+import { Component, EventEmitter, Input, OnInit, Output, signal, inject } from '@angular/core';
+import { SelectComponent } from '../select/select.component';
+import { ENVIRONMENT } from '../../../app.config';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface MonthYearChange {
@@ -29,6 +29,7 @@ export interface MonthYearChange {
         [displayFn]="yearDisplayFn"
         [theme]="'base'"
         [filterable]="true"
+        [virtualScroll]="true"
         (valueChange)="onYearChange($event)">
       </app-select>
 
@@ -73,12 +74,12 @@ export class MonthYearSelectorComponent implements OnInit {
   @Input() showMonthNavigation: boolean = false;
   @Output() monthYearChange = new EventEmitter<MonthYearChange>();
 
-  monthOptions: {value: number, label: string}[] = [];
+  monthOptions: { value: number, label: string }[] = [];
 
-  yearOptions: {value: number, label: string}[] = [];
+  yearOptions: { value: number, label: string }[] = [];
 
-  selectedMonth = signal<{value: number, label: string}>({value: this.month, label: ''});
-  selectedYear = signal<{value: number, label: string}>({value: this.year, label: this.year.toString()});
+  selectedMonth = signal<{ value: number, label: string }>({ value: this.month, label: '' });
+  selectedYear = signal<{ value: number, label: string }>({ value: this.year, label: this.year.toString() });
 
   ngOnInit() {
     this.generateMonthOptions();
@@ -127,12 +128,12 @@ export class MonthYearSelectorComponent implements OnInit {
     this.selectedYear.set(yearOption || this.yearOptions[0]);
   }
 
-  onMonthChange(monthOption: {value: number, label: string}) {
+  onMonthChange(monthOption: { value: number, label: string }) {
     this.selectedMonth.set(monthOption);
     this.emitChange();
   }
 
-  onYearChange(yearOption: {value: number, label: string}) {
+  onYearChange(yearOption: { value: number, label: string }) {
     this.selectedYear.set(yearOption);
     this.emitChange();
   }
@@ -183,6 +184,6 @@ export class MonthYearSelectorComponent implements OnInit {
     }
   }
 
-  monthDisplayFn = (option: {value: number, label: string} | null) => option ? option.label : '';
-  yearDisplayFn = (option: {value: number, label: string} | null) => option ? option.label : '';
+  monthDisplayFn = (option: { value: number, label: string } | null) => option ? option.label : '';
+  yearDisplayFn = (option: { value: number, label: string } | null) => option ? option.label : '';
 }

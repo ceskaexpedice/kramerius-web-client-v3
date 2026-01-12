@@ -1,0 +1,50 @@
+<div class="generic-dialog-container">
+    <h2>
+        {{ document.mainTitle }}
+        <button class="button link tertiary icon-button close-button" (click)="onClose()">
+            <i class="icon-close"></i>
+        </button>
+    </h2>
+
+    <div class="dialog-body">
+
+        <div class="content">
+
+            <app-tabs [noPadding]="true" (tabChanged)="onTabChanged($event)" [initialTab]="activeTabLabel">
+
+                <div tab-common-up>
+                    <div class="tab--content">
+                        <div class="hierarchy-selector--container">
+                            <app-document-hierarchy-selector [document]="document"
+                                (selectionChanged)="onHierarchySelectionChanged($event)">
+                            </app-document-hierarchy-selector>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-container
+                    *ngFor="let tab of ['mods', 'dc', 'solr', 'foxml', 'alto', 'ocr', 'item', 'children', 'iiif']">
+                    <app-tab-item [label]="tab">
+                        <div class="tab-item--content" [class.loading]="isLoading">
+                            <div *ngIf="isLoading" class="loader">Loading...</div>
+                            <div *ngIf="error" class="error">{{ error }}</div>
+                            <div *ngIf="!isLoading && !error">
+                              <pre><code [class]="languageClass">{{ content }}</code></pre>
+                            </div>
+                        </div>
+                    </app-tab-item>
+                </ng-container>
+
+                <div tab-common-down class="metadata--actions">
+                    <button class="primary link with-icon p-left-0" (click)="openUrl()">
+                        <i class="icon-export-1"></i>
+                        URL
+                    </button>
+                </div>
+
+            </app-tabs>
+        </div>
+
+    </div>
+
+</div>

@@ -1,5 +1,5 @@
-import {Component, Input, TemplateRef, ViewChild} from '@angular/core';
-import {NgClass, NgIf} from '@angular/common';
+import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-tab-item',
@@ -30,6 +30,10 @@ import {NgClass, NgIf} from '@angular/common';
   ],
 })
 export class TabItemComponent {
+  @Input() icon: string = '';
+  @Input() id?: string;
   @Input() label!: string;
+  @Input() onlyIcon: boolean = false;
+  @Input() tooltip: string = '';
   @ViewChild('content', { static: true }) content!: TemplateRef<unknown>;
 }

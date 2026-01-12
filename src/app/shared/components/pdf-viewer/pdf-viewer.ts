@@ -1,12 +1,12 @@
-import {Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import {NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent} from 'ngx-extended-pdf-viewer';
-import {Metadata} from '../../models/metadata.model';
-import {PdfService} from '../../services/pdf.service';
-import {Subscription} from 'rxjs';
-import {AsyncPipe} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FullscreenComponent} from '../fullscreen/fullscreen.component';
-import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
+import { Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent } from 'ngx-extended-pdf-viewer';
+import { Metadata } from '../../models/metadata.model';
+import { PdfService } from '../../services/pdf.service';
+import { Subscription } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FullscreenComponent } from '../fullscreen/fullscreen.component';
+import { InlineLoaderComponent } from '../inline-loader/inline-loader.component';
 
 @Component({
   selector: 'app-pdf-viewer',
@@ -19,7 +19,7 @@ import {InlineLoaderComponent} from '../inline-loader/inline-loader.component';
   templateUrl: './pdf-viewer.html',
   styleUrl: './pdf-viewer.scss'
 })
-export class PdfViewer implements OnInit, AfterViewInit, OnDestroy {
+export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   @Input() metadata: Metadata | null = null;
   @ViewChild(NgxExtendedPdfViewerComponent) pdfViewer?: NgxExtendedPdfViewerComponent;
@@ -32,6 +32,15 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy {
   private isInitialLoad = true;
 
   constructor() {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['metadata']) {
+      this.pdfService.uuid = this.metadata?.uuid || null;
+      if (!changes['metadata'].firstChange) {
+        this.checkAndNavigateToUrlPage();
+      }
+    }
   }
 
   ngOnInit(): void {

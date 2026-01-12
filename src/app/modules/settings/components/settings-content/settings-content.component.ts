@@ -1,4 +1,4 @@
-import {Component, Input, signal} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {NgSwitch, NgSwitchCase} from '@angular/common';
 import {SettingsDisplaySectionComponent} from '../settings-display-section/settings-display-section.component';
 import {
@@ -33,5 +33,6 @@ export class SettingsContentComponent {
 
   @Input() settings!: Settings;
   @Input() activeSection = signal<string>('display');
+  @Output() settingsChange = new EventEmitter<Settings>();
 
 }

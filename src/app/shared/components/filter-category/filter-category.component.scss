@@ -1,22 +1,54 @@
+@use 'skeleton' as *;
+
 .category--header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+
+  h4 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: var(--font-size-base);
+  }
+
+  .and-indicator {
+    background-color: var(--color-bg-contrast);
+    color: var(--color-text-base);
+    padding: 2px 5px;
+    margin-right: 10px;
+  }
 }
 
-h4 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  font-size: var(--font-size-base);
-}
+.filters-skeleton {
+  &--header {
+    width: 50%;
+    height: 24px;
+    border-radius: 4px;
+    @include skeleton-shimmer;
+  }
 
-.and-indicator {
-  background-color: var(--color-bg-contrast);
-  color: var(--color-text-base);
-  padding: 2px 5px;
-  margin-right: 10px;
+  &--row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &--checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    @include skeleton-shimmer;
+  }
+
+  &--text {
+    flex: 1;
+    height: 20px;
+    border-radius: 4px;
+    @include skeleton-shimmer;
+  }
 }

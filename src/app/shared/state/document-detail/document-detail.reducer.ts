@@ -8,6 +8,9 @@ export interface DocumentDetailState {
   data: Metadata | null;
   pages: Page[] | null;
   error: any;
+  articleDetail: any | null;
+  articleDetailLoading: boolean;
+  articleDetailError: any;
 }
 
 export const initialState: DocumentDetailState = {
@@ -15,6 +18,9 @@ export const initialState: DocumentDetailState = {
   data: null,
   pages: null,
   error: null,
+  articleDetail: null,
+  articleDetailLoading: false,
+  articleDetailError: null,
 };
 
 export const documentDetailReducer = createReducer(
@@ -30,5 +36,20 @@ export const documentDetailReducer = createReducer(
     ...state,
     loading: false,
     error
+  })),
+  on(DocumentDetailActions.loadArticleDetail, state => ({
+    ...state,
+    articleDetailLoading: true,
+    articleDetailError: null
+  })),
+  on(DocumentDetailActions.loadArticleDetailSuccess, (state, { articleDetail }) => ({
+    ...state,
+    articleDetailLoading: false,
+    articleDetail
+  })),
+  on(DocumentDetailActions.loadArticleDetailFailure, (state, { error }) => ({
+    ...state,
+    articleDetailLoading: false,
+    articleDetailError: error
   }))
 );

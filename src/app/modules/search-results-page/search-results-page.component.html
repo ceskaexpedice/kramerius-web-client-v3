@@ -12,14 +12,12 @@
           <div left>
             <!-- Regular view: show record type tabs -->
             <ng-container *ngIf="!selectionService.selectionMode()">
-<!--              <app-record-type-tabs></app-record-type-tabs>-->
+              <!--              <app-record-type-tabs></app-record-type-tabs>-->
             </ng-container>
 
             <!-- Admin view: show admin actions -->
             <ng-container *ngIf="selectionService.selectionMode()">
-              <app-admin-actions
-                (exportRequested)="onExportSelected()"
-                (editRequested)="onEditSelected($event)">
+              <app-admin-actions (exportRequested)="onExportSelected()" (editRequested)="onEditSelected($event)">
               </app-admin-actions>
             </ng-container>
           </div>
@@ -29,39 +27,24 @@
 
               <!-- Show regular controls when not in admin mode -->
               <ng-container *ngIf="!selectionService.selectionMode()">
-                <app-paginator-info
-                  [page]="searchService.page"
-                  [pageSize]="searchService.pageSize"
+                <app-paginator-info [page]="searchService.page" [pageSize]="searchService.pageSize"
                   [totalCount]="searchService.totalCount">
                 </app-paginator-info>
 
-                <app-toggle-button-group
-                  [options]="viewOptions"
-                  [value]="view()"
-                  (valueChange)="setView($event)"
-                />
+                <app-toggle-button-group [options]="viewOptions" [value]="view()" (valueChange)="setView($event)" />
 
                 <div class="flex flex--align-center flex--gap-x2 margin-side--x2">
 
-                  <app-toolbar-controls
-                    [showViewToggle]="false"
-                    [showFavorites]="false"
-                    [showShare]="false"
-                    [showQuote]="false"
-                    [showInfo]="false"
-                    [showSelect]="!breakpointService.isMobile()"
-                    [showDownload]="true"
-                    [themeDefault]="true"
-                    (selectClicked)="selectionService.setSelectionMode(true)"
-                  >
+                  <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
+                    [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
+                    [showDownload]="true" [themeDefault]="true"
+                    (selectClicked)="selectionService.setSelectionMode(true)">
                   </app-toolbar-controls>
 
                 </div>
 
-                <app-results-sort
-                  [selectedSort]="searchService.sortBy"
-                  [selectedDirection]="searchService.sortDirection"
-                  (sortChange)="onSortChange($event)">
+                <app-results-sort [selectedSort]="searchService.sortBy"
+                  [selectedDirection]="searchService.sortDirection" (sortChange)="onSortChange($event)">
                 </app-results-sort>
               </ng-container>
 
@@ -70,7 +53,8 @@
                 <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
               </ng-container>
 
-              <button class="button outlined tertiary sm square-button" aria-label="{{'Close select mode' | translate}}" *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
+              <button class="button outlined tertiary sm square-button" aria-label="{{'Close select mode' | translate}}"
+                *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
                 <i class="icon-close"></i>
               </button>
 
@@ -79,190 +63,163 @@
         </app-action-toolbar>
       </div>
 
-      <div class="page-content__wrapper">
+      <div class="page-content__wrapper"
+        [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
 
-        <app-selected-tags
-          *ngIf="((searchService.selectedTags | async) || []).length > 0"
-          [items]="(searchService.selectedTags | async) || []"
-          [operators]="(searchService.getFiltersWithOperators() | async) || {}"
-          [showOperators]="false"
-          [translateItems]="true"
-          (remove)="searchService.removeFilter($event)"
-          (removeGroup)="searchService.resetOperator($event)"
-          (clearAll)="searchService.clearAllFilters()"
-          clearButtonPosition="left">
-        </app-selected-tags>
+        <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
+          <app-selected-tags [items]="(searchService.selectedTags | async) || []"
+            [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
+            [translateItems]="true" (remove)="searchService.removeFilter($event)"
+            (removeGroup)="searchService.resetOperator($event)" (clearAll)="searchService.clearAllFilters()"
+            clearButtonPosition="left">
+          </app-selected-tags>
+        </div>
 
         <ng-container *ngIf="advancedSearchService.isAdvancedSearchActive()">
           <app-advanced-search-indicator></app-advanced-search-indicator>
         </ng-container>
 
-        <!-- Loading State -->
-        <div *ngIf="searchService.loading$ | async" class="loading-container">
-          <div class="loading-message">
-            <p>{{ 'loading-search-results' | translate }}</p>
-          </div>
-        </div>
-
         <!-- Results Container -->
-        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'" *ngIf="!(searchService.loading$ | async)">
+        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
 
           <!-- GRID VIEW -->
           @if (view() === ViewOptions.grid) {
 
-            <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
-              @if (nonPageResults.length > 0) {
-                <h3>{{'titles-section-header' | translate}}</h3>
+          <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
+            <h3>{{'titles-section-header' | translate}}</h3>
 
-                <div class="grid--container">
+            <div class="grid--container">
+              <app-record-item
+                *ngFor="let doc of (searchService.nonPageResults$ | async) | skeletonList:60:(searchService.loading$ | async)"
+                [item]="doc ? toRecordItem(doc) : undefined">
+              </app-record-item>
 
-                  <app-record-item *ngFor="let doc of nonPageResults" [item]="toRecordItem(doc)"></app-record-item>
+            </div>
+          </ng-container>
 
-                </div>
-              }
-            </ng-container>
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async) as articleResults">
+            @if (articleResults.length > 0) {
+            <h3>{{'articles-section-header' | translate}}</h3>
 
-            <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
-              @if (articleResults.length > 0) {
-                <h3>{{'articles-section-header' | translate}}</h3>
+            <div class="grid--container">
 
-                <div class="grid--container">
+              <app-record-item *ngFor="let doc of articleResults" [item]="toRecordItem(doc)"></app-record-item>
 
-                  <app-record-item *ngFor="let doc of articleResults" [item]="toRecordItem(doc)"></app-record-item>
+            </div>
+            }
+          </ng-container>
 
-                </div>
-              }
-            </ng-container>
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
+            @if (pageResults.length > 0) {
+            <h3>{{'pages-section-header' | translate}}</h3>
 
-            <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
-              @if (pageResults.length > 0) {
-                <h3>{{'pages-section-header' | translate}}</h3>
+            <div class="grid--container">
 
-                <div class="grid--container">
+              <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)"></app-record-item>
 
-                  <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)"></app-record-item>
+            </div>
+            }
+          </ng-container>
 
-                </div>
-              }
-            </ng-container>
+          <ng-container
+            *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async) as attachmentResults">
+            @if (attachmentResults.length > 0) {
+            <h3>{{'attachments-section-header' | translate}}</h3>
 
-            <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
-              @if (attachmentResults.length > 0) {
-                <h3>{{'attachments-section-header' | translate}}</h3>
+            <div class="grid--container">
 
-                <div class="grid--container">
+              <app-record-item *ngFor="let doc of attachmentResults" [item]="toRecordItem(doc)"></app-record-item>
 
-                  <app-record-item *ngFor="let doc of attachmentResults" [item]="toRecordItem(doc)"></app-record-item>
-
-                </div>
-              }
-            </ng-container>
+            </div>
+            }
+          </ng-container>
 
           } @else {
 
-            <!-- LIST VIEW -->
-            <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
-              @if (nonPageResults.length > 0) {
-                <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>{{'titles-section-header' | translate}}</h3>
-                  <div class="pull-right">
-                    <app-paginator
-                      [showOnlyArrows]="true"
-                      [showPageSizeOptions]="false"
-                      [page]="searchService.page"
-                      [totalCount]="searchService.totalCount"
-                      [pageSize]="searchService.pageSize"
-                      [pageSizeOptions]="[60, 120, 180]"
-                      (pageChange)="searchService.goToPage($event)"
-                      (pageSizeChange)="searchService.changePageSize($event)">
-                    </app-paginator>
-                  </div>
-                </div>
-                <app-record-item-list [records]="nonPageResults"></app-record-item-list>
-              }
-            </ng-container>
+          <app-inline-loader *ngIf="searchService.loading$ | async" [overlay]="true"></app-inline-loader>
 
-            <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
-              @if (articleResults.length > 0) {
-                <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>{{'articles-section-header' | translate}}</h3>
-                  <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
-                    <div class="pull-right">
-                      <app-paginator
-                        [showOnlyArrows]="true"
-                        [showPageSizeOptions]="false"
-                        [page]="searchService.page"
-                        [totalCount]="searchService.totalCount"
-                        [pageSize]="searchService.pageSize"
-                        [pageSizeOptions]="[60, 120, 180]"
-                        (pageChange)="searchService.goToPage($event)"
-                        (pageSizeChange)="searchService.changePageSize($event)">
-                      </app-paginator>
-                    </div>
-                  </ng-container>
-                </div>
-                <app-record-item-list [records]="articleResults"></app-record-item-list>
-              }
-            </ng-container>
+          <!-- LIST VIEW -->
+          <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
+            @if (nonPageResults.length > 0) {
+            <div class="list-view--header flex flex--space-between align-items-center">
+              <h3>{{'titles-section-header' | translate}}</h3>
+              <div class="pull-right">
+                <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
+                  [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                  [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
+                  (pageSizeChange)="searchService.changePageSize($event)">
+                </app-paginator>
+              </div>
+            </div>
+            <app-record-item-list [records]="nonPageResults"></app-record-item-list>
+            }
+          </ng-container>
 
-            <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
-              @if (pageResults.length > 0) {
-                <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>{{'pages-section-header' | translate}}</h3>
-                  <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length">
-                    <div class="pull-right">
-                      <app-paginator
-                        [showOnlyArrows]="true"
-                        [showPageSizeOptions]="false"
-                        [page]="searchService.page"
-                        [totalCount]="searchService.totalCount"
-                        [pageSize]="searchService.pageSize"
-                        [pageSizeOptions]="[60, 120, 180]"
-                        (pageChange)="searchService.goToPage($event)"
-                        (pageSizeChange)="searchService.changePageSize($event)">
-                      </app-paginator>
-                    </div>
-                  </ng-container>
+          <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
+            @if (articleResults.length > 0) {
+            <div class="list-view--header flex flex--space-between align-items-center">
+              <h3>{{'articles-section-header' | translate}}</h3>
+              <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
+                <div class="pull-right">
+                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
+                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
+                    (pageSizeChange)="searchService.changePageSize($event)">
+                  </app-paginator>
                 </div>
-                <app-record-item-list [records]="pageResults"></app-record-item-list>
-              }
-            </ng-container>
+              </ng-container>
+            </div>
+            <app-record-item-list [records]="articleResults"></app-record-item-list>
+            }
+          </ng-container>
 
-            <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
-              @if (attachmentResults.length > 0) {
-                <div class="list-view--header flex flex--space-between align-items-center">
-                  <h3>{{'attachments-section-header' | translate}}</h3>
-                  <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length && !(searchService.pageResults$ | async)?.length">
-                    <div class="pull-right">
-                      <app-paginator
-                        [showOnlyArrows]="true"
-                        [showPageSizeOptions]="false"
-                        [page]="searchService.page"
-                        [totalCount]="searchService.totalCount"
-                        [pageSize]="searchService.pageSize"
-                        [pageSizeOptions]="[60, 120, 180]"
-                        (pageChange)="searchService.goToPage($event)"
-                        (pageSizeChange)="searchService.changePageSize($event)">
-                      </app-paginator>
-                    </div>
-                  </ng-container>
+          <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
+            @if (pageResults.length > 0) {
+            <div class="list-view--header flex flex--space-between align-items-center">
+              <h3>{{'pages-section-header' | translate}}</h3>
+              <ng-container
+                *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length">
+                <div class="pull-right">
+                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
+                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
+                    (pageSizeChange)="searchService.changePageSize($event)">
+                  </app-paginator>
                 </div>
-                <app-record-item-list [records]="attachmentResults"></app-record-item-list>
-              }
-            </ng-container>
+              </ng-container>
+            </div>
+            <app-record-item-list [records]="pageResults"></app-record-item-list>
+            }
+          </ng-container>
+
+          <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
+            @if (attachmentResults.length > 0) {
+            <div class="list-view--header flex flex--space-between align-items-center">
+              <h3>{{'attachments-section-header' | translate}}</h3>
+              <ng-container
+                *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length && !(searchService.pageResults$ | async)?.length">
+                <div class="pull-right">
+                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
+                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
+                    (pageSizeChange)="searchService.changePageSize($event)">
+                  </app-paginator>
+                </div>
+              </ng-container>
+            </div>
+            <app-record-item-list [records]="attachmentResults"></app-record-item-list>
+            }
+          </ng-container>
 
           }
 
         </div>
 
-        <app-paginator
-          [disabledPagination]="selectionService.selectionMode()"
-          [page]="searchService.page"
-          [totalCount]="searchService.totalCount"
-          [pageSize]="searchService.pageSize"
-          [pageSizeOptions]="[60, 120, 180]"
-          (pageChange)="searchService.goToPage($event)"
-          (pageSizeChange)="searchService.changePageSize($event)">
+        <app-paginator [disabledPagination]="selectionService.selectionMode()" [page]="searchService.page"
+          [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [pageSizeOptions]="[60, 120, 180]"
+          (pageChange)="searchService.goToPage($event)" (pageSizeChange)="searchService.changePageSize($event)">
         </app-paginator>
 
       </div>

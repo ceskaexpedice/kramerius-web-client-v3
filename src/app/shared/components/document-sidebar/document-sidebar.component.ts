@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
 import { AdminActionsComponent } from '../admin-actions/admin-actions.component';
 import { DetailPagesGridComponent } from '../../../modules/detail-view-page/components/detail-pages-grid/detail-pages-grid.component';
+import { DetailArticlesListComponent } from '../../../modules/detail-view-page/components/detail-articles-list/detail-articles-list.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { Metadata } from '../../models/metadata.model';
@@ -27,6 +28,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     PageNavigatorComponent,
     AdminActionsComponent,
     DetailPagesGridComponent,
+    DetailArticlesListComponent,
     AutocompleteComponent,
     SearchNavigationComponent,
     SearchResultsListComponent,
@@ -86,6 +88,9 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   get shouldShowPageNavigator(): boolean {
     if (this.searchQuery() && !this.showAllPages) return false;
 
+    // Don't show page navigator when articles are displayed
+    if (this.hasArticles) return false;
+
     if (this.isSoundRecording) {
       return this.detailViewService.soundRecordingViewMode() === 'images';
     }
@@ -94,6 +99,10 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
 
   get gridType(): 'recording' | 'page' {
     return this.isSoundRecording ? 'recording' : 'page';
+  }
+
+  get hasArticles(): boolean {
+    return (this.detailViewService.articles?.length ?? 0) > 0;
   }
 
   /**

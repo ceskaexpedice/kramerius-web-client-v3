@@ -76,7 +76,11 @@
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>
       } @else {
-        <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+        @if (hasArticles) {
+          <app-detail-articles-list></app-detail-articles-list>
+        } @else {
+          <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+        }
       }
     </div>
   </div>

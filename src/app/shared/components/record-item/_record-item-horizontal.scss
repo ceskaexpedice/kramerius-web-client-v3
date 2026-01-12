@@ -1,0 +1,46 @@
+.record-item-card.horizontal {
+    min-width: 0;
+    aspect-ratio: auto;
+    height: auto;
+    min-height: auto;
+
+    .record-item-card__inner {
+        flex-direction: row;
+        gap: var(--spacing-x3);
+        padding: var(--spacing-x2);
+    }
+
+    .record-item-card__image {
+        width: 60px;
+        aspect-ratio: 70/100;
+        flex-shrink: 0;
+
+        // Adjust badge position for small image
+        app-model-badge {
+            display: none; // Often too small to show badge on small horizontal thumbnails, or scale it down
+        }
+    }
+
+    .record-item-card__content {
+        height: auto;
+        flex: 1;
+        min-width: 0; // Essential for flex child text truncation
+        padding-bottom: 0; // Override base style
+
+        .title {
+            font-size: var(--font-size-base);
+            line-height: 1.2;
+            margin-bottom: 4px;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            max-height: none; // Reset max-height constraint from base
+        }
+
+        .subtitle {
+            font-size: var(--font-size-small);
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            max-height: none;
+        }
+    }
+}

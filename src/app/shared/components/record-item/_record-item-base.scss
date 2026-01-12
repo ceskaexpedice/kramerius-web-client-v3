@@ -67,6 +67,45 @@
     border-radius: var(--spacing-x1);
     min-height: 0;
 
+    &.skeleton-active {
+      border-color: var(--color-border-bright);
+    }
+
+    .skeleton-image {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-bg-bright);
+
+      i {
+        font-size: 28px;
+        color: var(--icon-grey);
+        visibility: visible !important;
+      }
+    }
+
+    .real-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: var(--spacing-x1);
+      transition: opacity 0.3s ease;
+
+      &.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
     app-model-badge {
       position: absolute;
       bottom: 10px;
@@ -150,6 +189,32 @@
     // Content is ~108px out of 350px total (~37% accounting for padding)
     height: 37%;
     flex-shrink: 0; // Prevent content from shrinking
+
+    .skeleton-text {
+      width: 100%;
+      height: 16px;
+      margin-bottom: 4px;
+      background-color: var(--color-bg-bright);
+      border-radius: 4px;
+
+      &.title-skeleton {
+        width: 90%;
+        height: 18px;
+        margin-bottom: 6px;
+      }
+
+      &.title-skeleton-short {
+        width: 60%;
+        height: 18px;
+        margin-bottom: 8px;
+      }
+
+      &.subtitle-skeleton {
+        width: 80%;
+        height: 14px;
+        margin-top: 4px;
+      }
+    }
 
     .title {
       font-size: var(--font-size-base);

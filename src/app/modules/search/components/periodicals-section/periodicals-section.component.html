@@ -1,21 +1,17 @@
 <section>
   <div class="section-header">
     <h2>{{ 'periodical' | translate }}</h2>
-    <button class="show-all with-icon p-right-0" (click)="showMore()">
-      {{'btn_show_more' | translate}}
+    <button class="show-all with-icon" (click)="showMore()">
+      <span class="text">{{'btn_show_more' | translate}}</span>
       <i class="icon-arrow-right-3"></i>
     </button>
   </div>
 
   <div class="carousel-wrapper">
-    <app-inline-loader
-      *ngIf="loading$ | async">
-    </app-inline-loader>
-
-    <div *ngIf="!(loading$ | async)">
-      <app-carousel *ngIf="periodicals$ | async as periodicals" [edgeToEdge]="true">
-        <ng-container *ngFor="let item of periodicals">
-          <app-record-item [showModel]="false" [item]="toRecordItem(item)"></app-record-item>
+    <div class="carousel-container">
+      <app-carousel [attr.data-loading]="(loading$ | async)" [edgeToEdge]="true" [actionsPosition]="'top'">
+        <ng-container *ngFor="let item of (periodicals$ | async) | skeletonList:50:(loading$ | async)">
+          <app-record-item [showModel]="false" [item]="item ? toRecordItem(item) : undefined"></app-record-item>
         </ng-container>
       </app-carousel>
     </div>

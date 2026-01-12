@@ -1,58 +1,41 @@
-<div
-  class="select-wrapper"
-  #wrapper
-  (click)="toggle()"
-  [attr.aria-expanded]="open()"
-  role="button"
-  tabindex="0"
-  [ngClass]="[theme, class]"
-  (keydown)="onKeyDown($event)"
->
+<div class="select-wrapper" #wrapper (click)="toggle()" [attr.aria-expanded]="open()" role="button" tabindex="0"
+  [ngClass]="[theme, class]" (keydown)="onKeyDown($event)">
   <span>{{ displayFn(value) | translate }}</span>
-  <i
-    class="icon-arrow-down arrow-icon"
-    [class.open]="open()"
-  ></i>
+  <i class="icon-arrow-down arrow-icon" [class.open]="open()"></i>
 </div>
 
-<div
-  *ngIf="open()"
-  class="options-container"
-  [class.above]="showAbove"
-  [style.z-index]="zIndex"
-  role="listbox"
-  [attr.aria-activedescendant]="'option-' + focusedIndex"
->
+<div *ngIf="open()" class="options-container" [class.above]="showAbove" [style.z-index]="zIndex" role="listbox"
+  [attr.aria-activedescendant]="'option-' + focusedIndex">
   <!-- Filter Input -->
   <div *ngIf="filterable" class="filter-container">
-    <app-input
-      [type]="'text'"
-      class="filter-input"
-        [placeholder]="filterPlaceholder | translate"
-        (valueChange)="onFilterChange($event)"
-        (keydown)="onFilterKeyDown($event)"
-        (click)="$event.stopPropagation()"
-      [theme]="'dark'"
-      [size]="'sm'"
-    ></app-input>
+    <app-input [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate"
+      (valueChange)="onFilterChange($event)" (keydown)="onFilterKeyDown($event)" (click)="$event.stopPropagation()"
+      [theme]="'dark'" [size]="'sm'"></app-input>
   </div>
 
   <!-- Options List -->
   <div class="options-list" [class.with-filter]="filterable">
-    <div
-      class="option"
-      *ngFor="let option of filteredOptions; let i = index; trackBy: trackByFn"
-      [attr.id]="'option-' + i"
-      [class.selected]="option === value"
-      [class.focused]="focusedIndex === i"
-      (click)="select(option)"
-      (mouseenter)="focusedIndex = i"
-      role="option"
-      [attr.aria-selected]="option === value"
-    >
-      {{ displayFn(option) | translate }}
-      <i *ngIf="option === value" class="icon-tick-circle"></i>
-    </div>
+
+    <ng-container *ngIf="virtualScroll; else standardList">
+      <cdk-virtual-scroll-viewport [itemSize]="itemSize" [style.height]="getViewportHeight()">
+        <div *cdkVirtualFor="let option of filteredOptions; let i = index; trackBy: trackByFn" class="option"
+          [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
+          (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
+          [attr.aria-selected]="option === value">
+          {{ displayFn(option) | translate }}
+          <i *ngIf="option === value" class="icon-tick-circle"></i>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </ng-container>
+
+    <ng-template #standardList>
+      <div class="option" *ngFor="let option of filteredOptions; let i = index; trackBy: trackByFn"
+        [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
+        (click)="select(option)" (mouseenter)="focusedIndex = i" role="option" [attr.aria-selected]="option === value">
+        {{ displayFn(option) | translate }}
+        <i *ngIf="option === value" class="icon-tick-circle"></i>
+      </div>
+    </ng-template>
 
     <!-- No results message -->
     <div *ngIf="filteredOptions.length === 0" class="no-results">

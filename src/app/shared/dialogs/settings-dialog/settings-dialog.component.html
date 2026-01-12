@@ -6,7 +6,8 @@
 
   <app-settings-content
     [settings]="localSettings()"
-    [activeSection]="activeSection">
+    [activeSection]="activeSection"
+    (settingsChange)="onSettingsChange($event)">
   </app-settings-content>
 
 </app-sidebar-dialog-layout>

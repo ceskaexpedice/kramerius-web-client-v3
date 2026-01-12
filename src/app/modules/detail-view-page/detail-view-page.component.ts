@@ -1,18 +1,23 @@
-import {Component, inject, OnInit, OnDestroy} from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
-import {DetailViewService} from './services/detail-view.service';
-import {RecordHandlerService} from '../../shared/services/record-handler.service';
-import {DocumentTypeEnum} from '../constants/document-type';
-import {DocumentAccessibilityEnum} from '../constants/document-accessibility';
-import {SelectionService} from '../../shared/services';
-import {Subscription} from 'rxjs';
-import {PdfService} from '../../shared/services/pdf.service';
-import {IIIFViewerService} from '../../shared/services/iiif-viewer.service';
-import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {FavoritesService} from '../../shared/services/favorites.service';
-import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
-import {Router} from '@angular/router';
-import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import { DetailViewService } from './services/detail-view.service';
+import { RecordHandlerService } from '../../shared/services/record-handler.service';
+import { DocumentTypeEnum } from '../constants/document-type';
+import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
+import { SelectionService } from '../../shared/services';
+import { Observable, Subscription } from 'rxjs';
+import { map, shareReplay, distinctUntilChanged } from 'rxjs/operators';
+import { PdfService } from '../../shared/services/pdf.service';
+import { IIIFViewerService } from '../../shared/services/iiif-viewer.service';
+import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { FavoritesService } from '../../shared/services/favorites.service';
+import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
+import { Router } from '@angular/router';
+import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
+import { Store } from '@ngrx/store';
+import { selectArticleDetail } from '../../shared/state/document-detail/document-detail.selectors';
+import { fromSolrToMetadata } from '../../shared/models/metadata.model';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -30,9 +35,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
+  private store = inject(Store);
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
+
+  // Article detail observable - converted to metadata format
+  articleMetadata$: Observable<any>;
 
   // View toggle options for sound recordings - static to prevent re-rendering
   readonly viewToggleOptions: ViewToggleOption[] = [
@@ -48,13 +57,26 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   ) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();
     this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
+
+    this.articleMetadata$ = this.store.select(selectArticleDetail).pipe(
+      distinctUntilChanged((prev, curr) => prev?.pid === curr?.pid),
+      map(articleDetail => {
+        if (articleDetail) {
+          const metadata = fromSolrToMetadata(articleDetail);
+          console.log('New article metadata loaded - UUID:', metadata?.uuid);
+          // Return new object reference to force change detection
+          return { ...metadata };
+        }
+        console.log('Article metadata cleared');
+        return null;
+      }),
+      shareReplay(1)
+    );
   }
 
   ngOnInit() {
     this.detailViewService.loadDocument();
-    // this.detailViewService.loadPages();
 
-    // Set up admin selection service to track current page items
     this.subscriptions.push(
       this.detailViewService.pages$.subscribe(pages => {
         if (pages && pages.length > 0) {

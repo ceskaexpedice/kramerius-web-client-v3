@@ -92,7 +92,7 @@ export class ModsParserService {
     this.processNotes(this.getElements(modsElement, 'note'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
-    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, { key: 'authority', value: 'czenas' });
+    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, null);
 
     return metadata;
   }
@@ -112,7 +112,7 @@ export class ModsParserService {
     this.processPhysicalDescriptions(this.getElements(modsElement, 'physicalDescription'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
-    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, { key: 'authority', value: 'czenas' });
+    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, null);
 
     // Handle partName in titleInfo
     const titleInfoElements = this.getElements(modsElement, 'titleInfo');
@@ -447,6 +447,16 @@ export class ModsParserService {
       } else if (extent) {
         const desc = new PhysicalDescription('', extent);
         if (!desc.empty()) {
+          metadata.physicalDescriptions.push(desc);
+        }
+      }
+
+      // Process form elements
+      const formElements = this.getElements(item, 'form');
+      for (const form of formElements) {
+        const text = this.getText(form);
+        if (text) {
+          const desc = new PhysicalDescription(text);
           metadata.physicalDescriptions.push(desc);
         }
       }

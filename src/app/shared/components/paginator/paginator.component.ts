@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
-import {MatButton} from '@angular/material/button';
-import {SelectComponent} from '../select/select.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { MatButton } from '@angular/material/button';
+import { SelectComponent } from '../select/select.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-paginator',
@@ -22,11 +22,13 @@ export class PaginatorComponent implements OnChanges {
   @Input() disabledPagination = false;
   @Input() disabledPageSize = false;
 
+  @Input() layout: 'normal' | 'compact' = 'normal';
+
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['totalCount'] || changes['pageSize'] || changes['page']) {
+    if (changes['totalCount'] || changes['pageSize'] || changes['page'] || changes['layout']) {
       this.generatePages();
     }
   }
@@ -34,35 +36,74 @@ export class PaginatorComponent implements OnChanges {
   private generatePages(): void {
     const totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
     const pages: number[] = [];
-
     const last = totalPages;
 
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
+    if (this.layout === 'compact') {
+      pages.push(this.page);
+      const next = this.page + 1;
+
+      if (next < totalPages) {
+        pages.push(next);
+        if (next < totalPages - 1) {
+          pages.push(-3); // Static Ellipsis
+        }
       }
-    } else if (this.page <= 2) {
-      pages.push(1, 2, 3);
-      pages.push(-1); // ...
-      pages.push(last);
-    } else if (this.page === 3) {
-      pages.push(1, 2, 3, 4);
-      pages.push(-1);
-      pages.push(last);
-    } else if (this.page >= last - 2) {
-      pages.push(1);
-      pages.push(-1);
-      pages.push(last - 3, last - 2, last - 1, last);
+
+      if (this.page < totalPages) {
+        pages.push(totalPages);
+      }
     } else {
-      pages.push(1);
-      pages.push(-1);
-      pages.push(this.page - 1, this.page, this.page + 1);
-      pages.push(-1);
-      pages.push(last);
+      // Normal Mode
+      const delta = 1; // Number of pages around current to show
+      const left = this.page - delta;
+      const right = this.page + delta;
+      const range: number[] = [];
+      const rangeWithDots: number[] = [];
+      let l: number | undefined;
+
+      for (let i = 1; i <= last; i++) {
+        // Show: First, Last, Range (current +/- 1), or Start/End buffers (first 3 or last 3)
+        if (
+          i === 1 ||
+          i === last ||
+          (i >= left && i <= right) ||
+          (this.page < 3 && i <= 3) ||
+          (this.page > last - 2 && i >= last - 2)
+        ) {
+          range.push(i);
+        }
+      }
+
+      for (const i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(l + 1);
+          } else if (i - l !== 1) {
+            // Determine if it's left or right ellipsis based on position
+            if (i < this.page) {
+              rangeWithDots.push(-1); // Left Ellipsis
+            } else {
+              rangeWithDots.push(-2); // Right Ellipsis
+            }
+          }
+        }
+        rangeWithDots.push(i);
+        l = i;
+      }
+
+      // Copy to pages
+      pages.push(...rangeWithDots);
     }
 
     this.pages.set(pages);
   }
+
+  jump(offset: number): void {
+    const newPage = this.page + offset;
+    this.goToPage(newPage);
+  }
+
+
 
   goToPage(page: number): void {
     const totalPages = Math.ceil(this.totalCount / this.pageSize);

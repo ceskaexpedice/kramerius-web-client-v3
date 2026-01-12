@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {CarouselComponent} from '../../../../shared/components/carousel/carousel.component';
-import {AsyncPipe, NgForOf, NgIf, TitleCasePipe} from '@angular/common';
+import {AsyncPipe, NgForOf, TitleCasePipe} from '@angular/common';
 import {Store} from '@ngrx/store';
 import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors';
 import {loadBooks} from '../../state/books/books.actions';
@@ -9,21 +9,20 @@ import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {SearchService} from '../../../../shared/services/search.service';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
-import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {SearchDocument} from '../../../models/search-document';
+import {SkeletonListPipe} from '../../../../shared/pipes/skeleton-list.pipe';
 
 @Component({
   selector: 'app-books-section',
   imports: [
     CarouselComponent,
     NgForOf,
-    NgIf,
     AsyncPipe,
     TranslatePipe,
     TitleCasePipe,
     RecordItemComponent,
-    InlineLoaderComponent,
+    SkeletonListPipe,
   ],
   templateUrl: './books-section.component.html',
   styleUrls: ['./books-section.component.scss', '../search-section.scss']

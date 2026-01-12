@@ -1,13 +1,13 @@
-import {Component, computed, EventEmitter, inject, Input, Output} from '@angular/core';
-import {TranslatePipe} from '@ngx-translate/core';
-import {Metadata} from '../../../../shared/models/metadata.model';
-import {BreadcrumbsService} from '../../../../shared/services/breadcrumbs.service';
+import { Component, computed, EventEmitter, inject, Input, Output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Metadata } from '../../../../shared/models/metadata.model';
+import { BreadcrumbsService } from '../../../../shared/services/breadcrumbs.service';
 
 @Component({
   selector: 'app-collections-right-sidebar-content',
-	imports: [
-		TranslatePipe,
-	],
+  imports: [
+    TranslatePipe,
+  ],
   templateUrl: './collections-right-sidebar-content.html',
   styleUrl: './collections-right-sidebar-content.scss',
 })
@@ -15,7 +15,8 @@ export class CollectionsRightSidebarContent {
 
   metadata: Metadata | undefined;
 
-  @Output() onClose = new EventEmitter();
+  @Input() showClose = true;
+  @Output() onClose = new EventEmitter<void>();
 
   private breadcrumbsService = inject(BreadcrumbsService);
 

@@ -1,4 +1,4 @@
-<div class="inline-loader" [style.min-height]="minHeight">
+<div class="inline-loader" [class.overlay]="overlay" [style.min-height]="overlay ? '0' : minHeight">
   <div class="loader-spinner" [class]="'size-' + size"></div>
   <p *ngIf="message" class="loader-message">{{ message | translate }}</p>
 </div>

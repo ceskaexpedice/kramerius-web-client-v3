@@ -6,13 +6,15 @@ import {
   loadPeriodicalSearchResults,
   loadPeriodicalSearchSuccess,
 } from './periodical-search.actions';
-import {FacetItem} from '../../../models/facet-item';
+import { loadPeriodical } from '../periodical-detail/periodical-detail.actions';
+import { FacetItem } from '../../../models/facet-item';
 
 export interface PeriodicalSearchState {
   results: any[];
   totalCount: number;
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
+  facetsLoading: boolean;
   error: any;
 }
 
@@ -21,6 +23,7 @@ export const initialState: PeriodicalSearchState = {
   totalCount: 0,
   facets: {},
   loading: false,
+  facetsLoading: false,
   error: null,
 };
 
@@ -29,10 +32,16 @@ export const periodicalSearchReducer = createReducer(
 
   on(loadPeriodicalSearchResults, ((state) => ({
     ...state,
-    loading: true
+    loading: true,
+    facetsLoading: true
   }))),
 
-  on(loadPeriodicalSearchSuccess, (state, {results, totalCount}) => ({
+  on(loadPeriodical, ((state) => ({
+    ...state,
+    facetsLoading: true
+  }))),
+
+  on(loadPeriodicalSearchSuccess, (state, { results, totalCount }) => ({
     ...state,
     results,
     totalCount,
@@ -41,10 +50,10 @@ export const periodicalSearchReducer = createReducer(
 
   on(loadPeriodicalSearchFailure, (state, { error }) => ({ ...state, loading: false, error })),
 
-  on(loadFacetsSuccess, (state, { facets })  => ({
+  on(loadFacetsSuccess, (state, { facets }) => ({
     ...state,
     facets,
-    loading: false,
+    facetsLoading: false,
   })),
 
   on(loadFacetSuccess, (state, { facet, items }) => ({

@@ -81,7 +81,7 @@ export class RecordHandlerService {
         if (rootPid) {
           const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
-            page: pid
+            article: pid
           }
           if (fulltext && fulltext.trim().length > 0) {
             queryParams['fulltext'] = fulltext;
@@ -129,7 +129,7 @@ export class RecordHandlerService {
 
   public navigateToEmptySearch(): void {
     this.searchService.searchTerm.set('');
-    this.router.navigate([APP_ROUTES_ENUM.SEARCH]);
+    this.router.navigate([APP_ROUTES_ENUM.SEARCH], { queryParams: {}, queryParamsHandling: null });
   }
 
   navigateFromPeriodicalToSearchResults(): void {
@@ -237,7 +237,7 @@ export class RecordHandlerService {
         break;
 
       case DocumentTypeEnum.article:
-        hierarchyLevels.push(DocumentTypeEnum.article, DocumentTypeEnum.page);
+        hierarchyLevels.push(DocumentTypeEnum.article);
         break;
 
       case DocumentTypeEnum.soundrecording:
@@ -279,6 +279,12 @@ export class RecordHandlerService {
     // Get all possible hierarchy levels based on document type
     const hierarchyLevels = this.getDocumentHierarchyLevels(document);
 
+    const urlParam = new URLSearchParams(this.getUrlSearch());
+    const articleUuid = urlParam.get('article');
+
+    // Check if we are in article context
+    const isArticle = !!articleUuid || document.model === DocumentTypeEnum.article;
+
     // Add all hierarchy levels with appropriate PIDs
     hierarchyLevels.forEach(level => {
       let pid = '';
@@ -307,10 +313,19 @@ export class RecordHandlerService {
             pid = document.ownParentPid;
           }
           break;
+        case DocumentTypeEnum.article:
+          if (articleUuid) {
+            pid = articleUuid;
+          } else {
+            pid = (document.model === DocumentTypeEnum.article ? document.uuid : '');
+          }
+          break;
         case DocumentTypeEnum.page:
           // Check if page is in URL params
-          const urlParams = new URLSearchParams(window.location.search);
-          pid = urlParams.get('page') || (document.model === DocumentTypeEnum.page ? document.uuid : '');
+          if (!isArticle) {
+            const urlParams = new URLSearchParams(this.getUrlSearch());
+            pid = urlParams.get('page') || (document.model === DocumentTypeEnum.page ? document.uuid : '');
+          }
           break;
         default:
           // For other document types (monograph, graphic, map, etc.)
@@ -326,6 +341,14 @@ export class RecordHandlerService {
         });
       }
     });
+
+    // If we have an article UUID but article wasn't in hierarchy levels (e.g. parent is periodical item), add it
+    if (articleUuid && !shareableTypes.find(item => item.model === DocumentTypeEnum.article)) {
+      shareableTypes.push({
+        model: DocumentTypeEnum.article,
+        pid: articleUuid
+      });
+    }
 
     // Legacy logic for backward compatibility
     if (document.rootModel && !shareableTypes.find(item => item.model === document.rootModel)) {
@@ -360,9 +383,9 @@ export class RecordHandlerService {
     }
 
     // if in url is ?page=uuid, then add it to the list (backward compatibility)
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(this.getUrlSearch());
     const pageUuid = urlParams.get('page');
-    if (pageUuid && !shareableTypes.find(item => item.model === 'page')) {
+    if (pageUuid && !shareableTypes.find(item => item.model === 'page') && !isArticle) {
       shareableTypes.push({
         model: 'page',
         pid: pageUuid
@@ -598,6 +621,11 @@ export class RecordHandlerService {
       return this.isRecordLocked(licenses);
     });
   }
+
+  getUrlSearch(): string {
+    return window.location.search;
+  }
+
 
   /**
    * Adds 'with-badge' class to the existing className string

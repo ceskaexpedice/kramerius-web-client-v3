@@ -41,7 +41,8 @@ export class SettingsService {
     const copy: Settings = {
       ...current,
       displayConfig: current.displayConfig ? {
-        tableColumns: current.displayConfig.tableColumns.map(col => ({ ...col }))
+        tableColumns: current.displayConfig.tableColumns.map(col => ({ ...col })),
+        facetFilters: current.displayConfig.facetFilters?.map(filter => ({ ...filter }))
       } : undefined
     };
     return copy;

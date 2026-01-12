@@ -2,6 +2,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 
   .carousel-content-wrapper {
     position: relative;
@@ -31,6 +32,13 @@
     display: flex;
     margin-left: auto;
     gap: 5px;
+
+    &:first-child {
+      position: absolute;
+      top: -48px;
+      right: 0;
+      z-index: 10;
+    }
   }
 
 }

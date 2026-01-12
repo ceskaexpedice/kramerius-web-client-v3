@@ -2,7 +2,7 @@
 
 .section-header {
   display: flex;
-  justify-content: space-between;
+  gap: var(--spacing-x2);
   align-items: center;
   margin-bottom: 12px;
 
@@ -17,6 +17,24 @@
     color: var(--color-primary);
     text-decoration: none;
     font-weight: 500;
+    gap: 0;
+
+    .text {
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: all 0.3s ease-in-out;
+    }
+
+    &:hover {
+      gap: 12px;
+
+      .text {
+        max-width: 100px;
+        opacity: 1;
+      }
+    }
   }
 }
 

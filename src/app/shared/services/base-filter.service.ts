@@ -1,12 +1,12 @@
-import {computed, inject, Injectable, OnDestroy, Signal, signal} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {combineLatest, map, Observable, of, Subject, takeUntil} from 'rxjs';
-import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
-import {QueryParamsService} from '../../core/services/QueryParamsManager';
-import {CustomSearchService} from './custom-search.service';
-import {UserService} from './user.service';
-import {FilterService} from './filter.service';
-import {AdvancedSearchService} from './advanced-search.service';
+import { computed, inject, Injectable, OnDestroy, Signal, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest, map, Observable, of, Subject, takeUntil } from 'rxjs';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { QueryParamsService } from '../../core/services/QueryParamsManager';
+import { CustomSearchService } from './custom-search.service';
+import { UserService } from './user.service';
+import { FilterService } from './filter.service';
+import { AdvancedSearchService } from './advanced-search.service';
 
 @Injectable()
 export abstract class BaseFilterService implements FilterService, OnDestroy {
@@ -49,6 +49,8 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
       return this.advancedSearchService.hasFulltextFilter();
     });
   }
+
+  facetsLoading$: Observable<boolean | undefined> = of(false);
 
   // Common computed property that can be overridden by subclasses
   get filtersContainDate() {
@@ -149,14 +151,50 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
 
   // Common method: Clear all filters (similar pattern in both services)
   clearAllFilters() {
-    this.queryParamsService.removeSearchTerm(this.route);
     this._submittedTerm.set('');
     this._searchTerm.set('');
-    this.queryParamsService.clearAllFilters(this.route);
-    // Also clear custom search filters including date/year ranges
-    setTimeout(() => {
-      this.customSearchService.clear();
-    }, 0);
+    this._pageReset.set(true);
+
+    const currentParams = this.route.snapshot.queryParams;
+    const newParams = { ...currentParams };
+
+    // 1. Clear Search Term
+    newParams['query'] = null;
+
+    // 2. Clear Standard Filters
+    delete newParams['fq'];
+
+    // 3. Clear Operators
+    Object.keys(newParams).forEach(key => {
+      if (key.endsWith('_operator')) {
+        delete newParams[key];
+      }
+    });
+
+    // 4. Clear Custom Search & Date/Year Ranges
+    newParams['customSearch'] = null;
+    const customKeys = ['dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
+    customKeys.forEach(key => newParams[key] = null);
+
+    // 5. Reset Page
+    newParams['page'] = 1;
+
+    // Remove null/undefined to clean up URL
+    Object.keys(newParams).forEach(key => {
+      if (newParams[key] === null || newParams[key] === undefined) {
+        delete newParams[key];
+      }
+    });
+
+    // Single Consolidated Navigation
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: newParams
+    });
+
+    // Update local state for custom search service to reflect changes immediately
+    // ensuring it doesn't try to trigger its own updates if called
+    // (Note: initializeFromRoute in SearchService should handle the sync)
   }
 
   // Common method: Reset page

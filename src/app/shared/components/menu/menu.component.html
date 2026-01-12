@@ -1,65 +1,36 @@
-<button
-  #trigger
-  type="button"
-  class="menu-trigger"
-  [attr.aria-expanded]="open()"
-  aria-haspopup="menu"
-  (click)="toggle()"
-  (keydown.arrowDown)="openAndFocus(0)"
-  (keydown.enter)="toggle()"
-  (keydown.space)="toggle(); $event.preventDefault()"
->
-<!--      <span class="avatar" [style.backgroundImage]="avatarUrl() ? 'url(' + avatarUrl() + ')' : ''">-->
-<!--        @if (!avatarUrl()) { {{ initials() }} }-->
-<!--      </span>-->
+<button #trigger type="button" class="menu-trigger" [attr.aria-expanded]="open()" aria-haspopup="menu"
+  (click)="toggle()" (keydown.arrowDown)="openAndFocus(0)" (keydown.enter)="toggle()"
+  (keydown.space)="toggle(); $event.preventDefault()">
+  <!--      <span class="avatar" [style.backgroundImage]="avatarUrl() ? 'url(' + avatarUrl() + ')' : ''">-->
+  <!--        @if (!avatarUrl()) { {{ initials() }} }-->
+  <!--      </span>-->
   <span class="name">{{ displayName() }}</span>
   <i class="icon-arrow-down" aria-hidden="true"></i>
 </button>
 
-<ng-template
-  cdkConnectedOverlay
-  [cdkConnectedOverlayOpen]="open()"
-  [cdkConnectedOverlayOrigin]="trigger"
-  [cdkConnectedOverlayHasBackdrop]="false"
-  [cdkConnectedOverlayPositions]="overlayPositions()"
-  (backdropClick)="close()"
-  (detach)="close()"
->
-  <div
-    class="menu-panel"
-    role="menu"
-    cdkTrapFocus
-    (keydown.escape)="close()"
-    (keydown.arrowDown)="focusNext()"
-    (keydown.arrowUp)="focusPrev()"
-    (keydown.home)="focusIndex(0)"
-    (keydown.end)="focusIndex(items().length - 1)"
-    appClickOutside
-    (clickOutside)="outsideClicked()"
-  >
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOpen]="open()" [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayHasBackdrop]="false" [cdkConnectedOverlayPositions]="overlayPositions()" (backdropClick)="close()"
+  (detach)="close()">
+  <div class="menu-panel" role="menu" cdkTrapFocus (keydown.escape)="close()" (keydown.arrowDown)="focusNext()"
+    (keydown.arrowUp)="focusPrev()" (keydown.home)="focusIndex(0)" (keydown.end)="focusIndex(items().length - 1)"
+    appClickOutside (clickOutside)="outsideClicked($event)">
     <ul class="menu-list">
       @for (item of items(); track item.id; let i = $index) {
-        @if (item.dividerAbove) {
-          <li class="divider" aria-hidden="true"></li>
-        }
-        <li>
-          <button
-            class="menu-item"
-            [class.danger]="item.variant === 'danger'"
-            [disabled]="item.disabled"
-            role="menuitem"
-            #menuItem
-            (click)="onItemClick(item)"
-          >
-            <i class="icon-{{item.icon}}" aria-hidden="true"></i>
-            <span class="label">
-              {{ item.label | translate }}
-              @if (item.count) {
-                ({{item.count}})
-              }
-            </span>
-          </button>
-        </li>
+      @if (item.dividerAbove) {
+      <li class="divider" aria-hidden="true"></li>
+      }
+      <li>
+        <button class="menu-item" [class.danger]="item.variant === 'danger'" [disabled]="item.disabled" role="menuitem"
+          #menuItem (click)="onItemClick(item)">
+          <i class="icon-{{item.icon}}" aria-hidden="true"></i>
+          <span class="label">
+            {{ item.label | translate }}
+            @if (item.count) {
+            ({{item.count}})
+            }
+          </span>
+        </button>
+      </li>
       }
     </ul>
   </div>

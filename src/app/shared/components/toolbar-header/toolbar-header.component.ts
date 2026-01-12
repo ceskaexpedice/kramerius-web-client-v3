@@ -13,6 +13,7 @@ export class ToolbarHeaderComponent {
 
   @Input() title: string = '';
   @Input() showBackButton: boolean = true;
+  @Input() titleClickable: boolean = false;
 
   @Output() goBack = new EventEmitter<void>();
   @Output() titleClick = new EventEmitter<void>();

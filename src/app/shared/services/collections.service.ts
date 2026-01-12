@@ -16,6 +16,7 @@ import {
   selectCollectionSearchResults,
   selectCollectionSearchResultsTotalCount,
   selectCollectionSearchResultsLoading,
+  selectCollectionFacetsLoading,
   selectCollectionSearchResultsError,
   selectCollectionFacets,
   selectCollectionDetail,
@@ -42,6 +43,7 @@ export class CollectionsService extends BaseFilterService {
 
   totalCount$ = this.store.select(selectCollectionSearchResultsTotalCount);
   loading$ = this.store.select(selectCollectionSearchResultsLoading);
+  override facetsLoading$ = this.store.select(selectCollectionFacetsLoading);
   error$ = this.store.select(selectCollectionSearchResultsError);
 
   detail$ = this.store.select(selectCollectionDetail);

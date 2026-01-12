@@ -1,21 +1,22 @@
-import {Component, signal, OnInit, OnDestroy} from '@angular/core';
-import {Store} from '@ngrx/store';
-import {ActivatedRoute} from '@angular/router';
-import {AppResultsViewType} from '../settings/settings.model';
+import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
+import { Store } from '@ngrx/store';
+import { ActivatedRoute } from '@angular/router';
+import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import {selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders} from './state';
-import {first, map} from 'rxjs';
-import {SolrSortFields, SolrSortDirections} from '../../core/solr/solr-helpers';
-import {ViewMode} from '../periodical/models/view-mode.enum';
-import {ToolbarAction, ToolbarActionEvent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {DocumentTypeEnum} from '../constants/document-type';
-import {MusicService} from '../music/services/music.service';
-import {SoundService} from '../../shared/services/sound.service';
-import {SoundTrackModel, TrackViewType} from '../models/sound-track.model';
-import {PopupPositioningService, PopupState} from '../../shared/services/popup-positioning.service';
-import {SavedListsService} from './services/saved-lists.service';
-import {RecordItem, searchDocumentToRecordItem} from '../../shared/components/record-item/record-item.model';
-import {SearchDocument} from '../models/search-document';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders } from './state';
+import { first, map } from 'rxjs';
+import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers';
+import { ViewMode } from '../periodical/models/view-mode.enum';
+import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { DocumentTypeEnum } from '../constants/document-type';
+import { MusicService } from '../music/services/music.service';
+import { SoundService } from '../../shared/services/sound.service';
+import { SoundTrackModel, TrackViewType } from '../models/sound-track.model';
+import { PopupPositioningService, PopupState } from '../../shared/services/popup-positioning.service';
+import { SavedListsService } from './services/saved-lists.service';
+import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { SearchDocument } from '../models/search-document';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -30,6 +31,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   folders = this.store.select(selectAllFolders);
   sortParams = this.store.select(selectSortParams);
   userOwnedFolders = this.store.select(selectUserOwnedFolders);
+  loading$ = this.store.select(selectFolderDetailsLoading);
 
   // Separate sound recordings from other items
   soundRecordingItems = this.activeFolderItems.pipe(
@@ -46,7 +48,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
-  currentEditingFolder = signal<{uuid: string, name: string} | null>(null);
+  currentEditingFolder = signal<{ uuid: string, name: string } | null>(null);
   titleEditPopupState: PopupState;
 
   constructor(

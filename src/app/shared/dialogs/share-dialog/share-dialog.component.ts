@@ -49,13 +49,7 @@ export class ShareDialogComponent {
   }
 
   getCurrentShareUrl(selectedItem: DocumentHierarchyItem) {
-    let isPageSelected = false;
-
-    if (selectedItem && selectedItem.model === 'page') {
-      isPageSelected = true;
-    }
-
-    const url = this.shareService.getCurrentUrl(selectedItem.pid, isPageSelected);
+    const url = this.shareService.getCurrentUrl(selectedItem.pid);
 
     if (Object.keys(this.queryParams).length > 0) {
       const urlObj = new URL(url);

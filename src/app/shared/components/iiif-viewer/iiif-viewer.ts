@@ -9,7 +9,8 @@ import {
   ElementRef,
   ViewChild,
   AfterViewInit,
-  NgZone
+  NgZone,
+  ChangeDetectorRef
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
@@ -50,6 +51,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
@@ -100,6 +102,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
           } else {
             this.showSelectionControls = false;
           }
+          this.cdr.detectChanges();
         });
       })
     );

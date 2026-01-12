@@ -89,6 +89,10 @@ export class UuidRedirectComponent implements OnInit {
           case 'soundrecording':
             targetRoute = [APP_ROUTES_ENUM.MUSIC_VIEW, uuid];
             break;
+          case 'page':
+            targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, document['root.pid']];
+            navigationExtras.queryParams = { ...navigationExtras.queryParams, page: uuid };
+            break;
           default:
             targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, uuid];
             break;

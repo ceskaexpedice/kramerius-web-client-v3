@@ -1,123 +1,107 @@
-<a class="record-item-card"
-   [class.page]="item.model === DocumentTypeEnum.page"
-   [class.periodical]="item.model === 'periodical'"
-   [class.periodicalvolume]="item.model === 'periodicalvolume'"
-   [class.periodicalitem]="item.model === 'periodicalitem'"
-   [class.selection-mode]="selectionService.selectionMode()"
-   [class.selected]="selectionService.selectionMode() && selectionService.isSelected(item.id)"
-   [class.with-badge]="shouldShowAccessibilityBadge()"
-   [ngClass]="[item.className || '', item.model || '']"
-   [href]="getDocumentUrl()"
-   [attr.aria-label]="getTitle()"
-   (click)="onRecordClick($event)">
+<a class="record-item-card" [class.page]="item?.model === DocumentTypeEnum.page"
+  [class.periodical]="item?.model === 'periodical'" [class.periodicalvolume]="item?.model === 'periodicalvolume'"
+  [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="selectionService.selectionMode()"
+  [class.selected]="item && selectionService.selectionMode() && selectionService.isSelected(item.id)"
+  [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'"
+  [ngClass]="[item?.className || '', item?.model || '']" [href]="loading || !item ? null : getDocumentUrl()"
+  [attr.aria-label]="loading || !item ? null : getTitle()" (click)="!loading && item && onRecordClick($event)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
-  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode()">
-    <app-checkbox
-      [model]="selectionService.isSelected(item.id)"
-      (modelChange)="onSelectionChange($event)"
+  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode() && !loading && item">
+    <app-checkbox [model]="selectionService.isSelected(item.id)" (modelChange)="onSelectionChange($event)"
       (click)="$event.stopPropagation()">
     </app-checkbox>
   </div>
 
   <div class="record-item-card__inner">
 
-    <div class="record-item-card__image"
-         [style.background-image] = "`url(${getImageThumbnailUrl()})`"
-    >
+    <div class="record-item-card__image" [class.skeleton-active]="loading || !item || !imageLoaded()">
 
-      <!-- Action buttons -->
+      <div class="skeleton skeleton-image" *ngIf="loading || !item || !imageLoaded()">
+        <i class="icon-gallery"></i>
+      </div>
+
+      <img *ngIf="!loading && item" [src]="getImageThumbnailUrl()" (load)="onImageLoad()" (error)="onImageError()"
+        class="real-image" [class.hidden]="!imageLoaded()" alt="">
+
+      @if (!loading) {
       <div class="record-item-card__actions">
-        <button class="button secondary rounded icon-button favorites-button"
-                *ngIf="shouldShowFavoriteButton()"
-                [class.favorited]="isItemFavorited$ | async"
-                (click)="onToggleFavorites($event)"
-                aria-label="{{'add-to-favorites' | translate}}"
-                [title]="'add-to-favorites' | translate">
+        <button class="button secondary rounded icon-button favorites-button" *ngIf="shouldShowFavoriteButton()"
+          [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
+          aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
           <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
         </button>
 
         <button class="button secondary rounded icon-button favorites-button"
-                *ngIf="!selectionService.selectionMode() && (isItemFavorited$ | async) && currentFolderId"
-                (click)="onRemoveFromCurrentFolder($event)"
-                [title]="'remove-from-favorites' | translate"
-                aria-label="{{'remove-from-favorites' | translate}}"
-        >
+          *ngIf="!selectionService.selectionMode() && (isItemFavorited$ | async) && currentFolderId"
+          (click)="onRemoveFromCurrentFolder($event)" [title]="'remove-from-favorites' | translate"
+          aria-label="{{'remove-from-favorites' | translate}}">
           <i class="icon-trash"></i>
         </button>
-
       </div>
-
-      @if (showModel) {
-        <app-model-badge
-          [model]="item.model"
-          [monographUnitCount]="item.monographUnitCount || 0">
-        </app-model-badge>
       }
 
-      @if (isRecordLocked()) {
-        <div class="record-item-card__image-lock-overlay">
+      @if (showModel && !loading && item) {
+      <app-model-badge [model]="item.model" [monographUnitCount]="item.monographUnitCount || 0">
+      </app-model-badge>
+      }
 
-          <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}" [title]="'record-locked' | translate">
-
-            <i class="icon-lock-1"></i>
-
-          </button>
-
-        </div>
+      @if (isRecordLocked() && !loading) {
+      <div class="record-item-card__image-lock-overlay">
+        <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}"
+          [title]="'record-locked' | translate">
+          <i class="icon-lock-1"></i>
+        </button>
+      </div>
       }
 
     </div>
 
     <div class="record-item-card__content">
 
-      <div class="title" [title]="getTitle()">
-        {{ getTitle() }}
-      </div>
+      @if (loading || !item) {
+      <div class="skeleton skeleton-text title-skeleton"></div>
+      <div class="skeleton skeleton-text title-skeleton-short"></div>
+      } @else {
+      <div class="title" [title]="getTitle()">{{ getTitle() }}</div>
+      }
 
-      <div class="subtitle" *ngIf="getSubtitle() || (item.authors?.length || item.date)">
-
+      <!-- SUBTITLE / AUTHORS -->
+      @if (loading || !item) {
+      <div class="skeleton skeleton-text subtitle-skeleton"></div>
+      } @else {
+      <div class="subtitle" *ngIf="item && (getSubtitle() || (item.authors?.length || item.date))">
         {{getSubtitle()}}
 
         <span class="authors" *ngIf="item.authors?.length || item.date">
-          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{ item.date }}</span>
+          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{
+            item.date }}</span>
         </span>
       </div>
+      }
 
-      @if (item.model === DocumentTypeEnum.page && item.highlighting) {
-
-          @for (text of item.highlighting; track $index) {
-
-            <div class="text-ocr" [innerHTML]="text"></div>
-
-          }
-
+      @if (!loading && item?.model === DocumentTypeEnum.page && item?.highlighting) {
+      @for (text of item!.highlighting; track $index) {
+      <div class="text-ocr" [innerHTML]="text"></div>
+      }
       }
 
     </div>
 
-    @if (shouldShowAccessibilityBadge()) {
-
-      <div class="access-label">
-        <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
-      </div>
-
+    @if (shouldShowAccessibilityBadge() && !loading) {
+    <div class="access-label">
+      <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
+    </div>
     }
 
   </div>
 
 </a>
 
-@if (favoritesPopupState.showPopup()) {
-  <div class="favorites-popup-wrapper"
-       [class.positioned]="favoritesPopupState.popupPositioned()">
-    <app-favorites-popup
-      [itemId]="item.id"
-      [itemName]="item.title"
-      [currentFolderId]="currentFolderId"
-      [showRemoveButton]="!!currentFolderId"
-      (close)="favoritesPopupState.closePopup()">
-    </app-favorites-popup>
-  </div>
+@if (item && favoritesPopupState.showPopup()) {
+<div class="favorites-popup-wrapper" [class.positioned]="favoritesPopupState.popupPositioned()">
+  <app-favorites-popup [itemId]="item.id" [itemName]="item.title" [currentFolderId]="currentFolderId"
+    [showRemoveButton]="!!currentFolderId" (close)="favoritesPopupState.closePopup()">
+  </app-favorites-popup>
+</div>
 }
-

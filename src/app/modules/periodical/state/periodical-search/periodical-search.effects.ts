@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, switchMap, withLatestFrom } from 'rxjs/operators';
-import {forkJoin, of} from 'rxjs';
+import {catchError, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
+import {forkJoin, map, merge, of} from 'rxjs';
 import {
   loadFacetsSuccess, loadPeriodicalSearchFailure,
   loadPeriodicalSearchResults, loadPeriodicalSearchSuccess,
@@ -9,11 +9,11 @@ import {
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../../core/solr/solr.service';
 import * as PeriodicalSelectors from './periodical-search.selectors';
-import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
-import {parseSearchDocument} from '../../../models/search-document';
-import {handleFacetsWithOperators} from '../../../../shared/utils/facet-utils';
-import {UserService} from '../../../../shared/services/user.service';
-import {DocumentTypeEnum} from '../../../constants/document-type';
+import { DEFAULT_PERIODICAL_FACET_FIELDS } from '../../../search-results-page/const/facet-fields';
+import { parseSearchDocument } from '../../../models/search-document';
+import { handleFacetsWithOperators } from '../../../../shared/utils/facet-utils';
+import { UserService } from '../../../../shared/services/user.service';
+import { DocumentTypeEnum } from '../../../constants/document-type';
 
 @Injectable()
 export class PeriodicalSearchEffects {
@@ -22,7 +22,7 @@ export class PeriodicalSearchEffects {
     private solr: SolrService,
     private store: Store,
     private userService: UserService
-  ) {}
+  ) { }
 
   loadPeriodicalSearchResults$ = createEffect(() =>
     this.actions$.pipe(
@@ -33,40 +33,46 @@ export class PeriodicalSearchEffects {
       ),
       switchMap(([{ uuid, query, filters, advancedQuery, page, pageCount, sortBy, sortDirection }, currentFacets, facetOperators]) => {
 
+        const results$ = this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false).pipe(
+          shareReplay(1)
+        );
 
-        return forkJoin({
-          resultsRes: this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true),
+        const processResults$ = results$.pipe(
+          map(resultsRes => {
+            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
+              doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
+              return parseSearchDocument(doc)
+            });
+
+            return loadPeriodicalSearchSuccess({
+              results: parsedResults,
+              totalCount: resultsRes.response.numFound
+            });
+          }),
+          catchError(error => of(loadPeriodicalSearchFailure({ error })))
+        );
+
+        const processFacets$ = forkJoin({
+          resultsRes: results$, // wait for results to get numFound or consistency
           facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
           facetsWithoutLicensesRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators),
         }).pipe(
-          switchMap(({resultsRes, facetsRes, facetsWithoutLicensesRes}) => {
-
-            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-                doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
-                return parseSearchDocument(doc)
-              },
-            );
-
+          map(({ resultsRes, facetsRes, facetsWithoutLicensesRes }) => {
             const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
               facetsWithoutLicensesRes.facet_counts?.facet_fields ?? {},
-              this.userService.licenses
+              this.userService.licenses,
+              resultsRes.response.numFound
             );
 
-            return [
-              loadPeriodicalSearchSuccess({
-                results: parsedResults,
-                totalCount: resultsRes.response.numFound
-              }),
-              loadFacetsSuccess({
-                facets
-              })
-            ]
+            return loadFacetsSuccess({ facets });
           }),
-          catchError(error => of(loadPeriodicalSearchFailure({ error })))
-        )
+          catchError(error => of(loadFacetsSuccess({ facets: {} })))
+        );
+
+        return merge(processResults$, processFacets$);
       })
     )
   )

@@ -16,4 +16,5 @@ export class InlineLoaderComponent {
   @Input() message?: string;
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() minHeight = '200px';
+  @Input() overlay = false;
 }

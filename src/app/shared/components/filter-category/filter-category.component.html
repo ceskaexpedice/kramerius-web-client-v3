@@ -1,9 +1,9 @@
-<ng-container *ngIf="visibleItems().length > 0 || type === 'dateRange' || type === 'yearRange'">
+<ng-container *ngIf="loading || visibleItems().length > 0 || type === 'dateRange' || type === 'yearRange'">
 
   <div>
     <div class="category--header">
 
-      <h4>
+      <h4 *ngIf="!loading">
 
         {{label | translate}}
 
@@ -11,11 +11,23 @@
 
       </h4>
 
-      <i class="icon-minus-square cursor-pointer" *ngIf="showToggleExpand" (click)="toggleExpanded()"></i>
+      <div *ngIf="loading" class="filters-skeleton--header"></div>
+
+      <i class="icon-minus-square cursor-pointer" *ngIf="!loading && showToggleExpand" (click)="toggleExpanded()"></i>
 
     </div>
 
-    <div class="flex flex--gap-x2 flex--column pt-1" [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
+    <div class="flex flex--gap-x2 flex--column pt-1" *ngIf="loading">
+      <ng-container *ngFor="let i of (null | skeletonList:12)">
+        <div class="filters-skeleton--row">
+          <div class="filters-skeleton--checkbox"></div>
+          <div class="filters-skeleton--text"></div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="flex flex--gap-x2 flex--column pt-1" *ngIf="!loading"
+      [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
 
       <ng-container *ngIf="type === 'checkbox'">
         <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems; trackBy: trackByItemName">

@@ -8,6 +8,7 @@ export interface CollectionsState {
   totalCount: number;
   facets: { [key: string]: FacetItem[] };
   loading: boolean;
+  facetsLoading: boolean;
   error: any;
   detail: Metadata | null;
   detailLoading: boolean;
@@ -24,6 +25,7 @@ export const initialState: CollectionsState = {
   totalCount: 0,
   facets: {},
   loading: false,
+  facetsLoading: false,
   error: null,
   detail: null,
   detailLoading: false,
@@ -40,6 +42,7 @@ export const collectionsReducer = createReducer(
   on(CollectionsActions.loadCollectionSearchResults, state => ({
     ...state,
     loading: true,
+    facetsLoading: true,
     error: null,
   })),
 
@@ -52,7 +55,8 @@ export const collectionsReducer = createReducer(
 
   on(CollectionsActions.loadCollectionFacetsSuccess, (state, { facets }) => ({
     ...state,
-    facets
+    facets,
+    facetsLoading: false
   })),
 
   on(CollectionsActions.loadCollectionSearchResultsFailure, (state, { error }) => ({
