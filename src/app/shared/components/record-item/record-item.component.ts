@@ -111,6 +111,8 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
     if (this.selectionService.selectionMode()) {
       e.preventDefault();
       this.selectionService.toggleItem(this.item.id);
+    } else if (this.item.externalUrl) {
+
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }
@@ -127,12 +129,18 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
 
   getImageThumbnailUrl(): string {
     if (!this.item) return '';
+    if (this.item.imageUrl) {
+      return this.item.imageUrl;
+    }
     // Use Kramerius API for thumbnail
     return this.krameriusBaseUrl + '/' + this.item.id + '/image/thumb';
   }
 
   getDocumentUrl(): string {
     if (!this.item) return '';
+    if (this.item.externalUrl) {
+      return this.item.externalUrl;
+    }
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
       return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
     }

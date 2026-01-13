@@ -1,4 +1,4 @@
-import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 
 /**
  * Simplified model for RecordItemComponent
@@ -42,6 +42,15 @@ export interface RecordItem {
   showAccessibilityBadge?: boolean;
 
   monographUnitCount?: number;
+
+  /** Custom image URL for local items */
+  imageUrl?: string;
+
+  /** External URL for local items */
+  externalUrl?: string;
+
+  /** Description for local items */
+  description?: string;
 }
 
 /**
@@ -71,9 +80,9 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
 function getDocumentTitle(doc: any): string {
   switch (doc.model) {
     case DocumentTypeEnum.monograph:
-      return doc.title || '';
+      return doc.title || doc['title.search'] || doc.rootTitle || '';
     case DocumentTypeEnum.monographunit:
-      return doc.title || doc.rootTitle || doc['title.search'] ;
+      return doc.title || doc.rootTitle || doc['title.search'];
     case DocumentTypeEnum.periodical:
     case DocumentTypeEnum.periodicalvolume:
     case DocumentTypeEnum.page:

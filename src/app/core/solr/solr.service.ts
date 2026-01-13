@@ -585,7 +585,13 @@ export class SolrService {
       });
     }
     const query = `pid:(${pids.map(pid => `"${pid}"`).join(' OR ')})`;
-    const params = new HttpParams({ fromObject: { q: query, ...SolrQueryBuilder.rows(pids.length) } });
+    const params = new HttpParams({
+      fromObject: {
+        q: query,
+        ...SolrQueryBuilder.rows(pids.length),
+        ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS)
+      }
+    });
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );

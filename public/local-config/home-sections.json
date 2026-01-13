@@ -1,0 +1,36 @@
+[
+    {
+        "type": "periodicals",
+        "title": "periodical"
+    },
+    {
+        "type": "books",
+        "title": "book"
+    },
+    {
+        "type": "genres",
+        "title": "genres",
+        "visible": true
+    },
+    {
+        "type": "document-types",
+        "title": "document-types"
+    },
+    {
+        "type": "custom",
+        "title": "Featured Scenarios",
+        "items": [
+            {
+                "id": "uuid:ff3554fb-6fa1-46c7-a748-15ec4284e1a3",
+                "title": "Scenario 1 (Page)"
+            },
+            {
+                "id": "uuid:6c1e8020-574a-11f0-b49f-5ef3fc9bb22f",
+                "title": "Scenario 2"
+            },
+            {
+                "id": "uuid:fef6a36e-cadc-4dfe-a341-074bd377716f"
+            }
+        ]
+    }
+]

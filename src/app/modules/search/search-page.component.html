@@ -1,19 +1,17 @@
 <app-search-hero></app-search-hero>
 
-<app-periodicals-section></app-periodicals-section>
 
-<app-books-section></app-books-section>
+<ng-container *ngFor="let section of sections$ | async">
+    <app-periodicals-section *ngIf="section.type === 'periodicals'"></app-periodicals-section>
+    <app-books-section *ngIf="section.type === 'books'"></app-books-section>
+    <app-genres-section *ngIf="section.type === 'genres'"></app-genres-section>
+    <app-document-types-section *ngIf="section.type === 'document-types'"></app-document-types-section>
+    <app-map-section *ngIf="section.type === 'map'"></app-map-section>
+    <app-authors-section *ngIf="section.type === 'authors'"></app-authors-section>
+    <app-images-section *ngIf="section.type === 'images'"></app-images-section>
+    <app-institutions-section *ngIf="section.type === 'institutions'"></app-institutions-section>
 
-<app-genres-section></app-genres-section>
-
-<!--<app-images-section></app-images-section>-->
-
-<!--<app-authors-section></app-authors-section>-->
-
-<app-document-types-section></app-document-types-section>
-
-<!--<app-map-section></app-map-section>-->
-
-<!--<app-institutions-section></app-institutions-section>-->
+    <app-dynamic-section *ngIf="section.type === 'custom'" [config]="section"></app-dynamic-section>
+</ng-container>
 
 <app-footer></app-footer>
