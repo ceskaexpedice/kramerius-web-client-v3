@@ -2,8 +2,8 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfService } from '../../services/pdf.service';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import {CdkTooltipDirective} from '../../directives';
-import {TranslatePipe} from '@ngx-translate/core';
+import { CdkTooltipDirective } from '../../directives';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -17,6 +17,7 @@ export class ViewerControls {
 
   private pdfService = inject(PdfService);
   private iiifViewerService = inject(IIIFViewerService);
+  public iiifBookMode$ = this.iiifViewerService.bookMode$;
 
   onZoomIn() {
     if (this.type === 'pdf') {
