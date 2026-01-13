@@ -30,9 +30,9 @@ export class UserInfoComponent {
   }
 
   userMenuItems: MenuItem[] = [
-    { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square', route: [APP_ROUTES_ENUM.PROFILE] },
+    // { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square', route: [APP_ROUTES_ENUM.PROFILE] },
     { id: this.userMenuItemsIds.saved, label: _('user-info--saved-lists'), icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
-    { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
+    // { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
     { id: this.userMenuItemsIds.logout, label: _('user-info--logout'), icon: 'logout', variant: 'danger' }
   ];
 
