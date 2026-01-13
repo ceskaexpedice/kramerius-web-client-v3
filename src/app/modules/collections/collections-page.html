@@ -106,12 +106,13 @@
 
           </div>
 
-          @if (!rightSidebarVisible()) {
-          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
-            <i class="icon-info"></i>
-          </button>
-          }
         </div>
+
+        @if (!rightSidebarVisible()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
+          <i class="icon-info"></i>
+        </button>
+        }
 
         <!-- Right Sidebar -->
         @if (collectionsService.detail$ | async; as metadata) {

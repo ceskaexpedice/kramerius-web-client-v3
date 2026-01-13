@@ -105,15 +105,15 @@
           <app-periodical-search-results *ngIf="mode === ViewMode.SearchResults">
           </app-periodical-search-results>
 
-          @if (!showMetadataSidebar()) {
-          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
-            <i class="icon-info"></i>
-          </button>
-          }
-
           <!-- Loading and error states - scoped to main content -->
           <app-inline-loader *ngIf="periodical.loading$ | async" [overlay]="true"></app-inline-loader>
         </div>
+
+        @if (!showMetadataSidebar()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
+          <i class="icon-info"></i>
+        </button>
+        }
 
         <!-- Right Sidebar -->
         <ng-container *ngIf="periodical.metadata">
