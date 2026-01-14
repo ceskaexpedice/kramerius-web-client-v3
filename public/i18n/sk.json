@@ -452,5 +452,15 @@
   "type-in-index": "Zadajte index",
   "previous-search-button--label": "Predchádzajúci",
   "next-search-button--label": "Nasledujúci",
-  "range--label": "Rozsah"
+  "range--label": "Rozsah",
+
+  "access-denied": {
+    "title": "K tomuto dokumentu nemáte prístup",
+    "document-available-under": "Dokument je dostupný pod licenciou",
+    "for-viewing": "Pre jeho zobrazenie",
+    "please-login": "sa prihláste",
+    "with-partner-library": "účtom niektorej z partnerských knižníc",
+    "copyright-notice": "Tento dokument není možné volně prohlížet v souladu se zákonem č. 121/2000 Sb. (autorský zákon). Autorský zákon připouští zpřístupnění děl 70 let po smrti všech autorů (včetně překladatele, ilustrátora apod.) a 50 let od vydání díla.",
+    "faq-title": "FAQ"
+  }
 }

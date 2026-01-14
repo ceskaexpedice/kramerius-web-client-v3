@@ -9,6 +9,11 @@
     flex-shrink: 0;
   }
 
+  // Override tabs content padding for sidebar context
+  ::ng-deep .tabs-content {
+    padding: var(--spacing-x4);
+  }
+
   &__content {
     flex: 1;
     overflow: hidden;

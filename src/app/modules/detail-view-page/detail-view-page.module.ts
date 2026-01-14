@@ -28,6 +28,7 @@ import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
+import { DocumentAccessDenied } from './components/document-access-denied/document-access-denied';
 
 const routes: Routes = [
   {
@@ -68,6 +69,7 @@ const routes: Routes = [
     ViewerControls,
     FavoritesPopupComponent,
     InlineLoaderComponent,
+    DocumentAccessDenied,
   ],
 })
 

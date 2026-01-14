@@ -153,24 +153,33 @@
              [class.pdf-document]="document.pdf || (articleMetadata$ | async)?.pdf"
              [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
-          <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
-          @let articleMetadata = articleMetadata$ | async;
-          @if (articleMetadata) {
-            <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
+          <!-- Check if user has access to the document -->
+          @if (!documentInfoService.canAccessDocument()) {
+            <!-- Show access denied component if user cannot access -->
+            <app-document-access-denied
+              [metadata]="document"
+              [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
+            </app-document-access-denied>
           } @else {
-
-            <!-- Fallback to document/page viewer when no article -->
-            @if (document.pdf) {
-              <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+            <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
+            @let articleMetadata = articleMetadata$ | async;
+            @if (articleMetadata) {
+              <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
             } @else {
-              <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-                               [metadata]="document" [imagePid]="detailViewService.currentPagePid">
-              </app-iiif-viewer>
+
+              <!-- Fallback to document/page viewer when no article -->
+              @if (document.pdf) {
+                <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+              } @else {
+                <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+                                 [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+                </app-iiif-viewer>
+              }
             }
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible) {
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
           <button class="floating-sidebar-toggle button outlined tertiary with-icon"
                   (click)="detailViewService.showMetadataSidebar()">
             <i class="icon-sidebar-bottom"></i>
@@ -178,23 +187,25 @@
           </button>
         }
 
-        <!-- Viewer controls for both PDF and IIIF viewers -->
-        @if (document.pdf || (articleMetadata$ | async)?.pdf) {
-          @if (!(pdfService.properties$ | async)?.fullscreen) {
-            <app-viewer-controls type="pdf"></app-viewer-controls>
-          }
-        } @else {
-          @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
-            <app-viewer-controls type="image"></app-viewer-controls>
-          }
+        <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
+        @if (documentInfoService.canAccessDocument()) {
+          @if (document.pdf || (articleMetadata$ | async)?.pdf) {
+            @if (!(pdfService.properties$ | async)?.fullscreen) {
+              <app-viewer-controls type="pdf"></app-viewer-controls>
+            }
+          } @else {
+            @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+              <app-viewer-controls type="image"></app-viewer-controls>
+            }
 
-          @if (iiifViewerService.isSelectionMode$ | async) {
-            <div class="selection-mode-info">
-              <span>{{ 'select-area-drag' | translate }}</span>
-              <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
-                {{ 'cancel' | translate }}
-              </button>
-            </div>
+            @if (iiifViewerService.isSelectionMode$ | async) {
+              <div class="selection-mode-info">
+                <span>{{ 'select-area-drag' | translate }}</span>
+                <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
+                  {{ 'cancel' | translate }}
+                </button>
+              </div>
+            }
           }
         }
       </div>

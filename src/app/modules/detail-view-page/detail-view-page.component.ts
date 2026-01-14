@@ -18,6 +18,7 @@ import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helpe
 import { Store } from '@ngrx/store';
 import { selectArticleDetail } from '../../shared/state/document-detail/document-detail.selectors';
 import { fromSolrToMetadata } from '../../shared/models/metadata.model';
+import { DocumentInfoService } from '../../shared/services/document-info.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -35,6 +36,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
+  public documentInfoService = inject(DocumentInfoService);
   private store = inject(Store);
 
   // Favorites popup helper
