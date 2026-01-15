@@ -9,13 +9,33 @@
       <div class="access-denied-description">
         <p>
           <span>{{ 'access-denied.document-available-under' | translate }}: </span>
-          <a href="#" class="license-link">{{ getLicenseName() }}</a>
+          @for (type of uniqueLicenseTypes; track type; let last = $last) {
+          <a (click)="$event.preventDefault(); openLicenseDialog(type)" class="license-link">{{ 'access-denied.license-'
+            + type | translate }}</a>@if (!last) {<span>, </span>}
+          }
         </p>
+
+        <!-- Display viewing instructions for all license types -->
+        @for (instruction of getViewingInstructionsForAllTypes(); track instruction.key) {
+        <!-- For DNNT licenses (dnnto, dnntt) -->
+        @if (instruction.key === 'access-denied.for-viewing-dnnt') {
         <p>
-          <span>{{ 'access-denied.for-viewing' | translate }} </span>
-          <a [href]="getLoginUrl()" class="login-link">{{ 'access-denied.please-login' | translate }}</a>
+          <span>{{ instruction.key | translate }} </span>
+          <a (click)="login()" class="login-link">{{ 'access-denied.please-login' | translate }}</a>
           <span> {{ 'access-denied.with-partner-library' | translate }}</span>
         </p>
+        }
+
+        <!-- For other non-public licenses (onsite, etc.) -->
+        @if (instruction.key === 'access-denied.for-viewing-other-prefix') {
+        <p>
+          <span>{{ instruction.key | translate }} </span>
+          @if (instruction.params.location) {
+          <a (click)="onLocationClick()">{{ instruction.params.location }}</a>
+          }
+        </p>
+        }
+        }
       </div>
     </div>
 
@@ -33,13 +53,10 @@
   <!-- FAQ Section -->
   <div class="faq-section">
     <h2 class="faq-title">
-      {{ 'access-denied.faq-title' | translate }}
+      {{ getFaqTitle() | translate }}
     </h2>
 
-    <app-accordion
-      [items]="faqItems"
-      [openIconClass]="'icon-minus-cirlce'"
-      [closeIconClass]="'icon-add-circle'"
+    <app-accordion [items]="faqItems" [openIconClass]="'icon-minus-cirlce'" [closeIconClass]="'icon-add-circle'"
       [allowMultipleOpen]="false">
     </app-accordion>
   </div>
