@@ -77,6 +77,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.documentInfoService.reset();
     this.detailViewService.loadDocument();
 
     this.subscriptions.push(
