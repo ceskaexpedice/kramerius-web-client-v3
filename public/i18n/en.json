@@ -8,7 +8,7 @@
   "publication_places.facet": "Place of publication",
   "physical_locations.facet": "Location",
   "subject_names_personal.facet": "Personal subject names",
-  "subject_names_corporate.facet":"Corporate subject names",
+  "subject_names_corporate.facet": "Corporate subject names",
   "subject_temporals.facet": "Chronological subject names",
   "show-more": "Show more",
   "show-less": "Show less",
@@ -412,7 +412,6 @@
   "viewer-controls.rotate": "Rotate",
   "viewer-controls.select-area": "Select area",
   "filters": "Filters",
-
   "action-confirmation-dialog--message": "Are you sure you want to execute this action?",
   "action-error": "Action failed",
   "action-success": "Action completed successfully",
@@ -444,7 +443,6 @@
   "remove-license-success": "License removed successfully",
   "save-confirmation-dialog--header": "Save Changes",
   "save-confirmation-dialog--message": "Do you want to save the changes?",
-
   "table-columns-visibility": "Select the columns you want to see in the table",
   "facet-filters-visibility": "Select and arrange the filters you want to see in this order",
   "filter-publication-places-label": "Place of publication",
@@ -455,7 +453,6 @@
   "filter-id-other-label": "Other ID",
   "filter-physical-locations-label": "Location",
   "filter-genres-label": "Genre",
-
   "type-in-index": "Type an index",
   "previous-search-button--label": "Previous",
   "next-search-button--label": "Next",

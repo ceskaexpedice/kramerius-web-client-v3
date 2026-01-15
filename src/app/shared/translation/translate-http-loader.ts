@@ -12,6 +12,7 @@ export function HttpLoaderFactory(handler: HttpBackend) {
     { prefix: 'i18n/codetables/', suffix },
     { prefix: 'i18n/shared/', suffix },
     { prefix: 'i18n/physical_locations/', suffix },
+    { prefix: 'i18n/access_denied/', suffix },
     { prefix: 'i18n/', suffix },
   ]);
 }

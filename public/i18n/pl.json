@@ -8,7 +8,7 @@
   "publication_places.facet": "Miejsce publikacji",
   "physical_locations.facet": "Lokalizacja",
   "subject_names_personal.facet": "Nazwy podmiotów osobistych",
-  "subject_names_corporate.facet":"Nazwy podmiotów korporacyjnych",
+  "subject_names_corporate.facet": "Nazwy podmiotów korporacyjnych",
   "subject_temporals.facet": "Chronologiczne nazwy podmiotów",
   "show-more": "Pokaż więcej",
   "show-less": "Pokaż mniej",
@@ -404,7 +404,6 @@
   "viewer-controls.rotate": "Obróć",
   "viewer-controls.select-area": "Wybierz obszar",
   "filters": "Filtry",
-
   "action-confirmation-dialog--message": "Czy na pewno chcesz wykonać tę akcję?",
   "action-error": "Akcja nie powiodła się",
   "action-success": "Akcja zakończona pomyślnie",
@@ -436,7 +435,6 @@
   "remove-license-success": "Licencja została pomyślnie usunięta",
   "save-confirmation-dialog--header": "Zapisz zmiany",
   "save-confirmation-dialog--message": "Czy chcesz zapisać zmiany?",
-
   "table-columns-visibility": "Wybierz kolumny, które chcesz zobaczyć w tabeli",
   "facet-filters-visibility": "Wybierz i uporządkuj filtry, które chcesz zobaczyć, w tej kolejności",
   "filter-publication-places-label": "Miejsce publikacji",
@@ -447,7 +445,6 @@
   "filter-id-other-label": "Inny identyfikator",
   "filter-physical-locations-label": "Lokalizacja",
   "filter-genres-label": "Gatunek",
-
   "type-in-index": "Wpisz indeks",
   "previous-search-button--label": "Poprzedni",
   "next-search-button--label": "Następny",
