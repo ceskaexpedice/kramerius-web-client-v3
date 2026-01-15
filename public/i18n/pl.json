@@ -52,6 +52,7 @@
   "filter-maps": "Mapy",
   "accessibility-label-public": "Publiczny",
   "accessibility-label-private": "Po zalogowaniu",
+  "accessibility-label-in_library": "W bibliotece",
   "active-filters": "Aktywne filtry",
   "not-selected-yet": "Jeszcze nie wybrane",
   "search": "Szukaj",

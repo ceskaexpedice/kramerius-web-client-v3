@@ -52,6 +52,7 @@
   "filter-maps": "Mapy",
   "accessibility-label-public": "Verejné",
   "accessibility-label-private": "Po prihlásení",
+  "accessibility-label-in_library": "V knižnici",
   "active-filters": "Aktívne filtre",
   "not-selected-yet": "Ešte nevybraté",
   "search": "Hľadať",
