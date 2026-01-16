@@ -1,4 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { ComponentRef, Injectable, Injector, signal, inject } from '@angular/core';
+import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+import { ImagePreviewOverlayComponent } from '../components/image-preview-overlay/image-preview-overlay.component';
 
 export interface ImagePreviewItem {
   url: string;
@@ -10,6 +13,12 @@ export interface ImagePreviewItem {
   providedIn: 'root'
 })
 export class ImagePreviewService {
+  private overlay = inject(Overlay);
+  private injector = inject(Injector);
+
+  private overlayRef: OverlayRef | null = null;
+  private componentRef: ComponentRef<ImagePreviewOverlayComponent> | null = null;
+
   // State signals
   private _isOpen = signal(false);
   private _images = signal<ImagePreviewItem[]>([]);
@@ -36,6 +45,10 @@ export class ImagePreviewService {
     this._images.set(images);
     this._currentIndex.set(clampedIndex);
     this._isOpen.set(true);
+
+    if (!this.overlayRef) {
+      this.createOverlay();
+    }
   }
 
   /**
@@ -83,11 +96,15 @@ export class ImagePreviewService {
    */
   close(): void {
     this._isOpen.set(false);
-    // Reset state after animation completes
-    setTimeout(() => {
-      this._images.set([]);
-      this._currentIndex.set(0);
-    }, 300);
+
+    if (this.overlayRef) {
+      this.overlayRef.dispose();
+      this.overlayRef = null;
+      this.componentRef = null;
+    }
+
+    this._images.set([]);
+    this._currentIndex.set(0);
   }
 
   /**
@@ -120,5 +137,24 @@ export class ImagePreviewService {
    */
   getTotalImages(): number {
     return this._images().length;
+  }
+
+  private createOverlay() {
+    const overlayConfig = new OverlayConfig({
+      hasBackdrop: false, // The component itself has a backdrop div
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'image-preview-overlay-container'
+    });
+
+    this.overlayRef = this.overlay.create(overlayConfig);
+
+    // Attach the component
+    const portal = new ComponentPortal(ImagePreviewOverlayComponent, null, this.injector);
+    this.componentRef = this.overlayRef.attach(portal);
   }
 }

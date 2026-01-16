@@ -214,7 +214,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.model = doc.model;
   metadata.isPublic = doc.accessibility === 'public';
 
-  metadata.licences = doc.licenses ?? [];
+  metadata.licences = doc['licenses.facet'] ?? [];
   metadata.licence = doc['licenses.facet']?.[0] ?? '';
 
   metadata.languages = doc['languages.facet'] ?? [];
@@ -300,7 +300,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.level = doc['level'];
   metadata.ownParentModel = doc['own_model_path'] ?? '';
   metadata.languages = doc['languages.facet'] ?? [];
-  metadata.licences = doc['licenses'] ?? [];
+
   metadata.licence = doc['licenses.facet']?.[0] ?? '';
   metadata.dateStr = doc['date.str'] ?? '';
   metadata.dateMin = doc['date.min'] ?? '';
@@ -346,6 +346,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
   // Merge array fields - add unique items from MODS that aren't in Solr
   // Titles
   if (modsMetadata.titles && modsMetadata.titles.length > 0) {
+    merged.titles = [...merged.titles];
     const existingTitles = new Set(merged.titles.map(t => t.title));
     for (const title of modsMetadata.titles) {
       if (title.title && !existingTitles.has(title.title)) {
@@ -356,6 +357,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Authors
   if (modsMetadata.authors && modsMetadata.authors.length > 0) {
+    merged.authors = [...merged.authors];
     const existingAuthors = new Set(merged.authors.map(a => a.name));
     for (const author of modsMetadata.authors) {
       if (author.name && !existingAuthors.has(author.name)) {
@@ -366,6 +368,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Publishers
   if (modsMetadata.publishers && modsMetadata.publishers.length > 0) {
+    merged.publishers = [...merged.publishers];
     const existingPublishers = new Set(merged.publishers.map(p => `${p.name}|${p.place}|${p.date}`));
     for (const publisher of modsMetadata.publishers) {
       const key = `${publisher.name}|${publisher.place}|${publisher.date}`;
@@ -377,6 +380,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Languages
   if (modsMetadata.languages && modsMetadata.languages.length > 0) {
+    merged.languages = [...merged.languages];
     const existingLanguages = new Set(merged.languages);
     for (const lang of modsMetadata.languages) {
       if (!existingLanguages.has(lang)) {
@@ -387,6 +391,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Keywords
   if (modsMetadata.keywords && modsMetadata.keywords.length > 0) {
+    merged.keywords = [...merged.keywords];
     const existingKeywords = new Set(merged.keywords);
     for (const keyword of modsMetadata.keywords) {
       if (!existingKeywords.has(keyword)) {
@@ -397,6 +402,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Geonames
   if (modsMetadata.geonames && modsMetadata.geonames.length > 0) {
+    merged.geonames = [...merged.geonames];
     const existingGeonames = new Set(merged.geonames);
     for (const geoname of modsMetadata.geonames) {
       if (!existingGeonames.has(geoname)) {
@@ -407,6 +413,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Genres
   if (modsMetadata.genres && modsMetadata.genres.length > 0) {
+    merged.genres = [...merged.genres];
     const existingGenres = new Set(merged.genres);
     for (const genre of modsMetadata.genres) {
       if (!existingGenres.has(genre)) {
@@ -429,6 +436,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Abstracts
   if (modsMetadata.abstracts && modsMetadata.abstracts.length > 0) {
+    merged.abstracts = [...merged.abstracts];
     const existingAbstracts = new Set(merged.abstracts);
     for (const abstract of modsMetadata.abstracts) {
       if (!existingAbstracts.has(abstract)) {
@@ -439,6 +447,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Contents (table of contents)
   if (modsMetadata.contents && modsMetadata.contents.length > 0) {
+    merged.contents = [...merged.contents];
     const existingContents = new Set(merged.contents);
     for (const content of modsMetadata.contents) {
       if (!existingContents.has(content)) {
@@ -449,17 +458,53 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Locations
   if (modsMetadata.locations && modsMetadata.locations.length > 0) {
-    const existingLocations = new Set(merged.locations.map(l => `${l.physicalLocation}|${l.shelfLocator}`));
-    for (const location of modsMetadata.locations) {
-      const key = `${location.physicalLocation}|${location.shelfLocator}`;
-      if (!existingLocations.has(key)) {
-        merged.locations.push(location);
+    merged.locations = [...merged.locations];
+
+    // Create a map of existing locations by shelfLocator for easier lookup/updating
+    // We assume identifier is shelfLocator
+    const existingLocationMap = new Map<string, Location>();
+    merged.locations.forEach(l => {
+      if (l.shelfLocator) {
+        existingLocationMap.set(l.shelfLocator, l);
+      }
+    });
+
+    for (const modsLoc of modsMetadata.locations) {
+      if (modsLoc.shelfLocator && existingLocationMap.has(modsLoc.shelfLocator)) {
+        // Update existing location if MODS has physicalLocation and existing doesn't
+        // Access via map is reference to object in array/map
+        const existing = existingLocationMap.get(modsLoc.shelfLocator)!;
+
+        if (modsLoc.physicalLocation && !existing.physicalLocation) {
+          // Object is frozen from store, need to replace with a mutable copy
+          // Find index in the NEW array copy
+          const index = merged.locations.indexOf(existing);
+          if (index > -1) {
+            const newLoc = new Location();
+            Object.assign(newLoc, existing);
+            newLoc.physicalLocation = modsLoc.physicalLocation;
+            merged.locations[index] = newLoc;
+
+            // Update map reference just in case (though not strictly needed for this loop structure)
+            existingLocationMap.set(modsLoc.shelfLocator, newLoc);
+          }
+        }
+      } else {
+        // Check if we should add it (avoid exact duplicates if shelfLocator is missing/same)
+        // Fallback to full key check if no shelfLocator, or if shelfLocator is new
+        const key = `${modsLoc.physicalLocation}|${modsLoc.shelfLocator}`;
+        const isDuplicate = merged.locations.some(l => `${l.physicalLocation}|${l.shelfLocator}` === key);
+
+        if (!isDuplicate) {
+          merged.locations.push(modsLoc);
+        }
       }
     }
   }
 
   // Physical descriptions
   if (modsMetadata.physicalDescriptions && modsMetadata.physicalDescriptions.length > 0) {
+    merged.physicalDescriptions = [...merged.physicalDescriptions];
     const existingDescriptions = new Set(merged.physicalDescriptions.map(pd => `${pd.note}|${pd.extent}`));
     for (const description of modsMetadata.physicalDescriptions) {
       const key = `${description.note}|${description.extent}`;
@@ -471,6 +516,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Cartographic data
   if (modsMetadata.cartographicData && modsMetadata.cartographicData.length > 0) {
+    merged.cartographicData = [...merged.cartographicData];
     const existingCartographic = new Set(merged.cartographicData.map(cd => `${cd.scale}|${cd.coordinates}`));
     for (const cartographic of modsMetadata.cartographicData) {
       const key = `${cartographic.scale}|${cartographic.coordinates}`;
@@ -482,6 +528,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Identifiers - merge object keys
   if (modsMetadata.identifiers) {
+    merged.identifiers = { ...merged.identifiers };
     for (const [key, values] of Object.entries(modsMetadata.identifiers)) {
       if (!Array.isArray(values)) continue; // Skip non-array values
 
@@ -489,6 +536,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
         merged.identifiers[key] = values;
       } else {
         // Add unique values
+        merged.identifiers[key] = [...merged.identifiers[key]];
         const existingValues = new Set(merged.identifiers[key]);
         for (const value of values) {
           if (!existingValues.has(value)) {
@@ -501,6 +549,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Subject Names Personal
   if (modsMetadata.subjectNamesPersonal && modsMetadata.subjectNamesPersonal.length > 0) {
+    merged.subjectNamesPersonal = [...merged.subjectNamesPersonal];
     const existingPersonal = new Set(merged.subjectNamesPersonal.map(a => a.name));
     for (const author of modsMetadata.subjectNamesPersonal) {
       if (author.name && !existingPersonal.has(author.name)) {
@@ -511,6 +560,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Subject Names Corporate
   if (modsMetadata.subjectNamesCorporate && modsMetadata.subjectNamesCorporate.length > 0) {
+    merged.subjectNamesCorporate = [...merged.subjectNamesCorporate];
     const existingCorporate = new Set(merged.subjectNamesCorporate.map(a => a.name));
     for (const author of modsMetadata.subjectNamesCorporate) {
       if (author.name && !existingCorporate.has(author.name)) {
@@ -521,6 +571,7 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
 
   // Subject Temporals
   if (modsMetadata.subjectTemporals && modsMetadata.subjectTemporals.length > 0) {
+    merged.subjectTemporals = [...merged.subjectTemporals];
     const existingTemporals = new Set(merged.subjectTemporals);
     for (const temporal of modsMetadata.subjectTemporals) {
       if (!existingTemporals.has(temporal)) {

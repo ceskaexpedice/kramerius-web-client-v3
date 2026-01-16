@@ -18,6 +18,8 @@ import { APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG } from '../utils/languag
 export class ModsParserService {
   API_URL = '';
 
+  private cache = new Map<string, Promise<Metadata>>();
+
   constructor(
     private env: EnvironmentService
   ) {
@@ -27,9 +29,14 @@ export class ModsParserService {
   }
 
   async getMods(uuid: string, type: 'full' | 'plain' = 'full'): Promise<Metadata> {
+    const cacheKey = `${uuid}-${type}`;
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey)!;
+    }
+
     const url = `${this.API_URL}/${uuid}/metadata/mods`;
 
-    return fetch(url)
+    const promise = fetch(url)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Error fetching MODS data: ${response.statusText}`);
@@ -42,8 +49,12 @@ export class ModsParserService {
       })
       .catch(error => {
         console.error('Failed to fetch or parse MODS data:', error);
+        this.cache.delete(cacheKey);
         throw error;
       });
+
+    this.cache.set(cacheKey, promise);
+    return promise;
   }
 
   private parseMods(modsXml: string, uuid: string, type: 'full' | 'plain'): Promise<Metadata> {
@@ -416,8 +427,8 @@ export class ModsParserService {
   private processLocations(elements: Element[], metadata: Metadata) {
     for (const item of elements) {
       const location = new Location();
-      location.physicalLocation = this.getText(item.querySelector('physicalLocation'));
-      location.shelfLocator = this.getText(item.querySelector('shelfLocator'));
+      location.physicalLocation = this.getFieldText(item, 'physicalLocation');
+      location.shelfLocator = this.getFieldText(item, 'shelfLocator');
 
       if (!location.empty()) {
         metadata.locations.push(location);
@@ -542,6 +553,14 @@ export class ModsParserService {
         }
       }
     }
+  }
+
+  private getFieldText(parent: Element, tagName: string): string {
+    let el = parent.querySelector(tagName);
+    if (!el) {
+      el = parent.querySelector('mods\\:' + tagName);
+    }
+    return this.getText(el);
   }
 
   private getText(element: Element | null): string {

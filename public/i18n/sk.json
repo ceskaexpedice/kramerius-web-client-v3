@@ -8,7 +8,7 @@
   "publication_places.facet": "Miesto vydania",
   "physical_locations.facet": "Miesto uloženia",
   "subject_names_personal.facet": "Osobné predmetové heslá",
-  "subject_names_corporate.facet":"Korporátne predmetové heslá",
+  "subject_names_corporate.facet": "Korporátne predmetové heslá",
   "subject_temporals.facet": "Chronologické predmetové heslá",
   "show-more": "Zobraziť viac",
   "show-less": "Zobraziť menej",
@@ -52,6 +52,7 @@
   "filter-maps": "Mapy",
   "accessibility-label-public": "Verejné",
   "accessibility-label-private": "Po prihlásení",
+  "accessibility-label-in_library": "V knižnici",
   "active-filters": "Aktívne filtre",
   "not-selected-yet": "Ešte nevybraté",
   "search": "Hľadať",
@@ -405,7 +406,6 @@
   "viewer-controls.rotate": "Otočiť",
   "viewer-controls.select-area": "Vybrať oblasť",
   "filters": "Filtre",
-
   "action-confirmation-dialog--message": "Naozaj chcete vykonať túto akciu?",
   "action-error": "Akcia zlyhala",
   "action-success": "Akcia bola úspešne dokončená",
@@ -437,7 +437,6 @@
   "remove-license-success": "Licencia bola úspešne odobraná",
   "save-confirmation-dialog--header": "Uložiť zmeny",
   "save-confirmation-dialog--message": "Chcete uložiť zmeny?",
-
   "table-columns-visibility": "Vyberte stĺpce, ktoré chcete v tabuľke vidieť",
   "facet-filters-visibility": "Vyberte a usporiadajte filtre, ktoré chcete v tomto poradí vidieť",
   "filter-publication-places-label": "Miesto vydania",
@@ -448,7 +447,6 @@
   "filter-id-other-label": "ID Ostatné",
   "filter-physical-locations-label": "Miesto uloženia",
   "filter-genres-label": "Žáner",
-
   "type-in-index": "Zadajte index",
   "previous-search-button--label": "Predchádzajúci",
   "next-search-button--label": "Nasledujúci",

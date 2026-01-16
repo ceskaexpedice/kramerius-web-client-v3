@@ -1,0 +1,21 @@
+<div class="accordion-item" [class.accordion-item--open]="isOpen">
+  <button class="accordion-item__header" (click)="onToggle()">
+    <div class="accordion-item__header-content">
+      @if (index !== undefined) {
+        <div class="accordion-item__number">{{ index }}</div>
+      }
+      <span class="accordion-item__title">{{ title | translate }}</span>
+    </div>
+    <i class="accordion-item__icon" [ngClass]="isOpen ? openIconClass : closeIconClass"></i>
+  </button>
+
+  @if (isOpen) {
+    <div class="accordion-item__content">
+      @if (allowHtml) {
+        <div [innerHTML]="content | translate"></div>
+      } @else {
+        <p>{{ content | translate }}</p>
+      }
+    </div>
+  }
+</div>

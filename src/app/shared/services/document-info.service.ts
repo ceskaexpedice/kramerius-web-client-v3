@@ -2,7 +2,9 @@ import { inject, Injectable, signal } from '@angular/core';
 import { SolrService } from '../../core/solr/solr.service';
 import { DocumentInfo } from '../models/document-info';
 import { UserService } from './user.service';
-import {delay} from 'rxjs';
+import { delay } from 'rxjs';
+
+export type DocumentInfoState = 'INITIAL' | 'LOADING' | 'LOADED' | 'ERROR' | 'CLEARED';
 
 /**
  * Service for managing document/page info data
@@ -25,6 +27,10 @@ export class DocumentInfoService {
     private _isLoading = signal<boolean>(false);
     public readonly isLoading = this._isLoading.asReadonly();
 
+    // Signal to track detailed state
+    private _state = signal<DocumentInfoState>('INITIAL');
+    public readonly state = this._state.asReadonly();
+
     // Signal to track errors
     private _error = signal<string | null>(null);
     public readonly error = this._error.asReadonly();
@@ -40,23 +46,26 @@ export class DocumentInfoService {
         }
 
         this._isLoading.set(true);
+        this._state.set('LOADING');
         this._error.set(null);
 
         this.solrService.getPageInfo(pageUuid)
-          .pipe(delay(0))
-          .subscribe({
-            next: (pageInfo: DocumentInfo) => {
-                this._currentPageInfo.set(pageInfo);
-                this._isLoading.set(false);
-                console.log('DocumentInfoService: Page info loaded for', pageUuid, pageInfo);
-            },
-            error: (error: any) => {
-                console.error('DocumentInfoService: Error loading page info:', error);
-                this._error.set(error?.message || 'Failed to load page info');
-                this._isLoading.set(false);
-                this._currentPageInfo.set(null);
-            }
-        });
+            .pipe(delay(0))
+            .subscribe({
+                next: (pageInfo: DocumentInfo) => {
+                    this._currentPageInfo.set(pageInfo);
+                    this._isLoading.set(false);
+                    this._state.set('LOADED');
+                    console.log('DocumentInfoService: Page info loaded for', pageUuid, pageInfo);
+                },
+                error: (error: any) => {
+                    console.error('DocumentInfoService: Error loading page info:', error);
+                    this._error.set(error?.message || 'Failed to load page info');
+                    this._isLoading.set(false);
+                    this._state.set('ERROR');
+                    this._currentPageInfo.set(null);
+                }
+            });
     }
 
     /**
@@ -66,6 +75,17 @@ export class DocumentInfoService {
         this._currentPageInfo.set(null);
         this._error.set(null);
         this._isLoading.set(false);
+        this._state.set('CLEARED');
+    }
+
+    /**
+     * Resets the service to initial state
+     */
+    reset(): void {
+        this._currentPageInfo.set(null);
+        this._error.set(null);
+        this._isLoading.set(false);
+        this._state.set('INITIAL');
     }
 
     /**

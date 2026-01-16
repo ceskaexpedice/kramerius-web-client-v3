@@ -43,7 +43,8 @@
 
   <td *ngIf="column.id === 'license'">
     <app-accessibility-badge [showIcon]="false"
-      [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])">
+      [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"
+      [licenses]="record.licenses || []">
     </app-accessibility-badge>
   </td>
 

@@ -90,7 +90,8 @@
 
     @if (shouldShowAccessibilityBadge() && !loading) {
     <div class="access-label">
-      <app-accessibility-badge [isLocked]="isRecordLocked()"></app-accessibility-badge>
+      <app-accessibility-badge [isLocked]="isRecordLocked()"
+        [licenses]="item?.licenses || []"></app-accessibility-badge>
     </div>
     }
 

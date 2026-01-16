@@ -1,0 +1,12 @@
+<div class="generic-dialog-container license-info-dialog-container">
+    <h2>
+        {{ data.title | translate }}
+        <button class="button link tertiary icon-button close-button" (click)="onClose()">
+            <i class="icon-close"></i>
+        </button>
+    </h2>
+
+    <div class="dialog-body">
+        <div class="content" [innerHTML]="data.content | translate"></div>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+.accordion-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  background-color: var(--color-bg-base);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+
+  &:hover {
+    background-color: var(--color-bg-light);
+    border-radius: var(--spacing-x2);
+  }
+
+  &.accordion-item--open {
+    gap: var(--spacing-x1);
+    padding-bottom: var(--spacing-x4);
+    background-color: var(--color-bg-light);
+    border-radius: var(--spacing-x2);
+    border: 2px solid var(--color-primary);
+    margin-bottom: var(--spacing-x4);
+
+    .accordion-item__header {
+      padding: 8px 16px;
+    }
+
+    .accordion-item__title {
+      color: var(--text-base, #0a0d10);
+    }
+  }
+
+  &:not(.accordion-item--open) {
+    border-bottom: 1px solid var(--border-bright, #dfe5ec);
+
+    .accordion-item__header {
+      padding: var(--spacing-x3) var(--spacing-x4);
+    }
+  }
+}
+
+.accordion-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.accordion-item__header-content {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.accordion-item__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 500;
+  font-size: var(--font-size-large);
+  color: var(--color-primary);
+}
+
+.accordion-item__title {
+  flex: 1;
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  line-height: 20px;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.accordion-item__icon {
+  flex-shrink: 0;
+  font-size: 20px;
+  color: var(--color-tertiary);
+}
+
+.accordion-item__content {
+  display: flex;
+  padding: 0 38px;
+  width: 100%;
+
+  p, div {
+    flex: 1;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--color-text-base);
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .accordion-item__content {
+    padding: 0 32px;
+  }
+}
