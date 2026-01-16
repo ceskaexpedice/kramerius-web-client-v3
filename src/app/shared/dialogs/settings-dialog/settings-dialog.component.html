@@ -1,5 +1,6 @@
 <app-sidebar-dialog-layout
   [config]="dialogConfig"
+  [initialSection]="activeSection()"
   (save)="save()"
   (close)="close()"
   (sectionChange)="onSectionChange($event)">
@@ -7,7 +8,9 @@
   <app-settings-content
     [settings]="localSettings()"
     [activeSection]="activeSection"
-    (settingsChange)="onSettingsChange($event)">
+    [expandAccountMoreInfo]="expandAccountMoreInfo"
+    (settingsChange)="onSettingsChange($event)"
+    (moreInfoToggle)="onMoreInfoToggle($event)">
   </app-settings-content>
 
 </app-sidebar-dialog-layout>

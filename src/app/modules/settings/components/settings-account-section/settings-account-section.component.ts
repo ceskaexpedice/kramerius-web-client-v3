@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,12 +17,22 @@ import { AuthService } from '../../../../core/auth/auth.service';
     templateUrl: './settings-account-section.component.html',
     styleUrl: './settings-account-section.component.scss'
 })
-export class SettingsAccountSectionComponent {
+export class SettingsAccountSectionComponent implements OnInit {
+    @Input() expandMoreInfo = false;
+    @Output() moreInfoToggle = new EventEmitter<boolean>();
+
     authService = inject(AuthService);
     showMoreInfo = signal(false);
 
+    ngOnInit() {
+        if (this.expandMoreInfo) {
+            this.showMoreInfo.set(true);
+        }
+    }
+
     toggleMoreInfo() {
         this.showMoreInfo.update(v => !v);
+        this.moreInfoToggle.emit(this.showMoreInfo());
     }
 
     logout() {

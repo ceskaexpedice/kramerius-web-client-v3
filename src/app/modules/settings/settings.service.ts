@@ -1,12 +1,13 @@
 import {AppSettingsThemeEnum, Settings} from './settings.model';
 import {BehaviorSubject, Subject} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {inject, Injectable} from '@angular/core';
 import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/settings-dialog.component';
 import {LocalStorageService} from '../../shared/services/local-storage.service';
 import {DisplayConfigService} from '../../shared/services/display-config.service';
 import {OPTIONAL_SOLR_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
 import {BreakpointService} from '../../shared/services/breakpoint.service';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,9 @@ export class SettingsService {
 
   private displayConfigService = inject(DisplayConfigService);
   private breakpointService = inject(BreakpointService);
+  private router = inject(Router);
+
+  private currentDialogRef: MatDialogRef<SettingsDialogComponent> | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -133,18 +137,69 @@ export class SettingsService {
     this.applyTheme(defaultSettings.theme);
   }
 
-  openSettingsDialog(): void {
+  openSettingsDialog(section?: string, expandMoreInfo?: boolean): void {
+    // Prevent opening multiple dialogs
+    if (this.currentDialogRef) {
+      return;
+    }
+
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
 
-    const dialogRef = this.dialog.open(SettingsDialogComponent, {
+    // Update URL with settings params
+    this.updateUrlParams(section || 'display', expandMoreInfo);
+
+    this.currentDialogRef = this.dialog.open(SettingsDialogComponent, {
       width: isMobileOrTablet ? '100vw' : '80vw',
       height: isMobileOrTablet ? '100vh' : undefined,
       maxWidth: isMobileOrTablet ? '100vw' : undefined,
       maxHeight: isMobileOrTablet ? '100vh' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
+      data: { initialSection: section, expandMoreInfo }
     });
 
-    dialogRef.afterClosed().subscribe(() => {
+    this.currentDialogRef.afterClosed().subscribe(() => {
+      this.currentDialogRef = null;
+      this.clearUrlParams();
+    });
+  }
+
+  updateSettingsSection(section: string): void {
+    // Keep more_info param if it exists when changing sections
+    const currentParams = this.router.routerState.snapshot.root.queryParams;
+    const expandMoreInfo = currentParams['more_info'] === 'true';
+    this.updateUrlParams(section, expandMoreInfo);
+  }
+
+  updateMoreInfo(expanded: boolean): void {
+    const currentParams = this.router.routerState.snapshot.root.queryParams;
+    const section = currentParams['settings_section'] || 'display';
+    this.updateUrlParams(section, expanded);
+  }
+
+  private updateUrlParams(section: string, expandMoreInfo?: boolean): void {
+    const queryParams: any = { settings: 'true', settings_section: section };
+    if (expandMoreInfo) {
+      queryParams.more_info = 'true';
+    } else {
+      queryParams.more_info = null; // Remove param if not expanding
+    }
+
+    this.router.navigate([], {
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  private clearUrlParams(): void {
+    // Get current query params and remove settings-related ones
+    const currentParams = { ...this.router.routerState.snapshot.root.queryParams };
+    delete currentParams['settings'];
+    delete currentParams['settings_section'];
+    delete currentParams['more_info'];
+
+    this.router.navigate([], {
+      queryParams: currentParams,
+      replaceUrl: true
     });
   }
 

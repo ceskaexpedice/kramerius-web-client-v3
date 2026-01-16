@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsContentComponent } from '../../../modules/settings/components/settings-content/settings-content.component';
 import { SettingsService } from '../../../modules/settings/settings.service';
 import { Settings } from '../../../modules/settings/settings.model';
@@ -9,6 +9,11 @@ import {
   SidebarDialogLayoutComponent,
 } from '../sidebar-dialog-layout/sidebar-dialog-layout.component';
 import { AuthService } from '../../../core/auth/auth.service';
+
+export interface SettingsDialogData {
+  initialSection?: string;
+  expandMoreInfo?: boolean;
+}
 
 @Component({
   selector: 'app-settings-dialog',
@@ -20,11 +25,12 @@ import { AuthService } from '../../../core/auth/auth.service';
   templateUrl: './settings-dialog.component.html',
   styleUrl: './settings-dialog.component.scss'
 })
-export class SettingsDialogComponent {
+export class SettingsDialogComponent implements OnInit {
 
   private authService = inject(AuthService);
   private dialogRef = inject(MatDialogRef<SettingsDialogComponent>);
   private settingsService = inject(SettingsService);
+  private dialogData = inject<SettingsDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   dialogConfig: DialogConfig = {
     title: 'settings',
@@ -42,8 +48,24 @@ export class SettingsDialogComponent {
   };
 
   activeSection = signal<string>('display');
+  expandAccountMoreInfo = false;
 
   localSettings = signal<Settings>(this.settingsService.getSettingsCopy());
+
+  ngOnInit(): void {
+    // Set initial section from dialog data if provided
+    if (this.dialogData?.initialSection) {
+      const sectionKeys = this.dialogConfig.sections.map(s => s.key);
+      if (sectionKeys.includes(this.dialogData.initialSection)) {
+        this.activeSection.set(this.dialogData.initialSection);
+      }
+    }
+
+    // Set expand more info from dialog data if provided
+    if (this.dialogData?.expandMoreInfo) {
+      this.expandAccountMoreInfo = true;
+    }
+  }
 
   save() {
     const settingsToSave = this.localSettings();
@@ -57,10 +79,15 @@ export class SettingsDialogComponent {
 
   onSectionChange(section: string) {
     this.activeSection.set(section);
+    this.settingsService.updateSettingsSection(section);
   }
 
   onSettingsChange(settings: Settings) {
     this.localSettings.set(settings);
+  }
+
+  onMoreInfoToggle(expanded: boolean) {
+    this.settingsService.updateMoreInfo(expanded);
   }
 
 }

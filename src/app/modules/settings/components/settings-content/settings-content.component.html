@@ -6,7 +6,10 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="'account'">
-    <app-settings-account-section></app-settings-account-section>
+    <app-settings-account-section
+      [expandMoreInfo]="expandAccountMoreInfo"
+      (moreInfoToggle)="moreInfoToggle.emit($event)">
+    </app-settings-account-section>
   </ng-container>
 
   <ng-container *ngSwitchCase="'reading'">

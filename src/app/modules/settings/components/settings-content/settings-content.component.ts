@@ -35,6 +35,8 @@ export class SettingsContentComponent {
 
   @Input() settings!: Settings;
   @Input() activeSection = signal<string>('display');
+  @Input() expandAccountMoreInfo = false;
   @Output() settingsChange = new EventEmitter<Settings>();
+  @Output() moreInfoToggle = new EventEmitter<boolean>();
 
 }
