@@ -86,7 +86,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   get showSearchBar(): boolean {
-    return this.router.url !== `/${APP_ROUTES_ENUM.SEARCH}`;
+    // Use router.url but strip query params to avoid header changes when dialogs add URL params
+    const urlWithoutParams = this.router.url.split('?')[0];
+    return urlWithoutParams !== `/${APP_ROUTES_ENUM.SEARCH}`;
   }
 
   get isOnCollectionRoute(): boolean {
