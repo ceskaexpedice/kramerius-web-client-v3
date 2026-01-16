@@ -1,14 +1,14 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
-import {EnvironmentService} from '../../shared/services/environment.service';
-import {LocalStorageService} from '../../shared/services/local-storage.service';
-import {UserService} from '../../shared/services/user.service';
-import {Store} from '@ngrx/store';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { EnvironmentService } from '../../shared/services/environment.service';
+import { LocalStorageService } from '../../shared/services/local-storage.service';
+import { UserService } from '../../shared/services/user.service';
+import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth.actions';
-import {AuthTokens, TokenResponse, User} from './auth.models';
+import { AuthTokens, TokenResponse, User } from './auth.models';
 import { clearSimpleCache } from '../cache/simple-cache.interceptor-fn';
 
 @Injectable({
@@ -164,7 +164,8 @@ export class AuthService {
           email: userSession.email,
           name: userSession.name,
           roles: userSession.roles,
-          licenses: userSession.licenses
+          licenses: userSession.licenses,
+          session: userSession.session
         };
 
         this.storage.set(this.USER_KEY, user);

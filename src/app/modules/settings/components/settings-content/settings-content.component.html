@@ -1,7 +1,12 @@
 <ng-container [ngSwitch]="activeSection()">
 
   <ng-container *ngSwitchCase="'display'">
-    <app-settings-display-section [settings]="settings" (settingsChange)="settingsChange.emit($event)"></app-settings-display-section>
+    <app-settings-display-section [settings]="settings"
+      (settingsChange)="settingsChange.emit($event)"></app-settings-display-section>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'account'">
+    <app-settings-account-section></app-settings-account-section>
   </ng-container>
 
   <ng-container *ngSwitchCase="'reading'">

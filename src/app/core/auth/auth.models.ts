@@ -13,12 +13,15 @@ export interface AuthTokens {
   expiresAt: number;
 }
 
+import { SessionDetails } from '../../shared/models/session-details.model';
+
 export interface User {
   id: string;
   email: string;
   name: string;
   roles?: string[];
   licenses?: string[];
+  session?: SessionDetails;
 }
 
 export interface AuthState {
