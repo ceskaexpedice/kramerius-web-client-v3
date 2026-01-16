@@ -40,7 +40,16 @@ export class PeriodicalService extends BaseFilterService {
   private readonly PERIODICAL_VIEW_LOCAL_STORAGE_KEY = 'periodicalViewMode';
 
   viewMode = signal<ViewMode>(ViewMode.Timeline);
-  activeCalendarGridControl = signal<CalendarGridControl>('calendar');
+  activeCalendarGridControl = computed<CalendarGridControl>(() => {
+    const mode = this.viewMode();
+    switch (mode) {
+      case ViewMode.Timeline: return 'timeline';
+      case ViewMode.GridYears: return 'grid';
+      case ViewMode.Calendar: return 'calendar';
+      case ViewMode.GridIssues: return 'cards';
+      default: return 'timeline';
+    }
+  });
   selectedYear = signal<string | null>(null);
 
   // Debug wrapper for selectedYear.set to track when it changes
@@ -491,16 +500,33 @@ export class PeriodicalService extends BaseFilterService {
     }
 
     const storedView = this.loadViewModeFromLocalStorage();
-    this.activeCalendarGridControl.set(storedView);
     this.setView(storedView);
   }
 
   setView(view: string): void {
     this.saveViewModeToLocalStorage(view);
     const hasSelectedYear = !!this.selectedYear();
-    const newView = view === 'calendar'
-      ? (hasSelectedYear ? ViewMode.Calendar : ViewMode.Timeline)
-      : (hasSelectedYear ? ViewMode.GridIssues : ViewMode.GridYears);
+
+    // Map view toggle values to ViewMode
+    // Years level: 'timeline' | 'grid'
+    // Issues level: 'calendar' | 'cards'
+    let newView: ViewMode;
+    switch (view) {
+      case 'timeline':
+        newView = hasSelectedYear ? ViewMode.Calendar : ViewMode.Timeline;
+        break;
+      case 'grid':
+        newView = hasSelectedYear ? ViewMode.GridIssues : ViewMode.GridYears;
+        break;
+      case 'calendar':
+        newView = hasSelectedYear ? ViewMode.Calendar : ViewMode.Timeline;
+        break;
+      case 'cards':
+        newView = hasSelectedYear ? ViewMode.GridIssues : ViewMode.GridYears;
+        break;
+      default:
+        newView = hasSelectedYear ? ViewMode.Calendar : ViewMode.Timeline;
+    }
     this.viewMode.set(newView);
   }
 

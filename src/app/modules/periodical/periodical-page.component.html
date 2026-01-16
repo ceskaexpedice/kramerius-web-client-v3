@@ -41,7 +41,7 @@
               <ng-container *ngIf="!selectionService.selectionMode()">
                 <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
                   [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
-                  [viewToggleOptions]="viewToggleOptions" [activeViewValue]="periodical.activeCalendarGridControl()"
+                  [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
                   (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
                   (favoritesClicked)="onFavoritesClicked($event)"
                   (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"

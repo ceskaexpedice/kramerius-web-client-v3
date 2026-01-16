@@ -251,6 +251,8 @@
   "and-operator": "AND",
   "layout--calendar": "Kalendarz",
   "layout--grid": "Siatka",
+  "layout--timeline": "Oś czasu",
+  "layout--cards": "Karty",
   "folders.messages.created": "Lista została pomyślnie utworzona",
   "folders.messages.updated": "Lista została pomyślnie zaktualizowana",
   "folders.messages.deleted": "Lista została pomyślnie usunięta",

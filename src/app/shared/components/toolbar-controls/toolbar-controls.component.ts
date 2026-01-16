@@ -3,7 +3,7 @@ import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../services/user.service';
 
-export type CalendarGridControl = 'calendar' | 'grid';
+export type CalendarGridControl = 'timeline' | 'grid' | 'calendar' | 'cards';
 export type SoundRecordGridControl = 'records' | 'images';
 
 export interface ViewToggleOption {

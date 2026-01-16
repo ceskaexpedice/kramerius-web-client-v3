@@ -258,6 +258,8 @@
   "and-operator": "AND",
   "layout--calendar": "Calendar",
   "layout--grid": "Grid",
+  "layout--timeline": "Timeline",
+  "layout--cards": "Cards",
   "folders.messages.created": "List created successfully",
   "folders.messages.updated": "List updated successfully",
   "folders.messages.deleted": "List deleted successfully",

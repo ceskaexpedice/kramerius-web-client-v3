@@ -22,7 +22,7 @@ import { BreakpointService } from '../../shared/services/breakpoint.service';
 export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-row-vertical', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
     { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
   ];
 

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
 import { PeriodicalService } from '../../shared/services/periodical.service';
@@ -37,11 +37,23 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   protected readonly ViewMode = ViewMode;
 
-  // View toggle options for calendar/grid layout - static to prevent re-rendering
-  readonly viewToggleOptions: ViewToggleOption[] = [
-    { label: 'layout--calendar', icon: 'icon-calendar-1', value: 'calendar' },
-    { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
-  ];
+  // View toggle options - dynamic based on current view mode
+  readonly viewToggleOptions = computed<ViewToggleOption[]>(() => {
+    const viewMode = this.periodical.viewMode();
+    if (viewMode === ViewMode.Timeline || viewMode === ViewMode.GridYears) {
+      // Years view: timeline or grid
+      return [
+        { label: 'layout--timeline', icon: 'icon-settings-6', value: 'timeline' },
+        { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
+      ];
+    } else {
+      // Issues view: calendar or cards
+      return [
+        { label: 'layout--calendar', icon: 'icon-calendar-1', value: 'calendar' },
+        { label: 'layout--cards', icon: 'icon-element-3', value: 'cards' }
+      ];
+    }
+  });
 
   constructor(
     favoritesService: FavoritesService,

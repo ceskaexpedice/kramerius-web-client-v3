@@ -251,6 +251,8 @@
   "and-operator": "AND",
   "layout--calendar": "Kalendář",
   "layout--grid": "Mřížka",
+  "layout--timeline": "Časová osa",
+  "layout--cards": "Karty",
   "folders.messages.created": "Seznam byl úspěšně vytvořen",
   "folders.messages.updated": "Seznam byl úspěšně aktualizován",
   "folders.messages.deleted": "Seznam byl úspěšně odstraněn",
