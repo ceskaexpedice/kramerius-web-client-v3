@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ONLINE_LICENSES } from '../../../core/solr/solr-misc';
+import { ONLINE_LICENSES, PUBLIC_LICENSES } from '../../../core/solr/solr-misc';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass } from '@angular/common';
 import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
@@ -23,6 +23,9 @@ export class AccessibilityBadgeComponent {
   protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 
   get accessibility() {
+    if (this.hasPublicLicense()) {
+      return DocumentAccessibilityEnum.PUBLIC;
+    }
     if (this.isLocked) {
       if (this.hasOnlineLicense()) {
         return DocumentAccessibilityEnum.PRIVATE;
@@ -34,5 +37,9 @@ export class AccessibilityBadgeComponent {
 
   private hasOnlineLicense(): boolean {
     return this.licenses.some(license => ONLINE_LICENSES.includes(license));
+  }
+
+  private hasPublicLicense(): boolean {
+    return this.licenses.some(license => PUBLIC_LICENSES.includes(license));
   }
 }

@@ -214,7 +214,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.model = doc.model;
   metadata.isPublic = doc.accessibility === 'public';
 
-  metadata.licences = doc.licenses ?? [];
+  metadata.licences = doc['licenses.facet'] ?? [];
   metadata.licence = doc['licenses.facet']?.[0] ?? '';
 
   metadata.languages = doc['languages.facet'] ?? [];
@@ -300,7 +300,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.level = doc['level'];
   metadata.ownParentModel = doc['own_model_path'] ?? '';
   metadata.languages = doc['languages.facet'] ?? [];
-  metadata.licences = doc['licenses'] ?? [];
+
   metadata.licence = doc['licenses.facet']?.[0] ?? '';
   metadata.dateStr = doc['date.str'] ?? '';
   metadata.dateMin = doc['date.min'] ?? '';
