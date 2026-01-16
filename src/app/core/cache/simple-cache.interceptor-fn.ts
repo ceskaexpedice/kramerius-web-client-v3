@@ -14,7 +14,6 @@ const NO_CACHE_PATTERNS = [
   '/auth',             // Authentication endpoints
   '/user',             // User-specific data
   '/session',           // Session-related endpoints
-  '/search'
 ] as const;
 
 interface CacheEntry {
