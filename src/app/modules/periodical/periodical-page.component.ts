@@ -30,7 +30,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
-  sidebarPositionMode: 'absolute' | 'relative' = 'absolute'; // 'absolute' = over content, 'relative' = beside content
+  sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;

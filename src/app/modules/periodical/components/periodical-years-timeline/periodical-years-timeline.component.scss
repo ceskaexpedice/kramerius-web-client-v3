@@ -5,6 +5,7 @@
   flex-direction: column;
   gap: 2rem;
   width: 100%;
+  container-type: inline-size;
 }
 
 .year-row {
@@ -23,6 +24,15 @@
     background-color: var(--color-border-additional);
     z-index: z.$timeline-background;
   }
+
+  // Use container query to respond to actual available width, not viewport
+  @container (max-width: 950px) {
+    flex-wrap: wrap;
+
+    .row-line {
+      display: none;
+    }
+  }
 }
 
 .year-item--container {
@@ -34,6 +44,10 @@
   cursor: pointer;
 
   transition: all 0.4s ease-in-out;
+
+  @container (max-width: 950px) {
+    flex: 0 0 auto;
+  }
 
   &:hover {
     transform: scale(1.1);
