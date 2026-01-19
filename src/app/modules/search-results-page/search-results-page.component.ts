@@ -61,6 +61,17 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
     }
 
+    // React to settings changes (e.g., when user changes view mode in settings dialog)
+    this.subscriptions.push(
+      this.settingsService.settings$.subscribe(settings => {
+        // Only update if no URL override is present
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        if (!currentUrlParams.has('viewType') && settings.searchResultsView) {
+          this.view.set(settings.searchResultsView);
+        }
+      })
+    )
+
     // Set up admin selection service to track current page items
     this.subscriptions.push(
       combineLatest([

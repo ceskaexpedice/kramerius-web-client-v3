@@ -98,6 +98,29 @@ export class CollectionsService extends BaseFilterService {
         this.updateBreadcrumbs(detail);
       }
     });
+
+    // Listen for page size changes from settings
+    let previousPageSize = this._pageSize();
+    this.settingsService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        const newPageSize = settings.displayConfig?.defaultPageSize;
+        if (newPageSize && newPageSize !== previousPageSize) {
+          previousPageSize = newPageSize;
+          this._pageSize.set(newPageSize);
+
+          const currentRoute = this.router.url.split('?')[0];
+          if (currentRoute.includes(`/${APP_ROUTES_ENUM.COLLECTION}`)) {
+            // Update URL and reload with new page size
+            this._page.set(1);
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: 1, pageSize: newPageSize },
+              queryParamsHandling: 'merge'
+            });
+          }
+        }
+      });
   }
 
   private structureOrder = signal<string[]>([]);

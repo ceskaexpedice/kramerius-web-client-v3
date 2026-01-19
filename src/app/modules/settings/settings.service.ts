@@ -46,7 +46,8 @@ export class SettingsService {
       ...current,
       displayConfig: current.displayConfig ? {
         tableColumns: current.displayConfig.tableColumns.map(col => ({ ...col })),
-        facetFilters: current.displayConfig.facetFilters?.map(filter => ({ ...filter }))
+        facetFilters: current.displayConfig.facetFilters?.map(filter => ({ ...filter })),
+        defaultPageSize: current.displayConfig.defaultPageSize
       } : undefined
     };
     return copy;

@@ -1,9 +1,8 @@
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, Injectable } from '@angular/core';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, Observable, Subscription, takeUntil } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { SettingsService } from '../../modules/settings/settings.service';
 import {
   selectActiveFilters,
   selectArticleSearchResults,
@@ -121,8 +120,6 @@ export class SearchService extends BaseFilterService {
     this._sortBy.set(SolrSortFields.createdAt);
   }
 
-  private settingsService = inject(SettingsService);
-
   constructor(
     private store: Store,
     private solrService: SolrService,
@@ -164,6 +161,29 @@ export class SearchService extends BaseFilterService {
         const currentRoute = this.router.url.split('?')[0];
         if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
           this.reloadCurrentSearch();
+        }
+      });
+
+    // Listen for page size changes from settings
+    let previousPageSize = this._pageSize();
+    this.settingsService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        const newPageSize = settings.displayConfig?.defaultPageSize;
+        if (newPageSize && newPageSize !== previousPageSize) {
+          previousPageSize = newPageSize;
+          this._pageSize.set(newPageSize);
+
+          const currentRoute = this.router.url.split('?')[0];
+          if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+            // Update URL and reload search with new page size
+            this._page.set(1); // Reset to page 1 when page size changes
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: 1, pageSize: newPageSize },
+              queryParamsHandling: 'merge'
+            });
+          }
         }
       });
   }
@@ -234,11 +254,30 @@ export class SearchService extends BaseFilterService {
   }
 
 
+  // Params that should not trigger a search refresh
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info'];
+
+  private getSearchRelevantParams(params: any): any {
+    const relevant: any = {};
+    for (const key of Object.keys(params)) {
+      if (!this.SETTINGS_PARAMS.includes(key)) {
+        relevant[key] = params[key];
+      }
+    }
+    return relevant;
+  }
+
   async initialize() {
     if (this.initialized) return;
 
     this.queryParamsSubscription = this.route.queryParams.pipe(
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      // Only react to changes in search-relevant params, ignore settings dialog params
+      distinctUntilChanged((prev, curr) => {
+        const prevRelevant = this.getSearchRelevantParams(prev);
+        const currRelevant = this.getSearchRelevantParams(curr);
+        return JSON.stringify(prevRelevant) === JSON.stringify(currRelevant);
+      })
     ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
       if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
