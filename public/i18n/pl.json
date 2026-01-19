@@ -452,5 +452,14 @@
   "type-in-index": "Wpisz indeks",
   "previous-search-button--label": "Poprzedni",
   "next-search-button--label": "Następny",
-  "range--label": "Zakres"
+  "range--label": "Zakres",
+  "display-section--general--label": "Ogólne",
+  "display-section--view-mode--label": "Wybierz tryb widoku",
+  "display-section--search-results--label": "Wyniki wyszukiwania",
+  "view-mode--grid": "Karty",
+  "view-mode--rows": "Tabela",
+  "display-section--filters--label": "Filtry",
+  "reset-to-defaults": "Reset",
+  "select-all--label": "Wszystkie",
+  "paginator-page-size--label": "Maks. liczba wyników na stronę"
 }

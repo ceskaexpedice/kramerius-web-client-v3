@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AppSettingsThemeEnum, Settings } from '../../settings.model';
+import { AppSettingsThemeEnum, AppResultsViewType, Settings } from '../../settings.model';
 import {
   ToggleButtonGroupComponent, ToggleOption,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
@@ -10,6 +10,7 @@ import { CheckboxComponent } from '../../../../shared/components/checkbox/checkb
 import { NgForOf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import {CdkDragDrop, CdkDrag, CdkDropList, moveItemInArray, CdkDragHandle} from '@angular/cdk/drag-drop';
+import { SelectComponent } from '../../../../shared/components/select/select.component';
 
 @Component({
   selector: 'app-settings-display-section',
@@ -21,6 +22,7 @@ import {CdkDragDrop, CdkDrag, CdkDropList, moveItemInArray, CdkDragHandle} from 
     CdkDrag,
     CdkDropList,
     CdkDragHandle,
+    SelectComponent,
   ],
   templateUrl: './settings-display-section.component.html',
   styleUrl: './settings-display-section.component.scss'
@@ -30,14 +32,17 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   @Output() settingsChange = new EventEmitter<Settings>();
 
   options: ToggleOption<AppSettingsThemeEnum>[] = [];
+  viewModeOptions: ToggleOption<AppResultsViewType>[] = [];
   tableColumns: TableColumnConfig[] = [];
   facetFilters: FacetFilterConfig[] = [];
+  pageSizeOptions = [60, 120, 180];
 
   private settingsService = inject(SettingsService);
   private displayConfigService = inject(DisplayConfigService);
 
   ngOnInit() {
     this.generateToggleButtons();
+    this.generateViewModeToggleButtons();
     this.loadTableColumns();
     this.loadFacetFilters();
   }
@@ -56,6 +61,44 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
       { label: 'display-system-mode', value: AppSettingsThemeEnum.SYSTEM, icon: 'icon-monitor' },
     ];
   }
+
+  generateViewModeToggleButtons() {
+    this.viewModeOptions = [
+      { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
+      { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
+    ];
+  }
+
+  onViewModeChange(newViewMode: AppResultsViewType) {
+    const updatedSettings: Settings = {
+      ...this.settings,
+      searchResultsView: newViewMode
+    };
+    this.settingsChange.emit(updatedSettings);
+  }
+
+  onPageSizeChange(newPageSize: number) {
+    if (!this.settings.displayConfig) {
+      this.settings.displayConfig = this.displayConfigService.getConfigForSettings();
+    }
+
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        ...this.settings.displayConfig,
+        defaultPageSize: newPageSize
+      }
+    };
+    this.settingsChange.emit(updatedSettings);
+  }
+
+  get currentPageSize(): number {
+    return this.settings.displayConfig?.defaultPageSize || 60;
+  }
+
+  pageSizeDisplayFn = (size: number | null): string => {
+    return size != null ? String(size) : '-';
+  };
 
   loadTableColumns() {
     // If displayConfig exists in settings, use it; otherwise use service defaults
@@ -101,20 +144,67 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
     this.settingsChange.emit(updatedSettings);
   }
 
+  get allColumnsSelected(): boolean {
+    return this.tableColumns.length > 0 && this.tableColumns.every(col => col.visible);
+  }
+
+  toggleAllColumns(selectAll: boolean) {
+    if (!this.settings.displayConfig) {
+      this.settings.displayConfig = this.displayConfigService.getConfigForSettings();
+    }
+
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig.tableColumns.map(col => ({ ...col, visible: selectAll })),
+        facetFilters: this.settings.displayConfig.facetFilters?.map(f => ({ ...f }))
+      }
+    };
+
+    this.settingsChange.emit(updatedSettings);
+  }
+
   resetColumnsToDefaults() {
     // Reset to defaults in local settings only
-    this.settings.displayConfig = {
-      tableColumns: [...this.displayConfigService.getAllColumns().map(col => ({
-        ...col,
-        visible: col.defaultVisible
-      }))],
-      facetFilters: this.settings.displayConfig?.facetFilters || this.displayConfigService.getAllFacetFilters()
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: [...this.displayConfigService.getAllColumns().map(col => ({
+          ...col,
+          visible: col.defaultVisible
+        }))],
+        facetFilters: this.settings.displayConfig?.facetFilters || this.displayConfigService.getAllFacetFilters()
+      }
     };
-    this.loadTableColumns();
+    this.settingsChange.emit(updatedSettings);
   }
 
   clickedFilterItem(filter: FacetFilterConfig) {
     this.onFacetFilterVisibilityChange(filter.id, !filter.visible);
+  }
+
+  get allFacetsSelected(): boolean {
+    return this.facetFilters.length > 0 && this.facetFilters.every(f => f.visible);
+  }
+
+  toggleAllFacets(selectAll: boolean) {
+    if (!this.settings.displayConfig) {
+      this.settings.displayConfig = this.displayConfigService.getConfigForSettings();
+    }
+
+    if (!this.settings.displayConfig.facetFilters) {
+      this.settings.displayConfig.facetFilters = this.displayConfigService.getAllFacetFilters();
+    }
+
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig.tableColumns.map(col => ({ ...col })),
+        facetFilters: this.settings.displayConfig.facetFilters.map(f => ({ ...f, visible: selectAll }))
+      }
+    };
+
+    this.settingsChange.emit(updatedSettings);
   }
 
   onFacetFilterVisibilityChange(filterId: string, visible: boolean) {
@@ -173,14 +263,18 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
 
   resetFacetFiltersToDefaults() {
     // Reset to defaults in local settings only
-    this.settings.displayConfig = {
-      tableColumns: this.settings.displayConfig?.tableColumns || this.displayConfigService.getAllColumns(),
-      facetFilters: [...this.displayConfigService.getAllFacetFilters().map(filter => ({
-        ...filter,
-        visible: filter.defaultVisible
-      }))]
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        tableColumns: this.settings.displayConfig?.tableColumns || this.displayConfigService.getAllColumns(),
+        facetFilters: [...this.displayConfigService.getAllFacetFilters().map(filter => ({
+          ...filter,
+          visible: filter.defaultVisible
+        }))]
+      }
     };
-    this.loadFacetFilters();
+    this.settingsChange.emit(updatedSettings);
   }
 
+  protected readonly AppResultsViewType = AppResultsViewType;
 }

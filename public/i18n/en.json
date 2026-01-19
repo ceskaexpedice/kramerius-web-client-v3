@@ -460,5 +460,14 @@
   "type-in-index": "Type an index",
   "previous-search-button--label": "Previous",
   "next-search-button--label": "Next",
-  "range--label": "Range"
+  "range--label": "Range",
+  "display-section--general--label": "General",
+  "display-section--view-mode--label": "Select view mode",
+  "display-section--search-results--label": "Search results",
+  "view-mode--grid": "Cards",
+  "view-mode--rows": "Table",
+  "display-section--filters--label": "Filters",
+  "reset-to-defaults": "Reset",
+  "select-all--label": "All",
+  "paginator-page-size--label": "Max. results per page"
 }

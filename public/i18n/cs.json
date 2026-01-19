@@ -24,9 +24,9 @@
   "settings-section-experimental": "Experimentální funkce",
   "settings-section-gdpr": "Ochrana osobních údajů",
   "settings-section-account": "Uživatelský účet",
-  "display-light-mode": "Světlý režim",
-  "display-dark-mode": "Tmavý režim",
-  "display-system-mode": "Systémový",
+  "display-light-mode": "Světlý",
+  "display-dark-mode": "Tmavý",
+  "display-system-mode": "Dle OS",
   "cancel": "Zrušit",
   "close": "Zavřít",
   "save": "Uložit",
@@ -453,5 +453,14 @@
   "type-in-index": "Zadejte index",
   "previous-search-button--label": "Předchozí",
   "next-search-button--label": "Další",
-  "range--label": "Rozsah"
+  "range--label": "Rozsah",
+  "display-section--general--label": "Obecné",
+  "display-section--view-mode--label": "Vyberte režim zobrazení",
+  "display-section--search-results--label": "Výsledky hledání",
+  "view-mode--grid": "Karty",
+  "view-mode--rows": "Tabulka",
+  "display-section--filters--label": "Filtry",
+  "reset-to-defaults": "Reset",
+  "select-all--label": "Všechny",
+  "paginator-page-size--label": "Max. počet výsledků na straně"
 }

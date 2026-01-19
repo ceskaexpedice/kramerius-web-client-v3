@@ -453,5 +453,14 @@
   "type-in-index": "Zadajte index",
   "previous-search-button--label": "Predchádzajúci",
   "next-search-button--label": "Nasledujúci",
-  "range--label": "Rozsah"
+  "range--label": "Rozsah",
+  "display-section--general--label": "Všeobecné",
+  "display-section--view-mode--label": "Vyberte režim zobrazenia",
+  "display-section--search-results--label": "Výsledky vyhľadávania",
+  "view-mode--grid": "Karty",
+  "view-mode--rows": "Tabuľka",
+  "display-section--filters--label": "Filtre",
+  "reset-to-defaults": "Reset",
+  "select-all--label": "Všetky",
+  "paginator-page-size--label": "Max. počet výsledkov na strane"
 }

@@ -11,6 +11,8 @@
   --font-size-small: calc(14px * var(--accessibility-text-scale));
   --font-size-base: calc(16px * var(--accessibility-text-scale));
   --font-size-large: calc(18px * var(--accessibility-text-scale));
+  --font-size-xlarge: calc(20px * var(--accessibility-text-scale));
+  --font-size-xxlarge: calc(24px * var(--accessibility-text-scale));
 
   --header-height: 71px;
   --toolbar-height: 56px;
@@ -24,6 +26,7 @@
   --spacing-x6: 24px;
   --spacing-x7: 28px;
   --spacing-x8: 32px;
+  --spacing-x10: 40px;
   --spacing-x12: 48px;
   --spacing-x24: 96px;
 
