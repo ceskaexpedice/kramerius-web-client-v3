@@ -1,0 +1,32 @@
+<div class="selection-mode-info" [class.has-selection]="hasSelection">
+  @if (hasSelection) {
+    <div class="selection-mode-info--header">
+      <span>{{ 'selection-edit-or-cancel' | translate }}</span>
+      <div class="selection-mode-info--actions">
+        <button class="button primary sm" (click)="onEditSelection()">
+          {{ 'edit-selection' | translate }}
+        </button>
+        <button class="button danger sm" (click)="onCancelSelection()">
+          {{ 'cancel' | translate }}
+        </button>
+      </div>
+    </div>
+    @if (showTip()) {
+      <div class="selection-mode-info--tip">
+        <div class="tip-row">
+          <i class="icon-bulb"></i>
+          <span>{{ 'selection-tip-right-click' | translate }}</span>
+        </div>
+        <label class="tip-row checkbox-row">
+          <input type="checkbox" (change)="onDontShowAgainChange($any($event.target).checked)">
+          <span>{{ 'selection-tip-dont-show-again' | translate }}</span>
+        </label>
+      </div>
+    }
+  } @else {
+    <span>{{ 'select-area-drag' | translate }}</span>
+    <button class="button danger sm" (click)="onCancelSelection()">
+      {{ 'cancel' | translate }}
+    </button>
+  }
+</div>

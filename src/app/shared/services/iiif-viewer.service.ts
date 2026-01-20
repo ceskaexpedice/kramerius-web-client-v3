@@ -113,8 +113,17 @@ export class IIIFViewerService {
   private selectedAreaSubject = new BehaviorSubject<OpenSeadragon.Rect | null>(null);
   public selectedArea$ = this.selectedAreaSubject.asObservable();
 
+  // Clear selected area while staying in selection mode (allows re-drawing)
+  clearSelectedArea(): void {
+    this.clearSelectionOverlays();
+    this.selectedAreaSubject.next(null);
+  }
+
   private isSelectionModeSubject = new BehaviorSubject<boolean>(false);
   public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
+
+  private isDraggingSubject = new BehaviorSubject<boolean>(false);
+  public isDragging$ = this.isDraggingSubject.asObservable();
 
   private lastSelectionTime: number = 0;
 
@@ -287,6 +296,7 @@ export class IIIFViewerService {
       this.isSelectionMode = false;
       this.isSelectionModeSubject.next(false);
     }
+    this.isDraggingSubject.next(false);
 
     // Clear all overlays and counters
     this.rectangleCounter = 0;
@@ -524,6 +534,7 @@ export class IIIFViewerService {
       pressHandler: (event: any) => {
         console.log('MouseTracker: press');
         this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
+        this.isDraggingSubject.next(true);
         event.preventDefaultAction = true;
       },
       clickHandler: (event: any) => {
@@ -569,6 +580,7 @@ export class IIIFViewerService {
       },
       releaseHandler: (event: any) => {
         try {
+          this.isDraggingSubject.next(false);
           if (!this.drawStartPoint) return;
 
           const endPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
@@ -661,6 +673,7 @@ export class IIIFViewerService {
     }
     this.clearSelectionOverlays();
     this.selectedAreaSubject.next(null);
+    this.isDraggingSubject.next(false);
     this.drawStartPoint = null;
   }
 

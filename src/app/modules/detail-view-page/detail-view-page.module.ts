@@ -29,6 +29,7 @@ import { ViewerControls } from '../../shared/components/viewer-controls/viewer-c
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 import { DocumentAccessDenied } from './components/document-access-denied/document-access-denied';
+import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 
 const routes: Routes = [
   {
@@ -70,6 +71,7 @@ const routes: Routes = [
     FavoritesPopupComponent,
     InlineLoaderComponent,
     DocumentAccessDenied,
+    SelectionModeInfoComponent,
   ],
 })
 

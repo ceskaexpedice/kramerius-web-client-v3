@@ -199,12 +199,15 @@
         }
 
         @if (iiifViewerService.isSelectionMode$ | async) {
-        <div class="selection-mode-info">
-          <span>{{ 'select-area-drag' | translate }}</span>
-          <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
-            {{ 'cancel' | translate }}
-          </button>
-        </div>
+          @let isDragging = iiifViewerService.isDragging$ | async;
+          @let hasSelection = iiifViewerService.selectedArea$ | async;
+          @if (!isDragging) {
+            <app-selection-mode-info
+              [hasSelection]="!!hasSelection"
+              (editSelection)="iiifViewerService.clearSelectedArea()"
+              (cancelSelection)="iiifViewerService.setSelectionMode(false)">
+            </app-selection-mode-info>
+          }
         }
         }
         }
