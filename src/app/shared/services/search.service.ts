@@ -249,7 +249,8 @@ export class SearchService extends BaseFilterService {
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
         sortDirection: this._sortDirection()
-      }
+      },
+      queryParamsHandling: 'merge'
     });
   }
 
@@ -424,6 +425,12 @@ export class SearchService extends BaseFilterService {
     let filters: string[];
 
     filters = [...baseFilters, ...customFilters];
+
+    // If no search query is present, filter for standalone collections
+    // AND check if we are actually filtering for collections
+    if ((!query || query.trim() === '') && filters.some(f => f.includes('root.model:collection'))) {
+      filters.push('collection.is_standalone:true');
+    }
 
     // use mapFacetsToSearchFields to map filters to correct search fields
     filters = mapFacetsToSearchFields(filters);
