@@ -16,7 +16,7 @@
   overflow: hidden;
   transition: all 0.4s;
   cursor: pointer;
-  border: 2px solid var(--color-border-bright);
+  border: 1px solid var(--color-border-bright);
 
   // Reset anchor styles
   text-decoration: none;
@@ -36,7 +36,7 @@
 
   &:hover {
     box-shadow: var(--item-card-shadow);
-    border: 2px solid var(--color-border-base);
+    border: 1px solid var(--color-border-primary-default);
   }
 
   // Admin mode styles
