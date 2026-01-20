@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, inject, Output, OnInit, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { TabsComponent } from '../../components/tabs/tabs.component';
@@ -8,6 +8,8 @@ import { Metadata } from '../../models/metadata.model';
 import { NgIf, NgFor } from '@angular/common';
 import { KrameriusApiService } from '../../services/kramerius-api.service';
 import { LocalStorageService } from '../../services/local-storage.service';
+
+import hljs from 'highlight.js';
 
 @Component({
     selector: 'app-metadata-dialog',
@@ -42,6 +44,7 @@ export class MetadataDialogComponent implements OnInit {
     private localStorage = inject(LocalStorageService);
     private translate = inject(TranslateService);
     private cdr = inject(ChangeDetectorRef);
+    private elementRef = inject(ElementRef);
 
     constructor() {
         this.document = this.data.document;
@@ -86,6 +89,7 @@ export class MetadataDialogComponent implements OnInit {
             this.content = this.cache[this.selectedPid][this.activeTabLabel];
             this.error = null;
             this.cdr.detectChanges();
+            this.highlightCode();
             return;
         }
 
@@ -150,6 +154,7 @@ export class MetadataDialogComponent implements OnInit {
             this.cacheData(this.selectedPid, format, formattedContent);
             this.isLoading = false;
             this.cdr.detectChanges();
+            this.highlightCode();
         };
 
         const handleError = (err: any) => {
@@ -200,14 +205,23 @@ export class MetadataDialogComponent implements OnInit {
         return formatted.substring(1, formatted.length - 3);
     }
 
+    private highlightCode() {
+        if (this.activeTabLabel === 'ocr') {
+            return;
+        }
+        setTimeout(() => {
+            const codeBlock = this.elementRef.nativeElement.querySelector('pre code');
+            if (codeBlock) {
+                hljs.highlightElement(codeBlock as HTMLElement);
+            }
+        }, 10);
+    }
+
     get languageClass(): string {
         switch (this.activeTabLabel) {
             case 'mods':
-                return 'language-xml';
             case 'dc':
-                return 'language-xml';
             case 'foxml':
-                return 'language-xml';
             case 'alto':
                 return 'language-xml';
             case 'solr':
