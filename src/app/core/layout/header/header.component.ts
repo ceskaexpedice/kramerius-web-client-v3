@@ -1,23 +1,23 @@
 import { Component, OnInit, OnDestroy, Injector } from '@angular/core';
-import {Router, NavigationEnd} from '@angular/router';
+import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { HeaderType } from './header-types';
 import { SettingsService } from '../../../modules/settings/settings.service';
 import { AppSettingsThemeEnum } from '../../../modules/settings/settings.model';
-import {NgClass, NgIf} from '@angular/common';
-import {AutocompleteComponent} from '../../../shared/components/autocomplete/autocomplete.component';
-import {LangPickerComponent} from '../../../shared/translation/lang-picker/lang-picker.component';
-import {SearchService} from '../../../shared/services/search.service';
-import {TranslatePipe} from '@ngx-translate/core';
-import {AdvancedSearchService} from '../../../shared/services/advanced-search.service';
+import { NgClass, NgIf } from '@angular/common';
+import { AutocompleteComponent } from '../../../shared/components/autocomplete/autocomplete.component';
+import { LangPickerComponent } from '../../../shared/translation/lang-picker/lang-picker.component';
+import { SearchService } from '../../../shared/services/search.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
-import {RecordHandlerService} from '../../../shared/services/record-handler.service';
-import {UserInfoComponent} from '../../auth/user-info/user-info.component';
-import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
-import {DocumentTypeEnum} from '../../../modules/constants/document-type';
-import {CollectionsService} from '../../../shared/services/collections.service';
-import {ClickOutsideDirective} from '../../../shared/directives';
+import { RecordHandlerService } from '../../../shared/services/record-handler.service';
+import { UserInfoComponent } from '../../auth/user-info/user-info.component';
+import { customDefinedFacetsEnum } from '../../../modules/search-results-page/const/facets';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
+import { CollectionsService } from '../../../shared/services/collections.service';
+import { ClickOutsideDirective } from '../../../shared/directives';
 
 @Component({
   selector: 'app-header',
@@ -30,6 +30,7 @@ import {ClickOutsideDirective} from '../../../shared/directives';
     TranslatePipe,
     UserInfoComponent,
     ClickOutsideDirective,
+    RouterLink,
   ],
   styleUrl: './header.component.scss'
 })
@@ -55,7 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private advancedSearch: AdvancedSearchService,
     private recordHandler: RecordHandlerService,
     private injector: Injector,
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Listen for route changes to update header type
@@ -193,4 +194,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;
   protected readonly APP_ROUTES_ENUM = APP_ROUTES_ENUM;
+  protected readonly customDefinedFacetsEnum = customDefinedFacetsEnum;
+  protected readonly DocumentTypeEnum = DocumentTypeEnum;
 }
