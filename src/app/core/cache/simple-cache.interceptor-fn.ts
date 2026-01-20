@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, delay } from 'rxjs/operators';
 
 const TTL = 24 * 60 * 60 * 1000; // 1 day
 const CACHE_PREFIX = 'cdk-cache:';
@@ -122,7 +122,7 @@ export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
       headers: headers,
       url: req.url
     });
-    return of(response);
+    return of(response).pipe(delay(0));
   }
 
   // Make the request and cache the response
