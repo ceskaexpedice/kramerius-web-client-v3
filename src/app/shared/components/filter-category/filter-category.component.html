@@ -32,7 +32,7 @@
       <ng-container *ngIf="type === 'checkbox'">
         <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems; trackBy: trackByItemName">
           <app-filter-item [label]="item.name" [checked]="isSelected(item.name)" [icon]="item.icon || null"
-            [count]="item.count" [truncateLabel]="true" (toggled)="onToggle(item.name)"></app-filter-item>
+            [count]="item.count" [truncateLabel]="false" (toggled)="onToggle(item.name)"></app-filter-item>
         </ng-container>
       </ng-container>
 
