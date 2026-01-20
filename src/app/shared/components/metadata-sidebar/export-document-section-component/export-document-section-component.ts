@@ -188,7 +188,7 @@ export class ExportDocumentSectionComponent {
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
-        this.exportService.exportPdfSelection(pageUuids);
+        this.exportService.exportPdfSelection(pageUuids, this.detailViewService.title);
       } else {
         console.warn('No pages with exportable licenses available for PDF export');
       }
@@ -240,7 +240,7 @@ export class ExportDocumentSectionComponent {
 
         if (exportType === 'pdf') {
           // Export PDF with selected pages
-          this.exportService.exportPdfSelection(result.selectedPagePids);
+          this.exportService.exportPdfSelection(result.selectedPagePids, this.detailViewService.title);
         } else if (exportType === 'print') {
           // Print selected pages
           this.exportService.printPdfSelection(result.selectedPagePids);
