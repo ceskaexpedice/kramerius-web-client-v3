@@ -46,6 +46,8 @@ export class ImagePreviewOverlayComponent {
 
     switch (event.key) {
       case 'Escape':
+        event.stopPropagation();
+        event.preventDefault();
         this.onClose();
         break;
       case 'ArrowLeft':
