@@ -621,19 +621,31 @@ export class IIIFViewerService {
     if (!this.viewer) return;
 
     const home = this.viewer.viewport.getHomeBounds();
-    const addDimOverlay = (x: number, y: number, w: number, h: number) => {
-      const overlay = document.createElement('div');
-      overlay.style.background = this.BOX_STYLES.selection.dim.background;
-      overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
-      this.viewer!.addOverlay(overlay, new OpenSeadragon.Rect(x, y, w, h));
-      this.dimOverlays.push(overlay);
-    };
 
-    // Top, Bottom, Left, Right
-    if (sel.y > home.y) addDimOverlay(home.x, home.y, home.width, sel.y - home.y);
-    if (sel.y + sel.height < home.y + home.height) addDimOverlay(home.x, sel.y + sel.height, home.width, home.y + home.height - sel.y - sel.height);
-    if (sel.x > home.x) addDimOverlay(home.x, sel.y, sel.x - home.x, sel.height);
-    if (sel.x + sel.width < home.x + home.width) addDimOverlay(sel.x + sel.width, sel.y, home.x + home.width - sel.x - sel.width, sel.height);
+    const selLeftPct = ((sel.x - home.x) / home.width) * 100;
+    const selTopPct = ((sel.y - home.y) / home.height) * 100;
+    const selRightPct = ((sel.x + sel.width - home.x) / home.width) * 100;
+    const selBottomPct = ((sel.y + sel.height - home.y) / home.height) * 100;
+
+    // Create single overlay covering entire home bounds
+    const overlay = document.createElement('div');
+    overlay.style.background = this.BOX_STYLES.selection.dim.background;
+    overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+
+    // Use clip-path polygon with tunnel technique to cut out selection area
+    // Draws outer rectangle (Clockwise), tunnels to inner cutout, traces cutout (Counter-Clockwise), tunnels back
+    overlay.style.clipPath = `polygon(
+      0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+      ${selLeftPct}% ${selTopPct}%,
+      ${selLeftPct}% ${selBottomPct}%,
+      ${selRightPct}% ${selBottomPct}%,
+      ${selRightPct}% ${selTopPct}%,
+      ${selLeftPct}% ${selTopPct}%,
+      0% 0%
+    )`;
+
+    this.viewer.addOverlay(overlay, home);
+    this.dimOverlays.push(overlay);
   }
 
   // Clear selection and dim overlays
