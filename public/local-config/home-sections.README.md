@@ -15,7 +15,7 @@ This file configures the sections displayed on the search/home page. It is a JSO
 
 ## Custom Items
 
-The `items` array in a `"custom"` section can contain objects with the following properties:
+The `items` array in a `"custom"` section are standard RecordItemModel used in app for displaying records but can also contain following properties:
 
 - `id`: (String, Optional) The UUID of the document in the repository (e.g., `"uuid:..."`). If present, data is fetched from the API.
 - `title`: (String) The title to display. **Overrides** API data if `id` is present.

@@ -236,6 +236,90 @@
         "title": "Julius Zeyer",
         "imageUrl": "local-config/authors_small/zeyer_julius.png",
         "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
+      },
+      {
+        "id": "4",
+        "title": "Svatopluk Čech",
+        "imageUrl": "local-config/authors_small/cech_svatopluk.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Cech,%20Svatopluk&licenses.facet_operator=OR"
+      },
+      {
+        "id": "5",
+        "title": "Jan Neruda",
+        "imageUrl": "local-config/authors_small/neruda_jan.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Neruda,%20Jan&licenses.facet_operator=OR"
+      },
+      {
+        "id": "6",
+        "title": "Božena Němcová",
+        "imageUrl": "local-config/authors_small/nemcova_bozena.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:N%C4%9Bmcov%C3%A1,%20Bo%C5%BEena&licenses.facet_operator=OR"
+      },
+      {
+        "id": "7",
+        "title": "Karel Čapek",
+        "imageUrl": "local-config/authors_small/capek_karel.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "8",
+        "title": "Josef Čapek",
+        "imageUrl": "local-config/authors_small/capek_josef.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Josef&licenses.facet_operator=OR"
+      },
+      {
+        "id": "9",
+        "title": "Karel Hynek Mácha",
+        "imageUrl": "local-config/authors_small/macha_karel hynek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:M%C3%A1cha,%20Karel%20Hynek&licenses.facet_operator=OR"
+      },
+      {
+        "id": "10",
+        "title": "Jaroslav Hašek",
+        "imageUrl": "local-config/authors_small/hasek_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Ha%C5%A1ek,%20Jaroslav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "11",
+        "title": "Karel Poláček",
+        "imageUrl": "local-config/authors_small/polacek_karel.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Pol%C3%A1%C4%8Dek,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "12",
+        "title": "Vladislav Vančura",
+        "imageUrl": "local-config/authors_small/vancura_vladislav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Van%C4%8Dura,%20Vladislav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "13",
+        "title": "Jaroslav Vrchlický",
+        "imageUrl": "local-config/authors_small/vrchlicky_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Vrchlick%C3%BD,%20Jaroslav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "14",
+        "title": "Magdalena Dobromila Rettigová",
+        "imageUrl": "local-config/authors_small/rettigova_magdalena dobromila.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Rettigov%C3%A1,%20Magdalena%20Dobromila&licenses.facet_operator=OR"
+      },
+      {
+        "id": "15",
+        "title": "Karolina Světlá",
+        "imageUrl": "local-config/authors_small/svetla_karolina.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sv%C4%9Btl%C3%A1,%20Karolina&licenses.facet_operator=OR"
+      },
+      {
+        "id": "16",
+        "title": "Karel Havlíček Borovský",
+        "imageUrl": "local-config/authors_small/borovsky_karel havlicek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Havl%C3%AD%C4%8Dek%20Borovsk%C3%BD,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "17",
+        "title": "Jaroslav Seifert",
+        "imageUrl": "local-config/authors_small/seifert_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Seifert,%20Jaroslav&licenses.facet_operator=OR"
       }
     ]
   },
