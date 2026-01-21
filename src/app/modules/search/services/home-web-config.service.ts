@@ -44,6 +44,18 @@ export interface SectionConfig {
 
     /** Optional comment for configuration management (ignored by application). */
     comment?: string;
+
+    /**
+     * Optional URL for the "Show more" button.
+     * If present, a button will be displayed in the section header linking to this URL.
+     */
+    sectionUrl?: string;
+
+    /**
+     * Optional text for the "Show more" button.
+     * If not present, the default translation key 'btn_show_more' is used.
+     */
+    buttonText?: string;
 }
 
 @Injectable({

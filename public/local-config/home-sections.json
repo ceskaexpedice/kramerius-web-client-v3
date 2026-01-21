@@ -1,11 +1,409 @@
 [
     {
-        "type": "periodicals",
-        "title": "periodical"
+        "type": "custom",
+        "title": "Periodika",
+        "buttonText": "Výběr z nejčtenějších novin a časopisů",
+        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical,custom-accessibility:available",
+        "items": [
+            {
+                "id": "uuid:eb3adc60-dd58-11e2-9923-005056827e52",
+                "title": "Brünner Zeitung"
+            },
+            {
+                "id": "uuid:ae876087-435d-11dd-b505-00145e5790ea",
+                "title": "Národní listy"
+            },
+            {
+                "id": "uuid:02203ad6-32f0-11de-992b-00145e5790ea",
+                "title": "Moravská orlice"
+            },
+            {
+                "id": "uuid:a101de00-2119-11e3-a5bb-005056827e52",
+                "title": "Brněnské noviny"
+            },
+            {
+                "id": "uuid:80e1aea0-fa27-11e4-9f08-005056825209",
+                "title": "Mährisch-schlesischer Correspondent"
+            },
+            {
+                "id": "uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6",
+                "title": "Lidové noviny"
+            },
+            {
+                "id": "uuid:c7794100-2722-11e2-a433-005056827e52",
+                "title": "Troppauer Zeitung"
+            },
+            {
+                "id": "uuid:40d23930-7bf1-11e2-b930-005056827e51",
+                "title": "Brünner Zeitung der kaiserl.-königl. privileg. Mährischen Lehenbank"
+            },
+            {
+                "id": "uuid:73f3e41a-65c9-11e0-b4ae-0050569d679d",
+                "title": "Našinec"
+            },
+            {
+                "id": "uuid:5c259210-2182-11e6-918e-5ef3fc9ae867",
+                "title": "Čech: politický týdenník katolický"
+            },
+            {
+                "id": "uuid:e75c0530-19fc-11e7-981b-005056825209",
+                "title": "Venkov: orgán České strany agrární"
+            },
+            {
+                "id": "uuid:24a30110-6f97-11ec-bc36-005056827e51",
+                "title": "Jizeran"
+            },
+            {
+                "id": "uuid:7be25e80-5cd1-11e3-9ea2-5ef3fc9ae867",
+                "title": "Mährischer Correspondent"
+            },
+            {
+                "id": "uuid:c40178b0-56de-11e9-936e-005056827e52",
+                "title": "Čas"
+            },
+            {
+                "id": "uuid:ae7a8f66-435d-11dd-b505-00145e5790ea",
+                "title": "Lumír"
+            },
+            {
+                "id": "uuid:a5d37930-84ab-11e2-b238-005056827e52",
+                "title": "Znaimer Wochenblatt"
+            },
+            {
+                "id": "uuid:ae864f11-435d-11dd-b505-00145e5790ea",
+                "title": "Právo lidu"
+            },
+            {
+                "id": "uuid:ae79f31f-435d-11dd-b505-00145e5790ea",
+                "title": "Zlatá Praha"
+            },
+            {
+                "id": "uuid:f1c7c08d-8f64-4b66-be28-5f209c2c7021",
+                "title": "Rovnost"
+            },
+            {
+                "id": "uuid:ae81bb20-435d-11dd-b505-00145e5790ea",
+                "title": "Světozor: Obrázkový týdeník"
+            },
+            {
+                "id": "uuid:ae864f12-435d-11dd-b505-00145e5790ea",
+                "title": "Humoristické listy: Archiv českého rozmaru a vtipu"
+            },
+            {
+                "id": "uuid:9ee4d9f0-6a7a-11e4-9d98-005056825209",
+                "title": "Český svět: illustrovaný čtrnáctidenník"
+            },
+            {
+                "id": "uuid:ae7add8f-435d-11dd-b505-00145e5790ea",
+                "title": "Květy: list pro zábavu a poučení s časovými rozhledy"
+            },
+            {
+                "id": "uuid:d8d61900-42c0-11e2-b246-005056827e52",
+                "title": "Brünner Morgenpost"
+            },
+            {
+                "id": "uuid:bd5fdc60-256c-11e5-8454-005056825209",
+                "title": "Světozor: světová kronika současná slovem i"
+            }
+        ]
     },
     {
-        "type": "books",
-        "title": "book"
+        "type": "custom",
+        "title": "Knihy",
+        "buttonText": "Výběr z nejčtenějších knih",
+        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph,custom-accessibility:available",
+        "items": [
+            {
+                "id": "uuid:7e11fe20-043e-11e5-95ff-5ef3fc9bb22f",
+                "title": "Ottův slovník naučný: illustrovaná encyklopaedie"
+            },
+            {
+                "id": "uuid:13d55c10-373e-11e8-b38f-5ef3fc9bb22f",
+                "title": "Dějiny národu českého v Čechách a v Moravě"
+            },
+            {
+                "id": "uuid:1e3a1900-3bfe-11ee-a184-005056827e52",
+                "title": "Staromoravští rodové"
+            },
+            {
+                "id": "uuid:1d819570-cedf-11e7-b059-5ef3fc9ae867",
+                "title": "Encyklopedický německo-český slovník"
+            },
+            {
+                "id": "uuid:70c93000-bb01-11f0-9cd8-005056827e52",
+                "title": "Moravské národní písně s nápěvy do textu vřaděnými"
+            },
+            {
+                "id": "uuid:6d962368-9ce3-11e0-9ad4-0050569d679d",
+                "title": "Album representantů všech oborů veřejného života československého"
+            },
+            {
+                "id": "uuid:dffb98d0-b2ec-11e2-b6da-005056827e52",
+                "title": "Historická statistická ročenka ČSSR"
+            },
+            {
+                "id": "uuid:d7ab55a0-8445-11e8-9588-5ef3fc9bb22f",
+                "title": "Sčítání lidu v republice Československé ze dne 15. února 1921"
+            },
+            {
+                "id": "uuid:cd9fc250-70dc-11ef-bc66-005056827e51",
+                "title": "Chytilův Adresář hl. města Prahy"
+            },
+            {
+                "id": "uuid:35395220-7fc6-11e6-afc6-005056827e52",
+                "title": "Dějiny a systém soukromého práva římského"
+            },
+            {
+                "id": "uuid:b0ae5cc0-2163-11ee-ae40-005056827e52",
+                "title": "Místopisný slovník historický království Českého"
+            },
+            {
+                "id": "uuid:77754420-988c-11ec-adf7-5ef3fc9bb22f",
+                "title": "Adresář zemského hlavního města Brna"
+            },
+            {
+                "id": "uuid:2b057ad0-9044-11ef-bb77-0050568d319f",
+                "title": "Chytilův úplný adresář Království českého"
+            },
+            {
+                "id": "uuid:37466720-c176-11e4-b2e2-005056827e52",
+                "title": "Adresář Protektorátu Čechy a Morava pro průmysl, živnosti I."
+            },
+            {
+                "id": "uuid:4f1dc410-c176-11e4-b2e2-005056827e52",
+                "title": "Adresář Protektorátu Čechy a Morava pro průmysl, živnosti II."
+            },
+            {
+                "id": "uuid:5b5618f0-5c13-11e3-bc9f-5ef3fc9bb22f",
+                "title": "Umělecké památky Čech"
+            },
+            {
+                "id": "uuid:755d6880-d720-11e6-9e7e-001018b5eb5c",
+                "title": "Slovanské starožitnosti"
+            },
+            {
+                "id": "uuid:13964e30-eaf9-11e2-9923-005056827e52",
+                "title": "Česká literatura od počátků k dnešku"
+            },
+            {
+                "id": "uuid:86b41f50-5e1f-11ea-858b-5ef3fc9bb22f",
+                "title": "Příruční slovník jazyka českého"
+            },
+            {
+                "id": "uuid:ed965480-9fd9-11e5-a7d7-005056827e52",
+                "title": "Berní rula: generální rejstřík ke všem svazkům"
+            },
+            {
+                "id": "uuid:ad6c1f90-d8c6-11ea-a69c-005056827e51",
+                "title": "Herbář, aneb, Bylinář doktora Petra Ondřege Mathiola"
+            },
+            {
+                "id": "uuid:2a1a5330-dbc5-11ea-87fa-005056827e52",
+                "title": "Domácí vševěd: ilustrovaný slovník vědomostí ze všech oborů domácího hospodářství, rodinného a společenského života"
+            },
+            {
+                "id": "uuid:d37babc0-6f03-11e4-9d98-005056825209",
+                "title": "Atlasy erbů a pečetí české a moravské středověké šlechty"
+            },
+            {
+                "id": "uuid:be303150-a2d5-11e3-bb86-005056825209",
+                "title": "Masarykův slovník naučný: lidová encyklopedie"
+            },
+            {
+                "id": "uuid:b3022800-b5c3-11e3-b74a-5ef3fc9ae867",
+                "title": "Místní jména v Čechách: jejich vznik, pův. význam a změny"
+            }
+        ]
+    },
+  {
+    "type": "custom",
+    "title": "Autoři",
+    "items": [
+      {
+        "id": "1",
+        "title": "Alois Jirásek",
+        "imageUrl": "local-config/authors_small/jirasek_alois.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Jir%C3%A1sek,%20Alois&licenses.facet_operator=OR"
+      },
+      {
+        "id": "2",
+        "title": "František Palacký",
+        "imageUrl": "local-config/authors_small/palacky_frantisek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility%3Aavailable%2Ccustom-where-to-search.model%3Atitles%2Ccustom-root-model%3Amonograph&authors.facet_operator=OR&fq=authors.facet%3APalack%C3%BD%2C+Franti%C5%A1ek&fq=licenses.facet%3Apublic&fq=licenses.facet%3Adnnto&licenses.facet_operator=OR"
+      },
+      {
+        "id": "3",
+        "title": "Julius Zeyer",
+        "imageUrl": "local-config/authors_small/zeyer_julius.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
+      }
+    ]
+  },
+    {
+        "type": "custom",
+        "title": "Sbírky",
+        "buttonText": "Vybrali jsme pro vás",
+        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
+        "items": [
+            {
+                "id": "uuid:860fd7f9-c563-470b-be43-f6ed89a2500e",
+                "title": "Řemesla a dovednosti"
+            },
+            {
+                "id": "uuid:23b918f8-785c-4159-a34f-38efdb69e9f2",
+                "title": "Povinná četba"
+            },
+            {
+                "id": "uuid:fdf7d531-47b0-49c6-baa4-9b253d19de62",
+                "title": "Knížky pro děti"
+            },
+            {
+                "id": "uuid:31f58e06-4b5b-47d7-b9b4-5affe6ddfee9",
+                "title": "Kuchařky"
+            },
+            {
+                "id": "uuid:2bf647ac-8ae8-4b20-a3c0-419057a7977e",
+                "title": "Všeobecné encyklopedie"
+            },
+            {
+                "id": "uuid:60351375-ef62-4f5e-8989-3a612591a998",
+                "title": "Houbařské příručky"
+            },
+            {
+                "id": "uuid:e08065ca-25c4-47c4-a3e8-711d2d1b5c95",
+                "title": "Horolezectví a alpinismus"
+            },
+            {
+                "id": "uuid:c9a50baf-a1cc-4c5d-b5f4-67559612c0dc",
+                "title": "Fauna a flóra"
+            },
+            {
+                "id": "uuid:81f05a88-282d-4ed2-a965-0883cdac97be",
+                "title": "Česká science-fiction"
+            },
+            {
+                "id": "uuid:2d49ee14-ba11-4c0b-b8ba-4c094d35bbd1",
+                "title": "Kanonická díla japonské literatury v českém překladu"
+            },
+            {
+                "id": "uuid:93b8bd87-e32a-4884-86f8-3fa6e1411a34",
+                "title": "Cestopisy a průvodce"
+            },
+            {
+                "id": "uuid:3a1c8ae5-6c3e-40e1-9d02-f210bc52cf06",
+                "title": "Cestovatelé z českých zemí"
+            },
+            {
+                "id": "uuid:71174c16-98ca-4d39-8893-543b6fd2af74",
+                "title": "Proměny života na přelomu 19. a 20. století"
+            },
+            {
+                "id": "uuid:a1e89368-8680-4144-b230-ed40859512f8",
+                "title": "První světová válka"
+            },
+            {
+                "id": "uuid:f746dc83-25a6-4041-a64f-9d29fdde9a09",
+                "title": "Druhá světová válka"
+            },
+            {
+                "id": "uuid:9faa8971-480d-4917-9379-215943187605",
+                "title": "Železnice"
+            },
+            {
+                "id": "uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b",
+                "title": "Knihovna lásky"
+            },
+            {
+                "id": "uuid:1ee5ef55-d6e0-4d01-93fd-41609d7ec36f",
+                "title": "Divadelní hry"
+            },
+            {
+                "id": "uuid:a52dbbb2-c1b3-4097-8717-0db1ca002dfc",
+                "title": "Autobiografie, paměti a deníky"
+            }
+        ]
+    },
+    {
+        "type": "custom",
+        "title": "Sbírky periodik",
+        "items": [
+            {
+                "id": "uuid:e8f61172-5e38-43bc-88ed-8737fc210bfc",
+                "title": "Denní tisk"
+            },
+            {
+                "id": "uuid:b071950b-d139-4c40-82db-8ca9de787904",
+                "title": "Humoristická periodika"
+            },
+            {
+                "id": "uuid:9df7d62c-b572-4338-a0d1-b9c63e07a26e",
+                "title": "Regionální tisk"
+            },
+            {
+                "id": "uuid:2fde41b3-b534-46ae-b0cd-6836ad9e1e7d",
+                "title": "Specializovaná periodika"
+            },
+            {
+                "id": "uuid:fd4aae83-d8cc-4615-a779-ff151fc61040",
+                "title": "Týdeníky a měsíčníky"
+            },
+            {
+                "id": "uuid:f5353b65-c8ee-4dcf-815e-338dc0a76b05",
+                "title": "Periodika a publikace zaměřené na kulturu a výtvarné umění"
+            },
+            {
+                "id": "uuid:aef875a0-aa10-4a8c-88bf-89cc787d5098",
+                "title": "Brněnský tisk"
+            },
+            {
+                "id": "uuid:ddbb2e5e-c56b-4fca-98da-d52534ee7825",
+                "title": "Kalendáře"
+            }
+        ]
+    },
+    {
+        "type": "custom",
+        "title": "Rukopisy, staré tisky a mapy",
+        "items": [
+            {
+                "id": "uuid:0177299b-783b-417c-a686-87de93eb625f",
+                "title": "Komeniana"
+            },
+            {
+                "id": "uuid:9b190c71-5a2c-44fa-bc8a-b6c5b056c01a",
+                "title": "Mollova mapová sbírka"
+            },
+            {
+                "id": "uuid:cd65ed4c-13ab-4572-bd36-0659b766b147",
+                "title": "Rukopisy mikulovské dietrichštejnské knihovny"
+            },
+            {
+                "id": "uuid:69847da9-e7c7-4288-b87e-9f9d53a04543",
+                "title": "Zednářská literatura"
+            },
+            {
+                "id": "uuid:4f160bc6-65c0-46e7-ae0b-d7d817e19af5",
+                "title": "Sbírka prvotisků Moravské zemské knihovny"
+            },
+            {
+                "id": "uuid:d4e47795-446e-47d3-9fbb-d4a79a7dbacc",
+                "title": "Staré mapy českých zemí"
+            }
+        ]
+    },
+    {
+        "type": "custom",
+        "title": "Grafické sbírky",
+        "items": [
+            {
+                "id": "uuid:0ad7b989-2d93-4af9-ae47-151508bc038f",
+                "title": "Čechy na starých vyobrazeních"
+            },
+            {
+                "id": "uuid:874a4ef8-2407-4fd9-a9f7-468504964513",
+                "title": "Brněnské grafiky"
+            }
+        ]
     },
     {
         "type": "genres",

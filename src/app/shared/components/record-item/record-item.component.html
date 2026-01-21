@@ -24,7 +24,7 @@
       <img *ngIf="!loading && item" [src]="getImageThumbnailUrl()" (load)="onImageLoad()" (error)="onImageError()"
         class="real-image" [class.hidden]="!imageLoaded()" alt="">
 
-      @if (!loading) {
+      @if (!loading && item?.model) {
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button" *ngIf="shouldShowFavoriteButton()"
           [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
@@ -46,7 +46,7 @@
       </app-model-badge>
       }
 
-      @if (isRecordLocked() && !loading) {
+      @if (isRecordLocked() && !loading && item?.model !== DocumentTypeEnum.collection) {
       <div class="record-item-card__image-lock-overlay">
         <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}"
           [title]="'record-locked' | translate">
@@ -88,7 +88,7 @@
 
     </div>
 
-    @if (shouldShowAccessibilityBadge() && !loading) {
+    @if (shouldShowAccessibilityBadge() && !loading && item?.model !== DocumentTypeEnum.collection) {
     <div class="access-label">
       <app-accessibility-badge [isLocked]="isRecordLocked()"
         [licenses]="item?.licenses || []"></app-accessibility-badge>

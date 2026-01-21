@@ -62,7 +62,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     title: getDocumentTitle(doc),
     subtitle: getDocumentSubtitle(doc),
     model: (doc.model as DocumentTypeEnum) || '',
-    licenses: doc.containsLicenses || doc.licenses || [],
+    licenses: doc.containsLicenses || doc.licenses || doc['licenses.facet'] || [],
     authors: doc.authors,
     date: doc.date,
     ownParentPid: doc.ownParentPid,

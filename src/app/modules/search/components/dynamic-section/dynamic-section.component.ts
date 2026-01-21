@@ -22,6 +22,10 @@ import { map, catchError } from 'rxjs/operators';
     <section *ngIf="(items$ | async) as items">
       <div class="section-header" *ngIf="items.length > 0">
         <h2>{{ config.title | translate }}</h2>
+        <button class="show-all with-icon" *ngIf="config.sectionUrl" (click)="onShowMore()">
+          <span class="text">{{ (config.buttonText || 'btn_show_more') | translate }}</span>
+          <i class="icon-arrow-right-3"></i>
+        </button>
       </div>
 
       <div class="carousel-wrapper" *ngIf="items.length > 0">
@@ -71,16 +75,24 @@ export class DynamicSectionComponent implements OnInit {
       map((docs: any[]) => {
         const docMap = new Map(docs.map((d: any) => [d.pid, d]));
         return itemsToProcess.map(item => {
+          let recordItem: RecordItem;
           if (item.id && docMap.has(item.id)) {
             const doc = docMap.get(item.id);
-            const recordItem = searchDocumentToRecordItem(doc);
-            return { ...recordItem, ...item } as RecordItem;
+            const fetchedItem = searchDocumentToRecordItem(doc);
+            recordItem = { ...fetchedItem, ...item } as RecordItem;
+          } else {
+            recordItem = { ...item } as RecordItem;
+            if (!recordItem.model) {
+              recordItem.model = '';
+            }
           }
-          // Fallback: ensure model is present if not in item
-          if (!item.model) {
-            return { ...item, model: '' } as RecordItem;
+
+          const currentLicenses = recordItem.licenses || [];
+          if (!currentLicenses.includes('public')) {
+            recordItem.licenses = ['public', ...currentLicenses];
           }
-          return item as RecordItem;
+
+          return recordItem;
         });
       }),
       catchError(err => {
@@ -88,5 +100,11 @@ export class DynamicSectionComponent implements OnInit {
         return of(itemsToProcess as RecordItem[]);
       })
     );
+  }
+
+  onShowMore() {
+    if (this.config.sectionUrl) {
+      window.location.href = this.config.sectionUrl;
+    }
   }
 }
