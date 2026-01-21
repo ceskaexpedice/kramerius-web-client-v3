@@ -2,7 +2,7 @@
     {
         "type": "custom",
         "title": "Výběr z nejčtenějších novin a časopisů",
-        "buttonText": "btn_show_more",
+        "buttonText": "Více periodik",
         "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
         "items": [
             {
@@ -110,7 +110,7 @@
     {
         "type": "custom",
         "title": "Výběr z nejčtenějších knih",
-        "buttonText": "btn_show_more",
+        "buttonText": "Více knih",
         "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:monograph&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
         "items": [
             {
@@ -241,8 +241,8 @@
   },
     {
         "type": "custom",
-        "title": "Vybrali jsme pro vás",
-        "buttonText": "btn_show_more",
+        "title": "Vybrané sbírky",
+        "buttonText": "Více sbírek",
         "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
         "items": [
             {
