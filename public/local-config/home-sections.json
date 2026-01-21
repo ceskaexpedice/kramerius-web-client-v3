@@ -3,7 +3,7 @@
         "type": "custom",
         "title": "Výběr z nejčtenějších novin a časopisů",
         "buttonText": "btn_show_more",
-        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical,custom-accessibility:available",
+        "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
         "items": [
             {
                 "id": "uuid:eb3adc60-dd58-11e2-9923-005056827e52",
@@ -111,7 +111,7 @@
         "type": "custom",
         "title": "Výběr z nejčtenějších knih",
         "buttonText": "btn_show_more",
-        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph,custom-accessibility:available",
+        "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:monograph&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
         "items": [
             {
                 "id": "uuid:7e11fe20-043e-11e5-95ff-5ef3fc9bb22f",
@@ -243,7 +243,7 @@
         "type": "custom",
         "title": "Vybrali jsme pro vás",
         "buttonText": "btn_show_more",
-        "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
+        "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
         "items": [
             {
                 "id": "uuid:860fd7f9-c563-470b-be43-f6ed89a2500e",
