@@ -1,8 +1,8 @@
 [
     {
         "type": "custom",
-        "title": "Periodika",
-        "buttonText": "Výběr z nejčtenějších novin a časopisů",
+        "title": "Výběr z nejčtenějších novin a časopisů",
+        "buttonText": "btn_show_more",
         "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical,custom-accessibility:available",
         "items": [
             {
@@ -109,8 +109,8 @@
     },
     {
         "type": "custom",
-        "title": "Knihy",
-        "buttonText": "Výběr z nejčtenějších knih",
+        "title": "Výběr z nejčtenějších knih",
+        "buttonText": "btn_show_more",
         "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph,custom-accessibility:available",
         "items": [
             {
@@ -241,8 +241,8 @@
   },
     {
         "type": "custom",
-        "title": "Sbírky",
-        "buttonText": "Vybrali jsme pro vás",
+        "title": "Vybrali jsme pro vás",
+        "buttonText": "btn_show_more",
         "sectionUrl": "https://cdk.test.trinera.cloud/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
         "items": [
             {
