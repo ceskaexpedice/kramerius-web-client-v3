@@ -108,6 +108,18 @@ export class SolrService {
     return params;
   }
 
+  private sanitizeSearchTerms(query: string): string {
+    // Preserve quoted phrases
+    if (query.startsWith('"') && query.endsWith('"')) {
+      return query;
+    }
+
+    return query
+      .replace(/[:\(\)\[\]\{\}~^\\\/;.!,]/g, ' ')  // Keep * ? " for wildcards/phrases
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null): string {
     const parts: string[] = [];
 
@@ -120,23 +132,34 @@ export class SolrService {
       parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
     }
 
-    // Handle main query
     if (query?.trim()) {
-      if (hasSpecialSyntax(query)) {
-        const escapedQuery = query.trim();
-        if (collectionUuid) {
-          // For collections, search across all relevant fields with boosts
-          parts.push(`((titles.search:${escapedQuery}^10 OR authors.search:${escapedQuery}^2 OR keywords.search:${escapedQuery} OR publishers.search:${escapedQuery} OR genres.search:${escapedQuery} OR geographic_names.search:${escapedQuery} OR text_ocr:${escapedQuery}^0.1 OR id_isbn:${escapedQuery} OR shelf_locators:${escapedQuery}))`);
-        } else {
-          parts.push(`((titles.search:${escapedQuery} OR text_ocr:${escapedQuery}))`);
-        }
+      const sanitizedQuery = this.sanitizeSearchTerms(query);
+      const terms = sanitizedQuery.split(/\s+/).filter(t => t.length > 0);
+
+      if (terms.length === 0) {
+        parts.push('*:*');
       } else {
-        if (collectionUuid) {
-          // For collections, build query across multiple fields
-          const searchFields = ['titles.search', 'authors.search', 'keywords.search', 'publishers.search', 'genres.search', 'geographic_names.search', 'text_ocr', 'id_isbn', 'shelf_locators'];
-          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.or, searchFields)})`);
+        // Add wildcard to last term for prefix matching (filosof -> filosof*)
+        const termQuery = terms.map((term, i) => {
+          // If term already has wildcard, keep it; otherwise add to last term
+          if (term.includes('*') || term.includes('?')) {
+            return term;
+          }
+          return i === terms.length - 1 ? `${term}*` : term;
+        }).join(' AND ');
+
+        if (hasSpecialSyntax(query)) {
+          if (collectionUuid) {
+            parts.push(`(titles.search:(${termQuery})^10 OR authors.search:(${termQuery})^2 OR keywords.search:(${termQuery}) OR publishers.search:(${termQuery}) OR genres.search:(${termQuery}) OR geographic_names.search:(${termQuery}) OR text_ocr:(${termQuery})^0.1 OR id_isbn:(${termQuery}) OR shelf_locators:(${termQuery}))`);
+          } else {
+            parts.push(`((titles.search:(${termQuery}) OR text_ocr:(${termQuery})))`);
+          }
         } else {
-          parts.push(`(${SolrQueryBuilder.buildQueryFromInput(query, SolrOperators.and, ['titles.search', 'text_ocr'])})`);
+          if (collectionUuid) {
+            parts.push(`(titles.search:(${termQuery})^10 OR authors.search:(${termQuery})^2 OR keywords.search:(${termQuery}) OR publishers.search:(${termQuery}) OR genres.search:(${termQuery}) OR geographic_names.search:(${termQuery}) OR text_ocr:(${termQuery})^0.1 OR id_isbn:(${termQuery}) OR shelf_locators:(${termQuery}))`);
+          } else {
+            parts.push(`((titles.search:(${termQuery}) OR text_ocr:(${termQuery})))`);
+          }
         }
       }
     } else {
