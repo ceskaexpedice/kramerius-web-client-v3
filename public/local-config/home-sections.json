@@ -323,6 +323,132 @@
       }
     ]
   },
+  {
+    "type": "custom",
+    "title": "Zahraniční autoři",
+    "items": [
+      {
+        "id": "1",
+        "title": "Charles Dickens",
+        "imageUrl": "local-config/authors_small/dickens.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dickens,%20Charles&licenses.facet_operator=OR"
+      },
+      {
+        "id": "2",
+        "title": "Karl May",
+        "imageUrl": "local-config/authors_small/may.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:May,%20Karl&licenses.facet_operator=OR"
+      },
+      {
+        "id": "3",
+        "title": "Henryk Sienkiewicz",
+        "imageUrl": "local-config/authors_small/sienkiewicz.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sienkiewicz,%20Henryk&licenses.facet_operator=OR"
+      },
+      {
+        "id": "4",
+        "title": "Fjodor Michajlovič Dostojevskij",
+        "imageUrl": "local-config/authors_small/dostojevskij.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dostojevskij,%20Fedor%20Michajlovi%C4%8D&licenses.facet_operator=OR"
+      },
+      {
+        "id": "5",
+        "title": "Alexandre Dumas",
+        "imageUrl": "local-config/authors_small/dumas.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dumas,%20Alexandre&licenses.facet_operator=OR"
+      },
+      {
+        "id": "6",
+        "title": "William Shakespeare",
+        "imageUrl": "local-config/authors_small/shakespeare.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shakespeare,%20William&licenses.facet_operator=OR"
+      },
+      {
+        "id": "7",
+        "title": "Jules Verne",
+        "imageUrl": "local-config/authors_small/verne.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Verne,%20Jules&licenses.facet_operator=OR"
+      },
+      {
+        "id": "8",
+        "title": "Sestry Brontëovy",
+        "imageUrl": "local-config/authors_small/bronte.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Bront%C3%AB,%20Charlotte&fq=authors.facet:Bront%C3%AB,%20Emily&fq=authors.facet:Bront%C3%AB,%20Anne&licenses.facet_operator=OR"
+      },
+      {
+        "id": "9",
+        "title": "Victor Hugo",
+        "imageUrl": "local-config/authors_small/hugo.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Hugo,%20Victor&licenses.facet_operator=OR"
+      },
+      {
+        "id": "10",
+        "title": "Honoré de Balzac",
+        "imageUrl": "local-config/authors_small/balzac.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Balzac,%20Honor%C3%A9%20de&licenses.facet_operator=OR"
+      },
+      {
+        "id": "11",
+        "title": "Louisa May Alcott",
+        "imageUrl": "local-config/authors_small/alcott.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Alcott,%20Louisa%20May&licenses.facet_operator=OR"
+      },
+      {
+        "id": "12",
+        "title": "Miguel de Cervantes",
+        "imageUrl": "local-config/authors_small/cervantes.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Cervantes%20Saavedra,%20Miguel%20de&licenses.facet_operator=OR"
+      },
+      {
+        "id": "13",
+        "title": "Mark Twain",
+        "imageUrl": "local-config/authors_small/twain.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Twain,%20Mark&licenses.facet_operator=OR"
+      },
+      {
+        "id": "14",
+        "title": "Mary Shelley",
+        "imageUrl": "local-config/authors_small/shelley.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shelley,%20Mary%20Wollstonecraft&licenses.facet_operator=OR"
+      },
+      {
+        "id": "15",
+        "title": "Rudyard Kipling",
+        "imageUrl": "local-config/authors_small/kipling.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Kipling,%20Rudyard&licenses.facet_operator=OR"
+      },
+      {
+        "id": "16",
+        "title": "Jack London",
+        "imageUrl": "local-config/authors_small/london.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:London,%20Jack&licenses.facet_operator=OR"
+      },
+      {
+        "id": "17",
+        "title": "Robert Louis Stevenson",
+        "imageUrl": "local-config/authors_small/stevenson.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Stevenson,%20Robert%20Louis&licenses.facet_operator=OR"
+      },
+      {
+        "id": "18",
+        "title": "Jane Austen",
+        "imageUrl": "local-config/authors_small/austen.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Austen,%20Jane&licenses.facet_operator=OR"
+      },
+      {
+        "id": "19",
+        "title": "Agatha Christie",
+        "imageUrl": "local-config/authors_small/christie.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Christie,%20Agatha&licenses.facet_operator=OR"
+      },
+      {
+        "id": "20",
+        "title": "Arthur Conan Doyle",
+        "imageUrl": "local-config/authors_small/doyle.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Doyle,%20Arthur%20Conan&licenses.facet_operator=OR"
+      }
+    ]
+  },
     {
         "type": "custom",
         "title": "Vybrané sbírky",
