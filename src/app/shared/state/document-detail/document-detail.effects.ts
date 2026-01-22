@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { APP_ROUTES_ENUM } from "../../../app.routes";
 import { ROUTER_NAVIGATED } from '@ngrx/router-store';
+import { selectRouterUrl } from '../router/router.selectors';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -35,8 +36,7 @@ export class DocumentDetailEffects {
         );
       })
     )
-  }
-  );
+  });
 
   private loadDetail(uuid: string) {
     return forkJoin({
@@ -44,34 +44,40 @@ export class DocumentDetailEffects {
       children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null),
     }).pipe(
       tap(({ detailItem, children }) => {
-        // Check if this is a multi-volume monograph
         const isMonograph = detailItem?.model === DocumentTypeEnum.monograph;
         const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
 
-        // Redirect to monograph volumes page if it's a multi-volume monograph
         if (isMonograph && hasMonographUnits) {
           console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
-          // Use replaceUrl to replace history entry, preventing back button issues
           this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
         }
       }),
-      map(({ detailItem, children }) => {
+      switchMap(({ detailItem, children }) => {
         console.log('detailItem', detailItem);
         console.log('children', children);
         if (!detailItem) {
           throw new Error('Document detail item is null');
         }
-        console.log('fromSolrToMetadata(detailItem)', fromSolrToMetadata(detailItem));
-        return DocumentDetailActions.loadDocumentDetailSuccess({
+
+        // Check if children contain any articles
+        const hasArticles = children?.some((child: any) => child.model === DocumentTypeEnum.article);
+
+        const successAction = DocumentDetailActions.loadDocumentDetailSuccess({
           data: fromSolrToMetadata(detailItem),
           pages: children,
         });
+
+        // If no articles, also dispatch clearArticleDetail
+        if (!hasArticles) {
+          return of(successAction, DocumentDetailActions.clearArticleDetail());
+        }
+
+        return of(successAction);
       }),
       catchError(error => {
         console.log('Error loading document detail:', error);
-        return of(DocumentDetailActions.loadDocumentDetailFailure({ error }))
-      }
-      )
+        return of(DocumentDetailActions.loadDocumentDetailFailure({ error }));
+      })
     );
   }
 
@@ -79,7 +85,14 @@ export class DocumentDetailEffects {
   loadArticleDetailOnQueryParamChange$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(ROUTER_NAVIGATED),
-      withLatestFrom(this.store.select(DocumentDetailSelectors.selectArticleUuidFromQuery)),
+      withLatestFrom(
+        this.store.select(DocumentDetailSelectors.selectArticleUuidFromQuery),
+        this.store.select(selectRouterUrl)
+      ),
+      filter(([_, __, url]) =>
+        url?.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) ||
+        url?.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`)
+      ),
       map(([_, articleUuid]) => articleUuid),
       distinctUntilChanged(),
       filter(articleUuid => !!articleUuid),
@@ -103,5 +116,4 @@ export class DocumentDetailEffects {
       })
     );
   });
-
 }

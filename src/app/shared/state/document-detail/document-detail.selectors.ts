@@ -34,3 +34,11 @@ export const selectArticleUuidFromQuery = createSelector(
   selectRouterQueryParams,
   (queryParams) => queryParams['article']
 );
+
+export const clearArticleDetailOnDocumentChange = createSelector(
+  selectDocumentDetailUuid,
+  selectArticleUuidFromQuery,
+  (documentUuid, articleUuid) => {
+    return !articleUuid || documentUuid === articleUuid;
+  }
+);

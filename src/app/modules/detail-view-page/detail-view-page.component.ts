@@ -100,6 +100,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
+    this.detailViewService.resetState();
   }
 
   toggleAdminMode(): void {

@@ -114,6 +114,12 @@ export class PdfService {
     return url;
   }
 
+  clearPdfData (): void {
+    this._uuid = null;
+    this._pdfDocument = null;
+    this.resetState();
+  }
+
   get url(): string | null {
     return this.uuid ? `${this.API_URL}/${this.uuid}/image` : null;
   }

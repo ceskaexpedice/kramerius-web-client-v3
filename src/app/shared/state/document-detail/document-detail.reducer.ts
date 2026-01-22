@@ -51,5 +51,12 @@ export const documentDetailReducer = createReducer(
     ...state,
     articleDetailLoading: false,
     articleDetailError: error
-  }))
+  })),
+  on(DocumentDetailActions.clearArticleDetail, state => ({
+    ...state,
+    articleDetail: null,
+    articleDetailLoading: false,
+    articleDetailError: null
+  })),
+  on(DocumentDetailActions.clearDocumentDetail, () => initialState),
 );

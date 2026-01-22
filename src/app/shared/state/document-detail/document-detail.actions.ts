@@ -20,3 +20,5 @@ export const loadArticleDetailFailure = createAction(
   '[DocumentDetail] Load Article Detail Failure',
   props<{ error: any }>()
 );
+export const clearArticleDetail = createAction('[DocumentDetail] Clear Article Detail');
+export const clearDocumentDetail = createAction('[Document Detail] Clear Document Detail');
