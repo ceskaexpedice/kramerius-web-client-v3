@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnDestroy, OnInit, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -16,6 +16,7 @@ import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
+import {getLocalizedField} from '../../utils/language-utils';
 
 @Component({
   selector: 'app-record-item',
@@ -41,6 +42,7 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
   public selectionService = inject(SelectionService);
   private savedListsService = inject(SavedListsService);
   private envService = inject(EnvironmentService);
+  private translateService = inject(TranslateService);
 
   private krameriusBaseUrl: string;
 
@@ -206,6 +208,12 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
   shouldShowFavoriteButton(): boolean {
     if (!this.item) return false;
     return this.item.showFavoriteButton !== false && !this.selectionService.selectionMode();
+  }
+
+  getLocalizedCollectionDescription() {
+    const text = getLocalizedField(this.item, 'collection.desc', this.translateService.getCurrentLang());
+
+    return text;
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

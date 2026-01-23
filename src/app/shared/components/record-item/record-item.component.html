@@ -86,6 +86,10 @@
       }
       }
 
+      @if (!loading && item?.model === DocumentTypeEnum.collection ) {
+        <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
+      }
+
     </div>
 
     @if (shouldShowAccessibilityBadge() && !loading && item?.model !== DocumentTypeEnum.collection) {

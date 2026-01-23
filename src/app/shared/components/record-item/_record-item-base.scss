@@ -291,6 +291,17 @@
       }
     }
   }
+
+  .collection-description {
+    font-size: var(--font-size-small);
+    line-height: calc(20px * var(--accessibility-text-scale));
+    color: var(--color-tertiary);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 // Animation

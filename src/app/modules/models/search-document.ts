@@ -31,6 +31,12 @@ export interface SearchDocument {
   idOther?: string;
   physicalLocations?: string[];
   genres?: string[];
+
+  'collection.desc'?: string;
+  'collection.desc_cze'?: string;
+  'collection.desc_eng'?: string;
+  'collection.desc_pol'?: string;
+  'collection.desc_slo'?: string;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -62,4 +68,10 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   idOther: doc['id_other'],
   physicalLocations: doc['physical_locations.facet'] ? doc['physical_locations.facet'] : undefined,
   genres: doc['genres.search'] ? doc['genres.search'] : undefined,
+
+  'collection.desc': doc['collection.desc'],
+  'collection.desc_cze': doc['collection.desc_cze'],
+  'collection.desc_eng': doc['collection.desc_eng'],
+  'collection.desc_pol': doc['collection.desc_pol'],
+  'collection.desc_slo': doc['collection.desc_slo'],
 });

@@ -51,6 +51,12 @@ export interface RecordItem {
 
   /** Description for local items */
   description?: string;
+
+  'collection.desc'?: string[];
+  'collection.desc_cze'?: string[];
+  'collection.desc_eng'?: string[];
+  'collection.desc_pol'?: string[];
+  'collection.desc_slo'?: string[];
 }
 
 /**
@@ -71,6 +77,12 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     showFavoriteButton: true,
     showAccessibilityBadge: true,
     monographUnitCount: doc.monographUnitCount || 0,
+
+    'collection.desc': doc['collection.desc'] || [],
+    'collection.desc_cze': doc['collection.desc_cze'] || [],
+    'collection.desc_eng': doc['collection.desc_eng'] || [],
+    'collection.desc_pol': doc['collection.desc_pol'] || [],
+    'collection.desc_slo': doc['collection.desc_slo'] || [],
   };
 }
 
@@ -110,8 +122,6 @@ function getDocumentSubtitle(doc: any): string {
 
 export function isDocumentPublic(licenses: string[], userLicenses: string[]) {
   // if there is some license in userLicenses that is in licenses, return true
-  console.log('licenses', licenses);
-  console.log('userLicenses', userLicenses);
   return userLicenses.some(userLicense => licenses.includes(userLicense));
 }
 
