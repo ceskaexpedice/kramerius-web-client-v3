@@ -68,6 +68,7 @@
 
         <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
           <app-selected-tags [items]="(searchService.selectedTags | async) || []"
+                             [textTransform]="'capitalize'"
             [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
             [translateItems]="true" (remove)="searchService.removeFilter($event)"
             (removeGroup)="searchService.resetOperator($event)" (clearAll)="searchService.clearAllFilters()"

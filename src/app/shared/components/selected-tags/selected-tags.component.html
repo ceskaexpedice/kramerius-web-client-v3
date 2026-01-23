@@ -1,4 +1,6 @@
-<div class="selected-tags" *ngIf="items.length > 0">
+<div class="selected-tags" *ngIf="items.length > 0"
+  [class.text-first-letter-capitalize]="textTransform === 'capitalize'"
+>
   <mat-chip-set>
     <button *ngIf="clearButtonPosition === 'left' && showClearAll"
             mat-button

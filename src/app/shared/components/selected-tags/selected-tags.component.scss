@@ -27,6 +27,15 @@ label {
   color: var(--color-text-base);
 }
 
+.text-first-letter-capitalize mat-chip label {
+  display: inline-block;
+  text-transform: lowercase;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
 button.remove-button i {
   color: var(--color-primary);
 }
