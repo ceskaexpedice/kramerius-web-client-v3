@@ -260,6 +260,35 @@ export class SolrService {
     return fq;
   }
 
+  /**
+   * Builds fq params from filter groups. Each group becomes separate fq params.
+   * Within a group = OR, between groups = AND (Solr default for multiple fq params).
+   */
+  private buildFqParamsFromGroups(filterGroups: string[][], operators: Record<string, string> = {}): string[] {
+    const fq: string[] = [];
+    for (const group of filterGroups) {
+      if (group.length === 0) continue;
+      const grouped = this.groupFiltersByField(group);
+      grouped.forEach((values, field) => {
+        const op = operators[field] || SolrOperators.or;
+        // Don't quote range queries (values starting with [ or {)
+        const escaped = values.map(v => {
+          const trimmed = v.trim();
+          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+            return trimmed; // Range query - don't quote
+          }
+          return `"${v}"`;
+        });
+        let fqParam = op === SolrOperators.or ? `{!tag=${field}}` : '';
+        fqParam += values.length === 1
+          ? `${field}:${escaped[0]}`
+          : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`;
+        fq.push(fqParam);
+      });
+    }
+    return fq;
+  }
+
   private buildFacetFieldParams(fields: string[], filtersByField: Map<string, string[]>, operators: Record<string, string>): string[] {
     return fields.map(field => {
       const op = operators[field] || SolrOperators.or;
@@ -269,12 +298,17 @@ export class SolrService {
         return `{!ex=${facetKeysEnum.rootModel}}${field}`;
       }
 
+      // Don't exclude licenses.facet from calculations - we want accurate counts
+      // if (field === facetKeysEnum.license) {
+      //   return field;
+      // }
+
       return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][]): Observable<SearchResultResponse> {
 
     console.log('solr search')
 
@@ -301,7 +335,14 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
-    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    // Use filterGroups if provided, otherwise fall back to flat filters
+    if (filterGroups && filterGroups.length > 0) {
+      this.buildFqParamsFromGroups(filterGroups, facetOperators).forEach(fq => params = params.append('fq', fq));
+    } else {
+      this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    }
+
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
@@ -417,7 +458,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][]): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -438,7 +479,13 @@ export class SolrService {
       params = params.append('facet.field', field);
     });
 
-    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    // Use filterGroups if provided, otherwise fall back to flat filters
+    if (filterGroups && filterGroups.length > 0) {
+      this.buildFqParamsFromGroups(filterGroups, facetOperators).forEach(fq => params = params.append('fq', fq));
+    } else {
+      this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    }
+
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 

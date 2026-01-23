@@ -42,6 +42,7 @@ export class SearchEffects {
       switchMap(([{
         query,
         filters,
+        filterGroups,
         page,
         pageCount,
         sortBy,
@@ -54,7 +55,7 @@ export class SearchEffects {
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 
-        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets()).pipe(
+        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups).pipe(
           shareReplay(1)
         );
 
@@ -84,17 +85,18 @@ export class SearchEffects {
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
-          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups),
+          // facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
         }).pipe(
-          map(({ resultsRes, facetsRes, facetsAllRes }) => {
+          map(({ resultsRes, facetsRes }) => {
             const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
-              facetsAllRes.facet_counts?.facet_fields ?? {},
+              {},
               this.userService.licenses,
-              resultsRes.response.numFound
+              resultsRes.response.numFound,
+              filters
             );
 
             return SearchActions.loadFacetsSuccess({ facets });
@@ -128,7 +130,6 @@ export class SearchEffects {
 
   private getRequestedFacets(): string[] {
     const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
-    console.log('visibleFilters::', visibleFilters)
     if (!visibleFilters || visibleFilters.length === 0) {
       return DEFAULT_FACET_FIELDS;
     }

@@ -47,10 +47,6 @@ export class UserInfoComponent {
   savedListsCount = this.store.select(selectFoldersCount);
 
   constructor() {
-    // Optionally, you can subscribe to the user observable if you need to perform actions based on user changes
-    this.user.subscribe(user => console.log('User info updated:', user));
-
-    // add saved lists count to the "Saved Lists" menu item label
     this.savedListsCount.subscribe(count => {
       const savedItem = this.userMenuItems.find(item => item.id === this.userMenuItemsIds.saved);
       if (savedItem) {

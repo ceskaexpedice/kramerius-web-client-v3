@@ -4,7 +4,7 @@ import { SolrOperators, SolrSortDirections, SolrSortFields } from '../../../core
 
 export const loadSearchResults = createAction(
   '[SearchResults] Load',
-  props<{ query: string; filters: string[], advancedQuery?: string, advancedQueryMainOperator?: SolrOperators, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>()
+  props<{ query: string; filters: string[], filterGroups?: string[][], advancedQuery?: string, advancedQueryMainOperator?: SolrOperators, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections }>()
 );
 
 export const loadSearchResultsSuccess = createAction(

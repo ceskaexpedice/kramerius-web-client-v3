@@ -13,11 +13,17 @@ export function handleFacetsWithOperators(
   facetOperators: Record<string, SolrOperators>,
   unfilteredFacets: Record<string, any[]> = {},
   userLicenses: string[] = [],
-  numFound?: number
+  numFound?: number,
+  filters?: any
 ): Record<string, FacetItem[]> {
   const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
   const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
   const parsedUnfilteredFacets = SolrResponseParser.parseAllFacets(unfilteredFacets);
+
+  console.log('parsedSearchFacets:', parsedSearchFacets);
+  console.log('parsedOperatorFacets:', parsedOperatorFacets);
+  console.log('facetOperators:', facetOperators);
+  console.log('filters:', filters);
 
   const result: Record<string, FacetItem[]> = {};
   const allFacetKeys = new Set([
@@ -48,7 +54,7 @@ export function handleFacetsWithOperators(
     const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
       const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
       let count = 0;
-      
+
       // Only calculate count for custom facets that have a corresponding Solr facet
       if (custom.solrFacetKeyForCount) {
         count = fqList.reduce((sum: number, fq: any) => {
@@ -61,22 +67,51 @@ export function handleFacetsWithOperators(
         const modelsUnfiltered = parsedUnfilteredFacets[facetKeysEnum.model] || [];
 
         if (item.key === FacetAccessibilityTypes.all) {
-          count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
 
-          // if we dont have any modelsUnfiltered, we can use the count from the licenses
-          if (modelsUnfiltered.length === 0) {
-            count = licenses.reduce((sum, lic) => sum + lic.count, 0);
+          count = numFound || 0;
 
-            // if still no count and numFound is provided, use numFound as final fallback
-            if (count === 0 && numFound !== undefined) {
-              count = numFound;
-            }
-          }
+          // count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
+          //
+          // // if we dont have any modelsUnfiltered, we can use the count from the licenses
+          // if (modelsUnfiltered.length === 0) {
+          //   count = licenses.reduce((sum, lic) => sum + lic.count, 0);
+          //
+          //   // if still no count and numFound is provided, use numFound as final fallback
+          //   if (count === 0 && numFound !== undefined) {
+          //     count = numFound;
+          //   }
+          // }
         } else if (item.key === FacetAccessibilityTypes.available) {
-          item.fq = userLicenses;
-          count = userLicenses.reduce((sum, lic) => {
-            return sum + (licenses.find(f => f.name === lic)?.count || 0);
-          }, 0);
+          // get from url licenses.facet, and these filter by userLicenses to get count
+
+          // Get licenses from URL query params, filter by userLicenses, and count
+          const urlLicenses = (filters || [])
+            .filter((f: string) => f.startsWith('licenses.facet:'))
+            .map((f: string) => f.replace('licenses.facet:', ''));
+
+          const availableLicenses = urlLicenses.filter((lic: string) => userLicenses.includes(lic))
+
+          console.log('urlLicenses:', urlLicenses);
+          console.log('availableLicenses:', availableLicenses);
+
+          if (urlLicenses.length > 0) {
+            // Use URL licenses filtered by user's available licenses
+            item.fq = availableLicenses;
+            count = availableLicenses.reduce((sum: number, lic: string) => {
+              return sum + (licenses.find(f => f.name === lic)?.count || 0);
+            }, 0);
+          } else {
+            // No URL licenses, use all user licenses
+            item.fq = userLicenses;
+            count = userLicenses.reduce((sum, lic) => {
+              return sum + (licenses.find(f => f.name === lic)?.count || 0);
+            }, 0);
+          }
+
+          // item.fq = userLicenses;
+          // count = userLicenses.reduce((sum, lic) => {
+          //   return sum + (licenses.find(f => f.name === lic)?.count || 0);
+          // }, 0);
         }
 
       }

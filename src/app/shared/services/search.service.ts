@@ -331,11 +331,14 @@ export class SearchService extends BaseFilterService {
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
 
-    // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
-    // so delete all custom filters that contain 'licenses.facet'
-    if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
-      customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
-    }
+    console.log('customFilters:', customFilters);
+
+    // if we have license filter in both baseFilters and customFilters operator between them is AND
+
+
+    // if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
+    //   customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    // }
 
     // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
     if (!this.hasSubmittedQuery()) {
@@ -422,22 +425,32 @@ export class SearchService extends BaseFilterService {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
 
-    let filters: string[];
+    // Create filter groups for AND logic between baseFilters and customFilters
+    // Each group becomes separate fq params (AND between groups, OR within groups)
+    const filterGroups = [
+      mapFacetsToSearchFields(baseFilters),
+      mapFacetsToSearchFields(customFilters)
+    ].filter(g => g.length > 0);
 
-    filters = [...baseFilters, ...customFilters];
+    // Combine all filters for backwards compatibility and facet calculations
+    let filters = [...mapFacetsToSearchFields(baseFilters), ...mapFacetsToSearchFields(customFilters)];
 
     // If no search query is present, filter for standalone collections
     // AND check if we are actually filtering for collections
     if ((!query || query.trim() === '') && filters.some(f => f.includes('root.model:collection'))) {
       filters.push('collection.is_standalone:true');
+      // Also add to filterGroups
+      if (filterGroups.length > 0) {
+        filterGroups[filterGroups.length - 1].push('collection.is_standalone:true');
+      } else {
+        filterGroups.push(['collection.is_standalone:true']);
+      }
     }
-
-    // use mapFacetsToSearchFields to map filters to correct search fields
-    filters = mapFacetsToSearchFields(filters);
 
     this.store.dispatch(loadSearchResults({
       query,
       filters,
+      filterGroups,
       advancedQuery: advancedQuery,
       advancedQueryMainOperator: advancedQueryMainOperator,
       page: (page - 1) * pageSize, // Solr uses 0-based indexing for pages
