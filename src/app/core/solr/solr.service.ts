@@ -518,7 +518,8 @@ export class SolrService {
   }
 
   getAutocompleteSuggestions(term: string): Observable<string[]> {
-    const query = SolrQueryBuilder.buildQueryFromInput(term);
+    // const query = SolrQueryBuilder.buildQueryFromInput(term);
+    const query = this.buildQParam(term);
     const paramsObject = {
       q: query,
       fl: 'pid,title.search',
