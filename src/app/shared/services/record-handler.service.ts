@@ -76,6 +76,8 @@ export class RecordHandlerService {
         return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
       case DocumentTypeEnum.collection:
         return this.router.createUrlTree([APP_ROUTES_ENUM.COLLECTION, pid]).toString();
+      case DocumentTypeEnum.convolute:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid]).toString();
       case DocumentTypeEnum.article:
         // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
         if (rootPid) {

@@ -6,6 +6,7 @@ import { RecordHandlerService } from '../../services/record-handler.service';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
+import {DocumentTypeEnum} from '../../../modules/constants/document-type';
 
 @Component({
   selector: 'app-uuid-redirect',
@@ -88,6 +89,9 @@ export class UuidRedirectComponent implements OnInit {
             break;
           case 'soundrecording':
             targetRoute = [APP_ROUTES_ENUM.MUSIC_VIEW, uuid];
+            break;
+          case DocumentTypeEnum.convolute:
+            targetRoute = [APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid];
             break;
           case 'page':
             targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, document['root.pid']];
