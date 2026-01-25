@@ -8,6 +8,7 @@ import { SolrService } from '../../../../core/solr/solr.service';
 import { searchDocumentToRecordItem, RecordItem } from '../../../../shared/components/record-item/record-item.model';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import {parseSearchDocument} from '../../../models/search-document';
 
 @Component({
   selector: 'app-dynamic-section',
@@ -78,7 +79,7 @@ export class DynamicSectionComponent implements OnInit {
           let recordItem: RecordItem;
           if (item.id && docMap.has(item.id)) {
             const doc = docMap.get(item.id);
-            const fetchedItem = searchDocumentToRecordItem(doc);
+            const fetchedItem = searchDocumentToRecordItem(parseSearchDocument(doc));
             recordItem = { ...fetchedItem, ...item } as RecordItem;
           } else {
             recordItem = { ...item } as RecordItem;
