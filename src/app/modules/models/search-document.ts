@@ -49,7 +49,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   date: doc['date.str'],
   model: doc.model,
   accessibility: doc.accessibility,
-  licenses: doc.licenses || doc['contains_licenses'] || doc['licenses.facet'] || [],
+  licenses: doc['licenses.facet'] || doc.licenses || doc['contains_licenses'] || [],
   containsLicenses: doc.contains_licenses,
   access: doc.access,
   count_page: doc['count_page'] ? parseInt(doc['count_page'], 10) : undefined,
