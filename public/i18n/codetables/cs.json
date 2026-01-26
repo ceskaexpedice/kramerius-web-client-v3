@@ -1,6 +1,7 @@
 {
   "model": "Typ dokumentu",
   "monograph": "Kniha",
+  "monograph-multivolume": "Vícesvazek",
   "monographunit": "Kniha",
   "monographbundle": "Svazek knih",
   "periodical": "Periodikum",

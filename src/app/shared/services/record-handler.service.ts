@@ -203,7 +203,15 @@ export class RecordHandlerService {
         break;
 
       case DocumentTypeEnum.monograph:
-        hierarchyLevels.push(DocumentTypeEnum.monograph, DocumentTypeEnum.page);
+        if (document.monographUnitCount > 0) {
+          hierarchyLevels.push('monograph-multivolume' as DocumentTypeEnum, DocumentTypeEnum.monographunit, DocumentTypeEnum.page);
+        } else {
+          hierarchyLevels.push(DocumentTypeEnum.monograph, DocumentTypeEnum.page);
+        }
+        break;
+
+      case DocumentTypeEnum.monographunit:
+        hierarchyLevels.push('monograph-multivolume' as DocumentTypeEnum, DocumentTypeEnum.monographunit, DocumentTypeEnum.page);
         break;
 
       case DocumentTypeEnum.graphic:
@@ -329,8 +337,19 @@ export class RecordHandlerService {
             pid = urlParams.get('page') || (document.model === DocumentTypeEnum.page ? document.uuid : '');
           }
           break;
+        case DocumentTypeEnum.monograph:
+        case 'monograph-multivolume':
+          pid = document.rootPid || (document.model === DocumentTypeEnum.monograph ? document.uuid : '');
+          break;
+        case DocumentTypeEnum.monographunit:
+          if (document.model === DocumentTypeEnum.monographunit) {
+            pid = document.uuid;
+          } else if (document.model === DocumentTypeEnum.page && document.ownParentModel === DocumentTypeEnum.monographunit) {
+            pid = document.ownParentPid;
+          }
+          break;
         default:
-          // For other document types (monograph, graphic, map, etc.)
+          // For other document types (graphic, map, etc.)
           pid = document.model === level.model ? document.uuid : '';
           break;
       }
@@ -353,7 +372,8 @@ export class RecordHandlerService {
     }
 
     // Legacy logic for backward compatibility
-    if (document.rootModel && !shareableTypes.find(item => item.model === document.rootModel)) {
+    const isRootMultivolumeMonograph = document.rootModel === DocumentTypeEnum.monograph && document.monographUnitCount > 0;
+    if (document.rootModel && !isRootMultivolumeMonograph && !shareableTypes.find(item => item.model === document.rootModel)) {
       shareableTypes.push({
         model: document.rootModel,
         pid: document.rootPid
@@ -377,7 +397,8 @@ export class RecordHandlerService {
       }
     }
 
-    if (document.model !== DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodicalvolume && !shareableTypes.find(item => item.model === document.model)) {
+    const isMultivolumeMonograph = document.model === DocumentTypeEnum.monograph && document.monographUnitCount > 0;
+    if (document.model !== DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodicalvolume && !isMultivolumeMonograph && !shareableTypes.find(item => item.model === document.model)) {
       shareableTypes.push({
         model: document.model,
         pid: document.uuid

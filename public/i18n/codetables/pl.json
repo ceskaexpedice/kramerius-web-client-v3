@@ -1,6 +1,7 @@
 {
   "model": "Typ dokumentu",
   "monograph": "Książka",
+  "monograph-multivolume": "Wielotomowy",
   "monographunit": "Książka",
   "monographbundle": "Pakiet książek",
   "periodical": "Gazeta",
