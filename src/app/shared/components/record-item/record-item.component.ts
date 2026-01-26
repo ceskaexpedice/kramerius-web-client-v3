@@ -48,6 +48,7 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() showModel = true;
   @Input() layout: 'vertical' | 'horizontal' = 'vertical';
+  @Input() variant: 'default' | 'author' = 'default';
   @Input() loading = false;
 
   imageLoaded = signal<boolean>(false);

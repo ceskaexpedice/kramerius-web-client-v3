@@ -33,7 +33,7 @@ import {parseSearchDocument} from '../../../models/search-document';
         <div class="carousel-container">
           <app-carousel [edgeToEdge]="true" [actionsPosition]="'top'">
             <ng-container *ngFor="let item of items">
-              <app-record-item [showModel]="false" [item]="item"></app-record-item>
+              <app-record-item [showModel]="false" [item]="item" [variant]="config.cardVariant || 'default'"></app-record-item>
             </ng-container>
           </app-carousel>
         </div>

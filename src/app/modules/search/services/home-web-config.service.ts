@@ -29,15 +29,15 @@ export interface SectionConfig {
 
     /**
      * @deprecated Use `items` with `id` property instead.
-     * List of PIDs to fetch from API. 
+     * List of PIDs to fetch from API.
      */
     pids?: string[];
 
     /** If true, the section will be hidden if there are no items to display. */
     hideIfEmpty?: boolean;
 
-    /** 
-     * Controls visibility of the section. 
+    /**
+     * Controls visibility of the section.
      * Default is true. Set to false to hide the section.
      */
     visible?: boolean;
@@ -56,6 +56,13 @@ export interface SectionConfig {
      * If not present, the default translation key 'btn_show_more' is used.
      */
     buttonText?: string;
+
+    /**
+     * Optional card variant for custom sections.
+     * - `default`: Standard record item card
+     * - `author`: Author card with different dimensions
+     */
+    cardVariant?: 'default' | 'author';
 }
 
 @Injectable({
@@ -72,7 +79,7 @@ export class HomeWebConfigService {
         { type: 'genres', title: 'genres' },
         { type: 'document-types', title: 'document-types' },
         // Add other default sections if needed to match original hardcoded template
-        // { type: 'images', title: 'images' }, 
+        // { type: 'images', title: 'images' },
         // { type: 'authors', title: 'authors' },
         // { type: 'map', title: 'map' },
         // { type: 'institutions', title: 'institutions' }

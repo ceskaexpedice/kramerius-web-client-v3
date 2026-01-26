@@ -218,6 +218,7 @@
   {
     "type": "custom",
     "title": "Autoři",
+    "cardVariant": "author",
     "items": [
       {
         "id": "1",
@@ -326,6 +327,7 @@
   {
     "type": "custom",
     "title": "Zahraniční autoři",
+    "cardVariant": "author",
     "items": [
       {
         "id": "1",
