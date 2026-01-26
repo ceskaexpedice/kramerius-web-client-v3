@@ -361,23 +361,23 @@ export class RecordHandlerService {
     }
 
     // if rootModel is periodical, add periodical volume (backward compatibility)
-    if (document.rootModel === 'periodical' && document.model !== 'periodical' && document.volume) {
-      if (document.model === 'periodicalvolume' && !shareableTypes.find(item => item.model === 'periodicalvolume')) {
+    if (document.rootModel === DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodical && document.volume) {
+      if (document.model === DocumentTypeEnum.periodicalvolume && !shareableTypes.find(item => item.model === DocumentTypeEnum.periodicalvolume)) {
         shareableTypes.push({
-          model: 'periodicalvolume',
+          model: DocumentTypeEnum.periodicalvolume,
           pid: document.uuid
         });
-      } else if (!shareableTypes.find(item => item.model === 'periodicalvolume')) {
+      } else if (!shareableTypes.find(item => item.model === DocumentTypeEnum.periodicalvolume)) {
         if (document.volume.uuid) {
           shareableTypes.push({
-            model: 'periodicalvolume',
+            model: DocumentTypeEnum.periodicalvolume,
             pid: document.volume.uuid
           })
         }
       }
     }
 
-    if (document.model !== 'periodical' && document.model !== 'periodicalvolume' && !shareableTypes.find(item => item.model === document.model)) {
+    if (document.model !== DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodicalvolume && !shareableTypes.find(item => item.model === document.model)) {
       shareableTypes.push({
         model: document.model,
         pid: document.uuid
@@ -387,9 +387,9 @@ export class RecordHandlerService {
     // if in url is ?page=uuid, then add it to the list (backward compatibility)
     const urlParams = new URLSearchParams(this.getUrlSearch());
     const pageUuid = urlParams.get('page');
-    if (pageUuid && !shareableTypes.find(item => item.model === 'page') && !isArticle) {
+    if (pageUuid && !shareableTypes.find(item => item.model === DocumentTypeEnum.page) && !isArticle) {
       shareableTypes.push({
-        model: 'page',
+        model: DocumentTypeEnum.page,
         pid: pageUuid
       });
     }
@@ -450,11 +450,10 @@ export class RecordHandlerService {
         filtersToAdd[filterKey] = currentParams[filterKey];
       }
     }
-    console.log('currentParams::', currentParams)
 
     // Also preserve relevant customSearch filters
     const customSearch = currentParams['customSearch'];
-    console.log('customsearch:', customSearch)
+
     if (customSearch) {
       const customFilters = customSearch.split(',');
       const relevantCustomFilters = customFilters.filter((filter: string) =>
