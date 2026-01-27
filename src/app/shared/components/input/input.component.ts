@@ -55,7 +55,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() showHelpButton: boolean = false;
   @Input() showSubmitButton: boolean = false;
   @Input() showClearButton: boolean = false;
-  @Input() submitIcon: string = 'icon-search-normal';
+  @Input() submitIcon: string = 'icon-search-normal-1';
   @Input() changeMicToClearOnFocus: boolean = true;
   @Input() showNumberStepper: boolean = true;
   @Input() showCaseSensitiveButton: boolean = false;

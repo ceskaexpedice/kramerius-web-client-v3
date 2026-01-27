@@ -65,7 +65,7 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   generateViewModeToggleButtons() {
     this.viewModeOptions = [
       { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
-      { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
+      { value: AppResultsViewType.list, icon: 'icon-table', ariaLabel: 'view-list--arialabel' },
     ];
   }
 

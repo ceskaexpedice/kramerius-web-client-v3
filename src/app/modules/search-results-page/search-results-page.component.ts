@@ -23,7 +23,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
-    { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-table', ariaLabel: 'view-list--arialabel' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
