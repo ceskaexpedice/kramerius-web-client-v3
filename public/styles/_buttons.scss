@@ -3,6 +3,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: inherit;
   font-size: var(--font-size-small);
   padding: 12px 16px;
   border-radius: var(--base-border-radius);

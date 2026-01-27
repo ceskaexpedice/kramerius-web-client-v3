@@ -19,7 +19,7 @@ html {
       tertiary: colors.$secondary,
       theme-type: light,
     ),
-    typography: Roboto,
+    typography: ('IBM Plex Sans', sans-serif),
     density: 0,
     theme-shape: (
       border-radius: $custom-radius

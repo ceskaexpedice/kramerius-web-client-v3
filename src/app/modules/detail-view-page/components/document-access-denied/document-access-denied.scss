@@ -27,7 +27,7 @@
 }
 
 .access-denied-title {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 32px;
   line-height: 44px;
@@ -35,7 +35,7 @@
 }
 
 .access-denied-description {
-  font-family: 'Karla', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 18px;
   line-height: 24px;
   margin: 0;
