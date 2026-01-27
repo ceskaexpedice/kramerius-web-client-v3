@@ -223,102 +223,119 @@
             {
                 "id": "1",
                 "title": "Alois Jirásek",
+                "date": "1851–1930",
                 "imageUrl": "local-config/authors_small/jirasek_alois.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Jir%C3%A1sek,%20Alois&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Jir%C3%A1sek,%20Alois&licenses.facet_operator=OR"
             },
             {
                 "id": "2",
                 "title": "František Palacký",
+                "date": "1798–1876",
                 "imageUrl": "local-config/authors_small/palacky_frantisek.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility%3Aavailable%2Ccustom-where-to-search.model%3Atitles%2Ccustom-root-model%3Amonograph&authors.facet_operator=OR&fq=authors.facet%3APalack%C3%BD%2C+Franti%C5%A1ek&fq=licenses.facet%3Apublic&fq=licenses.facet%3Adnnto&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=authors.facet:Palack%C3%BD,%20Franti%C5%A1ek&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR"
             },
             {
                 "id": "3",
                 "title": "Julius Zeyer",
+                "date": "1841–1901",
                 "imageUrl": "local-config/authors_small/zeyer_julius.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
             },
             {
                 "id": "4",
                 "title": "Svatopluk Čech",
+                "date": "1846–1908",
                 "imageUrl": "local-config/authors_small/cech_svatopluk.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Cech,%20Svatopluk&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Cech,%20Svatopluk&licenses.facet_operator=OR"
             },
             {
                 "id": "5",
                 "title": "Jan Neruda",
+                "date": "1834–1891",
                 "imageUrl": "local-config/authors_small/neruda_jan.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Neruda,%20Jan&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Neruda,%20Jan&licenses.facet_operator=OR"
             },
             {
                 "id": "6",
                 "title": "Božena Němcová",
+                "date": "1820–1862",
                 "imageUrl": "local-config/authors_small/nemcova_bozena.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:N%C4%9Bmcov%C3%A1,%20Bo%C5%BEena&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:N%C4%9Bmcov%C3%A1,%20Bo%C5%BEena&licenses.facet_operator=OR"
             },
             {
                 "id": "7",
                 "title": "Karel Čapek",
+                "date": "1890–1938",
                 "imageUrl": "local-config/authors_small/capek_karel.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Karel&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Karel&licenses.facet_operator=OR"
             },
             {
                 "id": "8",
                 "title": "Josef Čapek",
+                "date": "1887–1945",
                 "imageUrl": "local-config/authors_small/capek_josef.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Josef&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Josef&licenses.facet_operator=OR"
             },
             {
                 "id": "9",
                 "title": "Karel Hynek Mácha",
+                "date": "1810–1836",
                 "imageUrl": "local-config/authors_small/macha_karel hynek.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:M%C3%A1cha,%20Karel%20Hynek&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:M%C3%A1cha,%20Karel%20Hynek&licenses.facet_operator=OR"
             },
             {
                 "id": "10",
                 "title": "Jaroslav Hašek",
+                "date": "1883–1923",
                 "imageUrl": "local-config/authors_small/hasek_jaroslav.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Ha%C5%A1ek,%20Jaroslav&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Ha%C5%A1ek,%20Jaroslav&licenses.facet_operator=OR"
             },
             {
                 "id": "11",
                 "title": "Karel Poláček",
+                "date": "1892–1945",
                 "imageUrl": "local-config/authors_small/polacek_karel.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Pol%C3%A1%C4%8Dek,%20Karel&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Pol%C3%A1%C4%8Dek,%20Karel&licenses.facet_operator=OR"
             },
             {
                 "id": "12",
                 "title": "Vladislav Vančura",
+                "date": "1891–1942",
                 "imageUrl": "local-config/authors_small/vancura_vladislav.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Van%C4%8Dura,%20Vladislav&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Van%C4%8Dura,%20Vladislav&licenses.facet_operator=OR"
             },
             {
                 "id": "13",
                 "title": "Jaroslav Vrchlický",
+                "date": "1853–1912",
                 "imageUrl": "local-config/authors_small/vrchlicky_jaroslav.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Vrchlick%C3%BD,%20Jaroslav&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Vrchlick%C3%BD,%20Jaroslav&licenses.facet_operator=OR"
             },
             {
                 "id": "14",
                 "title": "Magdalena Dobromila Rettigová",
+                "date": "1785–1845",
                 "imageUrl": "local-config/authors_small/rettigova_magdalena dobromila.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Rettigov%C3%A1,%20Magdalena%20Dobromila&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Rettigov%C3%A1,%20Magdalena%20Dobromila&licenses.facet_operator=OR"
             },
             {
                 "id": "15",
                 "title": "Karolina Světlá",
+                "date": "1830–1899",
                 "imageUrl": "local-config/authors_small/svetla_karolina.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sv%C4%9Btl%C3%A1,%20Karolina&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sv%C4%9Btl%C3%A1,%20Karolina&licenses.facet_operator=OR"
             },
             {
                 "id": "16",
                 "title": "Karel Havlíček Borovský",
+                "date": "1821–1856",
                 "imageUrl": "local-config/authors_small/borovsky_karel havlicek.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Havl%C3%AD%C4%8Dek%20Borovsk%C3%BD,%20Karel&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Havl%C3%AD%C4%8Dek%20Borovsk%C3%BD,%20Karel&licenses.facet_operator=OR"
             },
             {
                 "id": "17",
                 "title": "Jaroslav Seifert",
+                "date": "1901–1986",
                 "imageUrl": "local-config/authors_small/seifert_jaroslav.png",
                 "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Seifert,%20Jaroslav&licenses.facet_operator=OR"
             }
@@ -330,124 +347,144 @@
         "cardVariant": "author",
         "items": [
             {
-                "id": "1",
-                "title": "Charles Dickens",
-                "imageUrl": "local-config/authors_small/dickens.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dickens,%20Charles&licenses.facet_operator=OR"
-            },
-            {
-                "id": "2",
-                "title": "Karl May",
-                "imageUrl": "local-config/authors_small/may.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:May,%20Karl&licenses.facet_operator=OR"
-            },
-            {
-                "id": "3",
-                "title": "Henryk Sienkiewicz",
-                "imageUrl": "local-config/authors_small/sienkiewicz.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sienkiewicz,%20Henryk&licenses.facet_operator=OR"
-            },
-            {
-                "id": "4",
-                "title": "Fjodor Michajlovič Dostojevskij",
-                "imageUrl": "local-config/authors_small/dostojevskij.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dostojevskij,%20Fedor%20Michajlovi%C4%8D&licenses.facet_operator=OR"
-            },
-            {
-                "id": "5",
-                "title": "Alexandre Dumas",
-                "imageUrl": "local-config/authors_small/dumas.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dumas,%20Alexandre&licenses.facet_operator=OR"
-            },
-            {
-                "id": "6",
-                "title": "William Shakespeare",
-                "imageUrl": "local-config/authors_small/shakespeare.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shakespeare,%20William&licenses.facet_operator=OR"
-            },
-            {
-                "id": "7",
-                "title": "Jules Verne",
-                "imageUrl": "local-config/authors_small/verne.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Verne,%20Jules&licenses.facet_operator=OR"
-            },
-            {
-                "id": "8",
-                "title": "Sestry Brontëovy",
-                "imageUrl": "local-config/authors_small/bronte.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Bront%C3%AB,%20Charlotte&fq=authors.facet:Bront%C3%AB,%20Emily&fq=authors.facet:Bront%C3%AB,%20Anne&licenses.facet_operator=OR"
-            },
-            {
-                "id": "9",
-                "title": "Victor Hugo",
-                "imageUrl": "local-config/authors_small/hugo.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Hugo,%20Victor&licenses.facet_operator=OR"
-            },
-            {
-                "id": "10",
-                "title": "Honoré de Balzac",
-                "imageUrl": "local-config/authors_small/balzac.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Balzac,%20Honor%C3%A9%20de&licenses.facet_operator=OR"
-            },
-            {
-                "id": "11",
-                "title": "Louisa May Alcott",
-                "imageUrl": "local-config/authors_small/alcott.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Alcott,%20Louisa%20May&licenses.facet_operator=OR"
-            },
-            {
-                "id": "12",
-                "title": "Miguel de Cervantes",
-                "imageUrl": "local-config/authors_small/cervantes.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Cervantes%20Saavedra,%20Miguel%20de&licenses.facet_operator=OR"
-            },
-            {
-                "id": "13",
-                "title": "Mark Twain",
-                "imageUrl": "local-config/authors_small/twain.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Twain,%20Mark&licenses.facet_operator=OR"
-            },
-            {
-                "id": "14",
-                "title": "Mary Shelley",
-                "imageUrl": "local-config/authors_small/shelley.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shelley,%20Mary%20Wollstonecraft&licenses.facet_operator=OR"
-            },
-            {
-                "id": "15",
-                "title": "Rudyard Kipling",
-                "imageUrl": "local-config/authors_small/kipling.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Kipling,%20Rudyard&licenses.facet_operator=OR"
-            },
-            {
-                "id": "16",
-                "title": "Jack London",
-                "imageUrl": "local-config/authors_small/london.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:London,%20Jack&licenses.facet_operator=OR"
-            },
-            {
-                "id": "17",
-                "title": "Robert Louis Stevenson",
-                "imageUrl": "local-config/authors_small/stevenson.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Stevenson,%20Robert%20Louis&licenses.facet_operator=OR"
-            },
-            {
                 "id": "18",
-                "title": "Jane Austen",
-                "imageUrl": "local-config/authors_small/austen.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Austen,%20Jane&licenses.facet_operator=OR"
+                "title": "Charles Dickens",
+                "date": "1812–1870",
+                "imageUrl": "local-config/authors_small/dickens.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dickens,%20Charles&licenses.facet_operator=OR"
             },
             {
                 "id": "19",
-                "title": "Agatha Christie",
-                "imageUrl": "local-config/authors_small/christie.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Christie,%20Agatha&licenses.facet_operator=OR"
+                "title": "Karel May",
+                "date": "1842–1912",
+                "imageUrl": "local-config/authors_small/may.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:May,%20Karl&licenses.facet_operator=OR"
             },
             {
                 "id": "20",
+                "title": "Henryk Sienkiewicz",
+                "date": "1846–1916",
+                "imageUrl": "local-config/authors_small/sienkiewicz.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sienkiewicz,%20Henryk&licenses.facet_operator=OR"
+            },
+            {
+                "id": "21",
+                "title": "Fjodor Michajlovič Dostojevskij",
+                "date": "1821–1881",
+                "imageUrl": "local-config/authors_small/dostojevskij.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dostojevskij,%20Fedor%20Michajlovi%C4%8D&licenses.facet_operator=OR"
+            },
+            {
+                "id": "22",
+                "title": "Alexandre Dumas (starší)",
+                "date": "1802–1870",
+                "imageUrl": "local-config/authors_small/dumas.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dumas,%20Alexandre&licenses.facet_operator=OR"
+            },
+            {
+                "id": "23",
+                "title": "William Shakespeare",
+                "date": "1564–1616",
+                "imageUrl": "local-config/authors_small/shakespeare.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shakespeare,%20William&licenses.facet_operator=OR"
+            },
+            {
+                "id": "24",
+                "title": "Jules Verne",
+                "date": "1828–1905",
+                "imageUrl": "local-config/authors_small/verne.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Verne,%20Jules&licenses.facet_operator=OR"
+            },
+            {
+                "id": "25",
+                "title": "Sestry Brontëovy",
+                "date": "Charlotte 1816–1855\\nEmily 1818–1848\\nAnne 1820–1849",
+                "imageUrl": "local-config/authors_small/bronte.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Bront%C3%AB,%20Charlotte&fq=authors.facet:Bront%C3%AB,%20Emily&fq=authors.facet:Bront%C3%AB,%20Anne&licenses.facet_operator=OR"
+            },
+            {
+                "id": "26",
+                "title": "Victor Hugo",
+                "date": "1802–1885",
+                "imageUrl": "local-config/authors_small/hugo.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Hugo,%20Victor&licenses.facet_operator=OR"
+            },
+            {
+                "id": "27",
+                "title": "Honoré de Balzac",
+                "date": "1799–1850",
+                "imageUrl": "local-config/authors_small/balzac.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Balzac,%20Honor%C3%A9%20de&licenses.facet_operator=OR"
+            },
+            {
+                "id": "28",
+                "title": "Louisa May Alcott",
+                "date": "1832–1888",
+                "imageUrl": "local-config/authors_small/alcott.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Alcott,%20Louisa%20May&licenses.facet_operator=OR"
+            },
+            {
+                "id": "29",
+                "title": "Miguel de Cervantes",
+                "date": "1547–1616",
+                "imageUrl": "local-config/authors_small/cervantes.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Cervantes%20Saavedra,%20Miguel%20de&licenses.facet_operator=OR"
+            },
+            {
+                "id": "30",
+                "title": "Mark Twain",
+                "date": "1835–1910",
+                "imageUrl": "local-config/authors_small/twain.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Twain,%20Mark&licenses.facet_operator=OR"
+            },
+            {
+                "id": "31",
+                "title": "Mary Shelley",
+                "date": "1797–1851",
+                "imageUrl": "local-config/authors_small/shelley.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shelley,%20Mary%20Wollstonecraft&licenses.facet_operator=OR"
+            },
+            {
+                "id": "32",
+                "title": "Rudyard Kipling",
+                "date": "1865–1936",
+                "imageUrl": "local-config/authors_small/kipling.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Kipling,%20Rudyard&licenses.facet_operator=OR"
+            },
+            {
+                "id": "33",
+                "title": "Jack London",
+                "date": "1876–1916",
+                "imageUrl": "local-config/authors_small/london.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:London,%20Jack&licenses.facet_operator=OR"
+            },
+            {
+                "id": "34",
+                "title": "Robert Louis Stevenson",
+                "date": "1850–1894",
+                "imageUrl": "local-config/authors_small/stevenson.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Stevenson,%20Robert%20Louis&licenses.facet_operator=OR"
+            },
+            {
+                "id": "35",
+                "title": "Jane Austen",
+                "date": "1775–1817",
+                "imageUrl": "local-config/authors_small/austen.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Austen,%20Jane&licenses.facet_operator=OR"
+            },
+            {
+                "id": "36",
+                "title": "Agatha Christie",
+                "date": "1890–1976",
+                "imageUrl": "local-config/authors_small/christie.png",
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Christie,%20Agatha&licenses.facet_operator=OR"
+            },
+            {
+                "id": "37",
                 "title": "Arthur Conan Doyle",
+                "date": "1859–1930",
                 "imageUrl": "local-config/authors_small/doyle.png",
-                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Doyle,%20Arthur%20Conan&licenses.facet_operator=OR"
+                "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Doyle,%20Arthur%20Conan&licenses.facet_operator=OR"
             }
         ]
     },
