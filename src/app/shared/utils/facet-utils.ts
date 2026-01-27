@@ -14,16 +14,11 @@ export function handleFacetsWithOperators(
   unfilteredFacets: Record<string, any[]> = {},
   userLicenses: string[] = [],
   numFound?: number,
-  filters?: any
+  filters?: any,
+  facetQueries?: Record<string, number>
 ): Record<string, FacetItem[]> {
   const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
   const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
-  const parsedUnfilteredFacets = SolrResponseParser.parseAllFacets(unfilteredFacets);
-
-  console.log('parsedSearchFacets:', parsedSearchFacets);
-  console.log('parsedOperatorFacets:', parsedOperatorFacets);
-  console.log('facetOperators:', facetOperators);
-  console.log('filters:', filters);
 
   const result: Record<string, FacetItem[]> = {};
   const allFacetKeys = new Set([
@@ -63,57 +58,22 @@ export function handleFacetsWithOperators(
       }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
-        const licenses = result[facetKeysEnum.license] || [];
-        const modelsUnfiltered = parsedUnfilteredFacets[facetKeysEnum.model] || [];
-
         if (item.key === FacetAccessibilityTypes.all) {
-
-          count = numFound || 0;
-
-          // count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
-          //
-          // // if we dont have any modelsUnfiltered, we can use the count from the licenses
-          // if (modelsUnfiltered.length === 0) {
-          //   count = licenses.reduce((sum, lic) => sum + lic.count, 0);
-          //
-          //   // if still no count and numFound is provided, use numFound as final fallback
-          //   if (count === 0 && numFound !== undefined) {
-          //     count = numFound;
-          //   }
-          // }
+          // "All" count from facet.query that excludes availability filter (tagged with avail)
+          // This respects user-selected license filters but ignores the availability toggle
+          const allCountKey = '{!ex=avail}*:*';
+          count = facetQueries?.[allCountKey] ?? numFound ?? 0;
         } else if (item.key === FacetAccessibilityTypes.available) {
-          // get from url licenses.facet, and these filter by userLicenses to get count
-
-          // Get licenses from URL query params, filter by userLicenses, and count
-          const urlLicenses = (filters || [])
-            .filter((f: string) => f.startsWith('licenses.facet:'))
-            .map((f: string) => f.replace('licenses.facet:', ''));
-
-          const availableLicenses = urlLicenses.filter((lic: string) => userLicenses.includes(lic))
-
-          console.log('urlLicenses:', urlLicenses);
-          console.log('availableLicenses:', availableLicenses);
-
-          if (urlLicenses.length > 0) {
-            // Use URL licenses filtered by user's available licenses
-            item.fq = availableLicenses;
-            count = availableLicenses.reduce((sum: number, lic: string) => {
-              return sum + (licenses.find(f => f.name === lic)?.count || 0);
-            }, 0);
-          } else {
-            // No URL licenses, use all user licenses
-            item.fq = userLicenses;
-            count = userLicenses.reduce((sum, lic) => {
-              return sum + (licenses.find(f => f.name === lic)?.count || 0);
-            }, 0);
+          // "Available only" count from facet.query for user's accessible licenses
+          // Find the facet.query key that matches the user's licenses query
+          if (facetQueries && userLicenses.length > 0) {
+            const licenseClauses = userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const availableCountKey = `(${licenseClauses})`;
+            count = facetQueries[availableCountKey] ?? 0;
           }
-
-          // item.fq = userLicenses;
-          // count = userLicenses.reduce((sum, lic) => {
-          //   return sum + (licenses.find(f => f.name === lic)?.count || 0);
-          // }, 0);
+          // Set fq to user's licenses for when the filter is applied
+          item.fq = userLicenses;
         }
-
       }
 
       return {

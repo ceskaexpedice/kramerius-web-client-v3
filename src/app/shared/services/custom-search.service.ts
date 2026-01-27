@@ -84,14 +84,11 @@ export class CustomSearchService {
 
       switch (facetKey) {
         case customDefinedFacetsEnum.accessibility:
-          if (value === FacetAccessibilityTypes.available) {
-            const availableLicenses = this.userService.licenses;
-            availableLicenses.forEach(license => result.push(`${filterItem?.solrFacetKey}:${license}`));
-          }
+          // Accessibility filter is handled separately via getAvailabilityFq()
+          // Do not add license filters here
           break;
         case customDefinedFacetsEnum.whereToSearchModel:
           const selectedItem = filterItem?.data.find(item => item.name === value);
-          console.log('selectedItem', selectedItem);
           if (filterItem && selectedItem && selectedItem.fq && selectedItem.fq.length > 0) {
             // If fq is an array, iterate through it and add each fq to the result
             // Otherwise, just add the single fq
@@ -116,6 +113,22 @@ export class CustomSearchService {
     }
 
     return result;
+  }
+
+  /**
+   * Returns true if the "Available only" accessibility filter is active
+   */
+  isAvailabilityFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.available}`
+    );
+  }
+
+  /**
+   * Returns the user's available licenses for the availability filter
+   */
+  getUserAvailableLicenses(): string[] {
+    return this.userService.licenses;
   }
 
   toggleFilter(key: string): void {
