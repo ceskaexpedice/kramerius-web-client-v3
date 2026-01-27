@@ -1,6 +1,7 @@
 {
   "model": "Document type",
   "monograph": "Book",
+  "monograph-multivolume": "Multivolume",
   "monographunit": "Book",
   "monographbundle": "Book Bundle",
   "periodical": "Newspaper",

@@ -7,11 +7,12 @@
   .data {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--spacing-x4);
   }
 
   h2 {
     font-size: 18px;
+    line-height: var(--line-height-3);
     font-weight: 600;
     margin: 0;
   }

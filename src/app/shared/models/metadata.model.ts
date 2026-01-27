@@ -98,6 +98,8 @@ export class Metadata {
   public collectionDescriptions: { [lang: string]: string } = {};
   public collectionTitles: { [lang: string]: string } = {};
   public collectionIsStandalone: boolean = false;
+
+  public monographUnitCount: number = 0;
 }
 
 export class TitleInfo {
@@ -322,6 +324,8 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
       metadata.mainTitle = localizedTitle;
     }
   }
+
+  metadata.monographUnitCount = doc['count_monograph_unit'];
 
   return metadata;
 }

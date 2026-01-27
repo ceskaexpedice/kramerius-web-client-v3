@@ -120,13 +120,15 @@ export class SolrService {
       .trim();
   }
 
+  /**
+   * Removes diacritics from a string (ASCII folding)
+   */
+  private removeDiacritics(str: string): string {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null): string {
     const parts: string[] = [];
-
-    const hasSpecialSyntax = (input: string): boolean => {
-      const specialChars = ['?', '*', 'AND', 'OR', 'NOT', '"', '~'];
-      return specialChars.some(char => input.includes(char));
-    };
 
     if (rootUuid) {
       parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
@@ -139,27 +141,67 @@ export class SolrService {
       if (terms.length === 0) {
         parts.push('*:*');
       } else {
-        // Add wildcard to last term for prefix matching (filosof -> filosof*)
-        const termQuery = terms.map((term, i) => {
-          // If term already has wildcard, keep it; otherwise add to last term
-          if (term.includes('*') || term.includes('?')) {
-            return term;
-          }
-          return i === terms.length - 1 ? `${term}*` : term;
-        }).join(' AND ');
+        // Convert terms to lowercase and create ASCII-folded versions
+        const lowerTerms = terms.map(t => t.toLowerCase());
+        const asciiFoldedTerms = lowerTerms.map(t => this.removeDiacritics(t));
 
-        if (hasSpecialSyntax(query)) {
-          if (collectionUuid) {
-            parts.push(`(titles.search:(${termQuery})^10 OR authors.search:(${termQuery})^2 OR keywords.search:(${termQuery}) OR publishers.search:(${termQuery}) OR genres.search:(${termQuery}) OR geographic_names.search:(${termQuery}) OR text_ocr:(${termQuery})^0.1 OR id_isbn:(${termQuery}) OR shelf_locators:(${termQuery}))`);
-          } else {
-            parts.push(`((titles.search:(${termQuery}) OR text_ocr:(${termQuery})))`);
+        // Build term queries for both diacritical and ASCII-folded versions
+        const buildTermQuery = (termsArray: string[], addWildcard: boolean) => {
+          return termsArray.map((term, i) => {
+            if (term.includes('*') || term.includes('?')) {
+              return term;
+            }
+            return addWildcard && i === termsArray.length - 1 ? `${term}*` : term;
+          }).join(' AND ');
+        };
+
+        const exactQuery = buildTermQuery(lowerTerms, false);
+        const wildcardQuery = buildTermQuery(lowerTerms, true);
+        const asciiFoldedWildcardQuery = buildTermQuery(asciiFoldedTerms, true);
+
+        // Check if ASCII-folded version is different from original
+        const hasDiacritics = wildcardQuery !== asciiFoldedWildcardQuery;
+
+        if (collectionUuid) {
+          // Collection search - include all searchable fields
+          const queryParts = [
+            `title.search:(${exactQuery})^15`,
+            `title.search:(${wildcardQuery})^12`,
+            `titles.search:(${wildcardQuery})^10`,
+            `authors.search:(${wildcardQuery})^2`,
+            `keywords.search:(${wildcardQuery})`,
+            `publishers.search:(${wildcardQuery})`,
+            `genres.search:(${wildcardQuery})`,
+            `geographic_names.search:(${wildcardQuery})`,
+            `text_ocr:(${wildcardQuery})^0.1`,
+            `id_isbn:(${wildcardQuery})`,
+            `shelf_locators:(${wildcardQuery})`
+          ];
+          if (hasDiacritics) {
+            queryParts.push(
+              `title.search:(${asciiFoldedWildcardQuery})^11`,
+              `titles.search:(${asciiFoldedWildcardQuery})^9`,
+              `authors.search:(${asciiFoldedWildcardQuery})^1.5`,
+              `text_ocr:(${asciiFoldedWildcardQuery})^0.05`
+            );
           }
+          parts.push(`(${queryParts.join(' OR ')})`);
         } else {
-          if (collectionUuid) {
-            parts.push(`(titles.search:(${termQuery})^10 OR authors.search:(${termQuery})^2 OR keywords.search:(${termQuery}) OR publishers.search:(${termQuery}) OR genres.search:(${termQuery}) OR geographic_names.search:(${termQuery}) OR text_ocr:(${termQuery})^0.1 OR id_isbn:(${termQuery}) OR shelf_locators:(${termQuery}))`);
-          } else {
-            parts.push(`((titles.search:(${termQuery}) OR text_ocr:(${termQuery})))`);
+          // Simple search - title and OCR fields only
+          const queryParts = [
+            `title.search:(${exactQuery})^3`,
+            `title.search:(${wildcardQuery})^2`,
+            `titles.search:(${wildcardQuery})`,
+            `text_ocr:(${wildcardQuery})^0.1`
+          ];
+          if (hasDiacritics) {
+            queryParts.push(
+              `title.search:(${asciiFoldedWildcardQuery})^1.5`,
+              `titles.search:(${asciiFoldedWildcardQuery})^0.8`,
+              `text_ocr:(${asciiFoldedWildcardQuery})^0.05`
+            );
           }
+          parts.push(`(${queryParts.join(' OR ')})`);
         }
       }
     } else {

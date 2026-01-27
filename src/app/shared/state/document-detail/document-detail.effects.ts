@@ -47,7 +47,9 @@ export class DocumentDetailEffects {
         const isMonograph = detailItem?.model === DocumentTypeEnum.monograph;
         const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
 
-        if (isMonograph && hasMonographUnits) {
+        const isConvolute = detailItem?.model === DocumentTypeEnum.convolute;
+
+        if ((isMonograph && hasMonographUnits) || isConvolute) {
           console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
           this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
         }

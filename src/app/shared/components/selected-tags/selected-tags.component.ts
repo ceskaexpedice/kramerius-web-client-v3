@@ -28,6 +28,7 @@ export class SelectedTagsComponent {
   @Input() translateItems: boolean = true;
   @Input() maxTagLength: number = 30;
   @Input() showClearAll = true;
+  @Input() textTransform: 'none' | 'uppercase' | 'lowercase' | 'capitalize' = 'none';
 
   @Output() remove = new EventEmitter<string>();
   @Output() removeGroup = new EventEmitter<string>();
