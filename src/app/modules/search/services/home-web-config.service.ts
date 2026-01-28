@@ -8,19 +8,34 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-toke
 /**
  * Configuration for a section on the search/home page.
  */
+/**
+ * Category item for the 'local-categories' section type.
+ */
+export interface LinkItem {
+    /** The label to display (translation key or raw string). */
+    label: string;
+    /** The URL to navigate to when clicked. */
+    url: string;
+    /** Optional icon URL. */
+    icon?: string;
+    /** Optional count/badge to display. */
+    count?: number;
+}
+
 export interface SectionConfig {
     /**
      * The type of the section.
      * - `periodicals`, `books`, `genres`, etc.: Standard sections with built-in logic.
-     * - `custom`: A section where you define items manually or via API lookup.
+     * - `local-records`: A carousel section with record items from local config.
+     * - `local-categories`: A grid section with category items from local config (like genres but with custom data).
      */
-    type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'custom';
+    type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories';
 
     /** The title of the section (translation key or raw string). */
     title: string;
 
     /**
-     * List of items to display in a 'custom' section.
+     * List of items to display in a 'local-records' section.
      * - If an item has an `id` (PID), data will be fetched from the API.
      * - Properties defined here (title, imageUrl, etc.) override API data.
      * - Items without `id` are purely manual.
@@ -63,6 +78,18 @@ export interface SectionConfig {
      * - `author`: Author card with different dimensions
      */
     cardVariant?: 'default' | 'author';
+
+    /**
+     * List of category items for 'local-categories' section type.
+     * Each item has a label and URL, optionally an icon and count.
+     */
+    categories?: LinkItem[];
+
+    /**
+     * Whether to show count badges in 'local-categories' section.
+     * Default is true.
+     */
+    showCount?: boolean;
 }
 
 @Injectable({

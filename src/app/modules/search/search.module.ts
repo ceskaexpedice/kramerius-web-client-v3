@@ -14,7 +14,8 @@ import { SearchHeroComponent } from './components/search-hero/search-hero.compon
 import { FooterComponent } from '../../core/layout/footer/footer.component';
 import { SearchService } from '../../shared/services/search.service';
 import { CommonModule } from '@angular/common';
-import { DynamicSectionComponent } from './components/dynamic-section/dynamic-section.component';
+import { LocalRecordsSectionComponent } from './components/local-records-section/local-records-section.component';
+import { LocalCategoriesSectionComponent } from './components/local-categories-section/local-categories-section.component';
 
 const routes: Routes = [
   {
@@ -25,7 +26,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [SearchPageComponent],
-  imports: [CommonModule, RouterModule.forChild(routes), InstitutionsSectionComponent, AuthorsSectionComponent, BooksSectionComponent, GenresSectionComponent, PeriodicalsSectionComponent, MapSectionComponent, DocumentTypesSectionComponent, ImagesSectionComponent, HeaderComponent, SearchHeroComponent, FooterComponent, DynamicSectionComponent
+  imports: [CommonModule, RouterModule.forChild(routes), InstitutionsSectionComponent, AuthorsSectionComponent, BooksSectionComponent, GenresSectionComponent, PeriodicalsSectionComponent, MapSectionComponent, DocumentTypesSectionComponent, ImagesSectionComponent, HeaderComponent, SearchHeroComponent, FooterComponent, LocalRecordsSectionComponent, LocalCategoriesSectionComponent
   ],
   providers: [
     { provide: 'FilterService', useClass: SearchService }

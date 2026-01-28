@@ -6,12 +6,12 @@ import { CarouselComponent } from '../../../../shared/components/carousel/carous
 import { SectionConfig } from '../../services/home-web-config.service';
 import { SolrService } from '../../../../core/solr/solr.service';
 import { searchDocumentToRecordItem, RecordItem } from '../../../../shared/components/record-item/record-item.model';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import {parseSearchDocument} from '../../../models/search-document';
+import { parseSearchDocument } from '../../../models/search-document';
 
 @Component({
-  selector: 'app-dynamic-section',
+  selector: 'app-local-records-section',
   standalone: true,
   imports: [
     CommonModule,
@@ -45,7 +45,7 @@ import {parseSearchDocument} from '../../../models/search-document';
     @import '../search-section.scss';
   `]
 })
-export class DynamicSectionComponent implements OnInit {
+export class LocalRecordsSectionComponent implements OnInit {
   @Input() config!: SectionConfig;
 
   private solrService = inject(SolrService);
@@ -97,7 +97,7 @@ export class DynamicSectionComponent implements OnInit {
         });
       }),
       catchError(err => {
-        console.error('Error loading dynamic items', err);
+        console.error('Error loading local records items', err);
         return of(itemsToProcess as RecordItem[]);
       })
     );

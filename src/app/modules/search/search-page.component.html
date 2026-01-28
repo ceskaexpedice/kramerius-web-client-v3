@@ -11,7 +11,8 @@
     <app-images-section *ngIf="section.type === 'images'"></app-images-section>
     <app-institutions-section *ngIf="section.type === 'institutions'"></app-institutions-section>
 
-    <app-dynamic-section *ngIf="section.type === 'custom'" [config]="section"></app-dynamic-section>
+    <app-local-records-section *ngIf="section.type === 'local-records'" [config]="section"></app-local-records-section>
+    <app-local-categories-section *ngIf="section.type === 'local-categories'" [config]="section"></app-local-categories-section>
 </ng-container>
 
 <app-footer></app-footer>

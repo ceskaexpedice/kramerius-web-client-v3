@@ -21,6 +21,13 @@ export class CategoryItemComponent {
 
   recordHandler = inject(RecordHandlerService);
 
+  /**
+   * Check if icon is a CSS class (font icon) or an image URL
+   */
+  get isIconClass(): boolean {
+    return this.icon?.startsWith('icon-') ?? false;
+  }
+
   onClick(): void {
     this.clicked.emit(this.label);
   }

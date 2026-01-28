@@ -3,11 +3,17 @@
    (click)="recordHandler.onNavigate($event, url)">
 
   @if (icon) {
-    <img [src]="icon" [alt]="label | translate" />
+    @if (isIconClass) {
+      <i [class]="icon"></i>
+    } @else {
+      <img [src]="icon" [alt]="label | translate" />
+    }
   }
 
   <span class="label">{{ label | translate }}</span>
 
-  <span class="count badge badge-xs">{{ count }}</span>
+  @if (count) {
+    <span class="count badge badge-xs">{{ count }}</span>
+  }
 
 </a>
