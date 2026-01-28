@@ -179,7 +179,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
+        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || document.pdf || (articleMetadata$ | async)?.pdf)) {
         <button class="floating-sidebar-toggle button outlined tertiary with-icon"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
@@ -188,7 +188,7 @@
         }
 
         <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument()) {
+        @if (documentInfoService.canAccessDocument() || document.pdf || (articleMetadata$ | async)?.pdf) {
         @if (document.pdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>
