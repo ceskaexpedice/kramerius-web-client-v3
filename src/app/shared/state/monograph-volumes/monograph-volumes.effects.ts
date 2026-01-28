@@ -9,6 +9,7 @@ import { fromSolrToMetadata } from '../../models/metadata.model';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
+import { CustomSearchService } from '../../services/custom-search.service';
 
 @Injectable()
 export class MonographVolumesEffects {
@@ -17,6 +18,7 @@ export class MonographVolumesEffects {
     private solr: SolrService,
     private store: Store,
     private userService: UserService,
+    private customSearchService: CustomSearchService,
   ) {}
 
   loadMonographVolumes$ = createEffect(() => {
@@ -25,15 +27,22 @@ export class MonographVolumesEffects {
       switchMap(({ uuid, filters }) => {
         const facetFields = [facetKeysEnum.license];
 
+        // Availability filter: active when "Available only" toggle is ON
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses()
+        };
+
         console.log('Effect - Loading volumes with filters:', filters);
 
         return forkJoin({
           parent: this.solr.getDetailItem(uuid),
-          volumesWithFacets: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, true, facetFields, filters, {}),
+          volumesWithFacets: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, true, facetFields, filters, {}, availabilityFilter),
         }).pipe(
           map(({ parent, volumesWithFacets }) => {
             const volumes = volumesWithFacets.docs || [];
             const rawFacets = volumesWithFacets.facets || {};
+            const facetQueries = volumesWithFacets.facetQueries || {};
             const numFound = volumesWithFacets.numFound || 0;
 
             // Parse facets using the same utility as search results
@@ -43,7 +52,9 @@ export class MonographVolumesEffects {
               {},
               rawFacets,
               this.userService.licenses,
-              numFound
+              numFound,
+              filters,
+              facetQueries
             );
 
             console.log('Loaded monograph volumes with facets:', { parent, volumes, facets, filters });

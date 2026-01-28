@@ -32,6 +32,7 @@ import { fromSolrToMetadata, mergeMetadata } from '../../models/metadata.model';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
 import { DisplayConfigService } from '../../services/display-config.service';
+import { CustomSearchService } from '../../services/custom-search.service';
 
 @Injectable()
 export class CollectionsEffects {
@@ -43,6 +44,7 @@ export class CollectionsEffects {
     private translationService: AppTranslationService,
     private modsParserService: ModsParserService,
     private displayConfigService: DisplayConfigService,
+    private customSearchService: CustomSearchService,
   ) {
   }
 
@@ -66,6 +68,12 @@ export class CollectionsEffects {
         includePeriodicalItem,
         includePage,
       }, currentFacets, facetOperators]) => {
+
+        // Availability filter: active when "Available only" toggle is ON
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses()
+        };
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
 
@@ -116,6 +124,7 @@ export class CollectionsEffects {
             advancedQuery,
             includePeriodicalItem,
             includePage || false,
+            availabilityFilter,
           ),
           facetsAllRes: this.solr.getFacetsInCollection(
             uuid,
@@ -126,6 +135,7 @@ export class CollectionsEffects {
             advancedQuery,
             includePeriodicalItem,
             includePage || false,
+            availabilityFilter,
           ),
         }).pipe(
           map(({ facetsRes, facetsAllRes }) => {
@@ -134,7 +144,10 @@ export class CollectionsEffects {
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
               facetsAllRes.facet_counts?.facet_fields ?? {},
-              this.userService.licenses
+              this.userService.licenses,
+              facetsRes.response?.numFound,
+              filters,
+              facetsRes.facet_counts?.facet_queries
             );
             return loadCollectionFacetsSuccess({ facets });
           })

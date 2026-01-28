@@ -482,7 +482,8 @@ export class SolrService {
     facetOperators: { [field: string]: SolrOperators } = {},
     advancedQuery?: string,
     includePeriodicalItem = false,
-    includePage = false
+    includePage = false,
+    availabilityFilter?: { isActive: boolean, licenses: string[] }
   ): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
 
@@ -498,7 +499,23 @@ export class SolrService {
       params = params.append('facet.field', field);
     });
 
+    // Add facet.query for accessibility counts (same pattern as getFacetsWithOperators)
+    // 1. "All" count - excludes availability filter (tagged with avail), respects user-selected license filters
+    params = params.append('facet.query', '{!ex=avail}*:*');
+
+    // 2. "Available only" count - query for user's accessible licenses
+    if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `(${licenseClauses})`);
+    }
+
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
@@ -560,7 +577,8 @@ export class SolrService {
     filters: string[],
     facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
     facetOperators: { [field: string]: SolrOperators } = {},
-    advancedQuery?: string
+    advancedQuery?: string,
+    availabilityFilter?: { isActive: boolean, licenses: string[] }
   ): Observable<SearchResultResponse> {
 
     console.log('getPeriodicalChildrenFacets', parentPid, model);
@@ -576,10 +594,25 @@ export class SolrService {
       params = params.append('facet.field', field);
     });
 
+    // Add facet.query for accessibility counts (same pattern as getFacetsWithOperators)
+    // 1. "All" count - excludes availability filter (tagged with avail), respects user-selected license filters
+    params = params.append('facet.query', '{!ex=avail}*:*');
+
+    // 2. "Available only" count - query for user's accessible licenses
+    if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `(${licenseClauses})`);
+    }
 
     if (filters.length > 0) {
       // Add filter queries
       this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    }
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
     }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
@@ -823,7 +856,7 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}): Observable<any> {
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}, availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<any> {
     let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
 
     if (model) {
@@ -845,12 +878,28 @@ export class SolrService {
       facetFields.forEach(field => {
         httpParams = httpParams.append('facet.field', field);
       });
+
+      // Add facet.query for accessibility counts (same pattern as getFacetsWithOperators)
+      // 1. "All" count - excludes availability filter (tagged with avail), respects user-selected license filters
+      httpParams = httpParams.append('facet.query', '{!ex=avail}*:*');
+
+      // 2. "Available only" count - query for user's accessible licenses
+      if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
+        const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        httpParams = httpParams.append('facet.query', `(${licenseClauses})`);
+      }
     }
 
     // Add filter queries
     this.buildFqParams(filters, facetOperators).forEach(fq => {
       httpParams = httpParams.append('fq', fq);
     });
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      httpParams = httpParams.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
 
     return this.http.get<any>(this.API_URL, { params: httpParams }).pipe(
       map(res => {
@@ -859,6 +908,7 @@ export class SolrService {
           return {
             docs: res.response?.docs ?? [],
             facets: res.facet_counts?.facet_fields ?? {},
+            facetQueries: res.facet_counts?.facet_queries ?? {},
             numFound: res.response?.numFound ?? 0
           };
         }

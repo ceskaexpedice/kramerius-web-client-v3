@@ -30,6 +30,7 @@ import { SolrSortDirections, SolrSortFields } from '../../../../core/solr/solr-h
 import { Router } from '@angular/router';
 import { APP_ROUTES_ENUM } from '../../../../app.routes';
 import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
+import { CustomSearchService } from '../../../../shared/services/custom-search.service';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -38,7 +39,8 @@ export class PeriodicalDetailEffects {
     private solr: SolrService,
     private store: Store,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private customSearchService: CustomSearchService
   ) { }
 
   triggerDocumentLoad$ = createEffect(() =>
@@ -109,11 +111,17 @@ export class PeriodicalDetailEffects {
         const periodical = parsePeriodicalItemFromMetadata(data);
         const importFacetsFields = import('../../../search-results-page/const/facet-fields').then(m => m.DEFAULT_PERIODICAL_FACET_FIELDS);
 
+        // Availability filter: active when "Available only" toggle is ON
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses()
+        };
+
         // Function to load facets independently
         const loadFacets$ = (uuid: string, model: string) => importFacetsFields.then(DEFAULT_PERIODICAL_FACET_FIELDS => {
           return forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, model, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(uuid, model, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+            facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, model, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(uuid, model, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -121,7 +129,10 @@ export class PeriodicalDetailEffects {
                 facetsRes.facet_counts?.facet_fields ?? {},
                 facetOperators,
                 facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
-                this.userService.licenses
+                this.userService.licenses,
+                facetsRes.response?.numFound,
+                filters,
+                facetsRes.facet_counts?.facet_queries
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
@@ -152,8 +163,8 @@ export class PeriodicalDetailEffects {
           );
 
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -161,7 +172,10 @@ export class PeriodicalDetailEffects {
                 facetsRes.facet_counts?.facet_fields ?? {},
                 facetOperators,
                 facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
-                this.userService.licenses
+                this.userService.licenses,
+                facetsRes.response?.numFound,
+                filters,
+                facetsRes.facet_counts?.facet_queries
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
@@ -224,8 +238,8 @@ export class PeriodicalDetailEffects {
 
           const facetsQueryModel = `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`;
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
+            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
+            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -233,7 +247,10 @@ export class PeriodicalDetailEffects {
                 facetsRes.facet_counts?.facet_fields ?? {},
                 facetOperators,
                 facetsWithoutLicenses.facet_counts?.facet_fields ?? {},
-                this.userService.licenses
+                this.userService.licenses,
+                facetsRes.response?.numFound,
+                filters,
+                facetsRes.facet_counts?.facet_queries
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
