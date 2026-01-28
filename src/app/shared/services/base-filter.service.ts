@@ -225,13 +225,14 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     await this.userService.loadLicenses();
   }
 
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sortBy, sortDirection },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
+      replaceUrl
     });
   }
 

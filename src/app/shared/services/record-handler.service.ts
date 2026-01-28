@@ -498,7 +498,12 @@ export class RecordHandlerService {
       }
     }
 
-
+    // Add default sort parameters for periodical navigation to avoid redirect
+    const isPeriodicalUrl = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
+    if (isPeriodicalUrl) {
+      filtersToAdd['sortBy'] = 'date.min';
+      filtersToAdd['sortDirection'] = 'asc';
+    }
 
     // If no filters to add, return original URL
     if (Object.keys(filtersToAdd).length === 0) {
@@ -538,14 +543,22 @@ export class RecordHandlerService {
       this.adminSelectionService.toggleAdminMode();
     }
 
-    if (document.ownParentPid) {
-      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid])
+    // First, check if there's a backup search URL (user came from search results)
+    const backupUrl = this.searchService.getBackupSearchUrl();
+    if (backupUrl) {
+      this.searchService.clearBackupSearchUrl();
+      this.router.navigateByUrl(backupUrl);
+      return;
     }
-    //window.history.back();
+
+    // Fall back to navigating to parent periodical
+    if (document.ownParentPid) {
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]);
+    }
   }
 
   shouldShowBackButton(document: any): boolean {
-    return !!document.ownParentPid;
+    return !!document.ownParentPid || !!this.searchService.getBackupSearchUrl();
   }
 
   // Badge Layout Detection Methods
