@@ -473,5 +473,10 @@
   "display-section--filters--label": "Filters",
   "reset-to-defaults": "Reset",
   "select-all--label": "All",
-  "paginator-page-size--label": "Max. results per page"
+  "paginator-page-size--label": "Max. results per page",
+  "custom-accessibility--all": "All",
+  "custom-accessibility--available": "Only available",
+  "custom-accessibility--public": "Public",
+  "custom-accessibility--onsite": "In library",
+  "custom-accessibility--afterLogin": "After login"
 }

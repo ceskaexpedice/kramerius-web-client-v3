@@ -3,11 +3,15 @@ export const ONLINE_LICENSES = [
 ]
 
 export const ONSITE_LICENSES = [
-  'dnntt', 'onsite'
+  'dnntt', 'onsite', 'onsite-sheetmusic'
 ]
 
 export const PUBLIC_LICENSES = [
   'public', 'mzk_public-contract', 'mzk_public-muo', 'knav_public_contract'
+]
+
+export const AFTER_LOGIN_LICENSES = [
+  'dnnto'
 ]
 
 export const allDoctypes = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',

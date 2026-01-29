@@ -8,6 +8,7 @@ import {
   customDefinedFacetsEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
+import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
 
 @Injectable({ providedIn: 'root' })
 export class CustomSearchService {
@@ -116,19 +117,101 @@ export class CustomSearchService {
   }
 
   /**
-   * Returns true if the "Available only" accessibility filter is active
+   * Returns true if any accessibility filter is active (available, public, onsite, or afterLogin)
    */
   isAvailabilityFilterActive(): boolean {
-    return this._appliedFilters().includes(
-      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.available}`
+    return this._appliedFilters().some(f =>
+      f === `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.available}` ||
+      f === `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}` ||
+      f === `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}` ||
+      f === `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
     );
   }
 
   /**
-   * Returns the user's available licenses for the availability filter
+   * Returns true if the "Public" accessibility filter is active
+   */
+  isPublicFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
+    );
+  }
+
+  /**
+   * Returns true if the "Onsite" accessibility filter is active
+   */
+  isOnsiteFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
+    );
+  }
+
+  /**
+   * Returns true if the "After Login" accessibility filter is active
+   */
+  isAfterLoginFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
+    );
+  }
+
+  /**
+   * Returns the licenses for the currently active accessibility filter
+   * - "available": user's licenses
+   * - "public": PUBLIC_LICENSES
+   * - "onsite": ONSITE_LICENSES
+   * - "afterLogin": AFTER_LOGIN_LICENSES
+   * - "all": empty array (no filter)
    */
   getUserAvailableLicenses(): string[] {
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.available}`
+    )) {
+      return this.userService.licenses;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
+    )) {
+      return PUBLIC_LICENSES;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
+    )) {
+      return ONSITE_LICENSES;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
+    )) {
+      return AFTER_LOGIN_LICENSES;
+    }
     return this.userService.licenses;
+  }
+
+  /**
+   * Returns the active accessibility filter type, or null if "all" is selected
+   */
+  getActiveAccessibilityFilterType(): FacetAccessibilityTypes | null {
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.available}`
+    )) {
+      return FacetAccessibilityTypes.available;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
+    )) {
+      return FacetAccessibilityTypes.public;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
+    )) {
+      return FacetAccessibilityTypes.onsite;
+    }
+    if (this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
+    )) {
+      return FacetAccessibilityTypes.afterLogin;
+    }
+    return null;
   }
 
   toggleFilter(key: string): void {
@@ -195,11 +278,6 @@ export class CustomSearchService {
     if (!selectedFilter) return null;
 
     const value = selectedFilter.split(':')[1];
-
-    // Special case for accessibility, where we want to return 'all' if no specific value is selected
-    if (facetKey === customDefinedFacetsEnum.accessibility && value !== FacetAccessibilityTypes.available) {
-      return FacetAccessibilityTypes.all;
-    }
 
     return value;
   }

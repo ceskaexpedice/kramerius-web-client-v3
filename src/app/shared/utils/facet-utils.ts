@@ -6,6 +6,7 @@ import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
 } from '../../modules/search-results-page/const/facets';
+import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
 
 export function handleFacetsWithOperators(
   searchFacets: Record<string, any[]>,
@@ -73,6 +74,33 @@ export function handleFacetsWithOperators(
           }
           // Set fq to user's licenses for when the filter is applied
           item.fq = userLicenses;
+        } else if (item.key === FacetAccessibilityTypes.public) {
+          // "Public" count from facet.query for PUBLIC_LICENSES
+          if (facetQueries && PUBLIC_LICENSES.length > 0) {
+            const licenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const publicCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[publicCountKey] ?? 0;
+          }
+          // Set fq to PUBLIC_LICENSES for when the filter is applied
+          item.fq = PUBLIC_LICENSES;
+        } else if (item.key === FacetAccessibilityTypes.onsite) {
+          // "Onsite" count from facet.query for ONSITE_LICENSES
+          if (facetQueries && ONSITE_LICENSES.length > 0) {
+            const licenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const onsiteCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[onsiteCountKey] ?? 0;
+          }
+          // Set fq to ONSITE_LICENSES for when the filter is applied
+          item.fq = ONSITE_LICENSES;
+        } else if (item.key === FacetAccessibilityTypes.afterLogin) {
+          // "After Login" count from facet.query for AFTER_LOGIN_LICENSES
+          if (facetQueries && AFTER_LOGIN_LICENSES.length > 0) {
+            const licenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const afterLoginCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[afterLoginCountKey] ?? 0;
+          }
+          // Set fq to AFTER_LOGIN_LICENSES for when the filter is applied
+          item.fq = AFTER_LOGIN_LICENSES;
         }
       }
 

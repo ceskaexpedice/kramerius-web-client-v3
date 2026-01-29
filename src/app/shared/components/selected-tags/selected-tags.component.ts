@@ -4,6 +4,7 @@ import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatButton} from '@angular/material/button';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatTooltip} from '@angular/material/tooltip';
+import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-selected-tags',
@@ -60,6 +61,22 @@ export class SelectedTagsComponent {
 
     if (value.length > this.maxTagLength) {
       return value.substring(0, this.maxTagLength - 3) + '...';
+    }
+
+    return value;
+  }
+
+  /**
+   * Returns the translation key for the item.
+   * For custom-accessibility filters, returns the custom label format.
+   */
+  getTranslationKey(item: string): string {
+    const field = this.getFieldName(item);
+    const value = this.getValue(item);
+
+    // Handle custom-accessibility filter with custom translation keys
+    if (field === customDefinedFacetsEnum.accessibility) {
+      return `custom-accessibility--${value}`;
     }
 
     return value;

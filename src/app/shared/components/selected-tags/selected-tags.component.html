@@ -34,9 +34,9 @@
 
           <ng-container *ngIf="translateItems; else rawValue">
             <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
-              {{ getValue(item) | translate }}
+              {{ getTranslationKey(item) | translate }}
             </label>
-            <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
+            <ng-template #valueOnly>{{ getTranslationKey(item) | translate }}</ng-template>
           </ng-container>
 
           <ng-template #rawValue>

@@ -466,5 +466,10 @@
   "display-section--filters--label": "Filtre",
   "reset-to-defaults": "Reset",
   "select-all--label": "Všetky",
-  "paginator-page-size--label": "Max. počet výsledkov na strane"
+  "paginator-page-size--label": "Max. počet výsledkov na strane",
+  "custom-accessibility--all": "Všetko",
+  "custom-accessibility--available": "Iba dostupné",
+  "custom-accessibility--public": "Verejné",
+  "custom-accessibility--onsite": "V knižnici",
+  "custom-accessibility--afterLogin": "Po prihlásení"
 }

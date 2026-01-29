@@ -10,7 +10,10 @@ export enum FacetElementType {
 
 export enum FacetAccessibilityTypes {
   all = 'all',
-  available = 'available'
+  available = 'available',
+  public = 'public',
+  onsite = 'onsite',
+  afterLogin = 'afterLogin'
 }
 
 
@@ -87,13 +90,42 @@ export const customDefinedFacets = [
         key: FacetAccessibilityTypes.all,
         fq: null,
         name: `${FacetAccessibilityTypes.all}`,
+        label: 'custom-accessibility--all',
+        count: 0,
+        type: FacetElementType.radio,
+      },
+      // {
+      //   key: FacetAccessibilityTypes.available,
+      //   fq: [],
+      //   name: `${FacetAccessibilityTypes.available}`,
+      //   label: 'custom-accessibility--available',
+      //   count: 0,
+      //   type: FacetElementType.radio,
+      // },
+      {
+        key: FacetAccessibilityTypes.public,
+        fq: [],
+        name: `${FacetAccessibilityTypes.public}`,
+        label: 'custom-accessibility--public',
+        icon: 'icon-eye-public',
         count: 0,
         type: FacetElementType.radio,
       },
       {
-        key: FacetAccessibilityTypes.available,
+        key: FacetAccessibilityTypes.onsite,
         fq: [],
-        name: `${FacetAccessibilityTypes.available}`,
+        name: `${FacetAccessibilityTypes.onsite}`,
+        label: 'custom-accessibility--onsite',
+        icon: 'icon-in-house',
+        count: 0,
+        type: FacetElementType.radio,
+      },
+      {
+        key: FacetAccessibilityTypes.afterLogin,
+        fq: [],
+        name: `${FacetAccessibilityTypes.afterLogin}`,
+        label: 'custom-accessibility--afterLogin',
+        icon: 'icon-locked',
         count: 0,
         type: FacetElementType.radio,
       }

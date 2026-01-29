@@ -218,10 +218,13 @@ export class FilterCategoryComponent implements OnChanges {
 
   onRadioChange(value: string) {
     if (this.facetKey === customDefinedFacetsEnum.accessibility) {
-      if (value === 'all') {
+      if (value === FacetAccessibilityTypes.all) {
         this.customSearchService.removeAllFiltersByFacetKey(this.facetKey);
       } else {
-        this.onToggle(value);
+        // For radio buttons, we need to remove any existing selection first
+        // then add the new value
+        this.customSearchService.removeAllFiltersByFacetKey(this.facetKey);
+        this.customSearchService.addFilter(`${this.facetKey}:${value}`);
       }
     }
   }

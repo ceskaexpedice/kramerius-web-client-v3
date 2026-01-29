@@ -465,5 +465,10 @@
   "display-section--filters--label": "Filtry",
   "reset-to-defaults": "Reset",
   "select-all--label": "Wszystkie",
-  "paginator-page-size--label": "Maks. liczba wyników na stronę"
+  "paginator-page-size--label": "Maks. liczba wyników na stronę",
+  "custom-accessibility--all": "Wszystko",
+  "custom-accessibility--available": "Dostępne",
+  "custom-accessibility--public": "Publiczne",
+  "custom-accessibility--onsite": "W bibliotece",
+  "custom-accessibility--afterLogin": "Po zalogowaniu"
 }
