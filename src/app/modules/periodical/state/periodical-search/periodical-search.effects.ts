@@ -41,7 +41,7 @@ export class PeriodicalSearchEffects {
           licenses: this.customSearchService.getUserAvailableLicenses()
         };
 
-        const results$ = this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false).pipe(
+        const results$ = this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false, availabilityFilter).pipe(
           shareReplay(1)
         );
 

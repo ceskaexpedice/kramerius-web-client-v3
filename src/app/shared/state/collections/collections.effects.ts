@@ -90,6 +90,7 @@ export class CollectionsEffects {
           includePeriodicalItem,
           includePage || false,
           this.getRequestedFacets(),
+          availabilityFilter,
         ).pipe(
           map(resultsRes => {
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {

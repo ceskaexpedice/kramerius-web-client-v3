@@ -394,7 +394,7 @@ export class SolrService {
   }
 
   searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, includeFacets = true): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<SearchResultResponse> {
 
     console.log('solr search periodicals')
 
@@ -430,6 +430,13 @@ export class SolrService {
 
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, false, includePage, true, rootUuid));
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
+
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
@@ -445,7 +452,8 @@ export class SolrService {
     advancedQuery?: string,
     includePeriodicalItem = false,
     includePage = false,
-    facetFields: string[] = DEFAULT_FACET_FIELDS
+    facetFields: string[] = DEFAULT_FACET_FIELDS,
+    availabilityFilter?: { isActive: boolean, licenses: string[] }
   ): Observable<SearchResultResponse> {
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
@@ -471,6 +479,12 @@ export class SolrService {
 
     // Add other filters (collection filter is now part of q parameter)
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
@@ -862,7 +876,7 @@ export class SolrService {
 
   getPeriodicalVolumes(pid: string,
     filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
-    advancedQuery?: string
+    advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[] }
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
 
@@ -876,6 +890,12 @@ export class SolrService {
 
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
+
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
@@ -888,7 +908,8 @@ export class SolrService {
     pageCount = 60,
     sortBy: SolrSortFields = SolrSortFields.dateMin,
     sortDirection: SolrSortDirections = SolrSortDirections.asc,
-    advancedQuery?: string
+    advancedQuery?: string,
+    availabilityFilter?: { isActive: boolean, licenses: string[] }
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(
       pid,
@@ -905,6 +926,12 @@ export class SolrService {
       .set('wt', 'json');
 
     this.buildFqParams(filters, {}).forEach(fq => params = params.append('fq', fq));
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])

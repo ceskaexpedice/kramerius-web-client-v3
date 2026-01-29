@@ -142,7 +142,7 @@ export class PeriodicalDetailEffects {
 
         if (data.model === DocumentTypeEnum.periodical) {
 
-          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
+          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
             shareReplay(1)
           );
 
@@ -186,7 +186,7 @@ export class PeriodicalDetailEffects {
 
         if (data.model === DocumentTypeEnum.periodicalvolume) {
 
-          const children$ = this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery).pipe(
+          const children$ = this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
             shareReplay(1)
           );
 
