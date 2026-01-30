@@ -46,14 +46,14 @@ export function handleFacetsWithOperators(
     result[facetKey] = primaryValues;
   }
 
-  // Extract active model filters from the filters array
-  const activeModelFilters: string[] = [];
+  // Extract active root.model filters from the filters array (these are external filters from custom-root-model)
+  const activeRootModelFilters: string[] = [];
   if (filters && Array.isArray(filters)) {
     filters.forEach((filter: string) => {
-      if (filter.startsWith(`${facetKeysEnum.model}:`) || filter.startsWith(`${facetKeysEnum.rootModel}:`)) {
+      if (filter.startsWith(`${facetKeysEnum.rootModel}:`)) {
         const value = filter.split(':')[1]?.replace(/"/g, '');
         if (value) {
-          activeModelFilters.push(value);
+          activeRootModelFilters.push(value);
         }
       }
     });
@@ -66,16 +66,16 @@ export function handleFacetsWithOperators(
 
       // Only calculate count for custom facets that have a corresponding Solr facet
       if (custom.solrFacetKeyForCount) {
-        // For whereToSearchModel facet, check if there are active model filters
-        if (custom.facetKey === customDefinedFacetsEnum.whereToSearchModel && activeModelFilters.length > 0) {
-          // Only sum counts for models that are both in the item's fq list AND in active filters
-          const relevantModels = fqList.filter((fq: string) => activeModelFilters.includes(fq));
+        // For whereToSearchModel facet, check if there are active root.model filters (from custom-root-model)
+        if (custom.facetKey === customDefinedFacetsEnum.whereToSearchModel && activeRootModelFilters.length > 0) {
+          // Only sum counts for models that are both in the item's fq list AND in root.model filters
+          const relevantModels = fqList.filter((fq: string) => activeRootModelFilters.includes(fq));
           if (relevantModels.length > 0) {
             count = relevantModels.reduce((sum: number, fq: any) => {
               return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
             }, 0);
           }
-          // If no overlap between item's fq and active filters, count stays 0
+          // If no overlap between item's fq and root.model filters, count stays 0
         } else {
           // Default behavior: sum all models in fqList
           count = fqList.reduce((sum: number, fq: any) => {
