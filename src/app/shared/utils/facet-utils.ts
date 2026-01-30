@@ -46,6 +46,19 @@ export function handleFacetsWithOperators(
     result[facetKey] = primaryValues;
   }
 
+  // Extract active model filters from the filters array
+  const activeModelFilters: string[] = [];
+  if (filters && Array.isArray(filters)) {
+    filters.forEach((filter: string) => {
+      if (filter.startsWith(`${facetKeysEnum.model}:`) || filter.startsWith(`${facetKeysEnum.rootModel}:`)) {
+        const value = filter.split(':')[1]?.replace(/"/g, '');
+        if (value) {
+          activeModelFilters.push(value);
+        }
+      }
+    });
+  }
+
   for (const custom of customDefinedFacets) {
     const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
       const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
@@ -53,9 +66,22 @@ export function handleFacetsWithOperators(
 
       // Only calculate count for custom facets that have a corresponding Solr facet
       if (custom.solrFacetKeyForCount) {
-        count = fqList.reduce((sum: number, fq: any) => {
-          return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
-        }, 0);
+        // For whereToSearchModel facet, check if there are active model filters
+        if (custom.facetKey === customDefinedFacetsEnum.whereToSearchModel && activeModelFilters.length > 0) {
+          // Only sum counts for models that are both in the item's fq list AND in active filters
+          const relevantModels = fqList.filter((fq: string) => activeModelFilters.includes(fq));
+          if (relevantModels.length > 0) {
+            count = relevantModels.reduce((sum: number, fq: any) => {
+              return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+            }, 0);
+          }
+          // If no overlap between item's fq and active filters, count stays 0
+        } else {
+          // Default behavior: sum all models in fqList
+          count = fqList.reduce((sum: number, fq: any) => {
+            return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+          }, 0);
+        }
       }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
