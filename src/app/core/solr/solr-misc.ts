@@ -14,6 +14,22 @@ export const AFTER_LOGIN_LICENSES = [
   'dnnto'
 ]
 
+/**
+ * Ordered list of all licenses for display purposes.
+ * Licenses will be sorted in this order in filter components.
+ */
+export const LICENSES_ORDER = [
+  'mzk_public-muo',
+  'mzk_public-contract',
+  'knav_public_contract',
+  'public',
+  'dnnto',
+  'dnntt',
+  'onsite',
+  'onsite-sheetmusic',
+  '_private'
+]
+
 export const allDoctypes = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',
   'archive', 'soundrecording', 'manuscript', 'monographunit',
   'soundunit', 'track', 'periodicalvolume', 'periodicalitem',
