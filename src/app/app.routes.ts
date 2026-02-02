@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth/auth.guard';
 import { authCallbackGuard } from './core/auth/auth-callback.guard';
+import { legacyRouteGuard } from './core/guards/legacy-route.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = '',
@@ -38,23 +39,28 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.SEARCH_RESULTS,
-    loadChildren: () => import('./modules/search-results-page/search-results-page.module').then(m => m.SearchResultsPageModule)
+    loadChildren: () => import('./modules/search-results-page/search-results-page.module').then(m => m.SearchResultsPageModule),
+    canActivate: [legacyRouteGuard]
   },
   {
     path: APP_ROUTES_ENUM.DETAIL_VIEW,
-    loadChildren: () => import('./modules/detail-view-page/detail-view-page.module').then(m => m.DetailViewPageModule)
+    loadChildren: () => import('./modules/detail-view-page/detail-view-page.module').then(m => m.DetailViewPageModule),
+    canActivate: [legacyRouteGuard]
   },
   {
     path: APP_ROUTES_ENUM.PERIODICAL_VIEW,
-    loadChildren: () => import('./modules/periodical/periodical-page.module').then(m => m.PeriodicalPageModule)
+    loadChildren: () => import('./modules/periodical/periodical-page.module').then(m => m.PeriodicalPageModule),
+    canActivate: [legacyRouteGuard]
   },
   {
     path: APP_ROUTES_ENUM.MUSIC_VIEW,
-    loadChildren: () => import('./modules/music/music-page.module').then(m => m.MusicPageModule)
+    loadChildren: () => import('./modules/music/music-page.module').then(m => m.MusicPageModule),
+    canActivate: [legacyRouteGuard]
   },
   {
     path: `${APP_ROUTES_ENUM.MONOGRAPH_VIEW}/:uuid`,
-    loadComponent: () => import('./modules/monograph-volumes-page/monograph-volumes-page.component').then(c => c.MonographVolumesPageComponent)
+    loadComponent: () => import('./modules/monograph-volumes-page/monograph-volumes-page.component').then(c => c.MonographVolumesPageComponent),
+    canActivate: [legacyRouteGuard]
   },
   {
     path: APP_ROUTES_ENUM.SAVED_LISTS,
@@ -64,7 +70,8 @@ export const routes: Routes = [
   {
     path: APP_ROUTES_ENUM.COLLECTION,
     loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule),
-    data: { breadcrumb: false } // Will be set dynamically with collection name
+    data: { breadcrumb: false }, // Will be set dynamically with collection name
+    canActivate: [legacyRouteGuard]
   },
   {
     path: APP_ROUTES_ENUM.DEV_TOOLS,
@@ -73,6 +80,11 @@ export const routes: Routes = [
   {
     path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
     loadComponent: () => import('./shared/components/uuid-redirect/uuid-redirect.component').then(c => c.UuidRedirectComponent)
+  },
+  {
+    path: 'browse',
+    canActivate: [legacyRouteGuard],
+    children: []
   },
   {
     path: APP_ROUTES_ENUM.NOT_FOUND,
