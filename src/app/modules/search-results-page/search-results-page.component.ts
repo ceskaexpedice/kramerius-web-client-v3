@@ -27,6 +27,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
+  showSectionHeaders = signal<boolean>(true);
 
   protected readonly ViewOptions = AppResultsViewType;
 
@@ -91,6 +92,24 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       ).subscribe(allCurrentItems => {
         this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
       })
+    );
+
+    this.subscriptions.push(
+      combineLatest([
+        this.searchService.nonPageResults$,
+        this.searchService.articleResults$,
+        this.searchService.pageResults$,
+        this.searchService.attachmentResults$
+      ]).pipe(
+        map(([a, b, c, d]) => {
+          let count = 0;
+          if (a && a.length) count++;
+          if (b && b.length) count++;
+          if (c && c.length) count++;
+          if (d && d.length) count++;
+          return count > 1;
+        })
+      ).subscribe(show => this.showSectionHeaders.set(show))
     );
 
     // Notify scroll service when content has finished loading

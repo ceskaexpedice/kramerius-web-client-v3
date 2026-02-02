@@ -87,7 +87,7 @@
           @if (view() === ViewOptions.grid) {
 
           <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
-            <h3>{{'titles-section-header' | translate}}</h3>
+            <h3 *ngIf="showSectionHeaders()">{{'titles-section-header' | translate}}</h3>
 
             <div class="grid--container">
               <app-record-item
@@ -101,7 +101,7 @@
           <ng-container
             *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async) as articleResults">
             @if (articleResults.length > 0) {
-            <h3>{{'articles-section-header' | translate}}</h3>
+            <h3 *ngIf="showSectionHeaders()">{{'articles-section-header' | translate}}</h3>
 
             <div class="grid--container">
 
@@ -114,7 +114,7 @@
           <ng-container
             *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
             @if (pageResults.length > 0) {
-            <h3>{{'pages-section-header' | translate}}</h3>
+            <h3 *ngIf="showSectionHeaders()">{{'pages-section-header' | translate}}</h3>
 
             <div class="grid--container">
 
@@ -127,7 +127,7 @@
           <ng-container
             *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async) as attachmentResults">
             @if (attachmentResults.length > 0) {
-            <h3>{{'attachments-section-header' | translate}}</h3>
+            <h3 *ngIf="showSectionHeaders()">{{'attachments-section-header' | translate}}</h3>
 
             <div class="grid--container">
 
@@ -145,7 +145,7 @@
           <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
             @if (nonPageResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">
-              <h3>{{'titles-section-header' | translate}}</h3>
+              <h3 *ngIf="showSectionHeaders()">{{'titles-section-header' | translate}}</h3>
               <div class="pull-right">
                 <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
                   [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
@@ -161,7 +161,7 @@
           <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
             @if (articleResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">
-              <h3>{{'articles-section-header' | translate}}</h3>
+              <h3 *ngIf="showSectionHeaders()">{{'articles-section-header' | translate}}</h3>
               <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
                 <div class="pull-right">
                   <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
@@ -179,7 +179,7 @@
           <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
             @if (pageResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">
-              <h3>{{'pages-section-header' | translate}}</h3>
+              <h3 *ngIf="showSectionHeaders()">{{'pages-section-header' | translate}}</h3>
               <ng-container
                 *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length">
                 <div class="pull-right">
@@ -198,7 +198,7 @@
           <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
             @if (attachmentResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">
-              <h3>{{'attachments-section-header' | translate}}</h3>
+              <h3 *ngIf="showSectionHeaders()">{{'attachments-section-header' | translate}}</h3>
               <ng-container
                 *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length && !(searchService.pageResults$ | async)?.length">
                 <div class="pull-right">
