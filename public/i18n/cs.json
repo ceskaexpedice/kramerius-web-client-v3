@@ -471,5 +471,17 @@
   "custom-accessibility--available": "Pouze dostupné",
   "custom-accessibility--public": "Veřejné",
   "custom-accessibility--onsite": "V knihovně",
-  "custom-accessibility--afterLogin": "Po přihlášení"
+  "custom-accessibility--afterLogin": "Po přihlášení",
+  "no_results_to_display": "Žádné výsledky k zobrazení.",
+  "advanced-search.folder": "Složka",
+  "citation.load-error": "Nepodařilo se načíst citaci.",
+  "loading-pages": "Načítání stránek...",
+  "no-content-available": "Žádný obsah není k dispozici",
+  "footer.financed-by": "Financuje",
+  "footer.operated-by": "Provozuje",
+  "footer.development": "Vývoj",
+  "footer.participating-institutions": "Zapojené instituce",
+  "header.aria.close-search": "Zavřít vyhledávání",
+  "header.aria.search": "Vyhledávání",
+  "header.aria.menu": "Menu"
 }

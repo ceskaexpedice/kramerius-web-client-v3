@@ -30,8 +30,8 @@
       <i class="icon-settings-4"></i>
     </button>
 
-    <button class="icon-button outlined light mobile-search-btn" aria-label="Close search"
-      (click)="closeMobileSearch()">
+    <button class="icon-button outlined light mobile-search-btn"
+      [attr.aria-label]="'header.aria.close-search' | translate" (click)="closeMobileSearch()">
       <i class="icon-close"></i>
     </button>
 
@@ -53,7 +53,8 @@
 
     <!-- Mobile search toggle button -->
     <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
-      [class.hide-on-search-active]="isMobileSearchOpen" aria-label="Search" (click)="toggleMobileSearch()">
+      [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.search' | translate"
+      (click)="toggleMobileSearch()">
       <i class="icon-search-normal"></i>
     </button>
 
@@ -64,7 +65,8 @@
 
     <button class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
       [class.outlined]="!isMobileMenuOpen" [class.light]="!isMobileMenuOpen"
-      [class.hide-on-search-active]="isMobileSearchOpen" aria-label="Menu" (click)="toggleMobileMenu()">
+      [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.menu' | translate"
+      (click)="toggleMobileMenu()">
       <i class="icon-hamburger-menu"></i>
     </button>
 

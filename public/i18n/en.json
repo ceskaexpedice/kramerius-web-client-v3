@@ -478,5 +478,17 @@
   "custom-accessibility--available": "Only available",
   "custom-accessibility--public": "Public",
   "custom-accessibility--onsite": "In library",
-  "custom-accessibility--afterLogin": "After login"
+  "custom-accessibility--afterLogin": "After login",
+  "no_results_to_display": "No results to display.",
+  "advanced-search.folder": "Folder",
+  "citation.load-error": "Failed to load citation.",
+  "loading-pages": "Loading pages...",
+  "no-content-available": "No content available",
+  "footer.financed-by": "Financed by",
+  "footer.operated-by": "Operated by",
+  "footer.development": "Development",
+  "footer.participating-institutions": "Participating institutions",
+  "header.aria.close-search": "Close search",
+  "header.aria.search": "Search",
+  "header.aria.menu": "Menu"
 }

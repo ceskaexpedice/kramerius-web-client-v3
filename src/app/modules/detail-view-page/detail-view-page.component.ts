@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { DetailViewService } from './services/detail-view.service';
@@ -37,6 +38,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
   public documentInfoService = inject(DocumentInfoService);
+  public translate = inject(TranslateService);
   private store = inject(Store);
 
   // Favorites popup helper
@@ -47,8 +49,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   // View toggle options for sound recordings - static to prevent re-rendering
   readonly viewToggleOptions: ViewToggleOption[] = [
-    { label: 'Nahrávky', icon: 'icon-music-filter', value: 'records' },
-    { label: 'Obrázky', icon: 'icon-gallery', value: 'images' }
+    { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
+    { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
   ];
 
   constructor(
@@ -85,7 +87,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
         if (pages && pages.length > 0) {
           const pageItems = pages.map(page => ({
             pid: page.pid,
-            title: `Page ${pages.indexOf(page) + 1}`,
+            title: `${this.translate.instant('page')} ${pages.indexOf(page) + 1}`,
             model: DocumentTypeEnum.page,
             accessibility: DocumentAccessibilityEnum.PUBLIC,
             licenses: [],

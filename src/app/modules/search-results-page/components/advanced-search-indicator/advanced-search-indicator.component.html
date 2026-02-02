@@ -7,7 +7,8 @@
 
     <p class="advanced-search-indicator--preview">
       <ng-container *ngFor="let group of advancedSearchService.getAdvancedSearchPreviewGroups(); let i = index">
-        <ng-container *ngIf="i > 0"> <strong>{{ advancedSearchService.mainOperator() | uppercase }}</strong> </ng-container>
+        <ng-container *ngIf="i > 0"> <strong>{{ advancedSearchService.mainOperator() | uppercase }}</strong>
+        </ng-container>
         <span class="advanced-search-indicator--group">
           [<ng-container *ngFor="let filter of group.filters; let j = index">
             <ng-container *ngIf="j > 0"> <strong>{{ group.operator | uppercase }}</strong> </ng-container>
@@ -19,12 +20,14 @@
 
     <div class="advanced-search-indicator--buttons">
       <button class="button primary" (click)="updateQuery()">{{ 'advanced-search-indicator.edit' | translate }}</button>
-      <button class="button outlined tertiary" (click)="newSearch()">{{'advanced-search-indicator.new' | translate}}</button>
-      <button class="button outlined tertiary" (click)="clearAll()">{{'advanced-search-indicator.cancel' | translate}}</button>
+      <button class="button outlined tertiary" (click)="newSearch()">{{'advanced-search-indicator.new' |
+        translate}}</button>
+      <button class="button outlined tertiary" (click)="clearAll()">{{'advanced-search-indicator.cancel' |
+        translate}}</button>
     </div>
   </div>
 
   <div class="advanced-search-indicator--image">
-    <img src="/img/folder-image.png" alt="Složka" />
+    <img src="/img/folder-image.png" [alt]="'advanced-search.folder' | translate" />
   </div>
 </div>
