@@ -250,8 +250,10 @@ export class DetailViewService {
         this._pages.set(safePages);
         this._currentPageIndex.set(0);
 
-        // Don't check/set page URL if articles are present or if sound recording
-        const hasArticles = safePages.some(p => p.model === DocumentTypeEnum.article);
+        // Don't check/set page URL if more articles than pages or if sound recording
+        const articleCount = safePages.filter(p => p.model === DocumentTypeEnum.article).length;
+        const pageCount = safePages.filter(p => p.model === DocumentTypeEnum.page).length;
+        const hasArticles = articleCount > pageCount;
         if (this.document?.model !== DocumentTypeEnum.soundrecording && !hasArticles) {
           this.checkAndSetCurrentPageFromUrl();
         }

@@ -102,7 +102,8 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   get hasArticles(): boolean {
-    return (this.detailViewService.articles?.length ?? 0) > 0;
+    // return (this.detailViewService.articles?.length ?? 0) > 0;
+    return this.detailViewService.articles?.length > this.detailViewService.pages?.length;
   }
 
   /**
