@@ -217,7 +217,7 @@
   },
   {
     "type": "local-categories",
-    "title": "Nově přidané dostupné z domova",
+    "title": "Typy dokumentů",
     "showCount": false,
     "categories": [
       {
@@ -537,6 +537,90 @@
   },
   {
     "type": "local-records",
+    "title": "Žánry",
+    "items": [
+      {
+        "id": "genre-1",
+        "title": "Cestopisy a průvodce",
+        "imageUrl": "local-config/genres/cestopisy.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Cestopisy%22%20OR%20keywords.facet:%22Cestopisy%20ji%C5%BEn%C3%AD%20Evropa%22%20OR%20keywords.facet:%22Cesty%20kolem%20sv%C4%9Bta%22%20OR%20keywords.facet:%22Cestovatel%C3%A9%22%20OR%20keywords.facet:%22Cestovatelky%22%20OR%20genres.facet:%22Cestopisy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Cestovn%C3%AD%20den%C3%ADky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-2",
+        "title": "Dobrodružná literatura",
+        "imageUrl": "local-config/genres/dobrodružná literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%BD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Dobrodruzi%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Americk%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Anglick%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Mayovky%20n%C4%9Bmeck%C3%A1%20dobrodru%C5%BEn%C3%A1%20literatura%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-3",
+        "title": "Detektivky",
+        "imageUrl": "local-config/genres/detektivky.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Detektivn%C3%AD%20pov%C3%ADdka%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20literatura%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20pr%C3%B3za%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20pov%C3%ADdky%22%20OR%20genres.facet:%22Detektivn%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Detektivn%C3%AD%20novely%22%20OR%20genres.facet:%22Detektivn%C3%AD%20dramata%22%20OR%20keywords.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADpady%22%20OR%20genres.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-4",
+        "title": "Dětská literatura",
+        "imageUrl": "local-config/genres/dětská literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22D%C4%9Btsk%C3%A9%20hry%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20%C4%8Detba%22%20OR%20keywords.facet:%22Literatura%20pro%20d%C4%9Bti%20a%20ml%C3%A1de%C5%BE%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20literatura%22%20OR%20genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Publikace%20pro%20ml%C3%A1de%C5%BE%22%20OR%20genres.facet:%22P%C5%99%C3%ADb%C4%9Bhy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Casopisy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Cesk%C3%A1%20literatura%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Anglick%C3%A1%20literatura%20pro%20d%C4%9Bti%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:periodical,custom-root-model:monograph"
+      },
+      {
+        "id": "genre-5",
+        "title": "Historické romány",
+        "imageUrl": "local-config/genres/historické romány.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Historick%C3%A9%20rom%C3%A1ny%20ma%C4%8Farsk%C3%A1%20literatura%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20literatura%20historick%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Historick%C3%A1%20pr%C3%B3za%22%20OR%20genres.facet:%22Historick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Historick%C3%A1%20dramata%22%20OR%20genres.facet:%22Historick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Historick%C3%A9%20pov%C3%ADdky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-6",
+        "title": "Horor",
+        "imageUrl": "local-config/genres/horor.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Horor%20(literatura)%22%20OR%20keywords.facet:%22Filmov%C3%A9%20horory%22%20OR%20keywords.facet:%22Horror%20films%22%20OR%20keywords.facet:%22Horror%20literature%22%20OR%20genres.facet:%22Horory%22%20OR%20genres.facet:%22Horory%20(rom%C3%A1ny)%22%20OR%20genres.facet:%22Horory%20(p%C5%99%C3%ADb%C4%9Bhy)%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-7",
+        "title": "Humoristická literatura",
+        "imageUrl": "local-config/genres/humoristická literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Humor%22%20OR%20keywords.facet:%22Humoristick%C3%A1%20literatura%22%20OR%20keywords.facet:%22Satira%22%20OR%20keywords.facet:%22Humoristick%C3%A9%20%C4%8Dasopisy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22%20OR%20genres.facet:%22Anekdoty%22%20OR%20genres.facet:%22Aforismy%22)&advOp=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph,custom-root-model:periodical,custom-where-to-search.model:titles"
+      },
+      {
+        "id": "genre-8",
+        "title": "Komiks",
+        "imageUrl": "local-config/genres/komiks.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Komiksy%22%20OR%20keywords.facet:%22Komiks%22%20OR%20keywords.facet:%22Komiksy.%20Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Nau%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Sci-fi%20komiksy%22%20OR%20genres.facet:%22V%C3%A1le%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Historick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Thrillery%20(komiksy)%22%20OR%20genres.facet:%22Informa%C4%8Dn%C3%AD%20komiksy%22%20OR%20genres.facet:%22Westernov%C3%A9%20komiksy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Ak%C4%8Dn%C3%AD%20a%20dobrodru%C5%BEn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20-genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20-genres.facet:%22Children%27s%20literature%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-9",
+        "title": "Literatura faktu",
+        "imageUrl": "local-config/genres/literatura faktu.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Literatura%20faktu%22%20OR%20keywords.facet:%22Anglick%C3%A1%20literatura%20literatura%20faktu%22%20OR%20keywords.facet:%22Non-fiction%22%20OR%20genres.facet:%22Literatura%20faktu%22%20OR%20genres.facet:%22Rozhovory%22%20OR%20genres.facet:%22Biografie%22%20OR%20genres.facet:%22Autobiografie%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vlastn%C3%AD%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-10",
+        "title": "Sci-fi a fantasy",
+        "imageUrl": "local-config/genres/scifi a fantasy.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Science%20fiction%22%20OR%20keywords.facet:%22Sci-fi%22%20OR%20keywords.facet:%22Fantasy%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pov%C3%ADdka%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pr%C3%B3za%22%20OR%20keywords.facet:%22Polsk%C3%A1%20literatura%20v%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22Fantasy%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Fantasy%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Americk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Francouzsk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Science%20fiction%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-11",
+        "title": "Populárně naučná literatura",
+        "imageUrl": "local-config/genres/populárně naučná.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20filmy%22%20OR%20keywords.facet:%22Popularizace%20v%C4%9Bdy%22%20OR%20keywords.facet:%22Popularizace%20hudby%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C3%AD%20literatura%22%20OR%20genres.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20publikace%22%20OR%20genres.facet:%22Popul%C3%A1rn%C3%AD%20pr%C3%A1ce%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-12",
+        "title": "Poezie",
+        "imageUrl": "local-config/genres/poezie.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Poezie%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Rusk%C3%A1%20poezie%22%20OR%20keywords.facet:%22%C4%8C%C3%ADnsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Lidov%C3%A1%20poezie%22%20OR%20keywords.facet:%22N%C4%9Bmeck%C3%A1%20poezie%22%20OR%20keywords.facet:%22Sv%C4%9Btov%C3%A1%20poezie%22%20OR%20keywords.facet:%22Anglick%C3%A1%20poezie%22%20OR%20keywords.facet:%22Milostn%C3%A1%20poezie%22%20OR%20keywords.facet:%22Ukrajinsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22K%C5%99es%C5%A5ansk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Francouzsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsky%20psan%C3%A1%20poezie%22%20OR%20keywords.facet:%22Experiment%C3%A1ln%C3%AD%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20starov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20st%C5%99edov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20genres.facet:%22Poezie%22%20OR%20genres.facet:%22Poezie%20v%20pr%C3%B3ze%22%20OR%20genres.facet:%22Epick%C3%A1%20poezie%22%20OR%20genres.facet:%22Lyrick%C3%A1%20poezie%22%20OR%20genres.facet:%22Slovensk%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C4%9Bmecky%20psan%C3%A1%20poezie%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-13",
+        "title": "Učebnice",
+        "imageUrl": "local-config/genres/učebnice.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&advSearch=(keywords.facet:%22U%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debnice%20%C5%A1koln%C3%AD%22%20OR%20keywords.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hudebn%C3%AD%20kompozice)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hra%20na%20varhany)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(kontrapunkt)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20S%C5%A0%22%20OR%20keywords.facet:%22U%C4%8Debnice%20jako%20t%C3%A9ma%22%20OR%20keywords.facet:%22U%C4%8Debnice%20pro%20fl%C3%A9tnu%22%20OR%20keywords.facet:%22Latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Jazyky%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22N%C4%9Bm%C4%8Dina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Slovn%C3%ADky,%20u%C4%8Debnice%20jazykov%C3%A9,%20encyklopedie%20informatika%20l%C3%A9ka%C5%99sk%C3%A1%22%20OR%20keywords.facet:%22Ital%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Francouz%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Angli%C4%8Dtina%20-%20latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Latina%20-%20ma%C4%8Far%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debn%C3%AD%20osnovy.%20Vyu%C4%8Dovac%C3%AD%20p%C5%99edm%C4%9Bty.%20U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20vysok%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20vy%C5%A1%C5%A1%C3%ADch%20odborn%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20hudebn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20u%C4%8D%C5%88ovsk%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20archivn%C3%AD%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
     "title": "Vybrané sbírky",
     "buttonText": "Více sbírek",
     "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
@@ -762,7 +846,7 @@
   {
     "type": "genres",
     "title": "genres",
-    "visible": true
+    "visible": false
   },
   {
     "type": "document-types",

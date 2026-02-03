@@ -1,21 +1,30 @@
 .category-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x2);
   background-color: var(--color-bg-base);
   border-radius: var(--base-border-radius);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: 0.2s;
+  border: 1px solid transparent;
 
   &:hover {
-    color: var(--color-text-link);
+    color: var(--color-primary-hover);
+    text-decoration: auto;
+    font-weight: 700;
+    border: 1px solid var(--color-border-contrast);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.10);
+  }
+
+  i {
+    font-size: var(--font-size-xxlarge);
   }
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
   }
 
 }
