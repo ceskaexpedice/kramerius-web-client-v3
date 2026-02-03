@@ -40,6 +40,14 @@ label {
   }
 }
 
+.toggle-group.sm {
+  .toggle-btn {
+    font-size: var(--font-size-small);
+    padding: var(--spacing-x1) var(--spacing-x2);
+    line-height: var(--line-height-1);
+  }
+}
+
 .toggle-group.lg {
 
   .toggle-btn {

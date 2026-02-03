@@ -2,9 +2,8 @@ import {Component, computed, effect, inject, OnInit, signal} from '@angular/core
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
-import {MatCheckbox} from '@angular/material/checkbox';
-import {debounceTime, Observable, of, Subject, take} from 'rxjs';
+import {NgForOf, NgIf} from '@angular/common';
+import {debounceTime, Subject, take} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
@@ -25,23 +24,23 @@ import {InputComponent} from '../../../../shared/components/input/input.componen
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-search-dialog/solr-filters';
 import {FormatNumberPipe} from '../../../../shared/pipes/format-number.pipe';
+import {MatCheckbox} from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-filter-dialog',
   imports: [
     FormsModule,
     NgForOf,
-    MatCheckbox,
     ReactiveFormsModule,
     NgIf,
     SelectedTagsComponent,
-    AsyncPipe,
     PaginatorComponent,
     TranslatePipe,
     ToggleButtonGroupComponent,
     PaginatorInfoComponent,
     InputComponent,
     FormatNumberPipe,
+    MatCheckbox,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -346,9 +345,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     }
   }
 
-  isSelectedFacetItem(item: FacetItem): Observable<boolean> {
-    return of(this.pendingSelection().has(item.name));
-  }
 
   setSort(sort: SolrSortFields) {
     this.sortBy.set(sort);
