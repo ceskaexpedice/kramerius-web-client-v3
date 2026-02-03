@@ -1,10 +1,10 @@
-import { Component, computed, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   ExportDocumentSectionItemComponent
 } from '../export-document-section-item-component/export-document-section-item-component';
 import { ExportService } from '../../../services/export.service';
 import { IIIFViewerService } from '../../../services/iiif-viewer.service';
-import { take } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
@@ -23,7 +23,7 @@ import { Page } from '../../../models/page.model';
   templateUrl: './export-document-section-component.html',
   styleUrl: './export-document-section-component.scss',
 })
-export class ExportDocumentSectionComponent {
+export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
 
   @Input() pagePid: string | null = null;
 
@@ -38,6 +38,30 @@ export class ExportDocumentSectionComponent {
 
   iiifBookMode = toSignal(this.iiifViewerService.bookMode$, { initialValue: false });
   pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
+
+  selectedJpegOption: string | null = null;
+  private cropSubscription?: Subscription;
+  private selectionModeSubscription?: Subscription;
+  private activeCropSession = false;
+
+  ngOnInit(): void {
+    this.selectionModeSubscription = this.iiifViewerService.isSelectionMode$.subscribe(isSelectionMode => {
+      if (!isSelectionMode) {
+        this.activeCropSession = false;
+      }
+    });
+
+    this.cropSubscription = this.iiifViewerService.selectedArea$.subscribe(rect => {
+      if (rect && this.activeCropSession && this.pagePid) {
+        this.exportService.exportJpegCrop(this.pagePid, rect);
+        this.iiifViewerService.setSelectionMode(false);
+        this.activeCropSession = false;
+        this.selectedJpegOption = 'current-page';
+
+        setTimeout(() => this.iiifViewerService.clearSelectedArea(), 0);
+      }
+    });
+  }
 
   /**
    * Get filtered pages that have exportable licenses
@@ -143,9 +167,12 @@ export class ExportDocumentSectionComponent {
   });
 
   onJpegOptionChange(value: string) {
+    this.selectedJpegOption = value;
     if (value === 'crop-page') {
+      this.activeCropSession = true;
       this.iiifViewerService.setSelectionMode(true);
     } else {
+      this.activeCropSession = false;
       this.iiifViewerService.setSelectionMode(false);
     }
   }
@@ -247,6 +274,16 @@ export class ExportDocumentSectionComponent {
         }
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.cropSubscription) {
+      this.cropSubscription.unsubscribe();
+    }
+    if (this.selectionModeSubscription) {
+      this.selectionModeSubscription.unsubscribe();
+    }
+    this.iiifViewerService.setSelectionMode(false);
   }
 
 }

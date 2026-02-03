@@ -97,12 +97,15 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     this.subscriptions.push(
       this.iiifViewerService.selectedArea$.subscribe(rect => {
+        console.log('rect', rect)
         this.ngZone.run(() => {
           if (rect) {
             this.showSelectionControls = true;
             this.updateSelectionControlsPosition(rect);
           } else {
             this.showSelectionControls = false;
+            this.selectionRect = null;
+            this.currentImageRect = null;
           }
           this.cdr.detectChanges();
         });
