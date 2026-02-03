@@ -1,37 +1,16 @@
-//.grid--container {
-//  display: grid;
-//  grid-template-columns: repeat(auto-fill, 230px);
-//  gap: 16px;
-//  justify-content: center;
-//  //padding: 16px 0;
-//  flex-grow: 1;
-//  max-height: fit-content;
-//}
-
 /* Base grid container */
 .grid--container {
   display: grid;
-  gap: 16px;
+  gap: var(--card-gap);
   width: 100%;
 }
 
 /* Responsive Grid */
 .grid--container {
-  // Automatically calculate columns based on item width and available space
-  // Item width scales with accessibility text setting
-  grid-template-columns: repeat(auto-fill, minmax(calc(170px * var(--accessibility-text-scale)), 1fr));
-
-  /* Ensure no overflow and consistent sizing */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--card-min-width) * var(--accessibility-text-scale))), 1fr));
   overflow-x: hidden;
   max-width: 100%;
 }
-
-
-//.list--container {
-//  display: flex;
-//  flex-direction: column;
-//  gap: 16px;
-//}
 
 .flex {
   display: flex;

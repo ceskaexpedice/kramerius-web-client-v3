@@ -12,12 +12,12 @@
 
   width: 100%;
   max-width: 100%;
-  min-width: calc(170px * var(--accessibility-text-scale));
+  min-width: calc(var(--card-min-width) * var(--accessibility-text-scale));
   min-height: 100%;
   box-sizing: border-box;
 
   overflow: hidden;
-  aspect-ratio: 170/338;
+  aspect-ratio: var(--card-width) / var(--card-height);
 
   &:hover {
     border: 1px solid var(--color-border-contrast);
@@ -26,11 +26,11 @@
       opacity: 1;
 
       .favorites-button {
-        opacity: 1; // Show on hover (unless already always visible due to favorited state)
+        opacity: 1;
       }
 
       .other-button {
-        opacity: 1; // Show other buttons on hover
+        opacity: 1;
       }
     }
 
@@ -40,11 +40,7 @@
   }
 
   &.with-badge {
-    aspect-ratio: 170/350; // Updated to match 350px height design
-
-    .record-item-card__content {
-      padding-bottom: 16px; // Increased space for badge to prevent overlap
-    }
+    aspect-ratio: var(--card-width) / var(--card-height-with-badge);
   }
 
   .record-item-card__inner {
@@ -52,20 +48,20 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-x3);
-    height: 100%;
+    flex: 1;
     overflow: hidden;
     box-sizing: border-box;
   }
 
   .record-item-card__image {
-    // Image is ~182px out of 350px total (~52% accounting for padding)
-    aspect-ratio: 140/182;
+    aspect-ratio: var(--card-image-aspect-ratio);
     background-size: cover;
     background-position: center;
     position: relative;
     border: 1px solid var(--color-border-bright);
     border-radius: var(--spacing-x1);
     min-height: 0;
+    flex-shrink: 0;
 
     &.skeleton-active {
       border-color: var(--color-border-bright);
@@ -186,9 +182,8 @@
     flex-direction: column;
     gap: var(--spacing-x2);
     color: var(--color-text-base);
-    // Content is ~108px out of 350px total (~37% accounting for padding)
-    height: 37%;
-    flex-shrink: 0; // Prevent content from shrinking
+    min-height: 0;
+    overflow: hidden;
 
     .skeleton-text {
       width: 100%;
@@ -219,29 +214,28 @@
     .title {
       font-size: var(--font-size-base);
       line-height: calc(20px * var(--accessibility-text-scale));
-      font-weight: 600;
+      font-weight: 700;
 
       display: -webkit-box;
-      -webkit-line-clamp: 3; // Updated to allow 3 lines as per design
+      -webkit-line-clamp: 3;
       line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-height: calc(60px * var(--accessibility-text-scale)); // 3 lines × 20px line-height
-      flex-shrink: 0; // Don't let title shrink
+      max-height: calc(60px * var(--accessibility-text-scale));
+      flex-shrink: 0;
     }
 
     .subtitle {
       font-size: var(--font-size-small);
-      flex: 1; // Take remaining space
+      flex-shrink: 0;
       display: -webkit-box;
       -webkit-line-clamp: 2; // Max 2 rows for subtitle
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 1.4;
-      max-height: 2.8em; // 2 lines × 1.4 line-height
+      line-height: 20px;
     }
 
     .authors {
@@ -254,11 +248,9 @@
   }
 
   .access-label {
-    position: absolute;
-    bottom: var(--spacing-x4);
-    left: var(--spacing-x4);
     display: inline-flex;
-    z-index: 2; // Ensure it's above other content
+    margin-top: auto;
+    flex-shrink: 0;
   }
 
   // Hidden link for SEO/accessibility

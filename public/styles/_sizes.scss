@@ -33,4 +33,33 @@
   --line-height-1: calc(20px * var(--accessibility-text-scale));
   --line-height-2: calc(24px * var(--accessibility-text-scale));
   --line-height-3: calc(28px * var(--accessibility-text-scale));
+
+  // ===================
+  // Card & Grid Sizes
+  // ===================
+
+  // Grid
+  --card-min-width: 144px;
+  --card-gap: 16px;
+
+  // Standard Card (search results) - 144x303, with badge 144x335
+  --card-width: 144px;
+  --card-height: 303px;
+  --card-height-with-badge: 335px;
+
+  // Card Image
+  --card-image-aspect-ratio: 168 / 220;
+
+  // Carousel Card (homepage) - 200x364
+  --carousel-card-width: 200px;
+  --carousel-card-height: 364px;
+
+  // Author Card - 200x324
+  --author-card-width: 200px;
+  --author-card-height: 324px;
+  --author-image-aspect-ratio: 167 / 220;
+
+  // Periodical Volume Card - 144x231
+  --periodical-volume-card-width: 144px;
+  --periodical-volume-card-height: 231px;
 }

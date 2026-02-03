@@ -1,0 +1,32 @@
+// Carousel card styles
+.carousel-content {
+  align-items: stretch;
+
+  app-record-item {
+    display: flex;
+
+    .record-item-card {
+      aspect-ratio: unset;
+      height: auto;
+      min-height: unset;
+      flex: 1;
+
+      &.with-badge {
+        aspect-ratio: unset;
+      }
+
+      // Author variant in carousel
+      &.variant-author {
+        .record-item-card__image {
+          aspect-ratio: var(--author-image-aspect-ratio);
+        }
+
+        .record-item-card__content .title {
+          -webkit-line-clamp: 1;
+          line-clamp: 1;
+          max-height: calc(20px * var(--accessibility-text-scale));
+        }
+      }
+    }
+  }
+}

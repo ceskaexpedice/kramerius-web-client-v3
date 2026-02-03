@@ -1,66 +1,42 @@
-// Periodical volume/item specific styles for record item cards
+// Periodical volume/item specific styles for record item cards Figma: 144x231 layout: title → subtitle → image
 
 .record-item-card.periodicalvolume,
 .record-item-card.periodicalitem {
-  aspect-ratio: 170/253;
+  aspect-ratio: var(--periodical-volume-card-width) / var(--periodical-volume-card-height);
 
-  &.with-badge {
-    aspect-ratio: 170/282;
-  }
-
-  // Custom layout order: title → subtitle → image → badge
   .record-item-card__inner {
-    padding: var(--spacing-x2) var(--spacing-x3) var(--spacing-x3) var(--spacing-x3);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
+    gap: var(--spacing-x2);
   }
 
   .record-item-card__content {
-    // Content (title/subtitle) takes smaller portion for periodical volumes
-    // Based on design: ~52px content height
     order: 1;
+    flex: 0 0 auto;
     height: auto;
-    min-height: 0;
 
     .title {
       font-size: calc(20px * var(--accessibility-text-scale));
-      line-height: 32px;
-      height: auto;
-      min-height: auto;
-      // Allow more lines for periodical titles
-      -webkit-line-clamp: 2;
+      font-weight: 500;
+      line-height: calc(32px * var(--accessibility-text-scale));
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      max-height: calc(32px * var(--accessibility-text-scale));
+    }
+
+    .subtitle {
+      color: var(--color-text-tertiary);
+      line-height: calc(20px * var(--accessibility-text-scale));
     }
   }
 
   .record-item-card__image {
-    // Image takes larger portion in periodical volumes
-    // Based on design: ~182px image height
-    order: 2;
-    //flex: 3;
-    min-height: 0;
+    order: 2; // Image below content
+    aspect-ratio: 168/220;
+    border-radius: 2px;
+    flex: 1;
   }
 
-  &.with-badge {
-    .record-item-card__inner {
-      padding-bottom: 45px;
-    }
+  .access-label {
+    order: 3;
   }
-
-  //.access-label {
-  //  // Badge appears at bottom
-  //  order: 3;
-  //  flex: 0 0 auto;
-  //  margin-top: var(--spacing-x2);
-  //  display: inline-flex;
-  //  align-self: flex-start;
-  //}
-  //
-  //// Responsive height for badge presence
-  //&.with-badge {
-  //
-  //  .access-label {
-  //    margin-top: auto;
-  //  }
-  //}
 }

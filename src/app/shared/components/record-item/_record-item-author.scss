@@ -1,15 +1,25 @@
-// Author variant styles
-// Different card dimensions (200x324 instead of 184x364)
+// Author variant styles card: 200x324px
 
 .record-item-card.variant-author {
-  aspect-ratio: 200/324;
+  aspect-ratio: var(--author-card-width) / var(--author-card-height);
 
   .record-item-card__image {
-    aspect-ratio: 168/220;
+    aspect-ratio: var(--author-image-aspect-ratio);
+    flex-shrink: 0;
   }
 
   .record-item-card__content {
-    height: auto;
     flex: 1;
+    min-height: 0;
+
+    .title {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      max-height: calc(20px * var(--accessibility-text-scale));
+    }
+
+    .subtitle {
+      flex-shrink: 0;
+    }
   }
 }
