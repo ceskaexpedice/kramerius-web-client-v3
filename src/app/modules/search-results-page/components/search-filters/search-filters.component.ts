@@ -118,8 +118,8 @@ import { SearchService } from '../../../../shared/services/search.service';
         cursor: pointer;
         gap: var(--spacing-x2);
         color: var(--color-text-base);
-        margin-top: var(--spacing-x4);
         font-size: var(--font-size-small);
+        margin-top: var(--spacing-x2);
         font-weight: 500;
 
         i {

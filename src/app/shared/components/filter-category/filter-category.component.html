@@ -1,21 +1,24 @@
 <ng-container *ngIf="loading || visibleItems().length > 0 || type === 'dateRange' || type === 'yearRange'">
 
   <div>
-    <div class="category--header">
 
-      <h4 *ngIf="!loading">
+    @if (label && label.length > 0) {
+      <div class="category--header">
 
-        {{label | translate}}
+        <h4 *ngIf="!loading">
 
-        <span *ngIf="hasAndOperator" class="and-indicator">{{ 'and-operator' | translate }}</span>
+          {{label | translate}}
 
-      </h4>
+          <span *ngIf="hasAndOperator" class="and-indicator">{{ 'and-operator' | translate }}</span>
 
-      <div *ngIf="loading" class="filters-skeleton--header"></div>
+        </h4>
 
-      <i class="icon-minus-square cursor-pointer" *ngIf="!loading && showToggleExpand" (click)="toggleExpanded()"></i>
+        <div *ngIf="loading" class="filters-skeleton--header"></div>
 
-    </div>
+        <i class="icon-minus-square cursor-pointer" *ngIf="!loading && showToggleExpand" (click)="toggleExpanded()"></i>
+
+      </div>
+    }
 
     <div class="flex flex--gap-x2 flex--column pt-1" *ngIf="loading">
       <ng-container *ngFor="let i of (null | skeletonList:12)">
