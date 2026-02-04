@@ -1,26 +1,13 @@
-<mat-radio-group
-  class="radio-group"
-  [value]="selected"
-  [name]="'radio-group-' + facetKey"
-(change)="onSelectionChange($event)"
->
-  <mat-radio-button
-    *ngFor="let item of items; trackBy: trackByFn"
-    [value]="item.name"
-    class="radio-button"
-  >
+<mat-radio-group class="radio-group" [value]="selected" [name]="'radio-group-' + facetKey"
+  (change)="onSelectionChange($event)">
+  <mat-radio-button *ngFor="let item of items; trackBy: trackByFn" [value]="item.name" class="radio-button">
     <span class="label-wrapper">
-      <label
-        class="cursor-pointer"
-        (click)="onLabelClick(item.name)"
-        [class.selected]="item.name === selected"
-      >{{ (item.label || (item.name + '-label')) | translate }}</label>
-      <span class="count"
-            [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
+      <label class="cursor-pointer" (click)="onLabelClick(item.name)" [class.selected]="item.name === selected">{{
+        (item.label || (item.name + '-label')) | translate }}</label>
+      <span class="count" [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
     </span>
-    <span *ngIf="item.icon" class="icon">
-      <i [ngClass]="item.icon"></i>
+    <span *ngIf="item.icon" class="icon" [class.active]="item.name === selected">
+      <i [ngClass]="[item.icon, item.iconClass || '']"></i>
     </span>
   </mat-radio-button>
 </mat-radio-group>
-

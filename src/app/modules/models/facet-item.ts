@@ -2,6 +2,7 @@ export interface FacetItem {
   name: string;
   count: number;
   icon?: string;
+  iconClass?: string;
   label?: string;
   available?: boolean;
   type?: 'radio' | 'checkbox';

@@ -50,7 +50,12 @@ label {
   padding: 1px;
   border-radius: var(--spacing-x1);
   background: var(--color-bg-light);
+  border: 1px solid transparent;
   margin-left: auto;
+
+  &.active {
+    border-color: var(--color-primary);
+  }
 
   i {
     font-size: var(--font-size-base);

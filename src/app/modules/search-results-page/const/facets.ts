@@ -108,6 +108,7 @@ export const customDefinedFacets = [
         name: `${FacetAccessibilityTypes.public}`,
         label: 'custom-accessibility--public',
         icon: 'icon-eye-public',
+        iconClass: 'accessibility-public',
         count: 0,
         type: FacetElementType.radio,
       },
@@ -117,6 +118,7 @@ export const customDefinedFacets = [
         name: `${FacetAccessibilityTypes.afterLogin}`,
         label: 'custom-accessibility--afterLogin',
         icon: 'icon-locked',
+        iconClass: 'accessibility-private',
         count: 0,
         type: FacetElementType.radio,
       },
@@ -126,6 +128,7 @@ export const customDefinedFacets = [
         name: `${FacetAccessibilityTypes.onsite}`,
         label: 'custom-accessibility--onsite',
         icon: 'icon-in-house',
+        iconClass: 'accessibility-in_library',
         count: 0,
         type: FacetElementType.radio,
       }

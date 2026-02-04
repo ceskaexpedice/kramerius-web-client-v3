@@ -38,6 +38,11 @@
   padding: 1px;
   border-radius: var(--spacing-x1);
   background: var(--color-bg-light);
+  border: 1px solid transparent;
+
+  &.active {
+    border-color: var(--color-primary);
+  }
 
   &.icon--flag {
     border-radius: 50%;

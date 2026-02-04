@@ -1,6 +1,6 @@
-import {SolrOperators} from '../../core/solr/solr-helpers';
-import {FacetItem} from '../../modules/models/facet-item';
-import {SolrResponseParser} from '../../core/solr/solr-response-parser';
+import { SolrOperators } from '../../core/solr/solr-helpers';
+import { FacetItem } from '../../modules/models/facet-item';
+import { SolrResponseParser } from '../../core/solr/solr-response-parser';
 import {
   customDefinedFacets,
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
@@ -42,6 +42,18 @@ export function handleFacetsWithOperators(
         primaryValues.push(item);
       }
     });
+
+    if (facetKey === facetKeysEnum.license) {
+      primaryValues.forEach(item => {
+        if (PUBLIC_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-public';
+        } else if (ONSITE_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-in_library';
+        } else if (AFTER_LOGIN_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-private';
+        }
+      });
+    }
 
     result[facetKey] = primaryValues;
   }
@@ -109,6 +121,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to PUBLIC_LICENSES for when the filter is applied
           item.fq = PUBLIC_LICENSES;
+          item.iconClass = 'accessibility-public';
         } else if (item.key === FacetAccessibilityTypes.onsite) {
           // "Onsite" count from facet.query for ONSITE_LICENSES
           if (facetQueries && ONSITE_LICENSES.length > 0) {
@@ -118,6 +131,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to ONSITE_LICENSES for when the filter is applied
           item.fq = ONSITE_LICENSES;
+          item.iconClass = 'accessibility-in_library';
         } else if (item.key === FacetAccessibilityTypes.afterLogin) {
           // "After Login" count from facet.query for AFTER_LOGIN_LICENSES
           if (facetQueries && AFTER_LOGIN_LICENSES.length > 0) {
@@ -127,6 +141,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to AFTER_LOGIN_LICENSES for when the filter is applied
           item.fq = AFTER_LOGIN_LICENSES;
+          item.iconClass = 'accessibility-private';
         }
       }
 
@@ -134,6 +149,7 @@ export function handleFacetsWithOperators(
         ...item,
         count,
         type: item.type ?? FacetElementType.checkbox,
+        iconClass: item.iconClass
       };
     });
 

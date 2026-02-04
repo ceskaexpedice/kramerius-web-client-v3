@@ -25,6 +25,7 @@ export class FilterItemComponent {
   @Input() checked = false;
   @Input() icon: string | null = null;
   @Input() disabled = false;
+  @Input() itemIconClass?: string;
   @Output() toggled = new EventEmitter<void>();
 
   get isImageIcon(): boolean {
