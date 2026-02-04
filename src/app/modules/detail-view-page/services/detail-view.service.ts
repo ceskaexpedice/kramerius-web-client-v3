@@ -166,6 +166,10 @@ export class DetailViewService {
     return this._articles().length;
   }
 
+  get isPdf(): boolean {
+    return this.document?.pdf || this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/pdf');
+  }
+
   get viewerMode() {
     return this._viewerMode();
   }
@@ -327,11 +331,8 @@ export class DetailViewService {
         this._currentArticleIndex.set(articleIndex);
       }
     } else {
-      console.log('checkAndSetCurrentArticleFromUrl - no article param');
-      console.log('pages::', this.pages);
-      console.log('articles::', this.articles);
-      // Auto-select first article if articles exist
-      if (this._articles().length > 0) {
+      // Auto-select first article only if isPdf (document has PDF or pages have PDF mime type)
+      if (this._articles().length > 0 && this.isPdf) {
         this._currentArticleIndex.set(0);
         this.router.navigate([], {
           relativeTo: this.route,

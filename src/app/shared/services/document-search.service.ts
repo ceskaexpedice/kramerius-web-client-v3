@@ -346,7 +346,7 @@ export class DocumentSearchService {
       return {
         pid: r.pid,
         highlightedText: r.highlightedText,
-        pageNumber: page['page.number']
+        pageNumber: page['page.number'] !== undefined ? page['page.number'] : undefined
       };
     });
 

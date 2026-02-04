@@ -92,13 +92,13 @@
   <ng-container left-sidebar>
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
-      <!-- PDF Sidebar for PDF documents -->
-      <ng-container *ngIf="document.pdf">
+      <!-- PDF Sidebar for PDF documents that are not articles -->
+      <ng-container *ngIf="document.pdf && document.model !== DocumentTypeEnum.article">
         <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <!-- Document Sidebar for non-PDF documents -->
-      <ng-container *ngIf="!document.pdf">
+      <!-- Document Sidebar for non-PDF documents or PDF articles -->
+      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
         <app-document-sidebar [document]="document"></app-document-sidebar>
       </ng-container>
 
@@ -147,15 +147,15 @@
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
         <div class="detail-view--page--content--wrapper"
-          [class.pdf-document]="document.pdf || (articleMetadata$ | async)?.pdf"
+          [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
           <!-- Wait for page info to be loaded -->
-         @if ((checkState === 'INITIAL' || checkState === 'LOADING') && !(document.pdf || (articleMetadata$ | async)?.pdf)) {
+         @if ((checkState === 'INITIAL' || checkState === 'LOADING') && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
          <app-inline-loader [overlay]="true"></app-inline-loader>
-          } @else if (!documentInfoService.canAccessDocument() && !(document.pdf || (articleMetadata$ | async)?.pdf)) {
+          } @else if (!documentInfoService.canAccessDocument() && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
           <!-- Show access denied component if user cannot access -->
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
@@ -168,7 +168,7 @@
           } @else {
 
           <!-- Fallback to document/page viewer when no article -->
-          @if (document.pdf) {
+          @if (detailViewService.isPdf) {
           <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
           } @else {
           <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
@@ -179,7 +179,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || document.pdf || (articleMetadata$ | async)?.pdf)) {
+        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
         <button class="floating-sidebar-toggle button outlined tertiary with-icon"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
@@ -188,8 +188,8 @@
         }
 
         <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument() || document.pdf || (articleMetadata$ | async)?.pdf) {
-        @if (document.pdf || (articleMetadata$ | async)?.pdf) {
+        @if (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+        @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>
         }

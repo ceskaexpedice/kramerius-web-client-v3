@@ -76,7 +76,7 @@
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>
       } @else {
-        @if (hasArticles) {
+        @if (detailViewService.isPdf) {
           <app-detail-articles-list></app-detail-articles-list>
         } @else {
           <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>

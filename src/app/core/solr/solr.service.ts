@@ -948,7 +948,7 @@ export class SolrService {
     let httpParams = new HttpParams({
       fromObject: {
         q: query,
-        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors',
+        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors,ds.img_full.mime',
         rows: '10000',
         sort
       }
@@ -1135,8 +1135,10 @@ export class SolrService {
         if (response.highlighting) {
           Object.entries(response.highlighting).forEach(([pid, highlightData]: [string, any]) => {
             if (highlightData.text_ocr && highlightData.text_ocr.length > 0) {
+
+              const extractedPid = pid.includes('!') ? pid.split('!')[1] : pid;
               results.push({
-                pid: pid,
+                pid: extractedPid,
                 highlightedText: highlightData.text_ocr[0] // Get first snippet
               });
             }
