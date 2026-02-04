@@ -20,7 +20,9 @@
   aspect-ratio: var(--card-width) / var(--card-height);
 
   &:hover {
-    border: 1px solid var(--color-border-contrast);
+    border: 1px solid var(--color-border-primary-default);
+    box-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
+    text-decoration: none;
 
     .record-item-card__image>.record-item-card__actions {
       opacity: 1;
