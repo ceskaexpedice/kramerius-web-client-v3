@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnDestroy, OnInit, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -16,7 +16,7 @@ import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
-import {getLocalizedField} from '../../utils/language-utils';
+import { getLocalizedField } from '../../utils/language-utils';
 
 @Component({
   selector: 'app-record-item',
@@ -52,6 +52,7 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
   @Input() loading = false;
 
   imageLoaded = signal<boolean>(false);
+  imageError = signal<boolean>(false);
 
 
   @Input() item: RecordItem | null | undefined = {
@@ -88,6 +89,7 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
     if (changes['loading']) {
       if (this.loading) {
         this.imageLoaded.set(false);
+        this.imageError.set(false);
       }
     }
 
@@ -97,16 +99,19 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
 
       if (curr && (!prev || prev.id !== curr.id)) {
         this.imageLoaded.set(false);
+        this.imageError.set(false);
       }
     }
   }
 
   onImageLoad() {
     this.imageLoaded.set(true);
+    this.imageError.set(false);
   }
 
   onImageError() {
     this.imageLoaded.set(true);
+    this.imageError.set(true);
   }
 
   onRecordClick(e: MouseEvent): void {

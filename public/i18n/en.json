@@ -51,7 +51,7 @@
   "sort-alphabetical": "Alphabetical",
   "sort-date-newest": "Date (newest)",
   "sort-date-oldest": "Date (oldest)",
-  "paginator-page-size": "Number of results per page",
+  "paginator-page-size": "Max. results per page",
   "search-images-by-title": "Explore images by title",
   "search-image-button": "Search images",
   "filter-all": "All",

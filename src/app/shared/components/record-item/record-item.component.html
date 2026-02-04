@@ -3,9 +3,9 @@
   [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="selectionService.selectionMode()"
   [class.selected]="item && selectionService.selectionMode() && selectionService.isSelected(item.id)"
   [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'"
-  [class.variant-author]="variant === 'author'"
-  [ngClass]="[item?.className || '', item?.model || '']" [href]="loading || !item ? null : getDocumentUrl()"
-  [attr.aria-label]="loading || !item ? null : getTitle()" (click)="!loading && item && onRecordClick($event)">
+  [class.variant-author]="variant === 'author'" [ngClass]="[item?.className || '', item?.model || '']"
+  [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
+  (click)="!loading && item && onRecordClick($event)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="selectionService.selectionMode() && !loading && item">
@@ -16,14 +16,15 @@
 
   <div class="record-item-card__inner">
 
-    <div class="record-item-card__image" [class.skeleton-active]="loading || !item || !imageLoaded()">
+    <div class="record-item-card__image"
+      [class.skeleton-active]="(loading || !item || !imageLoaded()) && !imageError()">
 
-      <div class="skeleton skeleton-image" *ngIf="loading || !item || !imageLoaded()">
+      <div class="skeleton skeleton-image" *ngIf="(loading || !item || !imageLoaded()) && !imageError()">
         <i class="icon-gallery"></i>
       </div>
 
-      <img *ngIf="!loading && item" [src]="getImageThumbnailUrl()" (load)="onImageLoad()" (error)="onImageError()"
-        class="real-image" [class.hidden]="!imageLoaded()" alt="">
+      <img *ngIf="!loading && item && !imageError()" [src]="getImageThumbnailUrl()" (load)="onImageLoad()"
+        (error)="onImageError()" class="real-image" [class.hidden]="!imageLoaded()" alt="">
 
       @if (!loading && item?.model) {
       <div class="record-item-card__actions">
@@ -88,7 +89,7 @@
       }
 
       @if (!loading && item?.model === DocumentTypeEnum.collection ) {
-        <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
+      <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
       }
 
     </div>
