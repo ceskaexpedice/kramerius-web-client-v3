@@ -351,7 +351,7 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
 
@@ -394,7 +394,7 @@ export class SolrService {
   }
 
   searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
     console.log('solr search periodicals')
 
@@ -453,7 +453,7 @@ export class SolrService {
     includePeriodicalItem = false,
     includePage = false,
     facetFields: string[] = DEFAULT_FACET_FIELDS,
-    availabilityFilter?: { isActive: boolean, licenses: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<SearchResultResponse> {
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
@@ -498,7 +498,7 @@ export class SolrService {
     advancedQuery?: string,
     includePeriodicalItem = false,
     includePage = false,
-    availabilityFilter?: { isActive: boolean, licenses: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<SearchResultResponse> {
     const filtersByField = this.groupFiltersByField(filters);
 
@@ -519,9 +519,9 @@ export class SolrService {
     params = params.append('facet.query', '{!ex=avail}*:*');
 
     // 2. "Available only" count - query for user's accessible licenses
-    if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
-      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `(${licenseClauses})`);
+    if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+      const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
     // 3. "Public" count - query for PUBLIC_LICENSES
@@ -554,7 +554,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -580,9 +580,9 @@ export class SolrService {
     params = params.append('facet.query', '{!ex=avail}*:*');
 
     // 2. "Available only" count - query for user's accessible licenses
-    if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
-      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `(${licenseClauses})`);
+    if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+      const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
     // 3. "Public" count - query for PUBLIC_LICENSES
@@ -629,7 +629,7 @@ export class SolrService {
     facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
     facetOperators: { [field: string]: SolrOperators } = {},
     advancedQuery?: string,
-    availabilityFilter?: { isActive: boolean, licenses: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<SearchResultResponse> {
 
     console.log('getPeriodicalChildrenFacets', parentPid, model);
@@ -650,9 +650,9 @@ export class SolrService {
     params = params.append('facet.query', '{!ex=avail}*:*');
 
     // 2. "Available only" count - query for user's accessible licenses
-    if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
-      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `(${licenseClauses})`);
+    if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+      const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
     // 3. "Public" count - query for PUBLIC_LICENSES
@@ -876,7 +876,7 @@ export class SolrService {
 
   getPeriodicalVolumes(pid: string,
     filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
-    advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[] }
+    advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
 
@@ -909,7 +909,7 @@ export class SolrService {
     sortBy: SolrSortFields = SolrSortFields.dateMin,
     sortDirection: SolrSortDirections = SolrSortDirections.asc,
     advancedQuery?: string,
-    availabilityFilter?: { isActive: boolean, licenses: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(
       pid,
@@ -938,7 +938,7 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}, availabilityFilter?: { isActive: boolean, licenses: string[] }): Observable<any> {
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<any> {
     let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
 
     if (model) {
@@ -966,9 +966,9 @@ export class SolrService {
       httpParams = httpParams.append('facet.query', '{!ex=avail}*:*');
 
       // 2. "Available only" count - query for user's accessible licenses
-      if (availabilityFilter?.licenses && availabilityFilter.licenses.length > 0) {
-        const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `(${licenseClauses})`);
+      if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+        const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        httpParams = httpParams.append('facet.query', `{!ex=avail}(${licenseClauses})`);
       }
 
       // 3. "Public" count - query for PUBLIC_LICENSES

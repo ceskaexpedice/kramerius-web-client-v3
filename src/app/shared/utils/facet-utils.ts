@@ -107,7 +107,7 @@ export function handleFacetsWithOperators(
           // Find the facet.query key that matches the user's licenses query
           if (facetQueries && userLicenses.length > 0) {
             const licenseClauses = userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-            const availableCountKey = `(${licenseClauses})`;
+            const availableCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[availableCountKey] ?? 0;
           }
           // Set fq to user's licenses for when the filter is applied

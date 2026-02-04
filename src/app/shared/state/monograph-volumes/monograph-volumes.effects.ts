@@ -30,7 +30,8 @@ export class MonographVolumesEffects {
         // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
           isActive: this.customSearchService.isAvailabilityFilterActive(),
-          licenses: this.customSearchService.getUserAvailableLicenses()
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
         };
 
         console.log('Effect - Loading volumes with filters:', filters);

@@ -114,7 +114,8 @@ export class PeriodicalDetailEffects {
         // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
           isActive: this.customSearchService.isAvailabilityFilterActive(),
-          licenses: this.customSearchService.getUserAvailableLicenses()
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
         };
 
         // Function to load facets independently

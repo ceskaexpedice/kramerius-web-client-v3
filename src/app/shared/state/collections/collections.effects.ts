@@ -69,10 +69,10 @@ export class CollectionsEffects {
         includePage,
       }, currentFacets, facetOperators]) => {
 
-        // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
           isActive: this.customSearchService.isAvailabilityFilterActive(),
-          licenses: this.customSearchService.getUserAvailableLicenses()
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
         };
 
         const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
@@ -197,8 +197,6 @@ export class CollectionsEffects {
       ofType(loadCollectionFacet),
       withLatestFrom(this.store.select(selectCollectionFacets)),
       switchMap(([{ uuid, query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
-        // TODO: Implement loadFacet for collections if needed
-        // For now, return empty array
         return of(loadCollectionFacetSuccess({ facet, items: [] }));
       }),
     ),

@@ -94,14 +94,14 @@ export const customDefinedFacets = [
         count: 0,
         type: FacetElementType.radio,
       },
-      // {
-      //   key: FacetAccessibilityTypes.available,
-      //   fq: [],
-      //   name: `${FacetAccessibilityTypes.available}`,
-      //   label: 'custom-accessibility--available',
-      //   count: 0,
-      //   type: FacetElementType.radio,
-      // },
+      {
+        key: FacetAccessibilityTypes.available,
+        fq: [],
+        name: `${FacetAccessibilityTypes.available}`,
+        label: 'custom-accessibility--available',
+        count: 0,
+        type: FacetElementType.radio,
+      },
       {
         key: FacetAccessibilityTypes.public,
         fq: [],

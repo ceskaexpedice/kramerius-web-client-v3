@@ -38,7 +38,8 @@ export class PeriodicalSearchEffects {
         // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
           isActive: this.customSearchService.isAvailabilityFilterActive(),
-          licenses: this.customSearchService.getUserAvailableLicenses()
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
         };
 
         const results$ = this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false, availabilityFilter).pipe(
