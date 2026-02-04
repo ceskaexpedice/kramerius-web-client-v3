@@ -1,4 +1,4 @@
-import {DocumentTypeEnum} from '../../../modules/constants/document-type';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 
 /**
  * Simplified model for RecordItemComponent
@@ -42,6 +42,21 @@ export interface RecordItem {
   showAccessibilityBadge?: boolean;
 
   monographUnitCount?: number;
+
+  /** Custom image URL for local items */
+  imageUrl?: string;
+
+  /** External URL for local items */
+  externalUrl?: string;
+
+  /** Description for local items */
+  description?: string;
+
+  'collection.desc'?: string[];
+  'collection.desc_cze'?: string[];
+  'collection.desc_eng'?: string[];
+  'collection.desc_pol'?: string[];
+  'collection.desc_slo'?: string[];
 }
 
 /**
@@ -53,7 +68,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     title: getDocumentTitle(doc),
     subtitle: getDocumentSubtitle(doc),
     model: (doc.model as DocumentTypeEnum) || '',
-    licenses: doc.containsLicenses || doc.licenses || [],
+    licenses: doc.containsLicenses || doc.licenses || doc['licenses.facet'] || [],
     authors: doc.authors,
     date: doc.date,
     ownParentPid: doc.ownParentPid,
@@ -62,6 +77,12 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     showFavoriteButton: true,
     showAccessibilityBadge: true,
     monographUnitCount: doc.monographUnitCount || 0,
+
+    'collection.desc': doc['collection.desc'] || [],
+    'collection.desc_cze': doc['collection.desc_cze'] || [],
+    'collection.desc_eng': doc['collection.desc_eng'] || [],
+    'collection.desc_pol': doc['collection.desc_pol'] || [],
+    'collection.desc_slo': doc['collection.desc_slo'] || [],
   };
 }
 
@@ -71,9 +92,9 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
 function getDocumentTitle(doc: any): string {
   switch (doc.model) {
     case DocumentTypeEnum.monograph:
-      return doc.title || '';
+      return doc.title || doc['title.search'] || doc.rootTitle || '';
     case DocumentTypeEnum.monographunit:
-      return doc.title || doc.rootTitle || doc['title.search'] ;
+      return doc.title || doc.rootTitle || doc['title.search'];
     case DocumentTypeEnum.periodical:
     case DocumentTypeEnum.periodicalvolume:
     case DocumentTypeEnum.page:
@@ -101,8 +122,6 @@ function getDocumentSubtitle(doc: any): string {
 
 export function isDocumentPublic(licenses: string[], userLicenses: string[]) {
   // if there is some license in userLicenses that is in licenses, return true
-  console.log('licenses', licenses);
-  console.log('userLicenses', userLicenses);
   return userLicenses.some(userLicense => licenses.includes(userLicense));
 }
 

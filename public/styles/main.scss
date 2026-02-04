@@ -10,6 +10,7 @@
 @use "./_badge";
 @use "./_dialog";
 @use "./_grid";
+@use "./_carousel";
 @use "./_page-layout";
 @use "./_sidebar";
 @use "./_icons";
@@ -18,7 +19,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-family-primary);
   background-color: var(--color-bg-light);
   color: var(--color-text-secondary);
 }

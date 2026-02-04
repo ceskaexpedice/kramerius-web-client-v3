@@ -1,11 +1,12 @@
-import {SolrOperators} from '../../core/solr/solr-helpers';
-import {FacetItem} from '../../modules/models/facet-item';
-import {SolrResponseParser} from '../../core/solr/solr-response-parser';
+import { SolrOperators } from '../../core/solr/solr-helpers';
+import { FacetItem } from '../../modules/models/facet-item';
+import { SolrResponseParser } from '../../core/solr/solr-response-parser';
 import {
   customDefinedFacets,
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
 } from '../../modules/search-results-page/const/facets';
+import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
 
 export function handleFacetsWithOperators(
   searchFacets: Record<string, any[]>,
@@ -13,11 +14,12 @@ export function handleFacetsWithOperators(
   facetOperators: Record<string, SolrOperators>,
   unfilteredFacets: Record<string, any[]> = {},
   userLicenses: string[] = [],
-  numFound?: number
+  numFound?: number,
+  filters?: any,
+  facetQueries?: Record<string, number>
 ): Record<string, FacetItem[]> {
   const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
   const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
-  const parsedUnfilteredFacets = SolrResponseParser.parseAllFacets(unfilteredFacets);
 
   const result: Record<string, FacetItem[]> = {};
   const allFacetKeys = new Set([
@@ -41,50 +43,113 @@ export function handleFacetsWithOperators(
       }
     });
 
+    if (facetKey === facetKeysEnum.license) {
+      primaryValues.forEach(item => {
+        if (PUBLIC_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-public';
+        } else if (ONSITE_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-in_library';
+        } else if (AFTER_LOGIN_LICENSES.includes(item.name)) {
+          item.iconClass = 'accessibility-private';
+        }
+      });
+    }
+
     result[facetKey] = primaryValues;
+  }
+
+  // Extract active root.model filters from the filters array (these are external filters from custom-root-model)
+  const activeRootModelFilters: string[] = [];
+  if (filters && Array.isArray(filters)) {
+    filters.forEach((filter: string) => {
+      if (filter.startsWith(`${facetKeysEnum.rootModel}:`)) {
+        const value = filter.split(':')[1]?.replace(/"/g, '');
+        if (value) {
+          activeRootModelFilters.push(value);
+        }
+      }
+    });
   }
 
   for (const custom of customDefinedFacets) {
     const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
       const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
       let count = 0;
-      
+
       // Only calculate count for custom facets that have a corresponding Solr facet
       if (custom.solrFacetKeyForCount) {
-        count = fqList.reduce((sum: number, fq: any) => {
-          return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
-        }, 0);
+        // For whereToSearchModel facet, check if there are active root.model filters (from custom-root-model)
+        if (custom.facetKey === customDefinedFacetsEnum.whereToSearchModel && activeRootModelFilters.length > 0) {
+          // Only sum counts for models that are both in the item's fq list AND in root.model filters
+          const relevantModels = fqList.filter((fq: string) => activeRootModelFilters.includes(fq));
+          if (relevantModels.length > 0) {
+            count = relevantModels.reduce((sum: number, fq: any) => {
+              return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+            }, 0);
+          }
+          // If no overlap between item's fq and root.model filters, count stays 0
+        } else {
+          // Default behavior: sum all models in fqList
+          count = fqList.reduce((sum: number, fq: any) => {
+            return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+          }, 0);
+        }
       }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
-        const licenses = result[facetKeysEnum.license] || [];
-        const modelsUnfiltered = parsedUnfilteredFacets[facetKeysEnum.model] || [];
-
         if (item.key === FacetAccessibilityTypes.all) {
-          count = modelsUnfiltered.reduce((sum, model) => sum + model.count, 0);
-
-          // if we dont have any modelsUnfiltered, we can use the count from the licenses
-          if (modelsUnfiltered.length === 0) {
-            count = licenses.reduce((sum, lic) => sum + lic.count, 0);
-
-            // if still no count and numFound is provided, use numFound as final fallback
-            if (count === 0 && numFound !== undefined) {
-              count = numFound;
-            }
-          }
+          // "All" count from facet.query that excludes availability filter (tagged with avail)
+          // This respects user-selected license filters but ignores the availability toggle
+          const allCountKey = '{!ex=avail}*:*';
+          count = facetQueries?.[allCountKey] ?? numFound ?? 0;
         } else if (item.key === FacetAccessibilityTypes.available) {
+          // "Available only" count from facet.query for user's accessible licenses
+          // Find the facet.query key that matches the user's licenses query
+          if (facetQueries && userLicenses.length > 0) {
+            const licenseClauses = userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const availableCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[availableCountKey] ?? 0;
+          }
+          // Set fq to user's licenses for when the filter is applied
           item.fq = userLicenses;
-          count = userLicenses.reduce((sum, lic) => {
-            return sum + (licenses.find(f => f.name === lic)?.count || 0);
-          }, 0);
+        } else if (item.key === FacetAccessibilityTypes.public) {
+          // "Public" count from facet.query for PUBLIC_LICENSES
+          if (facetQueries && PUBLIC_LICENSES.length > 0) {
+            const licenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const publicCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[publicCountKey] ?? 0;
+          }
+          // Set fq to PUBLIC_LICENSES for when the filter is applied
+          item.fq = PUBLIC_LICENSES;
+          item.iconClass = 'accessibility-public';
+        } else if (item.key === FacetAccessibilityTypes.onsite) {
+          // "Onsite" count from facet.query for ONSITE_LICENSES
+          if (facetQueries && ONSITE_LICENSES.length > 0) {
+            const licenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const onsiteCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[onsiteCountKey] ?? 0;
+          }
+          // Set fq to ONSITE_LICENSES for when the filter is applied
+          item.fq = ONSITE_LICENSES;
+          item.iconClass = 'accessibility-in_library';
+        } else if (item.key === FacetAccessibilityTypes.afterLogin) {
+          // "After Login" count from facet.query for AFTER_LOGIN_LICENSES
+          if (facetQueries && AFTER_LOGIN_LICENSES.length > 0) {
+            const licenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+            const afterLoginCountKey = `{!ex=avail}(${licenseClauses})`;
+            count = facetQueries[afterLoginCountKey] ?? 0;
+          }
+          // Set fq to AFTER_LOGIN_LICENSES for when the filter is applied
+          item.fq = AFTER_LOGIN_LICENSES;
+          item.iconClass = 'accessibility-private';
         }
-
       }
 
       return {
         ...item,
         count,
         type: item.type ?? FacetElementType.checkbox,
+        iconClass: item.iconClass
       };
     });
 

@@ -83,6 +83,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   constructor() {
   }
 
+  private resizeObserver: ResizeObserver | null = null;
+
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
 
@@ -95,12 +97,15 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     this.subscriptions.push(
       this.iiifViewerService.selectedArea$.subscribe(rect => {
+        console.log('rect', rect)
         this.ngZone.run(() => {
           if (rect) {
             this.showSelectionControls = true;
             this.updateSelectionControlsPosition(rect);
           } else {
             this.showSelectionControls = false;
+            this.selectionRect = null;
+            this.currentImageRect = null;
           }
           this.cdr.detectChanges();
         });
@@ -137,7 +142,23 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.initializeViewer();
+    // Check if container has dimensions
+    if (this.viewerContainer.nativeElement.offsetHeight > 0 && this.viewerContainer.nativeElement.offsetWidth > 0) {
+      this.initializeViewer();
+    } else {
+      console.log('Viewer container has no dimensions, waiting for resize...');
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+            console.log('Viewer container resized, initializing viewer');
+            this.initializeViewer();
+            this.resizeObserver?.disconnect();
+            this.resizeObserver = null;
+          }
+        }
+      });
+      this.resizeObserver.observe(this.viewerContainer.nativeElement);
+    }
 
     // Set the fullscreen component reference in the service after view is initialized
     this.iiifViewerService.setFullscreenComponent(() => this.fullscreenComponent);
@@ -145,6 +166,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
 
     // Clean up native touch event listeners
     if (this.viewerContainer?.nativeElement) {

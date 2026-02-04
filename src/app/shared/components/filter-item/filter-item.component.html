@@ -1,29 +1,21 @@
 <label class="form-control">
 
-  <mat-checkbox
-    [checked]="checked"
-    [disabled]="disabled"
-    (change)="toggled.emit()"
-    color="tertiary"
-  >
-    <label
-      [class.checked]="checked"
-      (click)="toggled.emit()"
-      *ngIf="label | translate as translatedLabel">{{ truncateLabel ? ((label | translate).length > 15 ? ((label | translate).slice(0, 15) + '...') : (label | translate)) : (label | translate) }}</label>
+  <mat-checkbox [checked]="checked" [disabled]="disabled" (change)="toggled.emit()" color="tertiary">
+    <label [class.checked]="checked" (click)="toggled.emit()" *ngIf="label | translate as translatedLabel">{{
+      truncateLabel ? ((label | translate).length > 15 ? ((label | translate).slice(0, 15) + '...') : (label |
+      translate)) : (label | translate) }}</label>
 
-    <span class="count"
-      [class.checked]="checked"
-    >({{ count | formatNumber }})</span>
+    <span class="count" [class.checked]="checked">({{ count | formatNumber }})</span>
   </mat-checkbox>
 
   @if (icon) {
-    <span class="icon" [class.icon--flag]="isImageIcon">
-      @if (isImageIcon) {
-        <img [src]="icon" [alt]="label" class="flag-icon flag rounded">
-      } @else {
-        <i [ngClass]="icon"></i>
-      }
-    </span>
+  <span class="icon" [class.icon--flag]="isImageIcon" [class.active]="checked">
+    @if (isImageIcon) {
+    <img [src]="icon" [alt]="label" class="flag-icon flag rounded">
+    } @else {
+    <i [ngClass]="[icon, itemIconClass || '']"></i>
+    }
+  </span>
   }
 
 </label>

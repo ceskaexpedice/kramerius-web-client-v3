@@ -4,6 +4,6 @@
 .record-item-card.card--fluid {
   width: 100%;
   max-width: 100%;
-  min-width: 170px;
+  min-width: var(--card-min-width);
   box-sizing: border-box;
 }

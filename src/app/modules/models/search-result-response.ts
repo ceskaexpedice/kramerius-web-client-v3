@@ -8,6 +8,9 @@ export interface SearchResultResponse {
     facet_fields: {
       [field: string]: (string | number)[];
     };
+    facet_queries?: {
+      [query: string]: number;
+    };
   };
   highlighting?: {
     [docId: string]: {

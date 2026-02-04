@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../components/input/input.component';
 import { ImagePreviewService } from '../../services/image-preview.service';
 import { EnvironmentService } from '../../services/environment.service';
-import {BreakpointService} from '../../services/breakpoint.service';
+import { BreakpointService } from '../../services/breakpoint.service';
 
 export interface PageSelectionDialogData {
     pages: Page[];
@@ -79,6 +79,10 @@ export class PageSelectionDialogComponent {
                 this.pageRangeInput.set(rangeString);
             }
         }, { allowSignalWrites: true });
+        
+        effect(() => {
+            this.dialogRef.disableClose = this.imagePreviewService.isOpen();
+        });
     }
 
     /**

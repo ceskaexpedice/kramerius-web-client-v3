@@ -1,5 +1,5 @@
 <app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true" [showRightSidebar]="true"
-                   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <!--  <ng-container left-sidebar>-->
 
@@ -92,13 +92,13 @@
   <ng-container left-sidebar>
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
-      <!-- PDF Sidebar for PDF documents -->
-      <ng-container *ngIf="document.pdf">
+      <!-- PDF Sidebar for PDF documents that are not articles -->
+      <ng-container *ngIf="document.pdf && document.model !== DocumentTypeEnum.article">
         <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <!-- Document Sidebar for non-PDF documents -->
-      <ng-container *ngIf="!document.pdf">
+      <!-- Document Sidebar for non-PDF documents or PDF articles -->
+      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
         <app-document-sidebar [document]="document"></app-document-sidebar>
       </ng-container>
 
@@ -110,34 +110,31 @@
       <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical">
         <div class="max-width-100" left>
           <app-toolbar-header [title]="document?.mainTitle || ''"
-                              [showBackButton]="recordHandler.shouldShowBackButton(document)"
-                              (titleClick)="recordHandler.clickedToolbarTitle(document.model, document.rootPid)"
-                              (goBack)="recordHandler.goBackClicked(document)">
+            [showBackButton]="recordHandler.shouldShowBackButton(document)"
+            (titleClick)="recordHandler.clickedToolbarTitle(document.model, document.rootPid)"
+            (goBack)="recordHandler.goBackClicked(document)">
           </app-toolbar-header>
         </div>
         <div center>
           <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
             <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="true"
-                                [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
-                                (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-                                (goToNext)="detailViewService.goToNextPeriodicalIssue()"
-                                (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
+              [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
+              (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+              (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+              (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
             </app-date-navigator>
           </ng-container>
         </div>
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-                                  [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true"
-                                  [showQuote]="true"
-                                  [showInfo]="false" [showEdit]="true"
-                                  (infoClicked)="detailViewService.openRecordInfo()"
-                                  [activeViewValue]="detailViewService.soundRecordingViewMode()"
-                                  (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
-                                  (editClicked)="selectionService.toggleSelectionMode()"
-                                  (favoritesClicked)="onFavoritesClicked($event)"
-                                  (shareClicked)="recordHandler.openShareDialog(document)"
-                                  (quoteClicked)="recordHandler.openCitationDialog(document)">
+              [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
+              [showInfo]="false" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
+              [activeViewValue]="detailViewService.soundRecordingViewMode()"
+              (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+              (editClicked)="selectionService.toggleSelectionMode()" (favoritesClicked)="onFavoritesClicked($event)"
+              (shareClicked)="recordHandler.openShareDialog(document)"
+              (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
           </div>
         </div>
@@ -150,52 +147,69 @@
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body">
         <div class="detail-view--page--content--wrapper"
-             [class.pdf-document]="document.pdf || (articleMetadata$ | async)?.pdf"
-             [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
+          [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
+          [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
+          <!-- Check if user has access to the document -->
+          @let checkState = documentInfoService.state();
+          <!-- Wait for page info to be loaded -->
+         @if ((checkState === 'INITIAL' || checkState === 'LOADING') && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
+         <app-inline-loader [overlay]="true"></app-inline-loader>
+          } @else if (!documentInfoService.canAccessDocument() && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
+          <!-- Show access denied component if user cannot access -->
+          <app-document-access-denied [metadata]="document"
+            [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
+          </app-document-access-denied>
+          } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
           @let articleMetadata = articleMetadata$ | async;
           @if (articleMetadata) {
-            <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
+          <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
           } @else {
 
-            <!-- Fallback to document/page viewer when no article -->
-            @if (document.pdf) {
-              <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
-            } @else {
-              <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-                               [metadata]="document" [imagePid]="detailViewService.currentPagePid">
-              </app-iiif-viewer>
-            }
+          <!-- Fallback to document/page viewer when no article -->
+          @if (detailViewService.isPdf) {
+          <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+          } @else {
+          <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+            [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+          </app-iiif-viewer>
+          }
+          }
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible) {
-          <button class="floating-sidebar-toggle button outlined tertiary with-icon"
-                  (click)="detailViewService.showMetadataSidebar()">
-            <i class="icon-sidebar-bottom"></i>
-            {{ 'show--metadata-sidebar' | translate }}
-          </button>
+        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
+        <button class="floating-sidebar-toggle button outlined tertiary with-icon"
+          (click)="detailViewService.showMetadataSidebar()">
+          <i class="icon-sidebar-bottom"></i>
+          {{ 'show--metadata-sidebar' | translate }}
+        </button>
         }
 
-        <!-- Viewer controls for both PDF and IIIF viewers -->
-        @if (document.pdf || (articleMetadata$ | async)?.pdf) {
-          @if (!(pdfService.properties$ | async)?.fullscreen) {
-            <app-viewer-controls type="pdf"></app-viewer-controls>
-          }
+        <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
+        @if (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+        @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+        @if (!(pdfService.properties$ | async)?.fullscreen) {
+        <app-viewer-controls type="pdf"></app-viewer-controls>
+        }
         } @else {
-          @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
-            <app-viewer-controls type="image"></app-viewer-controls>
-          }
+        @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+        <app-viewer-controls type="image"></app-viewer-controls>
+        }
 
-          @if (iiifViewerService.isSelectionMode$ | async) {
-            <div class="selection-mode-info">
-              <span>{{ 'select-area-drag' | translate }}</span>
-              <button class="button danger small" (click)="iiifViewerService.setSelectionMode(false)">
-                {{ 'cancel' | translate }}
-              </button>
-            </div>
+        @if (iiifViewerService.isSelectionMode$ | async) {
+          @let isDragging = iiifViewerService.isDragging$ | async;
+          @let hasSelection = iiifViewerService.selectedArea$ | async;
+          @if (!isDragging) {
+            <app-selection-mode-info
+              [hasSelection]="!!hasSelection"
+              (editSelection)="iiifViewerService.clearSelectedArea()"
+              (cancelSelection)="iiifViewerService.setSelectionMode(false)">
+            </app-selection-mode-info>
           }
+        }
+        }
         }
       </div>
     </ng-container>
@@ -204,7 +218,7 @@
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-metadata-sidebar [metadata]="document" mode="floating"
-                            [tools]="{search: true, export: true, description: true}">
+        [tools]="{search: true, export: true, description: true}">
       </app-metadata-sidebar>
     </ng-container>
   </ng-container>
@@ -216,11 +230,10 @@
 </app-detail-layout>
 
 @if (favoritesHelper.favoritesPopupState.showPopup()) {
-  <div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
-    <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
-                         [showHierarchySelector]="favoritesHelper.showHierarchySelector()"
-                         [document]="detailViewService.document$ | async"
-                         (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
-    </app-favorites-popup>
-  </div>
+<div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+  <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
+    [showHierarchySelector]="favoritesHelper.showHierarchySelector()" [document]="detailViewService.document$ | async"
+    (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
+  </app-favorites-popup>
+</div>
 }

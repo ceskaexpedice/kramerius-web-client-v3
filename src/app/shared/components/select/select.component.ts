@@ -196,7 +196,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   }
 
   private searchByCharacter(key: string) {
-    if (key.length !== 1 || !/^[a-z0-9]$/i.test(key)) return;
+    if (key.length !== 1 || !/^[\p{L}\p{N}]$/u.test(key)) return;
 
     this.searchBuffer += key.toLowerCase();
 

@@ -32,7 +32,7 @@ export class ExportDocumentSectionItemComponent {
   @Output() submit = new EventEmitter<string>();
   @Output() optionChange = new EventEmitter<string>();
 
-  selectedOption: string | null = null;
+  @Input() selectedOption: string | null = null;
 
   onSubmit() {
     if (this.selectedOption) {

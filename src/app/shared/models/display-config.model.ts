@@ -47,6 +47,7 @@ export interface FacetFilterConfig extends ConfigurableItem {
 export interface DisplayConfig {
   tableColumns: TableColumnConfig[];
   facetFilters?: FacetFilterConfig[];
+  defaultPageSize?: number;
 }
 
 /**

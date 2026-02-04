@@ -15,6 +15,7 @@ import {
   facetKeysEnum,
   facetKeysInfinityCount,
 } from '../../../modules/search-results-page/const/facets';
+import { LICENSES_ORDER } from '../../../core/solr/solr-misc';
 import { CustomSearchService } from '../../services/custom-search.service';
 import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-radio.component';
 import { RangeSliderComponent } from '../range-slider/range-slider.component';
@@ -134,6 +135,16 @@ export class FilterCategoryComponent implements OnChanges {
     // Special handling for 'model' facet - preserve original order
     if (this.facetKey === facetKeysEnum.model || this.facetKey === customDefinedFacetsEnum.model || this.facetKey === customDefinedFacetsEnum.accessibility || this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
       sorted = allItems; // Keep original order for model facet
+    } else if (this.facetKey === facetKeysEnum.license) {
+      // Sort licenses by LICENSES_ORDER
+      sorted = allItems.sort((a, b) => {
+        const aIndex = LICENSES_ORDER.indexOf(a.name);
+        const bIndex = LICENSES_ORDER.indexOf(b.name);
+        // If not in order list, put at the end
+        const aOrder = aIndex === -1 ? LICENSES_ORDER.length : aIndex;
+        const bOrder = bIndex === -1 ? LICENSES_ORDER.length : bIndex;
+        return aOrder - bOrder;
+      });
     } else {
       // For all other facets, sort with selected items first
       sorted = allItems.sort((a, b) => {
@@ -218,10 +229,13 @@ export class FilterCategoryComponent implements OnChanges {
 
   onRadioChange(value: string) {
     if (this.facetKey === customDefinedFacetsEnum.accessibility) {
-      if (value === 'all') {
+      if (value === FacetAccessibilityTypes.all) {
         this.customSearchService.removeAllFiltersByFacetKey(this.facetKey);
       } else {
-        this.onToggle(value);
+        // For radio buttons, we need to remove any existing selection first
+        // then add the new value
+        this.customSearchService.removeAllFiltersByFacetKey(this.facetKey);
+        this.customSearchService.addFilter(`${this.facetKey}:${value}`);
       }
     }
   }

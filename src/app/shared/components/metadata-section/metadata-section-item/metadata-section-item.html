@@ -8,14 +8,18 @@
     <p *ngIf="type === 'text' && value">{{ value | translate }}</p>
 
     <!-- List type: non-clickable vertical list -->
-    <ul *ngIf="type === 'list'">
-      <li *ngFor="let item of items">{{ getDisplayText(item) | translate }}</li>
+    <ul *ngIf="type === 'list'" [class.with-bullets]="showListBullets">
+      <li *ngFor="let item of items">
+        <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+        <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
+      </li>
     </ul>
 
     <!-- Clickable list type: vertical list with underlined clickable items -->
     <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
       <li *ngFor="let item of items" (click)="handleClick(item)" class="clickable">
-        {{ getDisplayText(item) | translate }}
+        <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+        <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
       </li>
     </ul>
 
@@ -32,9 +36,7 @@
       </li>
     </ul>
 
-    <ng-content
-      select="[metadata-section-item-content]"
-    ></ng-content>
+    <ng-content select="[metadata-section-item-content]"></ng-content>
 
   </div>
 

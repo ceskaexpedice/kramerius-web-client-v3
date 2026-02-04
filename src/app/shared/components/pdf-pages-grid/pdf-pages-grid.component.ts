@@ -1,6 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {PdfService} from '../../services/pdf.service';
 import {NgFor, NgIf} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export interface PdfPageThumbnail {
   pageNumber: number;
@@ -9,7 +10,7 @@ export interface PdfPageThumbnail {
 
 @Component({
   selector: 'app-pdf-pages-grid',
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, TranslatePipe],
   templateUrl: './pdf-pages-grid.component.html',
   styleUrl: './pdf-pages-grid.component.scss'
 })

@@ -275,7 +275,7 @@ export class AdvancedSearchService {
         });
 
       return parts.length > 0
-        ? `${parts.join(` ${group.operator} `)}`
+        ? `(${parts.join(` ${group.operator} `)})`
         : '';
     }).filter(Boolean);
 

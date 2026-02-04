@@ -1,77 +1,93 @@
-<h2>
-  {{ data.facetLabel | translate }}
-
-  <button class="button link tertiary icon-button close-button" (click)="close()">
+<div class="dialog-header">
+  <h2 class="dialog-title">{{ data.facetLabel | translate }}</h2>
+  <button class="close-button" (click)="close()" [attr.aria-label]="'close' | translate">
     <i class="icon-close"></i>
   </button>
-</h2>
-
-
-
-<div class="search-input">
-  <app-input
-    [placeholder]="'filter-dialog.search-placeholder' | translate"
-    [theme]="'light'"
-    [initialValue]="searchTerm()"
-    [showMicButton]="true"
-    [showHelpButton]="true"
-    [showSubmitButton]="true"
-    [changeMicToClearOnFocus]="true"
-    (valueChange)="onSearchTermChange($event.toString())"
-  />
 </div>
 
-<div class="filters--container">
-
-  <app-toggle-button-group
-    [options]="sortOptions"
-    [value]="sortBy()"
-    (valueChange)="setSort($event)"
-  />
-
-  <app-toggle-button-group
-    [options]="operatorOptions"
-    [value]="pendingOperator()"
-    (valueChange)="setOperator($event)"
-  />
-
-</div>
-
-<app-paginator-info
-  [page]="page"
-  [pageSize]="pageSize"
-  [totalCount]="totalCount">
-</app-paginator-info>
-
-<app-selected-tags
-  [items]="pendingFilterTags()"
-  [operators]="pendingOperators()"
-  [showOperators]="false"
-  [translateItems]="true"
-  (remove)="removePendingTag($event)"
-  (removeGroup)="clearPendingOperator()"
-  (clearAll)="clearPendingTags()"
-  clearButtonPosition="right">
-</app-selected-tags>
-
-<hr>
-
-<div class="facet-list">
-  <div *ngIf="loading()" class="loading">
-    {{ 'loading' | translate }}
+<div class="dialog-content">
+  <div class="search-input">
+    <app-input
+      [placeholder]="'filter-dialog.search-placeholder' | translate"
+      [theme]="'dark'"
+      [initialValue]="searchTerm()"
+      [showMicButton]="true"
+      [showHelpButton]="true"
+      [showSubmitButton]="true"
+      [changeMicToClearOnFocus]="true"
+      (valueChange)="onSearchTermChange($event.toString())"
+    />
   </div>
-  <label *ngFor="let item of items()" class="facet-item">
-    <mat-checkbox
-      [checked]="isSelectedFacetItem(item) | async"
-      (change)="toggle(item.name)"
-    ></mat-checkbox>
-    {{ item.name | translate }} ({{ item.count | formatNumber }})
-  </label>
+
+  <div class="controls-row">
+    <div class="filters--container">
+      <app-toggle-button-group
+        [options]="sortOptions"
+        [value]="sortBy()"
+        [size]="'sm'"
+        (valueChange)="setSort($event)"
+      />
+
+      <app-toggle-button-group
+        [options]="operatorOptions"
+        [size]="'sm'"
+        [value]="pendingOperator()"
+        (valueChange)="setOperator($event)"
+      />
+    </div>
+
+    <div class="info-row">
+      <app-paginator-info
+        [page]="page"
+        [pageSize]="pageSize"
+        [totalCount]="totalCount">
+      </app-paginator-info>
+
+<!--      <a class="help-link" href="javascript:void(0)">-->
+<!--        {{ 'filter-dialog.help' | translate }}-->
+<!--        <i class="icon-question"></i>-->
+<!--      </a>-->
+    </div>
+
+    <div class="selected-tags-section" *ngIf="pendingFilterTags().length > 0">
+      <app-selected-tags
+        [items]="pendingFilterTags()"
+        [operators]="pendingOperators()"
+        [showOperators]="false"
+        [translateItems]="true"
+        (remove)="removePendingTag($event)"
+        (removeGroup)="clearPendingOperator()"
+        (clearAll)="clearPendingTags()"
+        clearButtonPosition="right">
+      </app-selected-tags>
+    </div>
+
+      <hr>
+
+  </div>
+
+  <div class="facet-list-container">
+    <div *ngIf="loading()" class="loading">
+      {{ 'loading' | translate }}
+    </div>
+    <div class="facet-list">
+      <label *ngFor="let item of items()" class="facet-item" [class.selected]="pendingSelection().has(item.name)">
+        <mat-checkbox
+          [checked]="pendingSelection().has(item.name)"
+          (change)="toggle(item.name)"
+          class="p-left-0"
+        ></mat-checkbox>
+        <span class="facet-label">
+          <span class="facet-name">{{ item.name | translate }}</span>
+          <span class="facet-count">({{ item.count | formatNumber }})</span>
+        </span>
+      </label>
+    </div>
+    <div class="fade-overlay"></div>
+  </div>
 </div>
 
-<hr>
-
-<div class="footer">
+<div class="dialog-footer">
   <app-paginator
     [page]="page"
     [totalCount]="totalCount"
@@ -79,8 +95,8 @@
     [pageSizeOptions]="[25, 50, 100]"
     (pageChange)="goToPage($event)"
     [showPageSizeOptions]="false"
+    [showArrows]="false"
   ></app-paginator>
 
-  <button class="button primary" (click)="applyFilter()">{{'dialog.apply' | translate}}</button>
-<!--  <button mat-button (click)="close()">Zavrieť</button>-->
+  <button class="button primary" (click)="applyFilter()">{{ 'dialog.apply' | translate }}</button>
 </div>

@@ -10,7 +10,6 @@ import { Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
 import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
 import {
-  facetKeysEnum,
   customDefinedFacets,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
@@ -18,6 +17,7 @@ import { UserService } from '../../../shared/services/user.service';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
 import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
+import { CustomSearchService } from '../../../shared/services/custom-search.service';
 
 @Injectable()
 export class SearchEffects {
@@ -29,6 +29,7 @@ export class SearchEffects {
     private advancedSearchService: AdvancedSearchService,
     private userService: UserService,
     private displayConfigService: DisplayConfigService,
+    private customSearchService: CustomSearchService,
   ) {
   }
 
@@ -42,6 +43,7 @@ export class SearchEffects {
       switchMap(([{
         query,
         filters,
+        filterGroups,
         page,
         pageCount,
         sortBy,
@@ -52,9 +54,14 @@ export class SearchEffects {
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
-        const filtersWithoutLicenses = filters.filter(f => !f.startsWith(`${facetKeysEnum.license}:`));
+        // Availability filter: active when "Available only" toggle is ON
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
+        };
 
-        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets()).pipe(
+        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter).pipe(
           shareReplay(1)
         );
 
@@ -84,17 +91,18 @@ export class SearchEffects {
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
-          facetsAllRes: this.solr.getFacetsWithOperators(query, filtersWithoutLicenses, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter),
         }).pipe(
-          map(({ resultsRes, facetsRes, facetsAllRes }) => {
+          map(({ resultsRes, facetsRes }) => {
             const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
-              facetsAllRes.facet_counts?.facet_fields ?? {},
+              {},
               this.userService.licenses,
-              resultsRes.response.numFound
+              resultsRes.response.numFound,
+              filters,
+              facetsRes.facet_counts?.facet_queries
             );
 
             return SearchActions.loadFacetsSuccess({ facets });
@@ -128,7 +136,6 @@ export class SearchEffects {
 
   private getRequestedFacets(): string[] {
     const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
-    console.log('visibleFilters::', visibleFilters)
     if (!visibleFilters || visibleFilters.length === 0) {
       return DEFAULT_FACET_FIELDS;
     }

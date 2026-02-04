@@ -9,7 +9,9 @@ import {
   TranslateModule, TranslateParser,
   TranslateService,
 } from '@ngx-translate/core';
-import {HttpBackend, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { PortalModule } from '@angular/cdk/portal';
+import { HttpBackend, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -22,16 +24,16 @@ import { routerReducer, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
-import {PlaybackBarComponent} from './shared/components/playback-bar/playback-bar.component';
-import {LoadingOverlayComponent} from './shared/components/loading-overlay/loading-overlay.component';
-import {ImagePreviewOverlayComponent} from './shared/components/image-preview-overlay/image-preview-overlay.component';
-import {FILTER_SERVICE} from './shared/services/filter.service';
-import {SearchService} from './shared/services/search.service';
+import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
+import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
+import { ImagePreviewOverlayComponent } from './shared/components/image-preview-overlay/image-preview-overlay.component';
+import { FILTER_SERVICE } from './shared/services/filter.service';
+import { SearchService } from './shared/services/search.service';
 import { authReducer, authFeatureKey } from './core/auth/store';
 import { AuthEffects } from './core/auth/store';
-import {tokenInterceptor} from './core/auth/token.interceptor';
-import {simpleCacheInterceptor} from './core/cache/simple-cache.interceptor-fn';
-import {errorInterceptor} from './core/services/error.interceptor';
+import { tokenInterceptor } from './core/auth/token.interceptor';
+import { simpleCacheInterceptor } from './core/cache/simple-cache.interceptor-fn';
+import { errorInterceptor } from './core/services/error.interceptor';
 
 // NgRx Feature Reducers
 import { periodicalsReducer } from './modules/search/state/periodicals/periodicals.reducer';
@@ -61,7 +63,7 @@ import { MusicDetailEffects } from './modules/music/state/music-detail.effects';
 import { FoldersEffects } from './modules/saved-lists-page/state';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
 import { MonographVolumesEffects } from './shared/state/monograph-volumes';
-import {CollectionsEffects} from './shared/state/collections/collections.effects';
+import { CollectionsEffects } from './shared/state/collections/collections.effects';
 
 export function initApp(envService: EnvironmentService) {
   return () => envService.load();
@@ -78,6 +80,8 @@ export function initApp(envService: EnvironmentService) {
       scrollPositionRestoration: 'disabled',
       anchorScrolling: 'enabled'
     }),
+    OverlayModule,
+    PortalModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -129,7 +133,7 @@ export function initApp(envService: EnvironmentService) {
       MonographVolumesEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),
-    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: ENVIRONMENT.production}),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: ENVIRONMENT.production }),
     HeaderComponent,
     FooterComponent,
     PlaybackBarComponent,

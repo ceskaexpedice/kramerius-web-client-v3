@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { HomeWebConfigService } from './services/home-web-config.service';
+import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-search-page',
@@ -7,5 +9,6 @@ import { Component } from '@angular/core';
   standalone: false
 })
 export class SearchPageComponent {
-
+  private configService = inject(HomeWebConfigService);
+  sections$ = this.configService.getConfig();
 }

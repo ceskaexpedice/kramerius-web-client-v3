@@ -27,6 +27,15 @@ label {
   color: var(--color-text-base);
 }
 
+.text-first-letter-capitalize mat-chip label {
+  display: inline-block;
+  text-transform: lowercase;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
 button.remove-button i {
   color: var(--color-primary);
 }
@@ -37,13 +46,31 @@ mat-chip {
   background-color: var(--color-secondary) !important;
   font-size: var(--font-size-small);
   padding: var(--spacing-x1) var(--spacing-x2);
+  display: flex;
+  align-content: center;
+  gap: var(--spacing-x2);
 }
 
 .filter-chip.and-operator {
   border-right: 3px solid var(--color-primary);
 }
 
-:host .mat-mdc-button:not(:disabled).clear-button {
+:host .mat-mdc-button:not(:disabled).clear-button-secondary {
   color: var(--color-text-btn-secondary-default);
   text-decoration: underline;
+}
+
+:host .mat-mdc-button:not(:disabled).clear-button-primary {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  i {
+    color: inherit;
+  }
+}
+
+:host ::ng-deep .mdc-button__label {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--spacing-x2) !important;
 }

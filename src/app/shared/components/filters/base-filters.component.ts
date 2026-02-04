@@ -126,10 +126,10 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
             ...item,
             available: userLicenses.includes(item.name),
             icon: userLicenses.includes(item.name)
-              ? 'icon-eye'
+              ? 'icon-eye-public'
               : ONLINE_LICENSES.includes(item.name)
-                ? 'icon-lock-1'
-                : 'icon-home-1'
+                ? 'icon-locked'
+                : 'icon-in-house'
           }));
         }
 
@@ -138,12 +138,12 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
           const licenseFacet = updated[facetKeysEnum.license];
 
           updated[customDefinedFacetsEnum.accessibility] = updated[customDefinedFacetsEnum.accessibility].map((item: FacetItem) => {
-            if (item.name === 'available') {
-              const newCount = userLicenses.reduce((sum, lic) => {
-                return sum + (licenseFacet?.find((f: FacetItem) => f.name === lic)?.count || 0);
-              }, 0);
-              return { ...item, count: newCount };
-            }
+            // if (item.name === 'available') {
+            //   const newCount = userLicenses.reduce((sum, lic) => {
+            //     return sum + (licenseFacet?.find((f: FacetItem) => f.name === lic)?.count || 0);
+            //   }, 0);
+            //   return { ...item, count: newCount };
+            // }
             return item;
           });
         }

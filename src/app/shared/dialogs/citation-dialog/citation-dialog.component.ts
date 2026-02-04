@@ -1,15 +1,15 @@
-import {Component, EventEmitter, inject, Output} from '@angular/core';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {TabsComponent} from '../../components/tabs/tabs.component';
-import {TabItemComponent} from '../../components/tabs/tab-item.component';
-import {CitationResponse, CitationService} from '../../services/citation.service';
-import {EnvironmentService} from '../../services/environment.service';
-import {Metadata} from '../../models/metadata.model';
-import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-import {RecordHandlerService} from '../../services/record-handler.service';
-import {copyTextToClipboard} from '../../misc/misc-functions';
-import {ToastService} from '../../services/toast.service';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TabsComponent } from '../../components/tabs/tabs.component';
+import { TabItemComponent } from '../../components/tabs/tab-item.component';
+import { CitationResponse, CitationService } from '../../services/citation.service';
+import { EnvironmentService } from '../../services/environment.service';
+import { Metadata } from '../../models/metadata.model';
+import { DocumentHierarchySelectorComponent, DocumentHierarchyItem } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { copyTextToClipboard } from '../../misc/misc-functions';
+import { ToastService } from '../../services/toast.service';
 
 export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
 
@@ -101,7 +101,7 @@ export class CitationDialogComponent {
       },
       error: (err) => {
         console.error('Nepodařilo se načíst citaci:', err);
-        this.error = 'Nepodařilo se načíst citaci.';
+        this.error = this.translationService.instant('citation.load-error');
         this.isLoading = false;
       }
     });

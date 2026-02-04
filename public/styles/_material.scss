@@ -6,10 +6,10 @@
 $custom-radius: 4px;
 
 :root {
-  --mdc-checkbox-state-layer-size: 20px;
-  --mat-checkbox-state-layer-size: 20px;
-  --mdc-radio-state-layer-size: 20px;
-  --mat-radio-state-layer-size: 20px;
+  --mdc-checkbox-state-layer-size: 16px;
+  --mat-checkbox-state-layer-size: 16px;
+  --mdc-radio-state-layer-size: 16px;
+  --mat-radio-state-layer-size: 16px;
 }
 
 html {
@@ -19,7 +19,7 @@ html {
       tertiary: colors.$secondary,
       theme-type: light,
     ),
-    typography: Roboto,
+    typography: ('IBM Plex Sans', sans-serif),
     density: 0,
     theme-shape: (
       border-radius: $custom-radius
@@ -42,6 +42,29 @@ html {
   border-width: 0 !important;
   border-radius: 0 !important;
   border-style: unset !important;
+}
+
+.mat-mdc-chip-edit::after, .mat-mdc-chip-remove::after {
+  content: "";
+  display: block;
+  opacity: 0;
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: var(--color-primary) !important;
+}
+
+.mat-mdc-standard-chip .mdc-evolution-chip__action--primary {
+  padding-left: 0 !important;
+}
+
+.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--secondary {
+  padding: 0 !important;
+  color: var(--color-primary) !important;
 }
 
 div.mat-mdc-autocomplete-panel {
@@ -105,6 +128,12 @@ div.mat-mdc-autocomplete-panel {
 // checkbox
 mat-checkbox {
   --mdc-checkbox-unselected-icon-color: var(--color-border-contrast);
+  --mdc-checkbox-state-layer-size: 16px;
+  --mat-checkbox-state-layer-size: 16px;
+}
+
+.mat-mdc-checkbox {
+  display: flex !important;
 }
 
 .mat-mdc-checkbox.p-left-0 .mdc-checkbox {
@@ -112,15 +141,70 @@ mat-checkbox {
 }
 
 .mat-mdc-checkbox .mdc-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  padding: 0 !important;
 }
 
-.mdc-checkbox__background {
+.mat-mdc-checkbox .mdc-checkbox__background {
+  width: 16px !important;
+  height: 16px !important;
+  top: 0 !important;
+  left: 0 !important;
   border-radius: 4px !important;
+  border-color: var(--color-border-contrast) !important;
+  border-width: 1px !important;
+}
+
+.mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  border-color: var(--color-primary) !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 70% !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__native-control {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mat-mdc-checkbox-touch-target {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__ripple {
+  display: none !important;
 }
 
 // radio
 .mat-mdc-radio-button .mdc-label {
   cursor: pointer !important;
+}
+
+.mat-mdc-radio-button .mdc-radio {
+  display: flex !important;
+  align-items: center;
+  width: var(--mdc-radio-state-layer-size) !important;
+  height: var(--mdc-radio-state-layer-size) !important;
+  cursor: pointer;
+  will-change: opacity, transform, border-color, color;
+  padding: calc((var(--mat-radio-state-layer-size, 40px) - var(--mdc-radio-state-layer-size)) / 2);
+}
+
+.mat-mdc-radio-button .mdc-radio__background {
+  width: var(--mdc-radio-state-layer-size) !important;
+  height: var(--mdc-radio-state-layer-size) !important;
+}
+
+.mat-mdc-radio-button .mdc-radio__background::before {
+  top: calc(-1 * (var(--mat-radio-state-layer-size, 40px) - var(--mdc-radio-state-layer-size)) / 2);
+  left: calc(-1 * (var(--mat-radio-state-layer-size, 40px) - var(--mdc-radio-state-layer-size)) / 2);
 }
 
 .mat-mdc-radio-button .mat-internal-form-field {

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
 import { SelectionService } from './selection.service';
@@ -7,7 +8,8 @@ import { switchMap } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
 import { TranslateService } from '@ngx-translate/core';
 import { EnvironmentService } from './environment.service';
-import {Page} from '../models/page.model';
+import { Page } from '../models/page.model';
+import { ToastService } from './toast.service';
 
 export enum ExportFormat {
   JSON = 'json',
@@ -35,6 +37,8 @@ export class ExportService {
   private selectionService = inject(SelectionService);
   private translateService = inject(TranslateService);
   private environmentService = inject(EnvironmentService);
+  private http = inject(HttpClient);
+  private toastService = inject(ToastService);
 
   exportJpeg(pid: string): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
@@ -52,8 +56,9 @@ export class ExportService {
   /**
    * Export PDF from selected pages
    * @param pageUuids Array of page UUIDs to include in the PDF
+   * @param title Title of the document for filename
    */
-  exportPdfSelection(pageUuids: string[]): void {
+  exportPdfSelection(pageUuids: string[], title?: string): void {
     if (!pageUuids || pageUuids.length === 0) {
       console.warn('No pages selected for PDF export');
       return;
@@ -68,8 +73,20 @@ export class ExportService {
     // Construct the PDF selection API URL
     const url = `${baseUrl}/search/api/client/v7.0/pdf/selection?pids=${pidsParam}&language=${currentLanguage}`;
 
-    // Open in new tab to trigger download
-    window.open(url, '_blank');
+    this.toastService.show('loading');
+
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const sanitizedTitle = title ? title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'export_pdf';
+        const filename = `${sanitizedTitle}_${this.getTimestamp()}.pdf`;
+        this.downloadBlob(blob, filename);
+        this.toastService.show('export-success');
+      },
+      error: (error) => {
+        console.error('PDF export failed', error);
+        this.toastService.show('export-error');
+      }
+    });
   }
 
   /**
@@ -325,6 +342,17 @@ export class ExportService {
     link.click();
 
     // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   }

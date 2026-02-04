@@ -8,8 +8,8 @@ export const ENVIRONMENT = {
   defaultLanguage: 'cs',
   fallbackLanguage: 'en',
   dateRangeStartYear: 1162,
-  translationVersion: '1.0.1',
-  contactEmail: 'digitalni.knihovna@mzk.cz'
+  translationVersion: '1.0.3',
+  contactEmail: 'digitalniknihovna@mzk.cz'
 };
 
 export const API_URL = new InjectionToken<string>('API_URL');

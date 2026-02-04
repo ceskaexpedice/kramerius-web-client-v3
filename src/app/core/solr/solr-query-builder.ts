@@ -1,5 +1,5 @@
-import {SolrFields} from './solr-fields';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from './solr-helpers';
+import { SolrFields } from './solr-fields';
+import { SolrOperators, SolrSortDirections, SolrSortFields } from './solr-helpers';
 
 export class SolrQueryBuilder {
 
@@ -239,8 +239,8 @@ export class SolrQueryBuilder {
   static escapeSolrQuery(input: string): string {
     // Escape special characters for Solr query syntax
     if (!input) return input;
-
-    return input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
+    //     input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
+    return input.replace(/([+\-!(){}\[\]^~:\\/*?"])/g, '\\$1');
 
   }
 

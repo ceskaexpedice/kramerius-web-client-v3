@@ -76,6 +76,8 @@ export class RecordHandlerService {
         return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
       case DocumentTypeEnum.collection:
         return this.router.createUrlTree([APP_ROUTES_ENUM.COLLECTION, pid]).toString();
+      case DocumentTypeEnum.convolute:
+        return this.router.createUrlTree([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid]).toString();
       case DocumentTypeEnum.article:
         // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
         if (rootPid) {
@@ -201,7 +203,15 @@ export class RecordHandlerService {
         break;
 
       case DocumentTypeEnum.monograph:
-        hierarchyLevels.push(DocumentTypeEnum.monograph, DocumentTypeEnum.page);
+        if (document.monographUnitCount > 0) {
+          hierarchyLevels.push('monograph-multivolume' as DocumentTypeEnum, DocumentTypeEnum.monographunit, DocumentTypeEnum.page);
+        } else {
+          hierarchyLevels.push(DocumentTypeEnum.monograph, DocumentTypeEnum.page);
+        }
+        break;
+
+      case DocumentTypeEnum.monographunit:
+        hierarchyLevels.push('monograph-multivolume' as DocumentTypeEnum, DocumentTypeEnum.monographunit, DocumentTypeEnum.page);
         break;
 
       case DocumentTypeEnum.graphic:
@@ -327,8 +337,19 @@ export class RecordHandlerService {
             pid = urlParams.get('page') || (document.model === DocumentTypeEnum.page ? document.uuid : '');
           }
           break;
+        case DocumentTypeEnum.monograph:
+        case 'monograph-multivolume':
+          pid = document.rootPid || (document.model === DocumentTypeEnum.monograph ? document.uuid : '');
+          break;
+        case DocumentTypeEnum.monographunit:
+          if (document.model === DocumentTypeEnum.monographunit) {
+            pid = document.uuid;
+          } else if (document.model === DocumentTypeEnum.page && document.ownParentModel === DocumentTypeEnum.monographunit) {
+            pid = document.ownParentPid;
+          }
+          break;
         default:
-          // For other document types (monograph, graphic, map, etc.)
+          // For other document types (graphic, map, etc.)
           pid = document.model === level.model ? document.uuid : '';
           break;
       }
@@ -351,7 +372,8 @@ export class RecordHandlerService {
     }
 
     // Legacy logic for backward compatibility
-    if (document.rootModel && !shareableTypes.find(item => item.model === document.rootModel)) {
+    const isRootMultivolumeMonograph = document.rootModel === DocumentTypeEnum.monograph && document.monographUnitCount > 0;
+    if (document.rootModel && !isRootMultivolumeMonograph && !shareableTypes.find(item => item.model === document.rootModel)) {
       shareableTypes.push({
         model: document.rootModel,
         pid: document.rootPid
@@ -359,23 +381,24 @@ export class RecordHandlerService {
     }
 
     // if rootModel is periodical, add periodical volume (backward compatibility)
-    if (document.rootModel === 'periodical' && document.model !== 'periodical' && document.volume) {
-      if (document.model === 'periodicalvolume' && !shareableTypes.find(item => item.model === 'periodicalvolume')) {
+    if (document.rootModel === DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodical && document.volume) {
+      if (document.model === DocumentTypeEnum.periodicalvolume && !shareableTypes.find(item => item.model === DocumentTypeEnum.periodicalvolume)) {
         shareableTypes.push({
-          model: 'periodicalvolume',
+          model: DocumentTypeEnum.periodicalvolume,
           pid: document.uuid
         });
-      } else if (!shareableTypes.find(item => item.model === 'periodicalvolume')) {
+      } else if (!shareableTypes.find(item => item.model === DocumentTypeEnum.periodicalvolume)) {
         if (document.volume.uuid) {
           shareableTypes.push({
-            model: 'periodicalvolume',
+            model: DocumentTypeEnum.periodicalvolume,
             pid: document.volume.uuid
           })
         }
       }
     }
 
-    if (document.model !== 'periodical' && document.model !== 'periodicalvolume' && !shareableTypes.find(item => item.model === document.model)) {
+    const isMultivolumeMonograph = document.model === DocumentTypeEnum.monograph && document.monographUnitCount > 0;
+    if (document.model !== DocumentTypeEnum.periodical && document.model !== DocumentTypeEnum.periodicalvolume && !isMultivolumeMonograph && !shareableTypes.find(item => item.model === document.model)) {
       shareableTypes.push({
         model: document.model,
         pid: document.uuid
@@ -385,9 +408,9 @@ export class RecordHandlerService {
     // if in url is ?page=uuid, then add it to the list (backward compatibility)
     const urlParams = new URLSearchParams(this.getUrlSearch());
     const pageUuid = urlParams.get('page');
-    if (pageUuid && !shareableTypes.find(item => item.model === 'page') && !isArticle) {
+    if (pageUuid && !shareableTypes.find(item => item.model === DocumentTypeEnum.page) && !isArticle) {
       shareableTypes.push({
-        model: 'page',
+        model: DocumentTypeEnum.page,
         pid: pageUuid
       });
     }
@@ -448,11 +471,10 @@ export class RecordHandlerService {
         filtersToAdd[filterKey] = currentParams[filterKey];
       }
     }
-    console.log('currentParams::', currentParams)
 
     // Also preserve relevant customSearch filters
     const customSearch = currentParams['customSearch'];
-    console.log('customsearch:', customSearch)
+
     if (customSearch) {
       const customFilters = customSearch.split(',');
       const relevantCustomFilters = customFilters.filter((filter: string) =>
@@ -476,7 +498,12 @@ export class RecordHandlerService {
       }
     }
 
-
+    // Add default sort parameters for periodical navigation to avoid redirect
+    const isPeriodicalUrl = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
+    if (isPeriodicalUrl) {
+      filtersToAdd['sortBy'] = 'date.min';
+      filtersToAdd['sortDirection'] = 'asc';
+    }
 
     // If no filters to add, return original URL
     if (Object.keys(filtersToAdd).length === 0) {
@@ -516,14 +543,22 @@ export class RecordHandlerService {
       this.adminSelectionService.toggleAdminMode();
     }
 
-    if (document.ownParentPid) {
-      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid])
+    // First, check if there's a backup search URL (user came from search results)
+    const backupUrl = this.searchService.getBackupSearchUrl();
+    if (backupUrl) {
+      this.searchService.clearBackupSearchUrl();
+      this.router.navigateByUrl(backupUrl);
+      return;
     }
-    //window.history.back();
+
+    // Fall back to navigating to parent periodical
+    if (document.ownParentPid) {
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]);
+    }
   }
 
   shouldShowBackButton(document: any): boolean {
-    return !!document.ownParentPid;
+    return !!document.ownParentPid || !!this.searchService.getBackupSearchUrl();
   }
 
   // Badge Layout Detection Methods

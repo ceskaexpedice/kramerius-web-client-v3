@@ -6,6 +6,8 @@
 @use '../public/styles/accessibility/low-vision';
 @use '../public/styles/accessibility/high-contrast';
 
+@import 'highlight.js/styles/default.css';
+
 html,
 body {
   height: 100%;
@@ -30,7 +32,7 @@ body {
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -60,4 +62,8 @@ body.header-hidden {
 body.header-hidden .page-content__filters {
   transform: translateY(-100%);
   margin-bottom: -57px !important;
+}
+
+.hljs {
+  background: transparent;
 }

@@ -106,12 +106,13 @@
 
           </div>
 
-          @if (!rightSidebarVisible()) {
-          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
-            <i class="icon-info"></i>
-          </button>
-          }
         </div>
+
+        @if (!rightSidebarVisible()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
+          <i class="icon-info"></i>
+        </button>
+        }
 
         <!-- Right Sidebar -->
         @if (collectionsService.detail$ | async; as metadata) {
@@ -119,7 +120,7 @@
           [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
           [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
           [class.collapsed]="!rightSidebarVisible()">
-          <app-metadata-sidebar [metadata]="metadata" mode="docked"
+          <app-metadata-sidebar [metadata]="metadata" mode="floating"
             [tools]="{search: true, export: false, description: true}" [customDescription]="true"
             (close)="hideRightSidebar()">
             <div description-content>

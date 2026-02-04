@@ -41,7 +41,7 @@
               <ng-container *ngIf="!selectionService.selectionMode()">
                 <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
                   [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
-                  [viewToggleOptions]="viewToggleOptions" [activeViewValue]="periodical.activeCalendarGridControl()"
+                  [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
                   (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
                   (favoritesClicked)="onFavoritesClicked($event)"
                   (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
@@ -105,15 +105,15 @@
           <app-periodical-search-results *ngIf="mode === ViewMode.SearchResults">
           </app-periodical-search-results>
 
-          @if (!showMetadataSidebar()) {
-          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
-            <i class="icon-info"></i>
-          </button>
-          }
-
           <!-- Loading and error states - scoped to main content -->
           <app-inline-loader *ngIf="periodical.loading$ | async" [overlay]="true"></app-inline-loader>
         </div>
+
+        @if (!showMetadataSidebar()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
+          <i class="icon-info"></i>
+        </button>
+        }
 
         <!-- Right Sidebar -->
         <ng-container *ngIf="periodical.metadata">
@@ -121,7 +121,7 @@
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
             [class.collapsed]="!showMetadataSidebar()">
-            <app-metadata-sidebar [metadata]="periodical.metadata" mode="docked"
+            <app-metadata-sidebar [metadata]="periodical.metadata" mode="floating"
               [tools]="{search: true, export: false, description: true}" (close)="toggleMetadataSidebar()">
             </app-metadata-sidebar>
           </div>

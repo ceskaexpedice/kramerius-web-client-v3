@@ -21,6 +21,7 @@ export class PaginatorComponent implements OnChanges {
   @Input() showOnlyArrows = false;
   @Input() disabledPagination = false;
   @Input() disabledPageSize = false;
+  @Input() showArrows = true;
 
   @Input() layout: 'normal' | 'compact' = 'normal';
 

@@ -3,11 +3,31 @@ export const ONLINE_LICENSES = [
 ]
 
 export const ONSITE_LICENSES = [
-  'dnntt', 'onsite'
+  'dnntt', 'onsite', 'onsite-sheetmusic'
 ]
 
 export const PUBLIC_LICENSES = [
-  'public', 'mzk_public-contract', 'mzk_public-muo'
+  'public', 'mzk_public-contract', 'mzk_public-muo', 'knav_public_contract'
+]
+
+export const AFTER_LOGIN_LICENSES = [
+  'dnnto'
+]
+
+/**
+ * Ordered list of all licenses for display purposes.
+ * Licenses will be sorted in this order in filter components.
+ */
+export const LICENSES_ORDER = [
+  'mzk_public-muo',
+  'mzk_public-contract',
+  'knav_public_contract',
+  'public',
+  'dnnto',
+  'dnntt',
+  'onsite',
+  'onsite-sheetmusic',
+  '_private'
 ]
 
 export const allDoctypes = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',

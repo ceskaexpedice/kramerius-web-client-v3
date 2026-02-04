@@ -1,9 +1,8 @@
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, Injectable } from '@angular/core';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, Observable, Subscription, takeUntil } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { SettingsService } from '../../modules/settings/settings.service';
 import {
   selectActiveFilters,
   selectArticleSearchResults,
@@ -121,8 +120,6 @@ export class SearchService extends BaseFilterService {
     this._sortBy.set(SolrSortFields.createdAt);
   }
 
-  private settingsService = inject(SettingsService);
-
   constructor(
     private store: Store,
     private solrService: SolrService,
@@ -164,6 +161,29 @@ export class SearchService extends BaseFilterService {
         const currentRoute = this.router.url.split('?')[0];
         if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
           this.reloadCurrentSearch();
+        }
+      });
+
+    // Listen for page size changes from settings
+    let previousPageSize = this._pageSize();
+    this.settingsService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        const newPageSize = settings.displayConfig?.defaultPageSize;
+        if (newPageSize && newPageSize !== previousPageSize) {
+          previousPageSize = newPageSize;
+          this._pageSize.set(newPageSize);
+
+          const currentRoute = this.router.url.split('?')[0];
+          if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+            // Update URL and reload search with new page size
+            this._page.set(1); // Reset to page 1 when page size changes
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: 1, pageSize: newPageSize },
+              queryParamsHandling: 'merge'
+            });
+          }
         }
       });
   }
@@ -229,16 +249,36 @@ export class SearchService extends BaseFilterService {
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
         sortDirection: this._sortDirection()
-      }
+      },
+      queryParamsHandling: 'merge'
     });
   }
 
+
+  // Params that should not trigger a search refresh
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info'];
+
+  private getSearchRelevantParams(params: any): any {
+    const relevant: any = {};
+    for (const key of Object.keys(params)) {
+      if (!this.SETTINGS_PARAMS.includes(key)) {
+        relevant[key] = params[key];
+      }
+    }
+    return relevant;
+  }
 
   async initialize() {
     if (this.initialized) return;
 
     this.queryParamsSubscription = this.route.queryParams.pipe(
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      // Only react to changes in search-relevant params, ignore settings dialog params
+      distinctUntilChanged((prev, curr) => {
+        const prevRelevant = this.getSearchRelevantParams(prev);
+        const currRelevant = this.getSearchRelevantParams(curr);
+        return JSON.stringify(prevRelevant) === JSON.stringify(currRelevant);
+      })
     ).subscribe(params => {
       const currentRoute = this.router.url.split('?')[0];
       if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
@@ -291,11 +331,14 @@ export class SearchService extends BaseFilterService {
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
 
-    // we only need to check if customFilters contains licenses.facet and also basFilters contains licenses.facet, if so, we need to remove it from customFilters
-    // so delete all custom filters that contain 'licenses.facet'
-    if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
-      customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
-    }
+    console.log('customFilters:', customFilters);
+
+    // if we have license filter in both baseFilters and customFilters operator between them is AND
+
+
+    // if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
+    //   customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
+    // }
 
     // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
     if (!this.hasSubmittedQuery()) {
@@ -382,16 +425,32 @@ export class SearchService extends BaseFilterService {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
 
-    let filters: string[];
+    // Create filter groups for AND logic between baseFilters and customFilters
+    // Each group becomes separate fq params (AND between groups, OR within groups)
+    const filterGroups = [
+      mapFacetsToSearchFields(baseFilters),
+      mapFacetsToSearchFields(customFilters)
+    ].filter(g => g.length > 0);
 
-    filters = [...baseFilters, ...customFilters];
+    // Combine all filters for backwards compatibility and facet calculations
+    let filters = [...mapFacetsToSearchFields(baseFilters), ...mapFacetsToSearchFields(customFilters)];
 
-    // use mapFacetsToSearchFields to map filters to correct search fields
-    filters = mapFacetsToSearchFields(filters);
+    // If no search query is present, filter for standalone collections
+    // AND check if we are actually filtering for collections
+    if ((!query || query.trim() === '') && filters.some(f => f.includes('root.model:collection'))) {
+      filters.push('collection.is_standalone:true');
+      // Also add to filterGroups
+      if (filterGroups.length > 0) {
+        filterGroups[filterGroups.length - 1].push('collection.is_standalone:true');
+      } else {
+        filterGroups.push(['collection.is_standalone:true']);
+      }
+    }
 
     this.store.dispatch(loadSearchResults({
       query,
       filters,
+      filterGroups,
       advancedQuery: advancedQuery,
       advancedQueryMainOperator: advancedQueryMainOperator,
       page: (page - 1) * pageSize, // Solr uses 0-based indexing for pages

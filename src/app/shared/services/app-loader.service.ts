@@ -6,6 +6,7 @@ import { AppConfigService, AppConfig } from './app-config.service';
 import { EnvironmentService } from './environment.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
 import { firstValueFrom } from 'rxjs';
+import { SettingsService } from '../../modules/settings/settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class AppLoaderService {
   private http = inject(HttpClient);
   private appConfig = inject(AppConfigService);
   private env = inject(EnvironmentService);
+  private settingsService = inject(SettingsService);
 
   /**
    * Main app initialization method
@@ -45,9 +47,31 @@ export class AppLoaderService {
       // 4. Other initialization tasks can be added here
       await this.loadAppConfig();
 
+      // 5. Check for settings URL params and auto-open settings dialog
+      this.checkSettingsUrlParams();
+
     } catch (error) {
       console.error('AppLoaderService: App initialization failed:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Checks if settings dialog should be opened based on URL params
+   * Opens the settings dialog with the specified section if `?settings=true` is in URL
+   */
+  private checkSettingsUrlParams(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('settings') === 'true') {
+      const section = urlParams.get('settings_section') || undefined;
+      const expandMoreInfo = urlParams.get('more_info') === 'true';
+      console.log('AppLoaderService: Opening settings dialog from URL params', { section, expandMoreInfo });
+
+      // Small delay to ensure app is fully initialized before opening dialog
+      setTimeout(() => {
+        this.settingsService.openSettingsDialog(section, expandMoreInfo);
+      }, 100);
     }
   }
 

@@ -7,21 +7,12 @@ import { CustomSearchService } from './custom-search.service';
 import { UserService } from './user.service';
 import { FilterService } from './filter.service';
 import { AdvancedSearchService } from './advanced-search.service';
+import { SettingsService } from '../../modules/settings/settings.service';
+
+const DEFAULT_PAGE_SIZE = 60;
 
 @Injectable()
 export abstract class BaseFilterService implements FilterService, OnDestroy {
-  // Common properties
-  protected _searchTerm = signal('');
-  protected _submittedTerm = signal('');
-  protected _page = signal(1);
-  protected _pageSize = signal(60);
-  protected _totalCount = signal(0);
-  protected _sortBy = signal(SolrSortFields.createdAt);
-  protected _sortDirection = signal(SolrSortDirections.desc);
-  protected _pageReset = signal(false);
-  protected initialized = false;
-  protected destroy$ = new Subject<void>();
-
   // Common dependencies
   protected route = inject(ActivatedRoute);
   protected router = inject(Router);
@@ -29,6 +20,23 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   protected customSearchService = inject(CustomSearchService);
   protected advancedSearchService = inject(AdvancedSearchService);
   protected userService = inject(UserService);
+  protected settingsService = inject(SettingsService);
+
+  // Common properties
+  protected _searchTerm = signal('');
+  protected _submittedTerm = signal('');
+  protected _page = signal(1);
+  protected _pageSize = signal(this.getInitialPageSize());
+  protected _totalCount = signal(0);
+  protected _sortBy = signal(SolrSortFields.createdAt);
+  protected _sortDirection = signal(SolrSortDirections.desc);
+  protected _pageReset = signal(false);
+  protected initialized = false;
+  protected destroy$ = new Subject<void>();
+
+  private getInitialPageSize(): number {
+    return this.settingsService.settings.displayConfig?.defaultPageSize || DEFAULT_PAGE_SIZE;
+  }
 
   // Common getters
   get searchTerm() { return this._searchTerm; }
@@ -217,13 +225,14 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     await this.userService.loadLicenses();
   }
 
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sortBy, sortDirection },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
+      replaceUrl
     });
   }
 

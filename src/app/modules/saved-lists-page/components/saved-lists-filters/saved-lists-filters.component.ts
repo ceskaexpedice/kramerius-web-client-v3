@@ -53,7 +53,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
         [theme]="'dark'"
         [placeholder]="'search-in-saved-list--placeholder' | translate"
         [size]="'sm'"
-        [prefixIcon]="'icon-search-normal'"
+        [prefixIcon]="'icon-search-normal-1'"
         [showHelpButton]="false"
         [showClearButton]="true"
         [showSubmitButton]="false"

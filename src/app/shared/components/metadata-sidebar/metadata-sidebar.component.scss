@@ -9,15 +9,21 @@
     flex-shrink: 0;
   }
 
+  // Override tabs content padding for sidebar context
+  ::ng-deep .tabs-content {
+    padding: var(--spacing-x4);
+  }
+
   &__content {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     padding: var(--spacing-x4);
     display: flex;
     flex-direction: column;
 
     .metadata-sidebar__scroll {
       flex: 1;
+      overflow-y: auto;
     }
 
   }

@@ -30,7 +30,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   isDescriptionExpanded = false;
   isDescriptionTruncated = false;
   rightSidebarVisible = this.uiStateService.metadataSidebarOpen;
-  sidebarPositionMode: 'absolute' | 'relative' = 'absolute'; // 'absolute' = over content, 'relative' = beside content
+  sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   private destroy$ = new Subject<void>();
 

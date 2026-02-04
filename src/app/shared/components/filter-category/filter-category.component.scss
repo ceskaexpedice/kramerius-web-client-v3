@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-x4);
 
   h4 {
     margin: 0;
@@ -51,4 +51,8 @@
     border-radius: 4px;
     @include skeleton-shimmer;
   }
+}
+
+hr {
+  margin: var(--spacing-x6) 0 var(--spacing-x5) 0;
 }

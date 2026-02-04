@@ -1,0 +1,25 @@
+// Author variant styles card: 200x324px
+
+.record-item-card.variant-author {
+  aspect-ratio: var(--author-card-width) / var(--author-card-height);
+
+  .record-item-card__image {
+    aspect-ratio: var(--author-image-aspect-ratio);
+    flex-shrink: 0;
+  }
+
+  .record-item-card__content {
+    flex: 1;
+    min-height: 0;
+
+    .title {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      max-height: calc(20px * var(--accessibility-text-scale));
+    }
+
+    .subtitle {
+      flex-shrink: 0;
+    }
+  }
+}

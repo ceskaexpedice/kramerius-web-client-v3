@@ -148,7 +148,8 @@ export class DisplayConfigService {
     const config = this._displayConfig.value;
     return {
       tableColumns: config.tableColumns.map(col => ({ ...col })),
-      facetFilters: config.facetFilters?.map(filter => ({ ...filter }))
+      facetFilters: config.facetFilters?.map(filter => ({ ...filter })),
+      defaultPageSize: config.defaultPageSize
     };
   }
 
@@ -301,7 +302,15 @@ export class DisplayConfigService {
   private getDefaultConfig(): DisplayConfig {
     return {
       tableColumns: [...DEFAULT_TABLE_COLUMNS],
-      facetFilters: [...DEFAULT_FACET_FILTERS]
+      facetFilters: [...DEFAULT_FACET_FILTERS],
+      defaultPageSize: 60
     };
+  }
+
+  /**
+   * Gets the default page size from the current configuration
+   */
+  getDefaultPageSize(): number {
+    return this._displayConfig.value.defaultPageSize || 60;
   }
 }

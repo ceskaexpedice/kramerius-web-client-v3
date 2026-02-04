@@ -1,0 +1,15 @@
+<div class="accordion">
+  @for (item of items; track item.id; let idx = $index) {
+    <app-accordion-item
+      [title]="item.title"
+      [content]="item.content"
+      [isOpen]="item.isOpen || false"
+      [index]="item.index"
+      [isFirstItem]="idx === 0"
+      [openIconClass]="openIconClass"
+      [closeIconClass]="closeIconClass"
+      [allowHtml]="item.allowHtml || false"
+      (toggle)="toggleItem(item.id)">
+    </app-accordion-item>
+  }
+</div>

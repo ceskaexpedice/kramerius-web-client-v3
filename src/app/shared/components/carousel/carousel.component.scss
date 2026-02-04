@@ -12,8 +12,10 @@
   .carousel-content {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: calc(195px * var(--accessibility-text-scale));
-    gap: 16px;
+    grid-auto-columns: calc(var(--carousel-card-width) * var(--accessibility-text-scale));
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+    gap: var(--card-gap);
     overflow-x: auto;
     scroll-behavior: smooth;
     padding-bottom: 10px;

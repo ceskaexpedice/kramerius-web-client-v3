@@ -45,7 +45,7 @@ export class PdfService {
     rotation: 0,
     fullscreen: false,
     bookMode: false,
-    pageViewMode: 'single',
+    pageViewMode: 'multiple',
     textLayerMode: true
   }
 
@@ -112,6 +112,12 @@ export class PdfService {
       return '';
     }
     return url;
+  }
+
+  clearPdfData (): void {
+    this._uuid = null;
+    this._pdfDocument = null;
+    this.resetState();
   }
 
   get url(): string | null {
@@ -511,7 +517,7 @@ export class PdfService {
     return 1; // Default to page 1
   }
 
-  private cachedPageViewMode: PageViewModeType = 'single';
+  private cachedPageViewMode: PageViewModeType = 'multiple';
 
   // Reset all state
   private resetState(): void {

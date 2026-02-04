@@ -11,7 +11,11 @@ import {
   selectDocumentDetailPages,
   selectDocumentDetailOnlyArticles,
 } from '../../../shared/state/document-detail/document-detail.selectors';
-import { loadDocumentDetail } from '../../../shared/state/document-detail/document-detail.actions';
+import {
+  clearArticleDetail,
+  clearDocumentDetail,
+  loadDocumentDetail,
+} from '../../../shared/state/document-detail/document-detail.actions';
 import { filter, Observable, skip, take } from 'rxjs';
 import {
   selectAvailableYears,
@@ -29,6 +33,7 @@ import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service'
 import { DocumentInfoService } from '../../../shared/services/document-info.service';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
+import { PdfService } from '../../../shared/services/pdf.service';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +55,7 @@ export class DetailViewService {
   private iiifViewerService = inject(IIIFViewerService);
   private documentInfoService = inject(DocumentInfoService);
   private uiStateService = inject(UiStateService);
+  private pdfService = inject(PdfService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   articles$ = this.store.select(selectDocumentDetailOnlyArticles);
@@ -70,6 +76,10 @@ export class DetailViewService {
 
     // Listen to pages changes and update the signal automatically
     this.pages$.subscribe(pages => {
+      if (!this.isOnDetailViewPage()) {
+        return;
+      }
+
       if (pages) {
         this._pages.set(pages);
         this._currentPageIndex.set(0);
@@ -79,20 +89,47 @@ export class DetailViewService {
         const hasArticles = pages.some(p => p.model === DocumentTypeEnum.article);
         if (!hasArticles) {
           this.checkAndSetCurrentPageFromUrl();
+          this._articles.set([]);
+          this.pdfService.clearPdfData();
+          this.store.select(clearArticleDetail);
         }
       }
     });
 
     // Listen to articles changes and update the signal automatically
     this.articles$.subscribe(articles => {
+      if (!this.isOnDetailViewPage()) {
+        return;
+      }
+
       if (articles) {
         this._articles.set(articles);
         this._currentArticleIndex.set(0);
 
         // After articles are loaded, check if there's an article parameter in URL
         this.checkAndSetCurrentArticleFromUrl();
+      } else {
+        this.pdfService.clearPdfData();
+        this.store.select(clearArticleDetail);
       }
     });
+  }
+
+  resetState(): void {
+    this._pages.set([]);
+    this._articles.set([]);
+    this._currentPageIndex.set(0);
+    this._currentArticleIndex.set(0);
+    this.pdfService.clearPdfData();
+    this.store.dispatch(clearDocumentDetail());
+  }
+
+  /**
+   * Checks if the current route is a detail view or music view page
+   */
+  private isOnDetailViewPage(): boolean {
+    return this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) ||
+      this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`);
   }
 
   private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
@@ -127,6 +164,10 @@ export class DetailViewService {
 
   get totalArticles(): number {
     return this._articles().length;
+  }
+
+  get isPdf(): boolean {
+    return this.document?.pdf || this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/pdf');
   }
 
   get viewerMode() {
@@ -213,8 +254,13 @@ export class DetailViewService {
         this._pages.set(safePages);
         this._currentPageIndex.set(0);
 
-        // Don't check/set page URL if articles are present or if sound recording
+        // Don't check/set page URL if more articles than pages or if sound recording
+        // const articleCount = safePages.filter(p => p.model === DocumentTypeEnum.article).length;
+        // const pageCount = safePages.filter(p => p.model === DocumentTypeEnum.page).length;
+        // const hasArticles = articleCount > pageCount;
+
         const hasArticles = safePages.some(p => p.model === DocumentTypeEnum.article);
+
         if (this.document?.model !== DocumentTypeEnum.soundrecording && !hasArticles) {
           this.checkAndSetCurrentPageFromUrl();
         }
@@ -285,9 +331,8 @@ export class DetailViewService {
         this._currentArticleIndex.set(articleIndex);
       }
     } else {
-      console.log('checkAndSetCurrentArticleFromUrl - no article param');
-      // Auto-select first article if articles exist
-      if (this._articles().length > 0) {
+      // Auto-select first article only if isPdf (document has PDF or pages have PDF mime type)
+      if (this._articles().length > 0 && this.isPdf) {
         this._currentArticleIndex.set(0);
         this.router.navigate([], {
           relativeTo: this.route,
@@ -304,6 +349,8 @@ export class DetailViewService {
 
   setPages(pages: Page[]) {
     this._pages.set(pages);
+    this._articles.set([]);
+    this.pdfService.clearPdfData();
     this._currentPageIndex.set(0);
   }
 

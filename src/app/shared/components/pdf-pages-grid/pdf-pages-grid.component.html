@@ -1,16 +1,13 @@
 <div class="pdf-pages-grid">
   <div *ngIf="pages.length === 0" class="pdf-pages-grid__empty">
-    Načítavanie strán...
+    {{ 'loading-pages' | translate }}
   </div>
 
   <div *ngIf="pages.length > 0" class="pdf-pages-grid__container">
-    <div
-      *ngFor="let page of pages"
-      class="pdf-pages-grid__item"
-      [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage"
-      (click)="navigateToPage(page.pageNumber)">
+    <div *ngFor="let page of pages" class="pdf-pages-grid__item"
+      [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage" (click)="navigateToPage(page.pageNumber)">
       <div class="pdf-pages-grid__thumbnail">
-        <img [src]="getThumbnailUrl(page.pageNumber)" [alt]="'Strana ' + page.pageNumber">
+        <img [src]="getThumbnailUrl(page.pageNumber)" [alt]="('page' | translate) + ' ' + page.pageNumber">
       </div>
       <div class="pdf-pages-grid__number">
         {{ page.pageNumber }}

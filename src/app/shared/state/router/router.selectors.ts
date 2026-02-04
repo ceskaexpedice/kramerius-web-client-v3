@@ -11,6 +11,11 @@ function getDeepestChild(route: any): any {
   return route;
 }
 
+export const selectRouterUrl = createSelector(
+  selectRouter,
+  router => router?.state?.url || ''
+);
+
 export const selectRouterQueryParams = createSelector(
   selectRouter,
   router => router?.state?.root?.queryParams || {}

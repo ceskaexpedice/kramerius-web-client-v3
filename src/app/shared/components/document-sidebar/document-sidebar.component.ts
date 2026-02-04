@@ -88,8 +88,8 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   get shouldShowPageNavigator(): boolean {
     if (this.searchQuery() && !this.showAllPages) return false;
 
-    // Don't show page navigator when articles are displayed
-    if (this.hasArticles) return false;
+    // Don't show page navigator when PDF articles are displayed
+    if (this.detailViewService.isPdf) return false;
 
     if (this.isSoundRecording) {
       return this.detailViewService.soundRecordingViewMode() === 'images';
@@ -101,9 +101,6 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
     return this.isSoundRecording ? 'recording' : 'page';
   }
 
-  get hasArticles(): boolean {
-    return (this.detailViewService.articles?.length ?? 0) > 0;
-  }
 
   /**
    * Gets the current page number (1-indexed) for display

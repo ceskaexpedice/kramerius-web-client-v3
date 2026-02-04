@@ -1,17 +1,18 @@
 import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo } from '../../models/metadata.model';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
 import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
-import { take, firstValueFrom, map, distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { SolrService } from '../../../core/solr/solr.service';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
 import { isDocumentPublic } from '../record-item/record-item.model';
@@ -60,12 +61,15 @@ export class MetadataSection implements OnInit, OnChanges {
 
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
+  solrService = inject(SolrService);
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   store = inject(Store);
   private destroyRef = inject(DestroyRef);
@@ -127,6 +131,38 @@ export class MetadataSection implements OnInit, OnChanges {
     }
 
     this.cdr.markForCheck();
+    this.loadCollectionNames();
+  }
+
+  async loadCollectionNames() {
+    const data = this._data();
+    if (!data || !data.inCollections || data.inCollections.length === 0) {
+      return;
+    }
+
+    const uuidsToLoad = data.inCollections.filter(c => !c.name).map(c => c.uuid);
+    if (uuidsToLoad.length === 0) return;
+
+    try {
+      const docs: any[] = await firstValueFrom(this.solrService.getDocumentsByPids(uuidsToLoad));
+      const collectionMap = new Map<string, string>(docs.map((doc: any) => [doc.pid, doc['title.search']]));
+
+      const newInCollections = data.inCollections.map(c => {
+        const newC = { ...c };
+        if (collectionMap.has(c.uuid)) {
+          newC.name = collectionMap.get(c.uuid) || '';
+        }
+        return newC;
+      });
+
+      this._data.update(currentData => {
+        if (!currentData) return null;
+        return { ...currentData, inCollections: newInCollections } as Metadata;
+      });
+
+    } catch (e) {
+      console.error('Failed to load collection names', e);
+    }
   }
 
   async loadArticle(articleUuid: string | undefined) {
@@ -200,6 +236,9 @@ export class MetadataSection implements OnInit, OnChanges {
   // Helper methods for display functions
   getAuthorName = (author: Author): string => author.name;
 
+
+  getCollectionName = (item: any): string => item.name;
+
   getPublisherFullDetail = (publisher: Publisher): string => publisher.fullDetail();
 
   getPhysicalDescription = (desc: PhysicalDescription): string => {
@@ -213,6 +252,17 @@ export class MetadataSection implements OnInit, OnChanges {
   getNotes(notes: NoteInfo[]) {
     const items = notes.map(note => note.text);
     return items;
+  }
+
+  getLocationLabel = (location: Location): string => {
+    let parts = [];
+    if (location.physicalLocation) {
+      parts.push(this.translate.instant(location.physicalLocation));
+    }
+    if (location.shelfLocator) {
+      parts.push(location.shelfLocator);
+    }
+    return parts.join(': ');
   }
 
   getIsbn(): string | null {
@@ -270,6 +320,11 @@ export class MetadataSection implements OnInit, OnChanges {
     this.searchService.redirectDirectlyToUrl(url);
   }
 
+  clickedLocation = (location: Location): void => {
+    const url = `?fq=${facetKeysEnum.physical_locations}:${encodeURIComponent(location.physicalLocation)}&${facetKeysEnum.physical_locations}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
   clickedKeyword = (keyword: string): void => {
     const url = `?fq=${facetKeysEnum.keywords}:${encodeURIComponent(keyword)}&${facetKeysEnum.keywords}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
@@ -279,6 +334,15 @@ export class MetadataSection implements OnInit, OnChanges {
     const url = `?fq=${facetKeysEnum.genres}:${encodeURIComponent(genre)}&${facetKeysEnum.genres}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
+
+  clickedGeoName = (geoName: string): void => {
+    const url = `?fq=${facetKeysEnum.geographic_names}:${encodeURIComponent(geoName)}&${facetKeysEnum.geographic_names}_operator=OR`;
+    this.searchService.redirectDirectlyToUrl(url);
+  }
+
+  clickedCollection = (collection: InCollections): void => {
+    this.router.navigate(['/collection', collection.uuid]);
+  }
 
   clickedDocumentType = (model: string): void => {
     console.log('document type clicked:', model);

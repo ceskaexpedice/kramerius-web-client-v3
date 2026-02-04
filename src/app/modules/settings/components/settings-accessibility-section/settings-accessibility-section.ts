@@ -31,6 +31,8 @@ export class SettingsAccessibilitySection {
 
   generateToggleButtons() {
     this.textSizeOptions = [
+      { label: '60 %', value: 60 },
+      { label: '80 %', value: 80 },
       { label: '100 %', value: 100 },
       { label: '150 %', value: 150 },
       { label: '200 %', value: 200 },

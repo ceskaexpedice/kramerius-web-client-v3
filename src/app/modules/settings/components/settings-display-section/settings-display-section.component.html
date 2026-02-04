@@ -1,55 +1,144 @@
 <div class="settings-display-section">
-  <div class="toggle-buttons--container">
+
+  <div class="settings-display--subsection">
+
+    <h4>{{ 'display-section--general--label' | translate }}</h4>
+
     <app-toggle-button-group
       [options]="options"
       [value]="settings.theme"
       [label]="'display-mode'"
-      [showLabel]="true"
+      [showLabel]="false"
       (valueChange)="onThemeChange($event)"
       [size]="'lg'"
     >
     </app-toggle-button-group>
+
   </div>
 
-  <div class="table-columns-config">
-    <div class="config-header">
-      <h4>{{ 'table-columns-visibility' | translate }}:</h4>
-<!--      <button-->
-<!--        class="button tertiary outlined sm"-->
-<!--        (click)="resetColumnsToDefaults()"-->
-<!--        type="button">-->
-<!--        {{ 'reset-to-defaults' | translate }}-->
-<!--      </button>-->
+  <div class="settings-display--subsection display-section--search-results">
+
+    <h4>{{ 'display-section--search-results--label' | translate }}</h4>
+
+    <div class="display-section--view-mode-row">
+
+      <span>{{ 'display-section--view-mode--label' | translate }}</span>
+
+      <app-toggle-button-group
+        [options]="viewModeOptions"
+        [value]="settings.searchResultsView"
+        [label]="'view-mode'"
+        [showLabel]="false"
+        (valueChange)="onViewModeChange($event)"
+      >
+      </app-toggle-button-group>
+
     </div>
 
-<!--    <p class="config-description">{{ 'table-columns-description' | translate }}</p>-->
+    <div class="display-section--view-mode-cols">
 
-    <div class="columns-list">
-      <label
-        *ngFor="let column of tableColumns"
-        class="column-item">
+      <div class="display-section--view-mode-col"
+        [class.selected]="settings.searchResultsView === AppResultsViewType.grid"
+      >
+        <div class="tag">
+          <i class="icon-row-horizontal"></i>
+          {{ 'view-mode--grid' | translate }}
+        </div>
+        <img src="/img/view-mode-grid-image.png">
+      </div>
+
+      <div class="display-section--view-mode-col"
+        [class.selected]="settings.searchResultsView === AppResultsViewType.list"
+      >
+        <div class="tag">
+          <i class="icon-grid-8"></i>
+          {{ 'view-mode--rows' | translate }}
+        </div>
+        <img src="/img/view-mode-rows-image.png">
+      </div>
+
+    </div>
+
+    <div class="table-columns-config">
+
+      <div class="subsection--description">
+        {{ 'table-columns-visibility' | translate }}:
+      </div>
+
+      <div class="subsection--toolbar-row">
+        <label class="select-all-item">
+          <app-checkbox
+            [model]="allColumnsSelected"
+            (modelChange)="toggleAllColumns($event)"
+          >
+          </app-checkbox>
+          <span>{{ 'select-all--label' | translate }}</span>
+        </label>
+
+        <button
+          class="button link primary with-icon sm"
+          (click)="resetColumnsToDefaults()"
+          type="button">
+          <i class="icon-rotate-left-circle"></i>
+          {{ 'reset-to-defaults' | translate }}
+        </button>
+      </div>
+
+      <div class="columns-list">
+        <label
+          *ngFor="let column of tableColumns"
+          class="column-item">
+          <app-checkbox
+            [model]="column.visible"
+            (modelChange)="onColumnVisibilityChange(column.id, $event)"
+          >
+          </app-checkbox>
+          <span class="column-label">{{ column.labelKey | translate }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="display-section--page-size">
+
+      <span>{{ 'paginator-page-size--label' | translate }}:</span>
+
+      <app-select
+        [options]="pageSizeOptions"
+        [value]="currentPageSize"
+        [displayFn]="pageSizeDisplayFn"
+        (valueChange)="onPageSizeChange($event)"
+      >
+      </app-select>
+
+    </div>
+
+  </div>
+
+  <div class="settings-display--subsection facet-filters-config">
+    <h4>{{ 'display-section--filters--label' | translate }}</h4>
+
+    <div class="subsection--description">
+      {{ 'facet-filters-visibility' | translate }}:
+    </div>
+
+    <div class="subsection--toolbar-row">
+      <label class="select-all-item">
         <app-checkbox
-          [model]="column.visible"
-          (modelChange)="onColumnVisibilityChange(column.id, $event)"
+          [model]="allFacetsSelected"
+          (modelChange)="toggleAllFacets($event)"
         >
         </app-checkbox>
-        <span class="column-label">{{ column.labelKey | translate }}</span>
+        <span>{{ 'select-all--label' | translate }}</span>
       </label>
-    </div>
-  </div>
 
-  <div class="facet-filters-config">
-    <div class="config-header">
-      <h4>{{ 'facet-filters-visibility' | translate }}:</h4>
-<!--      <button-->
-<!--        class="button tertiary outlined sm"-->
-<!--        (click)="resetFacetFiltersToDefaults()"-->
-<!--        type="button">-->
-<!--        {{ 'reset-to-defaults' | translate }}-->
-<!--      </button>-->
+      <button
+        class="button link primary with-icon sm"
+        (click)="resetFacetFiltersToDefaults()"
+        type="button">
+        <i class="icon-rotate-left-circle"></i>
+        {{ 'reset-to-defaults' | translate }}
+      </button>
     </div>
-
-<!--    <p class="config-description">{{ 'facet-filters-description' | translate }}</p>-->
 
     <div
       cdkDropList

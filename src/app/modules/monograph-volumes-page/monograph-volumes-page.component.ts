@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import {Router} from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TranslatePipe } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -15,6 +15,14 @@ import { MonographVolumesService } from '../../shared/services/monograph-volumes
 import { FILTER_SERVICE } from '../../shared/services/filter.service';
 import {ActionToolbarComponent} from "../../shared/components/action-toolbar/action-toolbar.component";
 import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/toolbar-header.component";
+import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
+import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {SelectionService} from '../../shared/services';
+import {RecordHandlerService} from '../../shared/services/record-handler.service';
+import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import {FavoritesService} from '../../shared/services/favorites.service';
+import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
+import {UiStateService} from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-monograph-volumes-page',
@@ -28,6 +36,8 @@ import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/too
     MonographFiltersComponent,
     ActionToolbarComponent,
     ToolbarHeaderComponent,
+    ResultsSortComponent,
+    ToolbarControlsComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -37,7 +47,12 @@ import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/too
   styleUrl: './monograph-volumes-page.component.scss'
 })
 export class MonographVolumesPageComponent implements OnInit {
+  public favoritesHelper: FavoritesPopupHelper;
+
   private store = inject(Store);
+  selectionService = inject(SelectionService);
+  recordHandler = inject(RecordHandlerService);
+  private uiStateService = inject(UiStateService);
 
   // Signals from store
   parent = toSignal(this.store.select(MonographVolumesSelectors.selectMonographVolumesParent));
@@ -55,6 +70,14 @@ export class MonographVolumesPageComponent implements OnInit {
     return vols.map(vol => searchDocumentToRecordItem(vol));
   });
 
+  constructor(
+    favoritesService: FavoritesService,
+    popupPositioning: PopupPositioningService,
+    router: Router
+  ) {
+    this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
+  }
+
   ngOnInit(): void {
   }
 
@@ -65,4 +88,17 @@ export class MonographVolumesPageComponent implements OnInit {
   hideRightSidebar() {
     this.rightSidebarVisible.set(false);
   }
+
+  openRecordInfo() {
+    this.toggleMetadataSidebar();
+  }
+
+  toggleMetadataSidebar() {
+    this.uiStateService.toggleMetadataSidebar();
+  }
+
+  onFavoritesClicked(event: Event) {
+    this.favoritesHelper.onFavoritesClicked(event, this.parent() || null, true);
+  }
+
 }

@@ -9,6 +9,7 @@ import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.comp
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {selectFoldersCount} from '../../../modules/saved-lists-page/state';
 import {_} from '../../../shared/translation/translate-placeholder';
+import {SettingsService} from '../../../modules/settings/settings.service';
 
 @Component({
   selector: 'app-user-info',
@@ -30,14 +31,15 @@ export class UserInfoComponent {
   }
 
   userMenuItems: MenuItem[] = [
-    { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square', route: [APP_ROUTES_ENUM.PROFILE] },
+    { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square' },
     { id: this.userMenuItemsIds.saved, label: _('user-info--saved-lists'), icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
-    { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
+    // { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
     { id: this.userMenuItemsIds.logout, label: _('user-info--logout'), icon: 'logout', variant: 'danger' }
   ];
 
   private router = inject(Router);
   private store = inject(Store);
+  private settingsService = inject(SettingsService);
 
   isAuthenticated = this.store.select(selectIsAuthenticated);
   user = this.store.select(selectUser);
@@ -45,10 +47,6 @@ export class UserInfoComponent {
   savedListsCount = this.store.select(selectFoldersCount);
 
   constructor() {
-    // Optionally, you can subscribe to the user observable if you need to perform actions based on user changes
-    this.user.subscribe(user => console.log('User info updated:', user));
-
-    // add saved lists count to the "Saved Lists" menu item label
     this.savedListsCount.subscribe(count => {
       const savedItem = this.userMenuItems.find(item => item.id === this.userMenuItemsIds.saved);
       if (savedItem) {
@@ -58,7 +56,9 @@ export class UserInfoComponent {
   }
 
   onUserMenu(item: MenuItem) {
-    if (item.id === this.userMenuItemsIds.logout) {
+    if (item.id === this.userMenuItemsIds.account) {
+      this.settingsService.openSettingsDialog('account');
+    } else if (item.id === this.userMenuItemsIds.logout) {
       this.logout();
     }
   }

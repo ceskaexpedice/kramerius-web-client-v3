@@ -22,11 +22,12 @@ import { BreakpointService } from '../../shared/services/breakpoint.service';
 export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   viewOptions = [
-    { value: AppResultsViewType.grid, icon: 'icon-row-vertical', ariaLabel: 'view-grid--arialabel' },
-    { value: AppResultsViewType.list, icon: 'icon-grid-8', ariaLabel: 'view-list--arialabel' },
+    { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
+    { value: AppResultsViewType.list, icon: 'icon-table', ariaLabel: 'view-list--arialabel' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
+  showSectionHeaders = signal<boolean>(true);
 
   protected readonly ViewOptions = AppResultsViewType;
 
@@ -61,6 +62,17 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
     }
 
+    // React to settings changes (e.g., when user changes view mode in settings dialog)
+    this.subscriptions.push(
+      this.settingsService.settings$.subscribe(settings => {
+        // Only update if no URL override is present
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        if (!currentUrlParams.has('viewType') && settings.searchResultsView) {
+          this.view.set(settings.searchResultsView);
+        }
+      })
+    )
+
     // Set up admin selection service to track current page items
     this.subscriptions.push(
       combineLatest([
@@ -80,6 +92,24 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       ).subscribe(allCurrentItems => {
         this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
       })
+    );
+
+    this.subscriptions.push(
+      combineLatest([
+        this.searchService.nonPageResults$,
+        this.searchService.articleResults$,
+        this.searchService.pageResults$,
+        this.searchService.attachmentResults$
+      ]).pipe(
+        map(([a, b, c, d]) => {
+          let count = 0;
+          if (a && a.length) count++;
+          if (b && b.length) count++;
+          if (c && c.length) count++;
+          if (d && d.length) count++;
+          return count > 1;
+        })
+      ).subscribe(show => this.showSectionHeaders.set(show))
     );
 
     // Notify scroll service when content has finished loading

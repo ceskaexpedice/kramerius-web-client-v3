@@ -1,0 +1,33 @@
+@import 'variables';
+
+::ng-deep {
+    .license-info-dialog-container {
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+
+        .content {
+            padding: 0 var(--spacing-x6) var(--spacing-x6) var(--spacing-x6);
+            font-size: var(--font-size-base);
+          line-height: var(--line-height-1);
+
+            p {
+                margin-bottom: 12px;
+            }
+
+            ul {
+                margin-bottom: 12px;
+                padding-left: 20px;
+            }
+
+            a {
+                color: var(--color-primary);
+                text-decoration: underline;
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+}

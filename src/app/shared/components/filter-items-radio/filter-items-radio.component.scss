@@ -4,6 +4,21 @@
   gap: var(--spacing-x2);
 }
 
+:host ::ng-deep .mat-mdc-radio-button .mdc-form-field {
+  width: 100%;
+}
+
+.radio-button {
+  width: 100%;
+
+  ::ng-deep .mdc-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
 label {
   color: var(--color-text-tertiary);
   font-size: var(--font-size-small);
@@ -23,5 +38,26 @@ label {
 
   &.selected {
     color: var(--color-text-tertiary);
+  }
+}
+
+.icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 1px;
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-light);
+  border: 1px solid transparent;
+  margin-left: auto;
+
+  &.active {
+    border-color: var(--color-primary);
+  }
+
+  i {
+    font-size: var(--font-size-base);
   }
 }

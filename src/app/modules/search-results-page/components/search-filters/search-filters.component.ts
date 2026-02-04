@@ -82,7 +82,7 @@ import { SearchService } from '../../../../shared/services/search.service';
           <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up"></i>
+              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
             </div>
 
             <app-filter-category
@@ -118,8 +118,8 @@ import { SearchService } from '../../../../shared/services/search.service';
         cursor: pointer;
         gap: var(--spacing-x2);
         color: var(--color-text-base);
-        margin-top: var(--spacing-x4);
         font-size: var(--font-size-small);
+        margin-top: var(--spacing-x2);
         font-weight: 500;
 
         i {

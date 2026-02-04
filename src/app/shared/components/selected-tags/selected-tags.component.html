@@ -1,17 +1,14 @@
-<div class="selected-tags" *ngIf="items.length > 0">
+<div class="selected-tags" *ngIf="items.length > 0"
+  [class.text-first-letter-capitalize]="textTransform === 'capitalize'">
   <mat-chip-set>
-    <button *ngIf="clearButtonPosition === 'left' && showClearAll"
-            mat-button
-            class="clear-button"
-            (click)="clearAll.emit()">
+    <button *ngIf="clearButtonPosition === 'left' && showClearAll" mat-button
+      class="clear-button clear-button-secondary" (click)="clearAll.emit()">
       {{'delete-all' | translate}}
     </button>
 
     <ng-container *ngFor="let field of uniqueFields">
 
-      <mat-chip
-        *ngIf="showOperators && getOperatorForField(field)"
-        (removed)="removeGroup.emit(field)"
+      <mat-chip *ngIf="showOperators && getOperatorForField(field)" (removed)="removeGroup.emit(field)"
         class="operator-chip">
 
         <label>
@@ -27,14 +24,14 @@
       <ng-container *ngFor="let item of getItemsForField(field)">
 
         <mat-chip (removed)="remove.emit(item)" class="filter-chip"
-                  [class.and-operator]="getOperatorForField(field) === 'AND'"
-                  [matTooltip]="getOriginalValue(item).length > maxTagLength ? getOriginalValue(item) : ''">
+          [class.and-operator]="getOperatorForField(field) === 'AND'"
+          [matTooltip]="getOriginalValue(item).length > maxTagLength ? getOriginalValue(item) : ''">
 
           <ng-container *ngIf="translateItems; else rawValue">
             <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
-              {{ getValue(item) | translate }}
+              {{ getTranslationKey(item) | translate }}
             </label>
-            <ng-template #valueOnly>{{ getValue(item) | translate }}</ng-template>
+            <ng-template #valueOnly>{{ getTranslationKey(item) | translate }}</ng-template>
           </ng-container>
 
           <ng-template #rawValue>
@@ -54,10 +51,8 @@
 
     </ng-container>
 
-    <button *ngIf="clearButtonPosition === 'right' && showClearAll"
-            mat-button
-            class="clear-button"
-            (click)="clearAll.emit()">
+    <button *ngIf="clearButtonPosition === 'right' && showClearAll" mat-button class="clear-button clear-button-primary"
+      (click)="clearAll.emit()">
       {{'delete-all' | translate}}
 
       <i class="icon-trash"></i>

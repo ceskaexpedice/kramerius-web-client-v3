@@ -1,0 +1,16 @@
+<section class="facet-grid-section" *ngIf="categories.length > 0">
+
+  <div class="section-header">
+    <h2>{{ config.title | translate }}</h2>
+  </div>
+
+  <div class="facet-grid">
+    <app-category-item
+      *ngFor="let category of categories"
+      [label]="category.label"
+      [count]="config.showCount !== false ? (category.count ?? 0) : 0"
+      [url]="category.url"
+      [icon]="getIcon(category)"
+    ></app-category-item>
+  </div>
+</section>

@@ -44,6 +44,7 @@ export interface DialogConfig {
 })
 export class SidebarDialogLayoutComponent {
   @Input() config!: DialogConfig;
+  @Input() initialSection?: string;
   @Output() save = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
   @Output() sectionChange = new EventEmitter<string>();
@@ -58,7 +59,11 @@ export class SidebarDialogLayoutComponent {
 
   ngOnInit() {
     this.checkMobileView();
-    if (this.config.sections.length > 0) {
+
+    // Use initial section if provided and valid, otherwise use first section
+    if (this.initialSection && this.isValidSection(this.initialSection)) {
+      this.activeSection.set(this.initialSection);
+    } else if (this.config.sections.length > 0) {
       const firstSection = this.config.sections[0];
       if (firstSection.isTitle && firstSection.children?.length) {
         this.activeSection.set(firstSection.children[0].key);
@@ -66,6 +71,16 @@ export class SidebarDialogLayoutComponent {
         this.activeSection.set(firstSection.key);
       }
     }
+  }
+
+  private isValidSection(key: string): boolean {
+    for (const section of this.config.sections) {
+      if (section.key === key) return true;
+      if (section.children) {
+        if (section.children.some(child => child.key === key)) return true;
+      }
+    }
+    return false;
   }
 
   checkMobileView() {

@@ -9,17 +9,17 @@ import {
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
-import {MatCalendar} from '@angular/material/datepicker';
-import {NgForOf, NgIf} from '@angular/common';
-import {Store} from '@ngrx/store';
-import {selectPeriodicalChildren} from '../../state/periodical-detail/periodical-detail.selectors';
-import {Router} from '@angular/router';
-import {APP_ROUTES_ENUM} from '../../../../app.routes';
-import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {PeriodicalService} from '../../../../shared/services/periodical.service';
-import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
+import { MatCalendar } from '@angular/material/datepicker';
+import { NgForOf, NgIf } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { selectPeriodicalChildren } from '../../state/periodical-detail/periodical-detail.selectors';
+import { Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../../../app.routes';
+import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PeriodicalService } from '../../../../shared/services/periodical.service';
+import { RecordHandlerService } from '../../../../shared/services/record-handler.service';
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -63,8 +63,8 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
 
   months = Array.from({ length: 12 }, (_, i) => i);
   monthNames = [
-    'Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún',
-    'Júl', 'August', 'September', 'Október', 'November', 'December',
+    'months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june',
+    'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december',
   ];
 
   @ViewChildren(MatCalendar) calendars!: QueryList<MatCalendar<Date>>;

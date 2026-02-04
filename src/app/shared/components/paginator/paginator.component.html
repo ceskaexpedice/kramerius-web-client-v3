@@ -26,16 +26,18 @@
 
     </ng-container>
 
-    <button class="button tertiary outlined arrow-button prev-button"
-      [attr.aria-label]="'go-to-previous-page' | translate" (click)="goToPage(page - 1)"
-      [disabled]="page === 1 || disabledPagination">
-      <i class="icon-arrow-left-3"></i>
-    </button>
+    @if (showArrows) {
+      <button class="button tertiary outlined arrow-button prev-button"
+              [attr.aria-label]="'go-to-previous-page' | translate" (click)="goToPage(page - 1)"
+              [disabled]="page === 1 || disabledPagination">
+        <i class="icon-arrow-left-3"></i>
+      </button>
 
-    <button class="button tertiary outlined arrow-button next-button" [attr.aria-label]="'go-to-next-page' | translate"
-      (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
-      <i class="icon-arrow-right-3"></i>
-    </button>
+      <button class="button tertiary outlined arrow-button next-button" [attr.aria-label]="'go-to-next-page' | translate"
+              (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
+        <i class="icon-arrow-right-3"></i>
+      </button>
+    }
   </div>
 
   <div class="page-size" *ngIf="showPageSizeOptions">

@@ -1,3 +1,4 @@
+@use "mixins";
 // Common layout styles moved to /public/styles/_page-layout.scss
 
 .page-content__wrapper {
@@ -6,7 +7,7 @@
   flex-direction: row;
   height: 100%;
   overflow: hidden;
-  padding: 0 var(--spacing-x4);
+  padding: 0;
 }
 
 .page-content__main {
@@ -15,12 +16,30 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-top: var(--spacing-x4);
+  padding: var(--spacing-x4);
   height: 100%;
 }
 
+
 .page-content__sidebar-right {
-  margin-top: 1px;
+  @include mixins.floating-sidebar;
+
+  // Ensure sidebar pushes content by default (relative positioning in flex)
+  position: relative;
+
+  // On very small screens, float over content instead of pushing it
+  @media (max-width: 900px) {
+    &,
+    &--relative {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: auto;
+      z-index: 100;
+      margin: var(--spacing-x4);
+    }
+  }
 }
 
 .selection-count {

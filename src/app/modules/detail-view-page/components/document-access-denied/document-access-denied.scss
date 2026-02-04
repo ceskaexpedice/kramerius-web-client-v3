@@ -1,0 +1,144 @@
+.access-denied-container {
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  width: 100%;
+  height: 100%;
+  padding: 40px;
+  overflow-y: auto;
+  background-color: var(--color-bg-base);
+  border-radius: var(--spacing-x3);
+}
+
+// Header Section
+.access-denied-header {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-base, #0a0d10);
+}
+
+.access-denied-title {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 44px;
+  margin: 0;
+}
+
+.access-denied-description {
+  font-family: var(--font-family-primary);
+  font-size: 18px;
+  line-height: 24px;
+  margin: 0;
+
+  p {
+    margin: 0 0 12px 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  span {
+    font-weight: 400;
+    color: var(--color-text-base);
+  }
+
+  a {
+    font-weight: 500;
+    color: var(--color-text-link);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+// Info Banner
+.info-banner {
+  display: flex;
+  gap: 12px;
+  background-color: var(--bg-main-light, #eff2f5);
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+}
+
+.banner-icon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-x2);
+
+  img {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+.banner-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--spacing-x3) var(--spacing-x6) var(--spacing-x4) var(--spacing-x1);
+
+  p {
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+    color: var(--color-tertiary);
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
+
+// FAQ Section
+.faq-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.faq-title {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 40px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .access-denied-container {
+    padding: 24px 16px;
+    gap: 40px;
+  }
+
+  .access-denied-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .access-denied-description {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .faq-title {
+    font-size: 20px;
+    line-height: 32px;
+  }
+}

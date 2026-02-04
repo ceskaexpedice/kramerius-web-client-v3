@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/
 import {PdfService} from '../../services/pdf.service';
 import {NgFor, NgIf} from '@angular/common';
 import {Subscription} from 'rxjs';
+import {TranslatePipe} from '@ngx-translate/core';
 
 export interface PdfOutlineItem {
   title: string;
@@ -12,7 +13,7 @@ export interface PdfOutlineItem {
 
 @Component({
   selector: 'app-pdf-content-tree',
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, TranslatePipe],
   templateUrl: './pdf-content-tree.component.html',
   styleUrl: './pdf-content-tree.component.scss'
 })
