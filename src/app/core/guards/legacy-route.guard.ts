@@ -36,6 +36,8 @@ class LegacyRouteResolverService {
         const queryParams = { ...route.queryParams };
         let hasChanges = false;
         let targetPath = state.url.split('?')[0];
+        const hadLegacyQuery = Boolean(queryParams['q']);
+        const hadLegacySort = Boolean(queryParams['sort']);
 
         // 1. Handle /browse route -> Redirect to search
         if (targetPath.includes('/browse')) {
@@ -100,6 +102,12 @@ class LegacyRouteResolverService {
                     }
                     break;
             }
+        }
+        // If legacy query exists without sort, default to relevance
+        if (hadLegacyQuery && !hadLegacySort && !queryParams['sortBy']) {
+            queryParams['sortBy'] = SolrSortFields.relevance;
+            queryParams['sortDirection'] = 'desc';
+            hasChanges = true;
         }
 
         // 5. Map 'from' / 'to' -> 'dateFrom' / 'dateTo' or 'yearFrom' / 'yearTo'
