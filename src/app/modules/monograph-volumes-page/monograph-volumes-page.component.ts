@@ -15,7 +15,6 @@ import { MonographVolumesService } from '../../shared/services/monograph-volumes
 import { FILTER_SERVICE } from '../../shared/services/filter.service';
 import {ActionToolbarComponent} from "../../shared/components/action-toolbar/action-toolbar.component";
 import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/toolbar-header.component";
-import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {SelectionService} from '../../shared/services';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
@@ -36,7 +35,6 @@ import {UiStateService} from '../../shared/services/ui-state.service';
     MonographFiltersComponent,
     ActionToolbarComponent,
     ToolbarHeaderComponent,
-    ResultsSortComponent,
     ToolbarControlsComponent,
   ],
   providers: [
