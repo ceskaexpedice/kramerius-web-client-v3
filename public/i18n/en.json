@@ -144,6 +144,7 @@
   "track-added-to-queue": "Track added to queue",
   "track-removed-from-queue": "Track removed from queue",
   "track-downloaded": "Track downloaded",
+  "image-access-restricted": "This image is not publicly accessible",
   "titles-section-header": "Titles",
   "attachments-section-header": "Attachments",
   "articles-section-header": "Articles",

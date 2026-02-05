@@ -23,7 +23,7 @@ import {
 import {ToastService} from '../../../shared/services/toast.service';
 import {DontShowAgainService} from '../../../shared/services';
 import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
-import {DocumentAccessibilityEnum} from "../../constants/document-accessibility";
+import {UserService} from '../../../shared/services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +37,7 @@ export class MusicService {
   private fileService = inject(FileService);
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
+  private userService = inject(UserService);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -99,9 +100,8 @@ export class MusicService {
       return;
     }
 
-    if (track.accessibility && track.accessibility === DocumentAccessibilityEnum.PRIVATE) {
-      console.warn('track is private, cannot add to queue.');
-
+    if (!this.userService.hasAnyLicense(track.licenses_of_ancestors)) {
+      console.warn('User does not have required license for this track, cannot add to queue.');
       return;
     }
 

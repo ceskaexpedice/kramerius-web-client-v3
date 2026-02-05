@@ -34,6 +34,7 @@ import { DocumentInfoService } from '../../../shared/services/document-info.serv
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { PdfService } from '../../../shared/services/pdf.service';
+import { UserService } from '../../../shared/services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -56,6 +57,7 @@ export class DetailViewService {
   private documentInfoService = inject(DocumentInfoService);
   private uiStateService = inject(UiStateService);
   private pdfService = inject(PdfService);
+  private userService = inject(UserService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   articles$ = this.store.select(selectDocumentDetailOnlyArticles);
@@ -177,6 +179,15 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  get isCurrentPageAccessible(): boolean {
+    const currentPage = this.getCurrentPage();
+    if (!currentPage) {
+      return false;
+    }
+
+    return this.userService.hasAnyLicense(currentPage.licenses_of_ancestors);
   }
 
   get currentArticlePid(): string | null {

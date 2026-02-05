@@ -110,6 +110,33 @@ export class UserService {
   }
 
   /**
+   * Check if user has a specific license
+   * @param license License name to check
+   */
+  public hasLicense(license: string): boolean {
+    return this._licenses().includes(license);
+  }
+
+  /**
+   * Check if user has any of the specified licenses
+   * Use this to verify if user can access content that requires specific licenses
+   * @param requiredLicenses Array of license names that grant access to the content
+   * @returns true if user has at least one matching license, false otherwise
+   */
+  public hasAnyLicense(requiredLicenses: string[]): boolean {
+    if (!requiredLicenses || requiredLicenses.length === 0) {
+      return false;
+    }
+
+    const userLicenses = this._licenses();
+    if (!userLicenses || userLicenses.length === 0) {
+      return false;
+    }
+
+    return requiredLicenses.some(license => userLicenses.includes(license));
+  }
+
+  /**
    * Clear all user data (licenses, roles, session)
    */
   public clearUserData(): void {

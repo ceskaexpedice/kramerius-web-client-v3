@@ -8,12 +8,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { CitationDialogComponent } from '../dialogs/citation-dialog/citation-dialog.component';
 import { ShareDialogComponent } from '../dialogs/share-dialog/share-dialog.component';
 import { Metadata } from '../models/metadata.model';
-import { PUBLIC_LICENSES } from '../../core/solr/solr-misc';
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { AdminSelectionService } from './admin-selection.service';
 import { RecordItem, searchDocumentToRecordItem } from '../components/record-item/record-item.model';
 import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/periodical-item';
 import { BreakpointService } from './breakpoint.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +24,7 @@ export class RecordHandlerService {
   private route = inject(ActivatedRoute);
   private adminSelectionService = inject(AdminSelectionService);
   private breakpointService = inject(BreakpointService);
+  private userService = inject(UserService);
 
   // Filter keys that should be preserved when navigating to periodicals
   private readonly FILTERS_TO_PRESERVE = ['yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
@@ -530,11 +531,9 @@ export class RecordHandlerService {
   }
 
   isRecordLocked(licenses: string[]): boolean {
-    // Check if the record contains any license from ONLINE_LICENSES
-    const hasOnlineLicense = licenses.some(license => PUBLIC_LICENSES.includes(license));
-
-    // Return false if it contains an online license, otherwise return true
-    return !hasOnlineLicense;
+    // Check if user has any license that grants access to this content
+    // Returns true (locked) if user doesn't have access, false (unlocked) if user has access
+    return !this.userService.hasAnyLicense(licenses);
   }
 
   goBackClicked(document: any): void {

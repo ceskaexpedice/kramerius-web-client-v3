@@ -149,16 +149,7 @@ export class DocumentInfoService {
             return false;
         }
 
-        const userLicenses = this.userService.licenses;
-        if (!userLicenses || userLicenses.length === 0) {
-            // User has no licenses
-            return false;
-        }
-
-        // Check if user has at least one license that matches providedByLicenses
-        return info.providedByLicenses.some(providedLicense =>
-            userLicenses.includes(providedLicense)
-        );
+        return this.userService.hasAnyLicense(info.providedByLicenses);
     }
 
     /**

@@ -137,6 +137,7 @@
   "track-added-to-queue": "Skladba pridaná do fronty",
   "track-removed-from-queue": "Skladba odstránená z fronty",
   "track-downloaded": "Skladba stiahnutá",
+  "image-access-restricted": "Tento obrázok nie je verejne prístupný",
   "titles-section-header": "Tituly",
   "attachments-section-header": "Prílohy",
   "articles-section-header": "Články",

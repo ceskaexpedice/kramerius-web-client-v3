@@ -5,7 +5,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
 import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
-import {DocumentAccessibilityEnum} from "../../../constants/document-accessibility";
+import {UserService} from '../../../../shared/services/user.service';
 import {CdkTooltipDirective} from '../../../../shared/directives';
 
 @Component({
@@ -27,6 +27,7 @@ export class MusicTrackItemComponent implements OnInit {
 
   public musicService = inject(MusicService);
   private favoritesService = inject(FavoritesService);
+  private userService = inject(UserService);
 
   @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
@@ -104,5 +105,7 @@ export class MusicTrackItemComponent implements OnInit {
     this.removeClicked.emit(this.track);
   }
 
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
+  get canAccessTrack(): boolean {
+    return this.userService.hasAnyLicense(this.track?.licenses_of_ancestors || []);
+  }
 }

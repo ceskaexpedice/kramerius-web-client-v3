@@ -71,7 +71,7 @@
       </button>
     }
 
-    @if (track.accessibility === DocumentAccessibilityEnum.PUBLIC) {
+    @if (canAccessTrack) {
       <button class="icon-button rounded light"
               [appCdkTooltip]="'download' | translate"
               [attr.aria-label]="'download-track-button--arialabel' | translate"

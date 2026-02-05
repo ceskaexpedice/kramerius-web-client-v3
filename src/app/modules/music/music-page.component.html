@@ -74,13 +74,15 @@
 
           @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-            <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
-            </app-iiif-viewer>
-
-<!--            <app-image-viewer [imagePid]="detailViewService.currentPagePid"></app-image-viewer>-->
-
-<!--            <img [src]="`${getKrameriusBaseUrl()}items/${detailViewService.currentPagePid}/image`" alt="Náhľad dokumentu"-->
-<!--              class="app-document-thumbnail">-->
+            @if (detailViewService.isCurrentPageAccessible) {
+              <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+              </app-iiif-viewer>
+            } @else {
+              <div class="access-restricted-message">
+                <span class="icon icon-lock-1"></span>
+                <p>{{ 'image-access-restricted' | translate }}</p>
+              </div>
+            }
 
           }
 
