@@ -11,6 +11,7 @@
 .radio-button {
   width: 100%;
   cursor: pointer;
+  --mdc-radio-unselected-icon-color: var(--color-border-contrast);
 
   ::ng-deep .mdc-label {
     display: flex;

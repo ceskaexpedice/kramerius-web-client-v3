@@ -183,6 +183,14 @@ mat-checkbox {
 }
 
 // radio
+mat-radio-button {
+  --mat-radio-unselected-icon-color: var(--color-border-contrast);
+}
+
+.mat-mdc-radio-button .mdc-radio__outer-circle {
+  border-width: 1px !important;
+}
+
 .mat-mdc-radio-button .mdc-label {
   cursor: pointer !important;
 }
