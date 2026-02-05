@@ -394,7 +394,14 @@ export class AdvancedSearchService {
   resetFromParams(params: Params): void {
     const rawQuery = params['advSearch'];
     const mainOperator = (params['advOp'] as SolrOperators) || SolrOperators.and;
-    if (!rawQuery) return;
+    if (!rawQuery) {
+      // Clear state when there's no advSearch in URL
+      this.filterGroupsSignal.set([]);
+      this.appliedGroupsSignal.set([]);
+      this.mainOperatorSignal.set(SolrOperators.and);
+      this.appliedMainOperatorSignal.set(SolrOperators.and);
+      return;
+    }
 
     const groups: FilterGroup[] = [];
 
