@@ -1,0 +1,32 @@
+<div class="thumbnail-image"
+     [ngClass]="[containerClass, 'size-' + size]"
+     [class.loading]="isLoading"
+     [class.error]="showFallback">
+
+  <!-- Skeleton/Loading state -->
+  @if (showSkeleton && isLoading) {
+    <div class="thumbnail-image__skeleton">
+      <i [ngClass]="fallbackIconClass"></i>
+    </div>
+  }
+
+  <!-- Fallback state (error or no src) -->
+  @if (showFallback) {
+    <div class="thumbnail-image__fallback">
+      <i [ngClass]="fallbackIconClass"></i>
+    </div>
+  }
+
+  <!-- Actual image -->
+  @if (src && !imageError()) {
+    <img
+      [src]="src"
+      [alt]="alt"
+      [attr.loading]="lazy ? 'lazy' : 'eager'"
+      (load)="onImageLoad()"
+      (error)="onImageError()"
+      class="thumbnail-image__img"
+      [class.hidden]="!imageLoaded()"
+    />
+  }
+</div>

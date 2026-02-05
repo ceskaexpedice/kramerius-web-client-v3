@@ -6,6 +6,7 @@ import {VolumeControlComponent} from './volume-control/volume-control.component'
 import {PlaybackQueueComponent} from './playback-queue/playback-queue.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../../modules/music/services/music.service';
+import {ThumbnailImageComponent} from '../thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'app-playback-bar',
@@ -15,6 +16,7 @@ import {MusicService} from '../../../modules/music/services/music.service';
     VolumeControlComponent,
     PlaybackQueueComponent,
     TranslatePipe,
+    ThumbnailImageComponent,
   ],
   templateUrl: './playback-bar.component.html',
   styleUrl: './playback-bar.component.scss'

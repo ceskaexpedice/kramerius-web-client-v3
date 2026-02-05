@@ -1,6 +1,12 @@
 <div class="playback-bar" *ngIf="show()">
   <div class="left">
-    <img class="cover" [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)" alt="Cover" />
+    <app-thumbnail-image
+      class="cover"
+      [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
+      alt="Cover"
+      fallbackIcon="music"
+      size="auto">
+    </app-thumbnail-image>
     <div class="info">
       <div class="title cursor-pointer" (click)="openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
       <div class="meta cursor-pointer" (click)="openTrackDetails()">

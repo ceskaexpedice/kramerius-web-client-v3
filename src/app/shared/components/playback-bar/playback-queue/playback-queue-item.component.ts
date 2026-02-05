@@ -7,6 +7,7 @@ import {Observable, EMPTY} from 'rxjs';
 import {Router} from '@angular/router';
 import {PopupPositioningService, PopupState} from '../../../services/popup-positioning.service';
 import {FavoritesPopupComponent} from '../../favorites-popup/favorites-popup.component';
+import {ThumbnailImageComponent} from '../../thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'app-playback-queue-item',
@@ -15,6 +16,7 @@ import {FavoritesPopupComponent} from '../../favorites-popup/favorites-popup.com
     AsyncPipe,
     NgClass,
     FavoritesPopupComponent,
+    ThumbnailImageComponent,
   ],
   templateUrl: './playback-queue-item.component.html',
   styleUrl: './playback-queue-item.component.scss'

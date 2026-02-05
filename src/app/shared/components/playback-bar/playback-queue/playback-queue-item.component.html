@@ -4,7 +4,12 @@
     [class.current-track]="isCurrentTrack"
   >
     <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()">
-      <img class="thumb" [src]="soundService.getImageThumbnailUrl(track.parentPid)" alt="" />
+      <app-thumbnail-image
+        class="thumb"
+        [src]="soundService.getImageThumbnailUrl(track.parentPid)"
+        fallbackIcon="music"
+        size="auto">
+      </app-thumbnail-image>
       <div class="thumb-overlay">
         <i *ngIf="isCurrentTrack"
            [class.icon-play]="!soundService.isPlayingSignal()"

@@ -10,6 +10,7 @@ import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
+import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -20,6 +21,7 @@ import { TableColumnConfig, ColumnRenderType } from '../../models/display-config
     AccessibilityBadgeComponent,
     CheckboxComponent,
     PluralizePipe,
+    ThumbnailImageComponent,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',

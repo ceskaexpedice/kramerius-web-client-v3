@@ -7,6 +7,7 @@ import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
 import {UserService} from '../../../../shared/services/user.service';
 import {CdkTooltipDirective} from '../../../../shared/directives';
+import {ThumbnailImageComponent} from '../../../../shared/components/thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: '[app-music-track-item]',
@@ -16,6 +17,7 @@ import {CdkTooltipDirective} from '../../../../shared/directives';
     AsyncPipe,
     NgClass,
     CdkTooltipDirective,
+    ThumbnailImageComponent,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],

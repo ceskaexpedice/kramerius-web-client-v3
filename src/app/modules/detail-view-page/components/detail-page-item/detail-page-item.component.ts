@@ -4,6 +4,7 @@ import { NgClass, NgIf } from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
 import { SelectionService } from '../../../../shared/services';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ThumbnailImageComponent } from '../../../../shared/components/thumbnail-image/thumbnail-image.component';
 
 export interface PreviewClickEvent {
   page: any;
@@ -18,6 +19,7 @@ export interface PreviewClickEvent {
     NgIf,
     CheckboxComponent,
     TranslatePipe,
+    ThumbnailImageComponent,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'
