@@ -124,6 +124,7 @@ export class DetailViewService {
     this._currentArticleIndex.set(0);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
+    this.soundRecordingViewMode.set('records');
   }
 
   /**
