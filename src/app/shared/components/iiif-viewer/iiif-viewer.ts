@@ -10,7 +10,8 @@ import {
   ViewChild,
   AfterViewInit,
   NgZone,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  signal
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
@@ -24,13 +25,16 @@ import { RecordHandlerService } from '../../services/record-handler.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExportService } from '../../services/export.service';
 import { AltoService } from '../../services/alto.service';
+import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
     FullscreenComponent,
     SelectionControls,
-    CommonModule
+    CommonModule,
+    ThumbnailImageComponent
   ],
   templateUrl: './iiif-viewer.html',
   styleUrl: './iiif-viewer.scss'
@@ -50,13 +54,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private altoService = inject(AltoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
+  private http = inject(HttpClient);
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
   private isUpdating = false;
   private failedPids = new Set<string>();
+  private directImageFailedPids = new Set<string>();
+
+  public showFallback = signal<boolean>(false);
+  public fallbackImageUrl = signal<string | null>(null);
 
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
@@ -190,6 +200,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
+      // Reset fallback state when switching to a new image
+      this.showFallback.set(false);
+      this.fallbackImageUrl.set(null);
       this.updateViewerForBookMode();
     }
   }
@@ -206,10 +219,43 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
 
+    // Get authorization headers if user is authenticated
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+
+    // Create HttpHeaders for the initial request
+    let headers = new HttpHeaders();
+    if (authHeaders['Authorization']) {
+      headers = headers.set('Authorization', authHeaders['Authorization']);
+    }
+
+    // specific 403 handling or manual fetch of info.json
+    this.http.get(infoUrl, { headers }).subscribe({
+      next: (infoJson: any) => {
+        // Fix for CORS redirect issue: Force HTTPS on service ID if needed
+        if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
+          infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
+        } else if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
+          infoJson['id'] = infoJson['id'].replace('http://', 'https://');
+        }
+
+        this.createViewer(infoJson, authHeaders);
+      },
+      error: (error) => {
+        console.error('Failed to fetch IIIF info.json', error);
+        this.handleOpenFailed();
+      }
+    });
+  }
+
+  private createViewer(tileSource: any, authHeaders: Record<string, string>): void {
+    if (this.viewer) {
+      this.viewer.destroy();
+    }
+
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
-      tileSources: [infoUrl],
+      tileSources: [tileSource],
       showNavigationControl: false,
       showRotationControl: false,
       showHomeControl: false,
@@ -217,6 +263,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       showFullPageControl: false,
       crossOriginPolicy: 'Anonymous', // Enable CORS for images from different domains
       ajaxWithCredentials: false, // Don't send credentials with CORS requests
+      loadTilesWithAjax: true, // Force AJAX for tiles to use custom headers
+      ajaxHeaders: authHeaders, // Send Authorization header if authenticated
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
@@ -235,6 +283,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       maxZoomLevel: 10,
       visibilityRatio: 1,
       constrainDuringPan: false
+    });
+
+    // Reset fallback state when image loads successfully
+    this.viewer.addHandler('open', () => {
+      this.ngZone.run(() => {
+        this.showFallback.set(false);
+        this.fallbackImageUrl.set(null);
+      });
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -260,35 +316,63 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.setupNativeTouchListeners();
 
     this.viewer.addHandler('open-failed', (event: any) => {
-      const currentPid = this.imagePid || this.metadata?.uuid;
-      if (!currentPid) {
-        console.error('No PID available for fallback');
-        return;
-      }
-
-      if (this.failedPids.has(currentPid)) {
-        console.error(`Fallback already failed for PID: ${currentPid}. Stopping to prevent infinite loop.`);
-        return;
-      }
-
-      this.failedPids.add(currentPid);
-
-      const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
-      console.log(`Attempting fallback image: ${directImageUrl}`);
-
-      if (this.viewer) {
-        this.viewer.open({
-          type: 'image',
-          url: directImageUrl
-        });
-      }
-
-      setTimeout(() => {
-        this.failedPids.delete(currentPid);
-      }, 5000);
+      this.handleOpenFailed();
     });
 
     this.iiifViewerService.setViewer(this.viewer);
+  }
+
+  private handleOpenFailed(): void {
+    const currentPid = this.imagePid || this.metadata?.uuid;
+    if (!currentPid) {
+      console.error('No PID available for fallback');
+      this.showFallback.set(true);
+      return;
+    }
+
+    // Check if direct image already failed for this PID
+    if (this.directImageFailedPids.has(currentPid)) {
+      console.log(`Both IIIF and direct image failed for PID: ${currentPid}. Showing thumbnail fallback.`);
+      this.ngZone.run(() => {
+        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.showFallback.set(true);
+        this.cdr.detectChanges();
+      });
+      return;
+    }
+
+    // Check if IIIF already failed (meaning this is the direct image failing now)
+    if (this.failedPids.has(currentPid)) {
+      console.log(`Direct image fallback also failed for PID: ${currentPid}. Showing thumbnail fallback.`);
+      this.directImageFailedPids.add(currentPid);
+      this.ngZone.run(() => {
+        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.showFallback.set(true);
+        this.cdr.detectChanges();
+      });
+
+      setTimeout(() => {
+        this.directImageFailedPids.delete(currentPid);
+      }, 5000);
+      return;
+    }
+
+    // IIIF failed, try direct image URL
+    this.failedPids.add(currentPid);
+
+    const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
+    console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
+
+    if (this.viewer) {
+      this.viewer.open({
+        type: 'image',
+        url: directImageUrl
+      });
+    }
+
+    setTimeout(() => {
+      this.failedPids.delete(currentPid);
+    }, 5000);
   }
 
   private updateViewerSource(): void {

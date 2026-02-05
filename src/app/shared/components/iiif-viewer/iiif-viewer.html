@@ -1,8 +1,15 @@
 <app-fullscreen>
   <div class="iiif-viewer-container">
     <div class="iiif-viewer-main">
-      <div #viewerContainer class="openseadragon-container"></div>
-      <app-selection-controls *ngIf="showSelectionControls && selectionRect" [style.top.px]="selectionRect.top"
+      <div class="iiif-viewer-fallback" [class.visible]="showFallback()">
+        <app-thumbnail-image
+          [src]="fallbackImageUrl()"
+          fallbackIcon="document"
+          size="auto">
+        </app-thumbnail-image>
+      </div>
+      <div #viewerContainer class="openseadragon-container" [class.hidden]="showFallback()"></div>
+      <app-selection-controls *ngIf="showSelectionControls && selectionRect && !showFallback()" [style.top.px]="selectionRect.top"
         [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
         (share)="onShare()">
       </app-selection-controls>

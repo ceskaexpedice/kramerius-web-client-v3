@@ -18,6 +18,30 @@
   width: 100%;
   height: 100%;
   background-color: transparent;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.iiif-viewer-fallback {
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-light);
+
+  &.visible {
+    display: flex;
+  }
+
+  app-thumbnail-image {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 400px;
+  }
 }
 
 :host ::ng-deep .openseadragon-canvas {
