@@ -24,7 +24,7 @@
       </div>
 
       <img *ngIf="!loading && item && !imageError()" [src]="getImageThumbnailUrl()" (load)="onImageLoad()"
-        (error)="onImageError()" class="real-image" [class.hidden]="!imageLoaded()" alt="">
+        (error)="onImageError()" class="real-image" [class.hidden]="!imageLoaded()" alt="" loading="lazy">
 
       @if (!loading && item?.model) {
       <div class="record-item-card__actions">
