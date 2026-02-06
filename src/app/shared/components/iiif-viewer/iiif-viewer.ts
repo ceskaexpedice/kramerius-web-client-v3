@@ -232,11 +232,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
         // Fix for CORS redirect issue: Force HTTPS on service ID if needed
-        if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
-          infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
-        } else if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
-          infoJson['id'] = infoJson['id'].replace('http://', 'https://');
-        }
+        // if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
+        //   infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
+        // } else if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
+        //   infoJson['id'] = infoJson['id'].replace('http://', 'https://');
+        // }
 
         this.createViewer(infoJson, authHeaders);
       },
