@@ -228,15 +228,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       headers = headers.set('Authorization', authHeaders['Authorization']);
     }
 
-    // specific 403 handling or manual fetch of info.json
+    // Fetch info.json with auth headers, then create viewer
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
-        // Fix for CORS redirect issue: Force HTTPS on service ID if needed
-        // if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
-        //   infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
-        // } else if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
-        //   infoJson['id'] = infoJson['id'].replace('http://', 'https://');
-        // }
+        // Fix for mixed content: Force HTTPS on all URLs in info.json
+        if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
+          infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
+        }
+        if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
+          infoJson['id'] = infoJson['id'].replace('http://', 'https://');
+        }
 
         this.createViewer(infoJson, authHeaders);
       },
