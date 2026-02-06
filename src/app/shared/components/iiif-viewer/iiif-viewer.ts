@@ -217,6 +217,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Enable test mode in service if TEST_FALLBACK is true
     this.iiifViewerService.setTestFallbackMode(this.TEST_FALLBACK);
 
+    // Set thumbnail as background placeholder (blur→sharp effect)
+    this.setThumbnailBackground(pid);
+
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
 
     // Get authorization headers if user is authenticated
@@ -231,13 +234,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Fetch info.json with auth headers, then create viewer
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
-        console.log('[IIIF] Raw info.json:', { '@context': infoJson['@context'], '@id': infoJson['@id'], 'id': infoJson['id'] });
-
         this.processInfoJson(infoJson);
-
-        console.log('[IIIF] Processed info.json:', { '@context': infoJson['@context'], '@id': infoJson['@id'], 'id': infoJson['id'] });
-
-        this.createViewer(infoJson, authHeaders);
+        this.createViewer(infoJson);
       },
       error: (error) => {
         console.error('Failed to fetch IIIF info.json', error);
@@ -246,18 +244,36 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     });
   }
 
-  private createViewer(tileSource: any, authHeaders: Record<string, string>): void {
+  /**
+   * Set thumbnail image as background placeholder while IIIF tiles load
+   * Creates the blur→sharp progressive loading effect
+   */
+  private setThumbnailBackground(pid: string): void {
+    const thumbnailUrl = this.iiifViewerService.getThumbnailUrl(pid);
+    const container = this.viewerContainer.nativeElement;
+    container.style.backgroundImage = `url('${thumbnailUrl}')`;
+    container.style.backgroundSize = 'contain';
+    container.style.backgroundPosition = 'center';
+    container.style.backgroundRepeat = 'no-repeat';
+  }
+
+  /**
+   * Clear the thumbnail background after IIIF tiles have loaded
+   */
+  private clearThumbnailBackground(): void {
+    const container = this.viewerContainer.nativeElement;
+    container.style.backgroundImage = '';
+  }
+
+  private createViewer(tileSource: any): void {
     if (this.viewer) {
       this.viewer.destroy();
     }
 
-    const hasAuth = Object.keys(authHeaders).length > 0;
-    console.log('[IIIF] createViewer - tile source id:', tileSource['id']);
-
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
-      tileSources: [tileSource],
+      tileSources: tileSource,
       showNavigationControl: false,
       showRotationControl: false,
       showHomeControl: false,
@@ -267,6 +283,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // Tiles come from a separate image server that doesn't need/want credentials.
       crossOriginPolicy: 'Anonymous',
       ajaxWithCredentials: false,
+      // Transparent placeholder so thumbnail background shows through
+      placeholderFillStyle: 'transparent',
+      // Ensure smooth progressive loading (low-res → high-res)
+      immediateRender: false,
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
@@ -295,6 +315,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       });
     });
 
+    // Clear thumbnail background once first tiles are drawn
+    this.viewer.addOnceHandler('tile-drawn', () => {
+      this.clearThumbnailBackground();
+    });
+
     this.viewer.addHandler('update-viewport', () => {
       if (this.showSelectionControls) {
 
@@ -317,8 +342,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // because they're more reliable across different browsers and devices
     this.setupNativeTouchListeners();
 
-    this.viewer.addHandler('open-failed', (event: any) => {
-      console.log('[IIIF] open-failed:', event.message);
+    this.viewer.addHandler('open-failed', () => {
       this.handleOpenFailed();
     });
 
@@ -410,6 +434,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 
+    // Set thumbnail as background placeholder for blur→sharp effect (single page only)
+    if (!this.iiifViewerService.isBookMode()) {
+      this.setThumbnailBackground(currentPid);
+    } else {
+      // Clear any existing thumbnail in book mode (two pages don't match one thumbnail)
+      this.clearThumbnailBackground();
+    }
+
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
     const authHeaders = this.iiifViewerService.getAuthHeaders();
 
@@ -435,22 +467,25 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
                   { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
                   { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
                 ]);
+                // No thumbnail in book mode, so no need to clear on tile-drawn
                 this.isUpdating = false;
               },
               error: () => {
                 // If next page fails, just show current page
                 this.viewer?.open(infoJson);
+                // No thumbnail in book mode, so no need to clear on tile-drawn
                 this.isUpdating = false;
               }
             });
           } else {
-            // No next page, just show current
+            // No next page, just show current (still in book mode context)
             this.viewer?.open(infoJson);
             this.isUpdating = false;
           }
         } else {
-          // Single page mode
+          // Single page mode - clear thumbnail after first tile drawn
           this.viewer?.open(infoJson);
+          this.viewer?.addOnceHandler('tile-drawn', () => this.clearThumbnailBackground());
           this.isUpdating = false;
         }
       },

@@ -184,6 +184,12 @@ export class IIIFViewerService {
     return `${itemsUrl}/${pid}/image`;
   }
 
+  // Get thumbnail URL (shown as placeholder while IIIF tiles load)
+  getThumbnailUrl(pid: string): string {
+    const itemsUrl = this.env.getApiUrl('items');
+    return `${itemsUrl}/${pid}/image/thumb`;
+  }
+
   // Get authorization headers for OpenSeadragon AJAX requests
   getAuthHeaders(): Record<string, string> {
     const token = this.authService.getAccessToken();

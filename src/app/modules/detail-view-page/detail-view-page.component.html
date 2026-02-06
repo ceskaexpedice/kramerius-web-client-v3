@@ -152,11 +152,10 @@
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
-          <!-- Wait for page info to be loaded -->
-         @if ((checkState === 'INITIAL' || checkState === 'LOADING') && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
-         <app-inline-loader [overlay]="true"></app-inline-loader>
-          } @else if (!documentInfoService.canAccessDocument() && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
-          <!-- Show access denied component if user cannot access -->
+          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
+
+          <!-- Show access denied only after access check completes and fails -->
+          @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument() && !isPdfContent) {
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
           </app-document-access-denied>
