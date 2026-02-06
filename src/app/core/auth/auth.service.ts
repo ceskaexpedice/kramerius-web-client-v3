@@ -179,7 +179,7 @@ export class AuthService {
 
         // Reload to ensure all components display correct data based on new licenses
         setTimeout(() => {
-          window.location.reload();
+          // window.location.reload();
         }, 50);
       }
     } catch (error) {

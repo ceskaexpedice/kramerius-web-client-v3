@@ -248,6 +248,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.viewer.destroy();
     }
 
+    const hasAuth = Object.keys(authHeaders).length > 0;
+
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
@@ -257,8 +259,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       showHomeControl: false,
       showZoomControl: false,
       showFullPageControl: false,
-      crossOriginPolicy: 'Anonymous', // Enable CORS for images from different domains
-      ajaxWithCredentials: false, // Don't send credentials with CORS requests
+      // When authenticated, allow sending credentials with CORS requests
+      crossOriginPolicy: hasAuth ? 'use-credentials' : 'Anonymous',
+      ajaxWithCredentials: hasAuth,
       loadTilesWithAjax: true, // Force AJAX for tiles to use custom headers
       ajaxHeaders: authHeaders, // Send Authorization header if authenticated
       gestureSettingsMouse: {
