@@ -9,6 +9,7 @@
       <ngx-extended-pdf-viewer
         #pdfViewer
         [src]="pdfService.url"
+        [httpHeaders]="pdfService.httpHeaders"
         [page]="(pdfService.currentPage$ | async) || 1"
         [(zoom)]="pdfService.pdfProperties.zoom"
         [(rotation)]="pdfService.pdfProperties.rotation"
