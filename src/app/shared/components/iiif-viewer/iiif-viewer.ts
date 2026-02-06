@@ -232,12 +232,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
         // Fix for mixed content: Force HTTPS on all URLs in info.json
-        if (infoJson['@id'] && infoJson['@id'].startsWith('http://')) {
-          infoJson['@id'] = infoJson['@id'].replace('http://', 'https://');
-        }
-        if (infoJson['id'] && infoJson['id'].startsWith('http://')) {
-          infoJson['id'] = infoJson['id'].replace('http://', 'https://');
-        }
+        this.fixHttpUrls(infoJson);
 
         this.createViewer(infoJson, authHeaders);
       },
@@ -405,15 +400,76 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     this.isUpdating = true;
 
-    try {
-      // Get next page PID for book mode
-      const nextPagePid = this.getNextPagePid();
+    // Clear existing overlays when changing pages
+    this.iiifViewerService.clearAllOverlays();
 
-      this.iiifViewerService.updateBookModeDisplay(currentPid, nextPagePid);
-    } finally {
-      setTimeout(() => {
+    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+
+    let headers = new HttpHeaders();
+    if (authHeaders['Authorization']) {
+      headers = headers.set('Authorization', authHeaders['Authorization']);
+    }
+
+    // Fetch info.json with auth headers and fix HTTP URLs
+    this.http.get(infoUrl, { headers }).subscribe({
+      next: (infoJson: any) => {
+        // Fix for mixed content: Force HTTPS on all URLs in info.json
+        this.fixHttpUrls(infoJson);
+
+        if (this.iiifViewerService.isBookMode()) {
+          // Book mode: fetch next page too
+          const nextPagePid = this.getNextPagePid();
+          if (nextPagePid) {
+            const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
+            this.http.get(nextInfoUrl, { headers }).subscribe({
+              next: (nextInfoJson: any) => {
+                this.fixHttpUrls(nextInfoJson);
+                this.viewer?.open([
+                  { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
+                  { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
+                ]);
+                this.isUpdating = false;
+              },
+              error: () => {
+                // If next page fails, just show current page
+                this.viewer?.open(infoJson);
+                this.isUpdating = false;
+              }
+            });
+          } else {
+            // No next page, just show current
+            this.viewer?.open(infoJson);
+            this.isUpdating = false;
+          }
+        } else {
+          // Single page mode
+          this.viewer?.open(infoJson);
+          this.isUpdating = false;
+        }
+      },
+      error: (error) => {
+        console.error('Failed to fetch IIIF info.json for page update', error);
+        this.handleOpenFailed();
         this.isUpdating = false;
-      }, 100);
+      }
+    });
+  }
+
+  /**
+   * Fix HTTP URLs in IIIF info.json to use HTTPS (prevents mixed content errors)
+   * Recursively processes all string values in the JSON
+   */
+  private fixHttpUrls(obj: any): void {
+    if (!obj || typeof obj !== 'object') return;
+
+    for (const key of Object.keys(obj)) {
+      const value = obj[key];
+      if (typeof value === 'string' && value.startsWith('http://')) {
+        obj[key] = value.replace('http://', 'https://');
+      } else if (typeof value === 'object') {
+        this.fixHttpUrls(value);
+      }
     }
   }
 
