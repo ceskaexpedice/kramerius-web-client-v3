@@ -231,8 +231,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Fetch info.json with auth headers, then create viewer
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
+        console.log('[IIIF] Raw info.json @context:', infoJson['@context']);
+        console.log('[IIIF] Raw info.json @id:', infoJson['@id']);
+        console.log('[IIIF] Raw info.json protocol:', infoJson['protocol']);
+
         // Fix for mixed content: Force HTTPS on all URLs in info.json
         this.fixHttpUrls(infoJson);
+
+        console.log('[IIIF] After fixHttpUrls @context:', infoJson['@context']);
+        console.log('[IIIF] After fixHttpUrls @id:', infoJson['@id']);
+        console.log('[IIIF] After fixHttpUrls protocol:', infoJson['protocol']);
 
         this.createViewer(infoJson, authHeaders);
       },
@@ -249,6 +257,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     const hasAuth = Object.keys(authHeaders).length > 0;
+    console.log('[IIIF] createViewer - hasAuth:', hasAuth);
+    console.log('[IIIF] createViewer - tileSource @context:', tileSource['@context']);
+    console.log('[IIIF] createViewer - tileSource id:', tileSource['id']);
+    console.log('[IIIF] createViewer - tileSource @id:', tileSource['@id']);
 
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
@@ -259,11 +271,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       showHomeControl: false,
       showZoomControl: false,
       showFullPageControl: false,
-      // When authenticated, allow sending credentials with CORS requests
-      crossOriginPolicy: hasAuth ? 'use-credentials' : 'Anonymous',
-      ajaxWithCredentials: hasAuth,
-      loadTilesWithAjax: true, // Force AJAX for tiles to use custom headers
-      ajaxHeaders: authHeaders, // Send Authorization header if authenticated
+      // Note: Auth is only for info.json (fetched via HttpClient).
+      // Tiles come from a separate image server that doesn't need/want credentials.
+      crossOriginPolicy: 'Anonymous',
+      ajaxWithCredentials: false,
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
@@ -315,6 +326,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.setupNativeTouchListeners();
 
     this.viewer.addHandler('open-failed', (event: any) => {
+      console.log('[IIIF] open-failed event:', event);
+      console.log('[IIIF] open-failed source:', event.source);
+      console.log('[IIIF] open-failed message:', event.message);
       this.handleOpenFailed();
     });
 
@@ -417,8 +431,12 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Fetch info.json with auth headers and fix HTTP URLs
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
+        console.log('[IIIF] updateViewerForBookMode - raw @context:', infoJson['@context']);
+
         // Fix for mixed content: Force HTTPS on all URLs in info.json
         this.fixHttpUrls(infoJson);
+
+        console.log('[IIIF] updateViewerForBookMode - after fix @context:', infoJson['@context']);
 
         if (this.iiifViewerService.isBookMode()) {
           // Book mode: fetch next page too
@@ -462,11 +480,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   /**
    * Fix HTTP URLs in IIIF info.json to use HTTPS (prevents mixed content errors)
    * Recursively processes all string values in the JSON
+   * NOTE: Preserves @context and protocol fields as OpenSeadragon needs exact
+   * "http://iiif.io/api/image/..." patterns to identify IIIF tile sources
    */
   private fixHttpUrls(obj: any): void {
     if (!obj || typeof obj !== 'object') return;
 
+    // Fields that OpenSeadragon checks for exact "http://..." patterns
+    const preserveFields = ['@context', 'protocol', 'profile'];
+
     for (const key of Object.keys(obj)) {
+      // Skip IIIF spec fields that must remain as http://
+      if (preserveFields.includes(key)) continue;
+
       const value = obj[key];
       if (typeof value === 'string' && value.startsWith('http://')) {
         obj[key] = value.replace('http://', 'https://');
