@@ -231,16 +231,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Fetch info.json with auth headers, then create viewer
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
-        console.log('[IIIF] Raw info.json @context:', infoJson['@context']);
-        console.log('[IIIF] Raw info.json @id:', infoJson['@id']);
-        console.log('[IIIF] Raw info.json protocol:', infoJson['protocol']);
+        console.log('[IIIF] Raw info.json:', { '@context': infoJson['@context'], '@id': infoJson['@id'], 'id': infoJson['id'] });
 
-        // Fix for mixed content: Force HTTPS on all URLs in info.json
-        this.fixHttpUrls(infoJson);
+        this.processInfoJson(infoJson);
 
-        console.log('[IIIF] After fixHttpUrls @context:', infoJson['@context']);
-        console.log('[IIIF] After fixHttpUrls @id:', infoJson['@id']);
-        console.log('[IIIF] After fixHttpUrls protocol:', infoJson['protocol']);
+        console.log('[IIIF] Processed info.json:', { '@context': infoJson['@context'], '@id': infoJson['@id'], 'id': infoJson['id'] });
 
         this.createViewer(infoJson, authHeaders);
       },
@@ -257,10 +252,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     const hasAuth = Object.keys(authHeaders).length > 0;
-    console.log('[IIIF] createViewer - hasAuth:', hasAuth);
-    console.log('[IIIF] createViewer - tileSource @context:', tileSource['@context']);
-    console.log('[IIIF] createViewer - tileSource id:', tileSource['id']);
-    console.log('[IIIF] createViewer - tileSource @id:', tileSource['@id']);
+    console.log('[IIIF] createViewer - tile source id:', tileSource['id']);
 
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
@@ -326,9 +318,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.setupNativeTouchListeners();
 
     this.viewer.addHandler('open-failed', (event: any) => {
-      console.log('[IIIF] open-failed event:', event);
-      console.log('[IIIF] open-failed source:', event.source);
-      console.log('[IIIF] open-failed message:', event.message);
+      console.log('[IIIF] open-failed:', event.message);
       this.handleOpenFailed();
     });
 
@@ -431,12 +421,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Fetch info.json with auth headers and fix HTTP URLs
     this.http.get(infoUrl, { headers }).subscribe({
       next: (infoJson: any) => {
-        console.log('[IIIF] updateViewerForBookMode - raw @context:', infoJson['@context']);
-
-        // Fix for mixed content: Force HTTPS on all URLs in info.json
-        this.fixHttpUrls(infoJson);
-
-        console.log('[IIIF] updateViewerForBookMode - after fix @context:', infoJson['@context']);
+        this.processInfoJson(infoJson);
 
         if (this.iiifViewerService.isBookMode()) {
           // Book mode: fetch next page too
@@ -445,7 +430,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
             const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
             this.http.get(nextInfoUrl, { headers }).subscribe({
               next: (nextInfoJson: any) => {
-                this.fixHttpUrls(nextInfoJson);
+                this.processInfoJson(nextInfoJson);
                 this.viewer?.open([
                   { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
                   { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
@@ -475,6 +460,22 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.isUpdating = false;
       }
     });
+  }
+
+  /**
+   * Process IIIF info.json for use with OpenSeadragon:
+   * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
+   * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   */
+  private processInfoJson(infoJson: any): void {
+    this.fixHttpUrls(infoJson);
+
+    // For IIIF 3: if both 'id' and '@id' exist, remove '@id' to ensure
+    // OpenSeadragon uses 'id' (which points to imageserver, no auth needed)
+    // instead of '@id' (which points to api server, requires auth)
+    if (infoJson['id'] && infoJson['@id']) {
+      delete infoJson['@id'];
+    }
   }
 
   /**
