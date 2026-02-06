@@ -154,11 +154,14 @@
           @let checkState = documentInfoService.state();
           @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
 
-          <!-- Show access denied only after access check completes and fails -->
-          @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument() && !isPdfContent) {
+          <!-- Show access denied after access check completes and fails -->
+          @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
           </app-document-access-denied>
+          } @else if (isPdfContent && (checkState === 'INITIAL' || checkState === 'LOADING')) {
+          <!-- Show loader for PDF while access is being checked -->
+          <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
           @let articleMetadata = articleMetadata$ | async;
@@ -178,7 +181,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
         <button class="floating-sidebar-toggle button outlined tertiary with-icon"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
@@ -187,7 +190,7 @@
         }
 
         <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+        @if (documentInfoService.canAccessDocument()) {
         @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>

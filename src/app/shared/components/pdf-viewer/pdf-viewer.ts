@@ -30,6 +30,7 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private router = inject(Router);
   private subscriptions: Subscription[] = [];
   private isInitialLoad = true;
+  private pendingPageNavigation: number | null = null;
 
   constructor() {
   }
@@ -76,17 +77,14 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
         const pageNumber = parseInt(pageNumberStr, 10);
 
         if (!isNaN(pageNumber) && pageNumber > 0) {
-          setTimeout(() => {
-            this.pdfService.navigateToPage(pageNumber);
-            this.isInitialLoad = false;
-          }, 500); // Give PDF time to load
+          this.pendingPageNavigation = pageNumber;
           return;
         }
       }
     }
 
-    // No valid page param, mark as loaded
-    this.isInitialLoad = false;
+    // No valid page param - will enable URL updates after pagesLoaded
+    this.pendingPageNavigation = null;
   }
 
   private updateUrlWithPage(pageNumber: number): void {
@@ -133,6 +131,15 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
       this.pdfService.setPdfViewerComponent(this.pdfViewer);
       console.log('PDF viewer component set');
     }
+
+    // Execute pending page navigation from URL
+    if (this.pendingPageNavigation !== null) {
+      this.pdfService.navigateToPage(this.pendingPageNavigation);
+      this.pendingPageNavigation = null;
+    }
+
+    // Now enable URL updates - PDF is fully loaded
+    this.isInitialLoad = false;
 
     // Wait 1 second for the component service to be fully initialized
     setTimeout(() => {

@@ -1,12 +1,12 @@
-<div class="page--grid" [ngClass]="'type-' + type" *ngIf="(detailViewService.pages$ | async) as pages">
+<div class="page--grid" [ngClass]="'type-' + type" *ngIf="(detailViewService.pagesOnly$ | async) as pages">
 
   @for (page of pages; track page.pid; let index = $index) {
     <app-detail-page-item
       [page]="page"
       [type]="type"
       [pageNumber]="page['page.number']"
-      [isSelected]="detailViewService.isPageActive(index)"
-      (pageClicked)="clickedPage(index)"
+      [isSelected]="detailViewService.isPageActiveByPid(page.pid)"
+      (pageClicked)="clickedPage(page.pid)"
     >
     </app-detail-page-item>
   }

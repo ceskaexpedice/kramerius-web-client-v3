@@ -26,7 +26,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ExportService } from '../../services/export.service';
 import { AltoService } from '../../services/alto.service';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
+import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 
 @Component({
   selector: 'app-iiif-viewer',
@@ -232,7 +233,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     // Fetch info.json with auth headers, then create viewer
-    this.http.get(infoUrl, { headers }).subscribe({
+    this.http.get(infoUrl, {
+      headers,
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).subscribe({
       next: (infoJson: any) => {
         this.processInfoJson(infoJson);
         this.createViewer(infoJson);
@@ -307,17 +311,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
-    // Reset fallback state when image loads successfully
+    // Reset fallback state and clear thumbnail when image loads successfully
     this.viewer.addHandler('open', () => {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
+        // Clear thumbnail background once image is open
+        this.clearThumbnailBackground();
       });
-    });
-
-    // Clear thumbnail background once first tiles are drawn
-    this.viewer.addOnceHandler('tile-drawn', () => {
-      this.clearThumbnailBackground();
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -451,7 +452,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     // Fetch info.json with auth headers and fix HTTP URLs
-    this.http.get(infoUrl, { headers }).subscribe({
+    this.http.get(infoUrl, {
+      headers,
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).subscribe({
       next: (infoJson: any) => {
         this.processInfoJson(infoJson);
 
@@ -460,7 +464,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
           const nextPagePid = this.getNextPagePid();
           if (nextPagePid) {
             const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
-            this.http.get(nextInfoUrl, { headers }).subscribe({
+            this.http.get(nextInfoUrl, {
+              headers,
+              context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+            }).subscribe({
               next: (nextInfoJson: any) => {
                 this.processInfoJson(nextInfoJson);
                 this.viewer?.open([
@@ -483,9 +490,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
             this.isUpdating = false;
           }
         } else {
-          // Single page mode - clear thumbnail after first tile drawn
+          // Single page mode
           this.viewer?.open(infoJson);
-          this.viewer?.addOnceHandler('tile-drawn', () => this.clearThumbnailBackground());
           this.isUpdating = false;
         }
       },
