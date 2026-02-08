@@ -1,49 +1,74 @@
 .advanced-search-indicator--container {
-  background-color: var(--color-bg-base);
   border-radius: 8px;
+  overflow: hidden;
   display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
 
-  .advanced-search-indicator--content {
-    max-width: 960px;
-    flex: 1 1 auto;
-    padding: 12px 16px;
+  .advanced-search-indicator--main-row {
+    background-color: var(--color-bg-base);
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 16px;
+    flex-wrap: wrap;
 
-    .advanced-search-indicator--title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
+    .advanced-search-indicator--content {
+      max-width: 960px;
+      flex: 1 1 auto;
+      padding: 12px 16px;
+
+      .advanced-search-indicator--title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-1);
+      }
+
+      .advanced-search-indicator--preview {
+        color: var(--color-text-btn-tertiary-default);
+        font-size: var(--font-size-base);
+        margin: 0;
+        margin-bottom: var(--spacing-x4);
+      }
+
+      .advanced-search-indicator--buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        width: 100%;
+
+        .button {
+          flex: 1;
+          height: 32px;
+        }
+      }
     }
 
-    .advanced-search-indicator--preview {
-      color: var(--color-text-btn-tertiary-default);
-    }
-
-    .advanced-search-indicator--buttons {
+    .advanced-search-indicator--image {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      width: 100%;
+      align-items: flex-end;
 
-      .button {
-        flex: 1;
+      img {
+        height: 120px;
+        object-fit: contain;
+        display: block;
       }
     }
   }
 
-  .advanced-search-indicator--image {
+  .advanced-search-indicator--no-results {
+    background-color: #FAEAC8;
+    color: var(--text-base);
+    padding: 12px 16px;
     display: flex;
-    align-items: flex-end;
-    height: 100%;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--font-size-base);
 
     img {
-      height: 100%;
-      object-fit: contain;
-      display: block;
+      height: 32px;
     }
   }
 }

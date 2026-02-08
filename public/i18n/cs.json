@@ -87,6 +87,8 @@
   "advanced-search-indicator.edit": "Upravit dotaz",
   "advanced-search-indicator.new": "Nové hledání",
   "advanced-search-indicator.cancel": "Zrušit",
+  "advanced-search-indicator.no-results.message": "Nic jsme nenašli, zkuste upravit dotaz.",
+  "advanced-search-indicator.no-results.contact-prefix": "Pokud potřebujete poradit, napište nám na e-mail",
   "filter-dialog.search-placeholder": "Hledat v seznamu...",
   "filter-dialog.sort.count": "Podle výskytu",
   "filter-dialog.sort.alpha": "Abecedně",

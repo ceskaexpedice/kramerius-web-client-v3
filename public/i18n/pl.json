@@ -485,5 +485,7 @@
   "header.aria.close-search": "Zamknij wyszukiwanie",
   "header.aria.search": "Szukaj",
   "header.aria.menu": "Menu",
-  "no-text-content": "Nie zawiera żadnego wystąpienia"
+  "no-text-content": "Brak zawartości tekstowej",
+  "advanced-search-indicator.no-results.message": "Nic nie znaleźliśmy, spróbuj zmienić zapytanie.",
+  "advanced-search-indicator.no-results.contact-prefix": "Jeśli potrzebujesz porady, napisz do nas na e-mail"
 }

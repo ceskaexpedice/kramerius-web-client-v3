@@ -486,6 +486,8 @@
   "citation.load-error": "Failed to load citation.",
   "loading-pages": "Loading pages...",
   "no-content-available": "No content available",
+  "advanced-search-indicator.no-results.message": "We found nothing, try adjusting your query.",
+  "advanced-search-indicator.no-results.contact-prefix": "If you need advice, email us at",
   "footer.financed-by": "Financed by",
   "footer.operated-by": "Operated by",
   "footer.development": "Development",
