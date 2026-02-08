@@ -450,11 +450,16 @@ export class DetailViewService {
     // add to url ?page=PAGE_PID
 
     if (currentPage) {
+      // Preserve fulltext param from URL (set via window.history.replaceState)
+      const url = new URL(window.location.href);
+      const fulltext = url.searchParams.get('fulltext');
+
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {
           page: currentPage.pid,
-          article: null
+          article: null,
+          fulltext: fulltext || null
         },
         queryParamsHandling: 'merge',
         replaceUrl: true
@@ -491,14 +496,15 @@ export class DetailViewService {
    * @param searchTerm - The search term to add to the URL, or null to remove it
    */
   setFulltextParam(searchTerm: string | null): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        fulltext: searchTerm && searchTerm.trim().length > 0 ? searchTerm.trim() : null
-      },
-      queryParamsHandling: 'merge',
-      replaceUrl: true
-    });
+    const url = new URL(window.location.href);
+
+    if (searchTerm && searchTerm.trim().length > 0) {
+      url.searchParams.set('fulltext', searchTerm.trim());
+    } else {
+      url.searchParams.delete('fulltext');
+    }
+
+    window.history.replaceState({}, '', url.toString());
   }
 
   goToNext(pagesToGoForward?: number) {
