@@ -148,7 +148,7 @@
               <h3 *ngIf="showSectionHeaders()">{{'titles-section-header' | translate}}</h3>
               <div class="pull-right">
                 <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                  [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                  [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [layout]="'compact'"
                   [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
                   (pageSizeChange)="searchService.changePageSize($event)">
                 </app-paginator>
@@ -165,7 +165,7 @@
               <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
                 <div class="pull-right">
                   <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
+                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"  [layout]="'compact'"
                     [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
                     (pageSizeChange)="searchService.changePageSize($event)">
                   </app-paginator>
