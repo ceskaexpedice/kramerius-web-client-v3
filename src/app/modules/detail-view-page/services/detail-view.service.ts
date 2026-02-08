@@ -159,6 +159,10 @@ export class DetailViewService {
     return this._pages();
   }
 
+  get pagesOnly() {
+    return this.pages.filter(p => p.model === DocumentTypeEnum.page);
+  }
+
   get currentPageIndex() {
     return this._currentPageIndex();
   }
@@ -487,15 +491,14 @@ export class DetailViewService {
    * @param searchTerm - The search term to add to the URL, or null to remove it
    */
   setFulltextParam(searchTerm: string | null): void {
-    const url = new URL(window.location.href);
-
-    if (searchTerm && searchTerm.trim().length > 0) {
-      url.searchParams.set('fulltext', searchTerm.trim());
-    } else {
-      url.searchParams.delete('fulltext');
-    }
-
-    window.history.replaceState({}, '', url.toString());
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        fulltext: searchTerm && searchTerm.trim().length > 0 ? searchTerm.trim() : null
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   goToNext(pagesToGoForward?: number) {

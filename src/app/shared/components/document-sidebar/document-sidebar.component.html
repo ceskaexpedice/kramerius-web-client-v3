@@ -72,7 +72,7 @@
           [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
           [showAllPages]="showAllPages"
-          [allPages]="detailViewService.pages"
+          [allPages]="detailViewService.pagesOnly"
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>
       } @else {
