@@ -155,10 +155,13 @@ export class AuthService {
     this.fetchUserInfo();
   }
 
-  fetchUserInfo() {
-    // Use UserService to get user session with licenses
-    this.userService.getUserSession().subscribe({
-      next: userSession => {
+  async fetchUserInfo() {
+    try {
+      // Load user data including licenses (this also clears cache if licenses changed)
+      await this.userService.loadUserData();
+
+      const userSession = this.userService.userSession;
+      if (userSession) {
         const user: User = {
           id: userSession.uid,
           email: userSession.email,
@@ -173,9 +176,15 @@ export class AuthService {
 
         // Update NgRx store with user data
         this.store.dispatch(AuthActions.setUser({ user }));
-      },
-      error: error => console.error('Failed to fetch user session:', error)
-    });
+
+        // Reload to ensure all components display correct data based on new licenses
+        setTimeout(() => {
+          // window.location.reload();
+        }, 50);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user session:', error);
+    }
   }
 
   getStoredTokens(): AuthTokens | null {

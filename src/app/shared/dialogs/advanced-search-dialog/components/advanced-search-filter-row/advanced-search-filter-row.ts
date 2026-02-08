@@ -92,7 +92,36 @@ export class AdvancedSearchFilterRow implements OnInit {
         solrValue: '',
       };
       this.emitChange();
+      this.focusValueInput();
     }
+  }
+
+  private focusValueInput(): void {
+    const inputType = this.filter.inputType;
+
+    // Query from document level since this component might be destroyed and recreated
+    setTimeout(() => {
+      const filterRows = Array.from(document.querySelectorAll('advanced-search-filter-row'));
+
+      for (const row of filterRows) {
+        let el: HTMLInputElement | null = null;
+
+        if (inputType === FilterElementType.Autocomplete) {
+          el = row.querySelector('app-autocomplete input');
+        } else if (inputType === FilterElementType.Text) {
+          el = row.querySelector('app-input input');
+        } else if (inputType === FilterElementType.Dropdown) {
+          const selectWrapper = row.querySelector('.filter-wrapper > app-select:last-of-type .select-wrapper') as HTMLElement;
+          selectWrapper?.click();
+          return;
+        }
+
+        if (el && el.isConnected) {
+          el.focus();
+          return;
+        }
+      }
+    }, 200);
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {

@@ -13,6 +13,10 @@ h3 {
   font-size: var(--font-size-large);
 }
 
+.list-view--header .pull-right {
+  margin-left: auto;
+}
+
 app-advanced-search-indicator {
   margin-bottom: var(--spacing-x4);
 }

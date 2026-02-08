@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -17,6 +17,7 @@ import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
+import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'app-record-item',
@@ -29,11 +30,12 @@ import { getLocalizedField } from '../../utils/language-utils';
     NgClass,
     NgIf,
     ModelBadgeComponent,
+    ThumbnailImageComponent,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
 })
-export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
+export class RecordItemComponent implements OnInit, OnDestroy {
 
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
@@ -50,10 +52,6 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
   @Input() layout: 'vertical' | 'horizontal' = 'vertical';
   @Input() variant: 'default' | 'author' = 'default';
   @Input() loading = false;
-
-  imageLoaded = signal<boolean>(false);
-  imageError = signal<boolean>(false);
-
 
   @Input() item: RecordItem | null | undefined = {
     id: '',
@@ -83,35 +81,6 @@ export class RecordItemComponent implements OnInit, OnDestroy, OnChanges {
     if (this.item?.id) {
       this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item!.id);
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['loading']) {
-      if (this.loading) {
-        this.imageLoaded.set(false);
-        this.imageError.set(false);
-      }
-    }
-
-    if (changes['item']) {
-      const prev = changes['item'].previousValue;
-      const curr = changes['item'].currentValue;
-
-      if (curr && (!prev || prev.id !== curr.id)) {
-        this.imageLoaded.set(false);
-        this.imageError.set(false);
-      }
-    }
-  }
-
-  onImageLoad() {
-    this.imageLoaded.set(true);
-    this.imageError.set(false);
-  }
-
-  onImageError() {
-    this.imageLoaded.set(true);
-    this.imageError.set(true);
   }
 
   onRecordClick(e: MouseEvent): void {

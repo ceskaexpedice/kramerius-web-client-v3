@@ -22,8 +22,12 @@
     <i class="icon-search-zoom-in-1"></i>
   </button>
 
-  <img class="page--item__image" [alt]="('page--number') + '-' + pageNumber" [src]="`${getImageUrl()}`"
-    loading="lazy" />
+  <app-thumbnail-image
+    class="page--item__image"
+    [src]="getImageUrl()"
+    [alt]="('page--number') + '-' + pageNumber"
+    [fallbackIcon]="type === 'recording' ? 'music' : 'document'">
+  </app-thumbnail-image>
 
   <span class="page--number" *ngIf="(!isInSelectionMode() || showPageNumberInSelectionMode) && pageNumber">
     {{pageNumber}}

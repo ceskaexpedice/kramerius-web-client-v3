@@ -1,15 +1,15 @@
-import {Component, inject, OnInit, OnDestroy} from '@angular/core';
-import {DetailViewService} from "../detail-view-page/services/detail-view.service";
-import {RecordHandlerService} from "../../shared/services/record-handler.service";
-import {EnvironmentService} from "../../shared/services/environment.service";
-import {DocumentTypeEnum} from "../constants/document-type";
-import {MusicService} from "./services/music.service";
-import {SoundService} from '../../shared/services/sound.service';
-import {ViewToggleOption} from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import {FavoritesService} from '../../shared/services/favorites.service';
-import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
-import {Router} from '@angular/router';
-import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { DetailViewService } from "../detail-view-page/services/detail-view.service";
+import { RecordHandlerService } from "../../shared/services/record-handler.service";
+import { EnvironmentService } from "../../shared/services/environment.service";
+import { DocumentTypeEnum } from "../constants/document-type";
+import { MusicService } from "./services/music.service";
+import { SoundService } from '../../shared/services/sound.service';
+import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import { FavoritesService } from '../../shared/services/favorites.service';
+import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
+import { Router } from '@angular/router';
+import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-music-page',
@@ -59,6 +59,7 @@ export class MusicPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.favoritesHelper.cleanup();
+    this.detailViewService.resetState();
   }
 
   goBackClicked() {

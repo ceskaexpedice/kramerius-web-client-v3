@@ -137,6 +137,7 @@
   "track-added-to-queue": "Skladba pridaná do fronty",
   "track-removed-from-queue": "Skladba odstránená z fronty",
   "track-downloaded": "Skladba stiahnutá",
+  "image-access-restricted": "Tento obrázok nie je verejne prístupný",
   "titles-section-header": "Tituly",
   "attachments-section-header": "Prílohy",
   "articles-section-header": "Články",
@@ -484,5 +485,8 @@
   "footer.participating-institutions": "Zapojené inštitúcie",
   "header.aria.close-search": "Zavrieť vyhľadávanie",
   "header.aria.search": "Vyhľadávanie",
-  "header.aria.menu": "Menu"
+  "header.aria.menu": "Menu",
+  "no-text-content": "Neobsahuje žiadny výskyt",
+  "advanced-search-indicator.no-results.message": "Nič sme nenašli, skúste upraviť dopyt.",
+  "advanced-search-indicator.no-results.contact-prefix": "Ak potrebujete poradiť, napíšte nám na e-mail"
 }

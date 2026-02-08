@@ -5,8 +5,9 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {MusicService} from '../../services/music.service';
 import {Observable, EMPTY} from 'rxjs';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
-import {DocumentAccessibilityEnum} from "../../../constants/document-accessibility";
+import {UserService} from '../../../../shared/services/user.service';
 import {CdkTooltipDirective} from '../../../../shared/directives';
+import {ThumbnailImageComponent} from '../../../../shared/components/thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: '[app-music-track-item]',
@@ -16,6 +17,7 @@ import {CdkTooltipDirective} from '../../../../shared/directives';
     AsyncPipe,
     NgClass,
     CdkTooltipDirective,
+    ThumbnailImageComponent,
   ],
   templateUrl: './music-track-item.component.html',
   styleUrls: ['./music-track-item.component.scss', '../music-track-list-table.scss'],
@@ -27,6 +29,7 @@ export class MusicTrackItemComponent implements OnInit {
 
   public musicService = inject(MusicService);
   private favoritesService = inject(FavoritesService);
+  private userService = inject(UserService);
 
   @Input() track!: SoundTrackModel;
   @Input() index: number = 0;
@@ -104,5 +107,7 @@ export class MusicTrackItemComponent implements OnInit {
     this.removeClicked.emit(this.track);
   }
 
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
+  get canAccessTrack(): boolean {
+    return this.userService.hasAnyLicense(this.track?.licenses_of_ancestors || []);
+  }
 }

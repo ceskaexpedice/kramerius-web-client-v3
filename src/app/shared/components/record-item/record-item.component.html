@@ -16,15 +16,18 @@
 
   <div class="record-item-card__inner">
 
-    <div class="record-item-card__image"
-      [class.skeleton-active]="(loading || !item || !imageLoaded()) && !imageError()">
+    <div class="record-item-card__image">
 
-      <div class="skeleton skeleton-image" *ngIf="(loading || !item || !imageLoaded()) && !imageError()">
+      <app-thumbnail-image
+        *ngIf="!loading && item"
+        [src]="getImageThumbnailUrl()"
+        [alt]="getTitle()"
+        fallbackIcon="gallery">
+      </app-thumbnail-image>
+
+      <div class="skeleton skeleton-image" *ngIf="loading || !item">
         <i class="icon-gallery"></i>
       </div>
-
-      <img *ngIf="!loading && item && !imageError()" [src]="getImageThumbnailUrl()" (load)="onImageLoad()"
-        (error)="onImageError()" class="real-image" [class.hidden]="!imageLoaded()" alt="">
 
       @if (!loading && item?.model) {
       <div class="record-item-card__actions">

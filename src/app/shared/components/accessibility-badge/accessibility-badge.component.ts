@@ -1,8 +1,10 @@
-import { Component, Input } from '@angular/core';
-import { ONLINE_LICENSES, PUBLIC_LICENSES } from '../../../core/solr/solr-misc';
+import { Component, inject, Input } from '@angular/core';
+import { ONLINE_LICENSES } from '../../../core/solr/solr-misc';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass } from '@angular/common';
-import { DocumentAccessibilityEnum } from '../../../modules/constants/document-accessibility';
+import { UserService } from '../../services/user.service';
+
+export type AccessibilityStatus = 'public' | 'private' | 'in_library';
 
 @Component({
   selector: 'app-accessibility-badge',
@@ -14,32 +16,31 @@ import { DocumentAccessibilityEnum } from '../../../modules/constants/document-a
   styleUrl: './accessibility-badge.component.scss'
 })
 export class AccessibilityBadgeComponent {
+  private userService = inject(UserService);
 
   @Input() isLocked = false;
   @Input() showIcon = true;
-
   @Input() licenses: string[] = [];
 
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
+  get accessibility(): AccessibilityStatus {
+    // Check if user has any license that grants access to this content
+    if (this.userService.hasAnyLicense(this.licenses)) {
+      return 'public';
+    }
 
-  get accessibility() {
-    if (this.hasPublicLicense()) {
-      return DocumentAccessibilityEnum.PUBLIC;
+    // User doesn't have access - determine if it's online-accessible or in-library only
+    if (this.hasOnlineLicense()) {
+      return 'private';
     }
-    if (this.isLocked) {
-      if (this.hasOnlineLicense()) {
-        return DocumentAccessibilityEnum.PRIVATE;
-      }
-      return 'in_library';
-    }
-    return DocumentAccessibilityEnum.PUBLIC;
+
+    return 'in_library';
+  }
+
+  get isAccessible(): boolean {
+    return this.userService.hasAnyLicense(this.licenses);
   }
 
   private hasOnlineLicense(): boolean {
     return this.licenses.some(license => ONLINE_LICENSES.includes(license));
-  }
-
-  private hasPublicLicense(): boolean {
-    return this.licenses.some(license => PUBLIC_LICENSES.includes(license));
   }
 }

@@ -10,12 +10,24 @@
 
 .radio-button {
   width: 100%;
+  cursor: pointer;
+  --mdc-radio-unselected-icon-color: var(--color-border-contrast);
 
   ::ng-deep .mdc-label {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+  }
+
+  &:hover {
+    label {
+      color: var(--color-text-base);
+    }
+
+    .icon {
+      border-color: var(--color-primary);
+    }
   }
 }
 

@@ -10,13 +10,14 @@ import {
   selectDocumentDetailOnlyRecordings,
   selectDocumentDetailPages,
   selectDocumentDetailOnlyArticles,
+  selectDocumentDetailOnlyPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {
   clearArticleDetail,
   clearDocumentDetail,
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
-import { filter, Observable, skip, take } from 'rxjs';
+import { filter, map, Observable, skip, take } from 'rxjs';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
@@ -34,6 +35,7 @@ import { DocumentInfoService } from '../../../shared/services/document-info.serv
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { PdfService } from '../../../shared/services/pdf.service';
+import { UserService } from '../../../shared/services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -56,9 +58,12 @@ export class DetailViewService {
   private documentInfoService = inject(DocumentInfoService);
   private uiStateService = inject(UiStateService);
   private pdfService = inject(PdfService);
+  private userService = inject(UserService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
+  pagesOnly$ = this.store.select(selectDocumentDetailOnlyPages);
   articles$ = this.store.select(selectDocumentDetailOnlyArticles);
+  hasArticles$ = this.articles$.pipe(map(articles => articles && articles.length > 0));
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
@@ -82,15 +87,22 @@ export class DetailViewService {
 
       if (pages) {
         this._pages.set(pages);
-        this._currentPageIndex.set(0);
 
-        // After pages are loaded, check if there's a page parameter in URL
-        // Only do this if pages don't contain articles
         const hasArticles = pages.some(p => p.model === DocumentTypeEnum.article);
-        if (!hasArticles) {
+
+        // Skip page URL check for PDF documents - PDF viewer handles its own page navigation
+        // with format uuid_pageNumber instead of page PIDs
+        if (!this.isPdf) {
           this.checkAndSetCurrentPageFromUrl();
+        }
+
+        if (!hasArticles) {
           this._articles.set([]);
-          this.pdfService.clearPdfData();
+          // Only clear PDF data if we're NOT viewing a PDF document
+          // Otherwise this resets the PDF viewer's page to 1
+          if (!this.isPdf) {
+            this.pdfService.clearPdfData();
+          }
           this.store.select(clearArticleDetail);
         }
       }
@@ -122,6 +134,7 @@ export class DetailViewService {
     this._currentArticleIndex.set(0);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
+    this.soundRecordingViewMode.set('records');
   }
 
   /**
@@ -146,12 +159,20 @@ export class DetailViewService {
     return this._pages();
   }
 
+  get pagesOnly() {
+    return this.pages.filter(p => p.model === DocumentTypeEnum.page);
+  }
+
   get currentPageIndex() {
     return this._currentPageIndex();
   }
 
   get totalPages(): number {
     return this._pages().length;
+  }
+
+  get totalPagesOnly(): number {
+    return this._pages().filter(p => p.model === DocumentTypeEnum.page).length;
   }
 
   get articles() {
@@ -177,6 +198,15 @@ export class DetailViewService {
   get currentPagePid(): string | null {
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
+  }
+
+  get isCurrentPageAccessible(): boolean {
+    const currentPage = this.getCurrentPage();
+    if (!currentPage) {
+      return false;
+    }
+
+    return this.userService.hasAnyLicense(currentPage.licenses_of_ancestors);
   }
 
   get currentArticlePid(): string | null {
@@ -252,23 +282,14 @@ export class DetailViewService {
       .subscribe(pages => {
         const safePages = pages ?? [];
         this._pages.set(safePages);
-        this._currentPageIndex.set(0);
 
-        // Don't check/set page URL if more articles than pages or if sound recording
-        // const articleCount = safePages.filter(p => p.model === DocumentTypeEnum.article).length;
-        // const pageCount = safePages.filter(p => p.model === DocumentTypeEnum.page).length;
-        // const hasArticles = articleCount > pageCount;
-
-        const hasArticles = safePages.some(p => p.model === DocumentTypeEnum.article);
-
-        if (this.document?.model !== DocumentTypeEnum.soundrecording && !hasArticles) {
+        // Skip page URL check for sound recordings and PDF documents
+        // PDF viewer handles its own page navigation with format uuid_pageNumber
+        if (this.document?.model !== DocumentTypeEnum.soundrecording && !this.isPdf) {
           this.checkAndSetCurrentPageFromUrl();
         }
 
-        // Load page info for the initial/current page only if no articles
-        if (!hasArticles) {
-          this.loadPageInfo();
-        }
+        this.loadPageInfo();
       });
   }
 
@@ -300,8 +321,7 @@ export class DetailViewService {
       if (queryParams['article']) {
         return;
       }
-      console.log('checkAndSetCurrentPageFromUrl - no page param, staying at index 0');
-      // add first page as param
+      // No page param - default to first page
       const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit || page.model === DocumentTypeEnum.periodicalvolume || page.model === DocumentTypeEnum.periodicalitem);
       if (this._pages().length > 0 && !isMonographUnit) {
         this._currentPageIndex.set(0);
@@ -389,6 +409,8 @@ export class DetailViewService {
     if (index >= 0 && index < this._articles().length) {
       this._currentArticleIndex.set(index);
       this.changeArticleUrl();
+      // Reload access info for the new article
+      this.loadPageInfo();
     }
   }
 
@@ -428,11 +450,16 @@ export class DetailViewService {
     // add to url ?page=PAGE_PID
 
     if (currentPage) {
+      // Preserve fulltext param from URL (set via window.history.replaceState)
+      const url = new URL(window.location.href);
+      const fulltext = url.searchParams.get('fulltext');
+
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {
           page: currentPage.pid,
-          article: null
+          article: null,
+          fulltext: fulltext || null
         },
         queryParamsHandling: 'merge',
         replaceUrl: true
@@ -444,16 +471,24 @@ export class DetailViewService {
   }
 
   /**
-   * Loads page info for the current page from the API
+   * Loads page/document info for access checking
    */
   private loadPageInfo() {
+    const currentArticle = this.getCurrentArticle();
     const currentPage = this.getCurrentPage();
-    if (!currentPage) {
-      this.documentInfoService.clearPageInfo();
-      return;
-    }
 
-    this.documentInfoService.loadPageInfo(currentPage.pid);
+    if (currentArticle) {
+      // Article PDF - load article info
+      this.documentInfoService.loadPageInfo(currentArticle.pid);
+    } else if (currentPage) {
+      // Page-based document - load page info
+      this.documentInfoService.loadPageInfo(currentPage.pid);
+    } else if (this.document?.uuid) {
+      // PDF or document without pages - load document info using document UUID
+      this.documentInfoService.loadPageInfo(this.document.uuid);
+    } else {
+      this.documentInfoService.clearPageInfo();
+    }
   }
 
   /**
@@ -733,6 +768,24 @@ export class DetailViewService {
 
     // In single page mode, only the current page is active
     return index === currentIndex;
+  }
+
+  /**
+   * Check if a page with given PID is currently active/selected
+   * @param pid - Page PID to check
+   * @returns true if the page is active
+   */
+  isPageActiveByPid(pid: string): boolean {
+    const pages = this._pages();
+    const currentIndex = this._currentPageIndex();
+    const currentPage = pages[currentIndex];
+
+    if (this.iiifViewerService.isBookMode()) {
+      const nextPage = pages[currentIndex + 1];
+      return currentPage?.pid === pid || nextPage?.pid === pid;
+    }
+
+    return currentPage?.pid === pid;
   }
 
   /**

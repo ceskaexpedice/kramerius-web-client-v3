@@ -30,6 +30,7 @@ import { FavoritesPopupComponent } from '../../shared/components/favorites-popup
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 import { DocumentAccessDenied } from './components/document-access-denied/document-access-denied';
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
+import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
 
 const routes: Routes = [
   {
@@ -72,6 +73,7 @@ const routes: Routes = [
     InlineLoaderComponent,
     DocumentAccessDenied,
     SelectionModeInfoComponent,
+    DetailArticlesListComponent,
   ],
 })
 

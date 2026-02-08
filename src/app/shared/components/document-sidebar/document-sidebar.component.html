@@ -46,7 +46,7 @@
 
         <app-page-navigator
           [currentPage]="detailViewService.currentPageIndex + 1"
-          [totalPages]="detailViewService.totalPages"
+          [totalPages]="detailViewService.totalPagesOnly"
           (next)="detailViewService.goToNext()"
           (prev)="detailViewService.goToPrevious()"
           (pageChange)="detailViewService.goToPage($event)"
@@ -72,14 +72,22 @@
           [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
           [showAllPages]="showAllPages"
-          [allPages]="detailViewService.pages"
+          [allPages]="detailViewService.pagesOnly"
           (resultClick)="onSearchResultClick($event)"
         ></app-search-results-list>
       } @else {
-        @if (detailViewService.isPdf) {
+        <!-- Respect mode input if provided -->
+        @if (mode === 'pages') {
+          <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+        } @else if (mode === 'articles') {
           <app-detail-articles-list></app-detail-articles-list>
         } @else {
-          <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+          <!-- Default behavior: PDF shows articles, otherwise shows pages -->
+          @if (detailViewService.isPdf) {
+            <app-detail-articles-list></app-detail-articles-list>
+          } @else {
+            <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>
+          }
         }
       }
     </div>

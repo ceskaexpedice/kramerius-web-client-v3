@@ -40,6 +40,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() document!: Metadata;
+  @Input() mode?: 'pages' | 'articles';
 
   public detailViewService = inject(DetailViewService);
   public selectionService = inject(SelectionService);

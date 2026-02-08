@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
 import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
 import { FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
+import { AuthService } from '../../core/auth/auth.service';
 
 export interface PdfProperties {
   zoom: ZoomType;
@@ -89,7 +90,8 @@ export class PdfService {
   constructor(
     private env: EnvironmentService,
     private ngZone: NgZone,
-    private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService
+    private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService,
+    private authService: AuthService
   ) {
   }
 
@@ -122,6 +124,22 @@ export class PdfService {
 
   get url(): string | null {
     return this.uuid ? `${this.API_URL}/${this.uuid}/image` : null;
+  }
+
+  /**
+   * Get authorization headers for PDF requests
+   * Returns headers object for ngx-extended-pdf-viewer's httpHeaders input
+   */
+  get httpHeaders(): Record<string, string> {
+    const token = this.authService.getAccessToken();
+    const isExpired = this.authService.isTokenExpired();
+
+    if (token && !isExpired) {
+      return {
+        'Authorization': `Bearer ${token}`
+      };
+    }
+    return {};
   }
 
   // Set PDF outline/table of contents

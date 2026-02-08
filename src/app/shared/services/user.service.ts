@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { UserSession } from '../models/user-session.model';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { clearSimpleCache } from '../../core/cache/simple-cache.interceptor-fn';
 
 // Admin roles that grant access to admin features
 const ADMIN_ROLES = ['kramerius_admin', 'k4_admins'];
@@ -67,12 +68,32 @@ export class UserService {
 
   /**
    * Load user data including licenses, roles, and session information
+   * Clears the HTTP cache if licenses change to ensure fresh data is displayed
    */
   public async loadUserData(): Promise<void> {
+    const previousLicenses = this._licenses();
     const session = await firstValueFrom(this.getUserSession());
+    const newLicenses = session.licenses || [];
+
     this._userSession.set(session);
-    this._licenses.set(session.licenses || []);
+    this._licenses.set(newLicenses);
     this._roles.set(session.roles || []);
+
+    // Clear cache if licenses changed (user logged in/out or got new licenses)
+    if (!this.arraysEqual(previousLicenses, newLicenses)) {
+      clearSimpleCache();
+      console.log('[UserService] Licenses changed, cache cleared');
+    }
+  }
+
+  /**
+   * Helper to compare two string arrays
+   */
+  private arraysEqual(a: string[], b: string[]): boolean {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((val, idx) => val === sortedB[idx]);
   }
 
   /**
@@ -110,11 +131,41 @@ export class UserService {
   }
 
   /**
+   * Check if user has a specific license
+   * @param license License name to check
+   */
+  public hasLicense(license: string): boolean {
+    return this._licenses().includes(license);
+  }
+
+  /**
+   * Check if user has any of the specified licenses
+   * Use this to verify if user can access content that requires specific licenses
+   * @param requiredLicenses Array of license names that grant access to the content
+   * @returns true if user has at least one matching license, false otherwise
+   */
+  public hasAnyLicense(requiredLicenses: string[]): boolean {
+    if (!requiredLicenses || requiredLicenses.length === 0) {
+      return false;
+    }
+
+    const userLicenses = this._licenses();
+    if (!userLicenses || userLicenses.length === 0) {
+      return false;
+    }
+
+    return requiredLicenses.some(license => userLicenses.includes(license));
+  }
+
+  /**
    * Clear all user data (licenses, roles, session)
+   * Also clears the HTTP cache to ensure fresh data is displayed
    */
   public clearUserData(): void {
     this._licenses.set([]);
     this._roles.set([]);
     this._userSession.set(null);
+    clearSimpleCache();
+    console.log('[UserService] User data cleared, cache cleared');
   }
 }

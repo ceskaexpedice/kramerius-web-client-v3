@@ -3,6 +3,7 @@ import { EnvironmentService } from './environment.service';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService } from './alto.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -95,6 +96,7 @@ export class IIIFViewerService {
   private testFallbackMode = false;
 
   private altoService = inject(AltoService);
+  private authService = inject(AuthService);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -180,6 +182,25 @@ export class IIIFViewerService {
   getDirectImageUrl(pid: string): string {
     const itemsUrl = this.env.getApiUrl('items');
     return `${itemsUrl}/${pid}/image`;
+  }
+
+  // Get thumbnail URL (shown as placeholder while IIIF tiles load)
+  getThumbnailUrl(pid: string): string {
+    const itemsUrl = this.env.getApiUrl('items');
+    return `${itemsUrl}/${pid}/image/thumb`;
+  }
+
+  // Get authorization headers for OpenSeadragon AJAX requests
+  getAuthHeaders(): Record<string, string> {
+    const token = this.authService.getAccessToken();
+    const isExpired = this.authService.isTokenExpired();
+
+    if (token && !isExpired) {
+      return {
+        'Authorization': `Bearer ${token}`
+      };
+    }
+    return {};
   }
 
   // Set viewer instance

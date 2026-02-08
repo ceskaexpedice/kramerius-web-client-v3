@@ -1,42 +1,42 @@
-// Periodical volume/item specific styles for record item cards Figma: 144x231 layout: title → subtitle → image
-
-.record-item-card.periodicalvolume,
-.record-item-card.periodicalitem {
-  aspect-ratio: var(--periodical-volume-card-width) / var(--periodical-volume-card-height);
-
-  .record-item-card__inner {
-    padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
-    gap: var(--spacing-x2);
-  }
-
-  .record-item-card__content {
-    order: 1;
-    flex: 0 0 auto;
-    height: auto;
-
-    .title {
-      font-size: calc(20px * var(--accessibility-text-scale));
-      font-weight: 500;
-      line-height: calc(32px * var(--accessibility-text-scale));
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
-      max-height: calc(32px * var(--accessibility-text-scale));
-    }
-
-    .subtitle {
-      color: var(--color-text-tertiary);
-      line-height: calc(20px * var(--accessibility-text-scale));
-    }
-  }
-
-  .record-item-card__image {
-    order: 2; // Image below content
-    aspect-ratio: 168/220;
-    border-radius: 2px;
-    flex: 1;
-  }
-
-  .access-label {
-    order: 3;
-  }
-}
+//// Periodical volume/item specific styles for record item cards Figma: 144x231 layout: title → subtitle → image
+//
+//.record-item-card.periodicalvolume,
+//.record-item-card.periodicalitem {
+//  aspect-ratio: var(--periodical-volume-card-width) / var(--periodical-volume-card-height);
+//
+//  .record-item-card__inner {
+//    padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
+//    gap: var(--spacing-x2);
+//  }
+//
+//  .record-item-card__content {
+//    order: 1;
+//    flex: 0 0 auto;
+//    height: auto;
+//
+//    .title {
+//      font-size: calc(20px * var(--accessibility-text-scale));
+//      font-weight: 500;
+//      line-height: calc(32px * var(--accessibility-text-scale));
+//      -webkit-line-clamp: 1;
+//      line-clamp: 1;
+//      max-height: calc(32px * var(--accessibility-text-scale));
+//    }
+//
+//    .subtitle {
+//      color: var(--color-text-tertiary);
+//      line-height: calc(20px * var(--accessibility-text-scale));
+//    }
+//  }
+//
+//  .record-item-card__image {
+//    order: 2; // Image below content
+//    aspect-ratio: 168/220;
+//    border-radius: 2px;
+//    flex: 1;
+//  }
+//
+//  .access-label {
+//    order: 3;
+//  }
+//}

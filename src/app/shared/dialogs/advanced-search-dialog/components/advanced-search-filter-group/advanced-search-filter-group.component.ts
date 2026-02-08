@@ -34,7 +34,7 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
   }
 
   trackByFn(index: number, item: AdvancedFilterDefinition) {
-    return item.key + index;
+    return index;
   }
 
   addFilter() {
@@ -45,8 +45,6 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
 
   updateFilter(index: number, updated: AdvancedFilterDefinition) {
     this.filters = [...this.filters.slice(0, index), updated, ...this.filters.slice(index + 1)];
-    console.log('updated filters:', updated);
-    console.log('all filters:', this.filters);
     this.filtersChange.emit(this.filters);
   }
 

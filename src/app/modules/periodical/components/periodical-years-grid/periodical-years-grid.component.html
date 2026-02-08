@@ -1,6 +1,5 @@
 <div class="grid--container">
-  <app-record-item
-    *ngFor="let year of years"
-    [item]="toRecordItemWithBadgeLayout(year, years)"
-  ></app-record-item>
+  <app-record-item *ngFor="let year of (years | skeletonList:60:(loading$ | async))"
+    [item]="year ? toRecordItemWithBadgeLayout(year, years) : undefined"
+    [loading]="(loading$ | async) || false"></app-record-item>
 </div>

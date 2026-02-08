@@ -137,6 +137,7 @@
   "track-added-to-queue": "Utwór dodany do kolejki",
   "track-removed-from-queue": "Utwór usunięty z kolejki",
   "track-downloaded": "Utwór pobrany",
+  "image-access-restricted": "Ten obraz nie jest publicznie dostępny",
   "titles-section-header": "Tytuły",
   "attachments-section-header": "Załączniki",
   "articles-section-header": "Artykuły",
@@ -483,5 +484,8 @@
   "footer.participating-institutions": "Instytucje uczestniczące",
   "header.aria.close-search": "Zamknij wyszukiwanie",
   "header.aria.search": "Szukaj",
-  "header.aria.menu": "Menu"
+  "header.aria.menu": "Menu",
+  "no-text-content": "Brak zawartości tekstowej",
+  "advanced-search-indicator.no-results.message": "Nic nie znaleźliśmy, spróbuj zmienić zapytanie.",
+  "advanced-search-indicator.no-results.contact-prefix": "Jeśli potrzebujesz porady, napisz do nas na e-mail"
 }

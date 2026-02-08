@@ -7,7 +7,11 @@
     <div *ngFor="let page of pages" class="pdf-pages-grid__item"
       [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage" (click)="navigateToPage(page.pageNumber)">
       <div class="pdf-pages-grid__thumbnail">
-        <img [src]="getThumbnailUrl(page.pageNumber)" [alt]="('page' | translate) + ' ' + page.pageNumber">
+        <app-thumbnail-image
+          [src]="getThumbnailUrl(page.pageNumber)"
+          [alt]="('page' | translate) + ' ' + page.pageNumber"
+          fallbackIcon="document">
+        </app-thumbnail-image>
       </div>
       <div class="pdf-pages-grid__number">
         {{ page.pageNumber }}

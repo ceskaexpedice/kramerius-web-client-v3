@@ -120,6 +120,26 @@ app-iiif-viewer {
   height: 100%;
 }
 
+.access-restricted-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--spacing-x4);
+  color: var(--color-text-secondary);
+
+  .icon {
+    font-size: 48px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--font-size-lg);
+  }
+}
+
 .favorites-popup-wrapper {
   position: fixed;
   z-index: 1000;

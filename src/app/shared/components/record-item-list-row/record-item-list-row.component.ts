@@ -6,11 +6,11 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
-import {DocumentAccessibilityEnum} from '../../../modules/constants/document-accessibility';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
+import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -21,6 +21,7 @@ import { TableColumnConfig, ColumnRenderType } from '../../models/display-config
     AccessibilityBadgeComponent,
     CheckboxComponent,
     PluralizePipe,
+    ThumbnailImageComponent,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
@@ -115,6 +116,4 @@ export class RecordItemListRowComponent {
       this.selectionService.deselectItem(this.record.pid);
     }
   }
-
-  protected readonly DocumentAccessibilityEnum = DocumentAccessibilityEnum;
 }

@@ -97,7 +97,30 @@
         <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <!-- Document Sidebar for non-PDF documents or PDF articles -->
+      <!-- TODO : commented articles/pages tab Document Sidebar for non-PDF documents or PDF articles -->
+<!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
+<!--        @let hasArticles = detailViewService.hasArticles$ | async;-->
+
+<!--        &lt;!&ndash; Show tabs when document has articles &ndash;&gt;-->
+<!--        @if (hasArticles) {-->
+<!--          <app-tabs [noPadding]="true">-->
+<!--            <app-tab-item [label]="'pages' | translate">-->
+<!--              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>-->
+<!--            </app-tab-item>-->
+<!--            <app-tab-item [label]="'articles' | translate">-->
+<!--              <div class="sidebar&#45;&#45;wrapper">-->
+<!--                <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
+<!--                  <app-detail-articles-list></app-detail-articles-list>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </app-tab-item>-->
+<!--          </app-tabs>-->
+<!--        } @else {-->
+<!--          &lt;!&ndash; No articles - show document sidebar as before &ndash;&gt;-->
+<!--          <app-document-sidebar [document]="document"></app-document-sidebar>-->
+<!--        }-->
+<!--      </ng-container> TODO: code bellow will be removed after uncommented code for tabs-->
+
       <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
         <app-document-sidebar [document]="document"></app-document-sidebar>
       </ng-container>
@@ -152,14 +175,16 @@
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
-          <!-- Wait for page info to be loaded -->
-         @if ((checkState === 'INITIAL' || checkState === 'LOADING') && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
-         <app-inline-loader [overlay]="true"></app-inline-loader>
-          } @else if (!documentInfoService.canAccessDocument() && !(detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
-          <!-- Show access denied component if user cannot access -->
+          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
+
+          <!-- Show access denied after access check completes and fails -->
+          @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
           </app-document-access-denied>
+          } @else if (isPdfContent && (checkState === 'INITIAL' || checkState === 'LOADING')) {
+          <!-- Show loader for PDF while access is being checked -->
+          <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
           @let articleMetadata = articleMetadata$ | async;
@@ -179,7 +204,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf)) {
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
         <button class="floating-sidebar-toggle button outlined tertiary with-icon"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-sidebar-bottom"></i>
@@ -188,7 +213,7 @@
         }
 
         <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument() || detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+        @if (documentInfoService.canAccessDocument()) {
         @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>

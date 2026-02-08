@@ -106,7 +106,9 @@
           </app-periodical-search-results>
 
           <!-- Loading and error states - scoped to main content -->
-          <app-inline-loader *ngIf="periodical.loading$ | async" [overlay]="true"></app-inline-loader>
+          <app-inline-loader
+            *ngIf="(periodical.loading$ | async) && mode !== ViewMode.GridIssues && mode !== ViewMode.GridYears"
+            [overlay]="true"></app-inline-loader>
         </div>
 
         @if (!showMetadataSidebar()) {

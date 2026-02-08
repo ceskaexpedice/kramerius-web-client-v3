@@ -10,7 +10,12 @@
     <a class="title-wrapper" [href]="url" [class.selection-mode]="selectionService.selectionMode()"
       (click)="onTitleClick($event)">
       <div class="thumb-wrapper">
-        <img class="thumb" [src]="`${getKrameriusBaseUrl()}`" alt="thumbnail" />
+        <app-thumbnail-image
+          class="thumb"
+          [src]="getKrameriusBaseUrl()"
+          alt="thumbnail"
+          fallbackIcon="gallery">
+        </app-thumbnail-image>
 
         <ng-container *ngIf="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])">
           <div class="record-item-card__image-lock-overlay">

@@ -16,7 +16,13 @@
 
       @if (isFolderView) {
         <div class="track-info-wrapper">
-          <div class="track-cover" [style.backgroundImage]="'url(' + musicService.getCoverImageForTrack(track.parentPid) + ')'"></div>
+          <div class="track-cover">
+            <app-thumbnail-image
+              [src]="musicService.getCoverImageForTrack(track.parentPid)"
+              fallbackIcon="music"
+              size="auto">
+            </app-thumbnail-image>
+          </div>
           <div class="track-text-content">
             <div class="track-title">
               <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
@@ -71,7 +77,7 @@
       </button>
     }
 
-    @if (track.accessibility === DocumentAccessibilityEnum.PUBLIC) {
+    @if (canAccessTrack) {
       <button class="icon-button rounded light"
               [appCdkTooltip]="'download' | translate"
               [attr.aria-label]="'download-track-button--arialabel' | translate"

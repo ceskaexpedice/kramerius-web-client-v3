@@ -4,7 +4,7 @@
 
   @if (showIcon) {
   <i
-    [class]="accessibility === DocumentAccessibilityEnum.PUBLIC ? 'icon-eye-public' : (accessibility === 'in_library' ? 'icon-in-house' : 'icon-locked')"></i>
+    [class]="accessibility === 'public' ? 'icon-eye-public' : (accessibility === 'in_library' ? 'icon-in-house' : 'icon-locked')"></i>
   }
 
 </div>

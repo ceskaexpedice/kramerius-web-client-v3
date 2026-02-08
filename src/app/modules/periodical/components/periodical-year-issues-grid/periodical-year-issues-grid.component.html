@@ -1,8 +1,7 @@
 <div class="grid--container" *ngIf="children$ | async as children">
 
-  <app-record-item
-    *ngFor="let item of children; trackBy: trackByPid"
-    [item]="toRecordItemWithBadgeLayout(item, children)"
-  ></app-record-item>
+  <app-record-item *ngFor="let item of (children | skeletonList:60:(loading$ | async)); trackBy: trackByPid"
+    [item]="item ? toRecordItemWithBadgeLayout(item, children) : undefined"
+    [loading]="(loading$ | async) || false"></app-record-item>
 
 </div>

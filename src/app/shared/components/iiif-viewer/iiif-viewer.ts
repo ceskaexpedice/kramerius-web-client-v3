@@ -10,7 +10,8 @@ import {
   ViewChild,
   AfterViewInit,
   NgZone,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  signal
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
@@ -24,13 +25,17 @@ import { RecordHandlerService } from '../../services/record-handler.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExportService } from '../../services/export.service';
 import { AltoService } from '../../services/alto.service';
+import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
+import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
     FullscreenComponent,
     SelectionControls,
-    CommonModule
+    CommonModule,
+    ThumbnailImageComponent
   ],
   templateUrl: './iiif-viewer.html',
   styleUrl: './iiif-viewer.scss'
@@ -50,13 +55,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private altoService = inject(AltoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
+  private http = inject(HttpClient);
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
   private isUpdating = false;
   private failedPids = new Set<string>();
+  private directImageFailedPids = new Set<string>();
+
+  public showFallback = signal<boolean>(false);
+  public fallbackImageUrl = signal<string | null>(null);
 
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
@@ -190,6 +201,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
+      // Reset fallback state when switching to a new image
+      this.showFallback.set(false);
+      this.fallbackImageUrl.set(null);
       this.updateViewerForBookMode();
     }
   }
@@ -204,19 +218,79 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Enable test mode in service if TEST_FALLBACK is true
     this.iiifViewerService.setTestFallbackMode(this.TEST_FALLBACK);
 
+    // Set thumbnail as background placeholder (blur→sharp effect)
+    this.setThumbnailBackground(pid);
+
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
+
+    // Get authorization headers if user is authenticated
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+
+    // Create HttpHeaders for the initial request
+    let headers = new HttpHeaders();
+    if (authHeaders['Authorization']) {
+      headers = headers.set('Authorization', authHeaders['Authorization']);
+    }
+
+    // Fetch info.json with auth headers, then create viewer
+    this.http.get(infoUrl, {
+      headers,
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).subscribe({
+      next: (infoJson: any) => {
+        this.processInfoJson(infoJson);
+        this.createViewer(infoJson);
+      },
+      error: (error) => {
+        console.error('Failed to fetch IIIF info.json', error);
+        this.handleOpenFailed();
+      }
+    });
+  }
+
+  /**
+   * Set thumbnail image as background placeholder while IIIF tiles load
+   * Creates the blur→sharp progressive loading effect
+   */
+  private setThumbnailBackground(pid: string): void {
+    const thumbnailUrl = this.iiifViewerService.getThumbnailUrl(pid);
+    const container = this.viewerContainer.nativeElement;
+    container.style.backgroundImage = `url('${thumbnailUrl}')`;
+    container.style.backgroundSize = 'contain';
+    container.style.backgroundPosition = 'center';
+    container.style.backgroundRepeat = 'no-repeat';
+  }
+
+  /**
+   * Clear the thumbnail background after IIIF tiles have loaded
+   */
+  private clearThumbnailBackground(): void {
+    const container = this.viewerContainer.nativeElement;
+    container.style.backgroundImage = '';
+  }
+
+  private createViewer(tileSource: any): void {
+    if (this.viewer) {
+      this.viewer.destroy();
+    }
 
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
-      tileSources: [infoUrl],
+      tileSources: tileSource,
       showNavigationControl: false,
       showRotationControl: false,
       showHomeControl: false,
       showZoomControl: false,
       showFullPageControl: false,
-      crossOriginPolicy: 'Anonymous', // Enable CORS for images from different domains
-      ajaxWithCredentials: false, // Don't send credentials with CORS requests
+      // Note: Auth is only for info.json (fetched via HttpClient).
+      // Tiles come from a separate image server that doesn't need/want credentials.
+      crossOriginPolicy: 'Anonymous',
+      ajaxWithCredentials: false,
+      // Transparent placeholder so thumbnail background shows through
+      placeholderFillStyle: 'transparent',
+      // Ensure smooth progressive loading (low-res → high-res)
+      immediateRender: false,
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
@@ -235,6 +309,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       maxZoomLevel: 10,
       visibilityRatio: 1,
       constrainDuringPan: false
+    });
+
+    // Reset fallback state and clear thumbnail when image loads successfully
+    this.viewer.addHandler('open', () => {
+      this.ngZone.run(() => {
+        this.showFallback.set(false);
+        this.fallbackImageUrl.set(null);
+        // Clear thumbnail background once image is open
+        this.clearThumbnailBackground();
+      });
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -259,36 +343,64 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // because they're more reliable across different browsers and devices
     this.setupNativeTouchListeners();
 
-    this.viewer.addHandler('open-failed', (event: any) => {
-      const currentPid = this.imagePid || this.metadata?.uuid;
-      if (!currentPid) {
-        console.error('No PID available for fallback');
-        return;
-      }
-
-      if (this.failedPids.has(currentPid)) {
-        console.error(`Fallback already failed for PID: ${currentPid}. Stopping to prevent infinite loop.`);
-        return;
-      }
-
-      this.failedPids.add(currentPid);
-
-      const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
-      console.log(`Attempting fallback image: ${directImageUrl}`);
-
-      if (this.viewer) {
-        this.viewer.open({
-          type: 'image',
-          url: directImageUrl
-        });
-      }
-
-      setTimeout(() => {
-        this.failedPids.delete(currentPid);
-      }, 5000);
+    this.viewer.addHandler('open-failed', () => {
+      this.handleOpenFailed();
     });
 
     this.iiifViewerService.setViewer(this.viewer);
+  }
+
+  private handleOpenFailed(): void {
+    const currentPid = this.imagePid || this.metadata?.uuid;
+    if (!currentPid) {
+      console.error('No PID available for fallback');
+      this.showFallback.set(true);
+      return;
+    }
+
+    // Check if direct image already failed for this PID
+    if (this.directImageFailedPids.has(currentPid)) {
+      console.log(`Both IIIF and direct image failed for PID: ${currentPid}. Showing thumbnail fallback.`);
+      this.ngZone.run(() => {
+        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.showFallback.set(true);
+        this.cdr.detectChanges();
+      });
+      return;
+    }
+
+    // Check if IIIF already failed (meaning this is the direct image failing now)
+    if (this.failedPids.has(currentPid)) {
+      console.log(`Direct image fallback also failed for PID: ${currentPid}. Showing thumbnail fallback.`);
+      this.directImageFailedPids.add(currentPid);
+      this.ngZone.run(() => {
+        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.showFallback.set(true);
+        this.cdr.detectChanges();
+      });
+
+      setTimeout(() => {
+        this.directImageFailedPids.delete(currentPid);
+      }, 5000);
+      return;
+    }
+
+    // IIIF failed, try direct image URL
+    this.failedPids.add(currentPid);
+
+    const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
+    console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
+
+    if (this.viewer) {
+      this.viewer.open({
+        type: 'image',
+        url: directImageUrl
+      });
+    }
+
+    setTimeout(() => {
+      this.failedPids.delete(currentPid);
+    }, 5000);
   }
 
   private updateViewerSource(): void {
@@ -320,15 +432,115 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     this.isUpdating = true;
 
-    try {
-      // Get next page PID for book mode
-      const nextPagePid = this.getNextPagePid();
+    // Clear existing overlays when changing pages
+    this.iiifViewerService.clearAllOverlays();
 
-      this.iiifViewerService.updateBookModeDisplay(currentPid, nextPagePid);
-    } finally {
-      setTimeout(() => {
+    // Set thumbnail as background placeholder for blur→sharp effect (single page only)
+    if (!this.iiifViewerService.isBookMode()) {
+      this.setThumbnailBackground(currentPid);
+    } else {
+      // Clear any existing thumbnail in book mode (two pages don't match one thumbnail)
+      this.clearThumbnailBackground();
+    }
+
+    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+
+    let headers = new HttpHeaders();
+    if (authHeaders['Authorization']) {
+      headers = headers.set('Authorization', authHeaders['Authorization']);
+    }
+
+    // Fetch info.json with auth headers and fix HTTP URLs
+    this.http.get(infoUrl, {
+      headers,
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).subscribe({
+      next: (infoJson: any) => {
+        this.processInfoJson(infoJson);
+
+        if (this.iiifViewerService.isBookMode()) {
+          // Book mode: fetch next page too
+          const nextPagePid = this.getNextPagePid();
+          if (nextPagePid) {
+            const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
+            this.http.get(nextInfoUrl, {
+              headers,
+              context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+            }).subscribe({
+              next: (nextInfoJson: any) => {
+                this.processInfoJson(nextInfoJson);
+                this.viewer?.open([
+                  { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
+                  { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
+                ]);
+                // No thumbnail in book mode, so no need to clear on tile-drawn
+                this.isUpdating = false;
+              },
+              error: () => {
+                // If next page fails, just show current page
+                this.viewer?.open(infoJson);
+                // No thumbnail in book mode, so no need to clear on tile-drawn
+                this.isUpdating = false;
+              }
+            });
+          } else {
+            // No next page, just show current (still in book mode context)
+            this.viewer?.open(infoJson);
+            this.isUpdating = false;
+          }
+        } else {
+          // Single page mode
+          this.viewer?.open(infoJson);
+          this.isUpdating = false;
+        }
+      },
+      error: (error) => {
+        console.error('Failed to fetch IIIF info.json for page update', error);
+        this.handleOpenFailed();
         this.isUpdating = false;
-      }, 100);
+      }
+    });
+  }
+
+  /**
+   * Process IIIF info.json for use with OpenSeadragon:
+   * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
+   * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   */
+  private processInfoJson(infoJson: any): void {
+    this.fixHttpUrls(infoJson);
+
+    // For IIIF 3: if both 'id' and '@id' exist, remove '@id' to ensure
+    // OpenSeadragon uses 'id' (which points to imageserver, no auth needed)
+    // instead of '@id' (which points to api server, requires auth)
+    if (infoJson['id'] && infoJson['@id']) {
+      delete infoJson['@id'];
+    }
+  }
+
+  /**
+   * Fix HTTP URLs in IIIF info.json to use HTTPS (prevents mixed content errors)
+   * Recursively processes all string values in the JSON
+   * NOTE: Preserves @context and protocol fields as OpenSeadragon needs exact
+   * "http://iiif.io/api/image/..." patterns to identify IIIF tile sources
+   */
+  private fixHttpUrls(obj: any): void {
+    if (!obj || typeof obj !== 'object') return;
+
+    // Fields that OpenSeadragon checks for exact "http://..." patterns
+    const preserveFields = ['@context', 'protocol', 'profile'];
+
+    for (const key of Object.keys(obj)) {
+      // Skip IIIF spec fields that must remain as http://
+      if (preserveFields.includes(key)) continue;
+
+      const value = obj[key];
+      if (typeof value === 'string' && value.startsWith('http://')) {
+        obj[key] = value.replace('http://', 'https://');
+      } else if (typeof value === 'object') {
+        this.fixHttpUrls(value);
+      }
     }
   }
 

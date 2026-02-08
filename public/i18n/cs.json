@@ -87,6 +87,8 @@
   "advanced-search-indicator.edit": "Upravit dotaz",
   "advanced-search-indicator.new": "Nové hledání",
   "advanced-search-indicator.cancel": "Zrušit",
+  "advanced-search-indicator.no-results.message": "Nic jsme nenašli, zkuste upravit dotaz.",
+  "advanced-search-indicator.no-results.contact-prefix": "Pokud potřebujete poradit, napište nám na e-mail",
   "filter-dialog.search-placeholder": "Hledat v seznamu...",
   "filter-dialog.sort.count": "Podle výskytu",
   "filter-dialog.sort.alpha": "Abecedně",
@@ -137,6 +139,7 @@
   "track-added-to-queue": "Skladba přidána do fronty",
   "track-removed-from-queue": "Skladba odstraněna z fronty",
   "track-downloaded": "Skladba stažena",
+  "image-access-restricted": "Tento obrázek není veřejně přístupný",
   "titles-section-header": "Tituly",
   "attachments-section-header": "Přílohy",
   "articles-section-header": "Články",
@@ -484,5 +487,6 @@
   "footer.participating-institutions": "Zapojené instituce",
   "header.aria.close-search": "Zavřít vyhledávání",
   "header.aria.search": "Vyhledávání",
-  "header.aria.menu": "Menu"
+  "header.aria.menu": "Menu",
+  "no-text-content": "Neobsahuje žádný výskyt"
 }
