@@ -8,6 +8,8 @@ import {
   ViewChild,
   AfterViewInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { NgIf, NgForOf, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -23,7 +25,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
-export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
+export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnChanges {
   private searchBuffer = '';
   private searchTimeout?: any;
 
@@ -43,6 +45,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
   @Input() visibleItemsCount = 8;
 
   @Output() valueChange = new EventEmitter<T>();
+  @Output() closed = new EventEmitter<void>();
 
   open = signal(false);
   filterText = '';
@@ -61,6 +64,12 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     return `${this.visibleItemsCount * this.itemSize}px`;
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['options']) {
+      this.updateFilteredOptions();
+    }
+  }
+
   ngAfterViewInit() {
     new ResizeObserver(() => this.checkPosition()).observe(document.body);
     document.addEventListener('click', this.onClickOutside);
@@ -69,6 +78,12 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     document.removeEventListener('click', this.onClickOutside);
+  }
+
+  focus(): void {
+    if (!this.open()) {
+      this.toggle();
+    }
   }
 
   toggle() {
@@ -94,6 +109,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy {
     this.open.set(false);
     this.filterText = '';
     this.updateFilteredOptions();
+    setTimeout(() => this.closed.emit(), 0);
   }
 
   onFilterChange(text: string | number) {
