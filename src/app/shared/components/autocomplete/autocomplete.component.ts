@@ -137,6 +137,14 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     });
   }
 
+  focus(): void {
+    if (this.inputComponent) {
+      this.inputComponent.focus();
+    } else {
+      setTimeout(() => this.inputComponent?.focus(), 0);
+    }
+  }
+
   ngOnInit() {
     if (this.initialValue) {
       this.inputTerm.set(this.initialValue);

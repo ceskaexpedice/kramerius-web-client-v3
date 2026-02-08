@@ -15,6 +15,7 @@
 
     <ng-container [ngSwitch]="filter.key">
       <app-autocomplete
+        #autocompleteInput
         *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
         [initialValue]="filter.elementValue"
         [placeholder]="filter.placeholder || filter.key"
@@ -37,6 +38,7 @@
       @if (filter.inputType === AdvancedFilterType.Text) {
         <div class="w-100 flex flex--column flex--gap-x2">
           <app-input
+            #textInput
             [initialValue]="filter.elementValue"
             [placeholder]="filter.placeholder || filter.key"
             [showHelpButton]="false"
@@ -67,6 +69,7 @@
       ></app-range-slider>
 
       <app-select
+        #dropdownInput
         *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
         [options]="filter.options || []"
         [(value)]="filter.elementValue"

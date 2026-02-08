@@ -92,6 +92,10 @@ export class InputComponent implements OnInit, AfterViewInit {
     }
   }
 
+  focus(): void {
+    setTimeout(() => this.inputElement?.nativeElement?.focus(), 0);
+  }
+
   ngAfterViewInit(): void {
     if (this.signalInput) {
       runInInjectionContext(this.envInjector, () => {
