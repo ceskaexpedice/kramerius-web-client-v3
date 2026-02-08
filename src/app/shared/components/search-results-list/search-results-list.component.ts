@@ -3,6 +3,9 @@ import {
   DetailPageItemComponent
 } from '../../../modules/detail-view-page/components/detail-page-item/detail-page-item.component';
 import { Page } from '../../models/page.model';
+import {TranslatePipe} from '@ngx-translate/core';
+import {TooltipDirective} from '../../directives/tooltip/tooltip.directive';
+import {CdkTooltipDirective} from '../../directives';
 
 export interface SearchResult {
   pid: string;
@@ -17,7 +20,7 @@ export interface DisplayItem extends SearchResult {
 @Component({
   selector: 'app-search-results-list',
   standalone: true,
-  imports: [DetailPageItemComponent],
+  imports: [DetailPageItemComponent, TranslatePipe, TooltipDirective, CdkTooltipDirective],
   templateUrl: './search-results-list.component.html',
   styleUrl: './search-results-list.component.scss'
 })

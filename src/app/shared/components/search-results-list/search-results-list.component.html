@@ -2,7 +2,7 @@
   @for (item of displayItems; track item.pid) {
     <div
       class="search-result-item"
-      [class.with-content]="item.highlightedText"
+      [class.with-content]="true"
       [class.active]="isActive(item)"
       (click)="onResultClick(item)">
 
@@ -16,13 +16,23 @@
 
 <!--      @if (item.highlightedText) {-->
         <div class="search-result-item--content">
-          <div class="highlighted-text" [innerHTML]="item.highlightedText || ' '"></div>
+
+          @if (item.highlightedText && item.highlightedText.length > 0) {
+            <div class="highlighted-text" [innerHTML]="item.highlightedText || ' '"></div>
+          } @else {
+            <div class="no-content--placeholder" [appCdkTooltip]="'no-text-content' | translate" [tooltipPosition]="'bottom'">
+              <span class="no-content-icon">
+                <i class="icon-text"></i>
+              </span>
+            </div>
+          }
+
         </div>
 <!--      }-->
 
     </div>
   }
   @if (displayItems.length === 0) {
-    <div class="no-results">No search results</div>
+    <div class="no-results">{{'no_results_to_display' | translate}}</div>
   }
 </div>
