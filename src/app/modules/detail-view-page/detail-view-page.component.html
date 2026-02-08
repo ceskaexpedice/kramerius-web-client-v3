@@ -97,7 +97,30 @@
         <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <!-- Document Sidebar for non-PDF documents or PDF articles -->
+      <!-- TODO : commented articles/pages tab Document Sidebar for non-PDF documents or PDF articles -->
+<!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
+<!--        @let hasArticles = detailViewService.hasArticles$ | async;-->
+
+<!--        &lt;!&ndash; Show tabs when document has articles &ndash;&gt;-->
+<!--        @if (hasArticles) {-->
+<!--          <app-tabs [noPadding]="true">-->
+<!--            <app-tab-item [label]="'pages' | translate">-->
+<!--              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>-->
+<!--            </app-tab-item>-->
+<!--            <app-tab-item [label]="'articles' | translate">-->
+<!--              <div class="sidebar&#45;&#45;wrapper">-->
+<!--                <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
+<!--                  <app-detail-articles-list></app-detail-articles-list>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </app-tab-item>-->
+<!--          </app-tabs>-->
+<!--        } @else {-->
+<!--          &lt;!&ndash; No articles - show document sidebar as before &ndash;&gt;-->
+<!--          <app-document-sidebar [document]="document"></app-document-sidebar>-->
+<!--        }-->
+<!--      </ng-container> TODO: code bellow will be removed after uncommented code for tabs-->
+
       <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
         <app-document-sidebar [document]="document"></app-document-sidebar>
       </ng-container>

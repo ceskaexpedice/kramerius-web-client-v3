@@ -484,5 +484,6 @@
   "footer.participating-institutions": "Instytucje uczestniczące",
   "header.aria.close-search": "Zamknij wyszukiwanie",
   "header.aria.search": "Szukaj",
-  "header.aria.menu": "Menu"
+  "header.aria.menu": "Menu",
+  "no-text-content": "Nie zawiera żadnego wystąpienia"
 }

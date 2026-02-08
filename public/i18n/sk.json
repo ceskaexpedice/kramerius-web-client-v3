@@ -485,5 +485,6 @@
   "footer.participating-institutions": "Zapojené inštitúcie",
   "header.aria.close-search": "Zavrieť vyhľadávanie",
   "header.aria.search": "Vyhľadávanie",
-  "header.aria.menu": "Menu"
+  "header.aria.menu": "Menu",
+  "no-text-content": "Neobsahuje žiadny výskyt"
 }

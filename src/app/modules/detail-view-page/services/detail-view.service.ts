@@ -17,7 +17,7 @@ import {
   clearDocumentDetail,
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
-import { filter, Observable, skip, take } from 'rxjs';
+import { filter, map, Observable, skip, take } from 'rxjs';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
@@ -63,6 +63,7 @@ export class DetailViewService {
   pages$ = this.store.select(selectDocumentDetailPages);
   pagesOnly$ = this.store.select(selectDocumentDetailOnlyPages);
   articles$ = this.store.select(selectDocumentDetailOnlyArticles);
+  hasArticles$ = this.articles$.pipe(map(articles => articles && articles.length > 0));
   document$ = this.store.select(selectDocumentDetail);
   loading$ = this.store.select(selectDocumentDetailLoading);
   error$ = this.store.select(selectDocumentDetailError);
@@ -164,6 +165,10 @@ export class DetailViewService {
 
   get totalPages(): number {
     return this._pages().length;
+  }
+
+  get totalPagesOnly(): number {
+    return this._pages().filter(p => p.model === DocumentTypeEnum.page).length;
   }
 
   get articles() {
