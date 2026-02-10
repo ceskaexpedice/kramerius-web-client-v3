@@ -29,9 +29,19 @@
 
           <ng-container *ngIf="translateItems; else rawValue">
             <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
-              {{ getTranslationKey(item) | translate }}
+              @if (isLicense(item)) {
+                {{ getValue(item) | configLabel:'license' }}
+              } @else {
+                {{ getTranslationKey(item) | translate }}
+              }
             </label>
-            <ng-template #valueOnly>{{ getTranslationKey(item) | translate }}</ng-template>
+            <ng-template #valueOnly>
+              @if (isLicense(item)) {
+                {{ getValue(item) | configLabel:'license' }}
+              } @else {
+                {{ getTranslationKey(item) | translate }}
+              }
+            </ng-template>
           </ng-container>
 
           <ng-template #rawValue>

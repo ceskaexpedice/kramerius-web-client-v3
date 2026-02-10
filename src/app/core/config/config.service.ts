@@ -259,6 +259,25 @@ export class ConfigService {
     return this.licenses[licenseId];
   }
 
+  /**
+   * Get localized label from config for any entity type.
+   * Supports: 'license' (more types can be added in future)
+   * Falls back to: requested lang -> fallback lang -> key itself
+   */
+  getLocalizedLabel(type: 'license', key: string, lang: string): string {
+    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
+
+    switch (type) {
+      case 'license': {
+        const license = this.licenses[key];
+        if (!license?.label) return key;
+        return license.label[lang] ?? license.label[fallbackLang] ?? key;
+      }
+      default:
+        return key;
+    }
+  }
+
   // Home sections accessors
   get homeSections(): HomepageSectionConfig[] {
     return this.getConfig().homeSections ?? DEFAULT_HOME_SECTIONS;

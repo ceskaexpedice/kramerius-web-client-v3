@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -23,6 +23,9 @@ import {
   loadLicenses
 } from '../../state/licenses/licenses.actions';
 import {InputComponent} from '../input/input.component';
+import {ConfigLabelPipe} from '../../pipes/config-label.pipe';
+import {ConfigService} from '../../../core/config';
+import {AppTranslationService} from '../../translation/app-translation.service';
 
 @Component({
   selector: 'app-licenses-list',
@@ -39,6 +42,7 @@ import {InputComponent} from '../input/input.component';
     FormsModule,
     TranslateModule,
     InputComponent,
+    ConfigLabelPipe,
   ],
   templateUrl: './licenses-list.component.html',
   styleUrl: './licenses-list.component.scss'
@@ -59,6 +63,9 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
   searchQuery: string = '';
   private searchQuery$ = new Subject<string>();
   private destroy$ = new Subject<void>();
+
+  private configService = inject(ConfigService);
+  private translationService = inject(AppTranslationService);
 
   constructor(private store: Store) {
     this.allLicenses$ = this.store.select(selectLicenses);
@@ -81,10 +88,13 @@ export class LicensesListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         const searchTerm = query.toLowerCase().trim();
-        return licenses.filter(license =>
-          license.name?.toLowerCase().includes(searchTerm) ||
-          license.description?.toLowerCase().includes(searchTerm)
-        );
+        const currentLang = this.translationService.currentLanguage().code;
+        return licenses.filter(license => {
+          const label = this.configService.getLocalizedLabel('license', license.name, currentLang);
+          return label?.toLowerCase().includes(searchTerm) ||
+            license.name?.toLowerCase().includes(searchTerm) ||
+            license.description?.toLowerCase().includes(searchTerm);
+        });
       })
     );
   }
