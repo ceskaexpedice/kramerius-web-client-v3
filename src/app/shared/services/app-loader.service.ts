@@ -7,6 +7,7 @@ import { EnvironmentService } from './environment.service';
 import * as AuthActions from '../../core/auth/store/auth.actions';
 import { firstValueFrom } from 'rxjs';
 import { SettingsService } from '../../modules/settings/settings.service';
+import {PageTitleService} from './page-title.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class AppLoaderService {
   private appConfig = inject(AppConfigService);
   private env = inject(EnvironmentService);
   private settingsService = inject(SettingsService);
+  private pageTitle = inject(PageTitleService);
 
   /**
    * Main app initialization method

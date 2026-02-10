@@ -495,5 +495,6 @@
   "header.aria.close-search": "Close search",
   "header.aria.search": "Search",
   "header.aria.menu": "Menu",
-  "no-text-content": "Contains no occurrence"
+  "no-text-content": "Contains no occurrence",
+  "search.title": "Search"
 }

@@ -488,5 +488,6 @@
   "header.aria.close-search": "Zavřít vyhledávání",
   "header.aria.search": "Vyhledávání",
   "header.aria.menu": "Menu",
-  "no-text-content": "Neobsahuje žádný výskyt"
+  "no-text-content": "Neobsahuje žádný výskyt",
+  "search.title": "Hledání"
 }
