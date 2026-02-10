@@ -1,0 +1,146 @@
+{
+  "_defaults": {
+    "actions": {
+      "pdf": false,
+      "print": false,
+      "jpeg": false,
+      "text": false,
+      "textMode": true,
+      "citation": true,
+      "metadata": true,
+      "share": true,
+      "selection": false,
+      "crop": false
+    }
+  },
+
+  "public": {
+    "accessType": "public",
+    "label": {
+      "cs": "Volná díla",
+      "en": "Public domain",
+      "sk": "Voľné diela",
+      "pl": "Domena publiczna"
+    },
+    "actions": {
+      "pdf": true,
+      "print": true,
+      "jpeg": true,
+      "text": true,
+      "selection": true,
+      "crop": true
+    }
+  },
+
+  "mzk_public-contract": {
+    "accessType": "public",
+    "label": {
+      "cs": "Smluvně zveřejněná díla",
+      "en": "Contractually published works",
+      "sk": "Zmluvne zverejnené diela",
+      "pl": "Utwory opublikowane na podstawie umowy"
+    },
+    "actions": {
+      "pdf": true,
+      "print": true,
+      "jpeg": true,
+      "text": true,
+      "selection": true,
+      "crop": true
+    }
+  },
+
+  "mzk_public-muo": {
+    "accessType": "public",
+    "label": {
+      "cs": "Hudebniny Kromeříž",
+      "en": "Sheetmusic Kromeříž",
+      "sk": "Hudobniny Kromeříž",
+      "pl": "Nutowe rękopisy Kromieryż"
+    },
+    "actions": {
+      "pdf": true,
+      "print": true,
+      "jpeg": true,
+      "text": true,
+      "selection": true,
+      "crop": true
+    }
+  },
+
+  "knav_public_contract": {
+    "accessType": "public",
+    "label": {
+      "cs": "KNAV verejna smlouva",
+      "en": "KNAV public contract"
+    },
+    "actions": {
+      "pdf": true,
+      "print": true,
+      "jpeg": true,
+      "text": true,
+      "selection": true,
+      "crop": true
+    }
+  },
+
+  "dnnto": {
+    "accessType": "login",
+    "label": {
+      "cs": "Díla nedostupná na trhu - online",
+      "en": "Out of Commerce Works - online",
+      "sk": "Diela nedostupná na trhu - online",
+      "pl": "Utwory niedostępne w handlu – online"
+    },
+    "messagePage": {
+      "cs": "local-config/html/licenses/dnnto.cs.html",
+      "en": "local-config/html/licenses/dnnto.en.html"
+    },
+    "instructionPage": {
+      "cs": "local-config/html/licenses/dnnto.instruction.cs.html",
+      "en": "local-config/html/licenses/dnnto.instruction.en.html"
+    }
+  },
+
+  "dnntt": {
+    "accessType": "onsite",
+    "label": {
+      "cs": "Díla nedostupná na trhu - studovna",
+      "en": "Out of Commerce Works - library terminal",
+      "sk": "Diela nedostupná na trhu - študovňa",
+      "pl": "Utwory niedostępne w handlu – terminal biblioteczny"
+    },
+    "actions": {
+      "print": true,
+      "text": true
+    }
+  },
+
+  "onsite": {
+    "accessType": "onsite",
+    "label": {
+      "cs": "Studovna",
+      "en": "Studovna",
+      "sk": "Študovňa",
+      "pl": "Czytelnia"
+    },
+    "actions": {
+      "print": true,
+      "text": true
+    }
+  },
+
+  "onsite-sheetmusic": {
+    "accessType": "onsite",
+    "label": {
+      "cs": "Studovna - hudebniny",
+      "en": "Studovna - hudebniny",
+      "sk": "Študovňa - hudobniny",
+      "pl": "Czytelnia – nuty"
+    },
+    "actions": {
+      "print": true,
+      "text": true
+    }
+  }
+}

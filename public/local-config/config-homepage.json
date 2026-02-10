@@ -1,0 +1,856 @@
+[
+  {
+    "type": "local-records",
+    "title": "Výběr z nejčtenějších novin a časopisů",
+    "buttonText": "Více periodik",
+    "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
+    "items": [
+      {
+        "id": "uuid:ae876087-435d-11dd-b505-00145e5790ea",
+        "title": "Národní listy"
+      },
+      {
+        "id": "uuid:02203ad6-32f0-11de-992b-00145e5790ea",
+        "title": "Moravská orlice"
+      },
+      {
+        "id": "uuid:a101de00-2119-11e3-a5bb-005056827e52",
+        "title": "Brněnské noviny"
+      },
+      {
+        "id": "uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6",
+        "title": "Lidové noviny"
+      },
+      {
+        "id": "uuid:5c259210-2182-11e6-918e-5ef3fc9ae867",
+        "title": "Čech: politický týdenník katolický"
+      },
+      {
+        "id": "uuid:bd5fdc60-256c-11e5-8454-005056825209",
+        "title": "Světozor: světová kronika současná slovem i"
+      },
+      {
+        "id": "uuid:80e1aea0-fa27-11e4-9f08-005056825209",
+        "title": "Mährisch-schlesischer Correspondent"
+      },
+      {
+        "id": "uuid:eb3adc60-dd58-11e2-9923-005056827e52",
+        "title": "Brünner Zeitung"
+      },
+      {
+        "id": "uuid:c7794100-2722-11e2-a433-005056827e52",
+        "title": "Troppauer Zeitung"
+      },
+      {
+        "id": "uuid:40d23930-7bf1-11e2-b930-005056827e51",
+        "title": "Brünner Zeitung der kaiserl.-königl. privileg. Mährischen Lehenbank"
+      },
+      {
+        "id": "uuid:73f3e41a-65c9-11e0-b4ae-0050569d679d",
+        "title": "Našinec"
+      },
+      {
+        "id": "uuid:e75c0530-19fc-11e7-981b-005056825209",
+        "title": "Venkov: orgán České strany agrární"
+      },
+      {
+        "id": "uuid:24a30110-6f97-11ec-bc36-005056827e51",
+        "title": "Jizeran"
+      },
+      {
+        "id": "uuid:7be25e80-5cd1-11e3-9ea2-5ef3fc9ae867",
+        "title": "Mährischer Correspondent"
+      },
+      {
+        "id": "uuid:c40178b0-56de-11e9-936e-005056827e52",
+        "title": "Čas"
+      },
+      {
+        "id": "uuid:ae7a8f66-435d-11dd-b505-00145e5790ea",
+        "title": "Lumír"
+      },
+      {
+        "id": "uuid:a5d37930-84ab-11e2-b238-005056827e52",
+        "title": "Znaimer Wochenblatt"
+      },
+      {
+        "id": "uuid:ae864f11-435d-11dd-b505-00145e5790ea",
+        "title": "Právo lidu"
+      },
+      {
+        "id": "uuid:ae79f31f-435d-11dd-b505-00145e5790ea",
+        "title": "Zlatá Praha"
+      },
+      {
+        "id": "uuid:f1c7c08d-8f64-4b66-be28-5f209c2c7021",
+        "title": "Rovnost"
+      },
+      {
+        "id": "uuid:ae81bb20-435d-11dd-b505-00145e5790ea",
+        "title": "Světozor: Obrázkový týdeník"
+      },
+      {
+        "id": "uuid:ae864f12-435d-11dd-b505-00145e5790ea",
+        "title": "Humoristické listy: Archiv českého rozmaru a vtipu"
+      },
+      {
+        "id": "uuid:9ee4d9f0-6a7a-11e4-9d98-005056825209",
+        "title": "Český svět: illustrovaný čtrnáctidenník"
+      },
+      {
+        "id": "uuid:ae7add8f-435d-11dd-b505-00145e5790ea",
+        "title": "Květy: list pro zábavu a poučení s časovými rozhledy"
+      },
+      {
+        "id": "uuid:d8d61900-42c0-11e2-b246-005056827e52",
+        "title": "Brünner Morgenpost"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Výběr z nejčtenějších knih",
+    "buttonText": "Více knih",
+    "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:monograph&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
+    "items": [
+      {
+        "id": "uuid:7e11fe20-043e-11e5-95ff-5ef3fc9bb22f",
+        "title": "Ottův slovník naučný: illustrovaná encyklopaedie"
+      },
+      {
+        "id": "uuid:13d55c10-373e-11e8-b38f-5ef3fc9bb22f",
+        "title": "Dějiny národu českého v Čechách a v Moravě"
+      },
+      {
+        "id": "uuid:70c93000-bb01-11f0-9cd8-005056827e52",
+        "title": "Moravské národní písně s nápěvy do textu vřaděnými"
+      },
+      {
+        "id": "uuid:6d962368-9ce3-11e0-9ad4-0050569d679d",
+        "title": "Album representantů všech oborů veřejného života československého"
+      },
+      {
+        "id": "uuid:d7ab55a0-8445-11e8-9588-5ef3fc9bb22f",
+        "title": "Sčítání lidu v republice Československé ze dne 15. února 1921"
+      },
+      {
+        "id": "uuid:2b057ad0-9044-11ef-bb77-0050568d319f",
+        "title": "Chytilův úplný adresář Království českého"
+      },
+      {
+        "id": "uuid:1e3a1900-3bfe-11ee-a184-005056827e52",
+        "title": "Staromoravští rodové"
+      },
+      {
+        "id": "uuid:1d819570-cedf-11e7-b059-5ef3fc9ae867",
+        "title": "Encyklopedický německo-český slovník"
+      },
+      {
+        "id": "uuid:dffb98d0-b2ec-11e2-b6da-005056827e52",
+        "title": "Historická statistická ročenka ČSSR"
+      },
+      {
+        "id": "uuid:cd9fc250-70dc-11ef-bc66-005056827e51",
+        "title": "Chytilův Adresář hl. města Prahy"
+      },
+      {
+        "id": "uuid:35395220-7fc6-11e6-afc6-005056827e52",
+        "title": "Dějiny a systém soukromého práva římského"
+      },
+      {
+        "id": "uuid:b0ae5cc0-2163-11ee-ae40-005056827e52",
+        "title": "Místopisný slovník historický království Českého"
+      },
+      {
+        "id": "uuid:77754420-988c-11ec-adf7-5ef3fc9bb22f",
+        "title": "Adresář zemského hlavního města Brna"
+      },
+      {
+        "id": "uuid:37466720-c176-11e4-b2e2-005056827e52",
+        "title": "Adresář Protektorátu Čechy a Morava pro průmysl, živnosti I."
+      },
+      {
+        "id": "uuid:4f1dc410-c176-11e4-b2e2-005056827e52",
+        "title": "Adresář Protektorátu Čechy a Morava pro průmysl, živnosti II."
+      },
+      {
+        "id": "uuid:5b5618f0-5c13-11e3-bc9f-5ef3fc9bb22f",
+        "title": "Umělecké památky Čech"
+      },
+      {
+        "id": "uuid:755d6880-d720-11e6-9e7e-001018b5eb5c",
+        "title": "Slovanské starožitnosti"
+      },
+      {
+        "id": "uuid:13964e30-eaf9-11e2-9923-005056827e52",
+        "title": "Česká literatura od počátků k dnešku"
+      },
+      {
+        "id": "uuid:86b41f50-5e1f-11ea-858b-5ef3fc9bb22f",
+        "title": "Příruční slovník jazyka českého"
+      },
+      {
+        "id": "uuid:ed965480-9fd9-11e5-a7d7-005056827e52",
+        "title": "Berní rula: generální rejstřík ke všem svazkům"
+      },
+      {
+        "id": "uuid:ad6c1f90-d8c6-11ea-a69c-005056827e51",
+        "title": "Herbář, aneb, Bylinář doktora Petra Ondřege Mathiola"
+      },
+      {
+        "id": "uuid:2a1a5330-dbc5-11ea-87fa-005056827e52",
+        "title": "Domácí vševěd: ilustrovaný slovník vědomostí ze všech oborů domácího hospodářství, rodinného a společenského života"
+      },
+      {
+        "id": "uuid:d37babc0-6f03-11e4-9d98-005056825209",
+        "title": "Atlasy erbů a pečetí české a moravské středověké šlechty"
+      },
+      {
+        "id": "uuid:be303150-a2d5-11e3-bb86-005056825209",
+        "title": "Masarykův slovník naučný: lidová encyklopedie"
+      },
+      {
+        "id": "uuid:b3022800-b5c3-11e3-b74a-5ef3fc9ae867",
+        "title": "Místní jména v Čechách: jejich vznik, pův. význam a změny"
+      }
+    ]
+  },
+  {
+    "type": "local-categories",
+    "title": "Typy dokumentů",
+    "showCount": false,
+    "categories": [
+      {
+        "label": "periodical",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:periodical&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR"
+      },
+      {
+        "label": "monograph",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:monograph&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR"
+      },
+      {
+        "label": "map",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:map"
+      },
+      {
+        "label": "graphic",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:graphic"
+      },
+      {
+        "label": "archive",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:archive"
+      },
+      {
+        "label": "manuscript",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:manuscript"
+      },
+      {
+        "label": "soundrecording",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:soundrecording"
+      },
+      {
+        "label": "sheetmusic",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:sheetmusic"
+      },
+      {
+        "label": "convolute",
+        "url": "/search?page=1&pageSize=60&sortBy=created&sortDirection=desc&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:convolute"
+      },
+      {
+        "label": "collection",
+        "url": "/search?page=1&pageSize=60&sortBy=date.max&sortDirection=desc&licenses.facet_operator=OR&customSearch=custom-root-model:collection"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Výběr z českých autorů",
+    "cardVariant": "author",
+    "items": [
+      {
+        "id": "1",
+        "title": "Alois Jirásek",
+        "date": "1851–1930",
+        "imageUrl": "local-config/img/authors/jirasek_alois.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Jir%C3%A1sek,%20Alois&licenses.facet_operator=OR"
+      },
+      {
+        "id": "6",
+        "title": "Božena Němcová",
+        "date": "1820–1862",
+        "imageUrl": "local-config/img/authors/nemcova_bozena.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:N%C4%9Bmcov%C3%A1,%20Bo%C5%BEena&licenses.facet_operator=OR"
+      },
+      {
+        "id": "2",
+        "title": "František Palacký",
+        "date": "1798–1876",
+        "imageUrl": "local-config/img/authors/palacky_frantisek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=authors.facet:Palack%C3%BD,%20Franti%C5%A1ek&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR"
+      },
+      {
+        "id": "5",
+        "title": "Jan Neruda",
+        "date": "1834–1891",
+        "imageUrl": "local-config/img/authors/neruda_jan.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Neruda,%20Jan&licenses.facet_operator=OR"
+      },
+      {
+        "id": "10",
+        "title": "Jaroslav Hašek",
+        "date": "1883–1923",
+        "imageUrl": "local-config/img/authors/hasek_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Ha%C5%A1ek,%20Jaroslav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "17",
+        "title": "Jaroslav Seifert",
+        "date": "1901–1986",
+        "imageUrl": "local-config/img/authors/seifert_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Seifert,%20Jaroslav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "13",
+        "title": "Jaroslav Vrchlický",
+        "date": "1853–1912",
+        "imageUrl": "local-config/img/authors/vrchlicky_jaroslav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Vrchlick%C3%BD,%20Jaroslav&licenses.facet_operator=OR"
+      },
+      {
+        "id": "8",
+        "title": "Josef Čapek",
+        "date": "1887–1945",
+        "imageUrl": "local-config/img/authors/capek_josef.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Josef&licenses.facet_operator=OR"
+      },
+      {
+        "id": "3",
+        "title": "Julius Zeyer",
+        "date": "1841–1901",
+        "imageUrl": "local-config/img/authors/zeyer_julius.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
+      },
+      {
+        "id": "7",
+        "title": "Karel Čapek",
+        "date": "1890–1938",
+        "imageUrl": "local-config/img/authors/capek_karel.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "16",
+        "title": "Karel Havlíček Borovský",
+        "date": "1821–1856",
+        "imageUrl": "local-config/img/authors/borovsky_karel havlicek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Havl%C3%AD%C4%8Dek%20Borovsk%C3%BD,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "9",
+        "title": "Karel Hynek Mácha",
+        "date": "1810–1836",
+        "imageUrl": "local-config/img/authors/macha_karel hynek.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:M%C3%A1cha,%20Karel%20Hynek&licenses.facet_operator=OR"
+      },
+      {
+        "id": "11",
+        "title": "Karel Poláček",
+        "date": "1892–1945",
+        "imageUrl": "local-config/img/authors/polacek_karel.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Pol%C3%A1%C4%8Dek,%20Karel&licenses.facet_operator=OR"
+      },
+      {
+        "id": "15",
+        "title": "Karolina Světlá",
+        "date": "1830–1899",
+        "imageUrl": "local-config/img/authors/svetla_karolina.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sv%C4%9Btl%C3%A1,%20Karolina&licenses.facet_operator=OR"
+      },
+      {
+        "id": "14",
+        "title": "Magdalena Dobromila Rettigová",
+        "date": "1785–1845",
+        "imageUrl": "local-config/img/authors/rettigova_magdalena dobromila.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Rettigov%C3%A1,%20Magdalena%20Dobromila&licenses.facet_operator=OR"
+      },
+      {
+        "id": "4",
+        "title": "Svatopluk Čech",
+        "date": "1846–1908",
+        "imageUrl": "local-config/img/authors/cech_svatopluk.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Cech,%20Svatopluk&licenses.facet_operator=OR"
+      },
+      {
+        "id": "12",
+        "title": "Vladislav Vančura",
+        "date": "1891–1942",
+        "imageUrl": "local-config/img/authors/vancura_vladislav.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Van%C4%8Dura,%20Vladislav&licenses.facet_operator=OR"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Výběr ze zahraničních autorů",
+    "cardVariant": "author",
+    "items": [
+      {
+        "id": "36",
+        "title": "Agatha Christie",
+        "date": "1890–1976",
+        "imageUrl": "local-config/img/authors/christie.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Christie,%20Agatha&licenses.facet_operator=OR"
+      },
+      {
+        "id": "22",
+        "title": "Alexandre Dumas (starší)",
+        "date": "1802–1870",
+        "imageUrl": "local-config/img/authors/dumas.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dumas,%20Alexandre&licenses.facet_operator=OR"
+      },
+      {
+        "id": "37",
+        "title": "Arthur Conan Doyle",
+        "date": "1859–1930",
+        "imageUrl": "local-config/img/authors/doyle.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Doyle,%20Arthur%20Conan&licenses.facet_operator=OR"
+      },
+      {
+        "id": "18",
+        "title": "Charles Dickens",
+        "date": "1812–1870",
+        "imageUrl": "local-config/img/authors/dickens.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dickens,%20Charles&licenses.facet_operator=OR"
+      },
+      {
+        "id": "21",
+        "title": "Fjodor Michajlovič Dostojevskij",
+        "date": "1821–1881",
+        "imageUrl": "local-config/img/authors/dostojevskij.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dostojevskij,%20Fedor%20Michajlovi%C4%8D&licenses.facet_operator=OR"
+      },
+      {
+        "id": "20",
+        "title": "Henryk Sienkiewicz",
+        "date": "1846–1916",
+        "imageUrl": "local-config/img/authors/sienkiewicz.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sienkiewicz,%20Henryk&licenses.facet_operator=OR"
+      },
+      {
+        "id": "27",
+        "title": "Honoré de Balzac",
+        "date": "1799–1850",
+        "imageUrl": "local-config/img/authors/balzac.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Balzac,%20Honor%C3%A9%20de&licenses.facet_operator=OR"
+      },
+      {
+        "id": "33",
+        "title": "Jack London",
+        "date": "1876–1916",
+        "imageUrl": "local-config/img/authors/london.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:London,%20Jack&licenses.facet_operator=OR"
+      },
+      {
+        "id": "35",
+        "title": "Jane Austen",
+        "date": "1775–1817",
+        "imageUrl": "local-config/img/authors/austen.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Austen,%20Jane&licenses.facet_operator=OR"
+      },
+      {
+        "id": "24",
+        "title": "Jules Verne",
+        "date": "1828–1905",
+        "imageUrl": "local-config/img/authors/verne.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Verne,%20Jules&licenses.facet_operator=OR"
+      },
+      {
+        "id": "19",
+        "title": "Karel May",
+        "date": "1842–1912",
+        "imageUrl": "local-config/img/authors/may.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:May,%20Karl&licenses.facet_operator=OR"
+      },
+      {
+        "id": "28",
+        "title": "Louisa May Alcott",
+        "date": "1832–1888",
+        "imageUrl": "local-config/img/authors/alcott.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Alcott,%20Louisa%20May&licenses.facet_operator=OR"
+      },
+      {
+        "id": "30",
+        "title": "Mark Twain",
+        "date": "1835–1910",
+        "imageUrl": "local-config/img/authors/twain.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Twain,%20Mark&licenses.facet_operator=OR"
+      },
+      {
+        "id": "31",
+        "title": "Mary Shelley",
+        "date": "1797–1851",
+        "imageUrl": "local-config/img/authors/shelley.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shelley,%20Mary%20Wollstonecraft&licenses.facet_operator=OR"
+      },
+      {
+        "id": "29",
+        "title": "Miguel de Cervantes",
+        "date": "1547–1616",
+        "imageUrl": "local-config/img/authors/cervantes.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Cervantes%20Saavedra,%20Miguel%20de&licenses.facet_operator=OR"
+      },
+      {
+        "id": "34",
+        "title": "Robert Louis Stevenson",
+        "date": "1850–1894",
+        "imageUrl": "local-config/img/authors/stevenson.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Stevenson,%20Robert%20Louis&licenses.facet_operator=OR"
+      },
+      {
+        "id": "32",
+        "title": "Rudyard Kipling",
+        "date": "1865–1936",
+        "imageUrl": "local-config/img/authors/kipling.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Kipling,%20Rudyard&licenses.facet_operator=OR"
+      },
+      {
+        "id": "25",
+        "title": "Sestry Brontëovy",
+        "date": "1816–1855, 1818–1848, 1820–1849",
+        "imageUrl": "local-config/img/authors/bronte.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Bront%C3%AB,%20Charlotte&fq=authors.facet:Bront%C3%AB,%20Emily&fq=authors.facet:Bront%C3%AB,%20Anne&licenses.facet_operator=OR"
+      },
+      {
+        "id": "26",
+        "title": "Victor Hugo",
+        "date": "1802–1885",
+        "imageUrl": "local-config/img/authors/hugo.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Hugo,%20Victor&licenses.facet_operator=OR"
+      },
+      {
+        "id": "23",
+        "title": "William Shakespeare",
+        "date": "1564–1616",
+        "imageUrl": "local-config/img/authors/shakespeare.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shakespeare,%20William&licenses.facet_operator=OR"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Žánry",
+    "items": [
+      {
+        "id": "genre-1",
+        "title": "Cestopisy a průvodce",
+        "imageUrl": "local-config/img/genres/cestopisy.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Cestopisy%22%20OR%20keywords.facet:%22Cestopisy%20ji%C5%BEn%C3%AD%20Evropa%22%20OR%20keywords.facet:%22Cesty%20kolem%20sv%C4%9Bta%22%20OR%20keywords.facet:%22Cestovatel%C3%A9%22%20OR%20keywords.facet:%22Cestovatelky%22%20OR%20genres.facet:%22Cestopisy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Cestovn%C3%AD%20den%C3%ADky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-2",
+        "title": "Dobrodružná literatura",
+        "imageUrl": "local-config/img/genres/dobr_literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%BD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Dobrodruzi%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Americk%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Anglick%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Mayovky%20n%C4%9Bmeck%C3%A1%20dobrodru%C5%BEn%C3%A1%20literatura%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-3",
+        "title": "Detektivky",
+        "imageUrl": "local-config/img/genres/detektivky.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Detektivn%C3%AD%20pov%C3%ADdka%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20literatura%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20pr%C3%B3za%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20pov%C3%ADdky%22%20OR%20genres.facet:%22Detektivn%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Detektivn%C3%AD%20novely%22%20OR%20genres.facet:%22Detektivn%C3%AD%20dramata%22%20OR%20keywords.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADpady%22%20OR%20genres.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-4",
+        "title": "Dětská literatura",
+        "imageUrl": "local-config/img/genres/det_literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22D%C4%9Btsk%C3%A9%20hry%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20%C4%8Detba%22%20OR%20keywords.facet:%22Literatura%20pro%20d%C4%9Bti%20a%20ml%C3%A1de%C5%BE%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20literatura%22%20OR%20genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Publikace%20pro%20ml%C3%A1de%C5%BE%22%20OR%20genres.facet:%22P%C5%99%C3%ADb%C4%9Bhy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Casopisy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Cesk%C3%A1%20literatura%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Anglick%C3%A1%20literatura%20pro%20d%C4%9Bti%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:periodical,custom-root-model:monograph"
+      },
+      {
+        "id": "genre-5",
+        "title": "Historické romány",
+        "imageUrl": "local-config/img/genres/histor_romany.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Historick%C3%A9%20rom%C3%A1ny%20ma%C4%8Farsk%C3%A1%20literatura%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20literatura%20historick%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Historick%C3%A1%20pr%C3%B3za%22%20OR%20genres.facet:%22Historick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Historick%C3%A1%20dramata%22%20OR%20genres.facet:%22Historick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Historick%C3%A9%20pov%C3%ADdky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-6",
+        "title": "Horor",
+        "imageUrl": "local-config/img/genres/horor.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Horor%20(literatura)%22%20OR%20keywords.facet:%22Filmov%C3%A9%20horory%22%20OR%20keywords.facet:%22Horror%20films%22%20OR%20keywords.facet:%22Horror%20literature%22%20OR%20genres.facet:%22Horory%22%20OR%20genres.facet:%22Horory%20(rom%C3%A1ny)%22%20OR%20genres.facet:%22Horory%20(p%C5%99%C3%ADb%C4%9Bhy)%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-7",
+        "title": "Humoristická literatura",
+        "imageUrl": "local-config/img/genres/humor_literatura.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Humor%22%20OR%20keywords.facet:%22Humoristick%C3%A1%20literatura%22%20OR%20keywords.facet:%22Satira%22%20OR%20keywords.facet:%22Humoristick%C3%A9%20%C4%8Dasopisy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22%20OR%20genres.facet:%22Anekdoty%22%20OR%20genres.facet:%22Aforismy%22)&advOp=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph,custom-root-model:periodical,custom-where-to-search.model:titles"
+      },
+      {
+        "id": "genre-8",
+        "title": "Komiks",
+        "imageUrl": "local-config/img/genres/komiks.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Komiksy%22%20OR%20keywords.facet:%22Komiks%22%20OR%20keywords.facet:%22Komiksy.%20Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Nau%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Sci-fi%20komiksy%22%20OR%20genres.facet:%22V%C3%A1le%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Historick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Thrillery%20(komiksy)%22%20OR%20genres.facet:%22Informa%C4%8Dn%C3%AD%20komiksy%22%20OR%20genres.facet:%22Westernov%C3%A9%20komiksy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Ak%C4%8Dn%C3%AD%20a%20dobrodru%C5%BEn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20-genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20-genres.facet:%22Children%27s%20literature%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-9",
+        "title": "Literatura faktu",
+        "imageUrl": "local-config/img/genres/literatura_faktu.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Literatura%20faktu%22%20OR%20keywords.facet:%22Anglick%C3%A1%20literatura%20literatura%20faktu%22%20OR%20keywords.facet:%22Non-fiction%22%20OR%20genres.facet:%22Literatura%20faktu%22%20OR%20genres.facet:%22Rozhovory%22%20OR%20genres.facet:%22Biografie%22%20OR%20genres.facet:%22Autobiografie%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vlastn%C3%AD%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-10",
+        "title": "Sci-fi a fantasy",
+        "imageUrl": "local-config/img/genres/scifi_fantasy.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Science%20fiction%22%20OR%20keywords.facet:%22Sci-fi%22%20OR%20keywords.facet:%22Fantasy%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pov%C3%ADdka%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pr%C3%B3za%22%20OR%20keywords.facet:%22Polsk%C3%A1%20literatura%20v%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22Fantasy%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Fantasy%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Americk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Francouzsk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Science%20fiction%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-11",
+        "title": "Populárně naučná literatura",
+        "imageUrl": "local-config/img/genres/popularne_naucna.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20filmy%22%20OR%20keywords.facet:%22Popularizace%20v%C4%9Bdy%22%20OR%20keywords.facet:%22Popularizace%20hudby%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C3%AD%20literatura%22%20OR%20genres.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20publikace%22%20OR%20genres.facet:%22Popul%C3%A1rn%C3%AD%20pr%C3%A1ce%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-12",
+        "title": "Poezie",
+        "imageUrl": "local-config/img/genres/poezie.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Poezie%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Rusk%C3%A1%20poezie%22%20OR%20keywords.facet:%22%C4%8C%C3%ADnsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Lidov%C3%A1%20poezie%22%20OR%20keywords.facet:%22N%C4%9Bmeck%C3%A1%20poezie%22%20OR%20keywords.facet:%22Sv%C4%9Btov%C3%A1%20poezie%22%20OR%20keywords.facet:%22Anglick%C3%A1%20poezie%22%20OR%20keywords.facet:%22Milostn%C3%A1%20poezie%22%20OR%20keywords.facet:%22Ukrajinsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22K%C5%99es%C5%A5ansk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Francouzsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsky%20psan%C3%A1%20poezie%22%20OR%20keywords.facet:%22Experiment%C3%A1ln%C3%AD%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20starov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20st%C5%99edov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20genres.facet:%22Poezie%22%20OR%20genres.facet:%22Poezie%20v%20pr%C3%B3ze%22%20OR%20genres.facet:%22Epick%C3%A1%20poezie%22%20OR%20genres.facet:%22Lyrick%C3%A1%20poezie%22%20OR%20genres.facet:%22Slovensk%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C4%9Bmecky%20psan%C3%A1%20poezie%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      },
+      {
+        "id": "genre-13",
+        "title": "Učebnice",
+        "imageUrl": "local-config/img/genres/ucebnice.png",
+        "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&advSearch=(keywords.facet:%22U%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debnice%20%C5%A1koln%C3%AD%22%20OR%20keywords.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hudebn%C3%AD%20kompozice)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hra%20na%20varhany)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(kontrapunkt)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20S%C5%A0%22%20OR%20keywords.facet:%22U%C4%8Debnice%20jako%20t%C3%A9ma%22%20OR%20keywords.facet:%22U%C4%8Debnice%20pro%20fl%C3%A9tnu%22%20OR%20keywords.facet:%22Latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Jazyky%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22N%C4%9Bm%C4%8Dina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Slovn%C3%ADky,%20u%C4%8Debnice%20jazykov%C3%A9,%20encyklopedie%20informatika%20l%C3%A9ka%C5%99sk%C3%A1%22%20OR%20keywords.facet:%22Ital%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Francouz%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Angli%C4%8Dtina%20-%20latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Latina%20-%20ma%C4%8Far%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debn%C3%AD%20osnovy.%20Vyu%C4%8Dovac%C3%AD%20p%C5%99edm%C4%9Bty.%20U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20vysok%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20vy%C5%A1%C5%A1%C3%ADch%20odborn%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20hudebn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20u%C4%8D%C5%88ovsk%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20archivn%C3%AD%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Vybrané sbírky",
+    "buttonText": "Více sbírek",
+    "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
+    "items": [
+      {
+        "id": "uuid:f09c9d62-f367-44c3-a17d-8ed4569d77d2",
+        "title": "České národní obrození"
+      },
+      {
+        "id": "uuid:23b918f8-785c-4159-a34f-38efdb69e9f2",
+        "title": "Povinná četba"
+      },
+      {
+        "id": "uuid:fdf7d531-47b0-49c6-baa4-9b253d19de62",
+        "title": "Knížky pro děti"
+      },
+      {
+        "id": "uuid:b2c76ed4-59ba-4c35-8373-bed6e8318871",
+        "title": "Akce K"
+      },
+      {
+        "id": "uuid:a1e89368-8680-4144-b230-ed40859512f8",
+        "title": "První světová válka"
+      },
+      {
+        "id": "uuid:e08065ca-25c4-47c4-a3e8-711d2d1b5c95",
+        "title": "Horolezectví a alpinismus"
+      },
+      {
+        "id": "uuid:f834840a-c5af-4d7a-a08a-6a7c7de5127a",
+        "title": "Černobyl"
+      },
+      {
+        "id": "uuid:31f58e06-4b5b-47d7-b9b4-5affe6ddfee9",
+        "title": "Kuchařky"
+      },
+      {
+        "id": "uuid:860fd7f9-c563-470b-be43-f6ed89a2500e",
+        "title": "Řemesla a dovednosti"
+      },
+      {
+        "id": "uuid:2bf647ac-8ae8-4b20-a3c0-419057a7977e",
+        "title": "Všeobecné encyklopedie"
+      },
+      {
+        "id": "uuid:60351375-ef62-4f5e-8989-3a612591a998",
+        "title": "Houbařské příručky"
+      },
+      {
+        "id": "uuid:c9a50baf-a1cc-4c5d-b5f4-67559612c0dc",
+        "title": "Fauna a flóra"
+      },
+      {
+        "id": "uuid:81f05a88-282d-4ed2-a965-0883cdac97be",
+        "title": "Česká science-fiction"
+      },
+      {
+        "id": "uuid:0827295f-e951-4f3f-a1f7-71e2048e4676",
+        "title": "Archeologie"
+      },
+      {
+        "id": "uuid:2d49ee14-ba11-4c0b-b8ba-4c094d35bbd1",
+        "title": "Kanonická díla japonské literatury v českém překladu"
+      },
+      {
+        "id": "uuid:93b8bd87-e32a-4884-86f8-3fa6e1411a34",
+        "title": "Cestopisy a průvodce"
+      },
+      {
+        "id": "uuid:1ee5ef55-d6e0-4d01-93fd-41609d7ec36f",
+        "title": "Divadelní hry"
+      },
+      {
+        "id": "uuid:71174c16-98ca-4d39-8893-543b6fd2af74",
+        "title": "Proměny života na přelomu 19. a 20. století"
+      },
+      {
+        "id": "uuid:3a1c8ae5-6c3e-40e1-9d02-f210bc52cf06",
+        "title": "Cestovatelé z českých zemí"
+      },
+      {
+        "id": "uuid:f746dc83-25a6-4041-a64f-9d29fdde9a09",
+        "title": "Druhá světová válka"
+      },
+      {
+        "id": "uuid:9faa8971-480d-4917-9379-215943187605",
+        "title": "Železnice"
+      },
+      {
+        "id": "uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b",
+        "title": "Knihovna lásky"
+      },
+      {
+        "id": "uuid:a52dbbb2-c1b3-4097-8717-0db1ca002dfc",
+        "title": "Autobiografie, paměti a deníky"
+      },
+      {
+        "id": "uuid:2bf5e3b7-3323-4cb5-932e-eec9d7958a71",
+        "title": "Ruční práce"
+      },
+      {
+        "id": "uuid:a8c2fd9a-d79c-4870-b5f4-f28c29bb2ac9",
+        "title": "Zlatý věk ruské literatury"
+      },
+      {
+        "id": "uuid:3da71bd7-1c8a-4dd4-8fa4-caa3d0f292a7",
+        "title": "Slavistická sbírka"
+      },
+      {
+        "id": "uuid:2ee97752-3c40-4f96-b1f3-8916d242b0b7",
+        "title": "Právo"
+      },
+      {
+        "id": "uuid:7317838b-061f-4b22-b527-ea14b877379e",
+        "title": "Bohemistická sbírka"
+      },
+      {
+        "id": "uuid:d854c832-582e-4c95-8f45-7fdc1a4e3746",
+        "title": "Národopisná sbírka"
+      },
+      {
+        "id": "uuid:71174c16-98ca-4d39-8893-543b6fd2af74",
+        "title": "Proměny života na přelomu 19. a 20. století"
+      },
+      {
+        "id": "uuid:94e3b29b-b1f9-4d16-b3e2-42747c112997",
+        "title": "Staré učebnice"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Sbírky periodik",
+    "items": [
+      {
+        "id": "uuid:e8f61172-5e38-43bc-88ed-8737fc210bfc",
+        "title": "Denní tisk"
+      },
+      {
+        "id": "uuid:30a42a54-97be-47a7-af8f-40d3deec42bf",
+        "title": "Časopisy"
+      },
+      {
+        "id": "uuid:b071950b-d139-4c40-82db-8ca9de787904",
+        "title": "Humoristická periodika"
+      },
+      {
+        "id": "uuid:9df7d62c-b572-4338-a0d1-b9c63e07a26e",
+        "title": "Regionální tisk"
+      },
+      {
+        "id": "uuid:2fde41b3-b534-46ae-b0cd-6836ad9e1e7d",
+        "title": "Specializovaná periodika"
+      },
+      {
+        "id": "uuid:fd4aae83-d8cc-4615-a779-ff151fc61040",
+        "title": "Týdeníky a měsíčníky"
+      },
+      {
+        "id": "uuid:f5353b65-c8ee-4dcf-815e-338dc0a76b05",
+        "title": "Periodika a publikace zaměřené na kulturu a výtvarné umění"
+      },
+      {
+        "id": "uuid:b7372c27-2d77-4511-b31f-5d87dec08f81",
+        "title": "Výroční zprávy škol"
+      },
+      {
+        "id": "uuid:aef875a0-aa10-4a8c-88bf-89cc787d5098",
+        "title": "Brněnský tisk"
+      },
+      {
+        "id": "uuid:ddbb2e5e-c56b-4fca-98da-d52534ee7825",
+        "title": "Kalendáře"
+      }
+    ]
+  },
+  {
+    "type": "local-records",
+    "title": "Rukopisy, staré tisky, mapy a grafiky",
+    "items": [
+      {
+        "id": "uuid:0177299b-783b-417c-a686-87de93eb625f",
+        "title": "Komeniana"
+      },
+      {
+        "id": "uuid:9b190c71-5a2c-44fa-bc8a-b6c5b056c01a",
+        "title": "Mollova mapová sbírka"
+      },
+      {
+        "id": "uuid:69847da9-e7c7-4288-b87e-9f9d53a04543",
+        "title": "Zednářská literatura"
+      },
+      {
+        "id": "uuid:0ad7b989-2d93-4af9-ae47-151508bc038f",
+        "title": "Čechy na starých vyobrazeních"
+      },
+      {
+        "id": "uuid:a80bba1b-562b-4083-a656-bfd8c991ce0e",
+        "title": "Morava a Slezsko na starých vyobrazeních"
+      },
+      {
+        "id": "uuid:d4e47795-446e-47d3-9fbb-d4a79a7dbacc",
+        "title": "Staré mapy českých zemí"
+      },
+      {
+        "id": "uuid:4f160bc6-65c0-46e7-ae0b-d7d817e19af5",
+        "title": "Sbírka prvotisků Moravské zemské knihovny"
+      },
+      {
+        "id": "uuid:874a4ef8-2407-4fd9-a9f7-468504964513",
+        "title": "Brněnské grafiky"
+      },
+      {
+        "id": "uuid:cd65ed4c-13ab-4572-bd36-0659b766b147",
+        "title": "Rukopisy mikulovské dietrichštejnské knihovny"
+      },
+      {
+        "id": "uuid:f731cfe4-dbee-421c-9868-574f311b833f",
+        "title": "Hudební fond MZK"
+      }
+    ]
+  },
+  {
+    "type": "genres",
+    "title": "genres",
+    "visible": false
+  },
+  {
+    "type": "document-types",
+    "title": "document-types",
+    "visible": false
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "app": {
+    "code": "cdk",
+    "name": "Czech Digital Library",
+    "version": "3.0.0",
+    "baseUrl": "https://api.kramerius.mzk.cz",
+    "contactEmail": "digitalniknihovna@mzk.cz"
+  },
+
+  "api": {
+    "baseUrl": "https://api.kramerius.example.org/search/api/client",
+    "clientVersion": "7.0"
+  },
+
+  "i18n": {
+    "defaultLanguage": "cs",
+    "fallbackLanguage": "en",
+    "supportedLanguages": ["cs", "en", "sk", "pl"]
+  },
+
+  "integrations": {
+    "analytics": {
+      "provider": "ga4",
+      "enabled": true,
+      "measurementId": "G-XXXXXXXXXX"
+    },
+    "googleMaps": {
+      "enabled": true,
+      "apiKey": "GOOGLE_MAPS_API_KEY"
+    }
+  },
+
+  "features": {
+    "advancedSearch": true,
+    "iiif": true,
+    "mapSearch": true,
+    "georef": true,
+    "ai": false,
+    "folders": true,
+    "crossOrigin": true
+  },
+
+  "ui": {
+    "cookiebar": true
+  },
+
+  "viewer": {
+    "defaultMode": "book",
+    "availableModes": ["book", "single"],
+    "rememberLastMode": true,
+    "controls": {
+      "zoomIn": true,
+      "zoomOut": true,
+      "fullscreen": true,
+      "fitToScreen": true,
+      "fitToWidth": true,
+      "scrollMode": true,
+      "bookMode": true,
+      "rotate": true,
+      "selectArea": true
+    },
+    "selectionControls": {
+      "text": true,
+      "export": true,
+      "share": true
+    }
+  },
+
+  "search": {
+    "doctypes": [
+      "monograph",
+      "monographunit",
+      "periodical",
+      "periodicalvolume",
+      "periodicalitem",
+      "article",
+      "map",
+      "graphic",
+      "manuscript",
+      "archive",
+      "sheetmusic",
+      "soundrecording"
+    ],
+    "filters": [
+      "model",
+      "author",
+      "language",
+      "year",
+      "keywords",
+      "licenses",
+      "collection",
+      "georef"
+    ]
+  },
+
+  "contentPages": {
+    "termsPage": {
+      "cs": "local-config/html/terms/terms.cs.html",
+      "en": "local-config/html/terms/terms.en.html"
+    },
+    "aboutPage": {
+      "cs": "local-config/html/about/about.cs.html",
+      "en": "local-config/html/about/about.en.html"
+    },
+    "copyrightedText": {
+      "cs": "local-config/html/copyright/copyright.cs.html",
+      "en": "local-config/html/copyright/copyright.en.html"
+    }
+  }
+}
