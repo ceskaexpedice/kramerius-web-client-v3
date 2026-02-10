@@ -115,7 +115,7 @@ export class FilterCategoryComponent implements OnChanges {
   }
 
   private updateVisibleItems() {
-    const allItems = [...this.items];
+    let allItems = [...this.items];
 
     const selectedValues = this.selected
       .filter(f => f.startsWith(this.facetKey + ':'))
@@ -123,7 +123,6 @@ export class FilterCategoryComponent implements OnChanges {
 
     const selectedSet = new Set(selectedValues);
 
-    // Add missing items
     selectedValues.forEach(val => {
       if (!allItems.find(item => item.name === val)) {
         allItems.push({ name: val, count: 0 });

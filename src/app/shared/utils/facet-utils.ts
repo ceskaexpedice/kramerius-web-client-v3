@@ -6,7 +6,7 @@ import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
 } from '../../modules/search-results-page/const/facets';
-import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
+import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses, getConfiguredLicenses, getConfiguredModels } from '../../core/solr/solr-misc';
 
 export function handleFacetsWithOperators(
   searchFacets: Record<string, any[]>,
@@ -45,17 +45,40 @@ export function handleFacetsWithOperators(
 
     if (facetKey === facetKeysEnum.license) {
       primaryValues.forEach(item => {
-        if (PUBLIC_LICENSES.includes(item.name)) {
+        if (getPublicLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-public';
-        } else if (ONSITE_LICENSES.includes(item.name)) {
+        } else if (getOnsiteLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-in_library';
-        } else if (AFTER_LOGIN_LICENSES.includes(item.name)) {
+        } else if (getAfterLoginLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-private';
         }
       });
     }
 
     result[facetKey] = primaryValues;
+  }
+
+  // Filter licenses to only include those defined in config
+  const configuredLicenses = getConfiguredLicenses();
+  if (result[facetKeysEnum.license] && configuredLicenses.length > 0) {
+    result[facetKeysEnum.license] = result[facetKeysEnum.license].filter(
+      (item: FacetItem) => configuredLicenses.includes(item.name)
+    );
+  }
+
+  // Filter models to only include those defined in config
+  const configuredModels = getConfiguredModels();
+  if (configuredModels.length > 0) {
+    if (result[facetKeysEnum.model]) {
+      result[facetKeysEnum.model] = result[facetKeysEnum.model].filter(
+        (item: FacetItem) => configuredModels.includes(item.name)
+      );
+    }
+    if (result[facetKeysEnum.rootModel]) {
+      result[facetKeysEnum.rootModel] = result[facetKeysEnum.rootModel].filter(
+        (item: FacetItem) => configuredModels.includes(item.name)
+      );
+    }
   }
 
   // Extract active root.model filters from the filters array (these are external filters from custom-root-model)
@@ -97,6 +120,10 @@ export function handleFacetsWithOperators(
       }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
+        const publicLicenses = getPublicLicenses();
+        const onsiteLicenses = getOnsiteLicenses();
+        const afterLoginLicenses = getAfterLoginLicenses();
+
         if (item.key === FacetAccessibilityTypes.all) {
           // "All" count from facet.query that excludes availability filter (tagged with avail)
           // This respects user-selected license filters but ignores the availability toggle
@@ -113,34 +140,34 @@ export function handleFacetsWithOperators(
           // Set fq to user's licenses for when the filter is applied
           item.fq = userLicenses;
         } else if (item.key === FacetAccessibilityTypes.public) {
-          // "Public" count from facet.query for PUBLIC_LICENSES
-          if (facetQueries && PUBLIC_LICENSES.length > 0) {
-            const licenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          // "Public" count from facet.query for public licenses
+          if (facetQueries && publicLicenses.length > 0) {
+            const licenseClauses = publicLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
             const publicCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[publicCountKey] ?? 0;
           }
-          // Set fq to PUBLIC_LICENSES for when the filter is applied
-          item.fq = PUBLIC_LICENSES;
+          // Set fq to public licenses for when the filter is applied
+          item.fq = publicLicenses;
           item.iconClass = 'accessibility-public';
         } else if (item.key === FacetAccessibilityTypes.onsite) {
-          // "Onsite" count from facet.query for ONSITE_LICENSES
-          if (facetQueries && ONSITE_LICENSES.length > 0) {
-            const licenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          // "Onsite" count from facet.query for onsite licenses
+          if (facetQueries && onsiteLicenses.length > 0) {
+            const licenseClauses = onsiteLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
             const onsiteCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[onsiteCountKey] ?? 0;
           }
-          // Set fq to ONSITE_LICENSES for when the filter is applied
-          item.fq = ONSITE_LICENSES;
+          // Set fq to onsite licenses for when the filter is applied
+          item.fq = onsiteLicenses;
           item.iconClass = 'accessibility-in_library';
         } else if (item.key === FacetAccessibilityTypes.afterLogin) {
-          // "After Login" count from facet.query for AFTER_LOGIN_LICENSES
-          if (facetQueries && AFTER_LOGIN_LICENSES.length > 0) {
-            const licenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          // "After Login" count from facet.query for after-login licenses
+          if (facetQueries && afterLoginLicenses.length > 0) {
+            const licenseClauses = afterLoginLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
             const afterLoginCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[afterLoginCountKey] ?? 0;
           }
-          // Set fq to AFTER_LOGIN_LICENSES for when the filter is applied
-          item.fq = AFTER_LOGIN_LICENSES;
+          // Set fq to after-login licenses for when the filter is applied
+          item.fq = afterLoginLicenses;
           item.iconClass = 'accessibility-private';
         }
       }

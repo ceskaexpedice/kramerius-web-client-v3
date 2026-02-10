@@ -1,5 +1,5 @@
-import { Component, inject, Input } from '@angular/core';
-import { ONLINE_LICENSES } from '../../../core/solr/solr-misc';
+import {Component, inject, Input} from '@angular/core';
+import { getOnlineLicenses, getPublicLicenses } from '../../../core/solr/solr-misc';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass } from '@angular/common';
 import { UserService } from '../../services/user.service';
@@ -41,6 +41,12 @@ export class AccessibilityBadgeComponent {
   }
 
   private hasOnlineLicense(): boolean {
-    return this.licenses.some(license => ONLINE_LICENSES.includes(license));
+    const onlineLicenses = getOnlineLicenses();
+    return this.licenses.some(license => onlineLicenses.includes(license));
+  }
+
+  private hasPublicLicense(): boolean {
+    const publicLicenses = getPublicLicenses();
+    return this.licenses.some(license => publicLicenses.includes(license));
   }
 }

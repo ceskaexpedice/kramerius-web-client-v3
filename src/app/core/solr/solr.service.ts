@@ -12,7 +12,7 @@ import {
   DEFAULT_PERIODICAL_FACET_FIELDS,
 } from '../../modules/search-results-page/const/facet-fields';
 import { facetKeysEnum } from '../../modules/search-results-page/const/facets';
-import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from './solr-misc';
+import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses } from './solr-misc';
 import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { SolrUtils } from './solr-utils';
@@ -524,21 +524,21 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for PUBLIC_LICENSES
-    if (PUBLIC_LICENSES.length > 0) {
-      const publicLicenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 3. "Public" count - query for getPublicLicenses()
+    if (getPublicLicenses().length > 0) {
+      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for ONSITE_LICENSES
-    if (ONSITE_LICENSES.length > 0) {
-      const onsiteLicenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 4. "Onsite" count - query for getOnsiteLicenses()
+    if (getOnsiteLicenses().length > 0) {
+      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
     }
 
-    // 5. "After Login" count - query for AFTER_LOGIN_LICENSES
-    if (AFTER_LOGIN_LICENSES.length > 0) {
-      const afterLoginLicenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 5. "After Login" count - query for getAfterLoginLicenses()
+    if (getAfterLoginLicenses().length > 0) {
+      const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
     }
 
@@ -585,21 +585,21 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for PUBLIC_LICENSES
-    if (PUBLIC_LICENSES.length > 0) {
-      const publicLicenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 3. "Public" count - query for getPublicLicenses()
+    if (getPublicLicenses().length > 0) {
+      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for ONSITE_LICENSES
-    if (ONSITE_LICENSES.length > 0) {
-      const onsiteLicenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 4. "Onsite" count - query for getOnsiteLicenses()
+    if (getOnsiteLicenses().length > 0) {
+      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
     }
 
-    // 5. "After Login" count - query for AFTER_LOGIN_LICENSES
-    if (AFTER_LOGIN_LICENSES.length > 0) {
-      const afterLoginLicenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 5. "After Login" count - query for getAfterLoginLicenses()
+    if (getAfterLoginLicenses().length > 0) {
+      const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
     }
 
@@ -655,21 +655,21 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for PUBLIC_LICENSES
-    if (PUBLIC_LICENSES.length > 0) {
-      const publicLicenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 3. "Public" count - query for getPublicLicenses()
+    if (getPublicLicenses().length > 0) {
+      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for ONSITE_LICENSES
-    if (ONSITE_LICENSES.length > 0) {
-      const onsiteLicenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 4. "Onsite" count - query for getOnsiteLicenses()
+    if (getOnsiteLicenses().length > 0) {
+      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
     }
 
-    // 5. "After Login" count - query for AFTER_LOGIN_LICENSES
-    if (AFTER_LOGIN_LICENSES.length > 0) {
-      const afterLoginLicenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+    // 5. "After Login" count - query for getAfterLoginLicenses()
+    if (getAfterLoginLicenses().length > 0) {
+      const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
       params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
     }
 
@@ -971,21 +971,21 @@ export class SolrService {
         httpParams = httpParams.append('facet.query', `{!ex=avail}(${licenseClauses})`);
       }
 
-      // 3. "Public" count - query for PUBLIC_LICENSES
-      if (PUBLIC_LICENSES.length > 0) {
-        const publicLicenseClauses = PUBLIC_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      // 3. "Public" count - query for getPublicLicenses()
+      if (getPublicLicenses().length > 0) {
+        const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
         httpParams = httpParams.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
       }
 
-      // 4. "Onsite" count - query for ONSITE_LICENSES
-      if (ONSITE_LICENSES.length > 0) {
-        const onsiteLicenseClauses = ONSITE_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      // 4. "Onsite" count - query for getOnsiteLicenses()
+      if (getOnsiteLicenses().length > 0) {
+        const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
         httpParams = httpParams.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
       }
 
-      // 5. "After Login" count - query for AFTER_LOGIN_LICENSES
-      if (AFTER_LOGIN_LICENSES.length > 0) {
-        const afterLoginLicenseClauses = AFTER_LOGIN_LICENSES.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      // 5. "After Login" count - query for getAfterLoginLicenses()
+      if (getAfterLoginLicenses().length > 0) {
+        const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
         httpParams = httpParams.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
       }
     }

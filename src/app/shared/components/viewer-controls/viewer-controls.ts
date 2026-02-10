@@ -4,6 +4,7 @@ import { PdfService } from '../../services/pdf.service';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ConfigService } from '../../../core/config';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -17,7 +18,45 @@ export class ViewerControls {
 
   private pdfService = inject(PdfService);
   private iiifViewerService = inject(IIIFViewerService);
+  private configService = inject(ConfigService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
+
+  // Viewer control visibility getters
+  get showZoomIn(): boolean {
+    return this.configService.isViewerControlEnabled('zoomIn');
+  }
+
+  get showZoomOut(): boolean {
+    return this.configService.isViewerControlEnabled('zoomOut');
+  }
+
+  get showFullscreen(): boolean {
+    return this.configService.isViewerControlEnabled('fullscreen');
+  }
+
+  get showFitToScreen(): boolean {
+    return this.configService.isViewerControlEnabled('fitToScreen');
+  }
+
+  get showFitToWidth(): boolean {
+    return this.configService.isViewerControlEnabled('fitToWidth');
+  }
+
+  get showScrollMode(): boolean {
+    return this.configService.isViewerControlEnabled('scrollMode');
+  }
+
+  get showBookModeButton(): boolean {
+    return this.configService.isViewerModeAvailable('book') && this.configService.isViewerControlEnabled('bookMode');
+  }
+
+  get showRotate(): boolean {
+    return this.configService.isViewerControlEnabled('rotate');
+  }
+
+  get showSelectArea(): boolean {
+    return this.configService.isViewerControlEnabled('selectArea');
+  }
 
   onZoomIn() {
     if (this.type === 'pdf') {

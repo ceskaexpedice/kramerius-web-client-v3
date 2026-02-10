@@ -19,13 +19,13 @@
       (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
+    <button *ngIf="showAdvancedSearch" class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
       (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
 
     <!-- Mobile search buttons -->
-    <button class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
+    <button *ngIf="showAdvancedSearch" class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
       (click)="openAdvancedSearch()">
       <i class="icon-settings-4"></i>
     </button>

@@ -8,7 +8,7 @@ import {
   customDefinedFacetsEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
-import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
+import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses } from '../../core/solr/solr-misc';
 
 @Injectable({ providedIn: 'root' })
 export class CustomSearchService {
@@ -158,9 +158,9 @@ export class CustomSearchService {
   /**
    * Returns the licenses for the currently active accessibility filter
    * - "available": user's licenses
-   * - "public": PUBLIC_LICENSES
-   * - "onsite": ONSITE_LICENSES
-   * - "afterLogin": AFTER_LOGIN_LICENSES
+   * - "public": public licenses from config
+   * - "onsite": onsite licenses from config
+   * - "afterLogin": after-login licenses from config
    * - "all": empty array (no filter)
    */
   getUserAvailableLicenses(): string[] {
@@ -172,17 +172,17 @@ export class CustomSearchService {
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
     )) {
-      return PUBLIC_LICENSES;
+      return getPublicLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
     )) {
-      return ONSITE_LICENSES;
+      return getOnsiteLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
     )) {
-      return AFTER_LOGIN_LICENSES;
+      return getAfterLoginLicenses();
     }
     return this.userService.licenses;
   }

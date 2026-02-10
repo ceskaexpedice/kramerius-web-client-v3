@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {combineLatest, map, Observable, Subscription} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
-import {ONLINE_LICENSES} from '../../../core/solr/solr-misc';
+import {getOnlineLicenses} from '../../../core/solr/solr-misc';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
   customDefinedFacets,
@@ -113,6 +113,8 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   }
 
   enrichFacetsWithUserData() {
+    const onlineLicenses = getOnlineLicenses();
+
     this.facets$ = combineLatest([
       this.facets$,
       this.userLicenses$
@@ -122,15 +124,16 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
 
         // Add availability and icons to license facet
         if (updated[facetKeysEnum.license]) {
-          updated[facetKeysEnum.license] = updated[facetKeysEnum.license].map((item: FacetItem) => ({
-            ...item,
-            available: userLicenses.includes(item.name),
-            icon: userLicenses.includes(item.name)
-              ? 'icon-eye-public'
-              : ONLINE_LICENSES.includes(item.name)
-                ? 'icon-locked'
-                : 'icon-in-house'
-          }));
+          updated[facetKeysEnum.license] = updated[facetKeysEnum.license]
+            .map((item: FacetItem) => ({
+              ...item,
+              available: userLicenses.includes(item.name),
+              icon: userLicenses.includes(item.name)
+                ? 'icon-eye-public'
+                : onlineLicenses.includes(item.name)
+                  ? 'icon-locked'
+                  : 'icon-in-house'
+            }));
         }
 
         // Recalculate accessibility facet counts
@@ -138,12 +141,6 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
           const licenseFacet = updated[facetKeysEnum.license];
 
           updated[customDefinedFacetsEnum.accessibility] = updated[customDefinedFacetsEnum.accessibility].map((item: FacetItem) => {
-            // if (item.name === 'available') {
-            //   const newCount = userLicenses.reduce((sum, lic) => {
-            //     return sum + (licenseFacet?.find((f: FacetItem) => f.name === lic)?.count || 0);
-            //   }, 0);
-            //   return { ...item, count: newCount };
-            // }
             return item;
           });
         }
@@ -154,15 +151,16 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   }
 
   sortFacets() {
-    // if facetKey is license, sort by available first, then ONLINE_LICENSES, then alphabetically
+    const onlineLicenses = getOnlineLicenses();
+    // if facetKey is license, sort by available first, then online licenses, then alphabetically
     this.facets$ = this.facets$.pipe(
       map(facets => {
         if (facets[facetKeysEnum.license]) {
           facets[facetKeysEnum.license].sort((a: FacetItem, b: FacetItem) => {
             if (a.available && !b.available) return -1;
             if (!a.available && b.available) return 1;
-            if (ONLINE_LICENSES.includes(a.name) && !ONLINE_LICENSES.includes(b.name)) return -1;
-            if (!ONLINE_LICENSES.includes(a.name) && ONLINE_LICENSES.includes(b.name)) return 1;
+            if (onlineLicenses.includes(a.name) && !onlineLicenses.includes(b.name)) return -1;
+            if (!onlineLicenses.includes(a.name) && onlineLicenses.includes(b.name)) return 1;
             return a.name.localeCompare(b.name);
           });
         }

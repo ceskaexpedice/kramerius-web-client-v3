@@ -1,13 +1,13 @@
 <div class="selection-controls">
-    <button (click)="onText()" class="button tertiary outlined" title="Text">
+    <button *ngIf="showText" (click)="onText()" class="button tertiary outlined" title="Text">
         <i class="icon icon-text"></i>
     </button>
 
-    <button (click)="onExport()" class="button tertiary outlined" title="Export">
+    <button *ngIf="showExport" (click)="onExport()" class="button tertiary outlined" title="Export">
         <i class="icon icon-export-1"></i>
     </button>
 
-    <button (click)="onShare()" class="button tertiary outlined" title="Share">
+    <button *ngIf="showShare" (click)="onShare()" class="button tertiary outlined" title="Share">
         <i class="icon icon-send-2"></i>
     </button>
 </div>

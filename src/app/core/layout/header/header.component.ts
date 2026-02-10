@@ -18,6 +18,7 @@ import { customDefinedFacetsEnum } from '../../../modules/search-results-page/co
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CollectionsService } from '../../../shared/services/collections.service';
 import { ClickOutsideDirective } from '../../../shared/directives';
+import { ConfigService } from '../../config';
 
 @Component({
   selector: 'app-header',
@@ -56,7 +57,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private advancedSearch: AdvancedSearchService,
     private recordHandler: RecordHandlerService,
     private injector: Injector,
+    private configService: ConfigService,
   ) { }
+
+  /**
+   * Check if advanced search button should be shown based on config
+   */
+  get showAdvancedSearch(): boolean {
+    return this.configService.isFeatureEnabled('advancedSearch');
+  }
 
   ngOnInit() {
     // Listen for route changes to update header type

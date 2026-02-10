@@ -2,26 +2,40 @@ import { inject, Injectable, signal, Signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ENVIRONMENT } from '../../app.config';
 import { Language } from './lang-picker/language';
+import { ConfigService } from '../../core/config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppTranslationService {
   private translate = inject(TranslateService);
+  private configService = inject(ConfigService);
 
-  private availableLanguageCodes = ENVIRONMENT.availableLanguages;
-  private defaultLanguageCode = ENVIRONMENT.defaultLanguage;
+  // Get language settings from ConfigService, fallback to ENVIRONMENT
+  private get availableLanguageCodes(): string[] {
+    return this.configService.i18n.supportedLanguages ?? ENVIRONMENT.availableLanguages;
+  }
 
-  private languagesMap: Language[] = this.availableLanguageCodes.map((code: string) => ({
-    code,
-    name: this.languageName(code),
-    icon: `img/flag/${code}.svg`,
-  }));
+  private get defaultLanguageCode(): string {
+    return this.configService.i18n.defaultLanguage ?? ENVIRONMENT.defaultLanguage;
+  }
+
+  private get fallbackLanguageCode(): string {
+    return this.configService.i18n.fallbackLanguage ?? ENVIRONMENT.fallbackLanguage;
+  }
+
+  private get languagesMap(): Language[] {
+    return this.availableLanguageCodes.map((code: string) => ({
+      code,
+      name: this.languageName(code),
+      icon: `img/flag/${code}.svg`,
+    }));
+  }
 
   private _currentLanguage = signal<Language>(this.detectInitialLanguage());
 
   constructor() {
-    this.translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
+    this.translate.setDefaultLang(this.fallbackLanguageCode);
     this.translate.use(this._currentLanguage().code);
   }
 
