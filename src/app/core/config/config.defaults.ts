@@ -53,7 +53,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   licenses: {
     public: {
       id: 'public',
-      accessType: 'public',
+      accessType: 'open',
+      isOnline: true,
       label: { cs: 'Volná díla', en: 'Public domain', sk: 'Voľné diela', pl: 'Domena publiczna' },
       actions: {
         pdf: true, print: true, jpeg: true, text: true, textMode: true,
@@ -63,6 +64,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     dnnto: {
       id: 'dnnto',
       accessType: 'login',
+      isOnline: true,
       label: { cs: 'Díla nedostupná na trhu - online', en: 'Out of Commerce Works - online', sk: 'Diela nedostupná na trhu - online', pl: 'Utwory niedostępne w handlu – online' },
       messagePage: { cs: 'local-config/html/licenses/dnnto.cs.html', en: 'local-config/html/licenses/dnnto.en.html' },
       instructionPage: { cs: 'local-config/html/licenses/dnnto.instruction.cs.html', en: 'local-config/html/licenses/dnnto.instruction.en.html' },
@@ -73,7 +75,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     },
     dnntt: {
       id: 'dnntt',
-      accessType: 'onsite',
+      accessType: 'terminal',
+      isOnline: false,
       label: { cs: 'Díla nedostupná na trhu - studovna', en: 'Out of Commerce Works - library terminal', sk: 'Diela nedostupná na trhu - študovňa', pl: 'Utwory niedostępne w handlu – terminal biblioteczny' },
       actions: {
         pdf: false, print: true, jpeg: false, text: true, textMode: true,
@@ -82,7 +85,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     },
     onsite: {
       id: 'onsite',
-      accessType: 'onsite',
+      accessType: 'terminal',
+      isOnline: false,
       label: { cs: 'Studovna', en: 'Studovna', sk: 'Študovňa', pl: 'Czytelnia' },
       actions: {
         pdf: false, print: true, jpeg: false, text: true, textMode: true,

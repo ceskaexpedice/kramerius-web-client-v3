@@ -15,7 +15,8 @@
   },
 
   "public": {
-    "accessType": "public",
+    "accessType": "open",
+    "isOnline": true,
     "label": {
       "cs": "Volná díla",
       "en": "Public domain",
@@ -33,7 +34,8 @@
   },
 
   "mzk_public-contract": {
-    "accessType": "public",
+    "accessType": "open",
+    "isOnline": true,
     "label": {
       "cs": "Smluvně zveřejněná díla",
       "en": "Contractually published works",
@@ -51,7 +53,8 @@
   },
 
   "mzk_public-muo": {
-    "accessType": "public",
+    "accessType": "open",
+    "isOnline": true,
     "label": {
       "cs": "Hudebniny Kromeříž",
       "en": "Sheetmusic Kromeříž",
@@ -69,7 +72,8 @@
   },
 
   "knav_public_contract": {
-    "accessType": "public",
+    "accessType": "open",
+    "isOnline": true,
     "label": {
       "cs": "KNAV verejna smlouva",
       "en": "KNAV public contract"
@@ -86,6 +90,7 @@
 
   "dnnto": {
     "accessType": "login",
+    "isOnline": true,
     "label": {
       "cs": "Díla nedostupná na trhu - online",
       "en": "Out of Commerce Works - online",
@@ -103,7 +108,8 @@
   },
 
   "dnntt": {
-    "accessType": "onsite",
+    "accessType": "terminal",
+    "isOnline": false,
     "label": {
       "cs": "Díla nedostupná na trhu - studovna",
       "en": "Out of Commerce Works - library terminal",
@@ -117,7 +123,8 @@
   },
 
   "onsite": {
-    "accessType": "onsite",
+    "accessType": "terminal",
+    "isOnline": false,
     "label": {
       "cs": "Studovna",
       "en": "Studovna",
@@ -131,7 +138,8 @@
   },
 
   "onsite-sheetmusic": {
-    "accessType": "onsite",
+    "accessType": "terminal",
+    "isOnline": false,
     "label": {
       "cs": "Studovna - hudebniny",
       "en": "Studovna - hudebniny",

@@ -6,7 +6,7 @@ import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
 } from '../../modules/search-results-page/const/facets';
-import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses, getConfiguredLicenses, getConfiguredModels } from '../../core/solr/solr-misc';
+import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses, getConfiguredLicenses, getConfiguredModels } from '../../core/solr/solr-misc';
 
 export function handleFacetsWithOperators(
   searchFacets: Record<string, any[]>,
@@ -45,9 +45,9 @@ export function handleFacetsWithOperators(
 
     if (facetKey === facetKeysEnum.license) {
       primaryValues.forEach(item => {
-        if (getPublicLicenses().includes(item.name)) {
+        if (getOpenLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-public';
-        } else if (getOnsiteLicenses().includes(item.name)) {
+        } else if (getTerminalLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-in_library';
         } else if (getAfterLoginLicenses().includes(item.name)) {
           item.iconClass = 'accessibility-private';
@@ -120,8 +120,8 @@ export function handleFacetsWithOperators(
       }
 
       if (custom.facetKey === customDefinedFacetsEnum.accessibility) {
-        const publicLicenses = getPublicLicenses();
-        const onsiteLicenses = getOnsiteLicenses();
+        const openLicenses = getOpenLicenses();
+        const terminalLicenses = getTerminalLicenses();
         const afterLoginLicenses = getAfterLoginLicenses();
 
         if (item.key === FacetAccessibilityTypes.all) {
@@ -141,23 +141,23 @@ export function handleFacetsWithOperators(
           item.fq = userLicenses;
         } else if (item.key === FacetAccessibilityTypes.public) {
           // "Public" count from facet.query for public licenses
-          if (facetQueries && publicLicenses.length > 0) {
-            const licenseClauses = publicLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          if (facetQueries && openLicenses.length > 0) {
+            const licenseClauses = openLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
             const publicCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[publicCountKey] ?? 0;
           }
           // Set fq to public licenses for when the filter is applied
-          item.fq = publicLicenses;
+          item.fq = openLicenses;
           item.iconClass = 'accessibility-public';
         } else if (item.key === FacetAccessibilityTypes.onsite) {
           // "Onsite" count from facet.query for onsite licenses
-          if (facetQueries && onsiteLicenses.length > 0) {
-            const licenseClauses = onsiteLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          if (facetQueries && terminalLicenses.length > 0) {
+            const licenseClauses = terminalLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
             const onsiteCountKey = `{!ex=avail}(${licenseClauses})`;
             count = facetQueries[onsiteCountKey] ?? 0;
           }
           // Set fq to onsite licenses for when the filter is applied
-          item.fq = onsiteLicenses;
+          item.fq = terminalLicenses;
           item.iconClass = 'accessibility-in_library';
         } else if (item.key === FacetAccessibilityTypes.afterLogin) {
           // "After Login" count from facet.query for after-login licenses

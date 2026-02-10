@@ -85,10 +85,12 @@ export class ConfigService {
 
     const processed: LicensesConfig = {};
     for (const [id, license] of Object.entries(licenses)) {
+      const lic = license as any;
       processed[id] = {
         id,
-        ...license as any,
-        actions: { ...defaultActions, ...(license as any).actions }
+        ...lic,
+        isOnline: lic.isOnline ?? false,
+        actions: { ...defaultActions, ...lic.actions }
       };
     }
     return processed;
@@ -215,17 +217,17 @@ export class ConfigService {
   }
 
   /**
-   * Get public licenses (accessType: 'public')
+   * Get open licenses (accessType: 'open')
    */
-  getPublicLicenses(): string[] {
-    return this.getLicensesByAccessType('public');
+  getOpenLicenses(): string[] {
+    return this.getLicensesByAccessType('open');
   }
 
   /**
-   * Get onsite licenses (accessType: 'onsite')
+   * Get terminal licenses (accessType: 'terminal')
    */
-  getOnsiteLicenses(): string[] {
-    return this.getLicensesByAccessType('onsite');
+  getTerminalLicenses(): string[] {
+    return this.getLicensesByAccessType('terminal');
   }
 
   /**
@@ -236,12 +238,12 @@ export class ConfigService {
   }
 
   /**
-   * Get online licenses (accessType: 'online' or 'public')
+   * Get online licenses (isOnline: true)
    * Online means accessible remotely (not requiring physical presence)
    */
   getOnlineLicenses(): string[] {
     return Object.entries(this.licenses)
-      .filter(([_, config]) => config.accessType === 'online' || config.accessType === 'public')
+      .filter(([_, config]) => config.isOnline)
       .map(([id]) => id);
   }
 

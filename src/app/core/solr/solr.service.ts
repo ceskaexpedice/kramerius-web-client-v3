@@ -12,7 +12,7 @@ import {
   DEFAULT_PERIODICAL_FACET_FIELDS,
 } from '../../modules/search-results-page/const/facet-fields';
 import { facetKeysEnum } from '../../modules/search-results-page/const/facets';
-import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses } from './solr-misc';
+import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from './solr-misc';
 import { SEARCH_RETURN_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { SolrUtils } from './solr-utils';
@@ -524,16 +524,16 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for getPublicLicenses()
-    if (getPublicLicenses().length > 0) {
-      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
+    // 3. "Open" count - query for getOpenLicenses()
+    if (getOpenLicenses().length > 0) {
+      const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for getOnsiteLicenses()
-    if (getOnsiteLicenses().length > 0) {
-      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
+    // 4. "Terminal" count - query for getTerminalLicenses()
+    if (getTerminalLicenses().length > 0) {
+      const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
     }
 
     // 5. "After Login" count - query for getAfterLoginLicenses()
@@ -585,16 +585,16 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for getPublicLicenses()
-    if (getPublicLicenses().length > 0) {
-      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
+    // 3. "Open" count - query for getOpenLicenses()
+    if (getOpenLicenses().length > 0) {
+      const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for getOnsiteLicenses()
-    if (getOnsiteLicenses().length > 0) {
-      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
+    // 4. "Terminal" count - query for getTerminalLicenses()
+    if (getTerminalLicenses().length > 0) {
+      const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
     }
 
     // 5. "After Login" count - query for getAfterLoginLicenses()
@@ -655,16 +655,16 @@ export class SolrService {
       params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
     }
 
-    // 3. "Public" count - query for getPublicLicenses()
-    if (getPublicLicenses().length > 0) {
-      const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
+    // 3. "Open" count - query for getOpenLicenses()
+    if (getOpenLicenses().length > 0) {
+      const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
     }
 
-    // 4. "Onsite" count - query for getOnsiteLicenses()
-    if (getOnsiteLicenses().length > 0) {
-      const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
+    // 4. "Terminal" count - query for getTerminalLicenses()
+    if (getTerminalLicenses().length > 0) {
+      const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
     }
 
     // 5. "After Login" count - query for getAfterLoginLicenses()
@@ -971,16 +971,16 @@ export class SolrService {
         httpParams = httpParams.append('facet.query', `{!ex=avail}(${licenseClauses})`);
       }
 
-      // 3. "Public" count - query for getPublicLicenses()
-      if (getPublicLicenses().length > 0) {
-        const publicLicenseClauses = getPublicLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${publicLicenseClauses})`);
+      // 3. "Open" count - query for getOpenLicenses()
+      if (getOpenLicenses().length > 0) {
+        const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        httpParams = httpParams.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
       }
 
-      // 4. "Onsite" count - query for getOnsiteLicenses()
-      if (getOnsiteLicenses().length > 0) {
-        const onsiteLicenseClauses = getOnsiteLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${onsiteLicenseClauses})`);
+      // 4. "Terminal" count - query for getTerminalLicenses()
+      if (getTerminalLicenses().length > 0) {
+        const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        httpParams = httpParams.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
       }
 
       // 5. "After Login" count - query for getAfterLoginLicenses()

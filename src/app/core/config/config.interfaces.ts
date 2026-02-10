@@ -96,7 +96,7 @@ export interface SearchConfig {
 }
 
 // License access type
-export type LicenseAccessType = 'public' | 'onsite' | 'online' | 'login';
+export type LicenseAccessType = 'open' | 'terminal' | 'login';
 
 // Localized label
 export interface LocalizedLabel {
@@ -121,6 +121,7 @@ export interface LicenseActionsConfig {
 export interface LicenseConfig {
   id: string;
   accessType: LicenseAccessType;
+  isOnline: boolean;
   label: LocalizedLabel;
   messagePage?: LocalizedLabel;
   instructionPage?: LocalizedLabel;

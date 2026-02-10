@@ -12,9 +12,9 @@ export function initLicenseConfig(configService: ConfigService): void {
 }
 
 // Default values (used as fallback if ConfigService not available)
-const DEFAULT_ONLINE_LICENSES = ['dnnto', 'mzk_public-contract', 'public'];
-const DEFAULT_ONSITE_LICENSES = ['dnntt', 'onsite', 'onsite-sheetmusic'];
-const DEFAULT_PUBLIC_LICENSES = ['public', 'mzk_public-contract', 'mzk_public-muo', 'knav_public_contract'];
+const DEFAULT_ONLINE_LICENSES = ['public', 'mzk_public-contract', 'mzk_public-muo', 'knav_public_contract', 'dnnto'];
+const DEFAULT_TERMINAL_LICENSES = ['dnntt', 'onsite', 'onsite-sheetmusic'];
+const DEFAULT_OPEN_LICENSES = ['public', 'mzk_public-contract', 'mzk_public-muo', 'knav_public_contract'];
 const DEFAULT_AFTER_LOGIN_LICENSES = ['dnnto'];
 const DEFAULT_LICENSES_ORDER = [
   'mzk_public-muo',
@@ -40,25 +40,25 @@ export function getOnlineLicenses(): string[] {
 }
 
 /**
- * Get onsite licenses (requires physical presence).
+ * Get terminal licenses (requires physical presence).
  * Reads from ConfigService if available, otherwise uses defaults.
  */
-export function getOnsiteLicenses(): string[] {
+export function getTerminalLicenses(): string[] {
   if (configServiceRef) {
-    return configServiceRef.getOnsiteLicenses();
+    return configServiceRef.getTerminalLicenses();
   }
-  return DEFAULT_ONSITE_LICENSES;
+  return DEFAULT_TERMINAL_LICENSES;
 }
 
 /**
- * Get public licenses (freely accessible).
+ * Get open licenses (freely accessible).
  * Reads from ConfigService if available, otherwise uses defaults.
  */
-export function getPublicLicenses(): string[] {
+export function getOpenLicenses(): string[] {
   if (configServiceRef) {
-    return configServiceRef.getPublicLicenses();
+    return configServiceRef.getOpenLicenses();
   }
-  return DEFAULT_PUBLIC_LICENSES;
+  return DEFAULT_OPEN_LICENSES;
 }
 
 /**
@@ -108,8 +108,8 @@ export function getConfiguredModels(): string[] {
 // Legacy exports for backward compatibility
 // These are kept as constants but components should migrate to using the functions above
 export const ONLINE_LICENSES = DEFAULT_ONLINE_LICENSES;
-export const ONSITE_LICENSES = DEFAULT_ONSITE_LICENSES;
-export const PUBLIC_LICENSES = DEFAULT_PUBLIC_LICENSES;
+export const TERMINAL_LICENSES = DEFAULT_TERMINAL_LICENSES;
+export const OPEN_LICENSES = DEFAULT_OPEN_LICENSES;
 export const AFTER_LOGIN_LICENSES = DEFAULT_AFTER_LOGIN_LICENSES;
 export const LICENSES_ORDER = DEFAULT_LICENSES_ORDER;
 

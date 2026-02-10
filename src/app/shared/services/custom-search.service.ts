@@ -8,7 +8,7 @@ import {
   customDefinedFacetsEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
-import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLicenses } from '../../core/solr/solr-misc';
+import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../core/solr/solr-misc';
 
 @Injectable({ providedIn: 'root' })
 export class CustomSearchService {
@@ -172,12 +172,12 @@ export class CustomSearchService {
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
     )) {
-      return getPublicLicenses();
+      return getOpenLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
     )) {
-      return getOnsiteLicenses();
+      return getTerminalLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
