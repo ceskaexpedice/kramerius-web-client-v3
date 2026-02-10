@@ -487,5 +487,6 @@
   "header.aria.menu": "Menu",
   "no-text-content": "Brak zawartości tekstowej",
   "advanced-search-indicator.no-results.message": "Nic nie znaleźliśmy, spróbuj zmienić zapytanie.",
-  "advanced-search-indicator.no-results.contact-prefix": "Jeśli potrzebujesz porady, napisz do nas na e-mail"
+  "advanced-search-indicator.no-results.contact-prefix": "Jeśli potrzebujesz porady, napisz do nas na e-mail",
+  "search.title": "Wyszukiwanie"
 }

@@ -488,5 +488,6 @@
   "header.aria.menu": "Menu",
   "no-text-content": "Neobsahuje žiadny výskyt",
   "advanced-search-indicator.no-results.message": "Nič sme nenašli, skúste upraviť dopyt.",
-  "advanced-search-indicator.no-results.contact-prefix": "Ak potrebujete poradiť, napíšte nám na e-mail"
+  "advanced-search-indicator.no-results.contact-prefix": "Ak potrebujete poradiť, napíšte nám na e-mail",
+  "search.title": "Hľadanie"
 }
