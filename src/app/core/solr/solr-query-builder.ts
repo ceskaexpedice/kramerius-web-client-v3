@@ -3,6 +3,49 @@ import { SolrOperators, SolrSortDirections, SolrSortFields } from './solr-helper
 
 export class SolrQueryBuilder {
 
+  private static configuredModels: string[] = [];
+
+  private static boostMap: Record<string, number> = {
+    'periodical': 10,
+    'monograph': 8
+  };
+
+  static setConfiguredModels(models: string[]): void {
+    SolrQueryBuilder.configuredModels = models;
+  }
+
+  private static buildModelList(includePeriodicalItem: boolean, includePage: boolean): string[] {
+    const models = SolrQueryBuilder.configuredModels.length > 0
+      ? SolrQueryBuilder.configuredModels
+      : ['periodical', 'monograph', 'map', 'graphic', 'archive', 'manuscript', 'soundrecording', 'sheetmusic', 'convolute', 'collection', 'monographunit', 'supplement', 'article'];
+
+    const result = models
+      .filter(m => {
+        // These are conditionally added via flags, not part of the base list
+        if (m === 'page') return false;
+        if (!includePeriodicalItem && (m === 'periodicalitem' || m === 'periodicalvolume')) return false;
+        return true;
+      })
+      .map(m => {
+        const boost = SolrQueryBuilder.boostMap[m] ?? 2;
+        return `model:${m}^${boost}`;
+      });
+
+    if (includePeriodicalItem) {
+      if (!result.some(r => r.startsWith('model:periodicalitem'))) {
+        result.push('model:periodicalitem^2');
+      }
+      if (!result.some(r => r.startsWith('model:periodicalvolume'))) {
+        result.push('model:periodicalvolume^2');
+      }
+    }
+    if (includePage) {
+      result.push('model:page^0.001');
+    }
+
+    return result;
+  }
+
   static baseParams(): any {
     return {
       q: '*:*',
@@ -35,29 +78,7 @@ export class SolrQueryBuilder {
   }
 
   static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false): any {
-    const baseModels = [
-      'model:periodical^10',    // High boost for periodicals
-      'model:monograph^8',      // High boost for monographs
-      'model:map^2',
-      'model:graphic^2',
-      'model:archive^2',
-      'model:manuscript^2',
-      'model:soundrecording^2',
-      'model:sheetmusic^2',
-      'model:convolute^2',
-      'model:collection^2',
-      'model:monographunit^2',
-      'model:supplement^2',
-      'model:article^2'
-    ];
-
-    if (includePeriodicalItem) {
-      baseModels.push('model:periodicalitem^2');
-      baseModels.push('model:periodicalvolume^2');
-    }
-    if (includePage) {
-      baseModels.push('model:page^0.001');  // Very low boost for pages
-    }
+    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage);
 
     return {
       fq: `(${baseModels.join(' OR ')})`
@@ -69,36 +90,19 @@ export class SolrQueryBuilder {
    * This provides stronger boosting control than filter queries
    */
   static buildBoostedModelQuery(includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false): string {
-    let baseModels = [
-      'model:periodical^10'
-    ];
-
-    if (!periodicalOnly) {
-      baseModels = [
-        ...baseModels,
-        'model:monograph^8',
-        'model:map^2',
-        'model:graphic^2',
-        'model:archive^2',
-        'model:manuscript^2',
-        'model:soundrecording^2',
-        'model:sheetmusic^2',
-        'model:convolute^2',
-        'model:collection^2',
-        'model:monographunit^2',
-        'model:supplement^2',
-        'model:article^2'
-      ]
+    if (periodicalOnly) {
+      const baseModels = ['model:periodical^10'];
+      if (includePeriodicalItem) {
+        baseModels.push('model:periodicalitem^2');
+        baseModels.push('model:periodicalvolume^2');
+      }
+      if (includePage) {
+        baseModels.push('model:page^0.001');
+      }
+      return `(${baseModels.join(' OR ')})`;
     }
 
-    if (includePeriodicalItem) {
-      baseModels.push('model:periodicalitem^2');
-      baseModels.push('model:periodicalvolume^2');
-    }
-    if (includePage) {
-      baseModels.push('model:page^0.001');
-    }
-
+    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage);
     return `(${baseModels.join(' OR ')})`;
   }
 

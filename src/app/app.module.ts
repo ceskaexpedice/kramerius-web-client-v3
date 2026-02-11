@@ -26,6 +26,7 @@ import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import { ConfigService } from './core/config';
 import { initLicenseConfig } from './core/solr/solr-misc';
+import { SolrQueryBuilder } from './core/solr/solr-query-builder';
 import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
 import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
 import { ImagePreviewOverlayComponent } from './shared/components/image-preview-overlay/image-preview-overlay.component';
@@ -72,6 +73,7 @@ export function initApp(envService: EnvironmentService, configService: ConfigSer
     await envService.load();
     await configService.load();
     initLicenseConfig(configService);
+    SolrQueryBuilder.setConfiguredModels(configService.getConfig().search?.doctypes || []);
   };
 }
 

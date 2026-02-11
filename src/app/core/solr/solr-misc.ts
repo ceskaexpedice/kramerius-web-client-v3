@@ -113,12 +113,3 @@ export const OPEN_LICENSES = DEFAULT_OPEN_LICENSES;
 export const AFTER_LOGIN_LICENSES = DEFAULT_AFTER_LOGIN_LICENSES;
 export const LICENSES_ORDER = DEFAULT_LICENSES_ORDER;
 
-export const allDoctypes = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',
-  'archive', 'soundrecording', 'manuscript', 'monographunit',
-  'soundunit', 'track', 'periodicalvolume', 'periodicalitem',
-  'article', 'internalpart', 'supplement', 'page'];
-
-export const allDoctypesShareable = ['convolute', 'periodical', 'monographbundle', 'monograph', 'collection', 'clippingsvolume', 'map', 'sheetmusic', 'graphic',
-  'archive', 'soundrecording', 'manuscript', 'monographunit',
-  'periodicalvolume', 'periodicalitem',
-  'article', 'internalpart', 'supplement', 'page'];

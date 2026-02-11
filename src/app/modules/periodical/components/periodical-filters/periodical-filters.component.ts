@@ -5,7 +5,7 @@ import { BaseFiltersComponent } from '../../../../shared/components/filters/base
 import { TranslatePipe } from '@ngx-translate/core';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   FacetElementType,
   facetKeysEnum,
@@ -179,7 +179,7 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
   protected readonly facetKeysEnum = facetKeysEnum;
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
-    const facet = customDefinedFacets.find(f => f.facetKey === facetKey);
+    const facet = getCustomDefinedFacets().find(f => f.facetKey === facetKey);
     return facet?.type || FacetElementType.checkbox;
   }
 

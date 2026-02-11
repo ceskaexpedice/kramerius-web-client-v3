@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import {filter, take} from 'rxjs';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
@@ -81,7 +81,7 @@ export class CustomSearchService {
       const facetKey = key.split(':')[0];
       const value = key.split(':')[1];
 
-      const filterItem = customDefinedFacets.find(facet => facet.facetKey === facetKey);
+      const filterItem = getCustomDefinedFacets().find(facet => facet.facetKey === facetKey);
 
       switch (facetKey) {
         case customDefinedFacetsEnum.accessibility:
@@ -271,7 +271,7 @@ export class CustomSearchService {
   }
 
   getSelectedFilterValue(facetKey: string): string | null {
-    const filterItem = customDefinedFacets.find(facet => facet.facetKey === facetKey);
+    const filterItem = getCustomDefinedFacets().find(facet => facet.facetKey === facetKey);
     if (!filterItem) return null;
 
     const selectedFilter = this._appliedFilters().find(k => k.startsWith(facetKey + ':'));

@@ -5,7 +5,7 @@ import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
 import {getOnlineLicenses} from '../../../core/solr/solr-misc';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   facetKeysEnum,
 } from '../../../modules/search-results-page/const/facets';
@@ -199,7 +199,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
     // fullValue is expected to be in the format 'facetKey:facetValue'
     // we need to check if facetKey is in customDefinedFacets, if so, we need to toggle the filter using the customSearchService
     const [facetKey, facetValue] = fullValue.split(':');
-    const isCustom = customDefinedFacets.find(c => c.facetKey === facetKey);
+    const isCustom = getCustomDefinedFacets().find(c => c.facetKey === facetKey);
 
     this.filterService.resetPage();
 

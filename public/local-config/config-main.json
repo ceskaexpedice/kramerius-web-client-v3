@@ -79,7 +79,10 @@
       "manuscript",
       "archive",
       "sheetmusic",
-      "soundrecording"
+      "soundrecording",
+      "supplement",
+      "convolute",
+      "collection"
     ],
     "filters": [
       "model",

@@ -2,7 +2,7 @@ import { SolrOperators } from '../../core/solr/solr-helpers';
 import { FacetItem } from '../../modules/models/facet-item';
 import { SolrResponseParser } from '../../core/solr/solr-response-parser';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
   facetKeysEnum,
 } from '../../modules/search-results-page/const/facets';
@@ -94,7 +94,7 @@ export function handleFacetsWithOperators(
     });
   }
 
-  for (const custom of customDefinedFacets) {
+  for (const custom of getCustomDefinedFacets()) {
     const enrichedItems: FacetItem[] = custom.data.map((item: any) => {
       const fqList = Array.isArray(item.fq) ? item.fq : [item.fq];
       let count = 0;

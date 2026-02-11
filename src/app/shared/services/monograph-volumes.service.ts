@@ -6,7 +6,7 @@ import { BaseFilterService } from './base-filter.service';
 import { AdvancedSearchService } from './advanced-search.service';
 import * as MonographVolumesActions from '../state/monograph-volumes/monograph-volumes.actions';
 import * as MonographVolumesSelectors from '../state/monograph-volumes/monograph-volumes.selectors';
-import { customDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
+import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrService } from '../../core/solr/solr.service';
 
@@ -146,7 +146,7 @@ export class MonographVolumesService extends BaseFilterService {
 
     // Check if facetKey is in customDefinedFacets
     const [facetKey, facetValue] = fullValue.split(':');
-    const isCustom = customDefinedFacets.find(c => c.facetKey === facetKey);
+    const isCustom = getCustomDefinedFacets().find(c => c.facetKey === facetKey);
 
     this.resetPage();
 
