@@ -507,6 +507,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * Process IIIF info.json for use with OpenSeadragon:
    * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
    * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   * 3. Remove sizes array to prevent wrong tile grid calculation
    */
   private processInfoJson(infoJson: any): void {
     this.fixHttpUrls(infoJson);
@@ -516,6 +517,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // instead of '@id' (which points to api server, requires auth)
     if (infoJson['id'] && infoJson['@id']) {
       delete infoJson['@id'];
+    }
+
+    // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
+    // as level dimensions instead of computing from actual width/height.
+    // When sizes.length coincidentally equals maxLevel+1 but doesn't include
+    // the full resolution, OSD only tiles a fraction of the image.
+    if (infoJson.sizes && infoJson.tiles) {
+      delete infoJson.sizes;
     }
   }
 
