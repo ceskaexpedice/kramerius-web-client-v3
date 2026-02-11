@@ -117,13 +117,18 @@ export interface LicenseActionsConfig {
   crop: boolean;
 }
 
+export interface LicenseMessagePage {
+  key: string;
+  page: LocalizedLabel;
+}
+
 // Single license configuration
 export interface LicenseConfig {
   id: string;
   accessType: LicenseAccessType;
   isOnline: boolean;
   label: LocalizedLabel;
-  messagePage?: LocalizedLabel;
+  messagePages?: LicenseMessagePage[];
   instructionPage?: LocalizedLabel;
   actions: LicenseActionsConfig;
 }

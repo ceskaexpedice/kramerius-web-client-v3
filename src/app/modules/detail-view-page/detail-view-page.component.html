@@ -179,9 +179,9 @@
 
           <!-- Show access denied after access check completes and fails -->
           @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {
-          <app-document-access-denied [metadata]="document"
-            [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
-          </app-document-access-denied>
+          <app-document-access-denied-html [metadata]="document"
+            [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+          </app-document-access-denied-html>
           } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
           <!-- Show loader while access is being checked -->
           <app-inline-loader></app-inline-loader>

@@ -280,6 +280,50 @@ export class ConfigService {
     }
   }
 
+  /**
+   * Get the URL for a specific message page by license ID, page key, and language.
+   * Falls back to fallback language if the requested language is not available.
+   */
+  getMessagePageUrl(licenseId: string, pageKey: string, lang: string): string | null {
+    const license = this.licenses[licenseId];
+    if (!license?.messagePages) return null;
+
+    const messagePage = license.messagePages.find(mp => mp.key === pageKey);
+    if (!messagePage) return null;
+
+    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
+    return messagePage.page[lang] ?? messagePage.page[fallbackLang] ?? null;
+  }
+
+  /**
+   * Get the URL for the instruction page by license ID and language.
+   * Falls back to fallback language if the requested language is not available.
+   */
+  getInstructionPageUrl(licenseId: string, lang: string): string | null {
+    const license = this.licenses[licenseId];
+    if (!license?.instructionPage) return null;
+
+    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
+    return license.instructionPage[lang] ?? license.instructionPage[fallbackLang] ?? null;
+  }
+
+  /**
+   * Fetch HTML content from a relative URL path.
+   * Uses timestamp cache-busting to avoid stale content.
+   */
+  async loadHtmlContent(url: string): Promise<string> {
+    try {
+      const timestamp = Date.now();
+      const response = await fetch(`${url}?t=${timestamp}`);
+      if (!response.ok) return '';
+      const buffer = await response.arrayBuffer();
+      return new TextDecoder('utf-8').decode(buffer);
+    } catch (err) {
+      console.warn(`ConfigService: Failed to load HTML content from ${url}.`, err);
+      return '';
+    }
+  }
+
   // Home sections accessors
   get homeSections(): HomepageSectionConfig[] {
     return this.getConfig().homeSections ?? DEFAULT_HOME_SECTIONS;

@@ -66,7 +66,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       accessType: 'login',
       isOnline: true,
       label: { cs: 'Díla nedostupná na trhu - online', en: 'Out of Commerce Works - online', sk: 'Diela nedostupná na trhu - online', pl: 'Utwory niedostępne w handlu – online' },
-      messagePage: { cs: 'local-config/html/licenses/dnnto.cs.html', en: 'local-config/html/licenses/dnnto.en.html' },
+      messagePages: [
+        { key: 'default', page: { cs: 'local-config/html/licenses/dnnto.cs.html', en: 'local-config/html/licenses/dnnto.en.html' } },
+        { key: 'notEligible', page: { cs: 'local-config/html/licenses/dnnto2.cs.html', en: 'local-config/html/licenses/dnnto2.en.html' } },
+        { key: 'info', page: { cs: 'local-config/html/licenses/dnnto3.cs.html', en: 'local-config/html/licenses/dnnto3.en.html' } }
+      ],
       instructionPage: { cs: 'local-config/html/licenses/dnnto.instruction.cs.html', en: 'local-config/html/licenses/dnnto.instruction.en.html' },
       actions: {
         pdf: false, print: false, jpeg: false, text: false, textMode: true,

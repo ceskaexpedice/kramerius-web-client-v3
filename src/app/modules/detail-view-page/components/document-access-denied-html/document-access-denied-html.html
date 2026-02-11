@@ -1,0 +1,19 @@
+<div class="access-denied-html-container">
+  @if (loading) {
+    <div class="loading">
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else if (hasContent) {
+    <div class="message-content" [innerHTML]="messageHtml | safeHtml"></div>
+
+    @if (instructionHtml) {
+      <div class="instruction-content" [innerHTML]="instructionHtml | safeHtml">
+      </div>
+    }
+
+    @if (copyrightHtml) {
+      <div class="copyright-content" [innerHTML]="copyrightHtml | safeHtml">
+      </div>
+    }
+  }
+</div>
