@@ -12,7 +12,15 @@
     }
 
     @if (copyrightHtml) {
-      <div class="copyright-content" [innerHTML]="copyrightHtml | safeHtml">
+
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <div class="banner-icon">
+          <img src="/img/alert-image.png" alt="Alert image">
+        </div>
+        <div class="banner-content" [innerHTML]="copyrightHtml | safeHtml">
+
+        </div>
       </div>
     }
   }

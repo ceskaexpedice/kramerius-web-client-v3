@@ -28,9 +28,10 @@ import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
-import { DocumentAccessDeniedHtml } from './components/document-access-denied-html/document-access-denied-html';
+import { DocumentAccessDeniedHtml } from './components/access-denied/document-access-denied-html/document-access-denied-html';
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
+import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
 
 const routes: Routes = [
   {
@@ -74,6 +75,7 @@ const routes: Routes = [
     DocumentAccessDeniedHtml,
     SelectionModeInfoComponent,
     DetailArticlesListComponent,
+    DocumentAccessDenied,
   ],
 })
 

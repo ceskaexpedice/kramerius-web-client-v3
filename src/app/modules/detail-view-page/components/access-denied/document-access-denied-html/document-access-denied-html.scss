@@ -19,11 +19,6 @@
   font-size: var(--font-size-base);
 }
 
-.copyright-content {
-  background-color: var(--color-bg-light);
-  border-radius: 8px;
-  padding: var(--spacing-x4);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-1);
-  color: var(--color-tertiary);
+p {
+  margin: 0;
 }

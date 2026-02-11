@@ -1,12 +1,12 @@
 import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { Accordion, AccordionItemData } from '../../../../shared/components/accordion/accordion';
-import { Metadata } from '../../../../shared/models/metadata.model';
+import { Accordion, AccordionItemData } from '../../../../../shared/components/accordion/accordion';
+import { Metadata } from '../../../../../shared/models/metadata.model';
 import { MatDialog } from '@angular/material/dialog';
-import { LicenseInfoDialogComponent } from '../../../../shared/dialogs/license-info-dialog/license-info-dialog.component';
-import * as AuthActions from '../../../../core/auth/store/auth.actions';
-import { ModsParserService } from '../../../../shared/services/mods-parser.service';
+import { LicenseInfoDialogComponent } from '../../../../../shared/dialogs/license-info-dialog/license-info-dialog.component';
+import * as AuthActions from '../../../../../core/auth/store/auth.actions';
+import { ModsParserService } from '../../../../../shared/services/mods-parser.service';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
@@ -17,7 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'app-document-access-denied',
   imports: [CommonModule, TranslateModule, Accordion],
   templateUrl: './document-access-denied.html',
-  styleUrl: './document-access-denied.scss',
+  styleUrls: ['./document-access-denied.scss', '../access-denied.scss'],
   standalone: true
 })
 export class DocumentAccessDenied implements OnInit, OnChanges {
@@ -54,7 +54,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       const modsMetadata = await this.modsParserService.getMods(this.metadata.uuid);
       if (modsMetadata && this.metadata) {
         // Dynamically import mergeMetadata to avoid circular dependency issues if any
-        const { mergeMetadata } = await import('../../../../shared/models/metadata.model');
+        const { mergeMetadata } = await import('../../../../../shared/models/metadata.model');
         const merged = mergeMetadata(this.metadata, modsMetadata);
         this.metadata = merged;
 

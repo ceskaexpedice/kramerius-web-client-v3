@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, SimpleChanges, inject, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
-import { ConfigService } from '../../../../core/config/config.service';
-import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
-import { Metadata } from '../../../../shared/models/metadata.model';
-import * as AuthActions from '../../../../core/auth/store/auth.actions';
+import { SafeHtmlPipe } from '../../../../../shared/pipes/safe-html.pipe';
+import { ConfigService } from '../../../../../core/config/config.service';
+import { AppTranslationService } from '../../../../../shared/translation/app-translation.service';
+import { Metadata } from '../../../../../shared/models/metadata.model';
+import * as AuthActions from '../../../../../core/auth/store/auth.actions';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
@@ -13,7 +13,7 @@ import { Store } from '@ngrx/store';
   selector: 'app-document-access-denied-html',
   imports: [CommonModule, TranslateModule, SafeHtmlPipe],
   templateUrl: './document-access-denied-html.html',
-  styleUrl: './document-access-denied-html.scss',
+  styleUrls: ['./document-access-denied-html.scss', '../access-denied.scss'],
   standalone: true
 })
 export class DocumentAccessDeniedHtml implements OnChanges {
