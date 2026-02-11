@@ -311,14 +311,28 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
-    // Reset fallback state and clear thumbnail when image loads successfully
+    // Reset fallback state when image source opens, then wait for all tiles to render
     this.viewer.addHandler('open', () => {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
-        // Clear thumbnail background once image is open
-        this.clearThumbnailBackground();
       });
+
+      // Wait for all viewport tiles to be loaded before clearing thumbnail
+      const tiledImage = this.viewer?.world.getItemAt(0);
+      if (tiledImage) {
+        if (tiledImage.getFullyLoaded()) {
+          requestAnimationFrame(() => this.clearThumbnailBackground());
+        } else {
+          const onFullyLoaded = (e: any) => {
+            if (e.fullyLoaded) {
+              tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
+              requestAnimationFrame(() => this.clearThumbnailBackground());
+            }
+          };
+          tiledImage.addHandler('fully-loaded-change', onFullyLoaded);
+        }
+      }
     });
 
     this.viewer.addHandler('update-viewport', () => {
