@@ -182,8 +182,8 @@
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
           </app-document-access-denied>
-          } @else if (isPdfContent && (checkState === 'INITIAL' || checkState === 'LOADING')) {
-          <!-- Show loader for PDF while access is being checked -->
+          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+          <!-- Show loader while access is being checked -->
           <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->

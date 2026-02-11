@@ -311,14 +311,28 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
-    // Reset fallback state and clear thumbnail when image loads successfully
+    // Reset fallback state when image source opens, then wait for all tiles to render
     this.viewer.addHandler('open', () => {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
-        // Clear thumbnail background once image is open
-        this.clearThumbnailBackground();
       });
+
+      // Wait for all viewport tiles to be loaded before clearing thumbnail
+      const tiledImage = this.viewer?.world.getItemAt(0);
+      if (tiledImage) {
+        if (tiledImage.getFullyLoaded()) {
+          requestAnimationFrame(() => this.clearThumbnailBackground());
+        } else {
+          const onFullyLoaded = (e: any) => {
+            if (e.fullyLoaded) {
+              tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
+              requestAnimationFrame(() => this.clearThumbnailBackground());
+            }
+          };
+          tiledImage.addHandler('fully-loaded-change', onFullyLoaded);
+        }
+      }
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -507,6 +521,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * Process IIIF info.json for use with OpenSeadragon:
    * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
    * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   * 3. Remove sizes array to prevent wrong tile grid calculation
    */
   private processInfoJson(infoJson: any): void {
     this.fixHttpUrls(infoJson);
@@ -516,6 +531,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // instead of '@id' (which points to api server, requires auth)
     if (infoJson['id'] && infoJson['@id']) {
       delete infoJson['@id'];
+    }
+
+    // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
+    // as level dimensions instead of computing from actual width/height.
+    // When sizes.length coincidentally equals maxLevel+1 but doesn't include
+    // the full resolution, OSD only tiles a fraction of the image.
+    if (infoJson.sizes && infoJson.tiles) {
+      delete infoJson.sizes;
     }
   }
 
