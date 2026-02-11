@@ -46,3 +46,4 @@ Thumbs.db
 /src/environments/environment.local.ts
 src/assets/env.json
 build-info.json
+.claude
