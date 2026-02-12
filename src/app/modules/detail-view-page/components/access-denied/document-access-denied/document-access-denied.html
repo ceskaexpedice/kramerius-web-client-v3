@@ -15,39 +15,31 @@
           }
         </p>
 
-        <!-- Display viewing instructions for all license types -->
-        @for (instruction of getViewingInstructionsForAllTypes(); track instruction.key) {
-        <!-- For DNNT licenses (dnnto, dnntt) -->
-        @if (instruction.key === 'access-denied.for-viewing-dnnt') {
-        <p>
-          <span>{{ instruction.key | translate }} </span>
-          <a (click)="login()" class="login-link">{{ 'access-denied.please-login' | translate }}</a>
-          <span> {{ 'access-denied.with-partner-library' | translate }}</span>
-        </p>
-        }
-
-        <!-- For other non-public licenses (onsite, etc.) -->
-        @if (instruction.key === 'access-denied.for-viewing-other-prefix') {
-        <p>
-          <span>{{ instruction.key | translate }} </span>
-          @if (instruction.params.location) {
-          <a (click)="onLocationClick()">{{ instruction.params.location }}</a>
-          }
-        </p>
-        }
+        <!-- Display viewing instructions from config HTML -->
+        @if (instructionHtml) {
+          <div class="instruction-content" [innerHTML]="instructionHtml | safeHtml"></div>
         }
       </div>
     </div>
 
-    <!-- Info Banner -->
-    <div class="info-banner">
-      <div class="banner-icon">
-        <img src="/img/alert-image.png" alt="Alert image">
+    <!-- Info Banner with copyright HTML -->
+    @if (copyrightHtml) {
+      <div class="info-banner">
+        <div class="banner-icon">
+          <img src="/img/alert-image.png" alt="Alert image">
+        </div>
+        <div class="banner-content" [innerHTML]="copyrightHtml | safeHtml"></div>
       </div>
-      <div class="banner-content">
-        <p>{{ 'access-denied.copyright-notice' | translate }}</p>
+    } @else {
+      <div class="info-banner">
+        <div class="banner-icon">
+          <img src="/img/alert-image.png" alt="Alert image">
+        </div>
+        <div class="banner-content">
+          <p>{{ 'access-denied.copyright-notice' | translate }}</p>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- FAQ Section -->
