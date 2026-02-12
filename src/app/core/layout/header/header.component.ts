@@ -43,11 +43,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Track the application's current theme
   currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
 
+  // Dynamic header branding
+  headerLogo: string = '/favicon.svg';
+  headerLogoDark: string = '/favicon-dark.svg';
+  headerName: string = '';
+
   // Mobile menu state
   isMobileMenuOpen = false;
 
   // Mobile search state
   isMobileSearchOpen = false;
+
+  // Logo click counter for libraries easter egg
+  private logoClickCount = 0;
+  private logoClickTimer: any = null;
 
   constructor(
     private envService: EnvironmentService,
@@ -67,7 +76,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.configService.isFeatureEnabled('advancedSearch');
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Listen for route changes to update header type
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -86,6 +95,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Initial check
     this.updateHeaderType();
+
+    // Load active library branding
+    const activeLib = await this.configService.getActiveLibrary();
+    if (activeLib) {
+      this.headerLogo = activeLib.logo;
+      this.headerLogoDark = activeLib.logo;
+      this.headerName = activeLib.name;
+    } else {
+      this.headerLogo = this.configService.app.logo || '/favicon.svg';
+      this.headerLogoDark = '/favicon-dark.svg';
+    }
 
     this.logDevInfo();
   }
@@ -124,7 +144,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logoClicked() {
-    this.recordHandler.navigateToEmptySearch();
+    this.logoClickCount++;
+
+    if (this.logoClickTimer) {
+      clearTimeout(this.logoClickTimer);
+      this.logoClickTimer = null;
+    }
+
+    if (this.logoClickCount >= 5) {
+      this.router.navigate([`/${APP_ROUTES_ENUM.LIBRARIES}`]);
+
+      this.logoClickTimer = setTimeout(() => {
+        this.logoClickCount = 0;
+        this.logoClickTimer = null;
+      }, 1000);
+      return;
+    }
+
+    this.logoClickTimer = setTimeout(() => {
+      this.recordHandler.navigateToEmptySearch();
+      this.logoClickCount = 0;
+      this.logoClickTimer = null;
+    }, 500);
   }
 
   updateHeaderType() {

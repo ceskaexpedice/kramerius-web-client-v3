@@ -3,8 +3,9 @@
   <div class="app-header__left">
 
     <a class="logo cursor-pointer" routerLink="/" (click)="logoClicked()">
-      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? '/favicon.svg' : '/favicon-dark.svg'"
-        alt="Česká digitální knihovna" />
+      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? headerLogo : headerLogoDark"
+        [alt]="headerName || 'Česká digitální knihovna'" />
+      <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
     </a>
 
   </div>

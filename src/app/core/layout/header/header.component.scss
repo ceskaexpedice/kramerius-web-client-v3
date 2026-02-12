@@ -37,8 +37,24 @@
     gap: 20px;
   }
 
-  &__left .logo img {
-    height: 45px;
+  &__left .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    img {
+      height: 45px;
+    }
+
+    .header-client-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      color: var(--color-text-primary);
+    }
   }
 
   &__right {
