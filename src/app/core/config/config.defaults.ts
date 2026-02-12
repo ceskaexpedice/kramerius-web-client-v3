@@ -24,7 +24,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     georef: true,
     ai: false,
     folders: true,
-    crossOrigin: true
+    crossOrigin: true,
+    librarySwitch: false
   },
   ui: {
     cookiebar: true

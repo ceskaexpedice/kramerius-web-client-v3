@@ -5,6 +5,7 @@ export interface AppConfig {
   version: string;        // e.g., '2.0.0'
   baseUrl: string;        // Application base URL
   contactEmail: string;   // Contact email
+  logo?: string;          // URL to the app/library logo
 }
 
 // API configuration
@@ -50,6 +51,7 @@ export interface FeaturesConfig {
   ai: boolean;
   folders: boolean;
   crossOrigin: boolean;
+  librarySwitch: boolean;
 }
 
 // UI configuration

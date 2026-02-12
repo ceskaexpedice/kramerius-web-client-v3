@@ -19,13 +19,29 @@ import {
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 
+const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/libraries.json';
+
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
   private configUrl = 'local-config/config-main.json';
   private licensesUrl = 'local-config/config-licenses.json';
   private homeSectionsUrl = 'local-config/config-homepage.json';
+
+  /**
+   * Returns the URL to fetch libraries.json from.
+   * On localhost uses local file, on production uses the remote API.
+   */
+  static getLibrariesUrl(): string {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'local-config/libraries.json';
+    }
+    return LIBRARIES_API_URL;
+  }
   private config$ = new BehaviorSubject<AppConfiguration | null>(null);
   private loaded = false;
+  private homepageCode: string | null = null;
+  private licensesCode: string | null = null;
 
   /**
    * Load configuration from JSON files.
@@ -36,29 +52,59 @@ export class ConfigService {
 
     try {
       const timestamp = Date.now();
-      const [configResponse, licensesResponse, homeSectionsResponse] = await Promise.all([
-        fetch(`${this.configUrl}?t=${timestamp}`),
-        fetch(`${this.licensesUrl}?t=${timestamp}`),
-        fetch(`${this.homeSectionsUrl}?t=${timestamp}`)
-      ]);
 
+      // Always load main config first
+      const configResponse = await fetch(`${this.configUrl}?t=${timestamp}`);
       if (!configResponse.ok) throw new Error('Config load failed');
-
       const configData = await configResponse.json();
-      const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
-      const homeSectionsData: HomepageSectionConfig[] | null = await this.safeParseJson(homeSectionsResponse, 'config-homepage.json');
 
-      // Process licenses with _defaults pattern
-      const processedLicenses = licensesData ? this.processLicensesWithDefaults(licensesData) : DEFAULT_CONFIG.licenses;
+      // After loading main config, check if local config files are relevant.
+      // When the active library doesn't match the config code (e.g. user switched
+      // to a different library), skip loading homepage and licenses JSON files
+      // since defaults will be used anyway.
+      const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+      const configCode = configData.app?.code;
+      const localConfigActive = !activeCode || activeCode === 'mzk' || activeCode === configCode;
 
-      // Filter out invisible sections
-      const homeSections = homeSectionsData?.filter(s => s.visible !== false) ?? DEFAULT_HOME_SECTIONS;
+      let processedLicenses = DEFAULT_CONFIG.licenses;
+      let homeSections = DEFAULT_HOME_SECTIONS;
+
+      if (localConfigActive) {
+        const [licensesResponse, homeSectionsResponse] = await Promise.all([
+          fetch(`${this.licensesUrl}?t=${timestamp}`),
+          fetch(`${this.homeSectionsUrl}?t=${timestamp}`)
+        ]);
+
+        const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
+        const homeSectionsRaw: any = await this.safeParseJson(homeSectionsResponse, 'config-homepage.json');
+
+        // Extract code from licenses config
+        if (licensesData?.code) {
+          this.licensesCode = licensesData.code;
+          delete licensesData.code;
+        }
+
+        // Process licenses with _defaults pattern
+        processedLicenses = licensesData ? this.processLicensesWithDefaults(licensesData) : DEFAULT_CONFIG.licenses;
+
+        // Handle homepage config: object with code+sections or legacy array
+        let homeSectionsData: HomepageSectionConfig[] | null = null;
+        if (Array.isArray(homeSectionsRaw)) {
+          homeSectionsData = homeSectionsRaw;
+        } else if (homeSectionsRaw?.sections) {
+          this.homepageCode = homeSectionsRaw.code ?? null;
+          homeSectionsData = homeSectionsRaw.sections;
+        }
+
+        // Filter out invisible sections
+        homeSections = homeSectionsData?.filter(s => s.visible !== false) ?? DEFAULT_HOME_SECTIONS;
+      }
 
       // Deep merge with defaults to ensure all required fields exist
       const mergedConfig = this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections });
       this.config$.next(mergedConfig);
       this.loaded = true;
-      console.log('ConfigService: Configuration loaded successfully');
+      console.log(`ConfigService: Configuration loaded successfully (local config ${localConfigActive ? 'active' : 'skipped — using defaults'})`);
     } catch (err) {
       console.warn('ConfigService: Configuration not found or invalid. Using default configuration.', err);
       this.config$.next(DEFAULT_CONFIG);
@@ -326,6 +372,49 @@ export class ConfigService {
 
   // Home sections accessors
   get homeSections(): HomepageSectionConfig[] {
+    if (!this.isLocalConfigActive()) {
+      return DEFAULT_HOME_SECTIONS;
+    }
     return this.getConfig().homeSections ?? DEFAULT_HOME_SECTIONS;
+  }
+
+  /**
+   * Check if the local config matches the currently active library.
+   * Returns true if:
+   * - No library override is set (no CDK_DEV_KRAMERIUS_ID in localStorage)
+   * - The active code matches the config's app.code
+   * - The active code is 'mzk' (always treated as matching)
+   */
+  isLocalConfigActive(): boolean {
+    const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    if (!activeCode) return true;
+    if (activeCode === 'mzk') return true;
+
+    const configCode = this.app.code;
+    return activeCode === configCode;
+  }
+
+  // Active library accessor (for dynamic header branding)
+  private librariesCache: Array<{ code: string; name: string; name_en: string; logo: string }> | null = null;
+
+  async getActiveLibrary(): Promise<{ name: string; name_en: string; logo: string } | null> {
+    if (!this.isFeatureEnabled('librarySwitch')) return null;
+
+    const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    if (!activeCode) return null;
+
+    if (!this.librariesCache) {
+      try {
+        const response = await fetch(ConfigService.getLibrariesUrl());
+        if (!response.ok) return null;
+        this.librariesCache = await response.json();
+      } catch {
+        return null;
+      }
+    }
+
+    const lib = this.librariesCache?.find(l => l.code === activeCode);
+    if (!lib) return null;
+    return { name: lib.name, name_en: lib.name_en, logo: lib.logo };
   }
 }

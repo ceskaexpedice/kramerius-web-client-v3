@@ -1,4 +1,6 @@
-[
+{
+  "code": "cdk",
+  "sections": [
   {
     "type": "local-records",
     "title": "Výběr z nejčtenějších novin a časopisů",
@@ -854,3 +856,4 @@
     "visible": false
   }
 ]
+}

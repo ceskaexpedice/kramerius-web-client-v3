@@ -16,6 +16,7 @@ export enum APP_ROUTES_ENUM {
   HELP = 'help',
   UUID_REDIRECT = 'uuid',
   COLLECTION = 'collection',
+  LIBRARIES = 'libraries',
   DEV_TOOLS = 'devtools',
   NOT_FOUND = '404',
   SERVER_ERROR = '500',
@@ -72,6 +73,10 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/collections/collections-page.module').then(m => m.CollectionsPageModule),
     data: { breadcrumb: false }, // Will be set dynamically with collection name
     canActivate: [legacyRouteGuard]
+  },
+  {
+    path: APP_ROUTES_ENUM.LIBRARIES,
+    loadComponent: () => import('./core/pages/libraries/libraries.component').then(c => c.LibrariesComponent)
   },
   {
     path: APP_ROUTES_ENUM.DEV_TOOLS,

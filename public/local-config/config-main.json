@@ -4,7 +4,8 @@
     "name": "Czech Digital Library",
     "version": "3.0.0",
     "baseUrl": "https://api.kramerius.mzk.cz",
-    "contactEmail": "digitalniknihovna@mzk.cz"
+    "contactEmail": "digitalniknihovna@mzk.cz",
+    "logo": "/favicon.svg"
   },
 
   "api": {
@@ -37,7 +38,8 @@
     "georef": true,
     "ai": false,
     "folders": true,
-    "crossOrigin": true
+    "crossOrigin": true,
+    "librarySwitch": true
   },
 
   "ui": {
@@ -83,16 +85,6 @@
       "supplement",
       "convolute",
       "collection"
-    ],
-    "filters": [
-      "model",
-      "author",
-      "language",
-      "year",
-      "keywords",
-      "licenses",
-      "collection",
-      "georef"
     ]
   },
 
