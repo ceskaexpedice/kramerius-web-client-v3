@@ -13,6 +13,7 @@ import { selectMonographVolumesParent } from '../state/monograph-volumes/monogra
 import { selectCollectionDetail } from '../state/collections/collections.selectors';
 import { selectFolderDetails } from '../../modules/saved-lists-page/state/folders.selectors';
 import { Metadata } from '../models/metadata.model';
+import { ConfigService } from '../../core/config/config.service';
 
 interface MonographParent {
     mainTitle?: string;
@@ -34,12 +35,25 @@ export class PageTitleService {
     private router = inject(Router);
     private store = inject(Store);
     private translate = inject(TranslateService);
+    private configService = inject(ConfigService);
 
     private titleSubscription?: Subscription;
-    private readonly defaultTitle = 'Česká digitální knihovna';
+    private defaultTitle = 'Česká digitální knihovna';
 
     constructor() {
+        this.initDefaultTitle();
         this.init();
+    }
+
+    private async initDefaultTitle() {
+        const activeLib = await this.configService.getActiveLibrary();
+        if (activeLib) {
+            this.defaultTitle = activeLib.name;
+        } else {
+            this.defaultTitle = this.configService.app.name || 'Česká digitální knihovna';
+        }
+
+        this.updateTitleBasedOnRoute(this.router.url);
     }
 
     private init() {
