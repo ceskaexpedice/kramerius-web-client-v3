@@ -489,5 +489,14 @@
   "no-text-content": "Neobsahuje žiadny výskyt",
   "advanced-search-indicator.no-results.message": "Nič sme nenašli, skúste upraviť dopyt.",
   "advanced-search-indicator.no-results.contact-prefix": "Ak potrebujete poradiť, napíšte nám na e-mail",
-  "search.title": "Hľadanie"
+  "search.title": "Hľadanie",
+  "libraries.title": "Knižnice",
+  "libraries.filter-placeholder": "Filtrovať knižnice...",
+  "libraries.active": "Aktívna",
+  "libraries.clear": "Zrušiť",
+  "libraries.loading": "Načítanie knižníc...",
+  "libraries.error": "Nepodarilo sa načítať knižnice. Skúste to prosím znova.",
+  "libraries.switching": "Prepínanie na {{name}}. Načítanie...",
+  "libraries.cleared": "Prepísanie zrušené. Načítanie...",
+  "libraries.save-error": "Nepodarilo sa uložiť konfiguráciu."
 }

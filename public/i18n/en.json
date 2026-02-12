@@ -496,5 +496,14 @@
   "header.aria.search": "Search",
   "header.aria.menu": "Menu",
   "no-text-content": "Contains no occurrence",
-  "search.title": "Search"
+  "search.title": "Search",
+  "libraries.title": "Libraries",
+  "libraries.filter-placeholder": "Filter libraries...",
+  "libraries.active": "Active",
+  "libraries.clear": "Clear",
+  "libraries.loading": "Loading libraries...",
+  "libraries.error": "Failed to load libraries. Please try again later.",
+  "libraries.switching": "Switching to {{name}}. Reloading...",
+  "libraries.cleared": "Override cleared. Reloading...",
+  "libraries.save-error": "Failed to save configuration."
 }

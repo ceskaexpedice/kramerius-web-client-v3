@@ -488,5 +488,14 @@
   "no-text-content": "Brak zawartości tekstowej",
   "advanced-search-indicator.no-results.message": "Nic nie znaleźliśmy, spróbuj zmienić zapytanie.",
   "advanced-search-indicator.no-results.contact-prefix": "Jeśli potrzebujesz porady, napisz do nas na e-mail",
-  "search.title": "Wyszukiwanie"
+  "search.title": "Wyszukiwanie",
+  "libraries.title": "Biblioteki",
+  "libraries.filter-placeholder": "Filtruj biblioteki...",
+  "libraries.active": "Aktywna",
+  "libraries.clear": "Wyczyść",
+  "libraries.loading": "Ładowanie bibliotek...",
+  "libraries.error": "Nie udało się załadować bibliotek. Spróbuj ponownie później.",
+  "libraries.switching": "Przełączanie na {{name}}. Ładowanie...",
+  "libraries.cleared": "Nadpisanie wyczyszczone. Ładowanie...",
+  "libraries.save-error": "Nie udało się zapisać konfiguracji."
 }
