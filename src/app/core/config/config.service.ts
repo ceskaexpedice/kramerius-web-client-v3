@@ -32,11 +32,8 @@ export class ConfigService {
    * On localhost uses local file, on production uses the remote API.
    */
   static getLibrariesUrl(): string {
-    const hostname = window.location.hostname;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'local-config/libraries.json';
-    }
-    return LIBRARIES_API_URL;
+    // TODO: switch to LIBRARIES_API_URL once CORS is configured on the server
+    return 'local-config/libraries.json';
   }
   private config$ = new BehaviorSubject<AppConfiguration | null>(null);
   private loaded = false;
