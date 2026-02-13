@@ -24,7 +24,7 @@ export APP_KRAMERIUS_ID="mzk"
 
 ```
 
-Now run `npm run build` to build the project. 
+Now run `npm run build` to build the project.
 
 The build artifacts will be stored in the `dist/` directory.
 
@@ -32,9 +32,9 @@ The environment configuration from `APP_*` variables will be stored into `dist/c
 
 ### Run
 
-To test the the app you've just built 
+To test the the app you've just built
 
-`npx serve dist/cdk-client/browser -l 8080` 
+`npx serve dist/cdk-client/browser -l 8080`
 
 And open in browser
 
@@ -47,7 +47,7 @@ And open in browser
 docker build -t cdk-client .
 ```
 
-possibly including version tag  
+possibly including version tag
 ```
 docker build -t trinera/cdk-client:1.0.4 .
 ```
@@ -104,7 +104,7 @@ Run image that someone built and pushed to Dockerhub.
 ```
 docker pull trinera/cdk-client:latest
 docker run -p 1234:80 \
-  -e APP_KRAMERIUS_ID=mzk \  
+  -e APP_KRAMERIUS_ID=mzk \
 trinera/cdk-client
 ```
 
