@@ -87,7 +87,7 @@ jobs:
     - name: Set vars
       id: set_vars
       run: |
-        REF_NAME=$(echo $GITHUB_REF_NAME | grep -oE '([a-z0-9\-\.]*?)$')
+        REF_NAME=$(echo $GITHUB_REF_NAME | grep -oP '([a-z0-9\-\.]*?)$' | sed 's/\./-/g')
         (
           echo "ref_name=$REF_NAME"
           echo "docker_container_suffix=${REF_NAME//\./_}"
