@@ -2,7 +2,7 @@
 
   <div class="app-header__left">
 
-    <a class="logo cursor-pointer" routerLink="/" (click)="logoClicked()">
+    <a class="logo cursor-pointer" (click)="logoClicked()">
       <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? headerLogo : headerLogoDark"
         [alt]="headerName || 'Česká digitální knihovna'" />
       <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
@@ -40,7 +40,7 @@
 
   <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen">
 
-    <a [routerLink]="['/search']"
+    <a [routerLink]="searchLink"
       [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
       class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
@@ -75,7 +75,7 @@
 
   <div class="mobile-menu" appClickOutside (clickOutside)="closeMobileMenu()" [class.open]="isMobileMenuOpen">
     <div class="mobile-menu__content">
-      <a [routerLink]="['/search']"
+      <a [routerLink]="searchLink"
         [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
         class="cursor-pointer">{{'collections' | translate}}</a>
       <app-user-info></app-user-info>

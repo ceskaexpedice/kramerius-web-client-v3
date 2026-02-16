@@ -13,6 +13,7 @@ import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
+import { LibraryContextService } from '../../services/library-context.service';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
 import { isDocumentPublic } from '../record-item/record-item.model';
@@ -73,6 +74,7 @@ export class MetadataSection implements OnInit, OnChanges {
 
   store = inject(Store);
   private destroyRef = inject(DestroyRef);
+  private libraryContext = inject(LibraryContextService);
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
@@ -81,6 +83,10 @@ export class MetadataSection implements OnInit, OnChanges {
   @Input() metadata: Metadata | null = null;
 
   @Input() showTitle: boolean = true;
+
+  get articleViewLink(): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/view', this.uuid]);
+  }
 
   ngOnInit() {
     this.loadMetadata();
@@ -341,7 +347,7 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   clickedCollection = (collection: InCollections): void => {
-    this.router.navigate(['/collection', collection.uuid]);
+    this.router.navigate(this.libraryContext.prependLibraryPrefix(['/collection', collection.uuid]));
   }
 
   clickedDocumentType = (model: string): void => {

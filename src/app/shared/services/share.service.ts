@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ConfigService } from '../../core/config/config.service';
+import { LibraryContextService } from './library-context.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,7 @@ import { ConfigService } from '../../core/config/config.service';
 export class ShareService {
 
   private configService = inject(ConfigService);
+  private libraryContext = inject(LibraryContextService);
 
   getCurrentUrl(pid: string, isPage = false): string {
     const url = new URL(window.location.href);
@@ -34,12 +36,14 @@ export class ShareService {
       finalUrl += url.pathname;
     }
 
-    // Append library context if library switching is enabled and a library is active
-    const activeLibCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    if (activeLibCode && this.configService.isFeatureEnabled('librarySwitch')) {
-      const finalUrlObj = new URL(finalUrl);
-      finalUrlObj.searchParams.set('lib', activeLibCode);
-      finalUrl = finalUrlObj.toString();
+    // Prepend library prefix to shared URL path
+    if (this.configService.isFeatureEnabled('librarySwitch')) {
+      const prefix = this.libraryContext.getLibraryPrefix();
+      if (prefix) {
+        const finalUrlObj = new URL(finalUrl);
+        finalUrlObj.pathname = `${prefix}${finalUrlObj.pathname}`;
+        finalUrl = finalUrlObj.toString();
+      }
     }
 
     return finalUrl;

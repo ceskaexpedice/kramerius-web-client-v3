@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ConfigService } from '../../config/config.service';
+import { LibraryContextService } from '../../../shared/services/library-context.service';
 
 interface Library {
   id: number;
@@ -203,6 +204,8 @@ export class LibrariesComponent implements OnInit {
   activeCode = signal<string>('');
 
   private translate = inject(TranslateService);
+  private configService = inject(ConfigService);
+  private libraryContext = inject(LibraryContextService);
 
   filteredLibraries = computed(() => {
     const rawQuery = String(this.searchQuery()).toLowerCase().trim();
@@ -243,7 +246,10 @@ export class LibrariesComponent implements OnInit {
       localStorage.setItem(this.STORAGE_KEY_ID, lib.code);
       this.message.set(this.translate.instant('libraries.switching', { name: lib.name }));
       this.isError.set(false);
-      setTimeout(() => window.location.reload(), 1000);
+      // Navigate with library code in URL path; full page load forces env/config reload
+      const prefix = this.libraryContext.getLibraryPrefix();
+      const target = prefix ? `${prefix}/` : '/';
+      setTimeout(() => window.location.href = target, 1000);
     } catch (e) {
       this.message.set(this.translate.instant('libraries.save-error'));
       this.isError.set(true);
@@ -255,7 +261,7 @@ export class LibrariesComponent implements OnInit {
     localStorage.removeItem(this.STORAGE_KEY_ID);
     this.message.set(this.translate.instant('libraries.cleared'));
     this.isError.set(false);
-    setTimeout(() => window.location.reload(), 1000);
+    setTimeout(() => window.location.href = '/', 1000);
   }
 
   onImageError(event: Event) {

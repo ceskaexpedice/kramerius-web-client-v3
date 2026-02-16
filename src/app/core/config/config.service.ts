@@ -19,7 +19,7 @@ import {
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 
-const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/libraries.json';
+const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
@@ -32,8 +32,11 @@ export class ConfigService {
    * On localhost uses local file, on production uses the remote API.
    */
   static getLibrariesUrl(): string {
-    // TODO: switch to LIBRARIES_API_URL once CORS is configured on the server
-    return 'local-config/libraries.json';
+    return LIBRARIES_API_URL;
+  }
+
+  static getLibraryByCodeUrl(code: string): string {
+    return `${LIBRARIES_API_URL}/${code}`;
   }
   private config$ = new BehaviorSubject<AppConfiguration | null>(null);
   private loaded = false;
@@ -392,7 +395,7 @@ export class ConfigService {
   }
 
   // Active library accessor (for dynamic header branding)
-  private librariesCache: Array<{ code: string; name: string; name_en: string; logo: string }> | null = null;
+  private activeLibraryCache: { code: string; name: string; name_en: string; logo: string } | null = null;
 
   async getActiveLibrary(): Promise<{ name: string; name_en: string; logo: string } | null> {
     if (!this.isFeatureEnabled('librarySwitch')) return null;
@@ -400,18 +403,17 @@ export class ConfigService {
     const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
     if (!activeCode) return null;
 
-    if (!this.librariesCache) {
+    if (!this.activeLibraryCache || this.activeLibraryCache.code !== activeCode) {
       try {
-        const response = await fetch(ConfigService.getLibrariesUrl());
+        const response = await fetch(ConfigService.getLibraryByCodeUrl(activeCode));
         if (!response.ok) return null;
-        this.librariesCache = await response.json();
+        this.activeLibraryCache = await response.json();
       } catch {
         return null;
       }
     }
 
-    const lib = this.librariesCache?.find(l => l.code === activeCode);
-    if (!lib) return null;
-    return { name: lib.name, name_en: lib.name_en, logo: lib.logo };
+    if (!this.activeLibraryCache) return null;
+    return { name: this.activeLibraryCache.name, name_en: this.activeLibraryCache.name_en, logo: this.activeLibraryCache.logo };
   }
 }

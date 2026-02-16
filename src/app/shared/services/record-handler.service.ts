@@ -14,6 +14,7 @@ import { RecordItem, searchDocumentToRecordItem } from '../components/record-ite
 import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/periodical-item';
 import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
+import { LibraryContextService } from './library-context.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ export class RecordHandlerService {
   private adminSelectionService = inject(AdminSelectionService);
   private breakpointService = inject(BreakpointService);
   private userService = inject(UserService);
+  private libraryContext = inject(LibraryContextService);
 
   // Filter keys that should be preserved when navigating to periodicals
   private readonly FILTERS_TO_PRESERVE = ['yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
@@ -68,19 +70,19 @@ export class RecordHandlerService {
   }
 
   getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null): string {
+    const lp = (segments: any[]) => this.libraryContext.prependLibraryPrefix(segments);
     switch (model) {
       case DocumentTypeEnum.periodical:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid])).toString();
       case DocumentTypeEnum.periodicalvolume:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid])).toString();
       case DocumentTypeEnum.soundrecording:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.MUSIC_VIEW, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.MUSIC_VIEW, pid])).toString();
       case DocumentTypeEnum.collection:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.COLLECTION, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.COLLECTION, pid])).toString();
       case DocumentTypeEnum.convolute:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid])).toString();
       case DocumentTypeEnum.article:
-        // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
         if (rootPid) {
           const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
@@ -89,12 +91,11 @@ export class RecordHandlerService {
           if (fulltext && fulltext.trim().length > 0) {
             queryParams['fulltext'] = fulltext;
           }
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], { queryParams }).toString();
+          return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid]), { queryParams }).toString();
         } else {
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+          return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, pid])).toString();
         }
       case DocumentTypeEnum.page:
-        // DETAIL_VIEW/rootPid?page=pid&fulltext=xx
         if (rootPid) {
           const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
@@ -103,12 +104,12 @@ export class RecordHandlerService {
           if (fulltext && fulltext.trim().length > 0) {
             queryParams['fulltext'] = fulltext;
           }
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid], { queryParams }).toString();
+          return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, rootPid]), { queryParams }).toString();
         } else {
-          return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+          return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, pid])).toString();
         }
       default:
-        return this.router.createUrlTree([APP_ROUTES_ENUM.DETAIL_VIEW, pid]).toString();
+        return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, pid])).toString();
     }
   }
 
@@ -116,23 +117,23 @@ export class RecordHandlerService {
    * Navigate to the document detail view.
    */
   public navigateToDetail(pid: string): void {
-    this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.DETAIL_VIEW, pid]));
   }
 
   /**
    * Navigate to the year selection page for a periodical.
    */
   public navigateToPeriodical(pid: string): void {
-    this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]);
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid]));
   }
 
   public navigateToMusic(pid: string): void {
-    this.router.navigate([APP_ROUTES_ENUM.MUSIC_VIEW, pid]);
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.MUSIC_VIEW, pid]));
   }
 
   public navigateToEmptySearch(): void {
     this.searchService.searchTerm.set('');
-    this.router.navigate([APP_ROUTES_ENUM.SEARCH], { queryParams: {}, queryParamsHandling: null });
+    this.router.navigate(['/'], { queryParams: {}, queryParamsHandling: null });
   }
 
   navigateFromPeriodicalToSearchResults(): void {
@@ -140,7 +141,7 @@ export class RecordHandlerService {
     if (returnUrl) {
       this.router.navigateByUrl(returnUrl);
     } else {
-      this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS]);
+      this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.SEARCH_RESULTS]));
     }
   }
 
@@ -552,7 +553,7 @@ export class RecordHandlerService {
 
     // Fall back to navigating to parent periodical
     if (document.ownParentPid) {
-      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]);
+      this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]));
     }
   }
 

@@ -18,6 +18,7 @@ import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { take } from 'rxjs';
+import { LibraryContextService } from './library-context.service';
 import { mapAdvancedSearchField } from '../../modules/search-results-page/const/facets';
 
 export interface FilterGroup {
@@ -47,6 +48,7 @@ export class AdvancedSearchService {
   private queryParamsService = inject(QueryParamsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private libraryContext = inject(LibraryContextService);
   private breakpointService = inject(BreakpointService);
 
   initializeFromRoute(): void {
@@ -92,7 +94,9 @@ export class AdvancedSearchService {
     const advancedQuery = this.getAdvancedQueryString();
     const mainOperator = this.mainOperator();
 
-    const isOnSearchPage = this.router.url.split('?')[0] === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`;
+    const currentRoute = this.router.url.split('?')[0];
+    const prefix = this.libraryContext.getLibraryPrefix();
+    const isOnSearchPage = currentRoute === `${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}`;
 
     const updatedFq = this.getFilters();
     const updatedOperators = this.getOperators();
@@ -109,7 +113,7 @@ export class AdvancedSearchService {
     };
 
     if (!isOnSearchPage) {
-      this.router.navigate([APP_ROUTES_ENUM.SEARCH_RESULTS], {
+      this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.SEARCH_RESULTS]), {
         queryParams,
       });
     } else {

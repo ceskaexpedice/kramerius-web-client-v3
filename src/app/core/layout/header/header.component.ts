@@ -19,6 +19,7 @@ import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CollectionsService } from '../../../shared/services/collections.service';
 import { ClickOutsideDirective } from '../../../shared/directives';
 import { ConfigService } from '../../config';
+import { LibraryContextService } from '../../../shared/services/library-context.service';
 
 @Component({
   selector: 'app-header',
@@ -67,6 +68,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private recordHandler: RecordHandlerService,
     private injector: Injector,
     private configService: ConfigService,
+    private libraryContext: LibraryContextService,
   ) { }
 
   /**
@@ -74,6 +76,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   get showAdvancedSearch(): boolean {
     return this.configService.isFeatureEnabled('advancedSearch');
+  }
+
+  get homeLink(): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/']);
+  }
+
+  get searchLink(): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/search']);
   }
 
   async ngOnInit() {
@@ -118,7 +128,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   get showSearchBar(): boolean {
     // Use router.url but strip query params to avoid header changes when dialogs add URL params
     const urlWithoutParams = this.router.url.split('?')[0];
-    return urlWithoutParams !== `/${APP_ROUTES_ENUM.SEARCH}`;
+    return urlWithoutParams !== '/';
   }
 
   get isOnCollectionRoute(): boolean {
@@ -165,7 +175,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.recordHandler.navigateToEmptySearch();
       this.logoClickCount = 0;
       this.logoClickTimer = null;
-    }, 500);
+    }, 200);
   }
 
   updateHeaderType() {

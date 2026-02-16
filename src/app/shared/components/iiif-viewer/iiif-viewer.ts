@@ -269,6 +269,46 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     container.style.backgroundImage = '';
   }
 
+  /**
+   * Wait for the viewer's image to be fully loaded, then clear the thumbnail background.
+   * Handles both IIIF tiled sources (waits for all tiles) and direct image fallbacks.
+   */
+  private waitForImageLoaded(): void {
+    const tiledImage = this.viewer?.world.getItemAt(0);
+    if (tiledImage) {
+      if (tiledImage.getFullyLoaded()) {
+        requestAnimationFrame(() => this.clearThumbnailBackground());
+      } else {
+        const onFullyLoaded = (e: any) => {
+          if (e.fullyLoaded) {
+            tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
+            requestAnimationFrame(() => this.clearThumbnailBackground());
+          }
+        };
+        tiledImage.addHandler('fully-loaded-change', onFullyLoaded);
+      }
+    } else {
+      // World is empty — image not added yet (can happen with direct image fallbacks).
+      // Listen for the item to be added, then wait for it to fully load.
+      const onAddItem = (e: any) => {
+        this.viewer?.world.removeHandler('add-item', onAddItem);
+        const item = e.item;
+        if (item.getFullyLoaded()) {
+          requestAnimationFrame(() => this.clearThumbnailBackground());
+        } else {
+          const onFullyLoaded = (ev: any) => {
+            if (ev.fullyLoaded) {
+              item.removeHandler('fully-loaded-change', onFullyLoaded);
+              requestAnimationFrame(() => this.clearThumbnailBackground());
+            }
+          };
+          item.addHandler('fully-loaded-change', onFullyLoaded);
+        }
+      };
+      this.viewer?.world.addHandler('add-item', onAddItem);
+    }
+  }
+
   private createViewer(tileSource: any): void {
     if (this.viewer) {
       this.viewer.destroy();
@@ -318,21 +358,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.fallbackImageUrl.set(null);
       });
 
-      // Wait for all viewport tiles to be loaded before clearing thumbnail
-      const tiledImage = this.viewer?.world.getItemAt(0);
-      if (tiledImage) {
-        if (tiledImage.getFullyLoaded()) {
-          requestAnimationFrame(() => this.clearThumbnailBackground());
-        } else {
-          const onFullyLoaded = (e: any) => {
-            if (e.fullyLoaded) {
-              tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
-              requestAnimationFrame(() => this.clearThumbnailBackground());
-            }
-          };
-          tiledImage.addHandler('fully-loaded-change', onFullyLoaded);
-        }
-      }
+      // Wait for image content to be rendered before clearing thumbnail background.
+      // For IIIF tiled images this creates a blur→sharp progressive loading effect.
+      // For direct image fallbacks, the single "tile" loads fully at once.
+      this.waitForImageLoaded();
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -405,11 +434,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
     console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
 
+    const directImageTileSource = { type: 'image', url: directImageUrl };
+
     if (this.viewer) {
-      this.viewer.open({
-        type: 'image',
-        url: directImageUrl
-      });
+      this.viewer.open(directImageTileSource);
+    } else {
+      // Viewer was never created (info.json fetch failed before createViewer ran).
+      // Create it now with the direct image as tile source.
+      this.createViewer(directImageTileSource);
     }
 
     setTimeout(() => {

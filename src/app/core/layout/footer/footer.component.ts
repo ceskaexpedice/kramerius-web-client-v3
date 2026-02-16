@@ -61,6 +61,6 @@ export class FooterComponent implements OnInit {
     this.logoClickTimer = setTimeout(() => {
       this.logoClickCount = 0;
       this.logoClickTimer = null;
-    }, 500);
+    }, 200);
   }
 }
