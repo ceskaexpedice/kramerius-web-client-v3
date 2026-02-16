@@ -40,6 +40,9 @@
 
   <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen">
 
+    <a [routerLink]="['/about']"
+       class="cursor-pointer desktop-only">{{'about-project' | translate}}</a>
+
     <a [routerLink]="searchLink"
       [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
       class="cursor-pointer desktop-only">{{'collections' | translate}}</a>

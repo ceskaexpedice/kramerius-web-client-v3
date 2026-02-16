@@ -10,7 +10,7 @@
   height: 300px;
 
   &>div {
-    padding: 0 3rem;
+    padding: 0 100px;
   }
 
   &__content {
@@ -20,8 +20,9 @@
     gap: var(--base-gap);
 
     h2 {
-      font-size: calc(22px * var(--accessibility-text-scale));
+      font-size: calc(20px * var(--accessibility-text-scale));
       font-weight: 700;
+      line-height: 32px;
       margin: 0;
     }
 
@@ -32,14 +33,14 @@
     .search-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 7px 14px;
 
       .tag {
         background: var(--color-bg-base);
         color: var(--color-text-base);
         border: 1px solid var(--color-border-bright);
-        padding: 5px 10px;
-        border-radius: 16px;
+        padding: var(--spacing-x1) var(--spacing-x2);
+        border-radius: var(--spacing-x2);
         font-size: var(--font-size-small);
         white-space: nowrap;
       }
@@ -49,7 +50,7 @@
   &__images {
     flex: 2;
     display: flex;
-    gap: 10px;
+    gap: 18px;
     height: 100%;
     align-items: center;
 
