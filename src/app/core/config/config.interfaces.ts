@@ -147,6 +147,13 @@ export interface ContentPagesConfig {
   copyrightedText?: LocalizedLabel;
 }
 
+// Configurable content page
+export interface PageConfig {
+  id: string;
+  label?: LocalizedLabel;
+  content: LocalizedLabel;
+}
+
 // Home section link item
 export interface HomepageLinkItem {
   label: string;
@@ -183,5 +190,6 @@ export interface AppConfiguration {
   search?: SearchConfig;
   licenses: LicensesConfig;
   contentPages?: ContentPagesConfig;
+  pages?: PageConfig[];
   homeSections?: HomepageSectionConfig[];
 }

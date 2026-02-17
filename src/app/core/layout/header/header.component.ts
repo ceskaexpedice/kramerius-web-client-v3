@@ -20,6 +20,8 @@ import { CollectionsService } from '../../../shared/services/collections.service
 import { ClickOutsideDirective } from '../../../shared/directives';
 import { ConfigService } from '../../config';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
+import { AppTranslationService } from '../../../shared/translation/app-translation.service';
+import { PageConfig } from '../../config/config.interfaces';
 
 @Component({
   selector: 'app-header',
@@ -69,6 +71,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private injector: Injector,
     private configService: ConfigService,
     private libraryContext: LibraryContextService,
+    private translationService: AppTranslationService,
   ) { }
 
   /**
@@ -225,6 +228,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeMobileSearch() {
     this.isMobileSearchOpen = false;
+  }
+
+  get navPages(): PageConfig[] {
+    return this.configService.navPages;
+  }
+
+  getPageLabel(page: PageConfig): string {
+    const lang = this.translationService.currentLanguage().code;
+    const fallbackLang = this.configService.i18n.fallbackLanguage ?? 'en';
+    return page.label?.[lang] ?? page.label?.[fallbackLang] ?? page.id;
+  }
+
+  getPageLink(page: PageConfig): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/pages', page.id]);
   }
 
   logDevInfo(): void {

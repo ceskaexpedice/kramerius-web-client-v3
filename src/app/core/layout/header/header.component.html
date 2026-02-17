@@ -47,7 +47,9 @@
       [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
       class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
-    <!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
+    @for (page of navPages; track page.id) {
+      <a [routerLink]="getPageLink(page)" class="cursor-pointer desktop-only">{{ getPageLabel(page) }}</a>
+    }
 
     <div class="desktop-only">
       <app-user-info></app-user-info>
@@ -81,6 +83,9 @@
       <a [routerLink]="searchLink"
         [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
         class="cursor-pointer">{{'collections' | translate}}</a>
+      @for (page of navPages; track page.id) {
+        <a [routerLink]="getPageLink(page)" class="cursor-pointer">{{ getPageLabel(page) }}</a>
+      }
       <app-user-info></app-user-info>
     </div>
   </div>
