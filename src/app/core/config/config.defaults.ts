@@ -103,7 +103,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     termsPage: { cs: 'local-config/html/terms/terms.cs.html', en: 'local-config/html/terms/terms.en.html' },
     aboutPage: { cs: 'local-config/html/about/about.cs.html', en: 'local-config/html/about/about.en.html' },
     copyrightedText: { cs: 'local-config/html/copyright/copyright.cs.html', en: 'local-config/html/copyright/copyright.en.html' }
-  }
+  },
+  pages: []
 };
 
 export const DEFAULT_HOME_SECTIONS: HomepageSectionConfig[] = [

@@ -1,0 +1,11 @@
+@if (loading) {
+  <div class="content-page content-page--loading">
+    <div class="loading-spinner"></div>
+  </div>
+} @else if (notFound) {
+  <div class="content-page content-page--not-found">
+    <p>{{'error.not_found.title' | translate}}</p>
+  </div>
+} @else {
+  <div class="content-page" [innerHTML]="htmlContent | safeHtml"></div>
+}

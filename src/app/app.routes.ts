@@ -18,6 +18,7 @@ export enum APP_ROUTES_ENUM {
   UUID_REDIRECT = 'uuid',
   COLLECTION = 'collection',
   LIBRARIES = 'libraries',
+  PAGES = 'pages',
   DEV_TOOLS = 'devtools',
   NOT_FOUND = '404',
   SERVER_ERROR = '500',
@@ -69,6 +70,10 @@ function defineMainRoutes(): Routes {
     {
       path: `${APP_ROUTES_ENUM.UUID_REDIRECT}/:uuid`,
       loadComponent: () => import('./shared/components/uuid-redirect/uuid-redirect.component').then(c => c.UuidRedirectComponent)
+    },
+    {
+      path: `${APP_ROUTES_ENUM.PAGES}/:pageId`,
+      loadComponent: () => import('./core/pages/content-page/content-page.component').then(c => c.ContentPageComponent)
     },
     {
       path: 'browse',
