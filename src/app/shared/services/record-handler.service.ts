@@ -15,6 +15,7 @@ import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/pe
 import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
+import {getOnlineLicenses} from '../../core/solr/solr-misc';
 
 @Injectable({
   providedIn: 'root'
@@ -668,5 +669,21 @@ export class RecordHandlerService {
   private addWithBadgeClass(existingClassName: string | undefined): string {
     const className = existingClassName || '';
     return className.includes('with-badge') ? className : `${className} with-badge`.trim();
+  }
+
+  public getRecordLicenseForBadge(licenses: string[]): string {
+    // if licenses include public, return public
+    if (licenses.includes('public')) {
+      return 'public';
+    }
+
+    // if licenses include any online license, return private
+    const onlineLicenses = getOnlineLicenses();
+    if (licenses.some(license => onlineLicenses.includes(license))) {
+      return 'private';
+    }
+
+    // otherwise return in_library
+    return 'in_library';
   }
 }

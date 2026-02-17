@@ -177,7 +177,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   shouldShowAccessibilityBadge(): boolean {
     if (!this.item) return false;
-    return this.item.showAccessibilityBadge === true && this.isRecordLocked();
+    return this.item.showAccessibilityBadge === true;
   }
 
   shouldShowFavoriteButton(): boolean {
