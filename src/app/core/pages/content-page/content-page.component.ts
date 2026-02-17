@@ -54,10 +54,14 @@ export class ContentPageComponent implements OnInit {
     this.loading = true;
     const lang = this.translationService.currentLanguage().code;
     const fallbackLang = this.configService.i18n.fallbackLanguage ?? 'en';
-    const url = this.pageConfig.content[lang] ?? this.pageConfig.content[fallbackLang];
+    const rawContent = this.pageConfig.content[lang] ?? this.pageConfig.content[fallbackLang];
 
-    if (url) {
-      this.htmlContent = await this.configService.loadHtmlContent(url);
+    if (rawContent) {
+      const urls = Array.isArray(rawContent) ? rawContent : [rawContent];
+      const parts = await Promise.all(
+        urls.map(url => this.configService.loadHtmlContent(url))
+      );
+      this.htmlContent = parts.join('');
     } else {
       this.htmlContent = '';
     }

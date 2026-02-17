@@ -147,11 +147,16 @@ export interface ContentPagesConfig {
   copyrightedText?: LocalizedLabel;
 }
 
+// Localized content — single URL or array of URLs per language
+export interface LocalizedContent {
+  [lang: string]: string | string[];
+}
+
 // Configurable content page
 export interface PageConfig {
   id: string;
   label?: LocalizedLabel;
-  content: LocalizedLabel;
+  content: LocalizedContent;
 }
 
 // Home section link item
