@@ -168,4 +168,18 @@ export class UserService {
     clearSimpleCache();
     console.log('[UserService] User data cleared, cache cleared');
   }
+
+  public getFormattedExpiration(): string {
+    const expirationTime = this.userSession?.session?.expiration_time;
+    if (!expirationTime) return '';
+
+    const seconds = typeof expirationTime === 'string' ? Number(expirationTime) : expirationTime;
+    if (!Number.isFinite(seconds)) return '';
+
+    const d = new Date(seconds * 1000);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;
+  }
 }

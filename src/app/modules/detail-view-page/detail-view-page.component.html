@@ -173,6 +173,21 @@
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
+          @if (recordHandler.shouldShowDnntoBar(document.licences)) {
+          <div class="dnnto-bar">
+            <span class="dnnto-bar--title">
+              <img src="/img/logo/dnnt-logo.png" alt="DNNT logo">
+              {{ 'dnnto' | translate }}
+            </span>
+
+            @if (userService.userSession) {
+              <span>
+                  {{ userService.getFormattedExpiration() }}
+                | {{ userService.userSession?.email }}
+</span>            }
+          </div>
+          }
+
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
           @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
