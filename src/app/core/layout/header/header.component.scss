@@ -6,7 +6,7 @@
   align-items: center;
   padding: var(--spacing-x3) var(--spacing-x4);
   height: var(--header-height);
-  gap: 5%;
+  gap: var(--spacing-x4);
   position: relative;
 
   &.transparent {
@@ -20,7 +20,7 @@
   .search-bar {
     flex: 1;
     display: flex;
-    gap: 20px;
+    gap: var(--spacing-x4);
 
     &> :first-child {
       flex: 1;
@@ -35,6 +35,15 @@
     display: flex;
     align-items: center;
     gap: 20px;
+    min-width: 15vw;
+
+    @media (min-width: 1440px) {
+      min-width: calc(300px - var(--spacing-x4) - var(--spacing-x4));
+    }
+
+    @include m.respond(md) {
+      min-width: unset;
+    }
   }
 
   &__left .logo {
@@ -61,6 +70,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-x6);
+    margin-left: clamp(0px, 5vw, 76px);
 
     a {
       color: var(--color-text-btn-secondary-default);
@@ -141,6 +151,7 @@
 
     .app-header__right {
       gap: var(--spacing-x2);
+      margin-left: 0;
     }
 
     .mobile-only {
