@@ -88,6 +88,21 @@
     ]
   },
 
+  "pages": [
+    {
+      "id": "about",
+      "label": { "cs": "O projektu", "en": "About" },
+      "content": { "cs": "local-config/html/about/about.cs.html", "en": "local-config/html/about/about.en.html" }
+    },
+    {
+      "id": "terms",
+      "content": {
+        "cs": ["local-config/html/terms/terms.cs.html", "local-config/html/terms/terms2.cs.html"],
+        "en": ["local-config/html/terms/terms.en.html", "local-config/html/terms/terms2.en.html"]
+      }
+    }
+  ],
+
   "contentPages": {
     "termsPage": {
       "cs": "local-config/html/terms/terms.cs.html",

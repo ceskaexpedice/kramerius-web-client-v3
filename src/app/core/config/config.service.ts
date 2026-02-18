@@ -15,7 +15,8 @@ import {
   AppConfig,
   ApiConfig,
   IntegrationsConfig,
-  HomepageSectionConfig
+  HomepageSectionConfig,
+  PageConfig
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 
@@ -157,6 +158,7 @@ export class ConfigService {
       search: loaded.search,
       licenses: loaded.licenses ?? DEFAULT_CONFIG.licenses,
       contentPages: loaded.contentPages,
+      pages: loaded.pages ?? [],
       homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS
     };
   }
@@ -368,6 +370,19 @@ export class ConfigService {
       console.warn(`ConfigService: Failed to load HTML content from ${url}.`, err);
       return '';
     }
+  }
+
+  // Pages accessors
+  get pages(): PageConfig[] {
+    return this.getConfig().pages ?? [];
+  }
+
+  get navPages(): PageConfig[] {
+    return this.pages.filter(p => !!p.label);
+  }
+
+  getPage(id: string): PageConfig | undefined {
+    return this.pages.find(p => p.id === id);
   }
 
   // Home sections accessors
