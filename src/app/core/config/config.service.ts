@@ -157,7 +157,6 @@ export class ConfigService {
       viewer: loaded.viewer ?? DEFAULT_CONFIG.viewer,
       search: loaded.search,
       licenses: loaded.licenses ?? DEFAULT_CONFIG.licenses,
-      contentPages: loaded.contentPages,
       pages: loaded.pages ?? [],
       homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS
     };
@@ -378,11 +377,27 @@ export class ConfigService {
   }
 
   get navPages(): PageConfig[] {
-    return this.pages.filter(p => !!p.label);
+    return this.pages.filter(p => p.showInHeader && !!p.label);
   }
 
   getPage(id: string): PageConfig | undefined {
     return this.pages.find(p => p.id === id);
+  }
+
+  /**
+   * Get the resolved content URL for a page by ID and language.
+   * Returns the first URL if content is an array, or the single URL string.
+   * Falls back to fallback language if the requested language is not available.
+   */
+  getPageContentUrl(pageId: string, lang: string): string | null {
+    const page = this.getPage(pageId);
+    if (!page) return null;
+
+    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
+    const rawContent = page.content[lang] ?? page.content[fallbackLang];
+    if (!rawContent) return null;
+
+    return Array.isArray(rawContent) ? rawContent[0] : rawContent;
   }
 
   // Home sections accessors
