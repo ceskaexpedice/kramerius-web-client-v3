@@ -140,13 +140,6 @@ export interface LicensesConfig {
   [licenseId: string]: LicenseConfig;
 }
 
-// Content pages configuration
-export interface ContentPagesConfig {
-  termsPage?: LocalizedLabel;
-  aboutPage?: LocalizedLabel;
-  copyrightedText?: LocalizedLabel;
-}
-
 // Localized content — single URL or array of URLs per language
 export interface LocalizedContent {
   [lang: string]: string | string[];
@@ -157,6 +150,7 @@ export interface PageConfig {
   id: string;
   label?: LocalizedLabel;
   content: LocalizedContent;
+  showInHeader?: boolean;
 }
 
 // Home section link item
@@ -194,7 +188,6 @@ export interface AppConfiguration {
   viewer: ViewerConfig;
   search?: SearchConfig;
   licenses: LicensesConfig;
-  contentPages?: ContentPagesConfig;
   pages?: PageConfig[];
   homeSections?: HomepageSectionConfig[];
 }

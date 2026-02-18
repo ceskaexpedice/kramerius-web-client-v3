@@ -33,15 +33,9 @@ export class Terms {
     this.htmlLoading = true;
 
     const lang = this.translationService.currentLanguage().code;
-    const aboutUrl = this.configService.getConfig().contentPages?.termsPage?.[lang]
-      ?? this.configService.getConfig().contentPages?.termsPage?.['en']
-      ?? null;
+    const termsUrl = this.configService.getPageContentUrl('terms', lang);
 
-    const [about] = await Promise.all([
-      aboutUrl ? this.configService.loadHtmlContent(aboutUrl) : Promise.resolve('')
-    ]);
-
-    this.termsHtml = about;
+    this.termsHtml = termsUrl ? await this.configService.loadHtmlContent(termsUrl) : '';
     this.htmlLoading = false;
     this.cdr.markForCheck();
   }

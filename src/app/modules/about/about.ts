@@ -22,9 +22,8 @@ export class About {
   private cdr = inject(ChangeDetectorRef);
 
   constructor() {
-    // Reload HTML content when language changes
     effect(() => {
-      this.translationService.currentLanguage(); // track the signal
+      this.translationService.currentLanguage();
       this.loadHtmlContent();
     });
   }
@@ -33,15 +32,9 @@ export class About {
     this.htmlLoading = true;
 
     const lang = this.translationService.currentLanguage().code;
-    const aboutUrl = this.configService.getConfig().contentPages?.aboutPage?.[lang]
-      ?? this.configService.getConfig().contentPages?.aboutPage?.['en']
-      ?? null;
+    const aboutUrl = this.configService.getPageContentUrl('about', lang);
 
-    const [about] = await Promise.all([
-      aboutUrl ? this.configService.loadHtmlContent(aboutUrl) : Promise.resolve('')
-    ]);
-
-    this.aboutHtml = about;
+    this.aboutHtml = aboutUrl ? await this.configService.loadHtmlContent(aboutUrl) : '';
     this.htmlLoading = false;
     this.cdr.markForCheck();
   }

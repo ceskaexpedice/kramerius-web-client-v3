@@ -97,13 +97,13 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.ABOUT,
-    loadComponent: () =>
-      import('./modules/about/about').then(m => m.About)
+    redirectTo: `${APP_ROUTES_ENUM.PAGES}/about`,
+    pathMatch: 'full'
   },
   {
     path: APP_ROUTES_ENUM.TERMS,
-    loadComponent: () =>
-      import('./modules/terms/terms').then(m => m.Terms)
+    redirectTo: `${APP_ROUTES_ENUM.PAGES}/terms`,
+    pathMatch: 'full'
   },
   {
     path: APP_ROUTES_ENUM.LIBRARIES,
