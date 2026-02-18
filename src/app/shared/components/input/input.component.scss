@@ -38,6 +38,8 @@
 
     &.sm input {
       padding: var(--spacing-x2) var(--spacing-x3);
+      font-size: var(--font-size-base);
+      line-height: var(--font-size-xxlarge);
     }
 
     .prefix+input {

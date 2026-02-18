@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, DecimalPipe, NgForOf, NgIf } from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
 @Component({
   selector: 'app-periodical-filters',
   standalone: true,
-  imports: [AsyncPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf],
+  imports: [AsyncPipe, DecimalPipe, NgForOf, FilterCategoryComponent, TranslatePipe, AutocompleteComponent, NgIf],
   styles: `
     .show-licenses--header {
       display: flex;
@@ -37,15 +37,12 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
       }
     }
 
-    .year-range-section {
-      margin-bottom: var(--spacing-x4);
-    }
-
-    .filter-section-title {
+    .results-count {
+      margin-top: var(--spacing-x2);
       font-size: var(--font-size-small);
-      font-weight: 600;
-      color: var(--color-text-base);
-      margin-bottom: var(--spacing-x3);
+      font-weight: 500;
+      line-height: var(--line-height-1);
+      color: var(--color-text-tertiary);
     }
 
     .submit-year-range-btn {
@@ -69,6 +66,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [minTermLength]="2"
         [initialValue]="periodicalService.inputSearchTerm"
         [getSuggestions]="periodicalService.getSuggestionsFn"
+        [prefixIcon]="'icon-search-normal-1'"
         [showHelpButton]="false"
         [showMicrophoneButton]="false"
         [showSubmitButton]="false"
@@ -77,6 +75,10 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [showHistorySuggestions]="true"
         (suggestionSelected)="periodicalService.onSuggestionSelected($event)">
       </app-autocomplete>
+
+      <p class="results-count" *ngIf="periodicalService.totalCount > 0">
+        {{ 'results' | translate }}: {{ periodicalService.totalCount | number }}
+      </p>
 
       <hr>
 

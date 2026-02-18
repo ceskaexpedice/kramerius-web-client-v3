@@ -30,6 +30,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   private searchTimeout?: any;
 
   @Input() class = '';
+  @Input() size: 'sm' | 'base' = 'base';
   @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');
