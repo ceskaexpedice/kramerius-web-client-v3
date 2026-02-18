@@ -1,3 +1,5 @@
+@use "typography" as t;
+
 :host {
   display: block;
   width: 100%;
@@ -6,17 +8,17 @@
 .toolbar-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-x2);
   width: 100%;
 }
 
 h2.title {
   margin: 0;
-  font-weight: normal;
-  font-size: calc(22px * var(--accessibility-text-scale));
-  line-height: 36px;
+  font-weight: 700;
+  font-size: var(--font-size-xlarge);
+  line-height: var(--line-height-4);
   color: var(--color-text-base);
-
+  font-family: t.$font-family-body;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -29,6 +31,6 @@ h2.title {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-x2);
   flex-shrink: 0;
 }
