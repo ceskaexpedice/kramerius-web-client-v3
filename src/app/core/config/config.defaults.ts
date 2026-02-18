@@ -102,7 +102,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   pages: [
     {
       id: 'about',
-      label: { cs: 'O projektu', en: 'About' },
+      label: { cs: 'O projektu', en: 'About', sk: 'O projekte', pl: 'O projekcie' },
       content: { cs: 'local-config/html/about/about.cs.html', en: 'local-config/html/about/about.en.html' },
       showInHeader: true
     },
