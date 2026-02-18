@@ -14,12 +14,16 @@
 
 .view-toggle {
   position: relative;
-  color: var(--color-text-light);
+  color: var(--color-text-tertiary);
   display: flex;
   align-items: center;
   gap: var(--spacing-x2);
   padding: var(--spacing-x5) var(--spacing-x4);
   cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  line-height: var(--line-height-xs);
+  white-space: nowrap;
 
   &.active {
     color: var(--color-text-base);
@@ -47,6 +51,7 @@
   cursor: pointer;
   width: 32px;
   height: 32px;
+  border-radius: var(--spacing-x2);
 
   &.link.tertiary {
     color: var(--color-primary);

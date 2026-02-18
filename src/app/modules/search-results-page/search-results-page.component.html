@@ -31,7 +31,7 @@
                   [totalCount]="searchService.totalCount">
                 </app-paginator-info>
 
-                <app-toggle-button-group [options]="viewOptions" [value]="view()" (valueChange)="setView($event)" />
+                <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
                 <div class="flex flex--align-center flex--gap-x2 margin-side--x2">
 

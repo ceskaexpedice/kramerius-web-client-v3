@@ -106,10 +106,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
 
     const lang = this.translationService.currentLanguage().code;
     const instructionUrl = this.configService.getInstructionPageUrl(licenseId, lang);
-    const fallbackLang = this.configService.i18n.fallbackLanguage ?? 'en';
-    const copyrightUrl = this.configService.getConfig().contentPages?.copyrightedText?.[lang]
-      ?? this.configService.getConfig().contentPages?.copyrightedText?.[fallbackLang]
-      ?? null;
+    const copyrightUrl = this.configService.getPageContentUrl('copyright', lang);
 
     const [instruction, copyright] = await Promise.all([
       instructionUrl ? this.configService.loadHtmlContent(instructionUrl) : Promise.resolve(''),

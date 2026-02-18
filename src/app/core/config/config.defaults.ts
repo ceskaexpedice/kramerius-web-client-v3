@@ -99,12 +99,22 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       }
     }
   },
-  contentPages: {
-    termsPage: { cs: 'local-config/html/terms/terms.cs.html', en: 'local-config/html/terms/terms.en.html' },
-    aboutPage: { cs: 'local-config/html/about/about.cs.html', en: 'local-config/html/about/about.en.html' },
-    copyrightedText: { cs: 'local-config/html/copyright/copyright.cs.html', en: 'local-config/html/copyright/copyright.en.html' }
-  },
-  pages: []
+  pages: [
+    {
+      id: 'about',
+      label: { cs: 'O projektu', en: 'About' },
+      content: { cs: 'local-config/html/about/about.cs.html', en: 'local-config/html/about/about.en.html' },
+      showInHeader: true
+    },
+    {
+      id: 'terms',
+      content: { cs: 'local-config/html/terms/terms.cs.html', en: 'local-config/html/terms/terms.en.html' }
+    },
+    {
+      id: 'copyright',
+      content: { cs: 'local-config/html/copyright/copyright.cs.html', en: 'local-config/html/copyright/copyright.en.html' }
+    }
+  ]
 };
 
 export const DEFAULT_HOME_SECTIONS: HomepageSectionConfig[] = [

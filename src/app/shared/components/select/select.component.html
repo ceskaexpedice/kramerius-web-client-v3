@@ -1,5 +1,5 @@
 <div class="select-wrapper" #wrapper (click)="toggle()" [attr.aria-expanded]="open()" role="button" tabindex="0"
-  [ngClass]="[theme, class]" (keydown)="onKeyDown($event)">
+  [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
   <span>{{ displayFn(value) | translate }}</span>
   <i class="icon-arrow-down arrow-icon" [class.open]="open()"></i>
 </div>

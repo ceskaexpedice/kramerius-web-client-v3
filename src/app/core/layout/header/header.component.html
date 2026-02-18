@@ -52,19 +52,23 @@
       <app-user-info></app-user-info>
     </div>
 
-    <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
+    <div class="header-actions-group">
 
-    <!-- Mobile search toggle button -->
-    <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
-      [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.search' | translate"
-      (click)="toggleMobileSearch()">
-      <i class="icon-search-normal-1"></i>
-    </button>
+      <!-- Mobile search toggle button -->
+      <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
+        [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.search' | translate"
+        (click)="toggleMobileSearch()">
+        <i class="icon-search-normal-1"></i>
+      </button>
 
-    <button class="icon-button outlined light" [class.mobile-search-close]="isMobileSearchOpen"
-      aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
-      <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-1'"></i>
-    </button>
+      <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
+        aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
+        <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-2'"></i>
+      </button>
+
+      <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
+
+    </div>
 
     <button class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
       [class.outlined]="!isMobileMenuOpen" [class.light]="!isMobileMenuOpen"

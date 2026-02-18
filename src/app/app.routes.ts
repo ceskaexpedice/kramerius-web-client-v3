@@ -6,6 +6,8 @@ import { libraryPrefixGuard } from './core/guards/library-prefix.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = '',
+  ABOUT = 'about',
+  TERMS = 'terms',
   SEARCH_RESULTS = 'search',
   DETAIL_VIEW = 'view',
   PERIODICAL_VIEW = 'periodical',
@@ -92,6 +94,16 @@ export const routes: Routes = [
     path: APP_ROUTES_ENUM.AUTH_CALLBACK,
     loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(c => c.AuthCallbackComponent),
     canActivate: [authCallbackGuard]
+  },
+  {
+    path: APP_ROUTES_ENUM.ABOUT,
+    redirectTo: `${APP_ROUTES_ENUM.PAGES}/about`,
+    pathMatch: 'full'
+  },
+  {
+    path: APP_ROUTES_ENUM.TERMS,
+    redirectTo: `${APP_ROUTES_ENUM.PAGES}/terms`,
+    pathMatch: 'full'
   },
   {
     path: APP_ROUTES_ENUM.LIBRARIES,

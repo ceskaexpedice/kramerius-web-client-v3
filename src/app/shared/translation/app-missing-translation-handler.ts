@@ -1,19 +1,37 @@
 import { MissingTranslationHandler, MissingTranslationHandlerParams } from '@ngx-translate/core';
 import { Injectable } from '@angular/core';
 
+/**
+ * Fallback chain per language.
+ * sk → cs → en
+ * cs → en
+ * All others → en
+ */
+const FALLBACK_CHAIN: Record<string, string[]> = {
+	sk: ['cs', 'en'],
+	cs: ['en'],
+};
+
+const DEFAULT_FALLBACK = ['en'];
+
 @Injectable()
 export class AppMissingTranslationService extends MissingTranslationHandler {
 
 	protected missingKeys: {[key: string]: boolean} = {};
+	private fallbackTranslations: Record<string, Record<string, any>> = {};
+	private handlingKey: Set<string> = new Set();
 
-	constructor(
-	) {
+	constructor() {
 		super();
 		this.load();
 	}
 
 	getMissingKeys() {
 		return this.missingKeys;
+	}
+
+	setFallbackTranslations(lang: string, translations: Record<string, any>) {
+		this.fallbackTranslations[lang] = translations;
 	}
 
 	protected save() {
@@ -34,14 +52,39 @@ export class AppMissingTranslationService extends MissingTranslationHandler {
 		}
 	}
 
-
 	handle(params: MissingTranslationHandlerParams): any {
+		const key = params.key;
 
-		let key = params.key;
+		// Prevent infinite recursion
+		if (this.handlingKey.has(key)) {
+			return key;
+		}
+
+		const translateService = params.translateService;
+		const currentLang = translateService.getCurrentLang() ?? '';
+		const fallbacks = FALLBACK_CHAIN[currentLang] ?? DEFAULT_FALLBACK;
+
+		this.handlingKey.add(key);
+		try {
+			for (const fallbackLang of fallbacks) {
+				const translations = this.fallbackTranslations[fallbackLang];
+				if (translations) {
+					const value = this.resolveNestedKey(translations, key);
+					if (value !== undefined && value !== null && typeof value === 'string') {
+						return value;
+					}
+				}
+			}
+		} finally {
+			this.handlingKey.delete(key);
+		}
+
 		this.missingKeys[key] = true;
 		this.save();
 		return key;
-
 	}
 
+	private resolveNestedKey(obj: any, key: string): any {
+		return key.split('.').reduce((acc, part) => acc?.[part], obj);
+	}
 }

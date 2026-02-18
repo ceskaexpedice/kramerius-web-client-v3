@@ -60,7 +60,9 @@ export class FavoritesService {
       dialogRef.afterClosed().subscribe(result => {
         if (result === 'login') {
           // Redirect to login with current route as return URL
-          this.authService.login(currentUrl);
+          // this.authService.login(currentUrl);
+          const returnUrl = this.router.url;
+          this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
         }
       });
       return false;
