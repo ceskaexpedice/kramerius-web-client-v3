@@ -64,9 +64,8 @@ export class UserInfoComponent {
   }
 
   login() {
-    // const currentUrl = this.router.url;
-    // this.store.dispatch(AuthActions.login({ returnUrl: currentUrl }));
-    this.router.navigate(['terms']);
+    const returnUrl = this.router.url;
+    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
   }
 
   logout() {
