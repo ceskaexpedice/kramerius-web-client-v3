@@ -76,6 +76,49 @@
     [onItemClick]="clickedCollection">
   </app-metadata-section-item>
 
+  @if (childData) {
+  <div class="article-card">
+    <div class="article-header">
+      @if (childData.titles && childData.titles.length > 0) {
+        <span class="label">{{ childData.titles[0].title }}</span>
+      }
+      <button class="toggle-btn" (click)="toggleChild()">
+        <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      </button>
+    </div>
+
+    <div class="article-details" *ngIf="childExpanded()">
+
+      <!-- Date -->
+      <app-metadata-section-item *ngIf="childData.dateStr" [label]="'date' | translate" type="text"
+        [value]="childData.dateStr">
+      </app-metadata-section-item>
+
+      <!-- Authors -->
+      <app-metadata-section-item *ngIf="childData.authors.length" [label]="'author' | translate"
+        type="clickable-list" [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+      </app-metadata-section-item>
+
+      <!-- Languages -->
+      <app-metadata-section-item *ngIf="childData.languages.length" [label]="'languages' | translate"
+        type="clickable-list" [items]="childData.languages" [onItemClick]="clickedLanguage">
+      </app-metadata-section-item>
+
+      <!-- Locations -->
+      <app-metadata-section-item *ngIf="childData.locations.length" [label]="'locations' | translate"
+        type="clickable-list" [items]="childData.locations" [displayFn]="getLocationLabel"
+        [showListBullets]="true" [disableTranslate]="true" [onItemClick]="clickedLocation">
+      </app-metadata-section-item>
+
+      <!-- Notes -->
+      <app-metadata-section-item *ngIf="childData.notes.length" [label]="'notes' | translate" type="list"
+        [items]="getNotes(childData.notes)">
+      </app-metadata-section-item>
+
+    </div>
+  </div>
+  }
+
   @if (articleData) {
   <div class="article-card">
     <div class="article-header">
