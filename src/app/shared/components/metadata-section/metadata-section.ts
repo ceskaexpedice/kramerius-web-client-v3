@@ -131,8 +131,16 @@ export class MetadataSection implements OnInit, OnChanges {
       try {
         const rootMods = await this.modsParser.getMods(rootPid);
         if (rootMods) {
-          // Save the child's own MODS for the subsection
-          this._childData.set(modsData as any);
+          // Save the child's own MODS for the subsection only if it has displayable data
+          const child = modsData as any;
+          const hasChildData = child && (
+            child.dateStr ||
+            child.authors?.length > 0 ||
+            child.languages?.length > 0 ||
+            child.locations?.length > 0 ||
+            child.notes?.length > 0
+          );
+          this._childData.set(hasChildData ? child : null);
           // Use root MODS as primary, fill any gaps from child
           baseMods = { ...rootMods };
           this.mergeMissing(baseMods, modsData as any);
