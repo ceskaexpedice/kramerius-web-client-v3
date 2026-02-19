@@ -54,6 +54,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   selectedDateTo = signal<Date | null>(null);
   selectedOffset = signal<number>(0);
 
+  // Manual date input strings
+  dateFromInput = signal<string>('');
+  dateToInput = signal<string>('');
+
   // Calendar navigation
   monthFrom = signal(new Date().getMonth());
   yearFrom = signal(new Date().getFullYear());
@@ -169,22 +173,25 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   private initializePopupValues() {
     // Initialize popup with current committed values, or today's date if no dateFrom exists
     const today = new Date();
-    this.selectedDateFrom.set(this.fromDate() || today);
-    this.selectedDateTo.set(this.toDate() || null);
+    const initialFromDate = this.fromDate() || today;
+    const initialToDate = this.toDate() || initialFromDate; // Default to same as fromDate if no toDate
+
+    this.selectedDateFrom.set(initialFromDate);
+    this.selectedDateTo.set(initialToDate);
     this.selectedOffset.set(this.offset());
+
+    // Initialize input strings
+    this.dateFromInput.set(this.formatDate(initialFromDate));
+    this.dateToInput.set(this.formatDate(initialToDate));
 
     // Range mode is active when we have both dates, regardless of how they were created
     this.isRangeModeActive = !!(this.fromDate() && this.toDate());
 
-    // Set calendar months based on selected dates or current date
-    const baseDate = this.selectedDateFrom() || today;
-    this.monthFrom.set(baseDate.getMonth());
-    this.yearFrom.set(baseDate.getFullYear());
-
-    if (this.selectedDateTo()) {
-      this.monthTo.set(this.selectedDateTo()!.getMonth());
-      this.yearTo.set(this.selectedDateTo()!.getFullYear());
-    }
+    // Set calendar months based on selected dates
+    this.monthFrom.set(initialFromDate.getMonth());
+    this.yearFrom.set(initialFromDate.getFullYear());
+    this.monthTo.set(initialToDate.getMonth());
+    this.yearTo.set(initialToDate.getFullYear());
 
     // Ensure calendars navigate to correct month after view is initialized
     setTimeout(() => {
@@ -337,6 +344,101 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     return `${day}.${month}.${year}`;
   }
 
+  // Parse date string in DD.MM.YYYY format
+  private parseDate(dateStr: string): Date | null {
+    if (!dateStr || dateStr.trim() === '') return null;
+
+    // Remove any whitespace
+    dateStr = dateStr.trim();
+
+    // Check for DD.MM.YYYY format
+    const datePattern = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
+    const match = dateStr.match(datePattern);
+
+    if (!match) return null;
+
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+
+    // Validate ranges
+    if (month < 1 || month > 12) return null;
+    if (day < 1 || day > 31) return null;
+    if (year < 1400 || year > 2100) return null;
+
+    // Create date (month is 0-indexed in JavaScript Date)
+    const date = new Date(year, month - 1, day);
+
+    // Verify the date is valid (e.g., not Feb 30)
+    if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
+      return null;
+    }
+
+    return date;
+  }
+
+  // Handle manual input for "from" date
+  onDateFromInputChange(value: string): void {
+    this.dateFromInput.set(value);
+    const parsedDate = this.parseDate(value);
+
+    if (parsedDate) {
+      // Valid date entered
+      this.selectedDateFrom.set(parsedDate);
+      this.monthFrom.set(parsedDate.getMonth());
+      this.yearFrom.set(parsedDate.getFullYear());
+
+      // Auto-calculate toDate based on offset if applicable
+      if (this.selectedOffset() > 0) {
+        const calculatedToDate = new Date(parsedDate.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
+        this.selectedDateTo.set(calculatedToDate);
+        this.dateToInput.set(this.formatDate(calculatedToDate));
+        this.updateToCalendarMonth(calculatedToDate);
+      }
+
+      // Trigger change detection to update month-year selector
+      this.cdr.detectChanges();
+
+      // Navigate calendar to show the entered date
+      this.forceCalendarNavigation();
+      this.forceCalendarRefresh();
+    }
+  }
+
+  // Handle manual input for "to" date
+  onDateToInputChange(value: string): void {
+    this.dateToInput.set(value);
+    const parsedDate = this.parseDate(value);
+
+    if (parsedDate) {
+      // Valid date entered
+      const fromDate = this.selectedDateFrom();
+
+      // Validate that "to" date is not before "from" date in range mode
+      if (this.isRangeModeActive && fromDate && parsedDate < fromDate) {
+        return; // Invalid: to date cannot be before from date
+      }
+
+      this.selectedDateTo.set(parsedDate);
+      this.monthTo.set(parsedDate.getMonth());
+      this.yearTo.set(parsedDate.getFullYear());
+
+      // Calculate offset if applicable
+      if (!this.isRangeModeActive && fromDate) {
+        const diffTime = parsedDate.getTime() - fromDate.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        this.selectedOffset.set(Math.max(0, diffDays));
+      }
+
+      // Trigger change detection to update month-year selector
+      this.cdr.detectChanges();
+
+      // Navigate calendar to show the entered date
+      this.forceCalendarNavigation();
+      this.forceCalendarRefresh();
+    }
+  }
+
   // Calendar interaction methods
   onDateFromSelect(date: Date | null): void {
     if (!date) return;
@@ -350,18 +452,22 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     }
 
     this.selectedDateFrom.set(date);
+    this.dateFromInput.set(this.formatDate(date)); // Update input string
 
     // Auto-calculate toDate based on offset
     if (this.selectedOffset() > 0) {
       const calculatedToDate = new Date(date.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
       this.selectedDateTo.set(calculatedToDate);
+      this.dateToInput.set(this.formatDate(calculatedToDate)); // Update input string
       this.updateToCalendarMonth(calculatedToDate);
     } else if (!this.isRangeModeActive) {
       this.selectedDateTo.set(null);
+      this.dateToInput.set('');
     }
 
     if (!this.selectedDateTo()) {
       this.selectedDateTo.set(date);
+      this.dateToInput.set(this.formatDate(date)); // Update input string
       this.updateToCalendarMonth(date);
       this.monthFrom.set(date.getMonth());
       this.yearFrom.set(date.getFullYear());
@@ -383,6 +489,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     }
 
     this.selectedDateTo.set(date);
+    this.dateToInput.set(this.formatDate(date)); // Update input string
 
     // Calculate offset if in offset mode
     if (!this.isRangeModeActive && this.selectedDateFrom()) {
@@ -406,10 +513,15 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       // }
       this.selectedOffset.set(0);
       this.selectedDateTo.set(this.selectedDateFrom());
+      // Update input string for "to" date
+      if (this.selectedDateFrom()) {
+        this.dateToInput.set(this.formatDate(this.selectedDateFrom()!));
+      }
     } else {
       // Exiting range mode - clear selected end date and offset
       this.selectedDateTo.set(null);
       this.selectedOffset.set(0);
+      this.dateToInput.set(''); // Clear input string
     }
 
     // Force calendar to refresh highlighting
@@ -563,6 +675,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     if (this.selectedDateFrom()) {
       const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);
       this.selectedDateTo.set(calculatedToDate);
+      this.dateToInput.set(this.formatDate(calculatedToDate)); // Update input string
       this.updateToCalendarMonth(calculatedToDate);
     }
 
