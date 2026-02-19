@@ -6,7 +6,12 @@
         (item.label || (item.name + '-label')) | translate }}</label>
       <span class="count" [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
     </span>
-    <span *ngIf="item.icon" class="icon" [class.active]="item.name === selected">
+    <span *ngIf="item.icons && item.icons.length > 0" class="icons-group" [class.active]="item.name === selected">
+      <span *ngFor="let ic of item.icons" class="icon">
+        <i [ngClass]="[ic.icon, ic.iconClass || '']"></i>
+      </span>
+    </span>
+    <span *ngIf="!item.icons && item.icon" class="icon" [class.active]="item.name === selected">
       <i [ngClass]="[item.icon, item.iconClass || '']"></i>
     </span>
   </mat-radio-button>

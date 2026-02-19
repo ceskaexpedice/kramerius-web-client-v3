@@ -145,6 +145,12 @@ export function getCustomDefinedFacets() {
           label: 'custom-accessibility--all',
           count: 0,
           type: FacetElementType.radio,
+          icons: [
+            { icon: 'icon-in-house', iconClass: 'accessibility-in_library' },
+            { icon: 'icon-locked', iconClass: 'accessibility-private' },
+            { icon: 'icon-locked', iconClass: 'accessibility-public' },
+            { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
+          ],
         },
         {
           key: FacetAccessibilityTypes.available,
@@ -153,6 +159,10 @@ export function getCustomDefinedFacets() {
           label: 'custom-accessibility--available',
           count: 0,
           type: FacetElementType.radio,
+          icons: [
+            { icon: 'icon-locked', iconClass: 'accessibility-public' },
+            { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
+          ],
         },
         {
           key: FacetAccessibilityTypes.public,
