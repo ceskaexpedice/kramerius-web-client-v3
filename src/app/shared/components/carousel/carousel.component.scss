@@ -33,7 +33,7 @@
   .carousel-actions {
     display: flex;
     margin-left: auto;
-    gap: 5px;
+    gap: var(--spacing-x2);
 
     &:first-child {
       position: absolute;

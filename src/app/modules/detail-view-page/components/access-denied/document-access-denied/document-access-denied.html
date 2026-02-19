@@ -1,0 +1,55 @@
+<div class="access-denied-container">
+  <!-- Header Section -->
+  <div class="access-denied-header">
+    <div class="header-content">
+      <h1 class="access-denied-title">
+        {{ 'access-denied.title' | translate }}
+      </h1>
+
+      <div class="access-denied-description">
+        <p>
+          <span>{{ 'access-denied.document-available-under' | translate }}: </span>
+          @for (type of uniqueLicenseTypes; track type; let last = $last) {
+          <a (click)="$event.preventDefault(); openLicenseDialog(type)" class="license-link">{{ 'access-denied.license-'
+            + type | translate }}</a>@if (!last) {<span>, </span>}
+          }
+        </p>
+
+        <!-- Display viewing instructions from config HTML -->
+        @if (instructionHtml) {
+          <div class="instruction-content" [innerHTML]="instructionHtml | safeHtml"></div>
+        }
+      </div>
+    </div>
+
+    <!-- Info Banner with copyright HTML -->
+    @if (copyrightHtml) {
+      <div class="info-banner">
+        <div class="banner-icon">
+          <img src="/img/alert-image.png" alt="Alert image">
+        </div>
+        <div class="banner-content" [innerHTML]="copyrightHtml | safeHtml"></div>
+      </div>
+    } @else {
+      <div class="info-banner">
+        <div class="banner-icon">
+          <img src="/img/alert-image.png" alt="Alert image">
+        </div>
+        <div class="banner-content">
+          <p>{{ 'access-denied.copyright-notice' | translate }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="faq-section">
+    <h2 class="faq-title">
+      {{ getFaqTitle() | translate }}
+    </h2>
+
+    <app-accordion [items]="faqItems" [openIconClass]="'icon-minus-cirlce'" [closeIconClass]="'icon-add-circle'"
+      [allowMultipleOpen]="false">
+    </app-accordion>
+  </div>
+</div>

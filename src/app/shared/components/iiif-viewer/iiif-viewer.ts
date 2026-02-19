@@ -269,6 +269,46 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     container.style.backgroundImage = '';
   }
 
+  /**
+   * Wait for the viewer's image to be fully loaded, then clear the thumbnail background.
+   * Handles both IIIF tiled sources (waits for all tiles) and direct image fallbacks.
+   */
+  private waitForImageLoaded(): void {
+    const tiledImage = this.viewer?.world.getItemAt(0);
+    if (tiledImage) {
+      if (tiledImage.getFullyLoaded()) {
+        requestAnimationFrame(() => this.clearThumbnailBackground());
+      } else {
+        const onFullyLoaded = (e: any) => {
+          if (e.fullyLoaded) {
+            tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
+            requestAnimationFrame(() => this.clearThumbnailBackground());
+          }
+        };
+        tiledImage.addHandler('fully-loaded-change', onFullyLoaded);
+      }
+    } else {
+      // World is empty — image not added yet (can happen with direct image fallbacks).
+      // Listen for the item to be added, then wait for it to fully load.
+      const onAddItem = (e: any) => {
+        this.viewer?.world.removeHandler('add-item', onAddItem);
+        const item = e.item;
+        if (item.getFullyLoaded()) {
+          requestAnimationFrame(() => this.clearThumbnailBackground());
+        } else {
+          const onFullyLoaded = (ev: any) => {
+            if (ev.fullyLoaded) {
+              item.removeHandler('fully-loaded-change', onFullyLoaded);
+              requestAnimationFrame(() => this.clearThumbnailBackground());
+            }
+          };
+          item.addHandler('fully-loaded-change', onFullyLoaded);
+        }
+      };
+      this.viewer?.world.addHandler('add-item', onAddItem);
+    }
+  }
+
   private createViewer(tileSource: any): void {
     if (this.viewer) {
       this.viewer.destroy();
@@ -311,14 +351,17 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       constrainDuringPan: false
     });
 
-    // Reset fallback state and clear thumbnail when image loads successfully
+    // Reset fallback state when image source opens, then wait for all tiles to render
     this.viewer.addHandler('open', () => {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
-        // Clear thumbnail background once image is open
-        this.clearThumbnailBackground();
       });
+
+      // Wait for image content to be rendered before clearing thumbnail background.
+      // For IIIF tiled images this creates a blur→sharp progressive loading effect.
+      // For direct image fallbacks, the single "tile" loads fully at once.
+      this.waitForImageLoaded();
     });
 
     this.viewer.addHandler('update-viewport', () => {
@@ -391,11 +434,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
     console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
 
+    const directImageTileSource = { type: 'image', url: directImageUrl };
+
     if (this.viewer) {
-      this.viewer.open({
-        type: 'image',
-        url: directImageUrl
-      });
+      this.viewer.open(directImageTileSource);
+    } else {
+      // Viewer was never created (info.json fetch failed before createViewer ran).
+      // Create it now with the direct image as tile source.
+      this.createViewer(directImageTileSource);
     }
 
     setTimeout(() => {
@@ -507,6 +553,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * Process IIIF info.json for use with OpenSeadragon:
    * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
    * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   * 3. Remove sizes array to prevent wrong tile grid calculation
    */
   private processInfoJson(infoJson: any): void {
     this.fixHttpUrls(infoJson);
@@ -516,6 +563,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // instead of '@id' (which points to api server, requires auth)
     if (infoJson['id'] && infoJson['@id']) {
       delete infoJson['@id'];
+    }
+
+    // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
+    // as level dimensions instead of computing from actual width/height.
+    // When sizes.length coincidentally equals maxLevel+1 but doesn't include
+    // the full resolution, OSD only tiles a fraction of the image.
+    if (infoJson.sizes && infoJson.tiles) {
+      delete infoJson.sizes;
     }
   }
 

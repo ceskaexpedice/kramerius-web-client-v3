@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { ConfigService } from '../../core/config/config.service';
+import { LibraryContextService } from './library-context.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShareService {
 
-  constructor() { }
+  private configService = inject(ConfigService);
+  private libraryContext = inject(LibraryContextService);
 
   getCurrentUrl(pid: string, isPage = false): string {
     const url = new URL(window.location.href);
@@ -31,6 +34,16 @@ export class ShareService {
       url.pathname = uuidSegment ? `/uuid/${uuidSegment}` : url.pathname;
 
       finalUrl += url.pathname;
+    }
+
+    // Prepend library prefix to shared URL path
+    if (this.configService.isFeatureEnabled('librarySwitch')) {
+      const prefix = this.libraryContext.getLibraryPrefix();
+      if (prefix) {
+        const finalUrlObj = new URL(finalUrl);
+        finalUrlObj.pathname = `${prefix}${finalUrlObj.pathname}`;
+        finalUrl = finalUrlObj.toString();
+      }
     }
 
     return finalUrl;

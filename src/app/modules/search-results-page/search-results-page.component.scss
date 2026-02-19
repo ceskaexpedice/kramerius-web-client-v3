@@ -10,7 +10,13 @@
 }
 
 h3 {
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-xlarge);
+  line-height: var(--line-height-4);
+  margin: 0 0 var(--spacing-x4) 0;
+}
+
+.grid--container + h3 {
+  margin-top: var(--spacing-x10);
 }
 
 .list-view--header .pull-right {

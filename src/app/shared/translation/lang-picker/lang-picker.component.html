@@ -1,28 +1,4 @@
-<!--<div class="lang-switcher-pos">-->
-
-<!--  <div class="selected" (click)="clickedIcon()">-->
-
-<!--    <div class="icon-lang">-->
-<!--      <img [src]="currentLanguage().icon" [alt]="currentLanguage().name" />-->
-<!--    </div>-->
-
-<!--    <div class="arrow">-->
-<!--      <i class="fa fa-angle-down arrow-icon" [class.arrow-icon&#45;&#45;rotated]="expanded"></i>-->
-<!--    </div>-->
-
-<!--  </div>-->
-
-<!--  <div class="available-languages" [class.available-languages&#45;&#45;hidden]="!expanded">-->
-
-<!--    <div class="lang" *ngFor="let lang of languages" (click)="changeLang(lang.code)">-->
-<!--      <img [src]="lang.icon" [alt]="lang.name" />-->
-<!--    </div>-->
-
-<!--  </div>-->
-
-<!--</div>-->
-
-<div class="lang-switcher-pos" appClickOutside (clickOutside)="close()">
+<div class="lang-switcher-pos" [class.expanded]="expanded" appClickOutside (clickOutside)="close()">
   <div class="selected" (click)="clickedIcon()">
     <div class="icon-lang">
       <img class="flag rounded" [src]="currentLanguage().icon" [alt]="currentLanguage().name" />
@@ -33,9 +9,14 @@
   </div>
 
   <div class="available-languages" [class.available-languages--hidden]="!expanded">
-    <div class="languages-grid">
-      <div class="lang" *ngFor="let lang of languages" (click)="changeLang(lang.code)">
-        <img class="flag rounded" [src]="lang.icon" [alt]="lang.name" />
+    <div class="languages-list">
+      <div class="lang-item" *ngFor="let lang of languages" (click)="changeLang(lang.code)">
+        <div class="lang-item__left">
+          <div class="lang-item__icon">
+            <img class="flag rounded" [src]="lang.icon" [alt]="lang.name" />
+          </div>
+          <span class="lang-item__name">{{ lang.name }}</span>
+        </div>
       </div>
     </div>
   </div>

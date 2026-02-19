@@ -12,7 +12,7 @@ import {
 import {loadDocumentTypes} from '../../state/document-types/document-types.actions';
 import {SearchService} from '../../../../shared/services/search.service';
 import {DocumentTypeEnum} from '../../../constants/document-type';
-import {customDefinedFacets, customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
+import {customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 import {map} from 'rxjs';

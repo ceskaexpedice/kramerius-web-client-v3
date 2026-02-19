@@ -1,12 +1,15 @@
-import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { Accordion, AccordionItemData } from '../../../../shared/components/accordion/accordion';
-import { Metadata } from '../../../../shared/models/metadata.model';
+import { Accordion, AccordionItemData } from '../../../../../shared/components/accordion/accordion';
+import { SafeHtmlPipe } from '../../../../../shared/pipes/safe-html.pipe';
+import { Metadata } from '../../../../../shared/models/metadata.model';
 import { MatDialog } from '@angular/material/dialog';
-import { LicenseInfoDialogComponent } from '../../../../shared/dialogs/license-info-dialog/license-info-dialog.component';
-import * as AuthActions from '../../../../core/auth/store/auth.actions';
-import { ModsParserService } from '../../../../shared/services/mods-parser.service';
+import { LicenseInfoDialogComponent } from '../../../../../shared/dialogs/license-info-dialog/license-info-dialog.component';
+import * as AuthActions from '../../../../../core/auth/store/auth.actions';
+import { ModsParserService } from '../../../../../shared/services/mods-parser.service';
+import { ConfigService } from '../../../../../core/config/config.service';
+import { AppTranslationService } from '../../../../../shared/translation/app-translation.service';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
@@ -15,9 +18,9 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-document-access-denied',
-  imports: [CommonModule, TranslateModule, Accordion],
+  imports: [CommonModule, TranslateModule, Accordion, SafeHtmlPipe],
   templateUrl: './document-access-denied.html',
-  styleUrl: './document-access-denied.scss',
+  styleUrls: ['./document-access-denied.scss', '../access-denied.scss'],
   standalone: true
 })
 export class DocumentAccessDenied implements OnInit, OnChanges {
@@ -27,11 +30,28 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   faqItems: AccordionItemData[] = [];
   licenseTypes: Set<string> = new Set();
   uniqueLicenseTypes: string[] = [];
+
+  // HTML content from config
+  instructionHtml: string = '';
+  copyrightHtml: string = '';
+  htmlLoading = true;
+
   private router = inject(Router);
   private store = inject(Store);
   private modsParserService = inject(ModsParserService);
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
+  private configService = inject(ConfigService);
+  private translationService = inject(AppTranslationService);
+  private dialog = inject(MatDialog);
+
+  constructor() {
+    // Reload HTML content when language changes
+    effect(() => {
+      this.translationService.currentLanguage(); // track the signal
+      this.loadHtmlContent();
+    });
+  }
 
   ngOnInit(): void {
     this.loadModsData();
@@ -45,6 +65,11 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       this.detectAllLicenseTypes();
       this.faqItems = this.getAllFaqItems();
     }
+    if (
+      (changes['requiredLicenses'] && !changes['requiredLicenses'].firstChange)
+    ) {
+      this.loadHtmlContent();
+    }
   }
 
   async loadModsData() {
@@ -53,19 +78,45 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     try {
       const modsMetadata = await this.modsParserService.getMods(this.metadata.uuid);
       if (modsMetadata && this.metadata) {
-        // Dynamically import mergeMetadata to avoid circular dependency issues if any
-        const { mergeMetadata } = await import('../../../../shared/models/metadata.model');
+        const { mergeMetadata } = await import('../../../../../shared/models/metadata.model');
         const merged = mergeMetadata(this.metadata, modsMetadata);
         this.metadata = merged;
 
-        // Refresh view dependent data
         this.detectAllLicenseTypes();
-        this.faqItems = this.getAllFaqItems(); // Re-generate items if needed
+        this.faqItems = this.getAllFaqItems();
         this.cdr.markForCheck();
       }
     } catch (error) {
       console.error('Error loading MODS data in Access Denied:', error);
     }
+  }
+
+  private get primaryLicense(): string | null {
+    return this.requiredLicenses.length > 0 ? this.requiredLicenses[0] : null;
+  }
+
+  private async loadHtmlContent(): Promise<void> {
+    this.htmlLoading = true;
+    const licenseId = this.primaryLicense;
+
+    if (!licenseId) {
+      this.htmlLoading = false;
+      return;
+    }
+
+    const lang = this.translationService.currentLanguage().code;
+    const instructionUrl = this.configService.getInstructionPageUrl(licenseId, lang);
+    const copyrightUrl = this.configService.getPageContentUrl('copyright', lang);
+
+    const [instruction, copyright] = await Promise.all([
+      instructionUrl ? this.configService.loadHtmlContent(instructionUrl) : Promise.resolve(''),
+      copyrightUrl ? this.configService.loadHtmlContent(copyrightUrl) : Promise.resolve('')
+    ]);
+
+    this.instructionHtml = instruction;
+    this.copyrightHtml = copyright;
+    this.htmlLoading = false;
+    this.cdr.markForCheck();
   }
 
   detectAllLicenseTypes(): void {
@@ -93,15 +144,14 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     const allItems: AccordionItemData[] = [];
     let indexCounter = 1;
 
-    // Combine FAQ items from all license types
     this.uniqueLicenseTypes.forEach(type => {
       const items = this.getFaqItemsForLicenseType(type);
       items.forEach(item => {
         allItems.push({
           ...item,
-          id: indexCounter, // Overwrite ID to ensure uniqueness
+          id: indexCounter,
           index: indexCounter++,
-          isOpen: indexCounter === 2 // First item (index 1) is open
+          isOpen: indexCounter === 2
         });
       });
     });
@@ -127,48 +177,6 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     return ['access-denied.license-default'];
   }
 
-  getViewingInstructionsForAllTypes(): { key: string; params?: any }[] {
-    const instructions: { key: string; params?: any }[] = [];
-
-    this.uniqueLicenseTypes.forEach(type => {
-      switch (type) {
-        case 'dnnto':
-        case 'dnntt':
-          if (!instructions.some(i => i.key === 'access-denied.for-viewing-dnnt')) {
-            instructions.push({ key: 'access-denied.for-viewing-dnnt' });
-          }
-          break;
-        default:
-          let addedInstruction = false;
-          if (this.metadata && this.metadata.locations && this.metadata.locations.length > 0) {
-            this.metadata.locations.forEach(loc => {
-              if (loc.physicalLocation) {
-                instructions.push({
-                  key: 'access-denied.for-viewing-other-prefix',
-                  params: { location: this.translate.instant(loc.physicalLocation) }
-                });
-                addedInstruction = true;
-              }
-            });
-          }
-
-          if (!addedInstruction) {
-            instructions.push({
-              key: 'access-denied.for-viewing-other-prefix',
-              params: { location: '' }
-            });
-          }
-          break;
-      }
-    });
-
-    return instructions;
-  }
-
-  onLocationClick() {
-    console.log('Location clicked');
-  }
-
   getFaqTitle(): string {
     const type = this.uniqueLicenseTypes[0];
 
@@ -186,8 +194,6 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   hasDnntLicense(): boolean {
     return this.licenseTypes.has('dnnto') || this.licenseTypes.has('dnntt');
   }
-
-  private dialog = inject(MatDialog);
 
   openLicenseDialog(type: string) {
     this.dialog.open(LicenseInfoDialogComponent, {

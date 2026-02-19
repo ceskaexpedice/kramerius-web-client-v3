@@ -2,27 +2,54 @@ import { inject, Injectable, signal, Signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ENVIRONMENT } from '../../app.config';
 import { Language } from './lang-picker/language';
+import { ConfigService } from '../../core/config';
+import { AppMissingTranslationService } from './app-missing-translation-handler';
+import { HttpBackend } from '@angular/common/http';
+import { HttpLoaderFactory } from './translate-http-loader';
+
+const FALLBACK_CHAIN: Record<string, string[]> = {
+  sk: ['cs', 'en'],
+  cs: ['en'],
+};
+
+const DEFAULT_FALLBACK = ['en'];
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppTranslationService {
   private translate = inject(TranslateService);
+  private configService = inject(ConfigService);
+  private missingHandler = inject(AppMissingTranslationService);
+  private httpBackend = inject(HttpBackend);
 
-  private availableLanguageCodes = ENVIRONMENT.availableLanguages;
-  private defaultLanguageCode = ENVIRONMENT.defaultLanguage;
+  // Get language settings from ConfigService, fallback to ENVIRONMENT
+  private get availableLanguageCodes(): string[] {
+    return this.configService.i18n.supportedLanguages ?? ENVIRONMENT.availableLanguages;
+  }
 
-  private languagesMap: Language[] = this.availableLanguageCodes.map((code: string) => ({
-    code,
-    name: this.languageName(code),
-    icon: `img/flag/${code}.svg`,
-  }));
+  private get defaultLanguageCode(): string {
+    return this.configService.i18n.defaultLanguage ?? ENVIRONMENT.defaultLanguage;
+  }
+
+  private get fallbackLanguageCode(): string {
+    return this.configService.i18n.fallbackLanguage ?? ENVIRONMENT.fallbackLanguage;
+  }
+
+  private get languagesMap(): Language[] {
+    return this.availableLanguageCodes.map((code: string) => ({
+      code,
+      name: this.languageName(code),
+      icon: `img/flag/${code}.svg`,
+    }));
+  }
 
   private _currentLanguage = signal<Language>(this.detectInitialLanguage());
 
   constructor() {
-    this.translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
+    this.translate.setDefaultLang(this.fallbackLanguageCode);
     this.translate.use(this._currentLanguage().code);
+    this.preloadFallbackLanguages();
   }
 
   get currentLanguage(): Signal<Language> {
@@ -45,6 +72,7 @@ export class AppTranslationService {
     this._currentLanguage.set(selectedLang);
     localStorage.setItem('language', langCode);
     this.translate.use(langCode);
+    this.preloadFallbackLanguages();
   }
 
   private detectInitialLanguage(): Language {
@@ -64,6 +92,20 @@ export class AppTranslationService {
       if (this.availableLanguageCodes.includes(simplified)) return simplified;
     }
     return null;
+  }
+
+  private preloadFallbackLanguages(): void {
+    const currentCode = this._currentLanguage().code;
+    const fallbacks = FALLBACK_CHAIN[currentCode] ?? DEFAULT_FALLBACK;
+    const loader = HttpLoaderFactory(this.httpBackend);
+
+    for (const lang of fallbacks) {
+      if (lang !== currentCode) {
+        loader.getTranslation(lang).subscribe(translations => {
+          this.missingHandler.setFallbackTranslations(lang, translations as Record<string, any>);
+        });
+      }
+    }
   }
 
   private languageName(code: string): string {

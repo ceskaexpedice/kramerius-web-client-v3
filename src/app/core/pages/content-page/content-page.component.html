@@ -1,0 +1,34 @@
+@if (loading) {
+  <div class="content-page content-page--loading">
+    <div class="loading-spinner"></div>
+  </div>
+} @else if (notFound) {
+  <div class="content-page content-page--not-found">
+    <p>{{'error.not_found.title' | translate}}</p>
+  </div>
+} @else {
+  <div class="content-page">
+    @if (isTermsPage && htmlParts.length > 1) {
+      <div [innerHTML]="htmlParts[0] | safeHtml"></div>
+
+      <div class="terms-controls">
+        <mat-checkbox color="primary" [(ngModel)]="termsAgreed">
+          {{ 'terms.agreement' | translate }}
+        </mat-checkbox>
+        <button class="button primary" [disabled]="!termsAgreed" (click)="login()">
+          {{ 'log-in' | translate }}
+        </button>
+      </div>
+
+      @for (part of htmlParts; track $index) {
+        @if ($index > 0) {
+          <div [innerHTML]="part | safeHtml"></div>
+        }
+      }
+    } @else {
+      @for (part of htmlParts; track $index) {
+        <div [innerHTML]="part | safeHtml"></div>
+      }
+    }
+  </div>
+}

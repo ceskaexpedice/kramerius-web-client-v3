@@ -24,6 +24,8 @@ import { routerReducer, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
+import { ConfigService } from './core/config';
+import { initApp } from './core/init/app-init';
 import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
 import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
 import { ImagePreviewOverlayComponent } from './shared/components/image-preview-overlay/image-preview-overlay.component';
@@ -64,10 +66,6 @@ import { FoldersEffects } from './modules/saved-lists-page/state';
 import { LicensesEffects } from './shared/state/licenses/licenses.effects';
 import { MonographVolumesEffects } from './shared/state/monograph-volumes';
 import { CollectionsEffects } from './shared/state/collections/collections.effects';
-
-export function initApp(envService: EnvironmentService) {
-  return () => envService.load();
-}
 
 @NgModule({
   declarations: [
@@ -149,7 +147,7 @@ export function initApp(envService: EnvironmentService) {
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
-      deps: [EnvironmentService],
+      deps: [EnvironmentService, ConfigService],
       multi: true
     },
     {

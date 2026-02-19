@@ -1,0 +1,120 @@
+{
+  "app": {
+    "code": "cdk",
+    "name": "Czech Digital Library",
+    "version": "3.0.0",
+    "baseUrl": "https://api.kramerius.mzk.cz",
+    "contactEmail": "digitalniknihovna@mzk.cz",
+    "logo": "/favicon.svg"
+  },
+
+  "api": {
+    "baseUrl": "https://api.kramerius.example.org/search/api/client",
+    "clientVersion": "7.0"
+  },
+
+  "i18n": {
+    "defaultLanguage": "cs",
+    "fallbackLanguage": "en",
+    "supportedLanguages": ["cs", "en", "sk", "pl"]
+  },
+
+  "integrations": {
+    "analytics": {
+      "provider": "ga4",
+      "enabled": true,
+      "measurementId": "G-XXXXXXXXXX"
+    },
+    "googleMaps": {
+      "enabled": true,
+      "apiKey": "GOOGLE_MAPS_API_KEY"
+    }
+  },
+
+  "features": {
+    "advancedSearch": true,
+    "iiif": true,
+    "mapSearch": true,
+    "georef": true,
+    "ai": false,
+    "folders": true,
+    "crossOrigin": true,
+    "librarySwitch": true
+  },
+
+  "ui": {
+    "cookiebar": true
+  },
+
+  "viewer": {
+    "defaultMode": "book",
+    "availableModes": ["book", "single"],
+    "rememberLastMode": true,
+    "controls": {
+      "zoomIn": true,
+      "zoomOut": true,
+      "fullscreen": true,
+      "fitToScreen": true,
+      "fitToWidth": true,
+      "scrollMode": true,
+      "bookMode": true,
+      "rotate": true,
+      "selectArea": true
+    },
+    "selectionControls": {
+      "text": true,
+      "export": true,
+      "share": true
+    }
+  },
+
+  "search": {
+    "doctypes": [
+      "monograph",
+      "monographunit",
+      "periodical",
+      "periodicalvolume",
+      "periodicalitem",
+      "article",
+      "map",
+      "graphic",
+      "manuscript",
+      "archive",
+      "sheetmusic",
+      "soundrecording",
+      "supplement",
+      "convolute",
+      "collection"
+    ]
+  },
+
+  "pages": [
+    {
+      "id": "about",
+      "label": { "cs": "O projektu", "en": "About", "sk": "O projekte", "pl": "O projekcie" },
+      "content": { "cs": "local-config/html/about/about.cs.html", "en": "local-config/html/about/about.en.html" },
+      "showInHeader": true
+    },
+    {
+      "id": "terms",
+      "content": {
+        "cs": ["local-config/html/terms/terms.cs.html", "local-config/html/terms/terms2.cs.html"],
+        "en": ["local-config/html/terms/terms.en.html", "local-config/html/terms/terms2.en.html"]
+      }
+    },
+    {
+      "id": "copyright",
+      "content": {
+        "cs": "local-config/html/copyright/copyright.cs.html",
+        "en": "local-config/html/copyright/copyright.en.html"
+      }
+    },
+    {
+      "id": "gdpr",
+      "content": {
+        "cs": "local-config/html/gdpr/gdpr.cs.html",
+        "en": "local-config/html/gdpr/gdpr.en.html"
+      }
+    }
+  ]
+}

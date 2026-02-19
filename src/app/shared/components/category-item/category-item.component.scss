@@ -6,6 +6,8 @@
   background-color: var(--color-bg-base);
   border-radius: var(--base-border-radius);
   font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: 24px;
   cursor: pointer;
   transition: 0.2s;
   border: 1px solid transparent;
@@ -13,7 +15,7 @@
   &:hover {
     color: var(--color-primary-hover);
     text-decoration: auto;
-    font-weight: 700;
+    font-weight: 500;
     border: 1px solid var(--color-border-contrast);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.10);
   }

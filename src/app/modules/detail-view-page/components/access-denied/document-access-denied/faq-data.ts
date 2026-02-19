@@ -1,4 +1,4 @@
-import { AccordionItemData } from '../../../../shared/components/accordion/accordion';
+import { AccordionItemData } from '../../../../../shared/components/accordion/accordion';
 
 export const DNNTO_FAQ_ITEMS: AccordionItemData[] = [
     {

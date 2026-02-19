@@ -173,6 +173,21 @@
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
+          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.isLoggedIn) {
+          <div class="dnnto-bar">
+            <span class="dnnto-bar--title">
+              <img src="/img/logo/dnnt-logo.png" alt="DNNT logo">
+              {{ 'dnnto' | translate }}
+            </span>
+
+            @if (userService.userSession) {
+              <span>
+                  {{ userService.getFormattedExpiration() }}
+                | {{ userService.userSession?.email }}
+</span>            }
+          </div>
+          }
+
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
           @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
@@ -180,10 +195,10 @@
           <!-- Show access denied after access check completes and fails -->
           @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {
           <app-document-access-denied [metadata]="document"
-            [requiredLicenses]="documentInfoService.getRuntimeLicenses()">
+            [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
           </app-document-access-denied>
-          } @else if (isPdfContent && (checkState === 'INITIAL' || checkState === 'LOADING')) {
-          <!-- Show loader for PDF while access is being checked -->
+          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+          <!-- Show loader while access is being checked -->
           <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->

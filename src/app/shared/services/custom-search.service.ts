@@ -4,11 +4,11 @@ import { UserService } from './user.service';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import {filter, take} from 'rxjs';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
-import { PUBLIC_LICENSES, ONSITE_LICENSES, AFTER_LOGIN_LICENSES } from '../../core/solr/solr-misc';
+import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../core/solr/solr-misc';
 
 @Injectable({ providedIn: 'root' })
 export class CustomSearchService {
@@ -81,7 +81,7 @@ export class CustomSearchService {
       const facetKey = key.split(':')[0];
       const value = key.split(':')[1];
 
-      const filterItem = customDefinedFacets.find(facet => facet.facetKey === facetKey);
+      const filterItem = getCustomDefinedFacets().find(facet => facet.facetKey === facetKey);
 
       switch (facetKey) {
         case customDefinedFacetsEnum.accessibility:
@@ -158,9 +158,9 @@ export class CustomSearchService {
   /**
    * Returns the licenses for the currently active accessibility filter
    * - "available": user's licenses
-   * - "public": PUBLIC_LICENSES
-   * - "onsite": ONSITE_LICENSES
-   * - "afterLogin": AFTER_LOGIN_LICENSES
+   * - "public": public licenses from config
+   * - "onsite": onsite licenses from config
+   * - "afterLogin": after-login licenses from config
    * - "all": empty array (no filter)
    */
   getUserAvailableLicenses(): string[] {
@@ -172,17 +172,17 @@ export class CustomSearchService {
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.public}`
     )) {
-      return PUBLIC_LICENSES;
+      return getOpenLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.onsite}`
     )) {
-      return ONSITE_LICENSES;
+      return getTerminalLicenses();
     }
     if (this._appliedFilters().includes(
       `${customDefinedFacetsEnum.accessibility}:${FacetAccessibilityTypes.afterLogin}`
     )) {
-      return AFTER_LOGIN_LICENSES;
+      return getAfterLoginLicenses();
     }
     return this.userService.licenses;
   }
@@ -271,7 +271,7 @@ export class CustomSearchService {
   }
 
   getSelectedFilterValue(facetKey: string): string | null {
-    const filterItem = customDefinedFacets.find(facet => facet.facetKey === facetKey);
+    const filterItem = getCustomDefinedFacets().find(facet => facet.facetKey === facetKey);
     if (!filterItem) return null;
 
     const selectedFilter = this._appliedFilters().find(k => k.startsWith(facetKey + ':'));

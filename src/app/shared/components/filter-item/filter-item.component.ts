@@ -3,15 +3,18 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass, NgIf } from '@angular/common';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
+import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
+import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
 
 @Component({
   selector: 'app-filter-item',
   imports: [
     MatCheckbox,
-    TranslatePipe,
     NgIf,
     NgClass,
     FormatNumberPipe,
+    TranslatePipe,
+    ConfigLabelPipe,
   ],
   templateUrl: './filter-item.component.html',
   styleUrl: './filter-item.component.scss',
@@ -20,6 +23,7 @@ import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 export class FilterItemComponent {
 
   @Input() label!: string;
+  @Input() facetKey?: string; // Used to determine translation source
   @Input() truncateLabel: boolean = false;
   @Input() count!: number;
   @Input() checked = false;
@@ -30,6 +34,10 @@ export class FilterItemComponent {
 
   get isImageIcon(): boolean {
     return this.icon?.includes('/') || this.icon?.includes('.') || false;
+  }
+
+  get isLicense(): boolean {
+    return this.facetKey === facetKeysEnum.license;
   }
 
 }

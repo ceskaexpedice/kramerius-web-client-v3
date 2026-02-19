@@ -40,7 +40,7 @@
               </div>
               }
 
-              <app-toggle-button-group [options]="viewOptions" [value]="view()" (valueChange)="setView($event)" />
+              <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
               <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
                 (actionClicked)="onToolbarAction($event)" [themeDefault]="true">

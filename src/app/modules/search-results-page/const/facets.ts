@@ -1,4 +1,5 @@
 import { SolrSearchField } from '../../../shared/dialogs/advanced-search-dialog/solr-filters';
+import { getConfiguredModels } from '../../../core/solr/solr-misc';
 
 export enum FacetElementType {
   checkbox = 'checkbox',
@@ -78,219 +79,146 @@ export const facetKeysInfinityCount: string[] = [
   customDefinedFacetsEnum.yearRange
 ]
 
-export const customDefinedFacets = [
-  {
-    facetKey: customDefinedFacetsEnum.accessibility,
-    title: customDefinedFacetsEnum.accessibility,
-    solrFacetKey: facetKeysEnum.license,
-    solrFacetKeyForCount: facetKeysEnum.license,
-    type: FacetElementType.radio,
-    data: [
-      {
-        key: FacetAccessibilityTypes.all,
-        fq: null,
-        name: `${FacetAccessibilityTypes.all}`,
-        label: 'custom-accessibility--all',
-        count: 0,
-        type: FacetElementType.radio,
-      },
-      {
-        key: FacetAccessibilityTypes.available,
-        fq: [],
-        name: `${FacetAccessibilityTypes.available}`,
-        label: 'custom-accessibility--available',
-        count: 0,
-        type: FacetElementType.radio,
-      },
-      {
-        key: FacetAccessibilityTypes.public,
-        fq: [],
-        name: `${FacetAccessibilityTypes.public}`,
-        label: 'custom-accessibility--public',
-        icon: 'icon-eye-public',
-        iconClass: 'accessibility-public',
-        count: 0,
-        type: FacetElementType.radio,
-      },
-      {
-        key: FacetAccessibilityTypes.afterLogin,
-        fq: [],
-        name: `${FacetAccessibilityTypes.afterLogin}`,
-        label: 'custom-accessibility--afterLogin',
-        icon: 'icon-locked',
-        iconClass: 'accessibility-private',
-        count: 0,
-        type: FacetElementType.radio,
-      },
-      {
-        key: FacetAccessibilityTypes.onsite,
-        fq: [],
-        name: `${FacetAccessibilityTypes.onsite}`,
-        label: 'custom-accessibility--onsite',
-        icon: 'icon-in-house',
-        iconClass: 'accessibility-in_library',
-        count: 0,
-        type: FacetElementType.radio,
-      }
-    ]
-  },
-  {
-    facetKey: customDefinedFacetsEnum.model,
-    title: customDefinedFacetsEnum.model,
-    solrFacetKey: facetKeysEnum.rootModel,
-    solrFacetKeyForCount: facetKeysEnum.model,
-    data: [
-      {
-        key: 'periodical',
-        fq: [
-          'periodical'
-        ],
-        name: 'periodical',
-        count: 0
-      },
-      {
-        key: 'monograph',
-        fq: [
-          'monograph'
-        ],
-        name: 'monograph',
-        count: 0
-      },
-      {
-        key: 'map',
-        fq: [
-          'map'
-        ],
-        name: 'map',
-        count: 0
-      },
-      {
-        key: 'graphic',
-        fq: [
-          'graphic'
-        ],
-        name: 'graphic',
-        count: 0
-      },
-      {
-        key: 'archive',
-        fq: [
-          'archive'
-        ],
-        name: 'archive',
-        count: 0
-      },
-      {
-        key: 'manuscript',
-        fq: [
-          'manuscript'
-        ],
-        name: 'manuscript',
-        count: 0
-      },
-      {
-        key: 'soundrecording',
-        fq: [
-          'soundrecording'
-        ],
-        name: 'soundrecording',
-        count: 0
-      },
-      {
-        key: 'sheetmusic',
-        fq: [
-          'sheetmusic'
-        ],
-        name: 'sheetmusic',
-        count: 0
-      },
-      {
-        key: 'convolute',
-        fq: [
-          'convolute'
-        ],
-        name: 'convolute',
-        count: 0
-      },
-      {
-        key: 'collection',
-        fq: [
-          'collection'
-        ],
-        name: 'collection',
-        count: 0
-      }
-    ]
-  },
-  {
-    facetKey: customDefinedFacetsEnum.whereToSearchModel,
-    title: customDefinedFacetsEnum.whereToSearchModel,
-    solrFacetKey: facetKeysEnum.model,
-    solrFacetKeyForCount: facetKeysEnum.model,
-    data: [
-      {
-        key: 'titles',
-        fq: [
-          'periodical',
-          'monograph',
-          'map',
-          'graphic',
-          'archive',
-          'manuscript',
-          'soundrecording',
-          'sheetmusic',
-          'convolute',
-          'collection',
-          'monographunit'
-        ],
-        name: 'titles',
-        count: 0
-      },
-      {
-        key: 'pages',
-        fq: 'page',
-        name: 'page',
-        count: 0
-      },
-      {
-        key: 'periodicalvolume',
-        fq: 'periodicalvolume',
-        name: 'periodicalvolume',
-        count: 0
-      },
-      {
-        key: 'periodicalitem',
-        fq: 'periodicalitem',
-        name: 'periodicalitem',
-        count: 0
-      },
-      {
-        key: 'articles',
-        fq: 'article',
-        name: 'article',
-        count: 0
-      },
-      {
-        key: 'attachments',
-        fq: 'supplement',
-        name: 'supplement',
-        count: 0
-      }
-    ]
-  },
-  {
-    facetKey: customDefinedFacetsEnum.dateRange,
-    title: 'date',
-    type: FacetElementType.dateRange,
-    data: []
-  },
-  {
-    facetKey: customDefinedFacetsEnum.yearRange,
-    title: 'year-range',
-    type: FacetElementType.yearRange,
-    data: []
+// Child/structural models that are excluded from root-model facet
+const childModels = ['monographunit', 'periodicalvolume', 'periodicalitem', 'article', 'page', 'supplement'];
+
+// Default root models (used as fallback if config not loaded yet)
+const defaultRootModels = ['periodical', 'monograph', 'map', 'graphic', 'archive', 'manuscript', 'soundrecording', 'sheetmusic', 'convolute', 'collection'];
+
+// Default title models for "where to search" (root models + monographunit)
+const defaultTitleModels = [...defaultRootModels, 'monographunit'];
+
+function getRootModels(): string[] {
+  const configured = getConfiguredModels();
+  if (configured.length === 0) return defaultRootModels;
+  return configured.filter(m => !childModels.includes(m));
+}
+
+function getTitleModels(): string[] {
+  const configured = getConfiguredModels();
+  if (configured.length === 0) return defaultTitleModels;
+  return configured.filter(m => m !== 'periodicalvolume' && m !== 'periodicalitem' && m !== 'article' && m !== 'page' && m !== 'supplement');
+}
+
+function hasConfiguredModel(model: string): boolean {
+  const configured = getConfiguredModels();
+  if (configured.length === 0) return true; // fallback: show all
+  return configured.includes(model);
+}
+
+function getWhereToSearchData(): any[] {
+  const data: any[] = [
+    { key: 'titles', fq: getTitleModels(), name: 'titles', count: 0 },
+    { key: 'pages', fq: 'page', name: 'page', count: 0 },
+  ];
+
+  // periodicalvolume/periodicalitem only if periodical is configured
+  if (hasConfiguredModel('periodical')) {
+    data.push({ key: 'periodicalvolume', fq: 'periodicalvolume', name: 'periodicalvolume', count: 0 });
+    data.push({ key: 'periodicalitem', fq: 'periodicalitem', name: 'periodicalitem', count: 0 });
   }
-]
+
+  if (hasConfiguredModel('article')) {
+    data.push({ key: 'articles', fq: 'article', name: 'article', count: 0 });
+  }
+
+  if (hasConfiguredModel('supplement')) {
+    data.push({ key: 'attachments', fq: 'supplement', name: 'supplement', count: 0 });
+  }
+
+  return data;
+}
+
+export function getCustomDefinedFacets() {
+  return [
+    {
+      facetKey: customDefinedFacetsEnum.accessibility,
+      title: customDefinedFacetsEnum.accessibility,
+      solrFacetKey: facetKeysEnum.license,
+      solrFacetKeyForCount: facetKeysEnum.license,
+      type: FacetElementType.radio,
+      data: [
+        {
+          key: FacetAccessibilityTypes.all,
+          fq: null,
+          name: `${FacetAccessibilityTypes.all}`,
+          label: 'custom-accessibility--all',
+          count: 0,
+          type: FacetElementType.radio,
+        },
+        {
+          key: FacetAccessibilityTypes.available,
+          fq: [],
+          name: `${FacetAccessibilityTypes.available}`,
+          label: 'custom-accessibility--available',
+          count: 0,
+          type: FacetElementType.radio,
+        },
+        {
+          key: FacetAccessibilityTypes.public,
+          fq: [],
+          name: `${FacetAccessibilityTypes.public}`,
+          label: 'custom-accessibility--public',
+          icon: 'icon-eye-public',
+          iconClass: 'accessibility-public',
+          count: 0,
+          type: FacetElementType.radio,
+        },
+        {
+          key: FacetAccessibilityTypes.afterLogin,
+          fq: [],
+          name: `${FacetAccessibilityTypes.afterLogin}`,
+          label: 'custom-accessibility--afterLogin',
+          icon: 'icon-locked',
+          iconClass: 'accessibility-private',
+          count: 0,
+          type: FacetElementType.radio,
+        },
+        {
+          key: FacetAccessibilityTypes.onsite,
+          fq: [],
+          name: `${FacetAccessibilityTypes.onsite}`,
+          label: 'custom-accessibility--onsite',
+          icon: 'icon-in-house',
+          iconClass: 'accessibility-in_library',
+          count: 0,
+          type: FacetElementType.radio,
+        }
+      ]
+    },
+    {
+      facetKey: customDefinedFacetsEnum.model,
+      title: customDefinedFacetsEnum.model,
+      solrFacetKey: facetKeysEnum.rootModel,
+      solrFacetKeyForCount: facetKeysEnum.model,
+      data: getRootModels().map(model => ({
+        key: model,
+        fq: [model],
+        name: model,
+        count: 0
+      }))
+    },
+    {
+      facetKey: customDefinedFacetsEnum.whereToSearchModel,
+      title: customDefinedFacetsEnum.whereToSearchModel,
+      solrFacetKey: facetKeysEnum.model,
+      solrFacetKeyForCount: facetKeysEnum.model,
+      data: getWhereToSearchData()
+    },
+    {
+      facetKey: customDefinedFacetsEnum.dateRange,
+      title: 'date',
+      type: FacetElementType.dateRange,
+      data: []
+    },
+    {
+      facetKey: customDefinedFacetsEnum.yearRange,
+      title: 'year-range',
+      type: FacetElementType.yearRange,
+      data: []
+    }
+  ];
+}
 
 /**
  * Mapper for facets to search fields. Maps facet field keys to search field keys.

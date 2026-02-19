@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { DetailViewPageComponent } from './detail-view-page.component';
 import { RouterModule, Routes } from '@angular/router';
-import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
+import {AsyncPipe, DatePipe, JsonPipe, NgIf} from '@angular/common';
 import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
 import { FilterSidebarComponent } from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -28,9 +28,9 @@ import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
-import { DocumentAccessDenied } from './components/document-access-denied/document-access-denied';
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
+import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
 
 const routes: Routes = [
   {
@@ -42,39 +42,40 @@ const routes: Routes = [
   declarations: [
     DetailViewPageComponent
   ],
-  imports: [
-    RouterModule.forChild(routes),
-    MatDatepickerModule,
-    MatNativeDateModule,
-    NgIf,
-    AsyncPipe,
-    JsonPipe,
-    ActionToolbarComponent,
-    FilterSidebarComponent,
-    ToolbarControlsComponent,
-    ToolbarHeaderComponent,
-    DetailPagesGridComponent,
-    InputComponent,
-    DetailViewBottomToolbarComponent,
-    PageNavigatorComponent,
-    TabsComponent,
-    TabItemComponent,
-    DateNavigatorComponent,
-    DetailLayoutComponent,
-    TranslatePipe,
-    AdminActionsComponent,
-    PdfViewer,
-    PdfSidebarComponent,
-    DocumentSidebarComponent,
-    MetadataSidebarComponent,
-    IIIFViewer,
-    ViewerControls,
-    FavoritesPopupComponent,
-    InlineLoaderComponent,
-    DocumentAccessDenied,
-    SelectionModeInfoComponent,
-    DetailArticlesListComponent,
-  ],
+	imports: [
+		RouterModule.forChild(routes),
+		MatDatepickerModule,
+		MatNativeDateModule,
+		NgIf,
+		AsyncPipe,
+		JsonPipe,
+		ActionToolbarComponent,
+		FilterSidebarComponent,
+		ToolbarControlsComponent,
+		ToolbarHeaderComponent,
+		DetailPagesGridComponent,
+		InputComponent,
+		DetailViewBottomToolbarComponent,
+		PageNavigatorComponent,
+		TabsComponent,
+		TabItemComponent,
+		DateNavigatorComponent,
+		DetailLayoutComponent,
+		TranslatePipe,
+		AdminActionsComponent,
+		PdfViewer,
+		PdfSidebarComponent,
+		DocumentSidebarComponent,
+		MetadataSidebarComponent,
+		IIIFViewer,
+		ViewerControls,
+		FavoritesPopupComponent,
+		InlineLoaderComponent,
+		SelectionModeInfoComponent,
+		DetailArticlesListComponent,
+		DocumentAccessDenied,
+		DatePipe,
+	],
 })
 
 export class DetailViewPageModule { }

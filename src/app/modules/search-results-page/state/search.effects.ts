@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
 import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
 import { UserService } from '../../../shared/services/user.service';
@@ -143,7 +143,7 @@ export class SearchEffects {
     const set = new Set<string>();
     visibleFilters.forEach(f => {
       if (f.isCustomDefined) {
-        const custom = customDefinedFacets.find(c => c.facetKey === f.facetKey);
+        const custom = getCustomDefinedFacets().find(c => c.facetKey === f.facetKey);
         if (custom && custom.solrFacetKeyForCount) {
           set.add(custom.solrFacetKeyForCount);
         }

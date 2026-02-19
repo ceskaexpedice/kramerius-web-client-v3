@@ -18,6 +18,10 @@ import { customDefinedFacetsEnum } from '../../../modules/search-results-page/co
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CollectionsService } from '../../../shared/services/collections.service';
 import { ClickOutsideDirective } from '../../../shared/directives';
+import { ConfigService } from '../../config';
+import { LibraryContextService } from '../../../shared/services/library-context.service';
+import { AppTranslationService } from '../../../shared/translation/app-translation.service';
+import { PageConfig } from '../../config/config.interfaces';
 
 @Component({
   selector: 'app-header',
@@ -42,11 +46,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Track the application's current theme
   currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
 
+  // Dynamic header branding
+  headerLogo: string = '/favicon.svg';
+  headerLogoDark: string = '/favicon-dark.svg';
+  headerName: string = '';
+
   // Mobile menu state
   isMobileMenuOpen = false;
 
   // Mobile search state
   isMobileSearchOpen = false;
+
+  // Logo click counter for libraries easter egg
+  private logoClickCount = 0;
+  private logoClickTimer: any = null;
 
   constructor(
     private envService: EnvironmentService,
@@ -56,9 +69,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private advancedSearch: AdvancedSearchService,
     private recordHandler: RecordHandlerService,
     private injector: Injector,
+    private configService: ConfigService,
+    private libraryContext: LibraryContextService,
+    private translationService: AppTranslationService,
   ) { }
 
-  ngOnInit() {
+  /**
+   * Check if advanced search button should be shown based on config
+   */
+  get showAdvancedSearch(): boolean {
+    return this.configService.isFeatureEnabled('advancedSearch');
+  }
+
+  get homeLink(): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/']);
+  }
+
+  get searchLink(): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/search']);
+  }
+
+  async ngOnInit() {
     // Listen for route changes to update header type
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -78,6 +109,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Initial check
     this.updateHeaderType();
 
+    // Load active library branding
+    const activeLib = await this.configService.getActiveLibrary();
+    if (activeLib) {
+      this.headerLogo = activeLib.logo;
+      this.headerLogoDark = activeLib.logo;
+      this.headerName = activeLib.name;
+    } else {
+      this.headerLogo = this.configService.app.logo || '/favicon.svg';
+      this.headerLogoDark = '/favicon-dark.svg';
+    }
+
     this.logDevInfo();
   }
 
@@ -89,7 +131,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   get showSearchBar(): boolean {
     // Use router.url but strip query params to avoid header changes when dialogs add URL params
     const urlWithoutParams = this.router.url.split('?')[0];
-    return urlWithoutParams !== `/${APP_ROUTES_ENUM.SEARCH}`;
+    return urlWithoutParams !== '/';
   }
 
   get isOnCollectionRoute(): boolean {
@@ -115,7 +157,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logoClicked() {
-    this.recordHandler.navigateToEmptySearch();
+    this.logoClickCount++;
+
+    if (this.logoClickTimer) {
+      clearTimeout(this.logoClickTimer);
+      this.logoClickTimer = null;
+    }
+
+    if (this.logoClickCount >= 5) {
+      this.router.navigate([`/${APP_ROUTES_ENUM.LIBRARIES}`]);
+
+      this.logoClickTimer = setTimeout(() => {
+        this.logoClickCount = 0;
+        this.logoClickTimer = null;
+      }, 1000);
+      return;
+    }
+
+    this.logoClickTimer = setTimeout(() => {
+      this.recordHandler.navigateToEmptySearch();
+      this.logoClickCount = 0;
+      this.logoClickTimer = null;
+    }, 200);
   }
 
   updateHeaderType() {
@@ -165,6 +228,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeMobileSearch() {
     this.isMobileSearchOpen = false;
+  }
+
+  get navPages(): PageConfig[] {
+    return this.configService.navPages;
+  }
+
+  getPageLabel(page: PageConfig): string {
+    const lang = this.translationService.currentLanguage().code;
+    const fallbackLang = this.configService.i18n.fallbackLanguage ?? 'en';
+    return page.label?.[lang] ?? page.label?.[fallbackLang] ?? page.id;
+  }
+
+  getPageLink(page: PageConfig): any[] {
+    return this.libraryContext.prependLibraryPrefix(['/pages', page.id]);
   }
 
   logDevInfo(): void {

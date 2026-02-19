@@ -86,7 +86,7 @@
     </div>
 
     <div class="article-title">
-      <a [routerLink]="['/view', uuid]" [queryParams]="{article: articleData.uuid}">
+      <a [routerLink]="articleViewLink" [queryParams]="{article: articleData.uuid}">
         {{ articleData.titles[0]?.title }}
       </a>
     </div>

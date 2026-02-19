@@ -7,7 +7,7 @@ $filter-height: 44px;
 :host {
   display: inline-block;
   position: relative;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
 }
 
 .select-wrapper {
@@ -21,7 +21,10 @@ $filter-height: 44px;
   justify-content: space-between;
   user-select: none;
   outline: none;
-  //font-weight: bold;
+
+  &.size-sm {
+    font-size: var(--font-size-small);
+  }
 
   &.light {
     background-color: var(--color-bg-light);
@@ -149,4 +152,5 @@ $filter-height: 44px;
   border-radius: var(--spacing-x2);
   border: 1px solid var(--color-border-bright);
   padding: var(--spacing-x2) var(--spacing-x4);
+  line-height: 1;
 }

@@ -40,6 +40,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
+  position: relative;
 
   &.pdf-document {
     padding: 0;
@@ -123,4 +124,30 @@ app-viewer-controls {
 
 app-document-access-denied {
   margin: var(--spacing-x4);
+}
+
+.dnnto-bar {
+  height: 40px;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-x2);
+  background-color: var(--color-bg-base);
+  margin-top: 1px;
+  padding: 0 var(--spacing-x2);
+  width: 100%;
+
+  .dnnto-bar--title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x1);
+
+    img {
+      height: 24px;
+    }
+  }
 }

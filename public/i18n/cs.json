@@ -1,4 +1,5 @@
 {
+  "terms.agreement": "Souhlasím s podmínkami užití",
   "authors.facet": "Autor",
   "languages.facet": "Jazyk",
   "genres.facet": "Žánr",
@@ -488,5 +489,15 @@
   "header.aria.close-search": "Zavřít vyhledávání",
   "header.aria.search": "Vyhledávání",
   "header.aria.menu": "Menu",
-  "no-text-content": "Neobsahuje žádný výskyt"
+  "no-text-content": "Neobsahuje žádný výskyt",
+  "search.title": "Hledání",
+  "libraries.title": "Knihovny",
+  "libraries.filter-placeholder": "Filtrovat knihovny...",
+  "libraries.active": "Aktivní",
+  "libraries.clear": "Zrušit",
+  "libraries.loading": "Načítání knihoven...",
+  "libraries.error": "Nepodařilo se načíst knihovny. Zkuste to prosím znovu.",
+  "libraries.switching": "Přepínání na {{name}}. Načítání...",
+  "libraries.cleared": "Přepsání zrušeno. Načítání...",
+  "libraries.save-error": "Nepodařilo se uložit konfiguraci."
 }

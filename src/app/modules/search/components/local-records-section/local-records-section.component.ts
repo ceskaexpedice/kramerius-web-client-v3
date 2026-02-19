@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../../../shared/components/record-item/record-item.component';
 import { CarouselComponent } from '../../../../shared/components/carousel/carousel.component';
-import { SectionConfig } from '../../services/home-web-config.service';
+import { HomepageSectionConfig } from '../../../../core/config/config.interfaces';
 import { SolrService } from '../../../../core/solr/solr.service';
 import { searchDocumentToRecordItem, RecordItem } from '../../../../shared/components/record-item/record-item.model';
 import { Observable, of } from 'rxjs';
@@ -46,7 +46,7 @@ import { parseSearchDocument } from '../../../models/search-document';
   `]
 })
 export class LocalRecordsSectionComponent implements OnInit {
-  @Input() config!: SectionConfig;
+  @Input() config!: HomepageSectionConfig;
 
   private solrService = inject(SolrService);
 

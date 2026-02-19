@@ -4,7 +4,7 @@ import { FilterCategoryComponent } from '../../../../shared/components/filter-ca
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   FacetElementType,
   facetKeys,
@@ -159,7 +159,7 @@ export class CollectionFiltersComponent extends BaseFiltersComponent {
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
-    const facet = customDefinedFacets.find(f => f.facetKey === facetKey);
+    const facet = getCustomDefinedFacets().find(f => f.facetKey === facetKey);
     return facet?.type || FacetElementType.checkbox;
   }
 

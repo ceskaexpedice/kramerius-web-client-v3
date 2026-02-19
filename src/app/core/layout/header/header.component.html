@@ -2,9 +2,10 @@
 
   <div class="app-header__left">
 
-    <a class="logo cursor-pointer" routerLink="/" (click)="logoClicked()">
-      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? '/favicon.svg' : '/favicon-dark.svg'"
-        alt="Česká digitální knihovna" />
+    <a class="logo cursor-pointer" (click)="logoClicked()">
+      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? headerLogo : headerLogoDark"
+        [alt]="headerName || 'Česká digitální knihovna'" />
+      <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
     </a>
 
   </div>
@@ -19,13 +20,13 @@
       (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
+    <button *ngIf="showAdvancedSearch" class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
       (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
 
     <!-- Mobile search buttons -->
-    <button class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
+    <button *ngIf="showAdvancedSearch" class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
       (click)="openAdvancedSearch()">
       <i class="icon-settings-4"></i>
     </button>
@@ -39,29 +40,35 @@
 
   <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen">
 
-    <a [routerLink]="['/search']"
+    <a [routerLink]="searchLink"
       [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
       class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
-    <!--    <a routerLink="/about">{{'about-project' | translate}}</a>-->
+    @for (page of navPages; track page.id) {
+      <a [routerLink]="getPageLink(page)" class="cursor-pointer desktop-only">{{ getPageLabel(page) }}</a>
+    }
 
     <div class="desktop-only">
       <app-user-info></app-user-info>
     </div>
 
-    <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
+    <div class="header-actions-group">
 
-    <!-- Mobile search toggle button -->
-    <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
-      [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.search' | translate"
-      (click)="toggleMobileSearch()">
-      <i class="icon-search-normal-1"></i>
-    </button>
+      <!-- Mobile search toggle button -->
+      <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"
+        [class.hide-on-search-active]="isMobileSearchOpen" [attr.aria-label]="'header.aria.search' | translate"
+        (click)="toggleMobileSearch()">
+        <i class="icon-search-normal-1"></i>
+      </button>
 
-    <button class="icon-button outlined light" [class.mobile-search-close]="isMobileSearchOpen"
-      aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
-      <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-1'"></i>
-    </button>
+      <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
+        aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
+        <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-2'"></i>
+      </button>
+
+      <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
+
+    </div>
 
     <button class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
       [class.outlined]="!isMobileMenuOpen" [class.light]="!isMobileMenuOpen"
@@ -74,9 +81,12 @@
 
   <div class="mobile-menu" appClickOutside (clickOutside)="closeMobileMenu()" [class.open]="isMobileMenuOpen">
     <div class="mobile-menu__content">
-      <a [routerLink]="['/search']"
+      <a [routerLink]="searchLink"
         [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
         class="cursor-pointer">{{'collections' | translate}}</a>
+      @for (page of navPages; track page.id) {
+        <a [routerLink]="getPageLink(page)" class="cursor-pointer">{{ getPageLabel(page) }}</a>
+      }
       <app-user-info></app-user-info>
     </div>
   </div>

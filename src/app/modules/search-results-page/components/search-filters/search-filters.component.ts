@@ -3,7 +3,7 @@ import { AsyncPipe, NgForOf, NgIf } from '@angular/common';
 import { FilterCategoryComponent } from '../../../../shared/components/filter-category/filter-category.component';
 import { BaseFiltersComponent } from '../../../../shared/components/filters/base-filters.component';
 import {
-  customDefinedFacets,
+  getCustomDefinedFacets,
   customDefinedFacetsEnum,
   customDefinedFacetsKeys, FacetElementType,
   facetKeys,
@@ -189,7 +189,7 @@ export class SearchFiltersComponent extends BaseFiltersComponent implements OnIn
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
-    const facet = customDefinedFacets.find(f => f.facetKey === facetKey);
+    const facet = getCustomDefinedFacets().find(f => f.facetKey === facetKey);
     return facet?.type || FacetElementType.checkbox;
   }
 

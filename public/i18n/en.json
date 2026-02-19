@@ -1,4 +1,5 @@
 {
+  "terms.agreement": "I agree to the terms of use",
   "authors.facet": "Author",
   "languages.facet": "Language",
   "genres.facet": "Genre",
@@ -495,5 +496,15 @@
   "header.aria.close-search": "Close search",
   "header.aria.search": "Search",
   "header.aria.menu": "Menu",
-  "no-text-content": "Contains no occurrence"
+  "no-text-content": "Contains no occurrence",
+  "search.title": "Search",
+  "libraries.title": "Libraries",
+  "libraries.filter-placeholder": "Filter libraries...",
+  "libraries.active": "Active",
+  "libraries.clear": "Clear",
+  "libraries.loading": "Loading libraries...",
+  "libraries.error": "Failed to load libraries. Please try again later.",
+  "libraries.switching": "Switching to {{name}}. Reloading...",
+  "libraries.cleared": "Override cleared. Reloading...",
+  "libraries.save-error": "Failed to save configuration."
 }

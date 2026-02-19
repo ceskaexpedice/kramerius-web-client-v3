@@ -25,6 +25,8 @@ import {AdvancedSearchService} from '../../../../shared/services/advanced-search
 import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-search-dialog/solr-filters';
 import {FormatNumberPipe} from '../../../../shared/pipes/format-number.pipe';
 import {MatCheckbox} from '@angular/material/checkbox';
+import {ConfigLabelPipe} from '../../../../shared/pipes/config-label.pipe';
+import {facetKeysEnum} from '../../const/facets';
 
 @Component({
   selector: 'app-filter-dialog',
@@ -41,6 +43,7 @@ import {MatCheckbox} from '@angular/material/checkbox';
     InputComponent,
     FormatNumberPipe,
     MatCheckbox,
+    ConfigLabelPipe,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -168,8 +171,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
         if (this.isFrontendFiltered) {
           this.items.set(
             this.allItems().filter(item => {
-              const translated = this.translateService.instant(item.name);
-              console.log('translated', translated);
+              const translated = this.getItemLabel(item.name);
               return translated.toLowerCase().includes(term.toLowerCase())
             })
           )
@@ -352,8 +354,8 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     if (this.isFrontendFiltered) {
       // For frontend filtered facets, we just sort the items
       const sortedItems = this.items().slice().sort((a, b) => {
-        const translatedA = this.translateService.instant(a.name);
-        const translatedB = this.translateService.instant(b.name);
+        const translatedA = this.getItemLabel(a.name);
+        const translatedB = this.getItemLabel(b.name);
         if (sort === SolrSortFields.count) {
           return b.count - a.count; // Sort by count descending
         } else if (sort === SolrSortFields.title) {
@@ -365,5 +367,18 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     } else {
       this.loadFacets();
     }
+  }
+
+  /**
+   * Get display label for a facet item (used for sorting/filtering).
+   * For licenses, uses config-based labels; otherwise uses i18n translation.
+   */
+  getItemLabel(name: string): string {
+    // This is still needed for sorting and frontend filtering
+    return this.translateService.instant(name);
+  }
+
+  get isLicenseFacet(): boolean {
+    return this.data.facetKey === facetKeysEnum.license;
   }
 }

@@ -33,7 +33,7 @@
           [checked]="isLicenseSelected(license.name)"
           (change)="onLicenseToggle(license.name, $event.checked)">
           <div class="license-info">
-            <div class="license-name">{{ license.name }}</div>
+            <div class="license-name">{{ license.name | configLabel:'license' }}</div>
           </div>
         </mat-checkbox>
       </div>

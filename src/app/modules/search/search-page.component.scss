@@ -8,6 +8,8 @@
 
   app-search-hero {
     display: block;
+    margin-left: calc(var(--search-page-padding) * -1);
+    margin-right: calc(var(--search-page-padding) * -1);
     margin-bottom: var(--spacing-x12);
   }
 
@@ -32,6 +34,11 @@
 
   :host {
     padding: 0 var(--spacing-x3);
+
+    app-search-hero {
+      margin-left: calc(var(--spacing-x3) * -1);
+      margin-right: calc(var(--spacing-x3) * -1);
+    }
 
     app-footer {
       margin-left: calc(var(--spacing-x3) * -1);

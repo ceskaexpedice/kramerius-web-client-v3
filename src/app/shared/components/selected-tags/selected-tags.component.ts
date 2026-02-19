@@ -4,7 +4,8 @@ import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatButton} from '@angular/material/button';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatTooltip} from '@angular/material/tooltip';
-import {customDefinedFacetsEnum} from '../../../modules/search-results-page/const/facets';
+import {customDefinedFacetsEnum, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
+import {ConfigLabelPipe} from '../../pipes/config-label.pipe';
 
 @Component({
   selector: 'app-selected-tags',
@@ -16,6 +17,7 @@ import {customDefinedFacetsEnum} from '../../../modules/search-results-page/cons
     MatChipsModule,
     TranslatePipe,
     MatTooltip,
+    ConfigLabelPipe,
   ],
   templateUrl: './selected-tags.component.html',
   styleUrl: './selected-tags.component.scss'
@@ -67,7 +69,7 @@ export class SelectedTagsComponent {
   }
 
   /**
-   * Returns the translation key for the item.
+   * Returns the raw value for translation (used with i18n pipe in template).
    * For custom-accessibility filters, returns the custom label format.
    */
   getTranslationKey(item: string): string {
@@ -80,6 +82,13 @@ export class SelectedTagsComponent {
     }
 
     return value;
+  }
+
+  /**
+   * Check if item is a license (uses configLabel pipe instead of translate)
+   */
+  isLicense(item: string): boolean {
+    return this.getFieldName(item) === facetKeysEnum.license;
   }
 
   getOriginalValue(item: string): string {

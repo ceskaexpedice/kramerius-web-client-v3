@@ -1,0 +1,66 @@
+.content-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  &--loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  &--not-found {
+    text-align: center;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.terms-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-x3);
+  padding: var(--spacing-x4) 0;
+  margin: var(--spacing-x2) 0;
+  border-top: 1px solid var(--color-border-bright);
+  border-bottom: 1px solid var(--color-border-bright);
+}
+
+:host ::ng-deep .content-page {
+
+  a {
+    color: var(--color-text-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  p {
+    margin: 0 0 1rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 1.5rem 0 0.75rem;
+    line-height: 1.25;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+    list-style: circle;
+  }
+
+  li {
+    margin: 0.25rem 0;
+  }
+}

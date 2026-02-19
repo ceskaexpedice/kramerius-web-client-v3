@@ -1,7 +1,7 @@
 <app-search-hero></app-search-hero>
 
 
-<ng-container *ngFor="let section of sections$ | async">
+<ng-container *ngFor="let section of sections">
     <app-periodicals-section *ngIf="section.type === 'periodicals'"></app-periodicals-section>
     <app-books-section *ngIf="section.type === 'books'"></app-books-section>
     <app-genres-section *ngIf="section.type === 'genres'"></app-genres-section>

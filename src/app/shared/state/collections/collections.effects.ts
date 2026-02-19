@@ -23,7 +23,7 @@ import { selectCollectionFacetOperators, selectCollectionFacets } from './collec
 import { DEFAULT_FACET_FIELDS } from '../../../modules/search-results-page/const/facet-fields';
 import {
   facetKeysEnum,
-  customDefinedFacets,
+  getCustomDefinedFacets,
 } from '../../../modules/search-results-page/const/facets';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
@@ -251,7 +251,7 @@ export class CollectionsEffects {
     const set = new Set<string>();
     visibleFilters.forEach(f => {
       if (f.isCustomDefined) {
-        const custom = customDefinedFacets.find(c => c.facetKey === f.facetKey);
+        const custom = getCustomDefinedFacets().find(c => c.facetKey === f.facetKey);
         if (custom && custom.solrFacetKeyForCount) {
           set.add(custom.solrFacetKeyForCount);
         }

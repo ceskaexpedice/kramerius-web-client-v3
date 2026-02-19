@@ -78,7 +78,13 @@
           class="p-left-0"
         ></mat-checkbox>
         <span class="facet-label">
-          <span class="facet-name">{{ item.name | translate }}</span>
+          <span class="facet-name">
+            @if (isLicenseFacet) {
+              {{ item.name | configLabel:'license' }}
+            } @else {
+              {{ item.name | translate }}
+            }
+          </span>
           <span class="facet-count">({{ item.count | formatNumber }})</span>
         </span>
       </label>

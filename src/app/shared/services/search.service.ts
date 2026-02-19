@@ -1,4 +1,4 @@
-import { computed, effect, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable } from '@angular/core';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute } from '@angular/router';
 import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
@@ -23,12 +23,20 @@ import { AdvancedSearchService } from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
+import { LibraryContextService } from './library-context.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SearchService extends BaseFilterService {
+  private libraryContext = inject(LibraryContextService);
   private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
+
+  private isOnSearchResultsRoute(): boolean {
+    const currentRoute = this.router.url.split('?')[0];
+    const prefix = this.libraryContext.getLibraryPrefix();
+    return currentRoute === `${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}`;
+  }
 
   // SearchService-specific properties
   private _activeFiltersSignal = toSignal(
@@ -158,8 +166,7 @@ export class SearchService extends BaseFilterService {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         // Only reload if we're on the search results page
-        const currentRoute = this.router.url.split('?')[0];
-        if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+        if (this.isOnSearchResultsRoute()) {
           this.reloadCurrentSearch();
         }
       });
@@ -174,8 +181,7 @@ export class SearchService extends BaseFilterService {
           previousPageSize = newPageSize;
           this._pageSize.set(newPageSize);
 
-          const currentRoute = this.router.url.split('?')[0];
-          if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+          if (this.isOnSearchResultsRoute()) {
             // Update URL and reload search with new page size
             this._page.set(1); // Reset to page 1 when page size changes
             this.router.navigate([], {
@@ -222,7 +228,7 @@ export class SearchService extends BaseFilterService {
       queryParams[`${facetKey}_operator`] = SolrOperators.or;
     }
 
-    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`]), {
       queryParams
     });
 
@@ -233,16 +239,18 @@ export class SearchService extends BaseFilterService {
     // redirect to the search results page with the query parameters
     this.initialize();
 
-    window.open(`/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`, '_self');
+    const prefix = this.libraryContext.getLibraryPrefix();
+    window.open(`${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`, '_self');
   }
 
   getRedirectUrl(url: string) {
-    return `/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`;
+    const prefix = this.libraryContext.getLibraryPrefix();
+    return `${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`;
   }
 
   search(query: string): void {
     //this.initialize();
-    this.router.navigate([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`], {
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`]), {
       queryParams: {
         query,
         page: this._page(),
@@ -280,8 +288,7 @@ export class SearchService extends BaseFilterService {
         return JSON.stringify(prevRelevant) === JSON.stringify(currRelevant);
       })
     ).subscribe(params => {
-      const currentRoute = this.router.url.split('?')[0];
-      if (currentRoute === `/${APP_ROUTES_ENUM.SEARCH_RESULTS}`) {
+      if (this.isOnSearchResultsRoute()) {
         this.customSearchService.initializeFromRoute();
 
         this.advancedSearchService.resetFromParams(params);

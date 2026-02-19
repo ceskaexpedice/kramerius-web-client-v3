@@ -20,6 +20,7 @@ import { Store } from '@ngrx/store';
 import { selectArticleDetail } from '../../shared/state/document-detail/document-detail.selectors';
 import { fromSolrToMetadata } from '../../shared/models/metadata.model';
 import { DocumentInfoService } from '../../shared/services/document-info.service';
+import {UserService} from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -40,6 +41,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public documentInfoService = inject(DocumentInfoService);
   public translate = inject(TranslateService);
   private store = inject(Store);
+  public userService = inject(UserService)
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
