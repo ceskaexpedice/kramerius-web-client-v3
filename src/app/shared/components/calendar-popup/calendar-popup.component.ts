@@ -223,64 +223,150 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
       opacity: 0.5;
     }
 
-    :host ::ng-deep .has-issue {
-      border-radius: 15%;
+    :host ::ng-deep .mat-calendar-content {
+      padding: 0 !important;
     }
 
-    /* Preselected date styling */
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date {
-      background-color: var(--color-primary) !important;
-      color: white !important;
+    :host ::ng-deep .mat-calendar-table {
+      width: 100%;
+      border-collapse: collapse;
     }
 
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date .mat-calendar-body-cell-content {
-      color: white !important;
+    :host ::ng-deep button {
+      padding: 8px 2px;
     }
 
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover {
-      background-color: var(--color-primary) !important;
+    :host ::ng-deep .mat-calendar-body-label {
+      visibility: hidden !important;
+      padding: 0 !important;
+      height: 0 !important;
+      line-height: 0 !important;
+      font-size: 0 !important;
     }
 
-    /* Single dot for single issue */
-    :host ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
-      content: '•';
-      position: absolute;
-      top: 65%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: calc(10px * var(--accessibility-text-scale));
-      line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+    :host ::ng-deep .mat-calendar-table-header th {
+      font-size: var(--font-size-small);
+      font-weight: 500;
+      color: var(--color-text-tertiary);
+      padding: var(--spacing-x2) 0;
+      text-align: center;
     }
 
-    /* Two dots for 2 issues */
+    :host ::ng-deep .mat-calendar-table-header-divider {
+      display: none;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell {
+      height: 90%;
+      width: 90%;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell-content {
+      font-size: var(--font-size-small) !important;
+      font-weight: 400;
+      color: var(--color-text-tertiary) !important;
+      border-radius: var(--spacing-x2) !important;
+      top: 7.5% !important;
+      left: 7.5% !important;
+      width: 85% !important;
+      height: 85% !important;
+      line-height: 1 !important;
+    }
+
+    :host ::ng-deep .has-issue .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-public-bg) !important;
+      color: var(--accessibility-public-text-color) !important;
+      border-radius: var(--spacing-x2) !important;
+      font-weight: 500;
+    }
+
+    :host ::ng-deep .has-issue.accessibility-private .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-private-bg) !important;
+      color: var(--accessibility-private-text-color) !important;
+    }
+
+    /* Issue count dots — on the cell so they don't move on hover */
     :host ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-2::after {
       content: '••';
       position: absolute;
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: calc(10px * var(--accessibility-text-scale));
+      font-size: calc(10px * var(--accessibility-text-scale, 1));
       line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+      color: var(--accessibility-public-text-color);
       letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    /* Three dots for 3+ issues */
     :host ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-3plus::after {
       content: '•••';
       position: absolute;
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: calc(10px * var(--accessibility-text-scale));
+      font-size: calc(10px * var(--accessibility-text-scale, 1));
       line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+      color: var(--accessibility-public-text-color);
       letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    /* Dots on preselected dates should be white for visibility */
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue::after {
+    :host ::ng-deep .mat-calendar-body-cell.has-issue.accessibility-private::after {
+      color: var(--accessibility-private-text-color) !important;
+    }
+
+    :host ::ng-deep .has-issue:hover .mat-calendar-body-cell-content {
+      filter: brightness(0.95);
+    }
+
+    :host ::ng-deep .mat-calendar-body-selected {
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-active > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      background-color: transparent !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+      background-color: var(--color-bg-light) !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    :host ::ng-deep .has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-public-bg) !important;
+      filter: brightness(0.95);
+    }
+
+    :host ::ng-deep .has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-private-bg) !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+      border-color: transparent !important;
+    }
+
+    /* Preselected date — fill the full cell */
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date .mat-calendar-body-cell-content {
+      background-color: var(--color-primary) !important;
+      color: white !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover .mat-calendar-body-cell-content {
+      background-color: var(--color-primary) !important;
+    }
+
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue .mat-calendar-body-cell-content::after {
       color: white !important;
     }
   `,
