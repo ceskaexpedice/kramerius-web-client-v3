@@ -2,98 +2,201 @@
 
 :host {
   display: block;
-  padding: 16px;
-}
-
-h2 {
-  margin-bottom: 16px;
-  text-align: center;
-  font-size: 1.5rem;
 }
 
 h3 {
-  padding-bottom: 15px;
+  padding-bottom: 0;
   text-align: left;
-  font-size: calc(20px * var(--accessibility-text-scale));
-  margin-top: 0;
-  border-bottom: 1px solid var(--color-border-bright);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  margin: 0;
+  border-bottom: none;
+  color: var(--color-text-btn-secondary-default);
 }
 
 .months-calendar-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--spacing-x4);
 
   .month-calendar {
-    border: 1px solid var(--color-border-bright);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 var(--spacing-x2) var(--spacing-x2);
     background-color: var(--color-bg-base);
+    border-radius: 8px;
 
-    /* Make the calendar smaller to fit in the grid */
+    // Calendar header (month name)
+    .month-header {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-x3) 0 var(--spacing-x3) var(--spacing-x2);
+      border-bottom: 1px solid var(--color-border-bright);
+    }
+
+    // Hide Material calendar's own header
+    ::ng-deep .mat-calendar-header {
+      display: none;
+    }
+
     ::ng-deep .mat-calendar {
       width: 100%;
       height: auto;
     }
 
-    /* Hide the header with month/year navigation */
-    ::ng-deep .mat-calendar-header {
+    ::ng-deep .mat-calendar-content {
+      padding: 0 !important;
+    }
+
+    ::ng-deep .mat-calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    ::ng-deep button {
+      padding: 8px 2px;
+    }
+
+    // Hide the first-row label that Material adds
+    ::ng-deep .mat-calendar-body-label {
+      visibility: hidden !important;
+      padding: 0 !important;
+      height: 0 !important;
+      line-height: 0 !important;
+      font-size: 0 !important;
+    }
+
+    // Day name headers (Po, Út, St...)
+    ::ng-deep .mat-calendar-table-header th {
+      font-size: var(--font-size-small);
+      font-weight: 500;
+      color: var(--color-text-tertiary);
+      padding: var(--spacing-x2) 0;
+      text-align: center;
+    }
+
+    // Remove the separator line under day names that Material adds
+    ::ng-deep .mat-calendar-table-header-divider {
       display: none;
     }
 
-    /* Make the day names fit better */
-    ::ng-deep .mat-calendar-table {
-      width: 100%;
-    }
-
-    /* Adjust calendar cells for better fit */
     ::ng-deep .mat-calendar-body-cell {
-      height: 32px;
-      width: 32px;
+      height: 90%;
+      width: 90%;
     }
 
-    /* Style for cells with issues */
-    //::ng-deep .mat-calendar-body-cell.has-issue {
-    //  position: relative;
-    //}
-
-    /* Single dot for single issue */
-    ::ng-deep .mat-calendar-body-cell.has-issue:not(.multiple-issues)::after {
-      content: '•';
-      position: absolute;
-      top: 65%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: calc(12px * var(--accessibility-text-scale));
-      line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+    // Calendar cells — use inset to create gaps between green tiles
+    ::ng-deep .mat-calendar-body-cell-content {
+      font-size: var(--font-size-small) !important;
+      font-weight: 400;
+      color: var(--color-text-tertiary) !important;
+      border-radius: var(--spacing-x2) !important;
+      // Inset from all sides to create gaps between adjacent cells
+      top: 7.5% !important;
+      left: 7.5% !important;
+      width: 85% !important;
+      height: 85% !important;
+      line-height: 1 !important;
     }
 
-    /* Two dots for 2 issues */
+    // Cells with issues — green background
+    ::ng-deep .has-issue .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-public-bg) !important;
+      color: var(--accessibility-public-text-color) !important;
+      border-radius: var(--spacing-x2) !important;
+      font-weight: 500;
+    }
+
+    // Cells with private/locked issues — amber background
+    ::ng-deep .has-issue.accessibility-private .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-private-bg) !important;
+      color: var(--accessibility-private-text-color) !important;
+    }
+
+    // Issue count dots — positioned on the cell (not cell-content) so they don't move on hover
     ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-2::after {
       content: '••';
       position: absolute;
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: calc(12px * var(--accessibility-text-scale));
+      font-size: calc(10px * var(--accessibility-text-scale, 1));
       line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+      color: var(--accessibility-public-text-color);
       letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    /* Three dots for 3+ issues */
     ::ng-deep .mat-calendar-body-cell.multiple-issues.issue-count-3plus::after {
       content: '•••';
       position: absolute;
       top: 65%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: calc(12px * var(--accessibility-text-scale));
+      font-size: calc(10px * var(--accessibility-text-scale, 1));
       line-height: 1;
-      color: var(--color-text-btn-tertiary-default);
+      color: var(--accessibility-public-text-color);
       letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 1;
     }
+
+    // Private issue dot color
+    ::ng-deep .mat-calendar-body-cell.has-issue.accessibility-private::after {
+      color: var(--accessibility-private-text-color) !important;
+    }
+
+    // Hover state for cells with issues
+    ::ng-deep .has-issue:hover .mat-calendar-body-cell-content {
+      filter: brightness(0.95);
+    }
+
+    // Remove Material's selected/active state styles
+    ::ng-deep .mat-calendar-body-selected {
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+
+    ::ng-deep .mat-calendar-body-active > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      background-color: transparent !important;
+    }
+
+    // Remove Material's hover preview background — expand to full cell on hover
+    ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+      background-color: var(--color-bg-light) !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    // For has-issue cells, keep their colored background on hover
+    ::ng-deep .has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-public-bg) !important;
+      filter: brightness(0.95);
+    }
+
+    ::ng-deep .has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: var(--accessibility-private-bg) !important;
+    }
+
+    // Remove Material's today indicator
+    ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+      border-color: transparent !important;
+    }
+  }
+}
+
+// Loading placeholder
+.month-loading-placeholder {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  .loading-content {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-small);
   }
 }
