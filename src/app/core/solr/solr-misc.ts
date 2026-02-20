@@ -84,6 +84,43 @@ export function getLicensesOrder(): string[] {
 }
 
 /**
+ * Sort licenses by priority order:
+ * 1. Open/public licenses (freely accessible)
+ * 2. Online licenses (accessible remotely, e.g. dnnto)
+ * 3. Terminal/onsite licenses (require physical presence)
+ * 4. Others (unknown licenses are placed at the end)
+ *
+ * Returns a new sorted array without modifying the original.
+ */
+export function sortLicenses(licenses: string[]): string[] {
+  if (!licenses || licenses.length <= 1) return [...licenses];
+
+  const order = getLicensesOrder();
+  return [...licenses].sort((a, b) => {
+    const ai = order.indexOf(a);
+    const bi = order.indexOf(b);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
+
+/**
+ * Select the primary license from a list of licenses based on priority:
+ * 1. Open/public licenses (freely accessible)
+ * 2. Online licenses (accessible remotely, e.g. dnnto)
+ * 3. Terminal/onsite licenses (require physical presence)
+ * 4. Others (in order of DEFAULT_LICENSES_ORDER, then unknown licenses)
+ *
+ * Returns the highest-priority license from the list, or null if empty.
+ */
+export function selectPrimaryLicense(licenses: string[]): string | null {
+  if (!licenses || licenses.length === 0) return null;
+  return sortLicenses(licenses)[0];
+}
+
+/**
  * Get all configured license IDs.
  * Returns all license keys from the config file.
  */
