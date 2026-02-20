@@ -498,5 +498,13 @@
   "libraries.error": "Nepodarilo sa načítať knižnice. Skúste to prosím znova.",
   "libraries.switching": "Prepínanie na {{name}}. Načítanie...",
   "libraries.cleared": "Prepísanie zrušené. Načítanie...",
-  "libraries.save-error": "Nepodarilo sa uložiť konfiguráciu."
+  "libraries.save-error": "Nepodarilo sa uložiť konfiguráciu.",
+  "toolbar.tooltip.info": "Informácie",
+  "toolbar.tooltip.favorites": "Pridať k obľúbeným",
+  "toolbar.tooltip.share": "Zdieľať",
+  "toolbar.tooltip.quote": "Citovať",
+  "toolbar.tooltip.delete": "Odstrániť",
+  "toolbar.tooltip.download": "Stiahnuť",
+  "toolbar.tooltip.edit": "Upraviť",
+  "toolbar.tooltip.select": "Vybrať"
 }

@@ -19,7 +19,8 @@
     [ngClass]="themeDefault ? 'outlined tertiary' : 'primary'"
     [class.disabled]="action.disabled"
     [disabled]="action.disabled"
-    [title]="action.tooltip"
+    [title]="action.tooltip | translate"
+    [appCdkTooltip]="action.tooltip | translate"
     [attr.aria-label]="action.label"
     (click)="onActionClick(action, $event)"
   >
