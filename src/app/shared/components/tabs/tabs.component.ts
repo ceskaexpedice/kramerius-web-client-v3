@@ -1,4 +1,4 @@
-import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, signal } from '@angular/core';
+import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { TabItemComponent } from './tab-item.component';
 import { NgTemplateOutlet } from '@angular/common';
 import { CdkTooltipDirective } from '../../directives';
@@ -12,7 +12,7 @@ import { CdkTooltipDirective } from '../../directives';
   templateUrl: './tabs.component.html',
   styleUrl: './tabs.component.scss'
 })
-export class TabsComponent {
+export class TabsComponent implements OnChanges {
 
   @Input() noPadding = false;
 
@@ -32,6 +32,14 @@ export class TabsComponent {
       } else {
         this.activeTabIndex.set(0);
         this.emitTabChange(this.tabs[0]);
+      }
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialTab'] && !changes['initialTab'].firstChange) {
+      if (this.tabs && this.tabs.length > 0 && this.initialTab) {
+        this.selectTabByIdOrLabel(this.initialTab);
       }
     }
   }

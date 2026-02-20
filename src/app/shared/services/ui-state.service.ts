@@ -21,7 +21,7 @@ export class UiStateService {
         this.metadataSidebarOpen.set(isOpen);
     }
 
-    setMetadataSidebarActiveTab(tab: string) {
+    setMetadataSidebarActiveTab(tab: string | null) {
         this.metadataSidebarActiveTab.set(tab);
     }
 

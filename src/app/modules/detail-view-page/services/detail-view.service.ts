@@ -135,6 +135,7 @@ export class DetailViewService {
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
     this.soundRecordingViewMode.set('records');
+    this.uiStateService.setMetadataSidebarActiveTab(null);
   }
 
   /**
@@ -233,6 +234,10 @@ export class DetailViewService {
 
   loadDocument() {
     this.store.dispatch(loadDocumentDetail({}));
+
+    if (this.uiStateService.metadataSidebarActiveTab() !== 'search') {
+      this.uiStateService.setMetadataSidebarActiveTab('description');
+    }
 
     this.document$.pipe(
       skip(1),
