@@ -1,13 +1,13 @@
-import {AppSettingsThemeEnum, Settings} from './settings.model';
-import {BehaviorSubject, Subject} from 'rxjs';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {inject, Injectable} from '@angular/core';
-import {SettingsDialogComponent} from '../../shared/dialogs/settings-dialog/settings-dialog.component';
-import {LocalStorageService} from '../../shared/services/local-storage.service';
-import {DisplayConfigService} from '../../shared/services/display-config.service';
-import {OPTIONAL_SOLR_FIELDS} from '../../modules/search-results-page/const/search-return-fields';
-import {BreakpointService} from '../../shared/services/breakpoint.service';
-import {Router} from '@angular/router';
+import { AppSettingsThemeEnum, Settings } from './settings.model';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { inject, Injectable } from '@angular/core';
+import { SettingsDialogComponent } from '../../shared/dialogs/settings-dialog/settings-dialog.component';
+import { LocalStorageService } from '../../shared/services/local-storage.service';
+import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { OPTIONAL_SOLR_FIELDS } from '../../modules/search-results-page/const/search-return-fields';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,9 @@ export class SettingsService {
   private _settings = new BehaviorSubject<Settings>(this.loadInitialSettings());
   settings$ = this._settings.asObservable();
 
+  private _effectiveTheme = new BehaviorSubject<'light' | 'dark'>('light');
+  effectiveTheme$ = this._effectiveTheme.asObservable();
+
   // Subject to emit reload events
   private _reloadSearchResults = new Subject<void>();
   reloadSearchResults$ = this._reloadSearchResults.asObservable();
@@ -27,11 +30,23 @@ export class SettingsService {
   private router = inject(Router);
 
   private currentDialogRef: MatDialogRef<SettingsDialogComponent> | null = null;
+  private mediaQueryListener?: (e: MediaQueryListEvent) => void;
+  private systemMediaQuery?: MediaQueryList;
 
   constructor(
     private dialog: MatDialog,
     private localStorage: LocalStorageService
   ) {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      this.systemMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      this.mediaQueryListener = (e: MediaQueryListEvent) => {
+        if (this.settings.theme === AppSettingsThemeEnum.SYSTEM) {
+          this.applyTheme(AppSettingsThemeEnum.SYSTEM);
+        }
+      };
+      this.systemMediaQuery.addEventListener('change', this.mediaQueryListener);
+    }
+
     this.applyTheme(this._settings.value.theme);
     this.displayConfigService.loadFromSettings(this._settings.value.displayConfig);
   }
@@ -205,9 +220,22 @@ export class SettingsService {
   }
 
   private applyTheme(theme: AppSettingsThemeEnum): void {
+    let effective: 'light' | 'dark';
+    if (theme === AppSettingsThemeEnum.SYSTEM) {
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } else {
+        effective = 'light';
+      }
+    } else {
+      effective = theme === AppSettingsThemeEnum.DARK ? 'dark' : 'light';
+    }
+
     const html = document.documentElement;
-    html.classList.remove('light', 'dark');
-    html.classList.add(theme.toLowerCase());
+    html.classList.remove('light', 'dark', 'system');
+    html.classList.add(effective);
+
+    this._effectiveTheme.next(effective);
   }
 
   public saveToStorage(settings: Settings): void {
@@ -221,7 +249,7 @@ export class SettingsService {
         const parsed = JSON.parse(saved);
         return new Settings(parsed.theme, parsed.searchResultsView, parsed.displayConfig);
       } catch (e) {
-        console.warn('⚠️ Could not parse settings from localStorage', e);
+        console.warn('Could not parse settings from localStorage', e);
       }
     }
 
