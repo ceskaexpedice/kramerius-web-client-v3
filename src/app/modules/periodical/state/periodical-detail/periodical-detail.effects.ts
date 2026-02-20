@@ -143,7 +143,7 @@ export class PeriodicalDetailEffects {
 
         if (data.model === DocumentTypeEnum.periodical) {
 
-          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
+          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, 10000, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
             shareReplay(1)
           );
 
