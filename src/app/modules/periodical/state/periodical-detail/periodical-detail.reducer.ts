@@ -80,7 +80,7 @@ export const periodicalDetailReducer = createReducer(
     document,
     metadata,
     years,
-    availableYears: availableYears.length > 0 ? availableYears : state.availableYears,
+    availableYears: availableYears ?? state.availableYears,
     children: children || []
   })),
   on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error })),
@@ -89,7 +89,7 @@ export const periodicalDetailReducer = createReducer(
     ...state,
     loading: false,
     children: children || [],
-    availableYears: availableYears && availableYears.length > 0 ? availableYears : state.availableYears,
+    availableYears: availableYears ?? state.availableYears,
   })),
   on(loadPeriodicalItemsFailure, (state, { error }) => ({ ...state, loading: false, error })),
   on(loadMonthIssues, (state, { year, month }) => {

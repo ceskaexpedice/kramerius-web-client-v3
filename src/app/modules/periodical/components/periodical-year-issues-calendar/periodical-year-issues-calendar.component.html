@@ -1,7 +1,9 @@
 <div class="months-calendar-container" *ngIf="shouldShowCalendars()">
   <div class="month-calendar" *ngFor="let month of months; let i = index"
     [class.month-placeholder]="!isMonthVisible(i)">
-    <h3>{{ monthNames[i] | translate }}</h3>
+    <div class="month-header">
+      <h3>{{ monthNames[i] | translate }}</h3>
+    </div>
 
     <!-- Show calendar if month is visible -->
     <mat-calendar *ngIf="isMonthVisible(i)" class="custom-label" [dateClass]="dateClass" [startAt]="getMonthDate(i)"

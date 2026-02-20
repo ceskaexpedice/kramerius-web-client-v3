@@ -1,8 +1,14 @@
+export interface FacetItemIcon {
+  icon: string;
+  iconClass?: string;
+}
+
 export interface FacetItem {
   name: string;
   count: number;
   icon?: string;
   iconClass?: string;
+  icons?: FacetItemIcon[];
   label?: string;
   available?: boolean;
   type?: 'radio' | 'checkbox';

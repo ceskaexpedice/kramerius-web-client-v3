@@ -55,22 +55,26 @@
       <div class="date-inputs-row">
         <div class="date-input-section">
           <app-input
-            [placeholder]="getFormattedDate(selectedDateFrom()) || 'DD.MM.YYYY'"
+            [placeholder]="'DD.MM.YYYY'"
             [label]="showDualCalendarMode ? ('period-from-label' | translate) : ('selected-day-label' | translate)"
             [size]="'sm'"
             [theme]="'dark'"
-            [readonly]="true"
+            [signalInput]="dateFromInput"
+            [readonly]="false"
+            (valueChange)="onDateFromInputChange($event.toString())"
           ></app-input>
         </div>
 
         @if (showDualCalendarMode) {
           <div class="date-input-section">
             <app-input
-              [placeholder]="getFormattedDate(selectedDateTo()) || 'DD.MM.YYYY'"
+              [placeholder]="'DD.MM.YYYY'"
               [label]="'period-to-label' | translate"
               [size]="'sm'"
               [theme]="'dark'"
-              [readonly]="true"
+              [signalInput]="dateToInput"
+              [readonly]="false"
+              (valueChange)="onDateToInputChange($event.toString())"
             ></app-input>
           </div>
         }

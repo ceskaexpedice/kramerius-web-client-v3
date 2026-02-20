@@ -105,15 +105,10 @@ export class AuthService {
     // Clear HTTP cache to prevent showing cached authenticated data
     clearSimpleCache();
 
-    // Set logout flag to prevent checkAuthStatus loop on reload
-    this.storage.set('intentional_logout', 'true');
-
-    // Always reload after logout to ensure clean state
-    console.log('AuthService: Performing logout reload...');
-    setTimeout(() => {
-      console.log('AuthService: Executing reload now');
-      window.location.reload();
-    }, 100);
+    // Redirect to backend logout endpoint which handles Keycloak logout
+    // and redirects back to the current page after logout completes
+    const redirectUri = encodeURIComponent(window.location.href);
+    window.location.href = `${this.API_URL}/auth/logout?redirect_uri=${redirectUri}`;
   }
 
   getAccessToken(): string | null {

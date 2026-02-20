@@ -68,3 +68,9 @@ a {
   color: #3C0200 !important;
   --accessibility-bg: #FDE5E4;
 }
+
+.accessibility-available {
+  //background-color: var(--accessibility-public-bg) !important;
+  color: var(--accessibility-public-text-color) !important;
+  --accessibility-bg: var(--accessibility-public-bg);
+}

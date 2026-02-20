@@ -393,7 +393,7 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
+  searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 180, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
     includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
     console.log('solr search periodicals')
@@ -905,7 +905,7 @@ export class SolrService {
     pid: string,
     filters: string[] = [],
     page = 0,
-    pageCount = 60,
+    pageCount = 10000,
     sortBy: SolrSortFields = SolrSortFields.dateMin,
     sortDirection: SolrSortDirections = SolrSortDirections.asc,
     advancedQuery?: string,

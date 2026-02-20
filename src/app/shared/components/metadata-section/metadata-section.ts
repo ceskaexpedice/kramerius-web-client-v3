@@ -41,6 +41,15 @@ export class MetadataSection implements OnInit, OnChanges {
   private _articleData = signal<Metadata | null>(null);
   get articleData() { return this._articleData(); }
 
+  private _childData = signal<Metadata | null>(null);
+  get childData() { return this._childData(); }
+
+  childExpanded = signal(true);
+
+  toggleChild() {
+    this.childExpanded.update(v => !v);
+  }
+
   articleExpanded = signal(true);
 
   toggleArticle() {
@@ -115,8 +124,33 @@ export class MetadataSection implements OnInit, OnChanges {
 
     let baseMods: any = { ...modsData };
 
-
-
+    // If the document has a root.pid different from its own pid (e.g. periodicalvolume, periodicalitem),
+    // show the root's MODS as the primary data and the child's own MODS in a subsection
+    const rootPid = solrData?.rootPid;
+    if (rootPid && rootPid !== this.uuid) {
+      try {
+        const rootMods = await this.modsParser.getMods(rootPid);
+        if (rootMods) {
+          // Save the child's own MODS for the subsection only if it has displayable data
+          const child = modsData as any;
+          const hasChildData = child && (
+            child.dateStr ||
+            child.authors?.length > 0 ||
+            child.languages?.length > 0 ||
+            child.locations?.length > 0 ||
+            child.notes?.length > 0
+          );
+          this._childData.set(hasChildData ? child : null);
+          // Use root MODS as primary, fill any gaps from child
+          baseMods = { ...rootMods };
+          this.mergeMissing(baseMods, modsData as any);
+        }
+      } catch (e) {
+        console.warn('MetadataSection: failed to load root MODS for', rootPid, e);
+      }
+    } else {
+      this._childData.set(null);
+    }
 
 
     if (this.metadata) {
