@@ -497,5 +497,13 @@
   "libraries.error": "Nie udało się załadować bibliotek. Spróbuj ponownie później.",
   "libraries.switching": "Przełączanie na {{name}}. Ładowanie...",
   "libraries.cleared": "Nadpisanie wyczyszczone. Ładowanie...",
-  "libraries.save-error": "Nie udało się zapisać konfiguracji."
+  "libraries.save-error": "Nie udało się zapisać konfiguracji.",
+  "toolbar.tooltip.info": "Informacje",
+  "toolbar.tooltip.favorites": "Dodaj do ulubionych",
+  "toolbar.tooltip.share": "Udostępnij",
+  "toolbar.tooltip.quote": "Cytuj",
+  "toolbar.tooltip.delete": "Usuń",
+  "toolbar.tooltip.download": "Pobierz",
+  "toolbar.tooltip.edit": "Edytuj",
+  "toolbar.tooltip.select": "Wybierz"
 }

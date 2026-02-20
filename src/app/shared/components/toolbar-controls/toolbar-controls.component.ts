@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effec
 import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../services/user.service';
+import {CdkTooltipDirective} from '../../directives';
 
 export type CalendarGridControl = 'timeline' | 'grid' | 'calendar' | 'cards';
 export type SoundRecordGridControl = 'records' | 'images';
@@ -33,6 +34,7 @@ export interface ToolbarActionEvent {
     NgForOf,
     TranslatePipe,
     NgClass,
+    CdkTooltipDirective,
   ],
   templateUrl: './toolbar-controls.component.html',
   styleUrl: './toolbar-controls.component.scss'
@@ -98,29 +100,29 @@ export class ToolbarControlsComponent implements OnChanges {
     const legacyActions: ToolbarAction[] = [];
 
     if (this.showInfo) {
-      legacyActions.push({ id: 'info', icon: 'icon-info', tooltip: 'Information', label: 'Info' });
+      legacyActions.push({ id: 'info', icon: 'icon-info', tooltip: 'toolbar.tooltip.info', label: 'Info' });
     }
     if (this.showFavorites) {
-      legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'Add to Favorites', label: 'Favorites' });
+      legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'toolbar.tooltip.favorites', label: 'Favorites' });
     }
     if (this.showShare) {
-      legacyActions.push({ id: 'share', icon: 'icon-send-2', tooltip: 'Share', label: 'Share' });
+      legacyActions.push({ id: 'share', icon: 'icon-send-2', tooltip: 'toolbar.tooltip.share', label: 'Share' });
     }
     if (this.showQuote) {
-      legacyActions.push({ id: 'quote', icon: 'icon-quote-down', tooltip: 'Quote', label: 'Quote' });
+      legacyActions.push({ id: 'quote', icon: 'icon-quote-down', tooltip: 'toolbar.tooltip.quote', label: 'Quote' });
     }
     if (this.showDelete) {
-      legacyActions.push({ id: 'delete', icon: 'icon-trash', tooltip: 'Delete', label: 'Delete' });
+      legacyActions.push({ id: 'delete', icon: 'icon-trash', tooltip: 'toolbar.tooltip.delete', label: 'Delete' });
     }
     if (this.showDownload) {
-      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'Download', label: 'Download' });
+      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'toolbar.tooltip.download', label: 'Download' });
     }
     if (this.showEdit) {
-      legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'Edit', label: 'Edit' });
+      legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.edit', label: 'Edit' });
     }
 
     if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
-      legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'Select', disabled: false, label: 'Select' });
+      legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.select', disabled: false, label: 'Select' });
     }
 
     // Combine both sets of actions

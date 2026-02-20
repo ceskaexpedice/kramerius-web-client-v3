@@ -499,5 +499,13 @@
   "libraries.error": "Nepodařilo se načíst knihovny. Zkuste to prosím znovu.",
   "libraries.switching": "Přepínání na {{name}}. Načítání...",
   "libraries.cleared": "Přepsání zrušeno. Načítání...",
-  "libraries.save-error": "Nepodařilo se uložit konfiguraci."
+  "libraries.save-error": "Nepodařilo se uložit konfiguraci.",
+  "toolbar.tooltip.info": "Informace",
+  "toolbar.tooltip.favorites": "Přidat k oblíbeným",
+  "toolbar.tooltip.share": "Sdílet",
+  "toolbar.tooltip.quote": "Citovat",
+  "toolbar.tooltip.delete": "Smazat",
+  "toolbar.tooltip.download": "Stáhnout",
+  "toolbar.tooltip.edit": "Upravit",
+  "toolbar.tooltip.select": "Vybrat"
 }

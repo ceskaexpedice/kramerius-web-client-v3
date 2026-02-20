@@ -506,5 +506,13 @@
   "libraries.error": "Failed to load libraries. Please try again later.",
   "libraries.switching": "Switching to {{name}}. Reloading...",
   "libraries.cleared": "Override cleared. Reloading...",
-  "libraries.save-error": "Failed to save configuration."
+  "libraries.save-error": "Failed to save configuration.",
+  "toolbar.tooltip.info": "Information",
+  "toolbar.tooltip.favorites": "Add to Favorites",
+  "toolbar.tooltip.share": "Share",
+  "toolbar.tooltip.quote": "Quote",
+  "toolbar.tooltip.delete": "Delete",
+  "toolbar.tooltip.download": "Download",
+  "toolbar.tooltip.edit": "Edit",
+  "toolbar.tooltip.select": "Select"
 }
