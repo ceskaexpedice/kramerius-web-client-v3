@@ -21,11 +21,20 @@ import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selecto
 import {FormsModule} from '@angular/forms';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {ClickOutsideDirective} from '../../directives/click-outside';
+import {DateAdapter, MAT_DATE_LOCALE, NativeDateAdapter} from '@angular/material/core';
+import {Platform} from '@angular/cdk/platform';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 export interface DatePickerOutput {
   dateFrom: Date;
   offset: number;
   dateTo: Date;
+}
+
+class MondayFirstNativeDateAdapter extends NativeDateAdapter {
+  override getFirstDayOfWeek(): number {
+    return 1; // Monday
+  }
 }
 
 @Component({
@@ -41,7 +50,20 @@ export interface DatePickerOutput {
     ClickOutsideDirective,
   ],
   templateUrl: './date-picker.component.html',
-  styleUrl: './date-picker.component.scss'
+  styleUrl: './date-picker.component.scss',
+  providers: [
+    {
+      provide: DateAdapter,
+      useClass: MondayFirstNativeDateAdapter,
+      deps: [MAT_DATE_LOCALE, Platform],
+    },
+    {
+      provide: MAT_DATE_LOCALE,
+      useFactory: () => {
+        return typeof navigator !== 'undefined' ? navigator.language : 'en';
+      },
+    },
+  ],
 })
 export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked {
 
@@ -88,9 +110,24 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
+  private dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
 
   ngOnInit() {
     this.updateFromInitialValues();
+
+    const applyLocaleFromTranslate = () => {
+      const lang = this.translate.getCurrentLang() || this.translate.getDefaultLang();
+      if (lang) {
+        this.dateAdapter.setLocale(lang);
+        this.forceCalendarRefresh();
+      }
+    };
+
+    applyLocaleFromTranslate();
+
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => applyLocaleFromTranslate());
   }
 
   ngAfterViewChecked() {
