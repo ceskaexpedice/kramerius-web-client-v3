@@ -173,7 +173,7 @@
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
-          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.isLoggedIn) {
+          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.userSession?.authenticated) {
           <div class="dnnto-bar">
             <span class="dnnto-bar--title">
               <img src="/img/logo/dnnt-logo.png" alt="DNNT logo">
