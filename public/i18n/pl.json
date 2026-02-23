@@ -11,6 +11,7 @@
   "subject_names_corporate.facet": "Nazwy podmiotów korporacyjnych",
   "subject_temporals.facet": "Chronologiczne nazwy podmiotów",
   "show-more": "Pokaż więcej",
+  "more-tags": "+ {{count}} więcej",
   "show-less": "Pokaż mniej",
   "results": "Wyniki",
   "delete-all": "Usuń wszystko",

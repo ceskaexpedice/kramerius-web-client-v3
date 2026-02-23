@@ -11,6 +11,7 @@
   "subject_names_corporate.facet": "Korporátne predmetové heslá",
   "subject_temporals.facet": "Chronologické predmetové heslá",
   "show-more": "Zobraziť viac",
+  "more-tags": "+ {{count}} ďalších",
   "show-less": "Zobraziť menej",
   "results": "Výsledky",
   "delete-all": "Zmazať všetko",

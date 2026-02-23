@@ -1,9 +1,10 @@
 <div class="selected-tags" *ngIf="items.length > 0"
   [class.text-first-letter-capitalize]="textTransform === 'capitalize'">
   <mat-chip-set>
-    <button *ngIf="clearButtonPosition === 'left' && showClearAll" mat-button
-      class="clear-button clear-button-secondary" (click)="clearAll.emit()">
+    <button *ngIf="clearButtonPosition === 'left' && showClearAll" mat-button class="clear-button clear-button-primary"
+      (click)="clearAll.emit()">
       {{'delete-all' | translate}}
+      <i class="icon-trash"></i>
     </button>
 
     <ng-container *ngFor="let field of uniqueFields">
@@ -30,16 +31,16 @@
           <ng-container *ngIf="translateItems; else rawValue">
             <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
               @if (isLicense(item)) {
-                {{ getValue(item) | configLabel:'license' }}
+              {{ getValue(item) | configLabel:'license' }}
               } @else {
-                {{ getTranslationKey(item) | translate }}
+              {{ getTranslationKey(item) | translate }}
               }
             </label>
             <ng-template #valueOnly>
               @if (isLicense(item)) {
-                {{ getValue(item) | configLabel:'license' }}
+              {{ getValue(item) | configLabel:'license' }}
               } @else {
-                {{ getTranslationKey(item) | translate }}
+              {{ getTranslationKey(item) | translate }}
               }
             </ng-template>
           </ng-container>
@@ -60,6 +61,15 @@
       </ng-container>
 
     </ng-container>
+
+    <mat-chip *ngIf="enableClamping && hiddenCount > 0 && !isExpanded" class="more-chip" (click)="isExpanded = true">
+      <label>{{ 'more-tags' | translate: {count: hiddenCount} }}</label>
+    </mat-chip>
+
+    <mat-chip *ngIf="enableClamping && enableCollapse && isExpanded && items.length > maxVisibleTags" class="more-chip"
+      (click)="isExpanded = false">
+      <label>{{ 'show-less' | translate }}</label>
+    </mat-chip>
 
     <button *ngIf="clearButtonPosition === 'right' && showClearAll" mat-button class="clear-button clear-button-primary"
       (click)="clearAll.emit()">

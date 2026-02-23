@@ -12,6 +12,7 @@
   "subject_names_corporate.facet": "Corporate subject names",
   "subject_temporals.facet": "Chronological subject names",
   "show-more": "Show more",
+  "more-tags": "+ {{count}} more",
   "show-less": "Show less",
   "results": "Results",
   "delete-all": "Delete all",

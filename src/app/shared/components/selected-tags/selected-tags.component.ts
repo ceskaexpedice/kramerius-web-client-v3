@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
-import {MatChip, MatChipsModule} from '@angular/material/chips';
-import {MatButton} from '@angular/material/button';
-import {TranslatePipe} from '@ngx-translate/core';
-import {MatTooltip} from '@angular/material/tooltip';
-import {customDefinedFacetsEnum, facetKeysEnum} from '../../../modules/search-results-page/const/facets';
-import {ConfigLabelPipe} from '../../pipes/config-label.pipe';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { MatChip, MatChipsModule } from '@angular/material/chips';
+import { MatButton } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
+import { MatTooltip } from '@angular/material/tooltip';
+import { customDefinedFacetsEnum, facetKeysEnum } from '../../../modules/search-results-page/const/facets';
+import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
 
 @Component({
   selector: 'app-selected-tags',
@@ -32,14 +32,30 @@ export class SelectedTagsComponent {
   @Input() maxTagLength: number = 30;
   @Input() showClearAll = true;
   @Input() textTransform: 'none' | 'uppercase' | 'lowercase' | 'capitalize' = 'none';
+  @Input() maxVisibleTags: number = 10;
+  @Input() enableClamping: boolean = false;
+  @Input() enableCollapse: boolean = false;
+
+  isExpanded = false;
 
   @Output() remove = new EventEmitter<string>();
   @Output() removeGroup = new EventEmitter<string>();
   @Output() clearAll = new EventEmitter<void>();
 
+  get displayedItems(): string[] {
+    if (!this.enableClamping) {
+      return this.items;
+    }
+    return this.isExpanded ? this.items : this.items.slice(0, this.maxVisibleTags);
+  }
+
+  get hiddenCount(): number {
+    return this.items.length - this.displayedItems.length;
+  }
+
   get uniqueFields(): string[] {
     const fields = new Set<string>();
-    this.items.forEach(item => {
+    this.displayedItems.forEach(item => {
       const field = this.getFieldName(item);
       fields.add(field);
     });
@@ -51,7 +67,7 @@ export class SelectedTagsComponent {
   }
 
   getItemsForField(field: string): string[] {
-    return this.items.filter(item => this.getFieldName(item) === field);
+    return this.displayedItems.filter(item => this.getFieldName(item) === field);
   }
 
   getOperatorForField(field: string): string | null {
