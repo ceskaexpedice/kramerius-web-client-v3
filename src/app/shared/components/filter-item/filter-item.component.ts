@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
 import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
@@ -10,7 +10,6 @@ import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
   selector: 'app-filter-item',
   imports: [
     MatCheckbox,
-    NgIf,
     NgClass,
     FormatNumberPipe,
     TranslatePipe,

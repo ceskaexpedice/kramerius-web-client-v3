@@ -183,14 +183,14 @@
             @if (userService.userSession) {
               <span>
                   {{ userService.getFormattedExpiration() }}
-                | {{ userService.userSession?.email }}
+                | {{ userService.userSession.email }}
 </span>            }
           </div>
           }
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
-          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
+<!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
 
           <!-- Show access denied after access check completes and fails -->
           @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {

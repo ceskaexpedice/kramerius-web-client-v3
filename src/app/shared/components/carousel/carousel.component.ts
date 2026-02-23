@@ -30,6 +30,7 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.checkScrollState();
+    this.cdr.detectChanges();
 
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
