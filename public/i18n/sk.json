@@ -113,6 +113,7 @@
   "custom-where-to-search.model": "Kde hľadať",
   "titles": "Tituly",
   "search-in-document--placeholder": "Hľadať na stránkach",
+  "alto-unavailable-error": "Tento dokument nemá k dispozícii rozšírené OCR dáta (ALTO). Preto nie je možné zvýrazniť hľadaný text. Nejde o chybu, ale o starší spôsob digitalizácie.",
   "sound-records--toggle": "Nahrávky",
   "images--toggle": "Obrázky",
   "track-list-table--title": "Názov",

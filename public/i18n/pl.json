@@ -113,6 +113,7 @@
   "custom-where-to-search.model": "Gdzie szukać",
   "titles": "Tytuły",
   "search-in-document--placeholder": "Szukaj na stronach",
+  "alto-unavailable-error": "Ten dokument nie posiada rozszerzonych danych OCR (ALTO). Dlatego nie jest możliwe podświetlenie szukanego tekstu. Nie jest to błąd, lecz starsza metoda digitalizacji.",
   "sound-records--toggle": "Nagrania",
   "images--toggle": "Obrazy",
   "track-list-table--title": "Tytuł",

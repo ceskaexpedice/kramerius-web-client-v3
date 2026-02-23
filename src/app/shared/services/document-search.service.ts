@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { SolrService } from '../../core/solr/solr.service';
@@ -34,6 +34,7 @@ export class DocumentSearchService {
   public currentMatchedPageIndex$ = this.currentMatchedPageIndexSubject.asObservable();
 
   isCaseSensitive: boolean = false;
+  altoUnavailable = signal(false);
   private allMatchedPages: string[] = [];
   private suggestionToPidMap = new Map<string, string>();
   private hasRestoredSearch = false;
@@ -142,6 +143,7 @@ export class DocumentSearchService {
     this.allMatchedPages = [];
     this.currentMatchedPageIndexSubject.next(0);
     this.searchResultsSubject.next([]);
+    this.altoUnavailable.set(false);
     this.detailViewService.setFulltextParam(null);
   }
 
@@ -371,6 +373,7 @@ export class DocumentSearchService {
     this.iiifViewerService.setSearchQuery(searchTerm);
     this.altoService.fetchAltoXml(pid).subscribe({
       next: (altoXml) => {
+        this.altoUnavailable.set(false);
         const count = this.iiifViewerService.displaySearchHighlights(altoXml, searchTerm);
         if (count > 0) {
           console.log(`Successfully displayed ${count} search result rectangles on this page`);
@@ -382,6 +385,7 @@ export class DocumentSearchService {
       },
       error: (error) => {
         console.error('Error fetching ALTO XML for PID:', pid, error);
+        this.altoUnavailable.set(true);
       }
     });
   }

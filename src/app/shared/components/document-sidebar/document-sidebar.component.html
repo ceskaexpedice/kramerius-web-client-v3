@@ -1,24 +1,30 @@
 <div class="document-sidebar">
   <div class="sidebar--wrapper">
-    <app-autocomplete
-      [placeholder]="'search-in-document--placeholder' | translate"
-      [inputTheme]="'dark'"
-      [size]="'sm'"
-      [showMicrophoneButton]="false"
-      [showHelpButton]="false"
-      [showHistorySuggestions]="false"
-      [showCaseSensitiveButton]="true"
-      [showSubmitButton]="false"
-      [showClearButton]="true"
-      [minTermLength]="2"
-      [isCaseSensitive]="documentSearchService.isCaseSensitive"
-      [getSuggestions]="getSuggestionsFn"
-      [inputTerm]="searchTerm"
-      (onCaseSensitiveEvent)="caseSensitiveChanged()"
-      (suggestionSelected)="onSuggestionSelected($event)"
-      (search)="onSearch($event)"
-      (onClearEvent)="onAutocompleteClear()"
-    ></app-autocomplete>
+    <div class="search-input-group">
+      <app-autocomplete
+        [placeholder]="'search-in-document--placeholder' | translate"
+        [inputTheme]="'dark'"
+        [size]="'sm'"
+        [showMicrophoneButton]="false"
+        [showHelpButton]="false"
+        [showHistorySuggestions]="false"
+        [showCaseSensitiveButton]="true"
+        [showSubmitButton]="false"
+        [showClearButton]="true"
+        [minTermLength]="2"
+        [isCaseSensitive]="documentSearchService.isCaseSensitive"
+        [getSuggestions]="getSuggestionsFn"
+        [inputTerm]="searchTerm"
+        (onCaseSensitiveEvent)="caseSensitiveChanged()"
+        (suggestionSelected)="onSuggestionSelected($event)"
+        (search)="onSearch($event)"
+        (onClearEvent)="onAutocompleteClear()"
+      ></app-autocomplete>
+
+      @if (documentSearchService.altoUnavailable()) {
+        <p class="alto-unavailable-error">{{ 'alto-unavailable-error' | translate }}</p>
+      }
+    </div>
 
     @if (iiifViewerService.searchQuery$ | async) {
       <app-search-navigation
