@@ -81,11 +81,14 @@ export class ContentPageComponent implements OnInit {
   }
 
   private scrollToFragment(): void {
-    const fragment = this.route.snapshot.fragment;
-    if (!fragment) return;
+    const rawFragment = this.route.snapshot.fragment;
+    if (!rawFragment) return;
+
+    // Fragment may include query string if URL is formatted as #fragment?query=...
+    const fragment = rawFragment.split('?')[0];
 
     setTimeout(() => {
       document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
-    });
+    }, 100);
   }
 }
