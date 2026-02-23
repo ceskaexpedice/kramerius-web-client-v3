@@ -125,6 +125,7 @@ export class Author {
   public type: string = '';
   public usage: string = '';
   public name: string = '';
+  public nameForFilter: string = '';
   public date: string = '';
   public roles: string[] = [];
   public primary: boolean = false;

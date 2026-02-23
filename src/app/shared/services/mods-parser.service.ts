@@ -292,6 +292,7 @@ export class ModsParserService {
     if (name !== '') {
       author.name = name;
     }
+    author.nameForFilter = author.name;
     if (termsOfAddress) {
       if (author.name !== '') {
         author.name += ' ';
