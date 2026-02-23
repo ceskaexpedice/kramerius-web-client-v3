@@ -6,13 +6,10 @@ import { ConfigService } from '../../core/config';
 import { AppMissingTranslationService } from './app-missing-translation-handler';
 import { HttpBackend } from '@angular/common/http';
 import { HttpLoaderFactory } from './translate-http-loader';
+import { LANG_FALLBACK_CHAIN, DEFAULT_LANG_FALLBACK } from './translation-fallback-chain';
 
-const FALLBACK_CHAIN: Record<string, string[]> = {
-  sk: ['cs', 'en'],
-  cs: ['en'],
-};
-
-const DEFAULT_FALLBACK = ['en'];
+const FALLBACK_CHAIN = LANG_FALLBACK_CHAIN;
+const DEFAULT_FALLBACK = DEFAULT_LANG_FALLBACK;
 
 @Injectable({
   providedIn: 'root'

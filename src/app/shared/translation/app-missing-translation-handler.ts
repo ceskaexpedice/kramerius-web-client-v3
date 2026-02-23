@@ -1,18 +1,9 @@
 import { MissingTranslationHandler, MissingTranslationHandlerParams } from '@ngx-translate/core';
 import { Injectable } from '@angular/core';
+import { LANG_FALLBACK_CHAIN, DEFAULT_LANG_FALLBACK } from './translation-fallback-chain';
 
-/**
- * Fallback chain per language.
- * sk → cs → en
- * cs → en
- * All others → en
- */
-const FALLBACK_CHAIN: Record<string, string[]> = {
-	sk: ['cs', 'en'],
-	cs: ['en'],
-};
-
-const DEFAULT_FALLBACK = ['en'];
+const FALLBACK_CHAIN = LANG_FALLBACK_CHAIN;
+const DEFAULT_FALLBACK = DEFAULT_LANG_FALLBACK;
 
 @Injectable()
 export class AppMissingTranslationService extends MissingTranslationHandler {
