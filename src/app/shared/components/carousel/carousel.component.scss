@@ -55,3 +55,8 @@
   padding-left: var(--search-page-padding);
   padding-right: var(--search-page-padding);
 }
+
+:host ::ng-deep app-record-item .record-item-card .record-item-card__inner {
+  padding: var(--spacing-x3) !important;
+  gap: var(--spacing-x3) !important;
+}
