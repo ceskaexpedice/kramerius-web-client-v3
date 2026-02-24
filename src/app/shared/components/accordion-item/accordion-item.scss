@@ -26,12 +26,12 @@
     }
 
     .accordion-item__title {
-      color: var(--text-base, #0a0d10);
+      color: var(--color-text-base);
     }
   }
 
   &:not(.accordion-item--open) {
-    border-bottom: 1px solid var(--border-bright, #dfe5ec);
+    border-bottom: 1px solid var(--color-border-bright);
 
     .accordion-item__header {
       padding: var(--spacing-x3) var(--spacing-x4);
