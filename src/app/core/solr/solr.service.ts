@@ -812,6 +812,24 @@ export class SolrService {
     );
   }
 
+  /**
+   * Gets pages that are foster children of the given article PID.
+   * Used to find the page to display when navigating to an article.
+   */
+  getPagesByFosterParent(articlePid: string): Observable<any[]> {
+    const params = new HttpParams({
+      fromObject: {
+        q: `foster_parents.pids:"${articlePid}"`,
+        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement',
+        sort: 'rels_ext_index.sort asc',
+        rows: '4000',
+      }
+    });
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => res.response?.docs ?? [])
+    );
+  }
+
   getDocumentsByPids(pids: string[]): Observable<any[]> {
     if (!pids || pids.length === 0) {
       return new Observable(obs => {
