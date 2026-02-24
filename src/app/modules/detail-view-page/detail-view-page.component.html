@@ -105,10 +105,10 @@
         <!-- Show tabs when document has articles -->
         @if (hasArticles && hasPages) {
           <app-tabs [noPadding]="true">
-            <app-tab-item [label]="'pages' | translate">
+            <app-tab-item [label]="'pages--tab' | translate">
               <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
             </app-tab-item>
-            <app-tab-item [label]="'articles' | translate">
+            <app-tab-item [label]="'articles--tab' | translate">
               <div class="sidebar--wrapper">
                 <div class="sidebar--wrapper--scroll-content">
                   <app-detail-articles-list></app-detail-articles-list>

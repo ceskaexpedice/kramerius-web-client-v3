@@ -507,5 +507,7 @@
   "toolbar.tooltip.delete": "Usuń",
   "toolbar.tooltip.download": "Pobierz",
   "toolbar.tooltip.edit": "Edytuj",
-  "toolbar.tooltip.select": "Wybierz"
+  "toolbar.tooltip.select": "Wybierz",
+  "pages--tab": "Strony",
+  "articles--tab": "Artykuły"
 }

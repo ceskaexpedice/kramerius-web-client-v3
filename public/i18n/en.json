@@ -516,5 +516,7 @@
   "toolbar.tooltip.delete": "Delete",
   "toolbar.tooltip.download": "Download",
   "toolbar.tooltip.edit": "Edit",
-  "toolbar.tooltip.select": "Select"
+  "toolbar.tooltip.select": "Select",
+  "pages--tab": "Pages",
+  "articles--tab": "Articles"
 }

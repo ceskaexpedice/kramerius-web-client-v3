@@ -508,5 +508,7 @@
   "toolbar.tooltip.delete": "Odstrániť",
   "toolbar.tooltip.download": "Stiahnuť",
   "toolbar.tooltip.edit": "Upraviť",
-  "toolbar.tooltip.select": "Vybrať"
+  "toolbar.tooltip.select": "Vybrať",
+  "pages--tab": "Strany",
+  "articles--tab": "Články"
 }

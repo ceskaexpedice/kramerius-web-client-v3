@@ -509,5 +509,7 @@
   "toolbar.tooltip.delete": "Smazat",
   "toolbar.tooltip.download": "Stáhnout",
   "toolbar.tooltip.edit": "Upravit",
-  "toolbar.tooltip.select": "Vybrat"
+  "toolbar.tooltip.select": "Vybrat",
+  "pages--tab": "Strany",
+  "articles--tab": "Články"
 }
