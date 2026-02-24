@@ -46,10 +46,10 @@
   }
 
   .record-item-card__inner {
-    padding: var(--spacing-x4);
+    padding: var(--spacing-x2);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x4);
+    gap: var(--spacing-x2);
     flex: 1;
     overflow: hidden;
     box-sizing: border-box;
@@ -183,7 +183,7 @@
   .record-item-card__content {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x2);
+    gap: var(--spacing-x1);
     color: var(--color-text-base);
     min-height: 0;
     overflow: hidden;
