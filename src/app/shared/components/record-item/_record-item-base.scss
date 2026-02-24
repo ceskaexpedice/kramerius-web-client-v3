@@ -12,7 +12,7 @@
 
   width: 100%;
   max-width: 100%;
-  min-width: calc(var(--card-min-width) * var(--accessibility-text-scale));
+  min-width: 0;
   min-height: 100%;
   box-sizing: border-box;
 
@@ -53,6 +53,7 @@
     flex: 1;
     overflow: hidden;
     box-sizing: border-box;
+    min-width: 0;
   }
 
   .record-item-card__image {
