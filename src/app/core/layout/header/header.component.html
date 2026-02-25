@@ -1,4 +1,4 @@
-<header class="app-header" [ngClass]="headerType">
+<header class="app-header" [ngClass]="[headerType, isSearchResultsPage ? 'search-results' : '']">
 
   <div class="app-header__left">
 
@@ -12,7 +12,7 @@
 
   <div *ngIf="showSearchBar" class="search-bar" [class.mobile-search-active]="isMobileSearchOpen">
 
-    <app-autocomplete [inputTheme]="'dark'" [placeholder]="autocompletePlaceholder | translate" [minTermLength]="2"
+    <app-autocomplete [size]="'sm'" [inputTheme]="'dark'" [placeholder]="autocompletePlaceholder | translate" [minTermLength]="2"
       [initialValue]="autocompleteService.searchTerm()" [getSuggestions]="autocompleteService.getSuggestionsFn"
       [showHelpButton]="false" [showMicrophoneButton]="false" (search)="autocompleteService.onSearch($event)"
       (submit)="autocompleteService.onSubmit($event)" [inputTerm]="autocompleteService.searchTerm"

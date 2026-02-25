@@ -136,6 +136,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return urlWithoutParams !== '/';
   }
 
+  get isSearchResultsPage(): boolean {
+    const urlWithoutParams = this.router.url.split('?')[0];
+    return urlWithoutParams.endsWith(`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`);
+  }
+
   get isOnCollectionRoute(): boolean {
     return this.router.url.includes(`/${APP_ROUTES_ENUM.COLLECTION}/`);
   }

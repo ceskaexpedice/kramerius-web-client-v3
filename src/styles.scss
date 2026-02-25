@@ -38,6 +38,15 @@ body {
 
 :root {
   --header-height: 71px;
+  --sidebar-width: 0px;
+
+  @media (min-width: 854px) and (max-width: 1279px) {
+    --sidebar-width: 240px;
+  }
+
+  @media (min-width: 1280px) {
+    --sidebar-width: 300px;
+  }
 }
 
 app-header {

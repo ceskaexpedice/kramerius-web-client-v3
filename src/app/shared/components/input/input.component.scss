@@ -33,7 +33,7 @@
     }
 
     &.md input {
-      padding: 14px;
+      padding: var(--spacing-x2);
     }
 
     &.sm input {
