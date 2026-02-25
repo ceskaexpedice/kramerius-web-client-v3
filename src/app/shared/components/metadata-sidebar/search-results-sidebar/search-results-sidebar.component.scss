@@ -42,7 +42,7 @@
     padding: var(--spacing-x2);
 
     app-record-item {
-      display: block;
+      display: initial;
     }
 
     &> :not(:last-child) {
