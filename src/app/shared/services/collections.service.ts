@@ -191,7 +191,7 @@ export class CollectionsService extends BaseFilterService {
           this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {
-              sortBy: SolrSortFields.relevance,
+              sortBy: SolrSortFields.createdAt,
               sortDirection: SolrSortDirections.desc
             },
             queryParamsHandling: 'merge',
