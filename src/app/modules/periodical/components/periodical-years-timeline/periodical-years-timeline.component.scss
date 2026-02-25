@@ -93,11 +93,15 @@
     background-color: transparent;
   }
 
-  &.accessibility-available .year-item--wrapper {
+  &.accessibility-public .year-item--wrapper {
     background-color: var(--accessibility-public-bg);
   }
 
-  &.accessibility-disabled .year-item--wrapper {
+  &.accessibility-private .year-item--wrapper {
+    background-color: var(--accessibility-private-bg);
+  }
+
+  &.accessibility-in_library .year-item--wrapper {
     background-color: var(--accessibility-private-bg);
   }
 
@@ -151,12 +155,16 @@
     color: var(--color-text-dark);
   }
 
-  &.accessibility-available .range-year-label {
+  &.accessibility-public .range-year-label {
     background-color: var(--accessibility-public-bg);
   }
 
-  &.accessibility-disabled .range-year-label {
+  &.accessibility-private .range-year-label {
     background-color: var(--accessibility-private-bg);
+  }
+
+  &.accessibility-in_library .range-year-label {
+    background-color: var(--accessibility-in-library-bg, var(--accessibility-private-bg));
   }
 
   &.placeholder .range-year-label {
