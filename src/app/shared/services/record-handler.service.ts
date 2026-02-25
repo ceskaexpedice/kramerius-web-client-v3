@@ -15,7 +15,7 @@ import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/pe
 import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
-import {getOnlineLicenses} from '../../core/solr/solr-misc';
+import {getOnlineLicenses, getOpenLicenses} from '../../core/solr/solr-misc';
 
 @Injectable({
   providedIn: 'root'
@@ -674,6 +674,12 @@ export class RecordHandlerService {
   public shouldShowDnntoBar(licenses: string[]): boolean {
     // show bar only if licenses does not include public and includes dnnto
     return !licenses.includes('public') && licenses.includes('dnnto');
+  }
+
+  public isRecordPublic(licenses: string[]): boolean {
+    const openLicenses = getOpenLicenses();
+    const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];
+    return publicLicenses.some(l => licenses.includes(l));
   }
 
   public getRecordLicenseForBadge(licenses: string[]): string {
