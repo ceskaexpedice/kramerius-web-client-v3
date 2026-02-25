@@ -61,6 +61,21 @@
   }
 }
 
+// Collapsible content
+.metadata-section--item-value {
+  &.collapsible.collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+}
+
+.metadata-section--item-toggle {
+  width: fit-content !important;
+  align-self: flex-start !important;
+}
+
 // Badge/pill styling
 .badge {
   display: inline-flex;

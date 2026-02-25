@@ -51,6 +51,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   @Input() showModel = true;
   @Input() layout: 'vertical' | 'horizontal' = 'vertical';
   @Input() variant: 'default' | 'author' = 'default';
+  @Input() showAccessibilityBadge = true;
   @Input() loading = false;
 
   @Input() item: RecordItem | null | undefined = {
@@ -177,7 +178,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   shouldShowAccessibilityBadge(): boolean {
     if (!this.item) return false;
-    return this.item.showAccessibilityBadge === true;
+    return this.item.showAccessibilityBadge === true && this.showAccessibilityBadge;
   }
 
   shouldShowFavoriteButton(): boolean {

@@ -24,7 +24,7 @@
     <div class="results-list">
 
       @for (doc of results; track doc.pid) {
-        <app-record-item [item]="toRecordItem(doc)" layout="horizontal"></app-record-item>
+        <app-record-item [item]="toRecordItem(doc)" layout="horizontal" [showAccessibilityBadge]="false"></app-record-item>
       }
 
 
