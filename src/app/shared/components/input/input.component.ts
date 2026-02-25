@@ -49,7 +49,7 @@ export class InputComponent implements OnInit, AfterViewInit {
   @Input() autocomplete: MatAutocomplete | null = null;
   @Input() signalInput?: WritableSignal<string | number>;
   @Input() leadingZero: boolean = false;
-  @Input() size: 'sm' | 'md' = 'md';
+  @Input() size: 'sm' | 'md' | 'md-lg' | 'lg' = 'md';
 
   @Input() showMicButton: boolean = false;
   @Input() showHelpButton: boolean = false;

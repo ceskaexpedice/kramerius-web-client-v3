@@ -101,7 +101,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
   @Input() showInput: boolean = true; // Control whether to show built-in input
-  @Input() size: 'sm' | 'md' = 'md';
+  @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
 
   minDate: Date = new Date(1400, 0, 1);
   maxDate: Date = new Date(2100, 11, 31);

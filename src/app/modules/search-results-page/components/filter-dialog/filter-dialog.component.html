@@ -8,7 +8,7 @@
 <div class="dialog-content-wrapper">
   <div class="dialog-content">
     <div class="search-input">
-      <app-input [placeholder]="'filter-dialog.search-placeholder' | translate" [theme]="'dark'"
+      <app-input [placeholder]="'filter-dialog.search-placeholder' | translate" [theme]="'dark'" [size]="'lg'"
         [initialValue]="searchTerm()" [showMicButton]="true" [showHelpButton]="true" [showSubmitButton]="true"
         [changeMicToClearOnFocus]="true" (valueChange)="onSearchTermChange($event.toString())" />
     </div>

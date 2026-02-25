@@ -62,7 +62,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() showClearButton: boolean = false;
   @Input() showCaseSensitiveButton: boolean = false;
   @Input() withIcons: boolean = true;
-  @Input() size: 'sm' | 'md' = 'md';
+  @Input() size: 'sm' | 'md' | 'md-lg' | 'lg' = 'md';
   @Input() showHistorySuggestions: boolean = false;
   @Input() prefixIcon = '';
   @Input() isCaseSensitive: boolean = false;

@@ -52,7 +52,7 @@
       </ng-container>
 
       <ng-container *ngIf="type === 'dateRange'">
-        <app-date-picker [initialDateFrom]="getDateFrom()" [initialDateTo]="getDateTo()"
+        <app-date-picker [initialDateFrom]="getDateFrom()" [initialDateTo]="getDateTo()" [size]="'md-lg'"
           [initialOffset]="getDateOffset()" (datePickerChange)="onDatePickerChange($event)"></app-date-picker>
       </ng-container>
 
