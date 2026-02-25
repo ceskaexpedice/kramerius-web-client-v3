@@ -152,10 +152,10 @@ export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
         }).length;
 
         // Skip caching if entry is too large
-        if (estimatedSize > MAX_ENTRY_SIZE) {
-          console.warn(`[SimpleCache] Entry too large (${estimatedSize} bytes), skipping: ${req.url}`);
-          return;
-        }
+        // if (estimatedSize > MAX_ENTRY_SIZE) {
+        //   console.warn(`[SimpleCache] Entry too large (${estimatedSize} bytes), skipping: ${req.url}`);
+        //   return;
+        // }
 
         const cacheEntry: CacheEntry = {
           response: entryData.compressed ? entryData.data : event.body,
