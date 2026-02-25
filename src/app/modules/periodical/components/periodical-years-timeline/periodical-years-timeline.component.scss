@@ -12,32 +12,16 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  position: relative;
   width: 100%;
-
-  .row-line {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: var(--color-border-additional);
-    z-index: z.$timeline-background;
-  }
 
   // Use container query to respond to actual available width, not viewport
   @container (max-width: 950px) {
     flex-wrap: wrap;
-
-    .row-line {
-      display: none;
-    }
   }
 }
 
 .year-item--container {
   position: relative;
-  z-index: z.$timeline-items;
   display: flex;
   justify-content: center;
   flex: 1 1 0;
@@ -45,6 +29,18 @@
   background-color: transparent !important;
 
   transition: all 0.4s ease-in-out;
+
+  // Line through the middle of each item — extends into the gap to connect adjacent items
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -0.5rem;
+    right: -0.5rem;
+    height: 1px;
+    background-color: var(--color-border-additional);
+    z-index: z.$timeline-background;
+  }
 
   @container (max-width: 950px) {
     flex: 0 0 auto;
@@ -55,6 +51,8 @@
   }
 
   .year-item {
+    position: relative;
+    z-index: z.$timeline-items;
     font-size: calc(18px * var(--accessibility-text-scale));
     font-weight: bold;
     padding: var(--spacing-x2);
