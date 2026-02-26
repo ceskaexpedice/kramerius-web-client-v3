@@ -140,6 +140,14 @@ app-iiif-viewer {
   }
 }
 
+.floating-sidebar-toggle {
+  position: fixed;
+  right: var(--spacing-x4);
+  bottom: var(--spacing-x4);
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
 .favorites-popup-wrapper {
   position: fixed;
   z-index: 1000;

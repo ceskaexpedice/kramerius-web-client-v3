@@ -4,12 +4,12 @@
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
     <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
-    <div *ngIf="data.titles.length > 1">
+    <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4" [contentKey]="data.titles.length">
       <div *ngFor="let title of data.titles">
         <span>{{ title.title }}</span>
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
-    </div>
+    </app-collapsible-content>
   </section>
   }
 

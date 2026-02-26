@@ -225,10 +225,9 @@
         </div>
 
         @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
-        <button class="floating-sidebar-toggle button outlined tertiary with-icon"
+        <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
-          <i class="icon-sidebar-bottom"></i>
-          {{ 'show--metadata-sidebar' | translate }}
+          <i class="icon-info-full"></i>
         </button>
         }
 

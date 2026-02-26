@@ -1,6 +1,8 @@
 <app-detail-layout
   [showBottomToolbar]="false"
-  [constrainBottomToolbar]="true">
+  [constrainBottomToolbar]="true"
+  [showRightSidebar]="true"
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <ng-container left-sidebar>
 
@@ -35,10 +37,8 @@
     </div>
   </ng-container>
 
-  <ng-container main-content>
-
+  <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-
       <app-action-toolbar>
         <div class="max-width-100 w-100" left>
           <app-toolbar-header
@@ -67,6 +67,12 @@
         </div>
 
       </app-action-toolbar>
+    </ng-container>
+  </ng-container>
+
+  <ng-container main-content>
+
+    <ng-container *ngIf="detailViewService.document$ | async as document">
 
       <div class="detail-view--page--content--body">
 
@@ -121,7 +127,22 @@
 
         </div>
 
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded"
+          (click)="detailViewService.showMetadataSidebar()">
+          <i class="icon-info-full"></i>
+        </button>
+        }
+
       </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container right-sidebar>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
+      <app-metadata-sidebar [metadata]="document" mode="floating"
+        [tools]="{search: true, export: true, description: true}">
+      </app-metadata-sidebar>
     </ng-container>
   </ng-container>
 

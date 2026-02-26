@@ -22,6 +22,7 @@ import {IIIFViewer} from "../../shared/components/iiif-viewer/iiif-viewer";
 import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 import {DocumentAccessDenied} from '../detail-view-page/components/access-denied/document-access-denied/document-access-denied';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
+import {MetadataSidebarComponent} from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 
 const routes: Routes = [
   {
@@ -55,6 +56,7 @@ const routes: Routes = [
         FavoritesPopupComponent,
         DocumentAccessDenied,
         InlineLoaderComponent,
+        MetadataSidebarComponent,
     ],
   providers: [
   ]
