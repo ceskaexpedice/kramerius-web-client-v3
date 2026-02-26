@@ -63,4 +63,8 @@
   li {
     margin: 0.25rem 0;
   }
+
+  .mat-mdc-checkbox label {
+    color: var(--color-text-base);
+  }
 }
