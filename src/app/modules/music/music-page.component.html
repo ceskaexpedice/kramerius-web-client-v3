@@ -72,40 +72,52 @@
 
         <div class="detail-view--page--content--wrapper" >
 
-          @if (detailViewService.soundRecordingViewMode() === 'images') {
+          @let checkState = documentInfoService.state();
 
-            @if (detailViewService.isCurrentPageAccessible) {
-              <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
-              </app-iiif-viewer>
-            } @else {
-              <div class="access-restricted-message">
-                <span class="icon icon-lock-1"></span>
-                <p>{{ 'image-access-restricted' | translate }}</p>
-              </div>
+          <!-- Show access denied after access check completes and fails -->
+          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
+            <app-document-access-denied [metadata]="document"
+              [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+            </app-document-access-denied>
+          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+            <app-inline-loader></app-inline-loader>
+          } @else {
+
+            @if (detailViewService.soundRecordingViewMode() === 'images') {
+
+              @if (detailViewService.isCurrentPageAccessible) {
+                <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+                </app-iiif-viewer>
+              } @else {
+                <div class="access-restricted-message">
+                  <span class="icon icon-lock-1"></span>
+                  <p>{{ 'image-access-restricted' | translate }}</p>
+                </div>
+              }
+
             }
 
-          }
+            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
 
-          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
+              <ng-container *ngIf="musicService.tracks$ | async as tracks">
 
-            <ng-container *ngIf="musicService.tracks$ | async as tracks">
+                <app-music-track-list
+                  [tracks]="tracks"
+                  [playingPid]="soundService.currentTrackPid"
+                  (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                  (addToQueue)="musicService.addTrackToQueue($event)"
+                  (download)="musicService.downloadTrack($event)"
+                ></app-music-track-list>
 
-              <app-music-track-list
-                [tracks]="tracks"
-                [playingPid]="soundService.currentTrackPid"
-                (select)="musicService.addTracksToQueueAndPlayFirst($event)"
-                (addToQueue)="musicService.addTrackToQueue($event)"
-                (download)="musicService.downloadTrack($event)"
-              ></app-music-track-list>
+              </ng-container>
 
             </ng-container>
 
+            @if (detailViewService.soundRecordingViewMode() === 'images') {
+              <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
+            }
 
-          </ng-container>
-
-<!--          @if (detailViewService.soundRecordingViewMode() === 'images') {-->
-<!--            <app-viewer-controls type="image"></app-viewer-controls>-->
-<!--          }-->
+          }
 
         </div>
 

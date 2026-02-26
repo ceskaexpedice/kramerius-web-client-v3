@@ -20,6 +20,8 @@ import {ViewerControls} from '../../shared/components/viewer-controls/viewer-con
 import {ImageViewer} from '../../shared/components/image-viewer/image-viewer';
 import {IIIFViewer} from "../../shared/components/iiif-viewer/iiif-viewer";
 import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
+import {DocumentAccessDenied} from '../detail-view-page/components/access-denied/document-access-denied/document-access-denied';
+import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 
 const routes: Routes = [
   {
@@ -51,6 +53,8 @@ const routes: Routes = [
         ImageViewer,
         IIIFViewer,
         FavoritesPopupComponent,
+        DocumentAccessDenied,
+        InlineLoaderComponent,
     ],
   providers: [
   ]

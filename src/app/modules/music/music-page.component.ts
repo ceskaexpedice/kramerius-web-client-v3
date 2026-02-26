@@ -10,6 +10,8 @@ import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
 import { Router } from '@angular/router';
 import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
+import { DocumentInfoService } from '../../shared/services/document-info.service';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-music-page',
@@ -25,6 +27,8 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   public recordHandler = inject(RecordHandlerService);
   public musicService = inject(MusicService);
   public soundService = inject(SoundService);
+  public documentInfoService = inject(DocumentInfoService);
+  public userService = inject(UserService);
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
@@ -46,6 +50,7 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.documentInfoService.reset();
     this.detailViewService.loadDocument();
     this.detailViewService.loadPages();
 
