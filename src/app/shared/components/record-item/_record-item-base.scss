@@ -165,11 +165,11 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: var(--spacing-x1);
+    background: rgba(33, 33, 33, 0.50);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--base-border-radius);
+    border-radius: var(--spacing-x1);
 
     .icon-button {
       padding: 10px;
