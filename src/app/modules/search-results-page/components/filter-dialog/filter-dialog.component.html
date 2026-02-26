@@ -5,104 +5,69 @@
   </button>
 </div>
 
-<div class="dialog-content">
-  <div class="search-input">
-    <app-input
-      [placeholder]="'filter-dialog.search-placeholder' | translate"
-      [theme]="'dark'"
-      [initialValue]="searchTerm()"
-      [showMicButton]="true"
-      [showHelpButton]="true"
-      [showSubmitButton]="true"
-      [changeMicToClearOnFocus]="true"
-      (valueChange)="onSearchTermChange($event.toString())"
-    />
-  </div>
-
-  <div class="controls-row">
-    <div class="filters--container">
-      <app-toggle-button-group
-        [options]="sortOptions"
-        [value]="sortBy()"
-        [size]="'sm'"
-        (valueChange)="setSort($event)"
-      />
-
-      <app-toggle-button-group
-        [options]="operatorOptions"
-        [size]="'sm'"
-        [value]="pendingOperator()"
-        (valueChange)="setOperator($event)"
-      />
+<div class="dialog-content-wrapper">
+  <div class="dialog-content">
+    <div class="search-input">
+      <app-input [placeholder]="'filter-dialog.search-placeholder' | translate" [theme]="'dark'" [size]="'lg'"
+        [initialValue]="searchTerm()" [showMicButton]="true" [showHelpButton]="true" [showSubmitButton]="true"
+        [changeMicToClearOnFocus]="true" (valueChange)="onSearchTermChange($event.toString())" />
     </div>
 
-    <div class="info-row">
-      <app-paginator-info
-        [page]="page"
-        [pageSize]="pageSize"
-        [totalCount]="totalCount">
-      </app-paginator-info>
+    <div class="controls-row">
+      <div class="filters--container">
+        <app-toggle-button-group [options]="sortOptions" [value]="sortBy()" [size]="'sm'"
+          (valueChange)="setSort($event)" />
 
-<!--      <a class="help-link" href="javascript:void(0)">-->
-<!--        {{ 'filter-dialog.help' | translate }}-->
-<!--        <i class="icon-question"></i>-->
-<!--      </a>-->
+        <app-toggle-button-group [options]="operatorOptions" [size]="'sm'" [value]="pendingOperator()"
+          (valueChange)="setOperator($event)" />
+      </div>
+
+      <div class="info-row">
+        <app-paginator-info [page]="page" [pageSize]="pageSize" [totalCount]="totalCount">
+        </app-paginator-info>
+
+        <div class="help-link-wrapper">
+          <p class="help-text">{{ 'filter-dialog.help' | translate }}</p>
+          <i class="icon-question"></i>
+        </div>
+      </div>
     </div>
 
     <div class="selected-tags-section" *ngIf="pendingFilterTags().length > 0">
-      <app-selected-tags
-        [items]="pendingFilterTags()"
-        [operators]="pendingOperators()"
-        [showOperators]="false"
-        [translateItems]="true"
-        (remove)="removePendingTag($event)"
-        (removeGroup)="clearPendingOperator()"
-        (clearAll)="clearPendingTags()"
-        clearButtonPosition="right">
+      <app-selected-tags [items]="pendingFilterTags()" [operators]="pendingOperators()" [showOperators]="false"
+        [translateItems]="true" (remove)="removePendingTag($event)" (removeGroup)="clearPendingOperator()"
+        (clearAll)="clearPendingTags()" [enableClamping]="true" [enableCollapse]="true" clearButtonPosition="left">
       </app-selected-tags>
     </div>
 
-      <hr>
-
-  </div>
-
-  <div class="facet-list-container">
-    <div *ngIf="loading()" class="loading">
-      {{ 'loading' | translate }}
-    </div>
-    <div class="facet-list">
-      <label *ngFor="let item of items()" class="facet-item" [class.selected]="pendingSelection().has(item.name)">
-        <mat-checkbox
-          [checked]="pendingSelection().has(item.name)"
-          (change)="toggle(item.name)"
-          class="p-left-0"
-        ></mat-checkbox>
-        <span class="facet-label">
-          <span class="facet-name">
-            @if (isLicenseFacet) {
+    <div class="facet-list-container">
+      <div *ngIf="loading()" class="loading">
+        {{ 'loading' | translate }}
+      </div>
+      <div class="facet-list">
+        <label *ngFor="let item of items()" class="facet-item" [class.selected]="pendingSelection().has(item.name)">
+          <mat-checkbox [checked]="pendingSelection().has(item.name)" (change)="toggle(item.name)"
+            class="p-left-0"></mat-checkbox>
+          <span class="facet-label">
+            <span class="facet-name">
+              @if (isLicenseFacet) {
               {{ item.name | configLabel:'license' }}
-            } @else {
+              } @else {
               {{ item.name | translate }}
-            }
+              }
+            </span>
+            <span class="facet-count">({{ item.count | formatNumber }})</span>
           </span>
-          <span class="facet-count">({{ item.count | formatNumber }})</span>
-        </span>
-      </label>
+        </label>
+      </div>
     </div>
-    <div class="fade-overlay"></div>
   </div>
+  <div class="fade-overlay"></div>
 </div>
 
 <div class="dialog-footer">
-  <app-paginator
-    [page]="page"
-    [totalCount]="totalCount"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[25, 50, 100]"
-    (pageChange)="goToPage($event)"
-    [showPageSizeOptions]="false"
-    [showArrows]="false"
-  ></app-paginator>
+  <app-paginator [page]="page" [totalCount]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[25, 50, 100]"
+    (pageChange)="goToPage($event)" [showPageSizeOptions]="false" [showArrows]="false"></app-paginator>
 
   <button class="button primary" (click)="applyFilter()">{{ 'dialog.apply' | translate }}</button>
 </div>

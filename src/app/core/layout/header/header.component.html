@@ -1,9 +1,9 @@
-<header class="app-header" [ngClass]="headerType">
+<header class="app-header" [ngClass]="[headerType, showSearchBar ? 'search-results' : '']">
 
   <div class="app-header__left">
 
     <a class="logo cursor-pointer" (click)="logoClicked()">
-      <img [src]="currentAppTheme === AppSettingsThemeEnum.LIGHT ? headerLogo : headerLogoDark"
+      <img [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark"
         [alt]="headerName || 'Česká digitální knihovna'" />
       <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
     </a>
@@ -12,7 +12,7 @@
 
   <div *ngIf="showSearchBar" class="search-bar" [class.mobile-search-active]="isMobileSearchOpen">
 
-    <app-autocomplete [inputTheme]="'dark'" [placeholder]="autocompletePlaceholder | translate" [minTermLength]="2"
+    <app-autocomplete [size]="'sm'" [inputTheme]="'dark'" [placeholder]="autocompletePlaceholder | translate" [minTermLength]="2"
       [initialValue]="autocompleteService.searchTerm()" [getSuggestions]="autocompleteService.getSuggestionsFn"
       [showHelpButton]="false" [showMicrophoneButton]="false" (search)="autocompleteService.onSearch($event)"
       (submit)="autocompleteService.onSubmit($event)" [inputTerm]="autocompleteService.searchTerm"
@@ -20,14 +20,14 @@
       (suggestionSelected)="autocompleteService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button *ngIf="showAdvancedSearch" class="outlined light advanced-search-btn desktop-btn" aria-label="{{'advanced-search' | translate}}"
-      (click)="openAdvancedSearch()">
+    <button *ngIf="showAdvancedSearch" class="outlined light advanced-search-btn desktop-btn"
+      aria-label="{{'advanced-search' | translate}}" (click)="openAdvancedSearch()">
       {{'advanced-search' | translate}}
     </button>
 
     <!-- Mobile search buttons -->
-    <button *ngIf="showAdvancedSearch" class="icon-button outlined light mobile-search-btn" aria-label="{{'advanced-search' | translate}}"
-      (click)="openAdvancedSearch()">
+    <button *ngIf="showAdvancedSearch" class="icon-button outlined light mobile-search-btn"
+      aria-label="{{'advanced-search' | translate}}" (click)="openAdvancedSearch()">
       <i class="icon-settings-4"></i>
     </button>
 
@@ -45,7 +45,7 @@
       class="cursor-pointer desktop-only">{{'collections' | translate}}</a>
 
     @for (page of navPages; track page.id) {
-      <a [routerLink]="getPageLink(page)" class="cursor-pointer desktop-only">{{ getPageLabel(page) }}</a>
+    <a [routerLink]="getPageLink(page)" class="cursor-pointer desktop-only">{{ getPageLabel(page) }}</a>
     }
 
     <div class="desktop-only">
@@ -85,7 +85,7 @@
         [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
         class="cursor-pointer">{{'collections' | translate}}</a>
       @for (page of navPages; track page.id) {
-        <a [routerLink]="getPageLink(page)" class="cursor-pointer">{{ getPageLabel(page) }}</a>
+      <a [routerLink]="getPageLink(page)" class="cursor-pointer">{{ getPageLabel(page) }}</a>
       }
       <app-user-info></app-user-info>
     </div>

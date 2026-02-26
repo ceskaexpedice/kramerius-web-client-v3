@@ -15,6 +15,10 @@
   color: var(--color-text-secondary);
 }
 
+:host ::ng-deep .mat-mdc-slide-toggle .mat-internal-form-field {
+  color: var(--color-text-secondary);
+}
+
 .toggle-buttons--container {
   display: inline-flex;
 }

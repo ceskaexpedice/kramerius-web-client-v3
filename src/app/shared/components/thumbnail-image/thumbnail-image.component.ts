@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChanges } from '@angular/core';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 export type ThumbnailSize = 'sm' | 'md' | 'lg' | 'auto';
 export type FallbackIcon = 'gallery' | 'music' | 'document' | 'user';
@@ -7,7 +7,7 @@ export type FallbackIcon = 'gallery' | 'music' | 'document' | 'user';
 @Component({
   selector: 'app-thumbnail-image',
   standalone: true,
-  imports: [NgClass, NgIf],
+  imports: [NgClass],
   templateUrl: './thumbnail-image.component.html',
   styleUrl: './thumbnail-image.component.scss'
 })

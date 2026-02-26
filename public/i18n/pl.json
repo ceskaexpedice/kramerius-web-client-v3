@@ -11,6 +11,7 @@
   "subject_names_corporate.facet": "Nazwy podmiotów korporacyjnych",
   "subject_temporals.facet": "Chronologiczne nazwy podmiotów",
   "show-more": "Pokaż więcej",
+  "more-tags": "+ {{count}} więcej",
   "show-less": "Pokaż mniej",
   "results": "Wyniki",
   "delete-all": "Usuń wszystko",
@@ -112,6 +113,7 @@
   "custom-where-to-search.model": "Gdzie szukać",
   "titles": "Tytuły",
   "search-in-document--placeholder": "Szukaj na stronach",
+  "alto-unavailable-error": "Ten dokument nie posiada rozszerzonych danych OCR (ALTO). Dlatego nie jest możliwe podświetlenie szukanego tekstu. Nie jest to błąd, lecz starsza metoda digitalizacji.",
   "sound-records--toggle": "Nagrania",
   "images--toggle": "Obrazy",
   "track-list-table--title": "Tytuł",
@@ -505,5 +507,7 @@
   "toolbar.tooltip.delete": "Usuń",
   "toolbar.tooltip.download": "Pobierz",
   "toolbar.tooltip.edit": "Edytuj",
-  "toolbar.tooltip.select": "Wybierz"
+  "toolbar.tooltip.select": "Wybierz",
+  "pages--tab": "Strony",
+  "articles--tab": "Artykuły"
 }

@@ -32,8 +32,16 @@
       color: var(--color-text-light);
     }
 
-    &.md input {
+    &.lg input {
       padding: 14px;
+    }
+
+    &.md-lg input {
+      padding: 12px;
+    }
+
+    &.md input {
+      padding: var(--spacing-x2);
     }
 
     &.sm input {

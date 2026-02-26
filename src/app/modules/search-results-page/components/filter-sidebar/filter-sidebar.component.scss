@@ -26,8 +26,8 @@
 
   /* Responsive width based on breakpoints */
   @media (min-width: 854px) and (max-width: 1279px) {
-    width: 250px;
-    /* Tablet: 250px */
+    width: 240px;
+    /* Tablet: 240px */
   }
 
   @media (min-width: 1280px) {
@@ -40,7 +40,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: $filter-sidebar;
+    z-index: $filter-sidebar-overlay;
     width: 280px;
     /* Fixed width for overlay */
     transform: translateX(-100%);

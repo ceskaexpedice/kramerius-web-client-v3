@@ -102,7 +102,7 @@ export class BreakpointService {
     switch (bp) {
       case BreakpointSize.TabletMD:
       case BreakpointSize.TabletLG:
-        return 250; // 250px for tablet
+        return 240; // 240px for tablet
       case BreakpointSize.DesktopSM:
       case BreakpointSize.DesktopMD:
       case BreakpointSize.DesktopLG:

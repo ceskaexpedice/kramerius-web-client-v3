@@ -3,6 +3,11 @@
   display: grid;
   gap: var(--card-gap);
   width: 100%;
+
+  /* Override CSS Grid default min-width: auto on items to ensure equal 1fr columns */
+  >* {
+    min-width: 0;
+  }
 }
 
 /* Responsive Grid */
@@ -10,6 +15,21 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--card-min-width) * var(--accessibility-text-scale))), 1fr));
   overflow-x: hidden;
   max-width: 100%;
+
+  /* Tablet (No Sidebar): 5 cards */
+  @media (min-width: 604px) and (max-width: 853px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  /* Tablet (Sidebar 240px): 1+5 grid */
+  @media (min-width: 854px) and (max-width: 1051px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  /* Large Tablet (Sidebar 240px): 1+6 grid */
+  @media (min-width: 1052px) and (max-width: 1279px) {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .flex {

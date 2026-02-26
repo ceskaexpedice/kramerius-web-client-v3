@@ -24,3 +24,9 @@
 
 // Horizontal layout styles
 @use "record-item-horizontal";
+
+:host {
+    display: block;
+    min-width: 0;
+    height: 100%;
+}

@@ -40,6 +40,23 @@ hr {
   }
 }
 
+.search-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+
+  & + app-search-navigation {
+    margin-top: calc(var(--spacing-x2) - var(--spacing-x4));
+  }
+}
+
+.alto-unavailable-error {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
+  color: var(--color-error);
+  margin: 0;
+}
+
 .admin-selection-count {
   font-size: var(--font-size-small);
   color: var(--color-text-tertiary);

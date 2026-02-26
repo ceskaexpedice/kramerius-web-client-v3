@@ -23,7 +23,7 @@
   </app-metadata-section-item>
 
   <!-- Publishers -->
-  <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
+  <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list" [collapsible]="true"
                              [items]="data.publishers" [displayFn]="getPublisherFullDetail">
   </app-metadata-section-item>
 

@@ -12,6 +12,7 @@
   "subject_names_corporate.facet": "Corporate subject names",
   "subject_temporals.facet": "Chronological subject names",
   "show-more": "Show more",
+  "more-tags": "+ {{count}} more",
   "show-less": "Show less",
   "results": "Results",
   "delete-all": "Delete all",
@@ -120,6 +121,7 @@
   "custom-where-to-search.model": "Where to search",
   "titles": "Titles",
   "search-in-document--placeholder": "Search within pages",
+  "alto-unavailable-error": "This document does not have extended OCR data (ALTO) available. Therefore it is not possible to highlight the searched text. This is not an error, but an older digitization method.",
   "sound-records--toggle": "Recordings",
   "images--toggle": "Images",
   "track-list-table--title": "Title",
@@ -514,5 +516,7 @@
   "toolbar.tooltip.delete": "Delete",
   "toolbar.tooltip.download": "Download",
   "toolbar.tooltip.edit": "Edit",
-  "toolbar.tooltip.select": "Select"
+  "toolbar.tooltip.select": "Select",
+  "pages--tab": "Pages",
+  "articles--tab": "Articles"
 }

@@ -1,56 +1,44 @@
+@use "mixins";
+// Common layout styles moved to /public/styles/_page-layout.scss
+
 .page-content__wrapper {
   position: relative;
   display: flex;
   flex-direction: row;
   height: 100%;
   overflow: hidden;
-  padding: 0 var(--spacing-x4);
-
-  &--with-sidebar {
-    // When sidebar is visible, ensure proper layout
-  }
+  padding: 0;
 }
 
 .page-content__main {
+  position: relative;
   flex: 1;
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-top: var(--spacing-x4);
+  padding: var(--spacing-x4);
+  height: 100%;
 }
 
 .page-content__sidebar-right {
-  margin-top: 1px;
-}
+  @include mixins.floating-sidebar;
 
-.monograph-header {
-  margin-bottom: var(--base-gap-x3);
-  padding-bottom: var(--base-gap-x2);
-  border-bottom: 1px solid var(--color-border-base);
+  // Ensure sidebar pushes content by default (relative positioning in flex)
+  position: relative;
 
-  h1 {
-    font-size: var(--font-size-xxlarge);
-    margin-bottom: var(--base-gap);
-    color: var(--color-text-base);
+  // On very small screens, float over content instead of pushing it
+  @media (max-width: 900px) {
+    &,
+    &--relative {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: auto;
+      z-index: 100;
+      margin: var(--spacing-x4);
+    }
   }
-
-  .monograph-authors {
-    font-size: var(--font-size-medium);
-    color: var(--color-text-muted);
-    margin-bottom: var(--base-gap-half);
-  }
-
-  .monograph-volume-count {
-    font-size: var(--font-size-small);
-    color: var(--color-text-muted);
-    font-weight: 500;
-  }
-}
-
-.volumes-heading {
-  font-size: var(--font-size-large);
-  margin-bottom: var(--base-gap-x2);
-  color: var(--color-text-base);
 }
 
 .no-volumes {
@@ -76,9 +64,11 @@
 }
 
 .floating-sidebar-toggle {
-  position: fixed;
-  bottom: var(--spacing-x6);
-  right: var(--spacing-x6);
-  z-index: 100;
+  position: absolute;
+  bottom: var(--spacing-x4);
+  right: var(--spacing-x4);
+  width: 40px;
+  height: 40px;
+  z-index: 50;
   box-shadow: var(--shadow-elevated);
 }

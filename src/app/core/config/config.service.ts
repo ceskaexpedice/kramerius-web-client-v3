@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { LANG_FALLBACK_CHAIN, DEFAULT_LANG_FALLBACK } from '../../shared/translation/translation-fallback-chain';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -309,18 +310,30 @@ export class ConfigService {
   }
 
   /**
+   * Returns an ordered list of languages to try for a given lang: [lang, ...chain, fallbackLang].
+   */
+  private getLangChain(lang: string): string[] {
+    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
+    const chain = LANG_FALLBACK_CHAIN[lang] ?? DEFAULT_LANG_FALLBACK;
+    const result = [lang, ...chain];
+    if (!result.includes(fallbackLang)) result.push(fallbackLang);
+    return result;
+  }
+
+  /**
    * Get localized label from config for any entity type.
    * Supports: 'license' (more types can be added in future)
-   * Falls back to: requested lang -> fallback lang -> key itself
+   * Falls back to: requested lang -> fallback chain -> key itself
    */
   getLocalizedLabel(type: 'license', key: string, lang: string): string {
-    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
-
     switch (type) {
       case 'license': {
         const license = this.licenses[key];
         if (!license?.label) return key;
-        return license.label[lang] ?? license.label[fallbackLang] ?? key;
+        for (const l of this.getLangChain(lang)) {
+          if (license.label[l]) return license.label[l];
+        }
+        return key;
       }
       default:
         return key;
@@ -329,7 +342,7 @@ export class ConfigService {
 
   /**
    * Get the URL for a specific message page by license ID, page key, and language.
-   * Falls back to fallback language if the requested language is not available.
+   * Falls back through the language chain if the requested language is not available.
    */
   getMessagePageUrl(licenseId: string, pageKey: string, lang: string): string | null {
     const license = this.licenses[licenseId];
@@ -338,20 +351,24 @@ export class ConfigService {
     const messagePage = license.messagePages.find(mp => mp.key === pageKey);
     if (!messagePage) return null;
 
-    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
-    return messagePage.page[lang] ?? messagePage.page[fallbackLang] ?? null;
+    for (const l of this.getLangChain(lang)) {
+      if (messagePage.page[l]) return messagePage.page[l];
+    }
+    return null;
   }
 
   /**
    * Get the URL for the instruction page by license ID and language.
-   * Falls back to fallback language if the requested language is not available.
+   * Falls back through the language chain if the requested language is not available.
    */
   getInstructionPageUrl(licenseId: string, lang: string): string | null {
     const license = this.licenses[licenseId];
     if (!license?.instructionPage) return null;
 
-    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
-    return license.instructionPage[lang] ?? license.instructionPage[fallbackLang] ?? null;
+    for (const l of this.getLangChain(lang)) {
+      if (license.instructionPage[l]) return license.instructionPage[l];
+    }
+    return null;
   }
 
   /**
@@ -390,14 +407,19 @@ export class ConfigService {
    * Falls back to fallback language if the requested language is not available.
    */
   getPageContentUrl(pageId: string, lang: string): string | null {
+    const urls = this.getPageContentUrls(pageId, lang);
+    return urls[0] ?? null;
+  }
+
+  getPageContentUrls(pageId: string, lang: string): string[] {
     const page = this.getPage(pageId);
-    if (!page) return null;
+    if (!page) return [];
 
-    const fallbackLang = this.i18n.fallbackLanguage ?? 'en';
-    const rawContent = page.content[lang] ?? page.content[fallbackLang];
-    if (!rawContent) return null;
-
-    return Array.isArray(rawContent) ? rawContent[0] : rawContent;
+    for (const l of this.getLangChain(lang)) {
+      const rawContent = page.content[l];
+      if (rawContent) return Array.isArray(rawContent) ? rawContent : [rawContent];
+    }
+    return [];
   }
 
   // Home sections accessors

@@ -336,17 +336,20 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // Click handlers
   clickedAuthor = (author: Author): void => {
-    const url = `?fq=${facetKeysEnum.authors}:${author.name}&${facetKeysEnum.authors}_operator=OR`;
+    const filterName = author.nameForFilter || author.name;
+    const url = `?fq=${facetKeysEnum.authors}:${filterName}&${facetKeysEnum.authors}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
 
   clickedSubjectNamePersonal = (subject: Author): void => {
-    const url = `?fq=${facetKeysEnum.subjectNamesPersonal}:${encodeURIComponent(subject.name)}&${facetKeysEnum.subjectNamesPersonal}_operator=OR`;
+    const filterName = subject.nameForFilter || subject.name;
+    const url = `?fq=${facetKeysEnum.subjectNamesPersonal}:${encodeURIComponent(filterName)}&${facetKeysEnum.subjectNamesPersonal}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   }
 
   clickedSubjectNameCorporate = (subject: Author): void => {
-    const url = `?fq=${facetKeysEnum.subjectNamesCorporate}:${encodeURIComponent(subject.name)}&${facetKeysEnum.subjectNamesCorporate}_operator=OR`;
+    const filterName = subject.nameForFilter || subject.name;
+    const url = `?fq=${facetKeysEnum.subjectNamesCorporate}:${encodeURIComponent(filterName)}&${facetKeysEnum.subjectNamesCorporate}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   }
 

@@ -4,11 +4,7 @@
     <div
       class="range-year-item"
       *ngFor="let year of rangeYears"
-      [ngClass]="{
-        'placeholder': year === null,
-        'accessibility-available': !recordHandler.isRecordLocked(year.licenses),
-        'accessibility-disabled': recordHandler.isRecordLocked(year.licenses)
-      }"
+      [ngClass]="'accessibility-' + recordHandler.getRecordLicenseForBadge(year.licenses)"
       (click)="selectYear.emit(year.year)"
     >
       <span class="range-year-label">{{ year.year }}</span>
@@ -20,20 +16,15 @@
     @if (getNonNullYears(row).length > 0) {
 
       <div class="year-row">
-        <div class="row-line"></div>
 
         <div
           class="year-item--container"
           *ngFor="let year of row; let i = index"
-          [ngClass]="{
-        'missing': year === null,
-        'accessibility-available': year !== null && !recordHandler.isRecordLocked(year.licenses),
-        'accessibility-disabled': year !== null && recordHandler.isRecordLocked(year.licenses)
-      }"
+          [ngClass]="year === null ? 'missing' : 'accessibility-' + recordHandler.getRecordLicenseForBadge(year.licenses)"
           (click)="year !== null && selectYear.emit(year.year.toString())"
         >
           <div class="year-item"
-            [class.with-icon]="year === null || (year !== null && recordHandler.isRecordLocked(year.licenses))"
+            [class.with-icon]="year === null || (year !== null && recordHandler.getRecordLicenseForBadge(year.licenses) !== 'public')"
           >
             <div class="year-item--wrapper">
 
@@ -41,7 +32,7 @@
                 <i class="icon-slash"></i>
               }
 
-              @if (year !== null && recordHandler.isRecordLocked(year.licenses)) {
+              @if (year !== null && (recordHandler.getRecordLicenseForBadge(year.licenses) === 'private' || recordHandler.getRecordLicenseForBadge(year.licenses) === 'in_library')) {
                 <i class="icon-lock-1"></i>
               }
 

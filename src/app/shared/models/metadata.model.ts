@@ -2,6 +2,7 @@ import { Page } from './page.model';
 import { Article } from './article.model';
 import { PeriodicalItem } from './periodicalItem.model';
 import { InternalPart } from './internal_part.model';
+import { selectPrimaryLicense } from '../../core/solr/solr-misc';
 
 export class Metadata {
   public context: any = {};
@@ -124,6 +125,7 @@ export class Author {
   public type: string = '';
   public usage: string = '';
   public name: string = '';
+  public nameForFilter: string = '';
   public date: string = '';
   public roles: string[] = [];
   public primary: boolean = false;
@@ -217,7 +219,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.isPublic = doc.accessibility === 'public';
 
   metadata.licences = doc['licenses.facet'] ?? [];
-  metadata.licence = doc['licenses.facet']?.[0] ?? '';
+  metadata.licence = selectPrimaryLicense(metadata.licences) ?? '';
 
   metadata.languages = doc['languages.facet'] ?? [];
 
@@ -303,7 +305,7 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.ownParentModel = doc['own_model_path'] ?? '';
   metadata.languages = doc['languages.facet'] ?? [];
 
-  metadata.licence = doc['licenses.facet']?.[0] ?? '';
+  metadata.licence = selectPrimaryLicense(doc['licenses.facet'] ?? []) ?? '';
   metadata.dateStr = doc['date.str'] ?? '';
   metadata.dateMin = doc['date.min'] ?? '';
   metadata.dateMax = doc['date.max'] ?? '';

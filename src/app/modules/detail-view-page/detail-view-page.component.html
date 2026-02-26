@@ -98,32 +98,37 @@
       </ng-container>
 
       <!-- TODO : commented articles/pages tab Document Sidebar for non-PDF documents or PDF articles -->
-<!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
-<!--        @let hasArticles = detailViewService.hasArticles$ | async;-->
-
-<!--        &lt;!&ndash; Show tabs when document has articles &ndash;&gt;-->
-<!--        @if (hasArticles) {-->
-<!--          <app-tabs [noPadding]="true">-->
-<!--            <app-tab-item [label]="'pages' | translate">-->
-<!--              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>-->
-<!--            </app-tab-item>-->
-<!--            <app-tab-item [label]="'articles' | translate">-->
-<!--              <div class="sidebar&#45;&#45;wrapper">-->
-<!--                <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
-<!--                  <app-detail-articles-list></app-detail-articles-list>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </app-tab-item>-->
-<!--          </app-tabs>-->
-<!--        } @else {-->
-<!--          &lt;!&ndash; No articles - show document sidebar as before &ndash;&gt;-->
-<!--          <app-document-sidebar [document]="document"></app-document-sidebar>-->
-<!--        }-->
-<!--      </ng-container> TODO: code bellow will be removed after uncommented code for tabs-->
-
       <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
-        <app-document-sidebar [document]="document"></app-document-sidebar>
+        @let hasArticles = detailViewService.hasArticles$ | async;
+        @let hasPages = detailViewService.pagesOnly && detailViewService.pagesOnly.length > 0;
+
+        <!-- Show tabs when document has articles -->
+        @if (hasArticles && hasPages) {
+          <app-tabs [noPadding]="true">
+            <app-tab-item [label]="'pages--tab' | translate">
+              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
+            </app-tab-item>
+            <app-tab-item [label]="'articles--tab' | translate">
+              <div class="sidebar--wrapper">
+                <div class="sidebar--wrapper--scroll-content">
+                  <app-detail-articles-list></app-detail-articles-list>
+                </div>
+              </div>
+            </app-tab-item>
+          </app-tabs>
+        } @else if (!hasArticles) {
+          <!-- No articles - show document sidebar as before -->
+          <app-document-sidebar [document]="document"></app-document-sidebar>
+        } @else if (!hasPages) {
+          <!-- No pages - show document sidebar as before -->
+          <app-document-sidebar [document]="document"></app-document-sidebar>
+        }
       </ng-container>
+<!--      TODO: code bellow will be removed after uncommented code for tabs-->
+
+<!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
+<!--        <app-document-sidebar [document]="document"></app-document-sidebar>-->
+<!--      </ng-container>-->
 
     </div>
   </ng-container>
@@ -173,7 +178,7 @@
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
-          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.isLoggedIn) {
+          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.userSession?.authenticated) {
           <div class="dnnto-bar">
             <span class="dnnto-bar--title">
               <img src="/img/logo/dnnt-logo.png" alt="DNNT logo">
@@ -183,17 +188,17 @@
             @if (userService.userSession) {
               <span>
                   {{ userService.getFormattedExpiration() }}
-                | {{ userService.userSession?.email }}
+                | {{ userService.userSession.email }}
 </span>            }
           </div>
           }
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
-          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;
+<!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
 
           <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && !documentInfoService.canAccessDocument()) {
+          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
           </app-document-access-denied>

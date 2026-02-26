@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
 import { TranslateService } from '@ngx-translate/core';
+import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/solr-misc';
 
 
 @Component({
@@ -92,7 +93,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   }
 
   private get primaryLicense(): string | null {
-    return this.requiredLicenses.length > 0 ? this.requiredLicenses[0] : null;
+    return selectPrimaryLicense(this.requiredLicenses);
   }
 
   private async loadHtmlContent(): Promise<void> {
@@ -131,7 +132,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       this.licenseTypes.add(licenseType);
     });
 
-    this.uniqueLicenseTypes = Array.from(this.licenseTypes);
+    this.uniqueLicenseTypes = sortLicenses(Array.from(this.licenseTypes));
   }
 
   getLicenseTypeFromString(license: string): string {

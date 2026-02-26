@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -43,8 +43,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private routerSubscription?: Subscription;
   private themeSubscription?: Subscription;
 
-  // Track the application's current theme
-  currentAppTheme: AppSettingsThemeEnum = AppSettingsThemeEnum.LIGHT;
+  // Track the application's effective theme correctly considering system overrides
+  effectiveTheme: 'light' | 'dark' = 'light';
 
   // Dynamic header branding
   headerLogo: string = '/favicon.svg';
@@ -72,6 +72,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private libraryContext: LibraryContextService,
     private translationService: AppTranslationService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   /**
@@ -99,11 +100,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isMobileSearchOpen = false; // Close mobile search on route change
       });
 
-    // Subscribe to app theme changes
-    this.themeSubscription = this.settingsService.settings$.subscribe(settings => {
-      this.currentAppTheme = settings.theme;
+    // Subscribe to actual active theme considering system level preference
+    this.themeSubscription = this.settingsService.effectiveTheme$.subscribe(theme => {
+      this.effectiveTheme = theme;
       // This ensures header appearance updates when app theme changes
       this.updateHeaderType();
+      this.cdr.detectChanges();
     });
 
     // Initial check
@@ -132,6 +134,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Use router.url but strip query params to avoid header changes when dialogs add URL params
     const urlWithoutParams = this.router.url.split('?')[0];
     return urlWithoutParams !== '/';
+  }
+
+  get isSearchResultsPage(): boolean {
+    const urlWithoutParams = this.router.url.split('?')[0];
+    return urlWithoutParams.endsWith(`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`);
   }
 
   get isOnCollectionRoute(): boolean {
@@ -190,9 +197,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   get inputTheme(): string {
-    // If header is transparent, the input theme should be based on the app theme
+    // If header is transparent, the input theme should be based on the app effective theme
     if (this.headerType === 'transparent') {
-      return this.currentAppTheme === AppSettingsThemeEnum.DARK ? 'light' : 'dark';
+      return this.effectiveTheme === 'dark' ? 'light' : 'dark';
     }
 
     // If header is light, use dark input theme regardless of app theme

@@ -49,8 +49,26 @@
   --card-height: 303px;
   --card-height-with-badge: 335px;
 
+  @media (min-width: 604px) and (max-width: 853px) {
+    --card-width: 106px;
+    --card-height: 210px;
+    --card-height-with-badge: 242px;
+  }
+
+  @media (min-width: 854px) and (max-width: 1051px) {
+    --card-width: 108px;
+    --card-height: 223px;
+    --card-height-with-badge: 255px;
+  }
+
+  @media (min-width: 1052px) and (max-width: 1279px) {
+    --card-width: 120px;
+    --card-height: 235px;
+    --card-height-with-badge: 267px;
+  }
+
   // Card Image
-  --card-image-aspect-ratio: 168 / 220;
+  --card-image-aspect-ratio: 129 / 160;
 
   // Carousel Card (homepage) - 200x364
   --carousel-card-width: 200px;

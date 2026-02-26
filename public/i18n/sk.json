@@ -11,6 +11,7 @@
   "subject_names_corporate.facet": "Korporátne predmetové heslá",
   "subject_temporals.facet": "Chronologické predmetové heslá",
   "show-more": "Zobraziť viac",
+  "more-tags": "+ {{count}} ďalších",
   "show-less": "Zobraziť menej",
   "results": "Výsledky",
   "delete-all": "Zmazať všetko",
@@ -112,6 +113,7 @@
   "custom-where-to-search.model": "Kde hľadať",
   "titles": "Tituly",
   "search-in-document--placeholder": "Hľadať na stránkach",
+  "alto-unavailable-error": "Tento dokument nemá k dispozícii rozšírené OCR dáta (ALTO). Preto nie je možné zvýrazniť hľadaný text. Nejde o chybu, ale o starší spôsob digitalizácie.",
   "sound-records--toggle": "Nahrávky",
   "images--toggle": "Obrázky",
   "track-list-table--title": "Názov",
@@ -506,5 +508,7 @@
   "toolbar.tooltip.delete": "Odstrániť",
   "toolbar.tooltip.download": "Stiahnuť",
   "toolbar.tooltip.edit": "Upraviť",
-  "toolbar.tooltip.select": "Vybrať"
+  "toolbar.tooltip.select": "Vybrať",
+  "pages--tab": "Strany",
+  "articles--tab": "Články"
 }

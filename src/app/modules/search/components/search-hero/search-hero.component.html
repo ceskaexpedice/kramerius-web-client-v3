@@ -9,7 +9,7 @@
     <app-autocomplete
       [inputTheme]="'light'"
       [placeholder]="'search-input-placeholder' | translate"
-      [minTermLength]="2"
+      [minTermLength]="2" [size]="'lg'"
       [initialValue]="searchService.searchTerm()"
       [getSuggestions]="searchService.getSuggestionsFn"
       (search)="searchService.onSearch($event)"

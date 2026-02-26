@@ -11,7 +11,8 @@ import {
   AfterViewInit,
   NgZone,
   ChangeDetectorRef,
-  signal
+  signal,
+  HostListener
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
@@ -692,6 +693,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.exportService.exportJpegCrop(this.imagePid, rect);
     } else {
       console.warn('No selection or image PID available for export');
+    }
+  }
+
+  @HostListener('document:keydown.enter', ['$event'])
+  handleEnterPress(event: Event) {
+    if (this.showSelectionControls && this.selectionRect) {
+      event.preventDefault();
+      this.onExport();
     }
   }
 

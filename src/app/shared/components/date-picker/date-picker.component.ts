@@ -2,6 +2,7 @@ import {
   AfterViewChecked,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter, inject,
   Input,
@@ -12,18 +13,18 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {DateRange} from '../range-slider/range-slider.component';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {LowerCasePipe} from '@angular/common';
-import {MatCalendar, MatCalendarCellClassFunction} from '@angular/material/datepicker';
-import {InputComponent} from '../input/input.component';
-import {MonthYearChange, MonthYearSelectorComponent} from '../month-year-selector/month-year-selector.component';
-import {FormsModule} from '@angular/forms';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
-import {ClickOutsideDirective} from '../../directives/click-outside';
-import {DateAdapter, MAT_DATE_LOCALE, NativeDateAdapter} from '@angular/material/core';
-import {Platform} from '@angular/cdk/platform';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { DateRange } from '../range-slider/range-slider.component';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LowerCasePipe } from '@angular/common';
+import { MatCalendar, MatCalendarCellClassFunction } from '@angular/material/datepicker';
+import { InputComponent } from '../input/input.component';
+import { MonthYearChange, MonthYearSelectorComponent } from '../month-year-selector/month-year-selector.component';
+import { FormsModule } from '@angular/forms';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { ClickOutsideDirective } from '../../directives/click-outside';
+import { DateAdapter, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
+import { Platform } from '@angular/cdk/platform';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface DatePickerOutput {
   dateFrom: Date;
@@ -100,7 +101,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
   @Input() showInput: boolean = true; // Control whether to show built-in input
-  @Input() size: 'sm' | 'md' = 'md';
+  @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
 
   minDate: Date = new Date(1400, 0, 1);
   maxDate: Date = new Date(2100, 11, 31);
@@ -111,6 +112,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
   private dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.updateFromInitialValues();
@@ -126,7 +128,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     applyLocaleFromTranslate();
 
     this.translate.onLangChange
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => applyLocaleFromTranslate());
   }
 
@@ -810,7 +812,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     }
   }
 
-  getSelectedDaysCount() : number {
+  getSelectedDaysCount(): number {
     if (this.selectedDateFrom() && this.selectedDateTo()) {
       const diffTime = this.selectedDateTo()!.getTime() - this.selectedDateFrom()!.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates

@@ -7,13 +7,12 @@ import { AuthService } from '../../auth/auth.service';
 import { PageConfig } from '../../config/config.interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { MatButton } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-content-page',
   standalone: true,
-  imports: [SafeHtmlPipe, TranslatePipe, MatCheckbox, MatButton, FormsModule],
+  imports: [SafeHtmlPipe, TranslatePipe, MatCheckbox, FormsModule],
   templateUrl: './content-page.component.html',
   styleUrl: './content-page.component.scss'
 })
@@ -66,13 +65,11 @@ export class ContentPageComponent implements OnInit {
     this.loading = true;
     this.isTermsPage = this.pageConfig.id === 'terms';
     const lang = this.translationService.currentLanguage().code;
-    const fallbackLang = this.configService.i18n.fallbackLanguage ?? 'en';
-    const rawContent = this.pageConfig.content[lang] ?? this.pageConfig.content[fallbackLang];
+    const rawContent = this.configService.getPageContentUrls(this.pageConfig.id, lang);
 
-    if (rawContent) {
-      const urls = Array.isArray(rawContent) ? rawContent : [rawContent];
+    if (rawContent.length) {
       this.htmlParts = await Promise.all(
-        urls.map(url => this.configService.loadHtmlContent(url))
+        rawContent.map(url => this.configService.loadHtmlContent(url))
       );
     } else {
       this.htmlParts = [];
@@ -84,11 +81,14 @@ export class ContentPageComponent implements OnInit {
   }
 
   private scrollToFragment(): void {
-    const fragment = this.route.snapshot.fragment;
-    if (!fragment) return;
+    const rawFragment = this.route.snapshot.fragment;
+    if (!rawFragment) return;
+
+    // Fragment may include query string if URL is formatted as #fragment?query=...
+    const fragment = rawFragment.split('?')[0];
 
     setTimeout(() => {
       document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
-    });
+    }, 100);
   }
 }

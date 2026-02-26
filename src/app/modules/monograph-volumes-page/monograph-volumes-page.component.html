@@ -64,7 +64,7 @@
       </div>
 
       <!-- Content with right sidebar wrapper -->
-      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()">
+      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()">
 
         <div class="page-content__main">
 
@@ -100,30 +100,25 @@
 
           }
 
-          <!-- Floating sidebar toggle button when sidebar is hidden -->
-          @if (!rightSidebarVisible()) {
-            <button
-              class="floating-sidebar-toggle button icon-button primary rounded"
-              (click)="showRightSidebar()">
-              <i class="icon-info-full"></i>
-            </button>
-          }
-
         </div>
 
+        @if (!showMetadataSidebar()) {
+          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
+            <i class="icon-info-full"></i>
+          </button>
+        }
+
         <!-- Right Sidebar -->
-        @if (parent()) {
-          <div
-            class="page-content__sidebar-right"
+        <ng-container *ngIf="parent()">
+          <div class="page-content__sidebar-right"
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
-            [class.collapsed]="!rightSidebarVisible()">
-            <app-monograph-right-sidebar-content
-              [setMetadata]="parent()!"
-              (onClose)="hideRightSidebar()">
-            </app-monograph-right-sidebar-content>
+            [class.collapsed]="!showMetadataSidebar()">
+            <app-metadata-sidebar [metadata]="parent() || null" mode="floating"
+              [tools]="{search: false, export: false, description: true}" (close)="toggleMetadataSidebar()">
+            </app-metadata-sidebar>
           </div>
-        }
+        </ng-container>
 
       </div>
 

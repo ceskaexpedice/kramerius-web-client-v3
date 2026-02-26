@@ -3,6 +3,10 @@
   align-items: center;
   gap: 10px;
   position: relative;
+
+  button {
+    color: var(--color-icon-secondary-default);
+  }
 }
 
 h2 {

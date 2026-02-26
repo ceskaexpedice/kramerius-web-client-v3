@@ -23,6 +23,7 @@
 }
 
 .dialog-title {
+  font-family: var(--font-family-body);
   font-size: var(--font-size-xlarge);
   font-weight: var(--font-weight-bold);
   line-height: 32px;
@@ -51,13 +52,23 @@
   }
 }
 
+.dialog-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+}
+
 .dialog-content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
-  padding: var(--spacing-x4) var(--spacing-x6);
+  padding: var(--spacing-x4) var(--spacing-x6) 0 var(--spacing-x6);
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .search-input {
@@ -68,6 +79,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x2);
+
+  // Add padding if selected-tags are hidden and it borders the facet list
+  &:has(+ .facet-list-container) {
+    padding-bottom: var(--spacing-x2);
+  }
 }
 
 .filters--container {
@@ -83,51 +99,51 @@
   gap: var(--spacing-x2);
 }
 
-.help-link {
+.help-link-wrapper {
   display: flex;
   align-items: center;
   gap: var(--spacing-x1);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
   color: var(--color-text-light);
-  text-decoration: none;
   cursor: pointer;
 
-  &:hover {
-    color: var(--color-text-tertiary);
-    text-decoration: none;
+  .help-text {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+    line-height: 16px;
   }
 
   i {
-    font-size: 24px;
+    font-size: var(--font-size-base);
+  }
+
+  &:hover {
+    color: var(--color-text-tertiary);
   }
 }
 
 .selected-tags-section {
-  padding-top: var(--spacing-x2);
+  margin-bottom: calc(-1 * var(--spacing-x2));
+  padding-bottom: var(--spacing-x2);
 }
 
 .facet-list-container {
   position: relative;
-  flex: 1 1 0;
-  overflow: hidden;
-  min-height: 200px;
-  height: 0;
+  flex: 1 1 auto;
+  min-height: 45vh;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border-bright);
+  padding-top: var(--spacing-x4);
 }
 
 .facet-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x2);
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   padding-bottom: var(--spacing-x8);
-  padding-right: var(--spacing-x2);
-
-  // Custom scrollbar
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 
   &::-webkit-scrollbar-track {
     background: transparent;
@@ -234,7 +250,7 @@
 @include m.respond(md) {
   :host {
     width: 100%;
-    max-height: 80vh;
+    height: 90vh;
     border-radius: var(--spacing-x4) var(--spacing-x4) 0 0;
 
     @media (max-height: 800px) {
@@ -252,13 +268,13 @@
   }
 
   .filters--container {
-    flex-direction: column;
+    //flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-x2);
   }
 
   .info-row {
-    flex-direction: column;
+    //flex-direction: column;
     align-items: flex-start;
   }
 

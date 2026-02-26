@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EnvironmentService } from './environment.service';
+import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens';
 
 export interface AltoBox {
   x: number;
@@ -52,7 +53,10 @@ export class AltoService {
    */
   fetchAltoXml(pid: string): Observable<string> {
     const url = `${this.API_URL}/search/api/client/v7.0/items/${pid}/ocr/alto`;
-    return this.http.get(url, { responseType: 'text' });
+    return this.http.get(url, {
+      responseType: 'text',
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    });
   }
 
   /**

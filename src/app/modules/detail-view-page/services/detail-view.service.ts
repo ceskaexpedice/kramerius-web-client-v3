@@ -18,6 +18,7 @@ import {
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
 import { filter, map, Observable, skip, take } from 'rxjs';
+import { SolrService } from '../../../core/solr/solr.service';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
@@ -47,6 +48,8 @@ export class DetailViewService {
   _pages = signal<Page[]>([]);
   _currentArticleIndex = signal<number>(0);
   _articles = signal<Page[]>([]);
+  // PID of the page that the current article is displayed on (via foster_parents)
+  _articlePagePid = signal<string | null>(null);
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
@@ -59,6 +62,7 @@ export class DetailViewService {
   private uiStateService = inject(UiStateService);
   private pdfService = inject(PdfService);
   private userService = inject(UserService);
+  private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
   pagesOnly$ = this.store.select(selectDocumentDetailOnlyPages);
@@ -125,6 +129,7 @@ export class DetailViewService {
         this.store.select(clearArticleDetail);
       }
     });
+
   }
 
   resetState(): void {
@@ -132,9 +137,11 @@ export class DetailViewService {
     this._articles.set([]);
     this._currentPageIndex.set(0);
     this._currentArticleIndex.set(0);
+    this._articlePagePid.set(null);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
     this.soundRecordingViewMode.set('records');
+    this.uiStateService.setMetadataSidebarActiveTab(null);
   }
 
   /**
@@ -196,6 +203,11 @@ export class DetailViewService {
   }
 
   get currentPagePid(): string | null {
+    // When viewing an article, use the foster-child page PID
+    const articlePagePid = this._articlePagePid();
+    if (articlePagePid) {
+      return articlePagePid;
+    }
     const currentPage = this.getCurrentPage();
     return currentPage ? currentPage.pid : null;
   }
@@ -233,6 +245,10 @@ export class DetailViewService {
 
   loadDocument() {
     this.store.dispatch(loadDocumentDetail({}));
+
+    if (this.uiStateService.metadataSidebarActiveTab() !== 'search') {
+      this.uiStateService.setMetadataSidebarActiveTab('description');
+    }
 
     this.document$.pipe(
       skip(1),
@@ -349,6 +365,10 @@ export class DetailViewService {
 
       if (articleIndex !== -1) {
         this._currentArticleIndex.set(articleIndex);
+        // For non-PDF articles, fetch the foster-child page and navigate to ?page=
+        if (!this.isPdf) {
+          this.goToArticle(articleIndex);
+        }
       }
     } else {
       // Auto-select first article only if isPdf (document has PDF or pages have PDF mime type)
@@ -408,9 +428,28 @@ export class DetailViewService {
   goToArticle(index: number) {
     if (index >= 0 && index < this._articles().length) {
       this._currentArticleIndex.set(index);
-      this.changeArticleUrl();
-      // Reload access info for the new article
-      this.loadPageInfo();
+      const article = this._articles()[index];
+
+      if (this.isPdf) {
+        // PDF article: set ?article=<pid> so the PDF viewer loads the correct article
+        this._articlePagePid.set(null);
+        this.changeArticleUrl();
+        this.loadPageInfo();
+      } else {
+        // Non-PDF periodical article: fetch the foster-child page and navigate to ?page=<pid>
+        this.solrService.getPagesByFosterParent(article.pid).pipe(take(1)).subscribe(pages => {
+          if (pages && pages.length > 0) {
+            this._articlePagePid.set(pages[0].pid);
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { page: pages[0].pid, article: null },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+            this.loadPageInfo();
+          }
+        });
+      }
     }
   }
 
@@ -450,6 +489,9 @@ export class DetailViewService {
     // add to url ?page=PAGE_PID
 
     if (currentPage) {
+      // Clear article page pid when navigating to a regular page
+      this._articlePagePid.set(null);
+
       // Preserve fulltext param from URL (set via window.history.replaceState)
       const url = new URL(window.location.href);
       const fulltext = url.searchParams.get('fulltext');
@@ -474,13 +516,13 @@ export class DetailViewService {
    * Loads page/document info for access checking
    */
   private loadPageInfo() {
-    const currentArticle = this.getCurrentArticle();
+    const articlePagePid = this._articlePagePid();
     const currentPage = this.getCurrentPage();
 
-    if (currentArticle) {
-      // Article PDF - load article info
-      this.documentInfoService.loadPageInfo(currentArticle.pid);
-    } else if (currentPage) {
+    if (articlePagePid) {
+      // Non-PDF article: load info for the foster-child page that is displayed
+      this.documentInfoService.loadPageInfo(articlePagePid);
+    } else if (currentPage && currentPage.model === DocumentTypeEnum.page) {
       // Page-based document - load page info
       this.documentInfoService.loadPageInfo(currentPage.pid);
     } else if (this.document?.uuid) {
