@@ -3,7 +3,7 @@
 .badge.model {
   background: var(--color-bg-base);
   color: var(--color-text-base);
-  font-size: calc(12px * var(--accessibility-text-scale));
+  font-size: var(--font-size-xxsmall);
   padding: 4px 6px;
   border-radius: 0 4px 4px 0;
   z-index: z.$record-item-overlay;
@@ -12,7 +12,7 @@
   gap: 4px;
 
   i {
-    font-size: calc(14px * var(--accessibility-text-scale));
+    font-size: var(--font-size-small);
   }
 
   .icon-stack {
@@ -23,7 +23,7 @@
 
     i {
       position: absolute;
-      font-size: calc(14px * var(--accessibility-text-scale));
+      font-size: var(--font-size-small);
       background-color: var(--color-bg-base);
 
       &:first-child {

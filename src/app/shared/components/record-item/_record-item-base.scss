@@ -83,7 +83,7 @@
       background-color: var(--color-bg-bright);
 
       i {
-        font-size: 28px;
+        font-size: var(--font-size-3xlarge);
         color: var(--icon-grey);
         visibility: visible !important;
       }
@@ -176,7 +176,7 @@
     }
 
     i {
-      font-size: calc(24px * var(--accessibility-text-scale));
+      font-size: var(--font-size-xxlarge);
     }
   }
 
@@ -238,7 +238,7 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 20px;
+      line-height: var(--line-height-1);
     }
 
     .authors {

@@ -7,7 +7,7 @@
 .genres-section {
   h3 {
     margin-bottom: 12px;
-    font-size: calc(18px * var(--accessibility-text-scale));
+    font-size: var(--font-size-large);
   }
 
   .genres-grid {

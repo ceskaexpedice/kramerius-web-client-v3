@@ -152,7 +152,7 @@
     background: var(--color-bg-base);
 
     i {
-      font-size: 12px;
+      font-size: var(--font-size-xxsmall);
       color: var(--color-tertiary);
     }
   }

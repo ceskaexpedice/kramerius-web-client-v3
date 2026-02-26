@@ -27,7 +27,7 @@ h6 {
   margin: 0;
   font-size: var(--font-size-base);
   font-weight: 500;
-  line-height: 24px;
+  line-height: var(--line-height-2);
   color: var(--color-text-base);
 }
 
@@ -41,7 +41,7 @@ hr {
 }
 
 .close-button {
-  font-size: calc(24px * var(--accessibility-text-scale));
+  font-size: var(--font-size-xxlarge);
   padding: 5px;
 }
 

@@ -43,7 +43,7 @@
   &.lg .date-display {
     padding: var(--spacing-x2) var(--spacing-x3);
     font-size: var(--font-size-base);
-    line-height: 24px;
+    line-height: var(--line-height-2);
 
     i {
       font-size: var(--font-size-base);

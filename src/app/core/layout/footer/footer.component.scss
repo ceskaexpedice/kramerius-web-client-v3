@@ -42,7 +42,7 @@
         .logo-text {
             font-weight: 400;
             color: var(--color-tertiary);
-            font-size: 18px;
+            font-size: var(--font-size-large);
         }
 
         .logos {
@@ -119,11 +119,11 @@
             gap: 12px;
 
             .group-label {
-                font-size: 12px;
+                font-size: var(--font-size-small);
             }
 
             .logo-text {
-                font-size: 16px;
+                font-size: var(--font-size-base);
             }
 
             .logos {
@@ -147,7 +147,7 @@
 
             li {
                 a {
-                    font-size: 14px;
+                    font-size: var(--font-size-small);
                 }
 
               &:last-child {

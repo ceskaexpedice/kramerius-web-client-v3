@@ -36,8 +36,8 @@
 
     > span {
       font-weight: 700;
-      font-size: 16px;
-      line-height: 20px;
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-1);
       color: var(--color-text-base);
     }
   }
@@ -60,13 +60,13 @@
       gap: var(--spacing-x1);
 
       i {
-        font-size: 16px;
+        font-size: var(--font-size-base);
         color: var(--color-warning);
       }
 
       span {
-        font-size: 14px;
-        line-height: 20px;
+        font-size: var(--font-size-small);
+        line-height: var(--line-height-1);
         color: var(--color-text-secondary);
       }
 

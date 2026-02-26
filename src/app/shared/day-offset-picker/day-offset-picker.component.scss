@@ -38,7 +38,7 @@
       border: none;
       cursor: pointer;
       padding: 0;
-      font-size: calc(18px * var(--accessibility-text-scale));
+      font-size: var(--font-size-large);
       color: var(--color-icon-tertiary-default);
       display: flex;
       align-items: center;

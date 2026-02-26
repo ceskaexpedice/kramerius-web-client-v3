@@ -68,7 +68,7 @@
 }
 
 .title {
-  font-size: 32px;
+  font-size: var(--font-size-4xlarge);
   font-weight: 400;
   color: var(--color-text-base);
   margin-bottom: var(--spacing-x6);

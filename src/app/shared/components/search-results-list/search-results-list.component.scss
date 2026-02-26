@@ -69,7 +69,7 @@
   height: 40px;
   border: 2px solid var(--color-border-contrast);
   border-radius: 50%;
-  font-size: 24px;
+  font-size: var(--font-size-xxlarge);
 
   &::after {
     content: '';

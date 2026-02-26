@@ -9,6 +9,6 @@
 }
 
 .badge.badge-xs {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: var(--font-size-xxsmall);
+  line-height: var(--line-height-xs);
 }

@@ -33,7 +33,7 @@
       min-width: max-content;
       justify-content: center;
       padding: 8px 12px;
-      font-size: calc(12px * var(--accessibility-text-scale));
+      font-size: var(--font-size-xxsmall);
 
       // Allow text to wrap if needed
       span {
