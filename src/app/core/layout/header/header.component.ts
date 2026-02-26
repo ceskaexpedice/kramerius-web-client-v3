@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { HeaderType } from './header-types';
 import { SettingsService } from '../../../modules/settings/settings.service';
+import { AuthService } from '../../auth/auth.service';
 import { AppSettingsThemeEnum } from '../../../modules/settings/settings.model';
 import { NgClass, NgIf } from '@angular/common';
 import { AutocompleteComponent } from '../../../shared/components/autocomplete/autocomplete.component';
@@ -42,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   headerType: HeaderType = 'transparent';
   private routerSubscription?: Subscription;
   private themeSubscription?: Subscription;
+  private authSubscription?: Subscription;
 
   // Track the application's effective theme correctly considering system overrides
   effectiveTheme: 'light' | 'dark' = 'light';
@@ -56,6 +58,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Mobile search state
   isMobileSearchOpen = false;
+
+  // Auth state
+  isLoggedIn = signal(false);
 
   // Logo click counter for libraries easter egg
   private logoClickCount = 0;
@@ -73,6 +78,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private libraryContext: LibraryContextService,
     private translationService: AppTranslationService,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) { }
 
   /**
@@ -108,6 +114,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     });
 
+    // Subscribe to auth state
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuth => {
+      this.isLoggedIn.set(isAuth);
+    });
+
     // Initial check
     this.updateHeaderType();
 
@@ -128,6 +139,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.routerSubscription?.unsubscribe();
     this.themeSubscription?.unsubscribe();
+    this.authSubscription?.unsubscribe();
   }
 
   get showSearchBar(): boolean {
