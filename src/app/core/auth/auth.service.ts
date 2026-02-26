@@ -189,4 +189,8 @@ export class AuthService {
   getStoredUser(): User | null {
     return this.storage.get<User>(this.USER_KEY);
   }
+
+  getRawUserSession(): any {
+    return this.storage.get(this.USER_KEY) || null;
+  }
 }

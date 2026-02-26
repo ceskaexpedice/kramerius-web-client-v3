@@ -518,5 +518,6 @@
   "toolbar.tooltip.edit": "Edit",
   "toolbar.tooltip.select": "Select",
   "pages--tab": "Pages",
-  "articles--tab": "Articles"
+  "articles--tab": "Articles",
+  "auth-data-dialog--header": "Access data"
 }

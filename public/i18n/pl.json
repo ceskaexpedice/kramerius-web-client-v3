@@ -509,5 +509,6 @@
   "toolbar.tooltip.edit": "Edytuj",
   "toolbar.tooltip.select": "Wybierz",
   "pages--tab": "Strony",
-  "articles--tab": "Artykuły"
+  "articles--tab": "Artykuły",
+  "auth-data-dialog--header": "Dane dostępu"
 }
