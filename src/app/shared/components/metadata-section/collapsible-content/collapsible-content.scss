@@ -1,0 +1,8 @@
+.collapsible-content--wrapper {
+  &.collapsible.collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--max-lines, 3);
+    overflow: hidden;
+  }
+}
