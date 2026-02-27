@@ -19,7 +19,7 @@
         <span class="group-label">{{ 'footer.development' | translate }}</span>
         <div class="logos">
             <img src="img/logo/trinera-logo.png" alt="Trinera">
-            <img src="img/logo/inovatika-logo.png" alt="Inovatika">
+            <img [src]="effectiveTheme === 'dark' ? 'img/logo/inovatika-logo-dark.png' : 'img/logo/inovatika-logo.png'" alt="Inovatika">
         </div>
     </div>
 </div>
