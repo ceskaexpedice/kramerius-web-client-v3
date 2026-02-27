@@ -5,6 +5,7 @@ import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FormsModule} from '@angular/forms';
 import {FormatNumberPipe} from '../../pipes/format-number.pipe';
+import {CdkTooltipDirective} from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 
 @Component({
   selector: 'app-filter-items-radio',
@@ -17,6 +18,7 @@ import {FormatNumberPipe} from '../../pipes/format-number.pipe';
     NgIf,
     FormsModule,
     FormatNumberPipe,
+    CdkTooltipDirective,
   ],
   templateUrl: './filter-items-radio.component.html',
   styleUrl: './filter-items-radio.component.scss'

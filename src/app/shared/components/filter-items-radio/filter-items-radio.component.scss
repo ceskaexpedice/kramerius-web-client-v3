@@ -53,6 +53,21 @@ label {
   }
 }
 
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 2px;
+  position: relative;
+  top: -4px;
+  color: var(--icon-grey);
+  cursor: help;
+  font-size: var(--font-size-xxsmall);
+
+  &:hover {
+    color: var(--color-text-tertiary);
+  }
+}
+
 .icons-group {
   display: inline-flex;
   align-items: center;
@@ -60,7 +75,7 @@ label {
 
   .icon {
     margin-left: -6px;
-    border: 1px solid var(--color-bg-base, #fff);
+    border: 1px solid var(--color-bg-base);
 
     &:first-child {
       margin-left: 0;

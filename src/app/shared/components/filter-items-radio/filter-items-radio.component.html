@@ -5,6 +5,10 @@
       <label class="cursor-pointer" (click)="onLabelClick(item.name)" [class.selected]="item.name === selected">{{
         (item.label || (item.name + '-label')) | translate }}</label>
       <span class="count" [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
+      <span *ngIf="item.tooltipIcon && item.tooltipText" class="tooltip-icon"
+        [appCdkTooltip]="item.tooltipText | translate" [tooltipPosition]="'right'">
+        <i [ngClass]="item.tooltipIcon"></i>
+      </span>
     </span>
     <span *ngIf="item.icons && item.icons.length > 0" class="icons-group" [class.active]="item.name === selected">
       <span *ngFor="let ic of item.icons" class="icon">

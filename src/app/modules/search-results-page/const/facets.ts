@@ -151,6 +151,8 @@ export function getCustomDefinedFacets() {
             { icon: 'icon-locked', iconClass: 'accessibility-public' },
             { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
           ],
+          tooltipIcon: 'icon-question',
+          tooltipText: 'custom-accessibility--all-tooltip',
         },
         {
           key: FacetAccessibilityTypes.available,
@@ -163,6 +165,8 @@ export function getCustomDefinedFacets() {
             { icon: 'icon-locked', iconClass: 'accessibility-public' },
             { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
           ],
+          tooltipIcon: 'icon-question',
+          tooltipText: 'custom-accessibility--available-tooltip',
         },
         {
           key: FacetAccessibilityTypes.public,
@@ -172,7 +176,7 @@ export function getCustomDefinedFacets() {
           icon: 'icon-eye-public',
           iconClass: 'accessibility-public',
           count: 0,
-          type: FacetElementType.radio,
+          type: FacetElementType.radio
         },
         {
           key: FacetAccessibilityTypes.afterLogin,
@@ -183,6 +187,8 @@ export function getCustomDefinedFacets() {
           iconClass: 'accessibility-private',
           count: 0,
           type: FacetElementType.radio,
+          tooltipIcon: 'icon-question',
+          tooltipText: 'custom-accessibility--afterLogin-tooltip',
         },
         {
           key: FacetAccessibilityTypes.onsite,
@@ -192,7 +198,7 @@ export function getCustomDefinedFacets() {
           icon: 'icon-in-house',
           iconClass: 'accessibility-in_library',
           count: 0,
-          type: FacetElementType.radio,
+          type: FacetElementType.radio
         }
       ]
     },

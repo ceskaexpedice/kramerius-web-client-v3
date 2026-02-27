@@ -512,5 +512,8 @@
   "toolbar.tooltip.select": "Vybrat",
   "pages--tab": "Strany",
   "articles--tab": "Články",
-  "auth-data-dialog--header": "Přístupy"
+  "auth-data-dialog--header": "Přístupy",
+  "custom-accessibility--all-tooltip": "Některé dokumenty jsou volně přístupné, jiné jsou stále chráněné autorským zákonem a jejich zobrazení závisí na typu přístupu (bez přihlášení, po přihlášení nebo pouze v knihovně).",
+  "custom-accessibility--available-tooltip": "Pouze dostupné zobrazí jen dokumenty, které si můžete právě teď otevřít. Bez přihlášení uvidíte jen veřejná díla. Po přihlášení i další dokumenty zpřístupněné vaší knihovnou (např. DNNT).",
+  "custom-accessibility--afterLogin-tooltip": "Zobrazí dokumenty dostupné po přihlášení. Jde o autorsky chráněná díla označená jako díla nedostupná na trhu (DNNT), která jsou zpřístupněna online v režimu pro čtení registrovaným čtenářům zapojených knihoven."
 }
