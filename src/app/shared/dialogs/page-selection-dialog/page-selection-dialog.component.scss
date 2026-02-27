@@ -38,15 +38,15 @@
 
     i {
       color: var(--color-warning);
-      font-size: calc(16px * var(--accessibility-text-scale));
+      font-size: var(--font-size-base);
     }
 
-    font-size: calc(14px * var(--accessibility-text-scale));
+    font-size: var(--font-size-small);
     color: var(--color-text-secondary);
   }
 
   .limit-info {
-    font-size: calc(14px * var(--accessibility-text-scale));
+    font-size: var(--font-size-small);
     color: var(--color-text-secondary);
     margin-left: var(--spacing-x2);
 

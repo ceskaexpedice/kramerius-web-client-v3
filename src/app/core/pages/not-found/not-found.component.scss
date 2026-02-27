@@ -54,7 +54,7 @@
 
 .title {
   font-weight: 400;
-  font-size: 40px;
+  font-size: var(--font-size-5xlarge);
   color: var(--color-text-base);
   margin-bottom: var(--spacing-x6);
 }

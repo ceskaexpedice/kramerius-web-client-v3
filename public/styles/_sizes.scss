@@ -8,11 +8,17 @@
 
   --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
 
+  --font-size-xs: calc(11px * var(--accessibility-text-scale));
+  --font-size-xxsmall: calc(12px * var(--accessibility-text-scale));
   --font-size-small: calc(14px * var(--accessibility-text-scale));
   --font-size-base: calc(16px * var(--accessibility-text-scale));
   --font-size-large: calc(18px * var(--accessibility-text-scale));
   --font-size-xlarge: calc(20px * var(--accessibility-text-scale));
   --font-size-xxlarge: calc(24px * var(--accessibility-text-scale));
+  --font-size-3xlarge: calc(28px * var(--accessibility-text-scale));
+  --font-size-4xlarge: calc(32px * var(--accessibility-text-scale));
+  --font-size-5xlarge: calc(40px * var(--accessibility-text-scale));
+  --font-size-6xlarge: calc(48px * var(--accessibility-text-scale));
 
   --header-height: 71px;
   --toolbar-height: 56px;
@@ -31,10 +37,15 @@
   --spacing-x24: 96px;
 
   --line-height-xs: calc(16px * var(--accessibility-text-scale));
+  --line-height-xs2: calc(22px * var(--accessibility-text-scale));
   --line-height-1: calc(20px * var(--accessibility-text-scale));
   --line-height-2: calc(24px * var(--accessibility-text-scale));
   --line-height-3: calc(28px * var(--accessibility-text-scale));
   --line-height-4: calc(32px * var(--accessibility-text-scale));
+  --line-height-5: calc(36px * var(--accessibility-text-scale));
+  --line-height-6: calc(40px * var(--accessibility-text-scale));
+  --line-height-7: calc(44px * var(--accessibility-text-scale));
+  --line-height-8: calc(56px * var(--accessibility-text-scale));
 
   // ===================
   // Card & Grid Sizes
@@ -71,8 +82,9 @@
   --card-image-aspect-ratio: 129 / 160;
 
   // Carousel Card (homepage) - 200x364
-  --carousel-card-width: 200px;
-  --carousel-card-height: 364px;
+  --carousel-card-width: 185px;
+  --carousel-card-height: 388px;
+  --carousel-image-aspect-ratio: 160 / 220;
 
   // Author Card - 200x324
   --author-card-width: 200px;

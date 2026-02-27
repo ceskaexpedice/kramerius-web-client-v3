@@ -29,15 +29,15 @@
 .access-denied-title {
   font-family: var(--font-family-primary);
   font-weight: 500;
-  font-size: 32px;
-  line-height: 44px;
+  font-size: var(--font-size-4xlarge);
+  line-height: var(--line-height-7);
   margin: 0;
 }
 
 .access-denied-description {
   font-family: var(--font-family-primary);
-  font-size: 18px;
-  line-height: 24px;
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-2);
   margin: 0;
 
   p {
@@ -118,8 +118,8 @@
 
 .faq-title {
   font-weight: 500;
-  font-size: 24px;
-  line-height: 40px;
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-6);
   color: var(--color-text-secondary);
   margin: 0;
 }
@@ -132,17 +132,17 @@
   }
 
   .access-denied-title {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: var(--font-size-3xlarge);
+    line-height: var(--line-height-5);
   }
 
   .access-denied-description {
-    font-size: 16px;
-    line-height: 22px;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-xs2);
   }
 
   .faq-title {
-    font-size: 20px;
-    line-height: 32px;
+    font-size: var(--font-size-xlarge);
+    line-height: var(--line-height-4);
   }
 }

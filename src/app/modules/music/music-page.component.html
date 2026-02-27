@@ -1,6 +1,8 @@
 <app-detail-layout
   [showBottomToolbar]="false"
-  [constrainBottomToolbar]="true">
+  [constrainBottomToolbar]="true"
+  [showRightSidebar]="true"
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <ng-container left-sidebar>
 
@@ -35,10 +37,8 @@
     </div>
   </ng-container>
 
-  <ng-container main-content>
-
+  <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-
       <app-action-toolbar>
         <div class="max-width-100 w-100" left>
           <app-toolbar-header
@@ -67,49 +67,82 @@
         </div>
 
       </app-action-toolbar>
+    </ng-container>
+  </ng-container>
+
+  <ng-container main-content>
+
+    <ng-container *ngIf="detailViewService.document$ | async as document">
 
       <div class="detail-view--page--content--body">
 
         <div class="detail-view--page--content--wrapper" >
 
-          @if (detailViewService.soundRecordingViewMode() === 'images') {
+          @let checkState = documentInfoService.state();
 
-            @if (detailViewService.isCurrentPageAccessible) {
-              <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
-              </app-iiif-viewer>
-            } @else {
-              <div class="access-restricted-message">
-                <span class="icon icon-lock-1"></span>
-                <p>{{ 'image-access-restricted' | translate }}</p>
-              </div>
+          <!-- Show access denied after access check completes and fails -->
+          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
+            <app-document-access-denied [metadata]="document"
+              [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+            </app-document-access-denied>
+          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+            <app-inline-loader></app-inline-loader>
+          } @else {
+
+            @if (detailViewService.soundRecordingViewMode() === 'images') {
+
+              @if (detailViewService.isCurrentPageAccessible) {
+                <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+                </app-iiif-viewer>
+              } @else {
+                <div class="access-restricted-message">
+                  <span class="icon icon-lock-1"></span>
+                  <p>{{ 'image-access-restricted' | translate }}</p>
+                </div>
+              }
+
+            }
+
+            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
+
+              <ng-container *ngIf="musicService.tracks$ | async as tracks">
+
+                <app-music-track-list
+                  [tracks]="tracks"
+                  [playingPid]="soundService.currentTrackPid"
+                  (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                  (addToQueue)="musicService.addTrackToQueue($event)"
+                  (download)="musicService.downloadTrack($event)"
+                ></app-music-track-list>
+
+              </ng-container>
+
+            </ng-container>
+
+            @if (detailViewService.soundRecordingViewMode() === 'images') {
+              <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
             }
 
           }
 
-          <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'records'">
-
-            <ng-container *ngIf="musicService.tracks$ | async as tracks">
-
-              <app-music-track-list
-                [tracks]="tracks"
-                [playingPid]="soundService.currentTrackPid"
-                (select)="musicService.addTracksToQueueAndPlayFirst($event)"
-                (addToQueue)="musicService.addTrackToQueue($event)"
-                (download)="musicService.downloadTrack($event)"
-              ></app-music-track-list>
-
-            </ng-container>
-
-
-          </ng-container>
-
-<!--          @if (detailViewService.soundRecordingViewMode() === 'images') {-->
-<!--            <app-viewer-controls type="image"></app-viewer-controls>-->
-<!--          }-->
-
         </div>
 
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
+        <button class="floating-sidebar-toggle button icon-button primary rounded"
+          (click)="detailViewService.showMetadataSidebar()">
+          <i class="icon-info-full"></i>
+        </button>
+        }
+
       </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container right-sidebar>
+    <ng-container *ngIf="detailViewService.document$ | async as document">
+      <app-metadata-sidebar [metadata]="document" mode="floating"
+        [tools]="{search: true, export: true, description: true}">
+      </app-metadata-sidebar>
     </ng-container>
   </ng-container>
 

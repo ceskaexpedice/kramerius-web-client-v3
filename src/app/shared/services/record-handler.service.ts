@@ -684,7 +684,7 @@ export class RecordHandlerService {
 
   public getRecordLicenseForBadge(licenses: string[]): string {
     // if licenses include public, return public
-    if (licenses.includes('public')) {
+    if (this.isRecordPublic(licenses)) {
       return 'public';
     }
 

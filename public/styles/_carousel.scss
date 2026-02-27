@@ -11,6 +11,10 @@
       min-height: unset;
       flex: 1;
 
+      .record-item-card__image {
+        aspect-ratio: var(--carousel-image-aspect-ratio) !important;
+      }
+
       &.with-badge {
         aspect-ratio: unset;
       }

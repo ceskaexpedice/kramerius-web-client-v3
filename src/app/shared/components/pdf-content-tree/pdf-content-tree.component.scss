@@ -7,7 +7,7 @@
     padding: 20px;
     text-align: center;
     color: var(--color-text-secondary);
-    font-size: calc(14px * var(--accessibility-text-scale));
+    font-size: var(--font-size-small);
   }
 
   &__items {
@@ -74,18 +74,18 @@
     color: var(--color-text-secondary);
 
     i {
-      font-size: calc(12px * var(--accessibility-text-scale));
+      font-size: var(--font-size-xxsmall);
     }
   }
 
   &__title {
     flex: 1;
-    font-size: calc(14px * var(--accessibility-text-scale));
+    font-size: var(--font-size-small);
     color: var(--color-text-secondary);
   }
 
   &__page {
-    font-size: calc(12px * var(--accessibility-text-scale));
+    font-size: var(--font-size-xxsmall);
     color: var(--color-text-secondary);
     font-weight: 500;
   }

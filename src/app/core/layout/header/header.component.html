@@ -38,7 +38,7 @@
 
   </div>
 
-  <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen">
+  <nav class="app-header__right" [class.mobile-search-active]="isMobileSearchOpen" [class.user-logged-in]="isLoggedIn()">
 
     <a [routerLink]="searchLink"
       [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"
@@ -48,11 +48,19 @@
     <a [routerLink]="getPageLink(page)" class="cursor-pointer desktop-only">{{ getPageLabel(page) }}</a>
     }
 
-    <div class="desktop-only">
-      <app-user-info></app-user-info>
-    </div>
+    @if (!isLoggedIn()) {
+      <div class="desktop-only">
+        <app-user-info></app-user-info>
+      </div>
+    }
 
     <div class="header-actions-group">
+
+      @if (isLoggedIn()) {
+        <div class="desktop-only">
+          <app-user-info></app-user-info>
+        </div>
+      }
 
       <!-- Mobile search toggle button -->
       <button *ngIf="showSearchBar" class="icon-button outlined light mobile-only mobile-search-toggle"

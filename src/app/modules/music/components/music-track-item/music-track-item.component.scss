@@ -25,7 +25,7 @@ td {
   padding: var(--spacing-x2) var(--spacing-x4);
   border-bottom: 1px solid var(--color-border);
   font-size: var(--font-size-base);
-  line-height: 20px;
+  line-height: var(--line-height-1);
 }
 
 .title {

@@ -16,12 +16,12 @@ button {
 // sizes
 button.sm {
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: var(--font-size-xxsmall);
 }
 
 button.xs {
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 // rounded icon button

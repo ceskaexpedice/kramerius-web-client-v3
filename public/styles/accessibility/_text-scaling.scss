@@ -202,14 +202,14 @@ body.text-scale-300 {
   }
 
   .mat-tooltip {
-    font-size: calc(12px * var(--accessibility-text-scale));
+    font-size: var(--font-size-xxsmall);
     padding: calc(6px * var(--accessibility-text-scale)) calc(8px * var(--accessibility-text-scale));
   }
 
   .mat-icon {
     width: calc(24px * var(--accessibility-text-scale));
     height: calc(24px * var(--accessibility-text-scale));
-    font-size: calc(24px * var(--accessibility-text-scale));
+    font-size: var(--font-size-xxlarge);
   }
 
   @media (max-width: 768px) {

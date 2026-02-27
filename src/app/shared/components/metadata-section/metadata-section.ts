@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
 import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
+import { CollapsibleContent } from './collapsible-content/collapsible-content';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
@@ -27,6 +28,7 @@ import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-
     NgIf,
     TranslatePipe,
     MetadataSectionItem,
+    CollapsibleContent,
     AccessibilityBadgeComponent,
     RouterLink
   ],

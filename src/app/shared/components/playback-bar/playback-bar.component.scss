@@ -38,7 +38,7 @@
       }
 
       .meta {
-        font-size: calc(12px * var(--accessibility-text-scale));
+        font-size: var(--font-size-xxsmall);
         color: var(--color-text-tertiary);
       }
     }
@@ -80,7 +80,7 @@
   max-width: 400px;
 
   span {
-    font-size: calc(12px * var(--accessibility-text-scale));
+    font-size: var(--font-size-xxsmall);
     width: 40px;
     text-align: center;
   }

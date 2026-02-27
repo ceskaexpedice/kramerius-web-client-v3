@@ -5,8 +5,8 @@
   padding: 24px;
 
   h1 {
-    font-size: calc(40px * var(--accessibility-text-scale));
-    line-height: 56px;
+    font-size: var(--font-size-5xlarge);
+    line-height: var(--line-height-8);
     margin-bottom: 16px;
     font-weight: 400;
     color: var(--color-text-base);
@@ -47,7 +47,7 @@
   }
 
   h1 {
-    font-size: calc(28px * var(--accessibility-text-scale));
+    font-size: var(--font-size-3xlarge);
     margin-top: 0;
     margin-bottom: var(--spacing-x4);
   }

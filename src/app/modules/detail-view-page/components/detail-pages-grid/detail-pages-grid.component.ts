@@ -3,7 +3,7 @@ import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {DetailPageItemComponent} from '../detail-page-item/detail-page-item.component';
 import {DetailViewService} from '../../services/detail-view.service';
 import {Page} from '../../../../shared/models/page.model';
-import {take} from 'rxjs';
+import {Observable, take} from 'rxjs';
 
 @Component({
   selector: 'app-detail-pages-grid',
@@ -39,7 +39,8 @@ export class DetailPagesGridComponent {
     const currentPid = this.detailViewService.currentPagePid;
     if (!currentPid) return;
 
-    this.detailViewService.pagesOnly$.pipe(take(1)).subscribe((pages: Page[] | undefined) => {
+    const pages$: Observable<Page[] | null | undefined> = this.type === 'recording' ? this.detailViewService.pages$ : this.detailViewService.pagesOnly$;
+    pages$.pipe(take(1)).subscribe((pages: Page[] | null | undefined) => {
       if (!pages) return;
       const index = pages.findIndex(p => p.pid === currentPid);
       if (index !== -1) {

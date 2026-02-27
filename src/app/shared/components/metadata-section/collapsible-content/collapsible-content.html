@@ -1,0 +1,16 @@
+<div class="collapsible-content--wrapper"
+     #contentRef
+     [class.collapsible]="collapsible"
+     [class.collapsed]="collapsible && isCollapsed"
+     [style.--max-lines]="maxLines">
+  <ng-content></ng-content>
+</div>
+
+@if (collapsible && isOverflowing) {
+  <div class="collapsible--action">
+    <button class="button tertiary outlined xs"
+            (click)="toggleCollapse()">
+      {{ (isCollapsed ? 'show-more' : 'show-less') | translate }}
+    </button>
+  </div>
+}

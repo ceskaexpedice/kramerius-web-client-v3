@@ -511,5 +511,6 @@
   "toolbar.tooltip.edit": "Upravit",
   "toolbar.tooltip.select": "Vybrat",
   "pages--tab": "Strany",
-  "articles--tab": "Články"
+  "articles--tab": "Články",
+  "auth-data-dialog--header": "Přístupy"
 }

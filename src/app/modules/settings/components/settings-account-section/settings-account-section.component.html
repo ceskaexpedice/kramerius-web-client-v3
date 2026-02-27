@@ -6,7 +6,7 @@
       <span class="user-name">
         {{ user.name }}
       </span>
-      <button class="icon-button outlined light logout-button" (click)="logout()">
+      <button class="icon-button outlined light sm logout-button" (click)="logout()">
         <i class="icon-logout"></i>
       </button>
     </div>
@@ -18,57 +18,10 @@
       </div>
     </div>
 
-    @if (showMoreInfo()) {
-    <div class="user-details">
-
-      <div class="detail-group">
-        <div class="detail-item">
-          <span class="label">UID</span>
-          <span class="value">{{ user.id }}</span>
-        </div>
-      </div>
-
-      @if (user.roles?.length) {
-      <div class="detail-group">
-        <span class="group-label">{{ 'roles' | translate }}</span>
-        <div class="tags-list">
-          @for (role of user.roles; track role) {
-          <span class="tag">{{ role }}</span>
-          }
-        </div>
-      </div>
-      }
-
-      @if (user.licenses?.length) {
-      <div class="detail-group">
-        <span class="group-label">{{ 'licenses' | translate }}</span>
-        <div class="tags-list">
-          @for (license of user.licenses; track license) {
-          <span class="tag">{{ license }}</span>
-          }
-        </div>
-      </div>
-      }
-
-      @if (user.session) {
-      <div class="detail-group">
-        <span class="group-label">{{ 'session' | translate }}</span>
-        @for (item of user.session | keyvalue; track item.key) {
-        <div class="detail-item">
-          <span class="label">{{ item.key }}</span>
-          <span class="value">{{ item.value }}</span>
-        </div>
-        }
-      </div>
-      }
-
-    </div>
-    }
-
     <div class="actions">
-
-      <button class="button link" (click)="toggleMoreInfo()">
-        {{ (showMoreInfo() ? 'show-less' : 'show-more') | translate }}
+      <button class="button tertiary outlined sm with-icon" (click)="openAuthDataDialog()">
+        <i class="icon-code-3"></i>
+        {{ 'auth-data-dialog--header' | translate }}
       </button>
     </div>
 

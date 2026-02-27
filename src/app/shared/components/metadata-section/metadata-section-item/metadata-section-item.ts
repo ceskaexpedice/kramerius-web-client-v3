@@ -1,16 +1,17 @@
-import { Component, ElementRef, Input, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CollapsibleContent } from '../collapsible-content/collapsible-content';
 
 export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'key-value';
 
 @Component({
   selector: 'app-metadata-section-item',
-  imports: [NgIf, NgForOf, TranslatePipe],
+  imports: [NgIf, NgForOf, TranslatePipe, CollapsibleContent],
   templateUrl: './metadata-section-item.html',
   styleUrl: './metadata-section-item.scss'
 })
-export class MetadataSectionItem implements AfterViewInit {
+export class MetadataSectionItem {
 
   @Input() label: string = '';
   @Input() type: MetadataItemType = 'text';
@@ -24,39 +25,6 @@ export class MetadataSectionItem implements AfterViewInit {
   @Input() listKeyUppercase: boolean = false;
   @Input() disableTranslate: boolean = false;
   @Input() collapsible: boolean = false;
-
-  @ViewChild('contentRef') contentRef!: ElementRef<HTMLDivElement>;
-
-  isCollapsed: boolean = true;
-  isOverflowing: boolean = false;
-
-  constructor(private cdr: ChangeDetectorRef) {}
-
-  ngAfterViewInit(): void {
-    if (this.collapsible) {
-      this.checkOverflow();
-    }
-  }
-
-  private checkOverflow(): void {
-    const el = this.contentRef?.nativeElement;
-    if (!el) return;
-
-    // Temporarily remove clamp to get the real scrollHeight
-    el.style.webkitLineClamp = 'unset';
-    el.style.overflow = 'visible';
-    const fullHeight = el.scrollHeight;
-    el.style.webkitLineClamp = '';
-    el.style.overflow = '';
-
-    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
-    this.isOverflowing = fullHeight > lineHeight * 3 + 1;
-    this.cdr.detectChanges();
-  }
-
-  toggleCollapse(): void {
-    this.isCollapsed = !this.isCollapsed;
-  }
 
   getDisplayText(item: any): string {
     if (this.displayFn) {

@@ -76,14 +76,14 @@
   flex: 1;
   font-weight: 500;
   font-size: var(--font-size-base);
-  line-height: 20px;
+  line-height: var(--line-height-1);
   color: var(--color-text-secondary);
   white-space: pre-wrap;
 }
 
 .accordion-item__icon {
   flex-shrink: 0;
-  font-size: 20px;
+  font-size: var(--font-size-xlarge);
   color: var(--color-tertiary);
 }
 
@@ -95,8 +95,8 @@
   p, div {
     flex: 1;
     font-weight: 400;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-1);
     color: var(--color-text-base);
     margin: 0;
     white-space: pre-wrap;

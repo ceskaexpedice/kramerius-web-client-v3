@@ -1,0 +1,27 @@
+h2 {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+}
+
+.dialog-body {
+  padding: 0 var(--spacing-x6) var(--spacing-x6) var(--spacing-x6);
+
+  .content {
+    padding: var(--spacing-x2);
+
+    pre {
+      margin: 0;
+      padding: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+      font-size: var(--font-size-small);
+      line-height: var(--line-height-xs);
+      display: block;
+    }
+  }
+}

@@ -34,7 +34,7 @@
 label {
   color: var(--color-text-tertiary);
   font-size: var(--font-size-small);
-  line-height: 20px;
+  line-height: var(--line-height-1);
   font-weight: 500;
 
   &.selected {
@@ -45,7 +45,7 @@ label {
 .count {
   color: var(--color-text-light);
   font-size: var(--font-size-small);
-  line-height: 20px;
+  line-height: var(--line-height-1);
   margin-left: 5px;
 
   &.selected {

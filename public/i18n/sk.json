@@ -510,5 +510,6 @@
   "toolbar.tooltip.edit": "Upraviť",
   "toolbar.tooltip.select": "Vybrať",
   "pages--tab": "Strany",
-  "articles--tab": "Články"
+  "articles--tab": "Články",
+  "auth-data-dialog--header": "Prístupy"
 }

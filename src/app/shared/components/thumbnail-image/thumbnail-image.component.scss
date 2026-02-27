@@ -37,7 +37,7 @@
     background-color: var(--color-background-secondary, #f5f5f5);
 
     i {
-      font-size: 24px;
+      font-size: var(--font-size-xxlarge);
       color: var(--color-text-tertiary, #999);
       opacity: 0.5;
     }

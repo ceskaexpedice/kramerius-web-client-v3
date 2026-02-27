@@ -23,7 +23,7 @@
           (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
           [attr.aria-selected]="option === value">
           {{ displayFn(option) | translate }}
-          <i *ngIf="option === value" class="icon-tick-circle"></i>
+          <i *ngIf="option === value" class="icon-check"></i>
         </div>
       </cdk-virtual-scroll-viewport>
     </ng-container>
@@ -33,7 +33,7 @@
         [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
         (click)="select(option)" (mouseenter)="focusedIndex = i" role="option" [attr.aria-selected]="option === value">
         {{ displayFn(option) | translate }}
-        <i *ngIf="option === value" class="icon-tick-circle"></i>
+        <i *ngIf="option === value" class="icon-check"></i>
       </div>
     </ng-template>
 

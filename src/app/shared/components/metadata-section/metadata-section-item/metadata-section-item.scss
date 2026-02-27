@@ -17,7 +17,7 @@
   }
 }
 
-.metadata-section--item-value {
+app-collapsible-content {
   font-size: var(--font-size-base);
   line-height: var(--line-height-2);
 
@@ -61,20 +61,6 @@
   }
 }
 
-// Collapsible content
-.metadata-section--item-value {
-  &.collapsible.collapsed {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-  }
-}
-
-.metadata-section--item-toggle {
-  width: fit-content !important;
-  align-self: flex-start !important;
-}
 
 // Badge/pill styling
 .badge {

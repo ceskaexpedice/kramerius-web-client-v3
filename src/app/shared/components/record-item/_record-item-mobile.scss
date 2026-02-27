@@ -25,7 +25,7 @@
 
       .title {
         font-size: var(--font-size-base);
-        line-height: 20px;
+        line-height: var(--line-height-1);
         -webkit-line-clamp: 3;
       }
 
@@ -36,7 +36,7 @@
       }
 
       .authors {
-        font-size: calc(12px * var(--accessibility-text-scale));
+        font-size: var(--font-size-xxsmall);
       }
     }
 

@@ -15,6 +15,7 @@ import { ConfigService } from '../../../core/config';
 })
 export class ViewerControls {
   @Input() type: 'pdf' | 'image' = 'pdf';
+  @Input() showCrop: boolean = true;
 
   private pdfService = inject(PdfService);
   private iiifViewerService = inject(IIIFViewerService);

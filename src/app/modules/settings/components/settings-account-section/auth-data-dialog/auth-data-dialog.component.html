@@ -1,0 +1,24 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'auth-data-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <pre><code class="language-json">{{ userJson }}</code></pre>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button outlined tertiary" (click)="onClose()">
+      {{ 'close' | translate }}
+    </button>
+    <button class="button filled primary with-icon" (click)="onCopy()">
+      <i class="icon-copy"></i>
+      {{ 'copy' | translate }}
+    </button>
+  </div>
+</div>

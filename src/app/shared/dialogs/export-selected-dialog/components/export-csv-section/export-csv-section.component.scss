@@ -4,7 +4,7 @@
 
     h3 {
       margin: 0 0 var(--spacing-x2) 0;
-      font-size: calc(18px * var(--accessibility-text-scale));
+      font-size: var(--font-size-large);
       font-weight: 600;
       color: var(--color-text-base);
     }

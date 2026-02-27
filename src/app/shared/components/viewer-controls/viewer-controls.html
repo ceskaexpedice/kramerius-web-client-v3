@@ -46,7 +46,7 @@
 
   <!-- Image-specific buttons -->
   <ng-container *ngIf="type === 'image'">
-    <button *ngIf="showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()" class="button tertiary outlined"
+    <button *ngIf="showCrop && showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()" class="button tertiary outlined"
       [appCdkTooltip]="'viewer-controls.select-area' | translate">
       <i class="icon icon-crop"></i>
     </button>

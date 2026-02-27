@@ -83,7 +83,7 @@
       background-color: var(--color-bg-bright);
 
       i {
-        font-size: 28px;
+        font-size: var(--font-size-3xlarge);
         color: var(--icon-grey);
         visibility: visible !important;
       }
@@ -109,6 +109,7 @@
       position: absolute;
       bottom: 10px;
       left: 0;
+      z-index: 1;
     }
 
     .record-item-card__actions {
@@ -165,18 +166,18 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: var(--spacing-x1);
+    background: rgba(33, 33, 33, 0.50);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--base-border-radius);
+    border-radius: var(--spacing-x1);
 
     .icon-button {
       padding: 10px;
     }
 
     i {
-      font-size: calc(24px * var(--accessibility-text-scale));
+      font-size: var(--font-size-xxlarge);
     }
   }
 
@@ -238,7 +239,7 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 20px;
+      line-height: var(--line-height-1);
     }
 
     .authors {

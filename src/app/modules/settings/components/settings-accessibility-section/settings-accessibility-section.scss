@@ -8,15 +8,25 @@
   }
 }
 
+.settings-row {
+  font-size: var(--font-size-base);
+}
+
 .section--row--title {
   margin: 0;
   padding: 0;
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
+  font-family: var(--font-family-body);
 }
 
 :host ::ng-deep .mat-mdc-slide-toggle .mat-internal-form-field {
   color: var(--color-text-secondary);
+}
+
+:host ::ng-deep mat-slide-toggle label.mdc-label {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-2);
 }
 
 .toggle-buttons--container {

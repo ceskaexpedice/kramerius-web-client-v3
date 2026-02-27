@@ -2,10 +2,7 @@
 
   <h3 class="metadata-section--item-label">{{ label | translate }}</h3>
 
-  <div class="metadata-section--item-value"
-       #contentRef
-       [class.collapsible]="collapsible"
-       [class.collapsed]="collapsible && isCollapsed">
+  <app-collapsible-content [collapsible]="collapsible" [contentKey]="items?.length ?? value">
 
     <!-- Text type: simple paragraph -->
     <p *ngIf="type === 'text' && value">{{ value | translate }}</p>
@@ -41,15 +38,6 @@
 
     <ng-content select="[metadata-section-item-content]"></ng-content>
 
-  </div>
-
-  @if (collapsible && isOverflowing) {
-    <div class="collapsible--action">
-      <button class="button tertiary outlined xs"
-              (click)="toggleCollapse()">
-        {{ (isCollapsed ? 'show-more' : 'show-less') | translate }}
-      </button>
-    </div>
-  }
+  </app-collapsible-content>
 
 </section>
