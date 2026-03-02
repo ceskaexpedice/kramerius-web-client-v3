@@ -17,36 +17,40 @@
 
     </div>
 
-    <div class="sidebar--content-section">
+    @if (collectionNames().length > 0) {
 
-      <div class="sidebar--content-section--title">
-        {{ 'in-colection--title' | translate }}
-      </div>
+      <div class="sidebar--content-section">
 
-      <div class="sidebar--content-section--content">
-        @if (collectionNames().length > 0) {
-        <div class="collections-list">
-          @for (name of collectionNames(); track $index) {
-          <div class="collection-item">
-            {{ name }}
-          </div>
+        <div class="sidebar--content-section--title">
+          {{ 'in-colection--title' | translate }}
+        </div>
+
+        <div class="sidebar--content-section--content">
+          @if (collectionNames().length > 0) {
+            <div class="collections-list">
+              @for (name of collectionNames(); track $index) {
+                <div class="collection-item">
+                  {{ name }}
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="no-collection">{{ 'no-collection-info' | translate }}</span>
           }
         </div>
-        } @else {
-        <span class="no-collection">{{ 'no-collection-info' | translate }}</span>
-        }
+
       </div>
 
-    </div>
+    }
 
   </div>
 
   @if (showClose) {
-  <div class="sidebar-actions">
-    <button class="button outlined tertiary with-icon" (click)="close()">
-      <i class="icon-sidebar-bottom"></i>
-      {{ 'hide--metadata-sidebar' | translate }}
-    </button>
-  </div>
+    <div class="sidebar-actions">
+      <button class="button outlined tertiary with-icon" (click)="close()">
+        <i class="icon-sidebar-bottom"></i>
+        {{ 'hide--metadata-sidebar' | translate }}
+      </button>
+    </div>
   }
 </div>
