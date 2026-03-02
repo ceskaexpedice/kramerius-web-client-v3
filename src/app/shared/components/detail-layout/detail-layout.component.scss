@@ -4,7 +4,7 @@
 $top-toolbar-height: 56px;
 
 .detail-layout {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - var(--dnnto-bar-height, 0px));
   overflow: hidden;
   display: flex;
   flex-direction: column;

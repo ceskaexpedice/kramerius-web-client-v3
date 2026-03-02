@@ -1,0 +1,31 @@
+@use "_z-index.scss" as z;
+
+.dnnto-bar {
+  position: fixed;
+  bottom: var(--playback-bar-height, 0px);
+  left: 0;
+  right: 0;
+  height: 38px;
+  background: var(--color-bg-low-efford);
+  color: var(--color-text-low-efford);
+  border-top: 1px solid var(--color-border-light);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  line-height: var(--line-height-1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x2) var(--spacing-x4);
+  z-index: z.$playback-bar;
+
+  .dnnto-bar--title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+
+    img {
+      height: 21px;
+    }
+  }
+}

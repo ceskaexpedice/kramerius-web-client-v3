@@ -1,0 +1,13 @@
+@let document = detailViewService.document$ | async;
+@if (document && recordHandler.shouldShowDnntoBar(document.licences) && userService.userSession?.authenticated) {
+    <div class="dnnto-bar">
+      <span class="dnnto-bar--title">
+        <img src="/img/logo/dnnt-gray-transparent.png" alt="DNNT logo">
+        {{ 'dnnto' | translate }}
+      </span>
+
+      @if (userService.userSession) {
+        <span>{{ userService.getFormattedExpiration() }} · {{ userService.userSession.session.eduPersonUniqueId || '' }}</span>
+      }
+    </div>
+}
