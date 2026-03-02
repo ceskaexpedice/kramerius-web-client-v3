@@ -12,6 +12,8 @@ import {
 import { EnvironmentService } from './environment.service';
 import { APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG } from '../utils/language-utils';
 
+const SUBJECT_AUTHORITIES = ['czenas', 'eczenas'];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -103,7 +105,7 @@ export class ModsParserService {
     this.processNotes(this.getElements(modsElement, 'note'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
-    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, null);
+    this.processGenres(this.getElements(modsElement, 'genre'), metadata);
 
     return metadata;
   }
@@ -123,7 +125,7 @@ export class ModsParserService {
     this.processPhysicalDescriptions(this.getElements(modsElement, 'physicalDescription'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
-    this.processSimpleArray(this.getElements(modsElement, 'genre'), metadata.genres, null);
+    this.processGenres(this.getElements(modsElement, 'genre'), metadata);
 
     // Handle partName in titleInfo
     const titleInfoElements = this.getElements(modsElement, 'titleInfo');
@@ -370,7 +372,7 @@ export class ModsParserService {
       this.processLanguages(this.getElements(ri, 'language'), review);
       this.processNotes(this.getElements(ri, 'note'), review);
       this.processSimpleArray(this.getElements(ri, 'abstract'), review.abstracts, null);
-      this.processSimpleArray(this.getElements(ri, 'genre'), review.genres, { key: 'authority', value: 'czenas' });
+      this.processGenres(this.getElements(ri, 'genre'), review);
 
       metadata.reviews.push(review);
     }
@@ -478,20 +480,23 @@ export class ModsParserService {
   private processSubjects(elements: Element[], metadata: Metadata) {
     for (const item of elements) {
       // Process topics
-      const topicElements = this.getElements(item, 'topic');
-      for (const topic of topicElements) {
-        const text = this.getText(topic);
-        if (text && metadata.keywords.indexOf(text) < 0) {
-          metadata.keywords.push(text);
+      const authority = item.getAttribute('authority');
+      if (SUBJECT_AUTHORITIES.includes(authority!)) {
+        const topicElements = this.getElements(item, 'topic');
+        for (const topic of topicElements) {
+          const text = this.getText(topic);
+          if (text && metadata.keywords.indexOf(text) < 0) {
+            metadata.keywords.push(text);
+          }
         }
-      }
 
-      // Process geographic
-      const geographicElements = this.getElements(item, 'geographic');
-      for (const geographic of geographicElements) {
-        const text = this.getText(geographic);
-        if (text && metadata.geonames.indexOf(text) < 0) {
-          metadata.geonames.push(text);
+        // Process geographic
+        const geographicElements = this.getElements(item, 'geographic');
+        for (const geographic of geographicElements) {
+          const text = this.getText(geographic);
+          if (text && metadata.geonames.indexOf(text) < 0) {
+            metadata.geonames.push(text);
+          }
         }
       }
 
@@ -573,6 +578,19 @@ export class ModsParserService {
 
   private getElements(parent: Element, tagName: string): Element[] {
     return Array.from(parent.querySelectorAll(`:scope > ${tagName}`));
+  }
+
+  private processGenres(elements: Element[], metadata: Metadata) {
+    for (const item of elements) {
+      const authority = item.getAttribute('authority');
+      if (!SUBJECT_AUTHORITIES.includes(authority!)) {
+        continue;
+      }
+      const text = this.getText(item);
+      if (text && !metadata.genres.includes(text)) {
+        metadata.genres.push(this.replaceHTMLTags(text));
+      }
+    }
   }
 
   private processSimpleArray(elements: Element[], output: string[], param: { key: string; value: string } | null) {
