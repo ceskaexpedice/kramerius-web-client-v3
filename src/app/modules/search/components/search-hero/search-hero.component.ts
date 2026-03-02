@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild, AfterViewInit, OnInit} from '@angular/core';
+import {Component, inject, ViewChild, AfterViewInit, OnInit, OnDestroy, ElementRef} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {SearchService} from '../../../../shared/services/search.service';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
@@ -9,6 +9,7 @@ import {NgIf} from '@angular/common';
 import {
   SuggestedSearchTagsSectionComponent
 } from '../suggested-search-tags-section/suggested-search-tags-section.component';
+import {UiStateService} from '../../../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-search-hero',
@@ -23,16 +24,20 @@ import {
   styleUrl: './search-hero.component.scss'
 })
 
-export class SearchHeroComponent implements AfterViewInit, OnInit {
+export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
 
   searchService = inject(SearchService);
   advancedSearch = inject(AdvancedSearchService);
   private configService = inject(ConfigService);
+  private uiState = inject(UiStateService);
+  private el = inject(ElementRef);
 
   heroTitle = '';
   showSuggestedTags = this.configService.suggestedTags.length > 0;
 
   @ViewChild(AutocompleteComponent) autocompleteComponent!: AutocompleteComponent;
+
+  private intersectionObserver?: IntersectionObserver;
 
   async ngOnInit() {
     const activeLib = await this.configService.getActiveLibrary();
@@ -42,6 +47,12 @@ export class SearchHeroComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
+    this.intersectionObserver = new IntersectionObserver(
+      ([entry]) => this.uiState.searchHeroVisible.set(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    this.intersectionObserver.observe(this.el.nativeElement);
+
     // Focus the autocomplete input after view initialization
     setTimeout(() => {
       const inputComponent = this.autocompleteComponent?.inputComponent;
@@ -60,6 +71,11 @@ export class SearchHeroComponent implements AfterViewInit, OnInit {
         }
       }
     }, 20);
+  }
+
+  ngOnDestroy() {
+    this.intersectionObserver?.disconnect();
+    this.uiState.searchHeroVisible.set(true);
   }
 
   openAdvancedSearch() {

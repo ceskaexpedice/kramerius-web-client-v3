@@ -519,5 +519,6 @@
   "case-sensitive-on": "Rozróżnianie wielkości liter i diakrytyki włączone",
   "case-sensitive-off": "Rozróżnianie wielkości liter i diakrytyki wyłączone",
   "subject-names-corporate": "Nazwy podmiotów korporacyjnych",
-  "enter--submit-search": "Wchodzić"
+  "enter--submit-search": "Wchodzić",
+  "content": "Zawartość"
 }

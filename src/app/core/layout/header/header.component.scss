@@ -17,6 +17,10 @@
     background-color: var(--color-bg-base);
   }
 
+  &.search-home-scrolled {
+    border-radius: 0 0 var(--spacing-x2) var(--spacing-x2);
+  }
+
   .search-bar {
     flex: 1;
     display: flex;

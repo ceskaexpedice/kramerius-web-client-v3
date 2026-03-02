@@ -67,6 +67,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   @Input() prefixIcon = '';
   @Input() isCaseSensitive: boolean = false;
   @Input() autofocus: boolean = false;
+  @Input() autoSubmit: boolean = true;
 
   @Input() getSuggestions: (term: string) => Observable<string[]> = () => of([]);
   @Input() inputTerm: WritableSignal<string> = signal('');
@@ -168,7 +169,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   onInputValueChange(value: string) {
     this.inputTerm.set(value);
 
-    if (!this.showSubmitButton) {
+    if (!this.showSubmitButton && this.autoSubmit) {
       this.onSubmit();
     }
   }

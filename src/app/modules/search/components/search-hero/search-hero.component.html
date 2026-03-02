@@ -18,14 +18,14 @@
       [showHistorySuggestions]="true"
       [showMicrophoneButton]="false"
       [showHelpButton]="false" [prefixIcon]="'icon-search-normal-1'"
-      [autofocus]="true" [showSubmitButton]="false"
+      [autofocus]="true" [showSubmitButton]="false" [autoSubmit]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
     <div class="search-row--actions">
       <button class="primary"
               aria-label="{{'submit-search' | translate}}"
-              (click)="openAdvancedSearch()">
+              (click)="searchService.onSearch(searchService.searchTerm())">
         {{'enter--submit-search' | translate}}
       </button>
 

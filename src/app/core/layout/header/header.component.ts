@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -21,6 +21,7 @@ import { CollectionsService } from '../../../shared/services/collections.service
 import { ClickOutsideDirective } from '../../../shared/directives';
 import { ConfigService } from '../../config';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
+import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
 
@@ -66,6 +67,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private logoClickCount = 0;
   private logoClickTimer: any = null;
 
+  private uiState = inject(UiStateService);
+
   constructor(
     private envService: EnvironmentService,
     private router: Router,
@@ -79,7 +82,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private translationService: AppTranslationService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-  ) { }
+  ) {
+    effect(() => {
+      this.uiState.searchHeroVisible(); // track signal
+      this.updateHeaderType();
+      this.cdr.detectChanges();
+    });
+  }
 
   /**
    * Check if advanced search button should be shown based on config
@@ -145,7 +154,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   get showSearchBar(): boolean {
     // Use router.url but strip query params to avoid header changes when dialogs add URL params
     const urlWithoutParams = this.router.url.split('?')[0];
-    return urlWithoutParams !== '/';
+    const isSearchHomePage = urlWithoutParams === '/' || urlWithoutParams === this.libraryContext.getLibraryPrefix();
+    if (isSearchHomePage) {
+      // On the search home page, only show the header search bar when the hero is scrolled out of view
+      return !this.uiState.searchHeroVisible();
+    }
+    return true;
+  }
+
+  get isSearchHomeScrolled(): boolean {
+    const urlWithoutParams = this.router.url.split('?')[0];
+    const isSearchHomePage = urlWithoutParams === '/' || urlWithoutParams === this.libraryContext.getLibraryPrefix();
+    return isSearchHomePage && !this.uiState.searchHeroVisible();
   }
 
   get isSearchResultsPage(): boolean {
