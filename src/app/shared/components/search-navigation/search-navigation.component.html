@@ -2,7 +2,7 @@
 
   <div class="search-results-count">
     @if (totalMatches > 0) {
-      <span class="occurence--text">{{'occurrence' | translate}}:</span>
+      <span class="occurence--text">{{'occurrence' | translate}}: </span>
       <span class="currentMatchNumber">{{ currentMatchNumber }}</span> /
       <span class="totalMatches">{{ totalMatches }}</span>
     } @else if (isSearching) {
