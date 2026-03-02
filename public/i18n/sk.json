@@ -516,5 +516,8 @@
   "custom-accessibility--available-tooltip": "Iba dostupné zobrazí len dokumenty, ktoré si môžete práve teraz otvoriť. Bez prihlásenia uvidíte len verejné diela. Po prihlásení aj ďalšie dokumenty sprístupnené vašou knižnicou (napr. DNNT).",
   "custom-accessibility--afterLogin-tooltip": "Zobrazí dokumenty dostupné po prihlásení. Ide o autorsky chránené diela označené ako diela nedostupné na trhu (DNNT), ktoré sú sprístupnené online v režime čítania registrovaným čitateľom zapojených knižníc.",
   "periodicals-section--header": "Periodika",
-  "books-section--header": "Knihy"
+  "books-section--header": "Knihy",
+  "case-sensitive-on": "Rozlišovanie veľkosti písmen a diakritiky zapnuté",
+  "case-sensitive-off": "Rozlišovanie velikosti písmen a diakritiky vypnuté",
+  "subject-names-corporate": "Korporátne predmetové heslá"
 }

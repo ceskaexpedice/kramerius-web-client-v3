@@ -104,6 +104,7 @@
           class="icon-button button link tertiary case-sensitive-button-toggle" [class.active]="isCaseSensitive"
           type="button"
           [attr.aria-label]="'case-sensitive-toggle' | translate"
+          [appCdkTooltip]="isCaseSensitive ? ('case-sensitive-on' | translate) : ('case-sensitive-off' | translate)"
           (click)="toggleCaseSensitive()"
         >
         <span>Aa</span>

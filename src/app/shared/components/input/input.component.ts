@@ -12,6 +12,7 @@ import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {FormsModule, NgModel} from '@angular/forms';
+import {CdkTooltipDirective} from '../../directives';
 
 @Component({
   selector: 'app-input',
@@ -21,6 +22,7 @@ import {FormsModule, NgModel} from '@angular/forms';
     NgIf,
     MatAutocompleteModule,
     FormsModule,
+    CdkTooltipDirective,
   ],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'

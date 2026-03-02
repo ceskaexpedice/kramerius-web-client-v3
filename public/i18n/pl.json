@@ -515,5 +515,8 @@
   "custom-accessibility--available-tooltip": "Tylko dostępne pokazuje dokumenty, które możesz otworzyć teraz. Bez logowania widoczne są tylko dzieła z domeny publicznej. Po zalogowaniu dostępne są również dodatkowe dokumenty udostępnione przez Twoją bibliotekę (np. DNNT).",
   "custom-accessibility--afterLogin-tooltip": "Wyświetla dokumenty dostępne po zalogowaniu. Są to utwory chronione prawem autorskim oznaczone jako dzieła niedostępne w obrocie (DNNT), udostępnione online w trybie odczytu dla zarejestrowanych czytelników uczestniczących bibliotek.",
   "periodicals-section--header": "Czasopisma",
-  "books-section--header": "Książki"
+  "books-section--header": "Książki",
+  "case-sensitive-on": "Rozróżnianie wielkości liter i diakrytyki włączone",
+  "case-sensitive-off": "Rozróżnianie wielkości liter i diakrytyki wyłączone",
+  "subject-names-corporate": "Nazwy podmiotów korporacyjnych"
 }
