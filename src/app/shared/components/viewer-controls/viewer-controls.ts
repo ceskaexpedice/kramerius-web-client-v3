@@ -1,5 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { map } from 'rxjs/operators';
 import { PdfService } from '../../services/pdf.service';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { CdkTooltipDirective } from '../../directives';
@@ -21,6 +22,7 @@ export class ViewerControls {
   private iiifViewerService = inject(IIIFViewerService);
   private configService = inject(ConfigService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
+  public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
 
   // Viewer control visibility getters
   get showZoomIn(): boolean {

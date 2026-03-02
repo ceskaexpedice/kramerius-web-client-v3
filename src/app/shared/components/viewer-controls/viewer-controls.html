@@ -20,7 +20,7 @@
     <i class="icon icon-maximize-1"></i>
   </button>
 
-  <button *ngIf="showFitToWidth" (click)="onToggleFitToWidth()" class="button tertiary outlined"
+  <button *ngIf="showFitToWidth && (type === 'pdf' ? (pdfBookMode$ | async) === false : (iiifBookMode$ | async) === false)" (click)="onToggleFitToWidth()" class="button tertiary outlined"
     [appCdkTooltip]="'viewer-controls.fit-to-width' | translate">
     <i class="icon icon-grid-lock"></i>
   </button>
