@@ -17,7 +17,8 @@ import {
   ApiConfig,
   IntegrationsConfig,
   HomepageSectionConfig,
-  PageConfig
+  PageConfig,
+  SuggestedSearchTagItem
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 
@@ -420,6 +421,12 @@ export class ConfigService {
       if (rawContent) return Array.isArray(rawContent) ? rawContent : [rawContent];
     }
     return [];
+  }
+
+  // Suggested tags accessor (from homepage config 'suggested-tags' section)
+  get suggestedTags(): SuggestedSearchTagItem[] {
+    const section = this.homeSections.find(s => s.type === 'suggested-tags');
+    return section?.tags ?? [];
   }
 
   // Home sections accessors

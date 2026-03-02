@@ -5,6 +5,7 @@ import {AutocompleteComponent} from '../../../../shared/components/autocomplete/
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {ConfigService} from '../../../../core/config/config.service';
+import {NgIf} from '@angular/common';
 import {
   SuggestedSearchTagsSectionComponent
 } from '../suggested-search-tags-section/suggested-search-tags-section.component';
@@ -16,6 +17,7 @@ import {
     AutocompleteComponent,
     TranslatePipe,
     SuggestedSearchTagsSectionComponent,
+    NgIf,
   ],
   templateUrl: './search-hero.component.html',
   styleUrl: './search-hero.component.scss'
@@ -28,6 +30,7 @@ export class SearchHeroComponent implements AfterViewInit, OnInit {
   private configService = inject(ConfigService);
 
   heroTitle = '';
+  showSuggestedTags = this.configService.suggestedTags.length > 0;
 
   @ViewChild(AutocompleteComponent) autocompleteComponent!: AutocompleteComponent;
 
