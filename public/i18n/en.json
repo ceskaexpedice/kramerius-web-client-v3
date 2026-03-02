@@ -522,5 +522,7 @@
   "auth-data-dialog--header": "Access data",
   "custom-accessibility--all-tooltip": "Some documents are freely accessible, while others are still protected by copyright and their availability depends on the access type (without login, after login, or in-library only).",
   "custom-accessibility--available-tooltip": "Only available shows documents you can open right now. Without login you see only public domain works. After login, additional documents made accessible by your library (e.g. out-of-commerce works) are also shown.",
-  "custom-accessibility--afterLogin-tooltip": "Shows documents available after login. These are copyright-protected works designated as out-of-commerce works (DNNT), made available online in read mode for registered readers of participating libraries."
+  "custom-accessibility--afterLogin-tooltip": "Shows documents available after login. These are copyright-protected works designated as out-of-commerce works (DNNT), made available online in read mode for registered readers of participating libraries.",
+  "periodicals-section--header": "Periodicals",
+  "books-section--header": "Books"
 }

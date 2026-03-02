@@ -513,5 +513,7 @@
   "auth-data-dialog--header": "Dane dostępu",
   "custom-accessibility--all-tooltip": "Niektóre dokumenty są ogólnodostępne, inne są nadal chronione prawem autorskim, a ich dostępność zależy od rodzaju dostępu (bez logowania, po zalogowaniu lub tylko w bibliotece).",
   "custom-accessibility--available-tooltip": "Tylko dostępne pokazuje dokumenty, które możesz otworzyć teraz. Bez logowania widoczne są tylko dzieła z domeny publicznej. Po zalogowaniu dostępne są również dodatkowe dokumenty udostępnione przez Twoją bibliotekę (np. DNNT).",
-  "custom-accessibility--afterLogin-tooltip": "Wyświetla dokumenty dostępne po zalogowaniu. Są to utwory chronione prawem autorskim oznaczone jako dzieła niedostępne w obrocie (DNNT), udostępnione online w trybie odczytu dla zarejestrowanych czytelników uczestniczących bibliotek."
+  "custom-accessibility--afterLogin-tooltip": "Wyświetla dokumenty dostępne po zalogowaniu. Są to utwory chronione prawem autorskim oznaczone jako dzieła niedostępne w obrocie (DNNT), udostępnione online w trybie odczytu dla zarejestrowanych czytelników uczestniczących bibliotek.",
+  "periodicals-section--header": "Czasopisma",
+  "books-section--header": "Książki"
 }
