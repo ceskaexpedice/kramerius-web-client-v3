@@ -520,5 +520,6 @@
   "books-section--header": "Knihy",
   "case-sensitive-on": "Rozlišování velikosti písmen a diakritiky zapnuté",
   "case-sensitive-off": "Rozlišování velikosti písmen a diakritiky vypnuté",
-  "subject-names-corporate": "Korporátní předmětová hesla"
+  "subject-names-corporate": "Korporátní předmětová hesla",
+  "enter--submit-search": "Vstupte"
 }

@@ -527,5 +527,6 @@
   "books-section--header": "Books",
   "case-sensitive-on": "Case-sensitive search enabled",
   "case-sensitive-off": "Case-sensitive search disabled",
-  "subject-names-corporate": "Corporate subject names"
+  "subject-names-corporate": "Corporate subject names",
+  "enter--submit-search": "Enter"
 }
