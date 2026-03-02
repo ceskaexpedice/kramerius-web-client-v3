@@ -18,7 +18,7 @@
   </app-metadata-section-item>
 
   <!-- Authors -->
-  <app-metadata-section-item *ngIf="data.authors.length" [label]="'author' | translate" type="clickable-list"
+  <app-metadata-section-item *ngIf="data.authors.length" [label]="'author' | translate" type="clickable-list" [collapsible]="true"
     [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
   </app-metadata-section-item>
 
@@ -199,6 +199,10 @@
   <!-- Physical Description -->
   <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate"
     type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
+  </app-metadata-section-item>
+
+  <app-metadata-section-item *ngIf="data.contents.length" [label]="'content' | translate" [collapsible]="true"
+                             type="list" [items]="data.contents">
   </app-metadata-section-item>
 
   <!-- Cartographic Data -->
