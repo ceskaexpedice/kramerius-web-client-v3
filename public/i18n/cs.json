@@ -518,8 +518,8 @@
   "custom-accessibility--afterLogin-tooltip": "Zobrazí dokumenty dostupné po přihlášení. Jde o autorsky chráněná díla označená jako díla nedostupná na trhu (DNNT), která jsou zpřístupněna online v režimu pro čtení registrovaným čtenářům zapojených knihoven.",
   "periodicals-section--header": "Periodika",
   "books-section--header": "Knihy",
-  "case-sensitive-on": "Rozlišování velikosti písmen a diakritiky zapnuté",
-  "case-sensitive-off": "Rozlišování velikosti písmen a diakritiky vypnuté",
+  "case-sensitive-on": "Rozlišování velikosti písmen a diakritiky zapnuté.",
+  "case-sensitive-off": "Rozlišování velikosti písmen a diakritiky vypnuté.",
   "subject-names-corporate": "Korporátní předmětová hesla",
   "enter--submit-search": "Vstupte",
   "content": "Obsah"

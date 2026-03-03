@@ -517,8 +517,8 @@
   "custom-accessibility--afterLogin-tooltip": "Zobrazí dokumenty dostupné po prihlásení. Ide o autorsky chránené diela označené ako diela nedostupné na trhu (DNNT), ktoré sú sprístupnené online v režime čítania registrovaným čitateľom zapojených knižníc.",
   "periodicals-section--header": "Periodika",
   "books-section--header": "Knihy",
-  "case-sensitive-on": "Rozlišovanie veľkosti písmen a diakritiky zapnuté",
-  "case-sensitive-off": "Rozlišovanie velikosti písmen a diakritiky vypnuté",
+  "case-sensitive-on": "Rozlišovanie veľkosti písmen a diakritiky zapnuté.",
+  "case-sensitive-off": "Rozlišovanie velikosti písmen a diakritiky vypnuté.",
   "subject-names-corporate": "Korporátne predmetové heslá",
   "enter--submit-search": "Vstúpte",
   "content": "Obsah"

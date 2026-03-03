@@ -525,8 +525,8 @@
   "custom-accessibility--afterLogin-tooltip": "Shows documents available after login. These are copyright-protected works designated as out-of-commerce works (DNNT), made available online in read mode for registered readers of participating libraries.",
   "periodicals-section--header": "Periodicals",
   "books-section--header": "Books",
-  "case-sensitive-on": "Case-sensitive search enabled",
-  "case-sensitive-off": "Case-sensitive search disabled",
+  "case-sensitive-on": "Case-sensitive search enabled.",
+  "case-sensitive-off": "Case-sensitive search disabled.",
   "subject-names-corporate": "Corporate subject names",
   "enter--submit-search": "Enter",
   "content": "Content"
