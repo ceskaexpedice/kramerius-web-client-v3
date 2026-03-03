@@ -43,7 +43,7 @@
               <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
               <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
-                (actionClicked)="onToolbarAction($event)" [themeDefault]="true">
+                (actionClicked)="onToolbarAction($event)" [themeDefault]="false">
               </app-toolbar-controls>
 
               @if (sortParams | async; as sort) {
