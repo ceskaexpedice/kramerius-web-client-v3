@@ -328,6 +328,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.viewer.destroy();
     }
 
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
@@ -337,10 +339,12 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       showHomeControl: false,
       showZoomControl: false,
       showFullPageControl: false,
-      // Note: Auth is only for info.json (fetched via HttpClient).
-      // Tiles come from a separate image server that doesn't need/want credentials.
+      // Tiles are fetched via the API proxy which requires the same auth token.
+      // loadTilesWithAjax must be true for ajaxHeaders to be sent.
+      loadTilesWithAjax: true,
       crossOriginPolicy: 'Anonymous',
       ajaxWithCredentials: false,
+      ajaxHeaders: authHeaders,
       // Transparent placeholder so thumbnail background shows through
       placeholderFillStyle: 'transparent',
       // Ensure smooth progressive loading (low-res → high-res)
@@ -561,11 +565,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private processInfoJson(infoJson: any): void {
     this.fixHttpUrls(infoJson);
 
-    // For IIIF 3: if both 'id' and '@id' exist, remove '@id' to ensure
-    // OpenSeadragon uses 'id' (which points to imageserver, no auth needed)
-    // instead of '@id' (which points to api server, requires auth)
+    // For IIIF 3: if both 'id' and '@id' exist, remove 'id' to ensure
+    // OpenSeadragon uses '@id' (which points to the API server that proxies tiles)
+    // instead of 'id' (which points to imageserver not publicly accessible)
     if (infoJson['id'] && infoJson['@id']) {
-      delete infoJson['@id'];
+      delete infoJson['id'];
     }
 
     // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
