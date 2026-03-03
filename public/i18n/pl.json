@@ -416,6 +416,7 @@
   "viewer-controls.rotate": "Obróć",
   "viewer-controls.select-area": "Wybierz obszar",
   "viewer-controls.zoom-lock": "Zablokuj zoom",
+  "viewer-controls.zoom-lock-enabled": "Powiększenie zostało zablokowane",
   "filters": "Filtry",
   "action-confirmation-dialog--message": "Czy na pewno chcesz wykonać tę akcję?",
   "action-error": "Akcja nie powiodła się",

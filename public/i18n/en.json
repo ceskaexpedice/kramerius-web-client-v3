@@ -425,6 +425,7 @@
   "viewer-controls.rotate": "Rotate",
   "viewer-controls.select-area": "Select area",
   "viewer-controls.zoom-lock": "Lock zoom",
+  "viewer-controls.zoom-lock-enabled": "Zoom has been locked",
   "filters": "Filters",
   "action-confirmation-dialog--message": "Are you sure you want to execute this action?",
   "action-error": "Action failed",

@@ -420,6 +420,7 @@
   "viewer-controls.rotate": "Otočit",
   "viewer-controls.select-area": "Vybrat oblast",
   "viewer-controls.zoom-lock": "Uzamknout zoom",
+  "viewer-controls.zoom-lock-enabled": "Přiblížení jsme uzamkli",
   "filters": "Filtry",
   "action-confirmation-dialog--message": "Opravdu chcete provést tuto akci?",
   "action-error": "Akce selhala",

@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService } from './alto.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ToastService } from './toast.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -102,6 +103,7 @@ export class IIIFViewerService {
 
   private altoService = inject(AltoService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -956,6 +958,7 @@ export class IIIFViewerService {
         }
       };
       this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
+      this.toastService.show('viewer-controls.zoom-lock-enabled', 'close', 3000);
     } else {
       this.lockedZoom = null;
       if (this.viewer && this.scrollLockHandler) {

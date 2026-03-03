@@ -417,6 +417,7 @@
   "viewer-controls.rotate": "Otočiť",
   "viewer-controls.select-area": "Vybrať oblasť",
   "viewer-controls.zoom-lock": "Uzamknúť zoom",
+  "viewer-controls.zoom-lock-enabled": "Priblíženie sme uzamkli",
   "filters": "Filtre",
   "action-confirmation-dialog--message": "Naozaj chcete vykonať túto akciu?",
   "action-error": "Akcia zlyhala",
