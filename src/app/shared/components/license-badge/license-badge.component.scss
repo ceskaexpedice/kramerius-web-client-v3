@@ -1,0 +1,16 @@
+.license-badge--container {
+    display: flex;
+    font-size: var(--font-size-small);
+    font-style: normal;
+    font-weight: 500;
+    line-height: var(--line-height-xs);
+    padding: 2px 4px;
+    border-radius: var(--spacing-x1);
+    border: 1px solid var(--color-border-bright);
+    background-color: var(--color-bg-base);
+    color: var(--color-text-secondary);
+
+  i {
+    color: var(--color-icon-tertiary-default);
+  }
+}
