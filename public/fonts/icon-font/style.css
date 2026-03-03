@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'cdk-icons';
-  src:  url('./icon-font.eot?ixuc28');
-  src:  url('./icon-font.eot?ixuc28#iefix') format('embedded-opentype'),
-    url('./icon-font.ttf?ixuc28') format('truetype'),
-    url('./icon-font.woff?ixuc28') format('woff'),
-    url('./icon-font.svg?ixuc28#cdk-icons') format('svg');
+  src:  url('./icon-font.eot?lc15qc');
+  src:  url('./icon-font.eot?lc15qc#iefix') format('embedded-opentype'),
+    url('./icon-font.ttf?lc15qc') format('truetype'),
+    url('./icon-font.woff?lc15qc') format('woff'),
+    url('./icon-font.svg?lc15qc#cdk-icons') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -1880,6 +1880,12 @@
 }
 .icon-maximize-4:before {
   content: "\eb69";
+}
+.icon-rotate-right1:before {
+  content: "\ec70";
+}
+.icon-rotate-left1:before {
+  content: "\ec71";
 }
 .icon-rotate-left:before {
   content: "\eb6a";
