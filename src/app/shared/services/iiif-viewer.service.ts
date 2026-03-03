@@ -962,7 +962,7 @@ export class IIIFViewerService {
         }
       };
       this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
-      this.toastService.show('viewer-controls.zoom-lock-enabled', 'close', 3000);
+      this.toastService.show('viewer-controls.zoom-lock-enabled', null, 3000);
     } else {
       this.lockedZoom = null;
       if (this.viewer && this.scrollLockHandler) {

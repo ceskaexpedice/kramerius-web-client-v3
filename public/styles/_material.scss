@@ -246,3 +246,37 @@ mat-slide-toggle.size-sm .mdc-switch__handle {
   width: 14px !important;
   height: 14px !important;
 }
+
+// Toast / snack-bar custom styles
+.toast {
+  &.mat-mdc-snack-bar-container {
+    --mdc-snackbar-container-color: var(--color-bg-base);
+    --mdc-snackbar-supporting-text-color: var(--color-text-base);
+    --mat-snack-bar-button-color: var(--color-text-tertiary);
+
+    .mdc-snackbar__surface {
+      border-radius: var(--spacing-x3) !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
+      padding: var(--spacing-x2) !important;
+      background-color: var(--mdc-snackbar-container-color) !important;
+      color: var(--mdc-snackbar-supporting-text-color) !important;
+      min-width: unset !important;
+      min-height: unset !important;
+    }
+
+    .mat-mdc-snack-bar-label {
+      font-size: var(--font-size-base) !important;
+      line-height: var(--line-height-1) !important;
+      font-weight: 700 !important;
+      padding: 0 !important;
+    }
+
+    .mat-mdc-simple-snack-bar {
+      align-items: center !important;
+    }
+
+    .mat-mdc-snack-bar-actions {
+      padding-left: 16px !important;
+    }
+  }
+}
