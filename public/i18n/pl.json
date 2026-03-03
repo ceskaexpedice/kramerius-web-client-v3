@@ -415,6 +415,7 @@
   "viewer-controls.book-mode": "Tryb książki",
   "viewer-controls.rotate": "Obróć",
   "viewer-controls.select-area": "Wybierz obszar",
+  "viewer-controls.zoom-lock": "Zablokuj zoom",
   "filters": "Filtry",
   "action-confirmation-dialog--message": "Czy na pewno chcesz wykonać tę akcję?",
   "action-error": "Akcja nie powiodła się",

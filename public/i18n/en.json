@@ -424,6 +424,7 @@
   "viewer-controls.book-mode": "Book mode",
   "viewer-controls.rotate": "Rotate",
   "viewer-controls.select-area": "Select area",
+  "viewer-controls.zoom-lock": "Lock zoom",
   "filters": "Filters",
   "action-confirmation-dialog--message": "Are you sure you want to execute this action?",
   "action-error": "Action failed",

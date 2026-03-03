@@ -371,6 +371,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
       });
+      // Restore locked zoom after the new page opens
+      this.iiifViewerService.applyLockedZoom();
 
       // Wait for image content to be rendered before clearing thumbnail background.
       // For IIIF tiled images this creates a blur→sharp progressive loading effect.

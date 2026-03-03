@@ -50,6 +50,14 @@
       [appCdkTooltip]="'viewer-controls.select-area' | translate">
       <i class="icon icon-crop"></i>
     </button>
+
+    <button (click)="onZoomLock()"
+      [class.primary]="(iiifZoomLock$ | async) === true"
+      [class.outlined]="(iiifZoomLock$ | async) === false"
+      class="button tertiary"
+      [appCdkTooltip]="'viewer-controls.zoom-lock' | translate">
+      <i class="icon icon-lock-2"></i>
+    </button>
   </ng-container>
 
 </div>

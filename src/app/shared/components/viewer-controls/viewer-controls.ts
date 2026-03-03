@@ -22,6 +22,7 @@ export class ViewerControls {
   private iiifViewerService = inject(IIIFViewerService);
   private configService = inject(ConfigService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
+  public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
 
   // Viewer control visibility getters
@@ -144,6 +145,12 @@ export class ViewerControls {
   onSelectArea() {
     if (this.type === 'image') {
       this.iiifViewerService.toggleSelectArea();
+    }
+  }
+
+  onZoomLock() {
+    if (this.type === 'image') {
+      this.iiifViewerService.toggleZoomLock();
     }
   }
 }

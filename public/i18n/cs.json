@@ -419,6 +419,7 @@
   "viewer-controls.book-mode": "Režim knihy",
   "viewer-controls.rotate": "Otočit",
   "viewer-controls.select-area": "Vybrat oblast",
+  "viewer-controls.zoom-lock": "Uzamknout zoom",
   "filters": "Filtry",
   "action-confirmation-dialog--message": "Opravdu chcete provést tuto akci?",
   "action-error": "Akce selhala",
