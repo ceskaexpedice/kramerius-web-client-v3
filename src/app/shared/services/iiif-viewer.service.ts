@@ -948,13 +948,17 @@ export class IIIFViewerService {
       this.scrollLockHandler = (event: any) => {
         // Prevent OSD from zooming
         event.preventDefaultAction = true;
-        // Translate scroll into vertical pan instead
+        // Translate scroll into vertical pan instead, clamped to image bounds
         if (this.viewer) {
           const panAmount = event.scroll > 0 ? -0.05 : 0.05;
           const center = this.viewer.viewport.getCenter();
-          this.viewer.viewport.panTo(
-            new OpenSeadragon.Point(center.x, center.y + panAmount)
-          );
+          const bounds = this.viewer.viewport.getBounds();
+          const homeBounds = this.viewer.viewport.getHomeBounds();
+          const newY = center.y + panAmount;
+          const minY = homeBounds.y + bounds.height / 2;
+          const maxY = homeBounds.y + homeBounds.height - bounds.height / 2;
+          const clampedY = Math.max(minY, Math.min(maxY, newY));
+          this.viewer.viewport.panTo(new OpenSeadragon.Point(center.x, clampedY));
         }
       };
       this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
