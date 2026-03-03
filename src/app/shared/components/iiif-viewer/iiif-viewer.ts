@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, switchMap, EMPTY, catchError } from 'rxjs';
 import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
@@ -63,7 +63,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
-  private isUpdating = false;
+  private updateViewer$ = new Subject<void>();
   private failedPids = new Set<string>();
   private directImageFailedPids = new Set<string>();
 
@@ -100,10 +100,23 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
 
+    // Wire up viewer update pipeline with switchMap so rapid navigation cancels in-flight requests
+    this.subscriptions.push(
+      this.updateViewer$.pipe(
+        switchMap(() => this.buildViewerUpdate().pipe(
+          catchError((error) => {
+            console.error('Failed to fetch IIIF info.json for page update', error);
+            this.handleOpenFailed();
+            return EMPTY;
+          })
+        ))
+      ).subscribe()
+    );
+
     // Subscribe to book mode changes
     this.subscriptions.push(
       this.iiifViewerService.bookMode$.subscribe(() => {
-        this.updateViewerForBookMode();
+        this.triggerViewerUpdate();
       })
     );
 
@@ -205,7 +218,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // Reset fallback state when switching to a new image
       this.showFallback.set(false);
       this.fallbackImageUrl.set(null);
-      this.updateViewerForBookMode();
+      this.triggerViewerUpdate();
     }
   }
 
@@ -461,93 +474,80 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   /**
-   * Updates the viewer to handle book mode
-   * If book mode is enabled, displays current and next page side by side
-   * Otherwise, displays only the current page
+   * Triggers a viewer update. Any in-flight update is cancelled via switchMap.
    */
-  private updateViewerForBookMode(): void {
+  private triggerViewerUpdate(): void {
     if (!this.viewer) return;
+    this.updateViewer$.next();
+  }
 
-    // Prevent concurrent updates
-    if (this.isUpdating) {
-      console.log('Update already in progress, skipping');
-      return;
-    }
+  /**
+   * Builds the observable that updates the viewer for the current page/book mode state.
+   * Used with switchMap so rapid navigation cancels in-flight HTTP requests.
+   */
+  private buildViewerUpdate() {
+    if (!this.viewer) return EMPTY;
 
     const currentPid = this.imagePid || this.metadata?.uuid;
-    if (!currentPid) return;
-
-    this.isUpdating = true;
+    if (!currentPid) return EMPTY;
 
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 
+    const isBookMode = this.iiifViewerService.isBookMode();
+    const nextPagePid = isBookMode ? this.getNextPagePid() : null;
+
     // Set thumbnail as background placeholder for blur→sharp effect (single page only)
-    if (!this.iiifViewerService.isBookMode()) {
+    if (!isBookMode) {
       this.setThumbnailBackground(currentPid);
     } else {
-      // Clear any existing thumbnail in book mode (two pages don't match one thumbnail)
       this.clearThumbnailBackground();
     }
 
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
     const authHeaders = this.iiifViewerService.getAuthHeaders();
-
     let headers = new HttpHeaders();
     if (authHeaders['Authorization']) {
       headers = headers.set('Authorization', authHeaders['Authorization']);
     }
 
-    // Fetch info.json with auth headers and fix HTTP URLs
-    this.http.get(infoUrl, {
+    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
+
+    if (!isBookMode || !nextPagePid) {
+      return this.http.get(infoUrl, {
+        headers,
+        context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+      }).pipe(
+        switchMap((infoJson: any) => {
+          this.processInfoJson(infoJson);
+          this.viewer?.open(infoJson);
+          return EMPTY;
+        })
+      );
+    }
+
+    // Book mode: fetch both pages
+    const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
+    return this.http.get(infoUrl, {
       headers,
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-    }).subscribe({
-      next: (infoJson: any) => {
+    }).pipe(
+      switchMap((infoJson: any) => {
         this.processInfoJson(infoJson);
-
-        if (this.iiifViewerService.isBookMode()) {
-          // Book mode: fetch next page too
-          const nextPagePid = this.getNextPagePid();
-          if (nextPagePid) {
-            const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
-            this.http.get(nextInfoUrl, {
-              headers,
-              context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-            }).subscribe({
-              next: (nextInfoJson: any) => {
-                this.processInfoJson(nextInfoJson);
-                this.viewer?.open([
-                  { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
-                  { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
-                ]);
-                // No thumbnail in book mode, so no need to clear on tile-drawn
-                this.isUpdating = false;
-              },
-              error: () => {
-                // If next page fails, just show current page
-                this.viewer?.open(infoJson);
-                // No thumbnail in book mode, so no need to clear on tile-drawn
-                this.isUpdating = false;
-              }
-            });
-          } else {
-            // No next page, just show current (still in book mode context)
-            this.viewer?.open(infoJson);
-            this.isUpdating = false;
-          }
-        } else {
-          // Single page mode
-          this.viewer?.open(infoJson);
-          this.isUpdating = false;
-        }
-      },
-      error: (error) => {
-        console.error('Failed to fetch IIIF info.json for page update', error);
-        this.handleOpenFailed();
-        this.isUpdating = false;
-      }
-    });
+        return this.http.get(nextInfoUrl, {
+          headers,
+          context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+        }).pipe(
+          switchMap((nextInfoJson: any) => {
+            this.processInfoJson(nextInfoJson);
+            this.viewer?.open([
+              { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
+              { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
+            ]);
+            return EMPTY;
+          })
+        );
+      })
+    );
   }
 
   /**

@@ -188,8 +188,8 @@
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
           </app-document-access-denied>
-          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
-          <!-- Show loader while access is being checked -->
+          } @else if (checkState === 'INITIAL') {
+          <!-- Show loader while access is being checked for the first time -->
           <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->

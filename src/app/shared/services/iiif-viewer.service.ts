@@ -143,9 +143,10 @@ export class IIIFViewerService {
   }
 
   set uuid(uuid: string | null) {
+    const isNewDocument = uuid !== null && uuid !== this._uuid;
     this._uuid = uuid;
     if (uuid) {
-      this.resetState();
+      this.resetState(isNewDocument);
     }
   }
 
@@ -302,12 +303,12 @@ export class IIIFViewerService {
   }
 
   // Reset all state
-  private resetState(): void {
+  private resetState(resetBookMode: boolean = true): void {
     this.viewerProperties = {
       zoom: 1,
       rotation: 0,
       fullscreen: false,
-      bookMode: false
+      bookMode: resetBookMode ? false : this.viewerProperties.bookMode
     };
     this.propertiesSubject.next(this.viewerProperties);
 
@@ -326,7 +327,9 @@ export class IIIFViewerService {
 
     // Clear search state
     this.clearSearchState();
-    this.bookModeSubject.next(false);
+    if (resetBookMode) {
+      this.bookModeSubject.next(false);
+    }
   }
 
   // Clear search state
