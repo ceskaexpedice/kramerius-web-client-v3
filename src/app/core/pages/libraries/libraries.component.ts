@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InputComponent } from '../../../shared/components/input/input.component';
-import { ConfigService } from '../../config/config.service';
+import { ConfigService, EXTRA_LIBRARY_REGISTRY } from '../../config/config.service';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
+import {ThumbnailImageComponent} from '../../../shared/components/thumbnail-image/thumbnail-image.component';
 
 interface Library {
   id: number;
@@ -15,6 +16,39 @@ interface Library {
   url: string;
   version: string;
   logo: string;
+}
+
+async function loadExtraLibraries(): Promise<Library[]> {
+  const defs = Object.values(EXTRA_LIBRARY_REGISTRY);
+  return Promise.all(
+    defs.map(async (def, index) => {
+      try {
+        const base = def.url.replace(/\/$/, '');
+        const response = await fetch(`${base}/ui-config/general`, { signal: AbortSignal.timeout(5000) });
+        return {
+          id: -(index + 1),
+          alive: response.ok,
+          name: def.name,
+          name_en: def.name_en,
+          code: def.code,
+          url: def.url,
+          version: '7.0',
+          logo: def.logo,
+        } as Library;
+      } catch {
+        return {
+          id: -(index + 1),
+          alive: false,
+          name: def.name,
+          name_en: def.name_en,
+          code: def.code,
+          url: def.url,
+          version: '7.0',
+          logo: def.logo,
+        } as Library;
+      }
+    })
+  );
 }
 
 /**
@@ -28,7 +62,7 @@ function removeDiacritics(str: string): string {
 @Component({
   selector: 'app-libraries',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, InputComponent, TranslatePipe, ThumbnailImageComponent],
   template: `
     <div class="libraries-container">
       <h1>{{ 'libraries.title' | translate }}</h1>
@@ -60,12 +94,17 @@ function removeDiacritics(str: string): string {
               [class.inactive]="lib.alive === false"
               (click)="selectLibrary(lib)"
             >
-              <img
+              <app-thumbnail-image
                 [src]="lib.logo"
                 [alt]="lib.name"
                 class="library-logo"
-                (error)="onImageError($event)"
-              />
+              ></app-thumbnail-image>
+<!--              <img-->
+<!--                [src]="lib.logo"-->
+<!--                [alt]="lib.name"-->
+<!--                class="library-logo"-->
+<!--                (error)="onImageError($event)"-->
+<!--              />-->
               <div class="library-info">
                 <span class="library-name">{{ lib.name }}</span>
                 <span class="library-version">v{{ lib.version }}</span>
@@ -226,13 +265,17 @@ export class LibrariesComponent implements OnInit {
 
   private async loadLibraries() {
     try {
-      const response = await fetch(ConfigService.getLibrariesUrl());
-      if (!response.ok) throw new Error('Failed to load libraries');
-      const data: Library[] = await response.json();
-      this.libraries.set(data.filter(lib => {
+      const [registryResponse, extraLibraries] = await Promise.all([
+        fetch(ConfigService.getLibrariesUrl()),
+        loadExtraLibraries(),
+      ]);
+      if (!registryResponse.ok) throw new Error('Failed to load libraries');
+      const data: Library[] = await registryResponse.json();
+      const fromApi = data.filter(lib => {
         const major = parseInt(lib.version?.split('.')[0] ?? '0', 10);
         return major >= 7;
-      }));
+      });
+      this.libraries.set([...extraLibraries, ...fromApi]);
     } catch (err) {
       this.error.set('Failed to load libraries. Please try again later.');
     } finally {

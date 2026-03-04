@@ -24,6 +24,17 @@ import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
+// Libraries not in the central registry but available as dev/testing instances.
+export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string; name_en: string; logo: string; url: string }> = {
+  'inovatika-k7': {
+    code: 'inovatika-k7',
+    name: 'Inovatika K7 (dev)',
+    name_en: 'Inovatika K7 (dev)',
+    logo: 'https://k7.inovatika.dev/assets/shared/logo.svg',
+    url: 'https://k7.inovatika.dev/',
+  },
+};
+
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
   private configUrl = 'local-config/config-main.json';
@@ -465,10 +476,23 @@ export class ConfigService {
     if (!this.activeLibraryCache || this.activeLibraryCache.code !== activeCode) {
       try {
         const response = await fetch(ConfigService.getLibraryByCodeUrl(activeCode));
-        if (!response.ok) return null;
-        this.activeLibraryCache = await response.json();
+        if (response.ok) {
+          this.activeLibraryCache = await response.json();
+        } else {
+          const extra = EXTRA_LIBRARY_REGISTRY[activeCode];
+          if (extra) {
+            this.activeLibraryCache = extra;
+          } else {
+            return null;
+          }
+        }
       } catch {
-        return null;
+        const extra = EXTRA_LIBRARY_REGISTRY[activeCode];
+        if (extra) {
+          this.activeLibraryCache = extra;
+        } else {
+          return null;
+        }
       }
     }
 
