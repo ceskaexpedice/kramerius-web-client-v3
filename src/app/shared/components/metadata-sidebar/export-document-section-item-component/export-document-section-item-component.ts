@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
@@ -28,11 +28,19 @@ export class ExportDocumentSectionItemComponent {
   @Input() icon = '';
   @Input() options: ExportOption[] = [];
   @Input() groupName = '';
+  @Input() collapsible = false;
+  @Input() set expanded(value: boolean) { this._expanded.set(value); }
 
   @Output() submit = new EventEmitter<string>();
   @Output() optionChange = new EventEmitter<string>();
 
   @Input() selectedOption: string | null = null;
+
+  _expanded = signal(true);
+
+  toggleExpanded(): void {
+    this._expanded.update(v => !v);
+  }
 
   onSubmit() {
     if (this.selectedOption) {

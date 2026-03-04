@@ -21,6 +21,31 @@ h3 {
   i {
     font-size: var(--font-size-xlarge);
   }
+
+  &.clickable {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  h3 {
+    flex: 1;
+  }
+}
+
+.collapse-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  line-height: 1;
+
+  i {
+    font-size: var(--font-size-base);
+  }
 }
 
 .export-document--item--content {

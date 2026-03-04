@@ -40,6 +40,23 @@ export class ExportService {
   private http = inject(HttpClient);
   private toastService = inject(ToastService);
 
+  exportVisk2026(pid: string): void {
+    const baseUrl = this.environmentService.getBaseApiUrl();
+    const url = `${baseUrl}/search/api/client/v7.0/items/${pid}/requests/generate_pdf`;
+    this.toastService.show('loading');
+    this.http.post(url, {}, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const filename = `visk2026_${pid}_${this.getTimestamp()}.pdf`;
+        this.downloadBlob(blob, filename);
+        this.toastService.show('export-success');
+      },
+      error: (error) => {
+        console.error('VISK2026 export failed', error);
+        this.toastService.show('export-error');
+      }
+    });
+  }
+
   exportJpeg(pid: string): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const url = `${baseUrl}/search/iiif/${pid}/full/max/0/default.jpg`;

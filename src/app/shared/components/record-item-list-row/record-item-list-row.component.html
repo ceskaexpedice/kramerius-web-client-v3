@@ -81,3 +81,13 @@
     {{ formatArrayValue(getColumnValue(column)) }}
   </td>
 </ng-container>
+
+<td class="actions-cell">
+
+  @if (record.count_page && record.count_page >= 1) {
+    <button class="button primary icon-button" (click)="$event.stopPropagation(); downloadClicked.emit(record)" [attr.aria-label]="'download' | translate">
+      <i class="icon icon-download"></i>
+    </button>
+  }
+
+</td>

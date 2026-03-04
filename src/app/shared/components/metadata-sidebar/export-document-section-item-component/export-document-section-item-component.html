@@ -1,22 +1,24 @@
-<div class="export-document--item">
+<div class="export-document--item" [class.collapsible]="collapsible">
 
   @if (title) {
-
-  <div class="export-document--item--title">
+  <div class="export-document--item--title" [class.clickable]="collapsible" (click)="collapsible && toggleExpanded()">
 
     @if (icon) {
     <i [class]="icon"></i>
     }
 
-    <h3>
-      {{title | translate}}
-    </h3>
+    <h3>{{title | translate}}</h3>
+
+    @if (collapsible) {
+    <button class="collapse-toggle" type="button" [attr.aria-expanded]="_expanded()" (click)="$event.stopPropagation(); toggleExpanded()">
+      <i [class]="'icon-' + (_expanded() ? 'minus' : 'add')"></i>
+    </button>
+    }
 
   </div>
-
   }
 
-  @if (options.length > 0) {
+  @if (options.length > 0 && _expanded()) {
   <div class="export-document--item--content">
     <mat-radio-group class="radio-group" [(ngModel)]="selectedOption" [name]="groupName"
       (change)="onOptionChange($event)">

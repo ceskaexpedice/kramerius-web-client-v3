@@ -106,6 +106,12 @@ td {
   }
 }
 
+.actions-cell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
 .author-not-filled {
   color: var(--color-text-light);
 }
