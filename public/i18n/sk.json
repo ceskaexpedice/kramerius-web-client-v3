@@ -158,6 +158,7 @@
   "week": "Týždeň",
   "hide": "Skryť",
   "more": "Viac",
+  "less": "Menej",
   "change-to-range-mode-label": "Zmeniť na obdobie (od-do)",
   "period-from-label": "Začiatok obdobia",
   "period-to-label": "Koniec obdobia",
@@ -523,5 +524,8 @@
   "case-sensitive-off": "Rozlišovanie velikosti písmen a diakritiky vypnuté.",
   "subject-names-corporate": "Korporátne predmetové heslá",
   "enter--submit-search": "Vstúpte",
-  "content": "Obsah"
+  "content": "Obsah",
+  "license-badge.onsite": "Študovňa",
+  "license-badge.dnnt": "DNNT",
+  "license-badge.public": "Licencia"
 }

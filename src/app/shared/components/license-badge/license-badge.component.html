@@ -1,3 +1,12 @@
 <div class="license-badge--container">
+  @if (badgeType === 'public') {
+    <span>{{ 'license-badge.public' | translate }}</span>
+    <i class="icon-licence"></i>
+  } @else if (badgeType === 'onsite') {
+    <span>{{ 'license-badge.onsite' | translate }}</span>
+  } @else if (badgeType === 'dnnt') {
+    <span>{{ 'license-badge.dnnt' | translate }}</span>
+  } @else {
     <span>{{ license.toUpperCase() }}</span>
+  }
 </div>

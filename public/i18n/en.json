@@ -166,6 +166,7 @@
   "week": "Week",
   "hide": "Hide",
   "more": "More",
+  "less": "Less",
   "change-to-range-mode-label": "Change to range mode (from-to)",
   "period-from-label": "Start of period",
   "period-to-label": "End of period",
@@ -531,5 +532,8 @@
   "case-sensitive-off": "Case-sensitive search disabled.",
   "subject-names-corporate": "Corporate subject names",
   "enter--submit-search": "Enter",
-  "content": "Content"
+  "content": "Content",
+  "license-badge.onsite": "Reading room",
+  "license-badge.dnnt": "DNNT",
+  "license-badge.public": "Licence"
 }

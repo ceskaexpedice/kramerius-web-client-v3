@@ -6,7 +6,7 @@
     <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
     <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="data.titles.length">
-      <div *ngFor="let title of data.titles">
+      <div class="titles--container" *ngFor="let title of data.titles">
         <span>{{ title.title }}</span>
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
@@ -177,7 +177,7 @@
   }
 
   <!-- Keywords -->
-  <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [showListBullets]="true"
+  <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [showListBullets]="true" [collapsible]="true"
     type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword">
   </app-metadata-section-item>
 

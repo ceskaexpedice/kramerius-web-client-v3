@@ -157,6 +157,7 @@
   "day-plural-many": "dni",
   "week": "Tydzień",
   "more": "Więcej",
+  "less": "Mniej",
   "hide": "Ukryj",
   "change-to-range-mode-label": "Zmień na tryb zakresu (od-do)",
   "period-from-label": "Początek okresu",
@@ -522,5 +523,8 @@
   "case-sensitive-off": "Rozróżnianie wielkości liter i diakrytyki wyłączone.",
   "subject-names-corporate": "Nazwy podmiotów korporacyjnych",
   "enter--submit-search": "Wchodzić",
-  "content": "Zawartość"
+  "content": "Zawartość",
+  "license-badge.onsite": "Czytelnia",
+  "license-badge.dnnt": "DNNT",
+  "license-badge.public": "Licencja"
 }
