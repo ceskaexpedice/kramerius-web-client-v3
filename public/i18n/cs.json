@@ -531,5 +531,11 @@
   "content": "Obsah",
   "license-badge.onsite": "Studovna",
   "license-badge.dnnt": "DNNT",
-  "license-badge.public": "Licence"
+  "license-badge.public": "Licence",
+  "visk2026-export-dialog--header": "Napište nám e-mail, kam dokument zašleme",
+  "visk2026-export-dialog--description": "Celý proces může zabrat i několik desítek minut.",
+  "visk2026-export-dialog--email-label": "Email",
+  "visk2026-export-dialog--email-invalid": "Email je neplatný",
+  "visk2026-export-dialog--submit": "Stáhnout a odeslat",
+  "visk2026-export-dialog--success": "Požadavek vytvořen"
 }

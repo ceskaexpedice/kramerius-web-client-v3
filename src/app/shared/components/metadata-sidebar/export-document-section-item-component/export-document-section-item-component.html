@@ -1,4 +1,4 @@
-<div class="export-document--item" [class.collapsible]="collapsible">
+<div class="export-document--item" [class.collapsible]="collapsible" [class.expanded]="_expanded()">
 
   @if (title) {
   <div class="export-document--item--title" [class.clickable]="collapsible" (click)="collapsible && toggleExpanded()">
@@ -11,15 +11,15 @@
 
     @if (collapsible) {
     <button class="collapse-toggle" type="button" [attr.aria-expanded]="_expanded()" (click)="$event.stopPropagation(); toggleExpanded()">
-      <i [class]="'icon-' + (_expanded() ? 'minus' : 'add')"></i>
+      <i [class]="'icon-' + (_expanded() ? 'minus-square' : 'add-square')"></i>
     </button>
     }
 
   </div>
   }
 
-  @if (options.length > 0 && _expanded()) {
-  <div class="export-document--item--content">
+  @if (options.length > 0) {
+  <div class="export-document--item--content" [@expandCollapse]="_expanded() ? 'expanded' : 'collapsed'">
     <mat-radio-group class="radio-group" [(ngModel)]="selectedOption" [name]="groupName"
       (change)="onOptionChange($event)">
       <mat-radio-button *ngFor="let option of options" [disabled]="option.disabled" [value]="option.value" class="radio-button">

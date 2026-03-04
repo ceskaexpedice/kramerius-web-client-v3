@@ -26,6 +26,9 @@
   &__sections {
     flex: 1;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x2);
     padding: var(--spacing-x2) var(--spacing-x4);
   }
 

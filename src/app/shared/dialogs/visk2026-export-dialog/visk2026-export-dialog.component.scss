@@ -1,0 +1,16 @@
+.description {
+  padding: 0 24px;
+  margin-bottom: var(--spacing-x4);
+  color: var(--color-text-secondary);
+}
+
+.email-field {
+  padding: 0 24px var(--spacing-x4);
+
+  .email-error {
+    display: block;
+    margin-top: var(--spacing-x1);
+    color: var(--color-error);
+    font-size: var(--font-size-small);
+  }
+}

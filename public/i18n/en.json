@@ -538,5 +538,11 @@
   "content": "Content",
   "license-badge.onsite": "Reading room",
   "license-badge.dnnt": "DNNT",
-  "license-badge.public": "Licence"
+  "license-badge.public": "Licence",
+  "visk2026-export-dialog--header": "Write us an email address where we should send the document",
+  "visk2026-export-dialog--description": "The whole process may take several tens of minutes.",
+  "visk2026-export-dialog--email-label": "Email",
+  "visk2026-export-dialog--email-invalid": "Email is invalid",
+  "visk2026-export-dialog--submit": "Download and send",
+  "visk2026-export-dialog--success": "Request created"
 }

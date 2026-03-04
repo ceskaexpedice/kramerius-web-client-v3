@@ -1,6 +1,6 @@
 <div class="record-export-panel">
   <div class="record-export-panel__header">
-    <span class="record-export-panel__title">{{ record?.title }}</span>
+    <span class="record-export-panel__title">{{ record?.rootTitle }}</span>
   </div>
 
   <div class="record-export-panel__loading" *ngIf="loading()">
@@ -14,7 +14,8 @@
       [options]="printOptions()"
       [groupName]="'print-export-' + record.pid"
       [collapsible]="true"
-      [expanded]="true"
+      [expanded]="expandedSection() === 'print'"
+      (toggle)="onSectionToggle('print')"
       (submit)="onPrintSubmit($event)">
     </app-export-document-section-item-component>
 
@@ -24,17 +25,19 @@
       [options]="pdfOptions()"
       [groupName]="'pdf-export-' + record.pid"
       [collapsible]="true"
-      [expanded]="false"
+      [expanded]="expandedSection() === 'pdf'"
+      (toggle)="onSectionToggle('pdf')"
       (submit)="onPdfSubmit($event)">
     </app-export-document-section-item-component>
 
     <app-export-document-section-item-component
       [title]="'export-epub-title'"
-      [icon]="'icon-book'"
+      [icon]="'icon-book-export'"
       [options]="epubOptions()"
       [groupName]="'epub-export-' + record.pid"
       [collapsible]="true"
-      [expanded]="false"
+      [expanded]="expandedSection() === 'epub'"
+      (toggle)="onSectionToggle('epub')"
       (submit)="onEpubSubmit($event)">
     </app-export-document-section-item-component>
 
@@ -44,7 +47,8 @@
       [options]="textOptions()"
       [groupName]="'text-export-' + record.pid"
       [collapsible]="true"
-      [expanded]="false"
+      [expanded]="expandedSection() === 'text'"
+      (toggle)="onSectionToggle('text')"
       (submit)="onTextSubmit($event)">
     </app-export-document-section-item-component>
   </div>

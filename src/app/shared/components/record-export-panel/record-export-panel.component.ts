@@ -15,6 +15,10 @@ import {
   PageSelectionDialogComponent,
   PageSelectionDialogResult
 } from '../../dialogs/page-selection-dialog/page-selection-dialog.component';
+import {
+  Visk2026ExportDialogComponent
+} from '../../dialogs/visk2026-export-dialog/visk2026-export-dialog.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-record-export-panel',
@@ -36,10 +40,12 @@ export class RecordExportPanelComponent implements OnInit {
   private dialog = inject(MatDialog);
   private solrService = inject(SolrService);
   private userService = inject(UserService);
+  private toastService = inject(ToastService);
 
   private pages = signal<Page[]>([]);
   private pagesLoaded = signal(false);
   loading = signal(false);
+  expandedSection = signal<string | null>('print');
 
   private maxRange = computed(() => this.appConfig.pdfMaxRange());
 
@@ -111,7 +117,7 @@ export class RecordExportPanelComponent implements OnInit {
     } else if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
     } else if (value === 'whole-document-visk2026') {
-      this.exportService.exportVisk2026(this.record.pid);
+      this.openVisk2026Dialog();
     }
   }
 
@@ -140,12 +146,32 @@ export class RecordExportPanelComponent implements OnInit {
     }
   }
 
+  onSectionToggle(section: string): void {
+    this.expandedSection.update(current => current === section ? null : section);
+  }
+
   onEpubSubmit(_value: string): void {
     // TODO: implement EPUB export
   }
 
   onTextSubmit(_value: string): void {
     // TODO: implement TEXT export
+  }
+
+  private openVisk2026Dialog(): void {
+    const dialogRef = this.dialog.open(Visk2026ExportDialogComponent, {
+      data: { pid: this.record.pid },
+      width: '560px',
+      maxWidth: '90vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result === 'submitted') {
+        this.toastService.show('visk2026-export-dialog--success');
+      } else if (result === 'error') {
+        this.toastService.show('export-error');
+      }
+    });
   }
 
   private openPageSelectionDialog(titleKey: string, exportType: 'pdf' | 'print'): void {
