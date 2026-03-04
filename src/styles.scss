@@ -6,7 +6,7 @@
 @use '../public/styles/accessibility/low-vision';
 @use '../public/styles/accessibility/high-contrast';
 
-@import 'highlight.js/styles/default.css';
+@use '../public/styles/highlight';
 
 html,
 body {
@@ -71,8 +71,4 @@ body.header-hidden {
 body.header-hidden .page-content__filters {
   transform: translateY(-100%);
   margin-bottom: -57px !important;
-}
-
-.hljs {
-  background: transparent;
 }
