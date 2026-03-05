@@ -178,20 +178,6 @@
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
           [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
 
-          @if (recordHandler.shouldShowDnntoBar(document.licences) && userService.userSession?.authenticated) {
-          <div class="dnnto-bar">
-            <span class="dnnto-bar--title">
-              <img src="/img/logo/dnnt-logo.png" alt="DNNT logo">
-              {{ 'dnnto' | translate }}
-            </span>
-
-            @if (userService.userSession) {
-              <span>
-                  {{ userService.getFormattedExpiration() }}
-                | {{ userService.userSession.email }}
-</span>            }
-          </div>
-          }
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
@@ -202,8 +188,8 @@
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
           </app-document-access-denied>
-          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
-          <!-- Show loader while access is being checked -->
+          } @else if (checkState === 'INITIAL') {
+          <!-- Show loader while access is being checked for the first time -->
           <app-inline-loader></app-inline-loader>
           } @else {
           <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
@@ -224,7 +210,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument(document.licences)) {
         <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-info-full"></i>
@@ -232,7 +218,7 @@
         }
 
         <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument()) {
+        @if (documentInfoService.canAccessDocument(document.licences)) {
         @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>
@@ -272,6 +258,8 @@
   <!--  </ng-container>-->
 
 </app-detail-layout>
+
+<app-dnnto-bar></app-dnnto-bar>
 
 @if (favoritesHelper.favoritesPopupState.showPopup()) {
 <div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">

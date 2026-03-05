@@ -27,6 +27,7 @@ import { AdminActionsComponent } from '../../shared/components/admin-actions/adm
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
+import { RecordExportPanelComponent } from '../../shared/components/record-export-panel/record-export-panel.component';
 
 const routes: Routes = [
 	{
@@ -65,7 +66,8 @@ const routes: Routes = [
 		ToolbarControlsComponent,
 		InlineLoaderComponent,
 		ScrollHideHeaderDirective,
-		SkeletonListPipe
+		SkeletonListPipe,
+		RecordExportPanelComponent,
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

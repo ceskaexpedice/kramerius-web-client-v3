@@ -28,6 +28,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
   showSectionHeaders = signal<boolean>(true);
+  exportRecord = signal<SearchDocument | null>(null);
 
   protected readonly ViewOptions = AppResultsViewType;
 
@@ -154,6 +155,14 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   onEditSelected(selectedIds: string[]): void {
     console.log('Edit selected items:', selectedIds);
     // TODO: Implement edit functionality specific to search results
+  }
+
+  openExportPanel(record: SearchDocument): void {
+    this.exportRecord.set(record);
+  }
+
+  closeExportPanel(): void {
+    this.exportRecord.set(null);
   }
 
   protected readonly ViewMode = ViewMode;

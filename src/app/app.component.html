@@ -1,5 +1,7 @@
 <app-header />
-<main [style.--playback-bar-height]="showPlaybackBar() ? '52px' : '0px'">
+<main
+  [style.--playback-bar-height]="playbackBarHeight()"
+  [style.--dnnto-bar-height]="dnntoBarHeight()">
   <router-outlet />
 </main>
 

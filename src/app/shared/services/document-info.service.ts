@@ -3,6 +3,7 @@ import { SolrService } from '../../core/solr/solr.service';
 import { DocumentInfo } from '../models/document-info';
 import { UserService } from './user.service';
 import { delay } from 'rxjs';
+import { getOpenLicenses } from '../../core/solr/solr-misc';
 
 export type DocumentInfoState = 'INITIAL' | 'LOADING' | 'LOADED' | 'ERROR' | 'CLEARED';
 
@@ -149,15 +150,35 @@ export class DocumentInfoService {
             return false;
         }
 
+        // Open/public licenses are accessible to everyone, including anonymous users
+        const openLicenses = getOpenLicenses();
+        const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];
+        if (publicLicenses.some(l => info.providedByLicenses.includes(l))) {
+            return true;
+        }
+
         return this.userService.hasAnyLicense(info.providedByLicenses);
     }
 
     /**
-     * Checks if the user can access the current document/page
-     * Alias for userHasRequiredLicense() for better readability
+     * Checks if the user can access the current document/page.
+     * Mirrors the access-denied condition in the template:
+     *   !isRecordPublic(licences) && !canAccessDocument() && !hasAnyLicense(licences)
+     * When document licences are provided, a public document is always accessible.
+     * @param documentLicences optional licences array from the document metadata
      * @returns true if user can access the document, false otherwise
      */
-    canAccessDocument(): boolean {
+    canAccessDocument(documentLicences?: string[]): boolean {
+        if (documentLicences && documentLicences.length > 0) {
+            const openLicenses = getOpenLicenses();
+            const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];
+            if (publicLicenses.some(l => documentLicences.includes(l))) {
+                return true;
+            }
+            if (this.userService.hasAnyLicense(documentLicences)) {
+                return true;
+            }
+        }
         return this.userHasRequiredLicense();
     }
 

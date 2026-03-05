@@ -49,6 +49,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
   currentEditingFolder = signal<{ uuid: string, name: string } | null>(null);
+  exportRecord = signal<SearchDocument | null>(null);
   titleEditPopupState: PopupState;
 
   constructor(
@@ -104,6 +105,14 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     const url = new URL(window.location.href);
     url.searchParams.set('viewType', view);
     window.history.replaceState({}, '', url.toString());
+  }
+
+  openExportPanel(record: SearchDocument): void {
+    this.exportRecord.set(record);
+  }
+
+  closeExportPanel(): void {
+    this.exportRecord.set(null);
   }
 
   startEditingTitle(folderUuid: string, currentTitle: string, event: Event) {

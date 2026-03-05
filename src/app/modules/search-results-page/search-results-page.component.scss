@@ -1,3 +1,42 @@
+.content-with-sidebar {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+  gap: var(--spacing-x3);
+
+  .page-content__wrapper {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.export-sidebar {
+  flex: 0 0 340px;
+  width: 340px;
+  min-width: 340px;
+  height: calc(100% - var(--spacing-x3) - var(--spacing-x3));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--spacing-x3);
+  background: var(--color-bg-base);
+  margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
+  transition: width 0.3s ease, min-width 0.3s ease, flex-basis 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+
+  &.collapsed {
+    flex-basis: 0;
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    margin-right: 0;
+    margin-left: 0;
+    border: none;
+  }
+}
+
 .selection-count {
   font-weight: 500;
   color: var(--color-text-base);
@@ -26,4 +65,8 @@ h3 {
 
 app-advanced-search-indicator {
   margin-bottom: var(--spacing-x4);
+}
+
+app-record-export-panel {
+  height: 100%;
 }

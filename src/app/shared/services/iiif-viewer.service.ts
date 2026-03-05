@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService } from './alto.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ToastService } from './toast.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -93,10 +94,16 @@ export class IIIFViewerService {
   private bookModeSubject = new BehaviorSubject<boolean>(false);
   public bookMode$ = this.bookModeSubject.asObservable();
 
+  private zoomLockSubject = new BehaviorSubject<boolean>(false);
+  public zoomLock$ = this.zoomLockSubject.asObservable();
+  private lockedZoom: number | null = null;
+  private scrollLockHandler: ((event: any) => void) | null = null;
+
   private testFallbackMode = false;
 
   private altoService = inject(AltoService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -143,9 +150,10 @@ export class IIIFViewerService {
   }
 
   set uuid(uuid: string | null) {
+    const isNewDocument = uuid !== null && uuid !== this._uuid;
     this._uuid = uuid;
     if (uuid) {
-      this.resetState();
+      this.resetState(isNewDocument);
     }
   }
 
@@ -208,6 +216,10 @@ export class IIIFViewerService {
     this.viewer = viewer;
     this.setupRectangleClickHandler();
     this.setupImageLoadedHandler();
+    // Re-attach scroll lock handler on new viewer instance if zoom lock is active
+    if (this.scrollLockHandler) {
+      this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
+    }
   }
 
   // Setup handler to emit when image is fully loaded
@@ -302,12 +314,12 @@ export class IIIFViewerService {
   }
 
   // Reset all state
-  private resetState(): void {
+  private resetState(resetBookMode: boolean = true): void {
     this.viewerProperties = {
       zoom: 1,
       rotation: 0,
       fullscreen: false,
-      bookMode: false
+      bookMode: resetBookMode ? false : this.viewerProperties.bookMode
     };
     this.propertiesSubject.next(this.viewerProperties);
 
@@ -326,7 +338,16 @@ export class IIIFViewerService {
 
     // Clear search state
     this.clearSearchState();
-    this.bookModeSubject.next(false);
+    if (resetBookMode) {
+      this.bookModeSubject.next(false);
+      // Reset zoom lock on document change
+      if (this.scrollLockHandler && this.viewer) {
+        this.viewer.removeHandler('canvas-scroll', this.scrollLockHandler);
+      }
+      this.scrollLockHandler = null;
+      this.lockedZoom = null;
+      this.zoomLockSubject.next(false);
+    }
   }
 
   // Clear search state
@@ -913,6 +934,57 @@ export class IIIFViewerService {
    */
   isBookMode(): boolean {
     return this.viewerProperties.bookMode;
+  }
+
+  /**
+   * Toggle zoom lock. When enabled, current zoom is stored and restored after
+   * each page change. Scroll wheel no longer zooms; the native scroll event is
+   * released so the page scrollbar still works normally.
+   */
+  toggleZoomLock(): void {
+    const locked = !this.zoomLockSubject.value;
+    if (locked && this.viewer) {
+      this.lockedZoom = this.viewer.viewport.getZoom();
+      this.scrollLockHandler = (event: any) => {
+        // Prevent OSD from zooming
+        event.preventDefaultAction = true;
+        // Translate scroll into vertical pan instead, clamped to image bounds
+        if (this.viewer) {
+          const panAmount = event.scroll > 0 ? -0.05 : 0.05;
+          const center = this.viewer.viewport.getCenter();
+          const bounds = this.viewer.viewport.getBounds();
+          const homeBounds = this.viewer.viewport.getHomeBounds();
+          const newY = center.y + panAmount;
+          const minY = homeBounds.y + bounds.height / 2;
+          const maxY = homeBounds.y + homeBounds.height - bounds.height / 2;
+          const clampedY = Math.max(minY, Math.min(maxY, newY));
+          this.viewer.viewport.panTo(new OpenSeadragon.Point(center.x, clampedY));
+        }
+      };
+      this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
+      this.toastService.show('viewer-controls.zoom-lock-enabled', null, 3000);
+    } else {
+      this.lockedZoom = null;
+      if (this.viewer && this.scrollLockHandler) {
+        this.viewer.removeHandler('canvas-scroll', this.scrollLockHandler);
+      }
+      this.scrollLockHandler = null;
+    }
+    this.zoomLockSubject.next(locked);
+  }
+
+  isZoomLocked(): boolean {
+    return this.zoomLockSubject.value;
+  }
+
+  /**
+   * If zoom lock is active, restore the locked zoom level on the current viewport.
+   * Called by the viewer component after each page change finishes loading.
+   */
+  applyLockedZoom(): void {
+    if (this.lockedZoom !== null && this.viewer) {
+      this.viewer.viewport.zoomTo(this.lockedZoom, undefined, true);
+    }
   }
 
   /**

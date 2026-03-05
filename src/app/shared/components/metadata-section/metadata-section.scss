@@ -17,6 +17,10 @@
     margin: 0;
   }
 
+  .titles--container {
+    margin: var(--spacing-x1) 0;
+  }
+
   .article-card {
     border: 1px solid var(--color-border-bright);
     border-radius: var(--spacing-x2);

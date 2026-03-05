@@ -4,8 +4,9 @@
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
     <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
-    <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4" [contentKey]="data.titles.length">
-      <div *ngFor="let title of data.titles">
+    <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4"
+      [contentKey]="data.titles.length">
+      <div class="titles--container" *ngFor="let title of data.titles">
         <span>{{ title.title }}</span>
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
@@ -19,12 +20,12 @@
 
   <!-- Authors -->
   <app-metadata-section-item *ngIf="data.authors.length" [label]="'author' | translate" type="clickable-list"
-    [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+    [collapsible]="true" [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
   </app-metadata-section-item>
 
   <!-- Publishers -->
-  <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list" [collapsible]="true"
-                             [items]="data.publishers" [displayFn]="getPublisherFullDetail">
+  <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
+    [collapsible]="true" [items]="data.publishers" [displayFn]="getPublisherFullDetail">
   </app-metadata-section-item>
 
   <!-- Document Type -->
@@ -35,17 +36,18 @@
   <!-- Accessibility -->
   <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
 
-    <div class="flex" metadata-section-item-content>
+    <div class="flex flex--gap-x2" metadata-section-item-content>
 
       <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []"></app-accessibility-badge>
+      <app-license-badge [license]="data.licence"></app-license-badge>
 
     </div>
 
   </app-metadata-section-item>
 
-  @for (license of runtimeLicenses(); track license) {
-  {{license}}
-  }
+  <!--  @for (license of runtimeLicenses(); track license) {-->
+  <!--  {{license}}-->
+  <!--  }-->
 
   <!-- Languages -->
   <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
@@ -80,7 +82,7 @@
   <div class="article-card">
     <div class="article-header">
       @if (childData.titles && childData.titles.length > 0) {
-        <span class="label">{{ childData.titles[0].title }}</span>
+      <span class="label">{{ childData.titles[0].title }}</span>
       }
       <button class="toggle-btn" (click)="toggleChild()">
         <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
@@ -95,8 +97,8 @@
       </app-metadata-section-item>
 
       <!-- Authors -->
-      <app-metadata-section-item *ngIf="childData.authors.length" [label]="'author' | translate"
-        type="clickable-list" [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+      <app-metadata-section-item *ngIf="childData.authors.length" [label]="'author' | translate" type="clickable-list"
+        [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
       </app-metadata-section-item>
 
       <!-- Languages -->
@@ -106,8 +108,8 @@
 
       <!-- Locations -->
       <app-metadata-section-item *ngIf="childData.locations.length" [label]="'locations' | translate"
-        type="clickable-list" [items]="childData.locations" [displayFn]="getLocationLabel"
-        [showListBullets]="true" [disableTranslate]="true" [onItemClick]="clickedLocation">
+        type="clickable-list" [items]="childData.locations" [displayFn]="getLocationLabel" [showListBullets]="true"
+        [disableTranslate]="true" [onItemClick]="clickedLocation">
       </app-metadata-section-item>
 
       <!-- Notes -->
@@ -175,7 +177,7 @@
   }
 
   <!-- Keywords -->
-  <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [showListBullets]="true"
+  <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [showListBullets]="true" [collapsible]="true"
     type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword">
   </app-metadata-section-item>
 
@@ -197,8 +199,12 @@
   </app-metadata-section-item>
 
   <!-- Physical Description -->
-  <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate"
+  <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
     type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
+  </app-metadata-section-item>
+
+  <app-metadata-section-item *ngIf="data.contents.length" [label]="'content' | translate" [collapsible]="true"
+    type="list" [items]="data.contents">
   </app-metadata-section-item>
 
   <!-- Cartographic Data -->
@@ -218,7 +224,7 @@
   </app-metadata-section-item>
 
   <!-- Notes -->
-  <app-metadata-section-item *ngIf="data.notes.length" [label]="'notes' | translate" type="list"
+  <app-metadata-section-item *ngIf="data.notes.length" [label]="'notes' | translate" type="list" [collapsible]="true"
     [items]="getNotes(data.notes)">
   </app-metadata-section-item>
 

@@ -31,6 +31,7 @@ import {InlineLoaderComponent} from '../../shared/components/inline-loader/inlin
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
 import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
+import { DnntoBarComponent } from './components/dnnto-bar/dnnto-bar.component';
 
 const routes: Routes = [
   {
@@ -75,6 +76,7 @@ const routes: Routes = [
 		DetailArticlesListComponent,
 		DocumentAccessDenied,
 		DatePipe,
+		DnntoBarComponent,
 	],
 })
 

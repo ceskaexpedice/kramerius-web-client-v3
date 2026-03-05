@@ -7,4 +7,8 @@
   line-height: var(--line-height-xs);
   padding: 2px 4px;
   border-radius: var(--spacing-x1);
+
+  i {
+    line-height: var(--line-height-xs);
+  }
 }

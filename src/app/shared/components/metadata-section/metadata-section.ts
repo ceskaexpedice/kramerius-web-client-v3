@@ -13,6 +13,7 @@ import { selectDocumentDetail } from '../../state/document-detail/document-detai
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
+import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
 import { LibraryContextService } from '../../services/library-context.service';
 import { DocumentInfoService } from '../../services/document-info.service';
@@ -30,6 +31,7 @@ import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-
     MetadataSectionItem,
     CollapsibleContent,
     AccessibilityBadgeComponent,
+    LicenseBadgeComponent,
     RouterLink
   ],
   templateUrl: './metadata-section.html',

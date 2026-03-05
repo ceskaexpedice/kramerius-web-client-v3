@@ -1,6 +1,6 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {SearchDocument} from '../../../modules/models/search-document';
-import {NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {RecordItemListRowComponent} from '../record-item-list-row/record-item-list-row.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -23,6 +23,8 @@ export class RecordItemListComponent implements OnInit {
   @Input() records: SearchDocument[] = [];
   @Input() currentFolderId?: string;
 
+  @Output() exportRecord = new EventEmitter<SearchDocument>();
+
   public recordHandler = inject(RecordHandlerService);
   private displayConfigService = inject(DisplayConfigService);
 
@@ -44,6 +46,10 @@ export class RecordItemListComponent implements OnInit {
   onClick(e: MouseEvent, record: SearchDocument) {
     e.stopPropagation();
     this.recordHandler.handleDocumentClick(record);
+  }
+
+  onDownloadClicked(record: SearchDocument): void {
+    this.exportRecord.emit(record);
   }
 
 }

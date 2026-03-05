@@ -17,18 +17,26 @@
       [inputTerm]="searchService.searchTerm"
       [showHistorySuggestions]="true"
       [showMicrophoneButton]="false"
-      [showHelpButton]="false"
-      [autofocus]="true"
+      [showHelpButton]="false" [prefixIcon]="'icon-search-normal-1'"
+      [autofocus]="true" [showSubmitButton]="false" [autoSubmit]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <button class="outlined light"
-            aria-label="{{'advanced-search' | translate}}"
-            (click)="openAdvancedSearch()">
-      {{'advanced-search' | translate}}
-    </button>
+    <div class="search-row--actions">
+      <button class="primary"
+              aria-label="{{'submit-search' | translate}}"
+              (click)="searchService.onSearch(searchService.searchTerm())">
+        {{'enter--submit-search' | translate}}
+      </button>
+
+      <button class="outlined light"
+              aria-label="{{'advanced-search' | translate}}"
+              (click)="openAdvancedSearch()">
+        {{'advanced-search' | translate}}
+      </button>
+    </div>
   </div>
 
-  <app-suggested-search-tags-section></app-suggested-search-tags-section>
+  <app-suggested-search-tags-section *ngIf="showSuggestedTags"></app-suggested-search-tags-section>
 
 </section>

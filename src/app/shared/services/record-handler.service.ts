@@ -15,7 +15,7 @@ import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/pe
 import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
-import {getOnlineLicenses, getOpenLicenses} from '../../core/solr/solr-misc';
+import {getAfterLoginLicenses, getOnlineLicenses, getOpenLicenses, getTerminalLicenses} from '../../core/solr/solr-misc';
 
 @Injectable({
   providedIn: 'root'
@@ -680,6 +680,19 @@ export class RecordHandlerService {
     const openLicenses = getOpenLicenses();
     const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];
     return publicLicenses.some(l => licenses.includes(l));
+  }
+
+  public getLicenseBadgeType(license: string): 'onsite' | 'dnnt' | 'public' | 'other' {
+    if (getTerminalLicenses().includes(license)) {
+      return 'onsite';
+    }
+    if (getAfterLoginLicenses().includes(license)) {
+      return 'dnnt';
+    }
+    if (getOpenLicenses().includes(license)) {
+      return 'public';
+    }
+    return 'other';
   }
 
   public getRecordLicenseForBadge(licenses: string[]): string {

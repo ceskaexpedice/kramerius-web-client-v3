@@ -1,23 +1,24 @@
 <label class="form-control">
 
   <mat-checkbox [checked]="checked" [disabled]="disabled" (change)="toggled.emit()" color="tertiary">
-    <label [class.checked]="checked" (click)="toggled.emit()">
-      @if (isLicense) {
-        @if (truncateLabel) {
-          {{ (label | configLabel:'license').length > 15 ? (label | configLabel:'license').slice(0, 15) + '...' : (label | configLabel:'license') }}
+    <span class="label-wrapper">
+      <label [class.checked]="checked" (click)="toggled.emit()">
+        @if (isLicense) {
+          @if (truncateLabel) {
+            {{ (label | configLabel:'license').length > 15 ? (label | configLabel:'license').slice(0, 15) + '...' : (label | configLabel:'license') }}
+          } @else {
+            {{ label | configLabel:'license' }}
+          }
         } @else {
-          {{ label | configLabel:'license' }}
+          @if (truncateLabel) {
+            {{ (label | translate).length > 15 ? (label | translate).slice(0, 15) + '...' : (label | translate) }}
+          } @else {
+            {{ label | translate }}
+          }
         }
-      } @else {
-        @if (truncateLabel) {
-          {{ (label | translate).length > 15 ? (label | translate).slice(0, 15) + '...' : (label | translate) }}
-        } @else {
-          {{ label | translate }}
-        }
-      }
-    </label>
-
-    <span class="count" [class.checked]="checked">({{ count | formatNumber }})</span>
+      </label>
+      <span class="count" [class.checked]="checked">({{ count | formatNumber }})</span>
+    </span>
   </mat-checkbox>
 
   @if (icon) {

@@ -27,8 +27,8 @@
       </div>
 
       <div>
-        <div class="title" [title]="(record && record.title) || ''">
-          {{ (record.title && record.title.length > 80) ? (record.title.slice(0, 80) + '...') : record.title }}
+        <div class="title" [title]="getDisplayTitle()">
+          {{ getDisplayTitle().length > 80 ? (getDisplayTitle().slice(0, 80) + '...') : getDisplayTitle() }}
         </div>
       </div>
     </a>
@@ -81,3 +81,13 @@
     {{ formatArrayValue(getColumnValue(column)) }}
   </td>
 </ng-container>
+
+<td class="actions-cell">
+
+  @if (record.count_page && record.count_page >= 1) {
+    <button class="button primary icon-button" (click)="$event.stopPropagation(); downloadClicked.emit(record)" [attr.aria-label]="'download' | translate">
+      <i class="icon icon-download"></i>
+    </button>
+  }
+
+</td>

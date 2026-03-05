@@ -8,9 +8,11 @@
 
 @if (collapsible && isOverflowing) {
   <div class="collapsible--action">
-    <button class="button tertiary outlined xs"
+    <button class="button primary md link no-padding with-icon"
             (click)="toggleCollapse()">
-      {{ (isCollapsed ? 'show-more' : 'show-less') | translate }}
+      {{ (isCollapsed ? 'more' : 'less') | translate }}
+
+      <i class="icon-arrow-up-1" [class.rotated]="isCollapsed"></i>
     </button>
   </div>
 }

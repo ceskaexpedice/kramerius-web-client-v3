@@ -1,13 +1,7 @@
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  position: relative;
-}
-
 .record-table {
-  width: 100%;
-  min-width: max-content;
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   color: var(--color-text-base);
   background-color: var(--color-bg-base);
@@ -31,6 +25,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .actions-column,
+  .col-actions {
+    width: 56px;
   }
 
   tr:last-child {

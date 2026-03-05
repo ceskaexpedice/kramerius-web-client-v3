@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import { SettingsService } from '../../../modules/settings/settings.service';
 import { ConfigService } from '../../config';
 
 @Component({
@@ -12,20 +14,31 @@ import { ConfigService } from '../../config';
   ],
   standalone: true,
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent implements OnInit, OnDestroy {
 
   footerLogo: string = 'img/logo.svg';
+  effectiveTheme: 'light' | 'dark' = 'light';
 
   private gitCommitUrl: string | null = null;
   private logoClickCount = 0;
   private logoClickTimer: any = null;
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private envService: EnvironmentService,
     private configService: ConfigService,
+    private settingsService: SettingsService,
   ) {}
 
+  ngOnDestroy() {
+    this.themeSubscription?.unsubscribe();
+  }
+
   async ngOnInit() {
+    this.themeSubscription = this.settingsService.effectiveTheme$.subscribe(theme => {
+      this.effectiveTheme = theme;
+    });
+
     const commitHash = this.envService.get('git_commit_hash');
     if (commitHash) {
       this.gitCommitUrl = 'https://github.com/trineracz/CDK-klient/commit/' + commitHash;

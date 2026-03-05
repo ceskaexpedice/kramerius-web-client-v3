@@ -161,9 +161,15 @@ export interface HomepageLinkItem {
   count?: number;
 }
 
+// Suggested search tag item
+export interface SuggestedSearchTagItem {
+  text: string;
+  filter: string;
+}
+
 // Home section configuration
 export interface HomepageSectionConfig {
-  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories';
+  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories' | 'suggested-tags';
   title: string;
   items?: Record<string, any>[];
   pids?: string[];
@@ -175,6 +181,7 @@ export interface HomepageSectionConfig {
   cardVariant?: 'default' | 'author';
   categories?: HomepageLinkItem[];
   showCount?: boolean;
+  tags?: SuggestedSearchTagItem[];
 }
 
 // Root configuration interface

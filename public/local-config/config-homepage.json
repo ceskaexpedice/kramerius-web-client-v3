@@ -2,6 +2,17 @@
   "code": "cdk",
   "sections": [
   {
+    "type": "suggested-tags",
+    "title": "suggested-tags",
+    "tags": [
+      { "text": "Knihy Karla Čapka", "filter": "?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&fq=licenses.facet:public&fq=authors.facet:Čapek,%20Karel&licenses.facet_operator=OR&authors.facet_operator=OR&customSearch=custom-root-model:monograph" },
+      { "text": "Grafiky 17. století", "filter": "?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&yearFrom=1600&yearTo=1700&fq=licenses.facet:public&licenses.facet_operator=OR" },
+      { "text": "Kuchařky Anuše Kejřové", "filter": "?query=&page=1&pageSize=60&sortBy=title.sort&sortDirection=asc&fq=licenses.facet:public&fq=authors.facet:Kejřová,%20Anuše&licenses.facet_operator=OR&authors.facet_operator=OR" },
+      { "text": "Mapy 16. století", "filter": "?page=1&pageSize=60&sortBy=title.sort&sortDirection=asc&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:map&advSearch=(date.str:%5B1500%20TO%201600%5D)&advOp=AND" },
+      { "text": "Zvukové nahrávky", "filter": "?page=1&pageSize=60&sortBy=title.sort&sortDirection=asc&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:soundrecording" }
+    ]
+  },
+  {
     "type": "local-records",
     "title": "Výběr z nejčtenějších novin a časopisů",
     "buttonText": "Více periodik",

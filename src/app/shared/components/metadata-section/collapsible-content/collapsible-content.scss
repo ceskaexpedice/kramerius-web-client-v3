@@ -1,3 +1,20 @@
+.collapsible--action {
+
+  button {
+    gap: var(--spacing-x2);
+    line-height: var(--line-height-2);
+  }
+
+  i {
+    font-size: var(--font-size-xlarge);
+    transition: transform 0.2s ease;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
+  }
+}
+
 .collapsible-content--wrapper {
   &.collapsible.collapsed {
     display: -webkit-box;

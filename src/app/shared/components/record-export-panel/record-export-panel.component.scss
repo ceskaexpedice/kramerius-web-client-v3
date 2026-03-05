@@ -1,0 +1,45 @@
+.record-export-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__header {
+    padding: var(--spacing-x4);
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: var(--font-size-large);
+    font-family: var(--font-family-body);
+    line-height: var(--line-height-3);
+    color: var(--color-text-base);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__loading {
+    padding: var(--spacing-x4);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-small);
+  }
+
+  &__sections {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x2);
+    padding: var(--spacing-x2) var(--spacing-x4);
+  }
+
+  &__footer {
+    padding: var(--spacing-x3) var(--spacing-x4);
+    border-top: 1px solid var(--color-border-light);
+
+    button {
+      width: 100%;
+    }
+  }
+}

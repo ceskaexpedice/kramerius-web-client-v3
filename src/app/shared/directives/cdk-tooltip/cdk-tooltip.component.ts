@@ -19,9 +19,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     <div class="tooltip-content" [style.max-width.px]="maxWidth()">
       @if (contentTemplate()) {
         <ng-container *ngTemplateOutlet="contentTemplate()!" />
-      } @else {
-        {{ content() }}
-      }
+      } @else {<ng-container>{{ content() }}</ng-container>}
     </div>
   `,
   styleUrls: ['./cdk-tooltip.component.scss'],

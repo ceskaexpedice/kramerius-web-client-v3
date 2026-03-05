@@ -1,55 +1,70 @@
 <div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'">
   <!-- Common buttons for both viewers -->
 
-  <button *ngIf="showZoomIn" (click)="onZoomIn()" class="button tertiary outlined" [appCdkTooltip]="'viewer-controls.zoom-in' | translate">
+  <button *ngIf="showZoomIn" (click)="onZoomIn()" class="button tertiary outlined"
+          [appCdkTooltip]="'viewer-controls.zoom-in' | translate">
     <i class="icon icon-search-zoom-in-1"></i>
   </button>
 
   <button *ngIf="showZoomOut" (click)="onZoomOut()" class="button tertiary outlined"
-    [appCdkTooltip]="'viewer-controls.zoom-out' | translate">
+          [appCdkTooltip]="'viewer-controls.zoom-out' | translate">
     <i class="icon icon-search-zoom-out-1"></i>
   </button>
 
+  <ng-container *ngIf="type === 'image'">
+    <button *ngIf="showCrop && showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()"
+            class="button tertiary outlined"
+            [appCdkTooltip]="'viewer-controls.select-area' | translate">
+      <i class="icon icon-crop"></i>
+    </button>
+  </ng-container>
+
   <button *ngIf="showFullscreen" (click)="onFullscreen()" class="button tertiary outlined"
-    [appCdkTooltip]="'viewer-controls.fullscreen' | translate">
+          [appCdkTooltip]="'viewer-controls.fullscreen' | translate">
     <i class="icon icon-maximize-3"></i>
   </button>
 
   <button *ngIf="showFitToScreen" (click)="onFitToScreen()" class="button tertiary outlined"
-    [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate">
-    <i class="icon icon-maximize-1"></i>
+          [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate">
+    <i class="icon icon-pharagraphspacing"></i>
   </button>
 
-  <button *ngIf="showFitToWidth" (click)="onToggleFitToWidth()" class="button tertiary outlined"
+  <button
+    *ngIf="showFitToWidth && (type === 'pdf' ? (pdfBookMode$ | async) === false : (iiifBookMode$ | async) === false)"
+    (click)="onToggleFitToWidth()" class="button tertiary outlined"
     [appCdkTooltip]="'viewer-controls.fit-to-width' | translate">
     <i class="icon icon-grid-lock"></i>
   </button>
+
+  <ng-container *ngIf="type === 'image'">
+    <button (click)="onZoomLock()"
+            [class.primary]="(iiifZoomLock$ | async) === true"
+            [class.tertiary]="(iiifZoomLock$ | async) === false"
+            [class.outlined]="(iiifZoomLock$ | async) === false"
+            class="button"
+            [appCdkTooltip]="'viewer-controls.zoom-lock' | translate">
+      <i class="icon icon-maximize-lock"></i>
+    </button>
+  </ng-container>
 
   <!-- PDF-specific buttons -->
   <ng-container *ngIf="type === 'pdf'">
 
     <button *ngIf="showScrollMode" (click)="onScrollMode()" class="button tertiary outlined"
-      [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | translate">
+            [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | translate">
       <i class="icon icon-pharagraphspacing"></i>
     </button>
 
   </ng-container>
 
+  <button *ngIf="showRotate" class="button tertiary outlined" (click)="onRotate()"
+          [appCdkTooltip]="'viewer-controls.rotate' | translate">
+    <i class="icon icon-rotate-right1"></i>
+  </button>
+
   <button *ngIf="showBookModeButton" (click)="onBookMode()" class="button tertiary outlined"
-    [appCdkTooltip]="'viewer-controls.book-mode' | translate">
+          [appCdkTooltip]="'viewer-controls.book-mode' | translate">
     <i class="icon icon-book-1"></i>
   </button>
-
-  <button *ngIf="showRotate" class="button tertiary outlined" (click)="onRotate()" [appCdkTooltip]="'viewer-controls.rotate' | translate">
-    <i class="icon icon-rotate-right"></i>
-  </button>
-
-  <!-- Image-specific buttons -->
-  <ng-container *ngIf="type === 'image'">
-    <button *ngIf="showCrop && showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()" class="button tertiary outlined"
-      [appCdkTooltip]="'viewer-controls.select-area' | translate">
-      <i class="icon icon-crop"></i>
-    </button>
-  </ng-container>
 
 </div>

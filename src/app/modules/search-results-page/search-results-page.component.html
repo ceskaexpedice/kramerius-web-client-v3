@@ -7,7 +7,7 @@
 
     <div class="page-content">
 
-      <div class="page-content__filters">
+      <div class="page-content__filters" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
           <div left>
             <!-- Regular view: show record type tabs -->
@@ -62,6 +62,8 @@
           </div>
         </app-action-toolbar>
       </div>
+
+      <div class="content-with-sidebar">
 
       <div class="page-content__wrapper"
         [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
@@ -154,7 +156,7 @@
                 </app-paginator>
               </div>
             </div>
-            <app-record-item-list [records]="nonPageResults"></app-record-item-list>
+            <app-record-item-list [records]="nonPageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -172,7 +174,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="articleResults"></app-record-item-list>
+            <app-record-item-list [records]="articleResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -191,7 +193,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="pageResults"></app-record-item-list>
+            <app-record-item-list [records]="pageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -210,7 +212,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="attachmentResults"></app-record-item-list>
+            <app-record-item-list [records]="attachmentResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -224,6 +226,16 @@
         </app-paginator>
 
       </div>
+
+      <aside class="export-sidebar" [class.collapsed]="!exportRecord()">
+        <app-record-export-panel
+          *ngIf="exportRecord()"
+          [record]="exportRecord()!"
+          (close)="closeExportPanel()">
+        </app-record-export-panel>
+      </aside>
+
+      </div><!-- /content-with-sidebar -->
 
     </div>
 

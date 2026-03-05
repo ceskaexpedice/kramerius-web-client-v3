@@ -148,7 +148,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
     if (!issues || issues.length === 0) return '';
 
     const hasLockedIssue = issues.some(issue =>
-      this.recordHandler.isRecordLocked(issue.licenses || [])
+      !this.recordHandler.isRecordPublic(issue.licenses || [])
     );
 
     let classes = 'has-issue';

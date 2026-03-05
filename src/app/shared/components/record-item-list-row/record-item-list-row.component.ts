@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, Output, EventEmitter} from '@angular/core';
 import { SearchDocument } from '../../../modules/models/search-document';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgForOf, NgIf } from '@angular/common';
@@ -36,6 +36,8 @@ export class RecordItemListRowComponent {
   @Input() record!: SearchDocument;
   @Input() url!: string;
   @Input() visibleColumns: TableColumnConfig[] = [];
+
+  @Output() downloadClicked = new EventEmitter<SearchDocument>();
 
   recordHandler = inject(RecordHandlerService);
   public selectionService = inject(SelectionService);
@@ -107,6 +109,10 @@ export class RecordItemListRowComponent {
     } else {
       this.recordHandler.onNavigate(event, this.url);
     }
+  }
+
+  getDisplayTitle(): string {
+    return this.record.title || this.record.rootTitle || '';
   }
 
   onSelectionChange(selected: boolean): void {

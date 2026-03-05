@@ -68,3 +68,7 @@ hr {
   overflow-y: auto;
   min-height: 0;
 }
+
+:host ::ng-deep label.mdc-label {
+  color: var(--color-text-secondary);
+}

@@ -385,3 +385,7 @@ hr {
     }
   }
 }
+
+:host ::ng-deep mat-slide-toggle label {
+  color: var(--color-text-base);
+}

@@ -12,6 +12,8 @@ export interface FacetItem {
   label?: string;
   available?: boolean;
   type?: 'radio' | 'checkbox';
+  tooltipIcon?: string;
+  tooltipText?: string;
 }
 
 export interface FacetGroup {

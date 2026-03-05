@@ -13,6 +13,12 @@ export class UiStateService {
     // Header visibility state for scroll-hide behavior
     readonly headerVisible = signal<boolean>(true);
 
+    // Search hero visibility — true when the hero search input is visible on screen
+    readonly searchHeroVisible = signal<boolean>(true);
+
+    // Dnnto bar visibility — true when the dnnto bar is shown at the bottom
+    readonly dnntoBarVisible = signal<boolean>(false);
+
     toggleMetadataSidebar() {
         this.metadataSidebarOpen.update(value => !value);
     }

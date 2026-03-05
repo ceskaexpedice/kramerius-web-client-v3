@@ -43,7 +43,7 @@
               <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
               <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
-                (actionClicked)="onToolbarAction($event)" [themeDefault]="true">
+                (actionClicked)="onToolbarAction($event)" [themeDefault]="false">
               </app-toolbar-controls>
 
               @if (sortParams | async; as sort) {
@@ -58,6 +58,8 @@
 
         </app-action-toolbar>
       </div>
+
+      <div class="content-with-sidebar">
 
       <div class="page-content__wrapper">
 
@@ -78,7 +80,8 @@
 
             <!-- LIST VIEW -->
             <app-record-item-list *ngIf="data.items?.length" [records]="data.items || []"
-              [currentFolderId]="(activeFolder | async)?.uuid">
+              [currentFolderId]="(activeFolder | async)?.uuid"
+              (exportRecord)="openExportPanel($event)">
             </app-record-item-list>
             }
 
@@ -110,6 +113,16 @@
         </ng-container>
 
       </div>
+
+      <aside class="export-sidebar" [class.collapsed]="!exportRecord()">
+        <app-record-export-panel
+          *ngIf="exportRecord()"
+          [record]="exportRecord()!"
+          (close)="closeExportPanel()">
+        </app-record-export-panel>
+      </aside>
+
+      </div><!-- /content-with-sidebar -->
 
       <!-- Loading State -->
       <app-inline-loader *ngIf="(loading$ | async) && view() === ViewOptions.list" [overlay]="true"></app-inline-loader>

@@ -31,6 +31,13 @@ export const libraryPrefixGuard: CanActivateFn = async (route: ActivatedRouteSna
     return router.createUrlTree(['/404']);
   }
 
+  const currentCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+  const currentUrl = localStorage.getItem('CDK_DEV_BASE_URL');
+
+  if (currentCode === libCode && currentUrl) {
+    return true;
+  }
+
   const library = await loadLibraryByCode(libCode);
 
   if (!library) {
@@ -38,7 +45,6 @@ export const libraryPrefixGuard: CanActivateFn = async (route: ActivatedRouteSna
   }
 
   // If library changed, set localStorage and reload so env/config pick up new API URLs
-  const currentCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
   if (currentCode !== libCode) {
     localStorage.setItem('CDK_DEV_BASE_URL', library.url);
     localStorage.setItem('CDK_DEV_KRAMERIUS_ID', library.code);
