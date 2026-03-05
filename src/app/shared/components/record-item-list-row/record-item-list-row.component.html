@@ -1,6 +1,6 @@
 <ng-container *ngFor="let column of visibleColumns">
   <!-- Title Column (special rendering with thumbnail) -->
-  <td *ngIf="column.id === 'title'" class="record-title">
+  <td *ngIf="column.id === 'title'" class="record-title sticky-col">
     <div class="record-row-selection" *ngIf="selectionService.selectionMode()">
       <app-checkbox [model]="selectionService.isSelected(record.pid)" (modelChange)="onSelectionChange($event)"
         (click)="$event.stopPropagation()">

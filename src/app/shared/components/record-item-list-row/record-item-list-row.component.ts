@@ -28,6 +28,7 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
   host: {
     '[class.selection-mode]': 'selectionService.selectionMode()',
     '[class.selected]': 'selectionService.selectionMode() && selectionService.isSelected(record.pid)',
+    '[class.highlighted]': 'highlighted',
     '(click)': 'onRowClick($event)'
   }
 })
@@ -36,6 +37,7 @@ export class RecordItemListRowComponent {
   @Input() record!: SearchDocument;
   @Input() url!: string;
   @Input() visibleColumns: TableColumnConfig[] = [];
+  @Input() highlighted = false;
 
   @Output() downloadClicked = new EventEmitter<SearchDocument>();
 

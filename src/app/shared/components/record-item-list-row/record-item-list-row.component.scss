@@ -33,6 +33,19 @@
     }
   }
 
+  &.highlighted td {
+    border-top: 2px solid var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+
+    &:last-child {
+      border-right: 2px solid var(--color-primary);
+    }
+
+    &.sticky-col {
+      box-shadow: inset 2px 0 0 var(--color-primary);
+    }
+  }
+
   // Selected state (only in admin mode)
   &.selection-mode.selected {
     // Admin mode: Selected row styles
@@ -57,6 +70,13 @@ td {
 
   &.record-title {
     position: relative;
+  }
+
+  &.sticky-col {
+    position: sticky;
+    left: 0;
+    background-color: inherit;
+    z-index: 1;
   }
 }
 
