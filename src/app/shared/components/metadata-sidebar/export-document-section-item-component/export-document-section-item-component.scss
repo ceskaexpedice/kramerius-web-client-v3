@@ -88,5 +88,16 @@ h3 {
 
   button {
     width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
   }
+}
+
+.spinning {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

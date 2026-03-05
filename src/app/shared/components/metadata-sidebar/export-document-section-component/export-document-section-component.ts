@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   ExportDocumentSectionItemComponent
 } from '../export-document-section-item-component/export-document-section-item-component';
@@ -40,6 +40,8 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
 
   selectedJpegOption: string | null = null;
+  pdfLoading = signal(false);
+  printLoading = signal(false);
   private cropSubscription?: Subscription;
   private selectionModeSubscription?: Subscription;
   private activeCropSession = false;
@@ -211,13 +213,14 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
     } else if (value === 'whole-document') {
-      // Only export pages with exportable licenses
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
-        this.exportService.exportPdfSelection(pageUuids, this.detailViewService.title);
-      } else {
-        console.warn('No pages with exportable licenses available for PDF export');
+        this.pdfLoading.set(true);
+        this.exportService.exportPdfSelection(pageUuids, this.detailViewService.title).subscribe({
+          next: () => this.pdfLoading.set(false),
+          error: () => this.pdfLoading.set(false),
+        });
       }
     }
   }
@@ -226,13 +229,10 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-print', 'print');
     } else if (value === 'whole-document') {
-      // Only print pages with exportable licenses
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
         this.exportService.printPdfSelection(pageUuids);
-      } else {
-        console.warn('No pages with exportable licenses available for print');
       }
     }
   }
@@ -263,13 +263,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
       if (result && result.selectedPagePids && result.selectedPagePids.length > 0) {
-        console.log('Selected pages:', result.selectedPagePids);
-
         if (exportType === 'pdf') {
-          // Export PDF with selected pages
-          this.exportService.exportPdfSelection(result.selectedPagePids, this.detailViewService.title);
+          this.pdfLoading.set(true);
+          this.exportService.exportPdfSelection(result.selectedPagePids, this.detailViewService.title).subscribe({
+            next: () => this.pdfLoading.set(false),
+            error: () => this.pdfLoading.set(false),
+          });
         } else if (exportType === 'print') {
-          // Print selected pages
           this.exportService.printPdfSelection(result.selectedPagePids);
         }
       }

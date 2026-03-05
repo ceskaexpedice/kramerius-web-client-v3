@@ -27,8 +27,13 @@
       </mat-radio-button>
     </mat-radio-group>
 
-    <button class="button primary small" [disabled]="!selectedOption" (click)="onSubmit()">
-      {{ 'confirm' | translate }}
+    <button class="button primary small" [disabled]="!selectedOption || loading" (click)="onSubmit()">
+      @if (loading) {
+        <i class="icon-status spinning"></i>
+        {{ 'probíhá' | translate }}
+      } @else {
+        {{ 'confirm' | translate }}
+      }
     </button>
   </div>
   }

@@ -40,20 +40,24 @@ export class ExportService {
   private http = inject(HttpClient);
   private toastService = inject(ToastService);
 
-  exportVisk2026(pid: string): void {
+  exportVisk2026(pid: string): Observable<void> {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const url = `${baseUrl}/search/api/client/v7.0/items/${pid}/requests/generate_pdf`;
-    this.toastService.show('loading');
-    this.http.post(url, {}, { responseType: 'blob' }).subscribe({
-      next: (blob) => {
-        const filename = `visk2026_${pid}_${this.getTimestamp()}.pdf`;
-        this.downloadBlob(blob, filename);
-        this.toastService.show('export-success');
-      },
-      error: (error) => {
-        console.error('VISK2026 export failed', error);
-        this.toastService.show('export-error');
-      }
+    return new Observable<void>(observer => {
+      this.http.post(url, {}, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          const filename = `visk2026_${pid}_${this.getTimestamp()}.pdf`;
+          this.downloadBlob(blob, filename);
+          this.toastService.show('export-success');
+          observer.next();
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('VISK2026 export failed', error);
+          this.toastService.show('export-error');
+          observer.error(error);
+        }
+      });
     });
   }
 
@@ -75,34 +79,33 @@ export class ExportService {
    * @param pageUuids Array of page UUIDs to include in the PDF
    * @param title Title of the document for filename
    */
-  exportPdfSelection(pageUuids: string[], title?: string): void {
+  exportPdfSelection(pageUuids: string[], title?: string): Observable<void> {
     if (!pageUuids || pageUuids.length === 0) {
       console.warn('No pages selected for PDF export');
-      return;
+      return of(void 0);
     }
 
     const baseUrl = this.environmentService.getBaseApiUrl();
     const currentLanguage = this.translateService.currentLang || 'cs';
-
-    // Join UUIDs with comma
     const pidsParam = pageUuids.join(',');
-
-    // Construct the PDF selection API URL
     const url = `${baseUrl}/search/api/client/v7.0/pdf/selection?pids=${pidsParam}&language=${currentLanguage}`;
 
-    this.toastService.show('loading');
-
-    this.http.get(url, { responseType: 'blob' }).subscribe({
-      next: (blob) => {
-        const sanitizedTitle = title ? title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'export_pdf';
-        const filename = `${sanitizedTitle}_${this.getTimestamp()}.pdf`;
-        this.downloadBlob(blob, filename);
-        this.toastService.show('export-success');
-      },
-      error: (error) => {
-        console.error('PDF export failed', error);
-        this.toastService.show('export-error');
-      }
+    return new Observable<void>(observer => {
+      this.http.get(url, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          const sanitizedTitle = title ? title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'export_pdf';
+          const filename = `${sanitizedTitle}_${this.getTimestamp()}.pdf`;
+          this.downloadBlob(blob, filename);
+          this.toastService.show('export-success');
+          observer.next();
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('PDF export failed', error);
+          this.toastService.show('export-error');
+          observer.error(error);
+        }
+      });
     });
   }
 
