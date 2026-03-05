@@ -1,16 +1,55 @@
 <div class="export-document--container">
 
+  <app-export-document-section-item-component
+    [title]="'export-print-title'"
+    [icon]="'icon-printer'"
+    [options]="printOptions()"
+    [groupName]="'print-export'"
+    [collapsible]="true"
+    [expanded]="expandedSection() === 'print'"
+    (toggle)="onSectionToggle('print')"
+    (submit)="onPrintSubmit($event)">
+  </app-export-document-section-item-component>
+
   <app-export-document-section-item-component [title]="'export-jpeg-title'" [icon]="'icon-gallery-import'"
-    [options]="jpegOptions()" [groupName]="'jpeg-export'" [selectedOption]="selectedJpegOption"
-    (optionChange)="onJpegOptionChange($event)"
-    (submit)="onJpegSubmit($event)"></app-export-document-section-item-component>
+                                              [options]="jpegOptions()" [groupName]="'jpeg-export'"
+                                              [selectedOption]="selectedJpegOption" [collapsible]="true"
+                                              [expanded]="expandedSection() === 'jpeg-export'"
+                                              (optionChange)="onJpegOptionChange($event)"
+                                              (toggle)="onSectionToggle('jpeg-export')"
+                                              (submit)="onJpegSubmit($event)"></app-export-document-section-item-component>
 
-  <app-export-document-section-item-component [title]="'export-pdf-title'" [icon]="'icon-document-download'"
-    [options]="pdfOptions()" [groupName]="'pdf-export'" [loading]="pdfLoading()"
-    (submit)="onPdfSubmit($event)"></app-export-document-section-item-component>
+  <app-export-document-section-item-component
+    [title]="'export-pdf-title'"
+    [icon]="'icon-document-download'"
+    [options]="pdfOptions()"
+    [groupName]="'pdf-export'"
+    [collapsible]="true"
+    [expanded]="expandedSection() === 'pdf'"
+    [loading]="pdfLoading()"
+    (toggle)="onSectionToggle('pdf')"
+    (submit)="onPdfSubmit($event)">
+  </app-export-document-section-item-component>
 
-  <app-export-document-section-item-component [title]="'export-print-title'" [icon]="'icon-printer'"
-    [options]="printOptions()" [groupName]="'print-export'"
-    (submit)="onPrintSubmit($event)"></app-export-document-section-item-component>
+  <app-export-document-section-item-component
+    [title]="'export-epub-title'"
+    [icon]="'icon-book-export'"
+    [options]="epubOptions()"
+    [groupName]="'epub-export'"
+    [collapsible]="true"
+    [expanded]="expandedSection() === 'epub'"
+    (toggle)="onSectionToggle('epub')"
+    (submit)="onEpubSubmit($event)">
+  </app-export-document-section-item-component>
 
+  <app-export-document-section-item-component
+    [title]="'export-text-title'"
+    [icon]="'icon-document-text'"
+    [options]="textOptions()"
+    [groupName]="'text-export'"
+    [collapsible]="true"
+    [expanded]="expandedSection() === 'text'"
+    (toggle)="onSectionToggle('text')"
+    (submit)="onTextSubmit($event)">
+  </app-export-document-section-item-component>
 </div>

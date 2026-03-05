@@ -23,6 +23,11 @@ button.sm {
   font-size: var(--font-size-xxsmall);
 }
 
+button.small {
+  padding: 8px 12px;
+  font-size: var(--font-size-small);
+}
+
 button.xs {
   padding: 2px 6px;
   font-size: var(--font-size-xs);

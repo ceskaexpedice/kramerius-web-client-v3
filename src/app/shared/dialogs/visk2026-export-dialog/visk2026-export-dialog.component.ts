@@ -20,7 +20,7 @@ export interface Visk2026ExportDialogData {
     InputComponent,
   ],
   templateUrl: './visk2026-export-dialog.component.html',
-  styleUrls: ['./visk2026-export-dialog.component.scss', '../generic-dialog.scss'],
+  styleUrls: ['../generic-dialog.scss', './visk2026-export-dialog.component.scss'],
 })
 export class Visk2026ExportDialogComponent {
 
