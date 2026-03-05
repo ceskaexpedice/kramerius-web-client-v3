@@ -8,8 +8,10 @@
   }
 
   &__title {
-    font-weight: 600;
-    font-size: var(--font-size-base);
+    font-weight: 700;
+    font-size: var(--font-size-large);
+    font-family: var(--font-family-body);
+    line-height: var(--line-height-3);
     color: var(--color-text-base);
     display: block;
     overflow: hidden;

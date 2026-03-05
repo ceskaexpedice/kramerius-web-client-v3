@@ -111,6 +111,10 @@ export class RecordItemListRowComponent {
     }
   }
 
+  getDisplayTitle(): string {
+    return this.record.title || this.record.rootTitle || '';
+  }
+
   onSelectionChange(selected: boolean): void {
     if (selected) {
       this.selectionService.selectItem(this.record.pid);

@@ -1,34 +1,26 @@
-<div class="record-item-list-layout" [class.sidebar-open]="exportRecord">
-  <div class="table-wrapper">
-    <table class="record-table" *ngIf="records.length">
-      <colgroup>
-        <col *ngFor="let column of visibleColumns" [style.width]="column.width">
-        <col class="col-actions">
-      </colgroup>
-      <thead>
-      <tr>
-        <th *ngFor="let column of visibleColumns">
-          {{ column.labelKey | translate }}
-        </th>
-        <th class="actions-column"></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr app-record-item-list-row
-        *ngFor="let record of records"
-        [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
-        [record]="record"
-        [visibleColumns]="visibleColumns"
-        (downloadClicked)="onDownloadClicked($event)">
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="export-sidebar" *ngIf="exportRecord">
-    <app-record-export-panel [record]="exportRecord" (close)="closeExportSidebar()"></app-record-export-panel>
-  </div>
-</div>
+<table class="record-table" *ngIf="records.length">
+  <colgroup>
+    <col *ngFor="let column of visibleColumns" [style.width]="column.width">
+    <col class="col-actions">
+  </colgroup>
+  <thead>
+  <tr>
+    <th *ngFor="let column of visibleColumns">
+      {{ column.labelKey | translate }}
+    </th>
+    <th class="actions-column"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr app-record-item-list-row
+    *ngFor="let record of records"
+    [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+    [record]="record"
+    [visibleColumns]="visibleColumns"
+    (downloadClicked)="onDownloadClicked($event)">
+  </tr>
+  </tbody>
+</table>
 
 <div class="no-results" *ngIf="!records.length">
   <p>{{ 'no_results_to_display' | translate }}</p>

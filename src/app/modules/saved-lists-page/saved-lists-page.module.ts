@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { RecordExportPanelComponent } from '../../shared/components/record-export-panel/record-export-panel.component';
 import { SavedListsPageComponent } from './saved-lists-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
@@ -67,7 +68,8 @@ const routes: Routes = [
     MusicTrackListComponent,
     TitleEditPopupComponent,
     InlineLoaderComponent,
-    SkeletonListPipe
+    SkeletonListPipe,
+    RecordExportPanelComponent,
   ],
 })
 
