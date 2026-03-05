@@ -1,3 +1,9 @@
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--spacing-x2);
+  border: 1px solid var(--color-border-light);
+}
+
 .record-table {
   table-layout: fixed;
   width: max-content;
@@ -5,7 +11,6 @@
   border-collapse: collapse;
   color: var(--color-text-base);
   background-color: var(--color-bg-base);
-  border-radius: var(--spacing-x2);
 
   th {
     font-weight: 500;
@@ -19,6 +24,11 @@
     top: 0;
     background-color: var(--color-bg-base);
     z-index: 10;
+
+    &.sticky-col {
+      left: 0;
+      z-index: 11;
+    }
   }
 
   td {
@@ -31,9 +41,16 @@
   .col-actions {
     width: 56px;
   }
+}
 
-  tr:last-child {
-    border-radius: 0 0 var(--spacing-x2) var(--spacing-x2);
+.table-wrapper.scrolled {
+  ::ng-deep td.sticky-col,
+  th.sticky-col {
+    box-shadow: inset -2px 0 0 var(--color-border-light);
+  }
+
+  ::ng-deep tr.highlighted td.sticky-col {
+    box-shadow: inset 2px 0 0 var(--color-primary), inset -2px 0 0 var(--color-border-light);
   }
 }
 
