@@ -55,8 +55,8 @@ export class UserService {
   get isAdmin$() { return this._isAdmin; }
 
   // Logged in status getter
-  get isLoggedIn() { return !!this._userSession(); }
-  get isLoggedIn$() { return computed(() => !!this._userSession()); }
+  get isLoggedIn() { return !!this._userSession()?.authenticated; }
+  get isLoggedIn$() { return computed(() => !!this._userSession()?.authenticated); }
 
   /**
    * Load user licenses from session
