@@ -21,6 +21,9 @@
 h3 {
   margin: 0;
   font-weight: normal;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-2);
+  font-family: var(--font-family-body);
 }
 
 .export-document--item--title {
