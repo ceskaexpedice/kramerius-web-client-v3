@@ -536,5 +536,6 @@
   "visk2026-export-dialog--email-label": "E-mail",
   "visk2026-export-dialog--email-invalid": "E-mail jest nieprawidłowy",
   "visk2026-export-dialog--submit": "Pobierz i wyślij",
-  "visk2026-export-dialog--success": "Żądanie zostało utworzone"
+  "visk2026-export-dialog--success": "Żądanie zostało utworzone",
+  "actions--col": "Akcje"
 }

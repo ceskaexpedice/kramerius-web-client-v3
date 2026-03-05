@@ -538,5 +538,6 @@
   "visk2026-export-dialog--email-label": "Email",
   "visk2026-export-dialog--email-invalid": "Email je neplatný",
   "visk2026-export-dialog--submit": "Stáhnout a odeslat",
-  "visk2026-export-dialog--success": "Požadavek vytvořen"
+  "visk2026-export-dialog--success": "Požadavek vytvořen",
+  "actions--col": "Akce"
 }

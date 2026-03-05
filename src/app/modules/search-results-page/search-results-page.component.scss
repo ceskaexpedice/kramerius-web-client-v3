@@ -59,8 +59,27 @@ h3 {
   margin-top: var(--spacing-x10);
 }
 
+.list-view--header {
+  align-items: center;
+  margin-bottom: var(--spacing-x3);
+
+  h3 {
+    margin-bottom: 0;
+  }
+
+  & ~ .list-view--header {
+
+  }
+
+  &:not(:first-child) {
+    margin-top: var(--spacing-x4);
+  }
+}
+
 .list-view--header .pull-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 app-advanced-search-indicator {
@@ -69,4 +88,8 @@ app-advanced-search-indicator {
 
 app-record-export-panel {
   height: 100%;
+}
+
+:host ::ng-deep .list-view--header .paginator.compact {
+  padding-right: 0;
 }

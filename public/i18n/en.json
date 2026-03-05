@@ -545,5 +545,6 @@
   "visk2026-export-dialog--email-label": "Email",
   "visk2026-export-dialog--email-invalid": "Email is invalid",
   "visk2026-export-dialog--submit": "Download and send",
-  "visk2026-export-dialog--success": "Request created"
+  "visk2026-export-dialog--success": "Request created",
+  "actions--col": "Actions"
 }

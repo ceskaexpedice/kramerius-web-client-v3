@@ -156,7 +156,7 @@
                 </app-paginator>
               </div>
             </div>
-            <app-record-item-list [records]="nonPageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="nonPageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -174,7 +174,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="articleResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="articleResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -193,7 +193,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="pageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="pageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -212,7 +212,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="attachmentResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="attachmentResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
