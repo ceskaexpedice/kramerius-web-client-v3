@@ -30,7 +30,7 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     code: 'inovatika-k7',
     name: 'Inovatika K7 (dev)',
     name_en: 'Inovatika K7 (dev)',
-    logo: 'https://k7.inovatika.dev/assets/shared/logo.svg',
+    logo: '',
     url: 'https://k7.inovatika.dev/',
   },
 };
