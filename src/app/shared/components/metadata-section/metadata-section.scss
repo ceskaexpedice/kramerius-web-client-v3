@@ -104,6 +104,18 @@
 
 
 
+  .donators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-x3);
+    align-items: center;
+
+    .donator-logo {
+      height: 55px;
+      width: auto;
+    }
+  }
+
   .metadata--actions {
     margin-top: 16px;
   }

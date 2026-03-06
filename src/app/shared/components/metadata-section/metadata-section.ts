@@ -424,4 +424,20 @@ export class MetadataSection implements OnInit, OnChanges {
 
   objectKeys = Object.keys;
 
+  private readonly donatorUrlMap: Record<string, string> = {
+    'norway': 'http://www.eeagrants.org',
+    'k3tok5': 'https://www.nkp.cz/digitalni-knihovna/digitalni-knihovny/k3tok5',
+    'eodopen': 'https://eodopen.eu/',
+    'ilnorway': 'https://eeagrants.org',
+    'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
+  };
+
+  getDonatorImage(donator: string): string | null {
+    return `/img/logo/donator/${donator.toLowerCase()}.png`;
+  }
+
+  getDonatorUrl(donator: string): string | null {
+    return this.donatorUrlMap[donator.toLowerCase()] ?? null;
+  }
+
 }

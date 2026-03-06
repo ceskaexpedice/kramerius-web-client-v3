@@ -329,6 +329,8 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
 
   metadata.monographUnitCount = doc['count_monograph_unit'];
 
+  metadata.donators = doc['donator'] ?? [];
+
   return metadata;
 }
 
@@ -549,6 +551,17 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
             merged.identifiers[key].push(value);
           }
         }
+      }
+    }
+  }
+
+  // Donators
+  if (modsMetadata.donators && modsMetadata.donators.length > 0) {
+    merged.donators = [...merged.donators];
+    const existingDonators = new Set(merged.donators);
+    for (const donator of modsMetadata.donators) {
+      if (!existingDonators.has(donator)) {
+        merged.donators.push(donator);
       }
     }
   }

@@ -45,6 +45,23 @@
 
   </app-metadata-section-item>
 
+  <!-- Donators -->
+  @if (data.donators?.length) {
+  <div class="donators">
+    @for (donator of data.donators; track donator) {
+      @if (getDonatorImage(donator); as imgSrc) {
+        @if (getDonatorUrl(donator); as url) {
+          <a [href]="url" target="_blank" rel="noopener noreferrer">
+            <img [src]="imgSrc" [alt]="donator" class="donator-logo" />
+          </a>
+        } @else {
+          <img [src]="imgSrc" [alt]="donator" class="donator-logo" />
+        }
+      }
+    }
+  </div>
+  }
+
   <!--  @for (license of runtimeLicenses(); track license) {-->
   <!--  {{license}}-->
   <!--  }-->
