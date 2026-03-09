@@ -45,6 +45,8 @@ export class MetadataSection implements OnInit, OnChanges {
   private _articleData = signal<Metadata | null>(null);
   get articleData() { return this._articleData(); }
 
+  private _solrData = signal<Metadata | null>(null);
+
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
 
@@ -125,6 +127,9 @@ export class MetadataSection implements OnInit, OnChanges {
 
     // Get Solr data from store to supplement with model, accessibility, and license
     const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
+    if (solrData) {
+      this._solrData.set(solrData);
+    }
 
     let baseMods: any = { ...modsData };
 
@@ -412,7 +417,7 @@ export class MetadataSection implements OnInit, OnChanges {
   openMetadataDialog() {
     this.dialog.open(MetadataDialogComponent, {
       data: {
-        document: this.data
+        document: this._solrData() ?? this.data
       },
       autoFocus: false,
       restoreFocus: false,
