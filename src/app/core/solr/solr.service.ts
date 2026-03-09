@@ -109,6 +109,18 @@ export class SolrService {
     return params;
   }
 
+  /**
+   * Returns true if the query contains special Solr search operators that should be
+   * passed directly to Solr without term-splitting or wildcard injection.
+   * Supported: * ? AND OR NOT "phrase" ~n (proximity/fuzzy)
+   */
+  private hasSpecialOperators(query: string): boolean {
+    if (/[*?~]/.test(query)) return true;
+    if (/"[^"]+"/.test(query)) return true;
+    if (/\b(AND|OR|NOT)\b/.test(query)) return true;
+    return false;
+  }
+
   private sanitizeSearchTerms(query: string): string {
     // Preserve quoted phrases
     if (query.startsWith('"') && query.endsWith('"')) {
@@ -136,73 +148,88 @@ export class SolrService {
     }
 
     if (query?.trim()) {
-      const sanitizedQuery = this.sanitizeSearchTerms(query);
-      const terms = sanitizedQuery.split(/\s+/).filter(t => t.length > 0);
-
-      if (terms.length === 0) {
-        parts.push('*:*');
-      } else {
-        // Convert terms to lowercase and create ASCII-folded versions
-        const lowerTerms = terms.map(t => t.toLowerCase());
-        const asciiFoldedTerms = lowerTerms.map(t => this.removeDiacritics(t));
-
-        // Build term queries for both diacritical and ASCII-folded versions
-        const buildTermQuery = (termsArray: string[], addWildcard: boolean) => {
-          return termsArray.map((term, i) => {
-            if (term.includes('*') || term.includes('?')) {
-              return term;
-            }
-            return addWildcard && i === termsArray.length - 1 ? `${term}*` : term;
-          }).join(' AND ');
-        };
-
-        const exactQuery = buildTermQuery(lowerTerms, false);
-        const wildcardQuery = buildTermQuery(lowerTerms, true);
-        const asciiFoldedWildcardQuery = buildTermQuery(asciiFoldedTerms, true);
-
-        // Check if ASCII-folded version is different from original
-        const hasDiacritics = wildcardQuery !== asciiFoldedWildcardQuery;
-
-        if (collectionUuid) {
-          // Collection search - include all searchable fields
+      if (this.hasSpecialOperators(query)) {
+        // Query uses special operators — pass directly to Solr without term-splitting or wildcard injection
+        const startsWithNot = /^\s*NOT\b/i.test(query);
+        if (startsWithNot) {
+          // Leading NOT: rewrite "NOT term" as exclusion from all docs
+          const excluded = query.replace(/^\s*NOT\s+/i, '').trim();
+          parts.push(`(*:* NOT (title.search:${excluded} OR titles.search:${excluded} OR text_ocr:${excluded}))`);
+        } else if (collectionUuid) {
           const queryParts = [
-            `title.search:(${exactQuery})^15`,
-            `title.search:(${wildcardQuery})^12`,
-            `titles.search:(${wildcardQuery})^10`,
-            `authors.search:(${wildcardQuery})^2`,
-            `keywords.search:(${wildcardQuery})`,
-            `publishers.search:(${wildcardQuery})`,
-            `genres.search:(${wildcardQuery})`,
-            `geographic_names.search:(${wildcardQuery})`,
-            `text_ocr:(${wildcardQuery})^0.1`,
-            `id_isbn:(${wildcardQuery})`,
-            `shelf_locators:(${wildcardQuery})`
+            `title.search:(${query})^15`,
+            `titles.search:(${query})^10`,
+            `authors.search:(${query})^2`,
+            `keywords.search:(${query})`,
+            `publishers.search:(${query})`,
+            `genres.search:(${query})`,
+            `geographic_names.search:(${query})`,
+            `text_ocr:(${query})^0.1`,
+            `id_isbn:(${query})`,
+            `shelf_locators:(${query})`
           ];
-          if (hasDiacritics) {
-            queryParts.push(
-              `title.search:(${asciiFoldedWildcardQuery})^11`,
-              `titles.search:(${asciiFoldedWildcardQuery})^9`,
-              `authors.search:(${asciiFoldedWildcardQuery})^1.5`,
-              `text_ocr:(${asciiFoldedWildcardQuery})^0.05`
-            );
-          }
           parts.push(`(${queryParts.join(' OR ')})`);
         } else {
-          // Simple search - title and OCR fields only
           const queryParts = [
-            `title.search:(${exactQuery})^3`,
-            `title.search:(${wildcardQuery})^2`,
-            `titles.search:(${wildcardQuery})`,
-            `text_ocr:(${wildcardQuery})^0.1`
+            `title.search:(${query})^3`,
+            `titles.search:(${query})`,
+            `text_ocr:(${query})^0.1`
           ];
-          if (hasDiacritics) {
-            queryParts.push(
-              `title.search:(${asciiFoldedWildcardQuery})^1.5`,
-              `titles.search:(${asciiFoldedWildcardQuery})^0.8`,
-              `text_ocr:(${asciiFoldedWildcardQuery})^0.05`
-            );
-          }
           parts.push(`(${queryParts.join(' OR ')})`);
+        }
+      } else {
+        const sanitizedQuery = this.sanitizeSearchTerms(query);
+        const terms = sanitizedQuery.split(/\s+/).filter(t => t.length > 0);
+
+        if (terms.length === 0) {
+          parts.push('*:*');
+        } else {
+          // Convert terms to lowercase and create ASCII-folded versions
+          const lowerTerms = terms.map(t => t.toLowerCase());
+
+          const q = lowerTerms.join(' AND ');
+          const qAscii = lowerTerms.map(t => this.removeDiacritics(t)).join(' AND ');
+          const hasDiacritics = q !== qAscii;
+
+          if (collectionUuid) {
+            // Collection search - include all searchable fields
+            const queryParts = [
+              `title.search:(${q})^15`,
+              `titles.search:(${q})^10`,
+              `authors.search:(${q})^2`,
+              `keywords.search:(${q})`,
+              `publishers.search:(${q})`,
+              `genres.search:(${q})`,
+              `geographic_names.search:(${q})`,
+              `text_ocr:(${q})^0.1`,
+              `id_isbn:(${q})`,
+              `shelf_locators:(${q})`
+            ];
+            if (hasDiacritics) {
+              queryParts.push(
+                `title.search:(${qAscii})^11`,
+                `titles.search:(${qAscii})^9`,
+                `authors.search:(${qAscii})^1.5`,
+                `text_ocr:(${qAscii})^0.05`
+              );
+            }
+            parts.push(`(${queryParts.join(' OR ')})`);
+          } else {
+            // Simple search - title and OCR fields only
+            const queryParts = [
+              `title.search:(${q})^3`,
+              `titles.search:(${q})`,
+              `text_ocr:(${q})^0.1`
+            ];
+            if (hasDiacritics) {
+              queryParts.push(
+                `title.search:(${qAscii})^1.5`,
+                `titles.search:(${qAscii})^0.8`,
+                `text_ocr:(${qAscii})^0.05`
+              );
+            }
+            parts.push(`(${queryParts.join(' OR ')})`);
+          }
         }
       }
     } else {
@@ -729,10 +756,20 @@ export class SolrService {
   }
 
   getAutocompleteSuggestions(term: string): Observable<string[]> {
-    // const query = SolrQueryBuilder.buildQueryFromInput(term);
-    const query = this.buildQParam(term);
+    const sanitized = this.sanitizeSearchTerms(term)
+      .replace(/\b(AND|OR|NOT)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    let wildcardTerm: string;
+    if (!sanitized) {
+      wildcardTerm = '*';
+    } else {
+      const words = sanitized.split(/\s+/);
+      words[words.length - 1] = words[words.length - 1] + '*';
+      wildcardTerm = words.join(' AND ');
+    }
     const paramsObject = {
-      q: query,
+      q: `title.search:(${wildcardTerm})`,
       fl: 'pid,title.search',
       fq: ['level:0'],
       rows: '50',
