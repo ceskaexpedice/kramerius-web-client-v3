@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Output } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TabsComponent } from '../../components/tabs/tabs.component';
@@ -23,6 +23,7 @@ export type CitationType = 'latex' | 'html' | 'text' | 'bibtex' | 'wiki';
   ],
   templateUrl: './citation-dialog.component.html',
   styleUrls: ['./citation-dialog.component.scss', '../generic-dialog.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CitationDialogComponent {
   document!: Metadata;
@@ -44,6 +45,7 @@ export class CitationDialogComponent {
   private environmentService = inject(EnvironmentService);
   private recordHandlerService = inject(RecordHandlerService);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.document = this.data.document;
@@ -98,11 +100,13 @@ export class CitationDialogComponent {
       next: (result) => {
         this.citationResponse = result;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Nepodařilo se načíst citaci:', err);
         this.error = this.translationService.instant('citation.load-error');
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
