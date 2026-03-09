@@ -1,5 +1,5 @@
 <div class="table-wrapper" *ngIf="records.length" [class.scrolled]="isScrolled()" (scroll)="onTableScroll($event)">
-  <table class="record-table">
+  <table class="record-table" #recordTable>
     <colgroup>
       <col *ngFor="let column of visibleColumns" [style.width]="column.width">
       <col class="col-actions">
@@ -8,6 +8,7 @@
     <tr>
       <th *ngFor="let column of visibleColumns; let i = index" [class.sticky-col]="i === 0">
         {{ column.labelKey | translate }}
+        <span class="resize-handle" (mousedown)="onResizeStart($event, i)"></span>
       </th>
       <th class="actions-column">{{'actions--col' | translate}}</th>
     </tr>

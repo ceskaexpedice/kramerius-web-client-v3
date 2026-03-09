@@ -24,10 +24,37 @@
     top: 0;
     background-color: var(--color-bg-base);
     z-index: 10;
+    overflow: visible;
 
     &.sticky-col {
       left: 0;
       z-index: 11;
+    }
+
+    .resize-handle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: col-resize;
+      user-select: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        right: 2px;
+        top: 20%;
+        bottom: 20%;
+        width: 1px;
+        background-color: var(--color-border-light);
+        border-radius: 1px;
+        transition: background-color 0.15s;
+      }
+
+      &:hover::after {
+        background-color: var(--color-text-tertiary);
+      }
     }
   }
 
