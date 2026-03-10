@@ -141,9 +141,11 @@
 
           } @else {
 
-          <app-inline-loader *ngIf="searchService.loading$ | async" [overlay]="true"></app-inline-loader>
-
           <!-- LIST VIEW -->
+          @if (searchService.loading$ | async) {
+            <app-record-item-list [records]="[]" [loading]="true"></app-record-item-list>
+          }
+
           <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
             @if (nonPageResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">

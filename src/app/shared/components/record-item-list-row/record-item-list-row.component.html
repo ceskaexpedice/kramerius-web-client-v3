@@ -1,3 +1,19 @@
+@if (loading) {
+  <td class="record-title sticky-col">
+    <div class="title-wrapper">
+      <div class="skeleton skeleton-thumb"></div>
+      <div class="skeleton skeleton-text" style="width: 60%"></div>
+    </div>
+  </td>
+  <ng-container *ngFor="let column of visibleColumns">
+    <td *ngIf="column.id !== 'title'">
+      <div class="skeleton skeleton-text" [style.width]="column.id === 'author' ? '70%' : '50%'"></div>
+    </td>
+  </ng-container>
+  <td class="actions-cell">
+    <div class="skeleton skeleton-text" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+  </td>
+} @else if (record) {
 <ng-container *ngFor="let column of visibleColumns">
   <!-- Title Column (special rendering with thumbnail) -->
   <td *ngIf="column.id === 'title'" class="record-title sticky-col">
@@ -91,3 +107,4 @@
   }
 
 </td>
+}

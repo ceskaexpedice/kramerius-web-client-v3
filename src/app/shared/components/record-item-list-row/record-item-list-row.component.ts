@@ -27,17 +27,19 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
   styleUrl: './record-item-list-row.component.scss',
   host: {
     '[class.selection-mode]': 'selectionService.selectionMode()',
-    '[class.selected]': 'selectionService.selectionMode() && selectionService.isSelected(record.pid)',
+    '[class.selected]': 'selectionService.selectionMode() && record && selectionService.isSelected(record.pid)',
     '[class.highlighted]': 'highlighted',
+    '[class.skeleton-row]': 'loading',
     '(click)': 'onRowClick($event)'
   }
 })
 export class RecordItemListRowComponent {
 
-  @Input() record!: SearchDocument;
+  @Input() record: SearchDocument | null = null;
   @Input() url!: string;
   @Input() visibleColumns: TableColumnConfig[] = [];
   @Input() highlighted = false;
+  @Input() loading = false;
 
   @Output() downloadClicked = new EventEmitter<SearchDocument>();
 
@@ -54,6 +56,7 @@ export class RecordItemListRowComponent {
   }
 
   getKrameriusBaseUrl(): string {
+    if (!this.record) return '';
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
 
@@ -61,6 +64,7 @@ export class RecordItemListRowComponent {
    * Gets the value for a column from the record
    */
   getColumnValue(column: TableColumnConfig): any {
+    if (!this.record) return '';
     return (this.record as any)[column.field];
   }
 
@@ -95,6 +99,7 @@ export class RecordItemListRowComponent {
   }
 
   onRowClick(event: MouseEvent): void {
+    if (this.loading || !this.record) return;
     // This handles clicks on the entire row (when in selection mode)
     if (this.selectionService.selectionMode()) {
       event.preventDefault();
@@ -104,6 +109,7 @@ export class RecordItemListRowComponent {
   }
 
   onTitleClick(event: MouseEvent): void {
+    if (!this.record) return;
     // This handles clicks specifically on the title/link area
     if (this.selectionService.selectionMode()) {
       event.preventDefault();
@@ -114,10 +120,12 @@ export class RecordItemListRowComponent {
   }
 
   getDisplayTitle(): string {
+    if (!this.record) return '';
     return this.record.title || this.record.rootTitle || '';
   }
 
   onSelectionChange(selected: boolean): void {
+    if (!this.record) return;
     if (selected) {
       this.selectionService.selectItem(this.record.pid);
     } else {

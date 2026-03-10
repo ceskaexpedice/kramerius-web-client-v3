@@ -5,8 +5,13 @@
   cursor: pointer;
   border-bottom: 1px solid var(--color-border-light);
 
-  &:hover {
+  &:hover:not(.skeleton-row) {
     background-color: var(--color-secondary-hover);
+  }
+
+  &.skeleton-row {
+    cursor: default;
+    pointer-events: none;
   }
 
   // Admin mode styles for row
@@ -179,6 +184,34 @@ td {
     &:hover {
       text-decoration: none;
     }
+  }
+}
+
+// Skeleton loading styles
+.skeleton {
+  background-color: var(--color-bg-bright);
+  animation: skeletonPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: 4px;
+  cursor: default;
+  pointer-events: none;
+}
+
+.skeleton-thumb {
+  width: 36px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.skeleton-text {
+  height: 16px;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
   }
 }
 

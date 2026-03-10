@@ -28,6 +28,8 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
   @Input() records: SearchDocument[] = [];
   @Input() currentFolderId?: string;
   @Input() exportedRecord: SearchDocument | null = null;
+  @Input() loading = false;
+  @Input() skeletonCount = 60;
 
   @Output() exportRecord = new EventEmitter<SearchDocument>();
 
@@ -38,6 +40,7 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
 
   visibleColumns: TableColumnConfig[] = [];
   isScrolled = signal(false);
+  skeletonRows = Array(60).fill(0);
 
   @ViewChild('tableWrapper') tableWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild('recordTable') recordTable!: ElementRef<HTMLTableElement>;
@@ -49,6 +52,7 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
   private onMouseUp = this.handleMouseUp.bind(this);
 
   ngOnInit() {
+    this.skeletonRows = Array(this.skeletonCount).fill(0);
     this.loadVisibleColumns();
 
     // Subscribe to changes in column configuration
