@@ -6,6 +6,10 @@
   position: relative;
 }
 
+:host.is-repositioning .filter-sidebar {
+  transition: none !important;
+}
+
 .filter-sidebar {
   display: flex;
   flex-direction: column;
