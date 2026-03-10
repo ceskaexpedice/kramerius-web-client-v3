@@ -13,6 +13,10 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-x3);
+
+    i {
+      color: var(--color-icon-tertiary-default);
+    }
   }
 }
 
@@ -21,4 +25,18 @@ label {
   font-size: var(--font-size-small);
   line-height: var(--line-height-1);
   text-align: left;
+}
+
+:host ::ng-deep div.mat-mdc-autocomplete-panel {
+  padding: 0 !important;
+}
+
+:host ::ng-deep .mat-mdc-option {
+  min-height: 0;
+}
+
+.delete-btn {
+  font-size: var(--font-size-base);
+  padding: 0;
+  color: var(--color-icon-tertiary-default);
 }

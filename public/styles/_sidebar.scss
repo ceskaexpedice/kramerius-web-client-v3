@@ -62,8 +62,8 @@
 // Floating toggle button
 .floating-sidebar-toggle {
   position: fixed;
-  right: var(--spacing-x4);
-  bottom: var(--spacing-x4);
+  right: var(--spacing-x3);
+  bottom: var(--spacing-x3);
   transition: all 0.2s ease;
   background-color: var(--color-secondary);
   z-index: 1000;

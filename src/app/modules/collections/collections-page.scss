@@ -80,15 +80,15 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x4);
+      margin: var(--spacing-x3);
     }
   }
 }
 
 .floating-sidebar-toggle {
   position: absolute;
-  bottom: var(--spacing-x4);
-  right: var(--spacing-x4);
+  bottom: var(--spacing-x3);
+  right: var(--spacing-x3);
   width: 40px;
   height: 40px;
   z-index: 50;

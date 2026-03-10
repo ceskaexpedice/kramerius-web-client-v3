@@ -1,7 +1,7 @@
 <div class="year-navigator">
 
-  <button (click)="prev()" [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate">
-    <i class="icon-arrow-left-1"></i>
+  <button (click)="prev()" class="icon-button outlined tertiary square-button" [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate">
+    <i class="icon-arrow-left-3"></i>
   </button>
 
   <h2
@@ -10,8 +10,8 @@
     {{ value }}
   </h2>
 
-  <button (click)="next()" [attr.aria-label]="'go-next-date-navigator--arialabel' | translate">
-    <i class="icon-arrow-right-1"></i>
+  <button (click)="next()" class="icon-button outlined tertiary square-button" [attr.aria-label]="'go-next-date-navigator--arialabel' | translate">
+    <i class="icon-arrow-right-3"></i>
   </button>
 
   <app-calendar-popup

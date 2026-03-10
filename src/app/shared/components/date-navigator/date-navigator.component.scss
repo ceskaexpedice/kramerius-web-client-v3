@@ -1,7 +1,7 @@
 .year-navigator {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-x3);
   position: relative;
 
   button {
