@@ -1,7 +1,7 @@
 <div class="page-navigator">
   <span class="label">{{ 'page' | translate }}</span>
 
-  <div class="spacer"></div>
+<!--  <div class="spacer"></div>-->
 
   <div class="indicator">
     <input type="text"
@@ -14,14 +14,14 @@
     <span class="total">{{ totalPagesString }}</span>
   </div>
 
-  <button class="button tertiary outlined"
+  <button class="button primary"
           [attr.aria-label]="'go-to-prev-page--arialabel' | translate"
           (click)="goPrev()"
           [disabled]="currentPage <= 1">
     <i class="icon-arrow-left-1"></i>
   </button>
 
-  <button class="button tertiary outlined"
+  <button class="button primary"
           [attr.aria-label]="'go-to-next-page--arialabel' | translate"
           (click)="goNext()"
           [disabled]="currentPage >= totalPages">

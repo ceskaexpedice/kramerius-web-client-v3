@@ -6,6 +6,7 @@
 
   .label {
     font-size: var(--font-size-small);
+    line-height: var(--line-height-xs);
     color: var(--color-text-tertiary);
     white-space: nowrap;
   }
@@ -23,6 +24,7 @@
     gap: var(--spacing-x2);
     height: 40px;
     flex-shrink: 0;
+    flex-grow: 1;
   }
 
   input.current-input {
@@ -34,7 +36,7 @@
     background: transparent;
     color: var(--color-text-base);
     padding: 0;
-    width: 32px;
+    width: 26px;
 
     &:focus {
       outline: none;

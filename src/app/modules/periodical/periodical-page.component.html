@@ -81,7 +81,7 @@
 
           <!-- Sticky Tags Bar -->
           <div class="page-content__sticky-tags" *ngIf="((periodical.selectedTags | async) || []).length > 0">
-            <app-selected-tags [items]="(periodical.selectedTags | async) || []" [operators]="{}"
+            <app-selected-tags [items]="(periodical.selectedTags | async) || []" [operators]="{}" [showClearAll]="((periodical.selectedTags | async) || []).length > 1"
               [showOperators]="false" [translateItems]="true" (remove)="periodical.removeFilter($event)"
               (removeGroup)="periodical.resetOperator($event)" (clearAll)="periodical.clearAllFilters()"
               clearButtonPosition="left">

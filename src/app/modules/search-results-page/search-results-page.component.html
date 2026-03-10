@@ -69,7 +69,7 @@
         [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
 
         <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
-          <app-selected-tags [items]="(searchService.selectedTags | async) || []"
+          <app-selected-tags [items]="(searchService.selectedTags | async) || []" [showClearAll]="((searchService.selectedTags | async) || []).length > 1"
                              [textTransform]="'capitalize'"
             [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
             [translateItems]="true" (remove)="searchService.removeFilter($event)"

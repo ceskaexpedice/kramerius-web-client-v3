@@ -10,11 +10,11 @@
   width: 100%;
 
   .tab-button {
-    padding: 20px var(--spacing-x4);
+    padding: var(--spacing-x4);
     background: none;
     border: none;
     font-weight: 500;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-small);
     line-height: var(--line-height-xs);
     color: var(--color-text-tertiary);
     position: relative;

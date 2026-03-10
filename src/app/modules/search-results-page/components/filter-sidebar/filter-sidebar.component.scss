@@ -260,13 +260,13 @@
 }
 
 .padding-sm {
-  padding: var(--spacing-x4);
+  padding: var(--spacing-x3);
 }
 
 .padding-md {
-  padding: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
+  padding: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) var(--spacing-x3);
 }
 
 .padding-lg {
-  padding: 2.5rem;
+  padding: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) var(--spacing-x3);
 }

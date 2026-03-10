@@ -2,19 +2,20 @@
 
 .search-hero {
   text-align: center;
-  padding: 24px;
+  padding: var(--spacing-x6) var(--spacing-x6) 0 var(--spacing-x6);
 
   h1 {
     font-size: var(--font-size-5xlarge);
     line-height: var(--line-height-8);
-    margin-bottom: 16px;
+    margin-top: 0;
+    margin-bottom: var(--spacing-x8);
     font-weight: 400;
     color: var(--color-text-base);
   }
 
   p {
     max-width: 860px;
-    margin: 0 auto 32px;
+    margin: 0 auto var(--spacing-x8);
     color: var(--color-text-secondary);
     font-size: var(--font-size-base);
     line-height: var(--line-height-2);
@@ -26,7 +27,7 @@
     align-items: stretch;
     gap: var(--spacing-x6);
     max-width: 720px;
-    margin: 0 auto 24px;
+    margin: 0 auto var(--spacing-x5);
 
     @include m.respond(sm) {
       flex-direction: column;

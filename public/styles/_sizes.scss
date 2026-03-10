@@ -20,8 +20,8 @@
   --font-size-5xlarge: calc(40px * var(--accessibility-text-scale));
   --font-size-6xlarge: calc(48px * var(--accessibility-text-scale));
 
-  --header-height: 71px;
-  --toolbar-height: 56px;
+  --header-height: 56px;
+  --toolbar-height: 48px;
   --small-gap: 1px;
 
   --spacing-x1: 4px;
@@ -53,7 +53,7 @@
 
   // Grid
   --card-min-width: 144px;
-  --card-gap: 16px;
+  --card-gap: 12px;
 
   // Standard Card (search results) - 144x303, with badge 144x335
   --card-width: 144px;

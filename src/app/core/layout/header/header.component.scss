@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-x3) var(--spacing-x4);
+  padding: var(--spacing-x2) var(--spacing-x3);
   height: var(--header-height);
   gap: var(--spacing-x4);
   position: relative;
@@ -77,7 +77,7 @@
     gap: 10px;
 
     img {
-      height: 45px;
+      height: 40px;
     }
 
     .header-client-name {

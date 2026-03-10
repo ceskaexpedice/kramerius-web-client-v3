@@ -68,7 +68,7 @@
         <div class="page-content__main">
           <!-- Sticky Tags Bar -->
           <div class="page-content__sticky-tags" *ngIf="((collectionsService.selectedTags | async) || []).length > 0">
-            <app-selected-tags [items]="(collectionsService.selectedTags | async) || []"
+            <app-selected-tags [items]="(collectionsService.selectedTags | async) || []" [showClearAll]="((collectionsService.selectedTags | async) || []).length > 1"
               [operators]="(collectionsService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
               [translateItems]="true" (remove)="collectionsService.removeFilter($event)"
               (removeGroup)="collectionsService.resetOperator($event)" (clearAll)="collectionsService.clearAllFilters()"

@@ -35,7 +35,7 @@
 
     <div class="selected-tags-section" *ngIf="pendingFilterTags().length > 0">
       <app-selected-tags [items]="pendingFilterTags()" [operators]="pendingOperators()" [showOperators]="false"
-        [translateItems]="true" (remove)="removePendingTag($event)" (removeGroup)="clearPendingOperator()"
+        [translateItems]="true" (remove)="removePendingTag($event)" (removeGroup)="clearPendingOperator()" [showClearAll]="pendingFilterTags().length > 1"
         (clearAll)="clearPendingTags()" [enableClamping]="true" [enableCollapse]="true" clearButtonPosition="left">
       </app-selected-tags>
     </div>
