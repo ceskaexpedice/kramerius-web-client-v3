@@ -150,6 +150,11 @@ export class SolrService {
     if (query?.trim()) {
       if (this.hasSpecialOperators(query)) {
         // Query uses special operators — pass directly to Solr without term-splitting or wildcard injection
+        // If no explicit boolean operators, join multiple terms with AND so "Kar* Háj*" → "Kar* AND Háj*"
+        const hasExplicitBooleans = /\b(AND|OR|NOT)\b/.test(query) || /"[^"]+"/.test(query);
+        const normalizedQuery = !hasExplicitBooleans
+          ? query.trim().split(/\s+/).join(' AND ')
+          : query;
         const startsWithNot = /^\s*NOT\b/i.test(query);
         if (startsWithNot) {
           // Leading NOT: rewrite "NOT term" as exclusion from all docs
@@ -157,23 +162,23 @@ export class SolrService {
           parts.push(`(*:* NOT (title.search:${excluded} OR titles.search:${excluded} OR text_ocr:${excluded}))`);
         } else if (collectionUuid) {
           const queryParts = [
-            `title.search:(${query})^15`,
-            `titles.search:(${query})^10`,
-            `authors.search:(${query})^2`,
-            `keywords.search:(${query})`,
-            `publishers.search:(${query})`,
-            `genres.search:(${query})`,
-            `geographic_names.search:(${query})`,
-            `text_ocr:(${query})^0.1`,
-            `id_isbn:(${query})`,
-            `shelf_locators:(${query})`
+            `title.search:(${normalizedQuery})^15`,
+            `titles.search:(${normalizedQuery})^10`,
+            `authors.search:(${normalizedQuery})^2`,
+            `keywords.search:(${normalizedQuery})`,
+            `publishers.search:(${normalizedQuery})`,
+            `genres.search:(${normalizedQuery})`,
+            `geographic_names.search:(${normalizedQuery})`,
+            `text_ocr:(${normalizedQuery})^0.1`,
+            `id_isbn:(${normalizedQuery})`,
+            `shelf_locators:(${normalizedQuery})`
           ];
           parts.push(`(${queryParts.join(' OR ')})`);
         } else {
           const queryParts = [
-            `title.search:(${query})^3`,
-            `titles.search:(${query})`,
-            `text_ocr:(${query})^0.1`
+            `title.search:(${normalizedQuery})^3`,
+            `titles.search:(${normalizedQuery})`,
+            `text_ocr:(${normalizedQuery})^0.1`
           ];
           parts.push(`(${queryParts.join(' OR ')})`);
         }
@@ -1125,9 +1130,9 @@ export class SolrService {
     };
 
     if (caseSensitive) {
-      paramsObject['q'] = `text_ocr.exact:${ocrSearchTerm}`;
+      paramsObject['q'] = `text_ocr.exact:(${ocrSearchTerm})`;
     } else {
-      paramsObject['q'] = `text_ocr:${ocrSearchTerm}`;
+      paramsObject['q'] = `text_ocr:(${ocrSearchTerm})`;
     }
 
     const params = this.createHttpParams(paramsObject);
