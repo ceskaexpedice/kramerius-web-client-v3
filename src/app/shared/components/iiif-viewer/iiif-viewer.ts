@@ -363,7 +363,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         pinchToZoom: true,
         scrollToZoom: false
       },
-      minZoomLevel: 0.5,
+      minZoomLevel: 0,
       maxZoomLevel: 10,
       visibilityRatio: 1,
       constrainDuringPan: false
@@ -375,6 +375,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
       });
+      // Set minimum zoom to fit-to-height so max zoom-out shows the full image height
+      this.updateMinZoomLevel();
       // Restore locked zoom after the new page opens
       this.iiifViewerService.applyLockedZoom();
 
@@ -834,5 +836,24 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private resetTouchState(): void {
     this.touchState.isSwiping = false;
     this.touchState.touchCount = 0;
+  }
+
+  /**
+   * Set minZoomLevel so the maximum zoom-out level fits the image to the container height.
+   * Called after each 'open' event when image dimensions are known.
+   */
+  private updateMinZoomLevel(): void {
+    if (!this.viewer) return;
+    const item = this.viewer.world.getItemAt(0);
+    if (!item) return;
+
+    const containerSize = this.viewer.viewport.getContainerSize();
+    const imageSize = item.getContentSize();
+    if (containerSize.x === 0 || containerSize.y === 0 || imageSize.x === 0 || imageSize.y === 0) return;
+
+    // Viewport zoom where the image height exactly fills the container height.
+    // OSD normalizes by image width, so: fitHeightZoom = (containerH/containerW) * (imageW/imageH)
+    const fitHeightZoom = (containerSize.y / containerSize.x) * (imageSize.x / imageSize.y);
+    (this.viewer as any).minZoomLevel = fitHeightZoom;
   }
 }
