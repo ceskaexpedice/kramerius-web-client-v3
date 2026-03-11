@@ -54,28 +54,25 @@
   align-items: center;
   width: 20px;
   height: 20px;
-  padding: 1px;
   border-radius: var(--spacing-x1);
-  background: var(--color-bg-light);
   border: 1px solid transparent;
   transition: all .4s;
-
-  &.active {
-    border-color: var(--color-primary);
-  }
 
   &.icon--flag {
     border-radius: 50%;
   }
 
-  i {
-    font-size: var(--font-size-base);
+  &:not(.icon--flag) {
+    background: var(--color-bg-light);
+    padding: 1px;
   }
 
-  .flag-icon {
-    width: 16px;
-    height: 16px;
-    object-fit: cover;
+  &.active:not(.icon--flag) {
+    border-color: var(--color-primary);
+  }
+
+  i {
+    font-size: var(--font-size-base);
   }
 }
 
@@ -86,3 +83,4 @@
     margin-top: 1px;
   }
 }
+

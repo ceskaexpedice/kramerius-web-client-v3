@@ -131,6 +131,13 @@ td {
   }
 }
 
+.languages-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-x1);
+}
+
 .actions-cell {
   width: 1%;
   white-space: nowrap;
@@ -141,15 +148,6 @@ td {
   color: var(--color-text-light);
 }
 
-.flag {
-  width: 16px;
-  height: auto;
-  vertical-align: middle;
-
-  &:not(:last-child) {
-    margin-right: 4px;
-  }
-}
 
 // Selection checkbox for row (admin mode)
 .record-row-selection {

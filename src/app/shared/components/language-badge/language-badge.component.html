@@ -1,0 +1,10 @@
+<img *ngIf="flagSrc; else textBadge"
+     [src]="flagSrc"
+     [alt]="lang"
+     class="language-flag"
+     [class.active]="active"
+     [class.rounded]="rounded" />
+
+<ng-template #textBadge>
+  <span class="language-circle" [class.active]="active" [title]="lang">{{ label }}</span>
+</ng-template>

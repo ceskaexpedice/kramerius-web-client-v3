@@ -21,13 +21,13 @@
     </span>
   </mat-checkbox>
 
-  @if (icon) {
-  <span class="icon" [class.icon--flag]="isImageIcon" [class.active]="checked">
-    @if (isImageIcon) {
-    <img [src]="icon" [alt]="label" class="flag-icon flag rounded">
-    } @else {
+  @if (langCode) {
+  <span class="icon icon--flag" [class.active]="checked">
+    <app-language-badge [size]="20" [lang]="langCode" [src]="icon" [rounded]="true" [active]="checked"></app-language-badge>
+  </span>
+  } @else if (icon) {
+  <span class="icon" [class.active]="checked">
     <i [ngClass]="[icon, itemIconClass || '']"></i>
-    }
   </span>
   }
 

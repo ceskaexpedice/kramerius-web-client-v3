@@ -5,6 +5,7 @@ import { NgClass } from '@angular/common';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
 import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
+import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 
 @Component({
   selector: 'app-filter-item',
@@ -14,6 +15,7 @@ import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
     FormatNumberPipe,
     TranslatePipe,
     ConfigLabelPipe,
+    LanguageBadgeComponent,
   ],
   templateUrl: './filter-item.component.html',
   styleUrl: './filter-item.component.scss',
@@ -27,6 +29,8 @@ export class FilterItemComponent {
   @Input() count!: number;
   @Input() checked = false;
   @Input() icon: string | null = null;
+  /** When set, always renders a language badge (with text fallback if no flag). */
+  @Input() langCode: string | null = null;
   @Input() disabled = false;
   @Input() itemIconClass?: string;
   @Output() toggled = new EventEmitter<void>();

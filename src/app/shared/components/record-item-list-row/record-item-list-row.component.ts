@@ -4,8 +4,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
+import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
@@ -22,6 +22,7 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
     CheckboxComponent,
     PluralizePipe,
     ThumbnailImageComponent,
+    LanguageBadgeComponent,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
@@ -46,7 +47,6 @@ export class RecordItemListRowComponent {
   recordHandler = inject(RecordHandlerService);
   public selectionService = inject(SelectionService);
 
-  protected readonly languageMap = languageMap;
   protected readonly ColumnRenderType = ColumnRenderType;
 
   private krameriusBaseUrl: string;

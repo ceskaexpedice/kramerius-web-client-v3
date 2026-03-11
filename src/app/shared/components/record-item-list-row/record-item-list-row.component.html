@@ -73,13 +73,13 @@
     {{ record.count_page ? (record.count_page | pluralize:'count-pages') : '—' }}
   </td>
 
-  <td *ngIf="column.id === 'languages'" class="languages-cell">
-    <ng-container *ngFor="let lang of record.languages">
-      <img *ngIf="languageMap[lang]" [src]="'/img/flag/' + languageMap[lang] + '.svg'" [alt]="lang" class="flag" />
+  <td *ngIf="column.id === 'languages'">
+    <ng-container *ngIf="record.languages && record.languages.length; else noLanguages">
+      <div class="languages-cell">
+        <app-language-badge *ngFor="let lang of record.languages" [size]="20" [lang]="lang" [rounded]="true"></app-language-badge>
+      </div>
     </ng-container>
-    <ng-container *ngIf="!record.languages || record.languages.length === 0">
-      -
-    </ng-container>
+    <ng-template #noLanguages>-</ng-template>
   </td>
 
   <td *ngIf="column.id === 'doctype'">
