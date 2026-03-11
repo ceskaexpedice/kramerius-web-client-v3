@@ -6,13 +6,15 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges,
+  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges, OnDestroy,
 } from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {FormsModule, NgModel} from '@angular/forms';
 import {CdkTooltipDirective} from '../../directives';
+import {SpeechRecognitionService} from '../../services/speech-recognition.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-input',
@@ -27,7 +29,7 @@ import {CdkTooltipDirective} from '../../directives';
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'
 })
-export class InputComponent implements OnInit, AfterViewInit {
+export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() type: string = 'text';
   @Input() min?: number;
@@ -76,6 +78,9 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   value: string | number = '';
   isFocused = false;
+
+  readonly speechService = inject(SpeechRecognitionService);
+  private speechSub?: Subscription;
 
   private envInjector = inject(EnvironmentInjector);
 
@@ -192,6 +197,21 @@ export class InputComponent implements OnInit, AfterViewInit {
 
   toggleCaseSensitive() {
     this.onCaseSensitiveEvent.emit();
+  }
+
+  toggleDictation() {
+    this.speechSub?.unsubscribe();
+    this.speechSub = this.speechService.toggle().subscribe(transcript => {
+      const currentValue = typeof this.value === 'string' ? this.value : '';
+      const newValue = currentValue ? `${currentValue} ${transcript}` : transcript;
+      this.onInputChange(newValue);
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    this.speechSub?.unsubscribe();
+    this.speechService.stop();
   }
 
   stepUp() {
