@@ -374,6 +374,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
+        // Page loaded successfully — unlock it in the sidebar grid
+        const pid = this.imagePid || this.metadata?.uuid;
+        if (pid) {
+          this.detailViewService.markPageAsAccessible(pid);
+        }
       });
       // Set minimum zoom to fit-to-height so max zoom-out shows the full image height
       this.updateMinZoomLevel();

@@ -1,4 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, effect, computed } from '@angular/core';
+import { getTerminalLicenses } from '../../../core/solr/solr-misc';
 import { Page } from '../../../shared/models/page.model';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,6 +38,7 @@ import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { UserService } from '../../../shared/services/user.service';
+import { RecordHandlerService } from '../../../shared/services/record-handler.service';
 
 @Injectable({
   providedIn: 'root'
@@ -51,6 +53,9 @@ export class DetailViewService {
   // PID of the page that the current article is displayed on (via foster_parents)
   _articlePagePid = signal<string | null>(null);
 
+  // Map of page PIDs that have been confirmed accessible (thumbnail loaded successfully)
+  _pageAccessMap = signal<Map<string, boolean>>(new Map());
+
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
   private store = inject(Store);
@@ -62,6 +67,7 @@ export class DetailViewService {
   private uiStateService = inject(UiStateService);
   private pdfService = inject(PdfService);
   private userService = inject(UserService);
+  private recordHandlerService = inject(RecordHandlerService);
   private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
@@ -76,6 +82,15 @@ export class DetailViewService {
   private documentSignal = toSignal(this.document$, { initialValue: null });
 
   constructor() {
+    // Latch isDocumentAccessDenied as soon as the document metadata is available.
+    // Uses only static document-level licenses so the latch is set before any page
+    // loads — preventing the first page's runtime license from unlocking all grid pages.
+    effect(() => {
+      if (this.documentSignal()) {
+        this.updateDocumentAccessDenied();
+      }
+    });
+
     // Initialize sidebar state based on device type if not already set by user interaction
     if (!this.breakpointService.isMobile()) {
       this.uiStateService.setMetadataSidebarState(true);
@@ -138,6 +153,8 @@ export class DetailViewService {
     this._currentPageIndex.set(0);
     this._currentArticleIndex.set(0);
     this._articlePagePid.set(null);
+    this._pageAccessMap.set(new Map());
+    this._isDocumentAccessDenied.set(false);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
     this.soundRecordingViewMode.set('records');
@@ -192,6 +209,86 @@ export class DetailViewService {
 
   get totalArticles(): number {
     return this._articles().length;
+  }
+
+  /**
+   * Sticky signal: set to true once the initial page-info load confirms the document is
+   * access-denied. Never flips back to false during per-page loads — only reset by resetState().
+   * This prevents the lock overlay from blinking when navigating between pages.
+   */
+  private _isDocumentAccessDenied = signal<boolean>(false);
+  readonly isDocumentAccessDenied = this._isDocumentAccessDenied.asReadonly();
+
+  /**
+   * Computed: lock icon style based on the document's licenses.
+   * 'terminal' = terminal/onsite license (dnntt, onsite, onsite-sheetmusic)
+   * 'default'  = other restricted license
+   */
+  pageLockStyle = computed<'terminal' | 'dnntt' | 'default'>(() => {
+    const doc = this.documentSignal();
+    if (!doc?.licences?.length) return 'default';
+    const terminalLicenses = getTerminalLicenses();
+    if (doc.licences.includes('dnntt')) return 'dnntt';
+    if (doc.licences.some(l => terminalLicenses.includes(l))) return 'terminal';
+    return 'default';
+  });
+
+  /**
+   * Computed: true when the dnnto bar is shown — document has dnnto (non-public) license
+   * and the user is authenticated. Mirrors the DnntoBarComponent visibility condition.
+   * Used to show the green open-lock badge on every grid page thumbnail.
+   */
+  isDocumentRestrictedButAccessible = computed<boolean>(() => {
+    const doc = this.documentSignal();
+    if (!doc?.licences?.length) return false;
+    return this.recordHandlerService.shouldShowDnntoBar(doc.licences) && this.userService.isLoggedIn;
+  });
+
+  /**
+   * Called after every loadPageInfo() response. Latches the denied flag on first confirmation
+   * and never un-latches it (individual page unlocks are tracked via _pageAccessMap instead).
+   *
+   * Uses only static document-level licenses to determine restricted access — NOT the per-page
+   * runtime providedByLicenses. This prevents the first accessible page's runtime license from
+   * making the document appear fully open on initial load.
+   */
+  updateDocumentAccessDenied(): void {
+    if (this._isDocumentAccessDenied()) return; // already latched, nothing to do
+    const doc = this.documentSignal();
+    if (!doc) return;
+    const licences = doc.licences ?? [];
+    const isPublic = this.recordHandlerService.isRecordPublic(licences);
+    const userHasAccess = this.userService.hasAnyLicense(licences);
+    if (!isPublic && !userHasAccess) {
+      this._isDocumentAccessDenied.set(true);
+    }
+  }
+
+  /**
+   * Mark a page as accessible (thumbnail loaded successfully — runtime license applied).
+   */
+  markPageAsAccessible(pid: string): void {
+    const map = new Map(this._pageAccessMap());
+    map.set(pid, true);
+    this._pageAccessMap.set(map);
+  }
+
+  /**
+   * Returns true if the page should show a lock overlay:
+   * document access is denied AND page hasn't been confirmed accessible via IIIF load.
+   */
+  isPageLocked(pid: string): boolean {
+    if (!this.isDocumentAccessDenied()) return false;
+    return !this._pageAccessMap().get(pid);
+  }
+
+  /**
+   * Returns true if the page was confirmed accessible (runtime license unlocked it)
+   * while the document itself is still marked as access-denied.
+   */
+  isPageUnlocked(pid: string): boolean {
+    if (!this.isDocumentAccessDenied()) return false;
+    return !!this._pageAccessMap().get(pid);
   }
 
   get isPdf(): boolean {

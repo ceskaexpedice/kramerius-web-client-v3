@@ -29,6 +29,14 @@
     [fallbackIcon]="type === 'recording' ? 'music' : 'document'">
   </app-thumbnail-image>
 
+  <!-- Lock overlay for access-denied documents -->
+  <div class="page--item__lock locked" [class]="'page--item__lock locked style-' + lockStyle" *ngIf="isLocked">
+    <i [class]="lockStyle === 'dnntt' ? 'icon-in-house' : 'icon-locked'"></i>
+  </div>
+  <div [class]="'page--item__lock unlocked style-' + lockStyle" *ngIf="isAccessible">
+    <i class="icon-open-lock"></i>
+  </div>
+
   <span class="page--number" *ngIf="(!isInSelectionMode() || showPageNumberInSelectionMode) && pageNumber">
     {{pageNumber}}
   </span>

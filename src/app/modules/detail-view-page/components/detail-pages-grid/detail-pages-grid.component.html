@@ -6,6 +6,10 @@
       [type]="type"
       [pageNumber]="page['page.number']"
       [isSelected]="detailViewService.isPageActiveByPid(page.pid)"
+      [isLocked]="detailViewService.isPageLocked(page.pid)"
+      [isUnlocked]="detailViewService.isPageUnlocked(page.pid)"
+      [isAccessible]="detailViewService.isDocumentRestrictedButAccessible()"
+      [lockStyle]="detailViewService.pageLockStyle()"
       (pageClicked)="clickedPage(page.pid)"
     >
     </app-detail-page-item>

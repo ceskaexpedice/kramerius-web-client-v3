@@ -96,6 +96,50 @@
     display: block;
   }
 
+  // Lock overlay for access-denied pages
+  &__lock {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(33, 33, 33, 0.2);
+    border-radius: inherit;
+    pointer-events: none;
+
+    i {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: calc(var(--font-size-xxlarge) + var(--spacing-x2));
+      height: calc(var(--font-size-xxlarge) + var(--spacing-x2));
+      border-radius: 50%;
+      background: var(--color-bg-base);
+      padding: var(--spacing-x2);
+      font-size: var(--font-size-xxlarge);
+    }
+
+    // locked: default restricted → orange lock
+    &.locked.style-default i,
+    &.locked.style-terminal i {
+      color: var(--icon-warning);
+    }
+
+    // locked: dnntt (in-house) → red in-house icon
+    &.locked.style-dnntt i {
+      color: var(--icon-error);
+    }
+
+    // unlocked: any style → green open-lock
+    &.unlocked i {
+      color: var(--icon-success);
+    }
+
+    &.unlocked {
+      background: none;
+    }
+  }
+
   // Selection checkbox
   &__selection {
     position: absolute;

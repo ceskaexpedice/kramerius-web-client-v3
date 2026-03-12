@@ -37,6 +37,10 @@ export class DetailPageItemComponent {
   @Input() isSelected: boolean = false;
 
   @Input() type: 'recording' | 'page' = 'page';
+  @Input() isLocked: boolean = false;
+  @Input() isUnlocked: boolean = false;
+  @Input() isAccessible: boolean = false;
+  @Input() lockStyle: 'terminal' | 'dnntt' | 'default' = 'default';
 
   // Local selection mode inputs (when not using global SelectionService)
   @Input() localSelectionMode: boolean = false; // If true, use local selection instead of SelectionService
