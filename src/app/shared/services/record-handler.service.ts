@@ -595,7 +595,7 @@ export class RecordHandlerService {
       model: item.model as DocumentTypeEnum,
       licenses: item['licenses.facet'] || [],
       className: 'card--fluid',
-      showFavoriteButton: false,
+      showFavoriteButton: true,
       showAccessibilityBadge: true
     };
 
@@ -617,7 +617,7 @@ export class RecordHandlerService {
       model: year.model as DocumentTypeEnum,
       licenses: year.licenses || [],
       className: 'card--fluid',
-      showFavoriteButton: false,
+      showFavoriteButton: true,
       showAccessibilityBadge: true
     };
 
