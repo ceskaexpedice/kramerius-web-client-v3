@@ -35,6 +35,7 @@
       <ng-container *ngIf="type === 'checkbox'">
         <ng-container *ngFor="let item of visibleItems() | slice:0:maxItems; trackBy: trackByItemName">
           <app-filter-item [label]="item.name" [facetKey]="facetKey" [checked]="isSelected(item.name)" [icon]="item.icon || null"
+            [langCode]="facetKey === 'languages.facet' ? item.name : null"
             [itemIconClass]="item.iconClass" [count]="item.count" [truncateLabel]="false"
             (toggled)="onToggle(item.name)"></app-filter-item>
         </ng-container>

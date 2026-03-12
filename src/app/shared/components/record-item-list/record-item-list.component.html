@@ -1,27 +1,40 @@
-<table class="record-table" *ngIf="records.length">
-  <colgroup>
-    <col *ngFor="let column of visibleColumns" [style.width]="column.width">
-    <col class="col-actions">
-  </colgroup>
-  <thead>
-  <tr>
-    <th *ngFor="let column of visibleColumns">
-      {{ column.labelKey | translate }}
-    </th>
-    <th class="actions-column"></th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr app-record-item-list-row
-    *ngFor="let record of records"
-    [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
-    [record]="record"
-    [visibleColumns]="visibleColumns"
-    (downloadClicked)="onDownloadClicked($event)">
-  </tr>
-  </tbody>
-</table>
+<div class="table-wrapper" *ngIf="loading || records.length" [class.scrolled]="isScrolled()" (scroll)="onTableScroll($event)">
+  <table class="record-table" #recordTable>
+    <colgroup>
+      <col *ngFor="let column of visibleColumns" [style.width]="column.width">
+      <col class="col-actions">
+    </colgroup>
+    <thead>
+    <tr>
+      <th *ngFor="let column of visibleColumns; let i = index" [class.sticky-col]="i === 0">
+        {{ column.labelKey | translate }}
+        <span class="resize-handle" (mousedown)="onResizeStart($event, i)"></span>
+      </th>
+      <th class="actions-column">{{'actions--col' | translate}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (loading) {
+      @for (i of skeletonRows; track $index) {
+        <tr app-record-item-list-row
+          [loading]="true"
+          [visibleColumns]="visibleColumns">
+        </tr>
+      }
+    } @else {
+    <tr app-record-item-list-row
+      *ngFor="let record of records"
+      [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+      [record]="record"
+      [visibleColumns]="visibleColumns"
+      [highlighted]="exportedRecord?.pid === record.pid"
+      (downloadClicked)="onDownloadClicked($event)">
+    </tr>
+    }
+    </tbody>
+  </table>
+</div>
 
-<div class="no-results" *ngIf="!records.length">
+<div class="no-results" *ngIf="!loading && !records.length">
   <p>{{ 'no_results_to_display' | translate }}</p>
 </div>

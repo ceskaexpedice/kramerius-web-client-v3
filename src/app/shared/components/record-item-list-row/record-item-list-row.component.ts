@@ -4,8 +4,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { languageMap } from '../../misc/language-map';
 import { EnvironmentService } from '../../services/environment.service';
+import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
 import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
@@ -22,27 +22,31 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
     CheckboxComponent,
     PluralizePipe,
     ThumbnailImageComponent,
+    LanguageBadgeComponent,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
   host: {
     '[class.selection-mode]': 'selectionService.selectionMode()',
-    '[class.selected]': 'selectionService.selectionMode() && selectionService.isSelected(record.pid)',
+    '[class.selected]': 'selectionService.selectionMode() && record && selectionService.isSelected(record.pid)',
+    '[class.highlighted]': 'highlighted',
+    '[class.skeleton-row]': 'loading',
     '(click)': 'onRowClick($event)'
   }
 })
 export class RecordItemListRowComponent {
 
-  @Input() record!: SearchDocument;
+  @Input() record: SearchDocument | null = null;
   @Input() url!: string;
   @Input() visibleColumns: TableColumnConfig[] = [];
+  @Input() highlighted = false;
+  @Input() loading = false;
 
   @Output() downloadClicked = new EventEmitter<SearchDocument>();
 
   recordHandler = inject(RecordHandlerService);
   public selectionService = inject(SelectionService);
 
-  protected readonly languageMap = languageMap;
   protected readonly ColumnRenderType = ColumnRenderType;
 
   private krameriusBaseUrl: string;
@@ -52,6 +56,7 @@ export class RecordItemListRowComponent {
   }
 
   getKrameriusBaseUrl(): string {
+    if (!this.record) return '';
     return this.krameriusBaseUrl + '/' + this.record.pid + '/image/thumb';
   }
 
@@ -59,6 +64,7 @@ export class RecordItemListRowComponent {
    * Gets the value for a column from the record
    */
   getColumnValue(column: TableColumnConfig): any {
+    if (!this.record) return '';
     return (this.record as any)[column.field];
   }
 
@@ -93,6 +99,7 @@ export class RecordItemListRowComponent {
   }
 
   onRowClick(event: MouseEvent): void {
+    if (this.loading || !this.record) return;
     // This handles clicks on the entire row (when in selection mode)
     if (this.selectionService.selectionMode()) {
       event.preventDefault();
@@ -102,6 +109,7 @@ export class RecordItemListRowComponent {
   }
 
   onTitleClick(event: MouseEvent): void {
+    if (!this.record) return;
     // This handles clicks specifically on the title/link area
     if (this.selectionService.selectionMode()) {
       event.preventDefault();
@@ -112,10 +120,12 @@ export class RecordItemListRowComponent {
   }
 
   getDisplayTitle(): string {
+    if (!this.record) return '';
     return this.record.title || this.record.rootTitle || '';
   }
 
   onSelectionChange(selected: boolean): void {
+    if (!this.record) return;
     if (selected) {
       this.selectionService.selectItem(this.record.pid);
     } else {

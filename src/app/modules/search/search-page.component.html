@@ -1,18 +1,35 @@
 <app-search-hero></app-search-hero>
 
-
-<ng-container *ngFor="let section of sections">
-    <app-periodicals-section *ngIf="section.type === 'periodicals'"></app-periodicals-section>
-    <app-books-section *ngIf="section.type === 'books'"></app-books-section>
-    <app-genres-section *ngIf="section.type === 'genres'"></app-genres-section>
-    <app-document-types-section *ngIf="section.type === 'document-types'"></app-document-types-section>
-    <app-map-section *ngIf="section.type === 'map'"></app-map-section>
-    <app-authors-section *ngIf="section.type === 'authors'"></app-authors-section>
-    <app-images-section *ngIf="section.type === 'images'"></app-images-section>
-    <app-institutions-section *ngIf="section.type === 'institutions'"></app-institutions-section>
-
-    <app-local-records-section *ngIf="section.type === 'local-records'" [config]="section"></app-local-records-section>
-    <app-local-categories-section *ngIf="section.type === 'local-categories'" [config]="section"></app-local-categories-section>
-</ng-container>
+@for (section of sections; track section.type + $index) {
+    @if (section.type === 'periodicals') {
+        <app-periodicals-section></app-periodicals-section>
+    } @else if (section.type === 'books') {
+        <app-books-section></app-books-section>
+    } @else if (section.type === 'genres') {
+        <app-genres-section></app-genres-section>
+    } @else if (section.type === 'document-types') {
+        <app-document-types-section></app-document-types-section>
+    } @else if (section.type === 'map') {
+        <app-map-section></app-map-section>
+    } @else if (section.type === 'authors') {
+        <app-authors-section></app-authors-section>
+    } @else if (section.type === 'images') {
+        <app-images-section></app-images-section>
+    } @else if (section.type === 'institutions') {
+        <app-institutions-section></app-institutions-section>
+    } @else if (section.type === 'local-records') {
+        @defer (on viewport) {
+            <app-local-records-section [config]="section"></app-local-records-section>
+        } @placeholder {
+            <div class="section-placeholder" style="min-height: 320px;"></div>
+        }
+    } @else if (section.type === 'local-categories') {
+        @defer (on viewport) {
+            <app-local-categories-section [config]="section"></app-local-categories-section>
+        } @placeholder {
+            <div class="section-placeholder" style="min-height: 320px;"></div>
+        }
+    }
+}
 
 <app-footer></app-footer>

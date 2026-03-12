@@ -21,6 +21,9 @@
 h3 {
   margin: 0;
   font-weight: normal;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-2);
+  font-family: var(--font-family-body);
 }
 
 .export-document--item--title {
@@ -88,5 +91,16 @@ h3 {
 
   button {
     width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
   }
+}
+
+.spinning {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

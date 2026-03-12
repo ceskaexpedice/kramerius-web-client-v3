@@ -1,7 +1,7 @@
 <div class="lang-switcher-pos" [class.expanded]="expanded" appClickOutside (clickOutside)="close()">
   <div class="selected" (click)="clickedIcon()">
     <div class="icon-lang">
-      <img class="flag rounded" [src]="currentLanguage().icon" [alt]="currentLanguage().name" />
+      <app-language-badge [lang]="currentLanguage().name" [src]="currentLanguage().icon" [rounded]="true"></app-language-badge>
     </div>
     <div class="arrow">
       <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded"></i>
@@ -13,7 +13,7 @@
       <div class="lang-item" *ngFor="let lang of languages" (click)="changeLang(lang.code)">
         <div class="lang-item__left">
           <div class="lang-item__icon">
-            <img class="flag rounded" [src]="lang.icon" [alt]="lang.name" />
+            <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true"></app-language-badge>
           </div>
           <span class="lang-item__name">{{ lang.name }}</span>
         </div>

@@ -45,6 +45,8 @@ export class MetadataSection implements OnInit, OnChanges {
   private _articleData = signal<Metadata | null>(null);
   get articleData() { return this._articleData(); }
 
+  private _solrData = signal<Metadata | null>(null);
+
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
 
@@ -125,6 +127,9 @@ export class MetadataSection implements OnInit, OnChanges {
 
     // Get Solr data from store to supplement with model, accessibility, and license
     const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
+    if (solrData) {
+      this._solrData.set(solrData);
+    }
 
     let baseMods: any = { ...modsData };
 
@@ -412,7 +417,7 @@ export class MetadataSection implements OnInit, OnChanges {
   openMetadataDialog() {
     this.dialog.open(MetadataDialogComponent, {
       data: {
-        document: this.data
+        document: this._solrData() ?? this.data
       },
       autoFocus: false,
       restoreFocus: false,
@@ -423,5 +428,21 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   objectKeys = Object.keys;
+
+  private readonly donatorUrlMap: Record<string, string> = {
+    'norway': 'http://www.eeagrants.org',
+    'k3tok5': 'https://www.nkp.cz/digitalni-knihovna/digitalni-knihovny/k3tok5',
+    'eodopen': 'https://eodopen.eu/',
+    'ilnorway': 'https://eeagrants.org',
+    'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
+  };
+
+  getDonatorImage(donator: string): string | null {
+    return `/img/logo/donator/${donator.toLowerCase()}.png`;
+  }
+
+  getDonatorUrl(donator: string): string | null {
+    return this.donatorUrlMap[donator.toLowerCase()] ?? null;
+  }
 
 }

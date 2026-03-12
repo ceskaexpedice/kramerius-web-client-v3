@@ -13,9 +13,9 @@
       <div class="email-field">
         <app-input
           [label]="'visk2026-export-dialog--email-label'"
-          [prefixIcon]="'icon-sms'"
+          [prefixIcon]="'icon-sms'" [size]="'sm'"
           type="email"
-          [initialValue]="email"
+          [initialValue]="email" [theme]="'dark'"
           (valueChange)="onEmailChange($event)"
           (enter)="onSubmit()"
         ></app-input>

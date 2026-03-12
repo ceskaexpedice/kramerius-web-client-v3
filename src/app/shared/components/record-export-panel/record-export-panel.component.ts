@@ -45,6 +45,7 @@ export class RecordExportPanelComponent implements OnInit {
   private pages = signal<Page[]>([]);
   private pagesLoaded = signal(false);
   loading = signal(false);
+  pdfLoading = signal(false);
   expandedSection = signal<string | null>('print');
 
   private maxRange = computed(() => this.appConfig.pdfMaxRange());
@@ -64,7 +65,7 @@ export class RecordExportPanelComponent implements OnInit {
       { label: 'select-pages', value: 'select-pages', disabled: disableSelect },
     ];
 
-    if (this.userService.isLoggedIn) {
+    if (this.userService.userSession$()?.authenticated) {
       options.push({ label: 'whole-document-visk2026', value: 'whole-document-visk2026', disabled: !loaded });
     }
 
@@ -113,7 +114,11 @@ export class RecordExportPanelComponent implements OnInit {
   onPdfSubmit(value: string): void {
     if (value === 'whole-document') {
       const exportable = this.pages().filter(p => this.exportService.hasExportableLicense(p));
-      this.exportService.exportPdfSelection(exportable.map(p => p.pid), this.record.title);
+      this.pdfLoading.set(true);
+      this.exportService.exportPdfSelection(exportable.map(p => p.pid), this.record.title).subscribe({
+        next: () => this.pdfLoading.set(false),
+        error: () => this.pdfLoading.set(false),
+      });
     } else if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
     } else if (value === 'whole-document-visk2026') {
@@ -192,7 +197,11 @@ export class RecordExportPanelComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
       if (result?.selectedPagePids?.length) {
         if (exportType === 'pdf') {
-          this.exportService.exportPdfSelection(result.selectedPagePids, this.record.title);
+          this.pdfLoading.set(true);
+          this.exportService.exportPdfSelection(result.selectedPagePids, this.record.title).subscribe({
+            next: () => this.pdfLoading.set(false),
+            error: () => this.pdfLoading.set(false),
+          });
         } else {
           this.exportService.printPdfSelection(result.selectedPagePids);
         }

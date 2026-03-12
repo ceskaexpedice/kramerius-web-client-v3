@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   ExportDocumentSectionItemComponent
 } from '../export-document-section-item-component/export-document-section-item-component';
@@ -9,6 +9,8 @@ import { DocumentInfoService } from '../../../services/document-info.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../../dialogs/page-selection-dialog/page-selection-dialog.component';
+import { Visk2026ExportDialogComponent } from '../../../dialogs/visk2026-export-dialog/visk2026-export-dialog.component';
+import { ToastService } from '../../../services/toast.service';
 import { AppConfigService } from '../../../services/app-config.service';
 import { PdfService } from '../../../services/pdf.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -35,11 +37,14 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   appConfig = inject(AppConfigService);
   pdfService = inject(PdfService);
   userService = inject(UserService);
+  toastService = inject(ToastService);
 
   iiifBookMode = toSignal(this.iiifViewerService.bookMode$, { initialValue: false });
   pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
 
   selectedJpegOption: string | null = null;
+  pdfLoading = signal(false);
+  expandedSection = signal<string | null>('print');
   private cropSubscription?: Subscription;
   private selectionModeSubscription?: Subscription;
   private activeCropSession = false;
@@ -118,6 +123,22 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     }
   });
 
+  epubOptions = computed(() => {
+    const hasPages = this.detailViewService.pages?.length > 0;
+    return [
+      { label: 'whole-document', value: 'whole-document', disabled: !hasPages },
+      { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
+    ];
+  });
+
+  textOptions = computed(() => {
+    const hasPages = this.detailViewService.pages?.length > 0;
+    return [
+      { label: 'whole-document', value: 'whole-document', disabled: !hasPages },
+      { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
+    ];
+  });
+
   pdfOptions = computed(() => {
     const pages = this.detailViewService.pages;
     const maxRange = this.appConfig.pdfMaxRange();
@@ -136,10 +157,16 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     // Disable select pages if no exportable pages
     const disableSelectPages = !hasExportablePages;
 
-    return [
+    const options: { label: string; value: string; disabled: boolean }[] = [
       { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument },
-      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages }
+      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages },
     ];
+
+    if (this.userService.userSession$()?.authenticated) {
+      options.push({ label: 'whole-document-visk2026', value: 'whole-document-visk2026', disabled: false });
+    }
+
+    return options;
   });
 
   printOptions = computed(() => {
@@ -207,18 +234,26 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     }
   }
 
+  onSectionToggle(section: string): void {
+    this.expandedSection.update(current => current === section ? null : section);
+  }
+
   onPdfSubmit(value: string) {
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
     } else if (value === 'whole-document') {
-      // Only export pages with exportable licenses
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
-        this.exportService.exportPdfSelection(pageUuids, this.detailViewService.title);
-      } else {
-        console.warn('No pages with exportable licenses available for PDF export');
+        this.pdfLoading.set(true);
+        this.exportService.exportPdfSelection(pageUuids, this.detailViewService.title).subscribe({
+          next: () => this.pdfLoading.set(false),
+          error: () => this.pdfLoading.set(false),
+        });
       }
+    } else if (value === 'whole-document-visk2026') {
+      const pid = this.detailViewService.document?.uuid;
+      if (pid) this.openVisk2026Dialog(pid);
     }
   }
 
@@ -226,13 +261,10 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-print', 'print');
     } else if (value === 'whole-document') {
-      // Only print pages with exportable licenses
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
         this.exportService.printPdfSelection(pageUuids);
-      } else {
-        console.warn('No pages with exportable licenses available for print');
       }
     }
   }
@@ -263,17 +295,41 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
       if (result && result.selectedPagePids && result.selectedPagePids.length > 0) {
-        console.log('Selected pages:', result.selectedPagePids);
-
         if (exportType === 'pdf') {
-          // Export PDF with selected pages
-          this.exportService.exportPdfSelection(result.selectedPagePids, this.detailViewService.title);
+          this.pdfLoading.set(true);
+          this.exportService.exportPdfSelection(result.selectedPagePids, this.detailViewService.title).subscribe({
+            next: () => this.pdfLoading.set(false),
+            error: () => this.pdfLoading.set(false),
+          });
         } else if (exportType === 'print') {
-          // Print selected pages
           this.exportService.printPdfSelection(result.selectedPagePids);
         }
       }
     });
+  }
+
+  private openVisk2026Dialog(pid: string): void {
+    const dialogRef = this.dialog.open(Visk2026ExportDialogComponent, {
+      data: { pid },
+      width: '560px',
+      maxWidth: '90vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result === 'submitted') {
+        this.toastService.show('visk2026-export-dialog--success');
+      } else if (result === 'error') {
+        this.toastService.show('export-error');
+      }
+    });
+  }
+
+  onEpubSubmit(_value: string): void {
+    // TODO: implement EPUB export
+  }
+
+  onTextSubmit(_value: string): void {
+    // TODO: implement TEXT export
   }
 
   ngOnDestroy(): void {

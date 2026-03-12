@@ -69,7 +69,7 @@
         [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
 
         <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
-          <app-selected-tags [items]="(searchService.selectedTags | async) || []"
+          <app-selected-tags [items]="(searchService.selectedTags | async) || []" [showClearAll]="((searchService.selectedTags | async) || []).length > 1"
                              [textTransform]="'capitalize'"
             [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
             [translateItems]="true" (remove)="searchService.removeFilter($event)"
@@ -141,9 +141,11 @@
 
           } @else {
 
-          <app-inline-loader *ngIf="searchService.loading$ | async" [overlay]="true"></app-inline-loader>
-
           <!-- LIST VIEW -->
+          @if (searchService.loading$ | async) {
+            <app-record-item-list [records]="[]" [loading]="true"></app-record-item-list>
+          }
+
           <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
             @if (nonPageResults.length > 0) {
             <div class="list-view--header flex flex--space-between align-items-center">
@@ -156,7 +158,7 @@
                 </app-paginator>
               </div>
             </div>
-            <app-record-item-list [records]="nonPageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="nonPageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -174,7 +176,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="articleResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="articleResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -193,7 +195,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="pageResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="pageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 
@@ -212,7 +214,7 @@
                 </div>
               </ng-container>
             </div>
-            <app-record-item-list [records]="attachmentResults" (exportRecord)="openExportPanel($event)"></app-record-item-list>
+            <app-record-item-list [records]="attachmentResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
             }
           </ng-container>
 

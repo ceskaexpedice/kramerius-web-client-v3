@@ -30,8 +30,8 @@
   width: $width;
   min-width: $width;
   max-width: $width;
-  height: calc(100% - var(--spacing-x4) - var(--spacing-x4));
-  margin: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4) 0;
+  height: calc(100% - var(--spacing-x3) - var(--spacing-x3));
+  margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
   border-radius: var(--spacing-x2);
   background: var(--color-background-primary, #fff);
   overflow: hidden;

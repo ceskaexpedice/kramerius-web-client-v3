@@ -212,7 +212,10 @@ export class MetadataDialogComponent implements OnInit {
         setTimeout(() => {
             const codeBlock = this.elementRef.nativeElement.querySelector('pre code');
             if (codeBlock) {
-                hljs.highlightElement(codeBlock as HTMLElement);
+                const el = codeBlock as HTMLElement;
+                el.textContent = this.content;
+                delete el.dataset['highlighted'];
+                hljs.highlightElement(el);
             }
         }, 10);
     }

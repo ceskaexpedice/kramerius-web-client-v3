@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed, OnDestroy, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, inject, signal, computed, OnDestroy, OnInit, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { NgClass, NgIf } from '@angular/common';
 import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -13,10 +13,11 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
 })
-export class FilterSidebarComponent implements OnDestroy {
+export class FilterSidebarComponent implements OnInit, OnDestroy {
   protected breakpointService = inject(BreakpointService);
   private renderer = inject(Renderer2);
   private cd = inject(ChangeDetectorRef);
+  private el = inject(ElementRef);
 
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
   @Input() scrollable = true;
@@ -36,11 +37,25 @@ export class FilterSidebarComponent implements OnDestroy {
   private startHeight = 0;
   currentHeight = 50; // Current height in vh
 
+  // Resize hide state
+  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
+  private unlistenResize: (() => void) | null = null;
+
   // Event listeners cleanup functions
   private unlistenMouseMove: (() => void) | null = null;
   private unlistenTouchMove: (() => void) | null = null;
   private unlistenMouseUp: (() => void) | null = null;
   private unlistenTouchEnd: (() => void) | null = null;
+
+  ngOnInit() {
+    this.unlistenResize = this.renderer.listen('window', 'resize', () => {
+      this.renderer.addClass(this.el.nativeElement, 'is-repositioning');
+      if (this.resizeTimer) clearTimeout(this.resizeTimer);
+      this.resizeTimer = setTimeout(() => {
+        this.renderer.removeClass(this.el.nativeElement, 'is-repositioning');
+      }, 200);
+    });
+  }
 
   // Computed visibility: responsive + manual toggle
   isVisible = computed(() => {
@@ -133,6 +148,8 @@ export class FilterSidebarComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.removeDragListeners();
+    if (this.unlistenResize) this.unlistenResize();
+    if (this.resizeTimer) clearTimeout(this.resizeTimer);
   }
 
   private getClientY(event: MouseEvent | TouchEvent): number {

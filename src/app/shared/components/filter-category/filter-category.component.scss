@@ -4,7 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-x4);
+  margin-bottom: var(--spacing-x3);
 
   h4 {
     margin: 0;
@@ -55,5 +55,5 @@
 }
 
 hr {
-  margin: var(--spacing-x6) 0 var(--spacing-x5) 0;
+  margin: var(--spacing-x5) 0 var(--spacing-x5) 0;
 }

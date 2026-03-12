@@ -80,14 +80,12 @@
   line-height: var(--line-height-1);
 
   i {
-    font-size: var(--font-size-base);
-    width: 16px;
-    height: 16px;
+    font-size: var(--font-size-small);
+    color: var(--color-icon-tertiary-default);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    line-height: 1;
   }
 }
 
@@ -96,6 +94,6 @@
   outline: none;
 }
 
-.menu-item.danger {
+.menu-item.danger span.label {
   color: var(--color-error);
 }

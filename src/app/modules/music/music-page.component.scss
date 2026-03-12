@@ -21,7 +21,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
-  padding: var(--spacing-x4);
+  padding: var(--spacing-x3);
   height: 100%;
   flex: 1;
   overflow: hidden;
@@ -142,8 +142,8 @@ app-iiif-viewer {
 
 .floating-sidebar-toggle {
   position: fixed;
-  right: var(--spacing-x4);
-  bottom: var(--spacing-x4);
+  right: var(--spacing-x3);
+  bottom: var(--spacing-x3);
   transition: all 0.2s ease;
   z-index: 1000;
 }

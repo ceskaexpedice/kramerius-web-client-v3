@@ -6,8 +6,10 @@
 
 <!--      <app-thumbnail-image [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark" [alt]="headerName || 'Česká digitální knihovna'" ></app-thumbnail-image>-->
 
-      <img [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark"
-        [alt]="headerName || 'Česká digitální knihovna'" />
+      @if (headerLogo || headerLogoDark) {
+        <img [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark"
+             [alt]="headerName || 'Česká digitální knihovna'" />
+      }
       <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
     </a>
 

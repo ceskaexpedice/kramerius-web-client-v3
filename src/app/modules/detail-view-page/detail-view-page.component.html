@@ -210,7 +210,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument(document.licences)) {
+        @if (!detailViewService.metadataSidebarVisible) {
         <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-info-full"></i>

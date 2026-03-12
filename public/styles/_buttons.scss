@@ -5,27 +5,13 @@ button {
   justify-content: center;
   font-family: inherit;
   font-size: var(--font-size-small);
+  line-height: var(--line-height-xs);
   padding: 12px 16px;
   border-radius: var(--base-border-radius);
   cursor: pointer;
   border: none;
   background: none;
   transition: all 0.2s ease-in-out;
-}
-
-// sizes
-button.md {
-  font-size: var(--font-size-base);
-}
-
-button.sm {
-  padding: 8px 12px;
-  font-size: var(--font-size-xxsmall);
-}
-
-button.xs {
-  padding: 2px 6px;
-  font-size: var(--font-size-xs);
 }
 
 // rounded icon button
@@ -347,3 +333,24 @@ button.with-icon {
   height: 32px;
   aspect-ratio: 1/1;
 }
+
+// sizes
+button.md {
+  font-size: var(--font-size-base);
+}
+
+button.sm {
+  padding: 8px 12px;
+  font-size: var(--font-size-xxsmall);
+}
+
+button.small {
+  padding: 8px 12px;
+  font-size: var(--font-size-small);
+}
+
+button.xs {
+  padding: 2px 6px;
+  font-size: var(--font-size-xs);
+}
+

@@ -4,7 +4,13 @@
   gap: var(--spacing-x6);
 
   .logout-button {
+    padding: var(--spacing-x2);
     color: var(--color-error);
+    font-size: var(--font-size-small);
+
+    i {
+      color: var(--color-icon-tertiary-default);
+    }
   }
 
   .user-row {

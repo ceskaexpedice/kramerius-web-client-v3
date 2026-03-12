@@ -26,6 +26,7 @@
       [groupName]="'pdf-export-' + record.pid"
       [collapsible]="true"
       [expanded]="expandedSection() === 'pdf'"
+      [loading]="pdfLoading()"
       (toggle)="onSectionToggle('pdf')"
       (submit)="onPdfSubmit($event)">
     </app-export-document-section-item-component>
