@@ -25,7 +25,8 @@ export class ButtonToggleComponent {
   @Output() toggled = new EventEmitter<boolean>();
 
   toggle() {
-    this.checked = !this.checked;
+    if (this.checked) return;
+    this.checked = true;
     this.toggled.emit(this.checked);
   }
 

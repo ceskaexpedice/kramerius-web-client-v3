@@ -1,7 +1,7 @@
 <button class="sm outlined button--toggle" [class.checked]="checked" (click)="toggle()">
 
 <!--  <mat-checkbox [(ngModel)]="checked" *ngIf="checked"></mat-checkbox>-->
-  <app-checkbox [(model)]="checked" *ngIf="checked"></app-checkbox>
+  <span class="checkbox-wrapper" *ngIf="checked"><app-checkbox [model]="checked"></app-checkbox></span>
 
   {{label | translate}}
 
