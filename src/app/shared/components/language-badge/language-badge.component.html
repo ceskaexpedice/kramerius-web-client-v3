@@ -3,7 +3,8 @@
      [alt]="lang"
      class="language-flag"
      [class.active]="active"
-     [class.rounded]="rounded" />
+     [class.rounded]="rounded"
+     (error)="onFlagError()" />
 
 <ng-template #textBadge>
   <span class="language-circle" [class.active]="active" [title]="lang">{{ label }}</span>
