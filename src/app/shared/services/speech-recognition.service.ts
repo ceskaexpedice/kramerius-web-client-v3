@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, NgZone, signal} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
 import {AppTranslationService} from '../translation/app-translation.service';
 
@@ -15,6 +15,7 @@ const LANG_TO_SPEECH_LOCALE: Record<string, string> = {
 export class SpeechRecognitionService {
 
   private translationService = inject(AppTranslationService);
+  private zone = inject(NgZone);
   private recognition: any = null;
   private result$ = new Subject<string>();
 
@@ -40,34 +41,61 @@ export class SpeechRecognitionService {
       return this.result$.asObservable();
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    this.recognition = new SpeechRecognition();
-    this.recognition.lang = this.speechLang();
-    this.recognition.interimResults = false;
-    this.recognition.continuous = false;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SR();
+    this.recognition = recognition;
 
-    this.recognition.onresult = (event: any) => {
+    recognition.lang = this.speechLang();
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 1;
+
+    const cleanup = () => {
+      this.zone.run(() => {
+        recognition.onresult = null;
+        recognition.onaudioend = null;
+        recognition.onend = null;
+        recognition.onerror = null;
+        recognition.onspeechend = null;
+        if (this.recognition === recognition) {
+          this.recognition = null;
+        }
+        this.isListening.set(false);
+      });
+    };
+
+    recognition.onresult = (event: any) => {
       const transcript: string = event.results[0][0].transcript;
-      this.result$.next(transcript);
+      this.zone.run(() => this.result$.next(transcript));
+      // Explicitly stop after getting result — ensures Safari fires onend and releases mic
+      recognition.stop();
     };
 
-    this.recognition.onend = () => {
-      this.isListening.set(false);
+    recognition.onspeechend = () => {
+      recognition.stop();
     };
 
-    this.recognition.onerror = () => {
-      this.isListening.set(false);
-    };
+    recognition.onend = cleanup;
+    recognition.onerror = cleanup;
 
     this.isListening.set(true);
-    this.recognition.start();
+    recognition.start();
 
     return this.result$.asObservable();
   }
 
   stop() {
-    this.recognition?.stop();
-    this.isListening.set(false);
+    if (this.recognition) {
+      const recognition = this.recognition;
+      this.recognition = null;
+      recognition.onresult = null;
+      recognition.onaudioend = null;
+      recognition.onspeechend = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.abort();
+      this.isListening.set(false);
+    }
   }
 
   toggle(): Observable<string> {

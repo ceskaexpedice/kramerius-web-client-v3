@@ -192,7 +192,7 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get showMicButtonActual(): boolean {
-    return this.showMicButton && !this.showClear;
+    return this.showMicButton && !this.showClear && this.speechService.isSupported;
   }
 
   toggleCaseSensitive() {
