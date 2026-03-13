@@ -214,6 +214,16 @@ input::placeholder {
 
 }
 
+.mic-active {
+  color: var(--color-primary) !important;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .case-sensitive-button-toggle {
   background: var(--color-bg-base);
   border: 1px solid var(--color-border-contrast);

@@ -113,8 +113,10 @@
 
       <button
         class="icon-button button link tertiary"
+        [class.mic-active]="speechService.isListening()"
         *ngIf="showMicButtonActual"
         type="button"
+        (click)="toggleDictation()"
         [attr.aria-label]="'voice-input' | translate"
       >
         <i class="icon-microphone-2 input--icon"></i>
