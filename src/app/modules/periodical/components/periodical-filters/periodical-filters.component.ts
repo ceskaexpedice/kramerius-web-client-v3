@@ -68,7 +68,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [getSuggestions]="periodicalService.getSuggestionsFn"
         [prefixIcon]="'icon-search-normal-1'"
         [showHelpButton]="false"
-        [showMicrophoneButton]="false"
+        [showMicrophoneButton]="true"
         [showSubmitButton]="false"
         (search)="periodicalService.onSearch($event)"
         [inputTerm]="periodicalService.searchTerm"

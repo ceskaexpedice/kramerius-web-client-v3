@@ -16,7 +16,7 @@
       (submit)="searchService.onSubmit($event)"
       [inputTerm]="searchService.searchTerm"
       [showHistorySuggestions]="true"
-      [showMicrophoneButton]="false"
+      [showMicrophoneButton]="true"
       [showHelpButton]="false" [prefixIcon]="'icon-search-normal-1'"
       [autofocus]="true" [showSubmitButton]="false" [autoSubmit]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
