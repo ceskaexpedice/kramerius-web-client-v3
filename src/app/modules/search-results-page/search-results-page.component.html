@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="selectionService.selectionMode()">
+    <app-filter-sidebar [isDisabled]="selectionService.selectionMode()" [dimmed]="(noResults$ | async) ?? false">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
@@ -66,9 +66,9 @@
       <div class="content-with-sidebar">
 
       <div class="page-content__wrapper"
-        [class.wrapper--no-top-padding]="((searchService.selectedTags | async) || []).length > 0" appScrollHideHeader>
+        [class.wrapper--no-top-padding]="showSelectedTags$ | async" appScrollHideHeader>
 
-        <div class="page-content__sticky-tags" *ngIf="((searchService.selectedTags | async) || []).length > 0">
+        <div class="page-content__sticky-tags" *ngIf="showSelectedTags$ | async">
           <app-selected-tags [items]="(searchService.selectedTags | async) || []" [showClearAll]="((searchService.selectedTags | async) || []).length > 1"
                              [textTransform]="'capitalize'"
             [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
@@ -221,6 +221,11 @@
           }
 
         </div>
+
+        <!-- No results state -->
+        @if (!(searchService.loading$ | async) && searchService.totalCount === 0 && searchService.submittedTerm) {
+          <app-no-results></app-no-results>
+        }
 
         <app-paginator [disabledPagination]="selectionService.selectionMode()" [page]="searchService.page"
           [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [pageSizeOptions]="[60, 120, 180]"

@@ -541,5 +541,21 @@
   "visk2026-export-dialog--email-invalid": "E-mail jest nieprawidłowy",
   "visk2026-export-dialog--submit": "Pobierz i wyślij",
   "visk2026-export-dialog--success": "Żądanie zostało utworzone",
-  "actions--col": "Akcje"
+  "actions--col": "Akcje",
+  "authors-dialog--header": "Autorzy – szczegóły",
+  "authors-dialog--details-button": "Szczegóły",
+  "authors-dialog--col-name": "Imię i nazwisko",
+  "authors-dialog--col-date": "Data",
+  "authors-dialog--col-role": "Rola",
+  "authors-dialog--col-identifiers": "Identyfikatory",
+  "authors-more": "więcej",
+  "search-no-results.title-prefix": "Nic nie znaleźliśmy dla wyrażenia",
+  "search-no-results.description-prefix": "Sprawdź, czy wyszukiwane wyrażenie jest",
+  "search-no-results.description-bold": "napisane poprawnie.",
+  "search-no-results.description-suffix": " Możliwe również, że dany dokument nie jest jeszcze w naszej bazie danych.",
+  "search-no-results.tip-label": "Wskazówka:",
+  "search-no-results.tip-text": "Mniej znaczy więcej — wpisz bardziej ogólne słowo kluczowe lub spróbuj innego sformułowania.",
+  "search-no-results.contact-prefix": "Jeśli potrzebujesz",
+  "search-no-results.contact-bold": "porady",
+  "search-no-results.contact-suffix": "napisz do nas na e-mail"
 }

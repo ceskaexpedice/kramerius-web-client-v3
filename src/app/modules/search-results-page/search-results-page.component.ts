@@ -5,7 +5,7 @@ import { AppResultsViewType } from '../settings/settings.model';
 import { SettingsService } from '../settings/settings.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { AdminSelectionService, SelectionService } from '../../shared/services';
-import { Subscription, combineLatest } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
@@ -29,6 +29,8 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
   showSectionHeaders = signal<boolean>(true);
   exportRecord = signal<SearchDocument | null>(null);
+  showSelectedTags$!: Observable<boolean>;
+  noResults$!: Observable<boolean>;
 
   protected readonly ViewOptions = AppResultsViewType;
 
@@ -50,6 +52,22 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.searchService.initialize();
+
+    this.noResults$ = this.searchService.loading$.pipe(
+      map(loading => !loading && this.searchService.totalCount === 0 && !!this.searchService.submittedTerm)
+    );
+
+    this.showSelectedTags$ = combineLatest([
+      this.searchService.selectedTags,
+      this.searchService.loading$,
+    ]).pipe(
+      map(([tags, loading]) => {
+        if (tags.length === 0) return false;
+        const onlyTextFilter = tags.every(t => t.startsWith('search:'));
+        if (!loading && this.searchService.totalCount === 0 && onlyTextFilter) return false;
+        return true;
+      })
+    );
 
     // layout=grid | list
     // check if in url is set layout

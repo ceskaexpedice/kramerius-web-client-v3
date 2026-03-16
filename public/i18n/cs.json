@@ -543,5 +543,21 @@
   "visk2026-export-dialog--email-invalid": "Email je neplatný",
   "visk2026-export-dialog--submit": "Stáhnout a odeslat",
   "visk2026-export-dialog--success": "Požadavek vytvořen",
-  "actions--col": "Akce"
+  "actions--col": "Akce",
+  "authors-dialog--header": "Autoři – podrobnosti",
+  "authors-dialog--details-button": "Podrobnosti",
+  "authors-dialog--col-name": "Jméno",
+  "authors-dialog--col-date": "Datum",
+  "authors-dialog--col-role": "Role",
+  "authors-dialog--col-identifiers": "Identifikátory",
+  "authors-more": "dalších",
+  "search-no-results.title-prefix": "Nic jsme nenašli pro výraz",
+  "search-no-results.description-prefix": "Zkuste prosím zkontrolovat, jestli je hledaný výraz",
+  "search-no-results.description-bold": "napsán správně.",
+  "search-no-results.description-suffix": " Je také možné, že daný dokument v naší databázi zatím není.",
+  "search-no-results.tip-label": "Tip:",
+  "search-no-results.tip-text": "Méně je někdy více — zadejte obecnější klíčové slovo nebo zkuste jinou formulaci.",
+  "search-no-results.contact-prefix": "Pokud potřebujete",
+  "search-no-results.contact-bold": "poradit",
+  "search-no-results.contact-suffix": "napište nám na e-mail"
 }

@@ -1,0 +1,25 @@
+<div class="no-results">
+  <div class="no-results__icon-col">
+    <img src="/img/warning-image.png" alt="warning" class="no-results__icon" />
+  </div>
+
+  <div class="no-results__content">
+    <h2 class="no-results__title">
+      {{ 'search-no-results.title-prefix' | translate }}&nbsp;<span class="no-results__term">„{{ searchService.submittedTerm }}"</span>
+    </h2>
+
+    <p class="no-results__body">
+      {{ 'search-no-results.description-prefix' | translate }}&nbsp;<strong>{{ 'search-no-results.description-bold' | translate }}</strong>{{ 'search-no-results.description-suffix' | translate }}
+    </p>
+
+    <p class="no-results__tip">
+      <strong>{{ 'search-no-results.tip-label' | translate }}</strong>&nbsp;{{ 'search-no-results.tip-text' | translate }}
+    </p>
+
+    <p class="no-results__contact">
+      {{ 'search-no-results.contact-prefix' | translate }}&nbsp;<strong>{{ 'search-no-results.contact-bold' | translate }}</strong>,
+      {{ 'search-no-results.contact-suffix' | translate }}
+      <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+    </p>
+  </div>
+</div>

@@ -550,5 +550,21 @@
   "visk2026-export-dialog--email-invalid": "Email is invalid",
   "visk2026-export-dialog--submit": "Download and send",
   "visk2026-export-dialog--success": "Request created",
-  "actions--col": "Actions"
+  "actions--col": "Actions",
+  "authors-dialog--header": "Authors – details",
+  "authors-dialog--details-button": "Details",
+  "authors-dialog--col-name": "Name",
+  "authors-dialog--col-date": "Date",
+  "authors-dialog--col-role": "Role",
+  "authors-dialog--col-identifiers": "Identifiers",
+  "authors-more": "more",
+  "search-no-results.title-prefix": "We found nothing for the term",
+  "search-no-results.description-prefix": "Please check whether the searched term is",
+  "search-no-results.description-bold": "spelled correctly.",
+  "search-no-results.description-suffix": " It is also possible that the document is not yet in our database.",
+  "search-no-results.tip-label": "Tip:",
+  "search-no-results.tip-text": "Less is sometimes more — enter a more general keyword or try a different formulation.",
+  "search-no-results.contact-prefix": "If you need",
+  "search-no-results.contact-bold": "advice",
+  "search-no-results.contact-suffix": "write to us at"
 }

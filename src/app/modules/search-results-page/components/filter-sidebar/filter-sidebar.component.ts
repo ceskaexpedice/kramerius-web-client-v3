@@ -22,6 +22,7 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
   @Input() padding: 'sm' | 'md' | 'lg' | '0' = 'md';
   @Input() scrollable = true;
   @Input() isDisabled = false;
+  @Input() dimmed = false;
   @Input() toggleButtonPosition: 'left' | 'right' = 'right';
   @Input() toggleButtonIcon: string = 'icon-filter';
 

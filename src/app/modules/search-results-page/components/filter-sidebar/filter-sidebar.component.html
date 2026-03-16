@@ -9,7 +9,7 @@
 <div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop" (click)="onBackdropClick()"></div>
 
 <div class="filter-sidebar" [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
-  [class.disabled]="isDisabled" [class.expanded]="isExpanded" [class.dragging]="isDragging"
+  [class.disabled]="isDisabled" [class.dimmed]="dimmed" [class.expanded]="isExpanded" [class.dragging]="isDragging"
   [style.height]="isOverlay() && breakpointService.isMobile() ? currentHeight + 'vh' : null">
 
   <!-- Drag handle for mobile bottom sheet -->
@@ -41,6 +41,10 @@
 
   @if (isDisabled) {
   <div class="sidebar-disabled--overlay"></div>
+  }
+
+  @if (dimmed) {
+  <div class="sidebar-dimmed--overlay"></div>
   }
 
 </div>
