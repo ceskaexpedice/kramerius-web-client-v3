@@ -246,7 +246,7 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Position after submit button if present
     if (this.showSubmitButton) {
-      right += 55;
+      right += 45;
     }
 
     return `${right}px`;
