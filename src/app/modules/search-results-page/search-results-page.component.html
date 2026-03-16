@@ -94,7 +94,7 @@
             <div class="grid--container">
               <app-record-item
                 *ngFor="let doc of (searchService.nonPageResults$ | async) | skeletonList:60:(searchService.loading$ | async)"
-                [item]="doc ? toRecordItem(doc) : undefined">
+                [item]="doc ? toRecordItem(doc) : null">
               </app-record-item>
 
             </div>
@@ -229,7 +229,7 @@
 
       </div>
 
-      <aside class="export-sidebar" [class.collapsed]="!exportRecord()">
+      <aside class="export-sidebar" *ngIf="view() !== ViewOptions.grid" [class.collapsed]="!exportRecord()">
         <app-record-export-panel
           *ngIf="exportRecord()"
           [record]="exportRecord()!"

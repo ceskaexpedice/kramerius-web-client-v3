@@ -17,7 +17,7 @@ export interface MonthYearChange {
       <app-select
         [options]="monthOptions"
         [value]="selectedMonth()"
-        [displayFn]="monthDisplayFn"
+        [displayFn]="monthDisplayFn" [showMicButton]="false"
         [theme]="'base'"
         [filterable]="true"
         (valueChange)="onMonthChange($event)">
@@ -26,7 +26,7 @@ export interface MonthYearChange {
       <app-select
         [options]="yearOptions"
         [value]="selectedYear()"
-        [displayFn]="yearDisplayFn"
+        [displayFn]="yearDisplayFn" [showMicButton]="false"
         [theme]="'base'"
         [filterable]="true"
         [virtualScroll]="true"
