@@ -129,9 +129,11 @@ export class Author {
   public date: string = '';
   public roles: string[] = [];
   public primary: boolean = false;
+  public identifiers: { type: string; value: string }[] = [];
 
   constructor() {
     this.roles = [];
+    this.identifiers = [];
   }
 }
 
@@ -366,10 +368,19 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
   // Authors
   if (modsMetadata.authors && modsMetadata.authors.length > 0) {
     merged.authors = [...merged.authors];
-    const existingAuthors = new Set(merged.authors.map(a => a.name));
-    for (const author of modsMetadata.authors) {
-      if (author.name && !existingAuthors.has(author.name)) {
-        merged.authors.push(author);
+    const existingAuthorsByName = new Map(merged.authors.map(a => [a.name, a]));
+    for (const modsAuthor of modsMetadata.authors) {
+      if (!modsAuthor.name) continue;
+      const existing = existingAuthorsByName.get(modsAuthor.name);
+      if (existing) {
+        // Enrich existing Solr author with richer MODS data
+        if (modsAuthor.identifiers?.length) existing.identifiers = modsAuthor.identifiers;
+        if (modsAuthor.roles?.length) existing.roles = modsAuthor.roles;
+        if (modsAuthor.date) existing.date = modsAuthor.date;
+        if (modsAuthor.nameForFilter) existing.nameForFilter = modsAuthor.nameForFilter;
+      } else {
+        merged.authors.push(modsAuthor);
+        existingAuthorsByName.set(modsAuthor.name, modsAuthor);
       }
     }
   }

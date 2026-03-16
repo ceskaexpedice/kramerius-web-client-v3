@@ -315,6 +315,16 @@ export class ModsParserService {
       }
     }
 
+    // Process name identifiers (orcid, ror, etc.)
+    const nameIdentifierElements = this.getElements(item, 'nameIdentifier');
+    for (const nameIdentifier of nameIdentifierElements) {
+      const idType = nameIdentifier.getAttribute('type');
+      const idValue = this.getText(nameIdentifier);
+      if (idType && idValue) {
+        author.identifiers.push({ type: idType, value: idValue });
+      }
+    }
+
     return author;
   }
 
@@ -577,7 +587,14 @@ export class ModsParserService {
   }
 
   private getElements(parent: Element, tagName: string): Element[] {
-    return Array.from(parent.querySelectorAll(`:scope > ${tagName}`));
+    const results: Element[] = [];
+    for (const child of Array.from(parent.children)) {
+      const localName = child.localName || child.nodeName.replace(/^.*:/, '');
+      if (localName === tagName) {
+        results.push(child);
+      }
+    }
+    return results;
   }
 
   private processGenres(elements: Element[], metadata: Metadata) {

@@ -5,6 +5,24 @@
   margin-bottom: var(--spacing-x2);
 }
 
+.metadata-section--item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+
+  .header-action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x1);
+    white-space: nowrap;
+    font-size: var(--font-size-small);
+
+    i {
+      font-size: var(--font-size-small);
+    }
+  }
+}
+
 .metadata-section--item-label {
   color: var(--color-text-secondary);
   font-weight: bold;
@@ -48,6 +66,18 @@ app-collapsible-content {
   }
 }
 
+.items-more-inline {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  margin-left: var(--spacing-x1);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
 // Clickable list items
 .clickable-list {
   li.clickable {
@@ -58,6 +88,16 @@ app-collapsible-content {
 
     &:hover {
       color: var(--color-primary);
+    }
+
+    .item-content {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-x2);
+
+      .author-identifier-icon {
+        text-decoration: none;
+      }
     }
   }
 }

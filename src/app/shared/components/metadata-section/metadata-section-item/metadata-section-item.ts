@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { NgForOf, NgIf } from '@angular/common';
+import { Component, Input, TemplateRef } from '@angular/core';
+import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CollapsibleContent } from '../collapsible-content/collapsible-content';
 
@@ -7,7 +7,7 @@ export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'k
 
 @Component({
   selector: 'app-metadata-section-item',
-  imports: [NgIf, NgForOf, TranslatePipe, CollapsibleContent],
+  imports: [NgIf, NgForOf, NgTemplateOutlet, TranslatePipe, CollapsibleContent],
   templateUrl: './metadata-section-item.html',
   styleUrl: './metadata-section-item.scss'
 })
@@ -25,6 +25,30 @@ export class MetadataSectionItem {
   @Input() listKeyUppercase: boolean = false;
   @Input() disableTranslate: boolean = false;
   @Input() collapsible: boolean = false;
+  @Input() itemSuffixTpl?: TemplateRef<{ $implicit: any }>;
+  @Input() maxItems?: number;
+  @Input() headerActionLabel?: string;
+  @Input() headerActionClick?: () => void;
+
+  expanded = false;
+
+  get visibleItems(): any[] {
+    if (!this.items) return [];
+    if (!this.maxItems || this.expanded) return this.items;
+    return this.items.slice(0, this.maxItems);
+  }
+
+  get hiddenCount(): number {
+    if (!this.items || !this.maxItems || this.expanded) return 0;
+    return Math.max(0, this.items.length - this.maxItems);
+  }
+
+  handleHeaderAction(event: Event): void {
+    event.stopPropagation();
+    if (this.headerActionClick) {
+      this.headerActionClick();
+    }
+  }
 
   getDisplayText(item: any): string {
     if (this.displayFn) {

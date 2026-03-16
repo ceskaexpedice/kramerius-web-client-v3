@@ -1,3 +1,12 @@
+<ng-template #authorIdentifiersTpl let-author>
+  <ng-container *ngFor="let id of author.identifiers">
+    <a *ngIf="getIdentifierUrl(id) as url" [href]="url" target="_blank" rel="noopener noreferrer"
+       class="author-identifier-icon" [title]="id.type + ': ' + id.value" (click)="$event.stopPropagation()">
+      <img [src]="getIdentifierIcon(id.type)" [alt]="id.type" height="20">
+    </a>
+  </ng-container>
+</ng-template>
+
 <div class="data" *ngIf="data">
 
   <!-- Title -->
@@ -19,8 +28,12 @@
   </app-metadata-section-item>
 
   <!-- Authors -->
-  <app-metadata-section-item *ngIf="data.authors.length" [label]="'author' | translate" type="clickable-list"
-    [collapsible]="true" [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+  <app-metadata-section-item *ngIf="data.authors.length" [label]="'authors' | translate"
+    type="clickable-list" [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
+    [showListBullets]="true" [maxItems]="authorsDisplayLimit"
+    [headerActionLabel]="'authors-dialog--details-button' | translate"
+    [headerActionClick]="openAuthorsDialog.bind(this)"
+    [itemSuffixTpl]="authorIdentifiersTpl">
   </app-metadata-section-item>
 
   <!-- Publishers -->
@@ -115,7 +128,8 @@
 
       <!-- Authors -->
       <app-metadata-section-item *ngIf="childData.authors.length" [label]="'author' | translate" type="clickable-list"
-        [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
+        [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor" [showListBullets]="true"
+        [itemSuffixTpl]="authorIdentifiersTpl">
       </app-metadata-section-item>
 
       <!-- Languages -->
@@ -157,11 +171,10 @@
 
 
       <!-- Authors -->
-      <div class="row" *ngIf="articleData.authors.length">
-        <app-metadata-section-item [label]="'author' | translate" type="clickable-list" [items]="articleData.authors"
-          [displayFn]="getAuthorName" [onItemClick]="clickedAuthor">
-        </app-metadata-section-item>
-      </div>
+      <app-metadata-section-item *ngIf="articleData.authors.length" [label]="'author' | translate"
+        type="clickable-list" [items]="articleData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
+        [showListBullets]="true" [maxItems]="authorsDisplayLimit" [itemSuffixTpl]="authorIdentifiersTpl">
+      </app-metadata-section-item>
 
 
       <!-- DOI -->
@@ -169,7 +182,7 @@
         <span class="detail-label">DOI</span>
         <div class="detail-value">
           <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
-            https://doi.org/{{ articleData.identifiers['doi'] }}
+            {{ articleData.identifiers['doi'] }}
           </a>
           <i class="icon-copy" title="Copy"></i>
         </div>

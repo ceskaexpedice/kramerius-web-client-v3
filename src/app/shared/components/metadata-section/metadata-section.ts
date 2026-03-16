@@ -21,6 +21,7 @@ import { UserService } from '../../services/user.service';
 import { isDocumentPublic } from '../record-item/record-item.model';
 import { MatDialog } from '@angular/material/dialog';
 import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
+import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
 
 @Component({
   selector: 'app-metadata-section',
@@ -282,6 +283,25 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
 
+  private readonly identifierBaseUrls: Record<string, string> = {
+    orcid: 'https://orcid.org/',
+    ror: 'https://ror.org/',
+  };
+
+  private readonly identifierIcons: Record<string, string> = {
+    orcid: '/img/logo/orcid.svg',
+    ror: '/img/logo/ror.svg',
+  };
+
+  getIdentifierUrl(id: { type: string; value: string }): string | null {
+    const base = this.identifierBaseUrls[id.type.toLowerCase()];
+    return base ? base + id.value : null;
+  }
+
+  getIdentifierIcon(type: string): string | null {
+    return this.identifierIcons[type.toLowerCase()] ?? null;
+  }
+
   // Helper methods for display functions
   getAuthorName = (author: Author): string => author.name;
 
@@ -422,6 +442,22 @@ export class MetadataSection implements OnInit, OnChanges {
       autoFocus: false,
       restoreFocus: false,
       maxWidth: '1205px',
+      width: '90%',
+      maxHeight: '90vh'
+    });
+  }
+
+  authorsDisplayLimit = 2;
+
+  openAuthorsDialog() {
+    this.dialog.open(AuthorsDialogComponent, {
+      data: {
+        authors: this.data?.authors ?? [],
+        onAuthorClick: this.clickedAuthor
+      },
+      autoFocus: false,
+      restoreFocus: false,
+      maxWidth: '600px',
       width: '90%',
       maxHeight: '90vh'
     });

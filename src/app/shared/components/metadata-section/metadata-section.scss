@@ -104,6 +104,7 @@
 
 
 
+
   .donators {
     display: flex;
     flex-wrap: wrap;
@@ -119,4 +120,9 @@
   .metadata--actions {
     margin-top: 16px;
   }
+}
+
+.author-identifier-icon {
+  display: inline-flex;
+  align-items: center;
 }
