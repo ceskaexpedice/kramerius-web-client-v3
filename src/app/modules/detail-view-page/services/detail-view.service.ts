@@ -299,6 +299,10 @@ export class DetailViewService {
     return this.document?.pdf || this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/pdf');
   }
 
+  get isEpub(): boolean {
+    return this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/epub+zip') || this.document?.model === 'epub';
+  }
+
   get viewerMode() {
     return this._viewerMode();
   }

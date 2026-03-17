@@ -34,6 +34,8 @@ import {DocumentAccessDenied} from './components/access-denied/document-access-d
 import { DnntoBarComponent } from './components/dnnto-bar/dnnto-bar.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
+import { EpubViewerComponent } from '../../shared/components/epub-viewer/epub-viewer';
+import { EpubSidebarComponent } from '../../shared/components/epub-sidebar/epub-sidebar.component';
 
 const routes: Routes = [
   {
@@ -81,6 +83,8 @@ const routes: Routes = [
 		DnntoBarComponent,
 		MatDialogModule,
 		RestrictedPagesInfoDialogComponent,
+		EpubViewerComponent,
+		EpubSidebarComponent,
 	],
 })
 

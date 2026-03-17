@@ -1,0 +1,41 @@
+.pdf-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar--wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px;
+}
+
+.toc-container {
+  overflow-y: auto;
+
+  .toc-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x0_5); // Keep lines tighter than full articles padding, adjust if needed
+
+    li {
+      margin-bottom: 0px; // Handled by gap!
+    }
+
+    &.indent {
+      padding-left: var(--spacing-x4);
+      margin-top: var(--spacing-x0_5);
+    }
+  }
+
+  .no-toc-msg {
+    padding: 16px;
+    font-style: italic;
+    color: var(--text-muted, #999);
+  }
+}

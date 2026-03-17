@@ -1,0 +1,17 @@
+.epub-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-base);
+}
+
+.epub-container {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  /* Styles can be manipulated per iframe rendering internally by epub.js */
+}
