@@ -1,6 +1,6 @@
 <div class="page--grid" [ngClass]="'type-' + type" *ngIf="(type === 'recording' ? detailViewService.pages$ : detailViewService.pagesOnly$) | async as pages">
 
-  @for (page of pages; track page.pid; let index = $index) {
+  @for (page of (type === 'recording' ? detailViewService.filterJpegPages(pages) : pages); track page.pid; let index = $index) {
     <app-detail-page-item
       [page]="page"
       [type]="type"

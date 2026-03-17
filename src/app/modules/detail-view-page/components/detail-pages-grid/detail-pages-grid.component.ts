@@ -42,7 +42,8 @@ export class DetailPagesGridComponent {
     const pages$: Observable<Page[] | null | undefined> = this.type === 'recording' ? this.detailViewService.pages$ : this.detailViewService.pagesOnly$;
     pages$.pipe(take(1)).subscribe((pages: Page[] | null | undefined) => {
       if (!pages) return;
-      const index = pages.findIndex(p => p.pid === currentPid);
+      const filteredPages = this.type === 'recording' ? this.detailViewService.filterJpegPages(pages) : pages;
+      const index = filteredPages.findIndex(p => p.pid === currentPid);
       if (index !== -1) {
         const el = this.pageItems.get(index)?.nativeElement as HTMLElement;
         el?.scrollIntoView({

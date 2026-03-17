@@ -72,6 +72,10 @@ export class DetailViewService {
 
   pages$ = this.store.select(selectDocumentDetailPages);
   pagesOnly$ = this.store.select(selectDocumentDetailOnlyPages);
+
+  filterJpegPages(pages: Page[]): Page[] {
+    return pages.filter((p: any) => p['ds.img_full.mime'] === 'image/jpeg');
+  }
   articles$ = this.store.select(selectDocumentDetailOnlyArticles);
   hasArticles$ = this.articles$.pipe(map(articles => articles && articles.length > 0));
   document$ = this.store.select(selectDocumentDetail);
