@@ -3,16 +3,16 @@
 .record-item-card.page {
   // More compact aspect ratio for pages
   // Based on design: roughly 1:1.4 ratio (width:height)
-  aspect-ratio: 140/196;
-
-  &.with-badge {
-    aspect-ratio: 170/260;
-  }
+  //aspect-ratio: 140/196;
+  //
+  //&.with-badge {
+  //  aspect-ratio: 170/260;
+  //}
 
   .record-item-card__image {
     // Smaller image for pages
     // Based on design: ~48px image height
-    aspect-ratio: 140/48;
+    //aspect-ratio: 160/128;
     //flex: 1;
     min-height: 0;
   }
