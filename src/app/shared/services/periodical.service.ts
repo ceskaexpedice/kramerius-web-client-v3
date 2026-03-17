@@ -120,6 +120,17 @@ export class PeriodicalService extends BaseFilterService {
       }
     });
 
+    // Auto-redirect when there is exactly one issue child (only if we're on the periodical page)
+    // Uses replaceUrl so the single-issue periodical URL is removed from browser history,
+    // allowing the back button to skip it and go to the previous page.
+    this.periodicalChildren$.pipe(
+      filter(children => children?.length === 1),
+      filter(() => this.router.url.split('?')[0].includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}`)),
+      takeUntil(this.destroy$)
+    ).subscribe(children => {
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, children[0].pid], { replaceUrl: true });
+    });
+
     if (this.availableYears$) {
       this.availableYears$.pipe(
         filter(Boolean),
