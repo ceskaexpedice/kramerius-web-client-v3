@@ -75,7 +75,8 @@ export class PeriodicalSearchEffects {
               this.userService.licenses,
               resultsRes.response.numFound,
               filters,
-              facetsRes.facet_counts?.facet_queries
+              facetsRes.facet_counts?.facet_queries,
+              this.userService.isLoggedIn
             );
 
             return loadFacetsSuccess({ facets });

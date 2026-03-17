@@ -4,7 +4,7 @@ import { SolrResponseParser } from '../../core/solr/solr-response-parser';
 import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
-  facetKeysEnum,
+  facetKeysEnum, FacetIcons,
 } from '../../modules/search-results-page/const/facets';
 import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses, getConfiguredLicenses, getConfiguredModels } from '../../core/solr/solr-misc';
 
@@ -16,7 +16,8 @@ export function handleFacetsWithOperators(
   userLicenses: string[] = [],
   numFound?: number,
   filters?: any,
-  facetQueries?: Record<string, number>
+  facetQueries?: Record<string, number>,
+  isLoggedIn: boolean = false
 ): Record<string, FacetItem[]> {
   const parsedSearchFacets = SolrResponseParser.parseAllFacets(searchFacets);
   const parsedOperatorFacets = SolrResponseParser.parseAllFacets(operatorFacets);
@@ -46,11 +47,11 @@ export function handleFacetsWithOperators(
     if (facetKey === facetKeysEnum.license) {
       primaryValues.forEach(item => {
         if (getOpenLicenses().includes(item.name)) {
-          item.iconClass = 'accessibility-public';
+          item.iconClass = FacetIcons.public.iconClass;
         } else if (getTerminalLicenses().includes(item.name)) {
-          item.iconClass = 'accessibility-in_library';
+          item.iconClass = FacetIcons.onsite.iconClass;
         } else if (getAfterLoginLicenses().includes(item.name)) {
-          item.iconClass = 'accessibility-private';
+          item.iconClass = FacetIcons.locked.iconClass;
         }
       });
     }
@@ -139,6 +140,11 @@ export function handleFacetsWithOperators(
           }
           // Set fq to user's licenses for when the filter is applied
           item.fq = userLicenses;
+
+          if (isLoggedIn) {
+            item.icons.unshift(FacetIcons.unlocked);
+          }
+
         } else if (item.key === FacetAccessibilityTypes.public) {
           // "Public" count from facet.query for public licenses
           if (facetQueries && openLicenses.length > 0) {
@@ -148,7 +154,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to public licenses for when the filter is applied
           item.fq = openLicenses;
-          item.iconClass = 'accessibility-public';
+          item.iconClass = FacetIcons.public.iconClass;
         } else if (item.key === FacetAccessibilityTypes.onsite) {
           // "Onsite" count from facet.query for onsite licenses
           if (facetQueries && terminalLicenses.length > 0) {
@@ -158,7 +164,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to onsite licenses for when the filter is applied
           item.fq = terminalLicenses;
-          item.iconClass = 'accessibility-in_library';
+          item.iconClass = FacetIcons.onsite.iconClass;
         } else if (item.key === FacetAccessibilityTypes.afterLogin) {
           // "After Login" count from facet.query for after-login licenses
           if (facetQueries && afterLoginLicenses.length > 0) {
@@ -168,7 +174,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to after-login licenses for when the filter is applied
           item.fq = afterLoginLicenses;
-          item.iconClass = 'accessibility-private';
+          item.iconClass = FacetIcons.locked.iconClass;
         }
       }
 

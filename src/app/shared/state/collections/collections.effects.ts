@@ -148,7 +148,8 @@ export class CollectionsEffects {
               this.userService.licenses,
               facetsRes.response?.numFound,
               filters,
-              facetsRes.facet_counts?.facet_queries
+              facetsRes.facet_counts?.facet_queries,
+              this.userService.isLoggedIn
             );
             return loadCollectionFacetsSuccess({ facets });
           })
