@@ -1,0 +1,90 @@
+.sidebar--container {
+  height: 100%;
+  overflow: hidden;
+}
+
+.epub-test--toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.epub-test--label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.epub-test--filename {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--spacing-x1);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.epub-test--content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.epub-test--viewer-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+
+  app-epub-viewer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+app-viewer-controls {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 10;
+}
+
+.epub-test--placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+
+  i {
+    font-size: 4rem;
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: 1rem;
+    text-align: center;
+    max-width: 320px;
+  }
+}
+
+.epub-test--empty-sidebar {
+  padding: 1.5rem 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+
+  p {
+    line-height: 1.5;
+  }
+}
