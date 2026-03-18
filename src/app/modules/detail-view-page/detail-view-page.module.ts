@@ -39,6 +39,10 @@ import { EpubSidebarComponent } from '../../shared/components/epub-sidebar/epub-
 
 const routes: Routes = [
   {
+    path: 'test/epub',
+    loadComponent: () => import('../../core/pages/epub-test/epub-test-page.component').then(c => c.EpubTestPageComponent)
+  },
+  {
     path: ':uuid', component: DetailViewPageComponent
   }
 ]

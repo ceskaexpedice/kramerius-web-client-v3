@@ -1,10 +1,10 @@
-import { Component, ElementRef, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import ePub, { Book, Rendition } from 'epubjs';
 import { Metadata } from '../../models/metadata.model';
 import { EnvironmentService } from '../../services/environment.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Subscription } from 'rxjs';
+import { skip, Subscription } from 'rxjs';
 import { InlineLoaderComponent } from '../inline-loader/inline-loader.component';
 import { CommonModule } from '@angular/common';
 import { EpubService } from '../../services/epub.service';
@@ -29,6 +29,7 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   private navigationSub?: Subscription;
   private controlSub?: Subscription;
   private searchSub?: Subscription;
+  private localEpubSub?: Subscription;
 
   private currentFontSize = 100;
   private isBookMode = false;
@@ -39,6 +40,7 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private epubService = inject(EpubService);
+  private zone = inject(NgZone);
 
   private get API_URL(): string {
     const url = this.env.getApiUrl('items');
@@ -58,14 +60,30 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.initViewer();
+    // Check for local epub data first (test page), otherwise fetch from API
+    const localData = this.epubService.getLocalEpubData();
+    if (localData) {
+      this.initFromLocalData(localData);
+    } else {
+      this.initViewer();
+    }
+
+    // Re-render when a new local file is picked while the viewer is already mounted.
+    this.localEpubSub = this.epubService.localEpubData$.pipe(skip(1)).subscribe(data => {
+      if (data) {
+        this.destroyBook();
+        this.initFromLocalData(data);
+      }
+    });
 
     // Listen for cross-component navigation commands (e.g. from the EpubSidebarComponent)
     this.navigationSub = this.epubService.navigate$.subscribe((href) => {
       if (this.rendition && href) {
         this.isLoading = true;
         this.rendition.display(href).then(() => {
-          this.isLoading = false;
+          this.zone.run(() => {
+            this.isLoading = false;
+          });
         });
       }
     });
@@ -79,6 +97,23 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
     this.searchSub = this.epubService.searchQuery$.subscribe((query) => {
       this.performSearch(query);
     });
+  }
+
+  /**
+   * Mirrors the detail-view fetch path: converts the ArrayBuffer into a Blob,
+   * then reads it back via FileReader. This ensures the same async timing
+   * that initViewer()/window.fetch uses — epubjs needs the container to be
+   * fully laid out before renderTo() is called.
+   */
+  private initFromLocalData(data: ArrayBuffer): void {
+    this.isLoading = true;
+    const blob = new Blob([data], { type: 'application/epub+zip' });
+    const file = new File([blob], 'local.epub', { type: 'application/epub+zip' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.renderEpub(reader.result as ArrayBuffer);
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   private handleControlEvent(event: {action: string, data?: any}) {
@@ -222,10 +257,11 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
       this.rendition = this.book.renderTo(this.viewerContainer.nativeElement, {
         width: '100%',
         height: '100%',
-        spread: 'none', // Set to auto to support two-page spreads depending on screen width
+        spread: 'none',
         manager: 'continuous',
-        flow: 'paginated'
-      });
+        flow: 'paginated',
+        allowScriptedContent: true,
+      } as any);
 
       // Await standard EPUB parsing of the internal Table of Contents map
       this.book.loaded.navigation.then(nav => {
@@ -244,25 +280,39 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
 
       // Hook up page tracking
       this.rendition.on('relocated', (location: any) => {
-        if (this.book?.locations && location.start) {
-          const percentage = this.book.locations.percentageFromCfi(location.start.cfi);
-          const totalPages = (this.book.locations as any).total || 1;
-          const currentPage = Math.round(percentage * totalPages);
-          this.epubService.setPageParams(currentPage || 1, totalPages);
-          
-          if (location.start.href) {
-            this.epubService.setActiveHref(location.start.href);
+        this.zone.run(() => {
+          if (this.book?.locations && location.start) {
+            const percentage = this.book.locations.percentageFromCfi(location.start.cfi);
+            const totalPages = (this.book.locations as any).total || 1;
+            const currentPage = Math.round(percentage * totalPages);
+            this.epubService.setPageParams(currentPage || 1, totalPages);
+
+            if (location.start.href) {
+              this.epubService.setActiveHref(location.start.href);
+            }
           }
-        }
+        });
       });
 
       this.rendition.display().then(() => {
-        this.isLoading = false;
+        this.zone.run(() => {
+          this.isLoading = false;
+        });
       });
     } catch (error) {
       console.error('Error rendering EPUB', error);
       this.isLoading = false;
     }
+  }
+
+  private destroyBook(): void {
+    if (this.book) {
+      this.book.destroy();
+      this.book = undefined;
+      this.rendition = undefined;
+    }
+    this.viewerContainer.nativeElement.innerHTML = '';
+    this.isLoading = true;
   }
 
   ngOnDestroy() {
@@ -277,6 +327,9 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
     }
     if (this.searchSub) {
       this.searchSub.unsubscribe();
+    }
+    if (this.localEpubSub) {
+      this.localEpubSub.unsubscribe();
     }
     if (this.book) {
       this.book.destroy();

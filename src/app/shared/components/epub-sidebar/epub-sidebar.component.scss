@@ -2,17 +2,21 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .sidebar--wrapper {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
   padding: 16px;
+  overflow: hidden;
 }
 
 .toc-container {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 
   .toc-list {
@@ -21,10 +25,10 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x0_5); // Keep lines tighter than full articles padding, adjust if needed
+    gap: var(--spacing-x0_5);
 
     li {
-      margin-bottom: 0px; // Handled by gap!
+      margin-bottom: 0px;
     }
 
     &.indent {

@@ -42,6 +42,10 @@ export class EpubService {
   private controlSubject = new Subject<{action: string, data?: any}>();
   public control$ = this.controlSubject.asObservable();
 
+  // Local file override: when set, the EpubViewer loads this ArrayBuffer instead of fetching from API
+  private localEpubDataSubject = new BehaviorSubject<ArrayBuffer | null>(null);
+  public localEpubData$ = this.localEpubDataSubject.asObservable();
+
   constructor() {}
 
   /**
@@ -133,9 +137,26 @@ export class EpubService {
   goToPage(page: number): void { this.controlSubject.next({ action: 'gotoPage', data: page }); }
 
   /**
+   * Load a local EPUB file for testing purposes.
+   * The EpubViewer will use this ArrayBuffer instead of fetching from the API.
+   */
+  loadLocalEpub(data: ArrayBuffer): void {
+    this.localEpubDataSubject.next(data);
+  }
+
+  clearLocalEpub(): void {
+    this.localEpubDataSubject.next(null);
+  }
+
+  getLocalEpubData(): ArrayBuffer | null {
+    return this.localEpubDataSubject.getValue();
+  }
+
+  /**
    * Reset states when a document is closed/unloaded.
    */
   clear(): void {
+    this.localEpubDataSubject.next(null);
     this.tocSubject.next([]);
     this.currentPageSubject.next(1);
     this.totalPagesSubject.next(0);
