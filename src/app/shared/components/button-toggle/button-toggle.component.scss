@@ -1,3 +1,9 @@
+.checkbox-wrapper {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+}
+
 .button--toggle {
   display: flex;
   align-items: center;

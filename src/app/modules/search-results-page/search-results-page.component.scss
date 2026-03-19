@@ -16,28 +16,29 @@
 }
 
 .export-sidebar {
-  flex: 0 0 340px;
-  width: 340px;
-  min-width: 340px;
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
   height: calc(100% - var(--spacing-x3) - var(--spacing-x3));
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-primary);
+  border: none;
   border-radius: var(--spacing-x3);
   background: var(--color-bg-base);
-  margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
-  transition: width 0.3s ease, min-width 0.3s ease, flex-basis 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.3s ease, min-width 0.3s ease, flex-basis 0.3s ease, opacity 0.3s ease, margin 0.3s ease, border 0.3s ease;
 
-  &.collapsed {
-    flex-basis: 0;
-    width: 0;
-    min-width: 0;
-    opacity: 0;
-    pointer-events: none;
-    margin-right: 0;
-    margin-left: 0;
-    border: none;
+  &:not(.collapsed) {
+    flex: 0 0 340px;
+    width: 340px;
+    min-width: 340px;
+    opacity: 1;
+    pointer-events: auto;
+    border: 1px solid var(--color-primary);
+    margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
   }
 }
 

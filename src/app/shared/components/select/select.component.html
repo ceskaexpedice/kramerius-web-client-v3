@@ -8,7 +8,7 @@
   [attr.aria-activedescendant]="'option-' + focusedIndex">
   <!-- Filter Input -->
   <div *ngIf="filterable" class="filter-container">
-    <app-input [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate"
+    <app-input [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate" [showMicButton]="showMicButton"
       (valueChange)="onFilterChange($event)" (keydown)="onFilterKeyDown($event)" (click)="$event.stopPropagation()"
       [theme]="'dark'" [size]="'sm'"></app-input>
   </div>

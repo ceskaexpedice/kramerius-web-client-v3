@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -20,7 +20,10 @@ import { Store } from '@ngrx/store';
 import { selectArticleDetail } from '../../shared/state/document-detail/document-detail.selectors';
 import { fromSolrToMetadata } from '../../shared/models/metadata.model';
 import { DocumentInfoService } from '../../shared/services/document-info.service';
-import {UserService} from '../../shared/services/user.service';
+import { UserService } from '../../shared/services/user.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
+import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -41,7 +44,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public documentInfoService = inject(DocumentInfoService);
   public translate = inject(TranslateService);
   private store = inject(Store);
-  public userService = inject(UserService)
+  public userService = inject(UserService);
+  private dialog = inject(MatDialog);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
@@ -63,6 +68,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   ) {
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();
     this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
+
+    effect(() => {
+      if (this.detailViewService.isDocumentAccessDenied()) {
+        if (this.dontShowAgainService.shouldShowDialog(DontShowDialogs.RestrictedPagesInfoDialog)) {
+          this.dialog.open(RestrictedPagesInfoDialogComponent);
+        }
+      }
+    });
 
     this.articleMetadata$ = this.store.select(selectArticleDetail).pipe(
       distinctUntilChanged((prev, curr) => prev?.pid === curr?.pid),

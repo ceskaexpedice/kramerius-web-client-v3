@@ -1,0 +1,31 @@
+<div class="generic-dialog-container authors-dialog-container">
+  <h2>
+    {{ 'authors-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <table class="authors-table">
+        <thead>
+          <tr>
+            <th>{{ 'authors-dialog--col-name' | translate }}</th>
+            <th>{{ 'authors-dialog--col-date' | translate }}</th>
+            <th>{{ 'authors-dialog--col-role' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let author of data.authors">
+            <td>
+              <a class="author-link" (click)="clickAuthor(author)">{{ author.name }}</a>
+            </td>
+            <td>{{ author.date }}</td>
+            <td>{{ getRole(author) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

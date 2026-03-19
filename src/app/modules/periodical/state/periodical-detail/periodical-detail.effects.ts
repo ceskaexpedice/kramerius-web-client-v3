@@ -133,7 +133,8 @@ export class PeriodicalDetailEffects {
                 this.userService.licenses,
                 facetsRes.response?.numFound,
                 filters,
-                facetsRes.facet_counts?.facet_queries
+                facetsRes.facet_counts?.facet_queries,
+                this.userService.isLoggedIn
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
@@ -176,7 +177,8 @@ export class PeriodicalDetailEffects {
                 this.userService.licenses,
                 facetsRes.response?.numFound,
                 filters,
-                facetsRes.facet_counts?.facet_queries
+                facetsRes.facet_counts?.facet_queries,
+                this.userService.isLoggedIn
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
@@ -251,7 +253,8 @@ export class PeriodicalDetailEffects {
                 this.userService.licenses,
                 facetsRes.response?.numFound,
                 filters,
-                facetsRes.facet_counts?.facet_queries
+                facetsRes.facet_counts?.facet_queries,
+                this.userService.isLoggedIn
               );
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })

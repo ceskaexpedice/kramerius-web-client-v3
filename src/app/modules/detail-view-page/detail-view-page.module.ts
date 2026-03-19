@@ -32,8 +32,16 @@ import { SelectionModeInfoComponent } from '../../shared/components/selection-mo
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
 import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
 import { DnntoBarComponent } from './components/dnnto-bar/dnnto-bar.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
+import { EpubViewerComponent } from '../../shared/components/epub-viewer/epub-viewer';
+import { EpubSidebarComponent } from '../../shared/components/epub-sidebar/epub-sidebar.component';
 
 const routes: Routes = [
+  {
+    path: 'test/epub',
+    loadComponent: () => import('../../core/pages/epub-test/epub-test-page.component').then(c => c.EpubTestPageComponent)
+  },
   {
     path: ':uuid', component: DetailViewPageComponent
   }
@@ -77,6 +85,10 @@ const routes: Routes = [
 		DocumentAccessDenied,
 		DatePipe,
 		DnntoBarComponent,
+		MatDialogModule,
+		RestrictedPagesInfoDialogComponent,
+		EpubViewerComponent,
+		EpubSidebarComponent,
 	],
 })
 

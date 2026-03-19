@@ -39,6 +39,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   @Input() filterPlaceholder = 'Filter...';
   @Input() disabled = false;
   @Input() zIndex = 1000;
+  @Input() showMicButton = false;
 
   // Virtual Scroll Inputs
   @Input() virtualScroll = false;

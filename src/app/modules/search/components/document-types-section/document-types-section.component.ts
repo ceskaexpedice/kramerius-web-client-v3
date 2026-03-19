@@ -17,6 +17,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 import {map} from 'rxjs';
 import {getModelIcon} from '../../../../shared/utils/filter-icons.utils';
+import {LibraryContextService} from '../../../../shared/services/library-context.service';
 
 @Component({
   selector: 'app-document-types-section',
@@ -34,6 +35,7 @@ import {getModelIcon} from '../../../../shared/utils/filter-icons.utils';
 export class DocumentTypesSectionComponent {
   private searchService = inject(SearchService);
   private store = inject(Store);
+  private libraryContext = inject(LibraryContextService);
 
   documentTypes$ = this.store.select(selectDocumentTypes).pipe(
     map(documentTypes => documentTypes?.map(docType => ({
@@ -48,12 +50,13 @@ export class DocumentTypesSectionComponent {
   }
 
   clickedDocumentType(documentType: string) {
-    const url = `${APP_ROUTES_ENUM.SEARCH_RESULTS}?customSearch=custom-root-model:${documentType}`;
+    const url = `?customSearch=custom-root-model:${documentType}`;
     this.searchService.redirectDirectlyToUrl(url);
     this.searchService.searchWithFacet(customDefinedFacetsEnum.model, documentType, true);
   }
 
   getDocumentTypeUrl(documentType: string): string {
-    return `${APP_ROUTES_ENUM.SEARCH_RESULTS}?customSearch=custom-root-model:${documentType}`;
+    const prefix = this.libraryContext.getLibraryPrefix();
+    return `${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}?customSearch=custom-root-model:${documentType}`;
   }
 }

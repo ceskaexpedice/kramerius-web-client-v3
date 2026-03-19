@@ -56,7 +56,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
         [prefixIcon]="'icon-search-normal-1'"
         [showHelpButton]="false"
         [showClearButton]="true"
-        [showSubmitButton]="false"
+        [showSubmitButton]="false" [showMicButton]="true"
         [type]="'text'"
         (valueChange)="searchValueChanged($event)"
         [signalInput]="search"

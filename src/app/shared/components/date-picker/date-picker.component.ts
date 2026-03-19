@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   EventEmitter, inject,
+  HostListener,
   Input,
   OnChanges,
   OnInit,
@@ -113,6 +114,13 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   private translate = inject(TranslateService);
   private dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
   private destroyRef = inject(DestroyRef);
+
+  @HostListener('document:keydown.enter')
+  onEnterKey(): void {
+    if (this.openedPopupCalendar) {
+      this.onSubmit();
+    }
+  }
 
   ngOnInit() {
     this.updateFromInitialValues();
@@ -433,6 +441,11 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
         this.selectedDateTo.set(calculatedToDate);
         this.dateToInput.set(this.formatDate(calculatedToDate));
         this.updateToCalendarMonth(calculatedToDate);
+      } else if (!this.isRangeModeActive) {
+        // No offset, no range mode — keep TO in sync with FROM
+        this.selectedDateTo.set(parsedDate);
+        this.dateToInput.set(this.formatDate(parsedDate));
+        this.updateToCalendarMonth(parsedDate);
       }
 
       // Trigger change detection to update month-year selector

@@ -170,6 +170,11 @@ export class IIIFViewerService {
     return url;
   }
 
+  // Get base API URL (exposed for components that need to rewrite IIIF URLs)
+  getBaseUrl(): string {
+    return this.API_URL;
+  }
+
   // Get IIIF info.json URL
   getIIIFInfoUrl(pid: string): string {
     // If testing fallback, return invalid URL to trigger error

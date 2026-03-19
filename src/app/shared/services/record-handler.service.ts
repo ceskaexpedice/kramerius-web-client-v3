@@ -591,11 +591,11 @@ export class RecordHandlerService {
     const recordItem: RecordItem = {
       id: item.pid,
       title: getItemTitle(item),
-      subtitle: `${subtitlePrefix} ${item['part.number.str']}`,
+      subtitle: item['part.number.str'] ? `${subtitlePrefix} ${item['part.number.str']}` : '',
       model: item.model as DocumentTypeEnum,
       licenses: item['licenses.facet'] || [],
       className: 'card--fluid',
-      showFavoriteButton: false,
+      showFavoriteButton: true,
       showAccessibilityBadge: true
     };
 
@@ -617,7 +617,7 @@ export class RecordHandlerService {
       model: year.model as DocumentTypeEnum,
       licenses: year.licenses || [],
       className: 'card--fluid',
-      showFavoriteButton: false,
+      showFavoriteButton: true,
       showAccessibilityBadge: true
     };
 

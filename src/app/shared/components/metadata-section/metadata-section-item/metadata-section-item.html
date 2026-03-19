@@ -1,6 +1,12 @@
 <section class="metadata-section--item">
 
-  <h3 class="metadata-section--item-label">{{ label | translate }}</h3>
+  <div class="metadata-section--item-header">
+    <h3 class="metadata-section--item-label">{{ label | translate }}</h3>
+    <button *ngIf="headerActionLabel" class="button tertiary outlined xs with-icon header-action-btn"
+      (click)="handleHeaderAction($event)">
+      {{ headerActionLabel }} <i class="icon-arrow-right-1"></i>
+    </button>
+  </div>
 
   <app-collapsible-content [collapsible]="collapsible" [contentKey]="items?.length ?? value">
 
@@ -17,9 +23,16 @@
 
     <!-- Clickable list type: vertical list with underlined clickable items -->
     <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
-      <li *ngFor="let item of items" (click)="handleClick(item)" class="clickable">
-        <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
-        <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
+      <li *ngFor="let item of visibleItems; let last = last" (click)="handleClick(item)" class="clickable">
+        <span class="item-content">
+          <span class="item-label">
+            <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+            <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
+          </span>
+          <ng-container *ngIf="itemSuffixTpl">
+            <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>
+          </ng-container>
+        </span><span *ngIf="last && hiddenCount > 0" class="items-more-inline" (click)="expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>
       </li>
     </ul>
 

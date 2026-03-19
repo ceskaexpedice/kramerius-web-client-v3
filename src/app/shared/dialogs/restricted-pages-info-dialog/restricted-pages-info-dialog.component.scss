@@ -1,0 +1,21 @@
+.generic-dialog-container {
+
+  .dialog-body {
+
+    .content {
+      padding: 0 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x4);
+    }
+  }
+}
+
+p {
+  margin: 0;
+}
+
+.dont-ask-again--container {
+  color: var(--color-text-tertiary);
+  gap: var(--spacing-x2);
+}

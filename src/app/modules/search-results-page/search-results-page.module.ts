@@ -28,6 +28,7 @@ import { ToolbarControlsComponent } from '../../shared/components/toolbar-contro
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { RecordExportPanelComponent } from '../../shared/components/record-export-panel/record-export-panel.component';
+import { NoResultsComponent } from './components/no-results/no-results.component';
 
 const routes: Routes = [
 	{
@@ -68,6 +69,7 @@ const routes: Routes = [
 		ScrollHideHeaderDirective,
 		SkeletonListPipe,
 		RecordExportPanelComponent,
+		NoResultsComponent,
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

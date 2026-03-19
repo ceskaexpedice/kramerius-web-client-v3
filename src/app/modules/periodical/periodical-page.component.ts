@@ -47,7 +47,12 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
         { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
       ];
     } else {
-      // Issues view: calendar or cards
+      // Issues view: show calendar only when items have day+month data
+      if (!this.periodical.canShowCalendar()) {
+        return [
+          { label: 'layout--cards', icon: 'icon-element-3', value: 'cards' }
+        ];
+      }
       return [
         { label: 'layout--calendar', icon: 'icon-calendar-1', value: 'calendar' },
         { label: 'layout--cards', icon: 'icon-element-3', value: 'cards' }

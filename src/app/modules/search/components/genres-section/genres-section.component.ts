@@ -3,15 +3,12 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Store} from '@ngrx/store';
-import {selectBooks, selectBooksLoading} from '../../state/books/books.selectors';
-import {loadBooks} from '../../state/books/books.actions';
 import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
 import {loadGenres} from '../../state/genres/genres.actions';
 import {SearchService} from '../../../../shared/services/search.service';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
-import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
-import {DocumentTypeEnum} from '../../../constants/document-type';
+import {LibraryContextService} from '../../../../shared/services/library-context.service';
 
 @Component({
   selector: 'app-genres-section',
@@ -29,6 +26,7 @@ import {DocumentTypeEnum} from '../../../constants/document-type';
 export class GenresSectionComponent implements OnInit {
   private store = inject(Store);
   private searchService = inject(SearchService);
+  private libraryContext = inject(LibraryContextService);
 
   genres$ = this.store.select(selectGenres);
   loading$ = this.store.select(selectGenresLoading);
@@ -38,12 +36,13 @@ export class GenresSectionComponent implements OnInit {
   }
 
   clickedGenre(genreName: string) {
-    const url = `${APP_ROUTES_ENUM.SEARCH_RESULTS}?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
+    const url = `?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   }
 
   getGenreUrl(genreName: string): string {
-    return `${APP_ROUTES_ENUM.SEARCH_RESULTS}?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
+    const prefix = this.libraryContext.getLibraryPrefix();
+    return `${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}?fq=genres.facet:${genreName}&genres.facet_operator=OR`;
   }
 
 }

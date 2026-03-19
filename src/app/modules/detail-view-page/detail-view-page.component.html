@@ -97,38 +97,43 @@
         <app-pdf-sidebar></app-pdf-sidebar>
       </ng-container>
 
-      <!-- TODO : commented articles/pages tab Document Sidebar for non-PDF documents or PDF articles -->
-      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">
+      <!-- EPUB Sidebar for EPUB documents -->
+      <ng-container *ngIf="detailViewService.isEpub || document.epub">
+        <app-epub-sidebar></app-epub-sidebar>
+      </ng-container>
+
+      <!-- Document Sidebar for non-PDF/non-EPUB documents or PDF articles -->
+      <ng-container *ngIf="(!document.pdf && !detailViewService.isEpub && !document.epub) || document.model === DocumentTypeEnum.article">
         @let hasArticles = detailViewService.hasArticles$ | async;
         @let hasPages = detailViewService.pagesOnly && detailViewService.pagesOnly.length > 0;
 
         <!-- Show tabs when document has articles -->
         @if (hasArticles && hasPages) {
-          <app-tabs [noPadding]="true">
-            <app-tab-item [label]="'pages--tab' | translate">
-              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
-            </app-tab-item>
-            <app-tab-item [label]="'articles--tab' | translate">
-              <div class="sidebar--wrapper">
-                <div class="sidebar--wrapper--scroll-content">
-                  <app-detail-articles-list></app-detail-articles-list>
-                </div>
+        <app-tabs [noPadding]="true">
+          <app-tab-item [label]="'pages--tab' | translate">
+            <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
+          </app-tab-item>
+          <app-tab-item [label]="'articles--tab' | translate">
+            <div class="sidebar--wrapper">
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-articles-list></app-detail-articles-list>
               </div>
-            </app-tab-item>
-          </app-tabs>
+            </div>
+          </app-tab-item>
+        </app-tabs>
         } @else if (!hasArticles) {
-          <!-- No articles - show document sidebar as before -->
-          <app-document-sidebar [document]="document"></app-document-sidebar>
+        <!-- No articles - show document sidebar as before -->
+        <app-document-sidebar [document]="document"></app-document-sidebar>
         } @else if (!hasPages) {
-          <!-- No pages - show document sidebar as before -->
-          <app-document-sidebar [document]="document"></app-document-sidebar>
+        <!-- No pages - show document sidebar as before -->
+        <app-document-sidebar [document]="document"></app-document-sidebar>
         }
       </ng-container>
-<!--      TODO: code bellow will be removed after uncommented code for tabs-->
+      <!--      TODO: code bellow will be removed after uncommented code for tabs-->
 
-<!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
-<!--        <app-document-sidebar [document]="document"></app-document-sidebar>-->
-<!--      </ng-container>-->
+      <!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
+      <!--        <app-document-sidebar [document]="document"></app-document-sidebar>-->
+      <!--      </ng-container>-->
 
     </div>
   </ng-container>
@@ -181,10 +186,11 @@
 
           <!-- Check if user has access to the document -->
           @let checkState = documentInfoService.state();
-<!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
+          <!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
 
           <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
+          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) &&
+          !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
           <app-document-access-denied [metadata]="document"
             [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
           </app-document-access-denied>
@@ -201,6 +207,8 @@
           <!-- Fallback to document/page viewer when no article -->
           @if (detailViewService.isPdf) {
           <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+          } @else if (detailViewService.isEpub || document.epub) {
+          <app-epub-viewer [metadata]="document"></app-epub-viewer>
           } @else {
           <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
             [metadata]="document" [imagePid]="detailViewService.currentPagePid">
@@ -223,21 +231,21 @@
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>
         }
+        } @else if (detailViewService.isEpub || document.epub) {
+        <app-viewer-controls type="epub"></app-viewer-controls>
         } @else {
         @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
         <app-viewer-controls type="image"></app-viewer-controls>
         }
 
         @if (iiifViewerService.isSelectionMode$ | async) {
-          @let isDragging = iiifViewerService.isDragging$ | async;
-          @let hasSelection = iiifViewerService.selectedArea$ | async;
-          @if (!isDragging) {
-            <app-selection-mode-info
-              [hasSelection]="!!hasSelection"
-              (editSelection)="iiifViewerService.clearSelectedArea()"
-              (cancelSelection)="iiifViewerService.setSelectionMode(false)">
-            </app-selection-mode-info>
-          }
+        @let isDragging = iiifViewerService.isDragging$ | async;
+        @let hasSelection = iiifViewerService.selectedArea$ | async;
+        @if (!isDragging) {
+        <app-selection-mode-info [hasSelection]="!!hasSelection" (editSelection)="iiifViewerService.clearSelectedArea()"
+          (cancelSelection)="iiifViewerService.setSelectionMode(false)">
+        </app-selection-mode-info>
+        }
         }
         }
         }

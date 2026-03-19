@@ -55,7 +55,8 @@ export class MonographVolumesEffects {
               this.userService.licenses,
               numFound,
               filters,
-              facetQueries
+              facetQueries,
+              this.userService.isLoggedIn
             );
 
             console.log('Loaded monograph volumes with facets:', { parent, volumes, facets, filters });

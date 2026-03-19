@@ -1112,7 +1112,7 @@ export class SolrService {
     forAutocomplete: boolean = false,
     caseSensitive: boolean = false,
   ): Observable<any> {
-    const ocrSearchTerm = searchTerm.includes('*') ? searchTerm : `${searchTerm}*`;
+    const ocrSearchTerm = searchTerm;
 
     const paramsObject = {
       fl: 'pid,root.pid',

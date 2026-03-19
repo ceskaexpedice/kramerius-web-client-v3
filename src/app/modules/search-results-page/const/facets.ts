@@ -17,6 +17,13 @@ export enum FacetAccessibilityTypes {
   afterLogin = 'afterLogin'
 }
 
+export const FacetIcons = {
+  locked:   { icon: 'icon-locked',    iconClass: 'accessibility-private'    },
+  unlocked:   { icon: 'icon-locked',    iconClass: 'accessibility-public'    },
+  public:   { icon: 'icon-eye-public', iconClass: 'accessibility-public'    },
+  onsite:   { icon: 'icon-in-house',  iconClass: 'accessibility-in_library' },
+} as const;
+
 
 export const facetKeysEnum = {
   accessibility: 'accessibility',
@@ -146,10 +153,10 @@ export function getCustomDefinedFacets() {
           count: 0,
           type: FacetElementType.radio,
           icons: [
-            { icon: 'icon-in-house', iconClass: 'accessibility-in_library' },
-            { icon: 'icon-locked', iconClass: 'accessibility-private' },
-            { icon: 'icon-locked', iconClass: 'accessibility-public' },
-            { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
+            FacetIcons.onsite,
+            FacetIcons.locked,
+            FacetIcons.unlocked,
+            FacetIcons.public,
           ],
           tooltipIcon: 'icon-question',
           tooltipText: 'custom-accessibility--all-tooltip',
@@ -162,8 +169,7 @@ export function getCustomDefinedFacets() {
           count: 0,
           type: FacetElementType.radio,
           icons: [
-            { icon: 'icon-locked', iconClass: 'accessibility-public' },
-            { icon: 'icon-eye-public', iconClass: 'accessibility-public' },
+            FacetIcons.public,
           ],
           tooltipIcon: 'icon-question',
           tooltipText: 'custom-accessibility--available-tooltip',
@@ -173,8 +179,7 @@ export function getCustomDefinedFacets() {
           fq: [],
           name: `${FacetAccessibilityTypes.public}`,
           label: 'custom-accessibility--public',
-          icon: 'icon-eye-public',
-          iconClass: 'accessibility-public',
+          ...FacetIcons.public,
           count: 0,
           type: FacetElementType.radio
         },
@@ -183,8 +188,7 @@ export function getCustomDefinedFacets() {
           fq: [],
           name: `${FacetAccessibilityTypes.afterLogin}`,
           label: 'custom-accessibility--afterLogin',
-          icon: 'icon-locked',
-          iconClass: 'accessibility-private',
+          ...FacetIcons.locked,
           count: 0,
           type: FacetElementType.radio,
           tooltipIcon: 'icon-question',
@@ -195,8 +199,7 @@ export function getCustomDefinedFacets() {
           fq: [],
           name: `${FacetAccessibilityTypes.onsite}`,
           label: 'custom-accessibility--onsite',
-          icon: 'icon-in-house',
-          iconClass: 'accessibility-in_library',
+          ...FacetIcons.onsite,
           count: 0,
           type: FacetElementType.radio
         }

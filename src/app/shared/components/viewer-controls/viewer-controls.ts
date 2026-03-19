@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { map } from 'rxjs/operators';
 import { PdfService } from '../../services/pdf.service';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
+import { EpubService } from '../../services/epub.service';
 import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../../core/config';
@@ -15,11 +16,12 @@ import { ConfigService } from '../../../core/config';
   styleUrl: './viewer-controls.scss'
 })
 export class ViewerControls {
-  @Input() type: 'pdf' | 'image' = 'pdf';
+  @Input() type: 'pdf' | 'image' | 'epub' = 'pdf';
   @Input() showCrop: boolean = true;
 
   private pdfService = inject(PdfService);
   private iiifViewerService = inject(IIIFViewerService);
+  private epubService = inject(EpubService);
   private configService = inject(ConfigService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
@@ -65,6 +67,8 @@ export class ViewerControls {
   onZoomIn() {
     if (this.type === 'pdf') {
       this.pdfService.zoomIn();
+    } else if (this.type === 'epub') {
+      this.epubService.zoomIn();
     } else {
       this.iiifViewerService.zoomIn();
     }
@@ -73,6 +77,8 @@ export class ViewerControls {
   onZoomOut() {
     if (this.type === 'pdf') {
       this.pdfService.zoomOut();
+    } else if (this.type === 'epub') {
+      this.epubService.zoomOut();
     } else {
       this.iiifViewerService.zoomOut();
     }
@@ -89,6 +95,8 @@ export class ViewerControls {
   onFullscreen() {
     if (this.type === 'pdf') {
       this.pdfService.toggleFullscreen();
+    } else if (this.type === 'epub') {
+      this.epubService.toggleFullscreen();
     } else {
       this.iiifViewerService.toggleFullscreen();
     }
@@ -125,6 +133,8 @@ export class ViewerControls {
   onBookMode() {
     if (this.type === 'pdf') {
       this.pdfService.bookModeToggle();
+    } else if (this.type === 'epub') {
+      this.epubService.toggleBookMode();
     } else if (this.type === 'image') {
       this.iiifViewerService.toggleBookMode();
     }

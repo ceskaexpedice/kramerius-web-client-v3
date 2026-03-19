@@ -80,6 +80,16 @@ export class PeriodicalService extends BaseFilterService {
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
   private metadataSignal = toSignal(this.metadata$, { initialValue: null });
+  private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
+
+  /** True only when at least one issue child has a day+month, making calendar display meaningful */
+  canShowCalendar = computed<boolean>(() => {
+    const children = this.periodicalChildrenSignal();
+    if (!children || children.length === 0) return false;
+    return children.some(
+      (child: any) => child['date_range_end.day'] && child['date_range_end.month']
+    );
+  });
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
 
@@ -102,6 +112,24 @@ export class PeriodicalService extends BaseFilterService {
     this.load();
 
     this.initialize();
+
+    // If children load and calendar is not displayable, switch to cards view
+    effect(() => {
+      if (this.viewMode() === ViewMode.Calendar && !this.canShowCalendar()) {
+        this.viewMode.set(ViewMode.GridIssues);
+      }
+    });
+
+    // Auto-redirect when there is exactly one issue child (only if we're on the periodical page)
+    // Uses replaceUrl so the single-issue periodical URL is removed from browser history,
+    // allowing the back button to skip it and go to the previous page.
+    this.periodicalChildren$.pipe(
+      filter(children => children?.length === 1),
+      filter(() => this.router.url.split('?')[0].includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}`)),
+      takeUntil(this.destroy$)
+    ).subscribe(children => {
+      this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, children[0].pid], { replaceUrl: true });
+    });
 
     if (this.availableYears$) {
       this.availableYears$.pipe(
@@ -541,7 +569,9 @@ export class PeriodicalService extends BaseFilterService {
         newView = hasSelectedYear ? ViewMode.GridIssues : ViewMode.GridYears;
         break;
       case 'calendar':
-        newView = hasSelectedYear ? ViewMode.Calendar : ViewMode.Timeline;
+        newView = hasSelectedYear
+          ? (this.canShowCalendar() ? ViewMode.Calendar : ViewMode.GridIssues)
+          : ViewMode.Timeline;
         break;
       case 'cards':
         newView = hasSelectedYear ? ViewMode.GridIssues : ViewMode.GridYears;

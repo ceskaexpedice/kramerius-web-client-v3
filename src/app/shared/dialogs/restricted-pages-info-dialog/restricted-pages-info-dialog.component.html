@@ -1,0 +1,29 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'restricted-pages-info-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <p>{{ 'restricted-pages-info-dialog--message' | translate }}</p>
+
+      <div class="dont-ask-again--container">
+        <mat-checkbox [(ngModel)]="dontShowAgain">
+          {{ 'restricted-pages-info-dialog--dont-show-again' | translate }}
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button tertiary outlined" (click)="onClose()">
+      {{ 'cancel-button' | translate }}
+    </button>
+    <button class="button primary" (click)="onClose()">
+      {{ 'ok-button' | translate }}
+    </button>
+  </div>
+</div>

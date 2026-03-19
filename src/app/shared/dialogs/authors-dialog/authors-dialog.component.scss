@@ -1,0 +1,65 @@
+.authors-dialog-container {
+
+  .dialog-body {
+    .content {
+      padding: 0 24px 24px;
+    }
+  }
+
+  .authors-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead tr {
+      border-bottom: 1px solid var(--color-border-light);
+
+      th {
+        text-align: left;
+        padding: 0 var(--spacing-x6) var(--spacing-x3) 0;
+        font-size: var(--font-size-small);
+        font-weight: 400;
+        color: var(--color-text-tertiary);
+      }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--color-border-light);
+
+      td {
+        padding: var(--spacing-x4) var(--spacing-x6) var(--spacing-x4) 0;
+        font-size: var(--font-size-small);
+        vertical-align: top;
+      }
+    }
+
+    .author-link {
+      color: var(--color-primary);
+      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .identifiers-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-x2);
+    }
+
+    .identifier-icon-link {
+      display: inline-flex;
+      align-items: center;
+      opacity: 0.85;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    .identifier-plain {
+      font-size: var(--font-size-small);
+    }
+  }
+}

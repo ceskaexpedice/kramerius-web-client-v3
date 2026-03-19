@@ -33,6 +33,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@schematics/angular": "^21.0.4",
+    "epubjs": "^0.3.93",
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "highlight.js": "^11.11.1",

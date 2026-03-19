@@ -22,13 +22,21 @@ export class LanguageBadgeComponent {
 
   @HostBinding('style.--badge-base-size') get badgeBaseSize() { return this.size + 'px'; }
 
+  flagError = false;
+
   get flagSrc(): string | null {
+    if (this.flagError) return null;
     if (this.src) return this.src;
     const code = languageMap[this.lang];
     return code ? `/img/flag/${code}.svg` : null;
   }
 
+  onFlagError(): void {
+    this.flagError = true;
+  }
+
   get label(): string {
-    return this.lang.slice(0, 2).toUpperCase();
+    const code = languageMap[this.lang];
+    return (code ?? this.lang.slice(0, 2)).toUpperCase();
   }
 }

@@ -1,11 +1,15 @@
 <div class="page--grid" [ngClass]="'type-' + type" *ngIf="(type === 'recording' ? detailViewService.pages$ : detailViewService.pagesOnly$) | async as pages">
 
-  @for (page of pages; track page.pid; let index = $index) {
+  @for (page of (type === 'recording' ? detailViewService.filterJpegPages(pages) : pages); track page.pid; let index = $index) {
     <app-detail-page-item
       [page]="page"
       [type]="type"
       [pageNumber]="page['page.number']"
       [isSelected]="detailViewService.isPageActiveByPid(page.pid)"
+      [isLocked]="detailViewService.isPageLocked(page.pid)"
+      [isUnlocked]="detailViewService.isPageUnlocked(page.pid)"
+      [isAccessible]="detailViewService.isDocumentRestrictedButAccessible()"
+      [lockStyle]="detailViewService.pageLockStyle()"
       (pageClicked)="clickedPage(page.pid)"
     >
     </app-detail-page-item>

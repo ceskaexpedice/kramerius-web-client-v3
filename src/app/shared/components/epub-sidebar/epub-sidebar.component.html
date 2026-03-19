@@ -1,0 +1,68 @@
+<div class="pdf-sidebar">
+  <div class="sidebar--wrapper">
+    <app-input
+      [placeholder]="'search-in-document--placeholder' | translate"
+      [theme]="'dark'"
+      [size]="'sm'"
+      [showMicButton]="true"
+      [showClearButton]="true"
+      (valueChange)="onSearchChange($event)"
+    ></app-input>
+
+    <hr>
+    
+    @if (epubService.searchQuery$ | async) {
+        <ng-container *ngIf="(epubService.searchResults$ | async) as results">
+          <app-search-navigation
+            [currentMatchNumber]="(epubService.currentMatchIndex$ | async) || 0"
+            [totalMatches]="results.length || 0"
+            [isSearching]="(epubService.isSearching$ | async) || false"
+            (previousMatch)="findPreviousMatch()"
+            (nextMatch)="findNextMatch()"
+          ></app-search-navigation>
+          <hr>
+        </ng-container>
+    } @else {
+
+      <app-page-navigator
+        [currentPage]="(epubService.currentPage$ | async) || 1"
+        [totalPages]="(epubService.totalPages$ | async) || 0"
+        (next)="goToNext()"
+        (prev)="goToPrevious()"
+        (pageChange)="goToPage($event)"
+      ></app-page-navigator>
+      <hr>
+
+      <!-- EPUB TOC Tree -->
+      <div class="toc-container">
+        @if ((epubService.toc$ | async); as toc) {
+          <ul class="articles--list toc-list">
+            <!-- Render TOC Items -->
+            <ng-container *ngTemplateOutlet="tocNodeTemplate; context: { $implicit: toc }"></ng-container>
+          </ul>
+          @if ($any(toc).length === 0) {
+            <div class="no-toc-msg">
+              No Table of Contents available.
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Recursive Template for nested TOC -->
+<ng-template #tocNodeTemplate let-nodes>
+  <li *ngFor="let node of nodes">
+    <app-detail-article-item
+      [article]="getArticleWrapper($any(node))"
+      [isSelected]="(epubService.activeHref$ | async) === $any(node).href"
+      (articleClicked)="navigateTo($any(node).href)"
+    ></app-detail-article-item>
+    
+    <!-- Render children if they exist -->
+    <ul class="articles--list toc-list indent" *ngIf="$any(node).subitems && $any(node).subitems.length > 0">
+      <ng-container *ngTemplateOutlet="tocNodeTemplate; context: { $implicit: $any(node).subitems }"></ng-container>
+    </ul>
+  </li>
+</ng-template>
