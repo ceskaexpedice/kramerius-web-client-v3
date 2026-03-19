@@ -119,6 +119,25 @@
   --icon-error: #FF3A30;
 
   --color-gray-500: #8099B3;
+
+  // Model tag background colors
+  --color-bg-tag-monograph: #a046ce;
+  --color-bg-tag-monograph-multivolume: #8b22bf;
+  --color-bg-tag-monographunit: #7a09b2;
+  --color-bg-tag-periodical: #00807c;
+  --color-bg-tag-periodicalitem: #005e5b;
+  --color-bg-tag-periodicalvolume: #005e5b;
+  --color-bg-tag-supplement: #00413f;
+  --color-bg-tag-article: #003331;
+  --color-bg-tag-sheetmusic: #6556d6;
+  --color-bg-tag-soundrecording: #5634a3;
+  --color-bg-tag-convolute: #0047aa;
+  --color-bg-tag-collection: #102f75;
+  --color-bg-tag-graphic: #b18e00;
+  --color-bg-tag-map: #95652d;
+  --color-bg-tag-archive: #884404;
+  --color-bg-tag-manuscript: #0089f9;
+  --color-bg-tag-page: #3c7ab9;
 }
 
 :root.dark {

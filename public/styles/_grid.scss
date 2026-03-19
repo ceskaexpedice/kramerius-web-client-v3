@@ -16,6 +16,16 @@
   overflow-x: hidden;
   max-width: 100%;
 
+  /* Mobile XS: single column */
+  @media (max-width: 407px) {
+    grid-template-columns: 1fr;
+  }
+
+  /* Mobile SM: 3 columns */
+  @media (min-width: 408px) and (max-width: 603px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   /* Tablet (No Sidebar): 5 cards */
   @media (min-width: 604px) and (max-width: 853px) {
     grid-template-columns: repeat(5, 1fr);

@@ -1,3 +1,5 @@
+@use 'mixins' as m;
+
 // Page Layout Components
 // Shared layout styles for full-height pages with sidebar and content areas
 
@@ -71,6 +73,10 @@
   width: 100%;
   align-items: center;
   gap: 1px;
+
+  @include m.respond(tablet-sm) {
+    border-top: 1px solid var(--color-border-light);
+  }
 
   &> :first-child {
     flex: 1;

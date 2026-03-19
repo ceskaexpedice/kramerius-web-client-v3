@@ -27,6 +27,7 @@
   --spacing-x05: 2px;
   --spacing-x1: 4px;
   --spacing-x2: 8px;
+  --spacing-x2-5: 10px;
   --spacing-x3: 12px;
   --spacing-x4: 16px;
   --spacing-x5: 20px;
@@ -35,6 +36,7 @@
   --spacing-x8: 32px;
   --spacing-x10: 40px;
   --spacing-x12: 48px;
+  --spacing-x16: 64px;
   --spacing-x24: 96px;
 
   --line-height-xs: calc(16px * var(--accessibility-text-scale));
@@ -56,6 +58,10 @@
   // Grid
   --card-min-width: 144px;
   --card-gap: 12px;
+
+  @media (max-width: 603px) {
+    --card-gap: var(--spacing-x2);
+  }
 
   // Standard Card (search results) - 144x303, with badge 144x335
   --card-width: 144px;
