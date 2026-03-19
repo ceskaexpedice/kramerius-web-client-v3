@@ -565,51 +565,20 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /**
    * Process IIIF info.json for use with OpenSeadragon:
-   * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
-   * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
-   * 3. Remove sizes array to prevent wrong tile grid calculation
+   * 1. Rewrite id/@id to point through our API proxy (prevents mixed content and unreachable internal URLs)
+   * 2. Remove sizes array to prevent wrong tile grid calculation
    */
   private processInfoJson(infoJson: any): void {
-    this.fixHttpUrls(infoJson);
+    const pid = this.imagePid || this.metadata?.uuid;
 
-    // For IIIF 3: if both 'id' and '@id' exist, remove 'id' to ensure
-    // OpenSeadragon uses '@id' (which points to the API server that proxies tiles)
-    // instead of 'id' (which points to imageserver not publicly accessible)
-    if (infoJson['id'] && infoJson['@id']) {
+    if (pid) {
+      const proxyBaseUrl = `${this.iiifViewerService.getBaseUrl()}/search/iiif/${pid}`;
+      infoJson['@id'] = proxyBaseUrl;
       delete infoJson['id'];
     }
 
-    // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
-    // as level dimensions instead of computing from actual width/height.
-    // When sizes.length coincidentally equals maxLevel+1 but doesn't include
-    // the full resolution, OSD only tiles a fraction of the image.
     if (infoJson.sizes && infoJson.tiles) {
       delete infoJson.sizes;
-    }
-  }
-
-  /**
-   * Fix HTTP URLs in IIIF info.json to use HTTPS (prevents mixed content errors)
-   * Recursively processes all string values in the JSON
-   * NOTE: Preserves @context and protocol fields as OpenSeadragon needs exact
-   * "http://iiif.io/api/image/..." patterns to identify IIIF tile sources
-   */
-  private fixHttpUrls(obj: any): void {
-    if (!obj || typeof obj !== 'object') return;
-
-    // Fields that OpenSeadragon checks for exact "http://..." patterns
-    const preserveFields = ['@context', 'protocol', 'profile'];
-
-    for (const key of Object.keys(obj)) {
-      // Skip IIIF spec fields that must remain as http://
-      if (preserveFields.includes(key)) continue;
-
-      const value = obj[key];
-      if (typeof value === 'string' && value.startsWith('http://')) {
-        obj[key] = value.replace('http://', 'https://');
-      } else if (typeof value === 'object') {
-        this.fixHttpUrls(value);
-      }
     }
   }
 
