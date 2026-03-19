@@ -46,11 +46,6 @@
       </div>
       }
 
-      @if (showModel && !loading && item) {
-      <app-model-badge [model]="item.model" [monographUnitCount]="item.monographUnitCount || 0">
-      </app-model-badge>
-      }
-
       @if (isRecordLocked() && !loading && item?.model !== DocumentTypeEnum.collection) {
       <div class="record-item-card__image-lock-overlay">
         <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}"
@@ -95,12 +90,36 @@
       <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
       }
 
+      @if (!loading && item) {
+      <div class="record-item-card__badges">
+        @if (showModel) {
+        <app-model-badge [model]="item.model" [monographUnitCount]="item.monographUnitCount || 0">
+        </app-model-badge>
+        }
+        @if (shouldShowAccessibilityBadge() && item?.model !== DocumentTypeEnum.collection) {
+        <div class="access-label">
+          <app-accessibility-badge [isLocked]="isRecordLocked()"
+            [licenses]="item?.licenses || []"></app-accessibility-badge>
+        </div>
+        }
+      </div>
+      }
+
     </div>
 
-    @if (shouldShowAccessibilityBadge() && !loading && item?.model !== DocumentTypeEnum.collection) {
-    <div class="access-label">
-      <app-accessibility-badge [isLocked]="isRecordLocked()"
-        [licenses]="item?.licenses || []"></app-accessibility-badge>
+    <!-- Mobile action column (visible only on xs screens) -->
+    @if (!loading && item?.model) {
+    <div class="record-item-card__mobile-actions">
+      <button class="button secondary rounded icon-button" *ngIf="shouldShowFavoriteButton()"
+        [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
+        aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+      </button>
+      <button class="button secondary rounded icon-button"
+        (click)="$event.stopPropagation(); $event.preventDefault()"
+        aria-label="{{'info' | translate}}" [title]="'info' | translate">
+        <i class="icon-info-circle"></i>
+      </button>
     </div>
     }
 

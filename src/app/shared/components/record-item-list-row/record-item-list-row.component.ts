@@ -11,6 +11,7 @@ import { SelectionService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
+import {ModelBadgeComponent} from '../model-badge/model-badge.component';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -23,6 +24,7 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
     PluralizePipe,
     ThumbnailImageComponent,
     LanguageBadgeComponent,
+    ModelBadgeComponent,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',

@@ -1,38 +1,54 @@
-@use "mixins" as *;
+@use "mixins" as m;
 
-// xs screen < 408px one single row as card
-@media (max-width: 408px) {
+// xs screen < 408px one single row as card (horizontal layout per Figma)
+@include m.respond(mobile-xs) {
   .record-item-card {
-    height: 140px;
+    height: 144px;
+    aspect-ratio: unset;
+    border-bottom: 1px solid var(--color-border-light);
+    border-radius: var(--base-border-radius);
+
+    &.with-badge {
+      aspect-ratio: unset;
+    }
 
     .record-item-card__inner {
-      flex-direction: row; // Horizontal layout
-      gap: var(--spacing-x3);
-      padding: var(--spacing-x3);
+      flex-direction: row;
+      gap: var(--spacing-x2);
+      padding: var(--spacing-x2-5);
     }
 
     .record-item-card__image {
-      // Fixed width for mobile, height auto
-      aspect-ratio: 100/152;
+      aspect-ratio: unset;
+      width: 91px;
       height: 100%;
       flex-shrink: 0;
+
+      // Hide hover actions on mobile — they move to the action column
+      .record-item-card__actions {
+        display: none;
+      }
     }
 
     .record-item-card__content {
-      height: auto; // Auto height in mobile
-      flex: 1; // Take remaining width
+      height: auto;
+      flex: 1;
+      min-width: 0;
       gap: var(--spacing-x1);
 
       .title {
         font-size: var(--font-size-base);
+        font-weight: 700;
         line-height: var(--line-height-1);
         -webkit-line-clamp: 3;
+        line-clamp: 3;
       }
 
       .subtitle {
         font-size: var(--font-size-small);
-        line-height: 1.1;
-        -webkit-line-clamp: 2;
+        line-height: var(--line-height-1);
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
       }
 
       .authors {
@@ -40,16 +56,46 @@
       }
     }
 
-    &.with-badge {
-
-      .access-label {
-        position: absolute; // Remove absolute positioning
-        right: var(--spacing-x3);
-        bottom: var(--spacing-x3);
-        left: auto;
-      }
-
+    // Access label inline within content on mobile
+    .access-label {
+      position: static;
+      margin-top: 0;
     }
 
+    &.with-badge .access-label {
+      position: static;
+      right: auto;
+      bottom: auto;
+      left: auto;
+    }
+
+    // Mobile action column — always visible, stacked vertically
+    .record-item-card__mobile-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 2px;
+      flex-shrink: 0;
+
+      .button {
+        width: 32px;
+        height: 32px;
+        padding: var(--spacing-x2);
+      }
+    }
+
+    &:hover {
+      border: 1px solid transparent;
+      border-bottom: 1px solid var(--color-border-light);
+      box-shadow: none;
+    }
+  }
+}
+
+// Show mobile actions only on mobile xs
+@media (min-width: 408px) {
+  .record-item-card .record-item-card__mobile-actions {
+    display: none;
   }
 }

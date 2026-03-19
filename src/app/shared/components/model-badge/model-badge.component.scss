@@ -1,40 +1,30 @@
-@use "_z-index.scss" as z;
-
 .badge.model {
-  background: var(--color-bg-base);
-  color: var(--color-text-base);
-  font-size: var(--font-size-xxsmall);
-  padding: 4px 6px;
-  border-radius: 0 4px 4px 0;
-  z-index: z.$record-item-overlay;
-  display: flex;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  line-height: 16px;
+  padding: 2px 4px;
+  border-radius: var(--spacing-x1);
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-x1);
+  white-space: nowrap;
+  color: var(--color-text-on-color);
 
-  i {
-    font-size: var(--font-size-small);
-  }
-
-  .icon-stack {
-    position: relative;
-    display: inline-block;
-    width: calc(16px * var(--accessibility-text-scale));
-    height: calc(14px * var(--accessibility-text-scale));
-
-    i {
-      position: absolute;
-      font-size: var(--font-size-small);
-      background-color: var(--color-bg-base);
-
-      &:first-child {
-        left: 0;
-        top: 0;
-      }
-
-      &:last-child {
-        left: calc(6px * var(--accessibility-text-scale));
-        top: 0;
-      }
-    }
-  }
+  &.monograph { background-color: var(--color-bg-tag-monograph); }
+  &.monograph-multivolume { background-color: var(--color-bg-tag-monograph-multivolume); }
+  &.monographunit { background-color: var(--color-bg-tag-monographunit); }
+  &.periodical { background-color: var(--color-bg-tag-periodical); }
+  &.periodicalitem { background-color: var(--color-bg-tag-periodicalitem); }
+  &.periodicalvolume { background-color: var(--color-bg-tag-periodicalvolume); }
+  &.supplement { background-color: var(--color-bg-tag-supplement); }
+  &.article { background-color: var(--color-bg-tag-article); }
+  &.sheetmusic { background-color: var(--color-bg-tag-sheetmusic); }
+  &.soundrecording { background-color: var(--color-bg-tag-soundrecording); }
+  &.convolute { background-color: var(--color-bg-tag-convolute); }
+  &.collection { background-color: var(--color-bg-tag-collection); }
+  &.graphic { background-color: var(--color-bg-tag-graphic); }
+  &.map { background-color: var(--color-bg-tag-map); }
+  &.archive { background-color: var(--color-bg-tag-archive); }
+  &.manuscript { background-color: var(--color-bg-tag-manuscript); }
+  &.page { background-color: var(--color-bg-tag-page); }
 }

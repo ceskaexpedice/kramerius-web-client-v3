@@ -1,8 +1,10 @@
 <div class="accessibility-badge--container" [ngClass]="'accessibility-' + accessibility">
 
-  <span>{{ 'accessibility-label-' + accessibility | translate }}</span>
+  @if (textOnly) {
+    <span>{{ 'accessibility-label-' + accessibility | translate }}</span>
+  }
 
-  @if (showIcon) {
+  @if (showIcon && !textOnly) {
   <i
     [class]="accessibility === 'public' ? 'icon-eye-public' : (accessibility === 'in_library' ? 'icon-in-house' : 'icon-locked')"></i>
   }
