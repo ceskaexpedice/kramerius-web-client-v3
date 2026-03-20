@@ -116,9 +116,9 @@
         <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
       </button>
       <button class="button tertiary outlined rounded icon-button"
-        (click)="$event.stopPropagation(); $event.preventDefault()"
+        (click)="onInfoClick($event)"
         aria-label="{{'info' | translate}}" [title]="'info' | translate">
-        <i class="icon-info-circle"></i>
+        <i class="icon-info"></i>
       </button>
     </div>
     }
@@ -133,4 +133,11 @@
     [showRemoveButton]="!!currentFolderId" (close)="favoritesPopupState.closePopup()">
   </app-favorites-popup>
 </div>
+}
+
+<!-- Mobile info bottom sheet -->
+@if (item && infoSheetOpen()) {
+<app-slide-up-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
+  <app-metadata-section [uuid]="item.id" [showTitle]="false"></app-metadata-section>
+</app-slide-up-panel>
 }

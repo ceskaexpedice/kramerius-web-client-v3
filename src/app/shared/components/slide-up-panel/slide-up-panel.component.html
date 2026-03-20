@@ -1,0 +1,26 @@
+<!-- Backdrop -->
+<div *ngIf="showBackdrop && (isRendered || isClosing)" class="slide-up-panel-backdrop"
+  [class.fade-out]="isClosing" (click)="onBackdropClick()"></div>
+
+<!-- Panel -->
+<div *ngIf="isOpen() || isClosing" class="slide-up-panel" [class.open]="isRendered"
+  [class.dragging]="isDragging" [class.expanded]="isExpanded" [style.height.vh]="currentHeight">
+
+  <!-- Drag handle -->
+  <div class="slide-up-panel__handle" (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)">
+    <span class="slide-up-panel__handle-bar"></span>
+  </div>
+
+  <!-- Header -->
+  <div *ngIf="title" class="slide-up-panel__header">
+    <h3 class="slide-up-panel__title">{{ title }}</h3>
+    <button class="slide-up-panel__close" (click)="close()" type="button">
+      <i class="icon-close"></i>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="slide-up-panel__content">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+@use "_z-index.scss" as *;
+
+:host {
+  display: contents;
+}
+
+.slide-up-panel-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: $slide-up-panel-backdrop;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in-out forwards;
+
+  &.fade-out {
+    animation: fadeOut 0.3s ease-in-out forwards;
+  }
+}
+
+.slide-up-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  background-color: var(--color-bg-base);
+  border-radius: var(--spacing-x3) var(--spacing-x3) 0 0;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+  z-index: $slide-up-panel;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+
+  &.open {
+    transform: translateY(0);
+  }
+
+  &.dragging {
+    transition: none;
+  }
+}
+
+// Drag handle
+.slide-up-panel__handle {
+  grid-row: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.slide-up-panel__handle-bar {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--icon-grey);
+}
+
+// Header
+.slide-up-panel__header {
+  grid-row: 2;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  padding: 0 var(--spacing-x3);
+}
+
+.slide-up-panel__title {
+  margin: 0;
+  font-size: var(--font-size-large);
+  font-weight: 600;
+}
+
+.slide-up-panel__close {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--font-size-xxlarge);
+  color: var(--color-icon-tertiary-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Content
+.slide-up-panel__content {
+  padding: var(--spacing-x3) var(--spacing-x3) var(--spacing-x5) var(--spacing-x3);
+  grid-row: 3;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -18,6 +18,8 @@ import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
+import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
+import { MetadataSection } from '../metadata-section/metadata-section';
 
 @Component({
   selector: 'app-record-item',
@@ -31,6 +33,8 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
     NgIf,
     ModelBadgeComponent,
     ThumbnailImageComponent,
+    SlideUpPanelComponent,
+    MetadataSection,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -64,6 +68,9 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     showAccessibilityBadge: false
   };
   @Input() currentFolderId?: string;
+
+  // Mobile info bottom sheet
+  infoSheetOpen = signal(false);
 
   router = inject(Router);
 
@@ -168,6 +175,12 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
       }
     );
+  }
+
+  onInfoClick(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.infoSheetOpen.set(true);
   }
 
   // Helper methods
