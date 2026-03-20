@@ -94,8 +94,14 @@
   padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x2) 0;
   width: 100%;
 
-  @media (max-width: 603px) {
+  @include m.respond(mobile-sm) {
     padding-left: var(--spacing-x2);
     padding-right: var(--spacing-x2);
+
+    app-selected-tags {
+      display: block;
+      max-height: 12vh;
+      overflow-y: auto;
+    }
   }
 }

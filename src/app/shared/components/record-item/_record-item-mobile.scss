@@ -2,7 +2,7 @@
 
 // xs screen < 408px one single row as card (horizontal layout per Figma)
 @include m.respond(mobile-xs) {
-  .record-item-card {
+  .record-item-card:not(.vertical) {
     height: 144px;
     aspect-ratio: unset;
     border-bottom: 1px solid var(--color-border-light);
@@ -93,7 +93,11 @@
   }
 }
 
-// Show mobile actions only on mobile xs
+// Show mobile actions only on mobile xs (not on forced-vertical cards)
+.record-item-card.vertical .record-item-card__mobile-actions {
+  display: none;
+}
+
 @media (min-width: 408px) {
   .record-item-card .record-item-card__mobile-actions {
     display: none;
