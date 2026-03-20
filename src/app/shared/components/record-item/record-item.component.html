@@ -138,6 +138,6 @@
 <!-- Mobile info bottom sheet -->
 @if (item && infoSheetOpen()) {
 <app-slide-up-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
-  <app-metadata-section [uuid]="item.id" [showTitle]="false"></app-metadata-section>
+  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()" [showTitle]="false"></app-metadata-section>
 </app-slide-up-panel>
 }

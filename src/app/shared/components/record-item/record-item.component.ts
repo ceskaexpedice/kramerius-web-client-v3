@@ -10,13 +10,14 @@ import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.comp
 import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
 import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { Observable, EMPTY } from 'rxjs';
+import { Observable, EMPTY, take } from 'rxjs';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
+import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
@@ -71,6 +72,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   // Mobile info bottom sheet
   infoSheetOpen = signal(false);
+  infoSheetMetadata = signal<Metadata | null>(null);
 
   router = inject(Router);
 
@@ -180,7 +182,14 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   onInfoClick(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    this.infoSheetOpen.set(true);
+    if (!this.item) return;
+
+    this.solrService.getDetailItem(this.item.id).pipe(take(1)).subscribe(solrDoc => {
+      if (solrDoc) {
+        this.infoSheetMetadata.set(fromSolrToMetadata(solrDoc));
+      }
+      this.infoSheetOpen.set(true);
+    });
   }
 
   // Helper methods
