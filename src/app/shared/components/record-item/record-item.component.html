@@ -98,7 +98,7 @@
         }
         @if (shouldShowAccessibilityBadge() && item?.model !== DocumentTypeEnum.collection) {
         <div class="access-label">
-          <app-accessibility-badge [isLocked]="isRecordLocked()"
+          <app-accessibility-badge [isLocked]="isRecordLocked()" [showText]="!showModel" [showIcon]="true"
             [licenses]="item?.licenses || []"></app-accessibility-badge>
         </div>
         }
@@ -110,12 +110,12 @@
     <!-- Mobile action column (visible only on xs screens) -->
     @if (!loading && item?.model) {
     <div class="record-item-card__mobile-actions">
-      <button class="button secondary rounded icon-button" *ngIf="shouldShowFavoriteButton()"
+      <button class="button tertiary outlined rounded icon-button" *ngIf="shouldShowFavoriteButton()"
         [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
         aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
         <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
       </button>
-      <button class="button secondary rounded icon-button"
+      <button class="button tertiary outlined rounded icon-button"
         (click)="$event.stopPropagation(); $event.preventDefault()"
         aria-label="{{'info' | translate}}" [title]="'info' | translate">
         <i class="icon-info-circle"></i>

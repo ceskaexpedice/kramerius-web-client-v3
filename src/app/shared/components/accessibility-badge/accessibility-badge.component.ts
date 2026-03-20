@@ -23,7 +23,7 @@ export class AccessibilityBadgeComponent {
   @Input() isLocked = false;
   @Input() showIcon = true;
   @Input() licenses: string[] = [];
-  @Input() textOnly = false;
+  @Input() showText = false;
 
   get accessibility() {
     return this.recordHandler.getRecordLicenseForBadge(this.licenses);

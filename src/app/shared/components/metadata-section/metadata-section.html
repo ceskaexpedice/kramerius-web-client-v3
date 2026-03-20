@@ -42,8 +42,10 @@
   </app-metadata-section-item>
 
   <!-- Document Type -->
-  <app-metadata-section-item *ngIf="data.model" [label]="'model' | translate" type="badge" [value]="data.model"
-    [onItemClick]="clickedDocumentType">
+  <app-metadata-section-item *ngIf="data.model" [label]="'model' | translate" [onItemClick]="clickedDocumentType">
+    <div metadata-section-item-content>
+      <app-model-badge [model]="$any(data.model)"></app-model-badge>
+    </div>
   </app-metadata-section-item>
 
   <!-- Accessibility -->
