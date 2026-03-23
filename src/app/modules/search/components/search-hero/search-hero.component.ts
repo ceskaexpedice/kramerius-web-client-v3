@@ -10,6 +10,7 @@ import {
   SuggestedSearchTagsSectionComponent
 } from '../suggested-search-tags-section/suggested-search-tags-section.component';
 import {UiStateService} from '../../../../shared/services/ui-state.service';
+import {BreakpointService} from '../../../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-search-hero',
@@ -31,6 +32,8 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
   private configService = inject(ConfigService);
   private uiState = inject(UiStateService);
   private el = inject(ElementRef);
+
+  breakpointService = inject(BreakpointService);
 
   heroTitle = '';
   showSuggestedTags = this.configService.suggestedTags.length > 0;

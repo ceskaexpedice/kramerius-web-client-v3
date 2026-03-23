@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effec
 import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../services/user.service';
-import {CdkTooltipDirective} from '../../directives';
+import { CdkTooltipDirective } from '../../directives';
+import { MenuComponent, MenuItem } from '../menu/menu.component';
 
 export type CalendarGridControl = 'timeline' | 'grid' | 'calendar' | 'cards';
 export type SoundRecordGridControl = 'records' | 'images';
@@ -35,6 +36,7 @@ export interface ToolbarActionEvent {
     TranslatePipe,
     NgClass,
     CdkTooltipDirective,
+    MenuComponent,
   ],
   templateUrl: './toolbar-controls.component.html',
   styleUrl: './toolbar-controls.component.scss'
@@ -59,6 +61,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showEdit = false;
   @Input() showSelect = false;
   @Input() themeDefault = false;
+  @Input() mobileMenuMode = false;
 
   // Legacy outputs - maintained for backward compatibility
   @Output() favoritesClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -73,6 +76,16 @@ export class ToolbarControlsComponent implements OnChanges {
 
   // Memoized merged actions - only recalculated when inputs change
   mergedActions: ToolbarAction[] = [];
+
+  // Menu items for mobile menu mode (converted from mergedActions)
+  get menuItems(): MenuItem[] {
+    return this.mergedActions.map(a => ({
+      id: a.id,
+      label: a.tooltip || a.label || a.id,
+      icon: a.icon.replace('icon-', ''),
+      disabled: a.disabled,
+    }));
+  }
 
   private userService = inject(UserService);
 
@@ -198,6 +211,13 @@ export class ToolbarControlsComponent implements OnChanges {
 
   onDownload() {
     this.downloadClicked.emit();
+  }
+
+  onMenuItemSelected(item: MenuItem) {
+    const action = this.mergedActions.find(a => a.id === item.id);
+    if (action) {
+      this.onActionClick(action, new Event('click'));
+    }
   }
 
 }

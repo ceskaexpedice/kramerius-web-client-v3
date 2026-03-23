@@ -14,6 +14,7 @@ export interface FacetItem {
   type?: 'radio' | 'checkbox';
   tooltipIcon?: string;
   tooltipText?: string;
+  colorDot?: string;
 }
 
 export interface FacetGroup {

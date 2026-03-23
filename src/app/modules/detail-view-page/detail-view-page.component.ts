@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -24,6 +24,9 @@ import { UserService } from '../../shared/services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { SearchService } from '../../shared/services/search.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -47,6 +50,19 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public userService = inject(UserService);
   private dialog = inject(MatDialog);
   private dontShowAgainService = inject(DontShowAgainService);
+  public breakpointService = inject(BreakpointService);
+  public searchService = inject(SearchService);
+
+  // Mobile nav bar
+  mobileNavItemsBase: MobileNavItem[] = [
+    { id: 'description', label: 'description', icon: 'icon-note' },
+    { id: 'pages', label: 'pages--tab', icon: 'icon-simcard-2' },
+    { id: 'export', label: 'export', icon: 'icon-download' },
+  ];
+  mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'search', icon: 'icon-receipt-search' };
+  hasSearchResults = signal(false);
+  mobileActivePanel = signal<string>('');
+  mobileSlideUpOpen = signal(false);
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
@@ -98,6 +114,12 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.detailViewService.loadDocument();
 
     this.subscriptions.push(
+      this.searchService.totalCount$.subscribe(count => {
+        this.hasSearchResults.set(count > 0);
+      })
+    );
+
+    this.subscriptions.push(
       this.detailViewService.pages$.subscribe(pages => {
         if (pages && pages.length > 0) {
           const pageItems = pages.map(page => ({
@@ -139,6 +161,43 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl;
+  }
+
+  get mobileNavItems(): MobileNavItem[] {
+    if (this.hasSearchResults()) {
+      return [...this.mobileNavItemsBase, this.mobileSearchNavItem];
+    }
+    return this.mobileNavItemsBase;
+  }
+
+  getMobilePanelTitle(): string {
+    const item = this.mobileNavItems.find(i => i.id === this.mobileActivePanel());
+    return item ? this.translate.instant(item.label) : '';
+  }
+
+  onMobileNavChange(id: string) {
+    if (this.mobileActivePanel() === id && this.mobileSlideUpOpen()) {
+      // Tapping the same tab closes the panel
+      this.mobileSlideUpOpen.set(false);
+      this.mobileActivePanel.set('');
+    } else {
+      // Open the panel if it's a different tab, or if panel is closed
+      if (id === 'pages') {
+        // Pages uses filter-sidebar slide-up
+        this.mobileSlideUpOpen.set(false);
+        this.mobileActivePanel.set(id);
+        this.breakpointService.manualToggle.set(true);
+      } else {
+        this.breakpointService.manualToggle.set(false);
+        this.mobileActivePanel.set(id);
+        this.mobileSlideUpOpen.set(true);
+      }
+    }
+  }
+
+  onMobileSlideUpClosed() {
+    this.mobileSlideUpOpen.set(false);
+    this.mobileActivePanel.set('');
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

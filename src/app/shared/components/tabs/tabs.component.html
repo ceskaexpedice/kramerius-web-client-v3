@@ -1,5 +1,5 @@
-<div class="tabs-header">
-  @for (tab of tabs; track tab; let i = $index) {
+<div class="tabs-header" [class.bg-base]="headerBackground === 'base'" [class.bg-light]="headerBackground === 'light'">
+  @for (tab of tabs(); track tab; let i = $index) {
     <button
       class="tab-button"
       [class.active]="i === activeTabIndex()"
@@ -19,11 +19,11 @@
   <ng-content select="[tab-common-up]"></ng-content>
 </div>
 
-@if (tabs.length) {
+@if (tabs().length) {
 
   <div class="tabs-content" [class.no-padding]="noPadding">
     <ng-container
-      *ngTemplateOutlet="tabs[activeTabIndex()]?.content || null">
+      *ngTemplateOutlet="tabs()[activeTabIndex()]?.content || null">
     </ng-container>
   </div>
 

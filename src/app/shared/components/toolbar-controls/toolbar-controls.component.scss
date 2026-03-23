@@ -1,10 +1,9 @@
 .toolbar-controls {
   display: flex;
   align-items: center;
-  //padding: 0 var(--spacing-x2) ;
   gap: var(--spacing-x2);
   height: var(--toolbar-height);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .toggle--container {
@@ -69,5 +68,12 @@
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+  }
+}
+
+// Mobile menu mode
+.mobile-menu-trigger {
+  &.active {
+    background: var(--color-primary-pressed);
   }
 }

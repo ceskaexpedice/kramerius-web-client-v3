@@ -40,6 +40,15 @@
       margin-right: calc(var(--spacing-x3) * -1);
     }
 
+    app-periodicals-section,
+    app-books-section,
+    app-genres-section,
+    app-document-types-section,
+    app-local-records-section,
+    app-local-categories-section {
+      margin-bottom: var(--spacing-x16);
+    }
+
     app-footer {
       margin-left: calc(var(--spacing-x3) * -1);
       margin-right: calc(var(--spacing-x3) * -1);

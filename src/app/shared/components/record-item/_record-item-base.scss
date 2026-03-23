@@ -1,4 +1,5 @@
 @use "_z-index.scss" as z;
+@use "mixins" as m;
 
 .record-item-card {
   position: relative;
@@ -106,13 +107,6 @@
       }
     }
 
-    app-model-badge {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      z-index: 1;
-    }
-
     .record-item-card__actions {
       position: absolute;
       top: 8px;
@@ -185,6 +179,7 @@
   .record-item-card__content {
     display: flex;
     flex-direction: column;
+    flex: 1;
     gap: var(--spacing-x1);
     color: var(--color-text-base);
     min-height: 0;
@@ -252,9 +247,26 @@
     }
   }
 
+  .record-item-card__badges {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    flex-shrink: 0;
+    gap: var(--spacing-x2);
+
+    app-model-badge {
+      position: static;
+    }
+
+    @include m.respond(mobile-xs) {
+      gap: var(--spacing-x2);
+      justify-content: flex-start;
+    }
+  }
+
   .access-label {
     display: inline-flex;
-    margin-top: auto;
     flex-shrink: 0;
   }
 

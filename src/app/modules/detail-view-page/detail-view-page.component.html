@@ -1,5 +1,7 @@
-<app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true" [showRightSidebar]="true"
-  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
+<app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true"
+  [showRightSidebar]="!breakpointService.isMobile()"
+  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible"
+  [hideFilterToggle]="breakpointService.isMobile()">
 
   <!--  <ng-container left-sidebar>-->
 
@@ -162,7 +164,8 @@
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
-              [showInfo]="false" [showEdit]="true" (infoClicked)="detailViewService.openRecordInfo()"
+              [showInfo]="false" [showEdit]="true" [mobileMenuMode]="breakpointService.isMobile()"
+              (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (editClicked)="selectionService.toggleSelectionMode()" (favoritesClicked)="onFavoritesClicked($event)"
@@ -218,7 +221,7 @@
           }
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible) {
+        @if (!detailViewService.metadataSidebarVisible && !breakpointService.isMobile()) {
         <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-info-full"></i>
@@ -266,6 +269,43 @@
   <!--  </ng-container>-->
 
 </app-detail-layout>
+
+<!-- Mobile navigation bar -->
+@if (breakpointService.isMobile()) {
+  <app-mobile-nav-bar
+    [items]="mobileNavItems"
+    [activeId]="mobileActivePanel()"
+    (activeIdChange)="onMobileNavChange($event)">
+  </app-mobile-nav-bar>
+
+  <!-- Mobile slide-up panels -->
+  @if (detailViewService.document$ | async; as document) {
+    <!-- Description panel -->
+    <app-slide-up-panel
+      [title]="getMobilePanelTitle()"
+      [(isOpen)]="mobileSlideUpOpen"
+      (closed)="onMobileSlideUpClosed()"
+      [initialHeight]="60"
+      [maxHeight]="90">
+      @switch (mobileActivePanel()) {
+        @case ('description') {
+          <app-metadata-section [showTitle]="true" [metadata]="document"
+            [uuid]="detailViewService.document?.uuid || document.uuid || ''">
+          </app-metadata-section>
+        }
+        @case ('export') {
+          <app-export-document-section-component
+            [pagePid]="detailViewService.currentPagePid || null">
+          </app-export-document-section-component>
+        }
+        @case ('results') {
+          <app-search-results-sidebar [currentDocument]="document">
+          </app-search-results-sidebar>
+        }
+      }
+    </app-slide-up-panel>
+  }
+}
 
 <app-dnnto-bar></app-dnnto-bar>
 

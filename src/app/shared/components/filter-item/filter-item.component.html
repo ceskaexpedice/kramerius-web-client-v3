@@ -25,6 +25,8 @@
   <span class="icon icon--flag" [class.active]="checked">
     <app-language-badge [size]="20" [lang]="langCode" [src]="icon" [rounded]="true" [active]="checked"></app-language-badge>
   </span>
+  } @else if (colorDot) {
+  <span class="color-dot" [class.active]="checked" [style.--dot-color]="colorDot"></span>
   } @else if (icon) {
   <span class="icon" [class.active]="checked">
     <i [ngClass]="[icon, itemIconClass || '']"></i>

@@ -125,3 +125,17 @@ app-viewer-controls {
 app-document-access-denied {
   margin: var(--spacing-x4);
 }
+
+app-mobile-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+:host:has(app-mobile-nav-bar) {
+  app-detail-layout {
+    --mobile-nav-bar-height: 60px;
+  }
+}

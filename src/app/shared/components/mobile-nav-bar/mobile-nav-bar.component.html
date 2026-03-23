@@ -1,0 +1,12 @@
+<nav class="mobile-nav-bar">
+    @for (item of items; track item.id) {
+        <button class="mobile-nav-bar__tab"
+            [class.active]="item.id === activeId"
+            (click)="selectTab(item.id)">
+            <span class="mobile-nav-bar__icon-wrapper">
+                <i [ngClass]="item.icon"></i>
+            </span>
+            <span class="mobile-nav-bar__label">{{ item.label | translate }}</span>
+        </button>
+    }
+</nav>

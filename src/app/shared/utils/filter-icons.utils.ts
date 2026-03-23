@@ -37,6 +37,33 @@ export function getModelIcon(model: DocumentTypeEnum | string, monographUnitCoun
   }
 }
 
+const modelColors: Record<string, string> = {
+  [DocumentTypeEnum.monograph]: 'var(--color-bg-tag-monograph)',
+  [DocumentTypeEnum['monograph-multivolume']]: 'var(--color-bg-tag-monograph-multivolume)',
+  [DocumentTypeEnum.monographunit]: 'var(--color-bg-tag-monographunit)',
+  [DocumentTypeEnum.periodical]: 'var(--color-bg-tag-periodical)',
+  [DocumentTypeEnum.periodicalitem]: 'var(--color-bg-tag-periodicalitem)',
+  [DocumentTypeEnum.periodicalvolume]: 'var(--color-bg-tag-periodicalvolume)',
+  [DocumentTypeEnum.supplement]: 'var(--color-bg-tag-supplement)',
+  [DocumentTypeEnum.article]: 'var(--color-bg-tag-article)',
+  [DocumentTypeEnum.sheetmusic]: 'var(--color-bg-tag-sheetmusic)',
+  [DocumentTypeEnum.soundrecording]: 'var(--color-bg-tag-soundrecording)',
+  [DocumentTypeEnum.convolute]: 'var(--color-bg-tag-convolute)',
+  [DocumentTypeEnum.collection]: 'var(--color-bg-tag-collection)',
+  [DocumentTypeEnum.graphic]: 'var(--color-bg-tag-graphic)',
+  [DocumentTypeEnum.map]: 'var(--color-bg-tag-map)',
+  [DocumentTypeEnum.archive]: 'var(--color-bg-tag-archive)',
+  [DocumentTypeEnum.manuscript]: 'var(--color-bg-tag-manuscript)',
+  [DocumentTypeEnum.page]: 'var(--color-bg-tag-page)',
+};
+
+/**
+ * Get color CSS variable for document model/type (used for colored dots in filters)
+ */
+export function getModelColor(model: string): string | null {
+  return modelColors[model.toLowerCase()] || null;
+}
+
 /**
  * Get flag icon path for language code
  * Handles both ISO 639-1 (2-letter) and ISO 639-2/B (3-letter) codes

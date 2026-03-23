@@ -14,6 +14,7 @@ import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
+import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
 import { LibraryContextService } from '../../services/library-context.service';
 import { DocumentInfoService } from '../../services/document-info.service';
@@ -33,6 +34,7 @@ import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dia
     CollapsibleContent,
     AccessibilityBadgeComponent,
     LicenseBadgeComponent,
+    ModelBadgeComponent,
     RouterLink
   ],
   templateUrl: './metadata-section.html',

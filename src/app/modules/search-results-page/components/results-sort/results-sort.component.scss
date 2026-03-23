@@ -1,7 +1,14 @@
+@use "mixins" as m;
+
 :host {
-  //background-color: var(--color-bg-base);
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  flex-shrink: 1;
+
+  @include m.respond(md) {
+    max-width: 130px;
+  }
 }

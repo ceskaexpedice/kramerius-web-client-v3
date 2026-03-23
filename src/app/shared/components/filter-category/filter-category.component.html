@@ -37,6 +37,7 @@
           <app-filter-item [label]="item.name" [facetKey]="facetKey" [checked]="isSelected(item.name)" [icon]="item.icon || null"
             [langCode]="facetKey === 'languages.facet' ? item.name : null"
             [itemIconClass]="item.iconClass" [count]="item.count" [truncateLabel]="false"
+            [colorDot]="item.colorDot || null"
             (toggled)="onToggle(item.name)"></app-filter-item>
         </ng-container>
       </ng-container>

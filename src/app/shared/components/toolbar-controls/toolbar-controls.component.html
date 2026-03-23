@@ -12,19 +12,29 @@
     </div>
   </ng-container>
 
-  <!-- Configuration-based action buttons -->
-  <button
-    *ngFor="let action of mergedActions; trackBy: trackByActionId"
-    class="icon-button"
-    [ngClass]="themeDefault ? 'outlined tertiary' : 'primary'"
-    [class.disabled]="action.disabled"
-    [disabled]="action.disabled"
-    [title]="action.tooltip | translate"
-    [appCdkTooltip]="action.tooltip | translate"
-    [attr.aria-label]="action.label"
-    (click)="onActionClick(action, $event)"
-  >
-    <i [class]="action.icon"></i>
-  </button>
+  @if (mobileMenuMode && mergedActions.length > 0) {
+    <!-- Mobile: single "more" button with dropdown menu -->
+    <app-menu [items]="menuItems" placement="bottom-end" [customTrigger]="true" (select)="onMenuItemSelected($event)">
+      <button menuTrigger class="icon-button primary mobile-menu-trigger"
+        aria-label="More actions">
+        <i class="icon-more-vertical"></i>
+      </button>
+    </app-menu>
+  } @else {
+    <!-- Desktop: individual action buttons -->
+    <button
+      *ngFor="let action of mergedActions; trackBy: trackByActionId"
+      class="icon-button"
+      [ngClass]="themeDefault ? 'outlined tertiary' : 'primary'"
+      [class.disabled]="action.disabled"
+      [disabled]="action.disabled"
+      [title]="action.tooltip | translate"
+      [appCdkTooltip]="action.tooltip | translate"
+      [attr.aria-label]="action.label"
+      (click)="onActionClick(action, $event)"
+    >
+      <i [class]="action.icon"></i>
+    </button>
+  }
 
 </div>

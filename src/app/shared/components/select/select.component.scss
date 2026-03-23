@@ -8,6 +8,8 @@ $filter-height: 44px;
   display: inline-block;
   position: relative;
   font-size: var(--font-size-base);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .select-wrapper {
@@ -21,6 +23,12 @@ $filter-height: 44px;
   justify-content: space-between;
   user-select: none;
   outline: none;
+  white-space: nowrap;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &.size-sm {
     font-size: var(--font-size-small);
