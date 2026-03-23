@@ -1,7 +1,7 @@
 <!-- Sidebar toggle button for mobile/tablet -->
-<button *ngIf="!breakpointService.sidebarVisible() && !breakpointService.isVisible()" class="sidebar-toggle-btn"
-  [class.left]="toggleButtonPosition === 'left'" (click)="breakpointService.toggleSidebar()"
-  [attr.aria-label]="'open-filters' | translate">
+<button *ngIf="!hideToggleButton && !breakpointService.sidebarVisible() && !breakpointService.isVisible()"
+  class="sidebar-toggle-btn" [class.left]="toggleButtonPosition === 'left'"
+  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'open-filters' | translate">
   <i [class]="toggleButtonIcon"></i>
 </button>
 

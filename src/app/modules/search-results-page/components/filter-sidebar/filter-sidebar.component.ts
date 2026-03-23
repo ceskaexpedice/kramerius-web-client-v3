@@ -27,6 +27,7 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
   @Input() dimmed = false;
   @Input() toggleButtonPosition: 'left' | 'right' = 'right';
   @Input() toggleButtonIcon: string = 'icon-filter';
+  @Input() hideToggleButton = false;
 
   // Resize hide state
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;
