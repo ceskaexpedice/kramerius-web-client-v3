@@ -97,6 +97,14 @@ h3 {
   }
 }
 
+// On mobile, when tabs are shown: no gap, no side padding on wrapper so tabs stretch full width
+@include m.respond(md) {
+  .page-content__wrapper:has(app-tabs) {
+    padding: 0;
+    gap: 0;
+  }
+}
+
 app-advanced-search-indicator {
   margin-bottom: var(--spacing-x4);
 }

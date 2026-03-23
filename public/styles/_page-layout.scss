@@ -55,9 +55,9 @@
   gap: var(--spacing-x3);
 
   /* Mobile adjustments */
-  @media (max-width: 603px) {
-    padding: var(--spacing-x2);
-    gap: var(--spacing-x2);
+  @include m.respond(mobile-sm) {
+    padding: var(--spacing-x3);
+    gap: var(--spacing-x3);
   }
 
   &.wrapper--no-top-padding {
