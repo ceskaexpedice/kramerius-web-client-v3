@@ -55,10 +55,13 @@ export class MenuComponent {
   select = output<MenuItem>();
   openedChange = output<boolean>();
 
+  // Custom trigger
+  customTrigger = input(false);
+
   // Local state
   open = signal(false);
 
-  @ViewChild('trigger') private triggerEl!: ElementRef;
+  @ViewChild('trigger') triggerEl!: ElementRef;
   @ViewChildren('menuItem', { read: ElementRef }) private itemEls!: QueryList<ElementRef<HTMLButtonElement>>;
 
   // Keep overlay positions in sync with placement input

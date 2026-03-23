@@ -3,6 +3,11 @@
   position: relative;
 }
 
+.custom-trigger {
+  display: inline-flex;
+  cursor: pointer;
+}
+
 .menu-trigger {
   display: inline-flex;
   align-items: center;
