@@ -11,4 +11,15 @@
         width: 32px;
         height: 32px;
     }
+
+    .btn-cancel {
+        background-color: var(--color-error);
+        color: #fff;
+        border-color: transparent;
+
+        &:hover {
+            background-color: var(--color-error);
+            opacity: 0.85;
+        }
+    }
 }
