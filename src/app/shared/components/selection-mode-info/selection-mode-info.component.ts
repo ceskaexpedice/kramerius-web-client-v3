@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, inject, Output, EventEmitter, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-again.service';
@@ -11,10 +11,7 @@ import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-
   styleUrl: './selection-mode-info.component.scss'
 })
 export class SelectionModeInfoComponent implements OnInit {
-  @Input() hasSelection = false;
-
   @Output() editSelection = new EventEmitter<void>();
-  @Output() cancelSelection = new EventEmitter<void>();
 
   private dontShowAgainService = inject(DontShowAgainService);
 
@@ -28,11 +25,6 @@ export class SelectionModeInfoComponent implements OnInit {
   onEditSelection(): void {
     this.saveDontShowPreference();
     this.editSelection.emit();
-  }
-
-  onCancelSelection(): void {
-    this.saveDontShowPreference();
-    this.cancelSelection.emit();
   }
 
   onDontShowAgainChange(checked: boolean): void {

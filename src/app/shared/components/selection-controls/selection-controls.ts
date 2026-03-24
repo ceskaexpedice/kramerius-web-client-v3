@@ -13,6 +13,7 @@ export class SelectionControls {
     @Output() text = new EventEmitter<void>();
     @Output() export = new EventEmitter<void>();
     @Output() share = new EventEmitter<void>();
+    @Output() cancel = new EventEmitter<void>();
 
     private configService = inject(ConfigService);
 
@@ -27,6 +28,10 @@ export class SelectionControls {
 
     get showShare(): boolean {
         return this.configService.isSelectionControlEnabled('share');
+    }
+
+    onCancel() {
+        this.cancel.emit();
     }
 
     onText() {

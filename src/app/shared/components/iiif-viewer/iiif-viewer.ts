@@ -729,6 +729,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
   }
 
+  onSelectionCancel() {
+    this.iiifViewerService.setSelectionMode(false);
+  }
+
   /**
    * Check if viewer is at base zoom level (not zoomed in)
    */
