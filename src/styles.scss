@@ -50,7 +50,8 @@ body {
 
 app-header {
   display: block;
-  transition: transform 0.3s ease-in-out;
+  // Header slides up AND collapses from flow simultaneously over 300ms
+  transition: transform 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
   will-change: transform;
   position: relative;
   z-index: 1000;
@@ -59,11 +60,12 @@ app-header {
 body.header-hidden {
   app-header {
     transform: translateY(-100%);
+    margin-bottom: calc(-1 * var(--header-height));
   }
 }
 
 .page-content__filters {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
   will-change: transform;
 }
 

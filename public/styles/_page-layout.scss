@@ -6,11 +6,9 @@
 .page-container {
   height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
-  transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
-  will-change: transform;
+  transition: height 0.3s ease-in-out;
 
   body.header-hidden & {
-    transform: translateY(calc(-1 * var(--header-height)));
     height: calc(100vh - var(--playback-bar-height, 0px));
   }
 
