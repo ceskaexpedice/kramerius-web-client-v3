@@ -82,11 +82,33 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
                 distinctUntilChanged()
             ).subscribe((shouldShow) => {
                 this.lastDirection = shouldShow;
-                // Start cooldown — ignore scroll events caused by the header transition
                 this.cooldownUntil = Date.now() + this.COOLDOWN_MS;
+
+                // Measure filter height before toggle for scroll compensation.
+                // The filter's margin-bottom changes instantly (no CSS transition),
+                // which shifts the scroll container's top edge. We adjust scrollTop
+                // to cancel out that shift so the visible content doesn't jump.
+                const filterEl = el.parentElement?.querySelector('.page-content__filters') as HTMLElement | null;
+                const filterHeight = filterEl ? filterEl.offsetHeight : 0;
+
                 this.zone.run(() => {
                     this.uiState.setHeaderVisibility(shouldShow);
                 });
+
+                // Compensate scroll position for the instant filter collapse/expansion
+                if (filterHeight > 0) {
+                    // Force browser to apply pending CSS changes
+                    void el.offsetHeight;
+                    if (!shouldShow) {
+                        el.scrollTop += filterHeight;
+                    } else {
+                        el.scrollTop = Math.max(0, el.scrollTop - filterHeight);
+                    }
+                }
+
+                // Update tracking so the compensation isn't detected as a scroll event
+                this.lastScrollTop = el.scrollTop;
+                this.directionAnchor = el.scrollTop;
             });
         });
     }
