@@ -116,6 +116,13 @@
         "cs": "local-config/html/gdpr/gdpr.cs.html",
         "en": "local-config/html/gdpr/gdpr.en.html"
       }
+    },
+    {
+      "id": "faq",
+      "content": {
+        "cs": "local-config/html/faq/faq.cs.html",
+        "en": "local-config/html/faq/faq.en.html"
+      }
     }
   ]
 }
