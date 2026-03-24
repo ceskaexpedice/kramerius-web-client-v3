@@ -26,6 +26,10 @@ h2.title {
   flex: 1;
   min-width: 0;
   cursor: default;
+
+  &.cursor-pointer {
+    cursor: pointer;
+  }
 }
 
 .header-actions {
