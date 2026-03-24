@@ -53,8 +53,17 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
     this.searchService.initialize();
 
-    this.noResults$ = this.searchService.loading$.pipe(
-      map(loading => !loading && this.searchService.totalCount === 0 && !!this.searchService.submittedTerm)
+    this.noResults$ = combineLatest([
+      this.searchService.loading$,
+      this.searchService.selectedTags
+    ]).pipe(
+      map(([loading, tags]) => {
+        if (loading || this.searchService.totalCount > 0) return false;
+        // Only dim sidebar when there are no active facet filters
+        // (i.e. the only tags are the search query itself)
+        const hasActiveFilters = tags.some(t => !t.startsWith('search:'));
+        return !hasActiveFilters;
+      })
     );
 
     this.showSelectedTags$ = combineLatest([
