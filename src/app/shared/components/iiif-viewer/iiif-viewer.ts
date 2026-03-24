@@ -252,7 +252,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).subscribe({
       next: (infoJson: any) => {
-        this.processInfoJson(infoJson);
+        this.processInfoJson(infoJson, infoUrl);
         this.createViewer(infoJson);
       },
       error: (error) => {
@@ -531,7 +531,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
       }).pipe(
         switchMap((infoJson: any) => {
-          this.processInfoJson(infoJson);
+          this.processInfoJson(infoJson, infoUrl);
           this.viewer?.open(infoJson);
           return EMPTY;
         })
@@ -545,13 +545,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).pipe(
       switchMap((infoJson: any) => {
-        this.processInfoJson(infoJson);
+        this.processInfoJson(infoJson, infoUrl);
         return this.http.get(nextInfoUrl, {
           headers,
           context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
         }).pipe(
           switchMap((nextInfoJson: any) => {
-            this.processInfoJson(nextInfoJson);
+            this.processInfoJson(nextInfoJson, nextInfoUrl);
             this.viewer?.open([
               { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
               { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
@@ -565,20 +565,63 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /**
    * Process IIIF info.json for use with OpenSeadragon:
-   * 1. Rewrite id/@id to point through our API proxy (prevents mixed content and unreachable internal URLs)
-   * 2. Remove sizes array to prevent wrong tile grid calculation
+   * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
+   * 2. Ensure @id points to the API proxy URL for tile resolution
+   * 3. Remove sizes array to prevent wrong tile grid calculation
+   *
+   * @param infoJson - The info.json response object (mutated in place)
+   * @param apiInfoUrl - The API proxy URL used to fetch this info.json.
+   *   When provided, @id is set to the base image URL derived from it
+   *   so OpenSeadragon always resolves tiles through the API proxy —
+   *   not through an internal imageserver URL that may not be reachable.
    */
-  private processInfoJson(infoJson: any): void {
-    const pid = this.imagePid || this.metadata?.uuid;
+  private processInfoJson(infoJson: any, apiInfoUrl?: string): void {
+    this.fixHttpUrls(infoJson);
 
-    if (pid) {
-      const proxyBaseUrl = `${this.iiifViewerService.getBaseUrl()}/search/iiif/${pid}`;
-      infoJson['@id'] = proxyBaseUrl;
+    // Ensure OpenSeadragon resolves tiles through the API proxy.
+    // The info.json 'id' field often points to an internal imageserver that
+    // is not publicly accessible. Override @id with the API proxy base URL
+    // so tile requests go through the same proxy that served info.json.
+    if (apiInfoUrl) {
+      // info.json URL is ".../info.json", the base image URL is the parent path
+      const baseUrl = apiInfoUrl.replace(/\/info\.json$/, '');
+      infoJson['@id'] = baseUrl;
+      delete infoJson['id'];
+    } else if (infoJson['id'] && infoJson['@id']) {
       delete infoJson['id'];
     }
 
+    // Remove sizes array to prevent OpenSeadragon bug where it uses sizes
+    // as level dimensions instead of computing from actual width/height.
+    // When sizes.length coincidentally equals maxLevel+1 but doesn't include
+    // the full resolution, OSD only tiles a fraction of the image.
     if (infoJson.sizes && infoJson.tiles) {
       delete infoJson.sizes;
+    }
+  }
+
+  /**
+   * Fix HTTP URLs in IIIF info.json to use HTTPS (prevents mixed content errors)
+   * Recursively processes all string values in the JSON
+   * NOTE: Preserves @context and protocol fields as OpenSeadragon needs exact
+   * "http://iiif.io/api/image/..." patterns to identify IIIF tile sources
+   */
+  private fixHttpUrls(obj: any): void {
+    if (!obj || typeof obj !== 'object') return;
+
+    // Fields that OpenSeadragon checks for exact "http://..." patterns
+    const preserveFields = ['@context', 'protocol', 'profile'];
+
+    for (const key of Object.keys(obj)) {
+      // Skip IIIF spec fields that must remain as http://
+      if (preserveFields.includes(key)) continue;
+
+      const value = obj[key];
+      if (typeof value === 'string' && value.startsWith('http://')) {
+        obj[key] = value.replace('http://', 'https://');
+      } else if (typeof value === 'object') {
+        this.fixHttpUrls(value);
+      }
     }
   }
 
