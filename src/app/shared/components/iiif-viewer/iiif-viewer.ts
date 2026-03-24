@@ -252,7 +252,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).subscribe({
       next: (infoJson: any) => {
-        this.processInfoJson(infoJson);
+        this.processInfoJson(infoJson, infoUrl);
         this.createViewer(infoJson);
       },
       error: (error) => {
@@ -531,7 +531,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
       }).pipe(
         switchMap((infoJson: any) => {
-          this.processInfoJson(infoJson);
+          this.processInfoJson(infoJson, infoUrl);
           this.viewer?.open(infoJson);
           return EMPTY;
         })
@@ -545,13 +545,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).pipe(
       switchMap((infoJson: any) => {
-        this.processInfoJson(infoJson);
+        this.processInfoJson(infoJson, infoUrl);
         return this.http.get(nextInfoUrl, {
           headers,
           context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
         }).pipe(
           switchMap((nextInfoJson: any) => {
-            this.processInfoJson(nextInfoJson);
+            this.processInfoJson(nextInfoJson, nextInfoUrl);
             this.viewer?.open([
               { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
               { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
@@ -566,16 +566,28 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   /**
    * Process IIIF info.json for use with OpenSeadragon:
    * 1. Fix HTTP URLs to HTTPS (prevents mixed content errors)
-   * 2. Remove @id if id exists (for IIIF 3, ensures tiles load from imageserver)
+   * 2. Ensure @id points to the API proxy URL for tile resolution
    * 3. Remove sizes array to prevent wrong tile grid calculation
+   *
+   * @param infoJson - The info.json response object (mutated in place)
+   * @param apiInfoUrl - The API proxy URL used to fetch this info.json.
+   *   When provided, @id is set to the base image URL derived from it
+   *   so OpenSeadragon always resolves tiles through the API proxy —
+   *   not through an internal imageserver URL that may not be reachable.
    */
-  private processInfoJson(infoJson: any): void {
+  private processInfoJson(infoJson: any, apiInfoUrl?: string): void {
     this.fixHttpUrls(infoJson);
 
-    // For IIIF 3: if both 'id' and '@id' exist, remove 'id' to ensure
-    // OpenSeadragon uses '@id' (which points to the API server that proxies tiles)
-    // instead of 'id' (which points to imageserver not publicly accessible)
-    if (infoJson['id'] && infoJson['@id']) {
+    // Ensure OpenSeadragon resolves tiles through the API proxy.
+    // The info.json 'id' field often points to an internal imageserver that
+    // is not publicly accessible. Override @id with the API proxy base URL
+    // so tile requests go through the same proxy that served info.json.
+    if (apiInfoUrl) {
+      // info.json URL is ".../info.json", the base image URL is the parent path
+      const baseUrl = apiInfoUrl.replace(/\/info\.json$/, '');
+      infoJson['@id'] = baseUrl;
+      delete infoJson['id'];
+    } else if (infoJson['id'] && infoJson['@id']) {
       delete infoJson['id'];
     }
 
