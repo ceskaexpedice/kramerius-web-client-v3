@@ -142,16 +142,17 @@
 
   <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical">
+      <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical && detailViewService.canShowDateNavigator()">
         <div class="max-width-100" left>
           <app-toolbar-header [title]="document?.mainTitle || ''"
             [showBackButton]="recordHandler.shouldShowBackButton(document)"
-            (titleClick)="recordHandler.clickedToolbarTitle(document.model, document.rootPid)"
+            [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical"
+            (titleClick)="recordHandler.clickedToolbarTitle(document.rootModel, document.rootPid)"
             (goBack)="recordHandler.goBackClicked(document)">
           </app-toolbar-header>
         </div>
         <div center>
-          <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
+          <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem && detailViewService.canShowDateNavigator()">
             <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="true"
               [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
               (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
@@ -244,9 +245,8 @@
         @if (iiifViewerService.isSelectionMode$ | async) {
         @let isDragging = iiifViewerService.isDragging$ | async;
         @let hasSelection = iiifViewerService.selectedArea$ | async;
-        @if (!isDragging) {
-        <app-selection-mode-info [hasSelection]="!!hasSelection" (editSelection)="iiifViewerService.clearSelectedArea()"
-          (cancelSelection)="iiifViewerService.setSelectionMode(false)">
+        @if (!isDragging && !!hasSelection) {
+        <app-selection-mode-info (editSelection)="iiifViewerService.clearSelectedArea()">
         </app-selection-mode-info>
         }
         }

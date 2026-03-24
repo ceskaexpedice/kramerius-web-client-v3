@@ -36,6 +36,7 @@ import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service'
 import { DocumentInfoService } from '../../../shared/services/document-info.service';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
+import { hasCalendarDisplayableChildren } from '../../models/periodical-item';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { UserService } from '../../../shared/services/user.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
@@ -84,6 +85,10 @@ export class DetailViewService {
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
+  private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
+
+  /** True only when at least one sibling issue has day+month, making the date navigator meaningful */
+  canShowDateNavigator = computed<boolean>(() => hasCalendarDisplayableChildren(this.periodicalChildrenSignal()));
 
   constructor() {
     // Latch isDocumentAccessDenied as soon as the document metadata is available.
