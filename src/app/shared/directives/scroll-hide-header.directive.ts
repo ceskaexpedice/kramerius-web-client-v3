@@ -17,8 +17,15 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
     private lastDirection: boolean | null = null;
     private cooldownUntil = 0;
 
+    // Anchor point where the current scroll direction started
+    private directionAnchor = 0;
+    // Current cumulative direction: true = scrolling up, false = scrolling down
+    private currentDirection: boolean | null = null;
+
     // Must exceed the CSS transition duration (300ms) to avoid reflow-triggered loops
     private readonly COOLDOWN_MS = 400;
+    // Minimum scroll distance in one direction before toggling the header
+    private readonly DIRECTION_THRESHOLD = 40;
 
     ngOnInit() {
         this.zone.runOutsideAngular(() => {
@@ -28,9 +35,10 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
 
             // Capture initial position
             this.lastScrollTop = el.scrollTop > 0 ? el.scrollTop : (window.scrollY || 0);
+            this.directionAnchor = this.lastScrollTop;
 
             this.scrollSub = merge(elScroll$, windowScroll$).pipe(
-                throttleTime(80, undefined, { leading: false, trailing: true }),
+                throttleTime(60, undefined, { leading: false, trailing: true }),
                 // Drop events during cooldown (header CSS transition in progress)
                 filter(() => Date.now() >= this.cooldownUntil),
                 map(() => {
@@ -42,13 +50,34 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
                     this.lastScrollTop = scrollTop;
 
                     // Near the top — always show
-                    if (scrollTop < 50) return true;
+                    if (scrollTop < 50) {
+                        this.directionAnchor = scrollTop;
+                        this.currentDirection = true;
+                        return true;
+                    }
 
-                    // Ignore tiny movements (sub-pixel noise, touch inertia)
-                    if (Math.abs(delta) < 5) return this.lastDirection ?? true;
+                    // Ignore sub-pixel noise
+                    if (Math.abs(delta) < 2) return this.lastDirection ?? true;
 
-                    // Scrolling up → show, scrolling down → hide
-                    return delta < 0;
+                    // Determine instantaneous direction: up = true, down = false
+                    const goingUp = delta < 0;
+
+                    // If direction reversed, reset the anchor to the current position
+                    if (this.currentDirection !== null && goingUp !== this.currentDirection) {
+                        this.directionAnchor = scrollTop;
+                        this.currentDirection = goingUp;
+                    } else if (this.currentDirection === null) {
+                        this.currentDirection = goingUp;
+                        this.directionAnchor = scrollTop;
+                    }
+
+                    // Only toggle after sustained scroll in one direction exceeds threshold
+                    const distanceFromAnchor = Math.abs(scrollTop - this.directionAnchor);
+                    if (distanceFromAnchor < this.DIRECTION_THRESHOLD) {
+                        return this.lastDirection ?? true;
+                    }
+
+                    return goingUp;
                 }),
                 distinctUntilChanged()
             ).subscribe((shouldShow) => {
