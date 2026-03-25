@@ -32,7 +32,11 @@
 
 :host ::ng-deep .content-page {
 
-  a {
+  .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: var(--color-tertiary) !important;
+  }
+
+    a {
     color: var(--color-text-link);
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -66,5 +70,10 @@
 
   .mat-mdc-checkbox label {
     color: var(--color-text-base);
+  }
+
+  button.button.primary[disabled] {
+    border: 1px solid rgba(0, 99, 204, 0.85);
+    background-color: rgba(0, 99, 204, 0.85);
   }
 }
