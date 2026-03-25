@@ -119,7 +119,7 @@
               [label]="'pages-section-header' | translate">
               <div class="grid--container">
                 <app-record-item *ngFor="let doc of (searchService.pageResults$ | async)"
-                  [item]="toRecordItem(doc)"></app-record-item>
+                  [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders()"></app-record-item>
               </div>
             </app-tab-item>
 
@@ -166,7 +166,7 @@
 
             <div class="grid--container">
 
-              <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)"></app-record-item>
+              <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders()"></app-record-item>
 
             </div>
             }

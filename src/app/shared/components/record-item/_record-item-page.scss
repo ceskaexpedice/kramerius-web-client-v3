@@ -30,6 +30,27 @@
     }
   }
 
+  .record-item-card__page-tag {
+    position: absolute;
+    bottom: 8px;
+    left: -1px;
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-border-bright);
+    border-radius: 0 var(--spacing-x1) var(--spacing-x1) 0;
+    padding: var(--spacing-x1) var(--spacing-x2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      font-size: var(--font-size-small);
+      font-weight: 400;
+      line-height: 16px;
+      color: var(--color-text-base);
+      white-space: nowrap;
+    }
+  }
+
   .record-item-card__image-lock-overlay {
     i {
       font-size: var(--font-size-xlarge);

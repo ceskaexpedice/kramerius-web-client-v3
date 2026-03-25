@@ -17,6 +17,9 @@ export interface RecordItem {
   /** Document model/type for styling and URL generation */
   model: DocumentTypeEnum | '';
 
+  /** Root document model (e.g. for pages, the model of the parent document) */
+  rootModel?: DocumentTypeEnum;
+
   /** Licenses array for lock detection */
   licenses?: string[];
 
@@ -68,6 +71,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     title: getDocumentTitle(doc),
     subtitle: getDocumentSubtitle(doc),
     model: (doc.model as DocumentTypeEnum) || '',
+    rootModel: doc.rootModel as DocumentTypeEnum | undefined,
     licenses: doc.containsLicenses || doc.licenses || doc['licenses.facet'] || [],
     authors: doc.authors,
     date: doc.date,

@@ -54,6 +54,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   private krameriusBaseUrl: string;
 
   @Input() showModel = true;
+  @Input() showPageTag = true;
   @Input() layout: 'auto' | 'vertical' | 'horizontal' = 'auto';
   @Input() variant: 'default' | 'author' = 'default';
   @Input() showAccessibilityBadge = true;
