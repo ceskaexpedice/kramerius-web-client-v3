@@ -46,3 +46,7 @@ hr {
     border-radius: 0;
   }
 }
+
+.cdk-overlay-dark-backdrop {
+  background: var(--dialog-dark-backdrop);
+}
