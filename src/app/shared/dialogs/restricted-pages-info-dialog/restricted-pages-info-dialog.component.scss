@@ -19,3 +19,7 @@ p {
   color: var(--color-text-tertiary);
   gap: var(--spacing-x2);
 }
+
+:host ::ng-deep .mdc-label {
+  color: var(--color-text-base);
+}
