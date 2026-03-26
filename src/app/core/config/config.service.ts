@@ -33,6 +33,13 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     logo: '',
     url: 'https://k7.inovatika.dev/',
   },
+  'trinera-k7': {
+    code: 'trinera-k7',
+    name: 'Trinera K7 (dev)',
+    name_en: 'Trinera K7 (dev)',
+    logo: '/img/logo/logo-trinera-symbol.png',
+    url: 'https://kramerius.k7.trinera.cloud',
+  },
 };
 
 @Injectable({ providedIn: 'root' })
