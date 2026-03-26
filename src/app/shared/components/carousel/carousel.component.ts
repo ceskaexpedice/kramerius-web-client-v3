@@ -1,6 +1,7 @@
-import { Component, ElementRef, Input, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { NgClass, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { BreakpointService } from '../../services/breakpoint.service';
 
 @Component({
   selector: 'app-carousel',
@@ -15,6 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class CarouselComponent implements AfterViewInit, OnDestroy {
 
+  breakpointService = inject(BreakpointService);
   canScrollLeft = false;
   canScrollRight = true;
   isScrollable = false;

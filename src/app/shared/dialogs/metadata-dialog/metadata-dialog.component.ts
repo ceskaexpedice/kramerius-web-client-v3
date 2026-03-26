@@ -8,6 +8,9 @@ import { Metadata } from '../../models/metadata.model';
 import { NgIf, NgFor } from '@angular/common';
 import { KrameriusApiService } from '../../services/kramerius-api.service';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { IIIFViewerService } from '../../services/iiif-viewer.service';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 
 import hljs from 'highlight.js';
 
@@ -45,6 +48,8 @@ export class MetadataDialogComponent implements OnInit {
     private translate = inject(TranslateService);
     private cdr = inject(ChangeDetectorRef);
     private elementRef = inject(ElementRef);
+    private iiifViewerService = inject(IIIFViewerService);
+    private http = inject(HttpClient);
 
     constructor() {
         this.document = this.data.document;
@@ -126,7 +131,13 @@ export class MetadataDialogComponent implements OnInit {
                 request = this.api.getRawChildren(this.selectedPid, true);
                 break;
             case 'iiif':
-                request = this.api.getIiifPresentation(this.selectedPid, true);
+                if (this.selectedModel === 'page') {
+                    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(this.selectedPid);
+                    const context = new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true);
+                    request = this.http.get(infoUrl, { context });
+                } else {
+                    request = this.api.getIiifPresentation(this.selectedPid, true);
+                }
                 break;
             default:
                 this.isLoading = false;
@@ -187,7 +198,12 @@ export class MetadataDialogComponent implements OnInit {
     }
 
     openUrl() {
-        const url = this.api.getMetadataUrl(this.selectedPid, this.activeTabLabel);
+        let url: string;
+        if (this.activeTabLabel === 'iiif' && this.selectedModel === 'page') {
+            url = this.iiifViewerService.getIIIFInfoUrl(this.selectedPid);
+        } else {
+            url = this.api.getMetadataUrl(this.selectedPid, this.activeTabLabel);
+        }
         if (url) {
             window.open(url, '_blank');
         }

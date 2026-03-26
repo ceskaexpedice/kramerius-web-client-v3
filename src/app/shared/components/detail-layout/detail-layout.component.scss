@@ -4,7 +4,7 @@
 $top-toolbar-height: 56px;
 
 .detail-layout {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - var(--dnnto-bar-height, 0px));
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - var(--dnnto-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -40,6 +40,8 @@ $top-toolbar-height: 56px;
   &--action-toolbar {
     flex: 0 0 auto;
     width: 100%;
+    position: relative;
+    z-index: 10;
   }
 
   &--main-content {

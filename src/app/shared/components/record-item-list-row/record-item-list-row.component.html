@@ -63,7 +63,7 @@
   </td>
 
   <td *ngIf="column.id === 'license'">
-    <app-accessibility-badge [showIcon]="false"
+    <app-accessibility-badge [showIcon]="false" [showText]="true"
       [isLocked]="recordHandler.isRecordLocked(record.containsLicenses || record.licenses || [])"
       [licenses]="record.licenses || []">
     </app-accessibility-badge>
@@ -83,7 +83,10 @@
   </td>
 
   <td *ngIf="column.id === 'doctype'">
-    {{ getColumnValue(column) | translate }}
+
+    <app-model-badge [model]="getColumnValue(column)"></app-model-badge>
+
+<!--    {{ getColumnValue(column) | translate }}-->
   </td>
 
   <td *ngIf="column.renderType === ColumnRenderType.TEXT &&

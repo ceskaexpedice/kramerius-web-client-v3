@@ -33,6 +33,7 @@ export class FilterItemComponent {
   @Input() langCode: string | null = null;
   @Input() disabled = false;
   @Input() itemIconClass?: string;
+  @Input() colorDot: string | null = null;
   @Output() toggled = new EventEmitter<void>();
 
   get isImageIcon(): boolean {

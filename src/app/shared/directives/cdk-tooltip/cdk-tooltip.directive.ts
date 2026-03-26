@@ -175,12 +175,9 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
    */
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent): void {
-    if (!this.tooltipTouchGestures) {
+    if (!this.tooltipTouchGestures || (!this.content && !this.appCdkTooltipTemplate)) {
       return;
     }
-
-    // Prevent default to avoid triggering both touch and mouse events
-    event.preventDefault();
 
     // Toggle tooltip on touch
     if (this.isTooltipVisible()) {

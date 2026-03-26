@@ -76,6 +76,31 @@
   }
 }
 
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all .4s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent !important;
+  border: 1px solid transparent;
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--dot-color);
+  }
+
+  &.active {
+    border-color: var(--color-primary);
+  }
+}
+
 :host ::ng-deep .mdc-form-field {
   align-items: start;
 

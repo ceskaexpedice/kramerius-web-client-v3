@@ -36,6 +36,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
 import { EpubViewerComponent } from '../../shared/components/epub-viewer/epub-viewer';
 import { EpubSidebarComponent } from '../../shared/components/epub-sidebar/epub-sidebar.component';
+import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
+import { ExportDocumentSectionComponent } from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
+import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 
 const routes: Routes = [
   {
@@ -89,6 +94,11 @@ const routes: Routes = [
 		RestrictedPagesInfoDialogComponent,
 		EpubViewerComponent,
 		EpubSidebarComponent,
+		MobileNavBarComponent,
+		SlideUpPanelComponent,
+		MetadataSection,
+		ExportDocumentSectionComponent,
+		SearchResultsSidebarComponent,
 	],
 })
 

@@ -39,21 +39,18 @@
   }
 }
 
-/* Mobile bottom sheet */
+/* Mobile */
 @include m.respond(md) {
   .action-toolbar {
-    flex-direction: column;
+    padding: 0 var(--spacing-x3);
+
+    .toolbar-left:empty {
+      display: none;
+    }
 
     .toolbar-right {
       gap: var(--spacing-x2);
-      justify-content: space-between;
-      margin-left: 0;
-    }
-
-    .toolbar-left,
-    .toolbar-center,
-    .toolbar-right {
-      width: 100%;
+      justify-content: flex-end;
     }
   }
 }

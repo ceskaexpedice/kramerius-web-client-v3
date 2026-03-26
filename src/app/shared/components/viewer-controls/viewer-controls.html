@@ -62,7 +62,11 @@
     <i class="icon icon-rotate-right1"></i>
   </button>
 
-  <button *ngIf="showBookModeButton" (click)="onBookMode()" class="button tertiary outlined"
+  <button *ngIf="showBookModeButton" (click)="onBookMode()"
+          [class.primary]="(iiifBookMode$ | async) === true"
+          [class.tertiary]="(iiifBookMode$ | async) === false"
+          [class.outlined]="(iiifBookMode$ | async) === false"
+          class="button"
           [appCdkTooltip]="'viewer-controls.book-mode' | translate">
     <i class="icon icon-book-1"></i>
   </button>

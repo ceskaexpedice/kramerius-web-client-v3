@@ -48,13 +48,17 @@
     }
 
   }
+
+  .button.link.primary.with-icon {
+    margin-top: var(--spacing-x4);
+  }
 }
 
 // Responsive styles
 @include m.respond(md) {
 
   .search-hero {
-    padding: var(--spacing-x4) 0;
+    padding: var(--spacing-x4) var(--spacing-x3) 0;
   }
 
   h1 {

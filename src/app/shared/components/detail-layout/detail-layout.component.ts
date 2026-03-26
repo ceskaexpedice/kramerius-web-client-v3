@@ -22,6 +22,8 @@ export class DetailLayoutComponent {
 
   @Input() rightSidebarCollapsed = false;
 
+  @Input() hideFilterToggle = false;
+
   private detailViewService = inject(DetailViewService);
 
   @HostListener('document:keydown', ['$event'])

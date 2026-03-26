@@ -11,7 +11,7 @@
     <div class="carousel-container">
       <app-carousel [attr.data-loading]="(loading$ | async)" [edgeToEdge]="true" [actionsPosition]="'top'">
         <ng-container *ngFor="let item of (periodicals$ | async) | skeletonList:50:(loading$ | async)">
-          <app-record-item [showModel]="false" [item]="item ? toRecordItem(item) : undefined"></app-record-item>
+          <app-record-item [showModel]="false" [item]="item ? toRecordItem(item) : undefined" layout="vertical"></app-record-item>
         </ng-container>
       </app-carousel>
     </div>

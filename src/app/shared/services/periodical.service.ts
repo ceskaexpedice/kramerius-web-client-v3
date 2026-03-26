@@ -5,7 +5,7 @@ import { filter, map, Observable, of, take, takeUntil } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ViewMode } from '../../modules/periodical/models/view-mode.enum';
 import { CalendarGridControl } from '../components/toolbar-controls/toolbar-controls.component';
-import { PeriodicalItemYear } from '../../modules/models/periodical-item';
+import { PeriodicalItemYear, hasCalendarDisplayableChildren } from '../../modules/models/periodical-item';
 import { LocalStorageService } from './local-storage.service';
 import { RecordHandlerService } from './record-handler.service';
 import {
@@ -83,13 +83,7 @@ export class PeriodicalService extends BaseFilterService {
   private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
 
   /** True only when at least one issue child has a day+month, making calendar display meaningful */
-  canShowCalendar = computed<boolean>(() => {
-    const children = this.periodicalChildrenSignal();
-    if (!children || children.length === 0) return false;
-    return children.some(
-      (child: any) => child['date_range_end.day'] && child['date_range_end.month']
-    );
-  });
+  canShowCalendar = computed<boolean>(() => hasCalendarDisplayableChildren(this.periodicalChildrenSignal()));
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license, 'dateFrom', 'dateTo', 'dateOffset', 'yearFrom', 'yearTo'];
 

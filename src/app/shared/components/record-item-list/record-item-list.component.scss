@@ -1,7 +1,11 @@
+@use 'mixins' as m;
+
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--spacing-x2);
   border: 1px solid var(--color-border-light);
+  touch-action: pan-x pan-y;
 }
 
 .record-table {
@@ -78,6 +82,45 @@
 
   ::ng-deep tr.highlighted td.sticky-col {
     box-shadow: inset 2px 0 0 var(--color-primary), inset -2px 0 0 var(--color-border-light);
+  }
+}
+
+// Mobile: disable sticky column and resize handles
+@include m.respond(mobile-sm) {
+  .record-table {
+    th.sticky-col {
+      position: static;
+      z-index: auto;
+    }
+
+    th .resize-handle {
+      display: none;
+    }
+  }
+
+  .table-wrapper.scrolled {
+    ::ng-deep td.sticky-col,
+    th.sticky-col {
+      box-shadow: none;
+    }
+  }
+}
+
+@include m.respond(mobile-sm) {
+  .record-table th.sticky-col {
+    position: static;
+    z-index: auto;
+  }
+
+  .record-table th .resize-handle {
+    display: none;
+  }
+
+  .table-wrapper.scrolled {
+    ::ng-deep td.sticky-col,
+    th.sticky-col {
+      box-shadow: none;
+    }
   }
 }
 

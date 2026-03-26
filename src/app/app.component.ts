@@ -42,6 +42,10 @@ export class AppComponent implements OnInit {
     //TODO: remove this for production. This is just for testing CI pipeline
     console.log('AppComponent ngOnInit, branch: main');
 
+    if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
+      localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
+    }
+
     // Auto-prefix navigations with the active library code when missing
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart && event.navigationTrigger === 'imperative') {

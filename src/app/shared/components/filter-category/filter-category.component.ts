@@ -21,7 +21,7 @@ import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-ra
 import { RangeSliderComponent } from '../range-slider/range-slider.component';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
-import { getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
+import { getModelColor, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
 import { SkeletonListPipe } from '../../pipes/skeleton-list.pipe';
 
 @Component({
@@ -165,11 +165,11 @@ export class FilterCategoryComponent implements OnChanges {
       });
     }
 
-    // Add icons for model facets
+    // Add colored dots for model facets
     if (this.facetKey === customDefinedFacetsEnum.model) {
       sorted = sorted.map(item => ({
         ...item,
-        icon: getModelIcon(item.name, 0) || undefined
+        colorDot: getModelColor(item.name) || undefined
       }));
     }
 

@@ -1,24 +1,43 @@
 // MEDIA QUERIES
+// Breakpoints aligned with BreakpointService
 @mixin respond($breakpoint) {
-  @if $breakpoint ==sm {
+  @if $breakpoint == mobile-xs {
+    @media (max-width: 407px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint == mobile-sm {
+    @media (max-width: 603px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint == tablet-sm {
+    @media (max-width: 853px) {
+      @content;
+    }
+  }
+
+  @else if $breakpoint == sm {
     @media (max-width: 576px) {
       @content;
     }
   }
 
-  @else if $breakpoint ==md {
+  @else if $breakpoint == md {
     @media (max-width: 768px) {
       @content;
     }
   }
 
-  @else if $breakpoint ==lg {
+  @else if $breakpoint == lg {
     @media (max-width: 992px) {
       @content;
     }
   }
 
-  @else if $breakpoint ==xl {
+  @else if $breakpoint == xl {
     @media (max-width: 1200px) {
       @content;
     }

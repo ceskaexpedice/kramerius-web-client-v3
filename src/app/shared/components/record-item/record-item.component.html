@@ -2,7 +2,7 @@
   [class.periodical]="item?.model === 'periodical'" [class.periodicalvolume]="item?.model === 'periodicalvolume'"
   [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="selectionService.selectionMode()"
   [class.selected]="item && selectionService.selectionMode() && selectionService.isSelected(item.id)"
-  [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'"
+  [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'" [class.vertical]="layout === 'vertical'"
   [class.variant-author]="variant === 'author'" [ngClass]="[item?.className || '', item?.model || '']"
   [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
   (click)="!loading && item && onRecordClick($event)">
@@ -46,17 +46,18 @@
       </div>
       }
 
-      @if (showModel && !loading && item) {
-      <app-model-badge [model]="item.model" [monographUnitCount]="item.monographUnitCount || 0">
-      </app-model-badge>
-      }
-
       @if (isRecordLocked() && !loading && item?.model !== DocumentTypeEnum.collection) {
       <div class="record-item-card__image-lock-overlay">
         <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}"
           [title]="'record-locked' | translate">
           <i class="icon-lock-1"></i>
         </button>
+      </div>
+      }
+
+      @if (!loading && item?.model === DocumentTypeEnum.page && showPageTag) {
+      <div class="record-item-card__page-tag">
+        <span>{{ 'page' | translate }}</span>
       </div>
       }
 
@@ -95,12 +96,36 @@
       <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
       }
 
+      @if (!loading && item) {
+      <div class="record-item-card__badges">
+        @if (showModel) {
+        <app-model-badge [model]="item.model === DocumentTypeEnum.page && item.rootModel ? item.rootModel : item.model" [monographUnitCount]="item.monographUnitCount || 0">
+        </app-model-badge>
+        }
+        @if (shouldShowAccessibilityBadge() && item?.model !== DocumentTypeEnum.collection) {
+        <div class="access-label">
+          <app-accessibility-badge [isLocked]="isRecordLocked()" [showText]="!showModel" [showIcon]="true"
+            [licenses]="item?.licenses || []"></app-accessibility-badge>
+        </div>
+        }
+      </div>
+      }
+
     </div>
 
-    @if (shouldShowAccessibilityBadge() && !loading && item?.model !== DocumentTypeEnum.collection) {
-    <div class="access-label">
-      <app-accessibility-badge [isLocked]="isRecordLocked()"
-        [licenses]="item?.licenses || []"></app-accessibility-badge>
+    <!-- Mobile action column (visible only on xs screens) -->
+    @if (!loading && item?.model) {
+    <div class="record-item-card__mobile-actions">
+      <button class="button tertiary outlined rounded icon-button" *ngIf="shouldShowFavoriteButton()"
+        [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
+        aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+      </button>
+      <button class="button tertiary outlined rounded icon-button"
+        (click)="onInfoClick($event)"
+        aria-label="{{'info' | translate}}" [title]="'info' | translate">
+        <i class="icon-info"></i>
+      </button>
     </div>
     }
 
@@ -114,4 +139,11 @@
     [showRemoveButton]="!!currentFolderId" (close)="favoritesPopupState.closePopup()">
   </app-favorites-popup>
 </div>
+}
+
+<!-- Mobile info bottom sheet -->
+@if (item && infoSheetOpen()) {
+<app-slide-up-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
+  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()" [showTitle]="false"></app-metadata-section>
+</app-slide-up-panel>
 }

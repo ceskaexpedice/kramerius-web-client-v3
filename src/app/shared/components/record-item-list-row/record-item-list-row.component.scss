@@ -1,4 +1,5 @@
 @use "_z-index.scss" as z;
+@use "mixins" as m;
 
 :host {
   background-color: var(--color-bg-base);
@@ -82,6 +83,11 @@ td {
     left: 0;
     background-color: inherit;
     z-index: 1;
+
+    @include m.respond(mobile-sm) {
+      position: static;
+      z-index: auto;
+    }
   }
 }
 

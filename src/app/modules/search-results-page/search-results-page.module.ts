@@ -3,7 +3,7 @@ import { SearchResultsPageComponent } from './search-results-page.component';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { NgModule } from '@angular/core';
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
-import { AsyncPipe, NgClass, NgForOf, NgIf, UpperCasePipe } from '@angular/common';
+import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet, UpperCasePipe } from '@angular/common';
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
 import { SelectedTagsComponent } from '../../shared/components/selected-tags/selected-tags.component';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
@@ -29,6 +29,8 @@ import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-h
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { RecordExportPanelComponent } from '../../shared/components/record-export-panel/record-export-panel.component';
 import { NoResultsComponent } from './components/no-results/no-results.component';
+import { TabsComponent } from '../../shared/components/tabs/tabs.component';
+import { TabItemComponent } from '../../shared/components/tabs/tab-item.component';
 
 const routes: Routes = [
 	{
@@ -58,6 +60,7 @@ const routes: Routes = [
 		AdvancedSearchIndicatorComponent,
 		ToggleButtonGroupComponent,
 		NgClass,
+		NgTemplateOutlet,
 		RecordItemListComponent,
 		MatDatepickerModule,
 		MatNativeDateModule,
@@ -70,6 +73,8 @@ const routes: Routes = [
 		SkeletonListPipe,
 		RecordExportPanelComponent,
 		NoResultsComponent,
+		TabsComponent,
+		TabItemComponent,
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

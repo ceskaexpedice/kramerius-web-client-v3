@@ -11,7 +11,7 @@
       <div #viewerContainer class="openseadragon-container" [class.hidden]="showFallback()"></div>
       <app-selection-controls *ngIf="showSelectionControls && selectionRect && !showFallback()" [style.top.px]="selectionRect.top"
         [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
-        (share)="onShare()">
+        (share)="onShare()" (cancel)="onSelectionCancel()">
       </app-selection-controls>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -10,14 +10,17 @@ import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.comp
 import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
 import { SelectionService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { Observable, EMPTY } from 'rxjs';
+import { Observable, EMPTY, take } from 'rxjs';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
+import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
+import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
+import { MetadataSection } from '../metadata-section/metadata-section';
 
 @Component({
   selector: 'app-record-item',
@@ -31,6 +34,8 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
     NgIf,
     ModelBadgeComponent,
     ThumbnailImageComponent,
+    SlideUpPanelComponent,
+    MetadataSection,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -49,7 +54,8 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   private krameriusBaseUrl: string;
 
   @Input() showModel = true;
-  @Input() layout: 'vertical' | 'horizontal' = 'vertical';
+  @Input() showPageTag = true;
+  @Input() layout: 'auto' | 'vertical' | 'horizontal' = 'auto';
   @Input() variant: 'default' | 'author' = 'default';
   @Input() showAccessibilityBadge = true;
   @Input() loading = false;
@@ -64,6 +70,10 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     showAccessibilityBadge: false
   };
   @Input() currentFolderId?: string;
+
+  // Mobile info bottom sheet
+  infoSheetOpen = signal(false);
+  infoSheetMetadata = signal<Metadata | null>(null);
 
   router = inject(Router);
 
@@ -168,6 +178,19 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
       }
     );
+  }
+
+  onInfoClick(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (!this.item) return;
+
+    this.solrService.getDetailItem(this.item.id).pipe(take(1)).subscribe(solrDoc => {
+      if (solrDoc) {
+        this.infoSheetMetadata.set(fromSolrToMetadata(solrDoc));
+      }
+      this.infoSheetOpen.set(true);
+    });
   }
 
   // Helper methods

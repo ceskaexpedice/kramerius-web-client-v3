@@ -18,11 +18,11 @@
       [showHistorySuggestions]="true"
       [showMicrophoneButton]="true"
       [showHelpButton]="false" [prefixIcon]="'icon-search-normal-1'"
-      [autofocus]="true" [showSubmitButton]="false" [autoSubmit]="false"
+      [autofocus]="true" [showSubmitButton]="breakpointService.isMobile()" [autoSubmit]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 
-    <div class="search-row--actions">
+    <div class="search-row--actions" *ngIf="!breakpointService.isMobile()">
       <button class="primary"
               aria-label="{{'submit-search' | translate}}"
               (click)="searchService.onSearch(searchService.searchTerm())">
@@ -38,5 +38,12 @@
   </div>
 
   <app-suggested-search-tags-section *ngIf="showSuggestedTags"></app-suggested-search-tags-section>
+
+  <button *ngIf="breakpointService.isMobile()" class="button link primary with-icon"
+          aria-label="{{'advanced-search' | translate}}"
+          (click)="openAdvancedSearch()">
+    <i class="icon-settings-4"></i>
+    {{'advanced-search' | translate}}
+  </button>
 
 </section>

@@ -49,6 +49,13 @@ export interface PeriodicalItemYear {
   'licenses.facet'?: string[];
 }
 
+/** Returns true when at least one child has day+month data suitable for calendar display */
+export function hasCalendarDisplayableChildren(children: PeriodicalItemChild[]): boolean {
+  return children?.length > 0 && children.some(
+    child => !!child['date_range_end.day'] && !!child['date_range_end.month']
+  );
+}
+
 export function parsePeriodicalItemFromMetadata(metadata: Metadata): PeriodicalItem {
   return {
     uuid: metadata.uuid,

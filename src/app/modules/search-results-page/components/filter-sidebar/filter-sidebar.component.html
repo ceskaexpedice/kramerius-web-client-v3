@@ -1,42 +1,41 @@
 <!-- Sidebar toggle button for mobile/tablet -->
-<button *ngIf="!breakpointService.sidebarVisible() && !breakpointService.isVisible()" class="sidebar-toggle-btn"
-  [class.left]="toggleButtonPosition === 'left'" (click)="breakpointService.toggleSidebar()"
-  [attr.aria-label]="'open-filters' | translate">
+<button *ngIf="!hideToggleButton && !breakpointService.sidebarVisible() && !breakpointService.isVisible()"
+  class="sidebar-toggle-btn" [class.left]="toggleButtonPosition === 'left'"
+  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'open-filters' | translate">
   <i [class]="toggleButtonIcon"></i>
 </button>
 
-<!-- Backdrop for mobile overlay -->
-<div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop" (click)="onBackdropClick()"></div>
+<!-- Capture projected content into a template -->
+<ng-template #filterContent>
+  <ng-content></ng-content>
+</ng-template>
+
+<!-- Mobile slide-up panel mode -->
+@if (breakpointService.isMobile()) {
+<app-slide-up-panel [title]="'filters' | translate" [(isOpen)]="breakpointService.manualToggle"
+  (closed)="breakpointService.manualToggle.set(false)">
+  <ng-container *ngTemplateOutlet="filterContent"></ng-container>
+</app-slide-up-panel>
+}
+
+<!-- Tablet/Desktop overlay and inline modes -->
+@if (!breakpointService.isMobile()) {
+<!-- Backdrop for tablet overlay -->
+<div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop"
+  (click)="onBackdropClick()"></div>
 
 <div class="filter-sidebar" [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
-  [class.disabled]="isDisabled" [class.dimmed]="dimmed" [class.expanded]="isExpanded" [class.dragging]="isDragging"
-  [style.height]="isOverlay() && breakpointService.isMobile() ? currentHeight + 'vh' : null">
+  [class.disabled]="isDisabled" [class.dimmed]="dimmed">
 
-  <!-- Drag handle for mobile bottom sheet -->
-  <div *ngIf="isOverlay() && breakpointService.isVisible()" class="bottom-sheet-handle"
-    (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)">
-    <i class="icon-line-vertical"></i>
-  </div>
-
-  <!-- Mobile header with title and close button -->
-  <div *ngIf="isOverlay() && breakpointService.isVisible()" class="mobile-header">
-    <h3>{{'filters' | translate}}</h3>
-    <button class="icon-button transparent icon-button p-right-0" (click)="breakpointService.toggleSidebar()"
-      [attr.aria-label]="'close-filters' | translate">
-      <i class="icon-close"></i>
-    </button>
-  </div>
-
-  <!-- Close button for desktop overlay mode (left sidebar) -->
-  <button *ngIf="isOverlay() && breakpointService.isVisible() && !breakpointService.isMobile()"
-    class="sidebar-close-btn desktop-close-btn" (click)="breakpointService.toggleSidebar()"
-    [attr.aria-label]="'close-filters' | translate">
+  <!-- Close button for tablet overlay mode -->
+  <button *ngIf="isOverlay() && breakpointService.isVisible()" class="sidebar-close-btn"
+    (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'close-filters' | translate">
     <i class="icon-close"></i>
   </button>
 
   <!-- Scrollable content area -->
   <div class="filter-content" [class.scrollable]="scrollable" [ngClass]="['padding-' + padding]">
-    <ng-content></ng-content>
+    <ng-container *ngTemplateOutlet="filterContent"></ng-container>
   </div>
 
   @if (isDisabled) {
@@ -46,5 +45,5 @@
   @if (dimmed) {
   <div class="sidebar-dimmed--overlay"></div>
   }
-
 </div>
+}

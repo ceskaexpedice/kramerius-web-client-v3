@@ -1,6 +1,6 @@
 <section class="carousel-wrapper">
 
-  <div class="carousel-actions" *ngIf="isScrollable && actionsPosition === 'top'">
+  <div class="carousel-actions" *ngIf="isScrollable && actionsPosition === 'top' && !breakpointService.isMobile()">
     <ng-container *ngTemplateOutlet="carouselActions"></ng-container>
   </div>
 
@@ -12,7 +12,7 @@
 
   </div>
 
-  <div class="carousel-actions" *ngIf="isScrollable && actionsPosition === 'bottom'">
+  <div class="carousel-actions" *ngIf="isScrollable && actionsPosition === 'bottom' && !breakpointService.isMobile()">
     <ng-container *ngTemplateOutlet="carouselActions"></ng-container>
   </div>
 
