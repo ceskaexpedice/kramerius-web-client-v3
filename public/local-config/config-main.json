@@ -1,7 +1,7 @@
 {
   "app": {
-    "code": "cdk",
-    "name": "Czech Digital Library",
+    "code": "mzk",
+    "name": "Moravská zemská knihovna",
     "version": "3.0.0",
     "baseUrl": "https://api.kramerius.mzk.cz",
     "contactEmail": "digitalniknihovna@mzk.cz",
