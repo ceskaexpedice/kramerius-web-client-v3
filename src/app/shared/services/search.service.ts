@@ -24,6 +24,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
+import { isMapViewParams } from '../../modules/search-results-page/const/map-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -264,7 +265,7 @@ export class SearchService extends BaseFilterService {
 
 
   // Params that should not trigger a search refresh
-  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info'];
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west'];
 
   private getSearchRelevantParams(params: any): any {
     const relevant: any = {};
@@ -309,7 +310,8 @@ export class SearchService extends BaseFilterService {
   }
 
   public dispatchSearch(params: any): void {
-    console.log('dispatching search with params:', params)
+    // Skip regular search when in map mode
+    if (isMapViewParams(params)) return;
 
     const query = params['query'] || '';
 
@@ -535,6 +537,10 @@ export class SearchService extends BaseFilterService {
       this.advancedSearchService.filtersContainDate() ||
       this.customSearchService.filtersContainDateOrYearRange || this.urlContainsDate()
     );
+  }
+
+  get activeFiltersSnapshot(): string[] {
+    return this._activeFiltersSignal();
   }
 
   isSelectedFilter(facetKey: string, value: string): boolean {

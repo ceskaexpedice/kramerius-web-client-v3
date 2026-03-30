@@ -38,6 +38,13 @@ export interface SearchDocument {
   'collection.desc_eng'?: string;
   'collection.desc_pol'?: string;
   'collection.desc_slo'?: string;
+
+  // Geographic coordinates (for map view)
+  north?: number;
+  south?: number;
+  east?: number;
+  west?: number;
+  geonames?: string[];
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -76,4 +83,27 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   'collection.desc_eng': doc['collection.desc_eng'],
   'collection.desc_pol': doc['collection.desc_pol'],
   'collection.desc_slo': doc['collection.desc_slo'],
+
+  // Geographic coordinates parsed from coords.bbox.corner_ne / coords.bbox.corner_sw
+  ...parseDocumentCoords(doc),
+  geonames: doc['geographic_names.facet'] || [],
 });
+
+function parseDocumentCoords(doc: any): { north?: number; south?: number; east?: number; west?: number } {
+  const ne: string = doc['coords.bbox.corner_ne'];
+  const sw: string = doc['coords.bbox.corner_sw'];
+  if (ne && sw && ne.includes(',') && sw.includes(',')) {
+    return {
+      north: +ne.split(',')[0],
+      east: +ne.split(',')[1],
+      south: +sw.split(',')[0],
+      west: +sw.split(',')[1],
+    };
+  }
+  return {};
+}
+
+export function isDocumentPoint(doc: SearchDocument): boolean {
+  return doc.north != null && doc.south != null &&
+    doc.north === doc.south && doc.east === doc.west;
+}

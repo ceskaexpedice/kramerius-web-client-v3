@@ -1215,6 +1215,52 @@ export class SolrService {
     return params;
   }
 
+  searchByBoundingBox(
+    north: number, south: number, east: number, west: number,
+    query: string = '',
+    filters: string[] = [],
+    facetOperators: { [field: string]: SolrOperators } = {},
+    page = 0,
+    rows = 100,
+    advancedQuery?: string,
+    facetFields: string[] = [],
+    sortBy: SolrSortFields = SolrSortFields.relevance,
+    sortDirection: SolrSortDirections = SolrSortDirections.desc
+  ): Observable<SearchResultResponse> {
+    // Geographic filter goes in q= (not fq=), per API behavior
+    const geoQuery = `{!field f=coords.bbox score=overlapRatio}Intersects(ENVELOPE(${west},${east},${north},${south}))`;
+
+    const mapDocFields = [
+      'pid', 'accessibility', 'model', 'authors', 'title.search',
+      'root.title', 'date.str', 'licenses', 'contains_licenses',
+      'licenses.facet', 'own_parent.pid', 'root.model', 'root.pid',
+      'coords.bbox.corner_ne', 'coords.bbox.corner_sw', 'geographic_names.facet'
+    ];
+
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.fieldsToReturn(mapDocFields),
+      ...SolrQueryBuilder.pagination(page, rows),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
+    };
+
+    let params = this.createHttpParams(paramsObject)
+      .set('q', geoQuery)
+      .append('fq', '*:*');
+
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    if (facetFields.length > 0) {
+      params = params.set('facet', 'true').set('facet.mincount', '1');
+      const filtersByField = this.groupFiltersByField(filters);
+      this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
+        params = params.append('facet.field', field);
+      });
+    }
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
   getIiifBaseUrl(uuid: string): string {
     let baseUrl = this.env.getPureApiUrl();
     return baseUrl + 'search/iiif/' + uuid;

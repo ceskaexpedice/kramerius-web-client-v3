@@ -101,6 +101,12 @@ export class Metadata {
   public collectionIsStandalone: boolean = false;
 
   public monographUnitCount: number = 0;
+
+  // Geographic bounding box coordinates (for maps overlay view)
+  public north?: number;
+  public south?: number;
+  public east?: number;
+  public west?: number;
 }
 
 export class TitleInfo {
@@ -332,6 +338,16 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.monographUnitCount = doc['count_monograph_unit'];
 
   metadata.donators = doc['donator'] ?? [];
+
+  // Geographic bounding box from coords.bbox.corner_ne / coords.bbox.corner_sw
+  const ne: string = doc['coords.bbox.corner_ne'];
+  const sw: string = doc['coords.bbox.corner_sw'];
+  if (ne && sw && ne.includes(',') && sw.includes(',')) {
+    metadata.north = +ne.split(',')[0];
+    metadata.east = +ne.split(',')[1];
+    metadata.south = +sw.split(',')[0];
+    metadata.west = +sw.split(',')[1];
+  }
 
   return metadata;
 }
