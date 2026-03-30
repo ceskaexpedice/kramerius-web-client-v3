@@ -68,7 +68,7 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
     let initialBounds: MapBounds | null = null;
     if (params['north'] && params['south'] && params['east'] && params['west']) {
       const n = +params['north'], s = +params['south'],
-            e = +params['east'], w = +params['west'];
+        e = +params['east'], w = +params['west'];
       initialBounds = { north: n, south: s, east: e, west: w };
       this.mapOptions = {
         ...this.mapOptions,
@@ -95,7 +95,9 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
 
           // Mark settled after fitBounds idle fires — ignore idle events until then
           google.maps.event.addListenerOnce(this.googleMap.googleMap, 'idle', () => {
-            this._mapSettled = true;
+            // Defer to next macrotask so Angular's (idle) handler in the same tick
+            // still sees _mapSettled = false and skips the redundant search
+            setTimeout(() => { this._mapSettled = true; });
           });
         } else {
           // No URL bounds — let the first idle trigger the search
