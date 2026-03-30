@@ -1,0 +1,83 @@
+@use 'mixins' as m;
+
+:host {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.map-browse {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  gap: var(--spacing-x3);
+  padding: var(--spacing-x3);
+
+  &__tags {
+    flex: 0 0 auto;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+    gap: var(--spacing-x3);
+  }
+
+  &__map {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    border-radius: var(--spacing-x2);
+    overflow: hidden;
+
+    google-map {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__sidebar {
+    flex: 0 0 300px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-bg-base);
+    border-radius: var(--spacing-x3);
+  }
+
+  &__zoom-controls {
+    position: absolute;
+    top: var(--spacing-x2);
+    right: var(--spacing-x2);
+    display: flex;
+    gap: var(--spacing-x2);
+    align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    padding: var(--spacing-x2) var(--spacing-x4);
+    border-radius: var(--spacing-x1);
+  }
+}
+
+// Mobile: sidebar below map
+@include m.respond(md) {
+  .map-browse {
+    padding: var(--spacing-x2);
+
+    &__content {
+      flex-direction: column;
+    }
+
+    &__sidebar {
+      flex: 0 0 200px;
+      width: 100%;
+      border-radius: var(--spacing-x2);
+    }
+  }
+}

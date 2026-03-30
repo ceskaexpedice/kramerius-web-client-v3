@@ -24,6 +24,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
+import { isMapViewParams } from '../../modules/search-results-page/const/map-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -264,7 +265,7 @@ export class SearchService extends BaseFilterService {
 
 
   // Params that should not trigger a search refresh
-  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info'];
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west'];
 
   private getSearchRelevantParams(params: any): any {
     const relevant: any = {};
@@ -309,7 +310,15 @@ export class SearchService extends BaseFilterService {
   }
 
   public dispatchSearch(params: any): void {
-    console.log('dispatching search with params:', params)
+    // In map mode, still sync query/sort state but skip the regular search
+    if (isMapViewParams(params)) {
+      const query = params['query'] || '';
+      if (query && query.length > 0 && !this.hasSubmittedQuery()) {
+        this._searchTerm.set(query);
+        this._submittedTerm.set(query);
+      }
+      return;
+    }
 
     const query = params['query'] || '';
 
@@ -535,6 +544,10 @@ export class SearchService extends BaseFilterService {
       this.advancedSearchService.filtersContainDate() ||
       this.customSearchService.filtersContainDateOrYearRange || this.urlContainsDate()
     );
+  }
+
+  get activeFiltersSnapshot(): string[] {
+    return this._activeFiltersSignal();
   }
 
   isSelectedFilter(facetKey: string, value: string): boolean {

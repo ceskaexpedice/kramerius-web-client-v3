@@ -1,10 +1,10 @@
-import { Component, inject, OnDestroy, OnInit, Input } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../../services/search.service';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { RecordHandlerService } from '../../../services/record-handler.service';
 import { SearchDocument } from '../../../../modules/models/search-document';
-import { Subscription, combineLatest } from 'rxjs';
+import { Observable, Subscription, combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PaginatorComponent } from '../../paginator/paginator.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,39 +31,69 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
 
     @Input() currentDocument: SearchDocument | Metadata | null = null;
 
+    // Optional override for map mode: pass external results/loading/count streams
+    @Input() externalResults$?: Observable<SearchDocument[]>;
+    @Input() externalLoading$?: Observable<boolean>;
+    @Input() externalTotalCount$?: Observable<number>;
+    @Input() externalPage?: number;
+    @Input() externalPageSize?: number;
+
+    @Output() itemHover = new EventEmitter<SearchDocument>();
+    @Output() itemLeave = new EventEmitter<void>();
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() pageSizeChange = new EventEmitter<number>();
+
     // Combined results from all categories
     results: SearchDocument[] = [];
+
+    // Resolved observables (either external or from searchService)
+    resolvedLoading$!: Observable<boolean>;
+    resolvedTotalCount$!: Observable<number>;
 
     private subscriptions: Subscription[] = [];
     private pendingNavigation: 'prev' | 'next' | null = null;
 
+    get resolvedPage(): number {
+        return this.externalPage ?? this.searchService.page;
+    }
+
+    get resolvedPageSize(): number {
+        return this.externalPageSize ?? this.searchService.pageSize;
+    }
+
+    get resolvedTotalCount(): number {
+        return this.searchService.totalCount;
+    }
+
     ngOnInit() {
-        // Combine results from all possible streams in search service to show in one list
+        this.resolvedLoading$ = this.externalLoading$ ?? this.searchService.loading$;
+        this.resolvedTotalCount$ = this.externalTotalCount$ ?? of(this.searchService.totalCount);
+
+        const results$ = this.externalResults$ ?? combineLatest([
+            this.searchService.nonPageResults$,
+            this.searchService.articleResults$,
+            this.searchService.pageResults$,
+            this.searchService.attachmentResults$
+        ]).pipe(
+            map(([nonPage, article, page, attachment]) => {
+                const allDocs: SearchDocument[] = [];
+                if (nonPage) allDocs.push(...nonPage);
+                if (article) allDocs.push(...article);
+                if (page) allDocs.push(...page);
+                if (attachment) allDocs.push(...attachment);
+                return allDocs;
+            })
+        );
+
         this.subscriptions.push(
-            combineLatest([
-                this.searchService.nonPageResults$,
-                this.searchService.articleResults$,
-                this.searchService.pageResults$,
-                this.searchService.attachmentResults$
-            ]).pipe(
-                map(([nonPage, article, page, attachment]) => {
-                    const allDocs: SearchDocument[] = [];
-                    if (nonPage) allDocs.push(...nonPage);
-                    if (article) allDocs.push(...article);
-                    if (page) allDocs.push(...page);
-                    if (attachment) allDocs.push(...attachment);
-                    return allDocs;
-                })
-            ).subscribe(docs => {
+            results$.subscribe(docs => {
                 this.results = docs;
 
                 // Handle pending cross-page navigation
                 if (this.pendingNavigation && this.results.length > 0) {
                     if (this.pendingNavigation === 'next') {
-                        // Navigate to first item of new page
                         this.navigateToItem(this.results[0]);
                     } else if (this.pendingNavigation === 'prev') {
-                        // Navigate to last item of new page
                         this.navigateToItem(this.results[this.results.length - 1]);
                     }
                     this.pendingNavigation = null;
@@ -137,11 +167,19 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     }
 
     onPageChange(page: number) {
-        this.searchService.goToPageLocal(page);
+        if (this.externalResults$) {
+            this.pageChange.emit(page);
+        } else {
+            this.searchService.goToPageLocal(page);
+        }
     }
 
     onPageSizeChange(size: number) {
-        this.searchService.changePageSizeLocal(size);
+        if (this.externalResults$) {
+            this.pageSizeChange.emit(size);
+        } else {
+            this.searchService.changePageSizeLocal(size);
+        }
     }
 
     ngOnDestroy() {

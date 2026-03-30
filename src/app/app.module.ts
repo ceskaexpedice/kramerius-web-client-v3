@@ -11,7 +11,7 @@ import {
 } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { HttpBackend, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { HttpBackend, provideHttpClient, withFetch, withInterceptors, withJsonpSupport } from '@angular/common/http';
 import { ENVIRONMENT } from './app.config';
 import { HeaderComponent } from './core/layout/header/header.component';
 import { PercentageSignTranslateParser } from './shared/translation/percentage-sign-translate-parser';
@@ -141,6 +141,7 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
   providers: [
     provideHttpClient(
       withFetch(),
+      withJsonpSupport(),
       withInterceptors([simpleCacheInterceptor, tokenInterceptor, errorInterceptor])
     ),
     AppMissingTranslationService,

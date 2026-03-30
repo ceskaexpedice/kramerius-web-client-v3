@@ -558,5 +558,7 @@
   "search-no-results.tip-text": "Mniej znaczy więcej — wpisz bardziej ogólne słowo kluczowe lub spróbuj innego sformułowania.",
   "search-no-results.contact-prefix": "Jeśli potrzebujesz",
   "search-no-results.contact-bold": "porady",
-  "search-no-results.contact-suffix": "napisz do nas na e-mail"
+  "search-no-results.contact-suffix": "napisz do nas na e-mail",
+  "tab-all": "Wszystko",
+  "tab-maps": "Mapy"
 }

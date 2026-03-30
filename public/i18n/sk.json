@@ -559,5 +559,7 @@
   "search-no-results.tip-text": "Menej je niekedy viac — zadajte všeobecnejšie kľúčové slovo alebo skúste iné sformovanie.",
   "search-no-results.contact-prefix": "Ak potrebujete",
   "search-no-results.contact-bold": "poradiť",
-  "search-no-results.contact-suffix": "napíšte nám na e-mail"
+  "search-no-results.contact-suffix": "napíšte nám na e-mail",
+  "tab-all": "Všetko",
+  "tab-maps": "Mapy"
 }

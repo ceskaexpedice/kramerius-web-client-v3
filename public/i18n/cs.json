@@ -560,5 +560,7 @@
   "search-no-results.tip-text": "Méně je někdy více — zadejte obecnější klíčové slovo nebo zkuste jinou formulaci.",
   "search-no-results.contact-prefix": "Pokud potřebujete",
   "search-no-results.contact-bold": "poradit",
-  "search-no-results.contact-suffix": "napište nám na e-mail"
+  "search-no-results.contact-suffix": "napište nám na e-mail",
+  "tab-all": "Vše",
+  "tab-maps": "Mapy"
 }

@@ -1,0 +1,69 @@
+<div class="map-browse">
+
+  <div class="map-browse__tags" *ngIf="(searchService.selectedTags | async)?.length">
+    <app-selected-tags
+      [items]="(searchService.selectedTags | async) || []"
+      [showClearAll]="((searchService.selectedTags | async) || []).length > 1"
+      [textTransform]="'capitalize'"
+      [operators]="(searchService.getFiltersWithOperators() | async) || {}"
+      [showOperators]="false"
+      [translateItems]="true"
+      (remove)="searchService.removeFilter($event)"
+      (removeGroup)="searchService.resetOperator($event)"
+      (clearAll)="searchService.clearAllFilters()"
+      clearButtonPosition="left">
+    </app-selected-tags>
+  </div>
+
+  <div class="map-browse__content">
+
+    <div class="map-browse__map">
+      <google-map
+        *ngIf="mapReady"
+        #googleMap
+        [options]="mapOptions"
+        width="100%"
+        height="100%"
+        (mapClick)="onMapClick()"
+        (idle)="onIdle()">
+
+        <!-- Rectangle overlay for hovered item -->
+        <map-rectangle
+          *ngIf="focusedBounds"
+          [bounds]="focusedBounds"
+          [options]="getRectangleOptions()">
+        </map-rectangle>
+
+      </google-map>
+
+      <!-- Zoom controls -->
+      <div class="map-browse__zoom-controls" *ngIf="mapReady">
+        <button class="primary icon-button square-button" (click)="zoomIn()" [title]="'zoom-in' | translate">
+          <i class="icon-add"></i>
+        </button>
+        <button class="primary icon-button square-button" (click)="zoomOut()" [title]="'zoom-out' | translate">
+          <i class="icon-minus"></i>
+        </button>
+      </div>
+    </div>
+
+    @if (((mapSearchService.totalCount$ | async) || 0) > 0) {
+
+      <div class="map-browse__sidebar" >
+        <app-search-results-sidebar
+          [externalResults$]="mapSearchService.results$"
+          [externalLoading$]="mapSearchService.loading$"
+          [externalTotalCount$]="mapSearchService.totalCount$"
+          [externalPage]="((mapSearchService.page$ | async) ?? 0) + 1"
+          [externalPageSize]="mapSearchService.pageSize"
+          (itemHover)="onItemHover($event)"
+          (itemLeave)="onItemLeave()"
+          (pageChange)="onPageChange($event)">
+        </app-search-results-sidebar>
+      </div>
+
+    }
+
+  </div>
+
+</div>
