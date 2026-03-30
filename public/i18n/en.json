@@ -567,5 +567,7 @@
   "search-no-results.tip-text": "Less is sometimes more — enter a more general keyword or try a different formulation.",
   "search-no-results.contact-prefix": "If you need",
   "search-no-results.contact-bold": "advice",
-  "search-no-results.contact-suffix": "write to us at"
+  "search-no-results.contact-suffix": "write to us at",
+  "tab-all": "All",
+  "tab-maps": "Maps"
 }
