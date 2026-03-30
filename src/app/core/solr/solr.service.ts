@@ -1225,7 +1225,8 @@ export class SolrService {
     advancedQuery?: string,
     facetFields: string[] = [],
     sortBy: SolrSortFields = SolrSortFields.relevance,
-    sortDirection: SolrSortDirections = SolrSortDirections.desc
+    sortDirection: SolrSortDirections = SolrSortDirections.desc,
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
   ): Observable<SearchResultResponse> {
     // Geographic filter goes in q= (not fq=), per API behavior
     const geoQuery = `{!field f=coords.bbox score=overlapRatio}Intersects(ENVELOPE(${west},${east},${north},${south}))`;
@@ -1245,8 +1246,14 @@ export class SolrService {
     };
 
     let params = this.createHttpParams(paramsObject)
-      .set('q', geoQuery)
-      .append('fq', '*:*');
+      .set('q', geoQuery);
+
+    // Add text query as fq filter (q is used for geo query)
+    if (query && query.trim().length > 0) {
+      params = params.append('fq', `titles.search:(${query.trim()}) OR text_ocr:(${query.trim()})`);
+    } else if (advancedQuery && advancedQuery.trim().length > 0) {
+      params = params.append('fq', advancedQuery.trim());
+    }
 
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
@@ -1256,6 +1263,35 @@ export class SolrService {
       this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
         params = params.append('facet.field', field);
       });
+
+      // Add facet.query for accessibility counts
+      params = params.append('facet.query', '{!ex=avail}*:*');
+
+      if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+        const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
+      }
+
+      if (getOpenLicenses().length > 0) {
+        const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
+      }
+
+      if (getTerminalLicenses().length > 0) {
+        const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
+      }
+
+      if (getAfterLoginLicenses().length > 0) {
+        const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
+      }
+    }
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
     }
 
     return this.http.get<SearchResultResponse>(this.API_URL, { params });

@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { EnvironmentService } from './environment.service';
+import { ConfigService } from '../../core/config/config.service';
 
 @Injectable({ providedIn: 'root' })
 export class MapService {
   private httpClient = inject(HttpClient);
-  private env = inject(EnvironmentService);
+  private configService = inject(ConfigService);
 
   private _mapReady = false;
   private _readyCallbacks: (() => void)[] = [];
@@ -15,7 +15,7 @@ export class MapService {
   }
 
   get apiKey(): string {
-    return this.env.get('googleMapsApiKey') || '';
+    return this.configService.integrations?.googleMaps?.apiKey || '';
   }
 
   init(callback: () => void): void {

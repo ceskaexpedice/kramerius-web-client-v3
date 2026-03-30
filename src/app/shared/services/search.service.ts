@@ -310,8 +310,15 @@ export class SearchService extends BaseFilterService {
   }
 
   public dispatchSearch(params: any): void {
-    // Skip regular search when in map mode
-    if (isMapViewParams(params)) return;
+    // In map mode, still sync query/sort state but skip the regular search
+    if (isMapViewParams(params)) {
+      const query = params['query'] || '';
+      if (query && query.length > 0 && !this.hasSubmittedQuery()) {
+        this._searchTerm.set(query);
+        this._submittedTerm.set(query);
+      }
+      return;
+    }
 
     const query = params['query'] || '';
 

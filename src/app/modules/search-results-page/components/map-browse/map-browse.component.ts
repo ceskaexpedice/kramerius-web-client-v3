@@ -60,13 +60,16 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   private boundsDebounce$ = new Subject<MapBounds>();
   private subs: Subscription[] = [];
   private _initialPageConsumed = false;
+  private _mapSettled = false;
 
   ngAfterViewInit(): void {
     // Read initial bounds from URL and set map center/zoom before API loads
     const params = this.route.snapshot.queryParams;
+    let initialBounds: MapBounds | null = null;
     if (params['north'] && params['south'] && params['east'] && params['west']) {
       const n = +params['north'], s = +params['south'],
             e = +params['east'], w = +params['west'];
+      initialBounds = { north: n, south: s, east: e, west: w };
       this.mapOptions = {
         ...this.mapOptions,
         center: { lat: (n + s) / 2, lng: (e + w) / 2 },
@@ -77,6 +80,27 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
       this.ngZone.run(() => {
         this.mapReady = true;
         this.cdr.detectChanges();
+
+        if (initialBounds && this.googleMap?.googleMap) {
+          // Search immediately with URL bounds — no need to wait for idle
+          const initialPage = Math.max(0, (+params['page'] || 1) - 1);
+          this.mapSearchService.searchByBounds(initialBounds, initialPage);
+          this._initialPageConsumed = true;
+
+          // Fit map to saved bounds; the idle after this will be deduped
+          this.googleMap.googleMap.fitBounds({
+            north: initialBounds.north, south: initialBounds.south,
+            east: initialBounds.east, west: initialBounds.west
+          }, 0);
+
+          // Mark settled after fitBounds idle fires — ignore idle events until then
+          google.maps.event.addListenerOnce(this.googleMap.googleMap, 'idle', () => {
+            this._mapSettled = true;
+          });
+        } else {
+          // No URL bounds — let the first idle trigger the search
+          this._mapSettled = true;
+        }
       });
     });
 
@@ -119,6 +143,7 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   }
 
   onIdle(): void {
+    if (!this._mapSettled) return;
     this.triggerSearch();
   }
 

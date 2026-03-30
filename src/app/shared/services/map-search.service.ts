@@ -99,10 +99,16 @@ export class MapSearchService {
     const sortBy = this.searchService.sortBy ?? SolrSortFields.relevance;
     const sortDirection = this.searchService.sortDirection ?? SolrSortDirections.desc;
 
+    const availabilityFilter = {
+      isActive: this.customSearchService.isAvailabilityFilterActive(),
+      licenses: this.customSearchService.getUserAvailableLicenses(),
+      userLicenses: this.userService.licenses
+    };
+
     this._searchSub = this.solrService.searchByBoundingBox(
       bounds.north, bounds.south, bounds.east, bounds.west,
       query, filters, {}, this._page.value, this.pageSize, advancedQuery,
-      MAP_FACET_FIELDS, sortBy, sortDirection
+      MAP_FACET_FIELDS, sortBy, sortDirection, availabilityFilter
     ).pipe(
       map(res => ({
         docs: (res.response?.docs ?? []).map(doc => parseSearchDocument(doc)),
