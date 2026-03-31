@@ -527,6 +527,7 @@
   "toolbar.tooltip.quote": "Quote",
   "toolbar.tooltip.delete": "Delete",
   "toolbar.tooltip.download": "Download",
+  "toolbar.tooltip.download-csv": "Download results as CSV",
   "toolbar.tooltip.edit": "Edit",
   "toolbar.tooltip.select": "Select",
   "pages--tab": "Pages",

@@ -128,7 +128,7 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'delete', icon: 'icon-trash', tooltip: 'toolbar.tooltip.delete', label: 'Delete' });
     }
     if (this.showDownload) {
-      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'toolbar.tooltip.download', label: 'Download' });
+      legacyActions.push({ id: 'download', icon: 'icon-download', tooltip: 'toolbar.tooltip.download-csv', label: 'Download' });
     }
     if (this.showEdit) {
       legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.edit', label: 'Edit' });

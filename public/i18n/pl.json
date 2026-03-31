@@ -518,6 +518,7 @@
   "toolbar.tooltip.quote": "Cytuj",
   "toolbar.tooltip.delete": "Usuń",
   "toolbar.tooltip.download": "Pobierz",
+  "toolbar.tooltip.download-csv": "Pobierz wyniki w CSV",
   "toolbar.tooltip.edit": "Edytuj",
   "toolbar.tooltip.select": "Wybierz",
   "pages--tab": "Strony",
