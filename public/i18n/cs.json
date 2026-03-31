@@ -86,7 +86,7 @@
   "filter-subject_names_corporate-label": "Korporátní předmětová hesla",
   "filter-subject_temporals-label": "Chronologická předmětová hesla",
   "advanced-search-indicator.title": "Dotaz pokročilého hledání",
-  "advanced-search-indicator.edit": "Upravit dotaz",
+  "advanced-search-indicator.edit": "Upravit pokročilý dotaz",
   "advanced-search-indicator.new": "Nové hledání",
   "advanced-search-indicator.cancel": "Zrušit",
   "advanced-search-indicator.no-results.message": "Nic jsme nenašli, zkuste upravit dotaz.",

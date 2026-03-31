@@ -93,7 +93,7 @@
   "filter-subject_names_corporate-label": "Corporate subject names",
   "filter-subject_temporals-label": "Chronological subject names",
   "advanced-search-indicator.title": "Advanced search query",
-  "advanced-search-indicator.edit": "Edit query",
+  "advanced-search-indicator.edit": "Edit advanced query",
   "advanced-search-indicator.new": "New search",
   "advanced-search-indicator.cancel": "Cancel",
   "filter-dialog.search-placeholder": "Search in the list...",
