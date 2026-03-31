@@ -52,11 +52,12 @@
 
                 <app-toggle-button-group *ngIf="view() !== ViewOptions.map" [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
-                <div class="flex flex--align-center flex--gap-x2">
+                <div class="toolbar-controls-wrapper flex flex--align-center flex--gap-x2">
                   <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
                     [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
-                    [showDownload]="true" [themeDefault]="true"
-                    (selectClicked)="selectionService.setSelectionMode(true)">
+                    [showDownload]="view() !== ViewOptions.map && searchService.totalCount > 0" [themeDefault]="true"
+                    (selectClicked)="selectionService.setSelectionMode(true)"
+                    (downloadClicked)="downloadCsv()">
                   </app-toolbar-controls>
                 </div>
 

@@ -18,6 +18,10 @@
   min-height: 0;
 }
 
+.toolbar-controls-wrapper:not(:has(button)) {
+  display: none;
+}
+
 :host ::ng-deep .action-toolbar--tabs-visible .action-toolbar {
   padding-left: 0;
 }

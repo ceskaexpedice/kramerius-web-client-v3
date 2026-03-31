@@ -613,5 +613,13 @@
   "page_type.imgdisc": "obraz dosiek",
   "page_type.impressum": "impressum",
   "page_type.sheetmusic": "notový zápis",
-  "page_type.case": "puzdro"
+  "page_type.case": "puzdro",
+  "csv.title": "Názov",
+  "csv.authors": "Autori",
+  "csv.date": "Dátum",
+  "csv.doctype": "Typ dokumentu",
+  "csv.geonames": "Geonames",
+  "csv.licenses": "Licencie",
+  "csv.accessibility": "Dostupnosť",
+  "csv.languages": "Jazyky"
 }

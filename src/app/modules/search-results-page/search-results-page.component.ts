@@ -13,6 +13,8 @@ import { MapSearchService } from '../../shared/services/map-search.service';
 import { isMapViewParams } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { ExportService } from '../../shared/services/export.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search-results-page',
@@ -42,6 +44,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public selectionService = inject(SelectionService);
   public adminSelectionService = inject(AdminSelectionService);
   private scrollPositionService = inject(ScrollPositionService);
+  private exportService = inject(ExportService);
   public breakpointService = inject(BreakpointService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -222,5 +225,11 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   onEditSelected(selectedIds: string[]): void {
     console.log('Edit selected items:', selectedIds);
     // TODO: Implement edit functionality specific to search results
+  }
+
+  downloadCsv(): void {
+    this.searchService.results$.pipe(take(1)).subscribe(results => {
+      this.exportService.downloadSearchResultsCsv(results);
+    });
   }
 }

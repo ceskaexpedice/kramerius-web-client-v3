@@ -614,5 +614,13 @@
   "page_type.imgdisc": "obraz desky",
   "page_type.impressum": "impressum",
   "page_type.sheetmusic": "notový zápis",
-  "page_type.case": "pouzdro"
+  "page_type.case": "pouzdro",
+  "csv.title": "Název",
+  "csv.authors": "Autoři",
+  "csv.date": "Datum",
+  "csv.doctype": "Typ dokumentu",
+  "csv.geonames": "Geonames",
+  "csv.licenses": "Licence",
+  "csv.accessibility": "Přístupnost",
+  "csv.languages": "Jazyky"
 }

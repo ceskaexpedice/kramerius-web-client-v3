@@ -621,5 +621,13 @@
   "page_type.imgdisc": "disc image",
   "page_type.impressum": "impressum",
   "page_type.sheetmusic": "sheet music",
-  "page_type.case": "case"
+  "page_type.case": "case",
+  "csv.title": "Title",
+  "csv.authors": "Authors",
+  "csv.date": "Date",
+  "csv.doctype": "Document type",
+  "csv.geonames": "Geonames",
+  "csv.licenses": "Licenses",
+  "csv.accessibility": "Accessibility",
+  "csv.languages": "Languages"
 }

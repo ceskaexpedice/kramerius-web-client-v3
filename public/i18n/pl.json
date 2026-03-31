@@ -612,5 +612,13 @@
   "page_type.imgdisc": "obraz płyty",
   "page_type.impressum": "impressum",
   "page_type.sheetmusic": "zapis nutowy",
-  "page_type.case": "etui"
+  "page_type.case": "etui",
+  "csv.title": "Tytuł",
+  "csv.authors": "Autorzy",
+  "csv.date": "Data",
+  "csv.doctype": "Typ dokumentu",
+  "csv.geonames": "Geonames",
+  "csv.licenses": "Licencje",
+  "csv.accessibility": "Dostępność",
+  "csv.languages": "Języki"
 }
