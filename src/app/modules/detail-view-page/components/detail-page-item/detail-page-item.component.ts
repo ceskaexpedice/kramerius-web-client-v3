@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { EnvironmentService } from '../../../../shared/services/environment.service';
-import { NgClass, NgIf } from '@angular/common';
+import {LowerCasePipe, NgClass, NgIf} from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
 import { SelectionService } from '../../../../shared/services';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -20,6 +20,7 @@ export interface PreviewClickEvent {
     CheckboxComponent,
     TranslatePipe,
     ThumbnailImageComponent,
+    LowerCasePipe,
   ],
   templateUrl: './detail-page-item.component.html',
   styleUrl: './detail-page-item.component.scss'
@@ -45,6 +46,9 @@ export class DetailPageItemComponent {
   // Local selection mode inputs (when not using global SelectionService)
   @Input() localSelectionMode: boolean = false; // If true, use local selection instead of SelectionService
   @Input() localIsSelected: boolean = false; // Local selection state
+
+  // Page type label (e.g. 'normalpage', 'titlepage', etc.)
+  @Input() pageType: string = '';
 
   // Show preview button
   @Input() showPreviewButton: boolean = false;

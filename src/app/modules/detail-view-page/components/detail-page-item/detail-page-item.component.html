@@ -41,4 +41,8 @@
     {{pageNumber}}
   </span>
 
+  <span class="page--type-label" *ngIf="pageType">
+    {{ 'page_type.' + pageType | lowercase | translate }}
+  </span>
+
 </a>

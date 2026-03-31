@@ -175,7 +175,8 @@
   }
 
   &:hover &__actions,
-  &:hover .preview-button {
+  &:hover .preview-button,
+  &:hover .page--type-label {
     opacity: 1;
   }
 
@@ -252,6 +253,26 @@
   background-color: var(--color-bg-base);
   font-size: var(--font-size-small);
   line-height: 11px;
+}
+
+.page--type-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-x05) var(--spacing-x1);
+  background-color: rgba(255,255,255, 0.8);
+  color: var(--color-text-base);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  font-weight: 400;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .preview-popup-wrapper {

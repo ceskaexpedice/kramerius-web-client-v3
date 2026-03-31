@@ -25,6 +25,7 @@ export class Page {
   pid: string = '';
   'date.str': string = '';
   'page.number': string = '';
+  'page.type': string = '';
   model?: DocumentTypeEnum | string | null;
   licenses_of_ancestors: string[] = [];
 }
