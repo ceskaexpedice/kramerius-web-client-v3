@@ -36,7 +36,7 @@
     "iiif": true,
     "mapSearch": true,
     "georef": true,
-    "ai": false,
+    "ai": true,
     "folders": true,
     "crossOrigin": true,
     "librarySwitch": true

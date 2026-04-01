@@ -390,6 +390,131 @@ export class AltoService {
   }
 
   /**
+   * Converts ALTO XML to styled HTML, preserving font sizes, bold, and alignment
+   * @param altoXml - ALTO XML string
+   * @returns HTML string with inline styles
+   */
+  getStyledHtml(altoXml: string): string {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(altoXml, 'text/xml');
+
+    const parserError = xmlDoc.querySelector('parsererror');
+    if (parserError) {
+      return '';
+    }
+
+    // Parse styles
+    const textStyles = new Map<string, { fontFamily: string; fontSize: number }>();
+    for (const ts of Array.from(xmlDoc.getElementsByTagName('TextStyle'))) {
+      textStyles.set(ts.getAttribute('ID') || '', {
+        fontFamily: ts.getAttribute('FONTFAMILY') || '',
+        fontSize: parseFloat(ts.getAttribute('FONTSIZE') || '0')
+      });
+    }
+
+    const paragraphStyles = new Map<string, { align: string; lineSpace: number }>();
+    for (const ps of Array.from(xmlDoc.getElementsByTagName('ParagraphStyle'))) {
+      paragraphStyles.set(ps.getAttribute('ID') || '', {
+        align: (ps.getAttribute('ALIGN') || 'Left').toLowerCase(),
+        lineSpace: parseFloat(ps.getAttribute('LINESPACE') || '0')
+      });
+    }
+
+    const textBlocks = Array.from(xmlDoc.getElementsByTagName('TextBlock'));
+    const htmlParts: string[] = [];
+
+    for (const block of textBlocks) {
+      const styleRefs = (block.getAttribute('STYLEREFS') || '').split(/\s+/);
+
+      let align = 'left';
+      let baseFontSize = 0;
+
+      for (const ref of styleRefs) {
+        if (paragraphStyles.has(ref)) {
+          align = paragraphStyles.get(ref)!.align;
+        }
+        if (textStyles.has(ref)) {
+          baseFontSize = textStyles.get(ref)!.fontSize;
+        }
+      }
+
+      const textLines = Array.from(block.getElementsByTagName('TextLine'));
+      const lineParts: string[] = [];
+
+      for (const line of textLines) {
+        const lineStyleRefs = (line.getAttribute('STYLEREFS') || '').split(/\s+/);
+        let lineFontSize = baseFontSize;
+        for (const ref of lineStyleRefs) {
+          if (textStyles.has(ref)) {
+            lineFontSize = textStyles.get(ref)!.fontSize;
+          }
+        }
+
+        const strings = Array.from(line.getElementsByTagName('String'));
+        const words: string[] = [];
+
+        for (const stringEl of strings) {
+          let content = stringEl.getAttribute('CONTENT') || '';
+          const subsType = stringEl.getAttribute('SUBS_TYPE') || '';
+          const subsContent = stringEl.getAttribute('SUBS_CONTENT') || '';
+
+          if (subsType === 'HypPart1') {
+            content = subsContent;
+          } else if (subsType === 'HypPart2') {
+            continue;
+          }
+
+          const style = stringEl.getAttribute('STYLE') || '';
+          const isBold = style.includes('bold');
+          const isItalic = style.includes('italics');
+
+          let word = this.escapeHtml(content);
+          if (isBold) word = `<strong>${word}</strong>`;
+          if (isItalic) word = `<em>${word}</em>`;
+          words.push(word);
+        }
+
+        let lineHtml = words.join(' ');
+        if (lineFontSize > 0 && lineFontSize !== baseFontSize) {
+          lineHtml = `<span style="font-size:${this.altoFontToCss(lineFontSize)}">${lineHtml}</span>`;
+        }
+        lineParts.push(lineHtml);
+      }
+
+      const blockContent = lineParts.join('<br>');
+      const styles: string[] = [];
+      if (align !== 'left') styles.push(`text-align:${align}`);
+      if (baseFontSize > 0) styles.push(`font-size:${this.altoFontToCss(baseFontSize)}`);
+
+      const styleAttr = styles.length > 0 ? ` style="${styles.join(';')}"` : '';
+      htmlParts.push(`<p${styleAttr}>${blockContent}</p>`);
+    }
+
+    return htmlParts.join('');
+  }
+
+  private altoFontToCss(altoSize: number): string {
+    // ALTO font sizes from ABBYY are roughly in pt-like units
+    // Scale relative to a base of ~12pt = 1em
+    if (altoSize <= 8) return '0.75em';
+    if (altoSize <= 10) return '0.875em';
+    if (altoSize <= 13) return '1em';
+    if (altoSize <= 16) return '1.25em';
+    if (altoSize <= 20) return '1.5em';
+    if (altoSize <= 30) return '2em';
+    if (altoSize <= 40) return '2.5em';
+    return '3em';
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /**
    * Segments ALTO text into readable blocks for text-to-speech or reading purposes
    * @param altoXml - ALTO XML string
    * @returns Array of text blocks with their coordinates
