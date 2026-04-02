@@ -381,6 +381,57 @@ export class ExportService {
     return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   }
 
+  /**
+   * Download search results as CSV file (client-side only, no API call).
+   * Prepends full URL to each record and exports with predefined columns.
+   */
+  downloadSearchResultsCsv(results: SearchDocument[]): void {
+    if (!results || results.length === 0) {
+      return;
+    }
+
+    const baseUrl = `${location.protocol}//${location.host}`;
+
+    const columns: { header: string; key: string }[] = [
+      { header: 'PID', key: 'pid' },
+      { header: this.translateService.instant('csv.title'), key: 'title' },
+      { header: this.translateService.instant('csv.authors'), key: 'authors' },
+      { header: this.translateService.instant('csv.date'), key: 'date' },
+      { header: 'URL', key: 'url' },
+      { header: this.translateService.instant('csv.doctype'), key: 'doctype' },
+      { header: this.translateService.instant('csv.geonames'), key: 'geonames' },
+      { header: this.translateService.instant('csv.licenses'), key: 'licenses' },
+      { header: this.translateService.instant('csv.accessibility'), key: 'accessibility' },
+      { header: this.translateService.instant('csv.languages'), key: 'languages' },
+    ];
+
+    const headerRow = columns.map(c => this.escapeCsvValue(c.header)).join(',');
+
+    const dataRows = results.map(item => {
+      return columns.map(col => {
+        let value: string;
+        switch (col.key) {
+          case 'pid': value = item.pid || ''; break;
+          case 'title': value = item.title || ''; break;
+          case 'authors': value = item.authors?.join('; ') || ''; break;
+          case 'date': value = item.date || ''; break;
+          case 'url': value = `${baseUrl}/view/${item.pid}`; break;
+          case 'doctype': value = item.model || ''; break;
+          case 'geonames': value = item.geonames?.join('; ') || ''; break;
+          case 'licenses': value = item.licenses?.join('; ') || ''; break;
+          case 'accessibility': value = item.accessibility || ''; break;
+          case 'languages': value = item.languages?.join('; ') || ''; break;
+          default: value = ''; break;
+        }
+        return this.escapeCsvValue(value);
+      }).join(',');
+    });
+
+    const csvContent = [headerRow, ...dataRows].join('\n');
+    const filename = `kramerius_data_${this.getTimestamp()}.csv`;
+    this.downloadFile(csvContent, filename, 'text/csv;charset=utf-8');
+  }
+
   // Helper method to get available export formats
   getAvailableFormats(): Array<{ value: ExportFormat, label: string }> {
     return [

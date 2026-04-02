@@ -4,6 +4,7 @@
     <app-detail-page-item
       [page]="page"
       [type]="type"
+      [pageType]="page['page.type']"
       [pageNumber]="page['page.number']"
       [isSelected]="detailViewService.isPageActiveByPid(page.pid)"
       [isLocked]="detailViewService.isPageLocked(page.pid)"

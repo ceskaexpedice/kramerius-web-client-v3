@@ -7,14 +7,20 @@
 
     <div class="page-content">
 
-      <div class="page-content__filters" [class.sidebar-open]="exportRecord()">
+      <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!selectionService.selectionMode()" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
           <div left>
-            <!-- Regular view: show paginator info -->
+            <!-- Map tab switcher -->
             <ng-container *ngIf="!selectionService.selectionMode()">
-              <app-paginator-info [page]="searchService.page" [pageSize]="searchService.pageSize"
-                [totalCount]="searchService.totalCount">
-              </app-paginator-info>
+              <div class="view-tabs">
+                <button class="view-tabs__tab" [class.active]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
+                  {{ 'tab-all' | translate }}
+                </button>
+                <button class="view-tabs__tab" [class.active]="view() === ViewOptions.map" (click)="onTabChanged('map')">
+                  <i class="icon-location"></i>
+                  {{ 'tab-maps' | translate }}
+                </button>
+              </div>
             </ng-container>
 
             <!-- Admin view: show admin actions -->
@@ -29,19 +35,34 @@
 
               <!-- Show regular controls when not in admin mode -->
               <ng-container *ngIf="!selectionService.selectionMode()">
-                <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
-                <div class="flex flex--align-center flex--gap-x2">
+                <!-- Paginator info: first in right slot, shown in all views -->
+                <app-paginator-info
+                  *ngIf="view() !== ViewOptions.map"
+                  [page]="searchService.page"
+                  [pageSize]="searchService.pageSize"
+                  [totalCount]="searchService.totalCount">
+                </app-paginator-info>
+                <app-paginator-info
+                  *ngIf="view() === ViewOptions.map"
+                  [page]="((mapSearchService.page$ | async) ?? 0) + 1"
+                  [pageSize]="mapSearchService.pageSize"
+                  [totalCount]="(mapSearchService.totalCount$ | async) ?? 0">
+                </app-paginator-info>
 
+                <app-toggle-button-group *ngIf="view() !== ViewOptions.map" [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
+
+                <div class="toolbar-controls-wrapper flex flex--align-center flex--gap-x2">
                   <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
                     [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
-                    [showDownload]="true" [themeDefault]="true"
-                    (selectClicked)="selectionService.setSelectionMode(true)">
+                    [showDownload]="view() !== ViewOptions.map && searchService.totalCount > 0" [themeDefault]="true"
+                    (selectClicked)="selectionService.setSelectionMode(true)"
+                    (downloadClicked)="downloadCsv()">
                   </app-toolbar-controls>
-
                 </div>
 
-                <app-results-sort [selectedSort]="searchService.sortBy"
+                <app-results-sort
+                  [selectedSort]="searchService.sortBy"
                   [selectedDirection]="searchService.sortDirection" (sortChange)="onSortChange($event)">
                 </app-results-sort>
               </ng-container>
@@ -61,240 +82,26 @@
         </app-action-toolbar>
       </div>
 
-      <div class="content-with-sidebar">
-
-      <ng-template #stickyTagsContent>
-        <app-selected-tags [items]="(searchService.selectedTags | async) || []" [showClearAll]="((searchService.selectedTags | async) || []).length > 1"
-                           [textTransform]="'capitalize'"
-          [operators]="(searchService.getFiltersWithOperators() | async) || {}" [showOperators]="false"
-          [translateItems]="true" (remove)="searchService.removeFilter($event)"
-          (removeGroup)="searchService.resetOperator($event)" (clearAll)="searchService.clearAllFilters()"
-          clearButtonPosition="left">
-        </app-selected-tags>
-      </ng-template>
-
-      <div class="page-content__wrapper"
-        [class.wrapper--no-top-padding]="showSelectedTags$ | async" appScrollHideHeader>
-
-        <!-- Sticky tags: hidden on mobile when tabs are shown (tags move inside tabs via tab-common-up) -->
-        <div class="page-content__sticky-tags" *ngIf="(showSelectedTags$ | async) && !(breakpointService.isMobile() && showSectionHeaders())">
-          <ng-container *ngTemplateOutlet="stickyTagsContent"></ng-container>
+      <!-- MAP VIEW -->
+      @if (view() === ViewOptions.map) {
+        <div class="map-view-container">
+          <app-map-browse></app-map-browse>
         </div>
+      }
 
-        <ng-container *ngIf="advancedSearchService.isAdvancedSearchActive()">
-          <app-advanced-search-indicator></app-advanced-search-indicator>
-        </ng-container>
-
-        <!-- Results Container -->
-        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
-
-          <!-- GRID VIEW -->
-          @if (view() === ViewOptions.grid) {
-
-          <!-- MOBILE: Tabbed view when multiple sections exist -->
-          @if (breakpointService.isMobile() && showSectionHeaders()) {
-          <app-tabs headerBackground="base">
-            <div tab-common-up *ngIf="showSelectedTags$ | async" class="page-content__sticky-tags">
-              <ng-container *ngTemplateOutlet="stickyTagsContent"></ng-container>
-            </div>
-            <app-tab-item *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length"
-              [label]="'titles-section-header' | translate">
-              <div class="grid--container">
-                <app-record-item
-                  *ngFor="let doc of (searchService.nonPageResults$ | async) | skeletonList:60:(searchService.loading$ | async)"
-                  [item]="doc ? toRecordItem(doc) : null">
-                </app-record-item>
-              </div>
-            </app-tab-item>
-
-            <app-tab-item *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async)?.length"
-              [label]="'articles-section-header' | translate">
-              <div class="grid--container">
-                <app-record-item *ngFor="let doc of (searchService.articleResults$ | async)"
-                  [item]="toRecordItem(doc)"></app-record-item>
-              </div>
-            </app-tab-item>
-
-            <app-tab-item *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async)?.length"
-              [label]="'pages-section-header' | translate">
-              <div class="grid--container">
-                <app-record-item *ngFor="let doc of (searchService.pageResults$ | async)"
-                  [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders()"></app-record-item>
-              </div>
-            </app-tab-item>
-
-            <app-tab-item *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async)?.length"
-              [label]="'attachments-section-header' | translate">
-              <div class="grid--container">
-                <app-record-item *ngFor="let doc of (searchService.attachmentResults$ | async)"
-                  [item]="toRecordItem(doc)"></app-record-item>
-              </div>
-            </app-tab-item>
-          </app-tabs>
-          } @else {
-
-          <!-- DESKTOP: Stacked sections with headers -->
-          <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
-            <h3 *ngIf="showSectionHeaders()">{{'titles-section-header' | translate}}</h3>
-
-            <div class="grid--container">
-              <app-record-item
-                *ngFor="let doc of (searchService.nonPageResults$ | async) | skeletonList:60:(searchService.loading$ | async)"
-                [item]="doc ? toRecordItem(doc) : null">
-              </app-record-item>
-
-            </div>
-          </ng-container>
-
-          <ng-container
-            *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async) as articleResults">
-            @if (articleResults.length > 0) {
-            <h3 *ngIf="showSectionHeaders()">{{'articles-section-header' | translate}}</h3>
-
-            <div class="grid--container">
-
-              <app-record-item *ngFor="let doc of articleResults" [item]="toRecordItem(doc)"></app-record-item>
-
-            </div>
-            }
-          </ng-container>
-
-          <ng-container
-            *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
-            @if (pageResults.length > 0) {
-            <h3 *ngIf="showSectionHeaders()">{{'pages-section-header' | translate}}</h3>
-
-            <div class="grid--container">
-
-              <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders()"></app-record-item>
-
-            </div>
-            }
-          </ng-container>
-
-          <ng-container
-            *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async) as attachmentResults">
-            @if (attachmentResults.length > 0) {
-            <h3 *ngIf="showSectionHeaders()">{{'attachments-section-header' | translate}}</h3>
-
-            <div class="grid--container">
-
-              <app-record-item *ngFor="let doc of attachmentResults" [item]="toRecordItem(doc)"></app-record-item>
-
-            </div>
-            }
-          </ng-container>
-
-          }
-
-          } @else {
-
-          <!-- LIST VIEW -->
-          @if (searchService.loading$ | async) {
-            <app-record-item-list [records]="[]" [loading]="true"></app-record-item-list>
-          }
-
-          <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
-            @if (nonPageResults.length > 0) {
-            <div class="list-view--header flex flex--space-between align-items-center">
-              <h3 *ngIf="showSectionHeaders()">{{'titles-section-header' | translate}}</h3>
-              <div class="pull-right">
-                <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                  [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [layout]="'compact'"
-                  [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
-                  (pageSizeChange)="searchService.changePageSize($event)">
-                </app-paginator>
-              </div>
-            </div>
-            <app-record-item-list [records]="nonPageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
-            }
-          </ng-container>
-
-          <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
-            @if (articleResults.length > 0) {
-            <div class="list-view--header flex flex--space-between align-items-center">
-              <h3 *ngIf="showSectionHeaders()">{{'articles-section-header' | translate}}</h3>
-              <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
-                <div class="pull-right">
-                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"  [layout]="'compact'"
-                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
-                    (pageSizeChange)="searchService.changePageSize($event)">
-                  </app-paginator>
-                </div>
-              </ng-container>
-            </div>
-            <app-record-item-list [records]="articleResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
-            }
-          </ng-container>
-
-          <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
-            @if (pageResults.length > 0) {
-            <div class="list-view--header flex flex--space-between align-items-center">
-              <h3 *ngIf="showSectionHeaders()">{{'pages-section-header' | translate}}</h3>
-              <ng-container
-                *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length">
-                <div class="pull-right">
-                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
-                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
-                    (pageSizeChange)="searchService.changePageSize($event)">
-                  </app-paginator>
-                </div>
-              </ng-container>
-            </div>
-            <app-record-item-list [records]="pageResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
-            }
-          </ng-container>
-
-          <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
-            @if (attachmentResults.length > 0) {
-            <div class="list-view--header flex flex--space-between align-items-center">
-              <h3 *ngIf="showSectionHeaders()">{{'attachments-section-header' | translate}}</h3>
-              <ng-container
-                *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length && !(searchService.pageResults$ | async)?.length">
-                <div class="pull-right">
-                  <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
-                    [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize"
-                    [pageSizeOptions]="[60, 120, 180]" (pageChange)="searchService.goToPage($event)"
-                    (pageSizeChange)="searchService.changePageSize($event)">
-                  </app-paginator>
-                </div>
-              </ng-container>
-            </div>
-            <app-record-item-list [records]="attachmentResults" [exportedRecord]="exportRecord()" (exportRecord)="openExportPanel($event)"></app-record-item-list>
-            }
-          </ng-container>
-
-          }
-
-        </div>
-
-        <!-- No results state -->
-        @if (!(searchService.loading$ | async) && searchService.totalCount === 0 && searchService.submittedTerm) {
-          <app-no-results></app-no-results>
-        }
-
-        <app-paginator [disabledPagination]="selectionService.selectionMode()" [page]="searchService.page"
-          [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [pageSizeOptions]="[60, 120, 180]"
-          (pageChange)="searchService.goToPage($event)" (pageSizeChange)="searchService.changePageSize($event)">
-        </app-paginator>
-
-      </div>
-
-      <aside class="export-sidebar" *ngIf="view() !== ViewOptions.grid" [class.collapsed]="!exportRecord()">
-        <app-record-export-panel
-          *ngIf="exportRecord()"
-          [record]="exportRecord()!"
-          (close)="closeExportPanel()">
-        </app-record-export-panel>
-      </aside>
-
-      </div><!-- /content-with-sidebar -->
+      <!-- ALL VIEW -->
+      @if (view() !== ViewOptions.map) {
+        <app-search-results-view
+          [view]="view()"
+          [showSectionHeaders]="showSectionHeaders()"
+          [showSelectedTags$]="showSelectedTags$"
+          [exportRecord]="exportRecord()"
+          (exportRecordChange)="exportRecord.set($event)">
+        </app-search-results-view>
+      }
 
     </div>
 
   </div>
-
 
 </div>

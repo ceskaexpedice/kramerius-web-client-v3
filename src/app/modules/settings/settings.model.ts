@@ -8,7 +8,8 @@ export enum AppSettingsThemeEnum {
 
 export enum AppResultsViewType {
   grid = 'grid',
-  list = 'list'
+  list = 'list',
+  map = 'map'
 }
 
 export class Settings {

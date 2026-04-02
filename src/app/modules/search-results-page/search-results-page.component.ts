@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SearchService } from '../../shared/services/search.service';
 import { AdvancedSearchService } from '../../shared/services/advanced-search.service';
 import { AppResultsViewType } from '../settings/settings.model';
@@ -8,10 +9,12 @@ import { AdminSelectionService, SelectionService } from '../../shared/services';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';
-import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
-import { ViewMode } from '../periodical/models/view-mode.enum';
+import { MapSearchService } from '../../shared/services/map-search.service';
+import { isMapViewParams } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { ExportService } from '../../shared/services/export.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search-results-page',
@@ -34,18 +37,17 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   protected readonly ViewOptions = AppResultsViewType;
 
-  // Convert SearchDocument to RecordItem
-  toRecordItem(doc: SearchDocument): RecordItem {
-    return searchDocumentToRecordItem(doc);
-  }
-
   public searchService = inject(SearchService);
+  public mapSearchService = inject(MapSearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
   public selectionService = inject(SelectionService);
   public adminSelectionService = inject(AdminSelectionService);
   private scrollPositionService = inject(ScrollPositionService);
+  private exportService = inject(ExportService);
   public breakpointService = inject(BreakpointService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   private subscriptions: Subscription[] = [];
 
@@ -58,6 +60,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       this.searchService.selectedTags
     ]).pipe(
       map(([loading, tags]) => {
+        if (this.view() === AppResultsViewType.map) return false;
         if (loading || this.searchService.totalCount > 0) return false;
         // Only dim sidebar when there are no active facet filters
         // (i.e. the only tags are the search query itself)
@@ -78,24 +81,28 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       })
     );
 
-    // layout=grid | list
-    // check if in url is set layout
+    // Activate map mode if coordinates are present in URL
     const urlParams = new URLSearchParams(window.location.search);
-    const layout = urlParams.get('viewType') as AppResultsViewType;
+    const initialParams = Object.fromEntries(urlParams.entries());
 
-    if (layout && Object.values(AppResultsViewType).includes(layout)) {
-      this.view.set(layout);
-      this.settingsService.settings.searchResultsView = layout;
+    if (isMapViewParams(initialParams)) {
+      this.view.set(AppResultsViewType.map);
     } else {
-      this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
+      const layout = urlParams.get('viewType') as AppResultsViewType;
+      if (layout && Object.values(AppResultsViewType).includes(layout)) {
+        this.view.set(layout);
+        this.settingsService.settings.searchResultsView = layout;
+      } else {
+        this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
+      }
     }
 
     // React to settings changes (e.g., when user changes view mode in settings dialog)
     this.subscriptions.push(
       this.settingsService.settings$.subscribe(settings => {
         // Only update if no URL override is present
-        const currentUrlParams = new URLSearchParams(window.location.search);
-        if (!currentUrlParams.has('viewType') && settings.searchResultsView) {
+        const currentParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+        if (!isMapViewParams(currentParams) && !currentParams['viewType'] && settings.searchResultsView) {
           this.view.set(settings.searchResultsView);
         }
       })
@@ -155,12 +162,48 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     this.searchService.cleanup();
   }
 
+  onTabChanged(tab: string): void {
+    if (tab === 'map') {
+      this.setView(AppResultsViewType.map);
+    } else {
+      const prevView = this.settingsService.settings.searchResultsView;
+      const validView = prevView && prevView !== AppResultsViewType.map ? prevView : AppResultsViewType.grid;
+      this.setView(validView);
+    }
+  }
+
   setView(view: AppResultsViewType) {
     this.view.set(view);
-    // update the URL with the new view type
-    const url = new URL(window.location.href);
-    url.searchParams.set('viewType', view);
-    window.history.replaceState({}, '', url.toString());
+    const currentParams = this.route.snapshot.queryParams;
+
+    if (view === AppResultsViewType.map) {
+      // Map mode: default to score sort; remove viewType; coords written by MapBrowseComponent
+      this.searchService.changeSortBy(SolrSortFields.relevance, SolrSortDirections.desc);
+      const { viewType, ...rest } = currentParams;
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { ...rest, viewType: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    } else {
+      const wasMapMode = isMapViewParams(currentParams);
+      // Non-map: remove coords via router so Angular's snapshot is updated
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          north: null, south: null, east: null, west: null,
+          viewType: view
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      }).then(() => {
+        if (wasMapMode) {
+          const cleanParams = { ...this.route.snapshot.queryParams };
+          this.searchService.dispatchSearch(cleanParams);
+        }
+      });
+    }
     this.settingsService.settings.searchResultsView = view;
     this.settingsService.saveToStorage(this.settingsService.settings);
   }
@@ -184,13 +227,9 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     // TODO: Implement edit functionality specific to search results
   }
 
-  openExportPanel(record: SearchDocument): void {
-    this.exportRecord.set(record);
+  downloadCsv(): void {
+    this.searchService.results$.pipe(take(1)).subscribe(results => {
+      this.exportService.downloadSearchResultsCsv(results);
+    });
   }
-
-  closeExportPanel(): void {
-    this.exportRecord.set(null);
-  }
-
-  protected readonly ViewMode = ViewMode;
 }

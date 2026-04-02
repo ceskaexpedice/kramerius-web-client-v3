@@ -27,7 +27,7 @@
     },
     "googleMaps": {
       "enabled": true,
-      "apiKey": "GOOGLE_MAPS_API_KEY"
+      "apiKey": "AIzaSyCGDIOYeh5bw_vsBcZxZH3GOzmA0aetqBw"
     }
   },
 
@@ -36,7 +36,7 @@
     "iiif": true,
     "mapSearch": true,
     "georef": true,
-    "ai": false,
+    "ai": true,
     "folders": true,
     "crossOrigin": true,
     "librarySwitch": true
