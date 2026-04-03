@@ -1,0 +1,54 @@
+<div class="ai-content-toolbar">
+  <div class="ai-content-toolbar__left">
+    <span class="ai-content-toolbar__title">{{ headerKey | translate }}</span>
+
+    @if (aiPanelService.contentType() === 'translation') {
+      <div class="ai-content-toolbar__lang-picker" appClickOutside (clickOutside)="closeLangPicker()">
+        <button class="ai-content-toolbar__lang-button" (click)="toggleLangPicker()">
+          <app-language-badge [lang]="selectedLanguage.name" [src]="selectedLanguage.icon" [rounded]="true"></app-language-badge>
+          <i class="fa fa-angle-down" [class.rotated]="langPickerExpanded"></i>
+        </button>
+
+        @if (langPickerExpanded) {
+          <div class="ai-content-toolbar__lang-dropdown">
+            @for (lang of languages; track lang.code) {
+              <button class="ai-content-toolbar__lang-option" (click)="selectLanguage(lang)"
+                      [class.selected]="lang.code === aiPanelService.targetLanguage()">
+                <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true"></app-language-badge>
+                <span>{{ lang.name }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="ai-content-toolbar__right">
+    <label class="ai-content-toolbar__toggle">
+      <input type="checkbox" [checked]="aiPanelService.showOriginal()" (change)="toggleOriginal()">
+      <span class="ai-content-toolbar__toggle-label">{{ 'ai.original' | translate }}</span>
+    </label>
+
+    <div class="ai-content-toolbar__divider"></div>
+
+    <button class="ai-content-toolbar__btn" (click)="decreaseFontSize()" title="T-">
+      <span class="ai-content-toolbar__font-btn"><i class="icon-font1"></i></span>
+    </button>
+    <button class="ai-content-toolbar__btn" (click)="increaseFontSize()" title="T+">
+      <span class="ai-content-toolbar__font-btn"><i class="icon-font"></i></span>
+    </button>
+
+    <button class="ai-content-toolbar__btn" (click)="fullscreenToggle.emit()" [title]="'ai.fullscreen' | translate">
+      <i class="icon-maximize-3"></i>
+    </button>
+
+    <button class="ai-content-toolbar__btn" (click)="copyContent()" [title]="'ai.copy' | translate">
+      <i class="icon-copy"></i>
+    </button>
+
+    <button class="ai-content-toolbar__btn" (click)="closePanel.emit()">
+      <i class="icon-close"></i>
+    </button>
+  </div>
+</div>

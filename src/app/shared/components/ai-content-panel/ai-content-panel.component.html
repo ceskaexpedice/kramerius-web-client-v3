@@ -1,0 +1,25 @@
+<app-fullscreen>
+  <div class="ai-content-panel">
+    <app-ai-content-toolbar
+      (fullscreenToggle)="toggleFullscreen()"
+      (closePanel)="close()">
+    </app-ai-content-toolbar>
+
+    <div class="ai-content-panel__body">
+      @if (aiPanelService.isLoading()) {
+        <app-ai-loading [text]="getLoadingKey() | translate"></app-ai-loading>
+      } @else if (aiPanelService.error()) {
+        <div class="ai-content-panel__error">
+          {{ aiPanelService.error() }}
+        </div>
+      } @else if (aiPanelService.styledHtml()) {
+        <div class="ai-content-panel__content" [style.font-size.px]="aiPanelService.fontSize()"
+             [innerHTML]="aiPanelService.styledHtml()"></div>
+      } @else if (aiPanelService.content()) {
+        <div class="ai-content-panel__content" [style.font-size.px]="aiPanelService.fontSize()">
+          {{ aiPanelService.content() }}
+        </div>
+      }
+    </div>
+  </div>
+</app-fullscreen>
