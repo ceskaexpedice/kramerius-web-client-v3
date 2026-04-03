@@ -7,6 +7,7 @@ import { EpubService } from '../../services/epub.service';
 import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../../core/config';
+import { TtsService } from '../../services/tts.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -23,6 +24,7 @@ export class ViewerControls {
   private iiifViewerService = inject(IIIFViewerService);
   private epubService = inject(EpubService);
   private configService = inject(ConfigService);
+  public ttsService = inject(TtsService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
@@ -162,5 +164,13 @@ export class ViewerControls {
     if (this.type === 'image') {
       this.iiifViewerService.toggleZoomLock();
     }
+  }
+
+  onTtsPlayPause() {
+    this.ttsService.togglePlayPause();
+  }
+
+  onTtsStop() {
+    this.ttsService.stop();
   }
 }

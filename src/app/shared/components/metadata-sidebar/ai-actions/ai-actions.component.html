@@ -3,25 +3,44 @@
     {{ 'ai.powered-by' | translate }}
   </div>
 
-  <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()">
-    <div class="ai-actions__item-left">
-      <i class="icon-voice-square"></i>
-      <span>{{ 'ai.read-aloud' | translate }}</span>
-    </div>
-    <i class="icon-setting-4 ai-actions__item-settings"></i>
-  </button>
+  <div class="ai-actions__items" [class.disabled]="!userService.isLoggedIn">
+    <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()">
+      <div class="ai-actions__item-left">
+        <i class="icon-voice-square"></i>
+        <span>{{ 'ai.read-aloud' | translate }}</span>
+      </div>
+      <i class="icon-setting-4 ai-actions__item-settings"></i>
+    </button>
 
-  <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'">
-    <div class="ai-actions__item-left">
-      <i class="icon-translate"></i>
-      <span>{{ 'ai.translate' | translate }}</span>
-    </div>
-  </button>
+    <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'">
+      <div class="ai-actions__item-left">
+        <i class="icon-translate"></i>
+        <span>{{ 'ai.translate' | translate }}</span>
+      </div>
+    </button>
 
-  <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'">
-    <div class="ai-actions__item-left">
-      <i class="icon-task-square"></i>
-      <span>{{ 'ai.summarize' | translate }}</span>
+    <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'">
+      <div class="ai-actions__item-left">
+        <i class="icon-task-square"></i>
+        <span>{{ 'ai.summarize' | translate }}</span>
+      </div>
+    </button>
+
+    @if (!userService.isLoggedIn) {
+      <div class="ai-actions__fade"></div>
+    }
+  </div>
+
+  @if (!userService.isLoggedIn) {
+    <div class="ai-actions__login">
+      <i class="icon-lock ai-actions__login-icon"></i>
+      <p class="ai-actions__login-title">{{ 'ai.login-required' | translate }}</p>
+      <a class="ai-actions__login-link" (click)="login()">
+        {{ 'ai.login-register-link' | translate }}
+      </a>
+      <button class="ai-actions__login-btn" (click)="login()">
+        {{ 'ai.login-button' | translate }}
+      </button>
     </div>
-  </button>
+  }
 </div>

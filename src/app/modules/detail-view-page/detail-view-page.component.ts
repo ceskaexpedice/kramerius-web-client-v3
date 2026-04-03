@@ -27,6 +27,7 @@ import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restric
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { SearchService } from '../../shared/services/search.service';
+import { AiPanelService } from '../../shared/services/ai-panel.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -52,6 +53,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   private dontShowAgainService = inject(DontShowAgainService);
   public breakpointService = inject(BreakpointService);
   public searchService = inject(SearchService);
+  public aiPanelService = inject(AiPanelService);
 
   // Mobile nav bar
   mobileNavItemsBase: MobileNavItem[] = [
@@ -89,6 +91,24 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
       if (this.detailViewService.isDocumentAccessDenied()) {
         if (this.dontShowAgainService.shouldShowDialog(DontShowDialogs.RestrictedPagesInfoDialog)) {
           this.dialog.open(RestrictedPagesInfoDialogComponent);
+        }
+      }
+    });
+
+    // Reload AI panel content when page changes
+    effect(() => {
+      const pageIndex = this.detailViewService._currentPageIndex();
+      const panelVisible = this.aiPanelService.panelVisible();
+      const contentType = this.aiPanelService.contentType();
+
+      if (panelVisible && contentType) {
+        const pid = this.detailViewService.currentPagePid;
+        if (pid && pid !== this.aiPanelService.currentPagePid()) {
+          if (contentType === 'translation') {
+            this.aiPanelService.showTranslation(pid);
+          } else if (contentType === 'summary') {
+            this.aiPanelService.showSummary(pid);
+          }
         }
       }
     });

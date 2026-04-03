@@ -182,10 +182,13 @@
   <ng-container main-content>
     <app-inline-loader *ngIf="detailViewService.loading$ | async" [overlay]="true"></app-inline-loader>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      <div class="detail-view--page--content--body">
+      <div class="detail-view--page--content--body"
+        [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
+        [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"
           [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
-          [class.selection-mode]="iiifViewerService.isSelectionMode$ | async">
+          [class.selection-mode]="iiifViewerService.isSelectionMode$ | async"
+          [class.hidden]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
 
           <!-- Check if user has access to the document -->
@@ -229,8 +232,8 @@
         </button>
         }
 
-        <!-- Viewer controls for both PDF and IIIF viewers - only show when user has access -->
-        @if (documentInfoService.canAccessDocument(document.licences)) {
+        <!-- Viewer controls - hide when AI panel is in ai-only mode (viewer not visible) -->
+        @if (documentInfoService.canAccessDocument(document.licences) && !(aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only')) {
         @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
         @if (!(pdfService.properties$ | async)?.fullscreen) {
         <app-viewer-controls type="pdf"></app-viewer-controls>
@@ -252,6 +255,10 @@
         }
         }
         }
+
+        @if (aiPanelService.panelVisible()) {
+        <app-ai-content-panel></app-ai-content-panel>
+        }
       </div>
     </ng-container>
   </ng-container>
@@ -259,7 +266,7 @@
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-metadata-sidebar [metadata]="document" mode="floating"
-        [tools]="{search: true, export: true, description: true}">
+        [tools]="{search: true, export: true, description: true, ai: true}">
       </app-metadata-sidebar>
     </ng-container>
   </ng-container>

@@ -101,7 +101,6 @@ export class TtsService {
   stop(): void {
     this.isPlayingBlock = false;
     this.audio.pause();
-    this.audio.src = '';
     this.cleanupBlobUrl();
     this.prefetchedAudio = null;
     this.prefetchingBlockIndex = -1;

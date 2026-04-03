@@ -41,6 +41,7 @@ import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/sl
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { ExportDocumentSectionComponent } from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
+import { AiContentPanelComponent } from '../../shared/components/ai-content-panel/ai-content-panel.component';
 
 const routes: Routes = [
   {
@@ -99,6 +100,7 @@ const routes: Routes = [
 		MetadataSection,
 		ExportDocumentSectionComponent,
 		SearchResultsSidebarComponent,
+		AiContentPanelComponent,
 	],
 })
 
