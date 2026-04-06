@@ -77,7 +77,7 @@ export interface SectionConfig {
      * - `default`: Standard record item card
      * - `author`: Author card with different dimensions
      */
-    cardVariant?: 'default' | 'author';
+    cardVariant?: 'default' | 'portrait';
 
     /**
      * List of category items for 'local-categories' section type.

@@ -19,10 +19,10 @@
         aspect-ratio: unset;
       }
 
-      // Author variant in carousel
-      &.variant-author {
+      // Portrait variant in carousel
+      &.variant-portrait {
         .record-item-card__image {
-          aspect-ratio: var(--author-image-aspect-ratio);
+          aspect-ratio: var(--portrait-image-aspect-ratio);
         }
 
         .record-item-card__content .title {

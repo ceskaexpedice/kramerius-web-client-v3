@@ -1,0 +1,943 @@
+
+ ▐▛███▜▌   Claude Code v2.1.30
+▝▜█████▛▘  Opus 4.5 · Claude Pro
+  ▘▘ ▝▝    ~/work/CDK-klient
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+❯ /compact 
+  ⎿  Compacted (ctrl+o to see full summary)
+  ⎿ Read src/app/shared/components/accessibility-badge/accessibility-badge.compo
+    nent.ts (48 lines)
+  ⎿ Read src/app/shared/components/filters/base-filters.component.ts (295 lines)
+
+  ⎿  Read src/app/shared/utils/facet-utils.ts (149 lines)
+  ⎿ Read src/app/shared/components/filter-category/filter-category.component.ts 
+    (334 lines)
+
+  ⎿  Read src/app/shared/translation/app-translation.service.ts (94 lines)
+  ⎿  Plan file referenced (~/.claude/plans/prancy-wondering-jellyfish.md)
+
+❯ what about filtering these licenses and models directly after i get them  
+  from api and going to process in @src/app/shared/utils/facet-utils.ts     
+  ...is not it better like do it in                                         
+  @src/app/shared/components/filter-category/ ? i would like to have        
+  "clean" data in whole app and such filtration should not be done in       
+  component i think..                                                       
+  ⎿  Read src/app/shared/utils/facet-utils.ts (149 lines)
+
+⏺ You're right. Filtering at the data processing level (facet-utils.ts) is
+  better architecture - it keeps the data "clean" throughout the app and follows
+   single responsibility principle. Components shouldn't need to know about
+  filtering logic.
+
+  Let me move the filtering from the component to facet-utils.ts.
+
+⏺ Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+⏺ Let me check the config service to see what functions are available for
+  getting configured licenses/models.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Let me check the current state of solr-misc.ts to add config-based filtering
+  functions.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ I'll add the config-based filtering functions to solr-misc.ts and update
+  facet-utils.ts to filter at the data processing level. Then I'll remove the
+  duplicate filtering from the components.
+
+⏺ Update(src/app/core/solr/solr-misc.ts)
+  ⎿  Added 22 lines
+       83    return DEFAULT_LICENSES_ORDER;
+       84  }
+       85  
+       86 +/**                                                           
+       87 + * Get all configured license IDs.                            
+       88 + * Returns all license keys from the config file.             
+       89 + */                                                           
+       90 +export function getConfiguredLicenses(): string[] {           
+       91 +  if (configServiceRef) {                                     
+       92 +    return Object.keys(configServiceRef.licenses);            
+       93 +  }                                                           
+       94 +  return DEFAULT_LICENSES_ORDER.filter(l => l !== '_private');
+       95 +}                                                             
+       96 +                                                              
+       97 +/**                                                           
+       98 + * Get configured document types (models/doctypes) for filteri
+          +ng.                                                           
+       99 + * Returns the doctypes from search config, or empty array if 
+          +not configured (meaning all allowed).                         
+      100 + */                                                           
+      101 +export function getConfiguredModels(): string[] {             
+      102 +  if (configServiceRef) {                                     
+      103 +    return configServiceRef.getConfig().search?.doctypes || []
+          +;                                                             
+      104 +  }                                                           
+      105 +  return [];                                                  
+      106 +}                                                             
+      107 +                                                              
+      108  // Legacy exports for backward compatibility
+      109  // These are kept as constants but components should migrate t
+           o using the functions above
+      110  export const ONLINE_LICENSES = DEFAULT_ONLINE_LICENSES;
+
+⏺ Now update facet-utils.ts to filter licenses and models at the data processing
+   level.
+
+⏺ Update(src/app/shared/utils/facet-utils.ts)
+  ⎿  Added 1 line, removed 1 line
+       6    customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElemen
+          tType,
+       7    facetKeysEnum,
+       8  } from '../../modules/search-results-page/const/facets';
+       9 -import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLic
+         -enses } from '../../core/solr/solr-misc';                      
+       9 +import { getPublicLicenses, getOnsiteLicenses, getAfterLoginLic
+         +enses, getConfiguredLicenses, getConfiguredModels } from '../..
+         +/core/solr/solr-misc';                                         
+      10  
+      11  export function handleFacetsWithOperators(
+      12    searchFacets: Record<string, any[]>,
+
+⏺ Now add the filtering logic after building the result, before custom facets
+  processing.
+
+⏺ Update(src/app/shared/utils/facet-utils.ts)
+  ⎿  Added 23 lines
+      46      result[facetKey] = primaryValues;
+      47    }
+      48  
+      49 +  // Filter licenses to only include those defined in config   
+      50 +  const configuredLicenses = getConfiguredLicenses();          
+      51 +  if (result[facetKeysEnum.license] && configuredLicenses.lengt
+         +h > 0) {                                                       
+      52 +    result[facetKeysEnum.license] = result[facetKeysEnum.licens
+         +e].filter(                                                     
+      53 +      (item: FacetItem) => configuredLicenses.includes(item.nam
+         +e)                                                             
+      54 +    );                                                         
+      55 +  }                                                            
+      56 +                                                               
+      57 +  // Filter models to only include those defined in config     
+      58 +  const configuredModels = getConfiguredModels();              
+      59 +  if (configuredModels.length > 0) {                           
+      60 +    if (result[facetKeysEnum.model]) {                         
+      61 +      result[facetKeysEnum.model] = result[facetKeysEnum.model]
+         +.filter(                                                       
+      62 +        (item: FacetItem) => configuredModels.includes(item.nam
+         +e)                                                             
+      63 +      );                                                       
+      64 +    }                                                          
+      65 +    if (result[facetKeysEnum.rootModel]) {                     
+      66 +      result[facetKeysEnum.rootModel] = result[facetKeysEnum.ro
+         +otModel].filter(                                               
+      67 +        (item: FacetItem) => configuredModels.includes(item.nam
+         +e)                                                             
+      68 +      );                                                       
+      69 +    }                                                          
+      70 +  }                                                            
+      71 +                                                               
+      72    // Extract active root.model filters from the filters array (
+          these are external filters from custom-root-model)
+      73    const activeRootModelFilters: string[] = [];
+      74    if (filters && Array.isArray(filters)) {
+
+⏺ Now remove the duplicate filtering from filter-category.component.ts.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Update(src/app/shared/components/filter-category/filter-category.component.ts)
+  ⎿  Removed 1 line
+      22  import { DatePickerComponent } from '../date-picker/date-picker
+          .component';
+      23  import { FilterElementType } from '../../dialogs/advanced-searc
+          h-dialog/solr-filters';
+      24  import { getModelIcon, getLanguageFlagIcon } from '../../utils/
+          filter-icons.utils';
+      25 -import { ConfigService } from '../../../core/config';          
+      25  import { SkeletonListPipe } from '../../pipes/skeleton-list.pip
+          e';
+      26  
+      27  @Component({
+
+⏺ Update(src/app/shared/components/filter-category/filter-category.component.ts)
+  ⎿  Removed 2 lines
+       93      return this.operators[this.facetKey] === 'AND';
+       94    }
+       95  
+       96 -  private configService = inject(ConfigService);              
+       97 -                                                              
+       96    constructor(
+       97      private route: ActivatedRoute,
+       98      private dialog: MatDialog,
+
+⏺ Update(src/app/shared/components/filter-category/filter-category.component.ts)
+  ⎿  Removed 14 lines
+      110  
+      111    }
+      112  
+      113 -  /**                                                         
+      114 -   * Get configured license IDs from config                   
+      115 -   */                                                         
+      116 -  private getConfiguredLicenses(): string[] {                 
+      117 -    return Object.keys(this.configService.licenses);          
+      118 -  }                                                           
+      119 -                                                              
+      120 -  /**                                                         
+      121 -   * Get configured model/doctype IDs from config             
+      122 -   */                                                         
+      123 -  private getConfiguredModels(): string[] {                   
+      124 -    return this.configService.getConfig().search?.doctypes || 
+          -[];                                                           
+      125 -  }                                                           
+      126 -                                                              
+      113    ngOnChanges() {
+      114      this.updateVisibleItems();
+      115    }
+
+⏺ Update(src/app/shared/components/filter-category/filter-category.component.ts)
+  ⎿  Added 3 lines, removed 31 lines
+      115    }
+      116  
+      117    private updateVisibleItems() {
+      118 +    // Data is already filtered at the source (facet-utils.ts)
+      119      let allItems = [...this.items];
+      120  
+      120 -    // Filter licenses to only show those defined in config   
+      121 -    if (this.facetKey === facetKeysEnum.license) {            
+      122 -      const configuredLicenses = this.getConfiguredLicenses();
+      123 -      allItems = allItems.filter(item => configuredLicenses.in
+          -cludes(item.name));                                           
+      124 -    }                                                         
+      125 -                                                              
+      126 -    // Filter models to only show those defined in config     
+      127 -    if (this.facetKey === customDefinedFacetsEnum.model || thi
+          -s.facetKey === facetKeysEnum.model) {                         
+      128 -      const configuredModels = this.getConfiguredModels();    
+      129 -      if (configuredModels.length > 0) {                      
+      130 -        allItems = allItems.filter(item => configuredModels.in
+          -cludes(item.name));                                           
+      131 -      }                                                       
+      132 -    }                                                         
+      133 -                                                              
+      121      const selectedValues = this.selected
+      122        .filter(f => f.startsWith(this.facetKey + ':'))
+      123        .map(f => f.split(':')[1]);
+      124  
+      125      const selectedSet = new Set(selectedValues);
+      126  
+      140 -    // Add missing items (only if they are in configured list)
+      127 +    // Add missing selected items with count 0 (they passed co
+          +nfig filter at source)                                        
+      128      selectedValues.forEach(val => {
+      129        if (!allItems.find(item => item.name === val)) {
+      143 -        // For licenses, only add if configured               
+      144 -        if (this.facetKey === facetKeysEnum.license) {        
+      145 -          const configuredLicenses = this.getConfiguredLicense
+          -s();                                                          
+      146 -          if (configuredLicenses.includes(val)) {             
+      147 -            allItems.push({ name: val, count: 0 });           
+      148 -          }                                                   
+      149 -        }                                                     
+      150 -        // For models, only add if configured                 
+      151 -        else if (this.facetKey === customDefinedFacetsEnum.mod
+          -el || this.facetKey === facetKeysEnum.model) {                
+      152 -          const configuredModels = this.getConfiguredModels();
+      153 -          if (configuredModels.length === 0 || configuredModel
+          -s.includes(val)) {                                            
+      154 -            allItems.push({ name: val, count: 0 });           
+      155 -          }                                                   
+      156 -        } else {                                              
+      157 -          allItems.push({ name: val, count: 0 });             
+      158 -        }                                                     
+      130 +        allItems.push({ name: val, count: 0 });               
+      131        }
+      132      });
+      133  
+
+⏺ Remove unused inject from imports.
+
+⏺ Update(src/app/shared/components/filter-category/filter-category.component.ts)
+  ⎿  Added 1 line, removed 1 line
+      1 -import { Component, EventEmitter, Input, OnChanges, Output, sign
+        -al, effect, inject } from '@angular/core';                      
+      1 +import { Component, EventEmitter, Input, OnChanges, Output, sign
+        +al, effect } from '@angular/core';                              
+      2  import { NgForOf, NgIf, SlicePipe } from '@angular/common';
+      3  import { FilterItemComponent } from '../filter-item/filter-item.
+         component';
+      4  import { FacetItem } from '../../../modules/models/facet-item';
+
+⏺ Now update base-filters.component.ts to remove the duplicate license
+  filtering.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Update(src/app/shared/components/filters/base-filters.component.ts)
+  ⎿  Removed 2 lines
+      14  import {UserService} from '../../services/user.service';
+      15  import {ENVIRONMENT} from '../../../app.config';
+      16  import {DatePickerOutput} from '../date-picker/date-picker.comp
+          onent';
+      17 -import {ConfigService} from '../../../core/config';            
+      17  
+      18  @Component({ template: '' })
+      19  export abstract class BaseFiltersComponent implements OnInit, O
+          nDestroy {
+     ...
+      21    selectedFilters: string[] = [];
+      22    facets$: Observable<any> = new Observable<any>();
+      23    private userLicenses$: Observable<string[]>;
+      25 -  protected configService = inject(ConfigService);             
+      24  
+      25    expandLicenses = false;
+      26  
+
+⏺ Update(src/app/shared/components/filters/base-filters.component.ts)
+  ⎿  Added 2 lines, removed 3 lines
+      113    }
+      114  
+      115    enrichFacetsWithUserData() {
+      116 -    const configuredLicenses = Object.keys(this.configService.
+          -licenses);                                                    
+      116 +    // Data is already filtered at source (facet-utils.ts)    
+      117      const onlineLicenses = getOnlineLicenses();
+      118  
+      119      this.facets$ = combineLatest([
+     ...
+      123        map(([facets, userLicenses]) => {
+      124          const updated = { ...facets };
+      125  
+      126 -        // Add availability and icons to license facet, and fi
+          -lter to only configured licenses                              
+      126 +        // Add availability and icons to license facet        
+      127          if (updated[facetKeysEnum.license]) {
+      128            updated[facetKeysEnum.license] = updated[facetKeysEn
+           um.license]
+      129 -            .filter((item: FacetItem) => configuredLicenses.in
+          -cludes(item.name))                                            
+      129              .map((item: FacetItem) => ({
+      130                ...item,
+      131                available: userLicenses.includes(item.name),
+
+⏺ Remove unused inject from imports.
+
+⏺ Update(src/app/shared/components/filters/base-filters.component.ts)
+  ⎿  Added 1 line, removed 1 line
+      1 -import { Component, Inject, OnDestroy, OnInit, inject } from '@a
+        -ngular/core';                                                   
+      1 +import { Component, Inject, OnDestroy, OnInit } from '@angular/c
+        +ore';                                                           
+      2  import { ActivatedRoute, Router } from '@angular/router';
+      3  import {combineLatest, map, Observable, Subscription} from 'rxjs
+         ';
+      4  import {FILTER_SERVICE, FilterService} from '../../services/filt
+         er.service';
+
+⏺ Let me verify the build compiles correctly.
+
+⏺ Bash(npm run build 2>&1 | head -100)
+  ⎿ > cdk-client@1.0.0 prebuild
+    > node scripts/generate_file_env-json.js && node scripts/collect-build-
+    info.js
+    … +150 lines (ctrl+o to expand)
+
+  ⎿  (timeout 3m)
+
+⏺ Build succeeded. Here's a summary of the changes:
+
+  Changes Made
+
+  1. src/app/core/solr/solr-misc.ts
+
+  Added two new functions for getting configured values:
+  - getConfiguredLicenses() - returns all license IDs from config
+  - getConfiguredModels() - returns configured doctypes from config (or empty
+  array if not configured)
+
+  2. src/app/shared/utils/facet-utils.ts
+
+  Added filtering at the data processing level (after line 47, before custom
+  facets):
+  - Filters license facet to only include licenses from config
+  - Filters model and rootModel facets to only include models from config
+
+  3. src/app/shared/components/filter-category/filter-category.component.ts
+
+  Removed duplicate filtering:
+  - Removed ConfigService import and injection
+  - Removed getConfiguredLicenses() and getConfiguredModels() helper methods
+  - Simplified updateVisibleItems() - data is now clean from source
+
+  4. src/app/shared/components/filters/base-filters.component.ts
+
+  Removed duplicate filtering:
+  - Removed ConfigService import and injection
+  - Removed .filter() call in enrichFacetsWithUserData() - data is already
+  filtered
+
+  Architecture Improvement
+
+  Before: Filtering happened in multiple places (components)
+  API → facet-utils → component filtering → display
+
+  After: Filtering happens once at the data processing level
+  API → facet-utils (with config filtering) → display
+
+  This ensures "clean" data throughout the entire app. Components now just
+  receive pre-filtered data and focus on presentation logic (sorting, icons,
+  etc.).
+
+✻ Brewed for 3m 21s
+
+❯ to this config json add all @src/app/shared/components/viewer-controls/   
+  also @src/app/shared/components/selection-controls/                       
+
+⏺ Let me read the viewer-controls and selection-controls components to
+  understand what can be configured.
+
+⏺ Read 4 files (ctrl+o to expand)
+
+⏺ Let me find the selection-controls component.
+
+⏺ Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+⏺ Now let me read the current config.json to add the new configuration options.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Now I'll update the config.json to add viewer controls and selection controls
+  configuration.
+
+⏺ Update(public/local-config/config.json)
+  ⎿  Added 17 lines, removed 1 line
+      47    "viewer": {
+      48      "defaultMode": "book",
+      49      "availableModes": ["book", "single"],
+      50 -    "rememberLastMode": true                                   
+      50 +    "rememberLastMode": true,                                  
+      51 +    "controls": {                                              
+      52 +      "zoomIn": true,                                          
+      53 +      "zoomOut": true,                                         
+      54 +      "fullscreen": true,                                      
+      55 +      "fitToScreen": true,                                     
+      56 +      "fitToWidth": true,                                      
+      57 +      "scrollMode": true,                                      
+      58 +      "bookMode": true,                                        
+      59 +      "rotate": true,                                          
+      60 +      "selectArea": true                                       
+      61 +    },                                                         
+      62 +    "selectionControls": {                                     
+      63 +      "text": true,                                            
+      64 +      "export": true,                                          
+      65 +      "share": true                                            
+      66 +    }                                                          
+      67    },
+      68  
+      69    "search": {
+
+⏺ Now let me update the config interfaces to include the new types.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Update(src/app/core/config/config.interfaces.ts)
+  ⎿  Added 22 lines
+      60  // Viewer mode type
+      61  export type ViewerMode = 'book' | 'single';
+      62  
+      63 +// Viewer controls configuration                               
+      64 +export interface ViewerControlsConfig {                        
+      65 +  zoomIn: boolean;                                             
+      66 +  zoomOut: boolean;                                            
+      67 +  fullscreen: boolean;                                         
+      68 +  fitToScreen: boolean;                                        
+      69 +  fitToWidth: boolean;                                         
+      70 +  scrollMode: boolean;                                         
+      71 +  bookMode: boolean;                                           
+      72 +  rotate: boolean;                                             
+      73 +  selectArea: boolean;                                         
+      74 +}                                                              
+      75 +                                                               
+      76 +// Selection controls configuration                            
+      77 +export interface SelectionControlsConfig {                     
+      78 +  text: boolean;                                               
+      79 +  export: boolean;                                             
+      80 +  share: boolean;                                              
+      81 +}                                                              
+      82 +                                                               
+      83  // Viewer configuration
+      84  export interface ViewerConfig {
+      85    defaultMode: ViewerMode;
+      86    availableModes: ViewerMode[];
+      87    rememberLastMode: boolean;
+      88 +  controls?: ViewerControlsConfig;                             
+      89 +  selectionControls?: SelectionControlsConfig;                 
+      90  }
+      91  
+      92  // Search configuration
+
+⏺ Now update the ConfigService to add defaults and helper methods.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ Update(src/app/core/config/config.service.ts)
+  ⎿  Added 2 lines
+       5    AppConfiguration,
+       6    FeaturesConfig,
+       7    ViewerConfig,
+       8 +  ViewerControlsConfig,                                        
+       9 +  SelectionControlsConfig,                                     
+      10    LicensesConfig,
+      11    LicenseAccessType,
+      12    I18nConfig,
+
+⏺ Update(src/app/core/config/config.service.ts)
+  ⎿  Added 17 lines, removed 1 line
+      56      viewer: {
+      57        defaultMode: 'book',
+      58        availableModes: ['book', 'single'],
+      59 -      rememberLastMode: true                                   
+      59 +      rememberLastMode: true,                                  
+      60 +      controls: {                                              
+      61 +        zoomIn: true,                                          
+      62 +        zoomOut: true,                                         
+      63 +        fullscreen: true,                                      
+      64 +        fitToScreen: true,                                     
+      65 +        fitToWidth: true,                                      
+      66 +        scrollMode: true,                                      
+      67 +        bookMode: true,                                        
+      68 +        rotate: true,                                          
+      69 +        selectArea: true                                       
+      70 +      },                                                       
+      71 +      selectionControls: {                                     
+      72 +        text: true,                                            
+      73 +        export: true,                                          
+      74 +        share: true                                            
+      75 +      }                                                        
+      76      },
+      77      licenses: {
+      78        public: {
+
+⏺ Update(src/app/core/config/config.service.ts)
+  ⎿  Added 6 lines, removed 1 line
+      148        integrations: loaded.integrations,
+      149        features: { ...this.DEFAULT_CONFIG.features, ...loaded.f
+           eatures },
+      150        ui: { ...this.DEFAULT_CONFIG.ui, ...loaded.ui },
+      151 -      viewer: { ...this.DEFAULT_CONFIG.viewer, ...loaded.viewe
+          -r },                                                          
+      151 +      viewer: {                                               
+      152 +        ...this.DEFAULT_CONFIG.viewer,                        
+      153 +        ...loaded.viewer,                                     
+      154 +        controls: { ...this.DEFAULT_CONFIG.viewer.controls, ..
+          +.loaded.viewer?.controls },                                   
+      155 +        selectionControls: { ...this.DEFAULT_CONFIG.viewer.sel
+          +ectionControls, ...loaded.viewer?.selectionControls }         
+      156 +      },                                                      
+      157        search: loaded.search,
+      158        licenses: loaded.licenses ? { ...this.DEFAULT_CONFIG.lic
+           enses, ...loaded.licenses } : this.DEFAULT_CONFIG.licenses,
+      159        contentPages: loaded.contentPages
+
+⏺ Now add helper methods for checking viewer controls and selection controls.
+
+⏺ Update(src/app/core/config/config.service.ts)
+  ⎿  Added 28 lines
+      214      return this.viewer.availableModes.includes(mode);
+      215    }
+      216  
+      217 +  /**                                                         
+      218 +   * Check if a viewer control is enabled                     
+      219 +   */                                                         
+      220 +  isViewerControlEnabled(control: keyof ViewerControlsConfig):
+          + boolean {                                                    
+      221 +    return this.viewer.controls?.[control] ?? true;           
+      222 +  }                                                           
+      223 +                                                              
+      224 +  /**                                                         
+      225 +   * Check if a selection control is enabled                  
+      226 +   */                                                         
+      227 +  isSelectionControlEnabled(control: keyof SelectionControlsCo
+          +nfig): boolean {                                              
+      228 +    return this.viewer.selectionControls?.[control] ?? true;  
+      229 +  }                                                           
+      230 +                                                              
+      231 +  /**                                                         
+      232 +   * Get viewer controls config                               
+      233 +   */                                                         
+      234 +  get viewerControls(): ViewerControlsConfig {                
+      235 +    return this.viewer.controls ?? this.DEFAULT_CONFIG.viewer.
+          +controls!;                                                    
+      236 +  }                                                           
+      237 +                                                              
+      238 +  /**                                                         
+      239 +   * Get selection controls config                            
+      240 +   */                                                         
+      241 +  get selectionControls(): SelectionControlsConfig {          
+      242 +    return this.viewer.selectionControls ?? this.DEFAULT_CONFI
+          +G.viewer.selectionControls!;                                  
+      243 +  }                                                           
+      244 +                                                              
+      245    // i18n config accessors
+      246    get i18n(): I18nConfig {
+      247      return this.getConfig().i18n;
+
+⏺ Now update the viewer-controls component to use the config.
+
+⏺ Update(src/app/shared/components/viewer-controls/viewer-controls.ts)
+  ⎿  Added 34 lines, removed 4 lines
+      21    private configService = inject(ConfigService);
+      22    public iiifBookMode$ = this.iiifViewerService.bookMode$;
+      23  
+      24 -  /**                                                          
+      25 -   * Check if book mode button should be shown based on config 
+      26 -   */                                                          
+      24 +  // Viewer control visibility getters                         
+      25 +  get showZoomIn(): boolean {                                  
+      26 +    return this.configService.isViewerControlEnabled('zoomIn');
+      27 +  }                                                            
+      28 +                                                               
+      29 +  get showZoomOut(): boolean {                                 
+      30 +    return this.configService.isViewerControlEnabled('zoomOut')
+         +;                                                              
+      31 +  }                                                            
+      32 +                                                               
+      33 +  get showFullscreen(): boolean {                              
+      34 +    return this.configService.isViewerControlEnabled('fullscree
+         +n');                                                           
+      35 +  }                                                            
+      36 +                                                               
+      37 +  get showFitToScreen(): boolean {                             
+      38 +    return this.configService.isViewerControlEnabled('fitToScre
+         +en');                                                          
+      39 +  }                                                            
+      40 +                                                               
+      41 +  get showFitToWidth(): boolean {                              
+      42 +    return this.configService.isViewerControlEnabled('fitToWidt
+         +h');                                                           
+      43 +  }                                                            
+      44 +                                                               
+      45 +  get showScrollMode(): boolean {                              
+      46 +    return this.configService.isViewerControlEnabled('scrollMod
+         +e');                                                           
+      47 +  }                                                            
+      48 +                                                               
+      49    get showBookModeButton(): boolean {
+      28 -    return this.configService.isViewerModeAvailable('book');   
+      50 +    return this.configService.isViewerModeAvailable('book') && 
+         +this.configService.isViewerControlEnabled('bookMode');         
+      51    }
+      52  
+      53 +  get showRotate(): boolean {                                  
+      54 +    return this.configService.isViewerControlEnabled('rotate');
+      55 +  }                                                            
+      56 +                                                               
+      57 +  get showSelectArea(): boolean {                              
+      58 +    return this.configService.isViewerControlEnabled('selectAre
+         +a');                                                           
+      59 +  }                                                            
+      60 +                                                               
+      61    onZoomIn() {
+      62      if (this.type === 'pdf') {
+      63        this.pdfService.zoomIn();
+
+⏺ Now update the viewer-controls template to use the config-based visibility.
+
+⏺ Update(src/app/shared/components/viewer-controls/viewer-controls.html)
+  ⎿  Added 8 lines, removed 18 lines
+       1  <div class="viewer-controls" [class.pdf-layout]="type === 'pdf'
+          " [class.image-layout]="type === 'image'">
+       2    <!-- Common buttons for both viewers -->
+       3  
+       4 -  <button (click)="onZoomIn()" class="button tertiary outlined"
+         - [appCdkTooltip]="'viewer-controls.zoom-in' | translate">      
+       4 +  <button *ngIf="showZoomIn" (click)="onZoomIn()" class="button
+         + tertiary outlined" [appCdkTooltip]="'viewer-controls.zoom-in' 
+         +| translate">                                                  
+       5      <i class="icon icon-search-zoom-in-1"></i>
+       6    </button>
+       7  
+       8 -  <button (click)="onZoomOut()" class="button tertiary outlined
+         -"                                                              
+       8 +  <button *ngIf="showZoomOut" (click)="onZoomOut()" class="butt
+         +on tertiary outlined"                                          
+       9      [appCdkTooltip]="'viewer-controls.zoom-out' | translate">
+      10      <i class="icon icon-search-zoom-out-1"></i>
+      11    </button>
+      12  
+      13 -  <button (click)="onFullscreen()" class="button tertiary outli
+         -ned"                                                           
+      13 +  <button *ngIf="showFullscreen" (click)="onFullscreen()" class
+         +="button tertiary outlined"                                    
+      14      [appCdkTooltip]="'viewer-controls.fullscreen' | translate">
+      15      <i class="icon icon-maximize-3"></i>
+      16    </button>
+      17  
+      18 -  <button (click)="onFitToScreen()" class="button tertiary outl
+         -ined"                                                          
+      18 +  <button *ngIf="showFitToScreen" (click)="onFitToScreen()" cla
+         +ss="button tertiary outlined"                                  
+      19      [appCdkTooltip]="'viewer-controls.fit-to-screen' | translat
+          e">
+      20      <i class="icon icon-maximize-1"></i>
+      21    </button>
+      22  
+      23 -  <button (click)="onToggleFitToWidth()" class="button tertiary
+         - outlined"                                                     
+      23 +  <button *ngIf="showFitToWidth" (click)="onToggleFitToWidth()"
+         + class="button tertiary outlined"                              
+      24      [appCdkTooltip]="'viewer-controls.fit-to-width' | translate
+          ">
+      25      <i class="icon icon-grid-lock"></i>
+      26    </button>
+     ...
+      28    <!-- PDF-specific buttons -->
+      29    <ng-container *ngIf="type === 'pdf'">
+      30  
+      31 -    <button (click)="onScrollMode()" class="button tertiary out
+         -lined"                                                         
+      31 +    <button *ngIf="showScrollMode" (click)="onScrollMode()" cla
+         +ss="button tertiary outlined"                                  
+      32        [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | t
+          ranslate">
+      33        <i class="icon icon-pharagraphspacing"></i>
+      34      </button>
+      35  
+      36 -    <!--    <button (click)="onTextView()" class="button tertia
+         -ry outlined" title="Toggle Text View">-->                      
+      37 -    <!--      <i class="icon icon-text"></i>-->                
+      38 -    <!--    </button>-->                                       
+      39 -                                                               
+      40 -    <!--    <button (click)="onBookMode()" class="button tertia
+         -ry outlined" title="Book mode">-->                             
+      41 -    <!--      <i class="icon icon-book"></i>-->                
+      42 -    <!--    </button>-->                                       
+      36    </ng-container>
+      37  
+      38    <button *ngIf="showBookModeButton" (click)="onBookMode()" cla
+          ss="button tertiary outlined"
+     ...
+      40      <i class="icon icon-book-1"></i>
+      41    </button>
+      42  
+      50 -  <button class="button tertiary outlined" (click)="onRotate()"
+         - [appCdkTooltip]="'viewer-controls.rotate' | translate">       
+      43 +  <button *ngIf="showRotate" class="button tertiary outlined" (
+         +click)="onRotate()" [appCdkTooltip]="'viewer-controls.rotate' |
+         + translate">                                                   
+      44      <i class="icon icon-rotate-right"></i>
+      45    </button>
+      46  
+      47    <!-- Image-specific buttons -->
+      48    <ng-container *ngIf="type === 'image'">
+      56 -    <!--    <button (click)="onDrawRectangle()" class="button t
+         -ertiary outlined" title="Draw Rectangle">-->                   
+      57 -    <!--      <i class="icon icon-square"></i>-->              
+      58 -    <!--    </button>-->                                       
+      59 -    <button *ngIf="(iiifBookMode$ | async) === false" (click)="
+         -onSelectArea()" class="button tertiary outlined"               
+      49 +    <button *ngIf="showSelectArea && (iiifBookMode$ | async) ==
+         += false" (click)="onSelectArea()" class="button tertiary outlin
+         +ed"                                                            
+      50        [appCdkTooltip]="'viewer-controls.select-area' | translat
+          e">
+      51        <i class="icon icon-crop"></i>
+      52      </button>
+
+⏺ Now update the selection-controls component.
+
+⏺ Update(src/app/shared/components/selection-controls/selection-controls.ts)
+  ⎿  Added 17 lines, removed 1 line
+      1 -import { Component, EventEmitter, Output } from '@angular/core';
+      1 +import { Component, EventEmitter, Output, inject } from '@angula
+        +r/core';                                                        
+      2  import { CommonModule } from '@angular/common';
+      3 +import { ConfigService } from '../../../core/config';           
+      4  
+      5  @Component({
+      6      selector: 'app-selection-controls',
+     ...
+      14      @Output() export = new EventEmitter<void>();
+      15      @Output() share = new EventEmitter<void>();
+      16  
+      17 +    private configService = inject(ConfigService);             
+      18 +                                                               
+      19 +    // Selection control visibility getters                    
+      20 +    get showText(): boolean {                                  
+      21 +        return this.configService.isSelectionControlEnabled('te
+         +xt');                                                          
+      22 +    }                                                          
+      23 +                                                               
+      24 +    get showExport(): boolean {                                
+      25 +        return this.configService.isSelectionControlEnabled('ex
+         +port');                                                        
+      26 +    }                                                          
+      27 +                                                               
+      28 +    get showShare(): boolean {                                 
+      29 +        return this.configService.isSelectionControlEnabled('sh
+         +are');                                                         
+      30 +    }                                                          
+      31 +                                                               
+      32      onText() {
+      33          this.text.emit();
+      34      }
+
+⏺ Update(src/app/shared/components/selection-controls/selection-controls.html)
+  ⎿  Added 3 lines, removed 3 lines
+       1  <div class="selection-controls">
+       2 -    <button (click)="onText()" class="button tertiary outlined"
+         - title="Text">                                                 
+       2 +    <button *ngIf="showText" (click)="onText()" class="button t
+         +ertiary outlined" title="Text">                                
+       3          <i class="icon icon-text"></i>
+       4      </button>
+       5  
+       6 -    <button (click)="onExport()" class="button tertiary outline
+         -d" title="Export">                                             
+       6 +    <button *ngIf="showExport" (click)="onExport()" class="butt
+         +on tertiary outlined" title="Export">                          
+       7          <i class="icon icon-export-1"></i>
+       8      </button>
+       9  
+      10 -    <button (click)="onShare()" class="button tertiary outlined
+         -" title="Share">                                               
+      10 +    <button *ngIf="showShare" (click)="onShare()" class="button
+         + tertiary outlined" title="Share">                             
+      11          <i class="icon icon-send-2"></i>
+      12      </button>
+      13  </div>
+
+⏺ Let me verify the build compiles correctly.
+
+⏺ Bash(npm run build 2>&1 | head -80)
+  ⎿ > cdk-client@1.0.0 prebuild
+    > node scripts/generate_file_env-json.js && node scripts/collect-build-
+    info.js
+    … +93 lines (ctrl+o to expand)
+
+  ⎿  (timeout 3m)
+
+⏺ Bash(npm run build 2>&1 | grep -A 20 "error")
+  ⎿  No matches found
+  ⎿  (timeout 3m)
+
+⏺ Bash(npm run build 2>&1 | grep -i "error\|Error\|ERROR" -A 5)
+  ⎿ ✘ [ERROR] TS2322: Type '{ zoomIn?: boolean | undefined; zoomOut?: boole
+    an | undefined; fullscreen?: boolean | undefined; fitToScreen?: boolean
+     | undefined; fitToWidth?: boolean | undefined; scrollMode?: boolean | 
+    … +19 lines (ctrl+o to expand)
+
+
+
+  ⎿  (timeout 3m)
+
+⏺ I see the issue - the merge creates partial types. Let me fix it.
+
+⏺ Update(src/app/core/config/config.service.ts)
+  ⎿  Added 2 lines, removed 2 lines
+      151        viewer: {
+      152          ...this.DEFAULT_CONFIG.viewer,
+      153          ...loaded.viewer,
+      154 -        controls: { ...this.DEFAULT_CONFIG.viewer.controls, ..
+          -.loaded.viewer?.controls },                                   
+      155 -        selectionControls: { ...this.DEFAULT_CONFIG.viewer.sel
+          -ectionControls, ...loaded.viewer?.selectionControls }         
+      154 +        controls: { ...this.DEFAULT_CONFIG.viewer.controls!, .
+          +..loaded.viewer?.controls },                                  
+      155 +        selectionControls: { ...this.DEFAULT_CONFIG.viewer.sel
+          +ectionControls!, ...loaded.viewer?.selectionControls }        
+      156        },
+      157        search: loaded.search,
+      158        licenses: loaded.licenses ? { ...this.DEFAULT_CONFIG.lic
+           enses, ...loaded.licenses } : this.DEFAULT_CONFIG.licenses,
+
+⏺ Bash(npm run build 2>&1 | tail -50)
+  ⎿   Sass @import rules are deprecated and will be removed in Dart Sass 3.
+    0.0.
+    … +57 lines (ctrl+o to expand)
+
+  ⎿  (timeout 3m)
+
+⏺ Build succeeded. Here's a summary of the changes:
+
+  Summary of Changes
+
+  1. public/local-config/config.json
+
+  Added viewer controls and selection controls configuration:
+  "viewer": {
+    "defaultMode": "book",
+    "availableModes": ["book", "single"],
+    "rememberLastMode": true,
+    "controls": {
+      "zoomIn": true,
+      "zoomOut": true,
+      "fullscreen": true,
+      "fitToScreen": true,
+      "fitToWidth": true,
+      "scrollMode": true,
+      "bookMode": true,
+      "rotate": true,
+      "selectArea": true
+    },
+    "selectionControls": {
+      "text": true,
+      "export": true,
+      "share": true
+    }
+  }
+
+  2. src/app/core/config/config.interfaces.ts
+
+  Added new interfaces:
+  - ViewerControlsConfig - defines all viewer control buttons
+  - SelectionControlsConfig - defines selection control buttons
+  - Updated ViewerConfig to include optional controls and selectionControls
+
+  3. src/app/core/config/config.service.ts
+
+  - Added default values for viewer controls and selection controls
+  - Updated mergeWithDefaults to properly merge nested configs
+  - Added helper methods:
+    - isViewerControlEnabled(control) - check if a viewer control is enabled
+    - isSelectionControlEnabled(control) - check if a selection control is
+  enabled
+    - viewerControls getter
+    - selectionControls getter
+
+  4. src/app/shared/components/viewer-controls/viewer-controls.ts
+
+  Added visibility getters for each control button:
+  - showZoomIn, showZoomOut, showFullscreen, showFitToScreen, showFitToWidth
+  - showScrollMode, showBookModeButton, showRotate, showSelectArea
+
+  5. src/app/shared/components/viewer-controls/viewer-controls.html
+
+  Added *ngIf directives to all buttons using the config-based visibility
+  getters.
+
+  6. src/app/shared/components/selection-controls/selection-controls.ts
+
+  - Injected ConfigService
+  - Added visibility getters: showText, showExport, showShare
+
+  7. src/app/shared/components/selection-controls/selection-controls.html
+
+  Added *ngIf directives to all buttons using the config-based visibility
+  getters.
+
+  Usage
+
+  To hide/show specific controls, simply set them to true or false in the
+  config.json:
+
+  "controls": {
+    "zoomIn": true,
+    "rotate": false  // This hides the rotate button
+  }
+
+✻ Brewed for 5m 52s

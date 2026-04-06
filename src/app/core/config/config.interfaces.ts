@@ -178,7 +178,7 @@ export interface HomepageSectionConfig {
   comment?: string;
   sectionUrl?: string;
   buttonText?: string;
-  cardVariant?: 'default' | 'author';
+  cardVariant?: 'default' | 'portrait';
   categories?: HomepageLinkItem[];
   showCount?: boolean;
   tags?: SuggestedSearchTagItem[];
@@ -197,4 +197,6 @@ export interface AppConfiguration {
   licenses: LicensesConfig;
   pages?: PageConfig[];
   homeSections?: HomepageSectionConfig[];
+  homepageTitle?: LocalizedLabel;
+  homepageSubtitle?: LocalizedLabel;
 }

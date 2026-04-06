@@ -11,6 +11,7 @@ import {
 } from '../suggested-search-tags-section/suggested-search-tags-section.component';
 import {UiStateService} from '../../../../shared/services/ui-state.service';
 import {BreakpointService} from '../../../../shared/services/breakpoint.service';
+import {AppTranslationService} from '../../../../shared/translation/app-translation.service';
 
 @Component({
   selector: 'app-search-hero',
@@ -30,12 +31,14 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
   searchService = inject(SearchService);
   advancedSearch = inject(AdvancedSearchService);
   private configService = inject(ConfigService);
+  private translationService = inject(AppTranslationService);
   private uiState = inject(UiStateService);
   private el = inject(ElementRef);
 
   breakpointService = inject(BreakpointService);
 
   heroTitle = '';
+  heroSubtitle = '';
   showSuggestedTags = this.configService.suggestedTags.length > 0;
 
   @ViewChild(AutocompleteComponent) autocompleteComponent!: AutocompleteComponent;
@@ -43,6 +46,18 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
   private intersectionObserver?: IntersectionObserver;
 
   async ngOnInit() {
+    const lang = this.translationService.currentLanguage().code;
+
+    const title = this.configService.homepageTitle;
+    if (title) {
+      this.heroTitle = title[lang] ?? title['en'] ?? title['cs'] ?? '';
+    }
+
+    const subtitle = this.configService.homepageSubtitle;
+    if (subtitle) {
+      this.heroSubtitle = subtitle[lang] ?? subtitle['en'] ?? subtitle['cs'] ?? '';
+    }
+
     const activeLib = await this.configService.getActiveLibrary();
     if (activeLib) {
       this.heroTitle = activeLib.name;

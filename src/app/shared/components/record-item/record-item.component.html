@@ -3,7 +3,7 @@
   [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="selectionService.selectionMode()"
   [class.selected]="item && selectionService.selectionMode() && selectionService.isSelected(item.id)"
   [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'" [class.vertical]="layout === 'vertical'"
-  [class.variant-author]="variant === 'author'" [ngClass]="[item?.className || '', item?.model || '']"
+  [class.variant-portrait]="variant === 'portrait'" [ngClass]="[item?.className || '', item?.model || '']"
   [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
   (click)="!loading && item && onRecordClick($event)">
 
