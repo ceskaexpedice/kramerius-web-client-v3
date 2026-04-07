@@ -51,8 +51,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       share: true
     }
   },
-  licenses: {
-    public: {
+  licenses: [
+    {
       id: 'public',
       accessType: 'open',
       isOnline: true,
@@ -62,7 +62,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: true, crop: true
       }
     },
-    dnnto: {
+    {
       id: 'dnnto',
       accessType: 'login',
       isOnline: true,
@@ -78,7 +78,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     },
-    dnntt: {
+    {
       id: 'dnntt',
       accessType: 'terminal',
       isOnline: false,
@@ -88,7 +88,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     },
-    onsite: {
+    {
       id: 'onsite',
       accessType: 'terminal',
       isOnline: false,
@@ -98,7 +98,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     }
-  },
+  ],
   pages: [
     {
       id: 'about',

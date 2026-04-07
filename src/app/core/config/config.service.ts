@@ -10,6 +10,7 @@ import {
   SelectionControlsConfig,
   LicensesConfig,
   LicenseAccessType,
+  LicenseBarConfig,
   I18nConfig,
   UiConfig,
   ViewerMode,
@@ -130,20 +131,18 @@ export class ConfigService {
    * Process licenses config by merging each license with _defaults
    */
   private processLicensesWithDefaults(licensesData: Record<string, any>): LicensesConfig {
-    const { _defaults, ...licenses } = licensesData;
+    const { _defaults, licenses } = licensesData;
     const defaultActions = _defaults?.actions ?? {};
 
-    const processed: LicensesConfig = {};
-    for (const [id, license] of Object.entries(licenses)) {
-      const lic = license as any;
-      processed[id] = {
-        id,
-        ...lic,
-        isOnline: lic.accessType !== 'terminal',
-        actions: { ...defaultActions, ...lic.actions }
-      };
-    }
-    return processed;
+    const licenseArray: any[] = Array.isArray(licenses)
+      ? licenses
+      : Object.entries(licenses ?? {}).map(([id, v]) => ({ id, ...(v as any) }));
+
+    return licenseArray.map(lic => ({
+      ...lic,
+      isOnline: lic.accessType !== 'terminal',
+      actions: { ...defaultActions, ...lic.actions }
+    }));
   }
 
   /**
@@ -263,9 +262,7 @@ export class ConfigService {
    * Get licenses by access type
    */
   getLicensesByAccessType(accessType: LicenseAccessType): string[] {
-    return Object.entries(this.licenses)
-      .filter(([_, config]) => config.accessType === accessType)
-      .map(([id]) => id);
+    return this.licenses.filter(l => l.accessType === accessType).map(l => l.id);
   }
 
   /**
@@ -294,23 +291,28 @@ export class ConfigService {
    * Online means accessible remotely (not requiring physical presence)
    */
   getOnlineLicenses(): string[] {
-    return Object.entries(this.licenses)
-      .filter(([_, config]) => config.isOnline)
-      .map(([id]) => id);
+    return this.licenses.filter(l => l.isOnline).map(l => l.id);
   }
 
   /**
    * Get ordered list of license IDs based on their position in config
    */
   getLicenseOrder(): string[] {
-    return Object.keys(this.licenses);
+    return this.licenses.map(l => l.id);
   }
 
   /**
    * Get a specific license configuration
    */
   getLicenseConfig(licenseId: string) {
-    return this.licenses[licenseId];
+    return this.licenses.find(l => l.id === licenseId);
+  }
+
+  /**
+   * Get all license bar configurations defined across licenses.
+   */
+  getLicenseBars(): LicenseBarConfig[] {
+    return this.licenses.filter(l => l.bar).map(l => l.bar!);
   }
 
   /**
@@ -332,7 +334,7 @@ export class ConfigService {
   getLocalizedLabel(type: 'license', key: string, lang: string): string {
     switch (type) {
       case 'license': {
-        const license = this.licenses[key];
+        const license = this.licenses.find(l => l.id === key);
         if (!license?.label) return key;
         for (const l of this.getLangChain(lang)) {
           if (license.label[l]) return license.label[l];
@@ -349,7 +351,7 @@ export class ConfigService {
    * Falls back through the language chain if the requested language is not available.
    */
   getMessagePageUrl(licenseId: string, pageKey: string, lang: string): string | null {
-    const license = this.licenses[licenseId];
+    const license = this.licenses.find(l => l.id === licenseId);
     if (!license?.messagePages) return null;
 
     const messagePage = license.messagePages.find(mp => mp.key === pageKey);
@@ -366,7 +368,7 @@ export class ConfigService {
    * Falls back through the language chain if the requested language is not available.
    */
   getInstructionPageUrl(licenseId: string, lang: string): string | null {
-    const license = this.licenses[licenseId];
+    const license = this.licenses.find(l => l.id === licenseId);
     if (!license?.instructionPage) return null;
 
     for (const l of this.getLangChain(lang)) {

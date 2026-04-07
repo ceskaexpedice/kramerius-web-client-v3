@@ -1,6 +1,6 @@
 @use "_z-index.scss" as z;
 
-.dnnto-bar {
+.license-bar {
   position: fixed;
   bottom: var(--playback-bar-height, 0px);
   left: 0;
@@ -19,7 +19,11 @@
   padding: var(--spacing-x2) var(--spacing-x4);
   z-index: z.$playback-bar;
 
-  .dnnto-bar--title {
+  &.clickable {
+    cursor: pointer;
+  }
+
+  .license-bar--title {
     display: flex;
     align-items: center;
     gap: var(--spacing-x2);

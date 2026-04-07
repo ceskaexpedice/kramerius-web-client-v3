@@ -124,6 +124,14 @@ export interface LicenseMessagePage {
   page: LocalizedLabel;
 }
 
+// License bar configuration — shown in detail view when document has one of the listed licenses
+export interface LicenseBarConfig {
+  licenses: string[];      // license IDs that trigger the bar
+  text: LocalizedLabel;    // localized bar text
+  logo?: string;           // optional logo URL
+  link?: string;           // optional URL opened on bar click
+}
+
 // Single license configuration
 export interface LicenseConfig {
   id: string;
@@ -133,12 +141,11 @@ export interface LicenseConfig {
   messagePages?: LicenseMessagePage[];
   instructionPage?: LocalizedLabel;
   actions: LicenseActionsConfig;
+  bar?: LicenseBarConfig;  // optional info bar shown in detail view
 }
 
-// Licenses configuration (keyed by license ID)
-export interface LicensesConfig {
-  [licenseId: string]: LicenseConfig;
-}
+// Licenses configuration (ordered array of license configs)
+export type LicensesConfig = LicenseConfig[];
 
 // Localized content — single URL or array of URLs per language
 export interface LocalizedContent {
