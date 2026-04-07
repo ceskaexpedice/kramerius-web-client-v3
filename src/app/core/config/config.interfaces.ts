@@ -155,7 +155,8 @@ export interface PageConfig {
 
 // Home section link item
 export interface HomepageLinkItem {
-  label: string;
+  label: string | LocalizedLabel;
+  type?: string;
   url: string;
   icon?: string;
   count?: number;
@@ -163,21 +164,21 @@ export interface HomepageLinkItem {
 
 // Suggested search tag item
 export interface SuggestedSearchTagItem {
-  text: string;
+  text: string | LocalizedLabel;
   filter: string;
 }
 
 // Home section configuration
 export interface HomepageSectionConfig {
   type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories' | 'suggested-tags';
-  title: string;
+  title: string | LocalizedLabel;
   items?: Record<string, any>[];
   pids?: string[];
   hideIfEmpty?: boolean;
   visible?: boolean;
   comment?: string;
   sectionUrl?: string;
-  buttonText?: string;
+  buttonText?: string | LocalizedLabel;
   cardVariant?: 'default' | 'portrait';
   categories?: HomepageLinkItem[];
   showCount?: boolean;
