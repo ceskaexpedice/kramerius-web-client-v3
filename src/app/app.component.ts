@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 
   playbackBarHeight = computed(() => this.showPlaybackBar() ? '52px' : '0px');
-  dnntoBarHeight = computed(() => this.uiState.dnntoBarVisible() ? '38px' : '0px');
+  dnntoBarHeight = computed(() => this.uiState.licenseBarVisible() ? '38px' : '0px');
 
   constructor() {
     effect(() => {
