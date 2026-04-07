@@ -6,6 +6,7 @@ import { HomepageSectionConfig, HomepageLinkItem, LocalizedLabel } from '../../.
 import { getModelIcon } from '../../../../shared/utils/filter-icons.utils';
 import { LocalizedPipe } from '../../../../shared/pipes/localized.pipe';
 import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
+import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
   selector: 'app-local-categories-section',
@@ -23,15 +24,15 @@ export class LocalCategoriesSectionComponent {
   @Input() config!: HomepageSectionConfig;
 
   private translationService = inject(AppTranslationService);
+  private configService = inject(ConfigService);
 
   get categories(): HomepageLinkItem[] {
     return (this.config.categories || []) as HomepageLinkItem[];
   }
 
   resolveLabel(label: string | LocalizedLabel): string {
-    if (typeof label === 'string') return label;
     const lang = this.translationService.currentLanguage().code;
-    return label[lang] ?? label['en'] ?? label['cs'] ?? Object.values(label)[0] ?? '';
+    return this.configService.resolveLabel(label, lang);
   }
 
   /**

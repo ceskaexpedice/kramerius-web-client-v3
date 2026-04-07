@@ -1,7 +1,7 @@
 <section class="search-hero">
-  <h1>{{ heroTitle || ('search-hero-section-title' | translate) }}</h1>
+  <h1>{{ (homepageTitle | localized) || activeLibName || ('search-hero-section-title' | translate) }}</h1>
   <p>
-    {{ heroSubtitle || ('search-hero-section-subtitle' | translate) }}
+    {{ (homepageSubtitle | localized) || ('search-hero-section-subtitle' | translate) }}
   </p>
 
   <div class="search-row">

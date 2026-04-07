@@ -11,6 +11,7 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { parseSearchDocument } from '../../../models/search-document';
 import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
+import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
   selector: 'app-local-records-section',
@@ -53,14 +54,13 @@ export class LocalRecordsSectionComponent implements OnInit {
 
   private solrService = inject(SolrService);
   private translationService = inject(AppTranslationService);
+  private configService = inject(ConfigService);
 
   items$: Observable<RecordItem[]> = of([]);
 
   private resolveTitle(title: string | LocalizedLabel | undefined): string {
-    if (!title) return '';
-    if (typeof title === 'string') return title;
     const lang = this.translationService.currentLanguage().code;
-    return title[lang] ?? title['en'] ?? title['cs'] ?? Object.values(title)[0] ?? '';
+    return this.configService.resolveLabel(title, lang);
   }
 
   ngOnInit() {

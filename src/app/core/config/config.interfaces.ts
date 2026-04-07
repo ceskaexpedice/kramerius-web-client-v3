@@ -1,11 +1,11 @@
 // Application configuration
 export interface AppConfig {
-  code: string;           // e.g., 'cdk'
-  name: string;           // e.g., 'Czech Digital Library'
-  version: string;        // e.g., '2.0.0'
-  baseUrl: string;        // Application base URL
-  contactEmail: string;   // Contact email
-  logo?: string;          // URL to the app/library logo
+  code: string;                    // e.g., 'cdk'
+  name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
+  version: string;                 // e.g., '2.0.0'
+  baseUrl: string;                 // Application base URL
+  contactEmail: string;            // Contact email
+  logo?: string;                   // URL to the app/library logo
 }
 
 // API configuration

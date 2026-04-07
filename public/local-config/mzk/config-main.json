@@ -1,7 +1,7 @@
 {
   "app": {
     "code": "mzk",
-    "name": "Moravská zemská knihovna",
+    "name": { "cs": "Moravská zemská knihovna", "en": "Moravian Library", "sk": "Moravská zemská knižnica", "pl": "Morawska Biblioteka Krajowa" },
     "version": "3.0.0",
     "baseUrl": "https://api.kramerius.mzk.cz",
     "contactEmail": "digitalniknihovna@mzk.cz",

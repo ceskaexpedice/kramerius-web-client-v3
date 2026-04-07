@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {SearchService} from '../../../../shared/services/search.service';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {LocalizedPipe} from '../../../../shared/pipes/localized.pipe';
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {ConfigService} from '../../../../core/config/config.service';
 import {NgIf} from '@angular/common';
@@ -19,6 +20,7 @@ import {AppTranslationService} from '../../../../shared/translation/app-translat
     FormsModule,
     AutocompleteComponent,
     TranslatePipe,
+    LocalizedPipe,
     SuggestedSearchTagsSectionComponent,
     NgIf,
   ],
@@ -37,30 +39,20 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
 
   breakpointService = inject(BreakpointService);
 
-  heroTitle = '';
-  heroSubtitle = '';
   showSuggestedTags = this.configService.suggestedTags.length > 0;
+  activeLibName = '';
+
+  get homepageTitle() { return this.configService.homepageTitle; }
+  get homepageSubtitle() { return this.configService.homepageSubtitle; }
 
   @ViewChild(AutocompleteComponent) autocompleteComponent!: AutocompleteComponent;
 
   private intersectionObserver?: IntersectionObserver;
 
   async ngOnInit() {
-    const lang = this.translationService.currentLanguage().code;
-
-    const title = this.configService.homepageTitle;
-    if (title) {
-      this.heroTitle = title[lang] ?? title['en'] ?? title['cs'] ?? '';
-    }
-
-    const subtitle = this.configService.homepageSubtitle;
-    if (subtitle) {
-      this.heroSubtitle = subtitle[lang] ?? subtitle['en'] ?? subtitle['cs'] ?? '';
-    }
-
     const activeLib = await this.configService.getActiveLibrary();
     if (activeLib) {
-      this.heroTitle = activeLib.name;
+      this.activeLibName = activeLib.name;
     }
   }
 

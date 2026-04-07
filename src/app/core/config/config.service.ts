@@ -327,6 +327,20 @@ export class ConfigService {
   }
 
   /**
+   * Resolve a string or LocalizedLabel to a plain string for the given language.
+   * Falls back through the configured language chain (e.g. sk → cs → en).
+   * If value is already a string, it is returned as-is.
+   */
+  resolveLabel(value: string | LocalizedLabel | undefined, lang: string, fallback = ''): string {
+    if (!value) return fallback;
+    if (typeof value === 'string') return value;
+    for (const l of this.getLangChain(lang)) {
+      if (value[l]) return value[l];
+    }
+    return Object.values(value)[0] ?? fallback;
+  }
+
+  /**
    * Get localized label from config for any entity type.
    * Supports: 'license' (more types can be added in future)
    * Falls back to: requested lang -> fallback chain -> key itself
@@ -451,8 +465,6 @@ export class ConfigService {
   private activeLibraryCache: { code: string; name: string; name_en: string; logo: string } | null = null;
 
   async getActiveLibrary(): Promise<{ name: string; name_en: string; logo: string } | null> {
-    if (!this.isFeatureEnabled('librarySwitch')) return null;
-
     const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
     if (!activeCode) return null;
 
