@@ -13,11 +13,11 @@ export const TRANSLATION_LANGUAGES: Language[] = [
   { code: 'pt', name: 'Português', icon: 'img/flag/pt.svg' },
   { code: 'sl', name: 'Slovenščina', icon: 'img/flag/sl.svg' },
   { code: 'hu', name: 'Magyar', icon: 'img/flag/hu.svg' },
-  { code: 'uk', name: 'Українська', icon: 'img/flag/uk.svg' },
+  { code: 'uk', name: 'Українська', icon: 'img/flag/ua.svg' },
   { code: 'ru', name: 'Русский', icon: 'img/flag/ru.svg' },
   { code: 'sv', name: 'Svenska', icon: 'img/flag/sv.svg' },
   { code: 'et', name: 'Eesti', icon: 'img/flag/et.svg' },
   { code: 'lt', name: 'Lietuvių', icon: 'img/flag/lt.svg' },
   { code: 'lv', name: 'Latviešu', icon: 'img/flag/lv.svg' },
-  { code: 'zh-CN', name: '中文 (简体)', icon: '' },
+  { code: 'zh-CN', name: '中文 (简体)', icon: 'img/flag/cn.svg' },
 ];
