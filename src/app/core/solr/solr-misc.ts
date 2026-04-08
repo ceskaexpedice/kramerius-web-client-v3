@@ -126,7 +126,7 @@ export function selectPrimaryLicense(licenses: string[]): string | null {
  */
 export function getConfiguredLicenses(): string[] {
   if (configServiceRef) {
-    return Object.keys(configServiceRef.licenses);
+    return configServiceRef.licenses.map(l => l.id);
   }
   return DEFAULT_LICENSES_ORDER.filter(l => l !== '_private');
 }
