@@ -4,7 +4,7 @@ import { AiApiService, AI_MODELS, AiModel, TranslateProvider } from './ai-api.se
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-export type AiPanelContentType = 'translation' | 'summary' | null;
+export type AiPanelContentType = 'translation' | 'summary' | 'text' | null;
 export type AiPanelMode = 'split' | 'ai-only';
 
 @Injectable({ providedIn: 'root' })
@@ -45,8 +45,7 @@ export class AiPanelService {
     const isReload = this.panelVisible() && this.contentType() === 'translation';
     this.cancelPending();
     this.panelVisible.set(true);
-    if (!isReload) {
-      this.showOriginal.set(false);
+    if (!isReload && !this.showOriginal()) {
       this.panelMode.set('ai-only');
     }
     this.contentType.set('translation');
@@ -97,8 +96,7 @@ export class AiPanelService {
     const isReload = this.panelVisible() && this.contentType() === 'summary';
     this.cancelPending();
     this.panelVisible.set(true);
-    if (!isReload) {
-      this.showOriginal.set(false);
+    if (!isReload && !this.showOriginal()) {
       this.panelMode.set('ai-only');
     }
     this.contentType.set('summary');
@@ -128,6 +126,53 @@ export class AiPanelService {
             this.error.set(err.message || 'Summary failed');
           }
         });
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.error.set('Failed to load page text');
+      }
+    });
+  }
+
+  showText(text: string, pagePid?: string): void {
+    this.cancelPending();
+    this.panelVisible.set(true);
+    this.showOriginal.set(true);
+    this.panelMode.set('split');
+    this.contentType.set('text');
+    this.styledHtml.set('');
+    this.content.set(text);
+    this.isLoading.set(false);
+    this.error.set(null);
+    if (pagePid) this.currentPagePid.set(pagePid);
+  }
+
+  showPageText(pagePid: string): void {
+    this.cancelPending();
+    this.panelVisible.set(true);
+    this.showOriginal.set(true);
+    this.panelMode.set('split');
+    this.contentType.set('text');
+    this.content.set('');
+    this.styledHtml.set('');
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.currentPagePid.set(pagePid);
+
+    this.activeSubscription = this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
+      next: (altoXml) => {
+        const text = this.altoService.getFullText(altoXml);
+        this.isLoading.set(false);
+        if (!text) {
+          this.error.set('No text found on this page');
+          return;
+        }
+        const html = this.altoService.getStyledHtml(altoXml);
+        if (html) {
+          this.styledHtml.set(html);
+        } else {
+          this.content.set(text);
+        }
       },
       error: () => {
         this.isLoading.set(false);

@@ -8,6 +8,8 @@ import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../../core/config';
 import { TtsService } from '../../services/tts.service';
+import { AiPanelService } from '../../services/ai-panel.service';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -25,6 +27,8 @@ export class ViewerControls {
   private epubService = inject(EpubService);
   private configService = inject(ConfigService);
   public ttsService = inject(TtsService);
+  private aiPanelService = inject(AiPanelService);
+  private detailViewService = inject(DetailViewService, { optional: true });
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
@@ -60,6 +64,16 @@ export class ViewerControls {
 
   get showRotate(): boolean {
     return this.configService.isViewerControlEnabled('rotate');
+  }
+
+  get showPageText(): boolean {
+    return this.configService.isFeatureEnabled('ai');
+  }
+
+  onPageText(): void {
+    const pid = this.detailViewService?.currentPagePid;
+    if (!pid) return;
+    this.aiPanelService.showPageText(pid);
   }
 
   get showSelectArea(): boolean {

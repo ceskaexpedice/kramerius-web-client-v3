@@ -17,13 +17,12 @@
 
   <!-- Voice entries -->
   @for (entry of voiceEntries; track entry.langCode; let i = $index) {
+    @let lang = getLanguage(entry.langCode);
     <div class="read-section__row">
       <div class="read-section__col-lang">
         <div class="read-section__lang-label">
-          <app-language-badge [lang]="getLanguage(entry.langCode).name"
-                              [src]="getLanguage(entry.langCode).icon"
-                              [rounded]="true" [size]="20"></app-language-badge>
-          <span class="read-section__lang-name">{{ getLanguage(entry.langCode).name }}</span>
+          <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true" [size]="20"></app-language-badge>
+          <span class="read-section__lang-name">{{ lang.name }}</span>
         </div>
         @if (entry.isPrimary) {
           <span class="read-section__primary-badge">{{ 'settings.tts.primary' | translate }}</span>
@@ -35,35 +34,11 @@
       </div>
 
       <div class="read-section__col-voice">
-        <div class="read-section__voice-dropdown" appClickOutside (clickOutside)="closeVoiceDropdown()">
-          <button class="read-section__voice-button" (click)="toggleVoiceDropdown(i)">
-            <span class="read-section__voice-label">{{ getSelectedVoiceLabel(entry) }}</span>
-            <i class="fa fa-angle-down" [class.rotated]="voiceDropdownOpenIndex === i"></i>
-          </button>
-
-          @if (voiceDropdownOpenIndex === i) {
-            <div class="read-section__voice-options" (mousedown)="$event.stopPropagation()">
-              @for (group of getVoiceGroupsForLang(entry.langCode); track group.provider) {
-                <div class="read-section__voice-group-header">{{ group.provider }}</div>
-                @for (voice of group.voices; track voice.code) {
-                  <div class="read-section__voice-option"
-                       [class.selected]="entry.voice === voice.code"
-                       (click)="selectVoice(i, voice)">
-                    <span class="read-section__voice-option-name">{{ voice.name }}</span>
-                    @if (voice.gender) {
-                      <span class="read-section__voice-gender">({{ voice.gender }})</span>
-                    }
-                    <button class="read-section__voice-option-play"
-                            [class.active]="previewingVoice === voice.code"
-                            (click)="previewVoiceOption(entry, voice, $event)">
-                      <i class="icon-volume-high"></i>
-                    </button>
-                  </div>
-                }
-              }
-            </div>
-          }
-        </div>
+        <app-tts-voice-dropdown
+          [entry]="entry"
+          [label]="getVoiceLabel(entry)"
+          (voiceChange)="onVoiceChange(i, $event)">
+        </app-tts-voice-dropdown>
       </div>
 
       <div class="read-section__col-action">
@@ -87,23 +62,13 @@
 
   <!-- Add language button -->
   @if (availableLanguages.length > 0) {
-    <div class="read-section__add-lang" appClickOutside (clickOutside)="addLangDropdownOpen = false">
-      <button class="read-section__add-btn" (click)="addLangDropdownOpen = !addLangDropdownOpen">
-        <i class="icon-add"></i>
-        <span>{{ 'settings.tts.add-language' | translate }}</span>
-      </button>
-
-      @if (addLangDropdownOpen) {
-        <div class="read-section__add-dropdown">
-          @for (lang of availableLanguages; track lang.code) {
-            <button class="read-section__add-option" (click)="addLanguage(lang)">
-              <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true" [size]="20"></app-language-badge>
-              <span>{{ lang.name }}</span>
-            </button>
-          }
-        </div>
-      }
-    </div>
+    <app-language-select
+      [languages]="availableLanguages"
+      [selectedCode]="null"
+      [label]="'settings.tts.add-language' | translate"
+      [dropdownFixed]="false"
+      (langChange)="addLanguage($event)">
+    </app-language-select>
   }
 
   <p class="read-section__note">{{ 'settings.tts.note' | translate }}</p>

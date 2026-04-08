@@ -1,20 +1,20 @@
 .ai-actions {
   display: flex;
   flex-direction: column;
+  margin: 0 calc(-1 * var(--spacing-x3));
 
   &__header {
-    font-size: var(--font-size-xxsmall);
-    color: var(--color-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding-bottom: var(--spacing-x2);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+    color: var(--color-text-light);
+    padding: var(--spacing-x1) var(--spacing-x3);
   }
 
   &__items {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-x1);
+    gap: 0;
 
     &.disabled {
       .ai-actions__item {
@@ -36,11 +36,12 @@
     padding: var(--spacing-x3) var(--spacing-x3);
     border: none;
     background: transparent;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
     transition: background 0.15s ease;
-    color: var(--color-text-base);
+    color: var(--color-text-secondary);
     font-size: var(--font-size-small);
+    font-weight: 500;
 
     &:hover:not(:disabled) {
       background: var(--color-bg-light);
@@ -52,7 +53,7 @@
     }
 
     &.active {
-      background: var(--color-primary-light, rgba(59, 130, 246, 0.08));
+      background: rgba(0, 123, 255, 0.1);
       color: var(--color-primary);
 
       i {
@@ -63,28 +64,22 @@
     &-left {
       display: flex;
       align-items: center;
-      gap: var(--spacing-x3);
+      gap: var(--spacing-x2);
 
       i {
-        font-size: 20px;
+        font-size: var(--font-size-xlarge);
         color: var(--color-text-secondary);
       }
     }
 
     &-arrow {
-      font-size: 14px;
+      font-size: var(--font-size-small);
       color: var(--color-text-tertiary);
     }
 
     &-settings {
-      font-size: 16px;
+      font-size: var(--font-size-xlarge);
       color: var(--color-text-tertiary);
-      opacity: 0;
-      transition: opacity 0.15s ease;
-    }
-
-    &:hover &-settings {
-      opacity: 1;
     }
   }
 
@@ -122,11 +117,10 @@
   &__login-link {
     font-size: var(--font-size-small);
     font-weight: 500;
-    color: var(--color-primary, #0063cc);
+    color: var(--color-primary);
     text-decoration: underline;
     text-align: center;
     cursor: pointer;
-    line-height: 1.4;
 
     &:hover {
       text-decoration: none;
@@ -136,10 +130,10 @@
   &__login-btn {
     height: 40px;
     padding: 0 var(--spacing-x4);
-    background: var(--color-primary, #0063cc);
+    background: var(--color-primary);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--spacing-x2);
     font-size: var(--font-size-xsmall);
     font-weight: 500;
     cursor: pointer;
@@ -147,7 +141,7 @@
     white-space: nowrap;
 
     &:hover {
-      background: var(--color-primary-dark, #004fa3);
+      background: var(--color-primary-pressed);
     }
   }
 }

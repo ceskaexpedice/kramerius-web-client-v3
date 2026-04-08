@@ -9,7 +9,9 @@
         <i class="icon-voice-square"></i>
         <span>{{ 'ai.read-aloud' | translate }}</span>
       </div>
-      <i class="icon-setting-4 ai-actions__item-settings"></i>
+      <span class="button tertiary transparent sm ai-actions__item-settings" (click)="openReadingSettings($event)" [title]="'settings' | translate">
+        <i class="icon-settings-2"></i>
+      </span>
     </button>
 
     <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'">

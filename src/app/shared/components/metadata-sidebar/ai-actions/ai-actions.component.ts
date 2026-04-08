@@ -5,6 +5,7 @@ import { AiPanelService } from '../../../services/ai-panel.service';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { SettingsService } from '../../../../modules/settings/settings.service';
 
 @Component({
   selector: 'app-ai-actions',
@@ -20,6 +21,12 @@ export class AiActionsComponent {
   private detailViewService = inject(DetailViewService);
   userService = inject(UserService);
   private authService = inject(AuthService);
+  private settingsService = inject(SettingsService);
+
+  openReadingSettings(event: Event): void {
+    event.stopPropagation();
+    this.settingsService.openSettingsDialog('reading');
+  }
 
   login(): void {
     this.authService.login(window.location.pathname);

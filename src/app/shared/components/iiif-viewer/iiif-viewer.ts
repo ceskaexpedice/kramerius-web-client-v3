@@ -23,11 +23,15 @@ import { DetailViewService } from '../../../modules/detail-view-page/services/de
 import OpenSeadragon from 'openseadragon';
 import { SelectionControls } from '../selection-controls/selection-controls';
 import { CommonModule } from '@angular/common';
+import { ViewerWatermarkComponent } from '../viewer-watermark/viewer-watermark.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExportService } from '../../services/export.service';
 import { AltoService } from '../../services/alto.service';
 import { TtsService } from '../../services/tts.service';
+import { AiPanelService } from '../../services/ai-panel.service';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
@@ -38,7 +42,8 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-toke
     FullscreenComponent,
     SelectionControls,
     CommonModule,
-    ThumbnailImageComponent
+    ThumbnailImageComponent,
+    ViewerWatermarkComponent
   ],
   templateUrl: './iiif-viewer.html',
   styleUrl: './iiif-viewer.scss'
@@ -56,6 +61,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private recordHandlerService = inject(RecordHandlerService);
   private exportService = inject(ExportService);
   private altoService = inject(AltoService);
+  private aiPanelService = inject(AiPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private ttsService = inject(TtsService);
@@ -72,6 +78,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   public showFallback = signal<boolean>(false);
   public fallbackImageUrl = signal<string | null>(null);
+
+  readonly docLicenses = toSignal(
+    this.detailViewService.document$.pipe(map(doc => doc?.licences ?? [])),
+    { initialValue: [] as string[] }
+  );
 
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
@@ -712,7 +723,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
           if (!extractedText) {
             console.warn('No text found in selection. This might be due to coordinate mismatch.');
+            return;
           }
+          this.aiPanelService.showText(extractedText, this.imagePid || undefined);
         },
         error: (error) => {
           console.error('Error fetching ALTO XML:', error);

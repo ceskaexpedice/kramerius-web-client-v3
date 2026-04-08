@@ -15,6 +15,7 @@ import { AsyncPipe } from '@angular/common';
 import { UiStateService } from "../../services/ui-state.service";
 import { ConfigService } from '../../../core/config';
 import { AiActionsComponent } from './ai-actions/ai-actions.component';
+import { AiPanelService } from '../../services/ai-panel.service';
 
 @Component({
   selector: 'app-metadata-sidebar',
@@ -35,6 +36,7 @@ export class MetadataSidebarComponent {
   searchService = inject(SearchService);
   uiStateService = inject(UiStateService);
   configService = inject(ConfigService);
+  aiPanelService = inject(AiPanelService);
 
   exportAsPdf(): void {
 

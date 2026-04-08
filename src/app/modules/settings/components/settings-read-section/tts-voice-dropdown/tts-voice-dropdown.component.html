@@ -1,0 +1,29 @@
+<div class="voice-dropdown" appClickOutside (clickOutside)="close()">
+  <button class="voice-dropdown__trigger" (click)="toggle()">
+    <span class="voice-dropdown__label">{{ label }}</span>
+    <i class="icon-arrow-down" [class.rotated]="expanded"></i>
+  </button>
+
+  @if (expanded) {
+    <div class="voice-dropdown__options" (mousedown)="$event.stopPropagation()">
+      @for (group of voiceGroups; track group.provider) {
+        <div class="voice-dropdown__group-header">{{ group.provider }}</div>
+        @for (voice of group.voices; track voice.code) {
+          <div class="voice-dropdown__option"
+               [class.selected]="entry.voice === voice.code"
+               (click)="select(voice)">
+            <span class="voice-dropdown__option-name">{{ voice.name }}</span>
+            @if (voice.gender) {
+              <span class="voice-dropdown__option-gender">({{ voice.gender }})</span>
+            }
+            <button class="voice-dropdown__option-play"
+                    [class.active]="previewingVoice === voice.code"
+                    (click)="previewVoice(voice, $event)">
+              <i class="icon-volume-high"></i>
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

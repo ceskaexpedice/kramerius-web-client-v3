@@ -57,12 +57,16 @@
   width: 100%;
   padding: var(--spacing-x2) var(--spacing-x4);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+  border-top: 1px solid var(--color-border-light);
 
   // Fade out effect at the top of footer
   &::before {
     content: '';
     position: absolute;
-    top: calc(-1 * var(--spacing-x8));
+    top: calc(-1 * var(--spacing-x8) - 1px);
     left: 0;
     right: 0;
     height: var(--spacing-x8);

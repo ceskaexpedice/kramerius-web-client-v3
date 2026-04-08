@@ -14,7 +14,21 @@
     <!-- Footer Template -->
     <ng-template #footerContent>
       <div class="metadata-sidebar--footer">
-        <button class="button outlined tertiary with-icon" (click)="closeMetadataSidebar()">
+
+        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'translation') {
+          <button class="button primary sm with-icon" (click)="aiPanelService.close()">
+            {{ 'ai.cancel-translation' | translate }}
+            <i class="icon-close"></i>
+          </button>
+        }
+        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'summary') {
+          <button class="button primary with-icon" (click)="aiPanelService.close()">
+            {{ 'ai.cancel-summary' | translate }}
+            <i class="icon-close"></i>
+          </button>
+        }
+
+        <button class="button outlined tertiary sm with-icon" (click)="closeMetadataSidebar()">
           {{ 'hide--metadata-sidebar' | translate}}
           <i class="icon-sidebar-bottom"></i>
         </button>
