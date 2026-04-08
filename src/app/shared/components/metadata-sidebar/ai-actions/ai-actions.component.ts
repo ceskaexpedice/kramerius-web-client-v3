@@ -6,6 +6,8 @@ import { DetailViewService } from '../../../../modules/detail-view-page/services
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
+import { DocumentInfoService } from '../../../services/document-info.service';
+import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
   selector: 'app-ai-actions',
@@ -22,6 +24,27 @@ export class AiActionsComponent {
   userService = inject(UserService);
   private authService = inject(AuthService);
   private settingsService = inject(SettingsService);
+  documentInfoService = inject(DocumentInfoService);
+  private configService = inject(ConfigService);
+
+  get altoAvailable(): boolean {
+    return this.documentInfoService.hasAlto();
+  }
+
+  get textActionAllowed(): boolean {
+    const licenses = this.documentInfoService.getRuntimeLicenses();
+    if (!licenses || licenses.length === 0) {
+      return true;
+    }
+    return licenses.some(licenseId => {
+      const config = this.configService.getLicenseConfig(licenseId);
+      return config?.actions?.text === true;
+    });
+  }
+
+  get actionsDisabled(): boolean {
+    return !this.altoAvailable || !this.textActionAllowed;
+  }
 
   openReadingSettings(event: Event): void {
     event.stopPropagation();
@@ -33,7 +56,7 @@ export class AiActionsComponent {
   }
 
   onRead(): void {
-    if (!this.userService.isLoggedIn) return;
+    if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
 
@@ -45,14 +68,14 @@ export class AiActionsComponent {
   }
 
   onTranslate(): void {
-    if (!this.userService.isLoggedIn) return;
+    if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
     this.aiPanelService.showTranslation(pid);
   }
 
   onSummarize(): void {
-    if (!this.userService.isLoggedIn) return;
+    if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
     this.aiPanelService.showSummary(pid);

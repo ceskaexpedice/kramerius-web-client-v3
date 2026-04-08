@@ -3,8 +3,8 @@
     {{ 'ai.powered-by' | translate }}
   </div>
 
-  <div class="ai-actions__items" [class.disabled]="!userService.isLoggedIn">
-    <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()">
+  <div class="ai-actions__items" [class.disabled]="!userService.isLoggedIn || actionsDisabled">
+    <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
         <i class="icon-voice-square"></i>
         <span>{{ 'ai.read-aloud' | translate }}</span>
@@ -14,14 +14,14 @@
       </span>
     </button>
 
-    <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'">
+    <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
         <i class="icon-translate"></i>
         <span>{{ 'ai.translate' | translate }}</span>
       </div>
     </button>
 
-    <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'">
+    <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
         <i class="icon-task-square"></i>
         <span>{{ 'ai.summarize' | translate }}</span>
