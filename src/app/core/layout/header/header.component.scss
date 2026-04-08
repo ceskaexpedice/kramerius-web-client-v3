@@ -88,6 +88,10 @@
       text-overflow: ellipsis;
       max-width: 200px;
       color: var(--color-text-primary);
+
+      @include m.respond(md) {
+        max-width: 65px;
+      }
     }
   }
 

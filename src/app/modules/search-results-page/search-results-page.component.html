@@ -14,6 +14,7 @@
             <ng-container *ngIf="!selectionService.selectionMode()">
               <div class="view-tabs">
                 <button class="view-tabs__tab" [class.active]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
+                  <i class="icon-element-3"></i>
                   {{ 'tab-all' | translate }}
                 </button>
                 <button class="view-tabs__tab" [class.active]="view() === ViewOptions.map" (click)="onTabChanged('map')">
