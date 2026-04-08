@@ -106,3 +106,12 @@
   </div>
 
 </div>
+
+<!-- Mobile navigation bar -->
+@if (breakpointService.isMobile()) {
+  <app-mobile-nav-bar
+    [items]="mobileNavItems"
+    [activeId]="mobileActiveTab"
+    (activeIdChange)="onMobileNavChange($event)">
+  </app-mobile-nav-bar>
+}

@@ -70,6 +70,10 @@
   justify-content: center;
   transition: all 0.3s ease;
 
+  @include respond(mobile-sm) {
+    bottom: 72px;
+  }
+
   &.left {
     left: 12px;
     right: auto;

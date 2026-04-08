@@ -26,10 +26,28 @@
   padding-left: 0;
 }
 
+app-mobile-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+:host:has(app-mobile-nav-bar) {
+  .page-container {
+    height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - 60px);
+  }
+}
+
 .view-tabs {
   display: flex;
   flex-direction: row;
   align-self: stretch;
+
+  @include m.respond(mobile-sm) {
+    display: none;
+  }
 
   &__tab {
     display: flex;
