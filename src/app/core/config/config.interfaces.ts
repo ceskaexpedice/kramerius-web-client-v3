@@ -124,6 +124,22 @@ export interface LicenseMessagePage {
   page: LocalizedLabel;
 }
 
+// Watermark configuration — overlay drawn on top of the IIIF viewer for licensed content
+export interface LicenseWatermarkConfig {
+  type: 'image' | 'text';
+  opacity?: number;           // 0–1, default 0.15
+  rowCount?: number;          // grid rows, default 3
+  colCount?: number;          // grid columns, default 3
+  probability?: number;       // 0–100 chance per cell, default 100
+  // Image mode
+  logo?: string;              // URL to image
+  scale?: number;             // image scale factor, default 1.0
+  // Text mode
+  staticText?: string | LocalizedLabel; // localized text to display
+  fontSize?: number;          // px, default 14
+  color?: string;             // CSS color, default 'rgba(0,0,0,0.5)'
+}
+
 // License bar configuration — shown in detail view when document has one of the listed licenses
 export interface LicenseBarConfig {
   licenses: string[];      // license IDs that trigger the bar
@@ -141,7 +157,8 @@ export interface LicenseConfig {
   messagePages?: LicenseMessagePage[];
   instructionPage?: LocalizedLabel;
   actions: LicenseActionsConfig;
-  bar?: LicenseBarConfig;  // optional info bar shown in detail view
+  bar?: LicenseBarConfig;       // optional info bar shown in detail view
+  watermark?: LicenseWatermarkConfig; // optional watermark overlay in IIIF viewer
 }
 
 // Licenses configuration (ordered array of license configs)

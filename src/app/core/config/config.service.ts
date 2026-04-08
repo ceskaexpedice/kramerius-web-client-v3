@@ -11,6 +11,7 @@ import {
   LicensesConfig,
   LicenseAccessType,
   LicenseBarConfig,
+  LicenseWatermarkConfig,
   I18nConfig,
   UiConfig,
   ViewerMode,
@@ -313,6 +314,18 @@ export class ConfigService {
    */
   getLicenseBars(): LicenseBarConfig[] {
     return this.licenses.filter(l => l.bar).map(l => l.bar!);
+  }
+
+  /**
+   * Returns the watermark config for the first license in the given list
+   * that has a watermark defined. Returns null when no match.
+   */
+  getWatermarkConfig(docLicenses: string[]): LicenseWatermarkConfig | null {
+    for (const licId of docLicenses) {
+      const lic = this.licenses.find(l => l.id === licId);
+      if (lic?.watermark) return lic.watermark;
+    }
+    return null;
   }
 
   /**
