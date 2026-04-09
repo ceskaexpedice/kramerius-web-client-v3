@@ -2,16 +2,16 @@
 export interface AppConfig {
   code: string;                    // e.g., 'cdk'
   name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
-  version: string;                 // e.g., '2.0.0'
   baseUrl: string;                 // Application base URL
   contactEmail: string;            // Contact email
   logo?: string;                   // URL to the app/library logo
+  adminClientUrl?: string;         // URL to admin client app
 }
 
 // API configuration
 export interface ApiConfig {
-  baseUrl: string;        // API base URL
-  clientVersion: string;  // e.g., '7.0'
+  baseUrl: string;          // API base URL
+  citationUrl?: string;     // Citation service API URL
 }
 
 // Internationalization configuration
@@ -38,19 +38,18 @@ export interface GoogleMapsConfig {
 
 // Integrations configuration
 export interface IntegrationsConfig {
+  clientId?: string;         // Anonymous visitor identifier for analytics and services
   analytics?: AnalyticsConfig;
   googleMaps?: GoogleMapsConfig;
 }
 
 // Feature flags
 export interface FeaturesConfig {
-  advancedSearch: boolean;
-  iiif: boolean;
+  keycloak: boolean;
   mapSearch: boolean;
   georef: boolean;
   ai: boolean;
   folders: boolean;
-  crossOrigin: boolean;
   librarySwitch: boolean;
 }
 

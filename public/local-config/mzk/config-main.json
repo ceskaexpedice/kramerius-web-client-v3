@@ -2,15 +2,15 @@
   "app": {
     "code": "mzk",
     "name": { "cs": "Moravská zemská knihovna", "en": "Moravian Library", "sk": "Moravská zemská knižnica", "pl": "Morawska Biblioteka Krajowa" },
-    "version": "3.0.0",
     "baseUrl": "https://api.kramerius.mzk.cz",
     "contactEmail": "digitalniknihovna@mzk.cz",
-    "logo": "/favicon.svg"
+    "logo": "/favicon.svg",
+    "adminClientUrl": "https://admin.kramerius.mzk.cz"
   },
 
   "api": {
     "baseUrl": "https://api.kramerius.example.org/search/api/client",
-    "clientVersion": "7.0"
+    "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1"
   },
 
   "i18n": {
@@ -20,6 +20,7 @@
   },
 
   "integrations": {
+    "clientId": "",
     "analytics": {
       "provider": "ga4",
       "enabled": true,
@@ -32,13 +33,11 @@
   },
 
   "features": {
-    "advancedSearch": true,
-    "iiif": true,
+    "keycloak": true,
     "mapSearch": true,
     "georef": true,
     "ai": true,
     "folders": true,
-    "crossOrigin": true,
     "librarySwitch": true
   },
 

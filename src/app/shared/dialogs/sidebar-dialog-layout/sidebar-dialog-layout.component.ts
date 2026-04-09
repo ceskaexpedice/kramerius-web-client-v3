@@ -11,6 +11,7 @@ export interface DialogSection {
   isTitle?: boolean;
   children?: DialogSection[];
   isAction?: boolean;
+  hidden?: boolean;
 }
 
 export interface DialogButton {

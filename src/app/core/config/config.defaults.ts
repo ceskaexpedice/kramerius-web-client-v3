@@ -4,13 +4,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   app: {
     code: 'cdk',
     name: 'Czech Digital Library',
-    version: '3.0.0',
     baseUrl: '',
     contactEmail: 'digitalniknihovna@mzk.cz'
   },
   api: {
-    baseUrl: '',
-    clientVersion: '7.0'
+    baseUrl: ''
   },
   i18n: {
     defaultLanguage: 'cs',
@@ -18,13 +16,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     supportedLanguages: ['cs', 'en', 'sk', 'pl']
   },
   features: {
-    advancedSearch: true,
-    iiif: true,
+    keycloak: true,
     mapSearch: true,
     georef: true,
     ai: false,
     folders: true,
-    crossOrigin: true,
     librarySwitch: false
   },
   ui: {
