@@ -193,7 +193,7 @@ export interface SuggestedSearchTagItem {
 
 // Home section configuration
 export interface HomepageSectionConfig {
-  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories' | 'suggested-tags';
+  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'featured-documents' | 'link-tiles' | 'suggested-tags';
   title: string | LocalizedLabel;
   items?: Record<string, any>[];
   pids?: string[];

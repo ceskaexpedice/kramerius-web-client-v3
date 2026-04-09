@@ -24,7 +24,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Výběr z nejčtenějších novin a časopisů", "en": "Selection of most-read newspapers and magazines", "sk": "Výber z najčítanejších novín a časopisov", "pl": "Wybór najczęściej czytanych gazet i czasopism" },
     "buttonText": { "cs": "Více periodik", "en": "More periodicals", "sk": "Viac periodík", "pl": "Więcej periodyków" },
     "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:periodical&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
@@ -132,7 +132,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Výběr z nejčtenějších knih", "en": "Selection of most-read books", "sk": "Výber z najčítanejších kníh", "pl": "Wybór najczęściej czytanych książek" },
     "buttonText": { "cs": "Více knih", "en": "More books", "sk": "Viac kníh", "pl": "Więcej książek" },
     "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&customSearch=custom-root-model:monograph&fq=licenses.facet:mzk_public-contract&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR",
@@ -240,7 +240,7 @@
     ]
   },
   {
-    "type": "local-categories",
+    "type": "link-tiles",
     "title": { "cs": "Typy dokumentů", "en": "Document types", "sk": "Typy dokumentov", "pl": "Typy dokumentów" },
     "showCount": false,
     "categories": [
@@ -297,7 +297,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Výběr z českých autorů", "en": "Selection of Czech authors", "sk": "Výber z českých autorov", "pl": "Wybór czeskich autorów" },
     "cardVariant": "portrait",
     "items": [
@@ -423,7 +423,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Výběr ze zahraničních autorů", "en": "Selection of foreign authors", "sk": "Výber zo zahraničných autorov", "pl": "Wybór autorów zagranicznych" },
     "cardVariant": "portrait",
     "items": [
@@ -570,7 +570,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Žánry", "en": "Genres", "sk": "Žánre", "pl": "Gatunki" },
     "cardVariant": "portrait",
     "items": [
@@ -655,7 +655,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Vybrané sbírky", "en": "Selected collections", "sk": "Vybrané zbierky", "pl": "Wybrane kolekcje" },
     "buttonText": { "cs": "Více sbírek", "en": "More collections", "sk": "Viac zbierok", "pl": "Więcej kolekcji" },
     "sectionUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-root-model:collection",
@@ -787,7 +787,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Sbírky periodik", "en": "Periodical collections", "sk": "Zbierky periodík", "pl": "Kolekcje periodyków" },
     "items": [
       {
@@ -833,7 +833,7 @@
     ]
   },
   {
-    "type": "local-records",
+    "type": "featured-documents",
     "title": { "cs": "Rukopisy, staré tisky, mapy a grafiky", "en": "Manuscripts, old prints, maps and graphics", "sk": "Rukopisy, staré tlače, mapy a grafiky", "pl": "Rękopisy, stare druki, mapy i grafiki" },
     "items": [
       {

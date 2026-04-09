@@ -9,7 +9,7 @@ import { AppTranslationService } from '../../../../shared/translation/app-transl
 import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
-  selector: 'app-local-categories-section',
+  selector: 'app-link-tiles-section',
   standalone: true,
   imports: [
     CommonModule,
@@ -17,10 +17,10 @@ import { ConfigService } from '../../../../core/config/config.service';
     CategoryItemComponent,
     LocalizedPipe
   ],
-  templateUrl: './local-categories-section.component.html',
-  styleUrls: ['./local-categories-section.component.scss', '../search-section.scss']
+  templateUrl: './link-tiles-section.component.html',
+  styleUrls: ['./link-tiles-section.component.scss', '../search-section.scss']
 })
-export class LocalCategoriesSectionComponent {
+export class LinkTilesSectionComponent {
   @Input() config!: HomepageSectionConfig;
 
   private translationService = inject(AppTranslationService);

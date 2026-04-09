@@ -14,7 +14,7 @@ import { AppTranslationService } from '../../../../shared/translation/app-transl
 import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
-  selector: 'app-local-records-section',
+  selector: 'app-featured-documents-section',
   standalone: true,
   imports: [
     CommonModule,
@@ -49,7 +49,7 @@ import { ConfigService } from '../../../../core/config/config.service';
     @import '../search-section.scss';
   `]
 })
-export class LocalRecordsSectionComponent implements OnInit {
+export class FeaturedDocumentsSectionComponent implements OnInit {
   @Input() config!: HomepageSectionConfig;
 
   private solrService = inject(SolrService);
@@ -110,7 +110,7 @@ export class LocalRecordsSectionComponent implements OnInit {
         });
       }),
       catchError(err => {
-        console.error('Error loading local records items', err);
+        console.error('Error loading featured documents items', err);
         return of(itemsToProcess as RecordItem[]);
       })
     );

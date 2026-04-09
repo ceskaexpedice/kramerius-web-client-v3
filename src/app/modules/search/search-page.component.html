@@ -17,15 +17,15 @@
         <app-images-section></app-images-section>
     } @else if (section.type === 'institutions') {
         <app-institutions-section></app-institutions-section>
-    } @else if (section.type === 'local-records') {
+    } @else if (section.type === 'featured-documents') {
         @defer (on viewport) {
-            <app-local-records-section [config]="section"></app-local-records-section>
+            <app-featured-documents-section [config]="section"></app-featured-documents-section>
         } @placeholder {
             <div class="section-placeholder" style="min-height: 320px;"></div>
         }
-    } @else if (section.type === 'local-categories') {
+    } @else if (section.type === 'link-tiles') {
         @defer (on viewport) {
-            <app-local-categories-section [config]="section"></app-local-categories-section>
+            <app-link-tiles-section [config]="section"></app-link-tiles-section>
         } @placeholder {
             <div class="section-placeholder" style="min-height: 320px;"></div>
         }

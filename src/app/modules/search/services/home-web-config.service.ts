@@ -9,7 +9,7 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-toke
  * Configuration for a section on the search/home page.
  */
 /**
- * Category item for the 'local-categories' section type.
+ * Category item for the 'link-tiles' section type.
  */
 export interface LinkItem {
     /** The label to display (translation key or raw string). */
@@ -26,16 +26,16 @@ export interface SectionConfig {
     /**
      * The type of the section.
      * - `periodicals`, `books`, `genres`, etc.: Standard sections with built-in logic.
-     * - `local-records`: A carousel section with record items from local config.
-     * - `local-categories`: A grid section with category items from local config (like genres but with custom data).
+     * - `featured-documents`: A carousel section with record items from local config.
+     * - `link-tiles`: A grid section with category items from local config (like genres but with custom data).
      */
-    type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories';
+    type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'featured-documents' | 'link-tiles';
 
     /** The title of the section (translation key or raw string). */
     title: string;
 
     /**
-     * List of items to display in a 'local-records' section.
+     * List of items to display in a 'featured-documents' section.
      * - If an item has an `id` (PID), data will be fetched from the API.
      * - Properties defined here (title, imageUrl, etc.) override API data.
      * - Items without `id` are purely manual.
@@ -80,13 +80,13 @@ export interface SectionConfig {
     cardVariant?: 'default' | 'portrait';
 
     /**
-     * List of category items for 'local-categories' section type.
+     * List of category items for 'link-tiles' section type.
      * Each item has a label and URL, optionally an icon and count.
      */
     categories?: LinkItem[];
 
     /**
-     * Whether to show count badges in 'local-categories' section.
+     * Whether to show count badges in 'link-tiles' section.
      * Default is true.
      */
     showCount?: boolean;
