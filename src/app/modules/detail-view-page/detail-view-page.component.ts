@@ -8,7 +8,7 @@ import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
 import { SelectionService } from '../../shared/services';
 import { Observable, Subscription } from 'rxjs';
-import { map, shareReplay, distinctUntilChanged } from 'rxjs/operators';
+import { map, shareReplay, distinctUntilChanged, skip } from 'rxjs/operators';
 import { PdfService } from '../../shared/services/pdf.service';
 import { IIIFViewerService } from '../../shared/services/iiif-viewer.service';
 import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -27,6 +27,8 @@ import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restric
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { SearchService } from '../../shared/services/search.service';
+import { AiPanelService } from '../../shared/services/ai-panel.service';
+import { TtsService } from '../../shared/services/tts.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -52,6 +54,11 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   private dontShowAgainService = inject(DontShowAgainService);
   public breakpointService = inject(BreakpointService);
   public searchService = inject(SearchService);
+  public aiPanelService = inject(AiPanelService);
+  private ttsService = inject(TtsService);
+
+  // TODO: set to false to keep TTS playing when navigating away
+  private readonly stopTtsOnLeave = true;
 
   // Mobile nav bar
   mobileNavItemsBase: MobileNavItem[] = [
@@ -93,6 +100,26 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Reload AI panel content when page changes
+    effect(() => {
+      const pageIndex = this.detailViewService._currentPageIndex();
+      const panelVisible = this.aiPanelService.panelVisible();
+      const contentType = this.aiPanelService.contentType();
+
+      if (panelVisible && contentType) {
+        const pid = this.detailViewService.currentPagePid;
+        if (pid && pid !== this.aiPanelService.currentPagePid()) {
+          if (contentType === 'translation') {
+            this.aiPanelService.showTranslation(pid);
+          } else if (contentType === 'summary') {
+            this.aiPanelService.showSummary(pid);
+          } else if (contentType === 'text') {
+            this.aiPanelService.showPageText(pid);
+          }
+        }
+      }
+    });
+
     this.articleMetadata$ = this.store.select(selectArticleDetail).pipe(
       distinctUntilChanged((prev, curr) => prev?.pid === curr?.pid),
       map(articleDetail => {
@@ -120,6 +147,15 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions.push(
+      this.detailViewService.document$.pipe(
+        distinctUntilChanged((prev, curr) => prev?.uuid === curr?.uuid),
+        skip(1)
+      ).subscribe(() => {
+        this.aiPanelService.close();
+      })
+    );
+
+    this.subscriptions.push(
       this.detailViewService.pages$.subscribe(pages => {
         if (pages && pages.length > 0) {
           const pageItems = pages.map(page => ({
@@ -140,6 +176,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
+    if (this.stopTtsOnLeave && this.ttsService.isReading()) {
+      this.ttsService.stop();
+    }
   }
 
   toggleAdminMode(): void {

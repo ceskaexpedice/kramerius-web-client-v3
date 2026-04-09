@@ -1,0 +1,14 @@
+@for (bar of activeBars(); track bar.licenses[0]) {
+  <div class="license-bar" [class.clickable]="!!bar.link" (click)="bar.link && $event.currentTarget">
+    <span class="license-bar--title">
+      @if (bar.logo) {
+        <img [src]="bar.logo" alt="">
+      }
+      {{ getLocalizedText(bar) }}
+    </span>
+
+    @if (userService.userSession) {
+      <span>{{ userService.getFormattedExpiration() }} · {{ userService.userSession.session.eduPersonUniqueId || '' }}</span>
+    }
+  </div>
+}

@@ -56,7 +56,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   @Input() showModel = true;
   @Input() showPageTag = true;
   @Input() layout: 'auto' | 'vertical' | 'horizontal' = 'auto';
-  @Input() variant: 'default' | 'author' = 'default';
+  @Input() variant: 'default' | 'portrait' = 'default';
   @Input() showAccessibilityBadge = true;
   @Input() loading = false;
 

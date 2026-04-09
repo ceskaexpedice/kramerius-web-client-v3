@@ -3,28 +3,32 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../../../shared/components/record-item/record-item.component';
 import { CarouselComponent } from '../../../../shared/components/carousel/carousel.component';
-import { HomepageSectionConfig } from '../../../../core/config/config.interfaces';
+import { HomepageSectionConfig, LocalizedLabel } from '../../../../core/config/config.interfaces';
+import { LocalizedPipe } from '../../../../shared/pipes/localized.pipe';
 import { SolrService } from '../../../../core/solr/solr.service';
 import { searchDocumentToRecordItem, RecordItem } from '../../../../shared/components/record-item/record-item.model';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { parseSearchDocument } from '../../../models/search-document';
+import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
+import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
-  selector: 'app-local-records-section',
+  selector: 'app-featured-documents-section',
   standalone: true,
   imports: [
     CommonModule,
     TranslateModule,
     RecordItemComponent,
-    CarouselComponent
+    CarouselComponent,
+    LocalizedPipe
   ],
   template: `
     <section *ngIf="(items$ | async) as items">
       <div class="section-header" *ngIf="items.length > 0">
-        <h2>{{ config.title | translate }}</h2>
+        <h2>{{ config.title | localized }}</h2>
         <button class="show-all with-icon" *ngIf="config.sectionUrl" (click)="onShowMore()">
-          <span class="text">{{ (config.buttonText || 'btn_show_more') | translate }}</span>
+          <span class="text">{{ (config.buttonText | localized) || ('btn_show_more' | translate) }}</span>
           <i class="icon-arrow-right-3"></i>
         </button>
       </div>
@@ -45,12 +49,19 @@ import { parseSearchDocument } from '../../../models/search-document';
     @import '../search-section.scss';
   `]
 })
-export class LocalRecordsSectionComponent implements OnInit {
+export class FeaturedDocumentsSectionComponent implements OnInit {
   @Input() config!: HomepageSectionConfig;
 
   private solrService = inject(SolrService);
+  private translationService = inject(AppTranslationService);
+  private configService = inject(ConfigService);
 
   items$: Observable<RecordItem[]> = of([]);
+
+  private resolveTitle(title: string | LocalizedLabel | undefined): string {
+    const lang = this.translationService.currentLanguage().code;
+    return this.configService.resolveLabel(title, lang);
+  }
 
   ngOnInit() {
     let itemsToProcess: Partial<RecordItem>[] = [];
@@ -76,13 +87,15 @@ export class LocalRecordsSectionComponent implements OnInit {
       map((docs: any[]) => {
         const docMap = new Map(docs.map((d: any) => [d.pid, d]));
         return itemsToProcess.map(item => {
+          const configTitle = this.resolveTitle((item as any).title);
           let recordItem: RecordItem;
           if (item.id && docMap.has(item.id)) {
             const doc = docMap.get(item.id);
             const fetchedItem = searchDocumentToRecordItem(parseSearchDocument(doc));
-            recordItem = { ...fetchedItem, ...item } as RecordItem;
+            // Spread item config (imageUrl, externalUrl, date, etc.); prefer config title over API title
+            recordItem = { ...fetchedItem, ...item, title: configTitle || fetchedItem.title } as RecordItem;
           } else {
-            recordItem = { ...item } as RecordItem;
+            recordItem = { ...item, title: configTitle } as RecordItem;
             if (!recordItem.model) {
               recordItem.model = '';
             }
@@ -97,7 +110,7 @@ export class LocalRecordsSectionComponent implements OnInit {
         });
       }),
       catchError(err => {
-        console.error('Error loading local records items', err);
+        console.error('Error loading featured documents items', err);
         return of(itemsToProcess as RecordItem[]);
       })
     );

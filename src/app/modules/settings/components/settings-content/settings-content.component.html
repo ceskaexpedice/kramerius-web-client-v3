@@ -11,7 +11,8 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="'reading'">
-    <app-settings-read-section></app-settings-read-section>
+    <app-settings-read-section [settings]="settings"
+      (settingsChange)="settingsChange.emit($event)"></app-settings-read-section>
   </ng-container>
 
   <ng-container *ngSwitchCase="'preferences'">

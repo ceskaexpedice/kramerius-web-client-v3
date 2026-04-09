@@ -31,6 +31,28 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+
+  &.ai-split-view {
+    flex-direction: row;
+    gap: 0;
+
+    .detail-view--page--content--wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+
+    app-ai-content-panel {
+      flex: 1;
+      min-width: 0;
+      border-left: 1px solid var(--color-border-light);
+    }
+  }
+
+  &.ai-only-view {
+    app-ai-content-panel {
+      flex: 1;
+    }
+  }
 }
 
 .detail-view--page--content--wrapper {
@@ -52,6 +74,10 @@
     * {
       cursor: crosshair !important;
     }
+  }
+
+  &.hidden {
+    display: none;
   }
 }
 

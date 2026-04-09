@@ -1,1 +1,75 @@
-<!-- TODO: Implement settings read section content -->
+<div class="read-section">
+  <!-- Table header -->
+  <div class="read-section__header">
+    <div class="read-section__col-lang">
+      <span class="read-section__col-label">{{ 'settings.tts.language' | translate }}</span>
+    </div>
+    <div class="read-section__col-voice">
+      <span class="read-section__col-label">{{ 'settings.tts.voice' | translate }}</span>
+    </div>
+    <div class="read-section__col-action">
+      <span class="read-section__col-label">{{ 'settings.tts.preview' | translate }}</span>
+    </div>
+    <div class="read-section__col-action">
+      <span class="read-section__col-label">{{ 'settings.tts.remove' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Voice entries -->
+  @for (entry of voiceEntries; track entry.langCode; let i = $index) {
+    @let lang = getLanguage(entry.langCode);
+    <div class="read-section__row">
+      <div class="read-section__col-lang">
+        <div class="read-section__lang-label">
+          <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true" [size]="20"></app-language-badge>
+          <span class="read-section__lang-name">{{ lang.name }}</span>
+        </div>
+        @if (entry.isPrimary) {
+          <span class="read-section__primary-badge">{{ 'settings.tts.primary' | translate }}</span>
+        } @else {
+          <button class="read-section__set-primary-btn" (click)="setPrimary(i)">
+            {{ 'settings.tts.set-primary' | translate }}
+          </button>
+        }
+      </div>
+
+      <div class="read-section__col-voice">
+        <app-tts-voice-dropdown
+          [entry]="entry"
+          [label]="getVoiceLabel(entry)"
+          (voiceChange)="onVoiceChange(i, $event)">
+        </app-tts-voice-dropdown>
+      </div>
+
+      <div class="read-section__col-action">
+        <button class="read-section__action-btn read-section__action-btn--play"
+                [class.active]="previewingIndex === i"
+                [disabled]="!entry.voice"
+                (click)="previewVoice(i)">
+          <i class="icon-volume-high"></i>
+        </button>
+      </div>
+
+      <div class="read-section__col-action">
+        <button class="read-section__action-btn read-section__action-btn--delete"
+                [disabled]="entry.isPrimary"
+                (click)="removeEntry(i)">
+          <i class="icon-trash"></i>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Add language button -->
+  @if (availableLanguages.length > 0) {
+    <app-language-select
+      [languages]="availableLanguages"
+      [selectedCode]="null"
+      [label]="'settings.tts.add-language' | translate"
+      [dropdownFixed]="false"
+      (langChange)="addLanguage($event)">
+    </app-language-select>
+  }
+
+  <p class="read-section__note">{{ 'settings.tts.note' | translate }}</p>
+</div>

@@ -1,0 +1,38 @@
+<div class="lang-switcher-pos" [class.expanded]="expanded" appClickOutside (clickOutside)="close()">
+  @if (!label) {
+    <div #trigger class="selected" (click)="toggle()">
+      @if (selected) {
+        <div class="icon-lang">
+          <app-language-badge [lang]="selected.name" [src]="selected.icon" [rounded]="true"></app-language-badge>
+        </div>
+      }
+      <div class="arrow">
+        <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded"></i>
+      </div>
+    </div>
+  } @else {
+    <button #trigger class="label-trigger" (click)="toggle()">
+      <i class="icon-add"></i>
+      <span>{{ label }}</span>
+    </button>
+  }
+
+  @if (expanded) {
+    <div class="available-languages"
+         [class.available-languages--absolute]="!dropdownFixed"
+         [style.top.px]="dropdownFixed ? dropdownTop : null"
+         [style.right.px]="dropdownFixed ? dropdownRight : null">
+      <div class="languages-list">
+        <div class="lang-item" *ngFor="let lang of languages" (click)="pick(lang.code)"
+             [class.lang-item--selected]="lang.code === selectedCode">
+          <div class="lang-item__left">
+            <div class="lang-item__icon">
+              <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true"></app-language-badge>
+            </div>
+            <span class="lang-item__name">{{ lang.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

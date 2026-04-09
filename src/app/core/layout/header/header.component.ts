@@ -93,10 +93,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Check if advanced search button should be shown based on config
+   * Advanced search is always available
    */
   get showAdvancedSearch(): boolean {
-    return this.configService.isFeatureEnabled('advancedSearch');
+    return true;
   }
 
   get homeLink(): any[] {

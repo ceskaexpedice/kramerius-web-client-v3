@@ -4,7 +4,8 @@ import { AiApiService, TtsProvider } from './ai-api.service';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { IIIFViewerService } from './iiif-viewer.service';
 import { SettingsService } from '../../modules/settings/settings.service';
-import { take } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { take, switchMap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class TtsService {
@@ -101,7 +102,6 @@ export class TtsService {
   stop(): void {
     this.isPlayingBlock = false;
     this.audio.pause();
-    this.audio.src = '';
     this.cleanupBlobUrl();
     this.prefetchedAudio = null;
     this.prefetchingBlockIndex = -1;
@@ -187,7 +187,7 @@ export class TtsService {
 
     const block = blocks[index];
     const lang = this._detectedLanguage() || 'cs';
-    const { voice, provider } = this.resolveVoiceAndProvider(lang);
+    const { voice, provider, voiceLangCode } = this.resolveVoiceAndProvider(lang);
 
     // Show highlight on the current block
     this.iiifViewerService.showTtsHighlight(block);
@@ -202,10 +202,11 @@ export class TtsService {
       return;
     }
 
-    // Request TTS for current block
-    this.aiApiService.textToSpeech(block.text, lang, provider, voice)
-      .pipe(take(1))
-      .subscribe({
+    // Request TTS for current block (translate first if languages differ)
+    this.maybeTranslate(block.text, lang, voiceLangCode).pipe(
+      switchMap(text => this.aiApiService.textToSpeech(text, voiceLangCode || lang, provider, voice)),
+      take(1)
+    ).subscribe({
         next: (audioContent) => {
           if (!this._isReading()) return;
           this.playAudioContent(audioContent);
@@ -228,12 +229,13 @@ export class TtsService {
 
     const nextBlock = blocks[nextIndex];
     const lang = this._detectedLanguage() || 'cs';
-    const { voice, provider } = this.resolveVoiceAndProvider(lang);
+    const { voice, provider, voiceLangCode } = this.resolveVoiceAndProvider(lang);
 
     this.prefetchingBlockIndex = nextIndex;
-    this.aiApiService.textToSpeech(nextBlock.text, lang, provider, voice)
-      .pipe(take(1))
-      .subscribe({
+    this.maybeTranslate(nextBlock.text, lang, voiceLangCode).pipe(
+      switchMap(text => this.aiApiService.textToSpeech(text, voiceLangCode || lang, provider, voice)),
+      take(1)
+    ).subscribe({
         next: (audioContent) => {
           if (this.prefetchingBlockIndex === nextIndex) {
             this.prefetchedAudio = audioContent;
@@ -329,8 +331,12 @@ export class TtsService {
    * 2. If settings have a voice for the detected language, use that entry's voice + provider
    * 3. If settings have a primary voice, use that entry's voice + provider
    * 4. Fall back to undefined (API default)
+   *
+   * Also returns voiceLangCode — the language the voice entry is configured for.
+   * When voiceLangCode differs from the detected document language, the text
+   * should be translated before TTS.
    */
-  private resolveVoiceAndProvider(lang: string): { voice?: string; provider: TtsProvider } {
+  private resolveVoiceAndProvider(lang: string): { voice?: string; provider: TtsProvider; voiceLangCode?: string } {
     // Explicit override takes priority
     const override = this._voice();
     if (override) return { voice: override, provider: this._provider() };
@@ -341,12 +347,23 @@ export class TtsService {
 
     // Look for exact language match
     const langEntry = voices.find(v => v.langCode === lang && v.voice);
-    if (langEntry) return { voice: langEntry.voice, provider: langEntry.provider || this._provider() };
+    if (langEntry) return { voice: langEntry.voice, provider: langEntry.provider || this._provider(), voiceLangCode: langEntry.langCode };
 
     // Fall back to primary voice
     const primary = voices.find(v => v.isPrimary && v.voice);
-    if (primary) return { voice: primary.voice, provider: primary.provider || this._provider() };
+    if (primary) return { voice: primary.voice, provider: primary.provider || this._provider(), voiceLangCode: primary.langCode };
 
     return { provider: this._provider() };
+  }
+
+  /**
+   * Returns an Observable that translates text if the document language
+   * differs from the voice entry language, or passes text through as-is.
+   */
+  private maybeTranslate(text: string, documentLang: string, voiceLangCode?: string): Observable<string> {
+    if (!voiceLangCode || documentLang === voiceLangCode) {
+      return of(text);
+    }
+    return this.aiApiService.translate(text, voiceLangCode);
   }
 }

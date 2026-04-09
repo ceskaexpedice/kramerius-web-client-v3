@@ -15,7 +15,7 @@ import {
   facetKeysEnum,
   facetKeysInfinityCount,
 } from '../../../modules/search-results-page/const/facets';
-import { LICENSES_ORDER } from '../../../core/solr/solr-misc';
+import { getLicensesOrder } from '../../../core/solr/solr-misc';
 import { CustomSearchService } from '../../services/custom-search.service';
 import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-radio.component';
 import { RangeSliderComponent } from '../range-slider/range-slider.component';
@@ -135,13 +135,14 @@ export class FilterCategoryComponent implements OnChanges {
     if (this.facetKey === facetKeysEnum.model || this.facetKey === customDefinedFacetsEnum.model || this.facetKey === customDefinedFacetsEnum.accessibility || this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
       sorted = allItems; // Keep original order for model facet
     } else if (this.facetKey === facetKeysEnum.license) {
-      // Sort licenses by LICENSES_ORDER
+      // Sort licenses by getLicensesOrder() (reads from config-licenses.json)
       sorted = allItems.sort((a, b) => {
-        const aIndex = LICENSES_ORDER.indexOf(a.name);
-        const bIndex = LICENSES_ORDER.indexOf(b.name);
+        const licensesOrder = getLicensesOrder();
+        const aIndex = licensesOrder.indexOf(a.name);
+        const bIndex = licensesOrder.indexOf(b.name);
         // If not in order list, put at the end
-        const aOrder = aIndex === -1 ? LICENSES_ORDER.length : aIndex;
-        const bOrder = bIndex === -1 ? LICENSES_ORDER.length : bIndex;
+        const aOrder = aIndex === -1 ? licensesOrder.length : aIndex;
+        const bOrder = bIndex === -1 ? licensesOrder.length : bIndex;
         return aOrder - bOrder;
       });
     } else {

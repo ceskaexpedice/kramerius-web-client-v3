@@ -14,15 +14,29 @@
     <!-- Footer Template -->
     <ng-template #footerContent>
       <div class="metadata-sidebar--footer">
-        <button class="button outlined tertiary with-icon" (click)="closeMetadataSidebar()">
+
+        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'translation') {
+          <button class="button primary sm with-icon" (click)="aiPanelService.close()">
+            {{ 'ai.cancel-translation' | translate }}
+            <i class="icon-close"></i>
+          </button>
+        }
+        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'summary') {
+          <button class="button primary with-icon" (click)="aiPanelService.close()">
+            {{ 'ai.cancel-summary' | translate }}
+            <i class="icon-close"></i>
+          </button>
+        }
+
+        <button class="button outlined tertiary sm with-icon" (click)="closeMetadataSidebar()">
           {{ 'hide--metadata-sidebar' | translate}}
           <i class="icon-sidebar-bottom"></i>
         </button>
       </div>
     </ng-template>
 
-    <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available -->
-    @if ((tools.search && (searchResult.count || 0) > 0) || tools.export) {
+    <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available OR AI Available -->
+    @if ((tools.search && (searchResult.count || 0) > 0) || tools.export || (tools.ai && configService.isFeatureEnabled('ai'))) {
     <app-tabs (tabChanged)="onTabChanged($event)" [initialTab]="uiStateService.metadataSidebarActiveTab() || undefined">
 
       @if (tools.description) {
@@ -44,6 +58,13 @@
       <app-tab-item [id]="'search'" [label]="'search' | translate" [icon]="'icon-receipt-search'" [onlyIcon]="true"
         [tooltip]="'search' | translate">
         <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
+      </app-tab-item>
+      }
+
+      @if (tools.ai && configService.isFeatureEnabled('ai')) {
+      <app-tab-item [id]="'ai'" [label]="'ai' | translate" [icon]="'icon-magicpen'" [onlyIcon]="true"
+        [tooltip]="'ai' | translate">
+        <app-ai-actions></app-ai-actions>
       </app-tab-item>
       }
 

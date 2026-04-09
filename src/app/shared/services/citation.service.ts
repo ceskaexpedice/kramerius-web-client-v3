@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import { ConfigService } from '../../core/config/config.service';
 
 export interface CitationResponse {
   iso690?: string;
@@ -12,11 +13,17 @@ export interface CitationResponse {
   [key: string]: string | undefined;
 }
 
+const DEFAULT_CITATION_URL = 'https://citace.ceskadigitalniknihovna.cz/api/v1';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CitationService {
-  private baseUrl = 'https://citace.ceskadigitalniknihovna.cz/api/v1';
+  private configService = inject(ConfigService);
+
+  private get baseUrl(): string {
+    return this.configService.api.citationUrl || DEFAULT_CITATION_URL;
+  }
 
   constructor(private http: HttpClient) {}
 

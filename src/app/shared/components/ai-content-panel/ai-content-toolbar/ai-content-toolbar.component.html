@@ -1,0 +1,47 @@
+<div class="ai-content-toolbar">
+  <div class="ai-content-toolbar__left">
+    @if (!(aiPanelService.showOriginal() && aiPanelService.contentType() === 'translation')) {
+      <span class="ai-content-toolbar__title">{{ headerKey | translate }}</span>
+    }
+
+    @if (aiPanelService.contentType() === 'translation') {
+      <app-language-select
+        [languages]="translationLanguages"
+        [selectedCode]="aiPanelService.targetLanguage()"
+        (langChange)="onLangChange($event)">
+      </app-language-select>
+    }
+  </div>
+
+  <div class="ai-content-toolbar__right">
+    <mat-slide-toggle
+      [hideIcon]="true"
+      [class]="'size-sm'"
+      [checked]="aiPanelService.showOriginal()"
+      (change)="toggleOriginal()">
+      {{ 'ai.original' | translate }}
+    </mat-slide-toggle>
+
+
+    <button class="button square-button tertiary outlined" (click)="decreaseFontSize()" title="T-">
+      <i class="icon-font1"></i>
+    </button>
+
+    <button class="button square-button tertiary outlined" (click)="increaseFontSize()" title="T+">
+      <i class="icon-font"></i>
+    </button>
+
+    <button class="button square-button tertiary outlined" (click)="fullscreenToggle.emit()" [title]="'ai.fullscreen' | translate">
+      <i class="icon-maximize-3"></i>
+    </button>
+
+    <button class="button square-button tertiary outlined" (click)="copyContent()" [title]="'ai.copy' | translate">
+      <i class="icon-copy"></i>
+    </button>
+
+    <button class="button square-button tertiary transparent" (click)="closePanel.emit()" [title]="'ai.copy' | translate">
+      <i class="icon-close"></i>
+    </button>
+
+  </div>
+</div>

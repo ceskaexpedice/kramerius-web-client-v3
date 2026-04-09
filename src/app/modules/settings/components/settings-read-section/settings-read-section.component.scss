@@ -1,0 +1,139 @@
+.read-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x4);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x14);
+    padding-bottom: var(--spacing-x4);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  &__col-label {
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+  }
+
+  &__col-lang {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x3);
+  }
+
+  &__col-voice {
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  &__col-action {
+    width: 48px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  // --- Row ---
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x14);
+    padding-bottom: var(--spacing-x4);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  &__lang-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+  }
+
+  &__lang-name {
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    color: var(--color-text-base);
+  }
+
+  &__set-primary-btn {
+    display: none;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    color: var(--color-primary);
+    background: transparent;
+    border: none;
+    padding: 2px var(--spacing-x2);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__row:hover &__set-primary-btn {
+    display: inline-block;
+  }
+
+  &__primary-badge {
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    color: var(--color-text-base);
+    background: rgba(0, 123, 255, 0.1);
+    padding: var(--spacing-x2) var(--spacing-x3);
+    border-radius: var(--spacing-x2);
+    line-height: 1;
+  }
+
+  // --- Action buttons ---
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--spacing-x2);
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.15s ease;
+
+    &--play {
+      background: rgba(0, 123, 255, 0.1);
+      color: var(--color-primary);
+
+      &:hover {
+        background: rgba(0, 123, 255, 0.2);
+      }
+
+      &.active {
+        background: var(--color-primary);
+        color: white;
+      }
+    }
+
+    &--delete {
+      background: var(--color-bg-light);
+      color: var(--color-icon-secondary-default);
+
+      &:hover {
+        background: var(--color-bg-bright);
+        color: var(--color-error, #ef4444);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  &__note {
+    font-size: var(--font-size-small);
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+}

@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {SearchService} from '../../../../shared/services/search.service';
 import {AutocompleteComponent} from '../../../../shared/components/autocomplete/autocomplete.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {LocalizedPipe} from '../../../../shared/pipes/localized.pipe';
 import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {ConfigService} from '../../../../core/config/config.service';
 import {NgIf} from '@angular/common';
@@ -11,6 +12,7 @@ import {
 } from '../suggested-search-tags-section/suggested-search-tags-section.component';
 import {UiStateService} from '../../../../shared/services/ui-state.service';
 import {BreakpointService} from '../../../../shared/services/breakpoint.service';
+import {AppTranslationService} from '../../../../shared/translation/app-translation.service';
 
 @Component({
   selector: 'app-search-hero',
@@ -18,6 +20,7 @@ import {BreakpointService} from '../../../../shared/services/breakpoint.service'
     FormsModule,
     AutocompleteComponent,
     TranslatePipe,
+    LocalizedPipe,
     SuggestedSearchTagsSectionComponent,
     NgIf,
   ],
@@ -30,13 +33,17 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
   searchService = inject(SearchService);
   advancedSearch = inject(AdvancedSearchService);
   private configService = inject(ConfigService);
+  private translationService = inject(AppTranslationService);
   private uiState = inject(UiStateService);
   private el = inject(ElementRef);
 
   breakpointService = inject(BreakpointService);
 
-  heroTitle = '';
   showSuggestedTags = this.configService.suggestedTags.length > 0;
+  activeLibName = '';
+
+  get homepageTitle() { return this.configService.homepageTitle; }
+  get homepageSubtitle() { return this.configService.homepageSubtitle; }
 
   @ViewChild(AutocompleteComponent) autocompleteComponent!: AutocompleteComponent;
 
@@ -45,7 +52,7 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
   async ngOnInit() {
     const activeLib = await this.configService.getActiveLibrary();
     if (activeLib) {
-      this.heroTitle = activeLib.name;
+      this.activeLibName = activeLib.name;
     }
   }
 

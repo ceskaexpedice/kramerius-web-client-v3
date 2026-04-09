@@ -31,7 +31,7 @@ import {InlineLoaderComponent} from '../../shared/components/inline-loader/inlin
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
 import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
-import { DnntoBarComponent } from './components/dnnto-bar/dnnto-bar.component';
+import { LicenseBarComponent } from './components/license-bar/license-bar.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restricted-pages-info-dialog/restricted-pages-info-dialog.component';
 import { EpubViewerComponent } from '../../shared/components/epub-viewer/epub-viewer';
@@ -41,6 +41,7 @@ import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/sl
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { ExportDocumentSectionComponent } from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
+import { AiContentPanelComponent } from '../../shared/components/ai-content-panel/ai-content-panel.component';
 
 const routes: Routes = [
   {
@@ -89,7 +90,7 @@ const routes: Routes = [
 		DetailArticlesListComponent,
 		DocumentAccessDenied,
 		DatePipe,
-		DnntoBarComponent,
+		LicenseBarComponent,
 		MatDialogModule,
 		RestrictedPagesInfoDialogComponent,
 		EpubViewerComponent,
@@ -99,6 +100,7 @@ const routes: Routes = [
 		MetadataSection,
 		ExportDocumentSectionComponent,
 		SearchResultsSidebarComponent,
+		AiContentPanelComponent,
 	],
 })
 

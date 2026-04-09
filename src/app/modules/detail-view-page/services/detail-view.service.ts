@@ -40,6 +40,7 @@ import { hasCalendarDisplayableChildren } from '../../models/periodical-item';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { UserService } from '../../../shared/services/user.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
+import { ConfigService } from '../../../core/config/config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +70,7 @@ export class DetailViewService {
   private pdfService = inject(PdfService);
   private userService = inject(UserService);
   private recordHandlerService = inject(RecordHandlerService);
+  private configService = inject(ConfigService);
   private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
@@ -243,14 +245,17 @@ export class DetailViewService {
   });
 
   /**
-   * Computed: true when the dnnto bar is shown — document has dnnto (non-public) license
-   * and the user is authenticated. Mirrors the DnntoBarComponent visibility condition.
+   * Computed: true when a license bar is shown — document has a bar-configured license (non-public)
+   * and the user is authenticated. Mirrors the LicenseBarComponent visibility condition.
    * Used to show the green open-lock badge on every grid page thumbnail.
    */
   isDocumentRestrictedButAccessible = computed<boolean>(() => {
     const doc = this.documentSignal();
     if (!doc?.licences?.length) return false;
-    return this.recordHandlerService.shouldShowDnntoBar(doc.licences) && this.userService.isLoggedIn;
+    const docLicenses = doc.licences;
+    if (docLicenses.includes('public')) return false;
+    const bars = this.configService.getLicenseBars();
+    return bars.some(bar => bar.licenses.some(l => docLicenses.includes(l))) && this.userService.isLoggedIn;
   });
 
   /**

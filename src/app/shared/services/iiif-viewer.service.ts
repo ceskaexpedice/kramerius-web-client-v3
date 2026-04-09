@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { EnvironmentService } from './environment.service';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
-import { AltoService } from './alto.service';
+import { AltoService, AltoTextBlock } from './alto.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast.service';
 
@@ -61,6 +61,15 @@ export class IIIFViewerService {
         border: '3px solid #00ff00'
       }
     },
+    // TTS reading highlight
+    ttsHighlight: {
+      default: {
+        background: 'rgba(59, 130, 246, 0.15)',
+        border: '2px solid #3b82f6',
+        borderRadius: '4px',
+        cursor: 'default'
+      }
+    },
     // Common properties
     common: {
       transition: 'background 0.2s ease, border 0.2s ease',
@@ -88,6 +97,7 @@ export class IIIFViewerService {
   private rectangleCounter: number = 0;
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
+  private ttsOverlay: HTMLElement | null = null;
   private fullscreenComponentGetter: (() => any) | null = null;
   private keyboardHandler: ((event: KeyboardEvent) => void) | null = null;
 
@@ -740,6 +750,7 @@ export class IIIFViewerService {
   clearAllOverlays(): void {
     if (!this.viewer) return;
     this.clearSelectionOverlays();
+    this.ttsOverlay = null; // Will be cleared by viewer.clearOverlays()
     try {
       this.viewer.clearOverlays();
     } catch (e) {
@@ -755,6 +766,69 @@ export class IIIFViewerService {
     if (!this.viewer) return;
     this.viewer.removeOverlay(overlay);
     this.rectangles.delete(overlay);
+  }
+
+  /**
+   * Shows a TTS reading highlight overlay for the given ALTO text block.
+   * Reuses the coordinate conversion pattern from displaySearchHighlights().
+   */
+  showTtsHighlight(block: AltoTextBlock): void {
+    this.clearTtsHighlight();
+    if (!this.viewer) return;
+
+    const tiledImage = this.viewer.world.getItemAt(0);
+    if (!tiledImage) return;
+
+    const contentSize = tiledImage.getContentSize();
+    const imageWidth = contentSize.x;
+    const imageHeight = contentSize.y;
+    const altoWidth = block.width;
+    const altoHeight = block.height;
+
+    if (altoWidth === 0 || altoHeight === 0 || imageWidth === 0) return;
+
+    // Scale from ALTO coordinates to image coordinates
+    const scaleX = imageWidth / altoWidth;
+    const scaleY = imageHeight / altoHeight;
+
+    const imgX = block.hMin * scaleX;
+    const imgY = block.vMin * scaleY;
+    const imgW = (block.hMax - block.hMin) * scaleX;
+    const imgH = (block.vMax - block.vMin) * scaleY;
+
+    // Normalize to OpenSeadragon coordinates (divide by image width)
+    const normalizedX = imgX / imageWidth;
+    const normalizedY = imgY / imageWidth;
+    const normalizedW = imgW / imageWidth;
+    const normalizedH = imgH / imageWidth;
+
+    const rect = new OpenSeadragon.Rect(normalizedX, normalizedY, normalizedW, normalizedH);
+
+    // Create overlay element
+    const overlay = document.createElement('div');
+    const style = this.BOX_STYLES.ttsHighlight.default;
+    overlay.style.background = style.background;
+    overlay.style.border = style.border;
+    overlay.style.borderRadius = style.borderRadius;
+    overlay.style.cursor = style.cursor;
+    overlay.style.transition = this.BOX_STYLES.common.transition;
+    overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+
+    this.viewer.addOverlay(overlay, rect);
+    this.ttsOverlay = overlay;
+  }
+
+  /**
+   * Removes the TTS reading highlight overlay without affecting other overlays.
+   */
+  clearTtsHighlight(): void {
+    if (!this.viewer || !this.ttsOverlay) return;
+    try {
+      this.viewer.removeOverlay(this.ttsOverlay);
+    } catch (e) {
+      // Viewer might not be initialized
+    }
+    this.ttsOverlay = null;
   }
 
   /**

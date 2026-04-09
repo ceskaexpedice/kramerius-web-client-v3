@@ -4,13 +4,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   app: {
     code: 'cdk',
     name: 'Czech Digital Library',
-    version: '3.0.0',
     baseUrl: '',
     contactEmail: 'digitalniknihovna@mzk.cz'
   },
   api: {
-    baseUrl: '',
-    clientVersion: '7.0'
+    baseUrl: ''
   },
   i18n: {
     defaultLanguage: 'cs',
@@ -18,13 +16,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     supportedLanguages: ['cs', 'en', 'sk', 'pl']
   },
   features: {
-    advancedSearch: true,
-    iiif: true,
+    keycloak: true,
     mapSearch: true,
     georef: true,
     ai: false,
     folders: true,
-    crossOrigin: true,
     librarySwitch: false
   },
   ui: {
@@ -51,8 +47,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       share: true
     }
   },
-  licenses: {
-    public: {
+  licenses: [
+    {
       id: 'public',
       accessType: 'open',
       isOnline: true,
@@ -62,23 +58,23 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: true, crop: true
       }
     },
-    dnnto: {
+    {
       id: 'dnnto',
       accessType: 'login',
       isOnline: true,
       label: { cs: 'Díla nedostupná na trhu - online', en: 'Out of Commerce Works - online', sk: 'Diela nedostupná na trhu - online', pl: 'Utwory niedostępne w handlu – online' },
       messagePages: [
-        { key: 'default', page: { cs: 'local-config/html/licenses/dnnto.cs.html', en: 'local-config/html/licenses/dnnto.en.html' } },
-        { key: 'notEligible', page: { cs: 'local-config/html/licenses/dnnto2.cs.html', en: 'local-config/html/licenses/dnnto2.en.html' } },
-        { key: 'info', page: { cs: 'local-config/html/licenses/dnnto3.cs.html', en: 'local-config/html/licenses/dnnto3.en.html' } }
+        { key: 'default', page: { cs: 'local-config/mzk/html/licenses/dnnto.cs.html', en: 'local-config/mzk/html/licenses/dnnto.en.html' } },
+        { key: 'notEligible', page: { cs: 'local-config/mzk/html/licenses/dnnto2.cs.html', en: 'local-config/mzk/html/licenses/dnnto2.en.html' } },
+        { key: 'info', page: { cs: 'local-config/mzk/html/licenses/dnnto3.cs.html', en: 'local-config/mzk/html/licenses/dnnto3.en.html' } }
       ],
-      instructionPage: { cs: 'local-config/html/licenses/dnnto.instruction.cs.html', en: 'local-config/html/licenses/dnnto.instruction.en.html' },
+      instructionPage: { cs: 'local-config/mzk/html/licenses/dnnto.instruction.cs.html', en: 'local-config/mzk/html/licenses/dnnto.instruction.en.html' },
       actions: {
         pdf: false, print: false, jpeg: false, text: false, textMode: true,
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     },
-    dnntt: {
+    {
       id: 'dnntt',
       accessType: 'terminal',
       isOnline: false,
@@ -88,7 +84,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     },
-    onsite: {
+    {
       id: 'onsite',
       accessType: 'terminal',
       isOnline: false,
@@ -98,21 +94,21 @@ export const DEFAULT_CONFIG: AppConfiguration = {
         citation: true, metadata: true, share: true, selection: false, crop: false
       }
     }
-  },
+  ],
   pages: [
     {
       id: 'about',
       label: { cs: 'O projektu', en: 'About', sk: 'O projekte', pl: 'O projekcie' },
-      content: { cs: 'local-config/html/about/about.cs.html', en: 'local-config/html/about/about.en.html' },
+      content: { cs: 'local-config/mzk/html/about/about.cs.html', en: 'local-config/mzk/html/about/about.en.html' },
       showInHeader: true
     },
     {
       id: 'terms',
-      content: { cs: 'local-config/html/terms/terms.cs.html', en: 'local-config/html/terms/terms.en.html' }
+      content: { cs: 'local-config/mzk/html/terms/terms.cs.html', en: 'local-config/mzk/html/terms/terms.en.html' }
     },
     {
       id: 'copyright',
-      content: { cs: 'local-config/html/copyright/copyright.cs.html', en: 'local-config/html/copyright/copyright.en.html' }
+      content: { cs: 'local-config/mzk/html/copyright/copyright.cs.html', en: 'local-config/mzk/html/copyright/copyright.en.html' }
     }
   ]
 };

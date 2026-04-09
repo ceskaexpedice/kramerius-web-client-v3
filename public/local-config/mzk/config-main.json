@@ -1,16 +1,16 @@
 {
   "app": {
     "code": "mzk",
-    "name": "Moravská zemská knihovna",
-    "version": "3.0.0",
+    "name": { "cs": "Moravská zemská knihovna", "en": "Moravian Library", "sk": "Moravská zemská knižnica", "pl": "Morawska Biblioteka Krajowa" },
     "baseUrl": "https://api.kramerius.mzk.cz",
     "contactEmail": "digitalniknihovna@mzk.cz",
-    "logo": "/favicon.svg"
+    "logo": "/favicon.svg",
+    "adminClientUrl": "https://admin.kramerius.mzk.cz"
   },
 
   "api": {
     "baseUrl": "https://api.kramerius.example.org/search/api/client",
-    "clientVersion": "7.0"
+    "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1"
   },
 
   "i18n": {
@@ -20,6 +20,7 @@
   },
 
   "integrations": {
+    "clientId": "",
     "analytics": {
       "provider": "ga4",
       "enabled": true,
@@ -32,13 +33,11 @@
   },
 
   "features": {
-    "advancedSearch": true,
-    "iiif": true,
+    "keycloak": true,
     "mapSearch": true,
     "georef": true,
     "ai": true,
     "folders": true,
-    "crossOrigin": true,
     "librarySwitch": true
   },
 
@@ -93,35 +92,35 @@
     {
       "id": "about",
       "label": { "cs": "O projektu", "en": "About", "sk": "O projekte", "pl": "O projekcie" },
-      "content": { "cs": "local-config/html/about/about.cs.html", "en": "local-config/html/about/about.en.html" },
+      "content": { "cs": "local-config/mzk/html/about/about.cs.html", "en": "local-config/mzk/html/about/about.en.html" },
       "showInHeader": true
     },
     {
       "id": "terms",
       "content": {
-        "cs": ["local-config/html/terms/terms.cs.html", "local-config/html/terms/terms2.cs.html"],
-        "en": ["local-config/html/terms/terms.en.html", "local-config/html/terms/terms2.en.html"]
+        "cs": ["local-config/mzk/html/terms/terms.cs.html", "local-config/mzk/html/terms/terms2.cs.html"],
+        "en": ["local-config/mzk/html/terms/terms.en.html", "local-config/mzk/html/terms/terms2.en.html"]
       }
     },
     {
       "id": "copyright",
       "content": {
-        "cs": "local-config/html/copyright/copyright.cs.html",
-        "en": "local-config/html/copyright/copyright.en.html"
+        "cs": "local-config/mzk/html/copyright/copyright.cs.html",
+        "en": "local-config/mzk/html/copyright/copyright.en.html"
       }
     },
     {
       "id": "gdpr",
       "content": {
-        "cs": "local-config/html/gdpr/gdpr.cs.html",
-        "en": "local-config/html/gdpr/gdpr.en.html"
+        "cs": "local-config/mzk/html/gdpr/gdpr.cs.html",
+        "en": "local-config/mzk/html/gdpr/gdpr.en.html"
       }
     },
     {
       "id": "faq",
       "content": {
-        "cs": "local-config/html/faq/faq.cs.html",
-        "en": "local-config/html/faq/faq.en.html"
+        "cs": "local-config/mzk/html/faq/faq.cs.html",
+        "en": "local-config/mzk/html/faq/faq.en.html"
       }
     }
   ]

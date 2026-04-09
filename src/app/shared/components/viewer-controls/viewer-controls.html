@@ -62,6 +62,11 @@
     <i class="icon icon-rotate-right1"></i>
   </button>
 
+  <button *ngIf="showPageText" class="button tertiary outlined" (click)="onPageText()"
+          [appCdkTooltip]="'viewer-controls.page-text' | translate">
+    <i class="icon icon-text"></i>
+  </button>
+
   <button *ngIf="showBookModeButton" (click)="onBookMode()"
           [class.primary]="(iiifBookMode$ | async) === true"
           [class.tertiary]="(iiifBookMode$ | async) === false"
@@ -70,5 +75,17 @@
           [appCdkTooltip]="'viewer-controls.book-mode' | translate">
     <i class="icon icon-book-1"></i>
   </button>
+
+  <!-- TTS Controls -->
+  <ng-container *ngIf="type === 'image' && ttsService.isReading()">
+    <button (click)="onTtsPlayPause()" class="button primary"
+            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+      <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
+    </button>
+    <button (click)="onTtsStop()" class="button primary"
+            [appCdkTooltip]="'ai.tts-stop' | translate">
+      <i class="icon icon-stop"></i>
+    </button>
+  </ng-container>
 
 </div>

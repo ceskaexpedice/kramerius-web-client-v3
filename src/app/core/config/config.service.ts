@@ -10,6 +10,8 @@ import {
   SelectionControlsConfig,
   LicensesConfig,
   LicenseAccessType,
+  LicenseBarConfig,
+  LicenseWatermarkConfig,
   I18nConfig,
   UiConfig,
   ViewerMode,
@@ -18,9 +20,11 @@ import {
   IntegrationsConfig,
   HomepageSectionConfig,
   PageConfig,
-  SuggestedSearchTagItem
+  SuggestedSearchTagItem,
+  LocalizedLabel
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
+import { EnvironmentService } from '../../shared/services/environment.service';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
@@ -44,9 +48,11 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
-  private configUrl = 'local-config/config-main.json';
-  private licensesUrl = 'local-config/config-licenses.json';
-  private homeSectionsUrl = 'local-config/config-homepage.json';
+  constructor(private envService: EnvironmentService) {}
+
+  private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
+  private licensesUrlFor(code: string) { return `local-config/${code}/config-licenses.json`; }
+  private homeSectionsUrlFor(code: string) { return `local-config/${code}/config-homepage.json`; }
 
   /**
    * Returns the URL to fetch libraries.json from.
@@ -61,8 +67,6 @@ export class ConfigService {
   }
   private config$ = new BehaviorSubject<AppConfiguration | null>(null);
   private loaded = false;
-  private homepageCode: string | null = null;
-  private licensesCode: string | null = null;
 
   /**
    * Load configuration from JSON files.
@@ -71,61 +75,42 @@ export class ConfigService {
   async load(): Promise<void> {
     if (this.loaded) return;
 
-    try {
-      const timestamp = Date.now();
+    const code = this.envService.getKrameriusId();
+    const timestamp = Date.now();
 
-      // Always load main config first
-      const configResponse = await fetch(`${this.configUrl}?t=${timestamp}`);
+    try {
+      const configResponse = await fetch(`${this.configUrlFor(code)}?t=${timestamp}`);
       if (!configResponse.ok) throw new Error('Config load failed');
       const configData = await configResponse.json();
 
-      // After loading main config, check if local config files are relevant.
-      // When the active library doesn't match the config code (e.g. user switched
-      // to a different library), skip loading homepage and licenses JSON files
-      // since defaults will be used anyway.
-      const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-      const configCode = configData.app?.code;
-      const localConfigActive = !activeCode || activeCode === 'mzk' || activeCode === configCode;
+      const [licensesResponse, homeSectionsResponse] = await Promise.all([
+        fetch(`${this.licensesUrlFor(code)}?t=${timestamp}`),
+        fetch(`${this.homeSectionsUrlFor(code)}?t=${timestamp}`)
+      ]);
 
-      let processedLicenses = DEFAULT_CONFIG.licenses;
-      let homeSections = DEFAULT_HOME_SECTIONS;
+      const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
+      const homeSectionsRaw: any = await this.safeParseJson(homeSectionsResponse, 'config-homepage.json');
 
-      if (localConfigActive) {
-        const [licensesResponse, homeSectionsResponse] = await Promise.all([
-          fetch(`${this.licensesUrl}?t=${timestamp}`),
-          fetch(`${this.homeSectionsUrl}?t=${timestamp}`)
-        ]);
+      const processedLicenses = licensesData ? this.processLicensesWithDefaults(licensesData) : DEFAULT_CONFIG.licenses;
 
-        const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
-        const homeSectionsRaw: any = await this.safeParseJson(homeSectionsResponse, 'config-homepage.json');
-
-        // Extract code from licenses config
-        if (licensesData?.code) {
-          this.licensesCode = licensesData.code;
-          delete licensesData.code;
-        }
-
-        // Process licenses with _defaults pattern
-        processedLicenses = licensesData ? this.processLicensesWithDefaults(licensesData) : DEFAULT_CONFIG.licenses;
-
-        // Handle homepage config: object with code+sections or legacy array
-        let homeSectionsData: HomepageSectionConfig[] | null = null;
-        if (Array.isArray(homeSectionsRaw)) {
-          homeSectionsData = homeSectionsRaw;
-        } else if (homeSectionsRaw?.sections) {
-          this.homepageCode = homeSectionsRaw.code ?? null;
-          homeSectionsData = homeSectionsRaw.sections;
-        }
-
-        // Filter out invisible sections
-        homeSections = homeSectionsData?.filter(s => s.visible !== false) ?? DEFAULT_HOME_SECTIONS;
+      // Handle homepage config: object with sections key or legacy array
+      let homeSectionsData: HomepageSectionConfig[] | null = null;
+      let homepageTitle: LocalizedLabel | undefined;
+      let homepageSubtitle: LocalizedLabel | undefined;
+      if (Array.isArray(homeSectionsRaw)) {
+        homeSectionsData = homeSectionsRaw;
+      } else if (homeSectionsRaw?.sections) {
+        homeSectionsData = homeSectionsRaw.sections;
+        homepageTitle = homeSectionsRaw.title ?? undefined;
+        homepageSubtitle = homeSectionsRaw.subtitle ?? undefined;
       }
 
-      // Deep merge with defaults to ensure all required fields exist
-      const mergedConfig = this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections });
+      const homeSections = homeSectionsData?.filter(s => s.visible !== false) ?? DEFAULT_HOME_SECTIONS;
+
+      const mergedConfig = this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections, homepageTitle, homepageSubtitle });
       this.config$.next(mergedConfig);
       this.loaded = true;
-      console.log(`ConfigService: Configuration loaded successfully (local config ${localConfigActive ? 'active' : 'skipped — using defaults'})`);
+      console.log(`ConfigService: Configuration loaded for library '${code}'.`);
     } catch (err) {
       console.warn('ConfigService: Configuration not found or invalid. Using default configuration.', err);
       this.config$.next(DEFAULT_CONFIG);
@@ -147,20 +132,18 @@ export class ConfigService {
    * Process licenses config by merging each license with _defaults
    */
   private processLicensesWithDefaults(licensesData: Record<string, any>): LicensesConfig {
-    const { _defaults, ...licenses } = licensesData;
+    const { _defaults, licenses } = licensesData;
     const defaultActions = _defaults?.actions ?? {};
 
-    const processed: LicensesConfig = {};
-    for (const [id, license] of Object.entries(licenses)) {
-      const lic = license as any;
-      processed[id] = {
-        id,
-        ...lic,
-        isOnline: lic.isOnline ?? false,
-        actions: { ...defaultActions, ...lic.actions }
-      };
-    }
-    return processed;
+    const licenseArray: any[] = Array.isArray(licenses)
+      ? licenses
+      : Object.entries(licenses ?? {}).map(([id, v]) => ({ id, ...(v as any) }));
+
+    return licenseArray.map(lic => ({
+      ...lic,
+      isOnline: lic.accessType !== 'terminal',
+      actions: { ...defaultActions, ...lic.actions }
+    }));
   }
 
   /**
@@ -178,7 +161,9 @@ export class ConfigService {
       search: loaded.search,
       licenses: loaded.licenses ?? DEFAULT_CONFIG.licenses,
       pages: loaded.pages ?? [],
-      homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS
+      homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS,
+      homepageTitle: loaded.homepageTitle,
+      homepageSubtitle: loaded.homepageSubtitle
     };
   }
 
@@ -278,9 +263,7 @@ export class ConfigService {
    * Get licenses by access type
    */
   getLicensesByAccessType(accessType: LicenseAccessType): string[] {
-    return Object.entries(this.licenses)
-      .filter(([_, config]) => config.accessType === accessType)
-      .map(([id]) => id);
+    return this.licenses.filter(l => l.accessType === accessType).map(l => l.id);
   }
 
   /**
@@ -309,23 +292,40 @@ export class ConfigService {
    * Online means accessible remotely (not requiring physical presence)
    */
   getOnlineLicenses(): string[] {
-    return Object.entries(this.licenses)
-      .filter(([_, config]) => config.isOnline)
-      .map(([id]) => id);
+    return this.licenses.filter(l => l.isOnline).map(l => l.id);
   }
 
   /**
    * Get ordered list of license IDs based on their position in config
    */
   getLicenseOrder(): string[] {
-    return Object.keys(this.licenses);
+    return this.licenses.map(l => l.id);
   }
 
   /**
    * Get a specific license configuration
    */
   getLicenseConfig(licenseId: string) {
-    return this.licenses[licenseId];
+    return this.licenses.find(l => l.id === licenseId);
+  }
+
+  /**
+   * Get all license bar configurations defined across licenses.
+   */
+  getLicenseBars(): LicenseBarConfig[] {
+    return this.licenses.filter(l => l.bar).map(l => l.bar!);
+  }
+
+  /**
+   * Returns the watermark config for the first license in the given list
+   * that has a watermark defined. Returns null when no match.
+   */
+  getWatermarkConfig(docLicenses: string[]): LicenseWatermarkConfig | null {
+    for (const licId of docLicenses) {
+      const lic = this.licenses.find(l => l.id === licId);
+      if (lic?.watermark) return lic.watermark;
+    }
+    return null;
   }
 
   /**
@@ -340,6 +340,20 @@ export class ConfigService {
   }
 
   /**
+   * Resolve a string or LocalizedLabel to a plain string for the given language.
+   * Falls back through the configured language chain (e.g. sk → cs → en).
+   * If value is already a string, it is returned as-is.
+   */
+  resolveLabel(value: string | LocalizedLabel | undefined, lang: string, fallback = ''): string {
+    if (!value) return fallback;
+    if (typeof value === 'string') return value;
+    for (const l of this.getLangChain(lang)) {
+      if (value[l]) return value[l];
+    }
+    return Object.values(value)[0] ?? fallback;
+  }
+
+  /**
    * Get localized label from config for any entity type.
    * Supports: 'license' (more types can be added in future)
    * Falls back to: requested lang -> fallback chain -> key itself
@@ -347,7 +361,7 @@ export class ConfigService {
   getLocalizedLabel(type: 'license', key: string, lang: string): string {
     switch (type) {
       case 'license': {
-        const license = this.licenses[key];
+        const license = this.licenses.find(l => l.id === key);
         if (!license?.label) return key;
         for (const l of this.getLangChain(lang)) {
           if (license.label[l]) return license.label[l];
@@ -364,7 +378,7 @@ export class ConfigService {
    * Falls back through the language chain if the requested language is not available.
    */
   getMessagePageUrl(licenseId: string, pageKey: string, lang: string): string | null {
-    const license = this.licenses[licenseId];
+    const license = this.licenses.find(l => l.id === licenseId);
     if (!license?.messagePages) return null;
 
     const messagePage = license.messagePages.find(mp => mp.key === pageKey);
@@ -381,7 +395,7 @@ export class ConfigService {
    * Falls back through the language chain if the requested language is not available.
    */
   getInstructionPageUrl(licenseId: string, lang: string): string | null {
-    const license = this.licenses[licenseId];
+    const license = this.licenses.find(l => l.id === licenseId);
     if (!license?.instructionPage) return null;
 
     for (const l of this.getLangChain(lang)) {
@@ -449,34 +463,21 @@ export class ConfigService {
 
   // Home sections accessors
   get homeSections(): HomepageSectionConfig[] {
-    if (!this.isLocalConfigActive()) {
-      return DEFAULT_HOME_SECTIONS;
-    }
     return this.getConfig().homeSections ?? DEFAULT_HOME_SECTIONS;
   }
 
-  /**
-   * Check if the local config matches the currently active library.
-   * Returns true if:
-   * - No library override is set (no CDK_DEV_KRAMERIUS_ID in localStorage)
-   * - The active code matches the config's app.code
-   * - The active code is 'mzk' (always treated as matching)
-   */
-  isLocalConfigActive(): boolean {
-    const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    if (!activeCode) return true;
-    if (activeCode === 'mzk') return true;
+  get homepageTitle(): LocalizedLabel | undefined {
+    return this.getConfig().homepageTitle;
+  }
 
-    const configCode = this.app.code;
-    return activeCode === configCode;
+  get homepageSubtitle(): LocalizedLabel | undefined {
+    return this.getConfig().homepageSubtitle;
   }
 
   // Active library accessor (for dynamic header branding)
   private activeLibraryCache: { code: string; name: string; name_en: string; logo: string } | null = null;
 
   async getActiveLibrary(): Promise<{ name: string; name_en: string; logo: string } | null> {
-    if (!this.isFeatureEnabled('librarySwitch')) return null;
-
     const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
     if (!activeCode) return null;
 

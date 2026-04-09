@@ -17,8 +17,8 @@
   app-books-section,
   app-genres-section,
   app-document-types-section,
-  app-local-records-section,
-  app-local-categories-section {
+  app-featured-documents-section,
+  app-link-tiles-section {
     display: block;
     margin-bottom: var(--spacing-x24);
   }
@@ -44,8 +44,8 @@
     app-books-section,
     app-genres-section,
     app-document-types-section,
-    app-local-records-section,
-    app-local-categories-section {
+    app-featured-documents-section,
+    app-link-tiles-section {
       margin-bottom: var(--spacing-x16);
     }
 

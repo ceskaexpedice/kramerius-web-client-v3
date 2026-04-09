@@ -1,17 +1,17 @@
 // Application configuration
 export interface AppConfig {
-  code: string;           // e.g., 'cdk'
-  name: string;           // e.g., 'Czech Digital Library'
-  version: string;        // e.g., '2.0.0'
-  baseUrl: string;        // Application base URL
-  contactEmail: string;   // Contact email
-  logo?: string;          // URL to the app/library logo
+  code: string;                    // e.g., 'cdk'
+  name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
+  baseUrl: string;                 // Application base URL
+  contactEmail: string;            // Contact email
+  logo?: string;                   // URL to the app/library logo
+  adminClientUrl?: string;         // URL to admin client app
 }
 
 // API configuration
 export interface ApiConfig {
-  baseUrl: string;        // API base URL
-  clientVersion: string;  // e.g., '7.0'
+  baseUrl: string;          // API base URL
+  citationUrl?: string;     // Citation service API URL
 }
 
 // Internationalization configuration
@@ -38,19 +38,18 @@ export interface GoogleMapsConfig {
 
 // Integrations configuration
 export interface IntegrationsConfig {
+  clientId?: string;         // Anonymous visitor identifier for analytics and services
   analytics?: AnalyticsConfig;
   googleMaps?: GoogleMapsConfig;
 }
 
 // Feature flags
 export interface FeaturesConfig {
-  advancedSearch: boolean;
-  iiif: boolean;
+  keycloak: boolean;
   mapSearch: boolean;
   georef: boolean;
   ai: boolean;
   folders: boolean;
-  crossOrigin: boolean;
   librarySwitch: boolean;
 }
 
@@ -124,6 +123,30 @@ export interface LicenseMessagePage {
   page: LocalizedLabel;
 }
 
+// Watermark configuration — overlay drawn on top of the IIIF viewer for licensed content
+export interface LicenseWatermarkConfig {
+  type: 'image' | 'text';
+  opacity?: number;           // 0–1, default 0.15
+  rowCount?: number;          // grid rows, default 3
+  colCount?: number;          // grid columns, default 3
+  probability?: number;       // 0–100 chance per cell, default 100
+  // Image mode
+  logo?: string;              // URL to image
+  scale?: number;             // image scale factor, default 1.0
+  // Text mode
+  staticText?: string | LocalizedLabel; // localized text to display
+  fontSize?: number;          // px, default 14
+  color?: string;             // CSS color, default 'rgba(0,0,0,0.5)'
+}
+
+// License bar configuration — shown in detail view when document has one of the listed licenses
+export interface LicenseBarConfig {
+  licenses: string[];      // license IDs that trigger the bar
+  text: LocalizedLabel;    // localized bar text
+  logo?: string;           // optional logo URL
+  link?: string;           // optional URL opened on bar click
+}
+
 // Single license configuration
 export interface LicenseConfig {
   id: string;
@@ -133,12 +156,12 @@ export interface LicenseConfig {
   messagePages?: LicenseMessagePage[];
   instructionPage?: LocalizedLabel;
   actions: LicenseActionsConfig;
+  bar?: LicenseBarConfig;       // optional info bar shown in detail view
+  watermark?: LicenseWatermarkConfig; // optional watermark overlay in IIIF viewer
 }
 
-// Licenses configuration (keyed by license ID)
-export interface LicensesConfig {
-  [licenseId: string]: LicenseConfig;
-}
+// Licenses configuration (ordered array of license configs)
+export type LicensesConfig = LicenseConfig[];
 
 // Localized content — single URL or array of URLs per language
 export interface LocalizedContent {
@@ -155,7 +178,8 @@ export interface PageConfig {
 
 // Home section link item
 export interface HomepageLinkItem {
-  label: string;
+  label: string | LocalizedLabel;
+  type?: string;
   url: string;
   icon?: string;
   count?: number;
@@ -163,22 +187,22 @@ export interface HomepageLinkItem {
 
 // Suggested search tag item
 export interface SuggestedSearchTagItem {
-  text: string;
+  text: string | LocalizedLabel;
   filter: string;
 }
 
 // Home section configuration
 export interface HomepageSectionConfig {
-  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'local-records' | 'local-categories' | 'suggested-tags';
-  title: string;
+  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'featured-documents' | 'link-tiles' | 'suggested-tags';
+  title: string | LocalizedLabel;
   items?: Record<string, any>[];
   pids?: string[];
   hideIfEmpty?: boolean;
   visible?: boolean;
   comment?: string;
   sectionUrl?: string;
-  buttonText?: string;
-  cardVariant?: 'default' | 'author';
+  buttonText?: string | LocalizedLabel;
+  cardVariant?: 'default' | 'portrait';
   categories?: HomepageLinkItem[];
   showCount?: boolean;
   tags?: SuggestedSearchTagItem[];
@@ -197,4 +221,6 @@ export interface AppConfiguration {
   licenses: LicensesConfig;
   pages?: PageConfig[];
   homeSections?: HomepageSectionConfig[];
+  homepageTitle?: LocalizedLabel;
+  homepageSubtitle?: LocalizedLabel;
 }

@@ -23,8 +23,8 @@ This file configures the sections displayed on the search/home page. It is a JSO
 | `type` | String | **Required**. The type of section. See **Section Types** below. |
 | `title` | String | **Required**. The title of the section. Can be a translation key (e.g., `"periodical"`) or a raw string. |
 | `visible` | Boolean | Optional. Set to `false` to hide the section. Default is `true`. |
-| `items` | Array | Optional. Used for `"local-records"` sections to define the content. See **Local Record Items** below. |
-| `categories` | Array | Optional. Used for `"local-categories"` sections. See **Category Items** below. |
+| `items` | Array | Optional. Used for `"featured-documents"` sections to define the content. See **Featured Document Items** below. |
+| `categories` | Array | Optional. Used for `"link-tiles"` sections. See **Category Items** below. |
 | `tags` | Array | Optional. Used for `"suggested-tags"` sections. See **Suggested Tags** below. |
 | `hideIfEmpty` | Boolean | Optional. If `true`, the section is hidden if it has no items. |
 | `comment` | String | Optional. A field for your notes (ignored by the application). |
@@ -45,13 +45,13 @@ This file configures the sections displayed on the search/home page. It is a JSO
 | `"document-types"` | Built-in document types section (fetched from API). |
 | `"map"` | Built-in map section. |
 | `"institutions"` | Built-in institutions section. |
-| `"local-records"` | Custom section with manually defined cards. Uses `items` array. |
-| `"local-categories"` | Custom section with category tiles linking to search URLs. Uses `categories` array. |
+| `"featured-documents"` | Custom section with manually defined cards. Uses `items` array. |
+| `"link-tiles"` | Custom section with category tiles linking to search URLs. Uses `categories` array. |
 | `"suggested-tags"` | Clickable search suggestion tags shown inside the search hero. Uses `tags` array. If this section is absent or has no tags, the tag row is hidden. |
 
-## Local Record Items
+## Featured Document Items
 
-The `items` array in a `"local-records"` section accepts the following properties:
+The `items` array in a `"featured-documents"` section accepts the following properties:
 
 - `id`: (String, Optional) The UUID of the document in the repository (e.g., `"uuid:..."`). If present, data is fetched from the API.
 - `title`: (String) The title to display. **Overrides** API data if `id` is present.
@@ -63,7 +63,7 @@ The `items` array in a `"local-records"` section accepts the following propertie
 
 ## Category Items
 
-The `categories` array in a `"local-categories"` section accepts:
+The `categories` array in a `"link-tiles"` section accepts:
 
 - `label`: (String) Translation key or display label for the category tile.
 - `url`: (String) Search URL the tile links to.
@@ -109,11 +109,11 @@ Tags displayed in the search hero. Omit this section entirely (or set `"visible"
 }
 ```
 
-### 4. Local Records Section (API items)
+### 4. Featured Documents Section (API items)
 Load cards from the repository using UUIDs.
 ```json
 {
-  "type": "local-records",
+  "type": "featured-documents",
   "title": "Výběr z nejčtenějších knih",
   "buttonText": "Více knih",
   "sectionUrl": "/search?query=&customSearch=custom-root-model:monograph",
@@ -123,11 +123,11 @@ Load cards from the repository using UUIDs.
 }
 ```
 
-### 5. Local Records Section (Author cards)
+### 5. Featured Documents Section (Author cards)
 Display author cards with a portrait image and date range.
 ```json
 {
-  "type": "local-records",
+  "type": "featured-documents",
   "title": "Výběr z českých autorů",
   "cardVariant": "author",
   "items": [
@@ -142,11 +142,11 @@ Display author cards with a portrait image and date range.
 }
 ```
 
-### 6. Local Categories Section
+### 6. Link Tiles Section
 Display document type tiles linking to search results.
 ```json
 {
-  "type": "local-categories",
+  "type": "link-tiles",
   "title": "Typy dokumentů",
   "showCount": false,
   "categories": [
@@ -160,7 +160,7 @@ Display document type tiles linking to search results.
 A custom card with a static image and external link.
 ```json
 {
-  "type": "local-records",
+  "type": "featured-documents",
   "title": "Useful Links",
   "items": [
     {

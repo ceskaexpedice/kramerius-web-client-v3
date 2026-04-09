@@ -671,11 +671,6 @@ export class RecordHandlerService {
     return className.includes('with-badge') ? className : `${className} with-badge`.trim();
   }
 
-  public shouldShowDnntoBar(licenses: string[]): boolean {
-    // show bar only if licenses does not include public and includes dnnto
-    return !licenses.includes('public') && licenses.includes('dnnto');
-  }
-
   public isRecordPublic(licenses: string[]): boolean {
     const openLicenses = getOpenLicenses();
     const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];

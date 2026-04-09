@@ -65,7 +65,7 @@
 
           <!-- Action Section (clickable button) -->
           <li
-            *ngIf="!section.isTitle && section.isAction"
+            *ngIf="!section.isTitle && section.isAction && !section.hidden"
             class="action-section cursor-pointer"
             (click)="onActionClick(section.key)">
             <label class="cursor-pointer">

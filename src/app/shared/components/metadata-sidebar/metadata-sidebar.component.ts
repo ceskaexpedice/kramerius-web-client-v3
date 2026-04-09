@@ -13,17 +13,20 @@ import { SearchResultsSidebarComponent } from './search-results-sidebar/search-r
 import { SearchService } from '../../services/search.service';
 import { AsyncPipe } from '@angular/common';
 import { UiStateService } from "../../services/ui-state.service";
+import { ConfigService } from '../../../core/config';
+import { AiActionsComponent } from './ai-actions/ai-actions.component';
+import { AiPanelService } from '../../services/ai-panel.service';
 
 @Component({
   selector: 'app-metadata-sidebar',
-  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf, NgTemplateOutlet],
+  imports: [TabsComponent, TabItemComponent, MetadataSection, TranslatePipe, ExportDocumentSectionComponent, SearchResultsSidebarComponent, AsyncPipe, NgIf, NgTemplateOutlet, AiActionsComponent],
   templateUrl: './metadata-sidebar.component.html',
   styleUrl: './metadata-sidebar.component.scss'
 })
 export class MetadataSidebarComponent {
   @Input() metadata: Metadata | null = null;
   @Input() mode: 'floating' | 'docked' = 'floating';
-  @Input() tools = { search: true, export: true, description: false }; // Configurable tools
+  @Input() tools: { search: boolean; export: boolean; description: boolean; ai?: boolean } = { search: true, export: true, description: false };
   @Input() customDescription = false;
 
   @Output() close = new EventEmitter<void>();
@@ -32,6 +35,8 @@ export class MetadataSidebarComponent {
   detailService = inject(DetailViewService, { optional: true });
   searchService = inject(SearchService);
   uiStateService = inject(UiStateService);
+  configService = inject(ConfigService);
+  aiPanelService = inject(AiPanelService);
 
   exportAsPdf(): void {
 

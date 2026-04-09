@@ -23,6 +23,7 @@ import { SelectionService } from '../../services';
 import { CloseConfirmationDialogComponent } from './components/close-confirmation-dialog/close-confirmation-dialog.component';
 import { ActionConfirmationDialogComponent, ActionConfirmationDialogData } from './components/action-confirmation-dialog/action-confirmation-dialog.component';
 import { RecordHandlerService } from '../../services/record-handler.service';
+import { ConfigService } from '../../../core/config/config.service';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
@@ -115,6 +116,7 @@ export class EditSelectedDialogComponent {
   private translateService = inject(TranslateService);
   private dialog = inject(MatDialog);
   private recordHandlerService = inject(RecordHandlerService);
+  private configService = inject(ConfigService);
 
   selectedDocuments = computed(() => {
     return this.selectionService.getSelectedItemsAsMetadata();
@@ -144,6 +146,13 @@ export class EditSelectedDialogComponent {
     effect(() => {
       const count = this.effectiveSelectedIds().length;
       this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects--count')}: ${count}`;
+
+      // Show admin button only when exactly 1 item is selected and adminClientUrl is configured
+      const adminSection = this.dialogConfig.sections.find(s => s.key === EditSelectedDialogSections.admin);
+      if (adminSection) {
+        adminSection.hidden = count !== 1 || !this.configService.app.adminClientUrl;
+      }
+
       this.dialogConfig = { ...this.dialogConfig };
     });
 
@@ -227,16 +236,15 @@ export class EditSelectedDialogComponent {
   }
 
   goToAdminInterface() {
-    this.openActionConfirmationDialog({
-      title: 'admin-confirmation-dialog--header',
-      message: 'admin-confirmation-dialog--message',
-      confirmButtonLabel: 'proceed',
-      cancelButtonLabel: 'cancel'
-    }, () => {
-      // TODO: Implement navigation to admin interface with selected items
-      console.log('Go to admin interface with items:', this.effectiveSelectedIds());
-      this.dialogRef.close({ action: 'admin', selectedIds: this.effectiveSelectedIds() });
-    });
+    const adminClientUrl = this.configService.app.adminClientUrl;
+    if (!adminClientUrl) return;
+
+    const selectedIds = this.effectiveSelectedIds();
+    if (selectedIds.length !== 1) return;
+
+    const uuid = selectedIds[0];
+    const url = `${adminClientUrl}/object/${uuid}/actions`;
+    window.open(url, '_blank');
   }
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {

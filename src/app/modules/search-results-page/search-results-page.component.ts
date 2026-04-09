@@ -15,6 +15,7 @@ import { ScrollPositionService } from '../../shared/services/scroll-position.ser
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
 import { take } from 'rxjs/operators';
+import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 
 @Component({
   selector: 'app-search-results-page',
@@ -50,6 +51,24 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   private subscriptions: Subscription[] = [];
+
+  // Mobile nav bar
+  mobileNavItems: MobileNavItem[] = [
+    { id: 'all', label: 'tab-all', icon: 'icon-element-3' },
+    { id: 'map', label: 'tab-maps', icon: 'icon-location' },
+  ];
+
+  get mobileActiveTab(): string {
+    return this.view() === AppResultsViewType.map ? 'map' : 'all';
+  }
+
+  onMobileNavChange(id: string): void {
+    if (id === 'filters') {
+      this.breakpointService.manualToggle.set(true);
+    } else {
+      this.onTabChanged(id);
+    }
+  }
 
   ngOnInit(): void {
 

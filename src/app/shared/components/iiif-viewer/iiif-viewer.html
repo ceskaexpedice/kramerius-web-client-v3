@@ -9,6 +9,7 @@
         </app-thumbnail-image>
       </div>
       <div #viewerContainer class="openseadragon-container" [class.hidden]="showFallback()"></div>
+      <app-viewer-watermark [docLicenses]="docLicenses()" [pagePid]="imagePid"></app-viewer-watermark>
       <app-selection-controls *ngIf="showSelectionControls && selectionRect && !showFallback()" [style.top.px]="selectionRect.top"
         [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
         (share)="onShare()" (cancel)="onSelectionCancel()">

@@ -59,6 +59,7 @@ export class SettingsService {
     const current = this._settings.value;
     const copy: Settings = {
       ...current,
+      ttsVoices: (current.ttsVoices || []).map(v => ({ ...v })),
       displayConfig: current.displayConfig ? {
         tableColumns: current.displayConfig.tableColumns.map(col => ({ ...col })),
         facetFilters: current.displayConfig.facetFilters?.map(filter => ({ ...filter })),
@@ -200,9 +201,10 @@ export class SettingsService {
       queryParams.more_info = null; // Remove param if not expanding
     }
 
-    this.router.navigate([], {
+    this.router.navigate([window.location.pathname], {
       queryParams,
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
+      replaceUrl: true
     });
   }
 
@@ -213,7 +215,7 @@ export class SettingsService {
     delete currentParams['settings_section'];
     delete currentParams['more_info'];
 
-    this.router.navigate([], {
+    this.router.navigate([window.location.pathname], {
       queryParams: currentParams,
       replaceUrl: true
     });
@@ -239,15 +241,16 @@ export class SettingsService {
   }
 
   public saveToStorage(settings: Settings): void {
-    this.localStorage.set(this.STORAGE_KEY, JSON.stringify(settings));
+    this.localStorage.set(this.STORAGE_KEY, settings);
   }
 
   public loadInitialSettings(): Settings {
-    const saved = this.localStorage.get<any>(this.STORAGE_KEY);
-    if (saved) {
+    const parsed = this.localStorage.get<any>(this.STORAGE_KEY);
+    if (parsed) {
       try {
-        const parsed = JSON.parse(saved);
-        return new Settings(parsed.theme, parsed.searchResultsView, parsed.displayConfig);
+        const s = new Settings(parsed.theme, parsed.searchResultsView, parsed.displayConfig);
+        s.ttsVoices = parsed.ttsVoices || [];
+        return s;
       } catch (e) {
         console.warn('Could not parse settings from localStorage', e);
       }

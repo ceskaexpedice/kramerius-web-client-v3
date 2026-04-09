@@ -14,6 +14,7 @@ import { AdminActionsComponent } from '../../shared/components/admin-actions/adm
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { MapBrowseComponent } from './components/map-browse/map-browse.component';
 import { SearchResultsViewComponent } from './components/search-results-view/search-results-view.component';
+import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 
 const routes: Routes = [
 	{
@@ -39,6 +40,7 @@ const routes: Routes = [
 		ToolbarControlsComponent,
 		MapBrowseComponent,
 		SearchResultsViewComponent,
+		MobileNavBarComponent,
 	],
 	providers: [
 		{ provide: 'FilterService', useExisting: SearchService },

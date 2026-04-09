@@ -1,0 +1,48 @@
+<div class="ai-actions">
+  <div class="ai-actions__header">
+    {{ 'ai.powered-by' | translate }}
+  </div>
+
+  <div class="ai-actions__items" [class.disabled]="!userService.isLoggedIn || actionsDisabled">
+    <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()" [disabled]="actionsDisabled">
+      <div class="ai-actions__item-left">
+        <i class="icon-voice-square"></i>
+        <span>{{ 'ai.read-aloud' | translate }}</span>
+      </div>
+      <span class="button tertiary transparent sm ai-actions__item-settings" (click)="openReadingSettings($event)" [title]="'settings' | translate">
+        <i class="icon-settings-2"></i>
+      </span>
+    </button>
+
+    <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'" [disabled]="actionsDisabled">
+      <div class="ai-actions__item-left">
+        <i class="icon-translate"></i>
+        <span>{{ 'ai.translate' | translate }}</span>
+      </div>
+    </button>
+
+    <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'" [disabled]="actionsDisabled">
+      <div class="ai-actions__item-left">
+        <i class="icon-task-square"></i>
+        <span>{{ 'ai.summarize' | translate }}</span>
+      </div>
+    </button>
+
+    @if (!userService.isLoggedIn) {
+      <div class="ai-actions__fade"></div>
+    }
+  </div>
+
+  @if (!userService.isLoggedIn) {
+    <div class="ai-actions__login">
+      <i class="icon-lock ai-actions__login-icon"></i>
+      <p class="ai-actions__login-title">{{ 'ai.login-required' | translate }}</p>
+      <a class="ai-actions__login-link" (click)="login()">
+        {{ 'ai.login-register-link' | translate }}
+      </a>
+      <button class="ai-actions__login-btn" (click)="login()">
+        {{ 'ai.login-button' | translate }}
+      </button>
+    </div>
+  }
+</div>

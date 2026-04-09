@@ -36,6 +36,7 @@
   --spacing-x8: 32px;
   --spacing-x10: 40px;
   --spacing-x12: 48px;
+  --spacing-x14: 56px;
   --spacing-x16: 64px;
   --spacing-x24: 96px;
 
@@ -94,10 +95,10 @@
   --carousel-card-height: 388px;
   --carousel-image-aspect-ratio: 160 / 220;
 
-  // Author Card - 200x324
-  --author-card-width: 200px;
-  --author-card-height: 324px;
-  --author-image-aspect-ratio: 167 / 220;
+  // Portrait Card - 200x324
+  --portrait-card-width: 200px;
+  --portrait-card-height: 324px;
+  --portrait-image-aspect-ratio: 167 / 220;
 
   // Periodical Volume Card - 144x231
   --periodical-volume-card-width: 144px;
