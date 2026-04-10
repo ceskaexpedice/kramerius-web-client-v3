@@ -12,7 +12,7 @@ import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
@@ -94,6 +94,7 @@ export class MetadataSection implements OnInit, OnChanges {
   store = inject(Store);
   private destroyRef = inject(DestroyRef);
   private libraryContext = inject(LibraryContextService);
+  private availableYears = toSignal(this.store.select(selectAvailableYears));
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
@@ -118,25 +119,6 @@ export class MetadataSection implements OnInit, OnChanges {
       this.loadArticle(articleUuid);
     });
 
-    this.store.select(selectAvailableYears).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(years => {
-      this.tryPopulateVolumeFromYears(years);
-    });
-  }
-
-  private tryPopulateVolumeFromYears(years?: any[] | null) {
-    const data = this._data();
-    if (!data || data.model !== 'periodicalitem') return;
-    if (!data.ownParentPid || !years?.length) return;
-    const vol: any = years.find((y: any) => y.pid === data.ownParentPid);
-    if (!vol) return;
-    this._data.update(d => d ? ({
-      ...d,
-      volumeNumber: vol['part.number.str'] ?? d.volumeNumber,
-      volumeYear: vol['date.str'] ?? vol.year ?? d.volumeYear,
-    }) as Metadata : d);
-    this.cdr.markForCheck();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -200,17 +182,11 @@ export class MetadataSection implements OnInit, OnChanges {
         ownParentPid: solrData.ownParentPid,
         issueNumber: solrData.issueNumber,
         issueDate: solrData.issueDate,
-        volumeNumber: solrData.volumeNumber,
-        volumeYear: solrData.volumeYear,
       };
       this._data.set(mergedData);
     } else {
       this._data.set(baseMods);
     }
-
-    // Try to populate volume data from already-loaded years in store
-    const years = await firstValueFrom(this.store.select(selectAvailableYears).pipe(take(1)));
-    this.tryPopulateVolumeFromYears(years);
 
     this.cdr.markForCheck();
     this.loadCollectionNames();
@@ -352,9 +328,15 @@ export class MetadataSection implements OnInit, OnChanges {
 
   getVolumeItems(): string[] {
     const d = this.data;
+    if (!d?.ownParentPid) return [];
+    const years = this.availableYears();
+    const vol: any = years?.find((y: any) => y.pid === d.ownParentPid);
+    if (!vol) return [];
     const items: string[] = [];
-    if (d?.volumeYear) items.push(`${this.translate.instant('publication-year')} ${d.volumeYear}`);
-    if (d?.volumeNumber) items.push(`${this.translate.instant('volume')} ${d.volumeNumber}`);
+    const year = vol['date.str'] ?? vol.year;
+    const number = vol['part.number.str'];
+    if (year) items.push(`${this.translate.instant('publication-year')} ${year}`);
+    if (number) items.push(`${this.translate.instant('volume')} ${number}`);
     return items;
   }
 
