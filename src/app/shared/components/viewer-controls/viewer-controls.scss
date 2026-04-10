@@ -4,14 +4,14 @@
   justify-content: center;
   flex-direction: column;
   background-color: var(--color-bg-base);
-  border-radius: 12px;
-  padding: 8px;
-  gap: 8px;
+  border-radius: var(--spacing-x3);
+  padding: var(--spacing-x2);
+  gap: var(--spacing-x2);
   box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
 
   button {
-    width: 32px;
-    height: 32px;
+    width: var(--spacing-x8);
+    height: var(--spacing-x8);
   }
 
   //&.pdf-layout {
