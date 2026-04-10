@@ -118,7 +118,7 @@ export interface LicenseActionsConfig {
 }
 
 export interface LicenseMessagePage {
-  key: string;
+  key: 'unauthenticated' | 'unauthorized' | 'available';
   page: LocalizedLabel;
 }
 

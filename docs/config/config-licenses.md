@@ -169,22 +169,29 @@ Když má dokument licenci s nastaveným `bar`, nad prohlížečem se zobrazí l
 
 ## `messagePages` — informační dialogy
 
-Pole HTML stránek (dialogů) vázaných k licenci. Používají se ve chvílích, kdy aplikace potřebuje uživateli něco vysvětlit (např. že nemá přístup).
+Pole HTML stránek (dialogů) vázaných k licenci. Aplikace vybere správný text podle aktuálního stavu přístupu uživatele — nepřihlášen, přihlášen bez oprávnění, nebo má přístup.
 
 ```json
 "messagePages": [
   {
-    "key": "default",
+    "key": "unauthenticated",
     "page": {
       "cs": "local-config/mzk/html/licenses/dnnto.cs.html",
       "en": "local-config/mzk/html/licenses/dnnto.en.html"
     }
   },
   {
-    "key": "notEligible",
+    "key": "unauthorized",
     "page": {
       "cs": "local-config/mzk/html/licenses/dnnto2.cs.html",
       "en": "local-config/mzk/html/licenses/dnnto2.en.html"
+    }
+  },
+  {
+    "key": "available",
+    "page": {
+      "cs": "local-config/mzk/html/licenses/dnnto3.cs.html",
+      "en": "local-config/mzk/html/licenses/dnnto3.en.html"
     }
   }
 ]
@@ -199,11 +206,13 @@ Každá položka má:
 
 ### Obvyklé klíče
 
-| Klíč | Kdy se použije |
+Tlačítko „?" u licence vždy otevře jeden ze tří textů podle aktuálního stavu přístupu uživatele:
+
+| Klíč | Kdy se zobrazí |
 |---|---|
-| `default` | Výchozí dialog "Nemáte přístup" po kliknutí na dokument s touto licencí, který uživatel nemá odemčený. |
-| `notEligible` | Uživatel je přihlášen, ale nesplňuje podmínky licence (např. u dnnto nemá splněné požadavky). |
-| `info` | Obecné informace o licenci, otevírané uživatelem z tlačítka "?". |
+| `unauthenticated` | Uživatel **není přihlášen** a nemá přístup k dokumentu. Typicky: "Pro zobrazení se musíte přihlásit." |
+| `unauthorized` | Uživatel **je přihlášen**, ale nesplňuje podmínky licence (např. u dnnto nemá ověřenou způsobilost). Typicky: "Váš účet nemá oprávnění pro tuto licenci." |
+| `available` | Uživatel **má přístup** — dokument je pro něj dostupný. Obecné informace o licenci (co licence znamená, za jakých podmínek platí). |
 
 HTML soubory se obvykle ukládají pod `local-config/{kód}/html/licenses/`.
 
