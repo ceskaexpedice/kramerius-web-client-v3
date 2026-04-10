@@ -125,9 +125,14 @@ app-epub-viewer {
 // Viewer controls positioning - similar to pdf-viewer
 app-viewer-controls {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  top: var(--spacing-x3);
+  left: var(--spacing-x4);
   z-index: 10;
+
+  &[type="epub"] {
+    left: auto;
+    right: var(--spacing-x4);
+  }
 }
 
 

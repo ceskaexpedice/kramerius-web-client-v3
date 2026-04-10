@@ -103,7 +103,10 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     },
     {
       id: 'terms',
-      content: { cs: 'local-config/mzk/html/terms/terms.cs.html', en: 'local-config/mzk/html/terms/terms.en.html' }
+      content: {
+        cs: ['local-config/mzk/html/terms/terms.cs.html', 'local-config/mzk/html/terms/terms2.cs.html'],
+        en: ['local-config/mzk/html/terms/terms.en.html', 'local-config/mzk/html/terms/terms2.en.html']
+      }
     },
     {
       id: 'copyright',
