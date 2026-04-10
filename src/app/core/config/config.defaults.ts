@@ -4,7 +4,6 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   app: {
     code: 'cdk',
     name: 'Czech Digital Library',
-    baseUrl: '',
     contactEmail: 'digitalniknihovna@mzk.cz'
   },
   api: {
