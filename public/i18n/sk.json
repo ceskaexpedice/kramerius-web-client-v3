@@ -1,4 +1,8 @@
 {
+  "volume": "Ročník",
+  "issue": "Číslo",
+  "publication-year": "Rok vydania",
+  "publication-date": "Dátum vydania",
   "authors.facet": "Autor",
   "languages.facet": "Jazyk",
   "genres.facet": "Žáner",

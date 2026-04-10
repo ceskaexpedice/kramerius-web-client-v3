@@ -11,7 +11,11 @@
 
   // Override tabs content padding for sidebar context
   ::ng-deep .tabs-content {
-    padding: var(--spacing-x3);
+    padding: var(--spacing-x4) var(--spacing-x3);
+  }
+
+  ::ng-deep .metadata-section--item {
+    margin-bottom: 0;
   }
 
   &__content {

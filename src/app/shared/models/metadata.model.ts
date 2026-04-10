@@ -73,6 +73,11 @@ export class Metadata {
 
   public partNumberSort?: number;
 
+  public issueNumber: string = '';
+  public issueDate: string = '';
+  public volumeNumber: string = '';
+  public volumeYear: string = '';
+
   public currentIssue: PeriodicalItem | null = null;
   public nextIssue: PeriodicalItem | null = null;
   public previousIssue: PeriodicalItem | null = null;
@@ -272,6 +277,15 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.ownPidPath = doc.own_pid_path ?? '';
 
   metadata.partNumberSort = doc['part.number.sort'];
+
+  if (doc.model === 'periodicalitem') {
+    metadata.issueNumber = doc['part.number.str'] ?? '';
+    metadata.issueDate = doc['date.str'] ?? '';
+  }
+  if (doc.model === 'periodicalvolume') {
+    metadata.volumeNumber = doc['part.number.str'] ?? '';
+    metadata.volumeYear = doc['date_range_start.year']?.toString() ?? '';
+  }
 
   metadata.extent = doc.count_page ? `${doc.count_page} stran` : '';
 

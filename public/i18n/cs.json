@@ -1,4 +1,8 @@
 {
+  "volume": "Ročník",
+  "issue": "Číslo",
+  "publication-year": "Rok vydání",
+  "publication-date": "Datum vydání",
   "terms.agreement": "Souhlasím s podmínkami užití",
   "authors.facet": "Autor",
   "languages.facet": "Jazyk",

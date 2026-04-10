@@ -1,8 +1,8 @@
 .metadata-section--item {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-x1);
-  margin-bottom: var(--spacing-x2);
+  gap: var(--spacing-x0-5);
+  margin-bottom: 0;
 }
 
 .metadata-section--item-header {
@@ -28,7 +28,7 @@
   font-weight: bold;
   font-size: var(--font-size-base);
   line-height: var(--line-height-2);
-  margin: 0 0 var(--spacing-x0-5) 0;
+  margin: 0;
   font-family: var(--font-family-body);
 
   &.uppercase {

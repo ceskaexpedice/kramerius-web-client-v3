@@ -10,6 +10,7 @@ import { CollapsibleContent } from './collapsible-content/collapsible-content';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
+import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
@@ -116,6 +117,22 @@ export class MetadataSection implements OnInit, OnChanges {
     ).subscribe(articleUuid => {
       this.loadArticle(articleUuid);
     });
+
+    this.store.select(selectAvailableYears).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(years => {
+      const data = this._data();
+      if (!data || data.model !== 'periodicalitem') return;
+      if (!data.ownParentPid || !years?.length) return;
+      const vol: any = years.find((y: any) => y.pid === data.ownParentPid);
+      if (!vol) return;
+      this._data.update(d => d ? ({
+        ...d,
+        volumeNumber: vol['part.number.str'] ?? d.volumeNumber,
+        volumeYear: vol['date.str'] ?? vol.year ?? d.volumeYear,
+      }) as Metadata : d);
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -175,7 +192,12 @@ export class MetadataSection implements OnInit, OnChanges {
         model: solrData.model,
         isPublic: solrData.isPublic,
         licence: solrData.licence,
-        licences: solrData.licences
+        licences: solrData.licences,
+        ownParentPid: solrData.ownParentPid,
+        issueNumber: solrData.issueNumber,
+        issueDate: solrData.issueDate,
+        volumeNumber: solrData.volumeNumber,
+        volumeYear: solrData.volumeYear,
       };
       this._data.set(mergedData);
     } else {
@@ -319,6 +341,22 @@ export class MetadataSection implements OnInit, OnChanges {
     }
     return text;
   };
+
+  getVolumeItems(): string[] {
+    const d = this.data;
+    const items: string[] = [];
+    if (d?.volumeYear) items.push(`${this.translate.instant('publication-year')} ${d.volumeYear}`);
+    if (d?.volumeNumber) items.push(`${this.translate.instant('volume')} ${d.volumeNumber}`);
+    return items;
+  }
+
+  getIssueItems(): string[] {
+    const d = this.data;
+    const items: string[] = [];
+    if (d?.issueDate) items.push(`${this.translate.instant('publication-date')} ${d.issueDate}`);
+    if (d?.issueNumber) items.push(`${this.translate.instant('issue')} ${d.issueNumber}`);
+    return items;
+  }
 
   getNotes(notes: NoteInfo[]) {
     const items = notes.map(note => note.text);

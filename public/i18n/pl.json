@@ -1,4 +1,8 @@
 {
+  "volume": "Rocznik",
+  "issue": "Numer",
+  "publication-year": "Rok wydania",
+  "publication-date": "Data wydania",
   "authors.facet": "Autor",
   "languages.facet": "Język",
   "genres.facet": "Gatunek",

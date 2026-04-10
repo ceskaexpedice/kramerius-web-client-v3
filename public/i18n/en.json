@@ -1,4 +1,8 @@
 {
+  "volume": "Volume",
+  "issue": "Issue",
+  "publication-year": "Publication year",
+  "publication-date": "Publication date",
   "terms.agreement": "I agree to the terms of use",
   "authors.facet": "Author",
   "languages.facet": "Language",

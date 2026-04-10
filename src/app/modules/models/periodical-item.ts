@@ -46,7 +46,15 @@ export interface PeriodicalItemYear {
   model: string;
   accessibility: DocumentAccessibilityEnum;
   licenses: string[];
+  'date.str'?: string;
+  'part.number.str'?: string;
+  'date_range_end.day'?: number | string;
+  'date_range_end.month'?: number | string;
+  'date_range_end.year'?: number | string;
   'licenses.facet'?: string[];
+  contains_licenses?: string[];
+  'own_parent.pid'?: string;
+  [key: string]: any;
 }
 
 /** Returns true when at least one child has day+month data suitable for calendar display */
