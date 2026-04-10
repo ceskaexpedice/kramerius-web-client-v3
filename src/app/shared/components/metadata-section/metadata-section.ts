@@ -121,18 +121,22 @@ export class MetadataSection implements OnInit, OnChanges {
     this.store.select(selectAvailableYears).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(years => {
-      const data = this._data();
-      if (!data || data.model !== 'periodicalitem') return;
-      if (!data.ownParentPid || !years?.length) return;
-      const vol: any = years.find((y: any) => y.pid === data.ownParentPid);
-      if (!vol) return;
-      this._data.update(d => d ? ({
-        ...d,
-        volumeNumber: vol['part.number.str'] ?? d.volumeNumber,
-        volumeYear: vol['date.str'] ?? vol.year ?? d.volumeYear,
-      }) as Metadata : d);
-      this.cdr.markForCheck();
+      this.tryPopulateVolumeFromYears(years);
     });
+  }
+
+  private tryPopulateVolumeFromYears(years?: any[] | null) {
+    const data = this._data();
+    if (!data || data.model !== 'periodicalitem') return;
+    if (!data.ownParentPid || !years?.length) return;
+    const vol: any = years.find((y: any) => y.pid === data.ownParentPid);
+    if (!vol) return;
+    this._data.update(d => d ? ({
+      ...d,
+      volumeNumber: vol['part.number.str'] ?? d.volumeNumber,
+      volumeYear: vol['date.str'] ?? vol.year ?? d.volumeYear,
+    }) as Metadata : d);
+    this.cdr.markForCheck();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -203,6 +207,10 @@ export class MetadataSection implements OnInit, OnChanges {
     } else {
       this._data.set(baseMods);
     }
+
+    // Try to populate volume data from already-loaded years in store
+    const years = await firstValueFrom(this.store.select(selectAvailableYears).pipe(take(1)));
+    this.tryPopulateVolumeFromYears(years);
 
     this.cdr.markForCheck();
     this.loadCollectionNames();
