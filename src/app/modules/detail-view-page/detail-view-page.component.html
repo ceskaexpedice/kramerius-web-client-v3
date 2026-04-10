@@ -3,94 +3,6 @@
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible"
   [hideFilterToggle]="breakpointService.isMobile()">
 
-  <!--  <ng-container left-sidebar>-->
-
-  <!--    <div class="sidebar&#45;&#45;container" *ngIf="detailViewService.document$ | async as document">-->
-
-  <!--      &lt;!&ndash; PDF Sidebar for PDF documents &ndash;&gt;-->
-  <!--      <ng-container *ngIf="document.pdf">-->
-  <!--        <app-pdf-sidebar></app-pdf-sidebar>-->
-  <!--      </ng-container>-->
-
-  <!--      &lt;!&ndash; Original sidebar for non-PDF documents &ndash;&gt;-->
-  <!--      <ng-container *ngIf="!document.pdf">-->
-  <!--        <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">-->
-  <!--          <div class="sidebar&#45;&#45;wrapper">-->
-  <!--            <app-input-->
-  <!--              [placeholder]="'search-in-document&#45;&#45;placeholder' | translate"-->
-  <!--              [theme]="'dark'"-->
-  <!--              [size]="'sm'"-->
-  <!--              [showMicButton]="true"-->
-  <!--            ></app-input>-->
-
-  <!--            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">-->
-  <!--              <hr>-->
-  <!--              <app-page-navigator-->
-  <!--                [currentPage]="detailViewService.currentPageIndex + 1"-->
-  <!--                [totalPages]="detailViewService.totalPages"-->
-  <!--                (next)="detailViewService.goToNext()"-->
-  <!--                (prev)="detailViewService.goToPrevious()"-->
-  <!--                (pageChange)="detailViewService.goToPage($event)"-->
-  <!--              ></app-page-navigator>-->
-  <!--            </ng-container>-->
-
-  <!--            <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
-  <!--              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>-->
-  <!--            </div>-->
-  <!--          </div>-->
-  <!--        </ng-container>-->
-
-  <!--        <app-tabs *ngIf="document.model !== DocumentTypeEnum.soundrecording">-->
-  <!--          <div tab-common-up class="sidebar&#45;&#45;wrapper">-->
-  <!--            <app-input-->
-  <!--              [placeholder]="'search-in-document&#45;&#45;placeholder' | translate"-->
-  <!--              [theme]="'dark'"-->
-  <!--              [size]="'sm'"-->
-  <!--              [showMicButton]="true"-->
-  <!--            ></app-input>-->
-  <!--            <hr>-->
-  <!--            <app-page-navigator-->
-  <!--              [currentPage]="detailViewService.currentPageIndex + 1"-->
-  <!--              [totalPages]="detailViewService.totalPages"-->
-  <!--              (next)="detailViewService.goToNext()"-->
-  <!--              (prev)="detailViewService.goToPrevious()"-->
-  <!--              (pageChange)="detailViewService.goToPage($event)"-->
-  <!--            ></app-page-navigator>-->
-
-  <!--            <hr>-->
-
-  <!--            <div class="flex mb-2 w-100 max-width-100 flex&#45;&#45;wrap" *ngIf="adminSelectionService.adminMode()">-->
-  <!--              <app-admin-actions [compact]="true"></app-admin-actions>-->
-  <!--            </div>-->
-
-  <!--&lt;!&ndash;            <div class="flex flex&#45;&#45;align-center flex&#45;&#45;justify-end mb-2" *ngIf="!adminSelectionService.adminMode()">&ndash;&gt;-->
-  <!--&lt;!&ndash;              <button class="button outlined tertiary with-icon" (click)="toggleAdminMode()">&ndash;&gt;-->
-  <!--&lt;!&ndash;                {{'multi-page-choice' | translate}}&ndash;&gt;-->
-  <!--&lt;!&ndash;                <i class="icon-tick-square"></i>&ndash;&gt;-->
-  <!--&lt;!&ndash;              </button>&ndash;&gt;-->
-  <!--&lt;!&ndash;            </div>&ndash;&gt;-->
-
-  <!--            <div class="admin-selection-count" *ngIf="adminSelectionService.adminMode() && adminSelectionService.hasSelection()">-->
-  <!--              {{ 'count' | translate }}: {{ adminSelectionService.selectedCount() }}-->
-  <!--            </div>-->
-  <!--          </div>-->
-
-  <!--          <app-tab-item label="Stránky">-->
-  <!--            <div class="sidebar&#45;&#45;wrapper&#45;&#45;scroll-content">-->
-  <!--              <app-detail-pages-grid [type]="'page'"></app-detail-pages-grid>-->
-  <!--            </div>-->
-  <!--          </app-tab-item>-->
-  <!--&lt;!&ndash;        <app-tab-item label="Články">&ndash;&gt;-->
-  <!--&lt;!&ndash;        </app-tab-item>&ndash;&gt;-->
-  <!--&lt;!&ndash;        <app-tab-item label="Obrázky">&ndash;&gt;-->
-  <!--&lt;!&ndash;        </app-tab-item>&ndash;&gt;-->
-  <!--        </app-tabs>-->
-  <!--      </ng-container>-->
-
-  <!--    </div>-->
-
-  <!--  </ng-container>-->
-
   <ng-container left-sidebar>
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
@@ -142,7 +54,7 @@
 
   <ng-container action-toolbar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical && detailViewService.canShowDateNavigator()">
+      <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical && document.model === DocumentTypeEnum.periodicalitem">
         <div class="max-width-100" left>
           <app-toolbar-header [title]="document?.mainTitle || ''"
             [showBackButton]="recordHandler.shouldShowBackButton(document)"
@@ -152,8 +64,8 @@
           </app-toolbar-header>
         </div>
         <div center>
-          <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem && detailViewService.canShowDateNavigator()">
-            <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="true"
+          <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
+            <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
               [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
               (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
               (goToNext)="detailViewService.goToNextPeriodicalIssue()"
