@@ -58,7 +58,6 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
     "sk": "Moravská zemská knižnica",
     "pl": "Morawska Biblioteka Krajowa"
   },
-  "baseUrl": "https://api.kramerius.mzk.cz",
   "contactEmail": "digitalniknihovna@mzk.cz",
   "logo": "/favicon.svg",
   "adminClientUrl": "https://admin.kramerius.mzk.cz"
@@ -69,7 +68,6 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 |---|---|---|
 | `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Musí odpovídat názvu adresáře pod `local-config/`. |
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
-| `baseUrl` | ano | Základní URL aplikace — používá se při generování sdílených odkazů. |
 | `contactEmail` | ano | Kontaktní e-mail zobrazovaný v patičce a na chybových stránkách. |
 | `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/{kód}/img/`. Když chybí, zobrazí se výchozí logo. |
 | `adminClientUrl` | ne | URL administrátorského rozhraní. Používá se jako cíl přesměrování z administrátorského dialogu do admin klienta. Když chybí, odkaz na admin rozhraní není dostupný. |
@@ -159,9 +157,9 @@ Volitelný anonymní identifikátor klienta, který se posílá do analytiky / b
   "keycloak": true,
   "mapSearch": true,
   "georef": true,
-  "ai": true,
+  "ai": false,
   "folders": true,
-  "librarySwitch": true
+  "librarySwitch": false
 }
 ```
 
@@ -172,11 +170,11 @@ Přepínače hlavních funkcí. Všechna pole jsou `true` / `false`.
 | `keycloak` | Přihlašování přes Keycloak (OAuth/OIDC). Když je `false`, uživatelský profil a oblíbené jsou skryté. | `true` |
 | `mapSearch` | Mapové vyhledávání dokumentů podle geografických souřadnic. Vyžaduje zapnutý `googleMaps`. | `true` |
 | `georef` | Zobrazení georeferencovaných map přímo v prohlížeči. | `true` |
-| `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `false` |
+| `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `true` |
 | `folders` | Uživatelské složky / oblíbené dokumenty. Vyžaduje zapnutý `keycloak`. | `true` |
-| `librarySwitch` | Přepínač knihoven v hlavičce. | `false` |
+| `librarySwitch` | Přepínač knihoven v hlavičce. | `true` |
 
-Když některé pole chybí, použije se výchozí hodnota z tabulky.
+Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`).
 
 ---
 
@@ -348,7 +346,6 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
   "app": {
     "code": "demo",
     "name": "Demo Library",
-    "baseUrl": "https://demo.example.org",
     "contactEmail": "admin@example.org"
   },
   "api": {
@@ -358,23 +355,11 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
     "defaultLanguage": "cs",
     "fallbackLanguage": "en",
     "supportedLanguages": ["cs", "en"]
-  },
-  "features": {
-    "keycloak": false,
-    "mapSearch": false,
-    "georef": false,
-    "ai": false,
-    "folders": false,
-    "librarySwitch": false
-  },
-  "ui": { "cookiebar": true },
-  "viewer": {
-    "defaultMode": "book",
-    "availableModes": ["book", "single"],
-    "rememberLastMode": true
   }
 }
 ```
+
+> **Poznámka:** Bloky `features`, `ui`, `viewer`, `integrations`, `search` a `pages` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
 
 ---
 

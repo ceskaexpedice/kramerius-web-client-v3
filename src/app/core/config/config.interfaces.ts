@@ -2,7 +2,6 @@
 export interface AppConfig {
   code: string;                    // e.g., 'cdk'
   name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
-  baseUrl: string;                 // Application base URL
   contactEmail: string;            // Contact email
   logo?: string;                   // URL to the app/library logo
   adminClientUrl?: string;         // URL to admin client app
@@ -119,7 +118,7 @@ export interface LicenseActionsConfig {
 }
 
 export interface LicenseMessagePage {
-  key: string;
+  key: 'unauthenticated' | 'unauthorized' | 'available';
   page: LocalizedLabel;
 }
 

@@ -4,7 +4,6 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   app: {
     code: 'cdk',
     name: 'Czech Digital Library',
-    baseUrl: '',
     contactEmail: 'digitalniknihovna@mzk.cz'
   },
   api: {
@@ -19,9 +18,9 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     keycloak: true,
     mapSearch: true,
     georef: true,
-    ai: false,
+    ai: true,
     folders: true,
-    librarySwitch: false
+    librarySwitch: true
   },
   ui: {
     cookiebar: true
@@ -64,9 +63,9 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       isOnline: true,
       label: { cs: 'Díla nedostupná na trhu - online', en: 'Out of Commerce Works - online', sk: 'Diela nedostupná na trhu - online', pl: 'Utwory niedostępne w handlu – online' },
       messagePages: [
-        { key: 'default', page: { cs: 'local-config/mzk/html/licenses/dnnto.cs.html', en: 'local-config/mzk/html/licenses/dnnto.en.html' } },
-        { key: 'notEligible', page: { cs: 'local-config/mzk/html/licenses/dnnto2.cs.html', en: 'local-config/mzk/html/licenses/dnnto2.en.html' } },
-        { key: 'info', page: { cs: 'local-config/mzk/html/licenses/dnnto3.cs.html', en: 'local-config/mzk/html/licenses/dnnto3.en.html' } }
+        { key: 'unauthenticated', page: { cs: 'local-config/mzk/html/licenses/dnnto.cs.html', en: 'local-config/mzk/html/licenses/dnnto.en.html' } },
+        { key: 'unauthorized', page: { cs: 'local-config/mzk/html/licenses/dnnto2.cs.html', en: 'local-config/mzk/html/licenses/dnnto2.en.html' } },
+        { key: 'available', page: { cs: 'local-config/mzk/html/licenses/dnnto3.cs.html', en: 'local-config/mzk/html/licenses/dnnto3.en.html' } }
       ],
       instructionPage: { cs: 'local-config/mzk/html/licenses/dnnto.instruction.cs.html', en: 'local-config/mzk/html/licenses/dnnto.instruction.en.html' },
       actions: {
