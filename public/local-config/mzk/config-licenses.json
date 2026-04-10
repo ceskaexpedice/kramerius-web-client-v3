@@ -106,7 +106,7 @@
           "sk": "Diela nedostupná na trhu - online",
           "pl": "Utwory niedostępne w handlu – online"
         },
-        "logo": "/img/logo/dnnt-gray-transparent.png"
+        "logo": "/img/logo/dnnt-white.png"
       },
       "messagePages": [
         { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/dnnto.cs.html", "en": "local-config/mzk/html/licenses/dnnto.en.html" } },
