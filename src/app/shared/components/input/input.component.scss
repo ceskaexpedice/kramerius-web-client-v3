@@ -112,6 +112,11 @@
       display: flex;
       align-items: center;
       font-size: var(--font-size-base);
+
+      &.clickable-icon {
+        pointer-events: auto;
+        cursor: pointer;
+      }
     }
 
     // When no action icons are present, move postfix icon closer to edge

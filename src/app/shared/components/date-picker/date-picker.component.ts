@@ -86,6 +86,9 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   dateFromInput = signal<string>('');
   dateToInput = signal<string>('');
 
+  // Direct input text (for directInput mode)
+  directInputText = signal<string>('');
+
   // Calendar navigation
   monthFrom = signal(new Date().getMonth());
   yearFrom = signal(new Date().getFullYear());
@@ -106,6 +109,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
   @Input() showInput: boolean = true; // Control whether to show built-in input
+  @Input() directInput: boolean = false; // Allow typing directly into the input field
   @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
 
   minDate: Date = new Date(1400, 0, 1);
@@ -361,6 +365,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.isRangeModeActive = !!(this.initialDateFrom && this.initialDateTo);
 
     this.forceCalendarRefresh();
+    this.syncDirectInputText();
   }
 
   // Computed property for showing two-calendar layout
@@ -492,6 +497,69 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       // Navigate calendar to show the entered date
       this.forceCalendarNavigation();
       this.forceCalendarRefresh();
+    }
+  }
+
+  // Direct input mode methods
+  onDirectInputChange(value: string): void {
+    // Only track the text; commit happens on Enter or blur
+    this.directInputText.set(value);
+  }
+
+  onDirectInputEnter(): void {
+    const value = this.directInputText();
+
+    // Try range format: "DD.MM.YYYY - DD.MM.YYYY"
+    const rangeMatch = value.match(/^(.+?)\s*-\s*(.+)$/);
+    if (rangeMatch) {
+      const from = this.parseDate(rangeMatch[1].trim());
+      const to = this.parseDate(rangeMatch[2].trim());
+      if (from && to && from <= to) {
+        this.fromDate.set(from);
+        this.toDate.set(to);
+        this.offset.set(0);
+        this.emitChanges();
+        this.syncDirectInputText();
+        return;
+      }
+    }
+
+    // Try single date: "DD.MM.YYYY"
+    const date = this.parseDate(value.trim());
+    if (date) {
+      this.fromDate.set(date);
+      this.toDate.set(date);
+      this.offset.set(0);
+      this.emitChanges();
+      this.syncDirectInputText();
+    }
+  }
+
+  onDirectInputBlur(): void {
+    this.syncDirectInputText();
+  }
+
+  private syncDirectInputText(): void {
+    if (!this.directInput) return;
+    const fromDate = this.fromDate();
+    const toDate = this.toDate();
+    const offset = this.offset();
+
+    if (fromDate && toDate && offset === 0) {
+      const sameDate = fromDate.getFullYear() === toDate.getFullYear()
+        && fromDate.getMonth() === toDate.getMonth()
+        && fromDate.getDate() === toDate.getDate();
+      if (sameDate) {
+        this.directInputText.set(this.formatDate(fromDate));
+      } else {
+        this.directInputText.set(`${this.formatDate(fromDate)} - ${this.formatDate(toDate)}`);
+      }
+    } else if (fromDate && offset > 0) {
+      this.directInputText.set(`${this.formatDate(fromDate)} + ${offset} ${offset === 1 ? 'day' : 'days'}`);
+    } else if (fromDate) {
+      this.directInputText.set(this.formatDate(fromDate));
+    } else {
+      this.directInputText.set('');
     }
   }
 
@@ -757,6 +825,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     // Emit empty/null values to parent to clear the filter
     this.dateRangeChange.emit({ from: null as any, to: null as any });
     this.datePickerChange.emit({ dateFrom: null as any, offset: 0, dateTo: null as any });
+    this.syncDirectInputText();
   }
 
   onSubmit(): void {
@@ -768,6 +837,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.isOpen = false;
     this.openedPopupCalendar = false;
     this.emitChanges();
+    this.syncDirectInputText();
   }
 
   private emitChanges() {

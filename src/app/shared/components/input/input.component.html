@@ -69,7 +69,9 @@
     </ng-template>
 
     <!-- Postfix Icon -->
-    <span class="postfix-icon" *ngIf="postfixIcon">
+    <span class="postfix-icon" *ngIf="postfixIcon"
+      [class.clickable-icon]="postfixIconClick.observed"
+      (click)="onPostfixIconClick($event)">
       <i [class]="postfixIcon"></i>
     </span>
 

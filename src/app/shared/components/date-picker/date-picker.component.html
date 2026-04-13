@@ -1,14 +1,30 @@
 @if (showInput) {
   <div class="date-picker--container">
-    <app-input
-      [placeholder]="getSelectedDateText()"
-      [size]="size"
-      [theme]="'dark'"
-      [postfixIcon]="'icon-calendar-1'"
-      [clickable]="true"
-      [readonly]="true"
-      (click)="toggleOpenPopupCalendar()"
-    ></app-input>
+    @if (directInput) {
+      <app-input
+        [placeholder]="'DD.MM.YYYY'"
+        [size]="size"
+        [theme]="'dark'"
+        [postfixIcon]="'icon-calendar-1'"
+        [clickable]="false"
+        [readonly]="false"
+        [signalInput]="directInputText"
+        (valueChange)="onDirectInputChange($event.toString())"
+        (enter)="onDirectInputEnter()"
+        (onBlurEvent)="onDirectInputBlur()"
+        (postfixIconClick)="toggleOpenPopupCalendar()"
+      ></app-input>
+    } @else {
+      <app-input
+        [placeholder]="getSelectedDateText()"
+        [size]="size"
+        [theme]="'dark'"
+        [postfixIcon]="'icon-calendar-1'"
+        [clickable]="true"
+        [readonly]="true"
+        (click)="toggleOpenPopupCalendar()"
+      ></app-input>
+    }
   </div>
 }
 
