@@ -1,63 +1,136 @@
 .filter-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  //padding: 6px 0;
+  align-items: flex-start;
   width: 100%;
 
   .filter-wrapper {
     display: flex;
     align-items: flex-start;
     flex-grow: 1;
-    //gap: 8px;
+    gap: var(--spacing-x1);
 
-    app-select,
-    app-autocomplete,
-    app-date-stepper,
-    app-date-picker,
-    advanced-date-filter {
-      flex: 1 1 50%;
+    .filter-type-row {
+      display: contents; // On desktop, acts as if children are direct children of filter-wrapper
     }
 
-    app-select {
+    .filter-type-col {
       flex: 0 0 180px;
 
-      &:not(:first-child) {
-        flex-grow: 1;
+      app-select {
+        width: 100%;
       }
     }
 
-    app-autocomplete {
-      flex-grow: 1;
-    }
+    .filter-values-col {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x2);
+      min-width: 0;
 
-    app-date-stepper {
-      flex-grow: 1;
-      min-width: 200px;
-    }
+      .filter-value-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-x1);
+        width: 100%;
 
-    app-range-slider {
-      flex-grow: 1;
-      min-width: 200px;
+        .equals-operator-btn {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          padding: 0 8px;
+          border-radius: var(--spacing-x2);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: var(--font-size-base);
+          line-height: var(--line-height-2);
+          color: var(--color-text-base);
+
+          &.not-equals {
+            color: var(--color-text-error);
+          }
+        }
+
+        .filter-input-wrapper {
+          flex: 1 1 0;
+          min-width: 0;
+
+          app-autocomplete,
+          app-input,
+          app-select,
+          app-range-slider,
+          advanced-date-filter {
+            width: 100%;
+          }
+        }
+
+        .remove-button {
+          background: none;
+          border: none;
+          color: var(--color-icon);
+          font-size: var(--font-size-base);
+          cursor: pointer;
+          padding: var(--spacing-x3);
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+          border-radius: var(--spacing-x2);
+
+          &:hover {
+            color: var(--color-danger);
+          }
+        }
+      }
+
+      .add-value-btn {
+        padding: 0;
+        margin-left: 28px;
+        font-size: var(--font-size-small);
+        line-height: var(--line-height-1);
+        color: var(--color-text-secondary);
+        align-self: flex-start;
+      }
     }
   }
 
-  .remove-button {
-    background: none;
-    border: none;
-    color: var(--color-icon);
-    font-size: var(--font-size-large);
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
+  // Mobile layout
+  &.mobile {
+    .filter-wrapper {
+      flex-direction: column;
+      gap: var(--spacing-x2);
 
-    &:hover {
-      color: var(--color-danger);
+      .filter-type-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-x2);
+        width: 100%;
+
+        .equals-operator-btn {
+
+          &.not-equals {
+            color: var(--color-text-error);
+          }
+        }
+      }
+
+      .filter-type-col {
+        flex: 1 1 0;
+      }
+
+      .filter-values-col {
+        width: 100%;
+
+        .filter-value-row {
+          gap: var(--spacing-x2);
+        }
+
+        .add-value-btn {
+          margin-left: 0;
+        }
+      }
     }
   }
-}
-
-.equals-operator-btn.not-equals {
-  color: var(--color-text-error);
 }

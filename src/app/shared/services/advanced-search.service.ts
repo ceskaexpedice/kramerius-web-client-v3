@@ -6,6 +6,7 @@ import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
   FilterElementType,
+  FilterValue,
   getOriginalSolrKey,
   isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
@@ -138,39 +139,49 @@ export class AdvancedSearchService {
     return this.pendingOperatorsSignal();
   }
 
+  private buildQueryPartForValue(filter: AdvancedFilterDefinition, value: string, caseSensitive?: boolean): string {
+    const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
+    let useRaw = filter.userRawQueryFormat || false;
+    const isEquals = filter.isEquals !== false;
+
+    if (value.startsWith('*') || value.endsWith('*')) {
+      useRaw = true;
+    }
+
+    const fieldPrefix = isEquals ? '' : '-';
+    const fieldName = getSolrFieldName({...filter, caseSensitive});
+    const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+
+    return isRange
+      ? `${fieldPrefix}${fieldName}:${value}`
+      : useRaw
+        ? hasMultipleWords
+          ? `${fieldPrefix}${fieldName}:("${value}")`
+          : `${fieldPrefix}${fieldName}:(${value})`
+        : `${fieldPrefix}${fieldName}:"${value}"`;
+  }
+
+  /** Get all non-empty values from a filter, expanding the values array */
+  private getFilterValues(filter: AdvancedFilterDefinition): FilterValue[] {
+    if (filter.values && filter.values.length > 0) {
+      return filter.values.filter(v => !!v.elementValue?.trim());
+    }
+    // Fallback for filters without values array
+    if (filter.elementValue?.trim()) {
+      return [{ elementValue: filter.elementValue, solrValue: filter.solrValue, caseSensitive: filter.caseSensitive }];
+    }
+    return [];
+  }
+
   getAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();
     const mainOperator = this.mainOperatorSignal();
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.elementValue?.trim())
-        .map(filter => {
-          const value = filter.elementValue.trim();
-          const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
-          let useRaw = filter.userRawQueryFormat || false;
-          const isEquals = filter.isEquals !== false; // default true if undefined
-
-          if (value.startsWith('*') || value.endsWith('*')) {
-            useRaw = true;
-          }
-
-          const fieldPrefix = isEquals ? '' : '-';
-
-          // Use the helper to get the correct field name with/without .exact
-          const fieldName = getSolrFieldName(filter);
-
-          // For raw format queries, check if value has multiple words (contains spaces)
-          // If so, we need to quote it to prevent Solr syntax errors
-          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
-
-          return isRange
-            ? `${fieldPrefix}${fieldName}:${value}`
-            : useRaw
-              ? hasMultipleWords
-                ? `${fieldPrefix}${fieldName}:("${value}")`
-                : `${fieldPrefix}${fieldName}:(${value})`
-              : `${fieldPrefix}${fieldName}:"${value}"`;
+        .flatMap(filter => {
+          const values = this.getFilterValues(filter);
+          return values.map(v => this.buildQueryPartForValue(filter, v.elementValue.trim(), v.caseSensitive));
         });
 
       return parts.length > 0
@@ -185,97 +196,80 @@ export class AdvancedSearchService {
       : advancedQueryParts[0];
   }
 
+  private buildSolrQueryPartForValue(filter: AdvancedFilterDefinition, filterValue: FilterValue): string | string[] {
+    const isEquals = filter.isEquals !== false;
+    const fieldPrefix = isEquals ? '' : '-';
+    const value = filterValue.solrValue.trim();
+    let useRaw = filter.userRawQueryFormat || false;
+
+    // Handle Date filter (with optional offset)
+    if (filter.key === SolrFacetKey.Date) {
+      if (value.startsWith('[') && value.endsWith(']')) {
+        return `${filter.solrField}:${value}`;
+      }
+
+      const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
+      if (dayMonthRangePattern.test(filterValue.elementValue)) {
+        const [fromPart, toPart] = filterValue.elementValue.split('-');
+        const [startDay, startMonth] = fromPart.split('.').map(Number);
+        const [endDay, endMonth] = toPart.split('.').map(Number);
+        const dateRangeQuery = this.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
+        return `${fieldPrefix}${dateRangeQuery}`;
+      }
+
+      const dateParts = filterValue.elementValue.split('+');
+      const dateStr = dateParts[0];
+      const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setUTCDate(endDate.getUTCDate() + offset);
+      endDate.setUTCHours(23, 59, 59, 999);
+
+      const solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
+      return `${fieldPrefix}${filter.solrField}:${solrValue}`;
+    }
+
+    // Handle Year filter
+    if (filter.key === SolrFacetKey.Year) {
+      return `${isEquals ? '' : 'NOT '}(date_range_start.year:${value} OR date_range_end.year:${value})`;
+    }
+
+    if (value.startsWith('*') || value.endsWith('*')) {
+      useRaw = true;
+    }
+
+    const baseField = getOriginalSolrKey(filter.solrField || '');
+    let mappedFields = mapAdvancedSearchField(baseField);
+
+    if (filterValue.caseSensitive) {
+      mappedFields = applyCaseSensitiveToFields(mappedFields, true);
+    }
+
+    const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
+    const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
+
+    return mappedFields.map((mappedField: any) => {
+      return isRange
+        ? `${fieldPrefix}${mappedField}:${value}`
+        : useRaw
+          ? hasMultipleWords
+            ? `${fieldPrefix}${mappedField}:("${value}")`
+            : `${fieldPrefix}${mappedField}:(${value})`
+          : `${fieldPrefix}${mappedField}:"${value}"`;
+    });
+  }
+
   getSolrAdvancedQueryString(): string | undefined {
     const groups = this.filterGroupsSignal();
     const mainOperator = this.mainOperatorSignal();
 
     const advancedQueryParts: string[] = groups.map(group => {
       const parts = group.filters
-        .filter(filter => !!filter.solrValue?.trim())
         .flatMap(filter => {
-          console.log('Processing filter:', filter);
-
-          let isRange = false;
-          let useRaw = filter.userRawQueryFormat || false;
-          const isEquals = filter.isEquals !== false; // default = true
-          const value = filter.solrValue.trim();
-
-          // Negation prefix
-          const fieldPrefix = isEquals ? '' : '-';
-
-          // Handle Date filter (with optional offset)
-          if (filter.key === SolrFacetKey.Date) {
-            if (value.startsWith('[') && value.endsWith(']')) {
-              isRange = true;
-              return `${filter.solrField}:${value}`;
-            }
-
-            // Check if it's a day-month range format (DD.MM-DD.MM)
-            const dayMonthRangePattern = /^\d{2}\.\d{2}-\d{2}\.\d{2}$/;
-            if (dayMonthRangePattern.test(filter.elementValue)) {
-              // Parse DD.MM-DD.MM format and build date range query
-              const [fromPart, toPart] = filter.elementValue.split('-');
-              const [startDay, startMonth] = fromPart.split('.').map(Number);
-              const [endDay, endMonth] = toPart.split('.').map(Number);
-
-              const dateRangeQuery = this.buildDateRangeFilter(startDay, startMonth, endDay, endMonth);
-              return `${fieldPrefix}${dateRangeQuery}`;
-            }
-
-            // Handle regular date format (YYYY-MM-DD+offset)
-            const dateParts = filter.elementValue.split('+');
-            const dateStr = dateParts[0];
-            const offset = dateParts[1] ? parseInt(dateParts[1], 10) : 0;
-
-            const [year, month, day] = dateStr.split('-').map(Number);
-            const date = new Date(Date.UTC(year, month - 1, day));
-
-            const startDate = new Date(date);
-            const endDate = new Date(date);
-            // end date should have time 23:59:59
-            endDate.setUTCDate(endDate.getUTCDate() + offset);
-            endDate.setUTCHours(23, 59, 59, 999);
-
-            filter.solrValue = `[${startDate.toISOString()} TO ${endDate.toISOString()}]`;
-            isRange = true;
-
-            return `${fieldPrefix}${filter.solrField}:${filter.solrValue}`;
-          }
-
-          // Handle Year filter (special case, no negation expected)
-          if (filter.key === SolrFacetKey.Year) {
-            return `${isEquals ? '' : 'NOT '}(date_range_start.year:${value} OR date_range_end.year:${value})`;
-          }
-
-          if (value.startsWith('*') || value.endsWith('*')) {
-            useRaw = true;
-          }
-
-          // Get the base field name (without .exact suffix)
-          const baseField = getOriginalSolrKey(filter.solrField || '');
-
-          // Map the solr field to search fields if applicable
-          let mappedFields = mapAdvancedSearchField(baseField);
-
-          // Apply case-sensitive suffix to all mapped fields if needed
-          if (filter.caseSensitive) {
-            mappedFields = applyCaseSensitiveToFields(mappedFields, true);
-          }
-
-          // For raw format queries, check if value has multiple words (contains spaces)
-          // If so, we need to quote it to prevent Solr syntax errors
-          const hasMultipleWords = value.includes(' ') && !value.startsWith('*') && !value.endsWith('*');
-
-          // Generate query parts for each mapped field
-          return mappedFields.map((mappedField: any) => {
-            return isRange
-              ? `${fieldPrefix}${mappedField}:${value}`
-              : useRaw
-                ? hasMultipleWords
-                  ? `${fieldPrefix}${mappedField}:("${value}")`
-                  : `${fieldPrefix}${mappedField}:(${value})`
-                : `${fieldPrefix}${mappedField}:"${value}"`;
-          });
+          const values = this.getFilterValues(filter);
+          return values.flatMap(v => this.buildSolrQueryPartForValue(filter, v));
         });
 
       return parts.length > 0
@@ -320,8 +314,8 @@ export class AdvancedSearchService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
 
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '80vw',
-      height: isMobileOrTablet ? '100vh' : '80vh',
+      width: isMobileOrTablet ? '100vw' : '90vw',
+      height: isMobileOrTablet ? '100vh' : '90vh',
       maxWidth: isMobileOrTablet ? '100vw' : undefined,
       maxHeight: isMobileOrTablet ? '100vh' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
@@ -373,7 +367,7 @@ export class AdvancedSearchService {
 
   isAdvancedSearchActive(): boolean {
     return this.appliedGroupsSignal().some(group =>
-      group.filters.some(f => f.elementValue?.trim()),
+      group.filters.some(f => this.getFilterValues(f).length > 0),
     );
   }
 
@@ -383,11 +377,14 @@ export class AdvancedSearchService {
     return this.appliedGroupsSignal().map(group => {
       const filters = group.filters
         .filter(f => !!f.elementValue?.trim())
-        .map(f => ({
-          label: f.label,
-          value: f.elementValue,
-          isEquals: f.isEquals
-        }));
+        .flatMap(f => {
+          const values = this.getFilterValues(f);
+          return values.map(v => ({
+            label: f.label,
+            value: v.elementValue,
+            isEquals: f.isEquals
+          }));
+        });
 
       return {
         operator: group.operator,
@@ -575,8 +572,33 @@ export class AdvancedSearchService {
         }
       }
 
-      if (filters.length > 0) {
-        groups.push({ filters, operator: groupOperator });
+      // Group filters by key to merge same-type filters into multi-value entries
+      const mergedFilters: AdvancedFilterDefinition[] = [];
+      const filtersByKey = new Map<string, AdvancedFilterDefinition>();
+
+      for (const filter of filters) {
+        const existing = filtersByKey.get(filter.key);
+        if (existing && existing.isEquals === filter.isEquals) {
+          // Merge: add value to existing filter's values array
+          existing.values!.push({
+            elementValue: filter.elementValue,
+            solrValue: filter.solrValue,
+            caseSensitive: filter.caseSensitive,
+          });
+        } else {
+          // New filter type — initialize values array
+          filter.values = [{
+            elementValue: filter.elementValue,
+            solrValue: filter.solrValue,
+            caseSensitive: filter.caseSensitive,
+          }];
+          filtersByKey.set(filter.key, filter);
+          mergedFilters.push(filter);
+        }
+      }
+
+      if (mergedFilters.length > 0) {
+        groups.push({ filters: mergedFilters, operator: groupOperator });
       }
     }
 

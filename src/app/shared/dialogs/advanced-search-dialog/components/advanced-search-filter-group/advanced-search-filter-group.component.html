@@ -1,13 +1,59 @@
 <div class="filter-group">
   <div class="group-content">
+
+    <!-- Mobile: Group header with name + AND/OR switch -->
+    @if (breakpointService.isMobile()) {
+      <div class="mobile-group-header">
+        <span class="mobile-group-title">{{ 'group-label' | translate }} {{ groupIndex + 1 }}</span>
+        <div class="operator-switch" *ngIf="filters.length > 1">
+          <button
+            class="operator-switch-option"
+            [class.active]="operator === SolrOperators.and"
+            (click)="setOperator(SolrOperators.and)">
+            AND
+          </button>
+          <button
+            class="operator-switch-option"
+            [class.active]="operator === SolrOperators.or"
+            (click)="setOperator(SolrOperators.or)">
+            OR
+          </button>
+        </div>
+      </div>
+    }
+
     <div class="filter-items">
-      <advanced-search-filter-row
-        *ngFor="let filter of filters; let i = index; trackBy: trackByFn"
-        [filter]="filter"
-        (filterChange)="updateFilter(i, $event)"
-        (remove)="removeFilter(i)"
-        (addYearFilter)="addYearFilterRow()">
-      </advanced-search-filter-row>
+      <ng-container *ngFor="let filter of filters; let i = index; trackBy: trackByFn">
+
+        <!-- Mobile: Condition header with label + trash -->
+        @if (breakpointService.isMobile()) {
+          <div class="mobile-condition-section">
+            <div class="mobile-condition-header">
+              <span class="mobile-condition-label">{{ 'condition-label' | translate }} {{ i + 1 }}</span>
+              <button class="mobile-condition-remove button tertiary outlined" (click)="removeFilter(i)">
+                <i class="icon-trash"></i>
+              </button>
+            </div>
+
+            <advanced-search-filter-row
+              [filter]="filter"
+              [isMobile]="true"
+              (filterChange)="updateFilter(i, $event)"
+              (remove)="removeFilter(i)"
+              (addYearFilter)="addYearFilterRow()">
+            </advanced-search-filter-row>
+          </div>
+        } @else {
+          <advanced-search-filter-row
+            [filter]="filter"
+            [isMobile]="false"
+            (filterChange)="updateFilter(i, $event)"
+            (remove)="removeFilter(i)"
+            (addYearFilter)="addYearFilterRow()">
+          </advanced-search-filter-row>
+        }
+
+      </ng-container>
     </div>
 
     <div class="group-actions">
@@ -23,7 +69,8 @@
     </div>
   </div>
 
-  <div class="group-operator" *ngIf="advancedSearchService.filters().length > 1 || filters.length > 1">
+  <!-- Desktop only: side operator column -->
+  <div class="group-operator" *ngIf="!breakpointService.isMobile() && (advancedSearchService.filters().length > 1 || filters.length > 1)">
     <button class="operator-toggle" (click)="toggleOperator()">
       {{ operator }}
     </button>

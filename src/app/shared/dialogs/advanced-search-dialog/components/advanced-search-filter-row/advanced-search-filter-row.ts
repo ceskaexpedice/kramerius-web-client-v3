@@ -5,6 +5,7 @@ import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
   FilterElementType,
+  FilterValue,
   isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
 } from '../../solr-filters';
@@ -18,11 +19,12 @@ import {AdvancedDateFilterComponent} from '../advanced-date-filter/advanced-date
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 import {InputComponent} from '../../../../components/input/input.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'advanced-search-filter-row',
   imports: [CommonModule, FormsModule, AutocompleteComponent, SelectComponent, RangeSliderComponent, AdvancedDateFilterComponent, MatDatepickerModule,
-    MatNativeDateModule, InputComponent],
+    MatNativeDateModule, InputComponent, TranslatePipe],
   providers: [
     provideNativeDateAdapter(),
     MatDatepickerModule
@@ -37,6 +39,7 @@ export class AdvancedSearchFilterRow implements OnInit {
   private translateService = inject(TranslateService);
 
   @Input() filter!: AdvancedFilterDefinition;
+  @Input() isMobile = false;
   @Output() filterChange = new EventEmitter<AdvancedFilterDefinition>();
   @Output() remove = new EventEmitter<void>();
   @Output() addYearFilter = new EventEmitter<void>();
@@ -44,32 +47,41 @@ export class AdvancedSearchFilterRow implements OnInit {
   filterTypes = ADVANCED_FILTERS;
 
   ngOnInit() {
+    this.initializeValues();
     this.loadData();
-
-    // Check if this filter type supports case-sensitive search
     this.showCaseSensitiveButton = isFilterWithCaseSensitiveSupport(this.filter.solrField || '');
   }
 
+  /** Ensure the filter always has a values array with at least one entry */
+  private initializeValues() {
+    if (!this.filter.values || this.filter.values.length === 0) {
+      this.filter.values = [{
+        elementValue: this.filter.elementValue || '',
+        solrValue: this.filter.solrValue || '',
+        caseSensitive: this.filter.caseSensitive,
+      }];
+    }
+  }
+
   loadData() {
-    // Load dropdown options if this is a dropdown filter
     if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
 
       data.subscribe(suggestions => {
-        // sort suggestions, first 4 suggestions default order, then alphabetically
-        const firstFour = suggestions.slice(0, 4); // Keep first 4 in original order
+        const firstFour = suggestions.slice(0, 4);
         const rest = suggestions.slice(4).sort((a, b) => {
           const translatedA = this.translateService.instant(a);
           const translatedB = this.translateService.instant(b);
           return translatedA.toLowerCase().localeCompare(translatedB.toLowerCase());
         });
 
-        const sorted = [...firstFour, ...rest]; // Combine the two arrays
-
+        const sorted = [...firstFour, ...rest];
         this.filter.options = sorted;
 
-        if (!this.filter.elementValue) {
-          this.filter.elementValue = sorted[0];
+        // Set default value for the first entry if empty
+        if (!this.filter.values![0].elementValue) {
+          this.filter.values![0].elementValue = sorted[0];
+          this.filter.values![0].solrValue = sorted[0];
         }
       });
     }
@@ -90,7 +102,9 @@ export class AdvancedSearchFilterRow implements OnInit {
       this.filter = {
         ...def,
         solrValue: '',
+        values: [{ elementValue: '', solrValue: '' }],
       };
+      this.showCaseSensitiveButton = isFilterWithCaseSensitiveSupport(this.filter.solrField || '');
       this.emitChange();
       this.focusValueInput();
     }
@@ -99,7 +113,6 @@ export class AdvancedSearchFilterRow implements OnInit {
   private focusValueInput(): void {
     const inputType = this.filter.inputType;
 
-    // Query from document level since this component might be destroyed and recreated
     setTimeout(() => {
       const filterRows = Array.from(document.querySelectorAll('advanced-search-filter-row'));
 
@@ -126,73 +139,95 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
     if (!this.filter.solrField) return of([]);
-
     return this.solrService.getSuggestionsByFacetKey(this.filter.solrField, term);
   };
 
   filterTypeDisplayFn = (option: AdvancedFilterDefinition | null) => option ? (option.label) : '';
 
-  emitChange() {
-    this.filterChange.emit({...this.filter});
+  private syncPrimaryValue() {
+    if (this.filter.values && this.filter.values.length > 0) {
+      this.filter.elementValue = this.filter.values[0].elementValue;
+      this.filter.solrValue = this.filter.values[0].solrValue;
+      this.filter.caseSensitive = this.filter.values[0].caseSensitive;
+    }
   }
 
-  suggestionSelected(value: string) {
-    console.log('suggestionSelected', value);
-    this.filter.elementValue = value;
-    this.filter.solrValue = value;
+  emitChange() {
+    this.syncPrimaryValue();
+    this.filterChange.emit({...this.filter, values: [...(this.filter.values || [])]});
+  }
+
+  // --- Multi-value methods ---
+
+  addValue() {
+    if (!this.filter.values) {
+      this.filter.values = [];
+    }
+    this.filter.values.push({ elementValue: '', solrValue: '' });
     this.emitChange();
   }
 
-  autocompleteSubmit(value: string) {
-    this.filter.elementValue = value;
-    this.filter.solrValue = value;
+  removeValue(index: number) {
+    if (!this.filter.values) return;
+    this.filter.values.splice(index, 1);
+    if (this.filter.values.length === 0) {
+      // If all values removed, remove the entire filter row
+      this.remove.emit();
+      return;
+    }
+    this.emitChange();
   }
 
-  inputChange(value: string | number) {
-    this.filter.elementValue = value.toString();
-    this.filter.solrValue = value.toString();
+  suggestionSelected(index: number, value: string) {
+    this.filter.values![index].elementValue = value;
+    this.filter.values![index].solrValue = value;
+    this.emitChange();
+  }
+
+  autocompleteSubmit(index: number, value: string) {
+    this.filter.values![index].elementValue = value;
+    this.filter.values![index].solrValue = value;
+  }
+
+  inputChange(index: number, value: string | number) {
+    this.filter.values![index].elementValue = value.toString();
+    this.filter.values![index].solrValue = value.toString();
   }
 
   inputBlur() {
-    console.log('input blur')
     this.emitChange();
   }
 
-  onExactMatchToggle() {
-    // Toggle the case-sensitive property on the filter
-    this.filter.caseSensitive = !this.filter.caseSensitive;
+  onExactMatchToggle(index: number) {
+    this.filter.values![index].caseSensitive = !this.filter.values![index].caseSensitive;
     this.emitChange();
   }
 
-  onRangeSliderChange(range: { from: number; to: number }) {
-    this.filter.solrValue = `[${range.from} TO ${range.to}]`;
-    this.filter.elementValue = `[${range.from} TO ${range.to}]`;
+  onRangeSliderChange(index: number, range: { from: number; to: number }) {
+    const val = `[${range.from} TO ${range.to}]`;
+    this.filter.values![index].solrValue = val;
+    this.filter.values![index].elementValue = val;
   }
 
-
-  getInitialFrom(): number {
-    const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+  getInitialFrom(index: number): number {
+    const match = this.filter.values![index].elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[1]);
     }
     return this.filter.meta?.min ?? 0;
   }
 
-  getInitialTo(): number {
-    const match = this.filter.elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
+  getInitialTo(index: number): number {
+    const match = this.filter.values![index].elementValue.match(/\[(\d+)\s+TO\s+(\d+)\]/);
     if (match) {
       return Number(match[2]);
     }
     return this.filter.meta?.max ?? 100;
   }
 
-  protected readonly AdvancedFilterType = FilterElementType;
-
-
-
-  onDateFilterChange(value: {elementValue: string, solrValue: string}) {
-    this.filter.elementValue = value.elementValue;
-    this.filter.solrValue = value.solrValue;
+  onDateFilterChange(index: number, value: {elementValue: string, solrValue: string}) {
+    this.filter.values![index].elementValue = value.elementValue;
+    this.filter.values![index].solrValue = value.solrValue;
     this.emitChange();
   }
 
@@ -200,4 +235,12 @@ export class AdvancedSearchFilterRow implements OnInit {
     this.addYearFilter.emit();
   }
 
+  /** Whether this filter type supports adding multiple values */
+  get supportsMultipleValues(): boolean {
+    return this.filter.inputType === FilterElementType.Autocomplete
+      || this.filter.inputType === FilterElementType.Text
+      || this.filter.inputType === FilterElementType.Dropdown;
+  }
+
+  protected readonly AdvancedFilterType = FilterElementType;
 }

@@ -1,101 +1,120 @@
-<div class="filter-row">
+<div class="filter-row" [class.mobile]="isMobile">
 
   <div class="filter-wrapper">
 
-    <app-select
-      [options]="filterTypes"
-      [value]="selectedFilterTypeOption()"
-      [displayFn]="filterTypeDisplayFn"
-      (valueChange)="onFilterTypeChange($event.key)"
-      [theme]="'light'"
-    >
-    </app-select>
+    <!-- Type selector row (on mobile: full width + equals btn beside it) -->
+    <div class="filter-type-row">
+      <div class="filter-type-col">
+        <app-select
+          [options]="filterTypes"
+          [value]="selectedFilterTypeOption()"
+          [displayFn]="filterTypeDisplayFn"
+          (valueChange)="onFilterTypeChange($event.key)"
+          [theme]="'light'"
+        >
+        </app-select>
+      </div>
 
-    <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+      @if (isMobile) {
+        <button (click)="toggleEqualsOperator()" class="equals-operator-btn button tertiary outlined" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+      }
+    </div>
 
-    <ng-container [ngSwitch]="filter.key">
-      <app-autocomplete
-        #autocompleteInput
-        *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
-        [initialValue]="filter.elementValue"
-        [placeholder]="filter.placeholder || filter.key"
-        [showHelpButton]="false"
-        [showMicrophoneButton]="false"
-        [showSubmitButton]="false"
-        [showClearButton]="true"
-        [showCaseSensitiveButton]="showCaseSensitiveButton"
-        (search)="emitChange()"
-        (submit)="autocompleteSubmit($event)"
-        (suggestionSelected)="suggestionSelected($event)"
-        [getSuggestions]="getSuggestionsFn"
-        [inputTheme]="'dark'"
-        [withIcons]="false"
-        [size]="'sm'"
-        [isCaseSensitive]="filter.caseSensitive || false"
-        (onCaseSensitiveEvent)="onExactMatchToggle()"
-      ></app-autocomplete>
+    <!-- Values column - multiple inputs stacked -->
+    <div class="filter-values-col">
+      @for (val of filter.values; track $index) {
+        <div class="filter-value-row">
 
-      @if (filter.inputType === AdvancedFilterType.Text) {
-        <div class="w-100 flex flex--column flex--gap-x2">
-          <app-input
-            #textInput
-            [initialValue]="filter.elementValue"
-            [placeholder]="filter.placeholder || filter.key"
-            [showHelpButton]="false"
-            [showSubmitButton]="false"
-            [showClearButton]="true"
-            [showCaseSensitiveButton]="showCaseSensitiveButton"
-            (valueChange)="inputChange($event)"
-            (onBlurEvent)="inputBlur()"
-            [theme]="'dark'"
-            [withIcons]="false"
-            [size]="'sm'"
-            [isCaseSensitive]="filter.caseSensitive || false"
-            (onCaseSensitiveEvent)="onExactMatchToggle()"
-          ></app-input>
+          @if (!isMobile) {
+            <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+          }
 
+          <div class="filter-input-wrapper">
+            <ng-container [ngSwitch]="filter.key">
+              <app-autocomplete
+                *ngIf="filter.inputType === AdvancedFilterType.Autocomplete"
+                [initialValue]="val.elementValue"
+                [placeholder]="filter.placeholder || filter.key"
+                [showHelpButton]="false"
+                [showMicrophoneButton]="false"
+                [showSubmitButton]="false"
+                [showClearButton]="true"
+                [showCaseSensitiveButton]="showCaseSensitiveButton"
+                (search)="emitChange()"
+                (submit)="autocompleteSubmit($index, $event)"
+                (suggestionSelected)="suggestionSelected($index, $event)"
+                [getSuggestions]="getSuggestionsFn"
+                [inputTheme]="'dark'"
+                [withIcons]="false"
+                [size]="'sm'"
+                [isCaseSensitive]="val.caseSensitive || false"
+                (onCaseSensitiveEvent)="onExactMatchToggle($index)"
+              ></app-autocomplete>
+
+              @if (filter.inputType === AdvancedFilterType.Text) {
+                <app-input
+                  [initialValue]="val.elementValue"
+                  [placeholder]="filter.placeholder || filter.key"
+                  [showHelpButton]="false"
+                  [showSubmitButton]="false"
+                  [showClearButton]="true"
+                  [showCaseSensitiveButton]="showCaseSensitiveButton"
+                  (valueChange)="inputChange($index, $event)"
+                  (onBlurEvent)="inputBlur()"
+                  [theme]="'dark'"
+                  [withIcons]="false"
+                  [size]="'sm'"
+                  [isCaseSensitive]="val.caseSensitive || false"
+                  (onCaseSensitiveEvent)="onExactMatchToggle($index)"
+                ></app-input>
+              }
+
+              <app-range-slider
+                *ngIf="filter.inputType === AdvancedFilterType.Slider"
+                [min]="filter.meta?.min ?? 0"
+                [max]="filter.meta?.max ?? 100"
+                [step]="filter.meta?.step ?? 1"
+                [initialFrom]="getInitialFrom($index)"
+                [initialTo]="getInitialTo($index)"
+                [layout]="'inline'"
+                (rangeChange)="onRangeSliderChange($index, $event)"
+              ></app-range-slider>
+
+              <app-select
+                *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
+                [options]="filter.options || []"
+                [(value)]="val.elementValue"
+                [theme]="'light'"
+                [filterable]="true"
+              ></app-select>
+
+              <advanced-date-filter
+                *ngIf="filter.inputType === AdvancedFilterType.Date"
+                [initialValue]="val.elementValue"
+                [solrField]="filter.solrField || ''"
+                (valueChange)="onDateFilterChange($index, $event)"
+                (addYearFilter)="onAddYearFilter()"
+              ></advanced-date-filter>
+            </ng-container>
+          </div>
+
+          <!-- Desktop: trash per value row. Mobile: trash is in condition header -->
+          @if (!isMobile) {
+            <button (click)="removeValue($index)" class="remove-button">
+              <i class="icon-trash"></i>
+            </button>
+          }
         </div>
       }
 
-      <app-range-slider
-        *ngIf="filter.inputType === AdvancedFilterType.Slider"
-        [min]="filter.meta?.min ?? 0"
-        [max]="filter.meta?.max ?? 100"
-        [step]="filter.meta?.step ?? 1"
-        [initialFrom]="getInitialFrom()"
-        [initialTo]="getInitialTo()"
-        [layout]="'inline'"
-        (rangeChange)="onRangeSliderChange($event)"
-      ></app-range-slider>
+      @if (supportsMultipleValues) {
+        <button class="button link with-icon add-value-btn p-left-0" (click)="addValue()">
+          <i class="icon-add-square"></i>
+          {{ 'add-field-button-label' | translate }}
+        </button>
+      }
+    </div>
 
-      <app-select
-        #dropdownInput
-        *ngIf="filter.inputType === AdvancedFilterType.Dropdown"
-        [options]="filter.options || []"
-        [(value)]="filter.elementValue"
-        [theme]="'light'"
-        [filterable]="true"
-      ></app-select>
-
-<!--      <app-date-stepper-->
-<!--        *ngIf="filter.inputType === AdvancedFilterType.Date"-->
-<!--        [data]="filter.elementValue"-->
-<!--        (dateChange)="onDateChange($event)"-->
-<!--        [showModeToggle]="true"-->
-<!--      ></app-date-stepper>-->
-
-      <advanced-date-filter
-        *ngIf="filter.inputType === AdvancedFilterType.Date"
-        [initialValue]="filter.elementValue"
-        [solrField]="filter.solrField || ''"
-        (valueChange)="onDateFilterChange($event)"
-        (addYearFilter)="onAddYearFilter()"
-      ></advanced-date-filter>
-
-    </ng-container>
   </div>
 
-  <button (click)="remove.emit()" class="remove-button">
-    <i class="icon-trash"></i>
-  </button>
 </div>
