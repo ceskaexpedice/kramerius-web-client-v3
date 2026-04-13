@@ -11,6 +11,7 @@ $custom-radius: 4px;
   --mat-checkbox-state-layer-size: 16px;
   --mdc-radio-state-layer-size: 16px;
   --mat-radio-state-layer-size: 16px;
+  --mat-sys-on-surface: #738898;
 }
 
 html {
@@ -128,7 +129,7 @@ div.mat-mdc-autocomplete-panel {
 
 // checkbox
 mat-checkbox {
-  --mdc-checkbox-unselected-icon-color: var(--color-border-contrast);
+  --mdc-checkbox-unselected-icon-color: var(--color-border-additional);
   --mdc-checkbox-state-layer-size: 16px;
   --mat-checkbox-state-layer-size: 16px;
 }
@@ -154,7 +155,7 @@ mat-checkbox {
   top: 0 !important;
   left: 0 !important;
   border-radius: 4px !important;
-  border-color: var(--color-border-contrast) !important;
+  border-color: var(--color-border-additional) !important;
   border-width: 1px !important;
 }
 
@@ -185,7 +186,7 @@ mat-checkbox {
 
 // radio
 mat-radio-button {
-  --mat-radio-unselected-icon-color: var(--color-border-contrast);
+  --mat-radio-unselected-icon-color: var(--color-border-additional);
 }
 
 .mat-mdc-radio-button .mdc-radio__outer-circle {
