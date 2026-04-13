@@ -23,7 +23,7 @@ import { MonthYearChange, MonthYearSelectorComponent } from '../month-year-selec
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { ClickOutsideDirective } from '../../directives/click-outside';
-import { DateAdapter, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -64,6 +64,10 @@ class MondayFirstNativeDateAdapter extends NativeDateAdapter {
       useFactory: () => {
         return typeof navigator !== 'undefined' ? navigator.language : 'en';
       },
+    },
+    {
+      provide: MAT_DATE_FORMATS,
+      useValue: MAT_NATIVE_DATE_FORMATS,
     },
   ],
 })
