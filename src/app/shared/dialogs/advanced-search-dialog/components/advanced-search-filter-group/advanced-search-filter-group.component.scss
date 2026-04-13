@@ -15,7 +15,6 @@
   .group-content {
     flex: 1 1 auto;
     padding: 12px 24px 8px 12px;
-    overflow: hidden;
 
     @include respond(sm) {
       padding: 0;
