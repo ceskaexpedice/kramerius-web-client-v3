@@ -1,10 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ConfigService } from '../../core/config/config.service';
 
 @Injectable({ providedIn: 'root' })
 export class MapService {
-  private httpClient = inject(HttpClient);
   private configService = inject(ConfigService);
 
   private _mapReady = false;
@@ -27,24 +25,28 @@ export class MapService {
     this._readyCallbacks.push(callback);
 
     if (this._readyCallbacks.length > 1) {
-      // Already loading, just queued the callback
       return;
     }
 
     const key = this.apiKey;
     const lang = document.documentElement.lang || 'cs';
-    const url = `https://maps.googleapis.com/maps/api/js?key=${key}&language=${lang}`;
+    const callbackName = '__googleMapsCallback';
 
-    this.httpClient.jsonp(url, 'callback').subscribe({
-      next: () => {
-        this._mapReady = true;
-        this._readyCallbacks.forEach(cb => cb());
-        this._readyCallbacks = [];
-      },
-      error: (err) => {
-        console.error('Failed to load Google Maps API:', err);
-        this._readyCallbacks = [];
-      }
-    });
+    (window as any)[callbackName] = () => {
+      delete (window as any)[callbackName];
+      this._mapReady = true;
+      this._readyCallbacks.forEach(cb => cb());
+      this._readyCallbacks = [];
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&language=${lang}&loading=async&callback=${callbackName}`;
+    script.async = true;
+    script.onerror = () => {
+      delete (window as any)[callbackName];
+      console.error('Failed to load Google Maps API');
+      this._readyCallbacks = [];
+    };
+    document.head.appendChild(script);
   }
 }
