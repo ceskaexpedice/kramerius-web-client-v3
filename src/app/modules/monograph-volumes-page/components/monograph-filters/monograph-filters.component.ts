@@ -53,7 +53,7 @@ import { MonographVolumesService } from '../../../../shared/services/monograph-v
           <ng-container>
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
+              {{ expandLicenses ? ('hide-licenses-label' | translate) : ('show-licenses-label' | translate) }} <i class="icon-arrow-up-1"></i>
             </div>
 
             <app-filter-category

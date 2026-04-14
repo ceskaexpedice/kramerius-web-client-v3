@@ -117,6 +117,7 @@
   "custom-accessibility": "Dostupnost",
   "licenses.facet": "Licence",
   "show-licenses-label": "Zobrazit licence",
+  "hide-licenses-label": "Skrýt licence",
   "all-label": "Vše",
   "available-label": "Pouze dostupné",
   "custom-root-model": "Typ dokumentu",

@@ -122,6 +122,7 @@
   "custom-accessibility": "Accessibility",
   "licenses.facet": "License",
   "show-licenses-label": "Show licenses",
+  "hide-licenses-label": "Hide licenses",
   "all-label": "All",
   "available-label": "Available only",
   "custom-root-model": "Document type",

@@ -114,6 +114,7 @@
   "custom-accessibility": "Dostępność",
   "licenses.facet": "Licencja",
   "show-licenses-label": "Pokaż licencje",
+  "hide-licenses-label": "Ukryj licencje",
   "all-label": "Wszystko",
   "available-label": "Tylko dostępne",
   "custom-root-model": "Typ dokumentu",
