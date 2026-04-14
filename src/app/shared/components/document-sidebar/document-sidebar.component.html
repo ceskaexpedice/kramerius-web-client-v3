@@ -1,48 +1,73 @@
 <div class="document-sidebar">
   <div class="sidebar--wrapper">
-    <div class="search-input-group">
-      <app-autocomplete
+    @if (detailViewService.isPdf) {
+      <!-- PDF in-document search via pdfService -->
+      <app-input
         [placeholder]="'search-in-document--placeholder' | translate"
-        [inputTheme]="'dark'"
+        [theme]="'dark'"
         [size]="'sm'"
-        [showMicrophoneButton]="true"
-        [showHelpButton]="false"
-        [showHistorySuggestions]="false"
-        [showCaseSensitiveButton]="true"
-        [showSubmitButton]="false"
+        [showMicButton]="true"
         [showClearButton]="true"
-        [minTermLength]="2"
-        [isCaseSensitive]="documentSearchService.isCaseSensitive"
-        [getSuggestions]="getSuggestionsFn"
-        [inputTerm]="searchTerm"
-        (onCaseSensitiveEvent)="caseSensitiveChanged()"
-        (suggestionSelected)="onSuggestionSelected($event)"
-        (search)="onSearch($event)"
-        (onClearEvent)="onAutocompleteClear()"
-      ></app-autocomplete>
+        (valueChange)="onPdfSearchChange($event)"
+      ></app-input>
 
-      @if (documentSearchService.altoUnavailable()) {
-        <p class="alto-unavailable-error">{{ 'alto-unavailable-error' | translate }}</p>
+      @if (pdfService.searchQuery$ | async) {
+        <app-search-navigation
+          [currentMatchNumber]="pdfService.currentMatchNumber || 0"
+          [totalMatches]="pdfService.totalMatches || 0"
+          [isSearching]="pdfService.findState === FindState.PENDING"
+          (previousMatch)="findPreviousPdfMatch()"
+          (nextMatch)="findNextPdfMatch()"
+        ></app-search-navigation>
       }
-    </div>
 
-    @if (iiifViewerService.searchQuery$ | async) {
-      <app-search-navigation
-        [currentMatchNumber]="getCurrentMatchedPageNumber()"
-        [totalMatches]="getTotalMatchedPages()"
-        (previousMatch)="findPreviousMatch()"
-        (nextMatch)="findNextMatch()"
-      ></app-search-navigation>
       <hr>
+    } @else {
+      <!-- OCR/API search via documentSearchService -->
+      <div class="search-input-group">
+        <app-autocomplete
+          [placeholder]="'search-in-document--placeholder' | translate"
+          [inputTheme]="'dark'"
+          [size]="'sm'"
+          [showMicrophoneButton]="true"
+          [showHelpButton]="false"
+          [showHistorySuggestions]="false"
+          [showCaseSensitiveButton]="true"
+          [showSubmitButton]="false"
+          [showClearButton]="true"
+          [minTermLength]="2"
+          [isCaseSensitive]="documentSearchService.isCaseSensitive"
+          [getSuggestions]="getSuggestionsFn"
+          [inputTerm]="searchTerm"
+          (onCaseSensitiveEvent)="caseSensitiveChanged()"
+          (suggestionSelected)="onSuggestionSelected($event)"
+          (search)="onSearch($event)"
+          (onClearEvent)="onAutocompleteClear()"
+        ></app-autocomplete>
 
-      <mat-slide-toggle
-        [(ngModel)]="showAllPages"
-        [hideIcon]="true"
-        [class]="'size-sm'"
-        (change)="onShowAllPagesToggle()">
-        {{ 'show-all-pages' | translate }}
-      </mat-slide-toggle>
+        @if (documentSearchService.altoUnavailable()) {
+          <p class="alto-unavailable-error">{{ 'alto-unavailable-error' | translate }}</p>
+        }
+      </div>
 
+      @if (iiifViewerService.searchQuery$ | async) {
+        <app-search-navigation
+          [currentMatchNumber]="getCurrentMatchedPageNumber()"
+          [totalMatches]="getTotalMatchedPages()"
+          (previousMatch)="findPreviousMatch()"
+          (nextMatch)="findNextMatch()"
+        ></app-search-navigation>
+        <hr>
+
+        <mat-slide-toggle
+          [(ngModel)]="showAllPages"
+          [hideIcon]="true"
+          [class]="'size-sm'"
+          (change)="onShowAllPagesToggle()">
+          {{ 'show-all-pages' | translate }}
+        </mat-slide-toggle>
+
+      }
     }
       @if (shouldShowPageNavigator) {
 
