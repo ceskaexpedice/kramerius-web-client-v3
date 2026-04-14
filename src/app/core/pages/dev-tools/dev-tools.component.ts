@@ -2,6 +2,7 @@ import { Component, OnInit, signal, WritableSignal, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import { UserService } from '../../../shared/services/user.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { SelectComponent } from '../../../shared/components/select/select.component';
 
@@ -11,7 +12,7 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
   imports: [CommonModule, FormsModule, InputComponent, SelectComponent],
   template: `
     <div class="dev-tools-container">
-      <h1>Developer Tools</h1>
+      <h1 (click)="onTitleClick()">Developer Tools</h1>
       <div class="card">
         <h2>API Configuration</h2>
 
@@ -77,6 +78,43 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
           {{ message }}
         </div>
       </div>
+
+      <div class="card extended-section" *ngIf="showExtended()">
+        <h2>Extended DevTools</h2>
+
+        <div class="form-group">
+          <label class="label">Admin Rights Override:</label>
+          <p class="hint">
+            Force admin rights on or off for testing UI.
+            Actual admin status: <strong>{{ actualAdminStatus() ? 'Yes' : 'No' }}</strong>
+          </p>
+
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="adminOverride" value="none"
+                     [checked]="adminOverrideState() === 'none'"
+                     (change)="onAdminOverrideChange('none')">
+              No override (use actual roles)
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="adminOverride" value="force-on"
+                     [checked]="adminOverrideState() === 'force-on'"
+                     (change)="onAdminOverrideChange('force-on')">
+              Force Admin ON
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="adminOverride" value="force-off"
+                     [checked]="adminOverrideState() === 'force-off'"
+                     (change)="onAdminOverrideChange('force-off')">
+              Force Admin OFF
+            </label>
+          </div>
+        </div>
+
+        <div class="status-message" *ngIf="adminMessage">
+          {{ adminMessage }}
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -126,6 +164,21 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
       background-color: #f8d7da;
       color: var(--color-error);
     }
+    .extended-section {
+      margin-top: 2rem;
+    }
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
   `]
 })
 export class DevToolsComponent implements OnInit {
@@ -136,6 +189,24 @@ export class DevToolsComponent implements OnInit {
   currentKrameriusId: string = '';
   message: string = '';
   isError: boolean = false;
+
+  // Extended devtools (5-click reveal)
+  showExtended = signal(false);
+  private titleClickCount = 0;
+  private titleClickTimer: any = null;
+
+  // Admin override
+  adminMessage = '';
+  adminOverrideState = computed(() => {
+    const override = this.userService.adminOverride$();
+    if (override === true) return 'force-on';
+    if (override === false) return 'force-off';
+    return 'none';
+  });
+  actualAdminStatus = computed(() => {
+    const roles = this.userService.roles;
+    return roles.some((role: string) => ['kramerius_admin', 'k4_admins'].includes(role));
+  });
 
   presets = [
     { label: 'api.kramerius.mzk.cz', url: 'https://api.kramerius.mzk.cz' },
@@ -153,7 +224,10 @@ export class DevToolsComponent implements OnInit {
   private readonly STORAGE_KEY = 'CDK_DEV_BASE_URL';
   private readonly STORAGE_KEY_ID = 'CDK_DEV_KRAMERIUS_ID';
 
-  constructor(private environmentService: EnvironmentService) { }
+  constructor(
+    private environmentService: EnvironmentService,
+    private userService: UserService
+  ) { }
 
   ngOnInit() {
     const stored = localStorage.getItem(this.STORAGE_KEY) || '';
@@ -233,6 +307,34 @@ export class DevToolsComponent implements OnInit {
     setTimeout(() => {
       window.location.reload();
     }, 1000);
+  }
+
+  onTitleClick() {
+    this.titleClickCount++;
+
+    if (this.titleClickTimer) {
+      clearTimeout(this.titleClickTimer);
+      this.titleClickTimer = null;
+    }
+
+    if (this.titleClickCount >= 5) {
+      this.showExtended.update(v => !v);
+      this.titleClickCount = 0;
+      return;
+    }
+
+    this.titleClickTimer = setTimeout(() => {
+      this.titleClickCount = 0;
+      this.titleClickTimer = null;
+    }, 1000);
+  }
+
+  onAdminOverrideChange(state: 'none' | 'force-on' | 'force-off') {
+    const value = state === 'force-on' ? true : state === 'force-off' ? false : null;
+    this.userService.setAdminOverride(value);
+    this.adminMessage = state === 'none'
+      ? 'Admin override cleared.'
+      : `Admin rights forced ${state === 'force-on' ? 'ON' : 'OFF'}.`;
   }
 }
 

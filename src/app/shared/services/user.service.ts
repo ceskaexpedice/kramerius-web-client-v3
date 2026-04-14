@@ -10,6 +10,8 @@ import { clearSimpleCache } from '../../core/cache/simple-cache.interceptor-fn';
 // Admin roles that grant access to admin features
 const ADMIN_ROLES = ['kramerius_admin', 'k4_admins'];
 
+const ADMIN_OVERRIDE_KEY = 'CDK_DEV_ADMIN_OVERRIDE';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,8 +20,15 @@ export class UserService {
   private _roles = signal<string[]>([]);
   private _userSession = signal<UserSession | null>(null);
 
-  // Computed signal for admin status
+  // Dev override for admin status (null = no override)
+  private _adminOverride = signal<boolean | null>(this.loadAdminOverride());
+
+  // Computed signal for admin status (respects dev override)
   private _isAdmin = computed(() => {
+    const override = this._adminOverride();
+    if (override !== null) {
+      return override;
+    }
     const roles = this._roles();
     return roles.some(role => ADMIN_ROLES.includes(role));
   });
@@ -167,6 +176,25 @@ export class UserService {
     this._userSession.set(null);
     clearSimpleCache();
     console.log('[UserService] User data cleared, cache cleared');
+  }
+
+  // Admin override for dev tools
+  get adminOverride$() { return this._adminOverride.asReadonly(); }
+
+  public setAdminOverride(value: boolean | null): void {
+    this._adminOverride.set(value);
+    if (value === null) {
+      localStorage.removeItem(ADMIN_OVERRIDE_KEY);
+    } else {
+      localStorage.setItem(ADMIN_OVERRIDE_KEY, String(value));
+    }
+  }
+
+  private loadAdminOverride(): boolean | null {
+    const stored = localStorage.getItem(ADMIN_OVERRIDE_KEY);
+    if (stored === 'true') return true;
+    if (stored === 'false') return false;
+    return null;
   }
 
   public getFormattedExpiration(): string {
