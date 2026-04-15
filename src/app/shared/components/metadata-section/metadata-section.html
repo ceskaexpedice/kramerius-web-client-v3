@@ -102,17 +102,24 @@
   </app-metadata-section-item>
 
   @if (childData) {
-  <div class="article-card">
-    <div class="article-header">
-      @if (childData.titles && childData.titles.length > 0) {
-      <span class="label">{{ childData.titles[0].title }}</span>
-      }
-      <button class="toggle-btn" (click)="toggleChild()">
+  @let hasChildTitle = !!(childData.titles && childData.titles.length > 0 && childData.titles[0].title);
+  <div class="article-card-wrapper">
+    @if (!hasChildTitle) {
+      <button class="toggle-btn toggle-btn--standalone" (click)="toggleChild()">
         <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
       </button>
-    </div>
+    }
+    <div class="article-card" *ngIf="hasChildTitle || childExpanded()">
+      @if (hasChildTitle) {
+        <div class="article-header">
+          <span class="label">{{ childData.titles[0].title }}</span>
+          <button class="toggle-btn" (click)="toggleChild()">
+            <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+          </button>
+        </div>
+      }
 
-    <div class="article-details" *ngIf="childExpanded()">
+      <div class="article-details" *ngIf="childExpanded()">
 
       <!-- Date -->
       <app-metadata-section-item *ngIf="childData.dateStr" [label]="'date' | translate" type="text"
@@ -141,6 +148,7 @@
         [items]="getNotes(childData.notes)">
       </app-metadata-section-item>
 
+      </div>
     </div>
   </div>
   }
