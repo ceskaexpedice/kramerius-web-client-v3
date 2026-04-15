@@ -254,9 +254,11 @@
     margin-top: auto;
     flex-shrink: 0;
     gap: var(--spacing-x2);
+    min-width: 0;
 
     app-model-badge {
       position: static;
+      min-width: 0;
     }
 
     @include m.respond(mobile-xs) {

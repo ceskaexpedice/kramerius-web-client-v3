@@ -99,7 +99,7 @@
       @if (!loading && item) {
       <div class="record-item-card__badges">
         @if (showModel) {
-        <app-model-badge [model]="item.model === DocumentTypeEnum.page && item.rootModel ? item.rootModel : item.model" [monographUnitCount]="item.monographUnitCount || 0">
+        <app-model-badge [model]="item.model === DocumentTypeEnum.page && item.rootModel ? item.rootModel : item.model" [monographUnitCount]="item.monographUnitCount || 0" [compact]="shouldShowAccessibilityBadge()">
         </app-model-badge>
         }
         @if (shouldShowAccessibilityBadge() && item?.model !== DocumentTypeEnum.collection) {
