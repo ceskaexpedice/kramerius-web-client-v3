@@ -39,7 +39,7 @@ export class PeriodicalYearIssuesGridComponent {
   loading$ = this.store.select(selectPeriodicalLoading);
 
   trackByPid(index: number, item: any): string {
-    return item.pid || item.id;
+    return item?.pid || item?.id || index.toString();
   }
 
   onDateSelected(item: PeriodicalItemChild) {
