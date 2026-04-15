@@ -491,7 +491,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const directImageTileSource = { type: 'image', url: directImageUrl };
 
     if (this.viewer) {
-      this.viewer.open(directImageTileSource);
+      this.viewer.open({ tileSource: directImageTileSource });
     } else {
       // Viewer was never created (info.json fetch failed before createViewer ran).
       // Create it now with the direct image as tile source.
@@ -510,7 +510,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     if (!pid) return;
 
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-    this.viewer.open(infoUrl);
+    this.viewer.open({ tileSource: infoUrl });
   }
 
   /**
