@@ -52,7 +52,7 @@
   </app-metadata-section-item>
 
   <!-- Donators -->
-  @if (data.donators?.length) {
+  @if ((data.donators || []).length) {
   <div class="donators">
     @for (donator of data.donators; track donator) {
       @if (getDonatorImage(donator); as imgSrc) {

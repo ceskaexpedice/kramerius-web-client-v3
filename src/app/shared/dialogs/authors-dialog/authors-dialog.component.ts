@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgForOf } from '@angular/common';
 import { Author } from '../../models/metadata.model';
 
 export interface AuthorsDialogData {
@@ -11,7 +11,7 @@ export interface AuthorsDialogData {
 
 @Component({
   selector: 'app-authors-dialog',
-  imports: [TranslateModule, NgForOf, NgIf],
+  imports: [TranslateModule, NgForOf],
   templateUrl: './authors-dialog.component.html',
   styleUrls: ['./authors-dialog.component.scss', '../generic-dialog.scss']
 })

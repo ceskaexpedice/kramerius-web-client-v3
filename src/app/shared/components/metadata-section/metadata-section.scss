@@ -1,5 +1,5 @@
-@import "variables.scss";
-@import "mixins.scss";
+@use "variables.scss";
+@use "mixins.scss";
 
 :host {
   display: block;

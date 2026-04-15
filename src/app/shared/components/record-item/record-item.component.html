@@ -102,10 +102,10 @@
         <app-model-badge [model]="item.model === DocumentTypeEnum.page && item.rootModel ? item.rootModel : item.model" [monographUnitCount]="item.monographUnitCount || 0" [compact]="shouldShowAccessibilityBadge()">
         </app-model-badge>
         }
-        @if (shouldShowAccessibilityBadge() && item?.model !== DocumentTypeEnum.collection) {
+        @if (shouldShowAccessibilityBadge() && (item.model || null) !== DocumentTypeEnum.collection) {
         <div class="access-label">
           <app-accessibility-badge [isLocked]="isRecordLocked()" [showText]="!showModel" [showIcon]="true"
-            [licenses]="item?.licenses || []"></app-accessibility-badge>
+            [licenses]="(item && item.licenses) || []"></app-accessibility-badge>
         </div>
         }
       </div>

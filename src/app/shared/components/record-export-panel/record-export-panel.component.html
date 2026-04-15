@@ -1,6 +1,6 @@
 <div class="record-export-panel">
   <div class="record-export-panel__header">
-    <span class="record-export-panel__title">{{ record?.rootTitle }}</span>
+    <span class="record-export-panel__title">{{ record.rootTitle || '' }}</span>
   </div>
 
   <div class="record-export-panel__loading" *ngIf="loading()">
