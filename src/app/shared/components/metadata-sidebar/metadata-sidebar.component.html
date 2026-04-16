@@ -54,17 +54,17 @@
       </app-tab-item>
       }
 
+      @if (tools.ai && configService.isFeatureEnabled('ai')) {
+        <app-tab-item [id]="'ai'" [label]="'ai' | translate" [icon]="'icon-magicpen'" [onlyIcon]="true"
+                      [tooltip]="'ai' | translate">
+          <app-ai-actions></app-ai-actions>
+        </app-tab-item>
+      }
+
       @if (tools.search && (searchResult.count || 0) > 0) {
       <app-tab-item [id]="'search'" [label]="'search' | translate" [icon]="'icon-receipt-search'" [onlyIcon]="true"
         [tooltip]="'search' | translate">
         <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
-      </app-tab-item>
-      }
-
-      @if (tools.ai && configService.isFeatureEnabled('ai')) {
-      <app-tab-item [id]="'ai'" [label]="'ai' | translate" [icon]="'icon-magicpen'" [onlyIcon]="true"
-        [tooltip]="'ai' | translate">
-        <app-ai-actions></app-ai-actions>
       </app-tab-item>
       }
 

@@ -15,9 +15,12 @@ import { Observable } from 'rxjs';
 import { SearchNavigationComponent } from '../search-navigation/search-navigation.component';
 import { SearchResultsListComponent, SearchResult } from '../search-results-list/search-results-list.component';
 import { DocumentSearchService } from '../../services/document-search.service';
+import { PdfService } from '../../services/pdf.service';
+import { InputComponent } from '../input/input.component';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FindState } from 'ngx-extended-pdf-viewer';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -30,6 +33,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     DetailPagesGridComponent,
     DetailArticlesListComponent,
     AutocompleteComponent,
+    InputComponent,
     SearchNavigationComponent,
     SearchResultsListComponent,
     MatSlideToggle,
@@ -46,6 +50,9 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   public selectionService = inject(SelectionService);
   public iiifViewerService = inject(IIIFViewerService);
   public documentSearchService = inject(DocumentSearchService);
+  public pdfService = inject(PdfService);
+
+  protected readonly FindState = FindState;
 
   // Local signal that syncs with the service's observable for the autocomplete component
   public searchTerm = signal('');
@@ -183,5 +190,29 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
 
   onShowAllPagesToggle() {
 
+  }
+
+  // PDF in-document search methods (used when isPdf is true)
+  private pdfSearchTimeout: any;
+
+  onPdfSearchChange(query: string | number): void {
+    const searchQuery = typeof query === 'string' ? query : query.toString();
+    this.pdfService.setSearchQuery(searchQuery);
+
+    if (this.pdfSearchTimeout) {
+      clearTimeout(this.pdfSearchTimeout);
+    }
+
+    this.pdfSearchTimeout = setTimeout(() => {
+      this.pdfService.find();
+    }, 500);
+  }
+
+  findNextPdfMatch(): void {
+    this.pdfService.findNext();
+  }
+
+  findPreviousPdfMatch(): void {
+    this.pdfService.findPrevious();
   }
 }

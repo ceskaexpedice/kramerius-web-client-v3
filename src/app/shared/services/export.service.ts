@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
 import { SelectionService } from './selection.service';
-import { Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, of, Subscription } from 'rxjs';
+import { filter, switchMap, take } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
 import { TranslateService } from '@ngx-translate/core';
 import { EnvironmentService } from './environment.service';
@@ -39,6 +40,43 @@ export class ExportService {
   private environmentService = inject(EnvironmentService);
   private http = inject(HttpClient);
   private toastService = inject(ToastService);
+  private router = inject(Router);
+
+  private readonly EXPORT_PID_PARAM = 'exportPid';
+
+  getExportPid(route: ActivatedRoute): string | null {
+    return route.snapshot.queryParamMap.get(this.EXPORT_PID_PARAM);
+  }
+
+  writeExportPidToUrl(route: ActivatedRoute, pid: string | null): void {
+    this.router.navigate([], {
+      relativeTo: route,
+      queryParams: { [this.EXPORT_PID_PARAM]: pid },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  rehydrateExportPanel(
+    route: ActivatedRoute,
+    results$: Observable<SearchDocument[]>,
+    onMatch: (doc: SearchDocument) => void,
+  ): Subscription | null {
+    const pid = this.getExportPid(route);
+    if (!pid) return null;
+
+    return results$.pipe(
+      filter(results => !!results && results.length > 0),
+      take(1),
+    ).subscribe(results => {
+      const match = results.find(doc => doc.pid === pid);
+      if (match) {
+        onMatch(match);
+      } else {
+        this.writeExportPidToUrl(route, null);
+      }
+    });
+  }
 
   exportVisk2026(pid: string): Observable<void> {
     const baseUrl = this.environmentService.getBaseApiUrl();

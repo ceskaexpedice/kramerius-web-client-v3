@@ -57,6 +57,12 @@ export enum SolrSearchField {
   Fulltext = 'text_ocr'
 }
 
+export interface FilterValue {
+  elementValue: string;
+  solrValue: string;
+  caseSensitive?: boolean;
+}
+
 export interface AdvancedFilterDefinition {
   key: SolrFacetKey;
   label: string;
@@ -75,6 +81,7 @@ export interface AdvancedFilterDefinition {
   };
   userRawQueryFormat?: boolean;
   caseSensitive?: boolean; // If true, case-sensitive search will be used (adds .exact suffix to solrField)
+  values?: FilterValue[]; // Multiple values for the same filter type
 }
 
 export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [

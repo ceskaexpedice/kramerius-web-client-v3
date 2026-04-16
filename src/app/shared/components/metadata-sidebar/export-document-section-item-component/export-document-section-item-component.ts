@@ -37,6 +37,7 @@ export class ExportDocumentSectionItemComponent {
   @Input() groupName = '';
   @Input() collapsible = false;
   @Input() loading = false;
+  @Input() loginRequired = false;
   @Input() set expanded(value: boolean) { this._expanded.set(value); }
 
   @Output() submit = new EventEmitter<string>();

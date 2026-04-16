@@ -4,6 +4,14 @@ import { NgClass } from '@angular/common';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { getModelIcon } from "../../utils/filter-icons.utils";
 
+const MODELS_WITH_SHORT_LABEL = new Set<string>([
+  'soundrecording',
+  'periodicalvolume',
+  'periodicalitem',
+  'clippingsvolume',
+  'archive',
+]);
+
 @Component({
   selector: 'app-model-badge',
   imports: [TranslatePipe, NgClass],
@@ -13,6 +21,15 @@ import { getModelIcon } from "../../utils/filter-icons.utils";
 export class ModelBadgeComponent {
   @Input() model: DocumentTypeEnum | '' = '';
   @Input() monographUnitCount: number = 0;
+  @Input() compact: boolean = false;
+
+  getLabelKey(): string {
+    if (!this.model) return '';
+    if (this.compact && MODELS_WITH_SHORT_LABEL.has(this.model)) {
+      return `${this.model}-short`;
+    }
+    return this.model;
+  }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 

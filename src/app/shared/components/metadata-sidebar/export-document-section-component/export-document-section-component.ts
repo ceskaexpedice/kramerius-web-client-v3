@@ -9,7 +9,10 @@ import { DocumentInfoService } from '../../../services/document-info.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../../dialogs/page-selection-dialog/page-selection-dialog.component';
-import { Visk2026ExportDialogComponent } from '../../../dialogs/visk2026-export-dialog/visk2026-export-dialog.component';
+import { EmailExportDialogComponent, EmailExportType } from '../../../dialogs/email-export-dialog/email-export-dialog.component';
+import { LoginPromptDialogComponent } from '../../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { Router } from '@angular/router';
 import { ToastService } from '../../../services/toast.service';
 import { AppConfigService } from '../../../services/app-config.service';
 import { PdfService } from '../../../services/pdf.service';
@@ -38,6 +41,8 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   pdfService = inject(PdfService);
   userService = inject(UserService);
   toastService = inject(ToastService);
+  authService = inject(AuthService);
+  router = inject(Router);
 
   iiifBookMode = toSignal(this.iiifViewerService.bookMode$, { initialValue: false });
   pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
@@ -123,11 +128,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     }
   });
 
+  isLoggedIn = computed(() => !!this.userService.userSession$()?.authenticated);
+
   epubOptions = computed(() => {
     const hasPages = this.detailViewService.pages?.length > 0;
     return [
       { label: 'whole-document', value: 'whole-document', disabled: !hasPages },
-      { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
+      // { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
     ];
   });
 
@@ -135,7 +142,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     const hasPages = this.detailViewService.pages?.length > 0;
     return [
       { label: 'whole-document', value: 'whole-document', disabled: !hasPages },
-      { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
+      // { label: 'select-pages', value: 'select-pages', disabled: !hasPages },
     ];
   });
 
@@ -157,16 +164,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     // Disable select pages if no exportable pages
     const disableSelectPages = !hasExportablePages;
 
-    const options: { label: string; value: string; disabled: boolean }[] = [
-      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument },
+    const pagesLoaded = !!pages;
+
+    return [
+      { label: 'whole-document-legacy', value: 'whole-document-legacy', disabled: disableWholeDocument },
       { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages },
+      { label: 'whole-document', value: 'whole-document', disabled: !pagesLoaded },
     ];
-
-    if (this.userService.userSession$()?.authenticated) {
-      options.push({ label: 'whole-document-visk2026', value: 'whole-document-visk2026', disabled: false });
-    }
-
-    return options;
   });
 
   printOptions = computed(() => {
@@ -239,9 +243,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onPdfSubmit(value: string) {
+    if (!this.isLoggedIn()) {
+      this.openLoginPrompt();
+      return;
+    }
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-pdf', 'pdf');
-    } else if (value === 'whole-document') {
+    } else if (value === 'whole-document-legacy') {
       const exportablePages = this.getExportablePages();
       const pageUuids = exportablePages.map(page => page.pid);
       if (pageUuids.length > 0) {
@@ -251,13 +259,17 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
           error: () => this.pdfLoading.set(false),
         });
       }
-    } else if (value === 'whole-document-visk2026') {
+    } else if (value === 'whole-document') {
       const pid = this.detailViewService.document?.uuid;
-      if (pid) this.openVisk2026Dialog(pid);
+      if (pid) this.openEmailExportDialog(pid, 'pdf');
     }
   }
 
   onPrintSubmit(value: string) {
+    if (!this.isLoggedIn()) {
+      this.openLoginPrompt();
+      return;
+    }
     if (value === 'select-pages') {
       this.openPageSelectionDialog('page-selection-dialog--header-print', 'print');
     } else if (value === 'whole-document') {
@@ -308,28 +320,59 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     });
   }
 
-  private openVisk2026Dialog(pid: string): void {
-    const dialogRef = this.dialog.open(Visk2026ExportDialogComponent, {
-      data: { pid },
+  private openEmailExportDialog(pid: string, exportType: EmailExportType): void {
+    const dialogRef = this.dialog.open(EmailExportDialogComponent, {
+      data: { pid, exportType },
       width: '560px',
       maxWidth: '90vw',
     });
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result === 'submitted') {
-        this.toastService.show('visk2026-export-dialog--success');
+        this.toastService.show('email-export-dialog--success');
       } else if (result === 'error') {
         this.toastService.show('export-error');
       }
     });
   }
 
-  onEpubSubmit(_value: string): void {
-    // TODO: implement EPUB export
+  onEpubSubmit(value: string): void {
+    if (!this.isLoggedIn()) {
+      this.openLoginPrompt();
+      return;
+    }
+    if (value === 'whole-document') {
+      const pid = this.detailViewService.document?.uuid;
+      if (pid) this.openEmailExportDialog(pid, 'epub');
+    }
   }
 
-  onTextSubmit(_value: string): void {
-    // TODO: implement TEXT export
+  onTextSubmit(value: string): void {
+    if (!this.isLoggedIn()) {
+      this.openLoginPrompt();
+      return;
+    }
+    if (value === 'whole-document') {
+      const pid = this.detailViewService.document?.uuid;
+      if (pid) this.openEmailExportDialog(pid, 'txt');
+    }
+  }
+
+  private openLoginPrompt(): void {
+    const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
+      data: {
+        titleKey: 'login-required-export-title',
+        messageKey: 'login-prompt-message-export',
+      },
+      width: '560px',
+      maxWidth: '90vw',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'login') {
+        this.authService.login(this.router.url);
+      }
+    });
   }
 
   ngOnDestroy(): void {

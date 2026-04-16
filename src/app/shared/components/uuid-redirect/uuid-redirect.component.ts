@@ -96,7 +96,7 @@ export class UuidRedirectComponent implements OnInit {
             targetRoute = [APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid];
             break;
           case 'page':
-            targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, document['root.pid']];
+            targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, document['own_parent.pid']];
             navigationExtras.queryParams = { ...navigationExtras.queryParams, page: uuid };
             break;
           default:

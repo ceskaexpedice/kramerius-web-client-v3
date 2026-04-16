@@ -5,6 +5,9 @@
   display: flex;
   flex-direction: column;
   background-color: var(--color-bg-base);
+  padding: var(--spacing-x3);
+  // Extra right padding to prevent text from going under the viewer controls
+  padding-right: calc(var(--viewer-controls-width) + var(--spacing-x4) + var(--spacing-x3) + var(--spacing-x3));
 }
 
 .epub-container {

@@ -4,14 +4,12 @@ import { UiStateService } from '../../../../shared/services/ui-state.service';
 import { UserService } from '../../../../shared/services/user.service';
 import { ConfigService } from '../../../../core/config/config.service';
 import { TranslateService } from '@ngx-translate/core';
-import { AsyncPipe, NgIf } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { LicenseBarConfig } from '../../../../core/config/config.interfaces';
 
 @Component({
   selector: 'app-license-bar',
-  imports: [AsyncPipe, NgIf],
   templateUrl: './license-bar.component.html',
   styleUrl: './license-bar.component.scss'
 })

@@ -280,6 +280,7 @@ export class PeriodicalDetailEffects {
           volumeLicenses.some((license: string) => userLicenses.includes(license));
 
         return {
+          ...v,
           year: v['date.str'],
           model: v['model'] || '',
           pid: v['pid'],

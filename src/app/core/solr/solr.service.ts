@@ -416,6 +416,17 @@ export class SolrService {
       this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
     }
 
+    // Restrict model:collection counts to standalone collections only.
+    // When the user has already selected a collection filter, search.service.ts
+    // already adds `collection.is_standalone:true`, so skip to avoid double-constraint.
+    const collectionAlreadyConstrained = [
+      ...(filters ?? []),
+      ...((filterGroups ?? []).flat()),
+    ].some(f => f.includes('model:collection'));
+    if (!collectionAlreadyConstrained) {
+      params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
+    }
+
     // Add availability filter with tag if active
     if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
       const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
@@ -640,6 +651,17 @@ export class SolrService {
       this.buildFqParamsFromGroups(filterGroups, facetOperators).forEach(fq => params = params.append('fq', fq));
     } else {
       this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+    }
+
+    // Restrict model:collection counts to standalone collections only.
+    // When the user has already selected a collection filter, search.service.ts
+    // already adds `collection.is_standalone:true`, so skip to avoid double-constraint.
+    const collectionAlreadyConstrained = [
+      ...(filters ?? []),
+      ...((filterGroups ?? []).flat()),
+    ].some(f => f.includes('model:collection'));
+    if (!collectionAlreadyConstrained) {
+      params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
     }
 
     // Add availability filter with tag if active

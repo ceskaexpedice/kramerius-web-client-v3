@@ -1104,7 +1104,7 @@ export class IIIFViewerService {
         // Single page mode
         const pageUrl = this.getIIIFInfoUrl(currentPagePid);
         console.log(`Opening single page: ${currentPagePid}`);
-        this.viewer.open(pageUrl);
+        this.viewer.open({ tileSource: pageUrl });
       }
     } catch (error) {
       console.error('Error updating book mode display:', error);

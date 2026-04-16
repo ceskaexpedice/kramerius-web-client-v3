@@ -10,8 +10,9 @@ import { CollapsibleContent } from './collapsible-content/collapsible-content';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
+import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
@@ -93,6 +94,7 @@ export class MetadataSection implements OnInit, OnChanges {
   store = inject(Store);
   private destroyRef = inject(DestroyRef);
   private libraryContext = inject(LibraryContextService);
+  private availableYears = toSignal(this.store.select(selectAvailableYears));
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
@@ -116,6 +118,7 @@ export class MetadataSection implements OnInit, OnChanges {
     ).subscribe(articleUuid => {
       this.loadArticle(articleUuid);
     });
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -175,7 +178,10 @@ export class MetadataSection implements OnInit, OnChanges {
         model: solrData.model,
         isPublic: solrData.isPublic,
         licence: solrData.licence,
-        licences: solrData.licences
+        licences: solrData.licences,
+        ownParentPid: solrData.ownParentPid,
+        issueNumber: solrData.issueNumber,
+        issueDate: solrData.issueDate,
       };
       this._data.set(mergedData);
     } else {
@@ -319,6 +325,28 @@ export class MetadataSection implements OnInit, OnChanges {
     }
     return text;
   };
+
+  getVolumeItems(): string[] {
+    const d = this.data;
+    if (!d?.ownParentPid) return [];
+    const years = this.availableYears();
+    const vol: any = years?.find((y: any) => y.pid === d.ownParentPid);
+    if (!vol) return [];
+    const items: string[] = [];
+    const year = vol['date.str'] ?? vol.year;
+    const number = vol['part.number.str'];
+    if (year) items.push(`${this.translate.instant('publication-year')} ${year}`);
+    if (number) items.push(`${this.translate.instant('volume')} ${number}`);
+    return items;
+  }
+
+  getIssueItems(): string[] {
+    const d = this.data;
+    const items: string[] = [];
+    if (d?.issueDate) items.push(`${this.translate.instant('publication-date')} ${d.issueDate}`);
+    if (d?.issueNumber) items.push(`${this.translate.instant('issue')} ${d.issueNumber}`);
+    return items;
+  }
 
   getNotes(notes: NoteInfo[]) {
     const items = notes.map(note => note.text);

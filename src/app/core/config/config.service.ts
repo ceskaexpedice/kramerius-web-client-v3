@@ -204,7 +204,7 @@ export class ConfigService {
   }
 
   isFeatureEnabled(feature: keyof FeaturesConfig): boolean {
-    return this.features[feature] ?? false;
+    return this.features[feature] ?? true;
   }
 
   // UI config accessors

@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .filter-group {
   display: flex;
   position: relative;
@@ -5,15 +7,28 @@
   border-radius: 12px;
   background-color: var(--color-bg-subtle);
 
+  @include respond(sm) {
+    flex-direction: column;
+    background-color: var(--color-bg-base);
+  }
+
   .group-content {
     flex: 1 1 auto;
     padding: 12px 24px 8px 12px;
+
+    @include respond(sm) {
+      padding: 0;
+    }
   }
 
   .filter-items {
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    @include respond(sm) {
+      gap: 0;
+    }
   }
 
   .group-actions {
@@ -22,6 +37,25 @@
     margin-top: 8px;
     gap: 16px;
     flex-wrap: wrap;
+
+    @include respond(sm) {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 0;
+      gap: 0;
+
+      > button {
+        width: 100%;
+        padding: 12px;
+        border-top: 1px solid var(--color-border-bright);
+        justify-content: start;
+        border-radius: 0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
   }
 
   .group-operator {
@@ -49,6 +83,78 @@
       &:active {
         background-color: var(--color-primary-pressed);
       }
+    }
+  }
+}
+
+// Mobile group header
+.mobile-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  gap: 8px;
+
+  .mobile-group-title {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 28px;
+    color: var(--color-text-base);
+  }
+}
+
+// AND/OR pill switch (Figma: tab toggle)
+.operator-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-bg-light);
+  border-radius: var(--spacing-x2);
+  padding: 2px;
+  height: 44px;
+
+  .operator-switch-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    height: 100%;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    line-height: 20px;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+
+    &.active {
+      background-color: var(--color-bg-base);
+    }
+  }
+}
+
+// Mobile condition sections
+.mobile-condition-section {
+  border-top: 1px solid var(--color-border-bright);
+  padding: 12px;
+
+  .mobile-condition-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    .mobile-condition-label {
+      font-size: var(--font-size-base);
+      font-weight: 500;
+      line-height: var(--line-height-2);
+      color: var(--color-text-tertiary);
+    }
+
+    .mobile-condition-remove {
+      font-size: var(--font-size-base);
+      padding: var(--spacing-x3);
     }
   }
 }

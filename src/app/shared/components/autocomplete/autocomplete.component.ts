@@ -109,13 +109,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
       next: (suggestions: string[]) => {
         const term = this.inputTerm().toLowerCase();
         const unique = Array.from(new Set(suggestions));
-
-        const sorted = unique
-          .map(s => ({ s, index: s.toLowerCase().indexOf(term) }))
-          .sort((a, b) => a.index - b.index)
-          .map(item => item.s);
-        //          .filter(item => item.index !== -1)
-        this.suggestions.set(sorted);
+        this.suggestions.set(this.sortSuggestions(unique, term));
         this.isLoading.set(false);
       }
     });
@@ -216,7 +210,43 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   highlight(text: string, term: string): string {
     if (!term) return text;
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escaped})`, 'gi');
-    return text.replace(regex, '<span class="text-bold">$1</span>');
+    const exactRegex = new RegExp(`(${escaped})`, 'gi');
+    if (exactRegex.test(text)) {
+      return text.replace(exactRegex, '<span class="text-bold">$1</span>');
+    }
+
+    // Fuzzy: highlight individual words from the term
+    const words = term.trim().split(/\s+/).filter(w => w.length > 0);
+    if (words.length <= 1) return text;
+
+    const wordPattern = words
+      .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    const wordRegex = new RegExp(`(${wordPattern})`, 'gi');
+    return text.replace(wordRegex, '<span class="text-bold">$1</span>');
+  }
+
+  private sortSuggestions(suggestions: string[], term: string): string[] {
+    if (!term) return suggestions;
+
+    const tier1: string[] = [];
+    const tier2: { s: string; index: number }[] = [];
+    const tier3: string[] = [];
+
+    for (const s of suggestions) {
+      const lower = s.toLowerCase();
+      if (lower.startsWith(term)) {
+        tier1.push(s);
+      } else if (lower.includes(term)) {
+        tier2.push({ s, index: lower.indexOf(term) });
+      } else {
+        tier3.push(s);
+      }
+    }
+
+    tier1.sort((a, b) => a.length - b.length);
+    tier2.sort((a, b) => a.index - b.index);
+
+    return [...tier1, ...tier2.map(item => item.s), ...tier3];
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter } from 'rxjs/operators';
+import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter, take } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as DocumentDetailActions from './document-detail.actions';
 import { SolrService } from '../../../core/solr/solr.service';
@@ -32,6 +32,8 @@ export class DocumentDetailEffects {
         }
 
         return this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid).pipe(
+          filter(storeUuid => !!storeUuid),
+          take(1),
           switchMap(storeUuid => this.loadDetail(storeUuid))
         );
       })

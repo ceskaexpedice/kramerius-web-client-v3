@@ -151,7 +151,8 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   onTextLayerRendered(event: any): void {
   }
 
-  onPageChange(page: number): void {
+  onPageChange(page: number | undefined): void {
+    if (page === undefined) return;
     this.pdfService.setCurrentPage(page);
   }
 

@@ -273,7 +273,6 @@ export const ELEVENLABS_VOICES: TtsVoiceOption[] = [
 export function getVoiceGroups(langCode: string): VoiceGroup[] {
   const groups: VoiceGroup[] = [
     { provider: 'OpenAI', voices: OPENAI_VOICES },
-    { provider: 'ElevenLabs', voices: ELEVENLABS_VOICES },
   ];
   const googleVoices = GOOGLE_VOICES[langCode];
   if (googleVoices?.length) {
@@ -283,7 +282,7 @@ export function getVoiceGroups(langCode: string): VoiceGroup[] {
 }
 
 export function getAllVoices(langCode: string): TtsVoiceOption[] {
-  return [...OPENAI_VOICES, ...ELEVENLABS_VOICES, ...(GOOGLE_VOICES[langCode] || [])];
+  return [...OPENAI_VOICES, ...(GOOGLE_VOICES[langCode] || [])];
 }
 
 export function getVoiceLabel(voiceCode: string, langCode: string): string {

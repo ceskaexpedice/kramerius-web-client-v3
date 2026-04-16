@@ -72,6 +72,7 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() clearEmit = new EventEmitter<string | number>();
   @Output() onBlurEvent = new EventEmitter<void>();
   @Output() onCaseSensitiveEvent = new EventEmitter<void>();
+  @Output() postfixIconClick = new EventEmitter<void>();
 
   @ViewChild('inputElement', { static: false }) inputElement!: ElementRef<HTMLInputElement>;
   @ViewChild('inputModel', { static: false }) inputModel!: NgModel;
@@ -197,6 +198,11 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleCaseSensitive() {
     this.onCaseSensitiveEvent.emit();
+  }
+
+  onPostfixIconClick(event: Event) {
+    event.stopPropagation();
+    this.postfixIconClick.emit();
   }
 
   toggleDictation() {

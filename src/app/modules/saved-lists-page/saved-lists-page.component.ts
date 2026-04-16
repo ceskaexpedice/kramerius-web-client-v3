@@ -17,6 +17,7 @@ import { PopupPositioningService, PopupState } from '../../shared/services/popup
 import { SavedListsService } from './services/saved-lists.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
+import { ExportService } from '../../shared/services/export.service';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -58,7 +59,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     public musicService: MusicService,
     public soundService: SoundService,
     private popupPositioningService: PopupPositioningService,
-    private savedListsService: SavedListsService
+    private savedListsService: SavedListsService,
+    private exportService: ExportService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
   }
@@ -85,6 +87,12 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
         });
       });
     }
+
+    this.exportService.rehydrateExportPanel(
+      this.route,
+      this.activeFolderItems,
+      doc => this.exportRecord.set(doc)
+    );
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
@@ -109,10 +117,12 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   openExportPanel(record: SearchDocument): void {
     this.exportRecord.set(record);
+    this.exportService.writeExportPidToUrl(this.route, record.pid);
   }
 
   closeExportPanel(): void {
     this.exportRecord.set(null);
+    this.exportService.writeExportPidToUrl(this.route, null);
   }
 
   startEditingTitle(folderUuid: string, currentTitle: string, event: Event) {

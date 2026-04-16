@@ -32,7 +32,7 @@
         <i class="icon-status spinning"></i>
         {{ 'probíhá' | translate }}
       } @else {
-        {{ 'confirm' | translate }}
+        {{ (loginRequired ? 'confirm--login-required' : 'confirm') | translate }}
       }
     </button>
   </div>

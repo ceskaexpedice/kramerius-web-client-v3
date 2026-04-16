@@ -97,7 +97,7 @@
           [showSectionHeaders]="showSectionHeaders()"
           [showSelectedTags$]="showSelectedTags$"
           [exportRecord]="exportRecord()"
-          (exportRecordChange)="exportRecord.set($event)">
+          (exportRecordChange)="onExportRecordChange($event)">
         </app-search-results-view>
       }
 

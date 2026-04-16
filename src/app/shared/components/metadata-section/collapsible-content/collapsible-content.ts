@@ -1,10 +1,9 @@
 import { Component, ElementRef, Input, ViewChild, AfterViewInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-collapsible-content',
-  imports: [NgIf, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './collapsible-content.html',
   styleUrl: './collapsible-content.scss'
 })

@@ -24,7 +24,6 @@ import { LibraryContextService } from '../../../shared/services/library-context.
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
-import {ThumbnailImageComponent} from '../../../shared/components/thumbnail-image/thumbnail-image.component';
 
 @Component({
   selector: 'app-header',
@@ -38,7 +37,6 @@ import {ThumbnailImageComponent} from '../../../shared/components/thumbnail-imag
     UserInfoComponent,
     ClickOutsideDirective,
     RouterLink,
-    ThumbnailImageComponent,
   ],
   styleUrl: './header.component.scss'
 })

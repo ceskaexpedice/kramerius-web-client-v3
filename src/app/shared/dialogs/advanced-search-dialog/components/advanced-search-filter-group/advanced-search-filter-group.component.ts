@@ -5,6 +5,7 @@ import {SolrOperators} from '../../../../../core/solr/solr-helpers';
 import {AdvancedFilterDefinition, DEFAULT_ADVANCED_FILTER, ADVANCED_FILTERS, SolrFacetKey} from '../../solr-filters';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AdvancedSearchService} from '../../../../services/advanced-search.service';
+import {BreakpointService} from '../../../../services/breakpoint.service';
 
 @Component({
   selector: 'advanced-search-filter-group',
@@ -20,12 +21,14 @@ import {AdvancedSearchService} from '../../../../services/advanced-search.servic
 export class AdvancedSearchFilterGroupComponent implements OnInit {
   @Input() filters: AdvancedFilterDefinition[] = [];
   @Input() operator: SolrOperators = SolrOperators.and;
+  @Input() groupIndex: number = 0;
 
   @Output() filtersChange = new EventEmitter<AdvancedFilterDefinition[]>();
   @Output() operatorChange = new EventEmitter<SolrOperators>();
   @Output() removeGroup = new EventEmitter<void>();
 
   public advancedSearchService = inject(AdvancedSearchService);
+  public breakpointService = inject(BreakpointService);
 
   ngOnInit() {
     if (this.filters.length === 0) {
@@ -56,6 +59,11 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
   toggleOperator() {
     this.operator =
       this.operator === SolrOperators.and ? SolrOperators.or : SolrOperators.and;
+    this.operatorChange.emit(this.operator);
+  }
+
+  setOperator(op: SolrOperators) {
+    this.operator = op;
     this.operatorChange.emit(this.operator);
   }
 

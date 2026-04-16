@@ -99,7 +99,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
           <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
             <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ 'show-licenses-label' | translate }} <i class="icon-arrow-up-1"></i>
+              {{ expandLicenses ? ('hide-licenses-label' | translate) : ('show-licenses-label' | translate) }} <i class="icon-arrow-up-1"></i>
             </div>
 
             <app-filter-category
