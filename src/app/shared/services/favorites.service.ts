@@ -53,6 +53,7 @@ export class FavoritesService {
       // Show login prompt dialog
       const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
       const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
+        data: { dontShowDialogId: DontShowDialogs.FavoritesLoginDialog },
         width: isMobileOrTablet ? '90vw' : '60vw',
         disableClose: false
       });

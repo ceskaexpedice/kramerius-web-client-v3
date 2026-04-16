@@ -5,34 +5,43 @@ import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { InputComponent } from '../../components/input/input.component';
 import { EnvironmentService } from '../../services/environment.service';
+import { UserService } from '../../services/user.service';
 import { HttpClient } from '@angular/common/http';
 
-export interface Visk2026ExportDialogData {
+export type EmailExportType = 'pdf' | 'epub' | 'txt';
+
+export interface EmailExportDialogData {
   pid: string;
+  exportType?: EmailExportType;
 }
 
 @Component({
-  selector: 'app-visk2026-export-dialog',
+  selector: 'app-email-export-dialog',
   imports: [
     TranslatePipe,
     FormsModule,
     NgIf,
     InputComponent,
   ],
-  templateUrl: './visk2026-export-dialog.component.html',
-  styleUrls: ['../generic-dialog.scss', './visk2026-export-dialog.component.scss'],
+  templateUrl: './email-export-dialog.component.html',
+  styleUrls: ['../generic-dialog.scss', './email-export-dialog.component.scss'],
 })
-export class Visk2026ExportDialogComponent {
+export class EmailExportDialogComponent {
 
   email = '';
   loading = signal(false);
   emailInvalid = signal(false);
 
-  private dialogRef = inject(MatDialogRef<Visk2026ExportDialogComponent>);
-  data = inject<Visk2026ExportDialogData>(MAT_DIALOG_DATA);
+  private dialogRef = inject(MatDialogRef<EmailExportDialogComponent>);
+  data = inject<EmailExportDialogData>(MAT_DIALOG_DATA);
 
   private environmentService = inject(EnvironmentService);
+  private userService = inject(UserService);
   private http = inject(HttpClient);
+
+  constructor() {
+    this.email = this.userService.userSession$()?.email || '';
+  }
 
   onClose(): void {
     this.dialogRef.close();
@@ -48,7 +57,7 @@ export class Visk2026ExportDialogComponent {
     this.loading.set(true);
 
     const baseUrl = this.environmentService.getBaseApiUrl();
-    const url = `${baseUrl}/search/api/client/v7.0/items/${this.data.pid}/requests/generate_pdf`;
+    const url = this.buildUrl(baseUrl);
 
     this.http.post(url, { email: this.email }).subscribe({
       next: () => {
@@ -66,6 +75,19 @@ export class Visk2026ExportDialogComponent {
     this.email = String(value);
     if (this.emailInvalid()) {
       this.emailInvalid.set(false);
+    }
+  }
+
+  private buildUrl(baseUrl: string): string {
+    const pid = this.data.pid;
+    switch (this.data.exportType) {
+      case 'epub':
+        return `${baseUrl}/search/api/client/v7.0/items/${pid}/requests/special_needs_ebook`;
+      case 'txt':
+        return `${baseUrl}/search/api/client/v7.0/items/${pid}/requests/special_needs_text`;
+      case 'pdf':
+      default:
+        return `${baseUrl}/search/api/client/v7.0/items/${pid}/requests/generate_pdf`;
     }
   }
 

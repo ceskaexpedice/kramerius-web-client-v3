@@ -1,6 +1,6 @@
 <div class="generic-dialog-container">
   <h2>
-    {{ 'login-required-favorites-title' | translate }}
+    {{ titleKey | translate }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-close"></i>
     </button>
@@ -9,9 +9,9 @@
   <div class="dialog-body">
 
     <div class="content">
-      <p>{{ 'login-prompt-message-favorites' | translate }}</p>
+      <p>{{ messageKey | translate }}</p>
 
-      <div class="dont-ask-again--container">
+      <div class="dont-ask-again--container" *ngIf="showDontShowAgain">
         <mat-checkbox class="p-left-0" [(ngModel)]="dontShowAgain">
           <label>
             {{ 'login-prompt-dont-show-again' | translate }}

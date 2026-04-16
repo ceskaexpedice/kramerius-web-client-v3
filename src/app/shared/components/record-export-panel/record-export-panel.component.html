@@ -15,6 +15,7 @@
       [groupName]="'print-export-' + record.pid"
       [collapsible]="true"
       [expanded]="expandedSection() === 'print'"
+      [loginRequired]="!isLoggedIn()"
       (toggle)="onSectionToggle('print')"
       (submit)="onPrintSubmit($event)">
     </app-export-document-section-item-component>
@@ -27,6 +28,7 @@
       [collapsible]="true"
       [expanded]="expandedSection() === 'pdf'"
       [loading]="pdfLoading()"
+      [loginRequired]="!isLoggedIn()"
       (toggle)="onSectionToggle('pdf')"
       (submit)="onPdfSubmit($event)">
     </app-export-document-section-item-component>
@@ -38,6 +40,7 @@
       [groupName]="'epub-export-' + record.pid"
       [collapsible]="true"
       [expanded]="expandedSection() === 'epub'"
+      [loginRequired]="!isLoggedIn()"
       (toggle)="onSectionToggle('epub')"
       (submit)="onEpubSubmit($event)">
     </app-export-document-section-item-component>
@@ -49,6 +52,7 @@
       [groupName]="'text-export-' + record.pid"
       [collapsible]="true"
       [expanded]="expandedSection() === 'text'"
+      [loginRequired]="!isLoggedIn()"
       (toggle)="onSectionToggle('text')"
       (submit)="onTextSubmit($event)">
     </app-export-document-section-item-component>

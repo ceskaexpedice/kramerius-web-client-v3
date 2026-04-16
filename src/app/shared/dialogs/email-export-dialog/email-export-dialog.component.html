@@ -1,6 +1,6 @@
 <div class="generic-dialog-container">
   <h2>
-    {{ 'visk2026-export-dialog--header' | translate }}
+    {{ 'email-export-dialog--header' | translate }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-close"></i>
     </button>
@@ -8,11 +8,11 @@
 
   <div class="dialog-body">
     <div class="content">
-      <p class="description">{{ 'visk2026-export-dialog--description' | translate }}</p>
+      <p class="description">{{ 'email-export-dialog--description' | translate }}</p>
 
       <div class="email-field">
         <app-input
-          [label]="'visk2026-export-dialog--email-label'"
+          [label]="'email-export-dialog--email-label'"
           [prefixIcon]="'icon-sms'" [size]="'sm'"
           type="email"
           [initialValue]="email" [theme]="'dark'"
@@ -20,7 +20,7 @@
           (enter)="onSubmit()"
         ></app-input>
         <span class="email-error" *ngIf="emailInvalid()">
-          {{ 'visk2026-export-dialog--email-invalid' | translate }}
+          {{ 'email-export-dialog--email-invalid' | translate }}
         </span>
       </div>
     </div>
@@ -31,7 +31,7 @@
       {{ 'cancel' | translate }}
     </button>
     <button class="button filled primary" (click)="onSubmit()" [disabled]="loading()">
-      <span *ngIf="!loading()">{{ 'visk2026-export-dialog--submit' | translate }}</span>
+      <span *ngIf="!loading()">{{ 'email-export-dialog--submit' | translate }}</span>
       <span *ngIf="loading()">{{ 'loading' | translate }}</span>
     </button>
   </div>

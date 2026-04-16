@@ -3,7 +3,14 @@ import {TranslatePipe} from '@ngx-translate/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
+import {NgIf} from '@angular/common';
 import {DontShowAgainService, DontShowDialogs} from '../../services/dont-show-again.service';
+
+export interface LoginPromptDialogData {
+  titleKey?: string;
+  messageKey?: string;
+  dontShowDialogId?: DontShowDialogs;
+}
 
 @Component({
   selector: 'app-login-prompt-dialog',
@@ -11,6 +18,7 @@ import {DontShowAgainService, DontShowDialogs} from '../../services/dont-show-ag
     TranslatePipe,
     MatCheckbox,
     FormsModule,
+    NgIf,
   ],
   templateUrl: './login-prompt-dialog.component.html',
   styleUrls: ['./login-prompt-dialog.component.scss', '../generic-dialog.scss'],
@@ -24,11 +32,12 @@ export class LoginPromptDialogComponent {
 
   private dontShowAgainService = inject(DontShowAgainService);
   private dialogRef = inject(MatDialogRef<LoginPromptDialogComponent>, { optional: true });
-  data = inject<any>(MAT_DIALOG_DATA);
+  data = inject<LoginPromptDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
-  constructor() {
-
-  }
+  titleKey = this.data?.titleKey ?? 'login-required-favorites-title';
+  messageKey = this.data?.messageKey ?? 'login-prompt-message-favorites';
+  dontShowDialogId: DontShowDialogs | undefined = this.data?.dontShowDialogId;
+  showDontShowAgain = this.dontShowDialogId !== undefined;
 
   onClose() {
     this.handleDialogResult();
@@ -43,8 +52,8 @@ export class LoginPromptDialogComponent {
   }
 
   handleDialogResult() {
-    if (this.dontShowAgain) {
-      this.dontShowAgainService.setDontShowAgain(DontShowDialogs.FavoritesLoginDialog);
+    if (this.dontShowAgain && this.dontShowDialogId) {
+      this.dontShowAgainService.setDontShowAgain(this.dontShowDialogId);
     }
   }
 }
