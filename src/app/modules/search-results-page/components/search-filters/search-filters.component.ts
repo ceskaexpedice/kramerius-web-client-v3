@@ -13,6 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { DisplayConfigService } from '../../../../shared/services/display-config.service';
 import { Subscription } from 'rxjs';
 import { SearchService } from '../../../../shared/services/search.service';
+import { ConfigService } from '../../../../core/config/config.service';
 
 @Component({
   selector: 'app-search-filters',
@@ -160,6 +161,7 @@ export class SearchFiltersComponent extends BaseFiltersComponent implements OnIn
   facetKeys = facetKeys;
   protected searchService = inject(SearchService);
   private displayConfigService = inject(DisplayConfigService);
+  private configService = inject(ConfigService);
   private cdr = inject(ChangeDetectorRef);
   private visibleFacetKeys: string[] = [];
   private configSubscription?: Subscription;
@@ -181,11 +183,22 @@ export class SearchFiltersComponent extends BaseFiltersComponent implements OnIn
   }
 
   get getFacetKeys(): string[] {
-    if (this.visibleFacetKeys.length > 0) {
-      return this.visibleFacetKeys.filter(key => key !== facetKeysEnum.license);
+    const base = this.visibleFacetKeys.length > 0
+      ? this.visibleFacetKeys
+      : [...customDefinedFacetsKeys, ...this.facetKeys];
+
+    const filtered = base.filter(key =>
+      key !== facetKeysEnum.license && key !== facetKeysEnum.cdkCollection
+    );
+
+    if (this.configService.isCdk()) {
+      // Insert right after document-type facet (customDefinedFacetsEnum.model).
+      const docTypeIdx = filtered.indexOf(customDefinedFacetsEnum.model);
+      const insertAt = docTypeIdx >= 0 ? docTypeIdx + 1 : filtered.length;
+      filtered.splice(insertAt, 0, facetKeysEnum.cdkCollection);
     }
 
-    return [...customDefinedFacetsKeys, ...this.facetKeys].filter(key => key !== facetKeysEnum.license);
+    return filtered;
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
