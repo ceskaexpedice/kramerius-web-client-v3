@@ -116,6 +116,7 @@
   "accessibility": "Dostupnost",
   "custom-accessibility": "Dostupnost",
   "licenses.facet": "Licence",
+  "cdk.collection": "Zdroj",
   "show-licenses-label": "Zobrazit licence",
   "hide-licenses-label": "Skrýt licence",
   "all-label": "Vše",

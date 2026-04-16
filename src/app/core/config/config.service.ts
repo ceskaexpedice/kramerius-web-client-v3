@@ -50,6 +50,16 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
 export class ConfigService {
   constructor(private envService: EnvironmentService) {}
 
+  /**
+   * Returns true when the active instance is the CDK aggregator
+   * (Česká digitální knihovna). Enables CDK-specific extended features
+   * such as the "cdk.collection" source facet.
+   */
+  isCdk(): boolean {
+    const id = this.envService.getKrameriusId();
+    return id === 'cdk' || id === 'cdk-test';
+  }
+
   private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
   private licensesUrlFor(code: string) { return `local-config/${code}/config-licenses.json`; }
   private homeSectionsUrlFor(code: string) { return `local-config/${code}/config-homepage.json`; }
