@@ -7,14 +7,13 @@ import { SettingsService } from '../settings/settings.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { AdminSelectionService, SelectionService } from '../../shared/services';
 import { combineLatest, Observable, Subscription } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, take } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';
 import { MapSearchService } from '../../shared/services/map-search.service';
 import { isMapViewParams } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
-import { take } from 'rxjs/operators';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 
 @Component({
@@ -174,6 +173,34 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
         this.scrollPositionService.notifyContentLoaded();
       })
     );
+
+    const combinedResults$ = combineLatest([
+      this.searchService.loading$,
+      this.searchService.nonPageResults$,
+      this.searchService.articleResults$,
+      this.searchService.pageResults$,
+      this.searchService.attachmentResults$,
+    ]).pipe(
+      filter(([loading]) => loading === false),
+      map(([, nonPage, articles, pages, attachments]) => [
+        ...(nonPage || []),
+        ...(articles || []),
+        ...(pages || []),
+        ...(attachments || []),
+      ])
+    );
+
+    const sub = this.exportService.rehydrateExportPanel(
+      this.route,
+      combinedResults$,
+      doc => this.exportRecord.set(doc)
+    );
+    if (sub) this.subscriptions.push(sub);
+  }
+
+  onExportRecordChange(record: SearchDocument | null): void {
+    this.exportRecord.set(record);
+    this.exportService.writeExportPidToUrl(this.route, record?.pid ?? null);
   }
 
   ngOnDestroy(): void {

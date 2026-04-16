@@ -265,7 +265,7 @@ export class SearchService extends BaseFilterService {
 
 
   // Params that should not trigger a search refresh
-  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west'];
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west', 'exportPid'];
 
   private getSearchRelevantParams(params: any): any {
     const relevant: any = {};
