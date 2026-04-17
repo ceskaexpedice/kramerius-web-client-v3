@@ -111,6 +111,23 @@ export class IIIFViewerService {
 
   private testFallbackMode = false;
 
+  // CDK aggregator: selected member library. When set, it is prefixed into
+  // IIIF / items URLs the same way as in MODS fetches.
+  private cdkLibraryCode: string | null = null;
+  private cdkLibraryCodeSubject = new BehaviorSubject<string | null>(null);
+  public cdkLibraryCode$ = this.cdkLibraryCodeSubject.asObservable();
+
+  setCdkLibraryCode(code: string | null): void {
+    const normalized = code || null;
+    if (normalized === this.cdkLibraryCode) return;
+    this.cdkLibraryCode = normalized;
+    this.cdkLibraryCodeSubject.next(normalized);
+  }
+
+  getCdkLibraryCode(): string | null {
+    return this.cdkLibraryCode;
+  }
+
   private altoService = inject(AltoService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
@@ -192,7 +209,8 @@ export class IIIFViewerService {
       console.warn('TEST_FALLBACK is enabled - returning invalid URL to test error handling');
       return `https://invalid-url.example.com/fake-${pid}-info.json`;
     }
-    return `${this.API_URL}/search/iiif/${pid}/info.json`;
+    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
+    return `${this.API_URL}/search/iiif${prefix}/${pid}/info.json`;
   }
 
   // Enable/disable test fallback mode
@@ -204,13 +222,15 @@ export class IIIFViewerService {
   // Get direct image URL (fallback when IIIF fails)
   getDirectImageUrl(pid: string): string {
     const itemsUrl = this.env.getApiUrl('items');
-    return `${itemsUrl}/${pid}/image`;
+    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
+    return `${itemsUrl}${prefix}/${pid}/image`;
   }
 
   // Get thumbnail URL (shown as placeholder while IIIF tiles load)
   getThumbnailUrl(pid: string): string {
     const itemsUrl = this.env.getApiUrl('items');
-    return `${itemsUrl}/${pid}/image/thumb`;
+    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
+    return `${itemsUrl}${prefix}/${pid}/image/thumb`;
   }
 
   // Get authorization headers for OpenSeadragon AJAX requests

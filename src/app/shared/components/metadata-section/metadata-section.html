@@ -9,6 +9,19 @@
 
 <div class="data" *ngIf="data">
 
+  <!-- CDK source selector (only on CDK aggregator when document has cdk.collection) -->
+  <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0"
+    [label]="'cdk.collection' | translate">
+    <div metadata-section-item-content>
+      <app-select
+        [options]="cdkCollections()" [size]="'sm'"
+        [value]="selectedCdkCollection()"
+        [theme]="'light'"
+        (valueChange)="onCdkCollectionChange($event)">
+      </app-select>
+    </div>
+  </app-metadata-section-item>
+
   <!-- Title -->
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">

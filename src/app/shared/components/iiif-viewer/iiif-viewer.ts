@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import { Subject, Subscription, switchMap, EMPTY, catchError } from 'rxjs';
+import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUntilChanged } from 'rxjs';
 import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
@@ -142,6 +142,25 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Subscribe to book mode changes
     this.subscriptions.push(
       this.iiifViewerService.bookMode$.subscribe(() => {
+        this.triggerViewerUpdate();
+      })
+    );
+
+    // CDK: when the user picks a different source library in metadata-section,
+    // URLs change (now include /{libraryCode}/) — refresh tiles, thumb, fallback.
+    // skip(1) ignores the BehaviorSubject seed; the initial tile load happens via
+    // initializeViewer, not here. distinctUntilChanged avoids redundant reloads.
+    this.subscriptions.push(
+      this.iiifViewerService.cdkLibraryCode$.pipe(
+        skip(1),
+        distinctUntilChanged(),
+      ).subscribe(() => {
+        const pid = this.imagePid || this.metadata?.uuid;
+        if (!pid) return;
+        this.failedPids.delete(pid);
+        this.directImageFailedPids.delete(pid);
+        this.showFallback.set(false);
+        this.fallbackImageUrl.set(null);
         this.triggerViewerUpdate();
       })
     );

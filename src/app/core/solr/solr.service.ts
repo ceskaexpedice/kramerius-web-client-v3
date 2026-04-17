@@ -1020,11 +1020,16 @@ export class SolrService {
     );
   }
 
-  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<any> {
+  getChildrenByModel(parentPid: string, sort = 'date.min asc', model: string | null = null, includeFacets = false, facetFields: string[] = [], filters: string[] = [], facetOperators: Record<string, string> = {}, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, cdkCollection?: string | null): Observable<any> {
     let query = `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)} AND own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`;
 
     if (model) {
       query += ` AND model:${model}`;
+    }
+
+    // CDK: scope children to a specific member library so pages come from the selected source.
+    if (cdkCollection) {
+      query += ` AND cdk.collection:${cdkCollection}`;
     }
 
     let httpParams = new HttpParams({
@@ -1048,28 +1053,28 @@ export class SolrService {
       httpParams = httpParams.append('facet.query', '{!ex=avail}*:*');
 
       // 2. "Available only" count - query for user's accessible licenses
-      if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
-        const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${licenseClauses})`);
-      }
+        if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
+          const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          httpParams = httpParams.append('facet.query', `{!ex=avail}(${licenseClauses})`);
+        }
 
-      // 3. "Open" count - query for getOpenLicenses()
-      if (getOpenLicenses().length > 0) {
-        const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
-      }
+        // 3. "Open" count - query for getOpenLicenses()
+        if (getOpenLicenses().length > 0) {
+          const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          httpParams = httpParams.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
+        }
 
-      // 4. "Terminal" count - query for getTerminalLicenses()
-      if (getTerminalLicenses().length > 0) {
-        const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
-      }
+        // 4. "Terminal" count - query for getTerminalLicenses()
+        if (getTerminalLicenses().length > 0) {
+          const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          httpParams = httpParams.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
+        }
 
-      // 5. "After Login" count - query for getAfterLoginLicenses()
-      if (getAfterLoginLicenses().length > 0) {
-        const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        httpParams = httpParams.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
-      }
+        // 5. "After Login" count - query for getAfterLoginLicenses()
+        if (getAfterLoginLicenses().length > 0) {
+          const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          httpParams = httpParams.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
+        }
     }
 
     // Add filter queries
@@ -1290,24 +1295,24 @@ export class SolrService {
       params = params.append('facet.query', '{!ex=avail}*:*');
 
       if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
-        const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
-      }
+          const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
+        }
 
-      if (getOpenLicenses().length > 0) {
-        const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
-      }
+        if (getOpenLicenses().length > 0) {
+          const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
+        }
 
-      if (getTerminalLicenses().length > 0) {
-        const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
-      }
+        if (getTerminalLicenses().length > 0) {
+          const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
+        }
 
-      if (getAfterLoginLicenses().length > 0) {
-        const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-        params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
-      }
+        if (getAfterLoginLicenses().length > 0) {
+          const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+          params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
+        }
     }
 
     // Add availability filter with tag if active

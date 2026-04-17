@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { APP_ROUTES_ENUM } from "../../../app.routes";
 import { ROUTER_NAVIGATED } from '@ngrx/router-store';
-import { selectRouterUrl } from '../router/router.selectors';
+import { selectRouterUrl, selectRouterQueryParams } from '../router/router.selectors';
+import { pickCdkCollection } from '../../utils/cdk-collection';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -41,10 +42,24 @@ export class DocumentDetailEffects {
   });
 
   private loadDetail(uuid: string) {
-    return forkJoin({
-      detailItem: this.solr.getDetailItem(uuid),
-      children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null),
-    }).pipe(
+    // Fetch detail first so we know `cdk.leader` — on CDK, pages must be scoped to a
+    // member library (`AND cdk.collection:<code>`), otherwise the aggregator returns
+    // pages from every source that digitised the item. `?source=` in the URL wins
+    // over `cdk.leader` so shared links restore the same source for the receiver.
+    return this.solr.getDetailItem(uuid).pipe(
+      withLatestFrom(this.store.select(selectRouterQueryParams)),
+      switchMap(([detailItem, queryParams]) => {
+        const collections: string[] = detailItem?.['cdk.collection'] ?? [];
+        const cdkCollection = pickCdkCollection(
+          queryParams?.['source'],
+          detailItem?.['cdk.leader'],
+          collections,
+        );
+        return forkJoin({
+          detailItem: of(detailItem),
+          children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection),
+        });
+      }),
       tap(({ detailItem, children }) => {
         const isMonograph = detailItem?.model === DocumentTypeEnum.monograph;
         const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
@@ -101,6 +116,21 @@ export class DocumentDetailEffects {
       distinctUntilChanged(),
       filter(articleUuid => !!articleUuid),
       map(articleUuid => DocumentDetailActions.loadArticleDetail({ articleUuid: articleUuid! }))
+    );
+  });
+
+  reloadPagesForCdkCollection$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(DocumentDetailActions.reloadPagesForCdkCollection),
+      switchMap(({ uuid, cdkCollection }) =>
+        this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection).pipe(
+          map(pages => DocumentDetailActions.reloadPagesForCdkCollectionSuccess({ pages })),
+          catchError(error => {
+            console.log('Error reloading pages for CDK collection:', error);
+            return of(DocumentDetailActions.reloadPagesForCdkCollectionSuccess({ pages: [] }));
+          })
+        )
+      )
     );
   });
 

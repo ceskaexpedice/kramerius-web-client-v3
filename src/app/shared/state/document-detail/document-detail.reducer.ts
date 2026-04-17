@@ -59,4 +59,8 @@ export const documentDetailReducer = createReducer(
     articleDetailError: null
   })),
   on(DocumentDetailActions.clearDocumentDetail, () => initialState),
+  on(DocumentDetailActions.reloadPagesForCdkCollectionSuccess, (state, { pages }) => ({
+    ...state,
+    pages: pages || [],
+  })),
 );

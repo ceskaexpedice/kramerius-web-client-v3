@@ -30,13 +30,13 @@ export class ModsParserService {
 
   }
 
-  async getMods(uuid: string, type: 'full' | 'plain' = 'full'): Promise<Metadata> {
-    const cacheKey = `${uuid}-${type}`;
+  async getMods(uuid: string, type: 'full' | 'plain' = 'full', libraryCode?: string): Promise<Metadata> {
+    const cacheKey = `${uuid}-${type}-${libraryCode ?? ''}`;
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey)!;
     }
 
-    const url = `${this.API_URL}/${uuid}/metadata/mods`;
+    const url = this.buildModsUrl(uuid, libraryCode);
 
     const promise = fetch(url)
       .then(response => {
@@ -57,6 +57,13 @@ export class ModsParserService {
 
     this.cache.set(cacheKey, promise);
     return promise;
+  }
+
+  // .../items/{libraryCode}/{uuid}/metadata/mods on CDK, .../items/{uuid}/metadata/mods otherwise.
+  private buildModsUrl(uuid: string, libraryCode?: string): string {
+    return libraryCode
+      ? `${this.API_URL}/${libraryCode}/${uuid}/metadata/mods`
+      : `${this.API_URL}/${uuid}/metadata/mods`;
   }
 
   private parseMods(modsXml: string, uuid: string, type: 'full' | 'plain'): Promise<Metadata> {

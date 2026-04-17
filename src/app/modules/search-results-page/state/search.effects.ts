@@ -11,6 +11,7 @@ import * as SearchSelectors from './search.selectors';
 import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
 import {
   getCustomDefinedFacets,
+  facetKeysEnum,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
 import { UserService } from '../../../shared/services/user.service';
@@ -18,6 +19,7 @@ import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
 import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
+import { ConfigService } from '../../../core/config/config.service';
 
 @Injectable()
 export class SearchEffects {
@@ -30,6 +32,7 @@ export class SearchEffects {
     private userService: UserService,
     private displayConfigService: DisplayConfigService,
     private customSearchService: CustomSearchService,
+    private configService: ConfigService,
   ) {
   }
 
@@ -138,7 +141,7 @@ export class SearchEffects {
   private getRequestedFacets(): string[] {
     const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
     if (!visibleFilters || visibleFilters.length === 0) {
-      return DEFAULT_FACET_FIELDS;
+      return this.withCdkFacets(DEFAULT_FACET_FIELDS);
     }
 
     const set = new Set<string>();
@@ -154,8 +157,15 @@ export class SearchEffects {
     });
 
     if (set.size === 0) {
-      return DEFAULT_FACET_FIELDS;
+      return this.withCdkFacets(DEFAULT_FACET_FIELDS);
     }
-    return Array.from(set);
+    return this.withCdkFacets(Array.from(set));
+  }
+
+  private withCdkFacets(fields: string[]): string[] {
+    if (!this.configService.isCdk() || fields.includes(facetKeysEnum.cdkCollection)) {
+      return fields;
+    }
+    return [...fields, facetKeysEnum.cdkCollection];
   }
 }
