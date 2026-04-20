@@ -29,6 +29,7 @@ import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav
 import { SearchService } from '../../shared/services/search.service';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
 import { TtsService } from '../../shared/services/tts.service';
+import { DocumentSearchService } from '../../shared/services/document-search.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -56,6 +57,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public searchService = inject(SearchService);
   public aiPanelService = inject(AiPanelService);
   private ttsService = inject(TtsService);
+  private documentSearchService = inject(DocumentSearchService);
 
   // TODO: set to false to keep TTS playing when navigating away
   private readonly stopTtsOnLeave = true;
@@ -176,6 +178,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
+    this.documentSearchService.clearSearch();
     if (this.stopTtsOnLeave && this.ttsService.isReading()) {
       this.ttsService.stop();
     }

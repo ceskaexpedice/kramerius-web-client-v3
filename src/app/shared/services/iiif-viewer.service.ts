@@ -177,6 +177,7 @@ export class IIIFViewerService {
   }
 
   set uuid(uuid: string | null) {
+    if (uuid === this._uuid) return;
     const isNewDocument = uuid !== null && uuid !== this._uuid;
     this._uuid = uuid;
     if (uuid) {
