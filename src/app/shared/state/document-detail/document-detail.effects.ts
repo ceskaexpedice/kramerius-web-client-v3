@@ -100,6 +100,26 @@ export class DocumentDetailEffects {
     );
   }
 
+  // Effect to reload document when the :uuid route param changes while the component is reused
+  reloadOnUuidChange$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(ROUTER_NAVIGATED),
+      withLatestFrom(
+        this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid),
+        this.store.select(DocumentDetailSelectors.selectDocumentDetail),
+        this.store.select(selectRouterUrl)
+      ),
+      filter(([_, __, ___, url]) =>
+        url?.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) ||
+        url?.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`)
+      ),
+      filter(([_, routerUuid, loadedDoc]) =>
+        !!routerUuid && routerUuid !== loadedDoc?.uuid
+      ),
+      map(([_, routerUuid]) => DocumentDetailActions.loadDocumentDetail({ uuid: routerUuid! }))
+    );
+  });
+
   // Effect to watch for article UUID changes in query params and load article detail
   loadArticleDetailOnQueryParamChange$ = createEffect(() => {
     return this.actions$.pipe(
