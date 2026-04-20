@@ -44,7 +44,7 @@
   }
 }
 
-@mixin floating-sidebar($width: 285px) {
+@mixin floating-sidebar($width: var(--metadata-sidebar-width)) {
   flex: 0 0 $width;
   width: $width;
   min-width: $width;

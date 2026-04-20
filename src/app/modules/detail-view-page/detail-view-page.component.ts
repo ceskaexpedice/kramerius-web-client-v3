@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, signal, HostBinding, computed } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -30,6 +30,7 @@ import { SearchService } from '../../shared/services/search.service';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
 import { TtsService } from '../../shared/services/tts.service';
 import { DocumentSearchService } from '../../shared/services/document-search.service';
+import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -58,6 +59,10 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public aiPanelService = inject(AiPanelService);
   private ttsService = inject(TtsService);
   private documentSearchService = inject(DocumentSearchService);
+  private uiState = inject(UiStateService);
+
+  @HostBinding('style.--license-bar-offset')
+  get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
 
   // TODO: set to false to keep TTS playing when navigating away
   private readonly stopTtsOnLeave = true;

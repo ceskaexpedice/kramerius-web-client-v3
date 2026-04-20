@@ -4,5 +4,5 @@ app-playback-bar {
   left: 0;
   right: 0;
   z-index: 1000;
-  height: 52px;
+  height: var(--playback-bar-height-value);
 }
