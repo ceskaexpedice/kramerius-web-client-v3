@@ -44,6 +44,13 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     logo: '/img/logo/logo-trinera-symbol.png',
     url: 'https://kramerius.k7.trinera.cloud',
   },
+  'cdk-dev': {
+    code: 'cdk-dev',
+    name: 'CDK (dev)',
+    name_en: 'CDK (dev)',
+    logo: '',
+    url: 'https://cdk-api.dev.ceskadigitalniknihovna.cz',
+  },
 };
 
 @Injectable({ providedIn: 'root' })
