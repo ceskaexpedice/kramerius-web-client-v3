@@ -548,6 +548,8 @@
   "case-sensitive-on": "Rozlišování velikosti písmen a diakritiky zapnuté.",
   "case-sensitive-off": "Rozlišování velikosti písmen a diakritiky vypnuté.",
   "subject-names-corporate": "Korporátní předmětová hesla",
+  "subject-names-personal": "Osobní předmětová hesla",
+  "subject-temporals": "Časová předmětová hesla",
   "enter--submit-search": "Vstupte",
   "content": "Obsah",
   "license-badge.onsite": "Studovna",

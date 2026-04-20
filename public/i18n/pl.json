@@ -546,6 +546,8 @@
   "case-sensitive-on": "Rozróżnianie wielkości liter i diakrytyki włączone.",
   "case-sensitive-off": "Rozróżnianie wielkości liter i diakrytyki wyłączone.",
   "subject-names-corporate": "Nazwy podmiotów korporacyjnych",
+  "subject-names-personal": "Nazwy osobowe",
+  "subject-temporals": "Terminy czasowe",
   "enter--submit-search": "Wchodzić",
   "content": "Zawartość",
   "license-badge.onsite": "Czytelnia",

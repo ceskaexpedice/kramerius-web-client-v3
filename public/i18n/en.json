@@ -555,6 +555,8 @@
   "case-sensitive-on": "Case-sensitive search enabled.",
   "case-sensitive-off": "Case-sensitive search disabled.",
   "subject-names-corporate": "Corporate subject names",
+  "subject-names-personal": "Personal subject names",
+  "subject-temporals": "Chronological subject names",
   "enter--submit-search": "Enter",
   "content": "Content",
   "license-badge.onsite": "Reading room",
