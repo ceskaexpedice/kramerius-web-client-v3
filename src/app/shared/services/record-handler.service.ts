@@ -246,7 +246,11 @@ export class RecordHandlerService {
         break;
 
       case DocumentTypeEnum.supplement:
-        hierarchyLevels.push(DocumentTypeEnum.supplement, DocumentTypeEnum.page);
+        if (document.rootModel === DocumentTypeEnum.periodical) {
+          hierarchyLevels.push(DocumentTypeEnum.periodical, DocumentTypeEnum.periodicalvolume, DocumentTypeEnum.supplement, DocumentTypeEnum.page);
+        } else {
+          hierarchyLevels.push(DocumentTypeEnum.supplement, DocumentTypeEnum.page);
+        }
         break;
 
       case DocumentTypeEnum.article:
@@ -316,6 +320,8 @@ export class RecordHandlerService {
               pid = document.volume?.uuid || '';
             }
           } else if (document.model === DocumentTypeEnum.periodicalitem) {
+            pid = document.volume?.uuid || '';
+          } else if (document.model === DocumentTypeEnum.supplement) {
             pid = document.volume?.uuid || '';
           }
           break;
