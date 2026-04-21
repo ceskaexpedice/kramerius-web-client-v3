@@ -14,7 +14,7 @@ export class SolrQueryBuilder {
     SolrQueryBuilder.configuredModels = models;
   }
 
-  private static buildModelList(includePeriodicalItem: boolean, includePage: boolean, includeSupplement: boolean = true): string[] {
+  private static buildModelList(includePeriodicalItem: boolean, includePage: boolean, includeSupplement: boolean = true, includeArticle: boolean = true): string[] {
     const models = SolrQueryBuilder.configuredModels.length > 0
       ? SolrQueryBuilder.configuredModels
       : ['periodical', 'monograph', 'map', 'graphic', 'archive', 'manuscript', 'soundrecording', 'sheetmusic', 'convolute', 'collection', 'monographunit', 'supplement', 'article'];
@@ -25,6 +25,7 @@ export class SolrQueryBuilder {
         if (m === 'page') return false;
         if (!includePeriodicalItem && (m === 'periodicalitem' || m === 'periodicalvolume')) return false;
         if (!includeSupplement && m === 'supplement') return false;
+        if (!includeArticle && m === 'article') return false;
         return true;
       })
       .map(m => {
@@ -78,8 +79,8 @@ export class SolrQueryBuilder {
     };
   }
 
-  static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false, includeSupplement: boolean = true): any {
-    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement);
+  static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false, includeSupplement: boolean = true, includeArticle: boolean = true): any {
+    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement, includeArticle);
 
     return {
       fq: `(${baseModels.join(' OR ')})`
@@ -90,7 +91,7 @@ export class SolrQueryBuilder {
    * Alternative method for generating boosted model queries to be used in the main query (q parameter)
    * This provides stronger boosting control than filter queries
    */
-  static buildBoostedModelQuery(includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, includeSupplement: boolean = true): string {
+  static buildBoostedModelQuery(includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, includeSupplement: boolean = true, includeArticle: boolean = true): string {
     if (periodicalOnly) {
       const baseModels = ['model:periodical^10'];
       if (includePeriodicalItem) {
@@ -103,7 +104,7 @@ export class SolrQueryBuilder {
       return `(${baseModels.join(' OR ')})`;
     }
 
-    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement);
+    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement, includeArticle);
     return `(${baseModels.join(' OR ')})`;
   }
 

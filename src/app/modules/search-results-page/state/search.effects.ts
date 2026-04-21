@@ -57,6 +57,7 @@ export class SearchEffects {
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
         const includeSupplement = this.customSearchService.isSupplementFilterActive();
+        const includeArticle = this.customSearchService.isArticleFilterActive();
 
         // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
@@ -65,7 +66,7 @@ export class SearchEffects {
           userLicenses: this.userService.licenses
         };
 
-        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement).pipe(
+        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle).pipe(
           shareReplay(1)
         );
 

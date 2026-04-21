@@ -138,6 +138,15 @@ export class CustomSearchService {
   }
 
   /**
+   * Returns true if the "article" where-to-search filter is active
+   */
+  isArticleFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.whereToSearchModel}:article`
+    );
+  }
+
+  /**
    * Returns true if the "Public" accessibility filter is active
    */
   isPublicFilterActive(): boolean {
