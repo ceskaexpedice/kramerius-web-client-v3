@@ -129,6 +129,15 @@ export class CustomSearchService {
   }
 
   /**
+   * Returns true if the "supplement" where-to-search filter is active
+   */
+  isSupplementFilterActive(): boolean {
+    return this._appliedFilters().includes(
+      `${customDefinedFacetsEnum.whereToSearchModel}:supplement`
+    );
+  }
+
+  /**
    * Returns true if the "Public" accessibility filter is active
    */
   isPublicFilterActive(): boolean {

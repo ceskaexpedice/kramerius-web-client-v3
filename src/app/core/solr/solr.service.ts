@@ -140,7 +140,7 @@ export class SolrService {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
-  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null): string {
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true): string {
     const parts: string[] = [];
 
     if (rootUuid) {
@@ -242,7 +242,7 @@ export class SolrService {
     }
 
     // Add boosted model query for proper ranking
-    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly);
+    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly, includeSupplement);
     parts.push(boostedModelQuery);
 
     // Handle advanced query
@@ -383,9 +383,9 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true): Observable<SearchResultResponse> {
 
-    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement);
 
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
@@ -407,7 +407,7 @@ export class SolrService {
       }
     }
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, null, includeSupplement));
 
     // Use filterGroups if provided, otherwise fall back to flat filters
     if (filterGroups && filterGroups.length > 0) {
