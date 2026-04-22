@@ -1,7 +1,7 @@
 .add-license-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-x4);
 
   .section-header {
 

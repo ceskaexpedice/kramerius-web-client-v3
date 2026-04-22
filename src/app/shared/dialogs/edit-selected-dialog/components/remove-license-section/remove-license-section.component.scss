@@ -1,14 +1,14 @@
 .remove-license-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-x4);
 
   .section-header {
 
   }
 
   .selection-summary.warning {
-    padding: 16px;
+    padding: var(--spacing-x4);
     background: var(--warning-bg, #fff3cd);
     border: 1px solid var(--warning-border, #ffeaa7);
     border-radius: 4px;
