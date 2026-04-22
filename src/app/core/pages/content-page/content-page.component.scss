@@ -17,6 +17,16 @@
     justify-content: center;
     align-items: center;
   }
+
+  &__version {
+    position: fixed;
+    right: var(--spacing-x3);
+    bottom: var(--spacing-x3);
+    font-size: var(--font-size-xxsmall);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+    user-select: none;
+  }
 }
 
 .terms-controls {

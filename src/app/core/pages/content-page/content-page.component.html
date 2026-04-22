@@ -30,5 +30,9 @@
         <div [innerHTML]="part | safeHtml"></div>
       }
     }
+
+    @if (isAboutPage && gitTag) {
+      <div class="content-page__version">{{ gitTag }}</div>
+    }
   </div>
 }
