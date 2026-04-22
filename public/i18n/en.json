@@ -222,6 +222,7 @@
   "reindex-object-only": "Object",
   "reindex-object-and-children": "Object and children",
   "selected-objects-count": "Number of selected objects",
+  "selected-count": "Selected",
   "edit-title": "Change title",
   "title-label": "Title",
   "enter-new-title": "Enter new title",

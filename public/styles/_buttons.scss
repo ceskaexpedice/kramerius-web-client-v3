@@ -235,7 +235,7 @@ button.outlined {
 
     &:disabled {
       border-color: var(--color-border-tertiary-disabled);
-      color: var(--color-text-btn-tertiary-disable);
+      color: var(--color-text-btn-tertiary-pressed);
       cursor: not-allowed;
     }
   }
@@ -326,6 +326,10 @@ button.with-icon {
     display: inline-block;
     font-size: var(--font-size-base);
   }
+}
+
+button.compact {
+  height: 32px;
 }
 
 .square-button {

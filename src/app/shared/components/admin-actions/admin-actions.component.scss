@@ -1,26 +1,12 @@
 .admin-actions {
-  gap: var(--base-gap);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
 
-  .button {
-    white-space: nowrap;
+  .admin-actions--container {
     display: flex;
     align-items: center;
-    gap: 6px;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    &.active {
-      background-color: var(--color-primary);
-      color: white;
-      border-color: var(--color-primary);
-    }
-
-    i {
-      font-size: var(--font-size-small);
-    }
+    gap: var(--spacing-x2);
   }
 
   // Compact mode for narrow containers
