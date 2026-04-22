@@ -25,7 +25,7 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
             placeholder="https://api..."
             [withIcons]="false"
           ></app-input>
-          
+
           <p class="mt-4"><strong>Current Kramerius ID:</strong></p>
           <app-input
             [initialValue]="currentKrameriusId"
@@ -79,7 +79,7 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
         </div>
       </div>
 
-      <div class="card extended-section" *ngIf="showExtended()">
+      <div class="card extended-section">
         <h2>Extended DevTools</h2>
 
         <div class="form-group">
