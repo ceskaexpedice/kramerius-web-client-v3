@@ -56,15 +56,7 @@
                 </div>
               </ng-container>
 
-              <!-- Show selected count when in admin mode and items are selected -->
-              <ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
-                <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
-              </ng-container>
-
-              <button class="button outlined tertiary sm square-button" *ngIf="selectionService.selectionMode()"
-                (click)="selectionService.toggleSelectionMode()">
-                <i class="icon-close"></i>
-              </button>
+              <app-admin-selection-count></app-admin-selection-count>
 
             </div>
 

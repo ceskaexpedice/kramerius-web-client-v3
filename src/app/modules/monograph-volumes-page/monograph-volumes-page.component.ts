@@ -16,6 +16,7 @@ import { FILTER_SERVICE } from '../../shared/services/filter.service';
 import {ActionToolbarComponent} from "../../shared/components/action-toolbar/action-toolbar.component";
 import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/toolbar-header.component";
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
+import {AdminSelectionCountComponent} from '../../shared/components/admin-selection-count/admin-selection-count.component';
 import {SelectionService} from '../../shared/services';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
@@ -36,6 +37,7 @@ import {UiStateService} from '../../shared/services/ui-state.service';
     ActionToolbarComponent,
     ToolbarHeaderComponent,
     ToolbarControlsComponent,
+    AdminSelectionCountComponent,
   ],
   providers: [
     MonographVolumesService,

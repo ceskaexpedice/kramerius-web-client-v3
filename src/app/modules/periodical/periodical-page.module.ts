@@ -30,6 +30,7 @@ import {
 } from './components/periodical-search-results/periodical-search-results.component';
 import { SelectedTagsComponent } from '../../shared/components/selected-tags/selected-tags.component';
 import { AdminActionsComponent } from '../../shared/components/admin-actions/admin-actions.component';
+import { AdminSelectionCountComponent } from '../../shared/components/admin-selection-count/admin-selection-count.component';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -71,6 +72,7 @@ const routes: Routes = [
     PeriodicalSearchResultsComponent,
     SelectedTagsComponent,
     AdminActionsComponent,
+    AdminSelectionCountComponent,
     MatSlideToggle,
     FormsModule,
     FormsModule,

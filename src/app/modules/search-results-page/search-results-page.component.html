@@ -68,15 +68,7 @@
                 </app-results-sort>
               </ng-container>
 
-              <!-- Show selection count when in admin mode and items are selected -->
-              <ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
-                <span class="selection-count">{{ 'selected-count' | translate }}: {{ selectionService.selectedCount() }}</span>
-              </ng-container>
-
-              <button class="button outlined tertiary sm square-button" aria-label="{{'Close select mode' | translate}}"
-                *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
-                <i class="icon-close"></i>
-              </button>
+              <app-admin-selection-count></app-admin-selection-count>
 
             </div>
           </div>
