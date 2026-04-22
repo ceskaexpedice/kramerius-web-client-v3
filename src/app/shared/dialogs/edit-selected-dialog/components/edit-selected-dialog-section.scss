@@ -2,19 +2,21 @@
   border: 1px solid var(--color-border-bright);
   border-radius: var(--spacing-x2);
   padding: var(--spacing-x4);
-}
-
-.collections-selection {
-  flex: 1;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
 
-  app-collections-list {
-    flex: 1;
-    overflow: hidden;
+.collections-selection,
+.licenses-selection {
+  flex: 1;
+  min-height: 0;
+
+  app-collections-list,
+  app-licenses-list {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    flex: 1;
   }
 }
 
@@ -22,6 +24,7 @@
   display: flex;
   justify-content: flex-start;
   gap: var(--spacing-x2);
+  flex-shrink: 0;
 }
 
 h3 {
