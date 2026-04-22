@@ -77,11 +77,11 @@
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
-              [showInfo]="false" [showEdit]="true" [mobileMenuMode]="breakpointService.isMobile()"
+              [showInfo]="false" [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
-              (editClicked)="selectionService.toggleSelectionMode()" (favoritesClicked)="onFavoritesClicked($event)"
+              (selectClicked)="selectionService.setSelectionMode(true)" (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
