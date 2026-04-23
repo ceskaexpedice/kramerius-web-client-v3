@@ -178,7 +178,12 @@ export class SolrService {
           const queryParts = [
             `title.search:(${normalizedQuery})^3`,
             `titles.search:(${normalizedQuery})`,
-            `text_ocr:(${normalizedQuery})^0.1`
+            `authors.search:(${normalizedQuery})^2`,
+            `keywords.search:(${normalizedQuery})`,
+            `genres.search:(${normalizedQuery})`,
+            `text_ocr:(${normalizedQuery})^0.1`,
+            `id_isbn:(${normalizedQuery})`,
+            `shelf_locators:(${normalizedQuery})`
           ];
           parts.push(`(${queryParts.join(' OR ')})`);
         }
@@ -220,16 +225,22 @@ export class SolrService {
             }
             parts.push(`(${queryParts.join(' OR ')})`);
           } else {
-            // Simple search - title and OCR fields only
+            // Simple search - title, author, keyword, genre, OCR, ISBN, shelf locator
             const queryParts = [
               `title.search:(${q})^3`,
               `titles.search:(${q})`,
-              `text_ocr:(${q})^0.1`
+              `authors.search:(${q})^2`,
+              `keywords.search:(${q})`,
+              `genres.search:(${q})`,
+              `text_ocr:(${q})^0.1`,
+              `id_isbn:(${q})`,
+              `shelf_locators:(${q})`
             ];
             if (hasDiacritics) {
               queryParts.push(
                 `title.search:(${qAscii})^1.5`,
                 `titles.search:(${qAscii})^0.8`,
+                `authors.search:(${qAscii})^1.5`,
                 `text_ocr:(${qAscii})^0.05`
               );
             }
@@ -419,11 +430,14 @@ export class SolrService {
     // Restrict model:collection counts to standalone collections only.
     // When the user has already selected a collection filter, search.service.ts
     // already adds `collection.is_standalone:true`, so skip to avoid double-constraint.
+    // Also skip when the user is running a text query — non-standalone collections
+    // matching the query by title/description should still surface in results.
     const collectionAlreadyConstrained = [
       ...(filters ?? []),
       ...((filterGroups ?? []).flat()),
     ].some(f => f.includes('model:collection'));
-    if (!collectionAlreadyConstrained) {
+    const hasTextQuery = !!query?.trim();
+    if (!collectionAlreadyConstrained && !hasTextQuery) {
       params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
     }
 
@@ -656,11 +670,14 @@ export class SolrService {
     // Restrict model:collection counts to standalone collections only.
     // When the user has already selected a collection filter, search.service.ts
     // already adds `collection.is_standalone:true`, so skip to avoid double-constraint.
+    // Also skip when the user is running a text query — non-standalone collections
+    // matching the query by title/description should still surface in results.
     const collectionAlreadyConstrained = [
       ...(filters ?? []),
       ...((filterGroups ?? []).flat()),
     ].some(f => f.includes('model:collection'));
-    if (!collectionAlreadyConstrained) {
+    const hasTextQuery = !!query?.trim();
+    if (!collectionAlreadyConstrained && !hasTextQuery) {
       params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
     }
 
