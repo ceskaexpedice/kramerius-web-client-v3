@@ -8,6 +8,7 @@ import { ToastService } from './toast.service';
 import { UserService } from './user.service';
 import { BreakpointService } from './breakpoint.service';
 import { EditSelectedDialogComponent, EditSelectedDialogData, EditSelectedDialogSections } from '../dialogs/edit-selected-dialog/edit-selected-dialog.component';
+import { Metadata } from '../models/metadata.model';
 import { ExportSelectedDialogComponent, ExportSelectedDialogData } from '../dialogs/export-selected-dialog/export-selected-dialog.component';
 import { AdminReindexService } from '../../core/admin/admin-reindex.service';
 import { AdminLicensesService } from '../../core/admin/admin-licenses.service';
@@ -94,6 +95,66 @@ export class AdminActionsService {
     });
 
     return dialogRef.afterClosed();
+  }
+
+  /**
+   * Opens the edit dialog for a single item (pen button).
+   * Bypasses selection state — always edits exactly this document and shows the hierarchy selector.
+   */
+  openSingleEditDialog(document: Metadata): Observable<AdminActionResult | undefined> {
+    if (!this.userService.hasAdminRole()) {
+      console.warn('User does not have admin privileges to open edit dialog');
+      this.toastService.show('admin-permission-required');
+      return from([undefined]);
+    }
+
+    if (!document?.uuid) {
+      console.warn('No document provided for single edit');
+      return from([undefined]);
+    }
+
+    const dialogData: EditSelectedDialogData = {
+      selectedIds: [document.uuid],
+      selectedCount: 1,
+      mode: 'single',
+      singleDocument: document
+    };
+
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
+    const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
+      height: isMobileOrTablet ? '100vh' : '85vh',
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
+      data: dialogData,
+      disableClose: false
+    });
+
+    return dialogRef.afterClosed();
+  }
+
+  /**
+   * Convenience method to open single-edit dialog and process the result the same way bulk edits do.
+   */
+  performSingleEditAction(document: Metadata): void {
+    this.openSingleEditDialog(document).subscribe(result => {
+      if (result && result.section) {
+        this.handleEditResult(result).subscribe({
+          next: (responses) => {
+            this.showSuccessMessages(responses, result.section);
+          },
+          error: (error) => {
+            console.error('Admin action failed:', error);
+            const errorKey = this.getErrorMessageKey(result.section);
+            this.toastService.show(errorKey);
+          }
+        });
+      } else if (result?.action === 'admin') {
+        this.handleAdminNavigation(result.selectedIds || []);
+      }
+    });
   }
 
   /**

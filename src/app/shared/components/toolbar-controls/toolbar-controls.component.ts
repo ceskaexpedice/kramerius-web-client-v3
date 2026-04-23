@@ -60,6 +60,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showDownload = false;
   @Input() showEdit = false;
   @Input() showSelect = false;
+  @Input() showEditSingle = false;
   @Input() themeDefault = false;
   @Input() mobileMenuMode = false;
 
@@ -72,6 +73,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Output() downloadClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() editClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() editSingleClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
   // Memoized merged actions - only recalculated when inputs change
@@ -101,7 +103,8 @@ export class ToolbarControlsComponent implements OnChanges {
     // Recalculate mergedActions only when relevant inputs change
     if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
       changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
-      changes['showDownload'] || changes['showEdit'] || changes['showSelect']) {
+      changes['showDownload'] || changes['showEdit'] || changes['showSelect'] ||
+      changes['showEditSingle']) {
       this.updateMergedActions();
     }
   }
@@ -132,6 +135,10 @@ export class ToolbarControlsComponent implements OnChanges {
     }
     if (this.showEdit) {
       legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.edit', label: 'Edit' });
+    }
+
+    if (this.showEditSingle && this.userService.isLoggedIn && this.userService.isAdmin) {
+      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: false, label: 'Edit' });
     }
 
     if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
@@ -184,6 +191,9 @@ export class ToolbarControlsComponent implements OnChanges {
         break;
       case 'select':
         this.selectClicked.emit();
+        break;
+      case 'edit-single':
+        this.editSingleClicked.emit();
         break;
     }
   }

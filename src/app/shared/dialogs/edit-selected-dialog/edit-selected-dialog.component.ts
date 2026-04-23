@@ -20,14 +20,20 @@ import {
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectionService } from '../../services';
+import { Metadata } from '../../models/metadata.model';
 import { CloseConfirmationDialogComponent } from './components/close-confirmation-dialog/close-confirmation-dialog.component';
 import { ActionConfirmationDialogComponent, ActionConfirmationDialogData } from './components/action-confirmation-dialog/action-confirmation-dialog.component';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { ConfigService } from '../../../core/config/config.service';
+import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-again.service';
+
+export type EditSelectedDialogMode = 'bulk' | 'single';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
   selectedCount: number;
+  mode?: EditSelectedDialogMode;
+  singleDocument?: Metadata;
 }
 
 export enum EditSelectedDialogSections {
@@ -117,8 +123,12 @@ export class EditSelectedDialogComponent {
   private dialog = inject(MatDialog);
   private recordHandlerService = inject(RecordHandlerService);
   private configService = inject(ConfigService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   selectedDocuments = computed(() => {
+    if (this.data.mode === 'single' && this.data.singleDocument) {
+      return [this.data.singleDocument];
+    }
     return this.selectionService.getSelectedItemsAsMetadata();
   });
 
@@ -156,9 +166,13 @@ export class EditSelectedDialogComponent {
       this.dialogConfig = { ...this.dialogConfig };
     });
 
-    // we show the hierarchy selector only if all items have same rootUuid
-    const rootUuids = new Set(this.selectedDocuments().map(doc => doc.rootPid));
-    this.showHierarchySelector = rootUuids.size === 1;
+    // Hierarchy selector is shown only in single-edit mode (pen button).
+    // Bulk edit (checkbox selection) never shows it.
+    this.showHierarchySelector = this.data.mode === 'single';
+
+    if (this.data.mode === 'single') {
+      this.dialogConfig.title = 'edit-single-object';
+    }
   }
 
   onHierarchySelectionChanged(hierarchyItem: DocumentHierarchyItem) {
@@ -203,6 +217,11 @@ export class EditSelectedDialogComponent {
   }
 
   close() {
+    if (!this.dontShowAgainService.shouldShowDialog(DontShowDialogs.EditSelectedDialogCloseConfirmation)) {
+      this.dialogRef.close();
+      return;
+    }
+
     const confirmationDialogRef = this.dialog.open(CloseConfirmationDialogComponent, {
       width: '50vw',
       autoFocus: true,

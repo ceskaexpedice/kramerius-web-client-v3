@@ -31,6 +31,7 @@ import { AiPanelService } from '../../shared/services/ai-panel.service';
 import { TtsService } from '../../shared/services/tts.service';
 import { DocumentSearchService } from '../../shared/services/document-search.service';
 import { UiStateService } from '../../shared/services/ui-state.service';
+import { AdminActionsService } from '../../shared/services/admin-actions.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -60,6 +61,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   private ttsService = inject(TtsService);
   private documentSearchService = inject(DocumentSearchService);
   private uiState = inject(UiStateService);
+  public adminActionsService = inject(AdminActionsService);
 
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
