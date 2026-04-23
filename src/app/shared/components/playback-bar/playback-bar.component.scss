@@ -5,7 +5,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 52px;
+  height: var(--playback-bar-height-value);
   background: var(--color-bg-base);
   border-top: 1px solid var(--color-border-light);
   display: flex;

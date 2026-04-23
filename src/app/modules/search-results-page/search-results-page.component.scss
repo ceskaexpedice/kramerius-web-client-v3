@@ -1,16 +1,5 @@
 @use 'mixins' as m;
 
-.selection-count {
-  font-weight: 500;
-  color: var(--color-text-base);
-  background: var(--color-bg-elevated);
-  padding: 4px 12px;
-  border-radius: var(--base-border-radius);
-  border: 1px solid var(--color-border-base);
-  font-size: var(--font-size-small);
-  margin-right: var(--base-gap);
-}
-
 .map-view-container {
   flex: 1;
   display: flex;

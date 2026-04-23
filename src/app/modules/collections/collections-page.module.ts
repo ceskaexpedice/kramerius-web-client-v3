@@ -9,6 +9,7 @@ import { FILTER_SERVICE } from '../../shared/services/filter.service';
 import { AsyncPipe, JsonPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
 import { AdminActionsComponent } from '../../shared/components/admin-actions';
+import { AdminSelectionCountComponent } from '../../shared/components/admin-selection-count/admin-selection-count.component';
 import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
 import { BreadcrumbsComponent } from '../../shared/components/breadcrumbs/breadcrumbs.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -41,6 +42,7 @@ const routes: Routes = [
     AsyncPipe,
     JsonPipe,
     AdminActionsComponent,
+    AdminSelectionCountComponent,
     NgIf,
     ToolbarHeaderComponent,
     TranslateModule,

@@ -103,13 +103,14 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @ViewChild('calendarFrom') calendarFrom!: MatCalendar<Date>;
   @ViewChild('calendarTo') calendarTo!: MatCalendar<Date>;
   @ViewChild('popupCalendar') popupCalendar!: ElementRef;
+  @ViewChild('dateFromInputRef') dateFromInputRef?: InputComponent;
 
 
   @Input() initialDateFrom: Date | null = null;
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
   @Input() showInput: boolean = true; // Control whether to show built-in input
-  @Input() directInput: boolean = false; // Allow typing directly into the input field
+  @Input() directInput: boolean = false; // Render input with formatted value; click opens popup focused on first field
   @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
 
   minDate: Date = new Date(1400, 0, 1);
@@ -200,6 +201,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       setTimeout(() => {
         this.positionPopup();
         this.isOpen = true;
+        this.dateFromInputRef?.focusAndSelect();
       }, 0);
     } else {
       this.isOpen = false;
@@ -214,6 +216,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       setTimeout(() => {
         this.positionPopup();
         this.isOpen = true;
+        this.dateFromInputRef?.focusAndSelect();
       }, 0);
     }
   }
@@ -498,45 +501,6 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       this.forceCalendarNavigation();
       this.forceCalendarRefresh();
     }
-  }
-
-  // Direct input mode methods
-  onDirectInputChange(value: string): void {
-    // Only track the text; commit happens on Enter or blur
-    this.directInputText.set(value);
-  }
-
-  onDirectInputEnter(): void {
-    const value = this.directInputText();
-
-    // Try range format: "DD.MM.YYYY - DD.MM.YYYY"
-    const rangeMatch = value.match(/^(.+?)\s*-\s*(.+)$/);
-    if (rangeMatch) {
-      const from = this.parseDate(rangeMatch[1].trim());
-      const to = this.parseDate(rangeMatch[2].trim());
-      if (from && to && from <= to) {
-        this.fromDate.set(from);
-        this.toDate.set(to);
-        this.offset.set(0);
-        this.emitChanges();
-        this.syncDirectInputText();
-        return;
-      }
-    }
-
-    // Try single date: "DD.MM.YYYY"
-    const date = this.parseDate(value.trim());
-    if (date) {
-      this.fromDate.set(date);
-      this.toDate.set(date);
-      this.offset.set(0);
-      this.emitChanges();
-      this.syncDirectInputText();
-    }
-  }
-
-  onDirectInputBlur(): void {
-    this.syncDirectInputText();
   }
 
   private syncDirectInputText(): void {

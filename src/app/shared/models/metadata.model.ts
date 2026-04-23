@@ -35,6 +35,12 @@ export class Metadata {
   public licences: string[] = [];
   public licence: string = '';
 
+  // CDK aggregator: libraries that digitised this item and the leader / licenses.
+  // Only populated when the running instance is CDK (aggregator).
+  public cdkCollections: string[] = [];
+  public cdkLeader: string = '';
+  public cdkLicenses: string[] = [];
+
   public mainTitle: string = '';
   public donators: string[] = [];
 
@@ -272,6 +278,10 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
   metadata.rootPid = doc['root.pid'] ?? '';
   metadata.ownParentPid = doc['own_parent.pid'] ?? '';
   metadata.ownParentModel = doc['own_parent.model'] ?? '';
+
+  metadata.cdkCollections = doc['cdk.collection'] ?? [];
+  metadata.cdkLeader = doc['cdk.leader'] ?? '';
+  metadata.cdkLicenses = doc['cdk.licenses'] ?? [];
 
   metadata.pidPaths = doc.pid_paths ?? [];
   metadata.ownPidPath = doc.own_pid_path ?? '';

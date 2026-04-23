@@ -6,12 +6,10 @@
         [size]="size"
         [theme]="'dark'"
         [postfixIcon]="'icon-calendar-1'"
-        [clickable]="false"
-        [readonly]="false"
+        [clickable]="true"
+        [readonly]="true"
         [signalInput]="directInputText"
-        (valueChange)="onDirectInputChange($event.toString())"
-        (enter)="onDirectInputEnter()"
-        (onBlurEvent)="onDirectInputBlur()"
+        (click)="toggleOpenPopupCalendar()"
         (postfixIconClick)="toggleOpenPopupCalendar()"
       ></app-input>
     } @else {
@@ -71,6 +69,7 @@
       <div class="date-inputs-row">
         <div class="date-input-section">
           <app-input
+            #dateFromInputRef
             [placeholder]="'DD.MM.YYYY'"
             [label]="showDualCalendarMode ? ('period-from-label' | translate) : ('selected-day-label' | translate)"
             [size]="'sm'"

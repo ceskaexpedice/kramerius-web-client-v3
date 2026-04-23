@@ -22,3 +22,14 @@ export const loadArticleDetailFailure = createAction(
 );
 export const clearArticleDetail = createAction('[DocumentDetail] Clear Article Detail');
 export const clearDocumentDetail = createAction('[Document Detail] Clear Document Detail');
+
+// CDK: refetch pages scoped to a different member library when the user changes
+// the source selector in metadata-section.
+export const reloadPagesForCdkCollection = createAction(
+  '[DocumentDetail] Reload Pages For CDK Collection',
+  props<{ uuid: string; cdkCollection: string }>()
+);
+export const reloadPagesForCdkCollectionSuccess = createAction(
+  '[DocumentDetail] Reload Pages For CDK Collection Success',
+  props<{ pages: any[] }>()
+);

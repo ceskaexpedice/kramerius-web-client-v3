@@ -11,6 +11,7 @@ import { ActionToolbarComponent } from '../../shared/components/action-toolbar/a
 import { TranslatePipe } from '@ngx-translate/core';
 import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { AdminActionsComponent } from '../../shared/components/admin-actions/admin-actions.component';
+import { AdminSelectionCountComponent } from '../../shared/components/admin-selection-count/admin-selection-count.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { MapBrowseComponent } from './components/map-browse/map-browse.component';
 import { SearchResultsViewComponent } from './components/search-results-view/search-results-view.component';
@@ -37,6 +38,7 @@ const routes: Routes = [
 		TranslatePipe,
 		ToggleButtonGroupComponent,
 		AdminActionsComponent,
+		AdminSelectionCountComponent,
 		ToolbarControlsComponent,
 		MapBrowseComponent,
 		SearchResultsViewComponent,

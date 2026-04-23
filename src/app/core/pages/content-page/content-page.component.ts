@@ -4,6 +4,7 @@ import { SafeHtmlPipe } from '../../../shared/pipes/safe-html.pipe';
 import { ConfigService } from '../../config/config.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { AuthService } from '../../auth/auth.service';
+import { EnvironmentService } from '../../../shared/services/environment.service';
 import { PageConfig } from '../../config/config.interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -22,6 +23,7 @@ export class ContentPageComponent implements OnInit {
   private translationService = inject(AppTranslationService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private envService = inject(EnvironmentService);
 
   pageConfig: PageConfig | undefined;
   htmlParts: string[] = [];
@@ -29,6 +31,8 @@ export class ContentPageComponent implements OnInit {
   notFound = false;
   termsAgreed = false;
   isTermsPage = false;
+  gitTag = this.envService.get('git_tag');
+  isAboutPage = false;
 
   constructor() {
     effect(() => {
@@ -64,6 +68,7 @@ export class ContentPageComponent implements OnInit {
 
     this.loading = true;
     this.isTermsPage = this.pageConfig.id === 'terms';
+    this.isAboutPage = this.pageConfig.id === 'about';
     const lang = this.translationService.currentLanguage().code;
     const rawContent = this.configService.getPageContentUrls(this.pageConfig.id, lang);
 

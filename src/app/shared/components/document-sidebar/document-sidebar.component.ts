@@ -86,7 +86,6 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.documentSearchService.clearSearch();
   }
 
   get isSoundRecording(): boolean {

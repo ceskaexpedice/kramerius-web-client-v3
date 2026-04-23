@@ -1,12 +1,16 @@
 :host {
   display: flex;
   height: 100%;
+  min-height: 0;
+  width: 100%;
 }
 
 .add-collection-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-x4);
   height: 100%;
+  min-height: 0;
   width: 100%;
+  overflow: hidden;
 }

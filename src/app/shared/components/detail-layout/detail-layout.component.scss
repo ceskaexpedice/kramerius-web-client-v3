@@ -4,7 +4,7 @@
 $top-toolbar-height: 56px;
 
 .detail-layout {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - var(--dnnto-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -51,6 +51,7 @@ $top-toolbar-height: 56px;
     overflow: hidden;
     gap: var(--small-gap);
     padding-right: var(--small-gap);
+    position: relative;
 
     &--with-right-sidebar {
       flex-direction: row;
@@ -58,8 +59,22 @@ $top-toolbar-height: 56px;
     }
   }
 
+  &--license-bar-slot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+
   &--sidebar-right {
     @include mixins.floating-sidebar;
+    z-index: 2;
   }
 
   &--bottom-toolbar {

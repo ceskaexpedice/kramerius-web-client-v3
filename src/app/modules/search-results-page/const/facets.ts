@@ -40,7 +40,8 @@ export const facetKeysEnum = {
   physical_locations: 'physical_locations.facet',
   subjectNamesPersonal: 'subject_names_personal.facet',
   subjectNamesCorporate: 'subject_names_corporate.facet',
-  subjectTemporals: 'subject_temporals.facet'
+  subjectTemporals: 'subject_temporals.facet',
+  cdkCollection: 'cdk.collection'
 }
 
 export const facetKeys: string[] = [

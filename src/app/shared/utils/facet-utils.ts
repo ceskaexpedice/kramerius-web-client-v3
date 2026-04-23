@@ -67,6 +67,15 @@ export function handleFacetsWithOperators(
     );
   }
 
+  // Preserve unfiltered model counts for custom facet count resolution (e.g. whereToSearchModel).
+  // When a root.model filter is active, Solr returns the model facet under "{!ex=root.model}model" key.
+  const taggedModelKey = `{!ex=${facetKeysEnum.rootModel}}${facetKeysEnum.model}`;
+  const unfilteredModelCounts = result[facetKeysEnum.model]
+    ? [...result[facetKeysEnum.model]]
+    : result[taggedModelKey]
+      ? [...result[taggedModelKey]]
+      : [];
+
   // Filter models to only include those defined in config
   const configuredModels = getConfiguredModels();
   if (configuredModels.length > 0) {
@@ -103,19 +112,23 @@ export function handleFacetsWithOperators(
       // Only calculate count for custom facets that have a corresponding Solr facet
       if (custom.solrFacetKeyForCount) {
         // For whereToSearchModel facet, check if there are active root.model filters (from custom-root-model)
-        if (custom.facetKey === customDefinedFacetsEnum.whereToSearchModel && activeRootModelFilters.length > 0) {
-          // Only sum counts for models that are both in the item's fq list AND in root.model filters
+        const isWhereToSearchModel = custom.facetKey === customDefinedFacetsEnum.whereToSearchModel;
+        const countSource = isWhereToSearchModel && custom.solrFacetKeyForCount === facetKeysEnum.model
+          ? unfilteredModelCounts
+          : result[custom.solrFacetKeyForCount];
+
+        if (isWhereToSearchModel && activeRootModelFilters.length > 0) {
+          // Sum counts for models in fqList that overlap with active root.model filters.
+          // If no overlap (e.g. child models like "supplement"), fall back to full fqList count.
           const relevantModels = fqList.filter((fq: string) => activeRootModelFilters.includes(fq));
-          if (relevantModels.length > 0) {
-            count = relevantModels.reduce((sum: number, fq: any) => {
-              return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
-            }, 0);
-          }
-          // If no overlap between item's fq and root.model filters, count stays 0
+          const modelsToCount = relevantModels.length > 0 ? relevantModels : fqList;
+          count = modelsToCount.reduce((sum: number, fq: any) => {
+            return sum + (countSource?.find((f: any) => f.name === fq)?.count || 0);
+          }, 0);
         } else {
           // Default behavior: sum all models in fqList
           count = fqList.reduce((sum: number, fq: any) => {
-            return sum + (result[custom.solrFacetKeyForCount]?.find((f: any) => f.name === fq)?.count || 0);
+            return sum + (countSource?.find((f: any) => f.name === fq)?.count || 0);
           }, 0);
         }
       }

@@ -1,23 +1,27 @@
 <div class="admin-actions flex" [class.compact]="compact">
 
-  <button
-    class="button primary with-icon"
-    (click)="onEditSelected()"
-    [disabled]="!selectionService.hasSelection()"
-    [title]="'edit-selected' | translate">
-    <span>{{ 'edit-selected--admin' | translate }}</span>
-    <i class="icon-edit-2"></i>
-  </button>
+  <div class="admin-actions--container">
 
-  <!-- Export Selected -->
-  <button
-    class="button outlined tertiary"
-    (click)="onExportSelected()"
-    [disabled]="!selectionService.hasSelection()"
-    [title]="'export' | translate">
-    <span>{{ 'export' | translate }}</span>
-    <i class="icon-arrow-right"></i>
-  </button>
+    <button
+      class="button primary with-icon compact"
+      (click)="onEditSelected()"
+      [disabled]="!selectionService.hasSelection()"
+      [title]="'edit-selected' | translate">
+      <span>{{ 'edit-selected--admin' | translate }}</span>
+      <i class="icon-edit-2"></i>
+    </button>
+
+    <!-- Export Selected -->
+    <button
+      class="button outlined tertiary with-icon compact"
+      (click)="onExportSelected()"
+      [disabled]="!selectionService.hasSelection()"
+      [title]="'export' | translate">
+      <span>{{ 'export' | translate }}</span>
+      <i class="icon-arrow-right-3"></i>
+    </button>
+
+  </div>
 
   <button class="button outlined tertiary m-left-auto"
           *ngIf="compact"
@@ -28,9 +32,8 @@
 
   <!-- Select All -->
   <button
-    class="button transparent tertiary with-icon"
+    class="button link primary with-icon compact"
     (click)="onSelectAll()"
-    [disabled]="selectionService.isAllVisibleSelected()"
     [title]="'select-all' | translate">
     <i class="icon-copy-success"></i>
     <span>{{ 'select-all' | translate }}</span>
@@ -38,9 +41,8 @@
 
   <!-- Deselect All -->
   <button
-    class="button transparent tertiary with-icon"
+    class="button link primary with-icon compact"
     (click)="onDeselectAll()"
-    [disabled]="!selectionService.hasSelection()"
     [title]="'deselect-all' | translate">
     <i class="icon-close-square"></i>
     <span>{{ 'deselect-all' | translate }}</span>

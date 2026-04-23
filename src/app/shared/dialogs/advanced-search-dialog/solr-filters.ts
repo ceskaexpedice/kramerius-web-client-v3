@@ -32,7 +32,8 @@ export enum SolrFacetKey {
   Identifier = 'identifier',
   SubjectNamesPersonal = 'subject_names_personal',
   SubjectNamesCorporate = 'subject_names_corporate',
-  SubjectTemporals = 'subject_temporals'
+  SubjectTemporals = 'subject_temporals',
+  CdkCollection = 'cdkCollection'
 }
 
 /**
@@ -95,6 +96,8 @@ export const ADVANCED_FILTERS: AdvancedFilterDefinition[] = [
     }, isEquals: true },
   { key: SolrFacetKey.Date, label: `filter-${SolrFacetKey.Date}-label`, inputType: FilterElementType.Date, elementValue: '', solrValue: '', solrField: 'date.min', isEquals: true },
   { key: SolrFacetKey.Doctype, label: `filter-${SolrFacetKey.Doctype}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'model', isEquals: true },
+  // CDK-only: source facet (which library digitised the item). Positioned right after Doctype.
+  { key: SolrFacetKey.CdkCollection, label: 'cdk.collection', inputType: FilterElementType.Autocomplete, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'cdk.collection', isEquals: true },
   { key: SolrFacetKey.Language, label: `filter-${SolrFacetKey.Language}-label`, inputType: FilterElementType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'languages.facet', isEquals: true },
   // { key: AdvancedFilterKey.Institution, label: `filter-${AdvancedFilterKey.Institution}-label`, inputType: AdvancedFilterType.Dropdown, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'institutions.facet', isEquals: true },
   { key: SolrFacetKey.Publisher, label: `filter-${SolrFacetKey.Publisher}-label`, inputType: FilterElementType.Autocomplete, placeholder: `advanced-filter-${SolrFacetKey.Publisher}-placeholder`, dynamicOptions: true, elementValue: '', solrValue: '', solrField: 'publishers.facet', isEquals: true },

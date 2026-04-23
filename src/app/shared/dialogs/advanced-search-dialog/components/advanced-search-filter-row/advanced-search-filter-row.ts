@@ -20,6 +20,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 import {InputComponent} from '../../../../components/input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
+import {ConfigService} from '../../../../../core/config/config.service';
 
 @Component({
   selector: 'advanced-search-filter-row',
@@ -37,6 +38,7 @@ export class AdvancedSearchFilterRow implements OnInit {
 
   private solrService = inject(SolrService);
   private translateService = inject(TranslateService);
+  private configService = inject(ConfigService);
 
   @Input() filter!: AdvancedFilterDefinition;
   @Input() isMobile = false;
@@ -44,7 +46,10 @@ export class AdvancedSearchFilterRow implements OnInit {
   @Output() remove = new EventEmitter<void>();
   @Output() addYearFilter = new EventEmitter<void>();
 
-  filterTypes = ADVANCED_FILTERS;
+  get filterTypes(): AdvancedFilterDefinition[] {
+    const isCdk = this.configService.isCdk();
+    return ADVANCED_FILTERS.filter(f => isCdk || f.key !== SolrFacetKey.CdkCollection);
+  }
 
   ngOnInit() {
     this.initializeValues();

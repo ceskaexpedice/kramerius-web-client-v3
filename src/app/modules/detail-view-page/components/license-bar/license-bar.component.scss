@@ -1,15 +1,9 @@
-@use "_z-index.scss" as z;
-
 :host {
-  background: transparent;
+  display: block;
 }
 
 .license-bar {
-  position: fixed;
-  bottom: var(--playback-bar-height, 0px);
-  left: 0;
-  right: 0;
-  height: 38px;
+  height: var(--license-bar-height);
   background: rgba(0, 99, 204, 0.70);
   color: var(--color-text-on-color);
   font-size: var(--font-size-small);
@@ -17,13 +11,20 @@
   line-height: var(--line-height-1);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-x2);
-  padding: var(--spacing-x2) var(--spacing-x4);
-  z-index: z.$playback-bar;
+  justify-content: center;
 
   &.clickable {
     cursor: pointer;
+  }
+
+  &--inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-x2);
+    padding: var(--spacing-x2) var(--spacing-x4);
+    padding-right: calc(var(--sidebar-right-width, 0px) + var(--spacing-x4));
   }
 
   .license-bar--title {

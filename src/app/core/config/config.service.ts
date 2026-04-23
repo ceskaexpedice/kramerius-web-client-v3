@@ -44,11 +44,28 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     logo: '/img/logo/logo-trinera-symbol.png',
     url: 'https://kramerius.k7.trinera.cloud',
   },
+  'cdk-dev': {
+    code: 'cdk-dev',
+    name: 'CDK (dev)',
+    name_en: 'CDK (dev)',
+    logo: '',
+    url: 'https://cdk-api.dev.ceskadigitalniknihovna.cz',
+  },
 };
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
   constructor(private envService: EnvironmentService) {}
+
+  /**
+   * Returns true when the active instance is the CDK aggregator
+   * (Česká digitální knihovna). Enables CDK-specific extended features
+   * such as the "cdk.collection" source facet.
+   */
+  isCdk(): boolean {
+    const id = this.envService.getKrameriusId();
+    return id === 'cdk' || id === 'cdk-test';
+  }
 
   private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
   private licensesUrlFor(code: string) { return `local-config/${code}/config-licenses.json`; }

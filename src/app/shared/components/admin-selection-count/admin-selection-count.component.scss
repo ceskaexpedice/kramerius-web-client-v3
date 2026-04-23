@@ -1,0 +1,15 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-x4);
+}
+
+.selection-count {
+  color: var(--color-text-base);
+  font-size: var(--font-size-small);
+}
+
+.close-button {
+  border-color: var(--color-border-bright);
+  color: var(--color-icon-secondary-default);
+}

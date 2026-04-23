@@ -104,6 +104,15 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.inputElement?.nativeElement?.focus(), 0);
   }
 
+  focusAndSelect(): void {
+    setTimeout(() => {
+      const el = this.inputElement?.nativeElement;
+      if (!el) return;
+      el.focus();
+      el.select();
+    }, 0);
+  }
+
   ngAfterViewInit(): void {
     if (this.signalInput) {
       runInInjectionContext(this.envInjector, () => {

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
@@ -10,6 +10,7 @@ import { CollapsibleContent } from './collapsible-content/collapsible-content';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
+import { reloadPagesForCdkCollection } from '../../state/document-detail/document-detail.actions';
 import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -17,6 +18,7 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
+import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { LibraryContextService } from '../../services/library-context.service';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
@@ -24,6 +26,9 @@ import { isDocumentPublic } from '../record-item/record-item.model';
 import { MatDialog } from '@angular/material/dialog';
 import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
+import { SelectComponent } from '../select/select.component';
+import { ConfigService } from '../../../core/config/config.service';
+import { pickCdkCollection } from '../../utils/cdk-collection';
 
 @Component({
   selector: 'app-metadata-section',
@@ -36,7 +41,8 @@ import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dia
     AccessibilityBadgeComponent,
     LicenseBadgeComponent,
     ModelBadgeComponent,
-    RouterLink
+    RouterLink,
+    SelectComponent
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -82,6 +88,7 @@ export class MetadataSection implements OnInit, OnChanges {
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
   solrService = inject(SolrService);
+  private iiifViewerService = inject(IIIFViewerService);
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
@@ -94,9 +101,25 @@ export class MetadataSection implements OnInit, OnChanges {
   store = inject(Store);
   private destroyRef = inject(DestroyRef);
   private libraryContext = inject(LibraryContextService);
+  private configService = inject(ConfigService);
   private availableYears = toSignal(this.store.select(selectAvailableYears));
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
+
+  // CDK aggregator: sources (collections) for this document and the selected one.
+  cdkCollections = signal<string[]>([]);
+  selectedCdkCollection = signal<string>('');
+  isCdk = () => this.configService.isCdk();
+
+  constructor() {
+    // Single source of truth: whenever the selected collection changes, push it
+    // into the IIIF viewer service so tile/thumbnail/fallback URLs get prefixed
+    // with the right member library. One wiring point instead of three manual calls.
+    effect(() => {
+      const selected = this.selectedCdkCollection();
+      this.iiifViewerService.setCdkLibraryCode(this.isCdk() ? (selected || null) : null);
+    });
+  }
 
   @Input() uuid: string = '';
 
@@ -128,25 +151,53 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   async loadMetadata() {
-    // Load MODS data
-    const modsData = await this.modsParser.getMods(this.uuid);
-
     // Get Solr data from store to supplement with model, accessibility, and license
     const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
     if (solrData) {
       this._solrData.set(solrData);
     }
 
+    // Seed the source selector. On CDK the URL (`?source=`) wins, then cdk.leader,
+    // then first available. Off-CDK, ensure any stray `source` param is stripped
+    // so the URL doesn't leak across instances.
+    if (this.isCdk()) {
+      const collections = solrData?.cdkCollections ?? [];
+      const urlSource = this.route.snapshot.queryParamMap.get('source');
+      this.cdkCollections.set(collections);
+      this.selectedCdkCollection.set(
+        pickCdkCollection(urlSource, solrData?.cdkLeader, collections) ?? ''
+      );
+    } else {
+      this.cdkCollections.set([]);
+      this.selectedCdkCollection.set('');
+      this.stripSourceParamIfPresent();
+    }
+
+    const baseMods = await this.buildMergedMetadata(this.selectedCdkCollection() || undefined);
+    this._data.set(baseMods);
+    this.cdr.markForCheck();
+    this.loadCollectionNames();
+  }
+
+  /**
+   * Fetches MODS (plus root MODS when applicable) for the given member library,
+   * merges in the component's `metadata` input, then fills every remaining gap
+   * from the Solr document. Solr is authoritative for model/access/licence/issue
+   * fields; MODS wins everywhere else.
+   */
+  private async buildMergedMetadata(libraryCode: string | undefined): Promise<any> {
+    const modsData = await this.modsParser.getMods(this.uuid, 'full', libraryCode);
+    const solrData = this._solrData();
+
     let baseMods: any = { ...modsData };
 
-    // If the document has a root.pid different from its own pid (e.g. periodicalvolume, periodicalitem),
-    // show the root's MODS as the primary data and the child's own MODS in a subsection
+    // If the document has a root.pid different from its own pid (e.g. periodicalvolume,
+    // periodicalitem), show the root's MODS as primary and the child's own MODS in a subsection.
     const rootPid = solrData?.rootPid;
     if (rootPid && rootPid !== this.uuid) {
       try {
-        const rootMods = await this.modsParser.getMods(rootPid);
+        const rootMods = await this.modsParser.getMods(rootPid, 'full', libraryCode);
         if (rootMods) {
-          // Save the child's own MODS for the subsection only if it has displayable data
           const child = modsData as any;
           const hasChildData = child && (
             child.dateStr ||
@@ -156,7 +207,6 @@ export class MetadataSection implements OnInit, OnChanges {
             child.notes?.length > 0
           );
           this._childData.set(hasChildData ? child : null);
-          // Use root MODS as primary, fill any gaps from child
           baseMods = { ...rootMods };
           this.mergeMissing(baseMods, modsData as any);
         }
@@ -167,29 +217,34 @@ export class MetadataSection implements OnInit, OnChanges {
       this._childData.set(null);
     }
 
-
     if (this.metadata) {
       this.mergeMissing(baseMods, this.metadata);
     }
 
+    // Merge the full Solr document: MODS wins where present, Solr fills every gap.
     if (solrData && solrData.uuid === this.uuid) {
-      const mergedData = {
-        ...baseMods,
-        model: solrData.model,
-        isPublic: solrData.isPublic,
-        licence: solrData.licence,
-        licences: solrData.licences,
-        ownParentPid: solrData.ownParentPid,
-        issueNumber: solrData.issueNumber,
-        issueDate: solrData.issueDate,
-      };
-      this._data.set(mergedData);
-    } else {
-      this._data.set(baseMods);
+      this.mergeMissing(baseMods, solrData);
+      // Solr-authoritative fields always override whatever MODS carries.
+      baseMods.model = solrData.model;
+      baseMods.isPublic = solrData.isPublic;
+      baseMods.licence = solrData.licence;
+      baseMods.licences = solrData.licences;
+      baseMods.ownParentPid = solrData.ownParentPid;
+      baseMods.issueNumber = solrData.issueNumber;
+      baseMods.issueDate = solrData.issueDate;
     }
 
-    this.cdr.markForCheck();
-    this.loadCollectionNames();
+    return baseMods;
+  }
+
+  private stripSourceParamIfPresent(): void {
+    if (!this.route.snapshot.queryParamMap.has('source')) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   async loadCollectionNames() {
@@ -221,6 +276,28 @@ export class MetadataSection implements OnInit, OnChanges {
     } catch (e) {
       console.error('Failed to load collection names', e);
     }
+  }
+
+  async onCdkCollectionChange(collection: string) {
+    if (!collection || collection === this.selectedCdkCollection()) return;
+    this.selectedCdkCollection.set(collection);
+    // Persist the selection in the URL so the view is linkable. The `effect()` in
+    // the constructor propagates the new selection into IIIFViewerService.
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: collection },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    // Pages come from a per-library Solr index — refetch scoped to the new collection
+    // so the sidebar grid and viewer navigation reflect the selected source.
+    this.store.dispatch(reloadPagesForCdkCollection({ uuid: this.uuid, cdkCollection: collection }));
+    // Re-fetch MODS from the newly-selected member library; solr data and the detected
+    // CDK collection list stay as they are — only the MODS source changes.
+    const baseMods = await this.buildMergedMetadata(collection);
+    this._data.set(baseMods);
+    this.cdr.markForCheck();
+    this.loadCollectionNames();
   }
 
   async loadArticle(articleUuid: string | undefined) {

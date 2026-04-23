@@ -8,9 +8,9 @@
   (click)="!loading && item && onRecordClick($event)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
-  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode() && !loading && item">
-    <app-checkbox [model]="selectionService.isSelected(item.id)" (modelChange)="onSelectionChange($event)"
-      (click)="$event.stopPropagation()">
+  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode() && !loading && item"
+    (click)="$event.preventDefault(); $event.stopPropagation()">
+    <app-checkbox [model]="selectionService.isSelected(item.id)" (modelChange)="onSelectionChange($event)">
     </app-checkbox>
   </div>
 

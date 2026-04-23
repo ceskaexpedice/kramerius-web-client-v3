@@ -1,9 +1,16 @@
+:host {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
 .add-license-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-
-  .section-header {
-
-  }
+  gap: var(--spacing-x4);
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
 }

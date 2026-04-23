@@ -373,7 +373,7 @@ export class DetailViewService {
       this.loadPages();
 
       // If document is from a periodical, proactively load periodical children data
-      if (doc?.rootModel === DocumentTypeEnum.periodical || doc?.model === DocumentTypeEnum.periodicalitem) {
+      if ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem) {
         this.loadPeriodicalChildren(doc);
       }
     });
