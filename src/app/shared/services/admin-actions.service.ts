@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, from, forkJoin } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { SelectionService } from './selection.service';
+import { AdminModeService } from './admin-mode.service';
 import { ExportService, ExportFormat } from './export.service';
 import { ToastService } from './toast.service';
 import { UserService } from './user.service';
@@ -34,7 +34,7 @@ export interface AdminActionResult {
 export class AdminActionsService {
 
   private dialog = inject(MatDialog);
-  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
   private exportService = inject(ExportService);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
@@ -73,7 +73,7 @@ export class AdminActionsService {
       return from([undefined]);
     }
 
-    const ids = selectedIds || this.selectionService.getSelectedIds();
+    const ids = selectedIds || this.adminModeService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for editing');
@@ -166,7 +166,7 @@ export class AdminActionsService {
    * @returns Observable that emits when dialog is closed with result
    */
   openExportDialog(selectedIds?: string[]): Observable<AdminActionResult | undefined> {
-    const ids = selectedIds || this.selectionService.getSelectedIds();
+    const ids = selectedIds || this.adminModeService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for export');

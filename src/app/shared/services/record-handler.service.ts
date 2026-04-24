@@ -9,7 +9,7 @@ import { CitationDialogComponent } from '../dialogs/citation-dialog/citation-dia
 import { ShareDialogComponent } from '../dialogs/share-dialog/share-dialog.component';
 import { Metadata } from '../models/metadata.model';
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
-import { AdminSelectionService } from './admin-selection.service';
+import { AdminModeService } from './admin-mode.service';
 import { RecordItem, searchDocumentToRecordItem } from '../components/record-item/record-item.model';
 import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/periodical-item';
 import { BreakpointService } from './breakpoint.service';
@@ -24,7 +24,7 @@ export class RecordHandlerService {
 
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
-  private adminSelectionService = inject(AdminSelectionService);
+  private adminModeService = inject(AdminModeService);
   private breakpointService = inject(BreakpointService);
   private userService = inject(UserService);
   private libraryContext = inject(LibraryContextService);
@@ -545,10 +545,7 @@ export class RecordHandlerService {
   }
 
   goBackClicked(document: any): void {
-    // Turn off admin mode when navigating back
-    if (this.adminSelectionService.adminMode()) {
-      this.adminSelectionService.toggleAdminMode();
-    }
+    this.adminModeService.disable();
 
     // First, check if there's a backup search URL (user came from search results)
     const backupUrl = this.searchService.getBackupSearchUrl();

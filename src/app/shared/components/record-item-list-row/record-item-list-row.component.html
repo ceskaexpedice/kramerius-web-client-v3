@@ -17,13 +17,13 @@
 <ng-container *ngFor="let column of visibleColumns">
   <!-- Title Column (special rendering with thumbnail) -->
   <td *ngIf="column.id === 'title'" class="record-title sticky-col">
-    <div class="record-row-selection" *ngIf="selectionService.selectionMode()">
-      <app-checkbox [model]="selectionService.isSelected(record.pid)" (modelChange)="onSelectionChange($event)"
+    <div class="record-row-selection" *ngIf="adminModeService.adminMode()">
+      <app-checkbox [model]="adminModeService.isSelected(record.pid)" (modelChange)="onSelectionChange($event)"
         (click)="$event.stopPropagation()">
       </app-checkbox>
     </div>
 
-    <a class="title-wrapper" [href]="url" [class.selection-mode]="selectionService.selectionMode()"
+    <a class="title-wrapper" [href]="url" [class.selection-mode]="adminModeService.adminMode()"
       (click)="onTitleClick($event)">
       <div class="thumb-wrapper">
         <app-thumbnail-image

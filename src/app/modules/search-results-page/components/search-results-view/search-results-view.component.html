@@ -202,7 +202,7 @@
       <app-no-results></app-no-results>
     }
 
-    <app-paginator [disabledPagination]="selectionService.selectionMode()" [page]="searchService.page"
+    <app-paginator [disabledPagination]="adminModeService.adminMode()" [page]="searchService.page"
       [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [pageSizeOptions]="[60, 120, 180]"
       (pageChange)="searchService.goToPage($event)" (pageSizeChange)="searchService.changePageSize($event)">
     </app-paginator>

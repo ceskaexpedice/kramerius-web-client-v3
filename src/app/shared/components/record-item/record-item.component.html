@@ -1,16 +1,16 @@
 <a class="record-item-card" [class.page]="item?.model === DocumentTypeEnum.page"
   [class.periodical]="item?.model === 'periodical'" [class.periodicalvolume]="item?.model === 'periodicalvolume'"
-  [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="selectionService.selectionMode()"
-  [class.selected]="item && selectionService.selectionMode() && selectionService.isSelected(item.id)"
+  [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="adminModeService.adminMode()"
+  [class.selected]="item && adminModeService.adminMode() && adminModeService.isSelected(item.id)"
   [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'" [class.vertical]="layout === 'vertical'"
   [class.variant-portrait]="variant === 'portrait'" [ngClass]="[item?.className || '', item?.model || '']"
   [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
   (click)="!loading && item && onRecordClick($event)">
 
   <!-- Selection checkbox for admin mode (positioned at card level) -->
-  <div class="record-item-card__selection" *ngIf="selectionService.selectionMode() && !loading && item"
+  <div class="record-item-card__selection" *ngIf="adminModeService.adminMode() && !loading && item"
     (click)="$event.preventDefault(); $event.stopPropagation()">
-    <app-checkbox [model]="selectionService.isSelected(item.id)" (modelChange)="onSelectionChange($event)">
+    <app-checkbox [model]="adminModeService.isSelected(item.id)" (modelChange)="onSelectionChange($event)">
     </app-checkbox>
   </div>
 
@@ -38,7 +38,7 @@
         </button>
 
         <button class="button secondary rounded icon-button favorites-button"
-          *ngIf="!selectionService.selectionMode() && (isItemFavorited$ | async) && currentFolderId"
+          *ngIf="!adminModeService.adminMode() && (isItemFavorited$ | async) && currentFolderId"
           (click)="onRemoveFromCurrentFolder($event)" [title]="'remove-from-favorites' | translate"
           aria-label="{{'remove-from-favorites' | translate}}">
           <i class="icon-trash"></i>

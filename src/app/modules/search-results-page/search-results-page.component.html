@@ -1,17 +1,17 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="selectionService.selectionMode()" [dimmed]="(noResults$ | async) ?? false">
+    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
     <div class="page-content">
 
-      <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!selectionService.selectionMode()" [class.sidebar-open]="exportRecord()">
+      <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!adminModeService.adminMode()" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
           <div left>
             <!-- Map tab switcher -->
-            <ng-container *ngIf="!selectionService.selectionMode()">
+            <ng-container *ngIf="!adminModeService.adminMode()">
               <div class="view-tabs">
                 <button class="view-tabs__tab" [class.active]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
                   <i class="icon-element-3"></i>
@@ -25,7 +25,7 @@
             </ng-container>
 
             <!-- Admin view: show admin actions -->
-            <ng-container *ngIf="selectionService.selectionMode()">
+            <ng-container *ngIf="adminModeService.adminMode()">
               <app-admin-actions (exportRequested)="onExportSelected()" (editRequested)="onEditSelected($event)">
               </app-admin-actions>
             </ng-container>
@@ -35,7 +35,7 @@
             <div class="flex flex--center flex--align-center flex--gap-x3">
 
               <!-- Show regular controls when not in admin mode -->
-              <ng-container *ngIf="!selectionService.selectionMode()">
+              <ng-container *ngIf="!adminModeService.adminMode()">
 
                 <!-- Paginator info: first in right slot, shown in all views -->
                 <app-paginator-info
@@ -57,7 +57,7 @@
                   <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
                     [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
                     [showDownload]="view() !== ViewOptions.map && searchService.totalCount > 0" [themeDefault]="true"
-                    (selectClicked)="selectionService.setSelectionMode(true)"
+                    (selectClicked)="adminModeService.enable()"
                     (downloadClicked)="downloadCsv()">
                   </app-toolbar-controls>
                 </div>

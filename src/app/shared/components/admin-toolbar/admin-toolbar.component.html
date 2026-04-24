@@ -1,9 +1,9 @@
-<div class="admin-toolbar" *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
+<div class="admin-toolbar" *ngIf="adminModeService.adminMode() && adminModeService.hasSelection()">
   <div class="admin-toolbar__inner">
     
     <!-- Selection Info -->
     <div class="admin-toolbar__selection-info">
-      <span class="selection-count">{{ selectionService.getSelectionSummary() }}</span>
+      <span class="selection-count">{{ adminModeService.getSelectionSummary() }}</span>
     </div>
 
     <!-- Bulk Actions -->
@@ -12,12 +12,12 @@
       <!-- Select All / Deselect All Toggle -->
       <button 
         class="button secondary"
-        [class.active]="selectionService.isAllVisibleSelected()"
+        [class.active]="adminModeService.isAllVisibleSelected()"
         (click)="onToggleAllVisible()"
-        [title]="selectionService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate)">
-        <i class="icon-tick-square" *ngIf="!selectionService.isAllVisibleSelected()"></i>
-        <i class="icon-close-square" *ngIf="selectionService.isAllVisibleSelected()"></i>
-        <span>{{ selectionService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate) }}</span>
+        [title]="adminModeService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate)">
+        <i class="icon-tick-square" *ngIf="!adminModeService.isAllVisibleSelected()"></i>
+        <i class="icon-close-square" *ngIf="adminModeService.isAllVisibleSelected()"></i>
+        <span>{{ adminModeService.isAllVisibleSelected() ? ('deselect-all-visible' | translate) : ('select-all-visible' | translate) }}</span>
       </button>
 
       <!-- Clear Selection -->

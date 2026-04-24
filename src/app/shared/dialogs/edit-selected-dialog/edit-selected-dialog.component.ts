@@ -21,7 +21,7 @@ import {
   DocumentHierarchySelectorComponent,
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 import { Metadata } from '../../models/metadata.model';
 import { CloseConfirmationDialogComponent } from './components/close-confirmation-dialog/close-confirmation-dialog.component';
 import { ActionConfirmationDialogComponent, ActionConfirmationDialogData } from './components/action-confirmation-dialog/action-confirmation-dialog.component';
@@ -124,7 +124,7 @@ export class EditSelectedDialogComponent {
 
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
-  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
   private translateService = inject(TranslateService);
   private dialog = inject(MatDialog);
   private recordHandlerService = inject(RecordHandlerService);
@@ -135,7 +135,7 @@ export class EditSelectedDialogComponent {
     if (this.data.mode === 'single' && this.data.singleDocument) {
       return [this.data.singleDocument];
     }
-    return this.selectionService.getSelectedItemsAsMetadata();
+    return this.adminModeService.getSelectedItemsAsMetadata();
   });
 
   effectiveSelectedIds = computed(() => {

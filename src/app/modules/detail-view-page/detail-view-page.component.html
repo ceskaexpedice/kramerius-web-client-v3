@@ -83,7 +83,7 @@
               [activeViewValue]="detailViewService.soundRecordingViewMode()"
               (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
-              (selectClicked)="selectionService.setSelectionMode(true)" (favoritesClicked)="onFavoritesClicked($event)"
+              (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>

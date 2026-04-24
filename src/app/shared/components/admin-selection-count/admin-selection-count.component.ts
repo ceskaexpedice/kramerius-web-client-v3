@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 
 @Component({
   selector: 'app-admin-selection-count',
@@ -14,5 +14,5 @@ import { SelectionService } from '../../services';
   styleUrl: './admin-selection-count.component.scss'
 })
 export class AdminSelectionCountComponent {
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
 }

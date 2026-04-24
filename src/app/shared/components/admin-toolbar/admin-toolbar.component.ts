@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SelectionService, AdminModeService } from '../../services';
+import { AdminModeService } from '../../services';
 import { SearchService } from '../../services/search.service';
 import { ExportService, ExportFormat } from '../../services/export.service';
 import { SearchDocument } from '../../../modules/models/search-document';
@@ -18,7 +18,6 @@ import { map } from 'rxjs/operators';
   styleUrl: './admin-toolbar.component.scss'
 })
 export class AdminToolbarComponent implements OnInit, OnDestroy {
-  public selectionService = inject(SelectionService);
   public adminModeService = inject(AdminModeService);
   searchService = inject(SearchService);
   exportService = inject(ExportService);
@@ -26,7 +25,6 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    // Combine both result streams and update current page items
     this.subscriptions.push(
       combineLatest([
         this.searchService.nonPageResults$,
@@ -39,7 +37,7 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
           return allResults;
         })
       ).subscribe(allCurrentItems => {
-        this.selectionService.updateCurrentPageItems(allCurrentItems);
+        this.adminModeService.updateCurrentPageItems(allCurrentItems);
       })
     );
   }
@@ -49,26 +47,25 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
   }
 
   onSelectAllVisible(): void {
-    this.selectionService.selectAllVisible();
+    this.adminModeService.selectAllVisible();
   }
 
   onDeselectAllVisible(): void {
-    this.selectionService.deselectAllVisible();
+    this.adminModeService.deselectAllVisible();
   }
 
   onToggleAllVisible(): void {
-    this.selectionService.toggleAllVisible();
+    this.adminModeService.toggleAllVisible();
   }
 
   onClearSelection(): void {
-    this.selectionService.clearSelection();
+    this.adminModeService.clearSelection();
   }
 
   onExportSelected(): void {
-    const selectedIds = this.selectionService.getSelectedIds();
+    const selectedIds = this.adminModeService.getSelectedIds();
     if (selectedIds.length === 0) return;
 
-    // For now, export as JSON. In the future, we could show a format selection dialog
     this.exportService.exportSelectedItems(selectedIds, {
       format: ExportFormat.JSON,
       includeMetadata: true
@@ -83,14 +80,12 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
   }
 
   onDeleteSelected(): void {
-    const selectedIds = this.selectionService.getSelectedIds();
+    const selectedIds = this.adminModeService.getSelectedIds();
     console.log('Delete selected items:', selectedIds);
-    // TODO: Implement delete functionality
   }
 
   onBulkAddToFavorites(): void {
-    const selectedIds = this.selectionService.getSelectedIds();
+    const selectedIds = this.adminModeService.getSelectedIds();
     console.log('Add to favorites:', selectedIds);
-    // TODO: Implement bulk add to favorites
   }
 }

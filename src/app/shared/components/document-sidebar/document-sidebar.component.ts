@@ -8,7 +8,7 @@ import { DetailArticlesListComponent } from '../../../modules/detail-view-page/c
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { Metadata } from '../../models/metadata.model';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { Observable } from 'rxjs';
@@ -47,7 +47,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode?: 'pages' | 'articles';
 
   public detailViewService = inject(DetailViewService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   public iiifViewerService = inject(IIIFViewerService);
   public documentSearchService = inject(DocumentSearchService);
   public pdfService = inject(PdfService);

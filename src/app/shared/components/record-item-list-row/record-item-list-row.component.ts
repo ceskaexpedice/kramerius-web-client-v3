@@ -7,7 +7,7 @@ import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { EnvironmentService } from '../../services/environment.service';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
@@ -29,8 +29,8 @@ import {ModelBadgeComponent} from '../model-badge/model-badge.component';
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
   host: {
-    '[class.selection-mode]': 'selectionService.selectionMode()',
-    '[class.selected]': 'selectionService.selectionMode() && record && selectionService.isSelected(record.pid)',
+    '[class.selection-mode]': 'adminModeService.adminMode()',
+    '[class.selected]': 'adminModeService.adminMode() && record && adminModeService.isSelected(record.pid)',
     '[class.highlighted]': 'highlighted',
     '[class.skeleton-row]': 'loading',
     '(click)': 'onRowClick($event)'
@@ -47,7 +47,7 @@ export class RecordItemListRowComponent {
   @Output() downloadClicked = new EventEmitter<SearchDocument>();
 
   recordHandler = inject(RecordHandlerService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
 
   protected readonly ColumnRenderType = ColumnRenderType;
 
@@ -103,9 +103,9 @@ export class RecordItemListRowComponent {
   onRowClick(event: MouseEvent): void {
     if (this.loading || !this.record) return;
     // This handles clicks on the entire row (when in selection mode)
-    if (this.selectionService.selectionMode()) {
+    if (this.adminModeService.adminMode()) {
       event.preventDefault();
-      this.selectionService.toggleItem(this.record.pid);
+      this.adminModeService.toggleItem(this.record.pid);
     }
     // In normal mode, row clicks don't do anything (let individual elements handle their clicks)
   }
@@ -113,9 +113,9 @@ export class RecordItemListRowComponent {
   onTitleClick(event: MouseEvent): void {
     if (!this.record) return;
     // This handles clicks specifically on the title/link area
-    if (this.selectionService.selectionMode()) {
+    if (this.adminModeService.adminMode()) {
       event.preventDefault();
-      this.selectionService.toggleItem(this.record.pid);
+      this.adminModeService.toggleItem(this.record.pid);
     } else {
       this.recordHandler.onNavigate(event, this.url);
     }
@@ -129,9 +129,9 @@ export class RecordItemListRowComponent {
   onSelectionChange(selected: boolean): void {
     if (!this.record) return;
     if (selected) {
-      this.selectionService.selectItem(this.record.pid);
+      this.adminModeService.selectItem(this.record.pid);
     } else {
-      this.selectionService.deselectItem(this.record.pid);
+      this.adminModeService.deselectItem(this.record.pid);
     }
   }
 }

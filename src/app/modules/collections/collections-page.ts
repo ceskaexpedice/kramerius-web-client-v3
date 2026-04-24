@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
-import { SelectionService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services';
 import { CollectionsService } from '../../shared/services/collections.service';
 import { SearchDocument } from '../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
@@ -19,7 +19,7 @@ import { UiStateService } from '../../shared/services/ui-state.service';
 })
 export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   public collectionsService = inject(CollectionsService);
   public translationService = inject(AppTranslationService);
   public recordHandler = inject(RecordHandlerService);

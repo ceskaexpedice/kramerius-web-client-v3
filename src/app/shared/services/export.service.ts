@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchDocument } from '../../modules/models/search-document';
 import { SolrService } from '../../core/solr/solr.service';
-import { SelectionService } from './selection.service';
+import { AdminModeService } from './admin-mode.service';
 import { Observable, of, Subscription } from 'rxjs';
 import { filter, switchMap, take } from 'rxjs/operators';
 import { CsvSectionData } from '../dialogs/export-selected-dialog/components/export-csv-section/export-csv-section.component';
@@ -35,7 +35,7 @@ export class ExportService {
   private readonly allowedLicenses = ['public', 'onsite'];
 
   private solrService = inject(SolrService);
-  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
   private translateService = inject(TranslateService);
   private environmentService = inject(EnvironmentService);
   private http = inject(HttpClient);
@@ -193,7 +193,7 @@ export class ExportService {
 
   private fetchItemDetails(itemIds: string[]): Observable<SearchDocument[]> {
     // First try to get items from current selection service
-    const selectedItems = this.selectionService.getSelectedItems();
+    const selectedItems = this.adminModeService.getSelectedItems();
     const foundItems = selectedItems.filter(item => itemIds.includes(item.pid));
 
     // If we have all items from the selection service, use those

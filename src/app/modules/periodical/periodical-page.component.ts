@@ -7,7 +7,7 @@ import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers
 import { Subscription } from 'rxjs';
 import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
-import { SelectionService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services';
 import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
@@ -25,7 +25,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public periodical = inject(PeriodicalService);
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   private uiStateService = inject(UiStateService);
 
   private subscriptions: Subscription[] = [];
@@ -74,7 +74,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.periodical.searchResults$.subscribe(searchResults => {
         if (searchResults && this.periodical.viewMode() === ViewMode.SearchResults) {
-          this.selectionService.updateCurrentPageItems(searchResults);
+          this.adminModeService.updateCurrentPageItems(searchResults);
         }
       })
     );
@@ -83,7 +83,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.periodical.availableYears$.subscribe(years => {
         if (years && this.periodical.viewMode() !== ViewMode.SearchResults) {
-          // Convert PeriodicalItemYear[] to SearchDocument format that AdminSelectionService expects
+          // Convert PeriodicalItemYear[] to SearchDocument format that AdminModeService expects
           const yearItems = years.map(year => ({
             pid: year.pid,
             title: year.year,
@@ -92,7 +92,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
             licenses: year.licenses,
             access: 'public' // Default access for periodical years
           }));
-          this.selectionService.updateCurrentPageItems(yearItems);
+          this.adminModeService.updateCurrentPageItems(yearItems);
         }
       })
     );
@@ -101,7 +101,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.periodical.periodicalChildren$.subscribe(children => {
         if (children && children.length > 0 && this.periodical.viewMode() !== ViewMode.SearchResults) {
-          // Convert PeriodicalItemChild[] to SearchDocument format that AdminSelectionService expects
+          // Convert PeriodicalItemChild[] to SearchDocument format that AdminModeService expects
           const childrenItems = children.map(child => ({
             pid: child.pid,
             title: child['date.str'] || `${child['date_range_end.day']}.${child['date_range_end.month']}`,
@@ -110,7 +110,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
             licenses: child['licenses.facet'] || child.licenses || [],
             access: 'public' // Default access for periodical children
           }));
-          this.selectionService.updateCurrentPageItems(childrenItems);
+          this.adminModeService.updateCurrentPageItems(childrenItems);
         }
       })
     );
@@ -139,7 +139,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     } else if (this.periodical.viewMode() === ViewMode.Calendar) {
       this.periodical.setView(ViewMode.GridIssues);
     }
-    this.selectionService.toggleSelectionMode();
+    this.adminModeService.toggle();
   }
 
   onExportSelected(): void {
