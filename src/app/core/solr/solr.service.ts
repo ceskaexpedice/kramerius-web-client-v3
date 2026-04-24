@@ -820,7 +820,10 @@ export class SolrService {
       wt: 'json',
     };
     const params = this.createHttpParams(paramsObject);
-    return this.http.get<any>(this.API_URL, { params }).pipe(
+    return this.http.get<any>(this.API_URL, {
+      params,
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).pipe(
       map(res => res.response?.docs?.map((doc: any) => doc['title.search']) ?? [])
     );
   }
