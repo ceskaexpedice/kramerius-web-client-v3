@@ -1,4 +1,6 @@
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {filter} from 'rxjs/operators';
 import {SearchDocument} from '../../modules/models/search-document';
 import {Metadata} from '../models/metadata.model';
 import {DocumentTypeEnum} from '../../modules/constants/document-type';
@@ -13,9 +15,25 @@ export interface SelectionState {
   providedIn: 'root'
 })
 export class SelectionService {
+  private router = inject(Router);
   private selectedIds = signal<Set<string>>(new Set());
   private currentPageItems = signal<SearchDocument[]>([]);
   private isSelectionMode = signal<boolean>(false);
+  private selectionModePath: string | null = null;
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      if (!this.isSelectionMode() || this.selectionModePath === null) {
+        return;
+      }
+      const currentPath = event.urlAfterRedirects.split('?')[0];
+      if (currentPath !== this.selectionModePath) {
+        this.setSelectionMode(false);
+      }
+    });
+  }
 
   readonly selectedCount = computed(() => this.selectedIds().size);
   readonly hasSelection = computed(() => this.selectedIds().size > 0);
@@ -39,18 +57,15 @@ export class SelectionService {
   });
 
   toggleSelectionMode(): void {
-    this.isSelectionMode.update(current => {
-      const newValue = !current;
-      if (!newValue) {
-        this.clearSelection();
-      }
-      return newValue;
-    });
+    this.setSelectionMode(!this.isSelectionMode());
   }
 
   setSelectionMode(enabled: boolean): void {
     this.isSelectionMode.set(enabled);
-    if (!enabled) {
+    if (enabled) {
+      this.selectionModePath = this.router.url.split('?')[0];
+    } else {
+      this.selectionModePath = null;
       this.clearSelection();
     }
   }
