@@ -6,6 +6,7 @@
   <div class="scope-section selected-dialog--section">
     <mat-radio-group
       class="radio-group"
+      [class.radio-group--single]="hideChildrenScope"
       [value]="selectedScope"
       [name]="'reindexScope'"
       (change)="onScopeChange()"
