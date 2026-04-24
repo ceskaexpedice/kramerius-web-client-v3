@@ -18,6 +18,8 @@ import { AddLicenseSectionData } from '../dialogs/edit-selected-dialog/component
 import { RemoveLicenseSectionData } from '../dialogs/edit-selected-dialog/components/remove-license-section/remove-license-section.component';
 import { AddCollectionSectionData } from '../dialogs/edit-selected-dialog/components/add-collection-section/add-collection-section.component';
 import { RemoveCollectionSectionData } from '../dialogs/edit-selected-dialog/components/remove-collection-section/remove-collection-section.component';
+import { RepresentativePageSectionData } from '../dialogs/edit-selected-dialog/components/edit-representative-page-section/edit-representative-page-section.component';
+import { AdminApiService } from '../../core/admin/admin-api.service';
 
 export interface AdminActionResult {
   action: 'save' | 'export' | 'admin' | 'cancel';
@@ -40,6 +42,7 @@ export class AdminActionsService {
   private reindexService = inject(AdminReindexService);
   private licensesService = inject(AdminLicensesService);
   private collectionsService = inject(AdminCollectionsService);
+  private adminApi = inject(AdminApiService);
 
   /**
    * Check if current user has admin privileges
@@ -117,7 +120,7 @@ export class AdminActionsService {
       selectedIds: [document.uuid],
       selectedCount: 1,
       mode: 'single',
-      singleDocument: document
+      singleDocument: document,
     };
 
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
@@ -213,6 +216,8 @@ export class AdminActionsService {
         return this.handleAddLicenseOperation(result.data);
       case EditSelectedDialogSections.removeLicence:
         return this.handleRemoveLicenseOperation(result.data);
+      case EditSelectedDialogSections.representativePage:
+        return this.handleRepresentativePageOperation(result.data);
       default:
         console.warn('Unknown edit section:', result.section);
         return from([null]);
@@ -415,6 +420,24 @@ export class AdminActionsService {
     );
   }
 
+  /**
+   * Handle representative-page operation: set the given page as the thumbnail/representative
+   * for the chosen ancestor or collection.
+   */
+  private handleRepresentativePageOperation(data: RepresentativePageSectionData): Observable<any> {
+    if (!data?.pagePid || !data?.targetPid) {
+      console.warn('Representative-page operation missing pagePid or targetPid', data);
+      return from([null]);
+    }
+    return this.adminApi.setRepresentativePage(data.targetPid, data.pagePid).pipe(
+      tap(() => console.log(`Set page ${data.pagePid} as representative for ${data.targetPid}`)),
+      catchError(error => {
+        console.error('Set representative page failed:', error);
+        throw error;
+      })
+    );
+  }
+
   private mapExportFormat(format: string): ExportFormat {
     switch (format) {
       case 'csv':
@@ -483,6 +506,8 @@ export class AdminActionsService {
         return 'add-license-success';
       case EditSelectedDialogSections.removeLicence:
         return 'remove-license-success';
+      case EditSelectedDialogSections.representativePage:
+        return 'representative-page-success';
       default:
         return 'action-success';
     }
@@ -504,6 +529,8 @@ export class AdminActionsService {
         return 'add-license-error';
       case EditSelectedDialogSections.removeLicence:
         return 'remove-license-error';
+      case EditSelectedDialogSections.representativePage:
+        return 'representative-page-error';
       default:
         return 'action-error';
     }

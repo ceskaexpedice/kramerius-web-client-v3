@@ -7,7 +7,8 @@
     <div class="section-content">
 
       <!-- Document Hierarchy Selector -->
-      <div class="hierarchy-section" *ngIf="showHierarchySelector">
+      <div class="hierarchy-section"
+        *ngIf="showHierarchySelector && activeSection() !== EditSelectedDialogSections.representativePage">
         <h3>{{ 'select-hierarchy-level' | translate }}</h3>
         <app-document-hierarchy-selector [documents]="selectedDocuments()" [allHierarchyLevels]="true"
           (selectionChanged)="onHierarchySelectionChanged($event)">
@@ -51,6 +52,12 @@
       <app-remove-license-section [selectedIds]="effectiveSelectedIds()"
         (dataChange)="onRemoveLicenseDataChange($event)" (actionClick)="onSectionActionClick()">
       </app-remove-license-section>
+      }
+
+      @case (EditSelectedDialogSections.representativePage) {
+      <app-edit-representative-page-section [document]="singleSelectedPage()"
+        (dataChange)="onRepresentativePageDataChange($event)" (actionClick)="onSectionActionClick()">
+      </app-edit-representative-page-section>
       }
 
       }

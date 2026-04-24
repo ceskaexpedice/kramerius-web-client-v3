@@ -152,23 +152,23 @@ export class SelectionService {
     metadata.uuid = searchDoc.pid;
     metadata.model = searchDoc.model;
 
-    // Map root information - SearchDocument has rootPid, so infer rootModel
     if (searchDoc.rootPid) {
       metadata.rootPid = searchDoc.rootPid;
-      // If there's a rootPid, assume it's a periodical hierarchy
-      metadata.rootModel = DocumentTypeEnum.periodical;
+      metadata.rootModel = searchDoc.rootModel || DocumentTypeEnum.periodical;
     }
 
     metadata.ownParentPid = searchDoc.ownParentPid || '';
+    metadata.ownParentModel = searchDoc.ownParentModel || '';
 
-    // Set volume info for periodical hierarchy
-    if (searchDoc.ownParentPid) {
+    // For pages whose direct parent is a periodicalitem, the volume is the item's parent
+    // and we don't have its pid here. For pages whose direct parent is a volume or
+    // monographunit, the ownParentPid IS the volume/unit pid.
+    if (searchDoc.ownParentPid
+      && (searchDoc.ownParentModel === DocumentTypeEnum.periodicalvolume
+        || searchDoc.ownParentModel === DocumentTypeEnum.monographunit)) {
       metadata.volume.uuid = searchDoc.ownParentPid;
-
-      // For periodical items, the parent is usually the volume
-      if (searchDoc.model === DocumentTypeEnum.periodicalitem) {
-        metadata.volume.uuid = searchDoc.ownParentPid;
-      }
+    } else if (searchDoc.model === DocumentTypeEnum.periodicalitem && searchDoc.ownParentPid) {
+      metadata.volume.uuid = searchDoc.ownParentPid;
     }
 
     return metadata;

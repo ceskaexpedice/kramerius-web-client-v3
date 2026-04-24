@@ -14,6 +14,8 @@ import {
 } from './components/remove-collection-section/remove-collection-section.component';
 import { AddLicenseSectionComponent, AddLicenseSectionData } from './components/add-license-section/add-license-section.component';
 import { RemoveLicenseSectionComponent, RemoveLicenseSectionData } from './components/remove-license-section/remove-license-section.component';
+import { EditRepresentativePageSectionComponent, RepresentativePageSectionData } from './components/edit-representative-page-section/edit-representative-page-section.component';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import {
   DocumentHierarchyItem,
   DocumentHierarchySelectorComponent,
@@ -42,6 +44,7 @@ export enum EditSelectedDialogSections {
   removeCollection = 'remove-collection',
   addLicence = 'add-licence',
   removeLicence = 'remove-licence',
+  representativePage = 'representative-page',
   titleCover = 'title-cover',
   admin = 'admin'
 }
@@ -57,6 +60,7 @@ export enum EditSelectedDialogSections {
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
     RemoveLicenseSectionComponent,
+    EditRepresentativePageSectionComponent,
     TranslatePipe,
     DocumentHierarchySelectorComponent
   ],
@@ -98,6 +102,7 @@ export class EditSelectedDialogComponent {
         ]
       },
       // { key: EditSelectedDialogSections.titleCover, label: 'edit-section-titlecover', icon: '' },
+      { key: EditSelectedDialogSections.representativePage, label: 'edit-section-representative-page', icon: 'icon-image', hidden: true },
       { key: EditSelectedDialogSections.admin, label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
     ]
   };
@@ -110,6 +115,7 @@ export class EditSelectedDialogComponent {
   licenceData: LicenceSectionData | null = null;
   addLicenseData: AddLicenseSectionData | null = null;
   removeLicenseData: RemoveLicenseSectionData | null = null;
+  representativePageData: RepresentativePageSectionData | null = null;
 
   EditSelectedDialogSections = EditSelectedDialogSections;
 
@@ -163,6 +169,17 @@ export class EditSelectedDialogComponent {
         adminSection.hidden = count !== 1 || !this.configService.app.adminClientUrl;
       }
 
+      // Representative-page section is only available via the bulk (checkbox) flow
+      // and only when exactly one selected item is a page.
+      const docs = this.selectedDocuments();
+      const isBulkSinglePage = this.data.mode !== 'single'
+        && docs.length === 1
+        && docs[0]?.model === DocumentTypeEnum.page;
+      const repSection = this.dialogConfig.sections.find(s => s.key === EditSelectedDialogSections.representativePage);
+      if (repSection) {
+        repSection.hidden = !isBulkSinglePage;
+      }
+
       this.dialogConfig = { ...this.dialogConfig };
     });
 
@@ -174,6 +191,17 @@ export class EditSelectedDialogComponent {
       this.dialogConfig.title = 'edit-single-object';
     }
   }
+
+  singleSelectedPage = computed<Metadata | null>(() => {
+    if (this.data.mode === 'single') {
+      return null;
+    }
+    const docs = this.selectedDocuments();
+    if (docs.length === 1 && docs[0]?.model === DocumentTypeEnum.page) {
+      return docs[0];
+    }
+    return null;
+  });
 
   onHierarchySelectionChanged(hierarchyItem: DocumentHierarchyItem) {
     this.selectedHierarchyItem.set(hierarchyItem);
@@ -303,6 +331,10 @@ export class EditSelectedDialogComponent {
     this.removeLicenseData = data;
   }
 
+  onRepresentativePageDataChange(data: RepresentativePageSectionData) {
+    this.representativePageData = data;
+  }
+
   onSectionActionClick() {
     const currentSection = this.activeSection();
     let sectionData = null;
@@ -334,6 +366,11 @@ export class EditSelectedDialogComponent {
         sectionData = this.removeLicenseData;
         confirmationTitle = 'remove-license-confirmation-dialog--header';
         confirmationMessage = 'remove-license-confirmation-dialog--message';
+        break;
+      case EditSelectedDialogSections.representativePage:
+        sectionData = this.representativePageData;
+        confirmationTitle = 'representative-page-confirmation-dialog--header';
+        confirmationMessage = 'representative-page-confirmation-dialog--message';
         break;
     }
 

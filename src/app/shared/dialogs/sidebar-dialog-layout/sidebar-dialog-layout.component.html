@@ -76,7 +76,7 @@
 
           <!-- Regular Section (clickable) -->
           <li
-            *ngIf="!section.isTitle && !section.isAction"
+            *ngIf="!section.isTitle && !section.isAction && !section.hidden"
             [class.active]="activeSection() === section.key"
             (click)="setActiveSection(section.key)">
             <label>

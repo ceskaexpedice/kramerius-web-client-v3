@@ -1,0 +1,58 @@
+<div class="representative-page-section">
+
+  <h3>{{ 'representative-page-header' | translate }}</h3>
+
+  @if (targets().length > 0) {
+    <div class="targets selected-dialog--section">
+      <div class="radio-group">
+        @for (target of targets(); track target.key) {
+          <div class="target-row" [class.indented]="target.kind === 'collection'">
+            @switch (target.kind) {
+              @case ('model') {
+                <mat-radio-button
+                  class="radio-button"
+                  name="representativePageTarget"
+                  [value]="target.key"
+                  [checked]="selectedKey() === target.key"
+                  (change)="onModelRadioChange(target.key)">
+                  {{ target.labelKey | translate }}
+                </mat-radio-button>
+              }
+              @case ('collections-group') {
+                <mat-radio-button
+                  class="radio-button group-radio"
+                  name="representativePageGroupIndicator"
+                  [checked]="isCollectionGroupSelected()"
+                  [disableRipple]="true"
+                  (click)="$event.preventDefault(); $event.stopPropagation()">
+                  {{ target.labelKey | translate }}
+                </mat-radio-button>
+              }
+              @case ('collection') {
+                <mat-radio-button
+                  class="radio-button"
+                  name="representativePageTarget"
+                  [value]="target.key"
+                  [checked]="selectedCollectionKey() === target.key"
+                  (change)="onCollectionRadioChange(target.key)">
+                  {{ target.label }}
+                </mat-radio-button>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <p class="empty-hint">{{ 'representative-page-empty' | translate }}</p>
+  }
+
+  <div class="selected-dialog--actions">
+    <button class="primary"
+            [disabled]="!canSave()"
+            (click)="onActionClick()">
+      {{ 'save' | translate }}
+    </button>
+  </div>
+
+</div>
