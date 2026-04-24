@@ -20,12 +20,14 @@
           {{ 'reindex-object-only' | translate }}
         </mat-radio-button>
 
-        <mat-radio-button
-          [value]="'object-and-children'"
-          class="radio-button"
-        >
-          {{ 'reindex-object-and-children' | translate }}
-        </mat-radio-button>
+        @if (!hideChildrenScope) {
+          <mat-radio-button
+            [value]="'object-and-children'"
+            class="radio-button"
+          >
+            {{ 'reindex-object-and-children' | translate }}
+          </mat-radio-button>
+        }
 
       </div>
     </mat-radio-group>

@@ -21,21 +21,24 @@ export interface ReindexSectionData {
 })
 export class EditReindexSectionComponent implements OnInit, OnChanges {
   @Input() selectedIds: string[] = [];
+  @Input() hideChildrenScope = false;
   @Output() dataChange = new EventEmitter<ReindexSectionData>();
   @Output() actionClick = new EventEmitter<void>();
 
   selectedScope: 'object' | 'object-and-children' = 'object';
 
-  ngOnInit() {
-    // Emit initial data when component initializes
-    this.emitData();
-  }
-
   ngOnChanges(changes: SimpleChanges) {
-    // Emit data when selectedIds input changes
     if (changes['selectedIds']) {
       this.emitData();
     }
+    if (changes['hideChildrenScope'] && this.hideChildrenScope && this.selectedScope === 'object-and-children') {
+      this.selectedScope = 'object';
+      this.emitData();
+    }
+  }
+
+  ngOnInit() {
+    this.emitData();
   }
 
   onScopeChange() {

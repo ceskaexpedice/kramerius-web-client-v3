@@ -192,6 +192,10 @@ export class EditSelectedDialogComponent {
     }
   }
 
+  isHierarchyPageSelected = computed<boolean>(() => {
+    return this.selectedHierarchyItem()?.model === DocumentTypeEnum.page;
+  });
+
   singleSelectedPage = computed<Metadata | null>(() => {
     if (this.data.mode === 'single') {
       return null;

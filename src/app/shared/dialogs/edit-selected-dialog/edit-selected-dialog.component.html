@@ -21,8 +21,8 @@
       @case (EditSelectedDialogSections.reindex) {
 
       <!-- Reindex Section -->
-      <app-edit-reindex-section [selectedIds]="effectiveSelectedIds()" (dataChange)="onReindexDataChange($event)"
-        (actionClick)="onSectionActionClick()">
+      <app-edit-reindex-section [selectedIds]="effectiveSelectedIds()" [hideChildrenScope]="isHierarchyPageSelected()"
+        (dataChange)="onReindexDataChange($event)" (actionClick)="onSectionActionClick()">
       </app-edit-reindex-section>
 
       }
