@@ -370,10 +370,12 @@ export class DetailViewService {
       take(1)
     ).subscribe((doc) => {
       console.log('Document loaded:', doc);
-      this.loadPages();
+      this.loadPages(doc);
 
       // If document is from a periodical, proactively load periodical children data
-      if ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem) {
+      // Skip for periodicalvolume — its pages are already loaded as children
+      if (doc?.model !== DocumentTypeEnum.periodicalvolume &&
+          ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem)) {
         this.loadPeriodicalChildren(doc);
       }
     });
@@ -407,16 +409,27 @@ export class DetailViewService {
     }
   }
 
-  loadPages() {
+  loadPages(doc?: Metadata | null) {
     this.store.select(selectDocumentDetailPages)
       .pipe(take(1))
       .subscribe(pages => {
-        const safePages = pages ?? [];
+        let safePages = pages ?? [];
+        const model = doc?.model || this.document?.model;
+
+        console.log('loadPages: model=', model, 'doc?.model=', doc?.model, 'this.document?.model=', this.document?.model, 'pages count=', safePages.length, 'page models=', safePages.map((p: any) => p.model));
+
+        // When the document is a periodicalvolume, children may include both
+        // pages and periodicalitems. Keep only actual pages for the viewer.
+        if (model === DocumentTypeEnum.periodicalvolume) {
+          safePages = safePages.filter((p: any) => p.model === DocumentTypeEnum.page);
+          console.log('loadPages: filtered to pages only, count=', safePages.length);
+        }
+
         this._pages.set(safePages);
 
         // Skip page URL check for sound recordings and PDF documents
         // PDF viewer handles its own page navigation with format uuid_pageNumber
-        if (this.document?.model !== DocumentTypeEnum.soundrecording && !this.isPdf) {
+        if (model !== DocumentTypeEnum.soundrecording && !this.isPdf) {
           this.checkAndSetCurrentPageFromUrl();
         }
 

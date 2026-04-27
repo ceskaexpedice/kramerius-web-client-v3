@@ -203,13 +203,17 @@ export class PeriodicalDetailEffects {
                 }
               })
 
+              // If all children are pages (no issues), create a virtual issue
+              // pointing to the volume so the detail view loads the pages correctly
+              const processedChildren = this.createVirtualIssueIfNeeded(children, data.uuid);
+
               if (previousAvailableYears?.length > 0) {
                 return of(loadPeriodicalSuccess({
                   document: periodical,
                   metadata: data,
                   years: [],
                   availableYears: previousAvailableYears,
-                  children,
+                  children: processedChildren,
                   facets: {}
                 }));
               }
@@ -227,7 +231,7 @@ export class PeriodicalDetailEffects {
                     metadata: data,
                     years: [],
                     availableYears,
-                    children,
+                    children: processedChildren,
                     facets: {}
                   });
                 }),
@@ -267,6 +271,40 @@ export class PeriodicalDetailEffects {
       })
     )
   );
+
+  /**
+   * When a volume has only pages as direct children (no issues),
+   * replace them with a single virtual issue whose PID is the volume's PID.
+   * This way clicking it navigates to /view/{volumePid} and the detail view
+   * loads the volume's page children correctly.
+   */
+  private createVirtualIssueIfNeeded(children: any[], volumePid: string): any[] {
+    if (children.length === 0) {
+      return children;
+    }
+
+    const nonPages = children.filter(c => c.model !== DocumentTypeEnum.page);
+    const pages = children.filter(c => c.model === DocumentTypeEnum.page);
+
+    if (pages.length === 0) {
+      return children;
+    }
+
+    // Create a virtual issue for the pages, pointing to the volume
+    const firstPage = pages[0];
+    const virtualIssue = {
+      pid: volumePid,
+      model: DocumentTypeEnum.periodicalitem,
+      'date.str': '-',
+      'part.number.str': '-',
+      licenses: firstPage['licenses'] || firstPage['licenses.facet'] || [],
+      'licenses.facet': firstPage['licenses.facet'] || firstPage['licenses'] || [],
+      'root.pid': firstPage['root.pid'] || '',
+      'own_parent.pid': volumePid
+    };
+
+    return [...nonPages, virtualIssue];
+  }
 
   private mapAvailableYears(volumes: any[]): PeriodicalItemYear[] {
     return volumes
@@ -334,12 +372,15 @@ export class PeriodicalDetailEffects {
               }
             });
 
+            // If all children are pages (no issues), create a virtual issue
+            const processedChildren = this.createVirtualIssueIfNeeded(children, parentVolumeUuid);
+
             console.log('previousAvailableYears:', previousAvailableYears);
 
             // If we already have availableYears, use them
             if (previousAvailableYears?.length > 0) {
               return of(loadPeriodicalItemsSuccess({
-                children,
+                children: processedChildren,
                 availableYears: previousAvailableYears
               }));
             }
@@ -351,7 +392,7 @@ export class PeriodicalDetailEffects {
             if (!firstChild['root.pid']) {
               console.warn('No rootPid found in children, cannot load availableYears');
               return of(loadPeriodicalItemsSuccess({
-                children,
+                children: processedChildren,
                 availableYears: []
               }));
             }
@@ -361,7 +402,7 @@ export class PeriodicalDetailEffects {
               map(volumes => {
                 const availableYears = this.mapAvailableYears(volumes);
                 return loadPeriodicalItemsSuccess({
-                  children,
+                  children: processedChildren,
                   availableYears
                 });
               }),
@@ -369,7 +410,7 @@ export class PeriodicalDetailEffects {
                 console.error('Failed to load periodical volumes:', error);
                 // Still return success with children, just without availableYears
                 return of(loadPeriodicalItemsSuccess({
-                  children,
+                  children: processedChildren,
                   availableYears: []
                 }));
               })
