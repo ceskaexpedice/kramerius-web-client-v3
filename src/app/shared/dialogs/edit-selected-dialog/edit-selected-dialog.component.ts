@@ -309,7 +309,8 @@ export class EditSelectedDialogComponent {
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
     const confirmationDialogRef = this.dialog.open(ActionConfirmationDialogComponent, {
-      width: '50vw',
+      width: '400px',
+      maxWidth: '100vw',
       data,
       autoFocus: true,
       restoreFocus: false,

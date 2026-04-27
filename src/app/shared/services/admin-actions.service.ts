@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, from, forkJoin } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { AdminModeService } from './admin-mode.service';
 import { ExportService, ExportFormat } from './export.service';
 import { ToastService } from './toast.service';
@@ -20,6 +20,8 @@ import { AddCollectionSectionData } from '../dialogs/edit-selected-dialog/compon
 import { RemoveCollectionSectionData } from '../dialogs/edit-selected-dialog/components/remove-collection-section/remove-collection-section.component';
 import { RepresentativePageSectionData } from '../dialogs/edit-selected-dialog/components/edit-representative-page-section/edit-representative-page-section.component';
 import { AdminApiService } from '../../core/admin/admin-api.service';
+import { ActionSuccessDialogComponent, ActionDialogData } from '../dialogs/action-success-dialog/action-success-dialog.component';
+import { DontShowAgainService, DontShowDialogs } from './dont-show-again.service';
 
 export interface AdminActionResult {
   action: 'save' | 'export' | 'admin' | 'cancel';
@@ -43,6 +45,7 @@ export class AdminActionsService {
   private licensesService = inject(AdminLicensesService);
   private collectionsService = inject(AdminCollectionsService);
   private adminApi = inject(AdminApiService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   /**
    * Check if current user has admin privileges
@@ -150,8 +153,7 @@ export class AdminActionsService {
           },
           error: (error) => {
             console.error('Admin action failed:', error);
-            const errorKey = this.getErrorMessageKey(result.section);
-            this.toastService.show(errorKey);
+            this.showErrorDialog();
           }
         });
       } else if (result?.action === 'admin') {
@@ -279,8 +281,7 @@ export class AdminActionsService {
           error: (error) => {
             console.error('Admin action failed:', error);
             // Show error message
-            const errorKey = this.getErrorMessageKey(result.section);
-            this.toastService.show(errorKey);
+            this.showErrorDialog();
           }
         });
       } else if (result?.action === 'admin') {
@@ -451,88 +452,24 @@ export class AdminActionsService {
     }
   }
 
-  /**
-   * Show success messages from API responses
-   * @param responses API responses (can be single or array)
-   * @param section Section identifier for fallback message
-   */
-  private showSuccessMessages(responses: any, section?: string): void {
-    if (!responses) {
-      // Fallback to generic success message
-      const successKey = this.getSuccessMessageKey(section);
-      this.toastService.show(successKey);
-      return;
-    }
+  private showSuccessMessages(_responses: any, _section?: string): void {
+    this.openActionDialog('success');
+  }
 
-    // Handle array of responses (bulk operations)
-    if (Array.isArray(responses)) {
-      // For bulk operations, show the first response message or a summary
-      if (responses.length > 0 && responses[0]?.name) {
-        // Show first message with count if multiple
-        const message = responses.length > 1
-          ? `${responses[0].name} (+${responses.length - 1} more)`
-          : responses[0].name;
-        this.toastService.show(message);
-      } else {
-        // Fallback to generic message with count
-        const successKey = this.getSuccessMessageKey(section);
-        this.toastService.show(`${successKey} (${responses.length})`);
-      }
-    } else {
-      // Single response
-      if (responses.name) {
-        this.toastService.show(responses.name);
-      } else {
-        // Fallback to generic success message
-        const successKey = this.getSuccessMessageKey(section);
-        this.toastService.show(successKey);
-      }
+  private showErrorDialog(): void {
+    this.openActionDialog('error');
+  }
+
+  private openActionDialog(variant: ActionDialogData['variant']): void {
+    const dialogKey = variant === 'error' ? DontShowDialogs.ActionErrorDialog : DontShowDialogs.ActionSuccessDialog;
+    if (this.dontShowAgainService.shouldShowDialog(dialogKey)) {
+      this.dialog.open(ActionSuccessDialogComponent, {
+        width: '400px',
+        maxWidth: '100vw',
+        disableClose: false,
+        data: { variant } satisfies ActionDialogData,
+      });
     }
   }
 
-  /**
-   * Get success message translation key based on section
-   * @param section Section identifier
-   */
-  private getSuccessMessageKey(section?: string): string {
-    switch (section) {
-      case EditSelectedDialogSections.reindex:
-        return 'reindex-success';
-      case EditSelectedDialogSections.addCollection:
-        return 'add-collection-success';
-      case EditSelectedDialogSections.removeCollection:
-        return 'remove-collection-success';
-      case EditSelectedDialogSections.addLicence:
-        return 'add-license-success';
-      case EditSelectedDialogSections.removeLicence:
-        return 'remove-license-success';
-      case EditSelectedDialogSections.representativePage:
-        return 'representative-page-success';
-      default:
-        return 'action-success';
-    }
-  }
-
-  /**
-   * Get error message translation key based on section
-   * @param section Section identifier
-   */
-  private getErrorMessageKey(section?: string): string {
-    switch (section) {
-      case EditSelectedDialogSections.reindex:
-        return 'reindex-error';
-      case EditSelectedDialogSections.addCollection:
-        return 'add-collection-error';
-      case EditSelectedDialogSections.removeCollection:
-        return 'remove-collection-error';
-      case EditSelectedDialogSections.addLicence:
-        return 'add-license-error';
-      case EditSelectedDialogSections.removeLicence:
-        return 'remove-license-error';
-      case EditSelectedDialogSections.representativePage:
-        return 'representative-page-error';
-      default:
-        return 'action-error';
-    }
-  }
 }

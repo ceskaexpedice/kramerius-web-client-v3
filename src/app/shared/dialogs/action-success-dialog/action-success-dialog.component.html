@@ -1,0 +1,37 @@
+<div class="generic-dialog-container">
+  <h2>
+    @if (isError) {
+      <span>
+        <i class="icon-close-circle header-icon error"></i>
+        {{ 'action-error-dialog--header' | translate }}
+      </span>
+    } @else {
+      <span>
+        <i class="icon-tick-circle header-icon success"></i>
+        {{ 'action-success-dialog--header' | translate }}
+      </span>
+    }
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <div class="dont-ask-again--container">
+        <mat-checkbox [(ngModel)]="dontShowAgain">
+          {{ 'action-success-dialog--dont-show-again' | translate }}
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button tertiary outlined" (click)="onClose()">
+      {{ 'close' | translate }}
+    </button>
+    <button class="button primary" (click)="onClose()">
+      {{ 'ok-button' | translate }}
+    </button>
+  </div>
+</div>
