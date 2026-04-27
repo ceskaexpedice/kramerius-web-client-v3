@@ -11,7 +11,7 @@ import { Metadata } from '../../models/metadata.model';
 import { AdminModeService } from '../../services';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { SearchNavigationComponent } from '../search-navigation/search-navigation.component';
 import { SearchResultsListComponent, SearchResult } from '../search-results-list/search-results-list.component';
 import { DocumentSearchService } from '../../services/document-search.service';
@@ -57,6 +57,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   // Local signal that syncs with the service's observable for the autocomplete component
   public searchTerm = signal('');
   public showAllPages = false;
+  private searchTermSub!: Subscription;
 
   // Convert searchQuery$ observable to a signal for reactive checks
   public searchQuery = toSignal(this.iiifViewerService.searchQuery$, { initialValue: null });
@@ -65,7 +66,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor() {
     // Sync the local signal with the service's observable
-    this.documentSearchService.searchTerm$.subscribe(term => {
+    this.searchTermSub = this.documentSearchService.searchTerm$.subscribe(term => {
       this.searchTerm.set(term);
     });
   }
@@ -86,6 +87,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.searchTermSub?.unsubscribe();
   }
 
   get isSoundRecording(): boolean {

@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DetailViewService } from "../detail-view-page/services/detail-view.service";
 import { RecordHandlerService } from "../../shared/services/record-handler.service";
 import { EnvironmentService } from "../../shared/services/environment.service";
@@ -22,6 +23,7 @@ import { UserService } from '../../shared/services/user.service';
 export class MusicPageComponent implements OnInit, OnDestroy {
 
   private krameriusBaseUrl: string;
+  private soundRecordingsSub!: Subscription;
 
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
@@ -54,15 +56,16 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     this.detailViewService.loadDocument();
     this.detailViewService.loadPages();
 
-    this.detailViewService.getSoundRecordings()
+    this.soundRecordingsSub = this.detailViewService.getSoundRecordings()
       .subscribe(recordings => {
         if (!recordings) return;
         this.musicService.loadMusic(recordings);
-      })
+      });
 
   }
 
   ngOnDestroy(): void {
+    this.soundRecordingsSub?.unsubscribe();
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
   }
