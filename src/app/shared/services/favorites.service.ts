@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { LoginPromptDialogComponent } from '../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { FolderItemsService } from '../../modules/saved-lists-page/services/folder-items.service';
@@ -58,7 +58,7 @@ export class FavoritesService {
         disableClose: false
       });
 
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
         if (result === 'login') {
           // Redirect to login with current route as return URL
           // this.authService.login(currentUrl);

@@ -50,6 +50,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
 
   private termChangeSubject = new EventEmitter<string>();
   private subscription: Subscription | null = null;
+  private destroyed = false;
 
   @Input() inputTheme: string = 'light';
   @Input() placeholder: string = '';
@@ -118,6 +119,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
       const term = this.inputTerm();
 
       setTimeout(() => {
+        if (this.destroyed) return;
         this.termChange.emit(term);
 
         if (term === '') {
@@ -147,6 +149,7 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     if (this.subscription) {
       this.subscription.unsubscribe();
     }

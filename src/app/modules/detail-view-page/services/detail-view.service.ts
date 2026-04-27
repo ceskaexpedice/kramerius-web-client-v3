@@ -18,7 +18,7 @@ import {
   clearDocumentDetail,
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
-import { filter, map, Observable, skip, take } from 'rxjs';
+import { filter, map, Observable, skip, Subject, take, takeUntil } from 'rxjs';
 import { SolrService } from '../../../core/solr/solr.service';
 import {
   selectAvailableYears,
@@ -59,6 +59,8 @@ export class DetailViewService {
   _pageAccessMap = signal<Map<string, boolean>>(new Map());
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
+
+  private destroy$ = new Subject<void>();
 
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
@@ -110,7 +112,7 @@ export class DetailViewService {
     }
 
     // Listen to pages changes and update the signal automatically
-    this.pages$.subscribe(pages => {
+    this.pages$.pipe(takeUntil(this.destroy$)).subscribe(pages => {
       if (!this.isOnDetailViewPage()) {
         return;
       }
@@ -139,7 +141,7 @@ export class DetailViewService {
     });
 
     // Listen to articles changes and update the signal automatically
-    this.articles$.subscribe(articles => {
+    this.articles$.pipe(takeUntil(this.destroy$)).subscribe(articles => {
       if (!this.isOnDetailViewPage()) {
         return;
       }

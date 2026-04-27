@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, map, Observable, of, take, takeUntil } from 'rxjs';
+import { filter, map, Observable, of, take, takeUntil, tap } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ViewMode } from '../../modules/periodical/models/view-mode.enum';
 import { CalendarGridControl } from '../components/toolbar-controls/toolbar-controls.component';
@@ -129,7 +129,7 @@ export class PeriodicalService extends BaseFilterService {
       this.availableYears$.pipe(
         filter(Boolean),
         takeUntil(this.destroy$),
-        map(data => {
+        tap(data => {
           this.availableYears = data;
           this.generateYearsFromAvailable();
         }),
