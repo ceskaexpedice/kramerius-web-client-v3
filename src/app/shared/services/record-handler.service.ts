@@ -70,7 +70,7 @@ export class RecordHandlerService {
     }
   }
 
-  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null): string {
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null): string {
     const lp = (segments: any[]) => this.libraryContext.prependLibraryPrefix(segments);
     switch (model) {
       case DocumentTypeEnum.periodical:

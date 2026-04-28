@@ -135,7 +135,7 @@ export class DetailViewService {
           if (!this.isPdf) {
             this.pdfService.clearPdfData();
           }
-          this.store.select(clearArticleDetail);
+          //this.store.dispatch(clearArticleDetail());
         }
       }
     });
@@ -154,7 +154,7 @@ export class DetailViewService {
         this.checkAndSetCurrentArticleFromUrl();
       } else {
         this.pdfService.clearPdfData();
-        this.store.select(clearArticleDetail);
+       // this.store.dispatch(clearArticleDetail());
       }
     });
 

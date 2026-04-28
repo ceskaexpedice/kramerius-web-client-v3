@@ -130,7 +130,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
       return this.item.externalUrl;
     }
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
-      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
+      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid, this.item.ownParentModel ?? null);
     }
     return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model as DocumentTypeEnum, this.item.id);
   }

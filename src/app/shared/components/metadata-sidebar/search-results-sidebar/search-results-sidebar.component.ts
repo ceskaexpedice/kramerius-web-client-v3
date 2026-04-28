@@ -150,8 +150,9 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
         const pid = item.pid;
         const model = item.model;
         const ownParentPid = item.ownParentPid;
+        const ownParentModel = item.ownParentModel;
 
-        url = this.recordHandler.getHandleDocumentUrlByModelAndPid(model as any, pid, ownParentPid);
+        url = this.recordHandler.getHandleDocumentUrlByModelAndPid(model as any, pid, ownParentPid, ownParentModel ?? null);
 
         if (url) {
             const navEvent = event || {
