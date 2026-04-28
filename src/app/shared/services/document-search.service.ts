@@ -170,8 +170,8 @@ export class DocumentSearchService {
     // Navigate to the page
     this.detailViewService.navigateToPage(nextPid);
 
-    // Wait for image to fully load, then display results
-    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
+    // Wait for the new page's open cycle to fully complete before drawing
+    this.iiifViewerService.nextPageFullyLoaded$().subscribe(() => {
       this.fetchAndDisplayHighlights(nextPid, this.searchTermSubject.value);
     });
   }
@@ -199,8 +199,8 @@ export class DocumentSearchService {
     // Navigate to the page
     this.detailViewService.navigateToPage(prevPid);
 
-    // Wait for image to fully load, then display results
-    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
+    // Wait for the new page's open cycle to fully complete before drawing
+    this.iiifViewerService.nextPageFullyLoaded$().subscribe(() => {
       this.fetchAndDisplayHighlights(prevPid, this.searchTermSubject.value);
     });
   }
@@ -217,13 +217,22 @@ export class DocumentSearchService {
       this.currentMatchedPageIndexSubject.next(index);
     }
 
+    const isAlreadyOnPage = this.detailViewService.currentPagePid === result.pid;
+
     // Navigate to the page
     this.detailViewService.navigateToPage(result.pid);
 
-    // Wait for image to fully load, then display ALTO highlights
-    this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
+    if (isAlreadyOnPage) {
+      // Viewer won't reload — display highlights immediately
       this.fetchAndDisplayHighlights(result.pid, this.searchTermSubject.value);
-    });
+    } else {
+      // Wait for the NEW page's open cycle to finish before drawing rectangles.
+      // imageLoaded$ can fire from leftover viewport events on the previous page,
+      // which causes overlays to be drawn against stale image dimensions.
+      this.iiifViewerService.nextPageFullyLoaded$().subscribe(() => {
+        this.fetchAndDisplayHighlights(result.pid, this.searchTermSubject.value);
+      });
+    }
   }
 
   /**
@@ -293,7 +302,9 @@ export class DocumentSearchService {
             this.currentMatchedPageIndexSubject.next(currentIndex);
             console.log('Current page index in results:', currentIndex + 1, '/', this.allMatchedPages.length);
 
-            // If current page has matches, display ALTO highlights
+            // If current page has matches, display ALTO highlights.
+            // Restoring from URL: the image may already be loaded, so use the
+            // existing imageLoaded$ which fires on each fully-loaded settle.
             if (currentIndex !== -1) {
               this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
                 this.fetchAndDisplayHighlights(currentPid, searchTerm);
@@ -318,14 +329,20 @@ export class DocumentSearchService {
         this.currentMatchedPageIndexSubject.next(pageIndex);
 
         if (pageToNavigate) {
+          const isAlreadyOnPage = this.detailViewService.currentPagePid === pageToNavigate;
+
           // Navigate to the selected page
           this.detailViewService.navigateToPage(pageToNavigate);
 
-          // Wait for image to fully load, then display ALTO highlights
-          this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
-            console.log('image loaded');
-            this.fetchAndDisplayHighlights(pageToNavigate!, searchTerm);
-          });
+          if (isAlreadyOnPage) {
+            // Viewer won't reload — display highlights immediately
+            this.fetchAndDisplayHighlights(pageToNavigate, searchTerm);
+          } else {
+            // Wait for the new page's open cycle to fully complete
+            this.iiifViewerService.nextPageFullyLoaded$().subscribe(() => {
+              this.fetchAndDisplayHighlights(pageToNavigate!, searchTerm);
+            });
+          }
         }
       },
       error: (error) => {

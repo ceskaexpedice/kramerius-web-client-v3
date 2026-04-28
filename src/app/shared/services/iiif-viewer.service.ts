@@ -146,6 +146,74 @@ export class IIIFViewerService {
   private imageLoadedSubject = new Subject<void>();
   public imageLoaded$ = this.imageLoadedSubject.asObservable();
 
+  /**
+   * Returns an observable that emits exactly once when the NEXT page open cycle
+   * finishes (image fully loaded). Anchors on OpenSeadragon's `open` event so
+   * stale fully-loaded signals from the previous page can't fire it early.
+   *
+   * Use this when you've just triggered a navigation that will reload the viewer
+   * — e.g. drawing search-result rectangles after clicking a different page.
+   */
+  nextPageFullyLoaded$(): Observable<void> {
+    return new Observable<void>(subscriber => {
+      const viewer = this.viewer;
+      if (!viewer) {
+        subscriber.complete();
+        return;
+      }
+
+      let tiledImage: OpenSeadragon.TiledImage | null = null;
+      let onFullyLoaded: ((e: any) => void) | null = null;
+
+      const cleanupTiledImage = () => {
+        if (tiledImage && onFullyLoaded) {
+          tiledImage.removeHandler('fully-loaded-change', onFullyLoaded);
+        }
+        tiledImage = null;
+        onFullyLoaded = null;
+      };
+
+      const waitForFullyLoaded = (item: OpenSeadragon.TiledImage) => {
+        if (item.getFullyLoaded()) {
+          subscriber.next();
+          subscriber.complete();
+          return;
+        }
+        tiledImage = item;
+        onFullyLoaded = (e: any) => {
+          if (e.fullyLoaded) {
+            cleanupTiledImage();
+            subscriber.next();
+            subscriber.complete();
+          }
+        };
+        item.addHandler('fully-loaded-change', onFullyLoaded);
+      };
+
+      const onOpen = () => {
+        viewer.removeHandler('open', onOpen);
+        const item = viewer.world.getItemAt(0);
+        if (item) {
+          waitForFullyLoaded(item);
+        } else {
+          // Image may still be in the process of being added (direct image fallback)
+          const onAddItem = (e: any) => {
+            viewer.world.removeHandler('add-item', onAddItem);
+            waitForFullyLoaded(e.item);
+          };
+          viewer.world.addHandler('add-item', onAddItem);
+        }
+      };
+
+      viewer.addHandler('open', onOpen);
+
+      return () => {
+        viewer.removeHandler('open', onOpen);
+        cleanupTiledImage();
+      };
+    });
+  }
+
   private selectedAreaSubject = new BehaviorSubject<OpenSeadragon.Rect | null>(null);
   public selectedArea$ = this.selectedAreaSubject.asObservable();
 
