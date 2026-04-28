@@ -61,6 +61,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showEdit = false;
   @Input() showSelect = false;
   @Input() showEditSingle = false;
+  @Input() disableEditSingle = false;
   @Input() themeDefault = false;
   @Input() mobileMenuMode = false;
 
@@ -104,7 +105,7 @@ export class ToolbarControlsComponent implements OnChanges {
     if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
       changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
       changes['showDownload'] || changes['showEdit'] || changes['showSelect'] ||
-      changes['showEditSingle']) {
+      changes['showEditSingle'] || changes['disableEditSingle']) {
       this.updateMergedActions();
     }
   }
@@ -138,7 +139,7 @@ export class ToolbarControlsComponent implements OnChanges {
     }
 
     if (this.showEditSingle && this.userService.isLoggedIn && this.userService.isAdmin) {
-      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: false, label: 'Edit' });
+      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: this.disableEditSingle, label: 'Edit' });
     }
 
     if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
