@@ -20,6 +20,24 @@ body {
   box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+  width: calc(var(--spacing-x1) + 2 * var(--spacing-x1));
+  height: calc(var(--spacing-x1) + 2 * var(--spacing-x1));
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-contrast);
+  background-clip: padding-box;
+  border: var(--spacing-x1) solid transparent;
+  border-top-width: var(--spacing-x2);
+  border-bottom-width: var(--spacing-x2);
+  border-radius: var(--spacing-x1);
+}
+
 ul,
 ol {
   list-style: none;
