@@ -40,7 +40,7 @@
         }
 
         .logo-cdk {
-            height: 36px;
+            height: 45px;
             width: auto;
         }
     }
@@ -84,6 +84,10 @@
                 &:hover {
                     opacity: 0.8;
                 }
+
+              &.logo-small {
+                height: 22px;
+              }
 
                 &.logo-large {
                     height: 42px;
@@ -152,7 +156,7 @@
 
         .logo-button {
             .logo-cdk {
-                height: 32px;
+                height: 36px;
             }
         }
     }
@@ -182,6 +186,10 @@
 
                 img {
                     height: 20px;
+
+                  &.logo-small {
+                    height: 22px;
+                  }
 
                     &.logo-large {
                         height: 28px;
