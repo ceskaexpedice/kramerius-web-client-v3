@@ -2,7 +2,7 @@
   <span class="selection-count">{{ 'selected-count' | translate }}: {{ adminModeService.selectedCount() }}</span>
 </ng-container>
 
-<button class="button outlined sm square-button close-button" aria-label="{{ 'Close select mode' | translate }}"
+<button class="button primary sm square-button close-button" aria-label="{{ 'Close select mode' | translate }}"
   *ngIf="adminModeService.adminMode()" (click)="adminModeService.toggle()">
   <i class="icon-close"></i>
 </button>

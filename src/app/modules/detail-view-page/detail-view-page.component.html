@@ -77,7 +77,7 @@
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
               [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
-              [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
+              [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()" [disableEditSingle]="adminModeService.hasSelection()"
               [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
               (infoClicked)="detailViewService.openRecordInfo()"
               [activeViewValue]="detailViewService.soundRecordingViewMode()"

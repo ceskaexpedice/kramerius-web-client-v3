@@ -88,23 +88,6 @@ $filter-height: 44px;
     max-height: calc($num-options * $option-height - $filter-height + 6px);
   }
 
-  // Custom scrollbar styling
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-border, rgba(0,0,0,0.2));
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--color-border-hover, rgba(0,0,0,0.3));
-    }
-  }
 }
 
 .option {
