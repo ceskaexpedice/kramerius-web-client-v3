@@ -90,9 +90,24 @@ export class DetailViewService {
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
   private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
+  private pagesSignal = toSignal(this.pages$, { initialValue: [] as Page[] });
 
   /** True only when at least one sibling issue has day+month, making the date navigator meaningful */
   canShowDateNavigator = computed<boolean>(() => hasCalendarDisplayableChildren(this.periodicalChildrenSignal()));
+
+  /** Single source of truth for PDF document detection */
+  isPdfComputed = computed<boolean>(() => {
+    const doc = this.documentSignal();
+    const pages = this._pages();
+    return !!(doc?.pdf || pages.some((p: any) => p['ds.img_full.mime'] === 'application/pdf'));
+  });
+
+  /** Single source of truth for EPUB document detection */
+  isEpubComputed = computed<boolean>(() => {
+    const doc = this.documentSignal();
+    const pages = this._pages();
+    return !!(pages.some((p: any) => p['ds.img_full.mime'] === 'application/epub+zip') || doc?.model === 'epub');
+  });
 
   constructor() {
     // Latch isDocumentAccessDenied as soon as the document metadata is available.
@@ -308,11 +323,11 @@ export class DetailViewService {
   }
 
   get isPdf(): boolean {
-    return this.document?.pdf || this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/pdf');
+    return this.isPdfComputed();
   }
 
   get isEpub(): boolean {
-    return this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/epub+zip') || this.document?.model === 'epub';
+    return this.isEpubComputed();
   }
 
   get viewerMode() {

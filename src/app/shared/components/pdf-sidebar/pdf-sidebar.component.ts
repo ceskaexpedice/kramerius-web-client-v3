@@ -1,5 +1,6 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnDestroy} from '@angular/core';
 import {PdfService} from '../../services/pdf.service';
+import {SearchDebounceService} from '../../services/search-debounce.service';
 import {PdfContentTreeComponent} from '../pdf-content-tree/pdf-content-tree.component';
 import {InputComponent} from '../input/input.component';
 import {PageNavigatorComponent} from '../page-navigator/page-navigator.component';
@@ -21,9 +22,9 @@ import {SearchNavigationComponent} from '../search-navigation/search-navigation.
   templateUrl: './pdf-sidebar.component.html',
   styleUrl: './pdf-sidebar.component.scss'
 })
-export class PdfSidebarComponent {
+export class PdfSidebarComponent implements OnDestroy {
   public pdfService = inject(PdfService);
-  private searchTimeout: any;
+  private searchDebounceService = inject(SearchDebounceService);
 
   goToNext(): void {
     const currentPage = this.pdfService.getCurrentPage();
@@ -48,15 +49,10 @@ export class PdfSidebarComponent {
     const searchQuery = typeof query === 'string' ? query : query.toString();
     this.pdfService.setSearchQuery(searchQuery);
 
-    // Clear existing timeout
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-
-    // Debounce the search - wait 500ms after user stops typing
-    this.searchTimeout = setTimeout(() => {
+    // Use centralized debounce service instead of manual timeout
+    this.searchDebounceService.debounce('pdf-search', () => {
       this.pdfService.find();
-    }, 500);
+    });
   }
 
   findNextMatch(): void {
@@ -65,6 +61,10 @@ export class PdfSidebarComponent {
 
   findPreviousMatch(): void {
     this.pdfService.findPrevious();
+  }
+
+  ngOnDestroy(): void {
+    this.searchDebounceService.cancel('pdf-search');
   }
 
   protected readonly FindState = FindState;

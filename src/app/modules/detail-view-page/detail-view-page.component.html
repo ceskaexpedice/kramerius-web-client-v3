@@ -1,7 +1,7 @@
 <app-detail-layout [showBottomToolbar]="false" [constrainBottomToolbar]="true"
-  [showRightSidebar]="!breakpointService.isMobile()"
-  [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible"
-  [hideFilterToggle]="breakpointService.isMobile()">
+                   [showRightSidebar]="!breakpointService.isMobile()"
+                   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible"
+                   [hideFilterToggle]="breakpointService.isMobile()">
 
   <ng-container left-sidebar>
     <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
@@ -12,42 +12,37 @@
       </ng-container>
 
       <!-- EPUB Sidebar for EPUB documents -->
-      <ng-container *ngIf="detailViewService.isEpub || document.epub">
+      <ng-container *ngIf="(detailViewService.isEpub || document.epub) && document.model !== DocumentTypeEnum.article">
         <app-epub-sidebar></app-epub-sidebar>
       </ng-container>
 
-      <!-- Document Sidebar for non-PDF/non-EPUB documents or PDF articles -->
+      <!-- Document Sidebar for non-PDF/non-EPUB documents or articles -->
       <ng-container *ngIf="(!document.pdf && !detailViewService.isEpub && !document.epub) || document.model === DocumentTypeEnum.article">
         @let hasArticles = detailViewService.hasArticles$ | async;
         @let hasPages = detailViewService.pagesOnly && detailViewService.pagesOnly.length > 0;
 
-        <!-- Show tabs when document has articles -->
+        <!-- Show tabs when document has both articles and pages -->
         @if (hasArticles && hasPages) {
-        <app-tabs [noPadding]="true">
-          <app-tab-item [label]="'pages--tab' | translate">
-            <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
-          </app-tab-item>
-          <app-tab-item [label]="'articles--tab' | translate">
-            <div class="sidebar--wrapper">
-              <div class="sidebar--wrapper--scroll-content">
-                <app-detail-articles-list></app-detail-articles-list>
+          <app-tabs [noPadding]="true">
+            <app-tab-item [label]="'pages--tab' | translate">
+              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
+            </app-tab-item>
+            <app-tab-item [label]="'articles--tab' | translate">
+              <div class="sidebar--wrapper">
+                <div class="sidebar--wrapper--scroll-content">
+                  <app-detail-articles-list></app-detail-articles-list>
+                </div>
               </div>
-            </div>
-          </app-tab-item>
-        </app-tabs>
-        } @else if (!hasArticles) {
-        <!-- No articles - show document sidebar as before -->
-        <app-document-sidebar [document]="document"></app-document-sidebar>
-        } @else if (!hasPages) {
-        <!-- No pages - show document sidebar as before -->
-        <app-document-sidebar [document]="document"></app-document-sidebar>
+            </app-tab-item>
+          </app-tabs>
+        } @else if (hasArticles && !hasPages) {
+          <!-- Only articles, no pages - show articles list via document-sidebar for search support -->
+          <app-document-sidebar [document]="document" [mode]="'articles'"></app-document-sidebar>
+        } @else {
+          <!-- Only pages or no articles - show document sidebar -->
+          <app-document-sidebar [document]="document"></app-document-sidebar>
         }
       </ng-container>
-      <!--      TODO: code bellow will be removed after uncommented code for tabs-->
-
-      <!--      <ng-container *ngIf="!document.pdf || document.model === DocumentTypeEnum.article">-->
-      <!--        <app-document-sidebar [document]="document"></app-document-sidebar>-->
-      <!--      </ng-container>-->
 
     </div>
   </ng-container>
@@ -57,35 +52,35 @@
       <app-action-toolbar [hasCenterContent]="document?.rootModel === DocumentTypeEnum.periodical && document.model === DocumentTypeEnum.periodicalitem">
         <div class="max-width-100" left>
           <app-toolbar-header [title]="document?.mainTitle || ''"
-            [showBackButton]="recordHandler.shouldShowBackButton(document)"
-            [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical"
-            (titleClick)="recordHandler.clickedToolbarTitle(document.rootModel, document.rootPid)"
-            (goBack)="recordHandler.goBackClicked(document)">
+                              [showBackButton]="recordHandler.shouldShowBackButton(document)"
+                              [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical"
+                              (titleClick)="recordHandler.clickedToolbarTitle(document.rootModel, document.rootPid)"
+                              (goBack)="recordHandler.goBackClicked(document)">
           </app-toolbar-header>
         </div>
         <div center>
           <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
             <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
-              [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
-              (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-              (goToNext)="detailViewService.goToNextPeriodicalIssue()"
-              (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
+                                [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
+                                (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+                                (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+                                (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
             </app-date-navigator>
           </ng-container>
         </div>
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
-              [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()" [disableEditSingle]="adminModeService.hasSelection()"
-              [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
-              (infoClicked)="detailViewService.openRecordInfo()"
-              [activeViewValue]="detailViewService.soundRecordingViewMode()"
-              (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
-              (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
-              (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
-              (shareClicked)="recordHandler.openShareDialog(document)"
-              (quoteClicked)="recordHandler.openCitationDialog(document)">
+                                  [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
+                                  [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
+                                  [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
+                                  (infoClicked)="detailViewService.openRecordInfo()"
+                                  [activeViewValue]="detailViewService.soundRecordingViewMode()"
+                                  (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
+                                  (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
+                                  (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
+                                  (shareClicked)="recordHandler.openShareDialog(document)"
+                                  (quoteClicked)="recordHandler.openCitationDialog(document)">
             </app-toolbar-controls>
           </div>
         </div>
@@ -97,12 +92,12 @@
     <app-inline-loader *ngIf="detailViewService.loading$ | async" [overlay]="true"></app-inline-loader>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <div class="detail-view--page--content--body"
-        [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
-        [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
+           [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
+           [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"
-          [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
-          [class.selection-mode]="iiifViewerService.isSelectionMode$ | async"
-          [class.hidden]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
+             [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
+             [class.selection-mode]="iiifViewerService.isSelectionMode$ | async"
+             [class.hidden]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
 
           <!-- Check if user has access to the document -->
@@ -112,66 +107,66 @@
           <!-- Show access denied after access check completes and fails -->
           @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) &&
           !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
-          <app-document-access-denied [metadata]="document"
-            [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
-          </app-document-access-denied>
+            <app-document-access-denied [metadata]="document"
+                                        [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+            </app-document-access-denied>
           } @else if (checkState === 'INITIAL') {
-          <!-- Show loader while access is being checked for the first time -->
-          <app-inline-loader></app-inline-loader>
+            <!-- Show loader while access is being checked for the first time -->
+            <app-inline-loader></app-inline-loader>
           } @else {
-          <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
-          @let articleMetadata = articleMetadata$ | async;
-          @if (articleMetadata) {
-          <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
-          } @else {
+            <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
+            @let articleMetadata = articleMetadata$ | async;
+            @if (articleMetadata) {
+              <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
+            } @else {
 
-          <!-- Fallback to document/page viewer when no article -->
-          @if (detailViewService.isPdf) {
-          <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
-          } @else if (detailViewService.isEpub || document.epub) {
-          <app-epub-viewer [metadata]="document"></app-epub-viewer>
-          } @else {
-          <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-            [metadata]="document" [imagePid]="detailViewService.currentPagePid">
-          </app-iiif-viewer>
-          }
-          }
+              <!-- Fallback to document/page viewer when no article -->
+              @if (detailViewService.isPdf) {
+                <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+              } @else if (detailViewService.isEpub || document.epub) {
+                <app-epub-viewer [metadata]="document"></app-epub-viewer>
+              } @else {
+                <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+                                 [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+                </app-iiif-viewer>
+              }
+            }
           }
         </div>
 
         @if (!detailViewService.metadataSidebarVisible && !breakpointService.isMobile()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded"
-          (click)="detailViewService.showMetadataSidebar()">
-          <i class="icon-info-full"></i>
-        </button>
+          <button class="floating-sidebar-toggle button icon-button primary rounded"
+                  (click)="detailViewService.showMetadataSidebar()">
+            <i class="icon-info-full"></i>
+          </button>
         }
 
         <!-- Viewer controls - hide when AI panel is in ai-only mode (viewer not visible) -->
         @if (documentInfoService.canAccessDocument(document.licences) && !(aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only')) {
-        @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
-        @if (!(pdfService.properties$ | async)?.fullscreen) {
-        <app-viewer-controls type="pdf"></app-viewer-controls>
-        }
-        } @else if (detailViewService.isEpub || document.epub) {
-        <app-viewer-controls type="epub"></app-viewer-controls>
-        } @else {
-        @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
-        <app-viewer-controls type="image"></app-viewer-controls>
-        }
+          @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
+            @if (!(pdfService.properties$ | async)?.fullscreen) {
+              <app-viewer-controls type="pdf"></app-viewer-controls>
+            }
+          } @else if (detailViewService.isEpub || document.epub) {
+            <app-viewer-controls type="epub"></app-viewer-controls>
+          } @else {
+            @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+              <app-viewer-controls type="image"></app-viewer-controls>
+            }
 
-        @if (iiifViewerService.isSelectionMode$ | async) {
-        @let isDragging = iiifViewerService.isDragging$ | async;
-        @let hasSelection = iiifViewerService.selectedArea$ | async;
-        @if (!isDragging && !!hasSelection) {
-        <app-selection-mode-info (editSelection)="iiifViewerService.clearSelectedArea()">
-        </app-selection-mode-info>
-        }
-        }
-        }
+            @if (iiifViewerService.isSelectionMode$ | async) {
+              @let isDragging = iiifViewerService.isDragging$ | async;
+              @let hasSelection = iiifViewerService.selectedArea$ | async;
+              @if (!isDragging && !!hasSelection) {
+                <app-selection-mode-info (editSelection)="iiifViewerService.clearSelectedArea()">
+                </app-selection-mode-info>
+              }
+            }
+          }
         }
 
         @if (aiPanelService.panelVisible()) {
-        <app-ai-content-panel></app-ai-content-panel>
+          <app-ai-content-panel></app-ai-content-panel>
         }
       </div>
     </ng-container>
@@ -180,7 +175,7 @@
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-metadata-sidebar [metadata]="document" mode="floating"
-        [tools]="{search: true, export: true, description: true, ai: true}">
+                            [tools]="{search: true, export: true, description: true, ai: true}">
       </app-metadata-sidebar>
     </ng-container>
   </ng-container>
@@ -189,7 +184,7 @@
     <app-license-bar></app-license-bar>
   </ng-container>
 
-  <!--  <ng-container bottom-toolbar *ngIf="!detailViewService.document?.pdf">-->
+  <!--  <ng-container bottom-toolbar *ngIf="!detailViewService.isPdf">-->
   <!--    <app-detail-view-bottom-toolbar></app-detail-view-bottom-toolbar>-->
   <!--  </ng-container>-->
 
@@ -215,7 +210,7 @@
       @switch (mobileActivePanel()) {
         @case ('description') {
           <app-metadata-section [showTitle]="true" [metadata]="document"
-            [uuid]="detailViewService.document?.uuid || document.uuid || ''">
+                                [uuid]="detailViewService.document?.uuid || document.uuid || ''">
           </app-metadata-section>
         }
         @case ('export') {
@@ -233,10 +228,10 @@
 }
 
 @if (favoritesHelper.favoritesPopupState.showPopup()) {
-<div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
-  <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
-    [showHierarchySelector]="favoritesHelper.showHierarchySelector()" [document]="detailViewService.document$ | async"
-    (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
-  </app-favorites-popup>
-</div>
+  <div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+    <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
+                         [showHierarchySelector]="favoritesHelper.showHierarchySelector()" [document]="detailViewService.document$ | async"
+                         (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
+    </app-favorites-popup>
+  </div>
 }
