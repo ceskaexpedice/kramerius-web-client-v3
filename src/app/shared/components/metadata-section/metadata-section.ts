@@ -106,6 +106,13 @@ export class MetadataSection implements OnInit, OnChanges {
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
+  hasAfterLoginLicense = computed(() => {
+    const docLicences = this._data()?.licences || [];
+    if (!docLicences.length) return false;
+    const afterLogin = this.configService.getAfterLoginLicenses();
+    return docLicences.some(l => afterLogin.includes(l));
+  });
+
   // CDK aggregator: sources (collections) for this document and the selected one.
   cdkCollections = signal<string[]>([]);
   selectedCdkCollection = signal<string>('');

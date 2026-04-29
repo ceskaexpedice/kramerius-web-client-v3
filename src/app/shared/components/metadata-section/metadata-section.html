@@ -64,7 +64,7 @@
     </div>
   </app-metadata-section-item>
 
-  @if (runtimeLicenses() && runtimeLicenses().length > 0) {
+  @if (hasAfterLoginLicense() && runtimeLicenses() && runtimeLicenses().length > 0) {
     <section class="provided-licenses">
       <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
       @for (license of runtimeLicenses(); track license) {
