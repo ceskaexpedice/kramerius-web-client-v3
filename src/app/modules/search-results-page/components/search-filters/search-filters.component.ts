@@ -59,9 +59,7 @@ import { ConfigService } from '../../../../core/config/config.service';
           (rangeChange)="onYearRangeChange($event)"
         >
           <button
-            class="outlined submit-year-range-btn w-100"
-            [class.disabled]="!hasYearRangeChanged"
-            [disabled]="!hasYearRangeChanged"
+            class="outlined tertiary submit-year-range-btn w-100"
             (click)="submitYearRange()">
             {{ 'submit' | translate }}
           </button>
