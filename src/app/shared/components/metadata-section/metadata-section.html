@@ -64,6 +64,32 @@
     </div>
   </app-metadata-section-item>
 
+  @if (runtimeLicenses() && runtimeLicenses().length > 0) {
+    <section class="provided-licenses">
+      <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
+      @for (license of runtimeLicenses(); track license) {
+        <div class="provided-licenses__item">
+          @if (getProvidedByLicenseUrl(license); as url) {
+            <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">
+              {{ license | translate }}
+            </a>
+          } @else {
+            <span class="provided-licenses__link">{{ license | translate }}</span>
+          }
+          @if (getProvidedByLicenseImage(license); as imgSrc) {
+            @if (getProvidedByLicenseUrl(license); as url) {
+              <a [href]="url" target="_blank" rel="noopener noreferrer">
+                <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
+              </a>
+            } @else {
+              <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
   <!-- Donators -->
   @if ((data.donators || []).length) {
   <div class="donators">

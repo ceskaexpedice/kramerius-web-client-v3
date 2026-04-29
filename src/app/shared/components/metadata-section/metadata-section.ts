@@ -580,6 +580,18 @@ export class MetadataSection implements OnInit, OnChanges {
     'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
   };
 
+  private readonly providedByLicensesMap: Record<string, string> = {
+    'dnnto': 'https://dnnt.cz/'
+  }
+
+  getProvidedByLicenseImage(license: string): string {
+    return `/img/logo/provided-by-licenses/${license}-logo.png`;
+  }
+
+  getProvidedByLicenseUrl(license: string): string {
+    return this.providedByLicensesMap[license.toLowerCase()] ?? null;
+  }
+
   getDonatorImage(donator: string): string | null {
     return `/img/logo/donator/${donator.toLowerCase()}.png`;
   }
