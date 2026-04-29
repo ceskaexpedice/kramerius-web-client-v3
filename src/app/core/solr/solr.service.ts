@@ -398,6 +398,8 @@ export class SolrService {
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement, includeArticle);
 
+    console.log('includeArticle::', includeArticle);
+
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
     const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];

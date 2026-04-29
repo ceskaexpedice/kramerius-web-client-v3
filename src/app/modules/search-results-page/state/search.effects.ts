@@ -56,8 +56,8 @@ export class SearchEffects {
       }, currentFacets, facetOperators]) => {
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
-        const includeSupplement = this.customSearchService.isSupplementFilterActive();
-        const includeArticle = this.customSearchService.isArticleFilterActive();
+        const includeSupplement = this.customSearchService.isSupplementFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+        const includeArticle = this.customSearchService.isArticleFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
         // Availability filter: active when "Available only" toggle is ON
         const availabilityFilter = {
