@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effec
 import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../services/user.service';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { CdkTooltipDirective } from '../../directives';
 import { MenuComponent, MenuItem } from '../menu/menu.component';
 
@@ -91,11 +92,13 @@ export class ToolbarControlsComponent implements OnChanges {
   }
 
   private userService = inject(UserService);
+  private adminModeService = inject(AdminModeService);
 
   constructor() {
     effect(() => {
       // Re-run update when user permissions change
       this.userService.userSession$();
+      this.adminModeService.hasSelection();
       this.updateMergedActions();
     });
   }
@@ -139,7 +142,7 @@ export class ToolbarControlsComponent implements OnChanges {
     }
 
     if (this.showEditSingle && this.userService.isLoggedIn && this.userService.isAdmin) {
-      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: this.disableEditSingle, label: 'Edit' });
+      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: this.disableEditSingle || this.adminModeService.hasSelection(), label: 'Edit' });
     }
 
     if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
