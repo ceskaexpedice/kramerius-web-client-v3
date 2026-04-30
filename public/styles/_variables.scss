@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light;
+
   // bg color
   --color-bg-base: #fff;
   --color-bg-light: #EFF2F5;
@@ -142,6 +144,8 @@
 }
 
 :root.dark {
+  color-scheme: dark;
+
   // bg color
   --color-bg-base: #0E1216;
   --color-bg-light: #263340;
