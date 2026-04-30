@@ -106,6 +106,13 @@ export class MetadataSection implements OnInit, OnChanges {
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
+  hasAfterLoginLicense = computed(() => {
+    const docLicences = this._data()?.licences || [];
+    if (!docLicences.length) return false;
+    const afterLogin = this.configService.getAfterLoginLicenses();
+    return docLicences.some(l => afterLogin.includes(l));
+  });
+
   // CDK aggregator: sources (collections) for this document and the selected one.
   cdkCollections = signal<string[]>([]);
   selectedCdkCollection = signal<string>('');
@@ -579,6 +586,18 @@ export class MetadataSection implements OnInit, OnChanges {
     'ilnorway': 'https://eeagrants.org',
     'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
   };
+
+  private readonly providedByLicensesMap: Record<string, string> = {
+    'dnnto': 'https://dnnt.cz/'
+  }
+
+  getProvidedByLicenseImage(license: string): string {
+    return `/img/logo/provided-by-licenses/${license}-logo.png`;
+  }
+
+  getProvidedByLicenseUrl(license: string): string {
+    return this.providedByLicensesMap[license.toLowerCase()] ?? null;
+  }
 
   getDonatorImage(donator: string): string | null {
     return `/img/logo/donator/${donator.toLowerCase()}.png`;

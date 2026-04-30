@@ -9,6 +9,14 @@
   <div class="dialog-body">
     <div class="content">
       <p>{{ 'close-confirmation-dialog--message' | translate }}</p>
+
+      <div class="dont-ask-again--container">
+        <mat-checkbox class="p-left-0" [(ngModel)]="dontShowAgain">
+          <label>
+            {{ 'dont-ask-again' | translate }}
+          </label>
+        </mat-checkbox>
+      </div>
     </div>
   </div>
 

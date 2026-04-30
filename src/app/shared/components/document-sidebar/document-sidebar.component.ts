@@ -8,10 +8,10 @@ import { DetailArticlesListComponent } from '../../../modules/detail-view-page/c
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { Metadata } from '../../models/metadata.model';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { SearchNavigationComponent } from '../search-navigation/search-navigation.component';
 import { SearchResultsListComponent, SearchResult } from '../search-results-list/search-results-list.component';
 import { DocumentSearchService } from '../../services/document-search.service';
@@ -21,6 +21,7 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FindState } from 'ngx-extended-pdf-viewer';
+import { SearchDebounceService } from '../../services/search-debounce.service';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -47,16 +48,18 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode?: 'pages' | 'articles';
 
   public detailViewService = inject(DetailViewService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   public iiifViewerService = inject(IIIFViewerService);
   public documentSearchService = inject(DocumentSearchService);
   public pdfService = inject(PdfService);
+  private searchDebounceService = inject(SearchDebounceService);
 
   protected readonly FindState = FindState;
 
   // Local signal that syncs with the service's observable for the autocomplete component
   public searchTerm = signal('');
   public showAllPages = false;
+  private searchTermSub!: Subscription;
 
   // Convert searchQuery$ observable to a signal for reactive checks
   public searchQuery = toSignal(this.iiifViewerService.searchQuery$, { initialValue: null });
@@ -65,7 +68,7 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor() {
     // Sync the local signal with the service's observable
-    this.documentSearchService.searchTerm$.subscribe(term => {
+    this.searchTermSub = this.documentSearchService.searchTerm$.subscribe(term => {
       this.searchTerm.set(term);
     });
   }
@@ -86,6 +89,8 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.searchTermSub?.unsubscribe();
+    this.searchDebounceService.cancel('document-pdf-search');
   }
 
   get isSoundRecording(): boolean {
@@ -191,20 +196,17 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
 
   }
 
-  // PDF in-document search methods (used when isPdf is true)
-  private pdfSearchTimeout: any;
-
+  /**
+   * PDF in-document search methods for PDF articles (non-native PDFs)
+   */
   onPdfSearchChange(query: string | number): void {
     const searchQuery = typeof query === 'string' ? query : query.toString();
     this.pdfService.setSearchQuery(searchQuery);
 
-    if (this.pdfSearchTimeout) {
-      clearTimeout(this.pdfSearchTimeout);
-    }
-
-    this.pdfSearchTimeout = setTimeout(() => {
+    // Use centralized debounce service
+    this.searchDebounceService.debounce('document-pdf-search', () => {
       this.pdfService.find();
-    }, 500);
+    });
   }
 
   findNextPdfMatch(): void {

@@ -1,7 +1,7 @@
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SelectionService, AdminModeService } from '../../services';
+import { AdminModeService } from '../../services';
 import { AdminActionsService } from '../../services/admin-actions.service';
 
 @Component({
@@ -16,8 +16,7 @@ import { AdminActionsService } from '../../services/admin-actions.service';
 })
 export class AdminActionsComponent {
   @Input() compact: boolean = false;
-  
-  public selectionService = inject(SelectionService);
+
   public adminModeService = inject(AdminModeService);
   private adminActionsService = inject(AdminActionsService);
 
@@ -25,34 +24,26 @@ export class AdminActionsComponent {
   @Output() editRequested = new EventEmitter<string[]>();
 
   onSelectAll(): void {
-    this.selectionService.selectAllVisible();
+    this.adminModeService.selectAllVisible();
   }
 
   onDeselectAll(): void {
-    this.selectionService.deselectAllVisible();
+    this.adminModeService.deselectAllVisible();
   }
 
   onToggleAllVisible(): void {
-    this.selectionService.toggleAllVisible();
+    this.adminModeService.toggleAllVisible();
   }
 
   onExportSelected(): void {
-    const selectedIds = this.selectionService.getSelectedIds();
-    
-    // Emit event for parent components that may need to know
+    const selectedIds = this.adminModeService.getSelectedIds();
     this.exportRequested.emit(selectedIds);
-    
-    // Use the service to handle the export action
     this.adminActionsService.performExportAction(selectedIds);
   }
 
   onEditSelected(): void {
-    const selectedIds = this.selectionService.getSelectedIds();
-    
-    // Emit event for parent components that may need to know
+    const selectedIds = this.adminModeService.getSelectedIds();
     this.editRequested.emit(selectedIds);
-    
-    // Use the service to handle the edit action
     this.adminActionsService.performEditAction(selectedIds);
   }
 }

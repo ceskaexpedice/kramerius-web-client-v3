@@ -25,6 +25,10 @@
   .scope-section {
     .radio-group {
       margin-top: var(--spacing-x2);
+
+      &--single {
+        margin-top: 0;
+      }
     }
   }
 }

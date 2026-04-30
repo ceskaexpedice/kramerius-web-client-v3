@@ -8,7 +8,7 @@ import { SolrService } from '../../../core/solr/solr.service';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.component';
 import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { Observable, EMPTY, take } from 'rxjs';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
@@ -46,7 +46,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   solrService = inject(SolrService);
   favoritesService = inject(FavoritesService);
   popupPositioning = inject(PopupPositioningService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   private savedListsService = inject(SavedListsService);
   private envService = inject(EnvironmentService);
   private translateService = inject(TranslateService);
@@ -96,9 +96,9 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   onRecordClick(e: MouseEvent): void {
     if (!this.item) return;
-    if (this.selectionService.selectionMode()) {
+    if (this.adminModeService.adminMode()) {
       e.preventDefault();
-      this.selectionService.toggleItem(this.item.id);
+      this.adminModeService.toggleItem(this.item.id);
     } else if (this.item.externalUrl) {
 
     } else {
@@ -109,9 +109,9 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   onSelectionChange(selected: boolean): void {
     if (!this.item) return;
     if (selected) {
-      this.selectionService.selectItem(this.item.id);
+      this.adminModeService.selectItem(this.item.id);
     } else {
-      this.selectionService.deselectItem(this.item.id);
+      this.adminModeService.deselectItem(this.item.id);
     }
   }
 
@@ -130,7 +130,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
       return this.item.externalUrl;
     }
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
-      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid);
+      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid, this.item.ownParentModel ?? null);
     }
     return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model as DocumentTypeEnum, this.item.id);
   }
@@ -206,7 +206,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
   shouldShowFavoriteButton(): boolean {
     if (!this.item) return false;
-    return this.item.showFavoriteButton !== false && !this.selectionService.selectionMode();
+    return this.item.showFavoriteButton !== false && !this.adminModeService.adminMode();
   }
 
   getLocalizedCollectionDescription() {

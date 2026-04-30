@@ -1,5 +1,25 @@
 .content {
   padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x4);
+}
+
+p {
+  margin: 0;
+}
+
+.dont-ask-again--container {
+  color: var(--color-text-tertiary);
+  gap: var(--spacing-x2);
+}
+
+.reopen-message {
+  font-size: var(--font-size-small);
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
 }
 
 .dialog-footer {

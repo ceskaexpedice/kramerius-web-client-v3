@@ -31,28 +31,49 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private subscriptions: Subscription[] = [];
   private isInitialLoad = true;
   private pendingPageNavigation: number | null = null;
+  private currentPageSubscription: Subscription | null = null;
 
   constructor() {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['metadata']) {
+      const isFirstChange = changes['metadata'].firstChange;
+
       this.pdfService.uuid = this.metadata?.uuid || null;
-      if (!changes['metadata'].firstChange) {
-        this.checkAndNavigateToUrlPage();
+
+      // When metadata changes to a new article, re-establish subscriptions
+      // because ngOnInit won't be called again (component is not recreated)
+      if (!isFirstChange && changes['metadata'].previousValue?.uuid !== this.metadata?.uuid) {
+        console.log('[PdfViewer] Re-establishing subscriptions for new article');
+        this.setupSubscriptions();
       }
+
+      this.checkAndNavigateToUrlPage();
     }
   }
 
-  ngOnInit(): void {
-    this.pdfService.uuid = this.metadata?.uuid || null;
+  private setupSubscriptions(): void {
+    // Unsubscribe from old subscription if exists
+    if (this.currentPageSubscription) {
+      this.currentPageSubscription.unsubscribe();
+    }
 
-    const pageChangeSub = this.pdfService.currentPage$.subscribe(page => {
+    // Subscribe to current page changes
+    this.currentPageSubscription = this.pdfService.currentPage$.subscribe(page => {
       if (!this.isInitialLoad && page > 0) {
         this.updateUrlWithPage(page);
       }
     });
-    this.subscriptions.push(pageChangeSub);
+    this.subscriptions.push(this.currentPageSubscription);
+  }
+
+  ngOnInit(): void {
+    console.log('[PdfViewer] ngOnInit - metadata.uuid:', this.metadata?.uuid);
+    this.pdfService.uuid = this.metadata?.uuid || null;
+
+    // Setup subscriptions on initial load
+    this.setupSubscriptions();
 
     this.checkAndNavigateToUrlPage();
   }
@@ -145,6 +166,13 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     setTimeout(() => {
       this.pdfService.setPdfViewerReady();
       console.log('PDF viewer marked as ready for search');
+
+      // If the URL carried a ?fulltext= term, run the PDF search now that the viewer is ready.
+      // const fulltextParam = this.route.snapshot.queryParams['fulltext'];
+      // if (fulltextParam && fulltextParam.trim().length > 0) {
+      //   this.pdfService.setSearchQuery(fulltextParam.trim());
+      //   this.pdfService.find();
+      // }
     }, 1000);
   }
 

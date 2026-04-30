@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
 import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders } from './state';
-import { first, map } from 'rxjs';
+import { combineLatest, first, map } from 'rxjs';
 import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers';
 import { ViewMode } from '../periodical/models/view-mode.enum';
 import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -74,17 +74,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       this.store.dispatch(FoldersActions.loadFirstFolderOnInit());
     } else {
       // Check if folder details are already loading or loaded
-      this.store.select(selectFolderDetailsLoading).pipe(first()).subscribe(isLoading => {
-        this.store.select(selectFolderDetails).pipe(first()).subscribe(folderDetails => {
-          const isAlreadyLoadingThisFolder = isLoading;
-          const isAlreadyLoadedThisFolder = folderDetails?.uuid === uuid;
+      combineLatest([
+        this.store.select(selectFolderDetailsLoading),
+        this.store.select(selectFolderDetails)
+      ]).pipe(first()).subscribe(([isLoading, folderDetails]) => {
+        const isAlreadyLoadingThisFolder = isLoading;
+        const isAlreadyLoadedThisFolder = folderDetails?.uuid === uuid;
 
-          if (!isAlreadyLoadingThisFolder && !isAlreadyLoadedThisFolder) {
-            // Load specific folder based on UUID only if not already loading/loaded
-            this.store.dispatch(FoldersActions.loadFolderDetails({ uuid }));
-          } else {
-          }
-        });
+        if (!isAlreadyLoadingThisFolder && !isAlreadyLoadedThisFolder) {
+          // Load specific folder based on UUID only if not already loading/loaded
+          this.store.dispatch(FoldersActions.loadFolderDetails({ uuid }));
+        }
       });
     }
 

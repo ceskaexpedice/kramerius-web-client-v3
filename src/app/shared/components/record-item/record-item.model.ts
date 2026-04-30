@@ -32,6 +32,9 @@ export interface RecordItem {
   /** Parent PID for pages (special URL handling) */
   ownParentPid?: string;
 
+  /** Parent model for pages (e.g. 'article' for article-child pages) */
+  ownParentModel?: DocumentTypeEnum;
+
   /** OCR highlighting text for pages */
   highlighting?: string[];
 
@@ -76,6 +79,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     authors: doc.authors,
     date: doc.date,
     ownParentPid: doc.ownParentPid,
+    ownParentModel: doc.ownParentModel,
     highlighting: doc.highlighting,
     className: '',
     showFavoriteButton: true,

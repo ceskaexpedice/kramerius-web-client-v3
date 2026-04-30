@@ -144,15 +144,6 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: var(--spacing-x8);
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--color-bg-bright);
-    border-radius: var(--spacing-x1);
-  }
 }
 
 .facet-item {

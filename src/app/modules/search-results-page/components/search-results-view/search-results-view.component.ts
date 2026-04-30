@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, signal } from '@angular
 import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { SearchService } from '../../../../shared/services/search.service';
 import { AdvancedSearchService } from '../../../../shared/services/advanced-search.service';
-import { SelectionService } from '../../../../shared/services';
+import { AdminModeService } from '../../../../shared/services';
 import { AppResultsViewType } from '../../../settings/settings.model';
 import { SearchDocument } from '../../../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../../../shared/components/record-item/record-item.model';
@@ -58,7 +58,7 @@ export class SearchResultsViewComponent {
 
   searchService = inject(SearchService);
   advancedSearchService = inject(AdvancedSearchService);
-  selectionService = inject(SelectionService);
+  adminModeService = inject(AdminModeService);
   breakpointService = inject(BreakpointService);
 
   protected readonly ViewOptions = AppResultsViewType;

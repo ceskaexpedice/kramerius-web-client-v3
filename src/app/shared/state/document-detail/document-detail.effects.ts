@@ -13,6 +13,7 @@ import { APP_ROUTES_ENUM } from "../../../app.routes";
 import { ROUTER_NAVIGATED } from '@ngrx/router-store';
 import { selectRouterUrl, selectRouterQueryParams } from '../router/router.selectors';
 import { pickCdkCollection } from '../../utils/cdk-collection';
+import { LibraryContextService } from '../../services/library-context.service';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -21,6 +22,7 @@ export class DocumentDetailEffects {
     private solr: SolrService,
     private store: Store,
     private router: Router,
+    private libraryContext: LibraryContextService,
   ) {
   }
 
@@ -69,6 +71,22 @@ export class DocumentDetailEffects {
         if ((isMonograph && hasMonographUnits) || isConvolute) {
           console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
           this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
+        }
+      }),
+      tap(({ detailItem }) => {
+        // Article landed as the route doc (e.g. via a search-result link). Redirect to
+        // its parent issue so the periodical articles list / sibling navigation works,
+        // while preserving ?article=<this article> and any ?page=/?fulltext= params.
+        const isArticle = detailItem?.model === DocumentTypeEnum.article;
+        const parentPid = detailItem?.['own_parent.pid'];
+        if (isArticle && parentPid && parentPid !== uuid) {
+          console.log('Article route doc detected, redirecting to parent issue:', parentPid);
+          const currentTree = this.router.parseUrl(this.router.url);
+          const queryParams = { ...currentTree.queryParams, article: uuid };
+          this.router.navigate(
+            this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.DETAIL_VIEW, parentPid]),
+            { queryParams, replaceUrl: true }
+          );
         }
       }),
       switchMap(({ detailItem, children }) => {

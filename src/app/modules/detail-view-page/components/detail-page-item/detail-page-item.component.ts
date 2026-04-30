@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { EnvironmentService } from '../../../../shared/services/environment.service';
 import {LowerCasePipe, NgClass, NgIf} from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
-import { SelectionService } from '../../../../shared/services';
+import { AdminModeService } from '../../../../shared/services';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ThumbnailImageComponent } from '../../../../shared/components/thumbnail-image/thumbnail-image.component';
 
@@ -29,7 +29,7 @@ export class DetailPageItemComponent {
   private krameriusBaseUrl: string;
 
   private envService = inject(EnvironmentService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
   @Input() pageNumber: string | number | null = '0';
@@ -43,8 +43,8 @@ export class DetailPageItemComponent {
   @Input() isAccessible: boolean = false;
   @Input() lockStyle: 'terminal' | 'dnntt' | 'default' = 'default';
 
-  // Local selection mode inputs (when not using global SelectionService)
-  @Input() localSelectionMode: boolean = false; // If true, use local selection instead of SelectionService
+  // Local selection mode inputs (when not using global AdminModeService)
+  @Input() localSelectionMode: boolean = false;
   @Input() localIsSelected: boolean = false; // Local selection state
 
   // Page type label (e.g. 'normalpage', 'titlepage', etc.)
@@ -85,9 +85,9 @@ export class DetailPageItemComponent {
     if (this.localSelectionMode) {
       event.preventDefault();
       this.selectionToggled.emit({ selected: !this.localIsSelected, event });
-    } else if (this.selectionService.selectionMode()) {
+    } else if (this.adminModeService.adminMode()) {
       event.preventDefault();
-      this.selectionService.toggleItem(this.page.pid);
+      this.adminModeService.toggleItem(this.page.pid);
     } else {
       this.pageClicked.emit();
     }
@@ -99,23 +99,23 @@ export class DetailPageItemComponent {
       this.selectionToggled.emit({ selected });
     } else {
       if (selected) {
-        this.selectionService.selectItem(this.page.pid);
+        this.adminModeService.selectItem(this.page.pid);
       } else {
-        this.selectionService.deselectItem(this.page.pid);
+        this.adminModeService.deselectItem(this.page.pid);
       }
     }
   }
 
   // Helper method to determine if selection mode is active (global or local)
   isInSelectionMode(): boolean {
-    return this.localSelectionMode || this.selectionService.selectionMode();
+    return this.localSelectionMode || this.adminModeService.adminMode();
   }
 
   // Helper method to determine if this item is selected (global or local)
   isItemSelected(): boolean {
     return this.localSelectionMode
       ? this.localIsSelected
-      : this.selectionService.isSelected(this.page.pid);
+      : this.adminModeService.isSelected(this.page.pid);
   }
 
 }

@@ -1,33 +1,74 @@
 <div class="footer-left">
-    <img [src]="footerLogo" alt="Česká digitální knihovna" class="logo-cdk" (click)="logoClicked()">
+    <button
+        type="button"
+        class="logo-button"
+        [attr.aria-label]="'footer.home-link' | translate"
+        (click)="onLogoClick()"
+    >
+        <img [src]="footerLogo" alt="Česká digitální knihovna" class="logo-cdk">
+    </button>
 </div>
 
 <div class="footer-middle">
     <div class="footer-group">
-        <span class="group-label">{{ 'footer.financed-by' | translate }}</span>
-        <span class="logo-text">RightLib</span>
+        <span class="group-label" id="financed-label">{{ 'footer.financed-by' | translate }}</span>
+        <span class="logo-text" aria-labelledby="financed-label">RightLib</span>
     </div>
+
     <div class="footer-group">
-        <span class="group-label">{{ 'footer.operated-by' | translate }}</span>
-        <div class="logos">
+        <span class="group-label" id="operated-label">{{ 'footer.operated-by' | translate }}</span>
+        <div class="logos" role="group" aria-labelledby="operated-label">
             <img src="img/logo/mzk-logo.png" alt="Moravská zemská knihovna">
             <img src="img/logo/nk-logo.png" alt="Národní knihovna">
             <img src="img/logo/avcr-logo.png" alt="Knihovna Akademie věd ČR">
         </div>
     </div>
+
     <div class="footer-group">
-        <span class="group-label">{{ 'footer.development' | translate }}</span>
-        <div class="logos">
-            <img src="img/logo/trinera-logo.png" alt="Trinera">
-            <img [src]="effectiveTheme === 'dark' ? 'img/logo/inovatika-logo-dark.png' : 'img/logo/inovatika-logo.png'" alt="Inovatika">
+        <span class="group-label" id="development-label">{{ 'footer.development' | translate }}</span>
+        <div class="logos" role="group" aria-labelledby="development-label">
+            <img
+                src="img/logo/trinera-logo.png"
+                alt="Trinera"
+                class="logo-large"
+            >
+            <img
+                [src]="getInovatikaLogo()"
+                class="logo-small"
+                alt="Inovatika"
+            >
         </div>
     </div>
 </div>
 
 <div class="footer-right">
-    <ul class="footer-links">
-        <li><a href="https://www.instagram.com/ceskadigitalniknihovna" target="_blank">Instagram</a></li>
-        <li><a href="https://www.facebook.com/ceskadigitalniknihovna" target="_blank">Facebook</a></li>
-        <li><a href="/institutions">{{ 'footer.participating-institutions' | translate }}</a></li>
-    </ul>
+    <nav class="footer-nav" aria-label="Social links">
+        <ul class="footer-links">
+            <li>
+                <a
+                    href="https://www.instagram.com/ceskadigitalniknihovna"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                >
+                    Instagram
+                </a>
+            </li>
+            <li>
+                <a
+                    href="https://www.facebook.com/ceskadigitalniknihovna"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                >
+                    Facebook
+                </a>
+            </li>
+            <li>
+                <a href="/institutions" class="social-link">
+                    {{ 'footer.participating-institutions' | translate }}
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>

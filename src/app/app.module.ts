@@ -1,5 +1,6 @@
 import { AppComponent } from './app.component';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { ChunkErrorHandler } from './shared/services/chunk-error.handler';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { routes } from './app.routes';
@@ -154,6 +155,10 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     {
       provide: FILTER_SERVICE,
       useExisting: SearchService
+    },
+    {
+      provide: ErrorHandler,
+      useClass: ChunkErrorHandler
     }
   ],
   bootstrap: [AppComponent]

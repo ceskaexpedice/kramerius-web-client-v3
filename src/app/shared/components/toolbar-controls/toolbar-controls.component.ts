@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effec
 import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../services/user.service';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { CdkTooltipDirective } from '../../directives';
 import { MenuComponent, MenuItem } from '../menu/menu.component';
 
@@ -60,6 +61,8 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showDownload = false;
   @Input() showEdit = false;
   @Input() showSelect = false;
+  @Input() showEditSingle = false;
+  @Input() disableEditSingle = false;
   @Input() themeDefault = false;
   @Input() mobileMenuMode = false;
 
@@ -72,6 +75,7 @@ export class ToolbarControlsComponent implements OnChanges {
   @Output() downloadClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() editClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() selectClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() editSingleClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() viewChanged = new EventEmitter<string>();
 
   // Memoized merged actions - only recalculated when inputs change
@@ -88,11 +92,13 @@ export class ToolbarControlsComponent implements OnChanges {
   }
 
   private userService = inject(UserService);
+  private adminModeService = inject(AdminModeService);
 
   constructor() {
     effect(() => {
       // Re-run update when user permissions change
       this.userService.userSession$();
+      this.adminModeService.hasSelection();
       this.updateMergedActions();
     });
   }
@@ -101,7 +107,8 @@ export class ToolbarControlsComponent implements OnChanges {
     // Recalculate mergedActions only when relevant inputs change
     if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
       changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
-      changes['showDownload'] || changes['showEdit'] || changes['showSelect']) {
+      changes['showDownload'] || changes['showEdit'] || changes['showSelect'] ||
+      changes['showEditSingle'] || changes['disableEditSingle']) {
       this.updateMergedActions();
     }
   }
@@ -132,6 +139,10 @@ export class ToolbarControlsComponent implements OnChanges {
     }
     if (this.showEdit) {
       legacyActions.push({ id: 'edit', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.edit', label: 'Edit' });
+    }
+
+    if (this.showEditSingle && this.userService.isLoggedIn && this.userService.isAdmin) {
+      legacyActions.push({ id: 'edit-single', icon: 'icon-edit-2', tooltip: 'toolbar.tooltip.edit-single', disabled: this.disableEditSingle || this.adminModeService.hasSelection(), label: 'Edit' });
     }
 
     if (this.showSelect && this.userService.isLoggedIn && this.userService.isAdmin) {
@@ -184,6 +195,9 @@ export class ToolbarControlsComponent implements OnChanges {
         break;
       case 'select':
         this.selectClicked.emit();
+        break;
+      case 'edit-single':
+        this.editSingleClicked.emit();
         break;
     }
   }

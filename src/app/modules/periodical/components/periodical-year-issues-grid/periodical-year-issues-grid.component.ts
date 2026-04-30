@@ -13,7 +13,6 @@ import { RecordHandlerService } from '../../../../shared/services/record-handler
 import { DocumentTypeEnum } from "../../../constants/document-type";
 import { selectPeriodicalLoading } from '../../state/periodical-detail/periodical-detail.selectors';
 import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-periodical-year-issues-grid',
@@ -36,12 +35,7 @@ export class PeriodicalYearIssuesGridComponent {
   @Input() year!: string;
   @Input() pid!: string;
 
-  // Exclude stray `page` children that Kramerius occasionally indexes directly under a
-  // periodicalvolume (e.g. volume-level TableOfContents pages). The issues grid should
-  // only list issues/supplements.
-  children$ = this.store.select(selectPeriodicalChildren).pipe(
-    map(children => children.filter(c => c.model !== DocumentTypeEnum.page))
-  );
+  children$ = this.store.select(selectPeriodicalChildren);
   loading$ = this.store.select(selectPeriodicalLoading);
 
   trackByPid(index: number, item: any): string {

@@ -5,7 +5,7 @@ import { AdvancedSearchService } from '../../shared/services/advanced-search.ser
 import { AppResultsViewType } from '../settings/settings.model';
 import { SettingsService } from '../settings/settings.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
-import { AdminSelectionService, SelectionService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';
@@ -41,8 +41,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public mapSearchService = inject(MapSearchService);
   public advancedSearchService = inject(AdvancedSearchService);
   public settingsService = inject(SettingsService);
-  public selectionService = inject(SelectionService);
-  public adminSelectionService = inject(AdminSelectionService);
+  public adminModeService = inject(AdminModeService);
   private scrollPositionService = inject(ScrollPositionService);
   private exportService = inject(ExportService);
   public breakpointService = inject(BreakpointService);
@@ -143,7 +142,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
           return allResults;
         })
       ).subscribe(allCurrentItems => {
-        this.adminSelectionService.updateCurrentPageItems(allCurrentItems);
+        this.adminModeService.updateCurrentPageItems(allCurrentItems);
       })
     );
 
@@ -259,7 +258,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   }
 
   toggleAdminMode(): void {
-    this.adminSelectionService.toggleAdminMode();
+    this.adminModeService.toggle();
   }
 
   // Admin action methods (delegated from admin-actions component)

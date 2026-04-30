@@ -46,6 +46,9 @@ export class AppLoaderService {
       // 5. Check for settings URL params and auto-open settings dialog
       this.checkSettingsUrlParams();
 
+      // App bootstrapped successfully — clear chunk-reload guard
+      sessionStorage.removeItem('chunk-reload-attempt');
+
     } catch (error) {
       console.error('AppLoaderService: App initialization failed:', error);
       throw error;

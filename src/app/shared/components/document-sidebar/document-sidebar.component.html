@@ -8,6 +8,7 @@
         [size]="'sm'"
         [showMicButton]="true"
         [showClearButton]="true"
+        [signalInput]="searchTerm"
         (valueChange)="onPdfSearchChange($event)"
       ></app-input>
 
@@ -86,19 +87,19 @@
       @if (!isSoundRecording) {
 <!--        <hr>-->
 
-        <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="selectionService.selectionMode()">
+        <div class="flex mb-2 w-100 max-width-100 flex--wrap" *ngIf="adminModeService.adminMode()">
           <app-admin-actions [compact]="true"></app-admin-actions>
         </div>
 
         <div class="admin-selection-count"
-             *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
-          {{ 'count' | translate }}: {{ selectionService.selectedCount() }}
+             *ngIf="adminModeService.adminMode() && adminModeService.hasSelection()">
+          {{ 'count' | translate }}: {{ adminModeService.selectedCount() }}
         </div>
       }
     }
 
     <div class="sidebar--wrapper--scroll-content">
-      @if (iiifViewerService.searchQuery$ | async) {
+      @if ((iiifViewerService.searchQuery$ | async) && !detailViewService.isPdf && !(detailViewService.hasArticles$ | async)) {
         <app-search-results-list
           [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
@@ -113,8 +114,8 @@
         } @else if (mode === 'articles') {
           <app-detail-articles-list></app-detail-articles-list>
         } @else {
-          <!-- Default behavior: PDF shows articles, otherwise shows pages -->
-          @if (detailViewService.isPdf) {
+          <!-- Default behavior: PDF or has-articles shows articles, otherwise shows pages -->
+          @if (detailViewService.isPdf || (detailViewService.hasArticles$ | async)) {
             <app-detail-articles-list></app-detail-articles-list>
           } @else {
             <app-detail-pages-grid [type]="gridType"></app-detail-pages-grid>

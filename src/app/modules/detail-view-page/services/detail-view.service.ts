@@ -18,7 +18,7 @@ import {
   clearDocumentDetail,
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
-import { filter, map, Observable, skip, take } from 'rxjs';
+import { filter, map, Observable, skip, Subject, take, takeUntil } from 'rxjs';
 import { SolrService } from '../../../core/solr/solr.service';
 import {
   selectAvailableYears,
@@ -60,6 +60,8 @@ export class DetailViewService {
 
   soundRecordingViewMode = signal<SoundRecordGridControl>('records');
 
+  private destroy$ = new Subject<void>();
+
   private store = inject(Store);
   private recordInfoService = inject(RecordInfoService);
   private router = inject(Router);
@@ -88,9 +90,24 @@ export class DetailViewService {
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
   private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
+  private pagesSignal = toSignal(this.pages$, { initialValue: [] as Page[] });
 
   /** True only when at least one sibling issue has day+month, making the date navigator meaningful */
   canShowDateNavigator = computed<boolean>(() => hasCalendarDisplayableChildren(this.periodicalChildrenSignal()));
+
+  /** Single source of truth for PDF document detection */
+  isPdfComputed = computed<boolean>(() => {
+    const doc = this.documentSignal();
+    const pages = this._pages();
+    return !!(doc?.pdf || pages.some((p: any) => p['ds.img_full.mime'] === 'application/pdf'));
+  });
+
+  /** Single source of truth for EPUB document detection */
+  isEpubComputed = computed<boolean>(() => {
+    const doc = this.documentSignal();
+    const pages = this._pages();
+    return !!(pages.some((p: any) => p['ds.img_full.mime'] === 'application/epub+zip') || doc?.model === 'epub');
+  });
 
   constructor() {
     // Latch isDocumentAccessDenied as soon as the document metadata is available.
@@ -110,7 +127,7 @@ export class DetailViewService {
     }
 
     // Listen to pages changes and update the signal automatically
-    this.pages$.subscribe(pages => {
+    this.pages$.pipe(takeUntil(this.destroy$)).subscribe(pages => {
       if (!this.isOnDetailViewPage()) {
         return;
       }
@@ -133,13 +150,13 @@ export class DetailViewService {
           if (!this.isPdf) {
             this.pdfService.clearPdfData();
           }
-          this.store.select(clearArticleDetail);
+          //this.store.dispatch(clearArticleDetail());
         }
       }
     });
 
     // Listen to articles changes and update the signal automatically
-    this.articles$.subscribe(articles => {
+    this.articles$.pipe(takeUntil(this.destroy$)).subscribe(articles => {
       if (!this.isOnDetailViewPage()) {
         return;
       }
@@ -152,7 +169,7 @@ export class DetailViewService {
         this.checkAndSetCurrentArticleFromUrl();
       } else {
         this.pdfService.clearPdfData();
-        this.store.select(clearArticleDetail);
+       // this.store.dispatch(clearArticleDetail());
       }
     });
 
@@ -306,11 +323,11 @@ export class DetailViewService {
   }
 
   get isPdf(): boolean {
-    return this.document?.pdf || this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/pdf');
+    return this.isPdfComputed();
   }
 
   get isEpub(): boolean {
-    return this._pages().some((p: any) => p['ds.img_full.mime'] === 'application/epub+zip') || this.document?.model === 'epub';
+    return this.isEpubComputed();
   }
 
   get viewerMode() {
@@ -370,10 +387,12 @@ export class DetailViewService {
       take(1)
     ).subscribe((doc) => {
       console.log('Document loaded:', doc);
-      this.loadPages();
+      this.loadPages(doc);
 
       // If document is from a periodical, proactively load periodical children data
-      if ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem) {
+      // Skip for periodicalvolume — its pages are already loaded as children
+      if (doc?.model !== DocumentTypeEnum.periodicalvolume &&
+          ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem)) {
         this.loadPeriodicalChildren(doc);
       }
     });
@@ -407,16 +426,27 @@ export class DetailViewService {
     }
   }
 
-  loadPages() {
+  loadPages(doc?: Metadata | null) {
     this.store.select(selectDocumentDetailPages)
       .pipe(take(1))
       .subscribe(pages => {
-        const safePages = pages ?? [];
+        let safePages = pages ?? [];
+        const model = doc?.model || this.document?.model;
+
+        console.log('loadPages: model=', model, 'doc?.model=', doc?.model, 'this.document?.model=', this.document?.model, 'pages count=', safePages.length, 'page models=', safePages.map((p: any) => p.model));
+
+        // When the document is a periodicalvolume, children may include both
+        // pages and periodicalitems. Keep only actual pages for the viewer.
+        if (model === DocumentTypeEnum.periodicalvolume) {
+          safePages = safePages.filter((p: any) => p.model === DocumentTypeEnum.page);
+          console.log('loadPages: filtered to pages only, count=', safePages.length);
+        }
+
         this._pages.set(safePages);
 
         // Skip page URL check for sound recordings and PDF documents
         // PDF viewer handles its own page navigation with format uuid_pageNumber
-        if (this.document?.model !== DocumentTypeEnum.soundrecording && !this.isPdf) {
+        if (model !== DocumentTypeEnum.soundrecording && !this.isPdf) {
           this.checkAndSetCurrentPageFromUrl();
         }
 

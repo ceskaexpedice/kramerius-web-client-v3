@@ -20,6 +20,19 @@ body {
   box-sizing: border-box;
 }
 
+.os-theme-app {
+  --os-size: 12px;
+  --os-padding-perpendicular: 4px;
+  --os-padding-axis: 2px;
+  --os-track-bg: transparent;
+  --os-track-bg-hover: transparent;
+  --os-track-bg-active: transparent;
+  --os-handle-bg: var(--color-bg-bright);
+  --os-handle-bg-hover: var(--color-text-light);
+  --os-handle-bg-active: var(--color-text-light);
+  --os-handle-border-radius: 8px;
+}
+
 ul,
 ol {
   list-style: none;

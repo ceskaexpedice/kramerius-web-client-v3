@@ -1,8 +1,8 @@
-<ng-container *ngIf="selectionService.selectionMode() && selectionService.hasSelection()">
-  <span class="selection-count">{{ 'selected-count' | translate }}: {{ selectionService.selectedCount() }}</span>
+<ng-container *ngIf="adminModeService.adminMode() && adminModeService.hasSelection()">
+  <span class="selection-count">{{ 'selected-count' | translate }}: {{ adminModeService.selectedCount() }}</span>
 </ng-container>
 
-<button class="button outlined sm square-button close-button" aria-label="{{ 'Close select mode' | translate }}"
-  *ngIf="selectionService.selectionMode()" (click)="selectionService.toggleSelectionMode()">
+<button class="button primary sm square-button close-button" aria-label="{{ 'Close select mode' | translate }}"
+  *ngIf="adminModeService.adminMode()" (click)="adminModeService.toggle()">
   <i class="icon-close"></i>
 </button>

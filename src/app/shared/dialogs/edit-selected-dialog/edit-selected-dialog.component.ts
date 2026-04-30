@@ -14,20 +14,28 @@ import {
 } from './components/remove-collection-section/remove-collection-section.component';
 import { AddLicenseSectionComponent, AddLicenseSectionData } from './components/add-license-section/add-license-section.component';
 import { RemoveLicenseSectionComponent, RemoveLicenseSectionData } from './components/remove-license-section/remove-license-section.component';
+import { EditRepresentativePageSectionComponent, RepresentativePageSectionData } from './components/edit-representative-page-section/edit-representative-page-section.component';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import {
   DocumentHierarchyItem,
   DocumentHierarchySelectorComponent,
 } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SelectionService } from '../../services';
+import { AdminModeService } from '../../services';
+import { Metadata } from '../../models/metadata.model';
 import { CloseConfirmationDialogComponent } from './components/close-confirmation-dialog/close-confirmation-dialog.component';
 import { ActionConfirmationDialogComponent, ActionConfirmationDialogData } from './components/action-confirmation-dialog/action-confirmation-dialog.component';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { ConfigService } from '../../../core/config/config.service';
+import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-again.service';
+
+export type EditSelectedDialogMode = 'bulk' | 'single';
 
 export interface EditSelectedDialogData {
   selectedIds: string[];
   selectedCount: number;
+  mode?: EditSelectedDialogMode;
+  singleDocument?: Metadata;
 }
 
 export enum EditSelectedDialogSections {
@@ -36,6 +44,7 @@ export enum EditSelectedDialogSections {
   removeCollection = 'remove-collection',
   addLicence = 'add-licence',
   removeLicence = 'remove-licence',
+  representativePage = 'representative-page',
   titleCover = 'title-cover',
   admin = 'admin'
 }
@@ -51,6 +60,7 @@ export enum EditSelectedDialogSections {
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
     RemoveLicenseSectionComponent,
+    EditRepresentativePageSectionComponent,
     TranslatePipe,
     DocumentHierarchySelectorComponent
   ],
@@ -92,6 +102,7 @@ export class EditSelectedDialogComponent {
         ]
       },
       // { key: EditSelectedDialogSections.titleCover, label: 'edit-section-titlecover', icon: '' },
+      { key: EditSelectedDialogSections.representativePage, label: 'edit-section-representative-page', icon: 'icon-image', hidden: true },
       { key: EditSelectedDialogSections.admin, label: 'go-to-admin-interface', icon: 'icon-export-2', isAction: true },
     ]
   };
@@ -104,6 +115,7 @@ export class EditSelectedDialogComponent {
   licenceData: LicenceSectionData | null = null;
   addLicenseData: AddLicenseSectionData | null = null;
   removeLicenseData: RemoveLicenseSectionData | null = null;
+  representativePageData: RepresentativePageSectionData | null = null;
 
   EditSelectedDialogSections = EditSelectedDialogSections;
 
@@ -112,14 +124,18 @@ export class EditSelectedDialogComponent {
 
   private dialogRef = inject(MatDialogRef<EditSelectedDialogComponent>);
   public data = inject<EditSelectedDialogData>(MAT_DIALOG_DATA);
-  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
   private translateService = inject(TranslateService);
   private dialog = inject(MatDialog);
   private recordHandlerService = inject(RecordHandlerService);
   private configService = inject(ConfigService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   selectedDocuments = computed(() => {
-    return this.selectionService.getSelectedItemsAsMetadata();
+    if (this.data.mode === 'single' && this.data.singleDocument) {
+      return [this.data.singleDocument];
+    }
+    return this.adminModeService.getSelectedItemsAsMetadata();
   });
 
   effectiveSelectedIds = computed(() => {
@@ -153,13 +169,52 @@ export class EditSelectedDialogComponent {
         adminSection.hidden = count !== 1 || !this.configService.app.adminClientUrl;
       }
 
+      // Representative-page section is only available via the bulk (checkbox) flow
+      // and only when exactly one selected item is a page.
+      const docs = this.selectedDocuments();
+      const isBulkSinglePage = this.data.mode !== 'single'
+        && docs.length === 1
+        && docs[0]?.model === DocumentTypeEnum.page;
+      const repSection = this.dialogConfig.sections.find(s => s.key === EditSelectedDialogSections.representativePage);
+      if (repSection) {
+        repSection.hidden = !isBulkSinglePage;
+      }
+
       this.dialogConfig = { ...this.dialogConfig };
     });
 
-    // we show the hierarchy selector only if all items have same rootUuid
-    const rootUuids = new Set(this.selectedDocuments().map(doc => doc.rootPid));
-    this.showHierarchySelector = rootUuids.size === 1;
+    // Hierarchy selector is shown only in single-edit mode (pen button).
+    // Bulk edit (checkbox selection) never shows it.
+    this.showHierarchySelector = this.data.mode === 'single';
+
+    if (this.data.mode === 'single') {
+      this.dialogConfig.title = 'edit-single-object';
+    }
   }
+
+  isHierarchyPageSelected = computed<boolean>(() => {
+    if (this.selectedHierarchyItem()?.model === DocumentTypeEnum.page) {
+      return true;
+    }
+    if (!this.showHierarchySelector) {
+      const docs = this.selectedDocuments();
+      if (docs.length > 0 && docs.every(d => d?.model === DocumentTypeEnum.page)) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+  singleSelectedPage = computed<Metadata | null>(() => {
+    if (this.data.mode === 'single') {
+      return null;
+    }
+    const docs = this.selectedDocuments();
+    if (docs.length === 1 && docs[0]?.model === DocumentTypeEnum.page) {
+      return docs[0];
+    }
+    return null;
+  });
 
   onHierarchySelectionChanged(hierarchyItem: DocumentHierarchyItem) {
     this.selectedHierarchyItem.set(hierarchyItem);
@@ -203,6 +258,11 @@ export class EditSelectedDialogComponent {
   }
 
   close() {
+    if (!this.dontShowAgainService.shouldShowDialog(DontShowDialogs.EditSelectedDialogCloseConfirmation)) {
+      this.dialogRef.close();
+      return;
+    }
+
     const confirmationDialogRef = this.dialog.open(CloseConfirmationDialogComponent, {
       width: '50vw',
       autoFocus: true,
@@ -249,7 +309,8 @@ export class EditSelectedDialogComponent {
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
     const confirmationDialogRef = this.dialog.open(ActionConfirmationDialogComponent, {
-      width: '50vw',
+      width: '400px',
+      maxWidth: '100vw',
       data,
       autoFocus: true,
       restoreFocus: false,
@@ -284,6 +345,10 @@ export class EditSelectedDialogComponent {
     this.removeLicenseData = data;
   }
 
+  onRepresentativePageDataChange(data: RepresentativePageSectionData) {
+    this.representativePageData = data;
+  }
+
   onSectionActionClick() {
     const currentSection = this.activeSection();
     let sectionData = null;
@@ -315,6 +380,11 @@ export class EditSelectedDialogComponent {
         sectionData = this.removeLicenseData;
         confirmationTitle = 'remove-license-confirmation-dialog--header';
         confirmationMessage = 'remove-license-confirmation-dialog--message';
+        break;
+      case EditSelectedDialogSections.representativePage:
+        sectionData = this.representativePageData;
+        confirmationTitle = 'representative-page-confirmation-dialog--header';
+        confirmationMessage = 'representative-page-confirmation-dialog--message';
         break;
     }
 

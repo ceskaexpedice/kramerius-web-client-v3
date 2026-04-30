@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, from, forkJoin } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { SelectionService } from './selection.service';
+import { catchError, tap } from 'rxjs/operators';
+import { AdminModeService } from './admin-mode.service';
 import { ExportService, ExportFormat } from './export.service';
 import { ToastService } from './toast.service';
 import { UserService } from './user.service';
 import { BreakpointService } from './breakpoint.service';
 import { EditSelectedDialogComponent, EditSelectedDialogData, EditSelectedDialogSections } from '../dialogs/edit-selected-dialog/edit-selected-dialog.component';
+import { Metadata } from '../models/metadata.model';
 import { ExportSelectedDialogComponent, ExportSelectedDialogData } from '../dialogs/export-selected-dialog/export-selected-dialog.component';
 import { AdminReindexService } from '../../core/admin/admin-reindex.service';
 import { AdminLicensesService } from '../../core/admin/admin-licenses.service';
@@ -17,6 +18,10 @@ import { AddLicenseSectionData } from '../dialogs/edit-selected-dialog/component
 import { RemoveLicenseSectionData } from '../dialogs/edit-selected-dialog/components/remove-license-section/remove-license-section.component';
 import { AddCollectionSectionData } from '../dialogs/edit-selected-dialog/components/add-collection-section/add-collection-section.component';
 import { RemoveCollectionSectionData } from '../dialogs/edit-selected-dialog/components/remove-collection-section/remove-collection-section.component';
+import { RepresentativePageSectionData } from '../dialogs/edit-selected-dialog/components/edit-representative-page-section/edit-representative-page-section.component';
+import { AdminApiService } from '../../core/admin/admin-api.service';
+import { ActionSuccessDialogComponent, ActionDialogData } from '../dialogs/action-success-dialog/action-success-dialog.component';
+import { DontShowAgainService, DontShowDialogs } from './dont-show-again.service';
 
 export interface AdminActionResult {
   action: 'save' | 'export' | 'admin' | 'cancel';
@@ -31,7 +36,7 @@ export interface AdminActionResult {
 export class AdminActionsService {
 
   private dialog = inject(MatDialog);
-  private selectionService = inject(SelectionService);
+  private adminModeService = inject(AdminModeService);
   private exportService = inject(ExportService);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
@@ -39,6 +44,8 @@ export class AdminActionsService {
   private reindexService = inject(AdminReindexService);
   private licensesService = inject(AdminLicensesService);
   private collectionsService = inject(AdminCollectionsService);
+  private adminApi = inject(AdminApiService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   /**
    * Check if current user has admin privileges
@@ -69,7 +76,7 @@ export class AdminActionsService {
       return from([undefined]);
     }
 
-    const ids = selectedIds || this.selectionService.getSelectedIds();
+    const ids = selectedIds || this.adminModeService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for editing');
@@ -97,12 +104,71 @@ export class AdminActionsService {
   }
 
   /**
+   * Opens the edit dialog for a single item (pen button).
+   * Bypasses selection state — always edits exactly this document and shows the hierarchy selector.
+   */
+  openSingleEditDialog(document: Metadata): Observable<AdminActionResult | undefined> {
+    if (!this.userService.hasAdminRole()) {
+      console.warn('User does not have admin privileges to open edit dialog');
+      this.toastService.show('admin-permission-required');
+      return from([undefined]);
+    }
+
+    if (!document?.uuid) {
+      console.warn('No document provided for single edit');
+      return from([undefined]);
+    }
+
+    const dialogData: EditSelectedDialogData = {
+      selectedIds: [document.uuid],
+      selectedCount: 1,
+      mode: 'single',
+      singleDocument: document,
+    };
+
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+
+    const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
+      width: isMobileOrTablet ? '100vw' : '80vw',
+      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
+      height: isMobileOrTablet ? '100vh' : '85vh',
+      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
+      data: dialogData,
+      disableClose: false
+    });
+
+    return dialogRef.afterClosed();
+  }
+
+  /**
+   * Convenience method to open single-edit dialog and process the result the same way bulk edits do.
+   */
+  performSingleEditAction(document: Metadata): void {
+    this.openSingleEditDialog(document).subscribe(result => {
+      if (result && result.section) {
+        this.handleEditResult(result).subscribe({
+          next: (responses) => {
+            this.showSuccessMessages(responses, result.section);
+          },
+          error: (error) => {
+            console.error('Admin action failed:', error);
+            this.showErrorDialog();
+          }
+        });
+      } else if (result?.action === 'admin') {
+        this.handleAdminNavigation(result.selectedIds || []);
+      }
+    });
+  }
+
+  /**
    * Opens the export selected dialog for bulk export operations
    * @param selectedIds Optional array of specific IDs to export, defaults to current selection
    * @returns Observable that emits when dialog is closed with result
    */
   openExportDialog(selectedIds?: string[]): Observable<AdminActionResult | undefined> {
-    const ids = selectedIds || this.selectionService.getSelectedIds();
+    const ids = selectedIds || this.adminModeService.getSelectedIds();
 
     if (ids.length === 0) {
       console.warn('No items selected for export');
@@ -152,6 +218,8 @@ export class AdminActionsService {
         return this.handleAddLicenseOperation(result.data);
       case EditSelectedDialogSections.removeLicence:
         return this.handleRemoveLicenseOperation(result.data);
+      case EditSelectedDialogSections.representativePage:
+        return this.handleRepresentativePageOperation(result.data);
       default:
         console.warn('Unknown edit section:', result.section);
         return from([null]);
@@ -213,8 +281,7 @@ export class AdminActionsService {
           error: (error) => {
             console.error('Admin action failed:', error);
             // Show error message
-            const errorKey = this.getErrorMessageKey(result.section);
-            this.toastService.show(errorKey);
+            this.showErrorDialog();
           }
         });
       } else if (result?.action === 'admin') {
@@ -354,6 +421,24 @@ export class AdminActionsService {
     );
   }
 
+  /**
+   * Handle representative-page operation: set the given page as the thumbnail/representative
+   * for the chosen ancestor or collection.
+   */
+  private handleRepresentativePageOperation(data: RepresentativePageSectionData): Observable<any> {
+    if (!data?.pagePid || !data?.targetPid) {
+      console.warn('Representative-page operation missing pagePid or targetPid', data);
+      return from([null]);
+    }
+    return this.adminApi.setRepresentativePage(data.targetPid, data.pagePid).pipe(
+      tap(() => console.log(`Set page ${data.pagePid} as representative for ${data.targetPid}`)),
+      catchError(error => {
+        console.error('Set representative page failed:', error);
+        throw error;
+      })
+    );
+  }
+
   private mapExportFormat(format: string): ExportFormat {
     switch (format) {
       case 'csv':
@@ -367,84 +452,24 @@ export class AdminActionsService {
     }
   }
 
-  /**
-   * Show success messages from API responses
-   * @param responses API responses (can be single or array)
-   * @param section Section identifier for fallback message
-   */
-  private showSuccessMessages(responses: any, section?: string): void {
-    if (!responses) {
-      // Fallback to generic success message
-      const successKey = this.getSuccessMessageKey(section);
-      this.toastService.show(successKey);
-      return;
-    }
+  private showSuccessMessages(_responses: any, _section?: string): void {
+    this.openActionDialog('success');
+  }
 
-    // Handle array of responses (bulk operations)
-    if (Array.isArray(responses)) {
-      // For bulk operations, show the first response message or a summary
-      if (responses.length > 0 && responses[0]?.name) {
-        // Show first message with count if multiple
-        const message = responses.length > 1
-          ? `${responses[0].name} (+${responses.length - 1} more)`
-          : responses[0].name;
-        this.toastService.show(message);
-      } else {
-        // Fallback to generic message with count
-        const successKey = this.getSuccessMessageKey(section);
-        this.toastService.show(`${successKey} (${responses.length})`);
-      }
-    } else {
-      // Single response
-      if (responses.name) {
-        this.toastService.show(responses.name);
-      } else {
-        // Fallback to generic success message
-        const successKey = this.getSuccessMessageKey(section);
-        this.toastService.show(successKey);
-      }
+  private showErrorDialog(): void {
+    this.openActionDialog('error');
+  }
+
+  private openActionDialog(variant: ActionDialogData['variant']): void {
+    const dialogKey = variant === 'error' ? DontShowDialogs.ActionErrorDialog : DontShowDialogs.ActionSuccessDialog;
+    if (this.dontShowAgainService.shouldShowDialog(dialogKey)) {
+      this.dialog.open(ActionSuccessDialogComponent, {
+        width: '400px',
+        maxWidth: '100vw',
+        disableClose: false,
+        data: { variant } satisfies ActionDialogData,
+      });
     }
   }
 
-  /**
-   * Get success message translation key based on section
-   * @param section Section identifier
-   */
-  private getSuccessMessageKey(section?: string): string {
-    switch (section) {
-      case EditSelectedDialogSections.reindex:
-        return 'reindex-success';
-      case EditSelectedDialogSections.addCollection:
-        return 'add-collection-success';
-      case EditSelectedDialogSections.removeCollection:
-        return 'remove-collection-success';
-      case EditSelectedDialogSections.addLicence:
-        return 'add-license-success';
-      case EditSelectedDialogSections.removeLicence:
-        return 'remove-license-success';
-      default:
-        return 'action-success';
-    }
-  }
-
-  /**
-   * Get error message translation key based on section
-   * @param section Section identifier
-   */
-  private getErrorMessageKey(section?: string): string {
-    switch (section) {
-      case EditSelectedDialogSections.reindex:
-        return 'reindex-error';
-      case EditSelectedDialogSections.addCollection:
-        return 'add-collection-error';
-      case EditSelectedDialogSections.removeCollection:
-        return 'remove-collection-error';
-      case EditSelectedDialogSections.addLicence:
-        return 'add-license-error';
-      case EditSelectedDialogSections.removeLicence:
-        return 'remove-license-error';
-      default:
-        return 'action-error';
-    }
-  }
 }

@@ -6,7 +6,7 @@ import { DetailViewService } from './services/detail-view.service';
 import { RecordHandlerService } from '../../shared/services/record-handler.service';
 import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
-import { SelectionService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services';
 import { Observable, Subscription } from 'rxjs';
 import { map, shareReplay, distinctUntilChanged, skip } from 'rxjs/operators';
 import { PdfService } from '../../shared/services/pdf.service';
@@ -31,6 +31,7 @@ import { AiPanelService } from '../../shared/services/ai-panel.service';
 import { TtsService } from '../../shared/services/tts.service';
 import { DocumentSearchService } from '../../shared/services/document-search.service';
 import { UiStateService } from '../../shared/services/ui-state.service';
+import { AdminActionsService } from '../../shared/services/admin-actions.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -45,7 +46,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
 
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
-  public selectionService = inject(SelectionService);
+  public adminModeService = inject(AdminModeService);
   public pdfService = inject(PdfService);
   public iiifViewerService = inject(IIIFViewerService);
   public documentInfoService = inject(DocumentInfoService);
@@ -60,6 +61,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   private ttsService = inject(TtsService);
   private documentSearchService = inject(DocumentSearchService);
   private uiState = inject(UiStateService);
+  public adminActionsService = inject(AdminActionsService);
 
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
@@ -173,7 +175,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
             licenses: [],
             access: 'public'
           }));
-          this.selectionService.updateCurrentPageItems(pageItems);
+          this.adminModeService.updateCurrentPageItems(pageItems);
         }
       })
     );
@@ -187,10 +189,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     if (this.stopTtsOnLeave && this.ttsService.isReading()) {
       this.ttsService.stop();
     }
-  }
-
-  toggleAdminMode(): void {
-    this.selectionService.toggleSelectionMode();
   }
 
   goBackClicked() {

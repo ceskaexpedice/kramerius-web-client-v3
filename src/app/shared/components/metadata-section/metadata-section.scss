@@ -125,6 +125,41 @@
 
 
 
+  .provided-licenses {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+
+    &__title {
+      font-size: var(--font-size-base);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    &__item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-x1);
+      align-items: flex-start;
+    }
+
+    &__link {
+      color: var(--color-text-primary);
+      text-decoration: underline;
+      font-size: var(--font-size-base);
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    &__logo {
+      margin-top: var(--spacing-x2);
+      height: 50px;
+      width: auto;
+    }
+  }
+
   .donators {
     display: flex;
     flex-wrap: wrap;

@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EpubService } from '../../services/epub.service';
+import { SearchDebounceService } from '../../services/search-debounce.service';
 import { InputComponent } from '../input/input.component';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,12 +22,10 @@ import { SearchNavigationComponent } from '../search-navigation/search-navigatio
   templateUrl: './epub-sidebar.component.html',
   styleUrl: './epub-sidebar.component.scss'
 })
-export class EpubSidebarComponent {
+export class EpubSidebarComponent implements OnDestroy {
   public epubService = inject(EpubService);
-  private searchTimeout: any;
+  private searchDebounceService = inject(SearchDebounceService);
 
-  // Expose NavItem array type for the template type-checking to pass cleanly.
-  // The 'nodes' input in the template is an array of NavItem objects.
   navigateTo(href: string): void {
     this.epubService.navigateTo(href);
   }
@@ -45,16 +44,11 @@ export class EpubSidebarComponent {
 
   onSearchChange(query: string | number): void {
     const searchQuery = typeof query === 'string' ? query : query.toString();
-    
-    // Clear existing timeout
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
 
-    // Debounce the search - wait 500ms after user stops typing
-    this.searchTimeout = setTimeout(() => {
+    // Use centralized debounce service instead of manual timeout
+    this.searchDebounceService.debounce('epub-search', () => {
       this.epubService.setSearchQuery(searchQuery);
-    }, 500);
+    });
   }
 
   findNextMatch(): void {
@@ -70,5 +64,9 @@ export class EpubSidebarComponent {
       title: node.label,
       pid: node.href
     };
+  }
+
+  ngOnDestroy(): void {
+    this.searchDebounceService.cancel('epub-search');
   }
 }

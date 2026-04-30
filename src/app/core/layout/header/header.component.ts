@@ -195,6 +195,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.isOnCollectionRoute ? 'search-in-collection-placeholder' : 'search-input-placeholder';
   }
 
+  onLogoLoad(img: HTMLImageElement) {
+    const logoEl = img.closest('.logo') as HTMLElement | null;
+    if (logoEl && img.offsetWidth) {
+      logoEl.style.setProperty('--logo-rendered-width', `${img.offsetWidth}px`);
+    }
+  }
+
   logoClicked() {
     this.logoClickCount++;
 

@@ -6,8 +6,11 @@ export enum DontShowDialogs {
   FavoritesLoginDialog = 'favorites-login-dialog',
   FavoritesPopup = 'favorites-popup',
   EditSelectedDialogSubmitActionDialog = 'edit-selected-dialog-submit-action-dialog',
+  EditSelectedDialogCloseConfirmation = 'edit-selected-dialog-close-confirmation',
   SelectionTip = 'selection-tip',
-  RestrictedPagesInfoDialog = 'restricted-pages-info-dialog'
+  RestrictedPagesInfoDialog = 'restricted-pages-info-dialog',
+  ActionSuccessDialog = 'action-success-dialog',
+  ActionErrorDialog = 'action-error-dialog'
 }
 
 @Injectable({
