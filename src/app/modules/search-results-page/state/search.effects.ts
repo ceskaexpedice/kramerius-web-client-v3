@@ -12,6 +12,7 @@ import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
 import {
   getCustomDefinedFacets,
   facetKeysEnum,
+  mapOperatorsToSearchFields,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
 import { UserService } from '../../../shared/services/user.service';
@@ -54,6 +55,7 @@ export class SearchEffects {
         advancedQuery,
         advancedQueryMainOperator,
       }, currentFacets, facetOperators]) => {
+        const searchFieldOperators = mapOperatorsToSearchFields(facetOperators);
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
         const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
         const includeSupplement = this.customSearchService.isSupplementFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
@@ -66,7 +68,7 @@ export class SearchEffects {
           userLicenses: this.userService.licenses
         };
 
-        const results$ = this.solr.search(query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle).pipe(
+        const results$ = this.solr.search(query, filters, searchFieldOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle).pipe(
           shareReplay(1)
         );
 
@@ -96,7 +98,7 @@ export class SearchEffects {
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), facetOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), searchFieldOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter),
         }).pipe(
           map(({ resultsRes, facetsRes }) => {
             const facets = handleFacetsWithOperators(
