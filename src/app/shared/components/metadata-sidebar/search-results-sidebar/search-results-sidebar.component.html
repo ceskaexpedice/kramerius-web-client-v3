@@ -1,36 +1,55 @@
 <div class="search-sidebar-container">
 
-  <div *ngIf="resolvedLoading$ | async" class="loading-message">
-    <p>{{ 'loading-search-results' | translate }}</p>
-  </div>
-
-  <ng-container *ngIf="!(resolvedLoading$ | async)">
-
-    <div class="paginator-top" *ngIf="!externalResults$">
-      <button class="button tertiary outlined"
-              [disabled]="searchService.page <= 1 && results.indexOf(results[0]) === getCurrentItemIndex()"
-              (click)="onPreviousResult($event)" [title]="'previous' | translate">
-        <i class="icon-arrow-left-1"></i>
-        {{ 'previous-search-button--label' | translate }}
-      </button>
-
-      <button class="button tertiary outlined" (click)="onNextResult($event)"
-              [title]="'next' | translate">
-        {{ 'next-search-button--label' | translate }}
-        <i class="icon-arrow-right-1"></i>
-      </button>
+  @if (resolvedLoading$ | async) {
+    <div class="loading-message">
+      <p>{{ 'loading-search-results' | translate }}</p>
     </div>
+  }
+
+  @if (!(resolvedLoading$ | async)) {
+
+    @if (!externalResults$) {
+      <div class="paginator-top">
+
+        <div class="paginator-top--actions">
+
+          <button class="button tertiary outlined"
+                  [disabled]="searchService.page <= 1 && results.indexOf(results[0]) === getCurrentItemIndex()"
+                  (click)="onPreviousResult($event)" [title]="'previous' | translate">
+            <i class="icon-arrow-left-1"></i>
+            {{ 'previous-search-button--label' | translate }}
+          </button>
+
+          <button class="button tertiary outlined" (click)="onNextResult($event)"
+                  [title]="'next' | translate">
+            {{ 'next-search-button--label' | translate }}
+            <i class="icon-arrow-right-1"></i>
+          </button>
+
+        </div>
+
+        <app-paginator-info
+          class="paginator-info"
+          [page]="searchService.page"
+          [pageSize]="searchService.pageSize"
+          [totalCount]="searchService.totalCount">
+        </app-paginator-info>
+
+      </div>
+    }
 
     <div class="results-list">
 
       @for (doc of results; track doc.pid) {
-        <app-record-item [item]="toRecordItem(doc)" layout="horizontal" [showAccessibilityBadge]="false"
+        <app-record-item [item]="toRecordItem(doc)" layout="horizontal" [showAccessibilityBadge]="false" [showModel]="false"
           (mouseenter)="itemHover.emit(doc)" (mouseleave)="itemLeave.emit()"></app-record-item>
       }
 
-      <div *ngIf="results.length === 0" class="no-results">
-        {{ 'no-results-found' | translate }}
-      </div>
+      @if (results.length === 0) {
+        <div class="no-results">
+          {{ 'no-results-found' | translate }}
+        </div>
+      }
     </div>
 
     <div class="paginator-bottom">
@@ -42,5 +61,5 @@
       </app-paginator>
     </div>
 
-  </ng-container>
+  }
 </div>
