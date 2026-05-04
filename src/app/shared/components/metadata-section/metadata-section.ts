@@ -591,8 +591,11 @@ export class MetadataSection implements OnInit, OnChanges {
     'dnnto': 'https://dnnt.cz/'
   }
 
-  getProvidedByLicenseImage(license: string): string {
-    return `/img/logo/provided-by-licenses/${license}-logo.png`;
+  getProvidedByLicenseImage(license: string): string | null {
+    switch (license) {
+      case 'dnnto': return `/img/logo/provided-by-licenses/${license}-logo.png`;
+      default: return null;
+    }
   }
 
   getProvidedByLicenseUrl(license: string): string {
