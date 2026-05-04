@@ -10,36 +10,34 @@
   }
 }
 
-/* Responsive Grid */
+/* Responsive Grid — breakpoints query the content area (`page-main` container)
+   instead of the viewport, so the grid reflows correctly when the right
+   sidebar pushes content. The base `auto-fill` rule is the fallback when
+   no `page-main` ancestor exists (carousels, dialogs, etc.). */
 .grid--container {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--card-min-width) * var(--accessibility-text-scale))), 1fr));
   overflow-x: hidden;
   max-width: 100%;
 
-  /* Mobile XS: single column */
-  @media (max-width: 407px) {
-    grid-template-columns: 1fr;
-  }
-
-  /* Mobile SM: 3 columns */
-  @media (min-width: 408px) and (max-width: 603px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  /* Tablet (No Sidebar): 5 cards */
-  @media (min-width: 604px) and (max-width: 853px) {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  /* Tablet (Sidebar 240px): 1+5 grid */
-  @media (min-width: 854px) and (max-width: 1051px) {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  /* Large Tablet (Sidebar 240px): 1+6 grid */
-  @media (min-width: 1052px) and (max-width: 1279px) {
-    grid-template-columns: repeat(6, 1fr);
-  }
+  //@container page-main (max-width: 407px) {
+  //  grid-template-columns: 1fr;
+  //}
+  //
+  //@container page-main (min-width: 408px) and (max-width: 603px) {
+  //  grid-template-columns: repeat(3, 1fr);
+  //}
+  //
+  //@container page-main (min-width: 604px) and (max-width: 815px) {
+  //  grid-template-columns: repeat(4, 1fr);
+  //}
+  //
+  //@container page-main (min-width: 815px) and (max-width: 1051px) {
+  //  grid-template-columns: repeat(5, 1fr);
+  //}
+  //
+  //@container page-main (min-width: 1052px) and (max-width: 1279px)  {
+  //  grid-template-columns: repeat(6, 1fr);
+  //}
 }
 
 .flex {
