@@ -106,11 +106,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
-  hasAfterLoginLicense = computed(() => {
-    const docLicences = this._data()?.licences || [];
-    if (!docLicences.length) return false;
-    const afterLogin = this.configService.getAfterLoginLicenses();
-    return docLicences.some(l => afterLogin.includes(l));
+  // Runtime licenses that the licenses config has flagged with a `providedBy` entry —
+  // these are the ones rendered in the "provided under license" metadata section.
+  providedByLicenses = computed(() => {
+    return this.runtimeLicenses().filter(id => this.configService.getLicenseConfig(id)?.providedBy?.display === true);
   });
 
   // CDK aggregator: sources (collections) for this document and the selected one.
@@ -587,19 +586,12 @@ export class MetadataSection implements OnInit, OnChanges {
     'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
   };
 
-  private readonly providedByLicensesMap: Record<string, string> = {
-    'dnnto': 'https://dnnt.cz/'
-  }
-
   getProvidedByLicenseImage(license: string): string | null {
-    switch (license) {
-      case 'dnnto': return `/img/logo/provided-by-licenses/${license}-logo.png`;
-      default: return null;
-    }
+    return this.configService.getLicenseConfig(license)?.providedBy?.imageUrl ?? null;
   }
 
-  getProvidedByLicenseUrl(license: string): string {
-    return this.providedByLicensesMap[license.toLowerCase()] ?? null;
+  getProvidedByLicenseUrl(license: string): string | null {
+    return this.configService.getLicenseConfig(license)?.providedBy?.url ?? null;
   }
 
   getDonatorImage(donator: string): string | null {
