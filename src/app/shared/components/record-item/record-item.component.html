@@ -92,6 +92,12 @@
       }
       }
 
+      @if ((item?.occurrenceCount || 0) > 1) {
+        <div class="occurrence-count">
+          {{ item?.occurrenceCount }} {{ 'group-results--occurrences' | translate }}
+        </div>
+      }
+
       @if (!loading && item?.model === DocumentTypeEnum.collection ) {
       <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
       }

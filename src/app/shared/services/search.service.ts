@@ -24,7 +24,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
-import { isMapViewParams } from '../../modules/search-results-page/const/map-utils';
+import { isMapTab } from '../../modules/search-results-page/const/map-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -174,6 +174,7 @@ export class SearchService extends BaseFilterService {
 
     // Listen for page size changes from settings
     let previousPageSize = this._pageSize();
+    let previousGroupDefault = this.settingsService.settings.displayConfig?.defaultGroupResults ?? false;
     this.settingsService.settings$
       .pipe(takeUntil(this.destroy$))
       .subscribe(settings => {
@@ -190,6 +191,15 @@ export class SearchService extends BaseFilterService {
               queryParams: { page: 1, pageSize: newPageSize },
               queryParamsHandling: 'merge'
             });
+          }
+        }
+
+        const newGroupDefault = settings.displayConfig?.defaultGroupResults ?? false;
+        if (newGroupDefault !== previousGroupDefault) {
+          previousGroupDefault = newGroupDefault;
+          // Only reload when the URL doesn't pin an explicit override
+          if (this.isOnSearchResultsRoute() && this.route.snapshot.queryParams['group'] === undefined) {
+            this.reloadCurrentSearch();
           }
         }
       });
@@ -251,13 +261,20 @@ export class SearchService extends BaseFilterService {
 
   search(query: string): void {
     //this.initialize();
+    // A fresh query always opens the All tab — explicitly clear tab + map coords
+    // so a submit from the home hero or header search drops any prior map state.
     this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`]), {
       queryParams: {
         query,
         page: this._page(),
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
-        sortDirection: this._sortDirection()
+        sortDirection: this._sortDirection(),
+        tab: null,
+        north: null,
+        south: null,
+        east: null,
+        west: null,
       },
       queryParamsHandling: 'merge'
     });
@@ -265,7 +282,7 @@ export class SearchService extends BaseFilterService {
 
 
   // Params that should not trigger a search refresh
-  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west', 'exportPid'];
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west', 'exportPid', 'tab'];
 
   private getSearchRelevantParams(params: any): any {
     const relevant: any = {};
@@ -309,9 +326,34 @@ export class SearchService extends BaseFilterService {
     this.initialized = false;
   }
 
+  /**
+   * Resolves whether the current search should be grouped by root.pid.
+   * URL `group` param overrides; falls back to settings.defaultGroupResults.
+   */
+  public isGrouped(params?: any): boolean {
+    const queryParams = params ?? this.route.snapshot.queryParams;
+    const fromUrl = queryParams['group'];
+    if (fromUrl === 'true') return true;
+    if (fromUrl === 'false') return false;
+    return !!this.settingsService.settings.displayConfig?.defaultGroupResults;
+  }
+
+  /**
+   * Toggles the per-search grouping override via the `group` URL param.
+   * Resets pagination because group counts use a different unit (groups vs docs).
+   */
+  public setGroupResults(grouped: boolean): void {
+    this._page.set(1);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { group: grouped ? 'true' : 'false', page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   public dispatchSearch(params: any): void {
     // In map mode, still sync query/sort state but skip the regular search
-    if (isMapViewParams(params)) {
+    if (isMapTab(params)) {
       const query = params['query'] || '';
       if (query && query.length > 0 && !this.hasSubmittedQuery()) {
         this._searchTerm.set(query);
@@ -472,7 +514,8 @@ export class SearchService extends BaseFilterService {
       page: (page - 1) * pageSize, // Solr uses 0-based indexing for pages
       pageCount: pageSize,
       sortBy,
-      sortDirection
+      sortDirection,
+      grouped: this.isGrouped(params)
     }));
   }
 

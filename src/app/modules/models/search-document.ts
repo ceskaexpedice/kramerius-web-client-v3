@@ -9,6 +9,7 @@ export interface SearchDocument {
   rootModel?: DocumentTypeEnum;
   ownParentPid?: string;
   ownParentModel?: DocumentTypeEnum;
+  ownModelPath?: string;
   authors?: string[];
   date?: string;
   model: DocumentTypeEnum;
@@ -46,6 +47,10 @@ export interface SearchDocument {
   east?: number;
   west?: number;
   geonames?: string[];
+
+  // Grouping (only set when grouped search returns this doc)
+  occurrenceCount?: number;
+  fulltext?: string;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -56,6 +61,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   rootModel: doc['root.model'] as DocumentTypeEnum | undefined,
   ownParentPid: doc['own_parent.pid'],
   ownParentModel: doc['own_parent.model'] as DocumentTypeEnum | undefined,
+  ownModelPath: doc['own_model_path'] as string | undefined,
   authors: doc.authors,
   date: doc['date.str'],
   model: doc.model,

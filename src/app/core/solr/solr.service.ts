@@ -394,7 +394,7 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true, grouped = false): Observable<SearchResultResponse> {
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement, includeArticle);
 
@@ -412,6 +412,17 @@ export class SolrService {
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
+
+    if (grouped) {
+      paramsObject = {
+        ...paramsObject,
+        group: 'true',
+        'group.field': 'root.pid',
+        'group.ngroups': 'true',
+        'group.sort': 'score desc',
+        'group.truncate': 'true'
+      };
+    }
 
     if (includePage) {
       paramsObject = {
@@ -613,7 +624,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -629,6 +640,15 @@ export class SolrService {
     };
 
     let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid));
+
+    if (grouped) {
+      params = params
+        .set('group', 'true')
+        .set('group.field', 'root.pid')
+        .set('group.facet', 'true')
+        .set('group.ngroups', 'true')
+        .set('group.truncate', 'true');
+    }
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);

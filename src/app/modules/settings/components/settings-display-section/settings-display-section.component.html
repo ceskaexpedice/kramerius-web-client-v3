@@ -112,6 +112,15 @@
 
     </div>
 
+    <label class="display-section--group-results">
+      <app-checkbox
+        [model]="currentGroupResults"
+        (modelChange)="onGroupResultsChange($event)"
+      >
+      </app-checkbox>
+      <span>{{ 'display-section--group-results--label' | translate }}</span>
+    </label>
+
   </div>
 
   <div class="settings-display--subsection facet-filters-config">

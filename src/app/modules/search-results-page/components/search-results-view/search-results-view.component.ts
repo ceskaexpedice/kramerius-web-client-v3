@@ -21,6 +21,9 @@ import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
 import { ScrollHideHeaderDirective } from '../../../../shared/directives/scroll-hide-header.directive';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
+import {
+  ToggleButtonGroupComponent
+} from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
 
 @Component({
   selector: 'app-search-results-view',
@@ -43,6 +46,7 @@ import { Observable } from 'rxjs';
     SkeletonListPipe,
     ScrollHideHeaderDirective,
     TranslatePipe,
+    ToggleButtonGroupComponent,
   ],
   templateUrl: './search-results-view.component.html',
   styleUrl: './search-results-view.component.scss',
@@ -52,6 +56,11 @@ export class SearchResultsViewComponent {
   @Input() showSectionHeaders = false;
   @Input() showSelectedTags$!: Observable<boolean>;
   @Input() exportRecord: SearchDocument | null = null;
+
+  groupOptions = [
+    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel' },
+    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel' },
+  ];
 
   @Output() exportRecordChange = new EventEmitter<SearchDocument | null>();
   @Output() sortChange = new EventEmitter<{ value: SolrSortFields; direction: SolrSortDirections }>();

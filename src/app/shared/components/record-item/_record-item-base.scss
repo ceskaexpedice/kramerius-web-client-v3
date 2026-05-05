@@ -303,6 +303,12 @@
     }
   }
 
+  .occurrence-count {
+    font-size: var(--font-size-small);
+    color: var(--color-text-base);
+    font-weight: 700;
+  }
+
   .collection-description {
     font-size: var(--font-size-small);
     line-height: calc(20px * var(--accessibility-text-scale));

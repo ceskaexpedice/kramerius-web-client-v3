@@ -10,7 +10,7 @@ import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';
 import { MapSearchService } from '../../shared/services/map-search.service';
-import { isMapViewParams } from './const/map-utils';
+import { isMapTab } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
@@ -98,28 +98,33 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Activate map mode if coordinates are present in URL
+    // Tab (all/map) is driven by the `tab` URL param. Inner view (grid/list)
+    // for the All tab is driven by `viewType` URL param, falling back to settings.
+    // The map tab is never persisted to settings — a fresh search always lands on All.
     const urlParams = new URLSearchParams(window.location.search);
     const initialParams = Object.fromEntries(urlParams.entries());
 
-    if (isMapViewParams(initialParams)) {
+    if (isMapTab(initialParams)) {
       this.view.set(AppResultsViewType.map);
     } else {
       const layout = urlParams.get('viewType') as AppResultsViewType;
-      if (layout && Object.values(AppResultsViewType).includes(layout)) {
+      if (layout && layout !== AppResultsViewType.map && Object.values(AppResultsViewType).includes(layout)) {
         this.view.set(layout);
         this.settingsService.settings.searchResultsView = layout;
       } else {
-        this.view.set(this.settingsService.settings.searchResultsView || AppResultsViewType.grid);
+        const stored = this.settingsService.settings.searchResultsView;
+        const validStored = stored && stored !== AppResultsViewType.map ? stored : AppResultsViewType.grid;
+        this.view.set(validStored);
       }
     }
 
     // React to settings changes (e.g., when user changes view mode in settings dialog)
     this.subscriptions.push(
       this.settingsService.settings$.subscribe(settings => {
-        // Only update if no URL override is present
+        // Only update if no URL override is present and we're not on the map tab
         const currentParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
-        if (!isMapViewParams(currentParams) && !currentParams['viewType'] && settings.searchResultsView) {
+        if (!isMapTab(currentParams) && !currentParams['viewType']
+          && settings.searchResultsView && settings.searchResultsView !== AppResultsViewType.map) {
           this.view.set(settings.searchResultsView);
         }
       })
@@ -222,21 +227,21 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     const currentParams = this.route.snapshot.queryParams;
 
     if (view === AppResultsViewType.map) {
-      // Map mode: default to score sort; remove viewType; coords written by MapBrowseComponent
+      // Map tab: set tab=map; default to score sort; remove viewType; coords written by MapBrowseComponent
       this.searchService.changeSortBy(SolrSortFields.relevance, SolrSortDirections.desc);
-      const { viewType, ...rest } = currentParams;
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { ...rest, viewType: null },
+        queryParams: { tab: 'map', viewType: null },
         queryParamsHandling: 'merge',
         replaceUrl: true
       });
     } else {
-      const wasMapMode = isMapViewParams(currentParams);
-      // Non-map: remove coords via router so Angular's snapshot is updated
+      const wasMapMode = isMapTab(currentParams);
+      // All tab: clear tab + map coords so the URL no longer encodes map state
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {
+          tab: null,
           north: null, south: null, east: null, west: null,
           viewType: view
         },
@@ -249,8 +254,11 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
         }
       });
     }
-    this.settingsService.settings.searchResultsView = view;
-    this.settingsService.saveToStorage(this.settingsService.settings);
+    // Only persist grid/list — map is a transient tab tied to the URL, not a default view.
+    if (view !== AppResultsViewType.map) {
+      this.settingsService.settings.searchResultsView = view;
+      this.settingsService.saveToStorage(this.settingsService.settings);
+    }
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

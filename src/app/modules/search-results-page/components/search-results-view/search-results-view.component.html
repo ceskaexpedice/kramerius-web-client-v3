@@ -96,7 +96,9 @@
         *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
         @if (pageResults.length > 0) {
         <h3 *ngIf="showSectionHeaders">{{'pages-section-header' | translate}}</h3>
-        <div class="grid--container">
+          <app-toggle-button-group [options]="groupOptions" [value]="searchService.isGrouped()" [size]="'md'" (valueChange)="searchService.setGroupResults($event)" />
+
+          <div class="grid--container">
           <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders"></app-record-item>
         </div>
         }

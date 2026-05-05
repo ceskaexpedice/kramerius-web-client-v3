@@ -54,6 +54,7 @@ export class SearchEffects {
         sortDirection,
         advancedQuery,
         advancedQueryMainOperator,
+        grouped,
       }, currentFacets, facetOperators]) => {
         const searchFieldOperators = mapOperatorsToSearchFields(facetOperators);
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
@@ -68,12 +69,51 @@ export class SearchEffects {
           userLicenses: this.userService.licenses
         };
 
-        const results$ = this.solr.search(query, filters, searchFieldOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle).pipe(
+        const results$ = this.solr.search(query, filters, searchFieldOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle, !!grouped).pipe(
           shareReplay(1)
         );
 
         const processResults$ = results$.pipe(
           map(resultsRes => {
+            const groupedField = resultsRes.grouped?.['root.pid'];
+            const submittedTerm = this.searchService.submittedTerm;
+
+            if (groupedField) {
+              const parsedResults = (groupedField.groups ?? []).map(group => {
+                const doc = group.doclist?.docs?.[0];
+                if (!doc) return null;
+                let highlighting = resultsRes.highlighting?.[doc.pid];
+                if (!highlighting || Object.keys(highlighting).length === 0) {
+                  const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
+                    key.includes('!') && key.split('!')[1] === doc.pid
+                  );
+                  highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
+                }
+                doc['highlighting'] = highlighting || {};
+                const parsed: any = parseSearchDocument(doc);
+                parsed.occurrenceCount = group.doclist?.numFound ?? 0;
+                if (submittedTerm && submittedTerm.trim().length > 0) {
+                  parsed.fulltext = submittedTerm;
+                }
+                // Render the group as its root document (title, model, navigation
+                // target) so a grouped card represents the monograph/periodical/etc.
+                // rather than the first matching page.
+                if (parsed.rootPid && parsed.rootModel) {
+                  parsed.pid = parsed.rootPid;
+                  parsed.title = parsed.rootTitle || parsed.title;
+                  parsed.model = parsed.rootModel;
+                  parsed.ownParentPid = undefined;
+                  parsed.ownParentModel = undefined;
+                }
+                return parsed;
+              }).filter((d): d is any => d !== null);
+
+              return SearchActions.loadSearchResultsSuccess({
+                results: parsedResults,
+                totalCount: groupedField.ngroups ?? parsedResults.length,
+              });
+            }
+
             const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
               // Try to get highlighting by pid first, then check for keys containing "!" (rootPid!pagePid format)
               let highlighting = resultsRes.highlighting?.[doc.pid];
@@ -98,16 +138,21 @@ export class SearchEffects {
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), searchFieldOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), searchFieldOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter, !!grouped),
         }).pipe(
           map(({ resultsRes, facetsRes }) => {
+            const groupedField = resultsRes.grouped?.['root.pid'];
+            const totalCount = groupedField
+              ? (groupedField.ngroups ?? 0)
+              : (resultsRes.response?.numFound ?? 0);
+
             const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
               facetsRes.facet_counts?.facet_fields ?? {},
               facetOperators,
               {},
               this.userService.licenses,
-              resultsRes.response.numFound,
+              totalCount,
               filters,
               facetsRes.facet_counts?.facet_queries,
               this.userService.isLoggedIn
