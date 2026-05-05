@@ -236,9 +236,10 @@ export class PeriodicalService extends BaseFilterService {
 
     if (!this.uuid || this.uuid === 'undefined') return;
 
-    const query = params && params['query'] || '';
+    const query = (params && (params['query'] || params['fulltext'])) || '';
 
     if (query && query.length > 0) {
+      this.inputSearchTerm = query;
       this._searchTerm.set(query);
       this._submittedTerm.set(query);
     }
