@@ -117,6 +117,12 @@
   }
 }
 
+.display-section--group-results {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x4);
+}
+
 .table-columns-config {
   display: flex;
   flex-direction: column;

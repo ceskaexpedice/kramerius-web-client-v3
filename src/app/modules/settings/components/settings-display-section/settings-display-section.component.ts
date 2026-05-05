@@ -36,6 +36,10 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   tableColumns: TableColumnConfig[] = [];
   facetFilters: FacetFilterConfig[] = [];
   pageSizeOptions = [60, 120, 180];
+  groupResultsOptions: ToggleOption<boolean>[] = [
+    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel', icon: 'icon-textalign-justifycenter' },
+    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel', icon: 'icon-document-text' },
+  ];
 
   private settingsService = inject(SettingsService);
   private displayConfigService = inject(DisplayConfigService);
