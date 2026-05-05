@@ -58,8 +58,8 @@ export class SearchResultsViewComponent {
   @Input() exportRecord: SearchDocument | null = null;
 
   groupOptions = [
-    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel' },
-    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel' },
+    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel', icon: 'icon-textalign-justifycenter' },
+    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel', icon: 'icon-document-text' },
   ];
 
   @Output() exportRecordChange = new EventEmitter<SearchDocument | null>();
