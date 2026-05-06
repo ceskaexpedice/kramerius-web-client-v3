@@ -102,6 +102,10 @@
       <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
       }
 
+      @if (!loading && item?.description) {
+      <div class="record-item-card__description">{{ item?.description }}</div>
+      }
+
       @if (!loading && item) {
       <div class="record-item-card__badges">
         @if (showModel) {

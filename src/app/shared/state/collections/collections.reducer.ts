@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import { FacetItem } from '../../../modules/models/facet-item';
 import { Metadata } from '../../models/metadata.model';
+import { Cutting } from '../../models/cutting.model';
 import * as CollectionsActions from './collections.actions';
 
 export interface CollectionsState {
@@ -18,6 +19,9 @@ export interface CollectionsState {
   allCollectionsTotalCount: number;
   allCollectionsLoading: boolean;
   allCollectionsError: any;
+  cuttings: Cutting[];
+  cuttingsLoading: boolean;
+  cuttingsError: any;
 }
 
 export const initialState: CollectionsState = {
@@ -34,6 +38,9 @@ export const initialState: CollectionsState = {
   allCollectionsTotalCount: 0,
   allCollectionsLoading: false,
   allCollectionsError: null,
+  cuttings: [],
+  cuttingsLoading: false,
+  cuttingsError: null,
 };
 
 export const collectionsReducer = createReducer(
@@ -114,5 +121,25 @@ export const collectionsReducer = createReducer(
     ...state,
     allCollectionsLoading: false,
     allCollectionsError: error,
+  })),
+
+  on(CollectionsActions.loadCollectionCuttings, state => ({
+    ...state,
+    cuttings: [],
+    cuttingsLoading: true,
+    cuttingsError: null,
+  })),
+
+  on(CollectionsActions.loadCollectionCuttingsSuccess, (state, { cuttings }) => ({
+    ...state,
+    cuttings,
+    cuttingsLoading: false,
+  })),
+
+  on(CollectionsActions.loadCollectionCuttingsFailure, (state, { error }) => ({
+    ...state,
+    cuttings: [],
+    cuttingsLoading: false,
+    cuttingsError: error,
   }))
 );

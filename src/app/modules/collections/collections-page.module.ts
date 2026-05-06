@@ -24,6 +24,8 @@ import { CollectionsRightSidebarContent } from './components/collections-right-s
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
+import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
+import { ButtonToggleComponent } from '../../shared/components/button-toggle/button-toggle.component';
 
 const routes: Routes = [
   {
@@ -59,7 +61,9 @@ const routes: Routes = [
     ScrollHideHeaderDirective,
     ScrollHideHeaderDirective,
     BreadcrumbsComponent,
-    SkeletonListPipe
+    SkeletonListPipe,
+    ToggleButtonGroupComponent,
+    ButtonToggleComponent
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },

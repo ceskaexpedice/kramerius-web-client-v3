@@ -319,6 +319,8 @@
   "scroll-left": "Posunout doleva",
   "scroll-right": "Posunout doprava",
   "search-for": "Hledat: ",
+  "collection--view-documents": "Dokumenty",
+  "collection--view-cuttings": "Výstřižky",
   "add-collection--label": "Přidat do kolekce",
   "remove-collection--label": "Odebrat z kolekce",
   "add-licence--label": "Přidat licenci",

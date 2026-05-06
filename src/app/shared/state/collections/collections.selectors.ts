@@ -109,3 +109,13 @@ export const selectAllCollectionsTotalCount = createSelector(
   selectCollectionsState,
   (state: CollectionsState) => state.allCollectionsTotalCount
 );
+
+export const selectCollectionCuttings = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state?.cuttings ?? []
+);
+
+export const selectCollectionCuttingsLoading = createSelector(
+  selectCollectionsState,
+  (state: CollectionsState) => state?.cuttingsLoading ?? false
+);
