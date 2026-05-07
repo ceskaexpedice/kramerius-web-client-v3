@@ -88,6 +88,8 @@ export class CollectionsService extends BaseFilterService {
     super();
     console.log('CollectionsService initialized');
 
+    this._pageSize.set(1000);
+
     this.load();
     this.initialize();
 
@@ -165,12 +167,17 @@ export class CollectionsService extends BaseFilterService {
     toObservable(this._sortBy)
   ]).pipe(
     map(([results, order, sortBy]) => {
-      // Only apply structure sorting when sorting by relevance
-      if (!order.length || !results || sortBy !== SolrSortFields.relevance) {
-        return results;
-      }
+      if (!results) return results;
+
+      const applyStructureOrder = order.length > 0 && sortBy === SolrSortFields.relevance;
 
       return [...results].sort((a, b) => {
+        const aIsCollection = a.model === 'collection';
+        const bIsCollection = b.model === 'collection';
+        if (aIsCollection !== bIsCollection) return aIsCollection ? -1 : 1;
+
+        if (!applyStructureOrder) return 0;
+
         const indexA = order.indexOf(a.pid);
         const indexB = order.indexOf(b.pid);
 

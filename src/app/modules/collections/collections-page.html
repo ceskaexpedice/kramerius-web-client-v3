@@ -120,6 +120,15 @@
                   [item]="doc ? toRecordItem(doc) : null">
                 </app-record-item>
               </div>
+
+              <app-paginator
+                [page]="collectionsService.page"
+                [totalCount]="collectionsService.totalCount"
+                [pageSize]="collectionsService.pageSize"
+                [pageSizeOptions]="[60, 120, 180]"
+                (pageChange)="collectionsService.goToPage($event)"
+                (pageSizeChange)="collectionsService.changePageSize($event)">
+              </app-paginator>
             }
 
           </div>

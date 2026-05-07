@@ -26,6 +26,7 @@ import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-h
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { ButtonToggleComponent } from '../../shared/components/button-toggle/button-toggle.component';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 
 const routes: Routes = [
   {
@@ -63,7 +64,8 @@ const routes: Routes = [
     BreadcrumbsComponent,
     SkeletonListPipe,
     ToggleButtonGroupComponent,
-    ButtonToggleComponent
+    ButtonToggleComponent,
+    PaginatorComponent
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },
