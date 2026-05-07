@@ -92,9 +92,9 @@
       }
       }
 
-      @if ((item?.occurrenceCount || 0) > 1) {
+      @if ((item?.occurrenceCount || 0) >= 1) {
         <div class="occurrence-count">
-          {{ item?.occurrenceCount }} {{ 'group-results--occurrences' | translate }}
+          {{ (item?.occurrenceCount || 0) | pluralize:'count-occurrences' }}
         </div>
       }
 
