@@ -21,6 +21,7 @@
       <app-thumbnail-image
         *ngIf="!loading && item"
         [src]="getImageThumbnailUrl()"
+        [fallbackSrc]="item?.imageFallbackUrl || null"
         [alt]="getTitle()"
         fallbackIcon="gallery">
       </app-thumbnail-image>

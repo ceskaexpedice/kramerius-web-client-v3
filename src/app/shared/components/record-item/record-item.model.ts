@@ -52,6 +52,9 @@ export interface RecordItem {
   /** Custom image URL for local items */
   imageUrl?: string;
 
+  /** Fallback image URL used if the primary thumbnail fails to load */
+  imageFallbackUrl?: string;
+
   /** External URL for local items */
   externalUrl?: string;
 

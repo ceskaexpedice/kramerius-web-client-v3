@@ -15,6 +15,9 @@ export class ThumbnailImageComponent implements OnChanges {
   /** Image source URL */
   @Input() src: string | null = null;
 
+  /** Optional fallback image URL used if the primary src fails to load */
+  @Input() fallbackSrc: string | null = null;
+
   /** Alt text for the image */
   @Input() alt = '';
 
@@ -42,6 +45,8 @@ export class ThumbnailImageComponent implements OnChanges {
   /** Internal state signals */
   imageLoaded = signal<boolean>(false);
   imageError = signal<boolean>(false);
+  currentSrc = signal<string | null>(null);
+  triedFallback = signal<boolean>(false);
 
   ngOnChanges(changes: SimpleChanges): void {
     // Reset state when src changes
@@ -52,6 +57,8 @@ export class ThumbnailImageComponent implements OnChanges {
       if (curr !== prev) {
         this.imageLoaded.set(false);
         this.imageError.set(false);
+        this.triedFallback.set(false);
+        this.currentSrc.set(curr ?? null);
       }
     }
   }
@@ -63,6 +70,13 @@ export class ThumbnailImageComponent implements OnChanges {
   }
 
   onImageError(): void {
+    if (!this.triedFallback() && this.fallbackSrc && this.currentSrc() !== this.fallbackSrc) {
+      this.triedFallback.set(true);
+      this.imageLoaded.set(false);
+      this.imageError.set(false);
+      this.currentSrc.set(this.fallbackSrc);
+      return;
+    }
     this.imageLoaded.set(true);
     this.imageError.set(true);
     this.error.emit();
@@ -79,10 +93,10 @@ export class ThumbnailImageComponent implements OnChanges {
   }
 
   get isLoading(): boolean {
-    return !this.imageLoaded() && !this.imageError() && !!this.src;
+    return !this.imageLoaded() && !this.imageError() && !!this.currentSrc();
   }
 
   get showFallback(): boolean {
-    return this.imageError() || !this.src;
+    return this.imageError() || !this.currentSrc();
   }
 }

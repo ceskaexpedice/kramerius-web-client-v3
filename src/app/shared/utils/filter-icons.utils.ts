@@ -18,6 +18,8 @@ export function getModelIcon(model: DocumentTypeEnum | string, monographUnitCoun
       return 'icon-firstline';
     case DocumentTypeEnum.collection:
       return 'icon-layer';
+    case DocumentTypeEnum.cutting:
+      return 'icon-brush-2';
     case DocumentTypeEnum.map:
       return 'icon-map';
     case DocumentTypeEnum.graphic:
@@ -55,6 +57,7 @@ const modelColors: Record<string, string> = {
   [DocumentTypeEnum.archive]: 'var(--color-bg-tag-archive)',
   [DocumentTypeEnum.manuscript]: 'var(--color-bg-tag-manuscript)',
   [DocumentTypeEnum.page]: 'var(--color-bg-tag-page)',
+  [DocumentTypeEnum.cutting]: 'var(--color-bg-tag-cut)'
 };
 
 /**
