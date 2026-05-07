@@ -2,124 +2,217 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6. Later upgraded to Angular 19.
 
-## Development
+## Run for development
 
-### Run
+```shell
+npm run start
+```
 
-`npm run start`
+Starts a local development server.
 
-for a local dev server. Navigate to `http://localhost:4200/`.
-The application will automatically reload if you change any of the source files.
+Open in browser:
 
-## Build & Run
+```text
+http://localhost:4200/
+```
+
+The application will automatically reload when source files change.
+
+## Build & Run classic
 
 ### Build
 
-First define configuration in environment variables
+First define the configuration using environment variables:
 
 ```shell
-
 export APP_DEV_MODE=false
 export APP_KRAMERIUS_ID="mzk"
-
 ```
 
-Now run `npm run build` to build the project.
+Run the build:
+
+```shell
+npm run build
+```
 
 The build artifacts will be stored in the `dist/` directory.
 
-The environment configuration from `APP_*` variables will be stored into `dist/cdk-client/browser/assets/env.json`
+The environment configuration from `APP_*` variables will be stored into:
+
+```text
+dist/cdk-client/browser/assets/env.json
+```
 
 ### Run
 
-To test the the app you've just built
+To test the application you have just built, run:
 
-`npx serve dist/cdk-client/browser -l 8080`
-
-And open in browser
-
-`http://localhost:8080`
-
-## Docker Build & Run
-
-### Build
-```
-docker build -t cdk-client .
+```shell
+npx serve dist/cdk-client/browser -l 8080
 ```
 
-possibly including version tag
-```
-docker build -t trinera/cdk-client:1.0.4 .
-```
+Open in browser:
 
-or including version tag and tag `latest`
-```
-docker build -t trinera/cdk-client:latest -t trinera/cdk-client:1.0.4 .
+```text
+http://localhost:8080
 ```
 
-### Push to Dockerhub
+## Build & Run with Docker
 
-Only if you have write access to Dockerhub repository trinera/cdk-client.
-You don't need this to run localy built Docker image.
+### Build image
 
-```
-docker push trinera/cdk-client:1.0.4
-docker push trinera/cdk-client:latest
+```shell
+docker build -t trinera/cdk-client:1.0.0 .
 ```
 
-### Run Docker image
+### Build & push (multiplatform) image to Docker Hub
 
-#### Local image
-
-Run locally built Docker image
-
-##### Run
+```shell
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t trinera/cdk-client:1.0.0 \
+  --push .
 ```
+
+### Run container with `docker run`
+
+```shell
 docker run -p 1234:80 \
-  -e APP_DEV_MODE=false \
+  -e APP_DEV_MODE=true \
   -e APP_KRAMERIUS_ID=mzk \
-trinera/cdk-client
+  trinera/cdk-client:1.0.0
 ```
 
-##### Run exact version:
+Open in browser:
+
+```text
+http://localhost:1234
 ```
+
+Optionally, override the bundled local configuration by mounting a local directory:
+
+```shell
 docker run -p 1234:80 \
+  -e APP_DEV_MODE=true \
   -e APP_KRAMERIUS_ID=mzk \
-trinera/cdk-client:latest
-```
-or
-
-```
-docker run -p 1234:80 \
-  -e APP_KRAMERIUS_ID=mzk \
-trinera/cdk-client:1.0.0
+  -v ./public/local-config:/usr/share/nginx/local-config:ro \
+  trinera/cdk-client:1.0.0
 ```
 
-#### Image pulled from Docker Hub
+#### Environment variables
 
-Run image that someone built and pushed to Dockerhub.
+The container can be configured using environment variables:
 
-##### Run
+| Variable | Default | Description |
+|---|---:|---|
+| `APP_KRAMERIUS_ID` | `mzk` | ID of the default Kramerius instance. |
+| `APP_DEV_MODE` | `true` | Enables or disables development mode. |
 
+## Run with Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  cdk-client:
+    image: trinera/cdk-client:1.0.0
+    ports:
+      - "1234:80"
+    environment:
+      - APP_KRAMERIUS_ID=${APP_KRAMERIUS_ID:-mzk}
+      - APP_DEV_MODE=${APP_DEV_MODE:-true}
+    volumes:
+      # Optional: override the bundled default local configuration.
+      - ./public/local-config:/usr/share/nginx/local-config:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/libraries.json"]
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 3
 ```
-docker pull trinera/cdk-client:latest
-docker run -p 1234:80 \
-  -e APP_KRAMERIUS_ID=mzk \
-trinera/cdk-client
+
+Start the application:
+
+```shell
+docker compose up -d
 ```
 
-And open in browser
+Stop the application:
 
-`http://localhost:1234`
+```shell
+docker compose down
+```
 
-## Running unit tests
+Open in browser:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```text
+http://localhost:1234
+```
 
-## Running end-to-end tests
+### Docker Compose environment variables
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+The values can be overridden before starting Docker Compose:
 
-## Further help
+```shell
+export APP_KRAMERIUS_ID=mzk
+export APP_DEV_MODE=false
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+docker compose up -d
+```
+
+Alternatively, create a `.env` file next to `docker-compose.yml`:
+
+```env
+APP_KRAMERIUS_ID=mzk
+APP_DEV_MODE=false
+```
+
+Docker Compose will automatically use these values.
+
+### Local configuration volume
+
+The Docker image contains a default version of the local configuration files.
+
+Optionally, the default configuration can be overridden by mounting a local directory from the host:
+
+```yaml
+volumes:
+  - ./public/local-config:/usr/share/nginx/local-config:ro
+```
+
+This maps local configuration files from:
+
+```text
+./public/local-config
+```
+
+to the container path:
+
+```text
+/usr/share/nginx/local-config
+```
+
+The volume is mounted as read-only using the `:ro` suffix.
+
+This allows the container image to work out of the box with the bundled default configuration, while still allowing the runtime configuration to be provided externally when needed.
+
+For example, the following local file:
+
+```text
+./public/local-config/libraries.json
+```
+
+will override the bundled file and will be served by nginx as:
+
+```text
+/local-config/libraries.json
+```
+
+The file can be checked from the host at:
+
+```text
+http://localhost:1234/local-config/libraries.json
+```
+
+If you do not need a custom local configuration, you can remove the `volumes` section from `docker-compose.yml`.
