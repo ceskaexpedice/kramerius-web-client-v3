@@ -36,6 +36,10 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   tableColumns: TableColumnConfig[] = [];
   facetFilters: FacetFilterConfig[] = [];
   pageSizeOptions = [60, 120, 180];
+  groupResultsOptions: ToggleOption<boolean>[] = [
+    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel', icon: 'icon-textalign-justifycenter' },
+    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel', icon: 'icon-document-text' },
+  ];
 
   private settingsService = inject(SettingsService);
   private displayConfigService = inject(DisplayConfigService);
@@ -99,6 +103,25 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
   pageSizeDisplayFn = (size: number | null): string => {
     return size != null ? String(size) : '-';
   };
+
+  get currentGroupResults(): boolean {
+    return this.settings.displayConfig?.defaultGroupResults ?? false;
+  }
+
+  onGroupResultsChange(grouped: boolean) {
+    if (!this.settings.displayConfig) {
+      this.settings.displayConfig = this.displayConfigService.getConfigForSettings();
+    }
+
+    const updatedSettings: Settings = {
+      ...this.settings,
+      displayConfig: {
+        ...this.settings.displayConfig,
+        defaultGroupResults: grouped
+      }
+    };
+    this.settingsChange.emit(updatedSettings);
+  }
 
   loadTableColumns() {
     // If displayConfig exists in settings, use it; otherwise use service defaults

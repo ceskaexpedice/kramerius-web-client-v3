@@ -11,16 +11,19 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../record-item/record-item.component';
 import { RecordItem, searchDocumentToRecordItem } from '../../record-item/record-item.model';
 import { Metadata } from '../../../models/metadata.model';
+import {PaginatorInfoComponent} from '../../paginator-info/paginator-info.component';
+import {AppResultsViewType} from '../../../../modules/settings/settings.model';
 
 @Component({
     selector: 'app-search-results-sidebar',
     standalone: true,
-    imports: [
-        CommonModule,
-        PaginatorComponent,
-        TranslateModule,
-        RecordItemComponent,
-    ],
+  imports: [
+    CommonModule,
+    PaginatorComponent,
+    TranslateModule,
+    RecordItemComponent,
+    PaginatorInfoComponent,
+  ],
     templateUrl: './search-results-sidebar.component.html',
     styleUrls: ['./search-results-sidebar.component.scss']
 })
@@ -190,4 +193,6 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     toRecordItem(doc: SearchDocument): RecordItem {
         return searchDocumentToRecordItem(doc);
     }
+
+  protected readonly ViewOptions = AppResultsViewType;
 }

@@ -21,6 +21,7 @@ import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
+import { PluralizePipe } from '../../pipes/pluralize.pipe';
 
 @Component({
   selector: 'app-record-item',
@@ -36,6 +37,7 @@ import { MetadataSection } from '../metadata-section/metadata-section';
     ThumbnailImageComponent,
     SlideUpPanelComponent,
     MetadataSection,
+    PluralizePipe,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
@@ -129,10 +131,17 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     if (this.item.externalUrl) {
       return this.item.externalUrl;
     }
+    let url: string;
     if ((this.item.model === DocumentTypeEnum.page || this.item.model === DocumentTypeEnum.article) && this.item.ownParentPid) {
-      return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid, this.item.ownParentModel ?? null);
+      url = this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model, this.item.id, this.item.ownParentPid, this.item.ownParentModel ?? null);
+    } else {
+      url = this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model as DocumentTypeEnum, this.item.id);
     }
-    return this.recordHandler.getHandleDocumentUrlByModelAndPid(this.item.model as DocumentTypeEnum, this.item.id);
+    if (this.item.fulltext && !url.includes('fulltext=')) {
+      const sep = url.includes('?') ? '&' : '?';
+      url += `${sep}fulltext=${encodeURIComponent(this.item.fulltext)}`;
+    }
+    return url;
   }
 
   getTitle(): string {

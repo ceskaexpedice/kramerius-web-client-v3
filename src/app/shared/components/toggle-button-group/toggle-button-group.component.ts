@@ -24,6 +24,7 @@ export class ToggleButtonGroupComponent<T = any> {
   @Input() label = '';
   @Output() valueChange = new EventEmitter<T>();
   @Input() size: 'sm' | 'md' | 'lg' = 'sm';
+  @Input() variant: 'default' | 'pill' = 'default';
 
   select(option: ToggleOption<T>) {
     if (option.value !== this.value) this.valueChange.emit(option.value);

@@ -72,7 +72,12 @@
 
       <!-- DESKTOP: Stacked sections with headers -->
       <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
-        <h3 *ngIf="showSectionHeaders">{{'titles-section-header' | translate}}</h3>
+        @if (showSectionHeaders) {
+          <h3>
+            {{ 'titles-section-header' | translate }}
+            <span class="section-header__subtitle">({{ 'titles-section-header--subtitle' | translate }})</span>
+          </h3>
+        }
 
         <div class="grid--container">
           <app-record-item
@@ -95,8 +100,17 @@
       <ng-container
         *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
         @if (pageResults.length > 0) {
-        <h3 *ngIf="showSectionHeaders">{{'pages-section-header' | translate}}</h3>
-        <div class="grid--container">
+        <div class="section-header">
+<!--          @if (showSectionHeaders) {-->
+            <h3>
+              {{ 'pages-section-header' | translate }}
+              <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
+            </h3>
+<!--          }-->
+          <app-toggle-button-group [options]="groupOptions" [value]="searchService.isGrouped()" [size]="'md'" [variant]="'pill'" (valueChange)="searchService.setGroupResults($event)" />
+        </div>
+
+          <div class="grid--container">
           <app-record-item *ngFor="let doc of pageResults" [item]="toRecordItem(doc)" [showPageTag]="showSectionHeaders"></app-record-item>
         </div>
         }
@@ -124,7 +138,12 @@
       <ng-container *ngIf="searchService.nonPageResults$ | async as nonPageResults">
         @if (nonPageResults.length > 0) {
         <div class="list-view--header flex flex--space-between align-items-center">
-          <h3 *ngIf="showSectionHeaders">{{'titles-section-header' | translate}}</h3>
+          @if (showSectionHeaders) {
+            <h3>
+              {{ 'titles-section-header' | translate }}
+              <span class="section-header__subtitle">({{ 'titles-section-header--subtitle' | translate }})</span>
+            </h3>
+          }
           <div class="pull-right">
             <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
               [totalCount]="searchService.totalCount" [pageSize]="searchService.pageSize" [layout]="'compact'"
@@ -158,7 +177,12 @@
       <ng-container *ngIf="searchService.pageResults$ | async as pageResults">
         @if (pageResults.length > 0) {
         <div class="list-view--header flex flex--space-between align-items-center">
-          <h3 *ngIf="showSectionHeaders">{{'pages-section-header' | translate}}</h3>
+          @if (showSectionHeaders) {
+            <h3>
+              {{ 'pages-section-header' | translate }}
+              <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
+            </h3>
+          }
           <ng-container
             *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length">
             <div class="pull-right">

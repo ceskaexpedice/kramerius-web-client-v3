@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, shareReplay, switchMap, withLatestFrom } from 'rxjs/operators';
 import { forkJoin, merge, of } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../core/solr/solr.service';
+import { EnvironmentService } from '../../services/environment.service';
+import { parseCutting } from '../../models/cutting.model';
 import {
   loadAllCollections,
   loadAllCollectionsFailure,
@@ -17,6 +21,9 @@ import {
   loadCollectionSearchResults,
   loadCollectionSearchResultsFailure,
   loadCollectionSearchResultsSuccess,
+  loadCollectionCuttings,
+  loadCollectionCuttingsSuccess,
+  loadCollectionCuttingsFailure,
 } from './collections.actions';
 import { parseSearchDocument } from '../../../modules/models/search-document';
 import { selectCollectionFacetOperators, selectCollectionFacets } from './collections.selectors';
@@ -45,8 +52,28 @@ export class CollectionsEffects {
     private modsParserService: ModsParserService,
     private displayConfigService: DisplayConfigService,
     private customSearchService: CustomSearchService,
+    private http: HttpClient,
+    private env: EnvironmentService,
   ) {
   }
+
+  loadCollectionCuttings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadCollectionCuttings),
+      switchMap(({ uuid }) => {
+        const url = `${this.env.getApiUrl('items')}/${uuid}/collection/cuttings`;
+        return this.http.get<any[]>(url, {
+          context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true),
+        }).pipe(
+          map(raw => {
+            const cuttings = (raw ?? []).map(c => parseCutting(c, (id) => this.solr.getIiifBaseUrl(id)));
+            return loadCollectionCuttingsSuccess({ cuttings });
+          }),
+          catchError(error => of(loadCollectionCuttingsFailure({ error }))),
+        );
+      }),
+    ),
+  );
 
   loadCollectionSearchResults$ = createEffect(() =>
     this.actions$.pipe(

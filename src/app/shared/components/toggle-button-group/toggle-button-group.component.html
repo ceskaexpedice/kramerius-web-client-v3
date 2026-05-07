@@ -2,7 +2,7 @@
   {{ label | translate}}
 </label>
 
-<div class="toggle-group" [ngClass]="size" role="group">
+<div class="toggle-group" [ngClass]="[size, 'variant-' + variant]" role="group">
   <button
     *ngFor="let option of options"
     type="button"

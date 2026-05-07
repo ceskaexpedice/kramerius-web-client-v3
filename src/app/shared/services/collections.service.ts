@@ -21,9 +21,11 @@ import {
   selectCollectionFacets,
   selectCollectionDetail,
   selectCollectionDetailLoading,
-  selectCollectionDetailError
+  selectCollectionDetailError,
+  selectCollectionCuttings,
+  selectCollectionCuttingsLoading
 } from '../state/collections/collections.selectors';
-import { loadCollectionSearchResults, loadCollectionDetail } from '../state/collections/collections.actions';
+import { loadCollectionSearchResults, loadCollectionDetail, loadCollectionCuttings } from '../state/collections/collections.actions';
 import { BreadcrumbsService } from './breadcrumbs.service';
 import { Breadcrumb } from '../models/breadcrumb.model';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
@@ -49,6 +51,11 @@ export class CollectionsService extends BaseFilterService {
   detail$ = this.store.select(selectCollectionDetail);
   detailLoading$ = this.store.select(selectCollectionDetailLoading);
   detailError$ = this.store.select(selectCollectionDetailError);
+
+  cuttings$ = this.store.select(selectCollectionCuttings);
+  cuttingsLoading$ = this.store.select(selectCollectionCuttingsLoading);
+
+  viewMode = signal<'documents' | 'cuttings'>('documents');
 
   activeFilters$: Observable<string[]> = this.store.select(selectActiveFilters);
   POSSIBLE_FILTERS = [
@@ -89,6 +96,18 @@ export class CollectionsService extends BaseFilterService {
         .pipe(filter(count => count !== undefined && count !== null))
         .subscribe(count => this._totalCount.set(count));
       return () => subscription.unsubscribe();
+    });
+
+    // Auto-select cuttings view when collection has only cuttings
+    effect(() => {
+      const sub = combineLatest([this.totalCount$, this.cuttings$, this.loading$, this.cuttingsLoading$])
+        .subscribe(([total, cuttings, loading, cLoading]) => {
+          if (loading || cLoading) return;
+          if ((total ?? 0) === 0 && cuttings && cuttings.length > 0) {
+            this.viewMode.set('cuttings');
+          }
+        });
+      return () => sub.unsubscribe();
     });
 
     // Watch for collection detail changes and update breadcrumbs
@@ -206,7 +225,9 @@ export class CollectionsService extends BaseFilterService {
         if (this.uuid) {
           const uuid = this.uuid;
           this.store.dispatch(loadCollectionDetail({ uuid }));
+          this.store.dispatch(loadCollectionCuttings({ uuid }));
           this.loadStructure(uuid);
+          this.viewMode.set('documents');
         } else {
           this.structureOrder.set([]);
         }

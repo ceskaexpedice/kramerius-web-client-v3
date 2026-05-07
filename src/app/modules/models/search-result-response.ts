@@ -17,4 +17,19 @@ export interface SearchResultResponse {
       text_ocr?: string[];
     };
   };
+  grouped?: {
+    [field: string]: {
+      matches?: number;
+      ngroups?: number;
+      groups: Array<{
+        groupValue: string;
+        doclist: {
+          numFound: number;
+          start: number;
+          docs: any[];
+          maxScore?: number;
+        };
+      }>;
+    };
+  };
 }

@@ -20,11 +20,16 @@
   }
 
   .paginator-top {
-    border-bottom: 1px solid var(--color-border-light);
+    //border-bottom: 1px solid var(--color-border-light);
     display: flex;
-    padding: var(--spacing-x1) var(--spacing-x2) var(--spacing-x3) var(--spacing-x2);
-    gap: var(--spacing-x2);
-    justify-content: space-between;
+    gap: var(--spacing-x3);
+    flex-direction: column;
+
+    .paginator-top--actions {
+      display: flex;
+      gap: var(--spacing-x2);
+      justify-content: space-between;
+    }
 
     button {
       padding: var(--spacing-x2) var(--spacing-x3);
@@ -48,7 +53,7 @@
   .results-list {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-x2);
+    padding: var(--spacing-x2) 0;
 
     app-record-item {
       display: initial;

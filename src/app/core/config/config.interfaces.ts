@@ -146,6 +146,13 @@ export interface LicenseBarConfig {
   link?: string;           // optional URL opened on bar click
 }
 
+// "Provided by" entry shown in metadata section when a runtime license matches.
+export interface LicenseProvidedByConfig {
+  display: boolean;   // when false, license is excluded from the "provided under license" section
+  imageUrl?: string;  // optional logo to render next to the license name
+  url?: string;       // optional link target for the license name/logo
+}
+
 // Single license configuration
 export interface LicenseConfig {
   id: string;
@@ -157,6 +164,7 @@ export interface LicenseConfig {
   actions: LicenseActionsConfig;
   bar?: LicenseBarConfig;       // optional info bar shown in detail view
   watermark?: LicenseWatermarkConfig; // optional watermark overlay in IIIF viewer
+  providedBy?: LicenseProvidedByConfig; // when set, display this license in the metadata "provided under license" section
 }
 
 // Licenses configuration (ordered array of license configs)

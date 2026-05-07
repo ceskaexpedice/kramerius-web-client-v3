@@ -64,10 +64,10 @@
     </div>
   </app-metadata-section-item>
 
-  @if (hasAfterLoginLicense() && runtimeLicenses() && runtimeLicenses().length > 0) {
+  @if (providedByLicenses().length > 0) {
     <section class="provided-licenses">
       <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
-      @for (license of runtimeLicenses(); track license) {
+      @for (license of providedByLicenses(); track license) {
         <div class="provided-licenses__item">
           @if (getProvidedByLicenseUrl(license); as url) {
             <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">

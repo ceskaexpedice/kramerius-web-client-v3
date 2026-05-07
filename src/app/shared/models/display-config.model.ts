@@ -48,6 +48,7 @@ export interface DisplayConfig {
   tableColumns: TableColumnConfig[];
   facetFilters?: FacetFilterConfig[];
   defaultPageSize?: number;
+  defaultGroupResults?: boolean;
 }
 
 /**

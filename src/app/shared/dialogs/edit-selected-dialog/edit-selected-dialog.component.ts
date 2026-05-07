@@ -161,7 +161,7 @@ export class EditSelectedDialogComponent {
   constructor() {
     effect(() => {
       const count = this.effectiveSelectedIds().length;
-      this.dialogConfig.subtitle = `${this.translateService.instant('selected-objects--count')}: ${count}`;
+      this.dialogConfig.subtitle = this.data.mode === 'single' ? '' : `${this.translateService.instant('selected-objects--count')}: ${count}`;
 
       // Show admin button only when exactly 1 item is selected and adminClientUrl is configured
       const adminSection = this.dialogConfig.sections.find(s => s.key === EditSelectedDialogSections.admin);

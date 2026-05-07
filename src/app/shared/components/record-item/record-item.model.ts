@@ -63,6 +63,12 @@ export interface RecordItem {
   'collection.desc_eng'?: string[];
   'collection.desc_pol'?: string[];
   'collection.desc_slo'?: string[];
+
+  /** Number of matching docs grouped under this title (from grouped search) */
+  occurrenceCount?: number;
+
+  /** Search term to forward as ?fulltext=... when navigating to this record */
+  fulltext?: string;
 }
 
 /**
@@ -91,6 +97,9 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     'collection.desc_eng': doc['collection.desc_eng'] || [],
     'collection.desc_pol': doc['collection.desc_pol'] || [],
     'collection.desc_slo': doc['collection.desc_slo'] || [],
+
+    occurrenceCount: doc.occurrenceCount,
+    fulltext: doc.fulltext,
   };
 }
 

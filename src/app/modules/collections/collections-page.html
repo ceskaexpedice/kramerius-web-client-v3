@@ -73,28 +73,54 @@
 
           @if (collectionsService.detail$ | async; as metadata) {
 
-          <div class="collection-description-wrapper">
-            <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded"
-              [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
-            </div>
-            <button *ngIf="isDescriptionTruncated" class="button link primary with-icon show-more-btn p-left-0"
-              (click)="toggleDescription()">
-              {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
-              <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
-            </button>
-          </div>
+
+            @if (getLocalizedDescription(metadata).length > 0) {
+              <div class="collection-description-wrapper">
+                <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded"
+                     [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
+                </div>
+                <button *ngIf="isDescriptionTruncated" class="button link primary with-icon show-more-btn p-left-0"
+                        (click)="toggleDescription()">
+                  {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
+                  <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
+                </button>
+              </div>
+            }
+
 
           }
 
 
-          <div>
+          <div class="collection--content">
 
-            <div class="grid--container">
-              <app-record-item
-                *ngFor="let doc of (collectionsService.searchResults$ | async) | skeletonList:60:(collectionsService.loading$ | async)"
-                [item]="doc ? toRecordItem(doc) : null">
-              </app-record-item>
-            </div>
+            @if (((collectionsService.totalCount$ | async) ?? 0) > 0 && ((collectionsService.cuttings$ | async)?.length ?? 0) > 0) {
+              <div class="collection-view-toggle">
+                @for (option of viewModeOptions; track option.value) {
+                  <app-button-toggle
+                    [label]="option.label || ''"
+                    [value]="option.value"
+                    [checked]="collectionsService.viewMode() === option.value"
+                    (toggled)="setViewMode(option.value)">
+                  </app-button-toggle>
+                }
+              </div>
+            }
+
+            @if (collectionsService.viewMode() === 'cuttings') {
+              <div class="grid--container">
+                <app-record-item
+                  *ngFor="let cutting of (collectionsService.cuttings$ | async) ?? []"
+                  [item]="toCuttingRecordItem(cutting)">
+                </app-record-item>
+              </div>
+            } @else {
+              <div class="grid--container">
+                <app-record-item
+                  *ngFor="let doc of (collectionsService.searchResults$ | async) | skeletonList:60:(collectionsService.loading$ | async)"
+                  [item]="doc ? toRecordItem(doc) : null">
+                </app-record-item>
+              </div>
+            }
 
           </div>
 

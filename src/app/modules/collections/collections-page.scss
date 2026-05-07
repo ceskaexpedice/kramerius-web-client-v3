@@ -2,11 +2,22 @@
 
 .collection-description-wrapper {
   margin-top: var(--spacing-x6);
-  margin-bottom: var(--spacing-x6);
+  margin-bottom: var(--spacing-x3);
 }
 
 :host ::ng-deep a {
   color: var(--color-primary) !important;
+}
+
+.collection--content {
+  padding-top: var(--spacing-x3);
+}
+
+.collection-view-toggle {
+  display: flex;
+  gap: var(--spacing-x2);
+  align-items: center;
+  margin-bottom: var(--spacing-x3);
 }
 
 .collection--notes {

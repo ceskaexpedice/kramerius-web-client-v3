@@ -31,6 +31,9 @@
         "text": true,
         "selection": true,
         "crop": true
+      },
+      "providedBy": {
+        "display": true
       }
     },
 
@@ -116,6 +119,11 @@
       "instructionPage": {
         "cs": "local-config/mzk/html/licenses/dnnto.instruction.cs.html",
         "en": "local-config/mzk/html/licenses/dnnto.instruction.en.html"
+      },
+      "providedBy": {
+        "display": true,
+        "imageUrl": "/img/logo/provided-by-licenses/dnnto-logo.png",
+        "url": "https://dnnt.cz/"
       }
     },
 

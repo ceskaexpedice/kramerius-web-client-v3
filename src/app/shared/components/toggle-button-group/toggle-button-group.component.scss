@@ -54,3 +54,37 @@ label {
     padding: var(--spacing-x4) var(--spacing-x5);
   }
 }
+
+.toggle-group.variant-pill {
+  background-color: var(--color-bg-base);
+  border-radius: var(--spacing-x2);
+  padding: var(--spacing-x05);
+  gap: var(--spacing-x1);
+
+  .toggle-btn {
+    border-radius: 6px;
+    padding: var(--spacing-x1) var(--spacing-x2);
+    gap: var(--spacing-x1);
+    align-items: center;
+    color: var(--color-text-btn-tertiary-default);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+
+    i {
+      font-size: var(--font-size-base);
+    }
+
+    &.active {
+      background-color: var(--color-primary);
+      color: var(--color-text-on-color);
+
+      i {
+        color: var(--color-text-on-color);
+      }
+    }
+
+    &:hover:not(.active) {
+      background-color: transparent;
+    }
+  }
+}

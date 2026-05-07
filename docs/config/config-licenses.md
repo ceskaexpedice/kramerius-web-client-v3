@@ -139,6 +139,7 @@ Tedy: defaultní hodnoty, přepsané tím, co je v licenci. Licence nemusí opak
 | `messagePages` | ne | HTML dialogy zobrazované v různých situacích (přístup zamítnut, informace). Viz níže. Když chybí, použije se obecný systémový dialog. |
 | `instructionPage` | ne | HTML stránka s návodem, jak získat přístup k dokumentu. Když chybí, tlačítko "návod" se neukáže. |
 | `watermark` | ne | Vodoznak vykreslovaný přes obraz stránky. Viz níže. Když chybí, žádný vodoznak se nevykresluje. |
+| `providedBy` | ne | Zařadí licenci do sekce „Poskytováno pod licencí" v metadatech dokumentu. Viz níže. Když chybí (nebo má `display: false`), licence se v této sekci nezobrazuje. |
 
 ---
 
@@ -228,6 +229,28 @@ HTML soubory se obvykle ukládají pod `local-config/{kód}/html/licenses/`.
 ```
 
 Jeden HTML soubor (per jazyk) s návodem, jak získat přístup k dokumentu pod touto licencí. Typicky něco jako "Jak se zaregistrovat do dnnto". Zobrazuje se jako samostatná stránka / dialog z tlačítka "Návod" uvnitř dialogu přístupu.
+
+---
+
+## `providedBy` — zobrazení v sekci „Poskytováno pod licencí"
+
+V detailu dokumentu se v metadatech zobrazuje sekce „Poskytováno pod licencí". Pole `providedBy` určuje, zda se daná licence v této sekci ukáže, a co se vedle jejího názvu vykreslí (logo a/nebo odkaz).
+
+```json
+"providedBy": {
+  "display": true,
+  "imageUrl": "/img/logo/provided-by-licenses/dnnto-logo.png",
+  "url": "https://dnnt.cz/"
+}
+```
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `display` | ano | `true` = licence se v sekci zobrazuje, `false` = nezobrazuje. Pro vyloučení licence ze sekce stačí celý blok `providedBy` neuvádět. |
+| `imageUrl` | ne | Cesta nebo URL k logu zobrazenému vedle názvu licence. Když chybí, vykreslí se jen text licence. |
+| `url` | ne | URL, na kterou se odkazuje název licence (a logo, pokud je nastaveno). Když chybí, název ani logo nejsou klikací. |
+
+Sekce se v UI ukáže jen tehdy, když dokument má alespoň jednu runtime licenci, jejíž config má `providedBy.display: true`. Pořadí v sekci odpovídá pořadí runtime licencí dokumentu.
 
 ---
 

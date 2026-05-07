@@ -281,6 +281,18 @@ export function mapAdvancedSearchField(solrField: string): string[] {
  * @param filters - Array of filter strings in format 'facetKey:value'
  * @returns Array of mapped filter strings
  */
+export function mapOperatorsToSearchFields<T>(operators: { [field: string]: T }): { [field: string]: T } {
+  const mapped: { [field: string]: T } = { ...operators };
+  for (const [facetKey, value] of Object.entries(operators)) {
+    if (facetToSearchFieldMapper[facetKey]) {
+      for (const searchField of facetToSearchFieldMapper[facetKey]) {
+        mapped[searchField] = value;
+      }
+    }
+  }
+  return mapped;
+}
+
 export function mapFacetsToSearchFields(filters: string[]): string[] {
   const mappedFilters: string[] = [];
 

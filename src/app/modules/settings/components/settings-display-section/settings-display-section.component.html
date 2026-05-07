@@ -112,6 +112,18 @@
 
     </div>
 
+    <div class="display-section--group-results">
+      <span>{{ 'display-section--group-results--label' | translate }}</span>
+      <app-toggle-button-group
+        [options]="groupResultsOptions"
+        [value]="currentGroupResults"
+        [size]="'md'"
+        [variant]="'pill'"
+        (valueChange)="onGroupResultsChange($event)"
+      >
+      </app-toggle-button-group>
+    </div>
+
   </div>
 
   <div class="settings-display--subsection facet-filters-config">

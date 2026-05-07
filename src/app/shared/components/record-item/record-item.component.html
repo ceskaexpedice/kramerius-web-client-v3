@@ -92,8 +92,18 @@
       }
       }
 
+      @if ((item?.occurrenceCount || 0) >= 1) {
+        <div class="occurrence-count">
+          {{ (item?.occurrenceCount || 0) | pluralize:'count-occurrences' }}
+        </div>
+      }
+
       @if (!loading && item?.model === DocumentTypeEnum.collection ) {
       <div class="collection-description">{{getLocalizedCollectionDescription()}}</div>
+      }
+
+      @if (!loading && item?.description) {
+      <div class="record-item-card__description">{{ item?.description }}</div>
       }
 
       @if (!loading && item) {
