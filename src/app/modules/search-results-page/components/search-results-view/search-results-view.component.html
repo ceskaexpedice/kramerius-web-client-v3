@@ -101,12 +101,12 @@
         *ngIf="!(searchService.loading$ | async) && (searchService.pageResults$ | async) as pageResults">
         @if (pageResults.length > 0) {
         <div class="section-header">
-          @if (showSectionHeaders) {
+<!--          @if (showSectionHeaders) {-->
             <h3>
               {{ 'pages-section-header' | translate }}
               <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
             </h3>
-          }
+<!--          }-->
           <app-toggle-button-group [options]="groupOptions" [value]="searchService.isGrouped()" [size]="'md'" [variant]="'pill'" (valueChange)="searchService.setGroupResults($event)" />
         </div>
 

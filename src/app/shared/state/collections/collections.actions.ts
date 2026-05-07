@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { FacetItem } from '../../../modules/models/facet-item';
 import { SolrOperators, SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
 import { Metadata } from '../../models/metadata.model';
+import { Cutting } from '../../models/cutting.model';
 
 export const loadCollectionSearchResults = createAction(
   '[Collections] Load Search Results',
@@ -78,6 +79,21 @@ export const loadCollectionFacetFailure = createAction(
 );
 
 export const clearCollectionSearch = createAction('[Collections] Clear Search');
+
+export const loadCollectionCuttings = createAction(
+  '[Collections] Load Cuttings',
+  props<{ uuid: string }>()
+);
+
+export const loadCollectionCuttingsSuccess = createAction(
+  '[Collections] Load Cuttings Success',
+  props<{ cuttings: Cutting[] }>()
+);
+
+export const loadCollectionCuttingsFailure = createAction(
+  '[Collections] Load Cuttings Failure',
+  props<{ error: any }>()
+);
 
 // Actions for loading ALL collections (for admin operations, dialogs, etc.)
 export const loadAllCollections = createAction(

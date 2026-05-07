@@ -21,6 +21,7 @@ import { AdvancedSearchService } from '../../../shared/services/advanced-search.
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { ConfigService } from '../../../core/config/config.service';
+import { DocumentTypeEnum } from '../../constants/document-type';
 
 @Injectable()
 export class SearchEffects {
@@ -79,9 +80,7 @@ export class SearchEffects {
             const submittedTerm = this.searchService.submittedTerm;
 
             if (groupedField) {
-              const parsedResults = (groupedField.groups ?? []).map(group => {
-                const doc = group.doclist?.docs?.[0];
-                if (!doc) return null;
+              const buildParsed = (doc: any): any => {
                 let highlighting = resultsRes.highlighting?.[doc.pid];
                 if (!highlighting || Object.keys(highlighting).length === 0) {
                   const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
@@ -91,22 +90,49 @@ export class SearchEffects {
                 }
                 doc['highlighting'] = highlighting || {};
                 const parsed: any = parseSearchDocument(doc);
-                parsed.occurrenceCount = group.doclist?.numFound ?? 0;
                 if (submittedTerm && submittedTerm.trim().length > 0) {
                   parsed.fulltext = submittedTerm;
                 }
-                // Render the group as its root document (title, model, navigation
-                // target) so a grouped card represents the monograph/periodical/etc.
-                // rather than the first matching page.
-                if (parsed.rootPid && parsed.rootModel) {
-                  parsed.pid = parsed.rootPid;
-                  parsed.title = parsed.rootTitle || parsed.title;
-                  parsed.model = parsed.rootModel;
-                  parsed.ownParentPid = undefined;
-                  parsed.ownParentModel = undefined;
-                }
                 return parsed;
-              }).filter((d): d is any => d !== null);
+              };
+
+              const isPageDoc = (d: any): boolean =>
+                d.model === DocumentTypeEnum.page
+                || (typeof d.own_model_path === 'string' && d.own_model_path.includes(DocumentTypeEnum.page));
+
+              const parsedResults = (groupedField.groups ?? []).flatMap(group => {
+                const docs = group.doclist?.docs ?? [];
+                if (docs.length === 0) return [];
+                const numFound = group.doclist?.numFound ?? 0;
+                const rootPid = group.groupValue;
+                const out: any[] = [];
+
+                // Page-level grouped representative: project onto root and attach occurrence count.
+                const pageDoc = docs.find(isPageDoc);
+                if (pageDoc) {
+                  const parsed = buildParsed(pageDoc);
+                  parsed.occurrenceCount = numFound;
+                  if (parsed.rootPid && parsed.rootModel) {
+                    parsed.pid = parsed.rootPid;
+                    parsed.title = parsed.rootTitle || parsed.title;
+                    parsed.model = parsed.rootModel;
+                    parsed.ownParentPid = undefined;
+                    parsed.ownParentModel = undefined;
+                  }
+                  out.push(parsed);
+                }
+
+                // Direct title hit (the root document itself matched on metadata):
+                // emit as a separate result without count and without root-projection.
+                const directHit = docs.find((d: any) =>
+                  !isPageDoc(d) && d.pid === rootPid
+                );
+                if (directHit) {
+                  out.push(buildParsed(directHit));
+                }
+
+                return out;
+              });
 
               return SearchActions.loadSearchResultsSuccess({
                 results: parsedResults,

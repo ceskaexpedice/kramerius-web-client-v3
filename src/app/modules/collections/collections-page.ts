@@ -4,6 +4,8 @@ import { AdminModeService } from '../../shared/services';
 import { CollectionsService } from '../../shared/services/collections.service';
 import { SearchDocument } from '../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { Cutting, cuttingToRecordItem } from '../../shared/models/cutting.model';
+import { ToggleOption } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { AppTranslationService } from '../../shared/translation/app-translation.service';
 import { Metadata } from '../../shared/models/metadata.model';
 import { RecordHandlerService } from '../../shared/services/record-handler.service';
@@ -83,6 +85,19 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
   toRecordItem(doc: SearchDocument): RecordItem {
     return searchDocumentToRecordItem(doc);
+  }
+
+  toCuttingRecordItem(cutting: Cutting): RecordItem {
+    return cuttingToRecordItem(cutting);
+  }
+
+  viewModeOptions: ToggleOption<'documents' | 'cuttings'>[] = [
+    { value: 'documents', label: 'collection--view-documents' },
+    { value: 'cuttings', label: 'collection--view-cuttings' },
+  ];
+
+  setViewMode(mode: 'documents' | 'cuttings') {
+    this.collectionsService.viewMode.set(mode);
   }
 
   /**

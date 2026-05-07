@@ -21,6 +21,7 @@ import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
+import { PluralizePipe } from '../../pipes/pluralize.pipe';
 
 @Component({
   selector: 'app-record-item',
@@ -36,6 +37,7 @@ import { MetadataSection } from '../metadata-section/metadata-section';
     ThumbnailImageComponent,
     SlideUpPanelComponent,
     MetadataSection,
+    PluralizePipe,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'
