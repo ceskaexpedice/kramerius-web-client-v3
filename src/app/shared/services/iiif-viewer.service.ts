@@ -106,6 +106,9 @@ export class IIIFViewerService {
 
   private zoomLockSubject = new BehaviorSubject<boolean>(false);
   public zoomLock$ = this.zoomLockSubject.asObservable();
+
+  private mapModeSubject = new BehaviorSubject<boolean>(false);
+  public mapMode$ = this.mapModeSubject.asObservable();
   private lockedZoom: number | null = null;
   private scrollLockHandler: ((event: any) => void) | null = null;
 
@@ -452,6 +455,7 @@ export class IIIFViewerService {
       this.lockedZoom = null;
       this.zoomLockSubject.next(false);
     }
+    this.mapModeSubject.next(false);
   }
 
   // Clear search state
@@ -1102,6 +1106,20 @@ export class IIIFViewerService {
    */
   isBookMode(): boolean {
     return this.viewerProperties.bookMode;
+  }
+
+  toggleMapMode(): void {
+    this.mapModeSubject.next(!this.mapModeSubject.value);
+  }
+
+  setMapMode(enabled: boolean): void {
+    if (this.mapModeSubject.value !== enabled) {
+      this.mapModeSubject.next(enabled);
+    }
+  }
+
+  isMapMode(): boolean {
+    return this.mapModeSubject.value;
   }
 
   /**

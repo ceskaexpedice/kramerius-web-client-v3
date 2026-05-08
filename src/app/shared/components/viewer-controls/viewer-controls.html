@@ -30,13 +30,13 @@
   </button>
 
   <button
-    *ngIf="showFitToWidth && (type === 'pdf' ? (pdfBookMode$ | async) === false : (iiifBookMode$ | async) === false)"
+    *ngIf="showFitToWidth && (type === 'pdf' ? (pdfBookMode$ | async) === false : (iiifBookMode$ | async) === false) && (type !== 'image' || (iiifMapMode$ | async) === false)"
     (click)="onToggleFitToWidth()" class="button tertiary outlined"
     [appCdkTooltip]="'viewer-controls.fit-to-width' | translate">
     <i class="icon icon-grid-lock"></i>
   </button>
 
-  <ng-container *ngIf="type === 'image'">
+  <ng-container *ngIf="type === 'image' && (iiifMapMode$ | async) === false">
     <button (click)="onZoomLock()"
             [class.primary]="(iiifZoomLock$ | async) === true"
             [class.tertiary]="(iiifZoomLock$ | async) === false"
@@ -57,17 +57,17 @@
 
   </ng-container>
 
-  <button *ngIf="showRotate" class="button tertiary outlined" (click)="onRotate()"
+  <button *ngIf="showRotate && (type !== 'image' || (iiifMapMode$ | async) === false)" class="button tertiary outlined" (click)="onRotate()"
           [appCdkTooltip]="'viewer-controls.rotate' | translate">
     <i class="icon icon-rotate-right1"></i>
   </button>
 
-  <button *ngIf="showPageText" class="button tertiary outlined" (click)="onPageText()"
+  <button *ngIf="showPageText && (type !== 'image' || (iiifMapMode$ | async) === false)" class="button tertiary outlined" (click)="onPageText()"
           [appCdkTooltip]="'viewer-controls.page-text' | translate">
     <i class="icon icon-text"></i>
   </button>
 
-  <button *ngIf="showBookModeButton" (click)="onBookMode()"
+  <button *ngIf="showBookModeButton && (type !== 'image' || (iiifMapMode$ | async) === false)" (click)="onBookMode()"
           [class.primary]="(iiifBookMode$ | async) === true"
           [class.tertiary]="(iiifBookMode$ | async) === false"
           [class.outlined]="(iiifBookMode$ | async) === false"
@@ -77,7 +77,7 @@
   </button>
 
   <!-- TTS Controls -->
-  <ng-container *ngIf="type === 'image' && ttsService.isReading()">
+  <ng-container *ngIf="type === 'image' && ttsService.isReading() && (iiifMapMode$ | async) === false">
     <button (click)="onTtsPlayPause()" class="button primary"
             [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
       <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>

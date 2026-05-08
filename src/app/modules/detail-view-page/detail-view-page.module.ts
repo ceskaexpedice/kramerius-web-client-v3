@@ -25,6 +25,7 @@ import { PdfSidebarComponent } from '../../shared/components/pdf-sidebar/pdf-sid
 import { DocumentSidebarComponent } from '../../shared/components/document-sidebar/document-sidebar.component';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
+import { GeoreferenceViewerComponent } from '../../shared/components/georeference-viewer/georeference-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
@@ -42,6 +43,7 @@ import { MetadataSection } from '../../shared/components/metadata-section/metada
 import { ExportDocumentSectionComponent } from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 import { AiContentPanelComponent } from '../../shared/components/ai-content-panel/ai-content-panel.component';
+import { AiActionsComponent } from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
 
 const routes: Routes = [
   {
@@ -83,6 +85,7 @@ const routes: Routes = [
 		DocumentSidebarComponent,
 		MetadataSidebarComponent,
 		IIIFViewer,
+		GeoreferenceViewerComponent,
 		ViewerControls,
 		FavoritesPopupComponent,
 		InlineLoaderComponent,
@@ -101,6 +104,7 @@ const routes: Routes = [
 		ExportDocumentSectionComponent,
 		SearchResultsSidebarComponent,
 		AiContentPanelComponent,
+		AiActionsComponent,
 	],
 })
 

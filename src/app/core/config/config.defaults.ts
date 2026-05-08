@@ -7,7 +7,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     contactEmail: 'digitalniknihovna@mzk.cz'
   },
   api: {
-    baseUrl: ''
+    baseUrl: '',
+    georefUrl: 'https://api.georeference.trinera.cloud/georefs/latest'
   },
   i18n: {
     defaultLanguage: 'cs',

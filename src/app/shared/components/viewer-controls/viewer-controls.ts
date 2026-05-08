@@ -31,6 +31,7 @@ export class ViewerControls {
   private detailViewService = inject(DetailViewService, { optional: true });
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
+  public iiifMapMode$ = this.iiifViewerService.mapMode$;
   public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
 
   // Viewer control visibility getters

@@ -11,6 +11,7 @@ export interface AppConfig {
 export interface ApiConfig {
   baseUrl: string;          // API base URL
   citationUrl?: string;     // Citation service API URL
+  georefUrl?: string;       // Georeference annotations API base URL (Allmaps annotations)
 }
 
 // Internationalization configuration
