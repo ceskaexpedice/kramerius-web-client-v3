@@ -1,0 +1,12 @@
+<div class="slider" [style.background]="getSliderBackground()">
+  <input type="range"
+         [min]="min"
+         [max]="max"
+         [step]="step"
+         [value]="value"
+         (input)="onInput($any($event.target).valueAsNumber)"
+         [attr.aria-label]="ariaLabel"
+         [attr.aria-valuemin]="min"
+         [attr.aria-valuemax]="max"
+         [attr.aria-valuenow]="value" />
+</div>
