@@ -35,6 +35,7 @@
   "features": {
     "keycloak": true,
     "mapSearch": true,
+    "mapProvider": "allmaps",
     "georef": true,
     "ai": true,
     "folders": true,

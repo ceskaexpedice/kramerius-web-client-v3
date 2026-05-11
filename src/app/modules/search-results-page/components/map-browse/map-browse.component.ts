@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   inject,
   NgZone,
   OnDestroy,
@@ -19,6 +20,17 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { SearchResultsSidebarComponent } from '../../../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 import { SelectedTagsComponent } from '../../../../shared/components/selected-tags/selected-tags.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import type { AllmapsViewer } from '@allmaps/viewer-lite';
+import { ConfigService } from '../../../../core/config/config.service';
+
+const EARTH_RADIUS = 6378137;
+
+function lonLatToMercator(lon: number, lat: number): [number, number] {
+  const x = (lon * Math.PI / 180) * EARTH_RADIUS;
+  const clampedLat = Math.max(Math.min(lat, 85.0511287798), -85.0511287798);
+  const y = Math.log(Math.tan(Math.PI / 4 + (clampedLat * Math.PI / 180) / 2)) * EARTH_RADIUS;
+  return [x, y];
+}
 
 @Component({
   selector: 'app-map-browse',
@@ -36,6 +48,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   @ViewChild('googleMap') googleMap!: GoogleMap;
+  @ViewChild('viewerEl') viewerEl?: ElementRef<HTMLElement>;
 
   mapSearchService = inject(MapSearchService);
   searchService = inject(SearchService);
@@ -44,6 +57,9 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private configService = inject(ConfigService);
+
+  readonly useAllmaps = this.configService.features.mapProvider === 'allmaps';
 
   mapReady = false;
   focusedBounds: google.maps.LatLngBoundsLiteral | null = null;
@@ -57,59 +73,31 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
     zoomControl: false,
   };
 
+  private viewer: AllmapsViewer | null = null;
+  private destroyed = false;
   private boundsDebounce$ = new Subject<MapBounds>();
   private subs: Subscription[] = [];
   private _initialPageConsumed = false;
   private _mapSettled = false;
 
-  ngAfterViewInit(): void {
-    // Read initial bounds from URL and set map center/zoom before API loads
+  async ngAfterViewInit(): Promise<void> {
     const params = this.route.snapshot.queryParams;
     let initialBounds: MapBounds | null = null;
     if (params['north'] && params['south'] && params['east'] && params['west']) {
       const n = +params['north'], s = +params['south'],
         e = +params['east'], w = +params['west'];
       initialBounds = { north: n, south: s, east: e, west: w };
-      this.mapOptions = {
-        ...this.mapOptions,
-        center: { lat: (n + s) / 2, lng: (e + w) / 2 },
-      };
+      if (!this.useAllmaps) {
+        this.mapOptions = {
+          ...this.mapOptions,
+          center: { lat: (n + s) / 2, lng: (e + w) / 2 },
+        };
+      }
     }
 
-    this.mapService.init(() => {
-      this.ngZone.run(() => {
-        this.mapReady = true;
-        this.cdr.detectChanges();
-
-        if (initialBounds && this.googleMap?.googleMap) {
-          // Search immediately with URL bounds — no need to wait for idle
-          const initialPage = Math.max(0, (+params['page'] || 1) - 1);
-          this.mapSearchService.searchByBounds(initialBounds, initialPage);
-          this._initialPageConsumed = true;
-
-          // Fit map to saved bounds; the idle after this will be deduped
-          this.googleMap.googleMap.fitBounds({
-            north: initialBounds.north, south: initialBounds.south,
-            east: initialBounds.east, west: initialBounds.west
-          }, 0);
-
-          // Mark settled after fitBounds idle fires — ignore idle events until then
-          google.maps.event.addListenerOnce(this.googleMap.googleMap, 'idle', () => {
-            // Defer to next macrotask so Angular's (idle) handler in the same tick
-            // still sees _mapSettled = false and skips the redundant search
-            setTimeout(() => { this._mapSettled = true; });
-          });
-        } else {
-          // No URL bounds — let the first idle trigger the search
-          this._mapSettled = true;
-        }
-      });
-    });
-
-    // Read initial page from URL (1-based in URL → 0-based internally)
     const initialPage = Math.max(0, (+this.route.snapshot.queryParams['page'] || 1) - 1);
 
-    // Debounce map idle → search + update URL
+    // Debounce bounds → search + update URL
     this.subs.push(
       this.boundsDebounce$.pipe(
         debounceTime(400),
@@ -142,6 +130,90 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
         this.mapSearchService.refreshWithCurrentBounds();
       })
     );
+
+    if (this.useAllmaps) {
+      await this.initAllmapsViewer(initialBounds, initialPage);
+    } else {
+      this.initGoogleMap(initialBounds, initialPage);
+    }
+  }
+
+  private initGoogleMap(initialBounds: MapBounds | null, initialPage: number): void {
+    this.mapService.init(() => {
+      this.ngZone.run(() => {
+        this.mapReady = true;
+        this.cdr.detectChanges();
+
+        if (initialBounds && this.googleMap?.googleMap) {
+          this.mapSearchService.searchByBounds(initialBounds, initialPage);
+          this._initialPageConsumed = true;
+
+          this.googleMap.googleMap.fitBounds({
+            north: initialBounds.north, south: initialBounds.south,
+            east: initialBounds.east, west: initialBounds.west
+          }, 0);
+
+          google.maps.event.addListenerOnce(this.googleMap.googleMap, 'idle', () => {
+            setTimeout(() => { this._mapSettled = true; });
+          });
+        } else {
+          this._mapSettled = true;
+        }
+      });
+    });
+  }
+
+  private async initAllmapsViewer(initialBounds: MapBounds | null, initialPage: number): Promise<void> {
+    try {
+      const { createAllmapsViewer } = await import('@allmaps/viewer-lite');
+      if (this.destroyed || !this.viewerEl) return;
+
+      const viewer = createAllmapsViewer(this.viewerEl.nativeElement, {
+        maps: [],
+        basemap: 'osm',
+        fitOnInit: false
+      });
+      this.viewer = viewer;
+
+      viewer.setOutlineStyle({
+        strokeColor: '#0063cc',
+        strokeWidth: 2,
+        fillColor: 'rgba(0, 99, 204, 0.2)'
+      });
+
+      this.ngZone.run(() => {
+        this.mapReady = true;
+        this.cdr.detectChanges();
+      });
+
+      if (initialBounds) {
+        const [minX, minY] = lonLatToMercator(initialBounds.west, initialBounds.south);
+        const [maxX, maxY] = lonLatToMercator(initialBounds.east, initialBounds.north);
+        viewer.map.getView().fit([minX, minY, maxX, maxY], {
+          size: viewer.map.getSize(),
+          padding: [20, 20, 20, 20]
+        });
+        this.mapSearchService.searchByBounds(initialBounds, initialPage);
+        this._initialPageConsumed = true;
+        setTimeout(() => { this._mapSettled = true; });
+      } else {
+        viewer.map.getView().setCenter(lonLatToMercator(15.5, 49.8));
+        viewer.map.getView().setZoom(7);
+        this._mapSettled = true;
+      }
+
+      viewer.on('viewportchange', (event) => {
+        if (!this._mapSettled) return;
+        const b = event.detail.bounds;
+        this.ngZone.run(() => {
+          this.boundsDebounce$.next({
+            north: b.north, south: b.south, east: b.east, west: b.west
+          });
+        });
+      });
+    } catch (err) {
+      console.error('Failed to initialize Allmaps viewer', err);
+    }
   }
 
   onIdle(): void {
@@ -187,13 +259,31 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   onItemHover(doc: SearchDocument): void {
     if (doc.north == null || doc.south == null || doc.east == null || doc.west == null) {
       this.focusedBounds = null;
+      this.viewer?.hidePreview();
       return;
     }
-    this.focusedBounds = { north: doc.north, south: doc.south, east: doc.east, west: doc.west };
+    if (this.useAllmaps) {
+      this.viewer?.showPreviewGeometry({
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [doc.west, doc.south],
+            [doc.east, doc.south],
+            [doc.east, doc.north],
+            [doc.west, doc.north],
+            [doc.west, doc.south]
+          ]]
+        },
+        dataProjection: 'EPSG:4326'
+      });
+    } else {
+      this.focusedBounds = { north: doc.north, south: doc.south, east: doc.east, west: doc.west };
+    }
   }
 
   onItemLeave(): void {
     this.focusedBounds = null;
+    this.viewer?.hidePreview();
   }
 
   onPageChange(page: number): void {
@@ -211,18 +301,37 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   }
 
   zoomIn(): void {
-    const current = this.googleMap.getZoom() ?? 7;
-    this.googleMap.googleMap?.setZoom(current + 1);
+    if (this.useAllmaps) {
+      const view = this.viewer?.map.getView();
+      if (!view) return;
+      view.setZoom((view.getZoom() ?? 7) + 1);
+    } else {
+      const current = this.googleMap.getZoom() ?? 7;
+      this.googleMap.googleMap?.setZoom(current + 1);
+    }
   }
 
   zoomOut(): void {
-    const current = this.googleMap.getZoom() ?? 7;
-    this.googleMap.googleMap?.setZoom(current - 1);
+    if (this.useAllmaps) {
+      const view = this.viewer?.map.getView();
+      if (!view) return;
+      view.setZoom((view.getZoom() ?? 7) - 1);
+    } else {
+      const current = this.googleMap.getZoom() ?? 7;
+      this.googleMap.googleMap?.setZoom(current - 1);
+    }
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.boundsDebounce$.complete();
     this.subs.forEach(s => s.unsubscribe());
     this.mapSearchService.clear();
+    try {
+      this.viewer?.destroy();
+    } catch {
+      /* noop */
+    }
+    this.viewer = null;
   }
 }

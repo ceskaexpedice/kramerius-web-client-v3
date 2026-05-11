@@ -158,6 +158,7 @@ Volitelný anonymní identifikátor klienta, který se posílá do analytiky / b
 "features": {
   "keycloak": true,
   "mapSearch": true,
+  "mapProvider": "google",
   "georef": true,
   "ai": false,
   "folders": true,
@@ -170,7 +171,8 @@ Přepínače hlavních funkcí. Všechna pole jsou `true` / `false`.
 | Pole | Co zapíná | Výchozí |
 |---|---|---|
 | `keycloak` | Přihlašování přes Keycloak (OAuth/OIDC). Když je `false`, uživatelský profil a oblíbené jsou skryté. | `true` |
-| `mapSearch` | Mapové vyhledávání dokumentů podle geografických souřadnic. Vyžaduje zapnutý `googleMaps`. | `true` |
+| `mapSearch` | Mapové vyhledávání dokumentů podle geografických souřadnic. Při `mapProvider: "google"` vyžaduje zapnutý `googleMaps`. | `true` |
+| `mapProvider` | Poskytovatel podkladové mapy pro mapové vyhledávání. `"google"` = Google Maps (vyžaduje `integrations.googleMaps.apiKey`), `"allmaps"` = `@allmaps/viewer-lite` s OSM podkladem (bez API klíče). | `"google"` |
 | `georef` | Zobrazení georeferencovaných map přímo v prohlížeči. Pro funkční zobrazení musí být zároveň vyplněné `api.georefUrl`. Když je `false`, tlačítko „Zobrazení na mapě“ se v detailu dokumentu vůbec nenabízí. | `true` |
 | `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `true` |
 | `folders` | Uživatelské složky / oblíbené dokumenty. Vyžaduje zapnutý `keycloak`. | `true` |

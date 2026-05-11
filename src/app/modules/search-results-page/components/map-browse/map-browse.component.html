@@ -18,23 +18,28 @@
   <div class="map-browse__content">
 
     <div class="map-browse__map">
-      <google-map
-        *ngIf="mapReady"
-        #googleMap
-        [options]="mapOptions"
-        width="100%"
-        height="100%"
-        (mapClick)="onMapClick()"
-        (idle)="onIdle()">
 
-        <!-- Rectangle overlay for hovered item -->
-        <map-rectangle
-          *ngIf="focusedBounds"
-          [bounds]="focusedBounds"
-          [options]="getRectangleOptions()">
-        </map-rectangle>
+      @if (useAllmaps) {
+        <div #viewerEl class="map-browse__canvas"></div>
+      } @else {
+        <google-map
+          *ngIf="mapReady"
+          #googleMap
+          [options]="mapOptions"
+          width="100%"
+          height="100%"
+          (mapClick)="onMapClick()"
+          (idle)="onIdle()">
 
-      </google-map>
+          <!-- Rectangle overlay for hovered item -->
+          <map-rectangle
+            *ngIf="focusedBounds"
+            [bounds]="focusedBounds"
+            [options]="getRectangleOptions()">
+          </map-rectangle>
+
+        </google-map>
+      }
 
       <!-- Zoom controls -->
       <div class="map-browse__zoom-controls" *ngIf="mapReady">
