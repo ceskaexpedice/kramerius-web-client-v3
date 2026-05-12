@@ -41,7 +41,7 @@
     {{pageNumber}}
   </span>
 
-  <span class="page--type-label" *ngIf="pageType">
+  <span class="page--type-label" *ngIf="pageType && pageType.toLowerCase() !== 'normalpage'">
     {{ 'page_type.' + pageType | lowercase | translate }}
   </span>
 
