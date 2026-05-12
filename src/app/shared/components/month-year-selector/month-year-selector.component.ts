@@ -36,11 +36,11 @@ export interface MonthYearChange {
       @if (showMonthNavigation) {
         <div class="month-navigation">
 
-          <button class="button primary sm" (click)="prevMonth()">
-            <i class="icon-arrow-left-3"></i>
+          <button class="button primary sm square-button" (click)="prevMonth()">
+            <i class="icon-arrow-left-1"></i>
           </button>
-          <button class="button primary sm" (click)="nextMonth()">
-            <i class="icon-arrow-right-3"></i>
+          <button class="button primary sm square-button" (click)="nextMonth()">
+            <i class="icon-arrow-right-1"></i>
           </button>
 
         </div>
