@@ -60,12 +60,18 @@
         </div>
         <div center>
           <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
-            <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
-                                [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
-                                (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-                                (goToNext)="detailViewService.goToNextPeriodicalIssue()"
-                                (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
-            </app-date-navigator>
+            <ng-container *ngIf="(detailViewService.periodicalChildren$ | async) || [] as periodicalChildren">
+              <app-date-navigator [value]="document.dateStr || ''"
+                                  [issueTypeCode]="getIssueTypeCode(periodicalChildren, document.uuid)"
+                                  [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
+                                  [periodicalChildren]="periodicalChildren"
+                                  [previousTooltip]="'previous-issue--tooltip' | translate"
+                                  [nextTooltip]="'next-issue--tooltip' | translate"
+                                  (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+                                  (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+                                  (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
+              </app-date-navigator>
+            </ng-container>
           </ng-container>
         </div>
         <div right>

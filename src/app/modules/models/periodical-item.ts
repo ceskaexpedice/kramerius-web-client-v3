@@ -37,6 +37,7 @@ export interface PeriodicalItemChild {
   licenses: string[];
   'licenses.facet'?: string[];
   ownParentPid?: string;
+  'issue.type.code'?: string;
 }
 
 export interface PeriodicalItemYear {

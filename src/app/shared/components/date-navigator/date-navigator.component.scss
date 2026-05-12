@@ -11,7 +11,15 @@
 
 h2 {
   margin: 0;
-  color: var(--color-text-base);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+
+  .issue-type {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xlarge);
+    line-height: var(--line-height-4);
+    font-weight: 400;
+  }
 
   &.clickable {
     cursor: pointer;

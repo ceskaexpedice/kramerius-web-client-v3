@@ -2,10 +2,11 @@ import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
 import {CalendarPopupComponent} from '../calendar-popup/calendar-popup.component';
 import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
+import {CdkTooltipDirective} from '../../directives';
 
 @Component({
   selector: 'app-date-navigator',
-  imports: [CalendarPopupComponent, NgIf, TranslatePipe],
+  imports: [CalendarPopupComponent, NgIf, TranslatePipe, CdkTooltipDirective],
   templateUrl: './date-navigator.component.html',
   styleUrl: './date-navigator.component.scss'
 })
@@ -13,8 +14,11 @@ export class DateNavigatorComponent {
 
   @Input() mode: 'year' | 'date' = 'date';
   @Input() value!: string;
+  @Input() issueTypeCode?: string;
   @Input() enableCalendarPopup: boolean = false;
   @Input() periodicalChildren: any[] = [];
+  @Input() previousTooltip?: string;
+  @Input() nextTooltip?: string;
 
   @Output() goToNext = new EventEmitter<void>();
   @Output() goToPrevious = new EventEmitter<void>();

@@ -28,6 +28,7 @@ import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { SearchService } from '../../shared/services/search.service';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
+import { normalizeIssueTypeCode } from '../../shared/utils/issue-type-code';
 import { TtsService } from '../../shared/services/tts.service';
 import { DocumentSearchService } from '../../shared/services/document-search.service';
 import { UiStateService } from '../../shared/services/ui-state.service';
@@ -273,4 +274,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+
+  getIssueTypeCode(children: any[], uuid: string): string | undefined {
+    return normalizeIssueTypeCode(children?.find(c => c?.pid === uuid)?.['issue.type.code']);
+  }
 }

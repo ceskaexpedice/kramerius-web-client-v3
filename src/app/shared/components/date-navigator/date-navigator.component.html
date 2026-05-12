@@ -1,16 +1,20 @@
 <div class="year-navigator">
 
-  <button (click)="prev()" class="icon-button outlined tertiary square-button" [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate">
+  <button (click)="prev()" class="icon-button outlined tertiary square-button"
+          [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate"
+          [appCdkTooltip]="previousTooltip || ''" [tooltipPosition]="'bottom'">
     <i class="icon-arrow-left-3"></i>
   </button>
 
   <h2
     [class.clickable]="enableCalendarPopup"
     (click)="toggleCalendar()">
-    {{ value }}
+    {{ value }}@if (issueTypeCode) {<span class="issue-type">&nbsp;·&nbsp;{{ issueTypeCode + '-issue' | translate }}</span>}
   </h2>
 
-  <button (click)="next()" class="icon-button outlined tertiary square-button" [attr.aria-label]="'go-next-date-navigator--arialabel' | translate">
+  <button (click)="next()" class="icon-button outlined tertiary square-button"
+          [attr.aria-label]="'go-next-date-navigator--arialabel' | translate"
+          [appCdkTooltip]="nextTooltip || ''"  [tooltipPosition]="'bottom'">
     <i class="icon-arrow-right-3"></i>
   </button>
 
