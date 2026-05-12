@@ -186,6 +186,28 @@ h3 {
   }
 }
 
+// Multi-issue popup
+.issues-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+
+  &.positioned {
+    opacity: 1;
+  }
+
+}
+
+.issues-popup-list {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-x2);
+}
+
 // Loading placeholder
 .month-loading-placeholder {
   min-height: 180px;

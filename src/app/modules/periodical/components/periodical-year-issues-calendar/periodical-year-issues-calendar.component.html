@@ -1,4 +1,4 @@
-<div class="months-calendar-container" *ngIf="shouldShowCalendars()">
+<div class="months-calendar-container" *ngIf="shouldShowCalendars()" (mousedown)="onCalendarClick($event)">
   <div class="month-calendar" *ngFor="let month of months; let i = index"
     [class.month-placeholder]="!isMonthVisible(i)">
     <div class="month-header">
@@ -20,3 +20,12 @@
     </div>
   </div>
 </div>
+
+@if (issuesPopupState.showPopup()) {
+  <div class="issues-popup-wrapper" [class.positioned]="issuesPopupState.popupPositioned()">
+    <app-periodical-day-issues-popup
+      [items]="popupRecordItems()"
+      (close)="closePopup()">
+    </app-periodical-day-issues-popup>
+  </div>
+}

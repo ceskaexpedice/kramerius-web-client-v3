@@ -1,9 +1,10 @@
 import {
-  AfterViewInit,
   Component,
+  computed,
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   QueryList,
   signal,
   SimpleChanges,
@@ -14,12 +15,28 @@ import { NgForOf, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectPeriodicalChildren } from '../../state/periodical-detail/periodical-detail.selectors';
 import { Router } from '@angular/router';
-import { APP_ROUTES_ENUM } from '../../../../app.routes';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PeriodicalService } from '../../../../shared/services/periodical.service';
 import { RecordHandlerService } from '../../../../shared/services/record-handler.service';
+import { RecordItem } from '../../../../shared/components/record-item/record-item.model';
+import { DocumentTypeEnum } from '../../../constants/document-type';
+import { PopupPositioningService, PopupState } from '../../../../shared/services/popup-positioning.service';
+import { normalizeIssueTypeCode } from '../../../../shared/utils/issue-type-code';
+import { PeriodicalDayIssuesPopupComponent } from '../periodical-day-issues-popup/periodical-day-issues-popup.component';
+
+interface CalendarIssue {
+  pid: string;
+  accessibility: string;
+  licenses: string[];
+  model: string;
+  partNumber?: string;
+  issueTypeCode?: string;
+  dateStr?: string;
+  dateRangeEndDay?: number;
+  dateRangeEndMonth?: number;
+}
 
 @Component({
   selector: 'app-periodical-year-issues-calendar',
@@ -28,6 +45,7 @@ import { RecordHandlerService } from '../../../../shared/services/record-handler
     NgForOf,
     NgIf,
     TranslatePipe,
+    PeriodicalDayIssuesPopupComponent,
   ],
   providers: [
     {
@@ -39,13 +57,14 @@ import { RecordHandlerService } from '../../../../shared/services/record-handler
   templateUrl: './periodical-year-issues-calendar.component.html',
   styleUrl: './periodical-year-issues-calendar.component.scss'
 })
-export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
+export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestroy {
   private store = inject(Store);
   private router = inject(Router);
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   public periodicalService = inject(PeriodicalService);
   private recordHandler = inject(RecordHandlerService);
+  private popupPositioningService = inject(PopupPositioningService);
 
   @Input() year!: string;
   @Input() pid!: string;
@@ -54,10 +73,16 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   selectedDate: Date | null = null;
   shouldShowCalendars = signal(true);
 
-  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
+  issueMap = signal(new Map<string, CalendarIssue[]>());
+
+  // Popup state for multi-issue cells (managed by PopupPositioningService)
+  popupIssues = signal<CalendarIssue[]>([]);
+  popupRecordItems = computed<RecordItem[]>(() => this.popupIssues().map(issue => this.toRecordItem(issue)));
+  issuesPopupState: PopupState = this.popupPositioningService.createPopupState();
+  private pendingClickEvent: Event | null = null;
 
   // Lazy loading state
-  monthlyIssueMap = signal(new Map<number, { pid: string; accessibility: string, licenses: string[] }[]>());
+  monthlyIssueMap = signal(new Map<number, CalendarIssue[]>());
   visibleMonths = signal(new Set<number>([0, 1, 2])); // Initially show first 3 months
   lazyLoadingEnabled = signal(false);
 
@@ -92,17 +117,23 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   }
 
   private updateIssueMap(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
+    const map = new Map<string, CalendarIssue[]>();
 
     for (const item of items) {
       const date = this.parseDate(item['date.str']);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);
-      const issueData = {
+      const issueData: CalendarIssue = {
         pid: item.pid,
         accessibility: item.accessibility || 'private',
-        licenses: item.licenses || [],
+        licenses: item['licenses.facet'] || item.licenses || [],
+        model: item.model,
+        partNumber: item['part.number.str'],
+        issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
+        dateStr: item['date.str'],
+        dateRangeEndDay: item['date_range_end.day'],
+        dateRangeEndMonth: item['date_range_end.month'],
       };
 
       if (map.has(key)) {
@@ -173,9 +204,68 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   onDateSelected(date: Date | null): void {
     if (!date) return;
     const issues = this.issueMap().get(this.formatDateKey(date));
-    if (issues && issues.length > 0) {
-      this.periodicalService.onCalendarDateSelected(issues[0].pid);
+    if (!issues || issues.length === 0) return;
+
+    if (issues.length > 1) {
+      this.popupIssues.set(issues);
+      const triggerEvent = this.pendingClickEvent
+        ? this.synthesizeCellTrigger(this.pendingClickEvent)
+        : undefined;
+      this.popupPositioningService.showPopup(
+        this.issuesPopupState,
+        {
+          triggerEvent,
+          preferredSide: 'right',
+          offsetY: 4,
+        },
+        '.issues-popup-wrapper',
+      );
+      return;
     }
+
+    this.periodicalService.onCalendarDateSelected(issues[0].pid);
+  }
+
+  onCalendarClick(event: MouseEvent): void {
+    this.pendingClickEvent = event;
+  }
+
+  closePopup(): void {
+    this.issuesPopupState.closePopup();
+    this.popupIssues.set([]);
+  }
+
+  // PopupPositioningService positions relative to event.target. For mat-calendar clicks,
+  // the target is often an inner span; align the popup to the full cell instead.
+  private synthesizeCellTrigger(event: Event): Event {
+    const target = event.target as HTMLElement | null;
+    const cell = target?.closest('.mat-calendar-body-cell') as HTMLElement | null;
+    if (!cell) return event;
+    return { ...event, target: cell } as unknown as Event;
+  }
+
+  toRecordItem(issue: CalendarIssue): RecordItem {
+    const subtitlePrefix = this.translate.instant('periodicalvolume-part-subtitle');
+    let title = '';
+    let subtitle = issue.partNumber ? `${subtitlePrefix} ${issue.partNumber}` : '';
+    subtitle = issue.dateStr ?? '';
+    if (issue.issueTypeCode) {
+      title = this.translate.instant(`${issue.issueTypeCode}-issue`);
+    } else if (issue.dateRangeEndDay && issue.dateRangeEndMonth) {
+      title = `${issue.dateRangeEndDay}.${issue.dateRangeEndMonth}`;
+    } else if (issue.partNumber) {
+      title = `${subtitlePrefix} ${issue.partNumber}`;
+    }
+    return {
+      id: issue.pid,
+      title,
+      subtitle,
+      model: issue.model as DocumentTypeEnum,
+      licenses: issue.licenses || [],
+      className: 'card--fluid',
+      showFavoriteButton: false,
+      showAccessibilityBadge: true,
+    };
   }
 
   // Lazy loading methods
@@ -198,10 +288,16 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
       if (!date || !item.pid || date.getMonth() !== monthIndex) continue;
 
       const key = this.formatDateKey(date);
-      const issueData = {
+      const issueData: CalendarIssue = {
         pid: item.pid,
         accessibility: item.accessibility || 'private',
-        licenses: item.licenses || [],
+        licenses: item['licenses.facet'] || item.licenses || [],
+        model: item.model,
+        partNumber: item['part.number.str'],
+        issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
+        dateStr: item['date.str'],
+        dateRangeEndDay: item['date_range_end.day'],
+        dateRangeEndMonth: item['date_range_end.month'],
       };
 
       if (currentMap.has(key)) {
@@ -234,5 +330,9 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges {
   disableLazyLoading(): void {
     this.lazyLoadingEnabled.set(false);
     this.visibleMonths.set(new Set(this.months));
+  }
+
+  ngOnDestroy(): void {
+    this.popupPositioningService.cleanup();
   }
 }
