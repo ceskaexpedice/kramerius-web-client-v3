@@ -62,6 +62,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
         <app-month-year-selector
           [month]="currentMonth()"
           [year]="currentYear()"
+          [showMonthNavigation]="true"
           (monthYearChange)="onMonthYearChange($event)">
         </app-month-year-selector>
       </div>
@@ -83,6 +84,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
     </div>
   `,
   styles: `
+    :host { display: contents; }
     .calendar-dropdown {
       position: absolute;
       top: 100%;
@@ -90,11 +92,12 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
       transform: translateX(-50%);
       background: var(--color-bg-base);
       border-radius: var(--spacing-x2);
+      border: 1px solid var(--color-primary);
       box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
-      width: 280px;
+      width: 320px;
       z-index: 800;
       margin-top: 4px;
-      padding: var(--spacing-x2) var(--spacing-x5) var(--spacing-x5) var(--spacing-x5);
+      padding: var(--spacing-x2);
     }
 
     .calendar-popup-header {
@@ -154,7 +157,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
     }
 
     .calendar-popup-selectors {
-      padding: var(--spacing-x2) 0;
+      padding: 0 0 var(--spacing-x2) 0;
       border-bottom: 1px solid var(--color-border-bright);
     }
 
@@ -331,6 +334,10 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
       background-color: transparent !important;
     }
 
+    :host ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled) {
+      cursor: pointer;
+    }
+
     :host ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--color-bg-light) !important;
       top: 0 !important;
@@ -362,11 +369,13 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
       height: 100% !important;
     }
 
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover .mat-calendar-body-cell-content {
-      background-color: var(--color-primary) !important;
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover .mat-calendar-body-cell-content,
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+      background-color: var(--color-primary-hover) !important;
     }
 
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue .mat-calendar-body-cell-content::after {
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.multiple-issues::after,
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue.accessibility-private::after {
       color: white !important;
     }
   `,
@@ -408,7 +417,12 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   ];
 
   constructor() {
-    // Init date locale
+    // Init date locale; mat-calendar header uses 'narrow' day names — alias it to 'short'
+    // so we get "Po, Út, St…" instead of "P, Ú, S…".
+    const originalGetDayOfWeekNames = this.adapter.getDayOfWeekNames.bind(this.adapter);
+    this.adapter.getDayOfWeekNames = (style: 'long' | 'short' | 'narrow') =>
+      originalGetDayOfWeekNames(style === 'narrow' ? 'short' : style);
+
     this.adapter.setLocale(this.translate.currentLang);
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
