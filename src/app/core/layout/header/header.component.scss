@@ -37,6 +37,11 @@
   }
 
   @media (min-width: 1091px) {
+    .search-bar > :first-child {
+      min-width: 268px;
+      max-width: 600px;
+    }
+
     &.search-results {
       justify-content: flex-start;
     }
@@ -44,11 +49,6 @@
     &.search-results &__left {
       width: calc(var(--sidebar-width) - var(--spacing-x4) - var(--spacing-x4));
       min-width: calc(var(--sidebar-width) - var(--spacing-x4) - var(--spacing-x4));
-    }
-
-    &.search-results .search-bar > :first-child {
-      min-width: 268px;
-      max-width: 600px;
     }
 
     &.search-results &__right {
