@@ -343,6 +343,7 @@
   "search-collections-placeholder": "Start typing...(e.g. daily newspaper)",
   "select-hierarchy-level": "Select range",
   "select-document": "Select document",
+  "select-volume": "Select volume",
   "reindex": "Reindex",
   "add--button-label": "Add",
   "remove--button-label": "Remove",

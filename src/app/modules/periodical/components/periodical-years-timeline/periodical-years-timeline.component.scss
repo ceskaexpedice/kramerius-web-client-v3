@@ -170,3 +170,42 @@
     background-color: transparent;
   }
 }
+
+.year-item {
+  position: relative;
+}
+
+.year-item--dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: calc(10px * var(--accessibility-text-scale, 1));
+  line-height: 1;
+  letter-spacing: 1px;
+  pointer-events: none;
+  color: var(--color-text-dark);
+}
+
+.year-item--container.accessibility-private .year-item--dots,
+.year-item--container.accessibility-in_library .year-item--dots {
+  color: var(--accessibility-private-text-color);
+}
+
+.year-item--container.accessibility-public .year-item--dots {
+  color: var(--accessibility-public-text-color);
+}
+
+.volumes-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+
+  &.positioned {
+    opacity: 1;
+  }
+}
