@@ -13,6 +13,7 @@ import { RecordItem } from '../../../../shared/components/record-item/record-ite
 })
 export class PeriodicalDayIssuesPopupComponent {
   items = input.required<RecordItem[]>();
+  titleKey = input<string>('select-document');
   close = output<void>();
 
   onClose(): void {
