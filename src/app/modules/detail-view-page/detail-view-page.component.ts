@@ -35,12 +35,14 @@ import { UiStateService } from '../../shared/services/ui-state.service';
 import { AdminActionsService } from '../../shared/services/admin-actions.service';
 import { GeoreferenceService } from '../../shared/services/georeference.service';
 import { ConfigService } from '../../core/config/config.service';
+import { MapViewerService } from '../../shared/services/map-viewer.service';
 
 @Component({
   selector: 'app-detail-view-page',
   templateUrl: './detail-view-page.component.html',
   styleUrl: './detail-view-page.component.scss',
-  standalone: false
+  standalone: false,
+  providers: [MapViewerService]
 })
 export class DetailViewPageComponent implements OnInit, OnDestroy {
 

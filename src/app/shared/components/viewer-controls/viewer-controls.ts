@@ -10,6 +10,7 @@ import { ConfigService } from '../../../core/config';
 import { TtsService } from '../../services/tts.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
+import { MapViewerService } from '../../services/map-viewer.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -29,6 +30,7 @@ export class ViewerControls {
   public ttsService = inject(TtsService);
   private aiPanelService = inject(AiPanelService);
   private detailViewService = inject(DetailViewService, { optional: true });
+  private mapViewerService = inject(MapViewerService, { optional: true });
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public iiifMapMode$ = this.iiifViewerService.mapMode$;
@@ -81,11 +83,17 @@ export class ViewerControls {
     return this.configService.isViewerControlEnabled('selectArea');
   }
 
+  private get isMapMode(): boolean {
+    return this.type === 'image' && this.iiifViewerService.isMapMode();
+  }
+
   onZoomIn() {
     if (this.type === 'pdf') {
       this.pdfService.zoomIn();
     } else if (this.type === 'epub') {
       this.epubService.zoomIn();
+    } else if (this.isMapMode) {
+      this.mapViewerService?.zoomIn();
     } else {
       this.iiifViewerService.zoomIn();
     }
@@ -96,6 +104,8 @@ export class ViewerControls {
       this.pdfService.zoomOut();
     } else if (this.type === 'epub') {
       this.epubService.zoomOut();
+    } else if (this.isMapMode) {
+      this.mapViewerService?.zoomOut();
     } else {
       this.iiifViewerService.zoomOut();
     }
@@ -104,6 +114,8 @@ export class ViewerControls {
   onFitToScreen() {
     if (this.type === 'pdf') {
       this.pdfService.fitToScreen();
+    } else if (this.isMapMode) {
+      this.mapViewerService?.fitToScreen();
     } else {
       this.iiifViewerService.fitToScreen();
     }
@@ -114,6 +126,8 @@ export class ViewerControls {
       this.pdfService.toggleFullscreen();
     } else if (this.type === 'epub') {
       this.epubService.toggleFullscreen();
+    } else if (this.isMapMode) {
+      this.mapViewerService?.toggleFullscreen();
     } else {
       this.iiifViewerService.toggleFullscreen();
     }

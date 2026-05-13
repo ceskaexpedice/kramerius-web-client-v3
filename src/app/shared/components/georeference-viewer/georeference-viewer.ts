@@ -22,8 +22,7 @@ import { SliderComponent } from '../slider/slider.component';
   standalone: true,
   imports: [CommonModule, TranslatePipe, SliderComponent],
   templateUrl: './georeference-viewer.html',
-  styleUrl: './georeference-viewer.scss',
-  providers: [MapViewerService]
+  styleUrl: './georeference-viewer.scss'
 })
 export class GeoreferenceViewerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() metadata!: Metadata;
@@ -72,6 +71,7 @@ export class GeoreferenceViewerComponent implements OnInit, OnChanges, OnDestroy
         fitOnInit: true
       });
       this.mapViewer.attachViewer(viewer);
+      this.mapViewer.setContainer(this.viewerEl.nativeElement);
 
       await this.loadMapsForCurrentImage();
     } catch (err) {

@@ -45,6 +45,7 @@ export type ViewportState = {
 export class MapViewerService {
 
   private viewer: any = null;
+  private containerEl: HTMLElement | null = null;
 
   private opacitySubject = new BehaviorSubject<number>(100);
   public opacity$ = this.opacitySubject.asObservable();
@@ -96,8 +97,46 @@ export class MapViewerService {
 
   detachViewer(): void {
     this.viewer = null;
+    this.containerEl = null;
     this.viewportStateSubject.next(null);
     this.mapIdsSubject.next([]);
+  }
+
+  setContainer(el: HTMLElement | null): void {
+    this.containerEl = el;
+  }
+
+  // --- Zoom / fullscreen ----------------------------------------------------
+
+  zoomIn(delta: number = 1): void {
+    const view = this.viewer?.map?.getView?.();
+    const current = view?.getZoom?.();
+    if (view && typeof current === 'number') {
+      view.animate({ zoom: current + delta, duration: 200 });
+    }
+  }
+
+  zoomOut(delta: number = 1): void {
+    this.zoomIn(-delta);
+  }
+
+  /** Alias for fitToMaps — matches the viewer-controls "fit to screen" action. */
+  fitToScreen(): void {
+    this.fitToMaps();
+  }
+
+  toggleFullscreen(): void {
+    const el = this.containerEl;
+    if (!el) return;
+    const doc = document as any;
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+      (doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc);
+    } else {
+      const req = (el as any).requestFullscreen || (el as any).webkitRequestFullscreen;
+      req?.call(el);
+    }
+    // Resize the OL map after the transition completes
+    setTimeout(() => this.resize(), 250);
   }
 
   getViewer(): any {

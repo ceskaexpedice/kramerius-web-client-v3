@@ -11,7 +11,7 @@
     <i class="icon icon-search-zoom-out-1"></i>
   </button>
 
-  <ng-container *ngIf="type === 'image'">
+  <ng-container *ngIf="type === 'image' && (iiifMapMode$ | async) === false">
     <button *ngIf="showCrop && showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()"
             class="button tertiary outlined"
             [appCdkTooltip]="'viewer-controls.select-area' | translate">
