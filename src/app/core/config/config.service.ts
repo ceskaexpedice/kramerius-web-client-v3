@@ -64,7 +64,7 @@ export class ConfigService {
    */
   isCdk(): boolean {
     const id = this.envService.getKrameriusId();
-    return id === 'cdk' || id === 'cdk-test';
+    return id.includes('cdk');
   }
 
   private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
