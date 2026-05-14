@@ -188,3 +188,14 @@
   display: inline-flex;
   align-items: center;
 }
+
+.cdk-source-select app-select ::ng-deep .select-wrapper {
+  border-radius: var(--spacing-x2);
+  border: 1px solid var(--color-border-bright);
+  padding: var(--spacing-x2) var(--spacing-x4);
+  line-height: 1;
+}
+
+.cdk-source-select app-select ::ng-deep .options-list {
+  font-size: var(--font-size-small);
+}
