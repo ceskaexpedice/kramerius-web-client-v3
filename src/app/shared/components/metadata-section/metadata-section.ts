@@ -27,6 +27,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
 import { SelectComponent } from '../select/select.component';
+import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { pickCdkCollection } from '../../utils/cdk-collection';
 
@@ -42,7 +43,8 @@ import { pickCdkCollection } from '../../utils/cdk-collection';
     LicenseBadgeComponent,
     ModelBadgeComponent,
     RouterLink,
-    SelectComponent
+    SelectComponent,
+    SafeHtmlPipe
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -460,6 +462,15 @@ export class MetadataSection implements OnInit, OnChanges {
       return Array.isArray(isbn) ? isbn.join(', ') : String(isbn);
     }
     return null;
+  }
+
+  hasNonIsbnIdentifiers(): boolean {
+    const ids = this.getIdentifiersWithoutIsbn();
+    if (!ids) return false;
+    return Object.keys(ids).some(k => {
+      const v = ids[k];
+      return v !== null && v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0);
+    });
   }
 
   getIdentifiersWithoutIsbn(): { [key: string]: any } | undefined {

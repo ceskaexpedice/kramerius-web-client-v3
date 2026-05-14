@@ -262,12 +262,11 @@
   right: 0;
   padding: var(--spacing-x05) var(--spacing-x1);
   background-color: rgba(255,255,255, 0.8);
-  color: var(--color-text-base);
+  color: var(--color-text-dark);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-xs);
   font-weight: 400;
   text-align: center;
-  opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
   white-space: nowrap;

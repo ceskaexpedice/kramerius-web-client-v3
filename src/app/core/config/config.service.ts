@@ -220,7 +220,7 @@ export class ConfigService {
     return this.getConfig().features;
   }
 
-  isFeatureEnabled(feature: keyof FeaturesConfig): boolean {
+  isFeatureEnabled(feature: Exclude<keyof FeaturesConfig, 'mapProvider'>): boolean {
     return this.features[feature] ?? true;
   }
 

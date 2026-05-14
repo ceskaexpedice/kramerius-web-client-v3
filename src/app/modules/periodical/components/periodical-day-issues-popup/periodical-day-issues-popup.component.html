@@ -1,0 +1,17 @@
+<div class="day-issues-popup">
+  <div class="day-issues-popup__header">
+    <h3 class="day-issues-popup__title">{{ titleKey() | translate }}</h3>
+    <button type="button"
+            class="day-issues-popup__close"
+            [attr.aria-label]="'close' | translate"
+            (click)="onClose()">
+      <i class="icon-close" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="day-issues-popup__list">
+    @for (item of items(); track item.id) {
+      <app-record-item [item]="item" [showAccessibilityBadge]="true"></app-record-item>
+    }
+  </div>
+</div>

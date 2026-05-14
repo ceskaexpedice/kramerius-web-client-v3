@@ -2,6 +2,7 @@
 
   <app-record-item *ngFor="let item of (children | skeletonList:60:(loading$ | async)); trackBy: trackByPid"
     [item]="item ? toRecordItemWithBadgeLayout(item, children) : undefined"
-    [loading]="(loading$ | async) || false"></app-record-item>
+    [loading]="(loading$ | async) || false"
+                   [appCdkTooltip]="getIssueTypeCode(item) ? ((getIssueTypeCode(item) + '-issue') | translate) : ''"></app-record-item>
 
 </div>

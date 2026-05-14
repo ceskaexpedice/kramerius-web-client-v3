@@ -120,6 +120,15 @@
                   [item]="doc ? toRecordItem(doc) : null">
                 </app-record-item>
               </div>
+
+              <app-paginator
+                [page]="collectionsService.page"
+                [totalCount]="collectionsService.totalCount"
+                [pageSize]="collectionsService.pageSize"
+                [pageSizeOptions]="[60, 120, 180]"
+                (pageChange)="collectionsService.goToPage($event)"
+                (pageSizeChange)="collectionsService.changePageSize($event)">
+              </app-paginator>
             }
 
           </div>
@@ -142,9 +151,8 @@
             [tools]="{search: true, export: false, description: true}" [customDescription]="true"
             (close)="hideRightSidebar()">
             <div description-content>
-              <app-collections-right-sidebar-content [setMetadata]="metadata" [showClose]="false"
-                (onClose)="hideRightSidebar()">
-              </app-collections-right-sidebar-content>
+              <app-metadata-section [uuid]="metadata.uuid" [metadata]="metadata" [showTitle]="true">
+              </app-metadata-section>
             </div>
           </app-metadata-sidebar>
         </div>

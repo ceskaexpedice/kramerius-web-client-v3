@@ -20,12 +20,13 @@ import { CollectionsEffects } from '../../shared/state/collections/collections.e
 import { ResultsSortComponent } from '../search-results-page/components/results-sort/results-sort.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
-import { CollectionsRightSidebarContent } from './components/collections-right-sidebar-content/collections-right-sidebar-content';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { ButtonToggleComponent } from '../../shared/components/button-toggle/button-toggle.component';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 
 const routes: Routes = [
   {
@@ -55,15 +56,16 @@ const routes: Routes = [
     ToolbarControlsComponent,
     SafeHtmlPipe,
     NgClass,
-    CollectionsRightSidebarContent,
     MetadataSidebarComponent,
+    MetadataSection,
     InlineLoaderComponent,
     ScrollHideHeaderDirective,
     ScrollHideHeaderDirective,
     BreadcrumbsComponent,
     SkeletonListPipe,
     ToggleButtonGroupComponent,
-    ButtonToggleComponent
+    ButtonToggleComponent,
+    PaginatorComponent
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },

@@ -60,16 +60,38 @@
         </div>
         <div center>
           <ng-container *ngIf="document.model === DocumentTypeEnum.periodicalitem">
-            <app-date-navigator [value]="document.dateStr || ''" [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
-                                [periodicalChildren]="(detailViewService.periodicalChildren$ | async) || []"
-                                (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
-                                (goToNext)="detailViewService.goToNextPeriodicalIssue()"
-                                (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
-            </app-date-navigator>
+            <ng-container *ngIf="(detailViewService.periodicalChildren$ | async) || [] as periodicalChildren">
+              <app-date-navigator [value]="document.dateStr || ''"
+                                  [issueTypeCode]="getIssueTypeCode(periodicalChildren, document.uuid)"
+                                  [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
+                                  [periodicalChildren]="periodicalChildren"
+                                  [previousTooltip]="'previous-issue--tooltip' | translate"
+                                  [nextTooltip]="'next-issue--tooltip' | translate"
+                                  (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
+                                  (goToNext)="detailViewService.goToNextPeriodicalIssue()"
+                                  (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
+              </app-date-navigator>
+            </ng-container>
           </ng-container>
         </div>
         <div right>
-          <div class="flex flex--align-center">
+          <div class="flex flex--align-center toolbar-right-content">
+            @if (georeferenceService.hasGeoreference$ | async) {
+              <div class="view-tabs">
+                <button class="view-tabs__tab"
+                        [class.active]="(iiifViewerService.mapMode$ | async) === false"
+                        (click)="iiifViewerService.setMapMode(false)">
+                  <i class="icon-map"></i>
+                  {{ 'tab-page' | translate }}
+                </button>
+                <button class="view-tabs__tab"
+                        [class.active]="(iiifViewerService.mapMode$ | async) === true"
+                        (click)="iiifViewerService.setMapMode(true)">
+                  <i class="icon-location"></i>
+                  {{ 'tab-map-view' | translate }}
+                </button>
+              </div>
+            }
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
                                   [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
                                   [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
@@ -126,9 +148,15 @@
               } @else if (detailViewService.isEpub || document.epub) {
                 <app-epub-viewer [metadata]="document"></app-epub-viewer>
               } @else {
-                <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-                                 [metadata]="document" [imagePid]="detailViewService.currentPagePid">
-                </app-iiif-viewer>
+                @if ((iiifViewerService.mapMode$ | async) && detailViewService.currentPagePid) {
+                  <app-georeference-viewer [metadata]="document"
+                                           [imagePid]="detailViewService.currentPagePid">
+                  </app-georeference-viewer>
+                } @else {
+                  <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
+                                   [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+                  </app-iiif-viewer>
+                }
               }
             }
           }
@@ -221,6 +249,9 @@
         @case ('results') {
           <app-search-results-sidebar [currentDocument]="document">
           </app-search-results-sidebar>
+        }
+        @case ('ai') {
+          <app-ai-actions></app-ai-actions>
         }
       }
     </app-slide-up-panel>

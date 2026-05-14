@@ -8,7 +8,7 @@ export const ENVIRONMENT = {
   defaultLanguage: 'cs',
   fallbackLanguage: 'en',
   dateRangeStartYear: 1162,
-  translationVersion: '1.0.11',
+  translationVersion: '2.0.1',
   contactEmail: 'digitalniknihovna@mzk.cz'
 };
 

@@ -11,6 +11,7 @@ export interface AppConfig {
 export interface ApiConfig {
   baseUrl: string;          // API base URL
   citationUrl?: string;     // Citation service API URL
+  georefUrl?: string;       // Georeference annotations API base URL (Allmaps annotations)
 }
 
 // Internationalization configuration
@@ -42,10 +43,14 @@ export interface IntegrationsConfig {
   googleMaps?: GoogleMapsConfig;
 }
 
+// Map provider choice for the map-based search browser
+export type MapProvider = 'allmaps' | 'google';
+
 // Feature flags
 export interface FeaturesConfig {
   keycloak: boolean;
   mapSearch: boolean;
+  mapProvider?: MapProvider;
   georef: boolean;
   ai: boolean;
   folders: boolean;

@@ -18,9 +18,9 @@
   }
 
   <!-- Actual image -->
-  @if (src && !imageError()) {
+  @if (currentSrc() && !imageError()) {
     <img
-      [src]="src"
+      [src]="currentSrc()"
       [alt]="alt"
       [attr.loading]="lazy ? 'lazy' : 'eager'"
       (load)="onImageLoad()"

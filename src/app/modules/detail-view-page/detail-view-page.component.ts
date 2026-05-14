@@ -28,16 +28,21 @@ import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { SearchService } from '../../shared/services/search.service';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
+import { normalizeIssueTypeCode } from '../../shared/utils/issue-type-code';
 import { TtsService } from '../../shared/services/tts.service';
 import { DocumentSearchService } from '../../shared/services/document-search.service';
 import { UiStateService } from '../../shared/services/ui-state.service';
 import { AdminActionsService } from '../../shared/services/admin-actions.service';
+import { GeoreferenceService } from '../../shared/services/georeference.service';
+import { ConfigService } from '../../core/config/config.service';
+import { MapViewerService } from '../../shared/services/map-viewer.service';
 
 @Component({
   selector: 'app-detail-view-page',
   templateUrl: './detail-view-page.component.html',
   styleUrl: './detail-view-page.component.scss',
-  standalone: false
+  standalone: false,
+  providers: [MapViewerService]
 })
 export class DetailViewPageComponent implements OnInit, OnDestroy {
 
@@ -62,6 +67,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   private documentSearchService = inject(DocumentSearchService);
   private uiState = inject(UiStateService);
   public adminActionsService = inject(AdminActionsService);
+  public georeferenceService = inject(GeoreferenceService);
+  private configService = inject(ConfigService);
 
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
@@ -76,6 +83,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     { id: 'export', label: 'export', icon: 'icon-download' },
   ];
   mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'search', icon: 'icon-receipt-search' };
+  mobileAiNavItem: MobileNavItem = { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
   mobileSlideUpOpen = signal(false);
@@ -107,6 +115,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
           this.dialog.open(RestrictedPagesInfoDialogComponent);
         }
       }
+    });
+
+    // Probe georeference availability for the current page
+    effect(() => {
+      // Track page index so the effect re-runs on page change
+      this.detailViewService._currentPageIndex();
+      this.georeferenceService.checkPid(this.detailViewService.currentPagePid);
     });
 
     // Reload AI panel content when page changes
@@ -155,6 +170,15 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
       })
     );
 
+    // Drop map mode when the current page has no georeference
+    this.subscriptions.push(
+      this.georeferenceService.hasGeoreference$.subscribe(hasGeoref => {
+        if (!hasGeoref && this.iiifViewerService.isMapMode()) {
+          this.iiifViewerService.setMapMode(false);
+        }
+      })
+    );
+
     this.subscriptions.push(
       this.detailViewService.document$.pipe(
         distinctUntilChanged((prev, curr) => prev?.uuid === curr?.uuid),
@@ -185,6 +209,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
+    this.iiifViewerService.setMapMode(false);
+    this.georeferenceService.reset();
     this.documentSearchService.clearSearch();
     if (this.stopTtsOnLeave && this.ttsService.isReading()) {
       this.ttsService.stop();
@@ -209,10 +235,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   get mobileNavItems(): MobileNavItem[] {
-    if (this.hasSearchResults()) {
-      return [...this.mobileNavItemsBase, this.mobileSearchNavItem];
+    const items = [...this.mobileNavItemsBase];
+    if (this.configService.isFeatureEnabled('ai')) {
+      items.push(this.mobileAiNavItem);
     }
-    return this.mobileNavItemsBase;
+    if (this.hasSearchResults()) {
+      items.push(this.mobileSearchNavItem);
+    }
+    return items;
   }
 
   getMobilePanelTitle(): string {
@@ -246,4 +276,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
+
+  getIssueTypeCode(children: any[], uuid: string): string | undefined {
+    return normalizeIssueTypeCode(children?.find(c => c?.pid === uuid)?.['issue.type.code']);
+  }
 }

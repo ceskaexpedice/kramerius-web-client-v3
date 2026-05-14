@@ -60,7 +60,7 @@
   <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
     <div class="flex flex--gap-x2" metadata-section-item-content>
       <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-      <app-license-badge [license]="data.licence"></app-license-badge>
+      <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>
     </div>
   </app-metadata-section-item>
 
@@ -264,7 +264,7 @@
 
   <!-- Abstracts -->
   <app-metadata-section-item *ngIf="data.abstracts.length" [label]="'abstract' | translate" type="list"
-    [items]="data.abstracts">
+    [collapsible]="true" [items]="data.abstracts">
   </app-metadata-section-item>
 
   <!-- Subject Names (Personal) -->
@@ -300,13 +300,15 @@
   </section>
 
   <!-- Other Identifiers (excluding ISBN) -->
-  <app-metadata-section-item *ngIf="getIdentifiersWithoutIsbn()" [label]="'identifiers' | translate"
+  <app-metadata-section-item *ngIf="hasNonIsbnIdentifiers()" [label]="'identifiers' | translate"
     [listKeyUppercase]="true" type="key-value" [keyValuePairs]="getIdentifiersWithoutIsbn()">
   </app-metadata-section-item>
 
   <!-- Notes -->
-  <app-metadata-section-item *ngIf="data.notes.length" [label]="'notes' | translate" type="list" [collapsible]="true"
-    [items]="getNotes(data.notes)">
+  <app-metadata-section-item *ngIf="data.notes.length && data.model !== 'collection'" [label]="'notes' | translate" [collapsible]="true">
+    <ul metadata-section-item-content>
+      <li *ngFor="let note of getNotes(data.notes)" [innerHTML]="note | safeHtml"></li>
+    </ul>
   </app-metadata-section-item>
 
   <div class="metadata--actions">

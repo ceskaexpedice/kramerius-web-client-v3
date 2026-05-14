@@ -17,6 +17,7 @@ export enum DocumentTypeEnum {
   "soundunit" = "soundunit",
   "track" = "track",
   "monographunit" = "monographunit",
+  "cutting" = "cutting",
 
   "monograph-multivolume" = "monograph-multivolume"
 }

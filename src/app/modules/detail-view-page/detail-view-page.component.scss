@@ -1,5 +1,61 @@
+@use 'mixins' as m;
+
 .sidebar--container {
   height: 100%;
+}
+
+.toolbar-right-content {
+  gap: var(--spacing-x3);
+}
+
+.view-tabs {
+  display: flex;
+  flex-direction: row;
+  align-self: stretch;
+
+  @include m.respond(mobile-sm) {
+    display: none;
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    padding: 0 var(--spacing-x3);
+    background: none;
+    border: none;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    line-height: var(--line-height-xs);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.15s;
+
+    i {
+      font-size: 16px;
+    }
+
+    &:hover {
+      color: var(--color-text-btn-secondary-default);
+    }
+
+    &.active {
+      color: var(--color-text-btn-secondary-default);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--color-border-primary-default);
+      }
+    }
+  }
 }
 
 .sidebar--wrapper {
@@ -119,7 +175,8 @@ hr {
 app-image-viewer,
 app-iiif-viewer,
 app-epub-viewer,
-app-pdf-viewer {
+app-pdf-viewer,
+app-georeference-viewer{
   height: 100%;
 }
 

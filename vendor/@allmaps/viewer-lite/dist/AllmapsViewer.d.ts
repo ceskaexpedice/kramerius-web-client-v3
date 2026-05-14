@@ -1,0 +1,64 @@
+import { default as OLMap } from 'ol/Map.js';
+import { WarpedMapLayer } from '@allmaps/openlayers';
+import { GeoreferencedMap } from '@allmaps/annotation';
+import { ViewerLiteBasemapInput, ViewerLiteBasemapPreset, ViewerLiteEventMap, ViewerLiteEventName, ViewerLiteMapRecord, ViewerLiteOptions, ViewerLiteOutlineFillMode, ViewerLiteOutlineMode, ViewerLiteOutlineStyleOptions, ViewerLitePreviewGeometry, ViewerLiteViewportBounds, ViewerLiteViewportState } from './types.js';
+
+export declare class AllmapsViewer {
+    #private;
+    readonly container: HTMLElement;
+    readonly map: OLMap;
+    readonly warpedMapLayer: WarpedMapLayer;
+    constructor(container: HTMLElement, options?: ViewerLiteOptions);
+    setMaps(maps: GeoreferencedMap[]): Promise<void>;
+    addMaps(maps: GeoreferencedMap[]): Promise<void>;
+    clearMaps(): Promise<void>;
+    destroy(): void;
+    getMapIds(): string[];
+    getMaps(): ViewerLiteMapRecord[];
+    getOutlinedMapIds(): string[];
+    setOutlinedMapIds(mapIds: Iterable<string>): void;
+    setOutlineStyle(style: ViewerLiteOutlineStyleOptions): void;
+    getOutlineStyle(): {
+        strokeColor: string;
+        strokeWidth: number;
+        fillColor: string;
+    };
+    getBasemap(): false | {
+        type: "xyz";
+        url: string;
+        attribution?: string;
+        maxZoom?: number;
+        label?: string;
+        value?: import('./types.js').ViewerLiteBasemapPresetId;
+    };
+    getBasemapPresets(): ViewerLiteBasemapPreset[];
+    setBasemap(basemap: ViewerLiteBasemapInput): void;
+    setBasemapVisible(visible: boolean): void;
+    setOutlinesVisible(visible: boolean): void;
+    getOutlinesVisible(): boolean;
+    setOutlineFillMode(mode: ViewerLiteOutlineFillMode): void;
+    getOutlineFillMode(): ViewerLiteOutlineFillMode;
+    resize(): void;
+    getViewportBounds(projection?: string): ViewerLiteViewportBounds | undefined;
+    getViewportState(projection?: string): ViewerLiteViewportState | undefined;
+    setPreviewMode(mode: ViewerLiteOutlineMode): void;
+    getPreviewMode(): ViewerLiteOutlineMode;
+    setOpacity(opacity: number): void;
+    setEnhanceLines(threshold: number): void;
+    setMapVisibility(mapId: string, visible: boolean): void;
+    removeMap(mapId: string): Promise<void>;
+    bringMapsForward(mapIds: Iterable<string>): void;
+    sendMapsBackward(mapIds: Iterable<string>): void;
+    bringMapsToFront(mapIds: Iterable<string>): void;
+    sendMapsToBack(mapIds: Iterable<string>): void;
+    fitToMaps(): void;
+    fitToMap(mapId: string): void;
+    showPreviewByMapId(mapId: string): void;
+    showPreviewGeometry(preview: ViewerLitePreviewGeometry): void;
+    hidePreview(): void;
+    syncPreviewsForMapIds(mapIds: Iterable<string>): void;
+    hidePreviewByMapId(mapId: string): void;
+    togglePreviewByMapId(mapId: string): boolean;
+    on<T extends ViewerLiteEventName>(eventName: T, handler: (event: CustomEvent<ViewerLiteEventMap[T]>) => void): () => void;
+}
+export declare function createAllmapsViewer(container: HTMLElement, options?: ViewerLiteOptions): AllmapsViewer;

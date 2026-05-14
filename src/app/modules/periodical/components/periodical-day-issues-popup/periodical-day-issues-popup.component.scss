@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+.day-issues-popup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-primary);
+  max-height: 330px;
+  border-radius: 8px;
+}
+
+.day-issues-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  gap: var(--spacing-x2);
+}
+
+.day-issues-popup__title {
+  margin: 0;
+  font-size: var(--font-size-large);
+  font-weight: 500;
+  color: var(--color-text-base);
+  padding: 0;
+  border: none;
+}
+
+.day-issues-popup__close {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text-btn-tertiary-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: var(--font-size-small);
+  }
+}
+
+.day-issues-popup__list {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-x2);
+
+  app-record-item {
+    border: 1px solid var(--color-border-bright);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 270px;
+    aspect-ratio: 150/270;
+  }
+}

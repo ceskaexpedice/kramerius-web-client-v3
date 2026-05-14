@@ -95,6 +95,9 @@ export class UuidRedirectComponent implements OnInit {
           case DocumentTypeEnum.convolute:
             targetRoute = [APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid];
             break;
+          case DocumentTypeEnum.collection:
+            targetRoute = [APP_ROUTES_ENUM.COLLECTION, uuid];
+            break;
           case 'page':
             targetRoute = [APP_ROUTES_ENUM.DETAIL_VIEW, document['own_parent.pid']];
             navigationExtras.queryParams = { ...navigationExtras.queryParams, page: uuid };

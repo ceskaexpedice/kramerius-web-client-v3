@@ -6,6 +6,7 @@ export interface Cutting {
   description: string;
   url: string;
   thumb: string;
+  iiifRegionThumb?: string;
   uuid?: string;
   bb?: string;
 }
@@ -30,7 +31,7 @@ export function parseCutting(raw: any, getIiifBaseUrl: (uuid: string) => string)
 
   if (bbMatch && item.uuid) {
     item.bb = bbMatch[1];
-    item.thumb = `${getIiifBaseUrl(item.uuid)}/${item.bb}/!400,400/0/default.jpg`;
+    item.iiifRegionThumb = `${getIiifBaseUrl(item.uuid)}/${item.bb}/!400,400/0/default.jpg`;
   }
 
   return item;
@@ -42,8 +43,9 @@ export function cuttingToRecordItem(cutting: Cutting): RecordItem {
     id,
     title: cutting.title,
     description: cutting.description,
-    model: DocumentTypeEnum.collection,
-    imageUrl: cutting.thumb,
+    model: DocumentTypeEnum.cutting,
+    imageUrl: cutting.thumb || undefined,
+    imageFallbackUrl: cutting.iiifRegionThumb,
     externalUrl: cutting.url,
     showFavoriteButton: false,
     showAccessibilityBadge: false,
