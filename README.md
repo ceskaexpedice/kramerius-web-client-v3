@@ -62,7 +62,7 @@ http://localhost:8080
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.12 .
+docker build -t trinera/cdk-client:3.0.12-beta .
 ```
 
 ### Build & push (multiplatform) image to Docker Hub
