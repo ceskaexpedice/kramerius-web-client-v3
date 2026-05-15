@@ -115,6 +115,13 @@ h3 {
   }
 }
 
+.page-content__sticky-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-x3);
+}
+
 app-advanced-search-indicator {
   margin-bottom: var(--spacing-x4);
 }
