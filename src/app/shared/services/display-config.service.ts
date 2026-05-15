@@ -303,7 +303,8 @@ export class DisplayConfigService {
     return {
       tableColumns: [...DEFAULT_TABLE_COLUMNS],
       facetFilters: [...DEFAULT_FACET_FILTERS],
-      defaultPageSize: 60
+      defaultPageSize: 60,
+      defaultGroupResults: true
     };
   }
 

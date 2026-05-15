@@ -5,7 +5,6 @@ import { forkJoin, merge, of } from 'rxjs';
 import { SolrService } from '../../../core/solr/solr.service';
 import * as SearchActions from './search.actions';
 import { SolrResponseParser } from '../../../core/solr/solr-response-parser';
-import { parseSearchDocument } from '../../models/search-document';
 import { Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
 import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
@@ -21,7 +20,7 @@ import { AdvancedSearchService } from '../../../shared/services/advanced-search.
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { ConfigService } from '../../../core/config/config.service';
-import { DocumentTypeEnum } from '../../constants/document-type';
+import { getTotalCountFromResponse, parseSolrSearchResponse } from './parse-search-results';
 
 @Injectable()
 export class SearchEffects {
@@ -59,7 +58,13 @@ export class SearchEffects {
       }, currentFacets, facetOperators]) => {
         const searchFieldOperators = mapOperatorsToSearchFields(facetOperators);
         const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
-        const includePage = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+        // Main results listing must not include pages — pages have their own paginated
+        // request (triggerPageSearchAfterMain$). Keeping pages out keeps titlesTotal
+        // accurate so the unified paginator spill math works.
+        const includePageInResults = false;
+        // Facets request, however, should still consider pages so the "page" entry
+        // in the model facet (and any page-driven counts) stays correct.
+        const includePageInFacets = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
         const includeSupplement = this.customSearchService.isSupplementFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
         const includeArticle = this.customSearchService.isArticleFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
@@ -70,107 +75,26 @@ export class SearchEffects {
           userLicenses: this.userService.licenses
         };
 
-        const results$ = this.solr.search(query, filters, searchFieldOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePage, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle, !!grouped).pipe(
+        // Grouping (by root.pid) only makes sense for page docs, which the
+        // pages-only effect handles. Titles/articles/attachments are always ungrouped.
+        const results$ = this.solr.search(query, filters, searchFieldOperators, page, pageCount, sortBy, sortDirection, advancedQuery, includePeriodicalItem, includePageInResults, this.getRequestedFacets(), filterGroups, availabilityFilter, includeSupplement, includeArticle, false).pipe(
           shareReplay(1)
         );
 
         const processResults$ = results$.pipe(
           map(resultsRes => {
-            const groupedField = resultsRes.grouped?.['root.pid'];
-            const submittedTerm = this.searchService.submittedTerm;
-
-            if (groupedField) {
-              const buildParsed = (doc: any): any => {
-                let highlighting = resultsRes.highlighting?.[doc.pid];
-                if (!highlighting || Object.keys(highlighting).length === 0) {
-                  const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
-                    key.includes('!') && key.split('!')[1] === doc.pid
-                  );
-                  highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
-                }
-                doc['highlighting'] = highlighting || {};
-                const parsed: any = parseSearchDocument(doc);
-                if (submittedTerm && submittedTerm.trim().length > 0) {
-                  parsed.fulltext = submittedTerm;
-                }
-                return parsed;
-              };
-
-              const isPageDoc = (d: any): boolean =>
-                d.model === DocumentTypeEnum.page
-                || (typeof d.own_model_path === 'string' && d.own_model_path.includes(DocumentTypeEnum.page));
-
-              const parsedResults = (groupedField.groups ?? []).flatMap(group => {
-                const docs = group.doclist?.docs ?? [];
-                if (docs.length === 0) return [];
-                const numFound = group.doclist?.numFound ?? 0;
-                const rootPid = group.groupValue;
-                const out: any[] = [];
-
-                // Page-level grouped representative: project onto root and attach occurrence count.
-                const pageDoc = docs.find(isPageDoc);
-                if (pageDoc) {
-                  const parsed = buildParsed(pageDoc);
-                  parsed.occurrenceCount = numFound;
-                  if (parsed.rootPid && parsed.rootModel) {
-                    parsed.pid = parsed.rootPid;
-                    parsed.title = parsed.rootTitle || parsed.title;
-                    parsed.model = parsed.rootModel;
-                    parsed.ownParentPid = undefined;
-                    parsed.ownParentModel = undefined;
-                  }
-                  out.push(parsed);
-                }
-
-                // Direct title hit (the root document itself matched on metadata):
-                // emit as a separate result without count and without root-projection.
-                const directHit = docs.find((d: any) =>
-                  !isPageDoc(d) && d.pid === rootPid
-                );
-                if (directHit) {
-                  out.push(buildParsed(directHit));
-                }
-
-                return out;
-              });
-
-              return SearchActions.loadSearchResultsSuccess({
-                results: parsedResults,
-                totalCount: groupedField.ngroups ?? parsedResults.length,
-              });
-            }
-
-            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-              // Try to get highlighting by pid first, then check for keys containing "!" (rootPid!pagePid format)
-              let highlighting = resultsRes.highlighting?.[doc.pid];
-              if (!highlighting || Object.keys(highlighting).length === 0) {
-                // Look for highlighting key with format "rootPid!pagePid" where the part after "!" matches doc.pid
-                const highlightingKey = Object.keys(resultsRes.highlighting || {}).find(key =>
-                  key.includes('!') && key.split('!')[1] === doc.pid
-                );
-                highlighting = highlightingKey ? resultsRes.highlighting?.[highlightingKey] : {};
-              }
-              doc['highlighting'] = highlighting || {};
-              return parseSearchDocument(doc)
-            });
-
-            return SearchActions.loadSearchResultsSuccess({
-              results: parsedResults,
-              totalCount: resultsRes.response.numFound,
-            });
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.searchService.submittedTerm);
+            return SearchActions.loadSearchResultsSuccess({ results, totalCount });
           }),
           catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
         );
 
         const processFacets$ = forkJoin({
           resultsRes: results$,
-          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), searchFieldOperators, advancedQuery, includePeriodicalItem, includePage, null, filterGroups, availabilityFilter, !!grouped),
+          facetsRes: this.solr.getFacetsWithOperators(query, filters, this.getRequestedFacets(), searchFieldOperators, advancedQuery, includePeriodicalItem, includePageInFacets, null, filterGroups, availabilityFilter, false),
         }).pipe(
           map(({ resultsRes, facetsRes }) => {
-            const groupedField = resultsRes.grouped?.['root.pid'];
-            const totalCount = groupedField
-              ? (groupedField.ngroups ?? 0)
-              : (resultsRes.response?.numFound ?? 0);
+            const totalCount = getTotalCountFromResponse(resultsRes);
 
             const facets = handleFacetsWithOperators(
               resultsRes.facet_counts?.facet_fields ?? {},
@@ -191,6 +115,123 @@ export class SearchEffects {
 
         // Merge both streams so they can emit independently
         return merge(processResults$, processFacets$);
+      }),
+    ),
+  );
+
+  /**
+   * After the main (titles/articles/attachments) search returns, fire a
+   * pages-only search sized to fill the remainder of the current paginator
+   * window. Pages spill into the unified paginator after titlesTotal.
+   *
+   * For main page N with size S: offset = (N-1)*S, titlesTotal from the
+   * just-returned response. Solr returned titles for [offset, offset+S);
+   * its response length is the titlesShown count for this window. The
+   * pages slice we need is start = max(0, offset - titlesTotal),
+   * rows = S - titlesShown.
+   */
+  triggerPageSearchAfterMain$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SearchActions.loadSearchResultsSuccess),
+      withLatestFrom(this.store.select(SearchSelectors.selectLastSearchPayload)),
+      map(([{ results, totalCount }, payload]) => {
+        if (!payload) {
+          return SearchActions.loadPageSearchResultsSuccess({ results: [], totalCount: 0 });
+        }
+        const titlesShown = results.length;
+        const pagesNeeded = Math.max(0, payload.pageCount - titlesShown);
+        const offset = payload.page;
+        const pagesStart = Math.max(0, offset - totalCount);
+
+        if (pagesNeeded === 0) {
+          // Window is full of titles — still fetch totalCount so unified paginator is correct.
+          return SearchActions.loadPageSearchResults({
+            query: payload.query,
+            filters: payload.filters,
+            filterGroups: payload.filterGroups,
+            advancedQuery: payload.advancedQuery,
+            advancedQueryMainOperator: payload.advancedQueryMainOperator,
+            page: 0,
+            pageCount: 0,
+            sortBy: payload.sortBy,
+            sortDirection: payload.sortDirection,
+            grouped: payload.grouped,
+          });
+        }
+
+        return SearchActions.loadPageSearchResults({
+          query: payload.query,
+          filters: payload.filters,
+          filterGroups: payload.filterGroups,
+          advancedQuery: payload.advancedQuery,
+          advancedQueryMainOperator: payload.advancedQueryMainOperator,
+          page: pagesStart,
+          pageCount: pagesNeeded,
+          sortBy: payload.sortBy,
+          sortDirection: payload.sortDirection,
+          grouped: payload.grouped,
+        });
+      })
+    )
+  );
+
+  loadPageSearchResults$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SearchActions.loadPageSearchResults),
+      withLatestFrom(this.store.select(SearchSelectors.selectFacetOperators)),
+      switchMap(([{
+        query,
+        filters,
+        filterGroups,
+        page,
+        pageCount,
+        sortBy,
+        sortDirection,
+        advancedQuery,
+        grouped,
+      }, facetOperators]) => {
+        const searchFieldOperators = mapOperatorsToSearchFields(facetOperators);
+        const includePeriodicalItem = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
+        const includePage = true;
+        const includeSupplement = false;
+        const includeArticle = false;
+
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
+        };
+
+        // Constrain to page-level docs: append a separate fq group with model:page.
+        const pageOnlyGroup = ['model:page'];
+        const effectiveFilterGroups = filterGroups && filterGroups.length > 0
+          ? [...filterGroups, pageOnlyGroup]
+          : [pageOnlyGroup];
+
+        return this.solr.search(
+          query,
+          filters,
+          searchFieldOperators,
+          page,
+          pageCount,
+          sortBy,
+          sortDirection,
+          advancedQuery,
+          includePeriodicalItem,
+          includePage,
+          [],
+          effectiveFilterGroups,
+          availabilityFilter,
+          includeSupplement,
+          includeArticle,
+          !!grouped,
+        ).pipe(
+          map(resultsRes => {
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.searchService.submittedTerm);
+            return SearchActions.loadPageSearchResultsSuccess({ results, totalCount });
+          }),
+          catchError(error => of(SearchActions.loadPageSearchResultsFailure({ error })))
+        );
       }),
     ),
   );
