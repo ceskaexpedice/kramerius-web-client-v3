@@ -186,7 +186,9 @@ export class SearchFiltersComponent extends BaseFiltersComponent implements OnIn
       : [...customDefinedFacetsKeys, ...this.facetKeys];
 
     const filtered = base.filter(key =>
-      key !== facetKeysEnum.license && key !== facetKeysEnum.cdkCollection
+      key !== facetKeysEnum.license
+      && key !== facetKeysEnum.cdkCollection
+      && key !== customDefinedFacetsEnum.whereToSearchModel
     );
 
     if (this.configService.isCdk()) {

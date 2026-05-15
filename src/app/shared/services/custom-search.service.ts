@@ -288,6 +288,19 @@ export class CustomSearchService {
     });
   }
 
+  setSingleFilterForFacet(facetKey: string, value: string, extraParams: Record<string, any> = {}): void {
+    const updated = [
+      ...this._appliedFilters().filter(k => !k.startsWith(facetKey + ':')),
+      `${facetKey}:${value}`,
+    ];
+    this._appliedFilters.set(updated);
+
+    this.queryParamsService.appendToQueryParams(this.route, {
+      customSearch: updated.join(','),
+      ...extraParams,
+    });
+  }
+
   getSelectedFilterValue(facetKey: string): string | null {
     const filterItem = getCustomDefinedFacets().find(facet => facet.facetKey === facetKey);
     if (!filterItem) return null;
