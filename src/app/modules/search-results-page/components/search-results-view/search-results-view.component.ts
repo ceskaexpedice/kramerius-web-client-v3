@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { SearchService } from '../../../../shared/services/search.service';
+import { PageSearchService } from '../../../../shared/services/page-search.service';
 import { AdvancedSearchService } from '../../../../shared/services/advanced-search.service';
 import { AdminModeService } from '../../../../shared/services';
 import { AppResultsViewType } from '../../../settings/settings.model';
@@ -66,6 +67,7 @@ export class SearchResultsViewComponent {
   @Output() sortChange = new EventEmitter<{ value: SolrSortFields; direction: SolrSortDirections }>();
 
   searchService = inject(SearchService);
+  pageSearchService = inject(PageSearchService);
   advancedSearchService = inject(AdvancedSearchService);
   adminModeService = inject(AdminModeService);
   breakpointService = inject(BreakpointService);

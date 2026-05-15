@@ -28,7 +28,17 @@ export const selectArticleSearchResults = createSelector(
 
 export const selectPageSearchResults = createSelector(
   selectSearchState,
-  (state: SearchState) => state.results && state.results.filter(s => s.model === DocumentTypeEnum.page || s.ownModelPath?.includes(DocumentTypeEnum.page)),
+  (state: SearchState) => state.pageResults
+);
+
+export const selectPageSearchResultsTotalCount = createSelector(
+  selectSearchState,
+  (state: SearchState) => state?.pageTotalCount ?? 0
+);
+
+export const selectPageSearchResultsLoading = createSelector(
+  selectSearchState,
+  state => state?.pageResultsLoading
 );
 
 export const selectAttachmentSearchResults = createSelector(
@@ -39,6 +49,21 @@ export const selectAttachmentSearchResults = createSelector(
 export const selectSearchResultsTotalCount = createSelector(
   selectSearchState,
   (state: SearchState) => state?.totalCount ?? 0
+);
+
+export const selectUnifiedTotalCount = createSelector(
+  selectSearchState,
+  (state: SearchState) => (state?.totalCount ?? 0) + (state?.pageTotalCount ?? 0)
+);
+
+export const selectLastSearchPayload = createSelector(
+  selectSearchState,
+  (state: SearchState) => state?.lastSearchPayload ?? null
+);
+
+export const selectLastPageSearchPayload = createSelector(
+  selectSearchState,
+  (state: SearchState) => state?.lastPageSearchPayload ?? null
 );
 
 export const selectFacets = createSelector(

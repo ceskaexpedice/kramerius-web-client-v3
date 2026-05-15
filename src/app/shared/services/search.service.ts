@@ -1,6 +1,7 @@
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { APP_ROUTES_ENUM } from '../../app.routes';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, UrlSerializer } from '@angular/router';
 import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
 import {
@@ -14,6 +15,7 @@ import {
   selectSearchResults,
   selectSearchResultsLoading,
   selectSearchResultsTotalCount,
+  selectUnifiedTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
 import { SearchDocument } from '../../modules/models/search-document';
 import { loadSearchResults } from '../../modules/search-results-page/state/search.actions';
@@ -25,12 +27,24 @@ import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-res
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
 import { isMapTab } from '../../modules/search-results-page/const/map-utils';
+import { PageSearchService } from './page-search.service';
+import { DisplayConfigService } from './display-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SearchService extends BaseFilterService {
   private libraryContext = inject(LibraryContextService);
+  private pageSearchService = inject(PageSearchService);
+  private location = inject(Location);
+  private urlSerializer = inject(UrlSerializer);
+  private displayConfigService = inject(DisplayConfigService);
+
+  // Tracks the effective grouped state so views (toggle button, etc.) re-render
+  // when setGroupResults runs without a router navigation. `null` means "fall
+  // back to URL/settings"; populated after the first explicit toggle.
+  private _groupedOverride = signal<boolean | null>(null);
+  private _suppressGroupReload = false;
   private readonly SEARCH_BACKUP_KEY = 'returnToSearchUrl';
 
   private isOnSearchResultsRoute(): boolean {
@@ -145,7 +159,7 @@ export class SearchService extends BaseFilterService {
     this.loading$ = this.store.select(selectSearchResultsLoading);
     this.facetsLoading$ = this.store.select(selectFacetsLoading);
 
-    this.totalCount$ = this.store.select(selectSearchResultsTotalCount);
+    this.totalCount$ = this.store.select(selectUnifiedTotalCount);
     this.activeFilters$ = this.store.select(selectActiveFilters);
 
     effect(() => {
@@ -174,7 +188,7 @@ export class SearchService extends BaseFilterService {
 
     // Listen for page size changes from settings
     let previousPageSize = this._pageSize();
-    let previousGroupDefault = this.settingsService.settings.displayConfig?.defaultGroupResults ?? false;
+    let previousGroupDefault = this.settingsService.settings.displayConfig?.defaultGroupResults ?? true;
     this.settingsService.settings$
       .pipe(takeUntil(this.destroy$))
       .subscribe(settings => {
@@ -194,11 +208,15 @@ export class SearchService extends BaseFilterService {
           }
         }
 
-        const newGroupDefault = settings.displayConfig?.defaultGroupResults ?? false;
+        const newGroupDefault = settings.displayConfig?.defaultGroupResults ?? true;
         if (newGroupDefault !== previousGroupDefault) {
           previousGroupDefault = newGroupDefault;
-          // Only reload when the URL doesn't pin an explicit override
-          if (this.isOnSearchResultsRoute() && this.route.snapshot.queryParams['group'] === undefined) {
+          // Skip reload when the change came from the inline toggle — it already
+          // updated the URL (via replaceState, which doesn't refresh
+          // route.snapshot) and reloaded only the pages section.
+          if (this._suppressGroupReload) {
+            this._suppressGroupReload = false;
+          } else if (this.isOnSearchResultsRoute() && this.route.snapshot.queryParams['group'] === undefined) {
             this.reloadCurrentSearch();
           }
         }
@@ -282,7 +300,7 @@ export class SearchService extends BaseFilterService {
 
 
   // Params that should not trigger a search refresh
-  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west', 'exportPid', 'tab'];
+  private readonly SETTINGS_PARAMS = ['settings', 'settings_section', 'more_info', 'north', 'south', 'east', 'west', 'exportPid', 'tab', 'group'];
 
   private getSearchRelevantParams(params: any): any {
     const relevant: any = {};
@@ -331,24 +349,55 @@ export class SearchService extends BaseFilterService {
    * URL `group` param overrides; falls back to settings.defaultGroupResults.
    */
   public isGrouped(params?: any): boolean {
-    const queryParams = params ?? this.route.snapshot.queryParams;
-    const fromUrl = queryParams['group'];
+    // Explicit caller-provided params (e.g. from dispatchSearch) win — these
+    // come from a fresh URL emission and represent the source of truth for
+    // that request.
+    if (params) {
+      const fromUrl = params['group'];
+      if (fromUrl === 'true') return true;
+      if (fromUrl === 'false') return false;
+      return this.settingsService.settings.displayConfig?.defaultGroupResults ?? true;
+    }
+    // Otherwise prefer the in-memory override (kept in sync by setGroupResults)
+    // so signal-aware bindings re-render after a silent URL update.
+    const override = this._groupedOverride();
+    if (override !== null) return override;
+    const fromUrl = this.route.snapshot.queryParams['group'];
     if (fromUrl === 'true') return true;
     if (fromUrl === 'false') return false;
-    return !!this.settingsService.settings.displayConfig?.defaultGroupResults;
+    return this.settingsService.settings.displayConfig?.defaultGroupResults ?? true;
   }
 
   /**
    * Toggles the per-search grouping override via the `group` URL param.
-   * Resets pagination because group counts use a different unit (groups vs docs).
+   * Only the Pages section is affected — titles/articles/attachments and the
+   * main paginator stay untouched. The pages-only request is re-issued.
    */
   public setGroupResults(grouped: boolean): void {
-    this._page.set(1);
-    this.router.navigate([], {
+    // Update the `group` URL param in-place via Location.replaceState so the
+    // router doesn't re-navigate (which would trigger scroll-to-top and
+    // refire the queryParams subscription). The pages-only effect is the
+    // only thing that needs to react to the change.
+    const tree = this.router.createUrlTree([], {
       relativeTo: this.route,
-      queryParams: { group: grouped ? 'true' : 'false', page: 1 },
-      queryParamsHandling: 'merge'
+      queryParams: { group: grouped ? 'true' : 'false' },
+      queryParamsHandling: 'merge',
     });
+    this.location.replaceState(this.urlSerializer.serialize(tree));
+    this._groupedOverride.set(grouped);
+    this.pageSearchService.reloadWithGrouped(grouped);
+
+    // Persist the new default so it survives reloads and pre-selects in the
+    // settings dialog. The settings$ listener skips reloading because the
+    // `group` URL param is now set above.
+    const current = this.settingsService.settings;
+    if ((current.displayConfig?.defaultGroupResults ?? true) !== grouped) {
+      const displayConfig = current.displayConfig
+        ? { ...current.displayConfig, defaultGroupResults: grouped }
+        : { ...this.displayConfigService.getConfigForSettings(), defaultGroupResults: grouped };
+      this._suppressGroupReload = true;
+      this.settingsService.settings = { ...current, displayConfig };
+    }
   }
 
   public dispatchSearch(params: any): void {
@@ -505,6 +554,11 @@ export class SearchService extends BaseFilterService {
       }
     }
 
+    const isGrouped = this.isGrouped(params);
+    // A fresh URL emission is the source of truth — clear any prior in-memory
+    // override so subsequent isGrouped() calls (without params) follow the URL.
+    this._groupedOverride.set(isGrouped);
+
     this.store.dispatch(loadSearchResults({
       query,
       filters,
@@ -515,8 +569,10 @@ export class SearchService extends BaseFilterService {
       pageCount: pageSize,
       sortBy,
       sortDirection,
-      grouped: this.isGrouped(params)
+      grouped: isGrouped
     }));
+    // Pages-only follow-up is fired by triggerPageSearchAfterMain$ once
+    // titlesTotal is known, sized to fill the remainder of this window.
   }
 
   updateFilters(
