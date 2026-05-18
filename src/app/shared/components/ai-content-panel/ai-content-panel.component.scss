@@ -15,12 +15,15 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: var(--spacing-x4) var(--spacing-x6);
+    padding: var(--spacing-x3);
   }
 
   &__content {
     line-height: 1.8;
     color: var(--color-text-base);
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
 
     // Plain text fallback
     &:not(:has(p)) {
