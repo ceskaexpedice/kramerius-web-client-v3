@@ -113,6 +113,16 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
 
+  getDocumentUrl(record: SearchDocument): string {
+    return this.recordHandler.getDocumentUrl({
+      model: record.model,
+      pid: record.pid,
+      ownParentPid: record.ownParentPid,
+      ownParentModel: record.ownParentModel,
+      fulltext: record.fulltext,
+    });
+  }
+
   onClick(e: MouseEvent, record: SearchDocument) {
     e.stopPropagation();
     this.recordHandler.handleDocumentClick(record);
