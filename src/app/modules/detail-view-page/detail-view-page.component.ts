@@ -14,7 +14,7 @@ import { IIIFViewerService } from '../../shared/services/iiif-viewer.service';
 import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 import { Store } from '@ngrx/store';
 import { selectArticleDetail } from '../../shared/state/document-detail/document-detail.selectors';
@@ -94,6 +94,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   // Article detail observable - converted to metadata format
   articleMetadata$: Observable<any>;
 
+  // Active sidebar tab id ('articles' when an article is selected, 'pages' otherwise)
+  activeSidebarTab$: Observable<string>;
+
   // View toggle options for sound recordings - static to prevent re-rendering
   readonly viewToggleOptions: ViewToggleOption[] = [
     { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
@@ -104,8 +107,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     private envService: EnvironmentService,
     favoritesService: FavoritesService,
     popupPositioning: PopupPositioningService,
-    router: Router
+    router: Router,
+    route: ActivatedRoute
   ) {
+    this.activeSidebarTab$ = route.queryParamMap.pipe(
+      map(params => (params.get('article') ? 'articles' : 'pages')),
+      distinctUntilChanged()
+    );
+
     this.krameriusBaseUrl = this.envService.getKrameriusUrl();
     this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
 

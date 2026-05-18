@@ -74,8 +74,12 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Check for fulltext parameter in URL on component initialization
+    // Check for fulltext parameter in URL on component initialization.
+    // Reset the restoration flag first — the service is providedIn: 'root', so the flag
+    // survives across detail-view visits and would otherwise block restoration on a
+    // fresh mount (e.g. navigating back from /search to a different /view URL).
     if (this.document?.uuid) {
+      this.documentSearchService.resetRestorationFlag();
       this.documentSearchService.restoreSearchFromUrl(this.document.uuid);
     }
   }
