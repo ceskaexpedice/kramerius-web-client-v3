@@ -101,12 +101,14 @@
       flex: 1;
       min-width: 0;
       border-left: 1px solid var(--color-border-light);
+      margin-right: var(--spacing-x3);
     }
   }
 
   &.ai-only-view {
     app-ai-content-panel {
       flex: 1;
+      margin-right: var(--spacing-x3);
     }
   }
 }
