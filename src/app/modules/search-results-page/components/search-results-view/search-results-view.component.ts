@@ -19,7 +19,6 @@ import { RecordExportPanelComponent } from '../../../../shared/components/record
 import { TabsComponent } from '../../../../shared/components/tabs/tabs.component';
 import { TabItemComponent } from '../../../../shared/components/tabs/tab-item.component';
 import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
-import { ScrollHideHeaderDirective } from '../../../../shared/directives/scroll-hide-header.directive';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { WhereToSearchToggleComponent } from '../where-to-search-toggle/where-to-search-toggle.component';
@@ -44,7 +43,6 @@ import { customDefinedFacetsEnum } from '../../const/facets';
     TabsComponent,
     TabItemComponent,
     SkeletonListPipe,
-    ScrollHideHeaderDirective,
     TranslatePipe,
     WhereToSearchToggleComponent,
   ],

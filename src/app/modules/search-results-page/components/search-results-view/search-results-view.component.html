@@ -12,7 +12,7 @@
   </ng-template>
 
   <div class="page-content__wrapper"
-    [class.wrapper--no-top-padding]="showSelectedTags$ | async" appScrollHideHeader>
+    [class.wrapper--no-top-padding]="showSelectedTags$ | async">
 
     <!-- Sticky tags: hidden on mobile when tabs are shown (tags move inside tabs via tab-common-up) -->
     <div class="page-content__sticky-tags" *ngIf="!(breakpointService.isMobile() && showSectionHeaders)">
