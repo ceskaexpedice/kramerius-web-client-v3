@@ -221,6 +221,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.iiifViewerService.setMapMode(false);
     this.georeferenceService.reset();
     this.documentSearchService.clearSearch();
+    this.aiPanelService.close();
     if (this.stopTtsOnLeave && this.ttsService.isReading()) {
       this.ttsService.stop();
     }
