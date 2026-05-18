@@ -63,8 +63,9 @@ export class SearchEffects {
         // accurate so the unified paginator spill math works.
         const includePageInResults = false;
         // Facets request, however, should still consider pages so the "page" entry
-        // in the model facet (and any page-driven counts) stays correct.
-        const includePageInFacets = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+        // in the model facet (and any page-driven counts) stays correct. Coupled
+        // with the pages-only search: only ask for page facets when pages will run.
+        const includePageInFacets = this.shouldIncludePages();
         const includeSupplement = this.customSearchService.isSupplementFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
         const includeArticle = this.customSearchService.isArticleFilterActive() || this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
 
@@ -135,7 +136,7 @@ export class SearchEffects {
       ofType(SearchActions.loadSearchResultsSuccess),
       withLatestFrom(this.store.select(SearchSelectors.selectLastSearchPayload)),
       map(([{ results, totalCount }, payload]) => {
-        if (!payload) {
+        if (!payload || !this.shouldIncludePages()) {
           return SearchActions.loadPageSearchResultsSuccess({ results: [], totalCount: 0 });
         }
         const titlesShown = results.length;
@@ -253,6 +254,10 @@ export class SearchEffects {
       ),
     ),
   );
+
+  private shouldIncludePages(): boolean {
+    return this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
+  }
 
   private getRequestedFacets(): string[] {
     const visibleFilters = this.displayConfigService.getVisibleFacetFilters();
