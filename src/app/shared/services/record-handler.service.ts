@@ -70,6 +70,21 @@ export class RecordHandlerService {
     }
   }
 
+  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null }): string {
+    const { model, pid, ownParentPid, ownParentModel, fulltext } = opts;
+    let url: string;
+    if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
+      url = this.getHandleDocumentUrlByModelAndPid(model, pid, ownParentPid, ownParentModel ?? null);
+    } else {
+      url = this.getHandleDocumentUrlByModelAndPid(model, pid);
+    }
+    if (fulltext && !url.includes('fulltext=')) {
+      const sep = url.includes('?') ? '&' : '?';
+      url += `${sep}fulltext=${encodeURIComponent(fulltext)}`;
+    }
+    return url;
+  }
+
   getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null): string {
     const lp = (segments: any[]) => this.libraryContext.prependLibraryPrefix(segments);
     switch (model) {

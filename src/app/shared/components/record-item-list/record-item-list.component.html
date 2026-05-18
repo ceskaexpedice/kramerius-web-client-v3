@@ -24,7 +24,7 @@
     } @else {
     <tr app-record-item-list-row
       *ngFor="let record of records"
-      [url]="recordHandler.getHandleDocumentUrlByModelAndPid(record.model, record.pid)"
+      [url]="getDocumentUrl(record)"
       [record]="record"
       [visibleColumns]="visibleColumns"
       [highlighted]="exportedRecord?.pid === record.pid"
