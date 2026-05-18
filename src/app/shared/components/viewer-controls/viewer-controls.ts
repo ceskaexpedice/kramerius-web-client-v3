@@ -7,7 +7,6 @@ import { EpubService } from '../../services/epub.service';
 import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../../core/config';
-import { TtsService } from '../../services/tts.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { MapViewerService } from '../../services/map-viewer.service';
@@ -27,7 +26,6 @@ export class ViewerControls {
   private iiifViewerService = inject(IIIFViewerService);
   private epubService = inject(EpubService);
   private configService = inject(ConfigService);
-  public ttsService = inject(TtsService);
   private aiPanelService = inject(AiPanelService);
   private detailViewService = inject(DetailViewService, { optional: true });
   private mapViewerService = inject(MapViewerService, { optional: true });
@@ -195,11 +193,4 @@ export class ViewerControls {
     }
   }
 
-  onTtsPlayPause() {
-    this.ttsService.togglePlayPause();
-  }
-
-  onTtsStop() {
-    this.ttsService.stop();
-  }
 }
