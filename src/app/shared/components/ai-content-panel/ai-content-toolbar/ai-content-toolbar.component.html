@@ -22,13 +22,12 @@
       {{ 'ai.original' | translate }}
     </mat-slide-toggle>
 
-
-    <button class="button square-button tertiary outlined" (click)="decreaseFontSize()" title="T-">
-      <i class="icon-font1"></i>
+    <button class="button square-button tertiary outlined" (click)="increaseFontSize()" title="T+">
+      <i class="icon-search-zoom-in-2"></i>
     </button>
 
-    <button class="button square-button tertiary outlined" (click)="increaseFontSize()" title="T+">
-      <i class="icon-font"></i>
+    <button class="button square-button tertiary outlined" (click)="decreaseFontSize()" title="T-">
+      <i class="icon-search-zoom-out-2"></i>
     </button>
 
     <button class="button square-button tertiary outlined" (click)="fullscreenToggle.emit()" [title]="'ai.fullscreen' | translate">
@@ -39,7 +38,17 @@
       <i class="icon-copy"></i>
     </button>
 
-    <button class="button square-button tertiary transparent" (click)="closePanel.emit()" [title]="'ai.copy' | translate">
+    @if (ttsService.isReading()) {
+      <button class="button square-button primary" (click)="onTtsPlayPause()"
+              [title]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+        <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
+      </button>
+      <button class="button square-button primary" (click)="onTtsStop()" [title]="'ai.tts-stop' | translate">
+        <i class="icon icon-stop"></i>
+      </button>
+    }
+
+    <button class="button square-button close-button tertiary transparent" (click)="closePanel.emit()" [title]="'ai.copy' | translate">
       <i class="icon-close"></i>
     </button>
 

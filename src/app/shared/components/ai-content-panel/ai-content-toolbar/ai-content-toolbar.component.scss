@@ -31,3 +31,14 @@
 :host ::ng-deep mat-slide-toggle label {
   color: var(--color-text-base);
 }
+
+.close-button {
+  background-color: var(--color-error);
+  color: var(--color-text-on-color);
+  font-size: var(--font-size-small);
+
+  &:hover {
+    background-color: #b21010;
+    color: var(--color-text-on-color);
+  }
+}

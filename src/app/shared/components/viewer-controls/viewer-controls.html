@@ -76,16 +76,4 @@
     <i class="icon icon-book-1"></i>
   </button>
 
-  <!-- TTS Controls -->
-  <ng-container *ngIf="type === 'image' && ttsService.isReading() && (iiifMapMode$ | async) === false">
-    <button (click)="onTtsPlayPause()" class="button primary"
-            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
-      <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
-    </button>
-    <button (click)="onTtsStop()" class="button primary"
-            [appCdkTooltip]="'ai.tts-stop' | translate">
-      <i class="icon icon-stop"></i>
-    </button>
-  </ng-container>
-
 </div>
