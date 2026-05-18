@@ -1,8 +1,14 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { AltoService } from './alto.service';
 import { AiApiService, AI_MODELS, AiModel, TranslateProvider } from './ai-api.service';
+import { LocalStorageService } from './local-storage.service';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+
+const AI_PANEL_FONT_SIZE_KEY = 'ai-panel-font-size';
+const DEFAULT_FONT_SIZE = 16;
+const MIN_FONT_SIZE = 10;
+const MAX_FONT_SIZE = 28;
 
 export type AiPanelContentType = 'translation' | 'summary' | 'text' | null;
 export type AiPanelMode = 'split' | 'ai-only';
@@ -12,7 +18,14 @@ export class AiPanelService {
 
   private altoService = inject(AltoService);
   private aiApiService = inject(AiApiService);
+  private localStorageService = inject(LocalStorageService);
   private activeSubscription: Subscription | null = null;
+
+  constructor() {
+    effect(() => {
+      this.localStorageService.set(AI_PANEL_FONT_SIZE_KEY, this.fontSize());
+    });
+  }
 
   // --- State ---
   readonly panelVisible = signal(false);
@@ -24,8 +37,8 @@ export class AiPanelService {
   readonly error = signal<string | null>(null);
 
   // UI state
-  readonly showOriginal = signal(false);
-  readonly fontSize = signal(14);
+  readonly showOriginal = signal(true);
+  readonly fontSize = signal(this.loadFontSize());
   readonly currentPagePid = signal<string | null>(null);
 
   // Settings
@@ -45,8 +58,8 @@ export class AiPanelService {
     const isReload = this.panelVisible() && this.contentType() === 'translation';
     this.cancelPending();
     this.panelVisible.set(true);
-    if (!isReload && !this.showOriginal()) {
-      this.panelMode.set('ai-only');
+    if (!isReload) {
+      this.panelMode.set(this.showOriginal() ? 'split' : 'ai-only');
     }
     this.contentType.set('translation');
     this.content.set('');
@@ -96,8 +109,8 @@ export class AiPanelService {
     const isReload = this.panelVisible() && this.contentType() === 'summary';
     this.cancelPending();
     this.panelVisible.set(true);
-    if (!isReload && !this.showOriginal()) {
-      this.panelMode.set('ai-only');
+    if (!isReload) {
+      this.panelMode.set(this.showOriginal() ? 'split' : 'ai-only');
     }
     this.contentType.set('summary');
     this.content.set('');
@@ -192,7 +205,7 @@ export class AiPanelService {
     this.cancelPending();
     this.panelVisible.set(false);
     this.panelMode.set('ai-only');
-    this.showOriginal.set(false);
+    this.showOriginal.set(true);
     this.contentType.set(null);
     this.content.set('');
     this.styledHtml.set('');
@@ -209,12 +222,20 @@ export class AiPanelService {
 
   increaseFontSize(): void {
     const current = this.fontSize();
-    if (current < 28) this.fontSize.set(current + 2);
+    if (current < MAX_FONT_SIZE) this.fontSize.set(current + 2);
   }
 
   decreaseFontSize(): void {
     const current = this.fontSize();
-    if (current > 10) this.fontSize.set(current - 2);
+    if (current > MIN_FONT_SIZE) this.fontSize.set(current - 2);
+  }
+
+  private loadFontSize(): number {
+    const saved = this.localStorageService.get<number>(AI_PANEL_FONT_SIZE_KEY);
+    if (typeof saved === 'number' && saved >= MIN_FONT_SIZE && saved <= MAX_FONT_SIZE) {
+      return saved;
+    }
+    return DEFAULT_FONT_SIZE;
   }
 
   private cancelPending(): void {
