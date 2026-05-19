@@ -44,64 +44,45 @@ Open in browser:
 http://localhost:8080
 ```
 
-## Build & Run with Docker
-
-### Build image
-
-```shell
-docker build -t trinera/cdk-client:3.0.12-beta .
-```
-
-### Build & push (multiplatform) image to Docker Hub
-
-```shell
-docker buildx build \
+<html><head></head><body><p>Docker HUB: <a href="https://hub.docker.com/r/trinera/cdk-client">https://hub.docker.com/r/trinera/cdk-client</a></p>
+<h2>Build &amp; Run s Dockerem</h2>
+<h3>Build image</h3>
+<pre><code class="language-shell">docker build -t trinera/cdk-client:3.0.12-beta .
+</code></pre>
+<h3>Build &amp; push (multiplatformní) image na Docker Hub</h3>
+<pre><code class="language-shell">docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t trinera/cdk-client:3.0.12 \
   --push .
-```
-
-### Run container with `docker run`
-
-```shell
-docker run -p 1234:80 \
+</code></pre>
+<h3>Spuštění kontejneru pomocí <code>docker run</code></h3>
+<pre><code class="language-shell">docker run -p 1234:80 \
+  -e APP_KRAMERIUS_ID=mzk \
   trinera/cdk-client:3.0.12
-```
-
-Open in browser:
-
-```text
-http://localhost:1234
-```
-
-Optionally, override the bundled local configuration by mounting a local directory:
-
-```shell
-docker run -p 1234:80 \
+</code></pre>
+<p>Otevřít v prohlížeči:</p>
+<pre><code class="language-text">http://localhost:1234
+</code></pre>
+<blockquote>
+<p><strong>Poznámka:</strong> Proměnná <code>APP_KRAMERIUS_ID</code> určuje, která knihovna se použije jako výchozí. Hodnota musí odpovídat kódu knihovny (názvu adresáře pod <code>local-config/</code>), například <code>mzk</code>, <code>cdk</code>, <code>knav</code> apod.</p>
+</blockquote>
+<p>Volitelně lze přepsat výchozí lokální konfiguraci připojením lokálního adresáře:</p>
+<pre><code class="language-shell">docker run -p 1234:80 \
+  -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
   trinera/cdk-client:3.0.12
-```
-
-#### Environment variables
-
-The container can be configured using environment variables:
-
-| Variable | Default | Description |
-|---|---:|---|
-| `APP_DEV_MODE` | `true` | Enables or disables development mode. |
-
-## Run with Docker Compose
-
-Create a `docker-compose.yml` file:
-
-```yaml
-services:
+</code></pre>
+<h2>Spuštění pomocí Docker Compose</h2>
+<p>Vytvořte soubor <code>docker-compose.yml</code>:</p>
+<pre><code class="language-yaml">services:
   cdk-client:
     image: trinera/cdk-client:3.0.12
     ports:
       - "1234:80"
+    environment:
+      - APP_KRAMERIUS_ID=mzk
     volumes:
-      # Optional: override the bundled default local configuration.
+      # Volitelné: přepíše výchozí lokální konfiguraci.
       - ./public/local-config:/usr/share/nginx/local-config:ro
     healthcheck:
       test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/libraries.json"]
@@ -109,69 +90,44 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-```
+</code></pre>
+<p>Spuštění aplikace:</p>
+<pre><code class="language-shell">docker compose up -d
+</code></pre>
+<p>Zastavení aplikace:</p>
+<pre><code class="language-shell">docker compose down
+</code></pre>
+<p>Otevřít v prohlížeči:</p>
+<pre><code class="language-text">http://localhost:1234
+</code></pre>
+<h3>Proměnné prostředí</h3>
 
-Start the application:
+Proměnná | Povinná | Popis | Příklad
+-- | -- | -- | --
+APP_KRAMERIUS_ID | ano | Kód knihovny — určuje výchozí konfiguraci. Musí odpovídat názvu adresáře pod local-config/. | mzk, cdk, knav
 
-```shell
-docker compose up -d
-```
 
-Stop the application:
-
-```shell
-docker compose down
-```
-
-Open in browser:
-
-```text
-http://localhost:1234
-```
-
-### Local configuration volume
-
-The Docker image contains a default version of the local configuration files.
-
-Optionally, the default configuration can be overridden by mounting a local directory from the host:
-
-```yaml
-volumes:
+<h3>Lokální konfigurace (volume)</h3>
+<p>Docker image obsahuje výchozí verzi konfiguračních souborů.</p>
+<p>Volitelně lze výchozí konfiguraci přepsat připojením lokálního adresáře z hostitelského systému:</p>
+<pre><code class="language-yaml">volumes:
   - ./public/local-config:/usr/share/nginx/local-config:ro
-```
-
-This maps local configuration files from:
-
-```text
-./public/local-config
-```
-
-to the container path:
-
-```text
-/usr/share/nginx/local-config
-```
-
-The volume is mounted as read-only using the `:ro` suffix.
-
-This allows the container image to work out of the box with the bundled default configuration, while still allowing the runtime configuration to be provided externally when needed.
-
-For example, the following local file:
-
-```text
-./public/local-config/libraries.json
-```
-
-will override the bundled file and will be served by nginx as:
-
-```text
-/local-config/libraries.json
-```
-
-The file can be checked from the host at:
-
-```text
-http://localhost:1234/local-config/libraries.json
-```
-
-If you do not need a custom local configuration, you can remove the `volumes` section from `docker-compose.yml`.
+</code></pre>
+<p>Tím se namapují lokální konfigurační soubory z:</p>
+<pre><code class="language-text">./public/local-config
+</code></pre>
+<p>na cestu v kontejneru:</p>
+<pre><code class="language-text">/usr/share/nginx/local-config
+</code></pre>
+<p>Volume je připojen jako read-only pomocí přípony <code>:ro</code>.</p>
+<p>Díky tomu image funguje ihned s výchozí konfigurací, ale zároveň umožňuje poskytnout runtime konfiguraci externě.</p>
+<p>Například lokální soubor:</p>
+<pre><code class="language-text">./public/local-config/libraries.json
+</code></pre>
+<p>přepíše výchozí soubor v image a nginx ho bude servírovat jako:</p>
+<pre><code class="language-text">/local-config/libraries.json
+</code></pre>
+<p>Soubor lze ověřit z hostitelského systému na adrese:</p>
+<pre><code class="language-text">http://localhost:1234/local-config/libraries.json
+</code></pre>
+<p>Pokud vlastní lokální konfiguraci nepotřebujete, můžete sekci <code>volumes</code> z <code>docker-compose.yml</code> odstranit.</p></body></html>
