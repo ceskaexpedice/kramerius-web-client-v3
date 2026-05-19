@@ -76,4 +76,14 @@
     <i class="icon icon-book-1"></i>
   </button>
 
+  @if (ttsService.isReading() && !aiPanelService.panelVisible()) {
+    <button class="button primary" (click)="onTtsPlayPause()"
+            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+      <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
+    </button>
+    <button class="button primary" (click)="onTtsStop()" [appCdkTooltip]="'ai.tts-stop' | translate">
+      <i class="icon icon-stop"></i>
+    </button>
+  }
+
 </div>
