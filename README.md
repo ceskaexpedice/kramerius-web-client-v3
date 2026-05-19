@@ -22,13 +22,6 @@ The application will automatically reload when source files change.
 
 ### Build
 
-First define the configuration using environment variables:
-
-```shell
-export APP_DEV_MODE=false
-export APP_KRAMERIUS_ID="mzk"
-```
-
 Run the build:
 
 ```shell
@@ -36,12 +29,6 @@ npm run build
 ```
 
 The build artifacts will be stored in the `dist/` directory.
-
-The environment configuration from `APP_*` variables will be stored into:
-
-```text
-dist/cdk-client/browser/assets/env.json
-```
 
 ### Run
 
@@ -78,8 +65,6 @@ docker buildx build \
 
 ```shell
 docker run -p 1234:80 \
-  -e APP_DEV_MODE=true \
-  -e APP_KRAMERIUS_ID=mzk \
   trinera/cdk-client:3.0.12
 ```
 
@@ -93,8 +78,6 @@ Optionally, override the bundled local configuration by mounting a local directo
 
 ```shell
 docker run -p 1234:80 \
-  -e APP_DEV_MODE=true \
-  -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
   trinera/cdk-client:3.0.12
 ```
@@ -105,7 +88,6 @@ The container can be configured using environment variables:
 
 | Variable | Default | Description |
 |---|---:|---|
-| `APP_KRAMERIUS_ID` | `mzk` | ID of the default Kramerius instance. |
 | `APP_DEV_MODE` | `true` | Enables or disables development mode. |
 
 ## Run with Docker Compose
@@ -118,9 +100,6 @@ services:
     image: trinera/cdk-client:3.0.12
     ports:
       - "1234:80"
-    environment:
-      - APP_KRAMERIUS_ID=${APP_KRAMERIUS_ID:-mzk}
-      - APP_DEV_MODE=${APP_DEV_MODE:-true}
     volumes:
       # Optional: override the bundled default local configuration.
       - ./public/local-config:/usr/share/nginx/local-config:ro
@@ -149,26 +128,6 @@ Open in browser:
 ```text
 http://localhost:1234
 ```
-
-### Docker Compose environment variables
-
-The values can be overridden before starting Docker Compose:
-
-```shell
-export APP_KRAMERIUS_ID=mzk
-export APP_DEV_MODE=false
-
-docker compose up -d
-```
-
-Alternatively, create a `.env` file next to `docker-compose.yml`:
-
-```env
-APP_KRAMERIUS_ID=mzk
-APP_DEV_MODE=false
-```
-
-Docker Compose will automatically use these values.
 
 ### Local configuration volume
 
