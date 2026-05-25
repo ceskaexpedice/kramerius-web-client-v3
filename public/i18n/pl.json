@@ -147,7 +147,7 @@
   "ok-button": "OK",
   "restricted-pages-info-dialog--header": "Dlaczego niektóre strony są dostępne, a inne nie?",
   "restricted-pages-info-dialog--message": "Prawo autorskie zezwala na wyświetlenie tylko podstawowego podglądu chronionych dokumentów – okładki, strony tytułowej i spisu treści. Stron nie można drukować ani pobierać.",
-  "restricted-pages-info-dialog--dont-show-again": "Nie pokazuj ponownie tego wyjaśnienia.",
+  "restricted-pages-info-dialog--dont-show-again": "Nie pokazuj ponownie",
   "playback-stop-dialog--header": "Czy na pewno chcesz zatrzymać odtwarzanie?",
   "playback-stop-dialog--message": "To zatrzyma odtwarzanie i zamknie odtwarzacz.",
   "dont-ask-again": "Nie pytaj ponownie",
