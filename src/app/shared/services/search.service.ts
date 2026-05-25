@@ -408,6 +408,8 @@ export class SearchService extends BaseFilterService {
         this._searchTerm.set(query);
         this._submittedTerm.set(query);
       }
+      if (params['sortBy']) this._sortBy.set(params['sortBy']);
+      if (params['sortDirection']) this._sortDirection.set(params['sortDirection']);
       return;
     }
 
