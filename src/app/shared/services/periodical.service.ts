@@ -33,6 +33,7 @@ import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-res
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
 import { SearchService } from './search.service';
+import { appendToAdvancedQuery, buildYearRangeQuery } from '../utils/date-range-query';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -294,30 +295,12 @@ export class PeriodicalService extends BaseFilterService {
 
     filters = [...baseFilters, ...customFilters];
 
-    // Handle year range filter as a separate advanced query
-    const yearFrom = params && params['yearFrom'];
-    const yearTo = params && params['yearTo'];
-
-    // Handle date range filter as a separate advanced query
+    // Date range below uses periodical-specific component-based logic (different from search/map),
+    // so only year-range is shared via the helper.
     const dateFrom = params && params['dateFrom'];
     const dateTo = params && params['dateTo'];
 
-    let finalAdvancedQuery = advancedQuery || '';
-
-    // Add year range query
-    if (yearFrom !== undefined || yearTo !== undefined) {
-      const from = yearFrom ? parseInt(yearFrom, 10) : 0;
-      const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
-      const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
-
-      if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {
-        // Combine existing advanced query with year range
-        finalAdvancedQuery = `${finalAdvancedQuery} AND ${yearRangeQuery}`;
-      } else {
-        // Just use year range as advanced query
-        finalAdvancedQuery = yearRangeQuery;
-      }
-    }
+    let finalAdvancedQuery = appendToAdvancedQuery(advancedQuery || '', buildYearRangeQuery(params)) || '';
 
     // Add date range query using separate date components
     if (dateFrom || dateTo) {

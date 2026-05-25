@@ -13,6 +13,7 @@ import { handleFacetsWithOperators } from '../utils/facet-utils';
 import { UserService } from './user.service';
 import { MAP_FACET_FIELDS } from '../../modules/search-results-page/const/facet-fields';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { appendToAdvancedQuery, buildDateMinRangeQuery, buildYearRangeQuery } from '../utils/date-range-query';
 
 export interface MapBounds {
   north: number;
@@ -91,9 +92,10 @@ export class MapSearchService {
       ...this.customSearchService.getSolrFqFilters()
     ];
     const query = this.searchService.submittedTerm;
-    const { advancedQuery } = this.advancedSearchService.getAdvancedParams(
-      this.route.snapshot.queryParams
-    );
+    const params = this.route.snapshot.queryParams;
+    let { advancedQuery } = this.advancedSearchService.getAdvancedParams(params);
+    advancedQuery = appendToAdvancedQuery(advancedQuery, buildYearRangeQuery(params));
+    advancedQuery = appendToAdvancedQuery(advancedQuery, buildDateMinRangeQuery(params));
 
     // Default to score (relevance) in map view; respect user's sort choice if set
     const sortBy = this.searchService.sortBy ?? SolrSortFields.relevance;
