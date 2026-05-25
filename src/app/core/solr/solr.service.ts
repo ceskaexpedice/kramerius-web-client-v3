@@ -1320,7 +1320,8 @@ export class SolrService {
     // Add text query as fq filter (q is used for geo query)
     if (query && query.trim().length > 0) {
       params = params.append('fq', `titles.search:(${query.trim()}) OR text_ocr:(${query.trim()})`);
-    } else if (advancedQuery && advancedQuery.trim().length > 0) {
+    }
+    if (advancedQuery && advancedQuery.trim().length > 0) {
       params = params.append('fq', advancedQuery.trim());
     }
 
