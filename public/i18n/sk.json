@@ -147,7 +147,7 @@
   "ok-button": "OK",
   "restricted-pages-info-dialog--header": "Prečo sú niektoré strany dostupné a niektoré nie?",
   "restricted-pages-info-dialog--message": "Autorský zákon dovoľuje pri chránených dokumentoch zobraziť len základný náhľad – obálku, titulný list a obsah. Strany nie je možné tlačiť ani sťahovať.",
-  "restricted-pages-info-dialog--dont-show-again": "Hlásenie s vysvetlením znova nezobrazovať.",
+  "restricted-pages-info-dialog--dont-show-again": "Nabudúce nezobrazovať",
   "playback-stop-dialog--header": "Skutočne chcete zastaviť prehrávanie?",
   "playback-stop-dialog--message": "Týmto zastavíte prehrávanie a zatvoríte prehrávač.",
   "dont-ask-again": "Nabudúce sa už nepýtať",
