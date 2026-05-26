@@ -395,6 +395,8 @@
   "go-next-date-navigator--arialabel": "Jít dál v datepickeru",
   "previous-issue--tooltip": "Předchozí číslo",
   "next-issue--tooltip": "Následující číslo",
+  "search-results--tooltip": "Výsledky hledání",
+  "go-to-volume--tooltip": "Přejít na ročník",
   "page--number": "Číslo stránky",
   "current-page-input--arialabel": "Aktuální číslo stránky",
   "edit-title-button--arialabel": "Upravit název seznamu",

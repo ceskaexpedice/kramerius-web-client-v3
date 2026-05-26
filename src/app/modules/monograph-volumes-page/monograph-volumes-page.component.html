@@ -18,8 +18,9 @@
             <div class="max-width-100" left>
 
               <app-toolbar-header
-                [showBackButton]="false"
-                [title]="(parent()?.mainTitle + '(' + volumeItems().length + ')') || ''">
+                [showBackButton]="true"
+                [title]="(parent()?.mainTitle + '(' + volumeItems().length + ')') || ''"
+                (goBack)="recordHandler.goBackClicked(null)">
               </app-toolbar-header>
             </div>
 

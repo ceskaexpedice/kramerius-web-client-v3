@@ -400,6 +400,8 @@
   "go-next-date-navigator--arialabel": "Go forward in datepicker",
   "previous-issue--tooltip": "Previous issue",
   "next-issue--tooltip": "Next issue",
+  "search-results--tooltip": "Search results",
+  "go-to-volume--tooltip": "Go to volume",
   "page--number": "Page number",
   "current-page-input--arialabel": "Current page number",
   "edit-title-button--arialabel": "Edit list title",

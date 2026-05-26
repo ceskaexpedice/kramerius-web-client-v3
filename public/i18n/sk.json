@@ -392,6 +392,8 @@
   "go-next-date-navigator--arialabel": "Ísť ďalej v rámci datepickera",
   "previous-issue--tooltip": "Predchádzajúce číslo",
   "next-issue--tooltip": "Nasledujúce číslo",
+  "search-results--tooltip": "Výsledky hľadania",
+  "go-to-volume--tooltip": "Prejsť na ročník",
   "page--number": "Číslo strany",
   "current-page-input--arialabel": "Aktuálne číslo strany",
   "edit-title-button--arialabel": "Upraviť názov zoznamu",
