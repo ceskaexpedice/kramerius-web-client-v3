@@ -578,7 +578,10 @@ export class SearchService extends BaseFilterService {
   }
 
   backupCurrentSearchUrl(url: string | null = null): void {
-    const currentUrl = url || this.router.url;
+    // Use Location.path() instead of router.url: the grouping toggle updates the
+    // `group` param via location.replaceState (see setGroupResults), which does
+    // not refresh router.url. location.path() reflects the real address bar.
+    const currentUrl = url || this.location.path();
     sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
   }
 
@@ -680,19 +683,16 @@ export class SearchService extends BaseFilterService {
     const backupUrl = this.getBackupSearchUrl();
     if (!backupUrl) return;
 
-    const dummyUrl = new URL('http://url' + backupUrl);
+    // Keep the pathname from the original backupUrl, swap in the new params.
+    const path = backupUrl.split('?')[0];
 
-    // clear existing
-    const newSearchParams = new URLSearchParams();
-    Object.keys(params).forEach(key => {
-      newSearchParams.set(key, params[key]);
-    });
+    // Serialize via the router so the result matches the readable form used
+    // everywhere else (`:` and `,` stay unencoded). URLSearchParams.toString()
+    // would percent-encode them (%3A/%2C), corrupting the customSearch value
+    // when the back/home button navigates to this URL.
+    const tree = this.router.createUrlTree([path], { queryParams: params });
 
-    // We keep the pathname from original backupUrl
-    const path = dummyUrl.pathname;
-    const newUrl = `${path}?${newSearchParams.toString()}`;
-
-    this.backupCurrentSearchUrl(newUrl);
+    this.backupCurrentSearchUrl(this.urlSerializer.serialize(tree));
   }
 
 }
