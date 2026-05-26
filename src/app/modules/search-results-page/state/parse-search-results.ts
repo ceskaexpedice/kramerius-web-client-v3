@@ -74,10 +74,7 @@ export function parseSolrSearchResponse(resultsRes: any, submittedTerm?: string)
     };
   }
 
-  const parsedResults = (resultsRes.response?.docs ?? []).map((doc: any) => {
-    doc['highlighting'] = getHighlighting(resultsRes, doc.pid);
-    return parseSearchDocument(doc);
-  });
+  const parsedResults = (resultsRes.response?.docs ?? []).map((doc: any) => buildParsed(doc));
 
   return {
     results: parsedResults,
