@@ -24,6 +24,7 @@ import { LibraryContextService } from '../../../shared/services/library-context.
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
+import { isViewerRoutePath } from '../../../shared/constants/viewer-routes';
 
 @Component({
   selector: 'app-header',
@@ -113,6 +114,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.updateHeaderType();
         this.isMobileMenuOpen = false; // Close mobile menu on route change
         this.isMobileSearchOpen = false; // Close mobile search on route change
+
+        // Clear the search input when drilling into an item viewer so the
+        // search box doesn't carry a stale term into the viewer page.
+        if (isViewerRoutePath(this.router.url.split('?')[0], this.libraryContext.getLibraryPrefix())) {
+          this.searchService.searchTerm.set('');
+        }
       });
 
     // Subscribe to actual active theme considering system level preference
