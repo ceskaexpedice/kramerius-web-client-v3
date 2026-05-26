@@ -8,8 +8,17 @@
 .toolbar-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-x2);
+  gap: var(--spacing-x1);
   width: 100%;
+
+  button {
+    font-size: var(--font-size-xlarge);
+    padding: var(--spacing-x1);
+
+    &:hover {
+      color: var(--color-text-link);
+    }
+  }
 }
 
 h2.title {
@@ -29,6 +38,11 @@ h2.title {
 
   &.cursor-pointer {
     cursor: pointer;
+
+    &:hover {
+      color: var(--color-text-link);
+      text-decoration: underline;
+    }
   }
 }
 
