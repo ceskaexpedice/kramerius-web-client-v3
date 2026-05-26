@@ -120,6 +120,7 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
       ownParentPid: record.ownParentPid,
       ownParentModel: record.ownParentModel,
       fulltext: record.fulltext,
+      grouped: record.grouped,
     });
   }
 

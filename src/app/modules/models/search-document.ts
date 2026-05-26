@@ -51,6 +51,8 @@ export interface SearchDocument {
   // Grouping (only set when grouped search returns this doc)
   occurrenceCount?: number;
   fulltext?: string;
+  /** True when this doc is a grouped page representative; navigation omits ?fulltext */
+  grouped?: boolean;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({

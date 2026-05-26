@@ -72,6 +72,9 @@ export interface RecordItem {
 
   /** Search term to forward as ?fulltext=... when navigating to this record */
   fulltext?: string;
+
+  /** True for grouped page representatives; navigation omits ?fulltext */
+  grouped?: boolean;
 }
 
 /**
@@ -103,6 +106,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
 
     occurrenceCount: doc.occurrenceCount,
     fulltext: doc.fulltext,
+    grouped: doc.grouped,
   };
 }
 

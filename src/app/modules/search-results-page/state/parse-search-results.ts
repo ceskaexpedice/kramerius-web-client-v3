@@ -47,6 +47,7 @@ export function parseSolrSearchResponse(resultsRes: any, submittedTerm?: string)
       if (pageDoc) {
         const parsed = buildParsed(pageDoc);
         parsed.occurrenceCount = numFound;
+        parsed.grouped = true;
         if (parsed.rootPid && parsed.rootModel) {
           parsed.pid = parsed.rootPid;
           parsed.title = parsed.rootTitle || parsed.title;

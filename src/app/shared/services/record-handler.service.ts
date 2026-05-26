@@ -74,15 +74,17 @@ export class RecordHandlerService {
     }
   }
 
-  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null }): string {
-    const { model, pid, ownParentPid, ownParentModel, fulltext } = opts;
+  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; grouped?: boolean }): string {
+    const { model, pid, ownParentPid, ownParentModel, fulltext, grouped } = opts;
     let url: string;
     if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid, ownParentPid, ownParentModel ?? null);
     } else {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid);
     }
-    if (fulltext && !url.includes('fulltext=')) {
+    // Grouped page representatives navigate to the root document without the
+    // search term, so the viewer doesn't jump to a single occurrence.
+    if (fulltext && !grouped && !url.includes('fulltext=')) {
       const sep = url.includes('?') ? '&' : '?';
       url += `${sep}fulltext=${encodeURIComponent(fulltext)}`;
     }
