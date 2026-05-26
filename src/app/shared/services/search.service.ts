@@ -581,7 +581,10 @@ export class SearchService extends BaseFilterService {
     // Use Location.path() instead of router.url: the grouping toggle updates the
     // `group` param via location.replaceState (see setGroupResults), which does
     // not refresh router.url. location.path() reflects the real address bar.
-    const currentUrl = url || this.location.path();
+    // Location.path() returns '' for the root URL ('/'). Persist '/' instead so
+    // the value stays truthy: consumers test the backup with truthiness checks,
+    // and an empty string is indistinguishable from "nothing stored".
+    const currentUrl = url || this.location.path() || '/';
     sessionStorage.setItem(this.SEARCH_BACKUP_KEY, currentUrl);
   }
 

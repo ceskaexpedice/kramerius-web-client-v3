@@ -598,7 +598,7 @@ export class RecordHandlerService {
   }
 
   shouldShowBackButton(document: any): boolean {
-    return !!document.ownParentPid || !!this.searchService.getBackupSearchUrl();
+    return !!this.searchService.getBackupSearchUrl();
   }
 
   // Badge Layout Detection Methods
