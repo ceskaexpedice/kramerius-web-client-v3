@@ -394,6 +394,14 @@ export class PeriodicalService extends BaseFilterService {
     console.log('query periodical:', query);
     console.log('advanced query:', finalAdvancedQuery);
 
+    // The search effect only loads results + facets, not the root periodical
+    // document/metadata. On a fresh reload with a query in the URL the store is
+    // empty, so the header and metadata sidebar would have no document to render.
+    // Load it here when it isn't already in the store for this uuid.
+    if (this.metadata?.uuid !== this.uuid) {
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+    }
+
     this.store.dispatch(loadPeriodicalSearchResults({
       uuid: this.uuid,
       query: query,

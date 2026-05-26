@@ -18,6 +18,7 @@ import {
   selectPeriodicalFacetOperators,
   selectPeriodicalSearchParams,
 } from './periodical-detail.selectors';
+import { selectRouterQueryParams } from '../../../../shared/state/router/router.selectors';
 import { parsePeriodicalItemFromMetadata, PeriodicalItemYear } from '../../../models/periodical-item';
 import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
@@ -70,9 +71,16 @@ export class PeriodicalDetailEffects {
       ofType(loadDocumentDetailSuccess),
       withLatestFrom(
         this.store.select(selectPeriodicalSearchParams),
-        this.store.select(selectPeriodicalFacetOperators)
+        this.store.select(selectPeriodicalFacetOperators),
+        this.store.select(selectRouterQueryParams)
       ),
-      switchMap(([{ data }, params, facetOperators]) => {
+      switchMap(([{ data }, params, facetOperators, routerQueryParams]) => {
+
+        // When a search query is active the periodical-search effect loads the
+        // (page-level) facets and is the authoritative source. Loading the
+        // document-level facets here too would race and clobber the shared
+        // facets state, so skip them in that case.
+        const hasActiveQuery = !!routerQueryParams?.['query'];
 
         const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params || {
           filters: [],
@@ -183,7 +191,7 @@ export class PeriodicalDetailEffects {
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
           );
-          return merge(processVolumes$, processFacets$);
+          return hasActiveQuery ? processVolumes$ : merge(processVolumes$, processFacets$);
         }
 
 
@@ -264,7 +272,7 @@ export class PeriodicalDetailEffects {
             })
           );
 
-          return merge(processChildren$, processFacets$);
+          return hasActiveQuery ? processChildren$ : merge(processChildren$, processFacets$);
         }
 
         return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));
