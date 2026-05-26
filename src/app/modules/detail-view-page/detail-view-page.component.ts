@@ -227,10 +227,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  goBackClicked() {
-    window.history.back();
-  }
-
   onFavoritesClicked(event: Event) {
     // Enable hierarchy selector for detail view (not for music pages)
     this.favoritesHelper.onFavoritesClicked(event, this.detailViewService.document$, true);

@@ -70,10 +70,6 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     this.detailViewService.resetState();
   }
 
-  goBackClicked() {
-    window.history.back();
-  }
-
   onFavoritesClicked(event: Event) {
     // Do not show hierarchy selector for music page
     this.favoritesHelper.onFavoritesClicked(event, this.detailViewService.document$, false);

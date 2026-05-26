@@ -56,7 +56,9 @@
                 </div>
               </ng-container>
 
-              <app-admin-selection-count></app-admin-selection-count>
+              @if (adminModeService.adminMode()) {
+                <app-admin-selection-count></app-admin-selection-count>
+              }
 
             </div>
 
