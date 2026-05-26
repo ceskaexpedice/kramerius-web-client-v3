@@ -16,6 +16,7 @@ import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
 import {getAfterLoginLicenses, getOnlineLicenses, getOpenLicenses, getTerminalLicenses} from '../../core/solr/solr-misc';
+import { isViewerRoutePath } from '../constants/viewer-routes';
 
 @Injectable({
   providedIn: 'root'
@@ -492,14 +493,6 @@ export class RecordHandlerService {
     }
   }
 
-  /** Route segments that render a single item the user "drills into". */
-  private readonly VIEWER_ROUTE_SEGMENTS: string[] = [
-    APP_ROUTES_ENUM.DETAIL_VIEW,
-    APP_ROUTES_ENUM.PERIODICAL_VIEW,
-    APP_ROUTES_ENUM.MUSIC_VIEW,
-    APP_ROUTES_ENUM.MONOGRAPH_VIEW
-  ];
-
   /**
    * True when the current route is an item viewer (detail/periodical/music).
    * Used to decide whether to overwrite the "return to" URL: we capture the
@@ -509,10 +502,7 @@ export class RecordHandlerService {
    */
   private isOnViewerPage(): boolean {
     const path = this.router.url.split('?')[0];
-    const prefix = this.libraryContext.getLibraryPrefix();
-    const withoutPrefix = prefix && path.startsWith(prefix) ? path.slice(prefix.length) : path;
-    const firstSegment = withoutPrefix.split('/').filter(Boolean)[0] ?? '';
-    return this.VIEWER_ROUTE_SEGMENTS.includes(firstSegment);
+    return isViewerRoutePath(path, this.libraryContext.getLibraryPrefix());
   }
 
   /**
