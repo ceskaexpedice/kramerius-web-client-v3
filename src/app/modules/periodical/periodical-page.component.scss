@@ -16,7 +16,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--spacing-x4);
+  padding: var(--spacing-x3);
   height: 100%;
 }
 
@@ -41,7 +41,7 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x4);
+      margin: var(--spacing-x3);
     }
   }
 }

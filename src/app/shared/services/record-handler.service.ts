@@ -43,7 +43,11 @@ export class RecordHandlerService {
   handleDocumentClick(document: SearchDocument): void {
     const model = document.model;
 
-    this.searchService.backupCurrentSearchUrl();
+    // Remember the page the user is leaving (see isOnViewerPage) so the back
+    // button returns to it. Skip while inside a viewer to keep the original source.
+    if (!this.isOnViewerPage()) {
+      this.searchService.backupCurrentSearchUrl();
+    }
 
     switch (model) {
       case DocumentTypeEnum.periodical:
@@ -466,9 +470,13 @@ export class RecordHandlerService {
 
       // Check if this is a navigation to a periodical page
       const isPeriodicalNavigation = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
-      const isSearchResultsUrl = this.router.url.includes(APP_ROUTES_ENUM.SEARCH_RESULTS);
 
-      if (isSearchResultsUrl) {
+      // Remember the page the user is leaving so the back button can return to it,
+      // whatever page it is (home, search results, a future listing, ...). We skip
+      // this while already inside a viewer, otherwise navigating between viewers
+      // would overwrite the original source and the back button would behave like
+      // a browser "back" instead of returning to where the user came from.
+      if (!this.isOnViewerPage()) {
         this.searchService.backupCurrentSearchUrl();
       }
 
@@ -480,6 +488,28 @@ export class RecordHandlerService {
         this.router.navigateByUrl(url);
       }
     }
+  }
+
+  /** Route segments that render a single item the user "drills into". */
+  private readonly VIEWER_ROUTE_SEGMENTS: string[] = [
+    APP_ROUTES_ENUM.DETAIL_VIEW,
+    APP_ROUTES_ENUM.PERIODICAL_VIEW,
+    APP_ROUTES_ENUM.MUSIC_VIEW,
+  ];
+
+  /**
+   * True when the current route is an item viewer (detail/periodical/music).
+   * Used to decide whether to overwrite the "return to" URL: we capture the
+   * page the user came from, but not while navigating between viewers, so the
+   * back button keeps pointing at the original listing. Library prefix
+   * (e.g. /knav) is stripped before matching.
+   */
+  private isOnViewerPage(): boolean {
+    const path = this.router.url.split('?')[0];
+    const prefix = this.libraryContext.getLibraryPrefix();
+    const withoutPrefix = prefix && path.startsWith(prefix) ? path.slice(prefix.length) : path;
+    const firstSegment = withoutPrefix.split('/').filter(Boolean)[0] ?? '';
+    return this.VIEWER_ROUTE_SEGMENTS.includes(firstSegment);
   }
 
   /**
