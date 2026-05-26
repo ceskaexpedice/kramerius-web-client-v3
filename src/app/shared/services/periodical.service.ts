@@ -201,10 +201,16 @@ export class PeriodicalService extends BaseFilterService {
         }
       }
 
+      const previousUuid = this.uuid;
       this.uuid = foundUuid;
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+        // Opening a different periodical that carries no query: clear any stale search
+        // term so the filters autocomplete doesn't show the previous periodical's value.
+        if (previousUuid && previousUuid !== this.uuid && !queryParams['query']) {
+          this.resetSearchTerm();
+        }
         if (!queryParams['sortBy']) {
           this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc, true);
           return;
@@ -282,6 +288,7 @@ export class PeriodicalService extends BaseFilterService {
     const sortBy = params && params['sortBy'] || this._sortBy();
     const sortDirection = params && params['sortDirection'] || this._sortDirection();
 
+    this.inputSearchTerm = query;
     this._searchTerm.set(query);
     this._submittedTerm.set(query);
     this._page.set(page);
@@ -424,6 +431,12 @@ export class PeriodicalService extends BaseFilterService {
   getSuggestionsFn = (term: string): Observable<string[]> => {
     console.log('[PeriodicalService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
+  }
+
+  private resetSearchTerm(): void {
+    this.inputSearchTerm = '';
+    this._searchTerm.set('');
+    this._submittedTerm.set('');
   }
 
   onSearch(term: string | null): void {
