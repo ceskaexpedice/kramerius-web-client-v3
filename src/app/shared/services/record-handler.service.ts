@@ -79,7 +79,7 @@ export class RecordHandlerService {
     const { model, pid, ownParentPid, ownParentModel, fulltext, grouped } = opts;
     let url: string;
     if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
-      url = this.getHandleDocumentUrlByModelAndPid(model, pid, ownParentPid, ownParentModel ?? null);
+      url = this.getHandleDocumentUrlByModelAndPid(model, pid, ownParentPid, ownParentModel ?? null, fulltext ?? null);
     } else {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid);
     }
@@ -92,7 +92,7 @@ export class RecordHandlerService {
     return url;
   }
 
-  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null): string {
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null, fulltext: string | null = null): string {
     const lp = (segments: any[]) => this.libraryContext.prependLibraryPrefix(segments);
     switch (model) {
       case DocumentTypeEnum.periodical:
@@ -107,7 +107,6 @@ export class RecordHandlerService {
         return this.router.createUrlTree(lp([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid])).toString();
       case DocumentTypeEnum.article:
         if (rootPid) {
-          const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
             article: pid
           }
@@ -120,7 +119,6 @@ export class RecordHandlerService {
         }
       case DocumentTypeEnum.page:
         if (rootPid) {
-          const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
             page: pid
           }
