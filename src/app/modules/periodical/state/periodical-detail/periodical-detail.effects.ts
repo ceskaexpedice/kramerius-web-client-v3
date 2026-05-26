@@ -172,9 +172,15 @@ export class PeriodicalDetailEffects {
             catchError(error => of(loadPeriodicalFailure({ error })))
           );
 
+          const filtersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
+          const facetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
+          const facetsWithoutLicenses$ = filtersWithoutLicenses.length === filters.length
+            ? facetsRes$
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
+            facetsRes: facetsRes$,
+            facetsWithoutLicenses: facetsWithoutLicenses$
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -252,9 +258,15 @@ export class PeriodicalDetailEffects {
           );
 
           const facetsQueryModel = `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`;
+          const itemFiltersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
+          const itemFacetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
+          const itemFacetsWithoutLicenses$ = itemFiltersWithoutLicenses.length === filters.length
+            ? itemFacetsRes$
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, itemFiltersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
+            facetsRes: itemFacetsRes$,
+            facetsWithoutLicenses: itemFacetsWithoutLicenses$
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
