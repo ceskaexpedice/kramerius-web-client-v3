@@ -495,6 +495,7 @@ export class RecordHandlerService {
     APP_ROUTES_ENUM.DETAIL_VIEW,
     APP_ROUTES_ENUM.PERIODICAL_VIEW,
     APP_ROUTES_ENUM.MUSIC_VIEW,
+    APP_ROUTES_ENUM.MONOGRAPH_VIEW
   ];
 
   /**
@@ -589,7 +590,7 @@ export class RecordHandlerService {
     return !this.userService.hasAnyLicense(licenses);
   }
 
-  goBackClicked(document: any): void {
+  goBackClicked(document: any | null): void {
     this.adminModeService.disable();
 
     // First, check if there's a backup search URL (user came from search results)
@@ -601,7 +602,7 @@ export class RecordHandlerService {
     }
 
     // Fall back to navigating to parent periodical
-    if (document.ownParentPid) {
+    if (document && document.ownParentPid) {
       this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]));
     }
   }

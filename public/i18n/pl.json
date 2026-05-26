@@ -391,6 +391,8 @@
   "go-next-date-navigator--arialabel": "Przejdź dalej w selektorze dat",
   "previous-issue--tooltip": "Poprzedni numer",
   "next-issue--tooltip": "Następny numer",
+  "search-results--tooltip": "Wyniki wyszukiwania",
+  "go-to-volume--tooltip": "Przejdź do rocznika",
   "page--number": "Numer strony",
   "current-page-input--arialabel": "Aktualny numer strony",
   "edit-title-button--arialabel": "Edytuj nazwę listy",
