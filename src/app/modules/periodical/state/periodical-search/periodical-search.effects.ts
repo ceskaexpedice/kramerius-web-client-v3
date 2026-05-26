@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import { SolrService } from '../../../../core/solr/solr.service';
 import * as PeriodicalSelectors from './periodical-search.selectors';
 import { DEFAULT_PERIODICAL_FACET_FIELDS } from '../../../search-results-page/const/facet-fields';
-import { parseSearchDocument } from '../../../models/search-document';
+import { parseSolrSearchResponse } from '../../../search-results-page/state/parse-search-results';
 import { handleFacetsWithOperators } from '../../../../shared/utils/facet-utils';
 import { UserService } from '../../../../shared/services/user.service';
 import { DocumentTypeEnum } from '../../../constants/document-type';
@@ -48,15 +48,8 @@ export class PeriodicalSearchEffects {
 
         const processResults$ = results$.pipe(
           map(resultsRes => {
-            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-              doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
-              return parseSearchDocument(doc)
-            });
-
-            return loadPeriodicalSearchSuccess({
-              results: parsedResults,
-              totalCount: resultsRes.response.numFound
-            });
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, query);
+            return loadPeriodicalSearchSuccess({ results, totalCount });
           }),
           catchError(error => of(loadPeriodicalSearchFailure({ error })))
         );
