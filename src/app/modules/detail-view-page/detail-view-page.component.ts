@@ -126,11 +126,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Probe georeference availability for the current page
+    // Probe georeference availability for the current page (map documents only)
     effect(() => {
       // Track page index so the effect re-runs on page change
       this.detailViewService._currentPageIndex();
-      this.georeferenceService.checkPid(this.detailViewService.currentPagePid);
+      const doc = this.detailViewService.document;
+      const isMap = doc?.model === DocumentTypeEnum.map || doc?.rootModel === DocumentTypeEnum.map;
+      this.georeferenceService.checkPid(isMap ? this.detailViewService.currentPagePid : null);
     });
 
     // Reload AI panel content when page changes
