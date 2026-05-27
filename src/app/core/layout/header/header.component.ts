@@ -25,6 +25,8 @@ import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
 import { isViewerRoutePath } from '../../../shared/constants/viewer-routes';
+import { LocalizedPipe } from '../../../shared/pipes/localized.pipe';
+import { LocalizedLabel } from '../../config/config.interfaces';
 
 @Component({
   selector: 'app-header',
@@ -38,6 +40,7 @@ import { isViewerRoutePath } from '../../../shared/constants/viewer-routes';
     UserInfoComponent,
     ClickOutsideDirective,
     RouterLink,
+    LocalizedPipe,
   ],
   styleUrl: './header.component.scss'
 })
@@ -100,6 +103,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   get homeLink(): any[] {
     return this.libraryContext.prependLibraryPrefix(['/']);
+  }
+
+  get homepageTitle(): LocalizedLabel | undefined { return this.configService.homepageTitle; }
+
+  /** Real URL for the logo anchor so it can be opened in a new tab (ctrl/cmd/middle-click). */
+  get homeHref(): string {
+    return this.router.serializeUrl(this.router.createUrlTree(this.homeLink));
   }
 
   get searchLink(): any[] {
@@ -209,7 +219,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  logoClicked() {
+  logoClicked(event?: MouseEvent) {
+    // Let modifier/middle clicks fall through so the browser opens the href in a new tab.
+    if (event && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0)) {
+      return;
+    }
+    // Plain left-click: keep the custom debounced navigation / easter-egg behavior.
+    event?.preventDefault();
+
     this.logoClickCount++;
 
     if (this.logoClickTimer) {
