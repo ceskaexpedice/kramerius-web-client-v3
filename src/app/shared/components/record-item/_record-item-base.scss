@@ -211,6 +211,21 @@
       }
     }
 
+    // Title row holds the title plus any projected suffix ([recordTitleSuffix],
+    // e.g. the periodical issue-count dots) on the same line, suffix following the
+    // title. The title shrinks to fit (ellipsis when long) so the suffix sits next
+    // to the text rather than at the card edge.
+    .record-item-card__title-row {
+      display: flex;
+      align-items: flex-start;
+      min-width: 0;
+
+      > .title {
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+    }
+
     .title {
       font-size: var(--font-size-base);
       line-height: calc(20px * var(--accessibility-text-scale));
