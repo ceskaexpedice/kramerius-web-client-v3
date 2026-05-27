@@ -1,54 +1,63 @@
-
-.grid--container .grid-item {
-  position: relative;
-  display: flex;
-
-  > app-record-item {
-    width: 100%;
-    min-width: 0;
-  }
-}
-
-.issue-count-dots {
-  flex-shrink: 0;
-  pointer-events: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-x1);
-  margin-left: auto;
-  padding-left: var(--spacing-x2);
-  height: calc(20px * var(--accessibility-text-scale, 1));
-
-  .dot {
-    width: var(--spacing-x1);
-    height: var(--spacing-x1);
-    border-radius: 50%;
-    background-color: var(--color-primary);
-  }
-}
-
-// Transparent overlay that captures clicks on a multi-issue card so the whole
-// card opens the selection popup instead of navigating. Sits above the card's
-// link but below the dots (which are non-interactive).
-.card-click-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  cursor: pointer;
-}
-
-// Multi-issue selection popup (positioned by PopupPositioningService). The global
-// `[class*="-popup-wrapper"]:not(.positioned)` rule keeps it hidden until placed.
-.issues-popup-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 900;
-  pointer-events: auto;
-  opacity: 0;
-  transition: opacity 0.1s ease;
-
-  &.positioned {
-    opacity: 1;
-  }
-}
+// =========================================================================
+// GROUPED-BY-DATE + SELECTION-POPUP VIEW (disabled, kept for later)
+// -------------------------------------------------------------------------
+// Styles for the grouped card layout: the relative grid item, the issue-count
+// dots, the click overlay, and the selection popup wrapper. Currently we render
+// a flat list of issues with no dots/overlay/popup, so these are commented out.
+// Re-enable together with the matching "GROUPED/POPUP VIEW" blocks in the .ts
+// and .html files.
+// =========================================================================
+//
+// .grid--container .grid-item {
+//   position: relative;
+//   display: flex;
+//
+//   > app-record-item {
+//     width: 100%;
+//     min-width: 0;
+//   }
+// }
+//
+// .issue-count-dots {
+//   flex-shrink: 0;
+//   pointer-events: none;
+//   display: inline-flex;
+//   align-items: center;
+//   gap: var(--spacing-x1);
+//   margin-left: auto;
+//   padding-left: var(--spacing-x2);
+//   height: calc(20px * var(--accessibility-text-scale, 1));
+//
+//   .dot {
+//     width: var(--spacing-x1);
+//     height: var(--spacing-x1);
+//     border-radius: 50%;
+//     background-color: var(--color-primary);
+//   }
+// }
+//
+// // Transparent overlay that captures clicks on a multi-issue card so the whole
+// // card opens the selection popup instead of navigating. Sits above the card's
+// // link but below the dots (which are non-interactive).
+// .card-click-overlay {
+//   position: absolute;
+//   inset: 0;
+//   z-index: 1;
+//   cursor: pointer;
+// }
+//
+// // Multi-issue selection popup (positioned by PopupPositioningService). The global
+// // `[class*="-popup-wrapper"]:not(.positioned)` rule keeps it hidden until placed.
+// .issues-popup-wrapper {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   z-index: 900;
+//   pointer-events: auto;
+//   opacity: 0;
+//   transition: opacity 0.1s ease;
+//
+//   &.positioned {
+//     opacity: 1;
+//   }
+// }

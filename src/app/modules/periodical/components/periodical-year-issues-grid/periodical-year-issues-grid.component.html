@@ -1,3 +1,21 @@
+<div class="grid--container" *ngIf="children$ | async as children">
+
+  <app-record-item *ngFor="let item of (children | skeletonList:60:(loading$ | async)); trackBy: trackByPid"
+    [item]="item ? toRecordItemWithBadgeLayout(item, children) : undefined"
+    [loading]="(loading$ | async) || false"></app-record-item>
+
+</div>
+
+<!-- =========================================================================
+     GROUPED-BY-DATE + SELECTION-POPUP VIEW (disabled, kept for later)
+     -------------------------------------------------------------------------
+     Collapses issues that share a date into a single card, draws dots on
+     multi-issue cards, and opens a popup to pick which issue to open. Currently
+     we render every issue as its own card (above), so this is commented out.
+     To re-enable, swap the active markup above for the block below and follow
+     the matching "GROUPED/POPUP VIEW" steps in the .ts and .scss files.
+     =========================================================================
+
 <div class="grid--container" *ngIf="groupsData$ | async as data">
 
   <div class="grid-item"
@@ -39,3 +57,4 @@
     </app-periodical-day-issues-popup>
   </div>
 }
+     ========================================================================= -->
