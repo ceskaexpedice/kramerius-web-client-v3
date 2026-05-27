@@ -1,8 +1,41 @@
-<div class="grid--container" *ngIf="children$ | async as children">
+<div class="grid--container" *ngIf="groupsData$ | async as data">
 
-  <app-record-item *ngFor="let item of (children | skeletonList:60:(loading$ | async)); trackBy: trackByPid"
-    [item]="item ? toRecordItemWithBadgeLayout(item, children) : undefined"
-    [loading]="(loading$ | async) || false"
-                   [appCdkTooltip]="getIssueTypeCode(item) ? ((getIssueTypeCode(item) + '-issue') | translate) : ''"></app-record-item>
+  <div class="grid-item"
+       *ngFor="let group of (data.groups | skeletonList:60:(loading$ | async)); trackBy: trackByGroup"
+       [class.has-multiple]="!!group && group.issues.length > 1">
+
+    <app-record-item
+      [item]="group ? toRecordItemWithBadgeLayout(group.representative, data.representatives) : undefined"
+      [loading]="(loading$ | async) || false"
+      [appCdkTooltip]="group && getIssueTypeCode(group.representative) ? ((getIssueTypeCode(group.representative) + '-issue') | translate) : ''">
+      <div *ngIf="group && group.issues.length > 1"
+           class="issue-count-dots"
+           recordTitleSuffix
+           [class.private]="!group.isPublic"
+           aria-hidden="true">
+        <span class="dot" *ngFor="let dot of groupDots(group)"></span>
+      </div>
+    </app-record-item>
+
+    <ng-container *ngIf="group && group.issues.length > 1">
+      <div class="card-click-overlay"
+           role="button"
+           tabindex="0"
+           [attr.aria-label]="'select-document' | translate"
+           (click)="openGroupPopup(group, $event)"
+           (keydown.enter)="openGroupPopup(group, $event)"
+           (keydown.space)="openGroupPopup(group, $event)"></div>
+    </ng-container>
+
+  </div>
 
 </div>
+
+@if (issuesPopupState.showPopup()) {
+  <div class="issues-popup-wrapper" [class.positioned]="issuesPopupState.popupPositioned()">
+    <app-periodical-day-issues-popup
+      [items]="popupRecordItems()"
+      (close)="closePopup()">
+    </app-periodical-day-issues-popup>
+  </div>
+}
