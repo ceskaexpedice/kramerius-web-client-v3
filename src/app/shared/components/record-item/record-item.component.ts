@@ -142,6 +142,12 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   getTitle(): string {
+    // Collections carry localized title fields; resolve per current language at
+    // render time so the card title follows language changes (like the description).
+    if (this.item?.model === DocumentTypeEnum.collection) {
+      const localized = getLocalizedField(this.item, 'title.search', this.translateService.getCurrentLang());
+      if (localized) return localized;
+    }
     return this.item?.title || '';
   }
 
