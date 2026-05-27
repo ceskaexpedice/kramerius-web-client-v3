@@ -97,6 +97,13 @@ export class PopupPositioningService {
       viewportMargin = 16
     } = config;
 
+    // Measure the popup's actual rendered size; the config values are only a
+    // fallback. Popups like the day-issues list have a content-driven width that
+    // can be far larger than the defaults, so trusting the config would let the
+    // popup run off-screen.
+    const measuredWidth = popup.offsetWidth || popupWidth;
+    const measuredHeight = popup.offsetHeight || popupHeight;
+
     if (triggerEvent) {
       // Position relative to trigger element
       const button = triggerEvent.target as HTMLElement;
@@ -110,10 +117,10 @@ export class PopupPositioningService {
       // Determine horizontal positioning
       switch (preferredSide) {
         case 'left':
-          leftPosition = rect.right - popupWidth + offsetX;
+          leftPosition = rect.right - measuredWidth + offsetX;
           break;
         case 'center':
-          leftPosition = rect.left + (rect.width / 2) - (popupWidth / 2) + offsetX;
+          leftPosition = rect.left + (rect.width / 2) - (measuredWidth / 2) + offsetX;
           break;
         case 'right':
         default:
@@ -121,23 +128,25 @@ export class PopupPositioningService {
           break;
       }
 
-      // Handle viewport overflow - horizontal
-      if (leftPosition + popupWidth > viewportWidth - viewportMargin) {
-        // Try left alignment
-        leftPosition = rect.right - popupWidth + offsetX;
+      // Clamp horizontally so the popup always stays within the viewport. The
+      // right-edge clamp takes precedence; the left clamp guards against popups
+      // wider than the available space.
+      const maxLeft = viewportWidth - measuredWidth - viewportMargin;
+      if (leftPosition > maxLeft) {
+        leftPosition = maxLeft;
       }
       if (leftPosition < viewportMargin) {
-        // Use minimum margin
         leftPosition = viewportMargin;
       }
 
-      // Handle viewport overflow - vertical
-      if (topPosition + popupHeight > viewportHeight - viewportMargin) {
-        // Position above the trigger element
-        topPosition = rect.top - popupHeight - offsetY;
+      // Vertical overflow: flip above the trigger, then pin within the viewport.
+      if (topPosition + measuredHeight > viewportHeight - viewportMargin) {
+        const aboveTop = rect.top - measuredHeight - offsetY;
+        topPosition = aboveTop >= viewportMargin
+          ? aboveTop
+          : viewportHeight - measuredHeight - viewportMargin;
       }
       if (topPosition < viewportMargin) {
-        // Use minimum margin
         topPosition = viewportMargin;
       }
 
@@ -148,8 +157,8 @@ export class PopupPositioningService {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const leftPosition = Math.max(viewportMargin, (viewportWidth - popupWidth) / 2);
-      const topPosition = Math.max(viewportMargin, (viewportHeight - popupHeight) / 2);
+      const leftPosition = Math.max(viewportMargin, (viewportWidth - measuredWidth) / 2);
+      const topPosition = Math.max(viewportMargin, (viewportHeight - measuredHeight) / 2);
 
       popup.style.top = `${topPosition}px`;
       popup.style.left = `${leftPosition}px`;
