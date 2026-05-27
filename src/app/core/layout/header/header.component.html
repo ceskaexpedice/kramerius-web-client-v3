@@ -2,7 +2,7 @@
 
   <div class="app-header__left">
 
-    <a class="logo cursor-pointer" (click)="logoClicked()">
+    <a class="logo cursor-pointer" [href]="homeHref" (click)="logoClicked($event)">
 
 <!--      <app-thumbnail-image [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark" [alt]="headerName || 'Česká digitální knihovna'" ></app-thumbnail-image>-->
 
@@ -11,7 +11,7 @@
              [alt]="headerName || 'Česká digitální knihovna'"
              (load)="onLogoLoad(logoImg)" />
       }
-      <span *ngIf="headerName" class="header-client-name">{{ headerName }}</span>
+      <span *ngIf="(homepageTitle | localized) || headerName" class="header-client-name">{{ (homepageTitle | localized) || headerName }}</span>
     </a>
 
   </div>
