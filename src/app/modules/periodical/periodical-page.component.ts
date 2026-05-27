@@ -14,6 +14,7 @@ import { PopupPositioningService } from '../../shared/services/popup-positioning
 import { Router } from '@angular/router';
 import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 import { UiStateService } from '../../shared/services/ui-state.service';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -26,6 +27,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public recordInfoService = inject(RecordInfoService);
   public recordHandler = inject(RecordHandlerService);
   public adminModeService = inject(AdminModeService);
+  public breakpointService = inject(BreakpointService);
   private uiStateService = inject(UiStateService);
 
   private subscriptions: Subscription[] = [];
