@@ -44,39 +44,58 @@ Open in browser:
 http://localhost:8080
 ```
 
-<html><head></head><body><p>Docker HUB: <a href="https://hub.docker.com/r/trinera/cdk-client">https://hub.docker.com/r/trinera/cdk-client</a></p>
-<h2>Build &amp; Run s Dockerem</h2>
-<h3>Build image</h3>
-<pre><code class="language-shell">docker build -t trinera/cdk-client:3.0.12-beta .
-</code></pre>
-<h3>Build &amp; push (multiplatformní) image na Docker Hub</h3>
-<pre><code class="language-shell">docker buildx build \
+Docker HUB: [https://hub.docker.com/r/trinera/cdk-client](https://hub.docker.com/r/trinera/cdk-client)
+
+## Build & Run s Dockerem
+
+### Build image
+
+```shell
+docker build -t trinera/cdk-client:3.0.13-beta .
+```
+
+### Build & push (multiplatformní) image na Docker Hub
+
+```shell
+docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.12 \
+  -t trinera/cdk-client:3.0.13 \
   --push .
-</code></pre>
-<h3>Spuštění kontejneru pomocí <code>docker run</code></h3>
-<pre><code class="language-shell">docker run -p 1234:80 \
+```
+
+### Spuštění kontejneru pomocí `docker run`
+
+```shell
+docker run -p 1234:80 \
   -e APP_KRAMERIUS_ID=mzk \
-  trinera/cdk-client:3.0.12
-</code></pre>
-<p>Otevřít v prohlížeči:</p>
-<pre><code class="language-text">http://localhost:1234
-</code></pre>
-<blockquote>
-<p><strong>Poznámka:</strong> Proměnná <code>APP_KRAMERIUS_ID</code> určuje, která knihovna se použije jako výchozí. Hodnota musí odpovídat kódu knihovny (názvu adresáře pod <code>local-config/</code>), například <code>mzk</code>, <code>cdk</code>, <code>knav</code> apod.</p>
-</blockquote>
-<p>Volitelně lze přepsat výchozí lokální konfiguraci připojením lokálního adresáře:</p>
-<pre><code class="language-shell">docker run -p 1234:80 \
+  trinera/cdk-client:3.0.13
+```
+
+Otevřít v prohlížeči:
+
+```text
+http://localhost:1234
+```
+
+> **Poznámka:** Proměnná `APP_KRAMERIUS_ID` určuje, která knihovna se použije jako výchozí. Hodnota musí odpovídat kódu knihovny (názvu adresáře pod `local-config/`), například `mzk`, `cdk`, `knav` apod.
+
+Volitelně lze přepsat výchozí lokální konfiguraci připojením lokálního adresáře:
+
+```shell
+docker run -p 1234:80 \
   -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.12
-</code></pre>
-<h2>Spuštění pomocí Docker Compose</h2>
-<p>Vytvořte soubor <code>docker-compose.yml</code>:</p>
-<pre><code class="language-yaml">services:
+  trinera/cdk-client:3.0.13
+```
+
+## Spuštění pomocí Docker Compose
+
+Vytvořte soubor `docker-compose.yml`:
+
+```yaml
+services:
   cdk-client:
-    image: trinera/cdk-client:3.0.12
+    image: trinera/cdk-client:3.0.13
     ports:
       - "1234:80"
     environment:
@@ -90,44 +109,75 @@ http://localhost:8080
       interval: 30s
       timeout: 5s
       retries: 3
-</code></pre>
-<p>Spuštění aplikace:</p>
-<pre><code class="language-shell">docker compose up -d
-</code></pre>
-<p>Zastavení aplikace:</p>
-<pre><code class="language-shell">docker compose down
-</code></pre>
-<p>Otevřít v prohlížeči:</p>
-<pre><code class="language-text">http://localhost:1234
-</code></pre>
-<h3>Proměnné prostředí</h3>
+```
 
-Proměnná | Povinná | Popis | Příklad
--- | -- | -- | --
-APP_KRAMERIUS_ID | ano | Kód knihovny — určuje výchozí konfiguraci. Musí odpovídat názvu adresáře pod local-config/. | mzk, cdk, knav
+Spuštění aplikace:
 
+```shell
+docker compose up -d
+```
 
-<h3>Lokální konfigurace (volume)</h3>
-<p>Docker image obsahuje výchozí verzi konfiguračních souborů.</p>
-<p>Volitelně lze výchozí konfiguraci přepsat připojením lokálního adresáře z hostitelského systému:</p>
-<pre><code class="language-yaml">volumes:
+Zastavení aplikace:
+
+```shell
+docker compose down
+```
+
+Otevřít v prohlížeči:
+
+```text
+http://localhost:1234
+```
+
+### Proměnné prostředí
+
+| Proměnná | Povinná | Popis | Příklad |
+|---|---|---|---|
+| `APP_KRAMERIUS_ID` | ano | Kód knihovny — určuje výchozí konfiguraci. Musí odpovídat názvu adresáře pod `local-config/`. | `mzk`, `cdk`, `knav` |
+
+### Lokální konfigurace (volume)
+
+Docker image obsahuje výchozí verzi konfiguračních souborů.
+
+Volitelně lze výchozí konfiguraci přepsat připojením lokálního adresáře z hostitelského systému:
+
+```yaml
+volumes:
   - ./public/local-config:/usr/share/nginx/local-config:ro
-</code></pre>
-<p>Tím se namapují lokální konfigurační soubory z:</p>
-<pre><code class="language-text">./public/local-config
-</code></pre>
-<p>na cestu v kontejneru:</p>
-<pre><code class="language-text">/usr/share/nginx/local-config
-</code></pre>
-<p>Volume je připojen jako read-only pomocí přípony <code>:ro</code>.</p>
-<p>Díky tomu image funguje ihned s výchozí konfigurací, ale zároveň umožňuje poskytnout runtime konfiguraci externě.</p>
-<p>Například lokální soubor:</p>
-<pre><code class="language-text">./public/local-config/libraries.json
-</code></pre>
-<p>přepíše výchozí soubor v image a nginx ho bude servírovat jako:</p>
-<pre><code class="language-text">/local-config/libraries.json
-</code></pre>
-<p>Soubor lze ověřit z hostitelského systému na adrese:</p>
-<pre><code class="language-text">http://localhost:1234/local-config/libraries.json
-</code></pre>
-<p>Pokud vlastní lokální konfiguraci nepotřebujete, můžete sekci <code>volumes</code> z <code>docker-compose.yml</code> odstranit.</p></body></html>
+```
+
+Tím se namapují lokální konfigurační soubory z:
+
+```text
+./public/local-config
+```
+
+na cestu v kontejneru:
+
+```text
+/usr/share/nginx/local-config
+```
+
+Volume je připojen jako read-only pomocí přípony `:ro`.
+
+Díky tomu image funguje ihned s výchozí konfigurací, ale zároveň umožňuje poskytnout runtime konfiguraci externě.
+
+Například lokální soubor:
+
+```text
+./public/local-config/libraries.json
+```
+
+přepíše výchozí soubor v image a nginx ho bude servírovat jako:
+
+```text
+/local-config/libraries.json
+```
+
+Soubor lze ověřit z hostitelského systému na adrese:
+
+```text
+http://localhost:1234/local-config/libraries.json
+```
+
+Pokud vlastní lokální konfiguraci nepotřebujete, můžete sekci `volumes` z `docker-compose.yml` odstranit.
