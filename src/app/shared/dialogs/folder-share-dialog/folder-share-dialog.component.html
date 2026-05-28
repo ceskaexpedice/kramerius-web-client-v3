@@ -1,0 +1,30 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'folder-share-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+
+    <div class="content">
+
+<!--      <p class="folder-share&#45;&#45;description">{{ 'folder-share-dialog&#45;&#45;description' | translate }}</p>-->
+
+      <div class="folder-share--url">{{ shareUrl }}</div>
+
+      <div class="actions--container">
+
+        <button class="link primary with-icon p-left-0" (click)="copyToClipboard()">
+          <i class="icon-copy"></i>
+          {{ 'copy' | translate }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
