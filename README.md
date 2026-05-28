@@ -62,7 +62,7 @@ http://localhost:8080
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.12-beta .
+docker build -t trinera/cdk-client:3.0.13-beta .
 ```
 
 ### Build & push (multiplatform) image to Docker Hub
@@ -70,7 +70,7 @@ docker build -t trinera/cdk-client:3.0.12-beta .
 ```shell
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.12 \
+  -t trinera/cdk-client:3.0.13 \
   --push .
 ```
 
@@ -80,7 +80,7 @@ docker buildx build \
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
   -e APP_KRAMERIUS_ID=mzk \
-  trinera/cdk-client:3.0.12
+  trinera/cdk-client:3.0.13
 ```
 
 Open in browser:
@@ -96,7 +96,7 @@ docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
   -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.12
+  trinera/cdk-client:3.0.13
 ```
 
 #### Environment variables
@@ -115,7 +115,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   cdk-client:
-    image: trinera/cdk-client:3.0.12
+    image: trinera/cdk-client:3.0.13
     ports:
       - "1234:80"
     environment:
