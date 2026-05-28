@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AiPanelService } from '../../services/ai-panel.service';
@@ -20,6 +20,8 @@ export class AiContentPanelComponent {
   aiPanelService = inject(AiPanelService);
 
   @ViewChild(FullscreenComponent) fullscreenComponent!: FullscreenComponent;
+
+  isFullscreen = signal(false);
 
   close(): void {
     this.aiPanelService.close();

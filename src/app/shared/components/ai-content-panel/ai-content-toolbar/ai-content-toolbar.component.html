@@ -48,7 +48,8 @@
       </button>
     }
 
-    <button class="button square-button close-button tertiary transparent" (click)="closePanel.emit()" [title]="'ai.copy' | translate">
+    <button class="button square-button close-button tertiary transparent" (click)="onClose()"
+            [title]="(isFullscreen ? 'ai.exit-fullscreen' : 'ai.close-panel') | translate">
       <i class="icon-close"></i>
     </button>
 

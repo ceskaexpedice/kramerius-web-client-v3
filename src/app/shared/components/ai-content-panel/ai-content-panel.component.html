@@ -1,6 +1,7 @@
-<app-fullscreen>
+<app-fullscreen [showCloseButton]="false" (fullscreenChange)="isFullscreen.set($event)">
   <div class="ai-content-panel">
     <app-ai-content-toolbar
+      [isFullscreen]="isFullscreen()"
       (fullscreenToggle)="toggleFullscreen()"
       (closePanel)="close()">
     </app-ai-content-toolbar>

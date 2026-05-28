@@ -710,6 +710,7 @@
   "ai.summary-result": "Summary",
   "ai.split-view": "Split view",
   "ai.fullscreen": "Fullscreen",
+  "ai.exit-fullscreen": "Exit fullscreen",
   "ai.ai-only": "AI only",
   "ai.login-required": "Available after login",
   "ai.login-register-link": "How can I register and what do I get?",

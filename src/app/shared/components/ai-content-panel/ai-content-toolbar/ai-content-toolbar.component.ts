@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AiPanelService } from '../../../services/ai-panel.service';
@@ -18,6 +18,8 @@ import { copyTextToClipboard } from '../../../misc/misc-functions';
 export class AiContentToolbarComponent {
   aiPanelService = inject(AiPanelService);
   ttsService = inject(TtsService);
+
+  @Input() isFullscreen: boolean = false;
 
   @Output() fullscreenToggle = new EventEmitter<void>();
   @Output() closePanel = new EventEmitter<void>();
@@ -63,5 +65,13 @@ export class AiContentToolbarComponent {
 
   onTtsStop(): void {
     this.ttsService.stop();
+  }
+
+  onClose(): void {
+    if (this.isFullscreen) {
+      this.fullscreenToggle.emit();
+    } else {
+      this.closePanel.emit();
+    }
   }
 }
