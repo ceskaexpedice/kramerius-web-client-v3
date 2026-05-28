@@ -18,7 +18,6 @@ import {
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUntilChanged } from 'rxjs';
-import { FullscreenComponent } from '../fullscreen/fullscreen.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
 import { SelectionControls } from '../selection-controls/selection-controls';
@@ -39,7 +38,6 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-toke
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
-    FullscreenComponent,
     SelectionControls,
     CommonModule,
     ThumbnailImageComponent,
@@ -54,7 +52,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @Input() imagePid: string | null = null;
 
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
-  @ViewChild(FullscreenComponent, { static: false }) fullscreenComponent!: FullscreenComponent;
 
   public iiifViewerService = inject(IIIFViewerService);
   private detailViewService = inject(DetailViewService);
@@ -229,9 +226,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       });
       this.resizeObserver.observe(this.viewerContainer.nativeElement);
     }
-
-    // Set the fullscreen component reference in the service after view is initialized
-    this.iiifViewerService.setFullscreenComponent(() => this.fullscreenComponent);
   }
 
   ngOnDestroy(): void {

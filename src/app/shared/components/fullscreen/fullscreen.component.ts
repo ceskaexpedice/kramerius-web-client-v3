@@ -57,7 +57,12 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     const elem = this.containerRef.nativeElement;
 
     if (elem.requestFullscreen) {
-      elem.requestFullscreen();
+      const result = elem.requestFullscreen();
+      if (result && typeof result.catch === 'function') {
+        result.catch((err: unknown) => {
+          console.error('requestFullscreen rejected', err);
+        });
+      }
     } else if (elem.webkitRequestFullscreen) { // Safari
       elem.webkitRequestFullscreen();
     } else if (elem.msRequestFullscreen) { // IE11

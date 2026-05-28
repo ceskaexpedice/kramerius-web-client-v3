@@ -1,15 +1,15 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AiPanelService } from '../../services/ai-panel.service';
-import { FullscreenComponent } from '../fullscreen/fullscreen.component';
+import { DetailFullscreenService } from '../../services/detail-fullscreen.service';
 import { AiContentToolbarComponent } from './ai-content-toolbar/ai-content-toolbar.component';
 import { AiLoadingComponent } from './ai-loading/ai-loading.component';
 
 @Component({
   selector: 'app-ai-content-panel',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, FullscreenComponent, AiContentToolbarComponent, AiLoadingComponent],
+  imports: [CommonModule, TranslatePipe, AiContentToolbarComponent, AiLoadingComponent],
   templateUrl: './ai-content-panel.component.html',
   styleUrl: './ai-content-panel.component.scss',
   host: {
@@ -18,17 +18,14 @@ import { AiLoadingComponent } from './ai-loading/ai-loading.component';
 })
 export class AiContentPanelComponent {
   aiPanelService = inject(AiPanelService);
-
-  @ViewChild(FullscreenComponent) fullscreenComponent!: FullscreenComponent;
-
-  isFullscreen = signal(false);
+  detailFullscreen = inject(DetailFullscreenService);
 
   close(): void {
     this.aiPanelService.close();
   }
 
   toggleFullscreen(): void {
-    this.fullscreenComponent?.toggle();
+    this.detailFullscreen.toggle();
   }
 
   getLoadingKey(): string {

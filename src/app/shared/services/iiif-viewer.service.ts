@@ -5,6 +5,7 @@ import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast.service';
+import { DetailFullscreenService } from './detail-fullscreen.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -98,7 +99,6 @@ export class IIIFViewerService {
   private dimOverlays: HTMLElement[] = [];
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
   private ttsOverlay: HTMLElement | null = null;
-  private fullscreenComponentGetter: (() => any) | null = null;
   private keyboardHandler: ((event: KeyboardEvent) => void) | null = null;
 
   private bookModeSubject = new BehaviorSubject<boolean>(false);
@@ -134,6 +134,7 @@ export class IIIFViewerService {
   private altoService = inject(AltoService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private detailFullscreen = inject(DetailFullscreenService);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -508,18 +509,10 @@ export class IIIFViewerService {
     this.setRotation(newRotation);
   }
 
-  // Fullscreen control
-  setFullscreenComponent(getter: () => any): void {
-    this.fullscreenComponentGetter = getter;
-  }
-
+  // Fullscreen control — delegates to the shared detail-view fullscreen
+  // container so the viewer, controls and AI panel fullscreen together.
   toggleFullscreen(): void {
-    if (this.fullscreenComponentGetter) {
-      const component = this.fullscreenComponentGetter();
-      if (component) {
-        component.toggle();
-      }
-    }
+    this.detailFullscreen.toggle();
   }
 
   // Fit to screen control
