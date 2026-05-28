@@ -15,6 +15,7 @@ import { SoundService } from '../../shared/services/sound.service';
 import { SoundTrackModel, TrackViewType } from '../models/sound-track.model';
 import { PopupPositioningService, PopupState } from '../../shared/services/popup-positioning.service';
 import { SavedListsService } from './services/saved-lists.service';
+import { FoldersService } from './services/folders.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
 import { ExportService } from '../../shared/services/export.service';
@@ -63,7 +64,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private popupPositioningService: PopupPositioningService,
     private savedListsService: SavedListsService,
     private exportService: ExportService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private foldersService: FoldersService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
   }
@@ -162,6 +164,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.popupPositioningService.cleanup();
+  }
+
+  folderDisplayName(folder: any): string {
+    if (!folder) return '';
+    return this.foldersService.isFavoritesFolder(folder)
+      ? this.foldersService.getFavoritesDisplayName()
+      : folder.name;
+  }
+
+  isFavoritesFolder(folder: any): boolean {
+    return !!folder && this.foldersService.isFavoritesFolder(folder);
   }
 
   isCurrentUserOwner(folder: any): boolean {

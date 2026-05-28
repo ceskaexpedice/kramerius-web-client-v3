@@ -83,11 +83,58 @@ export class FoldersService {
     return this.http.get<any>(searchUrl, { params });
   }
 
+  private readonly FAVORITES_KEY = 'my-favorite--list';
+
+  // Known favorites folder names across all supported languages (public/i18n/*.json).
+  // The backend has no favorites flag, so the folder is identified by matching its
+  // stored name against any language's translation — preventing duplicates when the
+  // user switches language.
+  private readonly FAVORITES_NAMES_BY_LANG: Record<string, string> = {
+    en: 'My favorites',
+    cs: 'Moje oblíbené',
+    sk: 'Moje obľúbené',
+    pl: 'Moje ulubione',
+  };
+
   /**
-   * Gets the translated name for the favorites folder
+   * Gets the translated name for the favorites folder in the current language
    */
   getFavoritesFolderName(): string {
-    return this.translateService.instant('my-favorite--list');
+    return this.translateService.instant(this.FAVORITES_KEY);
+  }
+
+  /**
+   * Name to display for the favorites folder, always in the current UI language.
+   */
+  getFavoritesDisplayName(): string {
+    return this.getFavoritesFolderName();
+  }
+
+  /**
+   * All known favorites folder names across supported languages, lower-cased.
+   * Includes the current language's live translation to stay correct even if
+   * the static list drifts from i18n content.
+   */
+  getAllFavoritesFolderNames(): string[] {
+    const names = new Set<string>(
+      Object.values(this.FAVORITES_NAMES_BY_LANG).map(n => n.toLowerCase())
+    );
+    const current = this.getFavoritesFolderName();
+    if (current) {
+      names.add(current.toLowerCase());
+    }
+    return [...names];
+  }
+
+  /**
+   * Whether a folder is THE favorites folder, regardless of the language it was
+   * created in.
+   */
+  isFavoritesFolder(folder: { name: string }): boolean {
+    if (!folder?.name) {
+      return false;
+    }
+    return this.getAllFavoritesFolderNames().includes(folder.name.toLowerCase());
   }
 
   /**
@@ -98,18 +145,13 @@ export class FoldersService {
       return folders;
     }
 
-    const favoritesFolderName = this.getFavoritesFolderName();
-    const favoritesFolder = folders.find(folder =>
-      folder.name.toLowerCase() === favoritesFolderName.toLowerCase()
-    );
+    const favoritesFolder = folders.find(folder => this.isFavoritesFolder(folder));
 
     if (!favoritesFolder) {
       return folders;
     }
 
-    const otherFolders = folders.filter(folder =>
-      folder.name.toLowerCase() !== favoritesFolderName.toLowerCase()
-    );
+    const otherFolders = folders.filter(folder => !this.isFavoritesFolder(folder));
 
     return [favoritesFolder, ...otherFolders];
   }

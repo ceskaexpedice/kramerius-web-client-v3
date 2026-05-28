@@ -38,7 +38,7 @@
       <div class="lists-container" *ngIf="filteredLists$ | async as lists">
         <div *ngFor="let listItem of lists" class="list-item">
           <div class="list-item__content">
-            <span class="list-name">{{ listItem.folder.name }}</span>
+            <span class="list-name">{{ listItem.displayName }}</span>
             <span class="list-count">({{ listItem.folder.itemsCount }})</span>
           </div>
           <mat-checkbox
