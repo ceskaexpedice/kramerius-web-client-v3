@@ -187,6 +187,17 @@ export class DetailViewService {
     this.store.dispatch(clearDocumentDetail());
     this.soundRecordingViewMode.set('records');
     this.uiStateService.setMetadataSidebarActiveTab(null);
+    this.stripDetailViewOnlyParams();
+  }
+
+  // Strip detail-view-only params that may have leaked into the destination URL
+  // via queryParamsHandling: 'merge' on the outgoing navigation.
+  private stripDetailViewOnlyParams(): void {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('article')) {
+      url.searchParams.delete('article');
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
   /**
@@ -581,13 +592,17 @@ export class DetailViewService {
         this.changeArticleUrl();
         this.loadPageInfo();
       } else {
-        // Non-PDF periodical article: fetch the foster-child page and navigate to ?page=<pid>
+        // Non-PDF periodical article: fetch the foster-child page and navigate to
+        // ?page=<foster_page_pid>&article=<article_pid> — keeping ?article= in the URL
+        // so downstream consumers (hierarchy selector, citation dialog) know the current
+        // article context. The viewer routing is gated by articleMetadata.pdf in the
+        // template, so the IIIF viewer still renders for non-PDF articles.
         this.solrService.getPagesByFosterParent(article.pid).pipe(take(1)).subscribe(pages => {
           if (pages && pages.length > 0) {
             this._articlePagePid.set(pages[0].pid);
             this.router.navigate([], {
               relativeTo: this.route,
-              queryParams: { page: pages[0].pid, article: null },
+              queryParams: { page: pages[0].pid, article: article.pid },
               queryParamsHandling: 'merge',
               replaceUrl: true,
             });

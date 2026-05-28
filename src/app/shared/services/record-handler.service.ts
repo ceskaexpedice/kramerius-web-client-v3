@@ -16,6 +16,7 @@ import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
 import {getAfterLoginLicenses, getOnlineLicenses, getOpenLicenses, getTerminalLicenses} from '../../core/solr/solr-misc';
+import { isViewerRoutePath } from '../constants/viewer-routes';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +44,11 @@ export class RecordHandlerService {
   handleDocumentClick(document: SearchDocument): void {
     const model = document.model;
 
-    this.searchService.backupCurrentSearchUrl();
+    // Remember the page the user is leaving (see isOnViewerPage) so the back
+    // button returns to it. Skip while inside a viewer to keep the original source.
+    if (!this.isOnViewerPage()) {
+      this.searchService.backupCurrentSearchUrl();
+    }
 
     switch (model) {
       case DocumentTypeEnum.periodical:
@@ -70,7 +75,27 @@ export class RecordHandlerService {
     }
   }
 
-  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null): string {
+  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; grouped?: boolean }): string {
+    const { model, pid, ownParentPid, ownParentModel, fulltext, grouped } = opts;
+    // Only pages carry the search term in the URL; other models navigate
+    // without it.
+    const pageFulltext = model === DocumentTypeEnum.page ? fulltext : null;
+    let url: string;
+    if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
+      url = this.getHandleDocumentUrlByModelAndPid(model, pid, ownParentPid, ownParentModel ?? null, pageFulltext ?? null);
+    } else {
+      url = this.getHandleDocumentUrlByModelAndPid(model, pid);
+    }
+    // Grouped page representatives navigate to the root document without the
+    // search term, so the viewer doesn't jump to a single occurrence.
+    if (pageFulltext && !grouped && !url.includes('fulltext=')) {
+      const sep = url.includes('?') ? '&' : '?';
+      url += `${sep}fulltext=${encodeURIComponent(pageFulltext)}`;
+    }
+    return url;
+  }
+
+  getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null, fulltext: string | null = null): string {
     const lp = (segments: any[]) => this.libraryContext.prependLibraryPrefix(segments);
     switch (model) {
       case DocumentTypeEnum.periodical:
@@ -85,7 +110,6 @@ export class RecordHandlerService {
         return this.router.createUrlTree(lp([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid])).toString();
       case DocumentTypeEnum.article:
         if (rootPid) {
-          const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
             article: pid
           }
@@ -98,7 +122,6 @@ export class RecordHandlerService {
         }
       case DocumentTypeEnum.page:
         if (rootPid) {
-          const fulltext = this.searchService.submittedTerm;
           const queryParams: any = {
             page: pid
           }
@@ -451,9 +474,13 @@ export class RecordHandlerService {
 
       // Check if this is a navigation to a periodical page
       const isPeriodicalNavigation = url.includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/`);
-      const isSearchResultsUrl = this.router.url.includes(APP_ROUTES_ENUM.SEARCH_RESULTS);
 
-      if (isSearchResultsUrl) {
+      // Remember the page the user is leaving so the back button can return to it,
+      // whatever page it is (home, search results, a future listing, ...). We skip
+      // this while already inside a viewer, otherwise navigating between viewers
+      // would overwrite the original source and the back button would behave like
+      // a browser "back" instead of returning to where the user came from.
+      if (!this.isOnViewerPage()) {
         this.searchService.backupCurrentSearchUrl();
       }
 
@@ -465,6 +492,18 @@ export class RecordHandlerService {
         this.router.navigateByUrl(url);
       }
     }
+  }
+
+  /**
+   * True when the current route is an item viewer (detail/periodical/music).
+   * Used to decide whether to overwrite the "return to" URL: we capture the
+   * page the user came from, but not while navigating between viewers, so the
+   * back button keeps pointing at the original listing. Library prefix
+   * (e.g. /knav) is stripped before matching.
+   */
+  private isOnViewerPage(): boolean {
+    const path = this.router.url.split('?')[0];
+    return isViewerRoutePath(path, this.libraryContext.getLibraryPrefix());
   }
 
   /**
@@ -544,7 +583,7 @@ export class RecordHandlerService {
     return !this.userService.hasAnyLicense(licenses);
   }
 
-  goBackClicked(document: any): void {
+  goBackClicked(document: any | null): void {
     this.adminModeService.disable();
 
     // First, check if there's a backup search URL (user came from search results)
@@ -556,13 +595,13 @@ export class RecordHandlerService {
     }
 
     // Fall back to navigating to parent periodical
-    if (document.ownParentPid) {
+    if (document && document.ownParentPid) {
       this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, document.ownParentPid]));
     }
   }
 
   shouldShowBackButton(document: any): boolean {
-    return !!document.ownParentPid || !!this.searchService.getBackupSearchUrl();
+    return !!this.searchService.getBackupSearchUrl();
   }
 
   // Badge Layout Detection Methods

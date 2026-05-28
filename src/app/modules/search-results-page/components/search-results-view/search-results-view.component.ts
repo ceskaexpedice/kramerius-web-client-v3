@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { SearchService } from '../../../../shared/services/search.service';
+import { PageSearchService } from '../../../../shared/services/page-search.service';
 import { AdvancedSearchService } from '../../../../shared/services/advanced-search.service';
 import { AdminModeService } from '../../../../shared/services';
 import { AppResultsViewType } from '../../../settings/settings.model';
@@ -18,12 +19,10 @@ import { RecordExportPanelComponent } from '../../../../shared/components/record
 import { TabsComponent } from '../../../../shared/components/tabs/tabs.component';
 import { TabItemComponent } from '../../../../shared/components/tabs/tab-item.component';
 import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
-import { ScrollHideHeaderDirective } from '../../../../shared/directives/scroll-hide-header.directive';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
-import {
-  ToggleButtonGroupComponent
-} from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
+import { Observable, map } from 'rxjs';
+import { WhereToSearchToggleComponent } from '../where-to-search-toggle/where-to-search-toggle.component';
+import { customDefinedFacetsEnum } from '../../const/facets';
 
 @Component({
   selector: 'app-search-results-view',
@@ -44,9 +43,8 @@ import {
     TabsComponent,
     TabItemComponent,
     SkeletonListPipe,
-    ScrollHideHeaderDirective,
     TranslatePipe,
-    ToggleButtonGroupComponent,
+    WhereToSearchToggleComponent,
   ],
   templateUrl: './search-results-view.component.html',
   styleUrl: './search-results-view.component.scss',
@@ -57,20 +55,21 @@ export class SearchResultsViewComponent {
   @Input() showSelectedTags$!: Observable<boolean>;
   @Input() exportRecord: SearchDocument | null = null;
 
-  groupOptions = [
-    { value: true, label: 'group-results--titles', ariaLabel: 'group-results--titles--arialabel', icon: 'icon-textalign-justifycenter' },
-    { value: false, label: 'group-results--pages', ariaLabel: 'group-results--pages--arialabel', icon: 'icon-document-text' },
-  ];
-
   @Output() exportRecordChange = new EventEmitter<SearchDocument | null>();
   @Output() sortChange = new EventEmitter<{ value: SolrSortFields; direction: SolrSortDirections }>();
 
   searchService = inject(SearchService);
+  pageSearchService = inject(PageSearchService);
   advancedSearchService = inject(AdvancedSearchService);
   adminModeService = inject(AdminModeService);
   breakpointService = inject(BreakpointService);
 
   protected readonly ViewOptions = AppResultsViewType;
+
+  // whereToSearch is surfaced via the dedicated toggle, so drop it from the tag row.
+  visibleSelectedTags$: Observable<string[]> = this.searchService.selectedTags.pipe(
+    map(tags => tags.filter(t => !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'))),
+  );
 
   toRecordItem(doc: SearchDocument): RecordItem {
     return searchDocumentToRecordItem(doc);

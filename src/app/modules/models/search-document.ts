@@ -41,6 +41,11 @@ export interface SearchDocument {
   'collection.desc_pol'?: string;
   'collection.desc_slo'?: string;
 
+  'title.search_cze'?: string;
+  'title.search_eng'?: string;
+  'title.search_pol'?: string;
+  'title.search_slo'?: string;
+
   // Geographic coordinates (for map view)
   north?: number;
   south?: number;
@@ -51,6 +56,8 @@ export interface SearchDocument {
   // Grouping (only set when grouped search returns this doc)
   occurrenceCount?: number;
   fulltext?: string;
+  /** True when this doc is a grouped page representative; navigation omits ?fulltext */
+  grouped?: boolean;
 }
 
 export const parseSearchDocument = (doc: any): SearchDocument => ({
@@ -91,6 +98,11 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   'collection.desc_eng': doc['collection.desc_eng'],
   'collection.desc_pol': doc['collection.desc_pol'],
   'collection.desc_slo': doc['collection.desc_slo'],
+
+  'title.search_cze': doc['title.search_cze'],
+  'title.search_eng': doc['title.search_eng'],
+  'title.search_pol': doc['title.search_pol'],
+  'title.search_slo': doc['title.search_slo'],
 
   // Geographic coordinates parsed from coords.bbox.corner_ne / coords.bbox.corner_sw
   ...parseDocumentCoords(doc),

@@ -481,7 +481,7 @@ export class AltoService {
         lineParts.push(lineHtml);
       }
 
-      const blockContent = lineParts.join('<br>');
+      const blockContent = lineParts.join(' ');
       const styles: string[] = [];
       if (align !== 'left') styles.push(`text-align:${align}`);
       if (baseFontSize > 0) styles.push(`font-size:${this.altoFontToCss(baseFontSize)}`);

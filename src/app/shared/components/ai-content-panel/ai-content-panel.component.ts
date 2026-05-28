@@ -11,7 +11,10 @@ import { AiLoadingComponent } from './ai-loading/ai-loading.component';
   standalone: true,
   imports: [CommonModule, TranslatePipe, FullscreenComponent, AiContentToolbarComponent, AiLoadingComponent],
   templateUrl: './ai-content-panel.component.html',
-  styleUrl: './ai-content-panel.component.scss'
+  styleUrl: './ai-content-panel.component.scss',
+  host: {
+    '[class.ai-content-panel--constrained]': 'aiPanelService.showOriginal()'
+  }
 })
 export class AiContentPanelComponent {
   aiPanelService = inject(AiPanelService);

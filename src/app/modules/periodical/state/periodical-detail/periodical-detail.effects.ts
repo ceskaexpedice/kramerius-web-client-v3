@@ -18,6 +18,7 @@ import {
   selectPeriodicalFacetOperators,
   selectPeriodicalSearchParams,
 } from './periodical-detail.selectors';
+import { selectRouterQueryParams } from '../../../../shared/state/router/router.selectors';
 import { parsePeriodicalItemFromMetadata, PeriodicalItemYear } from '../../../models/periodical-item';
 import { DocumentAccessibilityEnum } from '../../../constants/document-accessibility';
 import * as DocumentDetailActions from '../../../../shared/state/document-detail/document-detail.actions';
@@ -70,9 +71,16 @@ export class PeriodicalDetailEffects {
       ofType(loadDocumentDetailSuccess),
       withLatestFrom(
         this.store.select(selectPeriodicalSearchParams),
-        this.store.select(selectPeriodicalFacetOperators)
+        this.store.select(selectPeriodicalFacetOperators),
+        this.store.select(selectRouterQueryParams)
       ),
-      switchMap(([{ data }, params, facetOperators]) => {
+      switchMap(([{ data }, params, facetOperators, routerQueryParams]) => {
+
+        // When a search query is active the periodical-search effect loads the
+        // (page-level) facets and is the authoritative source. Loading the
+        // document-level facets here too would race and clobber the shared
+        // facets state, so skip them in that case.
+        const hasActiveQuery = !!routerQueryParams?.['query'];
 
         const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params || {
           filters: [],
@@ -164,9 +172,15 @@ export class PeriodicalDetailEffects {
             catchError(error => of(loadPeriodicalFailure({ error })))
           );
 
+          const filtersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
+          const facetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
+          const facetsWithoutLicenses$ = filtersWithoutLicenses.length === filters.length
+            ? facetsRes$
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
+            facetsRes: facetsRes$,
+            facetsWithoutLicenses: facetsWithoutLicenses$
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -183,7 +197,7 @@ export class PeriodicalDetailEffects {
               return PeriodicalSearchActions.loadFacetsSuccess({ facets: parsedFacets });
             })
           );
-          return merge(processVolumes$, processFacets$);
+          return hasActiveQuery ? processVolumes$ : merge(processVolumes$, processFacets$);
         }
 
 
@@ -244,9 +258,15 @@ export class PeriodicalDetailEffects {
           );
 
           const facetsQueryModel = `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`;
+          const itemFiltersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
+          const itemFacetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
+          const itemFacetsWithoutLicenses$ = itemFiltersWithoutLicenses.length === filters.length
+            ? itemFacetsRes$
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, itemFiltersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
           const processFacets$ = forkJoin({
-            facetsRes: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter),
-            facetsWithoutLicenses: this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter)
+            facetsRes: itemFacetsRes$,
+            facetsWithoutLicenses: itemFacetsWithoutLicenses$
           }).pipe(
             map(({ facetsRes, facetsWithoutLicenses }) => {
               const parsedFacets = handleFacetsWithOperators(
@@ -264,7 +284,7 @@ export class PeriodicalDetailEffects {
             })
           );
 
-          return merge(processChildren$, processFacets$);
+          return hasActiveQuery ? processChildren$ : merge(processChildren$, processFacets$);
         }
 
         return of(loadPeriodicalFailure({ error: 'Unsupported model type' }));

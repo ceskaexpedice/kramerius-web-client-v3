@@ -67,11 +67,20 @@ export interface RecordItem {
   'collection.desc_pol'?: string[];
   'collection.desc_slo'?: string[];
 
+  /** Localized titles, used to resolve collection titles per current language */
+  'title.search_cze'?: string;
+  'title.search_eng'?: string;
+  'title.search_pol'?: string;
+  'title.search_slo'?: string;
+
   /** Number of matching docs grouped under this title (from grouped search) */
   occurrenceCount?: number;
 
   /** Search term to forward as ?fulltext=... when navigating to this record */
   fulltext?: string;
+
+  /** True for grouped page representatives; navigation omits ?fulltext */
+  grouped?: boolean;
 }
 
 /**
@@ -101,8 +110,14 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     'collection.desc_pol': doc['collection.desc_pol'] || [],
     'collection.desc_slo': doc['collection.desc_slo'] || [],
 
+    'title.search_cze': doc['title.search_cze'],
+    'title.search_eng': doc['title.search_eng'],
+    'title.search_pol': doc['title.search_pol'],
+    'title.search_slo': doc['title.search_slo'],
+
     occurrenceCount: doc.occurrenceCount,
     fulltext: doc.fulltext,
+    grouped: doc.grouped,
   };
 }
 

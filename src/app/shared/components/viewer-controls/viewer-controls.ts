@@ -7,10 +7,10 @@ import { EpubService } from '../../services/epub.service';
 import { CdkTooltipDirective } from '../../directives';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../../core/config';
-import { TtsService } from '../../services/tts.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { MapViewerService } from '../../services/map-viewer.service';
+import { TtsService } from '../../services/tts.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -27,8 +27,8 @@ export class ViewerControls {
   private iiifViewerService = inject(IIIFViewerService);
   private epubService = inject(EpubService);
   private configService = inject(ConfigService);
+  public aiPanelService = inject(AiPanelService);
   public ttsService = inject(TtsService);
-  private aiPanelService = inject(AiPanelService);
   private detailViewService = inject(DetailViewService, { optional: true });
   private mapViewerService = inject(MapViewerService, { optional: true });
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
@@ -195,11 +195,12 @@ export class ViewerControls {
     }
   }
 
-  onTtsPlayPause() {
+  onTtsPlayPause(): void {
     this.ttsService.togglePlayPause();
   }
 
-  onTtsStop() {
+  onTtsStop(): void {
     this.ttsService.stop();
   }
+
 }

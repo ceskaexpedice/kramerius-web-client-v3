@@ -16,7 +16,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--spacing-x4);
+  padding: var(--spacing-x3);
   height: 100%;
 }
 
@@ -41,7 +41,7 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x4);
+      margin: var(--spacing-x3);
     }
   }
 }
@@ -71,4 +71,59 @@
   height: 40px;
   z-index: 50;
   box-shadow: var(--shadow-elevated);
+
+  // On mobile, match the filter sidebar toggle (48x48) and stack directly above it
+  // on the same right edge. The filter toggle is fixed at bottom:72px and is 48px
+  // tall, so this FAB sits a spacing-x3 gap above it (72 + 48 + 12).
+  @include mixins.respond(mobile-sm) {
+    width: 48px;
+    height: 48px;
+    bottom: calc(72px + 48px + var(--spacing-x3));
+  }
+}
+
+// Mobile sub-toolbar: view toggle (left) + sort (right), below the action toolbar.
+// Only rendered on mobile (≤603px) via *isMobile()* guard in the template.
+.mobile-subtoolbar {
+  position: sticky;
+  top: var(--toolbar-height);
+  z-index: 100;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--spacing-x2);
+  padding-right: var(--spacing-x3);
+  background-color: var(--color-bg-base);
+  border-bottom: 1px solid var(--color-border-light);
+
+  // Keep sort pinned to the right whether or not the view toggle is present
+  app-results-sort {
+    margin-left: auto;
+  }
+}
+
+// Mobile bottom bar: year date-navigator, pinned to the bottom of the screen.
+// Only rendered on mobile via *isMobile()* guard in the template.
+.mobile-date-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-x2) var(--spacing-x3);
+  background-color: var(--color-bg-base);
+  border-top: 1px solid var(--color-border-light);
+}
+
+// Keep scrollable content clear of the fixed bottom bar on mobile,
+// but only when the bar is actually rendered (a year is selected).
+@include mixins.respond(mobile-sm) {
+  .page-content:has(.mobile-date-bar) {
+    .page-content__main {
+      padding-bottom: calc(var(--spacing-x3) + 56px);
+    }
+  }
 }

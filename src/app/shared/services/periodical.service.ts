@@ -33,6 +33,7 @@ import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-res
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
 import { SearchService } from './search.service';
+import { appendToAdvancedQuery, buildYearRangeQuery } from '../utils/date-range-query';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -200,10 +201,16 @@ export class PeriodicalService extends BaseFilterService {
         }
       }
 
+      const previousUuid = this.uuid;
       this.uuid = foundUuid;
       console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
+        // Opening a different periodical that carries no query: clear any stale search
+        // term so the filters autocomplete doesn't show the previous periodical's value.
+        if (previousUuid && previousUuid !== this.uuid && !queryParams['query']) {
+          this.resetSearchTerm();
+        }
         if (!queryParams['sortBy']) {
           this.changeSortBy(SolrSortFields.dateMin, SolrSortDirections.asc, true);
           return;
@@ -281,6 +288,7 @@ export class PeriodicalService extends BaseFilterService {
     const sortBy = params && params['sortBy'] || this._sortBy();
     const sortDirection = params && params['sortDirection'] || this._sortDirection();
 
+    this.inputSearchTerm = query;
     this._searchTerm.set(query);
     this._submittedTerm.set(query);
     this._page.set(page);
@@ -294,30 +302,12 @@ export class PeriodicalService extends BaseFilterService {
 
     filters = [...baseFilters, ...customFilters];
 
-    // Handle year range filter as a separate advanced query
-    const yearFrom = params && params['yearFrom'];
-    const yearTo = params && params['yearTo'];
-
-    // Handle date range filter as a separate advanced query
+    // Date range below uses periodical-specific component-based logic (different from search/map),
+    // so only year-range is shared via the helper.
     const dateFrom = params && params['dateFrom'];
     const dateTo = params && params['dateTo'];
 
-    let finalAdvancedQuery = advancedQuery || '';
-
-    // Add year range query
-    if (yearFrom !== undefined || yearTo !== undefined) {
-      const from = yearFrom ? parseInt(yearFrom, 10) : 0;
-      const to = yearTo ? parseInt(yearTo, 10) : new Date().getFullYear();
-      const yearRangeQuery = `(date_range_start.year:[${from} TO ${to}] OR date_range_end.year:[${from} TO ${to}])`;
-
-      if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {
-        // Combine existing advanced query with year range
-        finalAdvancedQuery = `${finalAdvancedQuery} AND ${yearRangeQuery}`;
-      } else {
-        // Just use year range as advanced query
-        finalAdvancedQuery = yearRangeQuery;
-      }
-    }
+    let finalAdvancedQuery = appendToAdvancedQuery(advancedQuery || '', buildYearRangeQuery(params)) || '';
 
     // Add date range query using separate date components
     if (dateFrom || dateTo) {
@@ -404,6 +394,14 @@ export class PeriodicalService extends BaseFilterService {
     console.log('query periodical:', query);
     console.log('advanced query:', finalAdvancedQuery);
 
+    // The search effect only loads results + facets, not the root periodical
+    // document/metadata. On a fresh reload with a query in the URL the store is
+    // empty, so the header and metadata sidebar would have no document to render.
+    // Load it here when it isn't already in the store for this uuid.
+    if (this.metadata?.uuid !== this.uuid) {
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+    }
+
     this.store.dispatch(loadPeriodicalSearchResults({
       uuid: this.uuid,
       query: query,
@@ -441,6 +439,12 @@ export class PeriodicalService extends BaseFilterService {
   getSuggestionsFn = (term: string): Observable<string[]> => {
     console.log('[PeriodicalService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
+  }
+
+  private resetSearchTerm(): void {
+    this.inputSearchTerm = '';
+    this._searchTerm.set('');
+    this._submittedTerm.set('');
   }
 
   onSearch(term: string | null): void {

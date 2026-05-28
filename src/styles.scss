@@ -86,3 +86,13 @@ body.header-hidden .page-content__filters {
   transform: translateY(-100%);
   margin-bottom: -57px !important;
 }
+
+// Popups positioned by PopupPositioningService are placed by JS one tick after
+// they render, and the service adds `.positioned` once their final coordinates are
+// set. Keep any `*-popup-wrapper` fully hidden (not just transparent) until then so
+// it never flashes a frame at the default top-left or its previous position.
+// `visibility` (unlike `display: none`) preserves layout, so the service can still
+// measure the popup's size while it is hidden.
+[class*="-popup-wrapper"]:not(.positioned) {
+  visibility: hidden;
+}

@@ -23,11 +23,11 @@
 
         <!-- Show tabs when document has both articles and pages -->
         @if (hasArticles && hasPages) {
-          <app-tabs [noPadding]="true">
-            <app-tab-item [label]="'pages--tab' | translate">
+          <app-tabs [noPadding]="true" [initialTab]="(activeSidebarTab$ | async) || 'pages'">
+            <app-tab-item id="pages" [label]="'pages--tab' | translate">
               <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
             </app-tab-item>
-            <app-tab-item [label]="'articles--tab' | translate">
+            <app-tab-item id="articles" [label]="'articles--tab' | translate">
               <div class="sidebar--wrapper">
                 <div class="sidebar--wrapper--scroll-content">
                   <app-detail-articles-list></app-detail-articles-list>
@@ -54,6 +54,7 @@
           <app-toolbar-header [title]="document?.mainTitle || ''"
                               [showBackButton]="recordHandler.shouldShowBackButton(document)"
                               [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical"
+                              [titleTooltip]="'go-to-volume--tooltip' | translate"
                               (titleClick)="recordHandler.clickedToolbarTitle(document.rootModel, document.rootPid)"
                               (goBack)="recordHandler.goBackClicked(document)">
           </app-toolbar-header>
@@ -136,13 +137,12 @@
             <!-- Show loader while access is being checked for the first time -->
             <app-inline-loader></app-inline-loader>
           } @else {
-            <!-- Article PDF viewer - will be destroyed and recreated when articleMetadata changes -->
             @let articleMetadata = articleMetadata$ | async;
-            @if (articleMetadata) {
+            @if (articleMetadata?.pdf) {
               <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
             } @else {
 
-              <!-- Fallback to document/page viewer when no article -->
+              <!-- Non-PDF article OR no article: render document/page viewer -->
               @if (detailViewService.isPdf) {
                 <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
               } @else if (detailViewService.isEpub || document.epub) {

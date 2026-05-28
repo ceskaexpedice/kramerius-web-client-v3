@@ -32,12 +32,14 @@ export const periodicalSearchReducer = createReducer(
 
   on(loadPeriodicalSearchResults, ((state) => ({
     ...state,
+    totalCount: 0,
     loading: true,
     facetsLoading: true
   }))),
 
   on(loadPeriodical, ((state) => ({
     ...state,
+    totalCount: 0,
     facetsLoading: true
   }))),
 

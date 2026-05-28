@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   features: {
     keycloak: true,
     mapSearch: true,
-    mapProvider: 'google',
+    mapProvider: 'allmaps',
     georef: true,
     ai: true,
     folders: true,

@@ -24,6 +24,9 @@ import { LibraryContextService } from '../../../shared/services/library-context.
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
+import { isViewerRoutePath } from '../../../shared/constants/viewer-routes';
+import { LocalizedPipe } from '../../../shared/pipes/localized.pipe';
+import { LocalizedLabel } from '../../config/config.interfaces';
 
 @Component({
   selector: 'app-header',
@@ -37,6 +40,7 @@ import { PageConfig } from '../../config/config.interfaces';
     UserInfoComponent,
     ClickOutsideDirective,
     RouterLink,
+    LocalizedPipe,
   ],
   styleUrl: './header.component.scss'
 })
@@ -101,6 +105,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.libraryContext.prependLibraryPrefix(['/']);
   }
 
+  get homepageTitle(): LocalizedLabel | undefined { return this.configService.homepageTitle; }
+
+  /** Real URL for the logo anchor so it can be opened in a new tab (ctrl/cmd/middle-click). */
+  get homeHref(): string {
+    return this.router.serializeUrl(this.router.createUrlTree(this.homeLink));
+  }
+
   get searchLink(): any[] {
     return this.libraryContext.prependLibraryPrefix(['/search']);
   }
@@ -113,6 +124,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.updateHeaderType();
         this.isMobileMenuOpen = false; // Close mobile menu on route change
         this.isMobileSearchOpen = false; // Close mobile search on route change
+
+        // Clear the search input when drilling into an item viewer so the
+        // search box doesn't carry a stale term into the viewer page.
+        if (isViewerRoutePath(this.router.url.split('?')[0], this.libraryContext.getLibraryPrefix())) {
+          this.searchService.searchTerm.set('');
+        }
       });
 
     // Subscribe to actual active theme considering system level preference
@@ -202,7 +219,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  logoClicked() {
+  logoClicked(event?: MouseEvent) {
+    // Let modifier/middle clicks fall through so the browser opens the href in a new tab.
+    if (event && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0)) {
+      return;
+    }
+    // Plain left-click: keep the custom debounced navigation / easter-egg behavior.
+    event?.preventDefault();
+
     this.logoClickCount++;
 
     if (this.logoClickTimer) {

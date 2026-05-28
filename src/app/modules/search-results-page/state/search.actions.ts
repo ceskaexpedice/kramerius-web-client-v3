@@ -22,6 +22,21 @@ export const loadSearchResultsFailure = createAction(
   props<{ error: any }>()
 );
 
+export const loadPageSearchResults = createAction(
+  '[PageSearchResults] Load',
+  props<{ query: string; filters: string[], filterGroups?: string[][], advancedQuery?: string, advancedQueryMainOperator?: SolrOperators, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections, grouped?: boolean }>()
+);
+
+export const loadPageSearchResultsSuccess = createAction(
+  '[PageSearchResults] Load Success',
+  props<{ results: any[], totalCount: number }>()
+);
+
+export const loadPageSearchResultsFailure = createAction(
+  '[PageSearchResults] Load Failure',
+  props<{ error: any }>()
+);
+
 export const loadFacet = createAction(
   '[SearchResults] Load Facet',
   props<{

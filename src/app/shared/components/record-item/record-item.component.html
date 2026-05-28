@@ -70,7 +70,10 @@
       <div class="skeleton skeleton-text title-skeleton"></div>
       <div class="skeleton skeleton-text title-skeleton-short"></div>
       } @else {
-      <div class="title" [title]="getTitle()">{{ getTitle() }}</div>
+      <div class="record-item-card__title-row">
+        <div class="title" [title]="getTitle()">{{ getTitle() }}</div>
+        <ng-content select="[recordTitleSuffix]"></ng-content>
+      </div>
       }
 
       <!-- SUBTITLE / AUTHORS -->

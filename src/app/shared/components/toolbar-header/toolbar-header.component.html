@@ -1,15 +1,19 @@
 <div class="toolbar-header">
 
   @if (showBackButton) {
-    <button class="icon-button button link primary"
+    <button class="icon-button button secondary link"
             [attr.aria-label]="'go-back--arialabel' | translate"
+            [appCdkTooltip]="backButtonTooltip || ('search-results--tooltip' | translate)"
+            [tooltipPosition]="'bottom'"
             (click)="goBackClicked()">
-      <i class="icon-arrow-left-3"></i>
+      <i class="icon-home-2"></i>
     </button>
   }
 
   <h2 class="title"
       [class.cursor-pointer]="titleClickable"
+      [appCdkTooltip]="titleClickable ? (titleTooltip || '') : ''"
+      [tooltipPosition]="'bottom'"
       (click)="titleClicked()">{{ title }}</h2>
 
   <div class="header-actions">

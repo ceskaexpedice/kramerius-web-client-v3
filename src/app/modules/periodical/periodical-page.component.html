@@ -9,11 +9,13 @@
 
       <div class="page-content__filters">
         <!-- Action Toolbar -->
-        <app-action-toolbar [hasCenterContent]="(!!periodical.selectedYear())">
+        <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !breakpointService.isMobile()">
 
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
+              [titleClickable]="true"
+              [titleTooltip]="'go-to-volume--tooltip' | translate"
               (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
               (goBack)="recordHandler.goBackClicked(document)">
 
@@ -25,7 +27,7 @@
             </app-toolbar-header>
           </div>
 
-          <div center *ngIf="!adminModeService.adminMode()">
+          <div center *ngIf="!adminModeService.adminMode() && !breakpointService.isMobile()">
             <div *ngIf="periodical.selectedYear() as year;">
               <app-date-navigator [value]="year" (goToPrevious)="periodical.goToPreviousYear()"
                 (goToNext)="periodical.goToNextYear()">
@@ -39,24 +41,38 @@
 
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
               <ng-container *ngIf="!adminModeService.adminMode()">
-                <div class="flex flex--align-center flex--gap-x6">
-                  <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
+                @if (breakpointService.isMobile()) {
+                  <!-- Mobile: actions collapse into hamburger; view toggle + sort move to the sub-toolbar below -->
+                  <app-toolbar-controls [showViewToggle]="false" [mobileMenuMode]="true"
                     [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
-                    [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
-                    (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
+                    (infoClicked)="openRecordInfo()"
                     (favoritesClicked)="onFavoritesClicked($event)"
                     (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
                     (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
                     (selectClicked)="toggleSelectionMode()">
                   </app-toolbar-controls>
+                } @else {
+                  <div class="flex flex--align-center flex--gap-x6">
+                    <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
+                      [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                      [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
+                      (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
+                      (favoritesClicked)="onFavoritesClicked($event)"
+                      (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
+                      (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
+                      (selectClicked)="toggleSelectionMode()">
+                    </app-toolbar-controls>
 
-                  <app-results-sort [selectedSort]="periodical.sortBy" [selectedDirection]="periodical.sortDirection"
-                    (sortChange)="onSortChange($event)">
-                  </app-results-sort>
-                </div>
+                    <app-results-sort [selectedSort]="periodical.sortBy" [selectedDirection]="periodical.sortDirection"
+                      (sortChange)="onSortChange($event)">
+                    </app-results-sort>
+                  </div>
+                }
               </ng-container>
 
-              <app-admin-selection-count></app-admin-selection-count>
+              @if (adminModeService.adminMode()) {
+                <app-admin-selection-count></app-admin-selection-count>
+              }
 
             </div>
 
@@ -64,6 +80,22 @@
 
         </app-action-toolbar>
       </div>
+
+      <!-- Mobile sub-toolbar: view toggle (left) + sort (right) -->
+      @if (breakpointService.isMobile() && !adminModeService.adminMode()) {
+        <div class="mobile-subtoolbar">
+          @if (periodical.viewMode() !== ViewMode.SearchResults) {
+            <app-toolbar-controls [showViewToggle]="true"
+              [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
+              (viewChanged)="periodical.setView($event)">
+            </app-toolbar-controls>
+          }
+
+          <app-results-sort [selectedSort]="periodical.sortBy" [selectedDirection]="periodical.sortDirection"
+            (sortChange)="onSortChange($event)">
+          </app-results-sort>
+        </div>
+      }
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()"
@@ -124,6 +156,16 @@
         </ng-container>
 
       </div>
+
+      <!-- Mobile bottom bar: year navigation -->
+      @if (breakpointService.isMobile() && !adminModeService.adminMode() && periodical.selectedYear()) {
+        <div class="mobile-date-bar">
+          <app-date-navigator [value]="periodical.selectedYear() || ''"
+            (goToPrevious)="periodical.goToPreviousYear()"
+            (goToNext)="periodical.goToNextYear()">
+          </app-date-navigator>
+        </div>
+      }
 
     </div>
 

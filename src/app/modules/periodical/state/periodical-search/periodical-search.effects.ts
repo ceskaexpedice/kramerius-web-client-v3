@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import { SolrService } from '../../../../core/solr/solr.service';
 import * as PeriodicalSelectors from './periodical-search.selectors';
 import { DEFAULT_PERIODICAL_FACET_FIELDS } from '../../../search-results-page/const/facet-fields';
-import { parseSearchDocument } from '../../../models/search-document';
+import { parseSolrSearchResponse } from '../../../search-results-page/state/parse-search-results';
 import { handleFacetsWithOperators } from '../../../../shared/utils/facet-utils';
 import { UserService } from '../../../../shared/services/user.service';
 import { DocumentTypeEnum } from '../../../constants/document-type';
@@ -48,23 +48,23 @@ export class PeriodicalSearchEffects {
 
         const processResults$ = results$.pipe(
           map(resultsRes => {
-            const parsedResults = (resultsRes.response?.docs ?? []).map(doc => {
-              doc['highlighting'] = resultsRes.highlighting?.[doc.pid] || {};
-              return parseSearchDocument(doc)
-            });
-
-            return loadPeriodicalSearchSuccess({
-              results: parsedResults,
-              totalCount: resultsRes.response.numFound
-            });
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, query);
+            return loadPeriodicalSearchSuccess({ results, totalCount });
           }),
           catchError(error => of(loadPeriodicalSearchFailure({ error })))
         );
 
+        const filtersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
+        const facetsRes$ = this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, undefined, availabilityFilter).pipe(shareReplay(1));
+        // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
+        const facetsWithoutLicensesRes$ = filtersWithoutLicenses.length === filters.length
+          ? facetsRes$
+          : this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, undefined, availabilityFilter);
+
         const processFacets$ = forkJoin({
           resultsRes: results$, // wait for results to get numFound or consistency
-          facetsRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, undefined, availabilityFilter),
-          facetsWithoutLicensesRes: this.solr.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.page, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, undefined, availabilityFilter),
+          facetsRes: facetsRes$,
+          facetsWithoutLicensesRes: facetsWithoutLicensesRes$,
         }).pipe(
           map(({ resultsRes, facetsRes, facetsWithoutLicensesRes }) => {
             const facets = handleFacetsWithOperators(
