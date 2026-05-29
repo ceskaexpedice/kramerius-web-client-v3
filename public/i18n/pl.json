@@ -718,5 +718,12 @@
   "settings.tts.primary": "Główny",
   "settings.tts.set-primary": "Ustaw jako główny",
   "settings.tts.add-language": "Dodaj język",
-  "settings.tts.note": "Czytanie na głos jest dostępne tylko dla dostępnych dokumentów."
+  "settings.tts.note": "Czytanie na głos jest dostępne tylko dla dostępnych dokumentów.",
+  "toggle-and-or-operator": "Przełącz operator I/LUB",
+  "equals-operator": "Dokładne dopasowanie",
+  "not-equals-operator": "Wyklucz",
+  "active-filters-region": "Aktywne filtry",
+  "filter-groups-region": "Grupy filtrów",
+  "day-month-from": "Dzień i miesiąc od",
+  "day-month-to": "Dzień i miesiąc do"
 }

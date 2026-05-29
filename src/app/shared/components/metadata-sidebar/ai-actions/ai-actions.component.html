@@ -37,9 +37,9 @@
     <div class="ai-actions__login">
       <i class="icon-lock ai-actions__login-icon"></i>
       <p class="ai-actions__login-title">{{ 'ai.login-required' | translate }}</p>
-      <a class="ai-actions__login-link" (click)="login()">
+      <button type="button" class="ai-actions__login-link" (click)="login()">
         {{ 'ai.login-register-link' | translate }}
-      </a>
+      </button>
       <button class="ai-actions__login-btn" (click)="login()">
         {{ 'ai.login-button' | translate }}
       </button>

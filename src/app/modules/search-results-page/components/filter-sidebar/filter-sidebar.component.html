@@ -24,7 +24,8 @@
 <div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop"
   (click)="onBackdropClick()"></div>
 
-<div class="filter-sidebar" [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
+<div class="filter-sidebar" role="complementary" aria-label="Search filters"
+  [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
   [class.disabled]="isDisabled" [class.dimmed]="dimmed">
 
   <!-- Close button for tablet overlay mode -->

@@ -728,5 +728,12 @@
   "settings.tts.primary": "Primary",
   "settings.tts.set-primary": "Set as primary",
   "settings.tts.add-language": "Add language",
-  "settings.tts.note": "Reading aloud is only available for accessible documents."
+  "settings.tts.note": "Reading aloud is only available for accessible documents.",
+  "toggle-and-or-operator": "Toggle AND/OR operator",
+  "equals-operator": "Match exactly",
+  "not-equals-operator": "Exclude",
+  "active-filters-region": "Active filters",
+  "filter-groups-region": "Filter groups",
+  "day-month-from": "Day and month from",
+  "day-month-to": "Day and month to"
 }

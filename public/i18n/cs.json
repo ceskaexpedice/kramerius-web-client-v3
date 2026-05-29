@@ -720,5 +720,12 @@
   "settings.tts.primary": "Primární",
   "settings.tts.set-primary": "Nastavit jako primární",
   "settings.tts.add-language": "Přidat jazyk",
-  "settings.tts.note": "Předčítání je dostupné pouze pro dostupné dokumenty."
+  "settings.tts.note": "Předčítání je dostupné pouze pro dostupné dokumenty.",
+  "toggle-and-or-operator": "Přepnout operátor A/NEBO",
+  "equals-operator": "Přesná shoda",
+  "not-equals-operator": "Vyloučit",
+  "active-filters-region": "Aktivní filtry",
+  "filter-groups-region": "Skupiny filtrů",
+  "day-month-from": "Den a měsíc od",
+  "day-month-to": "Den a měsíc do"
 }

@@ -320,6 +320,7 @@ export class AdvancedSearchService {
       maxHeight: isMobileOrTablet ? '100vh' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       autoFocus: false,
+      ariaLabelledBy: 'advanced-search-dialog-title',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {

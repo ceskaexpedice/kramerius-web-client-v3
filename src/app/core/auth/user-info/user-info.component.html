@@ -1,5 +1,5 @@
 @if (!(isAuthenticated | async)) {
-  <a class="cursor-pointer" (click)="login()">{{'log-in' | translate}}</a>
+  <button type="button" class="cursor-pointer login-link" (click)="login()">{{'log-in' | translate}}</button>
 }
 
 <!--{{(user | async)?.name}}-->

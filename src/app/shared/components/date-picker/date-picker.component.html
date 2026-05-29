@@ -3,6 +3,7 @@
     @if (directInput) {
       <app-input
         [placeholder]="'DD.MM.YYYY'"
+        [ariaLabel]="'selected-day-label' | translate"
         [size]="size"
         [theme]="'dark'"
         [postfixIcon]="'icon-calendar-1'"
@@ -15,6 +16,7 @@
     } @else {
       <app-input
         [placeholder]="getSelectedDateText()"
+        [ariaLabel]="'selected-day-label' | translate"
         [size]="size"
         [theme]="'dark'"
         [postfixIcon]="'icon-calendar-1'"
@@ -72,6 +74,7 @@
             #dateFromInputRef
             [placeholder]="'DD.MM.YYYY'"
             [label]="showDualCalendarMode ? ('period-from-label' | translate) : ('selected-day-label' | translate)"
+            [ariaLabel]="showDualCalendarMode ? ('period-from-label' | translate) : ('selected-day-label' | translate)"
             [size]="'sm'"
             [theme]="'dark'"
             [signalInput]="dateFromInput"
@@ -85,6 +88,7 @@
             <app-input
               [placeholder]="'DD.MM.YYYY'"
               [label]="'period-to-label' | translate"
+              [ariaLabel]="'period-to-label' | translate"
               [size]="'sm'"
               [theme]="'dark'"
               [signalInput]="dateToInput"

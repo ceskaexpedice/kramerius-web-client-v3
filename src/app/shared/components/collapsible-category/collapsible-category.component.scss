@@ -5,13 +5,16 @@
   margin-bottom: 15px;
 }
 
-h4 {
+h2 {
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: var(--spacing-x1);
   width: 100%;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: var(--line-height-2);
 }
 
 .indicator {

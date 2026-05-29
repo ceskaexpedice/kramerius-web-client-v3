@@ -5,13 +5,13 @@
     @if (label && label.length > 0) {
       <div class="category--header">
 
-        <h4 *ngIf="!loading">
+        <h2 *ngIf="!loading">
 
           {{label | translate}}
 
           <span *ngIf="hasAndOperator" class="and-indicator">{{ 'and-operator' | translate }}</span>
 
-        </h4>
+        </h2>
 
         <div *ngIf="loading" class="filters-skeleton--header"></div>
 

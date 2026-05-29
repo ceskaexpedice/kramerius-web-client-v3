@@ -1,23 +1,26 @@
 <div class="lang-switcher-pos" [class.expanded]="expanded" appClickOutside (clickOutside)="close()">
-  <div class="selected" (click)="clickedIcon()">
+  <button type="button" class="selected" (click)="clickedIcon()"
+          aria-label="Select language" aria-haspopup="listbox" [attr.aria-expanded]="expanded">
     <div class="icon-lang">
       <app-language-badge [lang]="currentLanguage().name" [src]="currentLanguage().icon" [rounded]="true"></app-language-badge>
     </div>
     <div class="arrow">
       <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded"></i>
     </div>
-  </div>
+  </button>
 
   <div class="available-languages" [class.available-languages--hidden]="!expanded">
-    <div class="languages-list">
-      <div class="lang-item" *ngFor="let lang of languages" (click)="changeLang(lang.code)">
-        <div class="lang-item__left">
-          <div class="lang-item__icon">
-            <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true"></app-language-badge>
+    <div class="languages-list" role="listbox" aria-label="Select language">
+      @for (lang of languages; track lang.code) {
+        <button type="button" class="lang-item" (click)="changeLang(lang.code)" role="option">
+          <div class="lang-item__left">
+            <div class="lang-item__icon">
+              <app-language-badge [lang]="lang.name" [src]="lang.icon" [rounded]="true"></app-language-badge>
+            </div>
+            <span class="lang-item__name">{{ lang.name }}</span>
           </div>
-          <span class="lang-item__name">{{ lang.name }}</span>
-        </div>
-      </div>
+        </button>
+      }
     </div>
   </div>
 </div>

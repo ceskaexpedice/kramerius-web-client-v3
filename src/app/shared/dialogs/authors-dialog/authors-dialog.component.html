@@ -19,7 +19,7 @@
         <tbody>
           <tr *ngFor="let author of data.authors">
             <td>
-              <a class="author-link" (click)="clickAuthor(author)">{{ author.name }}</a>
+              <button type="button" class="author-link" (click)="clickAuthor(author)">{{ author.name }}</button>
             </td>
             <td>{{ author.date }}</td>
             <td>{{ getRole(author) }}</td>

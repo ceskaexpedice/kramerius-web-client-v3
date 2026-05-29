@@ -42,6 +42,7 @@
       min="0"
       max="100"
       class="hide-thumb"
+      [attr.aria-label]="'layout--timeline' | translate"
       [style.--progress]="(soundService.getProgress() * 100) + '%'"
       [value]="soundService.getProgress() * 100"
       (input)="seekTo($event)"

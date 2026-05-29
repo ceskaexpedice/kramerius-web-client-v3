@@ -6,13 +6,14 @@
   align-items: center;
   margin-bottom: var(--spacing-x3);
 
-  h4 {
+  h2 {
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     font-size: var(--font-size-base);
+    line-height: var(--line-height-2);
     font-family: var(--font-family-body);
   }
 

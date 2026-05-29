@@ -3,7 +3,10 @@
     class="track"
     [class.current-track]="isCurrentTrack"
   >
-    <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()">
+    <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()"
+         role="button" tabindex="0" [attr.aria-label]="track['title.search']"
+         (keydown.enter)="isCurrentTrack ? togglePlayPause() : play()"
+         (keydown.space)="$event.preventDefault(); isCurrentTrack ? togglePlayPause() : play()">
       <app-thumbnail-image
         class="thumb"
         [src]="soundService.getImageThumbnailUrl(track.parentPid)"
@@ -18,7 +21,9 @@
       </div>
     </div>
 
-    <div class="info" (click)="play()">
+    <div class="info" (click)="play()"
+         role="button" tabindex="0" [attr.aria-label]="track['title.search']"
+         (keydown.enter)="play()" (keydown.space)="$event.preventDefault(); play()">
       <div class="title">{{ track['title.search'] }}</div>
     </div>
 

@@ -5,16 +5,18 @@
     @if (breakpointService.isMobile()) {
       <div class="mobile-group-header">
         <span class="mobile-group-title">{{ 'group-label' | translate }} {{ groupIndex + 1 }}</span>
-        <div class="operator-switch" *ngIf="filters.length > 1">
+        <div class="operator-switch" *ngIf="filters.length > 1" role="group" [attr.aria-label]="'toggle-and-or-operator' | translate">
           <button
             class="operator-switch-option"
             [class.active]="operator === SolrOperators.and"
+            [attr.aria-pressed]="operator === SolrOperators.and"
             (click)="setOperator(SolrOperators.and)">
             AND
           </button>
           <button
             class="operator-switch-option"
             [class.active]="operator === SolrOperators.or"
+            [attr.aria-pressed]="operator === SolrOperators.or"
             (click)="setOperator(SolrOperators.or)">
             OR
           </button>
@@ -30,8 +32,8 @@
           <div class="mobile-condition-section">
             <div class="mobile-condition-header">
               <span class="mobile-condition-label">{{ 'condition-label' | translate }} {{ i + 1 }}</span>
-              <button class="mobile-condition-remove button tertiary outlined" (click)="removeFilter(i)">
-                <i class="icon-trash"></i>
+              <button class="mobile-condition-remove button tertiary outlined" (click)="removeFilter(i)" [attr.aria-label]="'remove--button-label' | translate">
+                <i class="icon-trash" aria-hidden="true"></i>
               </button>
             </div>
 
@@ -58,12 +60,12 @@
 
     <div class="group-actions">
       <button class="button link primary with-icon p-left-0" (click)="addFilter()">
-        <i class="icon-add-square"></i>
+        <i class="icon-add-square" aria-hidden="true"></i>
         {{ 'next-condition-button-label' | translate }}
       </button>
 
       <button class="button link primary with-icon" *ngIf="advancedSearchService.pendingGroups().length > 1" (click)="removeGroup.emit()">
-        <i class="icon-trash"></i>
+        <i class="icon-trash" aria-hidden="true"></i>
         {{ 'remove-group-button-label' | translate }}
       </button>
     </div>
@@ -71,7 +73,7 @@
 
   <!-- Desktop only: side operator column -->
   <div class="group-operator" *ngIf="!breakpointService.isMobile() && (advancedSearchService.filters().length > 1 || filters.length > 1)">
-    <button class="operator-toggle" (click)="toggleOperator()">
+    <button class="operator-toggle" (click)="toggleOperator()" [attr.aria-label]="'toggle-and-or-operator' | translate">
       {{ operator }}
     </button>
   </div>

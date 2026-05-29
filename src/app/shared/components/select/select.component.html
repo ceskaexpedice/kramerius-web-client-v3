@@ -1,14 +1,16 @@
 <div class="select-wrapper" #wrapper (click)="toggle()" [attr.aria-expanded]="open()" role="button" tabindex="0"
+  aria-haspopup="listbox"
+  [attr.aria-activedescendant]="open() && focusedIndex >= 0 ? 'option-' + focusedIndex : null"
   [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
   <span>{{ displayFn(value) | translate }}</span>
-  <i class="icon-arrow-down arrow-icon" [class.open]="open()"></i>
+  <i class="icon-arrow-down arrow-icon" [class.open]="open()" aria-hidden="true"></i>
 </div>
 
 <div *ngIf="open()" class="options-container" [class.above]="showAbove" [style.z-index]="zIndex" role="listbox"
   [attr.aria-activedescendant]="'option-' + focusedIndex">
   <!-- Filter Input -->
   <div *ngIf="filterable" class="filter-container">
-    <app-input [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate" [showMicButton]="showMicButton"
+    <app-input #filterInput [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate" [showMicButton]="showMicButton"
       (valueChange)="onFilterChange($event)" (keydown)="onFilterKeyDown($event)" (click)="$event.stopPropagation()"
       [theme]="'dark'" [size]="'sm'"></app-input>
   </div>
@@ -43,7 +45,7 @@
     </div>
   </div>
 
-  <div aria-live="polite" class="visually-hidden">
-    {{ displayFn(value) | translate }}
+  <div aria-live="assertive" class="visually-hidden">
+    {{ focusedOptionLabel || (displayFn(value) | translate) }}
   </div>
 </div>

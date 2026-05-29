@@ -1,7 +1,7 @@
-<h2>
+<h2 id="advanced-search-dialog-title">
   {{ 'advanced-search' | translate }}
-  <button class="button link tertiary icon-button close-button" (click)="close()">
-    <i class="icon-close"></i>
+  <button class="button link tertiary icon-button close-button" (click)="close()" [attr.aria-label]="'close' | translate">
+    <i class="icon-close" aria-hidden="true"></i>
   </button>
 </h2>
 
@@ -11,8 +11,8 @@
   <div class="advanced-search-dialog--container">
 
     <!-- Left: Active Filters -->
-    <div class="active--filters filters-section">
-      <h6>{{ 'active-filters' | translate }}</h6>
+    <aside class="active--filters filters-section" [attr.aria-label]="'active-filters-region' | translate">
+      <h3>{{ 'active-filters' | translate }}</h3>
       <div class="filters--content">
         <ng-container *ngIf="advancedSearchService.filters().length > 0; else noFilters">
           <app-selected-tags
@@ -35,10 +35,10 @@
           </div>
         </ng-template>
       </div>
-    </div>
+    </aside>
 
     <!-- Right: Filter Groups -->
-    <div class="filters filters-section">
+    <section class="filters filters-section" [attr.aria-label]="'filter-groups-region' | translate">
       <p class="filters--description">{{ 'advanced-search-description' | translate }}</p>
       <div class="filters--content">
 
@@ -60,7 +60,7 @@
             </div>
 
             <div class="filter-group-operator" *ngIf="advancedSearchService.pendingGroups().length > 1">
-              <button class="operator-toggle" (click)="advancedSearchService.toggleMainOperator()">
+              <button class="operator-toggle" (click)="advancedSearchService.toggleMainOperator()" [attr.aria-label]="'toggle-and-or-operator' | translate">
                 {{advancedSearchService.mainOperator()}}
               </button>
             </div>
@@ -71,13 +71,13 @@
           [class.full-width]="advancedSearchService.pendingGroups().length > 1"
         >
           <button class="button link primary with-icon p-left-0" (click)="advancedSearchService.addGroup()">
-            <i class="icon-add-square"></i>
+            <i class="icon-add-square" aria-hidden="true"></i>
             {{ 'add-group-button-label' | translate }}
           </button>
         </div>
 
       </div>
-    </div>
+    </section>
 
   </div>
 </div>

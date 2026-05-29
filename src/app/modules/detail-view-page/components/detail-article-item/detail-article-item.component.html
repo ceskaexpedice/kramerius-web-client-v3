@@ -1,5 +1,7 @@
 <a class="article--item"
    [class.selected]="isSelected"
+   role="button" tabindex="0" [attr.aria-label]="getArticleTitle()"
+   (keydown.enter)="onArticleClicked()" (keydown.space)="$event.preventDefault(); onArticleClicked()"
    (click)="onArticleClicked()">
 
   <div class="article--item__content">
