@@ -48,6 +48,23 @@
   }
 }
 
+.license-info-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--icon-grey);
+  cursor: pointer;
+  font-size: var(--font-size-xxsmall);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-text-tertiary);
+  }
+}
+
 .icon {
   display: inline-flex;
   justify-content: center;

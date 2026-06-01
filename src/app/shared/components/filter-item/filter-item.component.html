@@ -18,6 +18,14 @@
         }
       </label>
       <span class="count" [class.checked]="checked">({{ count | formatNumber }})</span>
+      @if (hasLicenseInfo) {
+        <button type="button" class="license-info-icon"
+          [appCdkTooltip]="'license-info-tooltip' | translate" [tooltipPosition]="'right'"
+          [attr.aria-label]="'license-info-tooltip' | translate"
+          (click)="openLicenseInfo($event)">
+          <i class="icon-question"></i>
+        </button>
+      }
     </span>
   </mat-checkbox>
 
