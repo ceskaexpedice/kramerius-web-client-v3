@@ -114,7 +114,7 @@
   <ng-container main-content>
     <app-inline-loader *ngIf="detailViewService.loading$ | async" [overlay]="true"></app-inline-loader>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      <app-fullscreen #contentFullscreen [showCloseButton]="false"
+      <app-fullscreen #contentFullscreen [showCloseButton]="!aiPanelService.panelVisible()"
                       (fullscreenChange)="detailFullscreen.setFullscreen($event)">
       <div class="detail-view--page--content--body"
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
