@@ -42,8 +42,9 @@
 
             <button
               class="delete-btn"
+              [attr.aria-label]="'remove-history-suggestion--arialabel' | translate"
               (click)="historyService.remove(option); $event.stopPropagation();">
-              <i class="icon-trash"></i>
+              <i class="icon-trash" aria-hidden="true"></i>
             </button>
 
           </div>

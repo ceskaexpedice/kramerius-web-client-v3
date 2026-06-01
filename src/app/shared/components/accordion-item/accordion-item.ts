@@ -21,6 +21,9 @@ export class AccordionItem {
 
   @Output() toggle = new EventEmitter<void>();
 
+  private static nextId = 0;
+  readonly panelId = `accordion-panel-${AccordionItem.nextId++}`;
+
   onToggle(): void {
     this.toggle.emit();
   }

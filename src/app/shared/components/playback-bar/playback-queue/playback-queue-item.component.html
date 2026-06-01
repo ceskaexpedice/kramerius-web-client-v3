@@ -28,13 +28,15 @@
     </div>
 
     <div class="actions">
-      <button class="icon-button rounded light" (click)="remove($event)">
-        <i class="icon-trash"></i>
+      <button class="icon-button rounded light" (click)="remove($event)"
+              [attr.aria-label]="'delete' | translate">
+        <i class="icon-trash" aria-hidden="true"></i>
       </button>
       <button class="icon-button rounded light"
               [class.favorited]="isItemFavorited$ | async"
+              [attr.aria-label]="((isItemFavorited$ | async) ? 'remove-from-favorites' : 'add-to-favorites') | translate"
               (click)="toggleFavorite($event)">
-        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
       </button>
     </div>
   </div>

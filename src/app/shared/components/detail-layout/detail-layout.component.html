@@ -16,7 +16,7 @@
 
     </app-filter-sidebar>
 
-    <section class="detail-layout--main" aria-label="Document content">
+    <section class="detail-layout--main" [attr.aria-label]="'document-content--arialabel' | translate">
 
       <div class="detail-layout--action-toolbar">
         <ng-content select="[action-toolbar]"></ng-content>

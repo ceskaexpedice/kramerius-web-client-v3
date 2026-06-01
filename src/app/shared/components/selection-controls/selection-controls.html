@@ -1,19 +1,23 @@
 <div class="selection-controls">
 
-    <button *ngIf="showText" (click)="onText()" class="button tertiary outlined" title="Text">
-        <i class="icon icon-text"></i>
+    <button *ngIf="showText" (click)="onText()" class="button tertiary outlined"
+        [attr.aria-label]="'selection-text--arialabel' | translate" [title]="'selection-text--arialabel' | translate">
+        <i class="icon icon-text" aria-hidden="true"></i>
     </button>
 
-    <button *ngIf="showExport" (click)="onExport()" class="button tertiary outlined" title="Export">
-        <i class="icon icon-gallery-export"></i>
+    <button *ngIf="showExport" (click)="onExport()" class="button tertiary outlined"
+        [attr.aria-label]="'export' | translate" [title]="'export' | translate">
+        <i class="icon icon-gallery-export" aria-hidden="true"></i>
     </button>
 
-    <button *ngIf="showShare" (click)="onShare()" class="button tertiary outlined" title="Share">
-        <i class="icon icon-send-2"></i>
+    <button *ngIf="showShare" (click)="onShare()" class="button tertiary outlined"
+        [attr.aria-label]="'selection-share--arialabel' | translate" [title]="'selection-share--arialabel' | translate">
+        <i class="icon icon-send-2" aria-hidden="true"></i>
     </button>
 
-  <button (click)="onCancel()" class="button tertiary outlined btn-cancel" title="Cancel">
-    <i class="icon icon-close"></i>
+  <button (click)="onCancel()" class="button tertiary outlined btn-cancel"
+    [attr.aria-label]="'selection-cancel--arialabel' | translate" [title]="'selection-cancel--arialabel' | translate">
+    <i class="icon icon-close" aria-hidden="true"></i>
   </button>
 
 </div>

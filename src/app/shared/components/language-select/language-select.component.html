@@ -1,7 +1,7 @@
 <div class="lang-switcher-pos" [class.expanded]="expanded" appClickOutside (clickOutside)="close()">
   @if (!label) {
     <button #trigger type="button" class="selected" (click)="toggle()"
-            aria-label="Select language" aria-haspopup="listbox" [attr.aria-expanded]="expanded">
+            [attr.aria-label]="'select-language--arialabel' | translate" aria-haspopup="listbox" [attr.aria-expanded]="expanded">
       @if (selected) {
         <div class="icon-lang">
           <app-language-badge [lang]="selected.name" [src]="selected.icon" [rounded]="true"></app-language-badge>
@@ -23,7 +23,7 @@
          [class.available-languages--absolute]="!dropdownFixed"
          [style.top.px]="dropdownFixed ? dropdownTop : null"
          [style.right.px]="dropdownFixed ? dropdownRight : null">
-      <div class="languages-list" role="listbox" aria-label="Select language">
+      <div class="languages-list" role="listbox" [attr.aria-label]="'select-language--arialabel' | translate">
         @for (lang of languages; track lang.code) {
           <button type="button" class="lang-item" (click)="pick(lang.code)"
                   role="option" [attr.aria-selected]="lang.code === selectedCode"

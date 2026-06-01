@@ -19,7 +19,7 @@
   <td *ngIf="column.id === 'title'" class="record-title sticky-col">
     <div class="record-row-selection" *ngIf="adminModeService.adminMode()">
       <app-checkbox [model]="adminModeService.isSelected(record.pid)" (modelChange)="onSelectionChange($event)"
-        (click)="$event.stopPropagation()">
+        (click)="$event.stopPropagation()" [ariaLabel]="'select-document' | translate">
       </app-checkbox>
     </div>
 
@@ -29,7 +29,7 @@
         <app-thumbnail-image
           class="thumb"
           [src]="getKrameriusBaseUrl()"
-          alt="thumbnail"
+          [alt]="'thumbnail--alt' | translate"
           fallbackIcon="gallery">
         </app-thumbnail-image>
 

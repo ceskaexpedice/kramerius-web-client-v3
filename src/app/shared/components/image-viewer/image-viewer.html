@@ -6,7 +6,7 @@
           *ngIf="imageUrl"
           [src]="imageUrl"
           [ngStyle]="imageStyles"
-          alt="Document preview"
+          [alt]="'document-preview--alt' | translate"
           class="image-viewer-image">
       </div>
     </div>

@@ -3,7 +3,7 @@
     <app-thumbnail-image
       class="cover"
       [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
-      alt="Cover"
+      [alt]="'cover-image--alt' | translate"
       fallbackIcon="music"
       size="auto">
     </app-thumbnail-image>

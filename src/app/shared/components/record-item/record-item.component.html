@@ -10,7 +10,8 @@
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="adminModeService.adminMode() && !loading && item"
     (click)="$event.preventDefault(); $event.stopPropagation()">
-    <app-checkbox [model]="adminModeService.isSelected(item.id)" (modelChange)="onSelectionChange($event)">
+    <app-checkbox [model]="adminModeService.isSelected(item.id)" (modelChange)="onSelectionChange($event)"
+      [ariaLabel]="'select-document' | translate">
     </app-checkbox>
   </div>
 

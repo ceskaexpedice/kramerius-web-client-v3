@@ -5,6 +5,7 @@ import { ImageViewerService } from '../../services/image-viewer.service';
 import { Subscription } from 'rxjs';
 import { EnvironmentService } from '../../services/environment.service';
 import { FullscreenComponent } from '../fullscreen/fullscreen.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-image-viewer',
@@ -12,6 +13,7 @@ import { FullscreenComponent } from '../fullscreen/fullscreen.component';
     NgStyle,
     NgIf,
     FullscreenComponent,
+    TranslatePipe,
   ],
   templateUrl: './image-viewer.html',
   styleUrl: './image-viewer.scss'

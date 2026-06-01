@@ -13,6 +13,7 @@ export class RadioButtonComponent implements OnChanges {
 
   @Input() value: string = '';
   @Input() groupValue: string = '';
+  @Input() ariaLabel = '';
   @Output() groupValueChange = new EventEmitter<string>();
 
   isSelected = signal(false);
