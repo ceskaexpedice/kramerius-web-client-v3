@@ -8,12 +8,12 @@
         </div>
       }
       <div class="arrow">
-        <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded"></i>
+        <i class="fa fa-angle-down arrow-icon" [class.arrow-icon--rotated]="expanded" aria-hidden="true"></i>
       </div>
     </button>
   } @else {
     <button #trigger class="label-trigger" (click)="toggle()">
-      <i class="icon-add"></i>
+      <i class="icon-add" aria-hidden="true"></i>
       <span>{{ label }}</span>
     </button>
   }

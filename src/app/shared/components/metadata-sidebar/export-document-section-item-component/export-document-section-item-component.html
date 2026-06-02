@@ -4,14 +4,16 @@
   <div class="export-document--item--title" [class.clickable]="collapsible" (click)="collapsible && toggleExpanded()">
 
     @if (icon) {
-    <i [class]="icon"></i>
+    <i [class]="icon" aria-hidden="true"></i>
     }
 
     <h3>{{title | translate}}</h3>
 
     @if (collapsible) {
-    <button class="collapse-toggle" type="button" [attr.aria-expanded]="_expanded()" (click)="$event.stopPropagation(); toggleExpanded()">
-      <i [class]="'icon-' + (_expanded() ? 'minus-square' : 'add-square')"></i>
+    <button class="collapse-toggle" type="button" [attr.aria-expanded]="_expanded()"
+      [attr.aria-label]="(_expanded() ? 'collapse' : 'expand') | translate"
+      (click)="$event.stopPropagation(); toggleExpanded()">
+      <i [class]="'icon-' + (_expanded() ? 'minus-square' : 'add-square')" aria-hidden="true"></i>
     </button>
     }
 
@@ -29,7 +31,7 @@
 
     <button class="button primary small" [disabled]="!selectedOption || loading" (click)="onSubmit()">
       @if (loading) {
-        <i class="icon-status spinning"></i>
+        <i class="icon-status spinning" aria-hidden="true"></i>
         {{ 'probíhá' | translate }}
       } @else {
         {{ (loginRequired ? 'confirm--login-required' : 'confirm') | translate }}

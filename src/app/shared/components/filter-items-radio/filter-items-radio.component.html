@@ -1,9 +1,10 @@
 <mat-radio-group class="radio-group" [value]="selected" [name]="'radio-group-' + facetKey"
+  [attr.aria-label]="groupLabel ? (groupLabel | translate) : null"
   (change)="onSelectionChange($event)">
   <mat-radio-button *ngFor="let item of items; trackBy: trackByFn" [value]="item.name" class="radio-button">
     <span class="label-wrapper">
-      <label class="cursor-pointer" (click)="onLabelClick(item.name)" [class.selected]="item.name === selected">{{
-        (item.label || (item.name + '-label')) | translate }}</label>
+      <span class="label-text" [class.selected]="item.name === selected">{{
+        (item.label || (item.name + '-label')) | translate }}</span>
       <span class="count" [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
       <span *ngIf="item.tooltipIcon && item.tooltipText" class="tooltip-icon"
         role="img" [attr.aria-label]="item.tooltipText | translate"

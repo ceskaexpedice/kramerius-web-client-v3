@@ -8,6 +8,18 @@
 
     <div class="page-content" role="main">
 
+      <!-- Screen-reader announcement of search status / result count (All view only). -->
+      <!-- Kept permanently in the DOM so the first update is reliably announced. -->
+      @if (view() !== ViewOptions.map) {
+        <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+          @if (searchService.loading$ | async) {
+            {{ 'loading-search-results' | translate }}
+          } @else {
+            {{ 'search-results-count' | translate:{ count: searchService.totalCount } }}
+          }
+        </div>
+      }
+
       <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!adminModeService.adminMode()" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
           <div left>

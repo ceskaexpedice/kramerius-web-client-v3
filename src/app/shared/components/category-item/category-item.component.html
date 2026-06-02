@@ -4,7 +4,7 @@
 
   @if (icon) {
     @if (isIconClass) {
-      <i [class]="icon"></i>
+      <i [class]="icon" aria-hidden="true"></i>
     } @else {
       <img [src]="icon" [alt]="label | translate" />
     }

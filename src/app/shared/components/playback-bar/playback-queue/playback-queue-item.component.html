@@ -16,8 +16,8 @@
       <div class="thumb-overlay">
         <i *ngIf="isCurrentTrack"
            [class.icon-play]="!soundService.isPlayingSignal()"
-           [class.icon-pause]="soundService.isPlayingSignal()"></i>
-        <i *ngIf="!isCurrentTrack" class="icon-play"></i>
+           [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
+        <i *ngIf="!isCurrentTrack" class="icon-play" aria-hidden="true"></i>
       </div>
     </div>
 

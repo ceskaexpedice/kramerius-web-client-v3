@@ -28,12 +28,9 @@ export class FilterItemsRadioComponent {
   @Input() items: FacetItem[] = [];
   @Input() facetKey!: string;
   @Input() selected: string | null = null;
+  /** Translation key for the radio group's accessible name (announced by screen readers). */
+  @Input() groupLabel: string | null = null;
   @Output() changed = new EventEmitter<string>();
-
-  onLabelClick(name: string) {
-    this.selected = name;
-    this.changed.emit(name);
-  }
 
   onSelectionChange(event: any) {
     this.changed.emit(event.value);

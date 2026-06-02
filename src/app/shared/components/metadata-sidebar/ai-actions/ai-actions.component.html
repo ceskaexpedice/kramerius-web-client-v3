@@ -6,24 +6,26 @@
   <div class="ai-actions__items" [class.disabled]="!userService.isLoggedIn || actionsDisabled">
     <button class="ai-actions__item" (click)="onRead()" [class.active]="ttsService.isReading()" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
-        <i class="icon-voice-square"></i>
+        <i class="icon-voice-square" aria-hidden="true"></i>
         <span>{{ 'ai.read-aloud' | translate }}</span>
       </div>
-      <span class="button tertiary transparent sm ai-actions__item-settings" (click)="openReadingSettings($event)" [title]="'settings' | translate">
-        <i class="icon-settings-2"></i>
+      <span class="button tertiary transparent sm ai-actions__item-settings" (click)="openReadingSettings($event)"
+        role="button" tabindex="0" [attr.aria-label]="'settings' | translate" [title]="'settings' | translate"
+        (keydown.enter)="openReadingSettings($event)" (keydown.space)="$event.preventDefault(); openReadingSettings($event)">
+        <i class="icon-settings-2" aria-hidden="true"></i>
       </span>
     </button>
 
     <button class="ai-actions__item" (click)="onTranslate()" [class.active]="aiPanelService.contentType() === 'translation'" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
-        <i class="icon-translate"></i>
+        <i class="icon-translate" aria-hidden="true"></i>
         <span>{{ 'ai.translate' | translate }}</span>
       </div>
     </button>
 
     <button class="ai-actions__item" (click)="onSummarize()" [class.active]="aiPanelService.contentType() === 'summary'" [disabled]="actionsDisabled">
       <div class="ai-actions__item-left">
-        <i class="icon-task-square"></i>
+        <i class="icon-task-square" aria-hidden="true"></i>
         <span>{{ 'ai.summarize' | translate }}</span>
       </div>
     </button>
@@ -35,7 +37,7 @@
 
   @if (!userService.isLoggedIn) {
     <div class="ai-actions__login">
-      <i class="icon-lock ai-actions__login-icon"></i>
+      <i class="icon-lock ai-actions__login-icon" aria-hidden="true"></i>
       <p class="ai-actions__login-title">{{ 'ai.login-required' | translate }}</p>
       <button type="button" class="ai-actions__login-link" (click)="login()">
         {{ 'ai.login-register-link' | translate }}

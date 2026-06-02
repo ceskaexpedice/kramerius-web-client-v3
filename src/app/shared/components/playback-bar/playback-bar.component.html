@@ -8,7 +8,9 @@
       size="auto">
     </app-thumbnail-image>
     <div class="info">
-      <div class="title cursor-pointer" (click)="openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+      <div class="title cursor-pointer" (click)="openTrackDetails()"
+        role="button" tabindex="0" [attr.aria-label]="'track-details' | translate"
+        (keydown.enter)="openTrackDetails()" (keydown.space)="$event.preventDefault(); openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
       <div class="meta cursor-pointer" (click)="openTrackDetails()">
         @if (soundService.getCurrentTrack()?.authors && soundService.getCurrentTrack()!.authors!.length > 0) {
           {{ soundService.getCurrentTrack()!.authors![0] }}
@@ -27,11 +29,11 @@
 
   <div class="center">
     <div class="controls">
-      <button (click)="prev()" class="outlined tertiary"><i class="icon-previous"></i></button>
-      <button (click)="togglePlay()" class="primary">
-        <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()"></i>
+      <button (click)="prev()" class="outlined tertiary" [attr.aria-label]="'playback-previous' | translate"><i class="icon-previous" aria-hidden="true"></i></button>
+      <button (click)="togglePlay()" class="primary" [attr.aria-label]="(soundService.isPlayingSignal() ? 'playback-pause' : 'playback-play') | translate">
+        <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
       </button>
-      <button (click)="next()" class="outlined tertiary"><i class="icon-next"></i></button>
+      <button (click)="next()" class="outlined tertiary" [attr.aria-label]="'playback-next' | translate"><i class="icon-next" aria-hidden="true"></i></button>
     </div>
   </div>
 
@@ -53,14 +55,14 @@
 
   <div class="right">
 
-    <button (click)="toggleQueue()" class="outlined tertiary"><i class="icon-music-filter"></i></button>
+    <button (click)="toggleQueue()" class="outlined tertiary" [attr.aria-label]="'playback-queue' | translate"><i class="icon-music-filter" aria-hidden="true"></i></button>
 
     <app-volume-control
       [volume]="volume"
       (volumeChange)="onVolumeChange($event)"
     ></app-volume-control>
 
-    <button (click)="close()" class="icon-button rounded light"><i class="icon-close"></i></button>
+    <button (click)="close()" class="icon-button rounded light" [attr.aria-label]="'playback-close' | translate"><i class="icon-close" aria-hidden="true"></i></button>
   </div>
 </div>
 
