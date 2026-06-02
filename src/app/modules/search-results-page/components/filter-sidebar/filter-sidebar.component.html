@@ -24,7 +24,7 @@
 <div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop"
   (click)="onBackdropClick()"></div>
 
-<div class="filter-sidebar" role="complementary" aria-label="Search filters"
+<div class="filter-sidebar" role="complementary" [attr.aria-label]="'search-filters' | translate"
   [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
   [class.disabled]="isDisabled" [class.dimmed]="dimmed">
 

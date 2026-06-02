@@ -2,9 +2,14 @@
   @for (item of displayItems; track item.pid) {
     <div
       class="search-result-item"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'go-to-page' | translate:{ p: item.pageNumber }"
       [class.with-content]="true"
       [class.active]="isActive(item)"
-      (click)="onResultClick(item)">
+      (click)="onResultClick(item)"
+      (keydown.enter)="onResultClick(item)"
+      (keydown.space)="$event.preventDefault(); onResultClick(item)">
 
       <app-detail-page-item
         [page]="item.page || item"

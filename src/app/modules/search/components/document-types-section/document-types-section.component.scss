@@ -1,3 +1,12 @@
 :host {
   padding: var(--spacing-x2) 0;
 }
+
+.facet-grid-section__heading {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xlarge);
+  font-weight: 700;
+  line-height: var(--line-height-4);
+  margin: 0;
+  margin-bottom: var(--spacing-x3);
+}

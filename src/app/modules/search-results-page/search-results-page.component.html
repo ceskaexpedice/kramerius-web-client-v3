@@ -6,7 +6,7 @@
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
-    <div class="page-content">
+    <div class="page-content" role="main">
 
       <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!adminModeService.adminMode()" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
@@ -87,7 +87,7 @@
       @if (view() !== ViewOptions.map) {
         <app-search-results-view
           role="region"
-          aria-label="Search results"
+          [attr.aria-label]="'search-results' | translate"
           [view]="view()"
           [showSectionHeaders]="showSectionHeaders()"
           [showSelectedTags$]="showSelectedTags$"

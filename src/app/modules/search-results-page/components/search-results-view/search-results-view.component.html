@@ -75,10 +75,10 @@
       <!-- DESKTOP: Stacked sections with headers -->
       <ng-container *ngIf="(searchService.loading$ | async) || (searchService.nonPageResults$ | async)?.length">
         @if (showSectionHeaders) {
-          <h3>
+          <h2>
             {{ 'titles-section-header' | translate }}
             <span class="section-header__subtitle">({{ 'titles-section-header--subtitle' | translate }})</span>
-          </h3>
+          </h2>
         }
 
         <div class="grid--container">
@@ -92,7 +92,7 @@
       <ng-container
         *ngIf="!(searchService.loading$ | async) && (searchService.articleResults$ | async) as articleResults">
         @if (articleResults.length > 0) {
-        <h3 *ngIf="showSectionHeaders">{{'articles-section-header' | translate}}</h3>
+        <h2 *ngIf="showSectionHeaders">{{'articles-section-header' | translate}}</h2>
         <div class="grid--container">
           <app-record-item *ngFor="let doc of articleResults" [item]="toRecordItem(doc)"></app-record-item>
         </div>
@@ -101,10 +101,10 @@
 
       <ng-container *ngIf="(pageSearchService.pageResultsLoading$ | async) || ((pageSearchService.pageResults$ | async)?.length ?? 0) > 0">
         <div class="section-header">
-          <h3>
+          <h2>
             {{ 'pages-section-header' | translate }}
             <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
-          </h3>
+          </h2>
         </div>
 
         <div class="grid--container">
@@ -117,7 +117,7 @@
       <ng-container
         *ngIf="!(searchService.loading$ | async) && (searchService.attachmentResults$ | async) as attachmentResults">
         @if (attachmentResults.length > 0) {
-        <h3 *ngIf="showSectionHeaders">{{'attachments-section-header' | translate}}</h3>
+        <h2 *ngIf="showSectionHeaders">{{'attachments-section-header' | translate}}</h2>
         <div class="grid--container">
           <app-record-item *ngFor="let doc of attachmentResults" [item]="toRecordItem(doc)"></app-record-item>
         </div>
@@ -137,10 +137,10 @@
         @if (nonPageResults.length > 0) {
         <div class="list-view--header flex flex--space-between align-items-center">
           @if (showSectionHeaders) {
-            <h3>
+            <h2>
               {{ 'titles-section-header' | translate }}
               <span class="section-header__subtitle">({{ 'titles-section-header--subtitle' | translate }})</span>
-            </h3>
+            </h2>
           }
           <div class="pull-right">
             <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
@@ -157,7 +157,7 @@
       <ng-container *ngIf="searchService.articleResults$ | async as articleResults">
         @if (articleResults.length > 0) {
         <div class="list-view--header flex flex--space-between align-items-center">
-          <h3 *ngIf="showSectionHeaders">{{'articles-section-header' | translate}}</h3>
+          <h2 *ngIf="showSectionHeaders">{{'articles-section-header' | translate}}</h2>
           <ng-container *ngIf="!(searchService.nonPageResults$ | async)?.length">
             <div class="pull-right">
               <app-paginator [showOnlyArrows]="true" [showPageSizeOptions]="false" [page]="searchService.page"
@@ -175,10 +175,10 @@
       <ng-container *ngIf="pageSearchService.pageResults$ | async as pageResults">
         @if (pageResults.length > 0 || (pageSearchService.pageResultsLoading$ | async)) {
         <div class="list-view--header flex flex--space-between align-items-center">
-          <h3>
+          <h2>
             {{ 'pages-section-header' | translate }}
             <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
-          </h3>
+          </h2>
         </div>
         <app-record-item-list [records]="pageResults" [loading]="(pageSearchService.pageResultsLoading$ | async) ?? false" [exportedRecord]="exportRecord" (exportRecord)="openExportPanel($event)"></app-record-item-list>
         }
@@ -187,7 +187,7 @@
       <ng-container *ngIf="searchService.attachmentResults$ | async as attachmentResults">
         @if (attachmentResults.length > 0) {
         <div class="list-view--header flex flex--space-between align-items-center">
-          <h3 *ngIf="showSectionHeaders">{{'attachments-section-header' | translate}}</h3>
+          <h2 *ngIf="showSectionHeaders">{{'attachments-section-header' | translate}}</h2>
           <ng-container
             *ngIf="!(searchService.nonPageResults$ | async)?.length && !(searchService.articleResults$ | async)?.length && !(searchService.pageResults$ | async)?.length">
             <div class="pull-right">

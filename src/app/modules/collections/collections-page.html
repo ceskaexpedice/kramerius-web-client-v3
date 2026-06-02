@@ -5,7 +5,11 @@
       <app-collection-filters></app-collection-filters>
     </app-filter-sidebar>
 
-    <div class="page-content">
+    <div class="page-content" role="main">
+
+      @if (collectionsService.detail$ | async; as metadata) {
+        <h1 class="visually-hidden">{{ getLocalizedTitle(metadata) }}</h1>
+      }
 
       <div class="page-content__filters">
 
@@ -136,8 +140,9 @@
         </div>
 
         @if (!rightSidebarVisible()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()">
-          <i class="icon-info-full"></i>
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()"
+          [attr.aria-label]="'show-info' | translate">
+          <i class="icon-info-full" aria-hidden="true"></i>
         </button>
         }
 

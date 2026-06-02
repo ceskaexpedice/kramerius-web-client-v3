@@ -48,14 +48,19 @@
   }
 }
 
-h3 {
+h2 {
+  // These section headers were <h3> originally. As <h2> they now also match the
+  // global bare `h2` rule in public/styles/_dialog.scss, which forces flexbox
+  // layout. Reset those leaked properties so the heading keeps its block rendering.
+  display: block;
   font-family: var(--font-family-body);
   font-size: var(--font-size-xlarge);
+  font-weight: 700;
   line-height: var(--line-height-4);
   margin: 0 0 var(--spacing-x3) 0;
 }
 
-.grid--container + h3 {
+.grid--container + h2 {
   margin-top: var(--spacing-x10);
 }
 
@@ -66,7 +71,8 @@ h3 {
   gap: var(--spacing-x3);
   margin: 0 0 var(--spacing-x3) 0;
 
-  h3 {
+  h2 {
+    display: block;
     margin: 0;
   }
 }
@@ -88,7 +94,8 @@ h3 {
     display: none;
   }
 
-  h3 {
+  h2 {
+    display: block;
     margin-bottom: 0;
   }
 
