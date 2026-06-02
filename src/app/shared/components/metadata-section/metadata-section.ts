@@ -605,7 +605,7 @@ export class MetadataSection implements OnInit, OnChanges {
       autoFocus: false,
       restoreFocus: false,
       maxWidth: '600px',
-      width: '90%',
+      width: '40%',
       maxHeight: '90vh'
     });
   }

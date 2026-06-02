@@ -628,6 +628,7 @@
   "authors-dialog--col-date": "Data",
   "authors-dialog--col-role": "Rola",
   "authors-dialog--col-identifiers": "Identyfikatory",
+  "authors-dialog--identifier-link-label": "Rekord wzorcowy {{value}} (otwiera się w nowym oknie)",
   "authors-more": "więcej",
   "search-no-results.title-prefix": "Nic nie znaleźliśmy dla wyrażenia",
   "search-no-results.description-prefix": "Sprawdź, czy wyszukiwane wyrażenie jest",

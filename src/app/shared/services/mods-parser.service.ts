@@ -322,12 +322,12 @@ export class ModsParserService {
       }
     }
 
-    // Process name identifiers (orcid, ror, etc.)
+    // Process name identifiers (orcid, ror, nkp authority id, etc.)
     const nameIdentifierElements = this.getElements(item, 'nameIdentifier');
     for (const nameIdentifier of nameIdentifierElements) {
-      const idType = nameIdentifier.getAttribute('type');
+      const idType = nameIdentifier.getAttribute('type') ?? '';
       const idValue = this.getText(nameIdentifier);
-      if (idType && idValue) {
+      if (idValue) {
         author.identifiers.push({ type: idType, value: idValue });
       }
     }

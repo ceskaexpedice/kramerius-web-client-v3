@@ -629,6 +629,7 @@
   "authors-dialog--col-date": "Dátum",
   "authors-dialog--col-role": "Rola",
   "authors-dialog--col-identifiers": "Identifikátory",
+  "authors-dialog--identifier-link-label": "Autoritný záznam {{value}} (otvorí sa v novom okne)",
   "authors-more": "ďalších",
   "search-no-results.title-prefix": "Nič sme nenašli pre výraz",
   "search-no-results.description-prefix": "Skúste skontrolovať, či je hľadaný výraz",
