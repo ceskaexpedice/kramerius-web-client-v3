@@ -3,7 +3,7 @@
   <div>
 
     @if (label && label.length > 0) {
-      <div class="category--header">
+      <div class="category--header" [class.visually-hidden]="hideLabelVisually">
 
         <h2 *ngIf="!loading">
 
@@ -78,6 +78,6 @@
   </div>
 
 
-  <hr *ngIf="showBottomBorder">
+  <hr *ngIf="showBottomBorder" aria-hidden="true">
 
 </ng-container>

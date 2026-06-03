@@ -3,7 +3,7 @@
 }
 
 :host:hover {
-  .form-control label {
+  .form-control .label-text {
     color: var(--color-text-base);
   }
 
@@ -12,7 +12,7 @@
   }
 }
 
-.form-control label {
+.form-control .label-text {
   color: var(--color-text-tertiary);
   font-size: var(--font-size-small);
   line-height: var(--line-height-1);
