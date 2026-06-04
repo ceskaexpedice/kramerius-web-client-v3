@@ -3,11 +3,13 @@ import {
   FilterSidebarComponent
 } from "../../../modules/search-results-page/components/filter-sidebar/filter-sidebar.component";
 import {DetailViewService} from '../../../modules/detail-view-page/services/detail-view.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-detail-layout',
   imports: [
-    FilterSidebarComponent
+    FilterSidebarComponent,
+    TranslatePipe
   ],
   templateUrl: './detail-layout.component.html',
   styleUrl: './detail-layout.component.scss'

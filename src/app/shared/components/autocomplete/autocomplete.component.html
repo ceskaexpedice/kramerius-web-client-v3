@@ -36,14 +36,15 @@
           <div class="autocomplete-option">
 
             <div class="autocomplete-option--content">
-              <i class="icon-search-history"></i>
+              <i class="icon-search-history" aria-hidden="true"></i>
               <label [innerHTML]="highlight(option, inputTerm())"></label>
             </div>
 
             <button
               class="delete-btn"
+              [attr.aria-label]="'remove-history-suggestion--arialabel' | translate"
               (click)="historyService.remove(option); $event.stopPropagation();">
-              <i class="icon-trash"></i>
+              <i class="icon-trash" aria-hidden="true"></i>
             </button>
 
           </div>
@@ -58,7 +59,7 @@
         <div class="autocomplete-option">
 
           <div class="autocomplete-option--content">
-            <i class="icon-search-normal-1"></i>
+            <i class="icon-search-normal-1" aria-hidden="true"></i>
             <label [innerHTML]="highlight(option, inputTerm())"></label>
           </div>
 

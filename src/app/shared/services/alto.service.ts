@@ -404,91 +404,166 @@ export class AltoService {
     }
 
     // Parse styles
-    const textStyles = new Map<string, { fontFamily: string; fontSize: number }>();
+    const textStyles = new Map<string, number>();
     for (const ts of Array.from(xmlDoc.getElementsByTagName('TextStyle'))) {
-      textStyles.set(ts.getAttribute('ID') || '', {
-        fontFamily: ts.getAttribute('FONTFAMILY') || '',
-        fontSize: parseFloat(ts.getAttribute('FONTSIZE') || '0')
-      });
+      textStyles.set(ts.getAttribute('ID') || '', parseFloat(ts.getAttribute('FONTSIZE') || '0'));
     }
 
-    const paragraphStyles = new Map<string, { align: string; lineSpace: number }>();
+    const paragraphStyles = new Map<string, string>();
     for (const ps of Array.from(xmlDoc.getElementsByTagName('ParagraphStyle'))) {
-      paragraphStyles.set(ps.getAttribute('ID') || '', {
-        align: (ps.getAttribute('ALIGN') || 'Left').toLowerCase(),
-        lineSpace: parseFloat(ps.getAttribute('LINESPACE') || '0')
-      });
+      paragraphStyles.set(ps.getAttribute('ID') || '', (ps.getAttribute('ALIGN') || 'Left').toLowerCase());
     }
 
-    const textBlocks = Array.from(xmlDoc.getElementsByTagName('TextBlock'));
     const htmlParts: string[] = [];
 
-    for (const block of textBlocks) {
-      const styleRefs = (block.getAttribute('STYLEREFS') || '').split(/\s+/);
+    const textLines = Array.from(xmlDoc.getElementsByTagName('TextLine'));
+    let currentLines: string[] = [];
+    let currentTag: 'p' | 'h1' | 'h2' | 'h3' = 'p';
+    let currentAlign = 'left';
+    let currentBaseFontSize = 0;
+    let lastBottom = 0;
+    let lastLeft = 0;
 
-      let align = 'left';
-      let baseFontSize = 0;
-
-      for (const ref of styleRefs) {
-        if (paragraphStyles.has(ref)) {
-          align = paragraphStyles.get(ref)!.align;
-        }
-        if (textStyles.has(ref)) {
-          baseFontSize = textStyles.get(ref)!.fontSize;
-        }
+    const flushBlock = (): void => {
+      if (currentLines.length === 0) {
+        return;
       }
 
-      const textLines = Array.from(block.getElementsByTagName('TextLine'));
-      const lineParts: string[] = [];
-
-      for (const line of textLines) {
-        const lineStyleRefs = (line.getAttribute('STYLEREFS') || '').split(/\s+/);
-        let lineFontSize = baseFontSize;
-        for (const ref of lineStyleRefs) {
-          if (textStyles.has(ref)) {
-            lineFontSize = textStyles.get(ref)!.fontSize;
-          }
-        }
-
-        const strings = Array.from(line.getElementsByTagName('String'));
-        const words: string[] = [];
-
-        for (const stringEl of strings) {
-          let content = stringEl.getAttribute('CONTENT') || '';
-          const subsType = stringEl.getAttribute('SUBS_TYPE') || '';
-          const subsContent = stringEl.getAttribute('SUBS_CONTENT') || '';
-
-          if (subsType === 'HypPart1') {
-            content = subsContent;
-          } else if (subsType === 'HypPart2') {
-            continue;
-          }
-
-          const style = stringEl.getAttribute('STYLE') || '';
-          const isBold = style.includes('bold');
-          const isItalic = style.includes('italics');
-
-          let word = this.escapeHtml(content);
-          if (isBold) word = `<strong>${word}</strong>`;
-          if (isItalic) word = `<em>${word}</em>`;
-          words.push(word);
-        }
-
-        let lineHtml = words.join(' ');
-        if (lineFontSize > 0 && lineFontSize !== baseFontSize) {
-          lineHtml = `<span style="font-size:${this.altoFontToCss(lineFontSize)}">${lineHtml}</span>`;
-        }
-        lineParts.push(lineHtml);
-      }
-
-      const blockContent = lineParts.join(' ');
+      const blockContent = currentLines.join(' ');
       const styles: string[] = [];
-      if (align !== 'left') styles.push(`text-align:${align}`);
-      if (baseFontSize > 0) styles.push(`font-size:${this.altoFontToCss(baseFontSize)}`);
+
+      if (currentAlign !== 'left') {
+        styles.push(`text-align:${currentAlign}`);
+      }
+      if (currentTag === 'p' && currentBaseFontSize > 0) {
+        styles.push(`font-size:${this.altoFontToCss(currentBaseFontSize)}`);
+      }
 
       const styleAttr = styles.length > 0 ? ` style="${styles.join(';')}"` : '';
-      htmlParts.push(`<p${styleAttr}>${blockContent}</p>`);
+      htmlParts.push(`<${currentTag}${styleAttr}>${blockContent}</${currentTag}>`);
+
+      currentLines = [];
+      currentTag = 'p';
+      currentAlign = 'left';
+      currentBaseFontSize = 0;
+      lastBottom = 0;
+      lastLeft = 0;
+    };
+
+    for (const line of textLines) {
+      const textLineWidth = parseInt(line.getAttribute('WIDTH') || '0', 10);
+      if (textLineWidth < 50) {
+        continue;
+      }
+
+      const textLineHeight = parseInt(line.getAttribute('HEIGHT') || '0', 10);
+      const textLineVpos = parseInt(line.getAttribute('VPOS') || '0', 10);
+      const textLineHpos = parseInt(line.getAttribute('HPOS') || '0', 10);
+      const bottom = textLineVpos + textLineHeight;
+
+      if (
+        currentLines.length > 0 &&
+        ((lastBottom > 0 && textLineVpos - lastBottom > 40) ||
+          (lastLeft > 0 && textLineHpos - lastLeft > 40))
+      ) {
+        flushBlock();
+      }
+
+      const block = line.closest('TextBlock');
+      const blockStyleRefs = (block?.getAttribute('STYLEREFS') || '').split(/\s+/).filter(Boolean);
+      if (currentLines.length === 0) {
+        currentAlign = 'left';
+        currentBaseFontSize = 0;
+
+        for (const ref of blockStyleRefs) {
+          if (paragraphStyles.has(ref)) {
+            currentAlign = paragraphStyles.get(ref) || 'left';
+          }
+          if (textStyles.has(ref)) {
+            currentBaseFontSize = textStyles.get(ref) || 0;
+          }
+        }
+
+        if (currentBaseFontSize > 18) {
+          currentTag = 'h1';
+        } else if (currentBaseFontSize > 11) {
+          currentTag = 'h2';
+        }
+      }
+
+      const lineStyleRefs = (line.getAttribute('STYLEREFS') || block?.getAttribute('STYLEREFS') || '')
+        .split(/\s+/)
+        .filter(Boolean);
+      let lineFontSize = currentBaseFontSize;
+      for (const ref of lineStyleRefs) {
+        if (textStyles.has(ref)) {
+          lineFontSize = textStyles.get(ref) || lineFontSize;
+        }
+      }
+
+      const strings = Array.from(line.getElementsByTagName('String'));
+      const words: Array<{ content: string; isBold: boolean; isItalic: boolean }> = [];
+      let lineAllBold = true;
+
+      for (const stringEl of strings) {
+        let content = stringEl.getAttribute('CONTENT') || '';
+        const subsContent = stringEl.getAttribute('SUBS_CONTENT') || '';
+        const subsType = stringEl.getAttribute('SUBS_TYPE') || '';
+
+        if (subsType === 'HypPart1') {
+          content = subsContent;
+        } else if (subsType === 'HypPart2') {
+          continue;
+        }
+
+        const style = stringEl.getAttribute('STYLE') || '';
+        const isBold = style.includes('bold');
+        const isItalic = style.includes('italics');
+
+        if (!isBold) {
+          lineAllBold = false;
+        }
+
+        words.push({
+          content,
+          isBold,
+          isItalic
+        });
+      }
+
+      if (words.length === 0) {
+        lastBottom = bottom;
+        lastLeft = textLineHpos;
+        continue;
+      }
+
+      const isHeadingLine = currentBaseFontSize > 11 || lineAllBold;
+      let lineHtml = words
+        .map(({ content, isBold, isItalic }) => {
+          let word = this.escapeHtml(content);
+          if (!isHeadingLine) {
+            if (isBold) word = `<strong>${word}</strong>`;
+            if (isItalic) word = `<em>${word}</em>`;
+          }
+          return word;
+        })
+        .join(' ');
+
+      if (!isHeadingLine && currentTag === 'p' && lineFontSize > 0 && lineFontSize !== currentBaseFontSize) {
+        lineHtml = `<span style="font-size:${this.altoFontToCss(lineFontSize)}">${lineHtml}</span>`;
+      }
+
+      currentLines.push(lineHtml);
+
+      if (currentLines.length === 1 && lineAllBold && currentTag === 'p') {
+        currentTag = 'h3';
+      }
+
+      lastBottom = bottom;
+      lastLeft = textLineHpos;
     }
+
+    flushBlock();
 
     return htmlParts.join('');
   }

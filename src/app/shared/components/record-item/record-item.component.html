@@ -10,7 +10,8 @@
   <!-- Selection checkbox for admin mode (positioned at card level) -->
   <div class="record-item-card__selection" *ngIf="adminModeService.adminMode() && !loading && item"
     (click)="$event.preventDefault(); $event.stopPropagation()">
-    <app-checkbox [model]="adminModeService.isSelected(item.id)" (modelChange)="onSelectionChange($event)">
+    <app-checkbox [model]="adminModeService.isSelected(item.id)" (modelChange)="onSelectionChange($event)"
+      [ariaLabel]="'select-document' | translate">
     </app-checkbox>
   </div>
 
@@ -27,7 +28,7 @@
       </app-thumbnail-image>
 
       <div class="skeleton skeleton-image" *ngIf="loading || !item">
-        <i class="icon-gallery"></i>
+        <i class="icon-gallery" aria-hidden="true"></i>
       </div>
 
       @if (!loading && item?.model) {
@@ -35,14 +36,14 @@
         <button class="button secondary rounded icon-button favorites-button" *ngIf="shouldShowFavoriteButton()"
           [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
           aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
-          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+          <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
         </button>
 
         <button class="button secondary rounded icon-button favorites-button"
           *ngIf="!adminModeService.adminMode() && (isItemFavorited$ | async) && currentFolderId"
           (click)="onRemoveFromCurrentFolder($event)" [title]="'remove-from-favorites' | translate"
           aria-label="{{'remove-from-favorites' | translate}}">
-          <i class="icon-trash"></i>
+          <i class="icon-trash" aria-hidden="true"></i>
         </button>
       </div>
       }
@@ -51,7 +52,7 @@
       <div class="record-item-card__image-lock-overlay">
         <button class="button secondary rounded icon-button" aria-label="{{'record-locked' | translate}}"
           [title]="'record-locked' | translate">
-          <i class="icon-lock-1"></i>
+          <i class="icon-lock-1" aria-hidden="true"></i>
         </button>
       </div>
       }
@@ -133,12 +134,12 @@
       <button class="button tertiary outlined rounded icon-button" *ngIf="shouldShowFavoriteButton()"
         [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
         aria-label="{{'add-to-favorites' | translate}}" [title]="'add-to-favorites' | translate">
-        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
       </button>
       <button class="button tertiary outlined rounded icon-button"
         (click)="onInfoClick($event)"
         aria-label="{{'info' | translate}}" [title]="'info' | translate">
-        <i class="icon-info"></i>
+        <i class="icon-info" aria-hidden="true"></i>
       </button>
     </div>
     }

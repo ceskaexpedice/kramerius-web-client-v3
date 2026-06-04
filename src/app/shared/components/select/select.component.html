@@ -1,14 +1,16 @@
 <div class="select-wrapper" #wrapper (click)="toggle()" [attr.aria-expanded]="open()" role="button" tabindex="0"
+  aria-haspopup="listbox"
+  [attr.aria-activedescendant]="!filterable && open() && focusedIndex >= 0 ? 'option-' + focusedIndex : null"
   [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
   <span>{{ displayFn(value) | translate }}</span>
-  <i class="icon-arrow-down arrow-icon" [class.open]="open()"></i>
+  <i class="icon-arrow-down arrow-icon" [class.open]="open()" aria-hidden="true"></i>
 </div>
 
-<div *ngIf="open()" class="options-container" [class.above]="showAbove" [style.z-index]="zIndex" role="listbox"
-  [attr.aria-activedescendant]="'option-' + focusedIndex">
+<div *ngIf="open()" class="options-container" [class.above]="showAbove" [style.z-index]="zIndex" role="listbox">
   <!-- Filter Input -->
   <div *ngIf="filterable" class="filter-container">
-    <app-input [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate" [showMicButton]="showMicButton"
+    <app-input #filterInput [type]="'text'" class="filter-input" [placeholder]="filterPlaceholder | translate" [showMicButton]="showMicButton"
+      [ariaActivedescendant]="focusedIndex >= 0 ? 'option-' + focusedIndex : null"
       (valueChange)="onFilterChange($event)" (keydown)="onFilterKeyDown($event)" (click)="$event.stopPropagation()"
       [theme]="'dark'" [size]="'sm'"></app-input>
   </div>
@@ -23,7 +25,7 @@
           (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
           [attr.aria-selected]="option === value">
           {{ displayFn(option) | translate }}
-          <i *ngIf="option === value" class="icon-check"></i>
+          <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
         </div>
       </cdk-virtual-scroll-viewport>
     </ng-container>
@@ -33,17 +35,17 @@
         [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
         (click)="select(option)" (mouseenter)="focusedIndex = i" role="option" [attr.aria-selected]="option === value">
         {{ displayFn(option) | translate }}
-        <i *ngIf="option === value" class="icon-check"></i>
+        <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
       </div>
     </ng-template>
 
     <!-- No results message -->
     <div *ngIf="filteredOptions.length === 0" class="no-results">
-      {{ 'No results found' | translate }}
+      {{ 'no-results' | translate }}
     </div>
   </div>
 
-  <div aria-live="polite" class="visually-hidden">
-    {{ displayFn(value) | translate }}
+  <div aria-live="assertive" class="visually-hidden">
+    {{ focusedOptionLabel || (displayFn(value) | translate) }}
   </div>
 </div>

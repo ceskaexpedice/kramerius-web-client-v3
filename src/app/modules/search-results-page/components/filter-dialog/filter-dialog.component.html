@@ -1,7 +1,7 @@
 <div class="dialog-header">
   <h2 class="dialog-title">{{ data.facetLabel | translate }}</h2>
   <button class="close-button" (click)="close()" [attr.aria-label]="'close' | translate">
-    <i class="icon-close"></i>
+    <i class="icon-close" aria-hidden="true"></i>
   </button>
 </div>
 
@@ -28,7 +28,7 @@
 
         <div class="help-link-wrapper">
           <p class="help-text">{{ 'filter-dialog.help' | translate }}</p>
-          <i class="icon-question"></i>
+          <i class="icon-question" aria-hidden="true"></i>
         </div>
       </div>
     </div>
@@ -41,14 +41,14 @@
     </div>
 
     <div class="facet-list-container">
-      <div *ngIf="loading()" class="loading">
+      <div *ngIf="loading()" class="loading" role="status" aria-live="polite">
         {{ 'loading' | translate }}
       </div>
       <div class="facet-list">
-        <label *ngFor="let item of items()" class="facet-item" [class.selected]="pendingSelection().has(item.name)">
+        <label *ngFor="let item of items(); let i = index" class="facet-item" [class.selected]="pendingSelection().has(item.name)">
           <mat-checkbox [checked]="pendingSelection().has(item.name)" (change)="toggle(item.name)"
-            class="p-left-0"></mat-checkbox>
-          <span class="facet-label">
+            [attr.aria-labelledby]="'facet-label-' + i" class="p-left-0"></mat-checkbox>
+          <span class="facet-label" [id]="'facet-label-' + i">
             <span class="facet-name">
               @if (isLicenseFacet) {
               {{ item.name | configLabel:'license' }}

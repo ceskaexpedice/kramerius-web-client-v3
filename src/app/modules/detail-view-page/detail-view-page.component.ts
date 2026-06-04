@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy, signal, HostBinding, computed } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -36,6 +36,8 @@ import { AdminActionsService } from '../../shared/services/admin-actions.service
 import { GeoreferenceService } from '../../shared/services/georeference.service';
 import { ConfigService } from '../../core/config/config.service';
 import { MapViewerService } from '../../shared/services/map-viewer.service';
+import { DetailFullscreenService } from '../../shared/services/detail-fullscreen.service';
+import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -44,10 +46,12 @@ import { MapViewerService } from '../../shared/services/map-viewer.service';
   standalone: false,
   providers: [MapViewerService]
 })
-export class DetailViewPageComponent implements OnInit, OnDestroy {
+export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private krameriusBaseUrl: string;
   private subscriptions: Subscription[] = [];
+
+  @ViewChild('contentFullscreen') contentFullscreen!: FullscreenComponent;
 
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
@@ -69,6 +73,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
   public adminActionsService = inject(AdminActionsService);
   public georeferenceService = inject(GeoreferenceService);
   private configService = inject(ConfigService);
+  public detailFullscreen = inject(DetailFullscreenService);
 
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
@@ -216,6 +221,12 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     );
   }
 
+  ngAfterViewInit(): void {
+    // Register the single shared fullscreen container so the IIIF viewer,
+    // viewer-controls and AI content panel all fullscreen together.
+    this.detailFullscreen.registerToggle(() => this.contentFullscreen?.toggle());
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
@@ -223,6 +234,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy {
     this.iiifViewerService.setMapMode(false);
     this.georeferenceService.reset();
     this.documentSearchService.clearSearch();
+    this.detailFullscreen.registerToggle(null);
+    this.detailFullscreen.setFullscreen(false);
     this.aiPanelService.close();
     if (this.stopTtsOnLeave && this.ttsService.isReading()) {
       this.ttsService.stop();

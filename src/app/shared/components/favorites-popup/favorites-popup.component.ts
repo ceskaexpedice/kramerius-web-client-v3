@@ -126,12 +126,13 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       const allFolders = [...owned, ...followed];
       const favoritesTitle = this.foldersService.getFavoritesFolderName();
 
-      // Check if user already has a folder with the favorites name
+      // Check if user already has a favorites folder in ANY language, so switching
+      // language never creates a duplicate.
       this._hasFavoritesFolder = allFolders.some(folder =>
-        folder.name.toLowerCase() === favoritesTitle.toLowerCase()
+        this.foldersService.isFavoritesFolder(folder)
       );
 
-      // Always add fake favorites folder unless user already has one with same name
+      // Add fake favorites folder unless the user already has one (in any language)
       if (!this._hasFavoritesFolder) {
         const fakeFavoritesFolder: Folder = {
           name: favoritesTitle,
@@ -186,15 +187,22 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         }
 
         // Map to list format with selection state
-        const favoritesName = this.foldersService.getFavoritesFolderName().toLowerCase();
-        const mappedFolders = filteredFolders.map(folder => ({
-          folder,
-          isSelected: selectedFolderIds.has(folder.uuid),
-          containsItem: foldersContainingItem.includes(folder.uuid),
-          isFakeFolder: folder.uuid === this.FAKE_FAVORITES_UUID,
-          isFavoritesFolder: folder.name.toLowerCase() === favoritesName,
-          isLastUsed: lastUsedFolderId === folder.uuid
-        }));
+        const mappedFolders = filteredFolders.map(folder => {
+          const isFakeFolder = folder.uuid === this.FAKE_FAVORITES_UUID;
+          const isFavoritesFolder = this.foldersService.isFavoritesFolder(folder);
+          return {
+            folder,
+            isSelected: selectedFolderIds.has(folder.uuid),
+            containsItem: foldersContainingItem.includes(folder.uuid),
+            isFakeFolder,
+            isFavoritesFolder,
+            // Favorites folder name follows the current UI language, not its stored name
+            displayName: (isFakeFolder || isFavoritesFolder)
+              ? this.foldersService.getFavoritesDisplayName()
+              : folder.name,
+            isLastUsed: lastUsedFolderId === folder.uuid
+          };
+        });
 
         // Sort folders by priority:
         // 1. Folders containing the item (highest priority) - ALWAYS first
@@ -276,8 +284,8 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
             newSelected.add(lastUsedFolderId);
             this.lastUsedFolderId.set(lastUsedFolderId);
           } else if (this._hasFavoritesFolder) {
-            // Fallback: pre-check real favorites folder
-            const favoriteFolder = folders.find(f => f.name === this.foldersService.getFavoritesFolderName());
+            // Fallback: pre-check real favorites folder (any language)
+            const favoriteFolder = folders.find(f => this.foldersService.isFavoritesFolder(f));
             if (favoriteFolder) {
               newSelected.add(favoriteFolder.uuid);
             }

@@ -15,9 +15,12 @@ import { SoundService } from '../../shared/services/sound.service';
 import { SoundTrackModel, TrackViewType } from '../models/sound-track.model';
 import { PopupPositioningService, PopupState } from '../../shared/services/popup-positioning.service';
 import { SavedListsService } from './services/saved-lists.service';
+import { FoldersService } from './services/folders.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
 import { ExportService } from '../../shared/services/export.service';
+import { MatDialog } from '@angular/material/dialog';
+import { FolderShareDialogComponent } from '../../shared/dialogs/folder-share-dialog/folder-share-dialog.component';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -60,7 +63,9 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     public soundService: SoundService,
     private popupPositioningService: PopupPositioningService,
     private savedListsService: SavedListsService,
-    private exportService: ExportService
+    private exportService: ExportService,
+    private dialog: MatDialog,
+    private foldersService: FoldersService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
   }
@@ -161,6 +166,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     this.popupPositioningService.cleanup();
   }
 
+  folderDisplayName(folder: any): string {
+    if (!folder) return '';
+    return this.foldersService.isFavoritesFolder(folder)
+      ? this.foldersService.getFavoritesDisplayName()
+      : folder.name;
+  }
+
+  isFavoritesFolder(folder: any): boolean {
+    return !!folder && this.foldersService.isFavoritesFolder(folder);
+  }
+
   isCurrentUserOwner(folder: any): boolean {
     if (!folder) return false;
 
@@ -181,7 +197,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       actions.push({
         id: 'delete',
         icon: 'icon-trash',
-        tooltip: 'Delete folder',
+        tooltip: 'folder-toolbar.tooltip.delete',
         label: 'Delete'
       });
     }
@@ -190,7 +206,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     actions.push({
       id: 'share',
       icon: 'icon-send-2',
-      tooltip: 'Share folder link',
+      tooltip: 'folder-toolbar.tooltip.share',
       label: 'Share',
     });
 
@@ -198,7 +214,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     actions.push({
       id: 'download',
       icon: 'icon-download',
-      tooltip: 'Export folder contents',
+      tooltip: 'folder-toolbar.tooltip.download',
       label: 'Download'
     });
 
@@ -208,11 +224,9 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   onShareFolder() {
     this.activeFolder.pipe(first()).subscribe(folder => {
       if (folder) {
-        // TODO: Implement share functionality - copy folder link to clipboard
-        const url = `${window.location.origin}/folders/${folder.uuid}`;
-        navigator.clipboard.writeText(url).then(() => {
-          console.log('Folder link copied to clipboard');
-          // TODO: Show toast notification
+        this.dialog.open(FolderShareDialogComponent, {
+          width: '60vw',
+          data: { uuid: folder.uuid },
         });
       }
     });
@@ -227,12 +241,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   }
 
   onDownloadFolder() {
-    this.activeFolder.pipe(first()).subscribe(folder => {
-      if (folder) {
-        // TODO: Implement folder export/download functionality
-        console.log('Download folder:', folder.name);
-        // This could export folder contents as CSV, JSON, etc.
-      }
+    this.activeFolderItems.pipe(first()).subscribe(items => {
+      this.exportService.downloadSearchResultsCsv(items);
     });
   }
 

@@ -56,6 +56,8 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() operators: Record<string, string> = {};
   @Input() showToggleExpand = true;
   @Input() showBottomBorder = true;
+  /** Keep the category heading available to screen readers but hide it visually. */
+  @Input() hideLabelVisually = false;
   @Input() type: FacetElementType = FacetElementType.checkbox;
   @Input() loading = false;
 

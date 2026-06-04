@@ -1,8 +1,8 @@
-<label class="form-control">
+<div class="form-control">
 
   <mat-checkbox [checked]="checked" [disabled]="disabled" (change)="toggled.emit()" color="tertiary">
     <span class="label-wrapper">
-      <label [class.checked]="checked" (click)="toggled.emit()">
+      <span class="label-text" [class.checked]="checked">
         @if (isLicense) {
           @if (truncateLabel) {
             {{ (label | configLabel:'license').length > 15 ? (label | configLabel:'license').slice(0, 15) + '...' : (label | configLabel:'license') }}
@@ -16,21 +16,29 @@
             {{ label | translate }}
           }
         }
-      </label>
+      </span>
       <span class="count" [class.checked]="checked">({{ count | formatNumber }})</span>
+      @if (hasLicenseInfo) {
+        <button type="button" class="license-info-icon"
+          [appCdkTooltip]="'license-info-tooltip' | translate" [tooltipPosition]="'right'"
+          [attr.aria-label]="'license-info-tooltip' | translate"
+          (click)="openLicenseInfo($event)">
+          <i class="icon-question" aria-hidden="true"></i>
+        </button>
+      }
     </span>
   </mat-checkbox>
 
   @if (langCode) {
-  <span class="icon icon--flag" [class.active]="checked">
+  <span class="icon icon--flag" [class.active]="checked" aria-hidden="true">
     <app-language-badge [size]="20" [lang]="langCode" [src]="icon" [rounded]="true" [active]="checked"></app-language-badge>
   </span>
   } @else if (colorDot) {
-  <span class="color-dot" [class.active]="checked" [style.--dot-color]="colorDot"></span>
+  <span class="color-dot" [class.active]="checked" [style.--dot-color]="colorDot" aria-hidden="true"></span>
   } @else if (icon) {
-  <span class="icon" [class.active]="checked">
+  <span class="icon" [class.active]="checked" aria-hidden="true">
     <i [ngClass]="[icon, itemIconClass || '']"></i>
   </span>
   }
 
-</label>
+</div>

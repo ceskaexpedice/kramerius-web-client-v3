@@ -1,21 +1,23 @@
 <mat-radio-group class="radio-group" [value]="selected" [name]="'radio-group-' + facetKey"
+  [attr.aria-label]="groupLabel ? (groupLabel | translate) : null"
   (change)="onSelectionChange($event)">
   <mat-radio-button *ngFor="let item of items; trackBy: trackByFn" [value]="item.name" class="radio-button">
     <span class="label-wrapper">
-      <label class="cursor-pointer" (click)="onLabelClick(item.name)" [class.selected]="item.name === selected">{{
-        (item.label || (item.name + '-label')) | translate }}</label>
+      <span class="label-text" [class.selected]="item.name === selected">{{
+        (item.label || (item.name + '-label')) | translate }}</span>
       <span class="count" [class.selected]="item.name === selected">({{ item.count | formatNumber }})</span>
       <span *ngIf="item.tooltipIcon && item.tooltipText" class="tooltip-icon"
+        role="img" [attr.aria-label]="item.tooltipText | translate"
         [appCdkTooltip]="item.tooltipText | translate" [tooltipPosition]="'right'">
-        <i [ngClass]="item.tooltipIcon"></i>
+        <i [ngClass]="item.tooltipIcon" aria-hidden="true"></i>
       </span>
     </span>
-    <span *ngIf="item.icons && item.icons.length > 0" class="icons-group" [class.active]="item.name === selected">
+    <span *ngIf="item.icons && item.icons.length > 0" class="icons-group" [class.active]="item.name === selected" aria-hidden="true">
       <span *ngFor="let ic of item.icons" class="icon">
         <i [ngClass]="[ic.icon, ic.iconClass || '']"></i>
       </span>
     </span>
-    <span *ngIf="!item.icons && item.icon" class="icon" [class.active]="item.name === selected">
+    <span *ngIf="!item.icons && item.icon" class="icon" [class.active]="item.name === selected" aria-hidden="true">
       <i [ngClass]="[item.icon, item.iconClass || '']"></i>
     </span>
   </mat-radio-button>

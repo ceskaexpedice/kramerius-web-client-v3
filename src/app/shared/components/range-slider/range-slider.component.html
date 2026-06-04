@@ -40,7 +40,7 @@
           [value]="from()"
           [class.on-top]="from() === to() && lastMoved === 'from'"
           (input)="onSliderFromChange($any($event.target).valueAsNumber)"
-          [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+          [attr.aria-label]="(type === 'date' ? 'slider-min-date--arialabel' : 'slider-min-value--arialabel') | translate"
           [attr.aria-valuemin]="getSliderMin()"
           [attr.aria-valuemax]="getSliderMax()"
           [attr.aria-valuenow]="from()"
@@ -55,7 +55,7 @@
           [value]="to()"
           [class.on-top]="from() === to() && lastMoved === 'to'"
           (input)="onSliderToChange($any($event.target).valueAsNumber)"
-          [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+          [attr.aria-label]="(type === 'date' ? 'slider-max-date--arialabel' : 'slider-max-value--arialabel') | translate"
           [attr.aria-valuemin]="getSliderMin()"
           [attr.aria-valuemax]="getSliderMax()"
           [attr.aria-valuenow]="to()"
@@ -104,7 +104,7 @@
         [value]="from()"
         [class.on-top]="from() === to() && lastMoved === 'from'"
         (input)="onSliderFromChange($any($event.target).valueAsNumber)"
-        [attr.aria-label]="type === 'date' ? 'Minimum date' : 'Minimum value'"
+        [attr.aria-label]="(type === 'date' ? 'slider-min-date--arialabel' : 'slider-min-value--arialabel') | translate"
         [attr.aria-valuemin]="getSliderMin()"
         [attr.aria-valuemax]="getSliderMax()"
         [attr.aria-valuenow]="from()"
@@ -119,7 +119,7 @@
         [value]="to()"
         [class.on-top]="from() === to() && lastMoved === 'to'"
         (input)="onSliderToChange($any($event.target).valueAsNumber)"
-        [attr.aria-label]="type === 'date' ? 'Maximum date' : 'Maximum value'"
+        [attr.aria-label]="(type === 'date' ? 'slider-max-date--arialabel' : 'slider-max-value--arialabel') | translate"
         [attr.aria-valuemin]="getSliderMin()"
         [attr.aria-valuemax]="getSliderMax()"
         [attr.aria-valuenow]="to()"
@@ -137,7 +137,7 @@
             class="date-input"
             [value]="fromDate() | date:'yyyy-MM-dd'"
             (change)="onFromDateChange($event)"
-            aria-label="Start date"
+            [attr.aria-label]="'slider-start-date--arialabel' | translate"
           />
         </div>
         <app-input
@@ -167,7 +167,7 @@
             class="date-input"
             [value]="toDate() | date:'yyyy-MM-dd'"
             (change)="onToDateChange($event)"
-            aria-label="End date"
+            [attr.aria-label]="'slider-end-date--arialabel' | translate"
           />
         </div>
         <app-input

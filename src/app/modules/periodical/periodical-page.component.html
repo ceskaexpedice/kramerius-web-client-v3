@@ -5,7 +5,9 @@
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-    <div class="page-content" *ngIf="periodical.viewMode() as mode">
+    <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode">
+
+      <h1 class="visually-hidden">{{ (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
       <div class="page-content__filters">
         <!-- Action Toolbar -->
@@ -138,8 +140,9 @@
         </div>
 
         @if (!showMetadataSidebar()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
-          <i class="icon-info-full"></i>
+        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()"
+          [attr.aria-label]="'show-info' | translate">
+          <i class="icon-info-full" aria-hidden="true"></i>
         </button>
         }
 

@@ -1,14 +1,16 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-fullscreen',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './fullscreen.component.html',
   styleUrl: './fullscreen.component.scss'
 })
 export class FullscreenComponent implements OnInit, OnDestroy {
+  @Input() showCloseButton: boolean = true;
   @Output() fullscreenChange = new EventEmitter<boolean>();
   @ViewChild('fullscreenContainer', { static: true }) containerRef!: ElementRef;
 
@@ -56,7 +58,12 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     const elem = this.containerRef.nativeElement;
 
     if (elem.requestFullscreen) {
-      elem.requestFullscreen();
+      const result = elem.requestFullscreen();
+      if (result && typeof result.catch === 'function') {
+        result.catch((err: unknown) => {
+          console.error('requestFullscreen rejected', err);
+        });
+      }
     } else if (elem.webkitRequestFullscreen) { // Safari
       elem.webkitRequestFullscreen();
     } else if (elem.msRequestFullscreen) { // IE11

@@ -16,6 +16,8 @@ export class CheckboxComponent {
     this.checked.set(value);
   }
 
+  @Input() ariaLabel = '';
+
   @Output() modelChange = new EventEmitter<boolean>();
 
   toggle() {

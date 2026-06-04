@@ -54,6 +54,9 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       accessType: 'open',
       isOnline: true,
       label: { cs: 'Volná díla', en: 'Public domain', sk: 'Voľné diela', pl: 'Domena publiczna' },
+      messagePages: [
+        { key: 'unauthenticated', page: { cs: 'local-config/mzk/html/licenses/public.cs.html', en: 'local-config/mzk/html/licenses/public.en.html' } }
+      ],
       actions: {
         pdf: true, print: true, jpeg: true, text: true, textMode: true,
         citation: true, metadata: true, share: true, selection: true, crop: true
@@ -80,6 +83,10 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       accessType: 'terminal',
       isOnline: false,
       label: { cs: 'Díla nedostupná na trhu - studovna', en: 'Out of Commerce Works - library terminal', sk: 'Diela nedostupná na trhu - študovňa', pl: 'Utwory niedostępne w handlu – terminal biblioteczny' },
+      messagePages: [
+        { key: 'unauthenticated', page: { cs: 'local-config/mzk/html/licenses/dnntt.cs.html', en: 'local-config/mzk/html/licenses/dnntt.en.html' } }
+      ],
+      instructionPage: { cs: 'local-config/mzk/html/licenses/dnntt.instruction.cs.html', en: 'local-config/mzk/html/licenses/dnntt.instruction.en.html' },
       actions: {
         pdf: false, print: true, jpeg: false, text: true, textMode: true,
         citation: true, metadata: true, share: true, selection: false, crop: false
@@ -90,6 +97,10 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       accessType: 'terminal',
       isOnline: false,
       label: { cs: 'Studovna', en: 'Studovna', sk: 'Študovňa', pl: 'Czytelnia' },
+      messagePages: [
+        { key: 'unauthenticated', page: { cs: 'local-config/mzk/html/licenses/onsite.cs.html', en: 'local-config/mzk/html/licenses/onsite.en.html' } }
+      ],
+      instructionPage: { cs: 'local-config/mzk/html/licenses/onsite.instruction.cs.html', en: 'local-config/mzk/html/licenses/onsite.instruction.en.html' },
       actions: {
         pdf: false, print: true, jpeg: false, text: true, textMode: true,
         citation: true, metadata: true, share: true, selection: false, crop: false

@@ -3,7 +3,7 @@
 }
 
 :host:hover {
-  .form-control label {
+  .form-control .label-text {
     color: var(--color-text-base);
   }
 
@@ -12,7 +12,7 @@
   }
 }
 
-.form-control label {
+.form-control .label-text {
   color: var(--color-text-tertiary);
   font-size: var(--font-size-small);
   line-height: var(--line-height-1);
@@ -44,6 +44,23 @@
   flex-shrink: 0;
 
   &.checked {
+    color: var(--color-text-tertiary);
+  }
+}
+
+.license-info-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--icon-grey);
+  cursor: pointer;
+  font-size: var(--font-size-xxsmall);
+  flex-shrink: 0;
+
+  &:hover {
     color: var(--color-text-tertiary);
   }
 }

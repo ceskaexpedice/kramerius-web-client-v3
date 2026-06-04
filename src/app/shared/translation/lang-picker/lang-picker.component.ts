@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import {NgFor} from '@angular/common';
 import { AppTranslationService } from '../app-translation.service';
 import { Language } from './language';
 import {ClickOutsideDirective} from '../../directives/click-outside';
@@ -8,7 +7,7 @@ import { LanguageBadgeComponent } from '../../components/language-badge/language
 @Component({
   selector: 'app-lang-picker',
   standalone: true,
-  imports: [NgFor, ClickOutsideDirective, LanguageBadgeComponent],
+  imports: [ClickOutsideDirective, LanguageBadgeComponent],
   templateUrl: './lang-picker.component.html',
   styleUrl: './lang-picker.component.scss'
 })

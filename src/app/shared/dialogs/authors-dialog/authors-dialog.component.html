@@ -11,19 +11,32 @@
       <table class="authors-table">
         <thead>
           <tr>
-            <th>{{ 'authors-dialog--col-name' | translate }}</th>
-            <th>{{ 'authors-dialog--col-date' | translate }}</th>
-            <th>{{ 'authors-dialog--col-role' | translate }}</th>
+            <th scope="col">{{ 'authors-dialog--col-name' | translate }}</th>
+            <th scope="col">{{ 'authors-dialog--col-date' | translate }}</th>
+            <th scope="col">{{ 'authors-dialog--col-identifiers' | translate }}</th>
+            <th scope="col">{{ 'authors-dialog--col-role' | translate }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let author of data.authors">
-            <td>
-              <a class="author-link" (click)="clickAuthor(author)">{{ author.name }}</a>
-            </td>
-            <td>{{ author.date }}</td>
-            <td>{{ getRole(author) }}</td>
-          </tr>
+          @for (author of data.authors; track author) {
+            <tr>
+              <td>
+                <button type="button" class="author-link" (click)="clickAuthor(author)">{{ author.name }}</button>
+              </td>
+              <td>{{ author.date }}</td>
+              <td>
+                @if (getNameIdentifier(author); as identifier) {
+                  <button
+                    type="button"
+                    class="author-link"
+                    [attr.aria-label]="'authors-dialog--identifier-link-label' | translate: { value: identifier }"
+                    (click)="openAuthority(identifier)"
+                  >{{ identifier }}</button>
+                }
+              </td>
+              <td>{{ getRole(author) }}</td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>

@@ -44,6 +44,7 @@ import { ExportDocumentSectionComponent } from '../../shared/components/metadata
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 import { AiContentPanelComponent } from '../../shared/components/ai-content-panel/ai-content-panel.component';
 import { AiActionsComponent } from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
+import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
 
 const routes: Routes = [
   {
@@ -105,6 +106,7 @@ const routes: Routes = [
 		SearchResultsSidebarComponent,
 		AiContentPanelComponent,
 		AiActionsComponent,
+		FullscreenComponent,
 	],
 })
 

@@ -16,7 +16,7 @@
 
     </app-filter-sidebar>
 
-    <main class="detail-layout--main">
+    <section class="detail-layout--main" [attr.aria-label]="'document-content--arialabel' | translate">
 
       <div class="detail-layout--action-toolbar">
         <ng-content select="[action-toolbar]"></ng-content>
@@ -46,7 +46,7 @@
         </footer>
       }
 
-    </main>
+    </section>
 
   </div>
 

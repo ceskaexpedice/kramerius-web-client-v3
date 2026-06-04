@@ -24,6 +24,9 @@
         "sk": "Voľné diela",
         "pl": "Domena publiczna"
       },
+      "messagePages": [
+        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public.cs.html", "en": "local-config/mzk/html/licenses/public.en.html" } }
+      ],
       "actions": {
         "pdf": true,
         "print": true,
@@ -46,6 +49,9 @@
         "sk": "Zmluvne zverejnené diela",
         "pl": "Utwory opublikowane na podstawie umowy"
       },
+      "messagePages": [
+        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public-contract.cs.html", "en": "local-config/mzk/html/licenses/public-contract.en.html" } }
+      ],
       "actions": {
         "pdf": true,
         "print": true,
@@ -65,6 +71,9 @@
         "sk": "Hudobniny Kromeříž",
         "pl": "Nutowe rękopisy Kromieryż"
       },
+      "messagePages": [
+        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public-muo.cs.html", "en": "local-config/mzk/html/licenses/public-muo.en.html" } }
+      ],
       "actions": {
         "pdf": true,
         "print": true,

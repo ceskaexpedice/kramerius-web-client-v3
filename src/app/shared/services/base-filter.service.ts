@@ -69,11 +69,15 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   get selectedTags(): Observable<string[]> {
     return combineLatest([
       this.getBaseFilters(), // Abstract method
-      of(this.submittedTerm),
       this.route.queryParams
     ]).pipe(
-      map(([filters, term, params]) => {
+      map(([filters, params]) => {
         let allFilters: string[] = [...filters];
+
+        // Derive the search term reactively from the URL query param so the tag
+        // updates when the term is removed (e.g. via removeSearchTerm), even after
+        // a page reload. Using a static snapshot here left the tag visible.
+        const term: string = params['query'] || '';
 
         // Add search term if present
         if (term && term.trim().length > 0) {

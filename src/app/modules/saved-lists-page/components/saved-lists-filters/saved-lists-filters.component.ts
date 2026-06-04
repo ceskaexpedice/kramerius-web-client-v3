@@ -76,7 +76,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
           <div class="filter-section-title"
                (click)="changeFolder(folder)"
                [class.active]="activeFolder?.uuid === folder.uuid">
-            {{ folder.name }} <span class="count">({{folder.itemsCount}})</span>
+            {{ displayName(folder) }} <span class="count">({{folder.itemsCount}})</span>
           </div>
         }
 
@@ -158,6 +158,12 @@ export class SavedListsFiltersComponent {
 
   searchValueChanged(value: string | number) {
     this.search.set(value.toString());
+  }
+
+  displayName(folder: Folder): string {
+    return this.foldersService.isFavoritesFolder(folder)
+      ? this.foldersService.getFavoritesDisplayName()
+      : folder.name;
   }
 
   getOwnerOfFolder(folder: Folder): string {

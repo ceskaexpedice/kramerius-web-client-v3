@@ -16,8 +16,8 @@
     <!-- Mobile: single "more" button with dropdown menu -->
     <app-menu [items]="menuItems" placement="bottom-end" [customTrigger]="true" (select)="onMenuItemSelected($event)">
       <button menuTrigger class="icon-button primary mobile-menu-trigger"
-        aria-label="More actions">
-        <i class="icon-more-vertical"></i>
+        [attr.aria-label]="'more-actions--arialabel' | translate">
+        <i class="icon-more-vertical" aria-hidden="true"></i>
       </button>
     </app-menu>
   } @else {

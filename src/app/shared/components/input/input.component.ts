@@ -46,6 +46,7 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() postfixIcon = '';
   @Input() clickable = false;
   @Input() ariaLabel: string = '';
+  @Input() ariaActivedescendant: string | null = null;
 
   @Input() theme: string = 'light';
   @Input() placeholder: string = '';

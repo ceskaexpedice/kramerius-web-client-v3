@@ -6,6 +6,7 @@ import {PopupPositioningService, PopupState} from '../../../../shared/services/p
 import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {DocumentTypeEnum} from '../../../constants/document-type';
 import {PeriodicalDayIssuesPopupComponent} from '../periodical-day-issues-popup/periodical-day-issues-popup.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 interface YearCell {
   yearKey: number;
@@ -19,6 +20,7 @@ interface YearCell {
     NgClass,
     NgIf,
     PeriodicalDayIssuesPopupComponent,
+    TranslatePipe,
   ],
   templateUrl: './periodical-years-timeline.component.html',
   styleUrls: ['./periodical-years-timeline.component.scss', '../periodical-base.scss']
@@ -139,7 +141,7 @@ export class PeriodicalYearsTimelineComponent implements OnChanges, OnDestroy {
     });
   }
 
-  onCellClick(cell: YearCell, event: MouseEvent): void {
+  onCellClick(cell: YearCell, event: Event): void {
     if (cell.entries.length === 1) {
       this.selectYear.emit(cell.entries[0].year);
       return;

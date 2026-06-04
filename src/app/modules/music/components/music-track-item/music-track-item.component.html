@@ -25,7 +25,7 @@
           </div>
           <div class="track-text-content">
             <div class="track-title">
-              <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
+              <span class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</span>
             </div>
             <div class="track-meta">
               @if (primaryAuthor || trackYear) {
@@ -48,7 +48,7 @@
           </div>
         </div>
       } @else {
-        <a class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</a>
+        <span class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</span>
         <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
       }
     </div>

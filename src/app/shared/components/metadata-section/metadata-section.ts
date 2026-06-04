@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
@@ -123,7 +123,10 @@ export class MetadataSection implements OnInit, OnChanges {
     // Single source of truth: whenever the selected collection changes, push it
     // into the IIIF viewer service so tile/thumbnail/fallback URLs get prefixed
     // with the right member library. One wiring point instead of three manual calls.
+    // In collections mode the host page owns the source selection (it re-scopes the
+    // child document grid), so we don't touch the IIIF viewer from here.
     effect(() => {
+      if (this.collectionsMode) return;
       const selected = this.selectedCdkCollection();
       this.iiifViewerService.setCdkLibraryCode(this.isCdk() ? (selected || null) : null);
     });
@@ -132,6 +135,14 @@ export class MetadataSection implements OnInit, OnChanges {
   @Input() uuid: string = '';
 
   @Input() metadata: Metadata | null = null;
+
+  // Collections mode: the CDK source selector is sourced from the `metadata` input
+  // (the collection's own cdk.collection / cdk.leader) and changes are emitted to the
+  // parent instead of triggering detail-page side effects (IIIF viewer, page reload,
+  // MODS refetch). The collections page uses the selection to re-scope its child grid.
+  @Input() collectionsMode: boolean = false;
+
+  @Output() cdkCollectionChange = new EventEmitter<string>();
 
   @Input() showTitle: boolean = true;
 
@@ -169,11 +180,14 @@ export class MetadataSection implements OnInit, OnChanges {
     // then first available. Off-CDK, ensure any stray `source` param is stripped
     // so the URL doesn't leak across instances.
     if (this.isCdk()) {
-      const collections = solrData?.cdkCollections ?? [];
+      // In collections mode the cdk fields come from the collection's own metadata
+      // (the `metadata` input), not the document-detail store.
+      const cdkSource = this.collectionsMode ? this.metadata : solrData;
+      const collections = cdkSource?.cdkCollections ?? [];
       const urlSource = this.route.snapshot.queryParamMap.get('source');
       this.cdkCollections.set(collections);
       this.selectedCdkCollection.set(
-        pickCdkCollection(urlSource, solrData?.cdkLeader, collections) ?? ''
+        pickCdkCollection(urlSource, cdkSource?.cdkLeader, collections) ?? ''
       );
     } else {
       this.cdkCollections.set([]);
@@ -289,6 +303,15 @@ export class MetadataSection implements OnInit, OnChanges {
   async onCdkCollectionChange(collection: string) {
     if (!collection || collection === this.selectedCdkCollection()) return;
     this.selectedCdkCollection.set(collection);
+
+    // Collections mode: the host page owns the source-driven behaviour (URL persistence
+    // and re-scoping the child document grid). Just emit the new selection and stop —
+    // none of the detail-page side effects below apply.
+    if (this.collectionsMode) {
+      this.cdkCollectionChange.emit(collection);
+      return;
+    }
+
     // Persist the selection in the URL so the view is linkable. The `effect()` in
     // the constructor propagates the new selection into IIIFViewerService.
     this.router.navigate([], {
@@ -582,7 +605,7 @@ export class MetadataSection implements OnInit, OnChanges {
       autoFocus: false,
       restoreFocus: false,
       maxWidth: '600px',
-      width: '90%',
+      width: '40%',
       maxHeight: '90vh'
     });
   }

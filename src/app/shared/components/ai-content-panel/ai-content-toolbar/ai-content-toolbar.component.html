@@ -22,12 +22,14 @@
       {{ 'ai.original' | translate }}
     </mat-slide-toggle>
 
-    <button class="button square-button tertiary outlined" (click)="increaseFontSize()" title="T+">
-      <i class="icon-search-zoom-in-2"></i>
+    <button class="button square-button tertiary outlined" (click)="increaseFontSize()"
+      [attr.aria-label]="'increase-font-size--arialabel' | translate" title="T+">
+      <i class="icon-search-zoom-in-2" aria-hidden="true"></i>
     </button>
 
-    <button class="button square-button tertiary outlined" (click)="decreaseFontSize()" title="T-">
-      <i class="icon-search-zoom-out-2"></i>
+    <button class="button square-button tertiary outlined" (click)="decreaseFontSize()"
+      [attr.aria-label]="'decrease-font-size--arialabel' | translate" title="T-">
+      <i class="icon-search-zoom-out-2" aria-hidden="true"></i>
     </button>
 
     <button class="button square-button tertiary outlined" (click)="fullscreenToggle.emit()" [title]="'ai.fullscreen' | translate">
@@ -48,7 +50,8 @@
       </button>
     }
 
-    <button class="button square-button close-button tertiary transparent" (click)="closePanel.emit()" [title]="'ai.copy' | translate">
+    <button class="button square-button close-button tertiary transparent" (click)="onClose()"
+            [title]="(isFullscreen ? 'ai.exit-fullscreen' : 'ai.close-panel') | translate">
       <i class="icon-close"></i>
     </button>
 

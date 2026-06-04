@@ -1,13 +1,13 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgFor } from '@angular/common';
 import { Language } from '../../translation/lang-picker/language';
 import { ClickOutsideDirective } from '../../directives/click-outside';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-language-select',
   standalone: true,
-  imports: [NgFor, ClickOutsideDirective, LanguageBadgeComponent],
+  imports: [ClickOutsideDirective, LanguageBadgeComponent, TranslatePipe],
   templateUrl: './language-select.component.html',
   styleUrl: './language-select.component.scss'
 })

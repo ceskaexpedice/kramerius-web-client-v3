@@ -1,3 +1,6 @@
-<div class="radio" [class.selected]="isSelected()" (click)="select()">
+<div class="radio" [class.selected]="isSelected()" (click)="select()"
+     role="radio" tabindex="0" [attr.aria-checked]="isSelected()"
+     [attr.aria-label]="ariaLabel || null"
+     (keydown.enter)="select()" (keydown.space)="$event.preventDefault(); select()">
   <div class="dot" *ngIf="isSelected()"></div>
 </div>

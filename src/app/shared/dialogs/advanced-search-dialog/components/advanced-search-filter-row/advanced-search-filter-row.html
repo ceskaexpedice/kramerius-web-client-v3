@@ -16,7 +16,7 @@
       </div>
 
       @if (isMobile) {
-        <button (click)="toggleEqualsOperator()" class="equals-operator-btn button tertiary outlined" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+        <button (click)="toggleEqualsOperator()" class="equals-operator-btn button tertiary outlined" [class.not-equals]="!filter.isEquals" [attr.aria-pressed]="!filter.isEquals" [attr.aria-label]="(filter.isEquals ? 'equals-operator' : 'not-equals-operator') | translate">{{filter.isEquals ? '=' : '≠'}}</button>
       }
     </div>
 
@@ -26,7 +26,7 @@
         <div class="filter-value-row">
 
           @if (!isMobile) {
-            <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals">{{filter.isEquals ? '=' : '≠'}}</button>
+            <button (click)="toggleEqualsOperator()" class="equals-operator-btn" [class.not-equals]="!filter.isEquals" [attr.aria-pressed]="!filter.isEquals" [attr.aria-label]="(filter.isEquals ? 'equals-operator' : 'not-equals-operator') | translate">{{filter.isEquals ? '=' : '≠'}}</button>
           }
 
           <div class="filter-input-wrapper">
@@ -100,8 +100,8 @@
 
           <!-- Desktop: trash per value row. Mobile: trash is in condition header -->
           @if (!isMobile) {
-            <button (click)="removeValue($index)" class="remove-button">
-              <i class="icon-trash"></i>
+            <button (click)="removeValue($index)" class="remove-button" [attr.aria-label]="'remove--button-label' | translate">
+              <i class="icon-trash" aria-hidden="true"></i>
             </button>
           }
         </div>
@@ -109,7 +109,7 @@
 
       @if (supportsMultipleValues) {
         <button class="button link with-icon add-value-btn p-left-0" (click)="addValue()">
-          <i class="icon-add-square"></i>
+          <i class="icon-add-square" aria-hidden="true"></i>
           {{ 'add-field-button-label' | translate }}
         </button>
       }

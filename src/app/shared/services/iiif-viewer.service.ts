@@ -5,6 +5,7 @@ import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast.service';
+import { DetailFullscreenService } from './detail-fullscreen.service';
 
 export interface IIIFViewerProperties {
   zoom: number;
@@ -95,10 +96,11 @@ export class IIIFViewerService {
   private selectionOverlay: HTMLElement | null = null;
   private mouseTracker: OpenSeadragon.MouseTracker | null = null;
   private rectangleCounter: number = 0;
-  private dimOverlays: HTMLElement[] = [];
+  private dimElement: HTMLElement | null = null;
+  private dimSelectionRect: OpenSeadragon.Rect | null = null;
+  private dimUpdateHandler: (() => void) | null = null;
   private rectangles: Map<HTMLElement, OpenSeadragon.Rect> = new Map();
   private ttsOverlay: HTMLElement | null = null;
-  private fullscreenComponentGetter: (() => any) | null = null;
   private keyboardHandler: ((event: KeyboardEvent) => void) | null = null;
 
   private bookModeSubject = new BehaviorSubject<boolean>(false);
@@ -134,6 +136,7 @@ export class IIIFViewerService {
   private altoService = inject(AltoService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private detailFullscreen = inject(DetailFullscreenService);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -440,7 +443,7 @@ export class IIIFViewerService {
 
     // Clear all overlays and counters
     this.rectangleCounter = 0;
-    this.dimOverlays = [];
+    this.removeDimElement();
     this.rectangles.clear();
 
     // Clear search state
@@ -508,18 +511,10 @@ export class IIIFViewerService {
     this.setRotation(newRotation);
   }
 
-  // Fullscreen control
-  setFullscreenComponent(getter: () => any): void {
-    this.fullscreenComponentGetter = getter;
-  }
-
+  // Fullscreen control — delegates to the shared detail-view fullscreen
+  // container so the viewer, controls and AI panel fullscreen together.
   toggleFullscreen(): void {
-    if (this.fullscreenComponentGetter) {
-      const component = this.fullscreenComponentGetter();
-      if (component) {
-        component.toggle();
-      }
-    }
+    this.detailFullscreen.toggle();
   }
 
   // Fit to screen control
@@ -766,36 +761,82 @@ export class IIIFViewerService {
     });
   }
 
-  // Create dim overlays around the selected area
+  // Create the dim layer around the selected area.
+  // The dim layer is a DOM element pinned to the full viewer container (not an
+  // OpenSeadragon overlay anchored to the image), so it covers the whole viewer
+  // including letterbox margins when the image is smaller than the container
+  // (e.g. in fullscreen). The selection rectangle is cut out via clip-path in
+  // container-pixel coordinates, and recomputed on pan/zoom.
   private createDimOverlays(sel: OpenSeadragon.Rect): void {
     if (!this.viewer) return;
 
-    const home = this.viewer.viewport.getHomeBounds();
+    this.dimSelectionRect = sel;
 
-    const selLeftPct = ((sel.x - home.x) / home.width) * 100;
-    const selTopPct = ((sel.y - home.y) / home.height) * 100;
-    const selRightPct = ((sel.x + sel.width - home.x) / home.width) * 100;
-    const selBottomPct = ((sel.y + sel.height - home.y) / home.height) * 100;
+    if (!this.dimElement) {
+      const dim = document.createElement('div');
+      dim.style.position = 'absolute';
+      dim.style.top = '0';
+      dim.style.left = '0';
+      dim.style.width = '100%';
+      dim.style.height = '100%';
+      dim.style.background = this.BOX_STYLES.selection.dim.background;
+      dim.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+      this.viewer.element.appendChild(dim);
+      this.dimElement = dim;
+    }
 
-    // Create single overlay covering entire home bounds
-    const overlay = document.createElement('div');
-    overlay.style.background = this.BOX_STYLES.selection.dim.background;
-    overlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
+    // Recompute the cutout when the viewport changes so the hole tracks the
+    // on-screen selection during pan/zoom.
+    if (!this.dimUpdateHandler) {
+      this.dimUpdateHandler = () => this.refreshDimOverlay();
+      this.viewer.addHandler('animation', this.dimUpdateHandler);
+      this.viewer.addHandler('update-viewport', this.dimUpdateHandler);
+    }
 
-    // Use clip-path polygon with tunnel technique to cut out selection area
-    // Draws outer rectangle (Clockwise), tunnels to inner cutout, traces cutout (Counter-Clockwise), tunnels back
-    overlay.style.clipPath = `polygon(
+    this.refreshDimOverlay();
+  }
+
+  // Recompute the dim layer's clip-path from the stored selection rect, in
+  // current container-pixel coordinates.
+  private refreshDimOverlay(): void {
+    if (!this.viewer || !this.dimElement || !this.dimSelectionRect) return;
+
+    const pxRect = this.viewer.viewport.viewportToViewerElementRectangle(this.dimSelectionRect);
+    const containerSize = this.viewer.viewport.getContainerSize();
+    const cw = containerSize.x;
+    const ch = containerSize.y;
+    if (cw === 0 || ch === 0) return;
+
+    const left = (pxRect.x / cw) * 100;
+    const top = (pxRect.y / ch) * 100;
+    const right = ((pxRect.x + pxRect.width) / cw) * 100;
+    const bottom = ((pxRect.y + pxRect.height) / ch) * 100;
+
+    // Clip-path polygon with tunnel technique: outer rectangle (clockwise),
+    // tunnel to inner cutout, trace cutout (counter-clockwise), tunnel back.
+    this.dimElement.style.clipPath = `polygon(
       0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
-      ${selLeftPct}% ${selTopPct}%,
-      ${selLeftPct}% ${selBottomPct}%,
-      ${selRightPct}% ${selBottomPct}%,
-      ${selRightPct}% ${selTopPct}%,
-      ${selLeftPct}% ${selTopPct}%,
+      ${left}% ${top}%,
+      ${left}% ${bottom}%,
+      ${right}% ${bottom}%,
+      ${right}% ${top}%,
+      ${left}% ${top}%,
       0% 0%
     )`;
+  }
 
-    this.viewer.addOverlay(overlay, home);
-    this.dimOverlays.push(overlay);
+  // Remove the dim DOM element and detach its viewport-change handlers.
+  private removeDimElement(): void {
+    if (this.dimUpdateHandler && this.viewer) {
+      this.viewer.removeHandler('animation', this.dimUpdateHandler);
+      this.viewer.removeHandler('update-viewport', this.dimUpdateHandler);
+    }
+    this.dimUpdateHandler = null;
+    this.dimSelectionRect = null;
+    if (this.dimElement) {
+      this.dimElement.remove();
+      this.dimElement = null;
+    }
   }
 
   // Clear selection and dim overlays
@@ -806,13 +847,12 @@ export class IIIFViewerService {
         this.viewer.removeOverlay(this.selectionOverlay);
         this.selectionOverlay = null;
       }
-      this.dimOverlays.forEach(overlay => this.viewer!.removeOverlay(overlay));
-      this.dimOverlays = [];
+      this.removeDimElement();
     } catch (e) {
       // Viewer might not be fully initialized yet, ignore the error
       console.warn('Failed to clear selection overlays, viewer not fully initialized:', e);
       this.selectionOverlay = null;
-      this.dimOverlays = [];
+      this.removeDimElement();
     }
   }
 

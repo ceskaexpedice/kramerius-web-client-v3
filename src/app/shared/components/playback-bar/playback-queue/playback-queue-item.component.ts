@@ -8,6 +8,7 @@ import {Router} from '@angular/router';
 import {PopupPositioningService, PopupState} from '../../../services/popup-positioning.service';
 import {FavoritesPopupComponent} from '../../favorites-popup/favorites-popup.component';
 import {ThumbnailImageComponent} from '../../thumbnail-image/thumbnail-image.component';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-playback-queue-item',
@@ -17,6 +18,7 @@ import {ThumbnailImageComponent} from '../../thumbnail-image/thumbnail-image.com
     NgClass,
     FavoritesPopupComponent,
     ThumbnailImageComponent,
+    TranslatePipe,
   ],
   templateUrl: './playback-queue-item.component.html',
   styleUrl: './playback-queue-item.component.scss'

@@ -1,16 +1,17 @@
 <div class="accordion-item" [class.accordion-item--open]="isOpen">
-  <button class="accordion-item__header" (click)="onToggle()">
+  <button class="accordion-item__header" (click)="onToggle()"
+    [attr.aria-expanded]="isOpen" [attr.aria-controls]="panelId">
     <div class="accordion-item__header-content">
       @if (index !== undefined) {
         <div class="accordion-item__number">{{ index }}</div>
       }
       <span class="accordion-item__title">{{ title | translate }}</span>
     </div>
-    <i class="accordion-item__icon" [ngClass]="isOpen ? openIconClass : closeIconClass"></i>
+    <i class="accordion-item__icon" [ngClass]="isOpen ? openIconClass : closeIconClass" aria-hidden="true"></i>
   </button>
 
   @if (isOpen) {
-    <div class="accordion-item__content">
+    <div class="accordion-item__content" [id]="panelId" role="region">
       @if (allowHtml) {
         <div [innerHTML]="content | translate"></div>
       } @else {

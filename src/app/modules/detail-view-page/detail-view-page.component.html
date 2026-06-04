@@ -114,6 +114,8 @@
   <ng-container main-content>
     <app-inline-loader *ngIf="detailViewService.loading$ | async" [overlay]="true"></app-inline-loader>
     <ng-container *ngIf="detailViewService.document$ | async as document">
+      <app-fullscreen #contentFullscreen [showCloseButton]="!aiPanelService.panelVisible()"
+                      (fullscreenChange)="detailFullscreen.setFullscreen($event)">
       <div class="detail-view--page--content--body"
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
@@ -178,7 +180,7 @@
           } @else if (detailViewService.isEpub || document.epub) {
             <app-viewer-controls type="epub"></app-viewer-controls>
           } @else {
-            @if (!(iiifViewerService.properties$ | async)?.fullscreen && !(iiifViewerService.isSelectionMode$ | async)) {
+            @if (!(iiifViewerService.isSelectionMode$ | async)) {
               <app-viewer-controls type="image"></app-viewer-controls>
             }
 
@@ -197,6 +199,7 @@
           <app-ai-content-panel></app-ai-content-panel>
         }
       </div>
+      </app-fullscreen>
     </ng-container>
   </ng-container>
 

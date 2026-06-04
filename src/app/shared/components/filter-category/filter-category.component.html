@@ -3,15 +3,15 @@
   <div>
 
     @if (label && label.length > 0) {
-      <div class="category--header">
+      <div class="category--header" [class.visually-hidden]="hideLabelVisually">
 
-        <h4 *ngIf="!loading">
+        <h2 *ngIf="!loading">
 
           {{label | translate}}
 
           <span *ngIf="hasAndOperator" class="and-indicator">{{ 'and-operator' | translate }}</span>
 
-        </h4>
+        </h2>
 
         <div *ngIf="loading" class="filters-skeleton--header"></div>
 
@@ -44,7 +44,7 @@
 
       <ng-container *ngIf="type === 'radio'">
         <app-filter-items-radio [items]="visibleItems()" [selected]="getSelectedRadioValue()"
-          (changed)="onRadioChange($event)"></app-filter-items-radio>
+          [groupLabel]="label" (changed)="onRadioChange($event)"></app-filter-items-radio>
       </ng-container>
 
       <ng-container *ngIf="type === 'range'">
@@ -78,6 +78,6 @@
   </div>
 
 
-  <hr *ngIf="showBottomBorder">
+  <hr *ngIf="showBottomBorder" aria-hidden="true">
 
 </ng-container>

@@ -1,0 +1,21 @@
+.generic-dialog-container {
+
+  .dialog-body {
+
+    .content {
+      padding: 0 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+}
+
+.folder-share--description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.folder-share--url {
+  word-break: break-all;
+}

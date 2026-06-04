@@ -1,5 +1,8 @@
 <a class="page--item" [ngClass]="['type-' + type, `page--number-${pageNumberPosition}`]" [class.selected]="isSelected"
   [class.admin-mode]="isInSelectionMode()" [class.admin-selected]="isInSelectionMode() && isItemSelected()"
+  role="button" tabindex="0"
+  [attr.aria-label]="pageNumber ? (('page--number' | translate) + ' ' + pageNumber) : null"
+  (keydown.enter)="onPageClicked($any($event))" (keydown.space)="$event.preventDefault(); onPageClicked($any($event))"
   (click)="onPageClicked($event)">
 
   <!-- Selection checkbox for admin mode or local selection mode -->

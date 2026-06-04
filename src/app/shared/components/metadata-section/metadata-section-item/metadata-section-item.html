@@ -4,7 +4,7 @@
     <h3 class="metadata-section--item-label">{{ label | translate }}</h3>
     <button *ngIf="headerActionLabel" class="button tertiary outlined xs with-icon header-action-btn"
       (click)="handleHeaderAction($event)">
-      {{ headerActionLabel }} <i class="icon-arrow-right-1"></i>
+      {{ headerActionLabel }} <i class="icon-arrow-right-1" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -23,7 +23,8 @@
 
     <!-- Clickable list type: vertical list with underlined clickable items -->
     <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
-      <li *ngFor="let item of visibleItems; let last = last" (click)="handleClick(item)" class="clickable">
+      <li *ngFor="let item of visibleItems; let last = last" (click)="handleClick(item)" class="clickable"
+        role="button" tabindex="0" (keydown.enter)="handleClick(item)" (keydown.space)="$event.preventDefault(); handleClick(item)">
         <span class="item-content">
           <span class="item-label">
             <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
@@ -32,13 +33,14 @@
           <ng-container *ngIf="itemSuffixTpl">
             <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>
           </ng-container>
-        </span><span *ngIf="last && hiddenCount > 0" class="items-more-inline" (click)="expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>
+        </span><span *ngIf="last && hiddenCount > 0" class="items-more-inline" role="button" tabindex="0" (click)="expanded = true; $event.stopPropagation()" (keydown.enter)="expanded = true; $event.stopPropagation()" (keydown.space)="$event.preventDefault(); expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>
       </li>
     </ul>
 
     <!-- Badge type: pill-styled clickable badge -->
-    <span *ngIf="type === 'badge' && value" class="badge" (click)="handleClick(value)">
-      <i *ngIf="icon" [class]="icon"></i>
+    <span *ngIf="type === 'badge' && value" class="badge" (click)="handleClick(value)"
+      role="button" tabindex="0" (keydown.enter)="handleClick(value)" (keydown.space)="$event.preventDefault(); handleClick(value)">
+      <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
       {{ value | translate }}
     </span>
 

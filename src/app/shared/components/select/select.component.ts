@@ -56,6 +56,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   showAbove = false;
 
   @ViewChild('wrapper') wrapperRef?: ElementRef;
+  @ViewChild('filterInput') filterInputRef?: InputComponent;
 
   constructor(
     private hostRef: ElementRef,
@@ -64,6 +65,12 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   getViewportHeight(): string {
     return `${this.visibleItemsCount * this.itemSize}px`;
+  }
+
+  get focusedOptionLabel(): string {
+    const option = this.filteredOptions[this.focusedIndex];
+    if (this.focusedIndex < 0 || option === undefined) return '';
+    return this.translate.instant(this.displayFn(option));
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -102,7 +109,12 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
       return !v;
     });
 
-    requestAnimationFrame(() => this.checkPosition());
+    requestAnimationFrame(() => {
+      this.checkPosition();
+      if (this.open() && this.filterable) {
+        this.filterInputRef?.focus();
+      }
+    });
   }
 
   select(option: T) {
@@ -126,16 +138,24 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
     switch (key) {
       case 'ArrowDown':
-        if (this.filteredOptions.length > 0) {
-          this.focusedIndex = 0;
-          this.scrollFocusedIntoView();
+        if (this.focusedIndex < 0) {
+          if (this.filteredOptions.length > 0) {
+            this.focusedIndex = 0;
+            this.scrollFocusedIntoView();
+          }
+        } else {
+          this.moveFocus(1);
         }
         event.preventDefault();
         break;
       case 'ArrowUp':
-        if (this.filteredOptions.length > 0) {
-          this.focusedIndex = this.filteredOptions.length - 1;
-          this.scrollFocusedIntoView();
+        if (this.focusedIndex < 0) {
+          if (this.filteredOptions.length > 0) {
+            this.focusedIndex = this.filteredOptions.length - 1;
+            this.scrollFocusedIntoView();
+          }
+        } else {
+          this.moveFocus(-1);
         }
         event.preventDefault();
         break;
@@ -156,7 +176,18 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   }
 
   onKeyDown(event: KeyboardEvent) {
-    if (!this.open()) return;
+    if (!this.open()) {
+      switch (event.key) {
+        case 'Enter':
+        case ' ':
+        case 'ArrowDown':
+        case 'ArrowUp':
+          this.toggle();
+          event.preventDefault();
+          break;
+      }
+      return;
+    }
 
     const key = event.key;
 

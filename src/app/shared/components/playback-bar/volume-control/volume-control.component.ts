@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-volume-control',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './volume-control.component.html',
   styleUrl: './volume-control.component.scss'
 })

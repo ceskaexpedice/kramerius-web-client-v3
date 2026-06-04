@@ -34,6 +34,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { selectActiveFilters } from '../../modules/search-results-page/state/search.selectors';
 import { SearchService } from './search.service';
 import { EnvironmentService } from './environment.service';
+import { ConfigService } from '../../core/config/config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -71,6 +72,7 @@ export class CollectionsService extends BaseFilterService {
   private breadcrumbsService = inject(BreadcrumbsService);
   private translationService = inject(TranslateService);
   private env = inject(EnvironmentService);
+  private configService = inject(ConfigService);
 
   // Convert detail$ to signal for reactive breadcrumb updates
   private detailSignal = toSignal(this.detail$);
@@ -342,6 +344,15 @@ export class CollectionsService extends BaseFilterService {
 
     filters = mapFacetsToSearchFields(filters);
 
+    // CDK aggregator: when a member-library source is selected (via the metadata
+    // sidebar selector, persisted in `?source=`), re-scope the child document grid
+    // to that library. `cdk.collection` is a raw Solr field, so append it after the
+    // facet-field mapping so it isn't transformed.
+    const cdkSource = params && params['source'];
+    if (this.configService.isCdk() && cdkSource) {
+      filters = [...filters, `cdk.collection:${cdkSource}`];
+    }
+
     const includePeriodicalItem = this.filtersContainDate() || this.hasFulltextFilter();
     const includePage = this.hasSubmittedQuery() || this.hasFulltextFilter();
 
@@ -406,6 +417,23 @@ export class CollectionsService extends BaseFilterService {
         sortDirection: this._sortDirection()
       },
       queryParamsHandling: 'merge'
+    });
+  }
+
+  /**
+   * CDK aggregator: select the member-library source for this collection. Persisting it
+   * in the `?source=` query param re-triggers the route subscription, which re-runs the
+   * search re-scoped to `cdk.collection:<source>` (see dispatchCollectionsSearch). Reset
+   * to page 1 since the result set changes.
+   */
+  setCdkSource(source: string): void {
+    if (!source) return;
+    this._page.set(1);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source, page: 1 },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 

@@ -7,7 +7,7 @@
         <span class="part-of-collection--title">{{ 'part-of-collection--title' | translate }}</span>
       }
 
-      <nav class="breadcrumbs" [class.breadcrumbs--path]="pathIndex > 0" aria-label="Breadcrumb path {{ pathIndex + 1 }}">
+      <nav class="breadcrumbs" [class.breadcrumbs--path]="pathIndex > 0" [attr.aria-label]="'breadcrumb-path--arialabel' | translate:{ number: pathIndex + 1 }">
         <ol class="breadcrumbs__list">
           @for (breadcrumb of pathBreadcrumbs; track breadcrumb.url; let i = $index) {
             <li [class]="getBreadcrumbClasses(breadcrumb, i).join(' ')">
@@ -60,7 +60,7 @@
   </div>
 } @else {
   <!-- Single breadcrumb path -->
-  <nav class="breadcrumbs" aria-label="Breadcrumb">
+  <nav class="breadcrumbs" [attr.aria-label]="'breadcrumb--arialabel' | translate">
     <ol class="breadcrumbs__list">
       @for (breadcrumb of displayBreadcrumbs; track breadcrumb.url; let i = $index) {
         <li [class]="getBreadcrumbClasses(breadcrumb, i).join(' ')">

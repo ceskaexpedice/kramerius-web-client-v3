@@ -11,7 +11,12 @@
           *ngFor="let cell of row; let i = index"
           [ngClass]="cell === null ? 'missing' : 'accessibility-' + getCellLicenseForBadge(cell)"
           [class.multi-volume]="cell !== null && cell.entries.length > 1"
+          [attr.role]="cell !== null ? 'button' : null"
+          [attr.tabindex]="cell !== null ? 0 : null"
+          [attr.aria-label]="cell !== null ? ('select-year' | translate:{ y: cell.yearKey }) : null"
           (click)="cell !== null && onCellClick(cell, $event)"
+          (keydown.enter)="cell !== null && onCellClick(cell, $event)"
+          (keydown.space)="$event.preventDefault(); cell !== null && onCellClick(cell, $event)"
         >
           <div class="year-item"
             [class.with-icon]="cell === null || (cell !== null && isCellLocked(cell))"
@@ -48,8 +53,13 @@
     <div
       class="range-year-item"
       *ngFor="let year of otherYears"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'select-year' | translate:{ y: year.year }"
       [ngClass]="'accessibility-' + recordHandler.getRecordLicenseForBadge(year.licenses)"
       (click)="selectYear.emit(year.year)"
+      (keydown.enter)="selectYear.emit(year.year)"
+      (keydown.space)="$event.preventDefault(); selectYear.emit(year.year)"
     >
       <span class="range-year-label">{{ year.year }}</span>
     </div>

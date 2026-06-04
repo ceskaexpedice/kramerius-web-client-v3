@@ -66,9 +66,11 @@ export class SearchResultsViewComponent {
 
   protected readonly ViewOptions = AppResultsViewType;
 
-  // whereToSearch is surfaced via the dedicated toggle, so drop it from the tag row.
+  // whereToSearch is surfaced via the dedicated toggle, and the search term is shown
+  // in the search box, so drop both from the tag row.
   visibleSelectedTags$: Observable<string[]> = this.searchService.selectedTags.pipe(
-    map(tags => tags.filter(t => !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'))),
+    map(tags => tags.filter(t =>
+      !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'))),
   );
 
   toRecordItem(doc: SearchDocument): RecordItem {

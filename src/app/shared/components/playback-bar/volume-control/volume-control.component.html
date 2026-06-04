@@ -1,9 +1,10 @@
 <div class="volume">
 
-  <button (click)="toggleMute()" class="outlined tertiary"><i class="{{getVolumeIcon()}}"></i></button>
+  <button (click)="toggleMute()" class="outlined tertiary" [attr.aria-label]="'volume' | translate"><i class="{{getVolumeIcon()}}"></i></button>
 
   <input type="range" min="0" max="1" step="0.01"
          class="hide-thumb"
+         [attr.aria-label]="'volume' | translate"
          [style.--progress]="(volume() * 100) + '%'"
          [value]="volume()" (input)="onVolumeChange($event)" />
 </div>

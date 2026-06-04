@@ -3,7 +3,10 @@
     class="track"
     [class.current-track]="isCurrentTrack"
   >
-    <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()">
+    <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()"
+         role="button" tabindex="0" [attr.aria-label]="track['title.search']"
+         (keydown.enter)="isCurrentTrack ? togglePlayPause() : play()"
+         (keydown.space)="$event.preventDefault(); isCurrentTrack ? togglePlayPause() : play()">
       <app-thumbnail-image
         class="thumb"
         [src]="soundService.getImageThumbnailUrl(track.parentPid)"
@@ -13,23 +16,27 @@
       <div class="thumb-overlay">
         <i *ngIf="isCurrentTrack"
            [class.icon-play]="!soundService.isPlayingSignal()"
-           [class.icon-pause]="soundService.isPlayingSignal()"></i>
-        <i *ngIf="!isCurrentTrack" class="icon-play"></i>
+           [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
+        <i *ngIf="!isCurrentTrack" class="icon-play" aria-hidden="true"></i>
       </div>
     </div>
 
-    <div class="info" (click)="play()">
+    <div class="info" (click)="play()"
+         role="button" tabindex="0" [attr.aria-label]="track['title.search']"
+         (keydown.enter)="play()" (keydown.space)="$event.preventDefault(); play()">
       <div class="title">{{ track['title.search'] }}</div>
     </div>
 
     <div class="actions">
-      <button class="icon-button rounded light" (click)="remove($event)">
-        <i class="icon-trash"></i>
+      <button class="icon-button rounded light" (click)="remove($event)"
+              [attr.aria-label]="'delete' | translate">
+        <i class="icon-trash" aria-hidden="true"></i>
       </button>
       <button class="icon-button rounded light"
               [class.favorited]="isItemFavorited$ | async"
+              [attr.aria-label]="((isItemFavorited$ | async) ? 'remove-from-favorites' : 'add-to-favorites') | translate"
               (click)="toggleFavorite($event)">
-        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
+        <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
       </button>
     </div>
   </div>

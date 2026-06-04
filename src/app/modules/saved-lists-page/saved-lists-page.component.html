@@ -15,9 +15,9 @@
           <ng-container left>
             <div class="max-width-100">
               <div class="flex flex--align-center flex--gap-2">
-                <app-toolbar-header [title]="folder.name" [showBackButton]="false">
+                <app-toolbar-header [title]="folderDisplayName(folder)" [showBackButton]="false">
                 </app-toolbar-header>
-                @if (isCurrentUserOwner(folder)) {
+                @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
                   <i class="icon-edit-2"></i>
