@@ -70,8 +70,7 @@ export class SearchResultsViewComponent {
   // in the search box, so drop both from the tag row.
   visibleSelectedTags$: Observable<string[]> = this.searchService.selectedTags.pipe(
     map(tags => tags.filter(t =>
-      !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':') &&
-      !t.startsWith('search:'))),
+      !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'))),
   );
 
   toRecordItem(doc: SearchDocument): RecordItem {
