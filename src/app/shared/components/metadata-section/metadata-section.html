@@ -144,16 +144,20 @@
   @let hasChildTitle = !!(childData.titles && childData.titles.length > 0 && childData.titles[0].title);
   <div class="article-card-wrapper">
     @if (!hasChildTitle) {
-      <button class="toggle-btn toggle-btn--standalone" (click)="toggleChild()">
-        <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      <button class="toggle-btn toggle-btn--standalone" (click)="toggleChild()"
+              [attr.aria-expanded]="childExpanded()"
+              [attr.aria-label]="(childExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+        <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
       </button>
     }
     <div class="article-card" *ngIf="hasChildTitle || childExpanded()">
       @if (hasChildTitle) {
         <div class="article-header">
           <span class="label">{{ childData.titles[0].title }}</span>
-          <button class="toggle-btn" (click)="toggleChild()">
-            <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+          <button class="toggle-btn" (click)="toggleChild()"
+                  [attr.aria-expanded]="childExpanded()"
+                  [attr.aria-label]="(childExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+            <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
           </button>
         </div>
       }
@@ -196,8 +200,10 @@
   <div class="article-card">
     <div class="article-header">
       <span class="label">{{ 'article' | translate }}</span>
-      <button class="toggle-btn" (click)="toggleArticle()">
-        <i [class]="articleExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      <button class="toggle-btn" (click)="toggleArticle()"
+              [attr.aria-expanded]="articleExpanded()"
+              [attr.aria-label]="(articleExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+        <i [class]="articleExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
       </button>
     </div>
 
@@ -224,7 +230,7 @@
           <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
             {{ articleData.identifiers['doi'] }}
           </a>
-          <i class="icon-copy" title="Copy"></i>
+          <i class="icon-copy" aria-hidden="true"></i>
         </div>
       </div>
 
@@ -313,8 +319,8 @@
 
   <div class="metadata--actions">
     <button class="primary link with-icon p-left-0" (click)="openMetadataDialog()">
-      <i class="icon-code-3"></i>
-      Metadata
+      <i class="icon-code-3" aria-hidden="true"></i>
+      {{ 'metadata--button' | translate }}
     </button>
   </div>
 

@@ -1,11 +1,15 @@
 <div class="favorites-popup"
      [class.with-hierarchy]="showHierarchySelector"
-     [class.success-state]="showSuccess()">
+     [class.success-state]="showSuccess()"
+     role="dialog" aria-modal="true"
+     aria-labelledby="favorites-popup-title"
+     cdkTrapFocus cdkTrapFocusAutoCapture
+     (keydown.escape)="onCancel()">
 
   <!-- Main Form State -->
   <div *ngIf="!showSuccess()" class="favorites-popup__content">
     <div class="favorites-popup__header">
-      <h3>{{ 'move-to' | translate }}:</h3>
+      <h3 id="favorites-popup-title">{{ 'move-to' | translate }}:</h3>
     </div>
 
     <!-- Hierarchy Selector (only shown when enabled) -->
@@ -43,6 +47,7 @@
           </div>
           <mat-checkbox
             [checked]="listItem.isSelected"
+            [aria-label]="'add-to-list--arialabel' | translate:{name: listItem.displayName}"
             (change)="onListToggle(listItem.folder, $event)">
           </mat-checkbox>
         </div>
@@ -96,7 +101,7 @@
   <!-- Success State -->
   <div *ngIf="showSuccess()" class="favorites-popup__content">
     <div class="favorites-popup__header">
-      <h3>{{ 'add-to-favorites-success--header' | translate }}</h3>
+      <h3 id="favorites-popup-title">{{ 'add-to-favorites-success--header' | translate }}</h3>
     </div>
 
     <hr>

@@ -30,4 +30,15 @@ h2 {
       text-decoration: underline;
     }
   }
+
+  .calendar-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: inherit;
+  }
 }

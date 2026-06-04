@@ -1,6 +1,7 @@
   <td class="index-col">
     @if (isPlaying) {
-      <i class="icon-volume-high"></i>
+      <i class="icon-volume-high" aria-hidden="true"></i>
+      <span class="visually-hidden">{{ 'now-playing--label' | translate }}</span>
     } @else {
       {{ index + 1 }}
     }
@@ -8,10 +9,10 @@
   <td>
     <div class="title" [class.folder-view]="isFolderView">
       <ng-container *ngIf="isPlaying; else notPlaying">
-        <span class="icon icon--playing"></span>
+        <span class="icon icon--playing" aria-hidden="true"></span>
       </ng-container>
       <ng-template #notPlaying>
-        <span class="icon icon--track"></span>
+        <span class="icon icon--track" aria-hidden="true"></span>
       </ng-template>
 
       @if (isFolderView) {

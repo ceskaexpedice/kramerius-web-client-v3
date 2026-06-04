@@ -13,10 +13,12 @@ import {
   model
 } from '@angular/core';
 import { NgIf } from '@angular/common';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-slide-up-panel',
-  imports: [NgIf],
+  imports: [NgIf, CdkTrapFocus, TranslatePipe],
   templateUrl: './slide-up-panel.component.html',
   styleUrl: './slide-up-panel.component.scss'
 })

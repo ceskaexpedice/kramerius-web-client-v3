@@ -3,19 +3,23 @@
     {{ 'loading-pages' | translate }}
   </div>
 
-  <div *ngIf="pages.length > 0" class="pdf-pages-grid__container">
-    <div *ngFor="let page of pages" class="pdf-pages-grid__item"
-      [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage" (click)="navigateToPage(page.pageNumber)">
+  <div *ngIf="pages.length > 0" class="pdf-pages-grid__container"
+    role="list" [attr.aria-label]="'pdf-pages-grid--arialabel' | translate">
+    <button *ngFor="let page of pages" type="button" class="pdf-pages-grid__item"
+      role="listitem"
+      [class.pdf-pages-grid__item--active]="page.pageNumber === currentPage" (click)="navigateToPage(page.pageNumber)"
+      [attr.aria-current]="page.pageNumber === currentPage ? 'page' : null"
+      [attr.aria-label]="('go-to-page--arialabel' | translate:{ number: page.pageNumber })">
       <div class="pdf-pages-grid__thumbnail">
         <app-thumbnail-image
           [src]="getThumbnailUrl(page.pageNumber)"
-          [alt]="('page' | translate) + ' ' + page.pageNumber"
+          alt=""
           fallbackIcon="document">
         </app-thumbnail-image>
       </div>
-      <div class="pdf-pages-grid__number">
+      <div class="pdf-pages-grid__number" aria-hidden="true">
         {{ page.pageNumber }}
       </div>
-    </div>
+    </button>
   </div>
 </div>

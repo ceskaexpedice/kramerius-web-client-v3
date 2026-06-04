@@ -4,18 +4,24 @@
 
 <!-- Panel -->
 <div *ngIf="isOpen() || isClosing" class="slide-up-panel" [class.open]="isRendered"
-  [class.dragging]="isDragging" [class.expanded]="isExpanded" [style.height.vh]="currentHeight">
+  [class.dragging]="isDragging" [class.expanded]="isExpanded" [style.height.vh]="currentHeight"
+  role="dialog" aria-modal="true"
+  [attr.aria-labelledby]="title ? 'slide-up-panel-title' : null"
+  cdkTrapFocus cdkTrapFocusAutoCapture
+  (keydown.escape)="close()">
 
   <!-- Drag handle -->
-  <div class="slide-up-panel__handle" (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)">
+  <div class="slide-up-panel__handle" (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)"
+    aria-hidden="true">
     <span class="slide-up-panel__handle-bar"></span>
   </div>
 
   <!-- Header -->
   <div *ngIf="title" class="slide-up-panel__header">
-    <h3 class="slide-up-panel__title">{{ title }}</h3>
-    <button class="slide-up-panel__close" (click)="close()" type="button">
-      <i class="icon-close"></i>
+    <h3 id="slide-up-panel-title" class="slide-up-panel__title">{{ title }}</h3>
+    <button class="slide-up-panel__close" (click)="close()" type="button"
+      [attr.aria-label]="'close-dialog--arialabel' | translate">
+      <i class="icon-close" aria-hidden="true"></i>
     </button>
   </div>
 
