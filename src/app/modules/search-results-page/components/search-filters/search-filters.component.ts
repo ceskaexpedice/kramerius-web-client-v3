@@ -80,12 +80,16 @@ import { ConfigService } from '../../../../core/config/config.service';
 
           <ng-container *ngIf="facetKey === customDefinedFacetsEnum.accessibility">
 
-            <div class="show-licenses--header" [class.expanded]="expandLicenses" (click)="toggleLicenses()">
-              {{ expandLicenses ? ('hide-licenses-label' | translate) : ('show-licenses-label' | translate) }} <i class="icon-arrow-up-1"></i>
-            </div>
+            <button type="button" class="show-licenses--header" [class.expanded]="expandLicenses"
+              [attr.aria-expanded]="expandLicenses" aria-controls="license-filter-section" (click)="toggleLicenses()">
+              {{ expandLicenses ? ('hide-licenses-label' | translate) : ('show-licenses-label' | translate) }} <i class="icon-arrow-up-1" aria-hidden="true"></i>
+            </button>
 
             <app-filter-category
               *ngIf="expandLicenses"
+              id="license-filter-section"
+              [label]="'filter-license-label'"
+              [hideLabelVisually]="true"
               [facetKey]="facetKeysEnum.license"
               [items]="(facets$ | async)?.[facetKeysEnum.license] || []"
               [selected]="selectedFilters"
@@ -120,6 +124,12 @@ import { ConfigService } from '../../../../core/config/config.service';
         font-size: var(--font-size-small);
         margin-top: var(--spacing-x2);
         font-weight: 500;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: inherit;
+        text-align: inherit;
+        width: fit-content;
 
         i {
           transition: transform 0.3s ease;

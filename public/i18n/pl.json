@@ -262,6 +262,7 @@
   "my-favorite--list": "Moje ulubione",
   "loading-search-results": "Wczytywanie wyników wyszukiwania...",
   "search-results-count": "Znaleziono {{count}} wyników",
+  "search-results-count-range": "Znaleziono {{count}} wyników, wyświetlono od {{start}} do {{end}}.",
   "authors": "Autorzy",
   "publishers": "Wydawcy",
   "languages": "Języki",

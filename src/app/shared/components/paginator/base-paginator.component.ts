@@ -13,6 +13,11 @@ export abstract class BasePaginatorComponent {
     Math.ceil(this.totalCount / this.pageSize) || 1
   );
 
+  // Index (1-based) of the first / last item shown on the current page.
+  // Used for screen-reader announcements ("showing X to Y of Z").
+  get resultStart(): number { return this.totalCount === 0 ? 0 : (this.page - 1) * this.pageSize + 1; }
+  get resultEnd(): number { return Math.min(this.page * this.pageSize, this.totalCount); }
+
   goToPage(p: number): void {
     const page = Math.max(1, Math.min(p, this.totalPages()));
     console.log('gotopage', p, page)

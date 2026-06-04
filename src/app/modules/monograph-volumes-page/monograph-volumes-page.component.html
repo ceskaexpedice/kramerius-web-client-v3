@@ -8,6 +8,16 @@
 
     <div class="page-content">
 
+      <!-- Screen-reader announcement of loading status / volume count. -->
+      <!-- Kept permanently in the DOM so the first update is reliably announced. -->
+      <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        @if (loading()) {
+          {{ 'loading-document' | translate }}
+        } @else if (!error() && parent()) {
+          {{ 'search-results-count' | translate:{ count: volumeItems().length } }}
+        }
+      </div>
+
       <div class="page-content__filters">
 
         @if (parent()) {

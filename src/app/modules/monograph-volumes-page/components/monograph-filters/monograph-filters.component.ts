@@ -37,7 +37,7 @@ import { MonographVolumesService } from '../../../../shared/services/monograph-v
         (suggestionSelected)="monographVolumesService.onSuggestionSelected($event)">
       </app-autocomplete>
 
-      <hr>
+      <hr aria-hidden="true">
 
       <ng-container>
         <app-filter-category

@@ -64,7 +64,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
       </app-input>
 
 
-      <hr>
+      <hr aria-hidden="true">
 
       <app-collapsible-category
         [label]="'my-favorites-list--title' | translate"

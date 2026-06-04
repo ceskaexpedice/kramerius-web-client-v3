@@ -9,6 +9,22 @@
 
       <h1 class="visually-hidden">{{ (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
+      <!-- Screen-reader announcement of loading status / result count. -->
+      <!-- Kept permanently in the DOM so the first update is reliably announced. -->
+      <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        @if (periodical.loading$ | async) {
+          {{ 'loading-search-results' | translate }}
+        } @else if (mode === ViewMode.SearchResults && periodical.totalCount > 0) {
+          {{ 'search-results-count-range' | translate:{
+            count: (periodical.totalCount | formatNumber),
+            start: (periodical.resultStart | formatNumber),
+            end: (periodical.resultEnd | formatNumber)
+          } }}
+        } @else if (mode === ViewMode.SearchResults) {
+          {{ 'search-results-count' | translate:{ count: periodical.totalCount } }}
+        }
+      </div>
+
       <div class="page-content__filters">
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !breakpointService.isMobile()">

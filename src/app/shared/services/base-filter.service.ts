@@ -44,6 +44,10 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   get page() { return this._page(); }
   get pageSize() { return this._pageSize(); }
   get totalCount() { return this._totalCount(); }
+  // Index (1-based) of the first / last result shown on the current page.
+  // Used for screen-reader announcements ("showing X to Y of Z").
+  get resultStart() { return this.totalCount === 0 ? 0 : (this.page - 1) * this.pageSize + 1; }
+  get resultEnd() { return Math.min(this.page * this.pageSize, this.totalCount); }
   get sortBy() { return this._sortBy(); }
   get sortDirection() { return this._sortDirection(); }
 

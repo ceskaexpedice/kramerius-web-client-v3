@@ -262,6 +262,7 @@
   "my-favorite--list": "Moje obľúbené",
   "loading-search-results": "Načítavam výsledky vyhľadávania...",
   "search-results-count": "Nájdených {{count}} výsledkov",
+  "search-results-count-range": "Nájdených {{count}} výsledkov, zobrazené {{start}} až {{end}}.",
   "authors": "Autori",
   "publishers": "Vydavatelia",
   "languages": "Jazyky",

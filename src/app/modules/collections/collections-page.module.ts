@@ -27,6 +27,7 @@ import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { ButtonToggleComponent } from '../../shared/components/button-toggle/button-toggle.component';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 
 const routes: Routes = [
   {
@@ -65,7 +66,8 @@ const routes: Routes = [
     SkeletonListPipe,
     ToggleButtonGroupComponent,
     ButtonToggleComponent,
-    PaginatorComponent
+    PaginatorComponent,
+    FormatNumberPipe
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: CollectionsService },

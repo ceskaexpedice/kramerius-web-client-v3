@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { PaginatorInfoComponent } from '../../shared/components/paginator-info/paginator-info.component';
+import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 import { ResultsSortComponent } from './components/results-sort/results-sort.component';
 import { SearchFiltersComponent } from './components/search-filters/search-filters.component';
 import { SearchService } from '../../shared/services/search.service';
@@ -32,6 +33,7 @@ const routes: Routes = [
 		NgIf,
 		AsyncPipe,
 		PaginatorInfoComponent,
+		FormatNumberPipe,
 		ResultsSortComponent,
 		SearchFiltersComponent,
 		ActionToolbarComponent,

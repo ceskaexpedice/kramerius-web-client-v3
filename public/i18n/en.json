@@ -270,6 +270,7 @@
   "my-favorite--list": "My favorites",
   "loading-search-results": "Loading search results...",
   "search-results-count": "{{count}} results found",
+  "search-results-count-range": "{{count}} results found, showing {{start}} to {{end}}.",
   "authors": "Authors",
   "publishers": "Publishers",
   "languages": "Languages",

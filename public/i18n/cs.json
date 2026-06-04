@@ -265,6 +265,7 @@
   "my-favorite--list": "Moje oblíbené",
   "loading-search-results": "Načítám výsledky vyhledávání...",
   "search-results-count": "Nalezeno {{count}} výsledků",
+  "search-results-count-range": "Nalezeno {{count}} výsledků, zobrazeno {{start}} až {{end}}.",
   "authors": "Autoři",
   "publishers": "Vydavatelé",
   "languages": "Jazyky",

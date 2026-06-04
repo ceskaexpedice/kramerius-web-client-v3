@@ -80,7 +80,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         {{ 'results' | translate }}: {{ periodicalService.totalCount | number }}
       </p>
 
-      <hr>
+      <hr aria-hidden="true">
 
       <ng-container
         *ngFor="let facetKey of getFacetKeys"
