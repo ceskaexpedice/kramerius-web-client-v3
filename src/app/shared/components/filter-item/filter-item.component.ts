@@ -5,6 +5,7 @@ import { NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
+import { NamespacedTranslatePipe } from '../../pipes/namespaced-translate.pipe';
 import {facetKeysEnum} from '../../../modules/search-results-page/const/facets';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import { ConfigService } from '../../../core/config/config.service';
@@ -20,6 +21,7 @@ import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/li
     FormatNumberPipe,
     TranslatePipe,
     ConfigLabelPipe,
+    NamespacedTranslatePipe,
     LanguageBadgeComponent,
     CdkTooltipDirective,
   ],

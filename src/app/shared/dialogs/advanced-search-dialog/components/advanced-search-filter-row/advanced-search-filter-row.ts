@@ -21,6 +21,7 @@ import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/c
 import {InputComponent} from '../../../../components/input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {ConfigService} from '../../../../../core/config/config.service';
+import {resolveNamespacedTranslation} from '../../../../translation/namespaced-translation';
 
 @Component({
   selector: 'advanced-search-filter-row',
@@ -51,6 +52,14 @@ export class AdvancedSearchFilterRow implements OnInit {
     return ADVANCED_FILTERS.filter(f => isCdk || f.key !== SolrFacetKey.CdkCollection);
   }
 
+  /**
+   * Namespace passed to the dropdown so language codes are translated within the
+   * 'language' namespace (raw-code fallback) instead of the global namespace.
+   */
+  get dropdownTranslateNamespace(): string | undefined {
+    return this.filter.key === SolrFacetKey.Language ? 'language' : undefined;
+  }
+
   ngOnInit() {
     this.initializeValues();
     this.loadData();
@@ -72,11 +81,17 @@ export class AdvancedSearchFilterRow implements OnInit {
     if (this.filter.inputType === FilterElementType.Dropdown && this.filter.solrField) {
       const data = this.solrService.getSuggestionsByFacetKey(this.filter.solrField, '', -1);
 
+      const namespace = this.dropdownTranslateNamespace;
+      const translateOption = (code: string) =>
+        namespace
+          ? resolveNamespacedTranslation(this.translateService, code, namespace)
+          : this.translateService.instant(code);
+
       data.subscribe(suggestions => {
         const firstFour = suggestions.slice(0, 4);
         const rest = suggestions.slice(4).sort((a, b) => {
-          const translatedA = this.translateService.instant(a);
-          const translatedB = this.translateService.instant(b);
+          const translatedA = translateOption(a);
+          const translatedB = translateOption(b);
           return translatedA.toLowerCase().localeCompare(translatedB.toLowerCase());
         });
 

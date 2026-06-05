@@ -6,6 +6,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
+import { NamespacedTranslatePipe } from '../../pipes/namespaced-translate.pipe';
 
 @Component({
   selector: 'app-selected-tags',
@@ -18,6 +19,7 @@ import { ConfigLabelPipe } from '../../pipes/config-label.pipe';
     TranslatePipe,
     MatTooltip,
     ConfigLabelPipe,
+    NamespacedTranslatePipe,
   ],
   templateUrl: './selected-tags.component.html',
   styleUrl: './selected-tags.component.scss'
@@ -105,6 +107,14 @@ export class SelectedTagsComponent {
    */
   isLicense(item: string): boolean {
     return this.getFieldName(item) === facetKeysEnum.license;
+  }
+
+  /**
+   * Check if item is a language facet value (translated within the 'language'
+   * namespace to avoid collisions with the global translation namespace).
+   */
+  isLanguage(item: string): boolean {
+    return this.getFieldName(item) === facetKeysEnum.languages;
   }
 
   getOriginalValue(item: string): string {

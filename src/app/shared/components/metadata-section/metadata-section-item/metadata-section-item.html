@@ -17,7 +17,8 @@
     <ul *ngIf="type === 'list'" [class.with-bullets]="showListBullets">
       <li *ngFor="let item of items">
         <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
-        <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
+        <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
+        <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
       </li>
     </ul>
 
@@ -28,7 +29,8 @@
         <span class="item-content">
           <span class="item-label">
             <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
-            <ng-container *ngIf="!disableTranslate">{{ getDisplayText(item) | translate }}</ng-container>
+            <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
+            <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
           </span>
           <ng-container *ngIf="itemSuffixTpl">
             <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>

@@ -32,6 +32,8 @@
             <label *ngIf="showFieldNames && field !== 'default'; else valueOnly">
               @if (isLicense(item)) {
               {{ getValue(item) | configLabel:'license' }}
+              } @else if (isLanguage(item)) {
+              {{ getValue(item) | namespacedTranslate:'language' }}
               } @else {
               {{ getTranslationKey(item) | translate }}
               }
@@ -39,6 +41,8 @@
             <ng-template #valueOnly>
               @if (isLicense(item)) {
               {{ getValue(item) | configLabel:'license' }}
+              } @else if (isLanguage(item)) {
+              {{ getValue(item) | namespacedTranslate:'language' }}
               } @else {
               {{ getTranslationKey(item) | translate }}
               }

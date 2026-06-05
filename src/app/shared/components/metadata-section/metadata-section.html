@@ -177,7 +177,7 @@
 
       <!-- Languages -->
       <app-metadata-section-item *ngIf="childData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="childData.languages" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="childData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
       </app-metadata-section-item>
 
       <!-- Locations -->
@@ -236,7 +236,7 @@
 
       <!-- Language -->
       <app-metadata-section-item *ngIf="articleData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="articleData.languages" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="articleData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
       </app-metadata-section-item>
 
       <app-metadata-section-item *ngIf="articleData.extent" [label]="'range--label' | translate" type="text"
@@ -249,7 +249,7 @@
 
   <!-- Languages -->
   <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
-    [items]="data.languages" [onItemClick]="clickedLanguage">
+    [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
   </app-metadata-section-item>
 
   <!-- Locations -->

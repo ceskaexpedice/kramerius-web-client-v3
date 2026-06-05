@@ -65,6 +65,8 @@
             <span class="facet-name">
               @if (isLicenseFacet) {
               {{ item.name | configLabel:'license' }}
+              } @else if (isLanguageFacet) {
+              {{ item.name | namespacedTranslate:'language' }}
               } @else {
               {{ item.name | translate }}
               }

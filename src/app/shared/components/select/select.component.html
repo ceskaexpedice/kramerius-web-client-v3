@@ -2,7 +2,7 @@
   aria-haspopup="listbox"
   [attr.aria-activedescendant]="!filterable && open() && focusedIndex >= 0 ? 'option-' + focusedIndex : null"
   [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
-  <span>{{ displayFn(value) | translate }}</span>
+  <span>{{ displayLabel(value) }}</span>
   <i class="icon-arrow-down arrow-icon" [class.open]="open()" aria-hidden="true"></i>
 </div>
 
@@ -24,7 +24,7 @@
           [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
           (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
           [attr.aria-selected]="option === value">
-          {{ displayFn(option) | translate }}
+          {{ displayLabel(option) }}
           <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
         </div>
       </cdk-virtual-scroll-viewport>
@@ -34,7 +34,7 @@
       <div class="option" *ngFor="let option of filteredOptions; let i = index; trackBy: trackByFn"
         [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
         (click)="select(option)" (mouseenter)="focusedIndex = i" role="option" [attr.aria-selected]="option === value">
-        {{ displayFn(option) | translate }}
+        {{ displayLabel(option) }}
         <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
       </div>
     </ng-template>
@@ -46,6 +46,6 @@
   </div>
 
   <div aria-live="assertive" class="visually-hidden">
-    {{ focusedOptionLabel || (displayFn(value) | translate) }}
+    {{ focusedOptionLabel || displayLabel(value) }}
   </div>
 </div>
