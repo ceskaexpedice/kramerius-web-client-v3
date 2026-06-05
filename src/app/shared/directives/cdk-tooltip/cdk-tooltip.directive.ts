@@ -358,6 +358,17 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   }
 
   /**
+   * Immediately hide and destroy the tooltip, bypassing the hide delay and
+   * animation. Useful when the host element triggers an action (e.g. opening a
+   * dialog) that steals focus, so neither mouseleave nor blur fires reliably.
+   */
+  hideImmediately(): void {
+    this.clearTimeouts();
+    this.destroyTooltip();
+    this.isTooltipVisible.set(false);
+  }
+
+  /**
    * Programmatically toggle the tooltip (can be called from template using #tooltip)
    */
   toggleTooltip(): void {

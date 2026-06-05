@@ -27,8 +27,9 @@
       @if (hasLicenseInfo) {
         <button type="button" class="license-info-icon"
           [appCdkTooltip]="'license-info-tooltip' | translate" [tooltipPosition]="'right'"
+          #licenseTooltip="cdkTooltip"
           [attr.aria-label]="'license-info-tooltip' | translate"
-          (click)="openLicenseInfo($event)">
+          (click)="openLicenseInfo($event); licenseTooltip.hideImmediately()">
           <i class="icon-question" aria-hidden="true"></i>
         </button>
       }
