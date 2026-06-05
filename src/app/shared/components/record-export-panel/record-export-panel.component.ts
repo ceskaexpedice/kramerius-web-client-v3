@@ -19,6 +19,9 @@ import {
   EmailExportDialogComponent,
   EmailExportType
 } from '../../dialogs/email-export-dialog/email-export-dialog.component';
+import {
+  EmailExportSuccessDialogComponent
+} from '../../dialogs/email-export-dialog/email-export-success-dialog.component';
 import { LoginPromptDialogComponent } from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router } from '@angular/router';
@@ -216,11 +219,16 @@ export class RecordExportPanelComponent implements OnInit {
       data: { pid: this.record.pid, exportType },
       width: '560px',
       maxWidth: '90vw',
+      ariaLabelledBy: 'email-export-dialog-title',
     });
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result === 'submitted') {
-        this.toastService.show('email-export-dialog--success');
+        this.dialog.open(EmailExportSuccessDialogComponent, {
+          width: '560px',
+          maxWidth: '90vw',
+          ariaLabelledBy: 'email-export-success-dialog-title',
+        });
       } else if (result === 'error') {
         this.toastService.show('export-error');
       }

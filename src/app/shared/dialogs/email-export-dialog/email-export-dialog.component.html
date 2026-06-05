@@ -1,14 +1,39 @@
 <div class="generic-dialog-container">
-  <h2>
+  <h2 id="email-export-dialog-title">
     {{ 'email-export-dialog--header' | translate }}
-    <button class="button link tertiary icon-button close-button" (click)="onClose()">
-      <i class="icon-close"></i>
+    <button class="button link tertiary icon-button close-button" (click)="onClose()"
+      [attr.aria-label]="'close' | translate">
+      <i class="icon-close" aria-hidden="true"></i>
     </button>
   </h2>
 
   <div class="dialog-body">
     <div class="content">
       <p class="description">{{ 'email-export-dialog--description' | translate }}</p>
+
+      @if (options().length) {
+        <div class="export-options" role="group" aria-labelledby="email-export-options-label">
+          <span class="export-options__label" id="email-export-options-label">{{ 'email-export-dialog--options-label' | translate }}</span>
+          @for (option of options(); track option.param) {
+            <div class="export-options__row">
+              <mat-slide-toggle
+                [hideIcon]="true"
+                [class]="'size-sm'"
+                [checked]="!!optionValues()[option.param]"
+                (change)="onOptionChange(option.param, $event.checked)">
+                {{ option.label | translate }}
+              </mat-slide-toggle>
+              @if (option.tooltip) {
+                <button type="button" class="export-options__info"
+                  [appCdkTooltip]="option.tooltip | translate" [tooltipPosition]="'right'"
+                  [attr.aria-label]="option.tooltip | translate">
+                  <i class="icon-question" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
 
       <div class="email-field">
         <app-input
@@ -19,7 +44,7 @@
           (valueChange)="onEmailChange($event)"
           (enter)="onSubmit()"
         ></app-input>
-        <span class="email-error" *ngIf="emailInvalid()">
+        <span class="email-error" role="alert" *ngIf="emailInvalid()">
           {{ 'email-export-dialog--email-invalid' | translate }}
         </span>
       </div>

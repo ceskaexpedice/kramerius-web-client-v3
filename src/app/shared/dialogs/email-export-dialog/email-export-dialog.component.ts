@@ -1,8 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 import { InputComponent } from '../../components/input/input.component';
 import { EnvironmentService } from '../../services/environment.service';
 import { UserService } from '../../services/user.service';
@@ -15,12 +17,31 @@ export interface EmailExportDialogData {
   exportType?: EmailExportType;
 }
 
+interface EmailExportOption {
+  /** Translation key for the toggle label. */
+  label: string;
+  /** API request body field controlled by this toggle. */
+  param: string;
+  /** Export types this option is shown for. */
+  types: EmailExportType[];
+  /** Optional translation key for an info tooltip shown next to the label. */
+  tooltip?: string;
+}
+
+const EMAIL_EXPORT_OPTIONS: EmailExportOption[] = [
+  { label: 'email-export-dialog--option-enrich-llm', param: 'enrich_with_llm', types: ['epub', 'txt'], tooltip: 'email-export-dialog--option-enrich-llm-tooltip' },
+  { label: 'email-export-dialog--option-include-images', param: 'include_images', types: ['epub'] },
+  { label: 'email-export-dialog--option-skip-page-numbers', param: 'skip_page_numbers', types: ['epub', 'txt'] },
+];
+
 @Component({
   selector: 'app-email-export-dialog',
   imports: [
     TranslatePipe,
     FormsModule,
     NgIf,
+    MatSlideToggleModule,
+    CdkTooltipDirective,
     InputComponent,
   ],
   templateUrl: './email-export-dialog.component.html',
@@ -32,12 +53,20 @@ export class EmailExportDialogComponent {
   loading = signal(false);
   emailInvalid = signal(false);
 
+  /** Toggle state keyed by API param name. */
+  optionValues = signal<Record<string, boolean>>({});
+
   private dialogRef = inject(MatDialogRef<EmailExportDialogComponent>);
   data = inject<EmailExportDialogData>(MAT_DIALOG_DATA);
 
   private environmentService = inject(EnvironmentService);
   private userService = inject(UserService);
   private http = inject(HttpClient);
+
+  /** Options relevant to the current export type. */
+  options = computed<EmailExportOption[]>(() =>
+    EMAIL_EXPORT_OPTIONS.filter(o => o.types.includes(this.data.exportType ?? 'pdf'))
+  );
 
   constructor() {
     this.email = this.userService.userSession$()?.email || '';
@@ -59,7 +88,7 @@ export class EmailExportDialogComponent {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const url = this.buildUrl(baseUrl);
 
-    this.http.post(url, { email: this.email }).subscribe({
+    this.http.post(url, this.buildBody()).subscribe({
       next: () => {
         this.loading.set(false);
         this.dialogRef.close('submitted');
@@ -76,6 +105,19 @@ export class EmailExportDialogComponent {
     if (this.emailInvalid()) {
       this.emailInvalid.set(false);
     }
+  }
+
+  onOptionChange(param: string, checked: boolean): void {
+    this.optionValues.update(values => ({ ...values, [param]: checked }));
+  }
+
+  private buildBody(): Record<string, unknown> {
+    const body: Record<string, unknown> = { email: this.email };
+    const values = this.optionValues();
+    for (const option of this.options()) {
+      body[option.param] = !!values[option.param];
+    }
+    return body;
   }
 
   private buildUrl(baseUrl: string): string {
