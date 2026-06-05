@@ -41,6 +41,28 @@
     },
 
     {
+      "id": "orphan",
+      "accessType": "open",
+      "label": {
+        "cs": "Osiřelá díla",
+        "en": "Orphan works",
+        "sk": "Osirelé diela",
+        "pl": "Utwory osierocone"
+      },
+      "messagePages": [
+        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/orphan.cs.html", "en": "local-config/mzk/html/licenses/orphan.en.html" } }
+      ],
+      "actions": {
+        "pdf": true,
+        "print": true,
+        "jpeg": true,
+        "text": true,
+        "selection": true,
+        "crop": true
+      }
+    },
+
+    {
       "id": "mzk_public-contract",
       "accessType": "open",
       "label": {
