@@ -27,6 +27,13 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   ui: {
     cookiebar: true
   },
+  export: {
+    print: true,
+    jpeg: true,
+    pdf: true,
+    epub: true,
+    txt: true
+  },
   viewer: {
     defaultMode: 'book',
     availableModes: ['book', 'single'],

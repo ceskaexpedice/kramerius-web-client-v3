@@ -12,6 +12,7 @@ import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import {ModelBadgeComponent} from '../model-badge/model-badge.component';
+import { ConfigService } from '../../../core/config';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -48,6 +49,10 @@ export class RecordItemListRowComponent {
 
   recordHandler = inject(RecordHandlerService);
   public adminModeService = inject(AdminModeService);
+  private configService = inject(ConfigService);
+
+  // Hide the export trigger entirely when the instance offers no export formats.
+  exportEnabled = this.configService.isAnyExportFormatEnabled();
 
   protected readonly ColumnRenderType = ColumnRenderType;
 

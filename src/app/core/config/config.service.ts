@@ -14,6 +14,8 @@ import {
   LicenseWatermarkConfig,
   I18nConfig,
   UiConfig,
+  ExportConfig,
+  ExportFormat,
   ViewerMode,
   AppConfig,
   ApiConfig,
@@ -174,6 +176,7 @@ export class ConfigService {
       integrations: loaded.integrations,
       features: loaded.features ?? DEFAULT_CONFIG.features,
       ui: loaded.ui ?? DEFAULT_CONFIG.ui,
+      export: { ...DEFAULT_CONFIG.export, ...loaded.export },
       viewer: loaded.viewer ?? DEFAULT_CONFIG.viewer,
       search: loaded.search,
       licenses: loaded.licenses ?? DEFAULT_CONFIG.licenses,
@@ -227,6 +230,26 @@ export class ConfigService {
   // UI config accessors
   get ui(): UiConfig {
     return this.getConfig().ui;
+  }
+
+  // Export config accessors
+  get export(): ExportConfig {
+    return this.getConfig().export ?? DEFAULT_CONFIG.export;
+  }
+
+  /**
+   * Check whether a document export format (print/jpeg/pdf/epub/txt) is enabled.
+   */
+  isExportFormatEnabled(format: ExportFormat): boolean {
+    return this.export[format] ?? true;
+  }
+
+  /**
+   * True when at least one export format is enabled. When false, the export
+   * tab in the metadata sidebar should be hidden entirely.
+   */
+  isAnyExportFormatEnabled(): boolean {
+    return Object.values(this.export).some(Boolean);
   }
 
   // Viewer config accessors

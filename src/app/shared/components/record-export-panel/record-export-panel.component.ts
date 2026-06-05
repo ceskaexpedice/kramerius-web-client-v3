@@ -23,6 +23,7 @@ import { LoginPromptDialogComponent } from '../../dialogs/login-prompt-dialog/lo
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
+import { ConfigService } from '../../../core/config';
 
 @Component({
   selector: 'app-record-export-panel',
@@ -47,6 +48,13 @@ export class RecordExportPanelComponent implements OnInit {
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private configService = inject(ConfigService);
+
+  // Per-format visibility driven by the instance's export config (config-main.json).
+  printEnabled = this.configService.isExportFormatEnabled('print');
+  pdfEnabled = this.configService.isExportFormatEnabled('pdf');
+  epubEnabled = this.configService.isExportFormatEnabled('epub');
+  txtEnabled = this.configService.isExportFormatEnabled('txt');
 
   private pages = signal<Page[]>([]);
   private pagesLoaded = signal(false);

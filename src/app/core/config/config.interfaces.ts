@@ -62,6 +62,20 @@ export interface UiConfig {
   cookiebar: boolean;
 }
 
+// Document export configuration — toggles the formats offered in the
+// export section of the metadata sidebar. When every format is disabled,
+// the export tab is hidden entirely.
+export interface ExportConfig {
+  print: boolean;
+  jpeg: boolean;
+  pdf: boolean;
+  epub: boolean;
+  txt: boolean;
+}
+
+// Export format keys
+export type ExportFormat = keyof ExportConfig;
+
 // Viewer mode type
 export type ViewerMode = 'book' | 'single';
 
@@ -228,6 +242,7 @@ export interface AppConfiguration {
   integrations?: IntegrationsConfig;
   features: FeaturesConfig;
   ui: UiConfig;
+  export: ExportConfig;
   viewer: ViewerConfig;
   search?: SearchConfig;
   licenses: LicensesConfig;
