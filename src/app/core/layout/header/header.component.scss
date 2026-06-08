@@ -121,7 +121,7 @@
   .header-actions-group {
     display: flex;
     align-items: center;
-    gap: var(--spacing-x4);
+    gap: var(--spacing-x3);
 
     > .icon-button {
       background: var(--color-bg-base);
@@ -133,6 +133,29 @@
       &:hover {
         background: var(--color-bg-light);
       }
+    }
+
+    .saved-lists-btn {
+      i {
+        position: relative;
+        display: inline-block;
+      }
+
+      .saved-lists-btn__dot {
+        position: absolute;
+        top: 0px;
+        right: -2px;
+        width: var(--spacing-x1);
+        height: var(--spacing-x1);
+        border-radius: 50%;
+        background-color: var(--icon-error);
+        border: 1px solid var(--color-bg-base);
+        box-sizing: content-box;
+      }
+    }
+
+    .saved-lists-btn:hover .saved-lists-btn__dot {
+      border-color: var(--color-bg-light);
     }
   }
 

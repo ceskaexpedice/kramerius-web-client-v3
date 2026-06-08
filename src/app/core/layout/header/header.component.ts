@@ -1,6 +1,13 @@
 import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
-import { Subscription, filter } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
+import { Subscription, filter, take } from 'rxjs';
+import { selectFoldersCount } from '../../../modules/saved-lists-page/state';
+import { LoginPromptDialogComponent } from '../../../shared/dialogs/login-prompt-dialog/login-prompt-dialog.component';
+import { BreakpointService } from '../../../shared/services/breakpoint.service';
+import { DontShowAgainService, DontShowDialogs } from '../../../shared/services/dont-show-again.service';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { HeaderType } from './header-types';
 import { SettingsService } from '../../../modules/settings/settings.service';
@@ -72,6 +79,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private logoClickTimer: any = null;
 
   private uiState = inject(UiStateService);
+  private store = inject(Store);
+  private dialog = inject(MatDialog);
+  private breakpointService = inject(BreakpointService);
+  private dontShowAgainService = inject(DontShowAgainService);
 
   constructor(
     private envService: EnvironmentService,
@@ -272,6 +283,37 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   openSettings() {
     this.settingsService.openSettingsDialog();
+  }
+
+  openSavedLists() {
+    if (this.isLoggedIn()) {
+      this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SAVED_LISTS}`]));
+      return;
+    }
+
+    // If the user previously chose "don't show again", skip straight to login
+    if (!this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesLoginDialog)) {
+      this.goToLogin();
+      return;
+    }
+
+    const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
+    const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
+      data: { dontShowDialogId: DontShowDialogs.FavoritesLoginDialog },
+      width: isMobileOrTablet ? '90vw' : '60vw',
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
+      if (result === 'login') {
+        this.goToLogin();
+      }
+    });
+  }
+
+  private goToLogin() {
+    const returnUrl = this.router.url;
+    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
   }
 
   openAdvancedSearch() {
