@@ -153,8 +153,13 @@
   "track-details": "Track details",
   "now-playing--header": "Now playing",
   "share-dialog--header": "Share",
-  "folder-share-dialog--header": "Share list",
-  "folder-share-dialog--description": "Anyone with this link can view this list.",
+  "folder-share-dialog--header": "Share list „{{name}}“",
+  "folder-share-dialog--description": "Anyone with this link can see the contents of your list. Signed-in users can save it to their library or keep working with it.",
+  "folder-share-dialog--copy-link": "Copy link",
+  "folder-share-dialog--note-unsigned-label": "Signed-out users",
+  "folder-share-dialog--note-unsigned-text": "can only view the list as read-only.",
+  "folder-share-dialog--note-signed-label": "Signed-in users",
+  "folder-share-dialog--note-signed-text": "can share, search, filter the list and save it to their own library.",
   "folder-toolbar.tooltip.share": "Share list link",
   "folder-toolbar.tooltip.download": "Download list as CSV",
   "folder-toolbar.tooltip.delete": "Delete list",
@@ -802,5 +807,6 @@
   "shared-folder-banner--shared-title": "Shared list „{{folderName}}\" by {{ownerName}}",
   "shared-folder-banner--shared-message": "Don't show this message again. You'll find the actions under the three dots in the left panel.",
   "shared-folder-banner--save-action": "Save to my library",
-  "shared-folder-banner--remove-action": "Remove from shared"
+  "shared-folder-banner--remove-action": "Remove from shared",
+  "shared-folder-banner--saved-success": "List \"{{folderName}}\" was saved to your library."
 }

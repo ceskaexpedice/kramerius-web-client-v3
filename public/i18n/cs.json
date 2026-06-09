@@ -148,8 +148,13 @@
   "track-details": "Detail stopy",
   "now-playing--header": "Právě hraje",
   "share-dialog--header": "Sdílet",
-  "folder-share-dialog--header": "Sdílet seznam",
-  "folder-share-dialog--description": "Kdokoli s tímto odkazem může tento seznam zobrazit.",
+  "folder-share-dialog--header": "Sdílet seznam „{{name}}“",
+  "folder-share-dialog--description": "Kdokoli s tímto odkazem uvidí obsah vašeho seznamu. Přihlášení uživatelé si ho mohou uložit do své knihovny nebo dál s ním pracovat.",
+  "folder-share-dialog--copy-link": "Kopírovat odkaz",
+  "folder-share-dialog--note-unsigned-label": "Nepřihlášení",
+  "folder-share-dialog--note-unsigned-text": "uvidí seznam jen pro čtení.",
+  "folder-share-dialog--note-signed-label": "Přihlášení",
+  "folder-share-dialog--note-signed-text": "mohou seznam sdílet, prohledávat, filtrovat a uložit k sobě do jejich knihovny.",
   "folder-toolbar.tooltip.share": "Sdílet odkaz na seznam",
   "folder-toolbar.tooltip.download": "Stáhnout seznam jako CSV",
   "folder-toolbar.tooltip.delete": "Smazat seznam",
@@ -794,5 +799,6 @@
   "shared-folder-banner--shared-title": "Sdílený seznam „{{folderName}}\" od {{ownerName}}",
   "shared-folder-banner--shared-message": "Hlášku nezobrazovat znovu. Akce najdete pod třemi tečkami v levém panelu.",
   "shared-folder-banner--save-action": "Uložit do mojí knihovny",
-  "shared-folder-banner--remove-action": "Odebrat ze sdílených"
+  "shared-folder-banner--remove-action": "Odebrat ze sdílených",
+  "shared-folder-banner--saved-success": "Seznam „{{folderName}}\" byl uložen do vaší knihovny."
 }

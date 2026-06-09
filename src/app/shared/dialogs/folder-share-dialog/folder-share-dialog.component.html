@@ -1,30 +1,40 @@
-<div class="generic-dialog-container">
-  <h2>
-    {{ 'folder-share-dialog--header' | translate }}
+<div class="folder-share">
+  <h2 class="folder-share--title">
+    {{ 'folder-share-dialog--header' | translate: { name: folderName } }}
     <button class="button link tertiary icon-button close-button" (click)="onClose()">
       <i class="icon-close"></i>
     </button>
   </h2>
 
-  <div class="dialog-body">
+  <p class="folder-share--description">{{ 'folder-share-dialog--description' | translate }}</p>
 
-    <div class="content">
+  <div class="folder-share--url-row">
+    <app-input
+      class="folder-share--url-input"
+      theme="dark"
+      [readonly]="true"
+      [withIcons]="false" [size]="'sm'"
+      [initialValue]="shareUrl"
+    ></app-input>
 
-<!--      <p class="folder-share&#45;&#45;description">{{ 'folder-share-dialog&#45;&#45;description' | translate }}</p>-->
-
-      <div class="folder-share--url">{{ shareUrl }}</div>
-
-      <div class="actions--container">
-
-        <button class="link primary with-icon p-left-0" (click)="copyToClipboard()">
-          <i class="icon-copy"></i>
-          {{ 'copy' | translate }}
-        </button>
-
-      </div>
-
-    </div>
-
+    <button class="button primary with-icon folder-share--copy-button" (click)="copyToClipboard()">
+      <i class="icon-copy"></i>
+      {{ 'folder-share-dialog--copy-link' | translate }}
+    </button>
   </div>
 
+  <div class="folder-share--note">
+    <i class="icon-info folder-share--note-icon" aria-hidden="true"></i>
+
+    <div class="folder-share--note-text">
+      <p>
+        <strong>{{ 'folder-share-dialog--note-unsigned-label' | translate }}</strong>
+        {{ 'folder-share-dialog--note-unsigned-text' | translate }}
+      </p>
+      <p>
+        <strong>{{ 'folder-share-dialog--note-signed-label' | translate }}</strong>
+        {{ 'folder-share-dialog--note-signed-text' | translate }}
+      </p>
+    </div>
+  </div>
 </div>

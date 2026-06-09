@@ -145,8 +145,13 @@
   "track-details": "Detail stopy",
   "now-playing--header": "Práve sa prehráva",
   "share-dialog--header": "Zdieľať",
-  "folder-share-dialog--header": "Zdieľať zoznam",
-  "folder-share-dialog--description": "Ktokoľvek s týmto odkazom môže tento zoznam zobraziť.",
+  "folder-share-dialog--header": "Zdieľať zoznam „{{name}}“",
+  "folder-share-dialog--description": "Ktokoľvek s týmto odkazom uvidí obsah vášho zoznamu. Prihlásení používatelia si ho môžu uložiť do svojej knižnice alebo s ním ďalej pracovať.",
+  "folder-share-dialog--copy-link": "Kopírovať odkaz",
+  "folder-share-dialog--note-unsigned-label": "Neprihlásení",
+  "folder-share-dialog--note-unsigned-text": "uvidia zoznam len na čítanie.",
+  "folder-share-dialog--note-signed-label": "Prihlásení",
+  "folder-share-dialog--note-signed-text": "môžu zoznam zdieľať, prehľadávať, filtrovať a uložiť k sebe do svojej knižnice.",
   "folder-toolbar.tooltip.share": "Zdieľať odkaz na zoznam",
   "folder-toolbar.tooltip.download": "Stiahnuť zoznam ako CSV",
   "folder-toolbar.tooltip.delete": "Vymazať zoznam",
@@ -793,5 +798,6 @@
   "shared-folder-banner--shared-title": "Zdieľaný zoznam „{{folderName}}\" od {{ownerName}}",
   "shared-folder-banner--shared-message": "Hlášku nezobrazovať znova. Akcie nájdete pod tromi bodkami v ľavom paneli.",
   "shared-folder-banner--save-action": "Uložiť do mojej knižnice",
-  "shared-folder-banner--remove-action": "Odobrať zo zdieľaných"
+  "shared-folder-banner--remove-action": "Odobrať zo zdieľaných",
+  "shared-folder-banner--saved-success": "Zoznam „{{folderName}}\" bol uložený do vašej knižnice."
 }

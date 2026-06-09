@@ -2,6 +2,11 @@
   max-width: none !important;
 }
 
+.cdk-overlay-pane.folder-share-dialog-panel {
+  width: 100%;
+  max-width: 460px !important;
+}
+
 .mat-mdc-dialog-surface {
   display: block !important;
 }

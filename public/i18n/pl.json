@@ -145,8 +145,13 @@
   "track-details": "Szczegóły utworu",
   "now-playing--header": "Aktualnie odtwarzane",
   "share-dialog--header": "Udostępnij",
-  "folder-share-dialog--header": "Udostępnij listę",
-  "folder-share-dialog--description": "Każdy, kto ma ten link, może wyświetlić tę listę.",
+  "folder-share-dialog--header": "Udostępnij listę „{{name}}“",
+  "folder-share-dialog--description": "Każdy, kto ma ten link, zobaczy zawartość Twojej listy. Zalogowani użytkownicy mogą ją zapisać do swojej biblioteki lub dalej z nią pracować.",
+  "folder-share-dialog--copy-link": "Kopiuj link",
+  "folder-share-dialog--note-unsigned-label": "Niezalogowani",
+  "folder-share-dialog--note-unsigned-text": "zobaczą listę tylko do odczytu.",
+  "folder-share-dialog--note-signed-label": "Zalogowani",
+  "folder-share-dialog--note-signed-text": "mogą udostępniać, przeszukiwać, filtrować listę i zapisać ją do swojej biblioteki.",
   "folder-toolbar.tooltip.share": "Udostępnij link do listy",
   "folder-toolbar.tooltip.download": "Pobierz listę jako CSV",
   "folder-toolbar.tooltip.delete": "Usuń listę",
@@ -792,5 +797,6 @@
   "shared-folder-banner--shared-title": "Udostępniona lista „{{folderName}}\" od {{ownerName}}",
   "shared-folder-banner--shared-message": "Nie pokazuj ponownie tego komunikatu. Akcje znajdziesz pod trzema kropkami w lewym panelu.",
   "shared-folder-banner--save-action": "Zapisz w mojej bibliotece",
-  "shared-folder-banner--remove-action": "Usuń z udostępnionych"
+  "shared-folder-banner--remove-action": "Usuń z udostępnionych",
+  "shared-folder-banner--saved-success": "Lista \"{{folderName}}\" została zapisana w Twojej bibliotece."
 }
