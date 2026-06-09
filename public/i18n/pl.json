@@ -798,5 +798,6 @@
   "shared-folder-banner--shared-message": "Nie pokazuj ponownie tego komunikatu. Akcje znajdziesz pod trzema kropkami w lewym panelu.",
   "shared-folder-banner--save-action": "Zapisz w mojej bibliotece",
   "shared-folder-banner--remove-action": "Usuń z udostępnionych",
+  "shared-folder-menu--aria-label": "Opcje udostępnionego folderu",
   "shared-folder-banner--saved-success": "Lista \"{{folderName}}\" została zapisana w Twojej bibliotece."
 }

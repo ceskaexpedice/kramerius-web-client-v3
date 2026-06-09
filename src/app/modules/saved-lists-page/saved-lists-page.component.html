@@ -1,9 +1,11 @@
 <div class="page-container">
   <div class="page-container__inner">
 
+    @if (isLoggedIn$ | async) {
     <app-filter-sidebar>
       <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"></app-saved-lists-filters>
     </app-filter-sidebar>
+    }
 
     <div class="page-content">
 
@@ -17,6 +19,11 @@
               <div class="flex flex--align-center flex--gap-2">
                 <app-toolbar-header [title]="folderDisplayName(folder)" [showBackButton]="false">
                 </app-toolbar-header>
+                <button class="icon-button transparent" [class.active]="showFacetFilters()"
+                  [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
+                  (click)="toggleFacetFilters()">
+                  <i class="icon-search-normal-1"></i>
+                </button>
                 @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
@@ -59,7 +66,85 @@
         </app-action-toolbar>
       </div>
 
+      @if (savedBannerVisible()) {
+        <app-info-banner
+          variant="success"
+          icon="icon-tick-circle"
+          [title]="'shared-folder-banner--saved-success'
+              | translate:{ folderName: (activeFolder | async)?.name }">
+        </app-info-banner>
+      } @else if (bannerState$ | async; as banner) {
+        @if (banner.kind === 'login' || shouldShowSharedBanner()) {
+        <app-info-banner
+          [icon]="banner.kind === 'login' ? 'icon-notification-2' : 'icon-info'"
+          [variant]="banner.kind === 'login' ? 'primary' : 'light'"
+          [title]="(banner.kind === 'login'
+              ? 'shared-folder-banner--login-title'
+              : 'shared-folder-banner--shared-title')
+              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+          [message]="(banner.kind === 'login'
+              ? 'shared-folder-banner--login-message'
+              : 'shared-folder-banner--shared-message') | translate"
+          [actions]="bannerActions(banner)"
+          [dontShowId]="banner.kind === 'shared' ? 'shared-folder-banner' : undefined"
+          (actionClick)="onBannerAction($event)"
+          (dontShowAgainChange)="onBannerDontShow($event)">
+        </app-info-banner>
+        }
+      }
+
+      @if ((selectedTags$ | async); as selectedTags) {
+        @if (selectedTags.length > 0) {
+        <div class="page-content__selected-tags">
+          <app-selected-tags
+            [items]="selectedTags"
+            [showClearAll]="selectedTags.length > 1"
+            [textTransform]="'capitalize'"
+            [operators]="(savedListsFilterService.getFiltersWithOperators() | async) || {}"
+            [showOperators]="false"
+            [translateItems]="true"
+            (remove)="savedListsFilterService.removeFilter($event)"
+            (removeGroup)="savedListsFilterService.resetOperator($event)"
+            (clearAll)="savedListsFilterService.clearAllFilters()"
+            clearButtonPosition="left">
+          </app-selected-tags>
+        </div>
+        }
+      }
+
       <div class="content-with-sidebar">
+
+      <aside class="facet-filter-column" [class.open]="showFacetFilters()"
+        role="complementary" [attr.aria-label]="'search-filters' | translate" [attr.aria-hidden]="!showFacetFilters()">
+        <div class="facet-filter-column__header">
+          <span class="facet-filter-column__title">{{ 'search-and-filter-in-list--title' | translate }}</span>
+          <button class="icon-button transparent" [attr.aria-label]="'close-filters' | translate"
+            (click)="toggleFacetFilters()">
+            <i class="icon-close"></i>
+          </button>
+        </div>
+        <div class="facet-filter-column__content">
+          @if (showFacetFilters()) {
+          <app-input
+            class="facet-filter-column__search"
+            [theme]="'dark'"
+            [size]="'sm'"
+            [type]="'text'"
+            [prefixIcon]="'icon-search-normal-1'"
+            [placeholder]="'search-in-list--placeholder' | translate"
+            [ariaLabel]="'search-in-list--placeholder' | translate"
+            [showHelpButton]="false"
+            [showSubmitButton]="false"
+            [showMicButton]="true"
+            [showClearButton]="true"
+            [signalInput]="searchInput"
+            (valueChange)="onSearchQuery($event)"
+            (clearEmit)="onClearSearchQuery()">
+          </app-input>
+          <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
+          }
+        </div>
+      </aside>
 
       <div class="page-content__wrapper">
 

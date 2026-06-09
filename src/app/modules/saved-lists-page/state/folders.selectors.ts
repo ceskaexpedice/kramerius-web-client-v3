@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { FoldersState } from './folders.models';
 import { foldersFeatureKey } from './folders.reducer';
-import { selectUser } from '../../../core/auth/store/auth.selectors';
+import { selectUser, selectIsAuthenticated } from '../../../core/auth/store/auth.selectors';
 
 export const selectFoldersState = createFeatureSelector<FoldersState>(foldersFeatureKey);
 
@@ -97,6 +97,11 @@ export const selectFolderSearchResultsTotalCount = createSelector(
   (state: FoldersState) => state.folderSearchResultsTotalCount
 );
 
+export const selectFolderFacets = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => state.folderFacets
+);
+
 export const selectActiveFolderItems = createSelector(
   selectFolderDetails,
   (folderDetails) => folderDetails?.items.flat() || []
@@ -121,4 +126,41 @@ export const selectFolderItemsMapping = createSelector(
 export const selectFolderItemsMappingLoading = createSelector(
   selectFoldersState,
   (state: FoldersState) => state.folderItemsMappingLoading
+);
+
+export type FolderBannerState =
+  | { kind: 'login'; folderName: string; ownerName: string }
+  | { kind: 'shared'; folderName: string; ownerName: string }
+  | null;
+
+export const selectFolderBannerState = createSelector(
+  selectIsAuthenticated,
+  selectUser,
+  selectFolderDetails,
+  (isAuthenticated, user, folder): FolderBannerState => {
+    if (!folder) return null;
+
+    const allUsers = (folder.users ?? []).flat();
+    const owner = allUsers.find(u => u.userRole === 'owner');
+    const ownerName = owner?.userId ?? '';
+    const folderName = folder.name ?? '';
+
+    if (!isAuthenticated) {
+      return { kind: 'login', folderName, ownerName };
+    }
+
+    // The banner offers to add a shared folder to the user's library. Show it
+    // whenever the logged-in user is NOT the owner of the open folder — i.e. a
+    // follower (whether or not they've added it) or a non-member. Owners never
+    // see it. Match against user.id (the account uid) as the ownership selectors
+    // do, with email as a fallback.
+    const isOwner =
+      !!owner &&
+      ((!!user?.id && owner.userId === user.id) ||
+        (!!user?.email && owner.userId === user.email));
+    if (!isOwner) {
+      return { kind: 'shared', folderName, ownerName };
+    }
+    return null;
+  }
 );

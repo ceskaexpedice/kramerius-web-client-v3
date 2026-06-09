@@ -19,6 +19,15 @@
     color: var(--color-text-base);
   }
 
+  &--success {
+    background: var(--color-bg-available);
+    color: var(--color-text-available);
+
+    .info-banner__icon i { color: var(--color-text-available); }
+    .info-banner__title,
+    .info-banner__message { color: var(--color-text-available); }
+  }
+
   &__icon i { font-size: var(--font-size-xlarge); }
 
   &__text {
@@ -40,10 +49,16 @@
     cursor: pointer;
 
     input[type=checkbox] {
+      appearance: none;
+      -webkit-appearance: none;
       margin: 0;
       height: 16px;
+      padding: 0;
       width: 16px;
       background-color: transparent;
+      border: 1px solid var(--color-text-low-efford);
+      border-radius: var(--spacing-x1);
+      cursor: pointer;
     }
   }
 

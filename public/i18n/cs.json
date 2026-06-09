@@ -800,5 +800,6 @@
   "shared-folder-banner--shared-message": "Hlášku nezobrazovat znovu. Akce najdete pod třemi tečkami v levém panelu.",
   "shared-folder-banner--save-action": "Uložit do mojí knihovny",
   "shared-folder-banner--remove-action": "Odebrat ze sdílených",
+  "shared-folder-menu--aria-label": "Možnosti sdílené složky",
   "shared-folder-banner--saved-success": "Seznam „{{folderName}}\" byl uložen do vaší knihovny."
 }

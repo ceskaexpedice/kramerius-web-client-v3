@@ -808,5 +808,6 @@
   "shared-folder-banner--shared-message": "Don't show this message again. You'll find the actions under the three dots in the left panel.",
   "shared-folder-banner--save-action": "Save to my library",
   "shared-folder-banner--remove-action": "Remove from shared",
+  "shared-folder-menu--aria-label": "Shared folder options",
   "shared-folder-banner--saved-success": "List \"{{folderName}}\" was saved to your library."
 }

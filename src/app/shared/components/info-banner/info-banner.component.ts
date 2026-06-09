@@ -17,7 +17,7 @@ export interface InfoBannerAction {
 })
 export class InfoBannerComponent {
   @Input() icon = '';
-  @Input() variant: 'primary' | 'light' = 'primary';
+  @Input() variant: 'primary' | 'light' | 'success' = 'primary';
   @Input() title = '';
   @Input() message = '';
   @Input() actions: InfoBannerAction[] = [];

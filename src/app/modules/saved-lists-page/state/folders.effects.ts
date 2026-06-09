@@ -4,7 +4,10 @@ import { of, combineLatest } from 'rxjs';
 import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FoldersService } from '../services/folders.service';
+import { FoldersService, FolderSearchFilters } from '../services/folders.service';
+import { CustomSearchService } from '../../../shared/services/custom-search.service';
+import { QueryParamsService } from '../../../core/services/QueryParamsManager';
+import { buildYearRangeQuery, buildDateMinRangeQuery } from '../../../shared/utils/date-range-query';
 import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,6 +15,8 @@ import { parseSearchDocument } from '../../models/search-document';
 import { parseSoundTrack } from '../../models/sound-track.model';
 import { DocumentTypeEnum } from '../../constants/document-type';
 import { SolrService } from '../../../core/solr/solr.service';
+import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
+import { UserService } from '../../../shared/services/user.service';
 import * as FoldersActions from './folders.actions';
 import * as FoldersSelectors from './folders.selectors';
 import * as AuthActions from '../../../core/auth/store/auth.actions';
@@ -30,6 +35,52 @@ export class FoldersEffects {
         )
       )
     )
+  );
+
+  followFolder$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.followFolder),
+      switchMap(({ uuid }) =>
+        this.foldersService.followFolder(uuid).pipe(
+          map(() => FoldersActions.followFolderSuccess({ uuid })),
+          catchError(error => of(FoldersActions.followFolderFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+
+  followFolderReload$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.followFolderSuccess),
+      map(() => FoldersActions.loadFolders())
+    )
+  );
+
+  unfollowFolder$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.unfollowFolder),
+      switchMap(({ uuid }) =>
+        this.foldersService.unfollowFolder(uuid).pipe(
+          map(() => FoldersActions.unfollowFolderSuccess({ uuid })),
+          catchError(error => of(FoldersActions.unfollowFolderFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+
+  unfollowFolderReload$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.unfollowFolderSuccess),
+      map(() => FoldersActions.loadFolders())
+    )
+  );
+
+  unfollowFolderNavigate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.unfollowFolderSuccess),
+      tap(() => this.router.navigate([`/${APP_ROUTES_ENUM.SAVED_LISTS}`]))
+    ),
+    { dispatch: false }
   );
 
   createFolder$ = createEffect(() =>
@@ -166,21 +217,19 @@ export class FoldersEffects {
   loadFolderSearchResults$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.loadFolderSearchResults),
-      switchMap(action =>
-        this.foldersService.searchFolderItems(action.itemIds).pipe(
-          map(response => {
-            const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
-              doc['highlighting'] = response.highlighting?.[doc.pid] || {};
-              return this.parseDocument(doc);
-            });
-            return FoldersActions.loadFolderSearchResultsSuccess({
-              results: parsedResults,
-              totalCount: response.response?.numFound || 0
-            });
-          }),
+      switchMap(action => {
+        const filters = this.buildFolderSearchFilters();
+        return this.foldersService.searchFolderItems(
+          action.itemIds,
+          undefined,
+          undefined,
+          undefined,
+          filters
+        ).pipe(
+          map(response => this.parseFolderSearchResponse(response, filters)),
           catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
-        )
-      )
+        );
+      })
     )
   );
 
@@ -197,24 +246,18 @@ export class FoldersEffects {
               take(1),
               switchMap(currentSearchQuery => {
                 const itemIds = folderDetails!.items.flat().map(item => item.id);
-                const searchQuery = action.searchQuery || currentSearchQuery;
+                // undefined → reuse stored query (facet change); '' clears it.
+                const searchQuery = action.searchQuery ?? currentSearchQuery;
 
+                const filters = this.buildFolderSearchFilters();
                 return this.foldersService.searchFolderItems(
                   itemIds,
                   searchQuery,
                   action.sortBy,
-                  action.sortDirection
+                  action.sortDirection,
+                  filters
                 ).pipe(
-                  map(response => {
-                    const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
-                      doc['highlighting'] = response.highlighting?.[doc.pid] || {};
-                      return this.parseDocument(doc);
-                    });
-                    return FoldersActions.loadFolderSearchResultsSuccess({
-                      results: parsedResults,
-                      totalCount: response.response?.numFound || 0
-                    });
-                  }),
+                  map(response => this.parseFolderSearchResponse(response, filters)),
                   catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
                 );
               })
@@ -438,12 +481,87 @@ export class FoldersEffects {
     private store: Store,
     private router: Router,
     private solrService: SolrService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private customSearchService: CustomSearchService,
+    private queryParamsService: QueryParamsService,
+    private userService: UserService
   ) {}
 
   private extractFolderUuidFromUrl(url: string): string | null {
     const matches = url.match(/\/folders\/([^\/\?]+)/);
     return matches ? matches[1] : null;
+  }
+
+  /**
+   * Assembles all active filter dimensions for a folder search from the current
+   * URL + CustomSearchService: standard facet fq, custom-defined facet clauses,
+   * accessibility/availability licenses, and year/date range query clauses.
+   */
+  private buildFolderSearchFilters(): FolderSearchFilters {
+    const params = this.urlParams();
+
+    // Sync custom-search state (accessibility, where-to-search, ranges) from URL.
+    this.customSearchService.initializeFromRoute();
+
+    const queryClauses = [
+      buildYearRangeQuery(params),
+      buildDateMinRangeQuery(params)
+    ].filter((c): c is string => !!c);
+
+    const availabilityLicenses = this.customSearchService.isAvailabilityFilterActive()
+      ? this.customSearchService.getUserAvailableLicenses()
+      : [];
+
+    return {
+      fqFilters: this.queryParamsService.getFilters(params),
+      customFqClauses: this.customSearchService.getSolrFqFilters(),
+      availabilityLicenses,
+      userLicenses: this.userService.licenses,
+      queryClauses
+    };
+  }
+
+  private parseFolderSearchResponse(response: any, filters: FolderSearchFilters) {
+    const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
+      doc['highlighting'] = response.highlighting?.[doc.pid] || {};
+      return this.parseDocument(doc);
+    });
+
+    const facetFields = response.facet_counts?.facet_fields ?? {};
+    const totalCount = response.response?.numFound || 0;
+
+    // Merge static custom-defined facets (accessibility, model, ranges) with the
+    // Solr facet counts — same pipeline the search-results page uses.
+    const facets = handleFacetsWithOperators(
+      facetFields,
+      facetFields,
+      this.queryParamsService.getOperators(
+        this.urlParams()
+      ),
+      {},
+      this.userService.licenses,
+      totalCount,
+      [...(filters.fqFilters ?? []), ...(filters.customFqClauses ?? [])],
+      response.facet_counts?.facet_queries,
+      this.userService.isLoggedIn
+    );
+
+    return FoldersActions.loadFolderSearchResultsSuccess({
+      results: parsedResults,
+      totalCount,
+      facets
+    });
+  }
+
+  /** Current URL query params as a plain record (single value or array per key). */
+  private urlParams(): Record<string, string | string[]> {
+    const urlTree = this.router.parseUrl(this.router.url);
+    const params: Record<string, string | string[]> = {};
+    urlTree.queryParamMap.keys.forEach(key => {
+      const all = urlTree.queryParamMap.getAll(key);
+      params[key] = all.length > 1 ? all : all[0];
+    });
+    return params;
   }
 
   private parseDocument(doc: any) {

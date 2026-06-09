@@ -19,6 +19,9 @@ import { SelectedTagsComponent } from '../../shared/components/selected-tags/sel
 import { ToggleButtonGroupComponent } from '../../shared/components/toggle-button-group/toggle-button-group.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SavedListsFiltersComponent } from './components/saved-lists-filters/saved-lists-filters.component';
+import { SavedListsFacetFiltersComponent } from './components/saved-lists-facet-filters/saved-lists-facet-filters.component';
+import { FILTER_SERVICE } from '../../shared/services/filter.service';
+import { SavedListsFilterService } from './services/saved-lists-filter.service';
 import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
 import { InputComponent } from '../../shared/components/input/input.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -26,6 +29,7 @@ import { MusicTrackListComponent } from '../music/components/music-track-list/mu
 import { TitleEditPopupComponent } from '../../shared/components/title-edit-popup/title-edit-popup.component';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
+import { InfoBannerComponent } from '../../shared/components/info-banner/info-banner.component';
 
 const routes: Routes = [
   {
@@ -61,6 +65,7 @@ const routes: Routes = [
     ToggleButtonGroupComponent,
     TranslatePipe,
     SavedListsFiltersComponent,
+    SavedListsFacetFiltersComponent,
     NgClass,
     ToolbarHeaderComponent,
     InputComponent,
@@ -70,6 +75,10 @@ const routes: Routes = [
     InlineLoaderComponent,
     SkeletonListPipe,
     RecordExportPanelComponent,
+    InfoBannerComponent,
+  ],
+  providers: [
+    { provide: FILTER_SERVICE, useExisting: SavedListsFilterService },
   ],
 })
 

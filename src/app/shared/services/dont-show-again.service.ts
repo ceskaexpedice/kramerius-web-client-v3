@@ -10,7 +10,8 @@ export enum DontShowDialogs {
   SelectionTip = 'selection-tip',
   RestrictedPagesInfoDialog = 'restricted-pages-info-dialog',
   ActionSuccessDialog = 'action-success-dialog',
-  ActionErrorDialog = 'action-error-dialog'
+  ActionErrorDialog = 'action-error-dialog',
+  SharedFolderBanner = 'shared-folder-banner'
 }
 
 @Injectable({

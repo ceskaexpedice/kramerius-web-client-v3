@@ -5,6 +5,27 @@ import { TranslateService } from '@ngx-translate/core';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from '../state/folders.models';
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
+import { HttpParams } from '@angular/common/http';
+import { facetKeys, facetKeysEnum, mapFacetsToSearchFields } from '../../search-results-page/const/facets';
+import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../../core/solr/solr-misc';
+
+/**
+ * Extra filter dimensions for a folder-items search, assembled by the effect
+ * from the URL + CustomSearchService so FoldersService stays stateless.
+ */
+export interface FolderSearchFilters {
+  /** Standard facet filters (facetKey:value), e.g. model:book, authors.facet:"X". */
+  fqFilters?: string[];
+  /** Custom-defined facet fq clauses already in Solr-field form (e.g. where-to-search). */
+  customFqClauses?: string[];
+  /** Licenses for the active accessibility/availability filter (OR-ed into one fq). */
+  availabilityLicenses?: string[];
+  /** The current user's accessible licenses — used for the "Available only"
+   *  accessibility count (facet.query), independent of whether the toggle is on. */
+  userLicenses?: string[];
+  /** Year/date range Solr query clauses, AND-appended to q. */
+  queryClauses?: string[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -57,30 +78,115 @@ export class FoldersService {
     return this.http.get<FolderDetails>(`${this.API_URL}/${uuid}`);
   }
 
+  followFolder(uuid: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${uuid}/follow`, {});
+  }
+
+  unfollowFolder(uuid: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${uuid}/unfollow`, {});
+  }
+
   searchFolderItems(
     itemIds: string[],
     searchQuery?: string,
     sortBy?: SolrSortFields,
-    sortDirection?: SolrSortDirections
+    sortDirection?: SolrSortDirections,
+    filters: FolderSearchFilters = {}
   ): Observable<any> {
     const searchUrl = this.environmentService.getApiUrl('search') || '';
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
 
-    let finalQuery = pidQuery;
+    // Base query is the folder's items; AND any free-text term and range clauses.
+    const qClauses: string[] = [`(${pidQuery})`];
     if (searchQuery && searchQuery.trim()) {
-      finalQuery = `(${pidQuery}) AND title.search:"${searchQuery.trim()}"`;
+      qClauses.push(`title.search:"${searchQuery.trim()}"`);
+    }
+    for (const clause of filters.queryClauses ?? []) {
+      if (clause) qClauses.push(clause);
+    }
+    const finalQuery = qClauses.join(' AND ');
+
+    // Facet fields: standard set plus accessibility + license (rendered nested
+    // under the accessibility block, matching the search filters panel).
+    const facetFields = [...facetKeys, facetKeysEnum.accessibility];
+
+    let params = new HttpParams()
+      .set('q', finalQuery)
+      .set('rows', '1000')
+      .set('facet', 'true')
+      .set('facet.mincount', '1');
+
+    for (const field of facetFields) {
+      params = params.append('facet.field', field);
     }
 
-    const params: any = {
-      q: finalQuery,
-      rows: '1000'
-    };
+    // Accessibility facet counts come from facet.query (not facet.field), mirroring
+    // SolrService.getFacetsWithOperators. The availability fq below is tagged
+    // {!tag=avail} so {!ex=avail} here ignores the availability toggle while still
+    // respecting any selected license filters.
+    params = params.append('facet.query', '{!ex=avail}*:*');
+    if (filters.userLicenses && filters.userLicenses.length > 0) {
+      params = params.append('facet.query', `{!ex=avail}(${this.licenseClauses(filters.userLicenses)})`);
+    }
+    if (getOpenLicenses().length > 0) {
+      params = params.append('facet.query', `{!ex=avail}(${this.licenseClauses(getOpenLicenses())})`);
+    }
+    if (getTerminalLicenses().length > 0) {
+      params = params.append('facet.query', `{!ex=avail}(${this.licenseClauses(getTerminalLicenses())})`);
+    }
+    if (getAfterLoginLicenses().length > 0) {
+      params = params.append('facet.query', `{!ex=avail}(${this.licenseClauses(getAfterLoginLicenses())})`);
+    }
+
+    // Standard facet filters (mapped to their search fields). Quote the value so
+    // names containing commas/spaces (e.g. authors.search:"Férey, Caryl") don't
+    // break Solr's query parser — mirrors SolrService.buildFqParams. Range
+    // queries ([..]/{..}) are left unquoted.
+    for (const fq of mapFacetsToSearchFields(filters.fqFilters ?? [])) {
+      params = params.append('fq', this.quoteFqValue(fq));
+    }
+
+    // Custom-defined facet clauses (already in Solr-field form).
+    for (const fq of filters.customFqClauses ?? []) {
+      if (fq) params = params.append('fq', fq);
+    }
+
+    // Accessibility / availability: OR the active filter's licenses into one fq,
+    // tagged {!tag=avail} so the accessibility facet.query counts above can
+    // exclude it via {!ex=avail}.
+    if (filters.availabilityLicenses && filters.availabilityLicenses.length > 0) {
+      params = params.append('fq', `{!tag=avail}(${this.licenseClauses(filters.availabilityLicenses)})`);
+    }
 
     if (sortBy && sortDirection) {
-      params.sort = `${sortBy} ${sortDirection}`;
+      params = params.set('sort', `${sortBy} ${sortDirection}`);
     }
 
     return this.http.get<any>(searchUrl, { params });
+  }
+
+  /**
+   * Wraps an `fq` value in quotes so values containing commas/spaces survive
+   * Solr's query parser. Range queries ([..]/{..}) are left as-is. Mirrors the
+   * escaping in SolrService.buildFqParams used by the search-results page.
+   */
+  /** OR-joins license values into a Solr clause, e.g. `licenses:"a" OR licenses:"b"`. */
+  private licenseClauses(licenses: string[]): string {
+    return licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+  }
+
+  private quoteFqValue(fq: string): string {
+    const colonIndex = fq.indexOf(':');
+    if (colonIndex === -1) {
+      return fq;
+    }
+    const field = fq.substring(0, colonIndex);
+    const value = fq.substring(colonIndex + 1).trim();
+    // Already quoted, or a range query — leave untouched.
+    if (value.startsWith('"') || value.startsWith('[') || value.startsWith('{')) {
+      return fq;
+    }
+    return `${field}:"${value}"`;
   }
 
   private readonly FAVORITES_KEY = 'my-favorite--list';

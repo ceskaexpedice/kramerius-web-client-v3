@@ -189,10 +189,11 @@ export const foldersReducer = createReducer(
     error: null
   })),
 
-  on(FoldersActions.loadFolderSearchResultsSuccess, (state, { results, totalCount }): FoldersState => ({
+  on(FoldersActions.loadFolderSearchResultsSuccess, (state, { results, totalCount, facets }): FoldersState => ({
     ...state,
     folderSearchResults: results,
     folderSearchResultsTotalCount: totalCount,
+    folderFacets: facets,
     folderSearchResultsLoading: false,
     error: null
   })),
@@ -216,7 +217,8 @@ export const foldersReducer = createReducer(
 
   on(FoldersActions.searchFolders, (state, { searchQuery, sortBy, sortDirection }): FoldersState => ({
     ...state,
-    searchQuery,
+    // undefined → keep stored query (facet change); otherwise apply verbatim.
+    searchQuery: searchQuery ?? state.searchQuery,
     sortBy: sortBy || state.sortBy,
     sortDirection: sortDirection || state.sortDirection,
     folderSearchResultsLoading: true,

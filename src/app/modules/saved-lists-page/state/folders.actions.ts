@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from './folders.models';
 import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
+import { FacetItem } from '../../models/facet-item';
 
 export const loadFolders = createAction('[Folders] Load Folders');
 
@@ -118,7 +119,7 @@ export const loadFolderSearchResults = createAction(
 
 export const loadFolderSearchResultsSuccess = createAction(
   '[Folders] Load Folder Search Results Success',
-  props<{ results: any[]; totalCount: number }>()
+  props<{ results: any[]; totalCount: number; facets: Record<string, FacetItem[]> }>()
 );
 
 export const loadFolderSearchResultsFailure = createAction(
@@ -140,7 +141,9 @@ export const setSortParams = createAction(
 
 export const searchFolders = createAction(
   '[Folders] Search Folders',
-  props<{ searchQuery: string; sortBy?: SolrSortFields; sortDirection?: SolrSortDirections }>()
+  // searchQuery omitted/undefined → reuse the stored query (e.g. on a facet
+  // change). Provided (including '') → apply it verbatim (e.g. from the search bar).
+  props<{ searchQuery?: string; sortBy?: SolrSortFields; sortDirection?: SolrSortDirections }>()
 );
 
 // New actions for folder items mapping
@@ -153,5 +156,35 @@ export const loadAllFolderItemsSuccess = createAction(
 
 export const loadAllFolderItemsFailure = createAction(
   '[Folders] Load All Folder Items Failure',
+  props<{ error: string }>()
+);
+
+export const followFolder = createAction(
+  '[Folders] Follow Folder',
+  props<{ uuid: string }>()
+);
+
+export const followFolderSuccess = createAction(
+  '[Folders] Follow Folder Success',
+  props<{ uuid: string }>()
+);
+
+export const followFolderFailure = createAction(
+  '[Folders] Follow Folder Failure',
+  props<{ error: string }>()
+);
+
+export const unfollowFolder = createAction(
+  '[Folders] Unfollow Folder',
+  props<{ uuid: string }>()
+);
+
+export const unfollowFolderSuccess = createAction(
+  '[Folders] Unfollow Folder Success',
+  props<{ uuid: string }>()
+);
+
+export const unfollowFolderFailure = createAction(
+  '[Folders] Unfollow Folder Failure',
   props<{ error: string }>()
 );
