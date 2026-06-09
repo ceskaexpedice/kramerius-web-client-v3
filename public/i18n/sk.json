@@ -205,6 +205,8 @@
   "my-favorites-list--title": "Moja knižnica",
   "followed-folders-list--title": "Zdieľané",
   "search-in-saved-list--placeholder": "Hľadať zoznam",
+  "search-in-list--placeholder": "Hľadať v zozname",
+  "search-and-filter-in-list--title": "Hľadať a filtrovať v zozname",
   "add-to-favorites": "Pridať do mojej knižnice",
   "search-saved-lists": "Hľadať",
   "create-new-list--label": "Alebo vytvoriť nový",
@@ -784,5 +786,12 @@
   "active-filters-region": "Aktívne filtre",
   "filter-groups-region": "Skupiny filtrov",
   "day-month-from": "Deň a mesiac od",
-  "day-month-to": "Deň a mesiac do"
+  "day-month-to": "Deň a mesiac do",
+  "shared-folder-banner--login-title": "Prezeráte zdieľaný zoznam „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--login-message": "Prihláste sa a získajte filtrovanie, prehľadávanie a možnosť vytvoriť si vlastné zoznamy vo vašej knižnici.",
+  "shared-folder-banner--login-action": "Prihlásiť sa",
+  "shared-folder-banner--shared-title": "Zdieľaný zoznam „{{folderName}}\" od {{ownerName}}",
+  "shared-folder-banner--shared-message": "Hlášku nezobrazovať znova. Akcie nájdete pod tromi bodkami v ľavom paneli.",
+  "shared-folder-banner--save-action": "Uložiť do mojej knižnice",
+  "shared-folder-banner--remove-action": "Odobrať zo zdieľaných"
 }

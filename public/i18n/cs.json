@@ -208,6 +208,8 @@
   "my-favorites-list--title": "Moje knihovna",
   "followed-folders-list--title": "Sdílené",
   "search-in-saved-list--placeholder": "Hledat seznam",
+  "search-in-list--placeholder": "Hledat v seznamu",
+  "search-and-filter-in-list--title": "Hledat a filtrovat v seznamu",
   "add-to-favorites": "Přidat do mojí knihovny",
   "search-saved-lists": "Hledat",
   "create-new-list--label": "Nebo vytvořit nový",
@@ -785,5 +787,12 @@
   "active-filters-region": "Aktivní filtry",
   "filter-groups-region": "Skupiny filtrů",
   "day-month-from": "Den a měsíc od",
-  "day-month-to": "Den a měsíc do"
+  "day-month-to": "Den a měsíc do",
+  "shared-folder-banner--login-title": "Prohlížíte sdílený seznam „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--login-message": "Přihlaste se a získejte filtrování, prohledávání a možnost si vytvořit vlastní seznamy ve vaší knihovně.",
+  "shared-folder-banner--login-action": "Přihlásit se",
+  "shared-folder-banner--shared-title": "Sdílený seznam „{{folderName}}\" od {{ownerName}}",
+  "shared-folder-banner--shared-message": "Hlášku nezobrazovat znovu. Akce najdete pod třemi tečkami v levém panelu.",
+  "shared-folder-banner--save-action": "Uložit do mojí knihovny",
+  "shared-folder-banner--remove-action": "Odebrat ze sdílených"
 }

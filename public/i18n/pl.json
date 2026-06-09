@@ -205,6 +205,8 @@
   "my-favorites-list--title": "Moja biblioteka",
   "followed-folders-list--title": "Udostępnione",
   "search-in-saved-list--placeholder": "Szukaj listy",
+  "search-in-list--placeholder": "Szukaj na liście",
+  "search-and-filter-in-list--title": "Szukaj i filtruj na liście",
   "add-to-favorites": "Dodaj do mojej biblioteki",
   "search-saved-lists": "Szukaj",
   "create-new-list--label": "Albo utworzyć nowy",
@@ -783,5 +785,12 @@
   "active-filters-region": "Aktywne filtry",
   "filter-groups-region": "Grupy filtrów",
   "day-month-from": "Dzień i miesiąc od",
-  "day-month-to": "Dzień i miesiąc do"
+  "day-month-to": "Dzień i miesiąc do",
+  "shared-folder-banner--login-title": "Przeglądasz udostępnioną listę „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--login-message": "Zaloguj się, aby uzyskać filtrowanie, wyszukiwanie i możliwość tworzenia własnych list w swojej bibliotece.",
+  "shared-folder-banner--login-action": "Zaloguj się",
+  "shared-folder-banner--shared-title": "Udostępniona lista „{{folderName}}\" od {{ownerName}}",
+  "shared-folder-banner--shared-message": "Nie pokazuj ponownie tego komunikatu. Akcje znajdziesz pod trzema kropkami w lewym panelu.",
+  "shared-folder-banner--save-action": "Zapisz w mojej bibliotece",
+  "shared-folder-banner--remove-action": "Usuń z udostępnionych"
 }

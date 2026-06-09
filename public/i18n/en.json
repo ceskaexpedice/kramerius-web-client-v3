@@ -213,6 +213,8 @@
   "my-favorites-list--title": "My library",
   "followed-folders-list--title": "Followed",
   "search-in-saved-list--placeholder": "Search list",
+  "search-in-list--placeholder": "Search in list",
+  "search-and-filter-in-list--title": "Search and filter in list",
   "add-to-favorites": "Add to my library",
   "search-saved-lists": "Search",
   "create-new-list--label": "Or create new",
@@ -793,5 +795,12 @@
   "active-filters-region": "Active filters",
   "filter-groups-region": "Filter groups",
   "day-month-from": "Day and month from",
-  "day-month-to": "Day and month to"
+  "day-month-to": "Day and month to",
+  "shared-folder-banner--login-title": "You are viewing the shared list „{{folderName}}\" by {{ownerName}}.",
+  "shared-folder-banner--login-message": "Sign in to get filtering, searching, and the ability to create your own lists in your library.",
+  "shared-folder-banner--login-action": "Sign in",
+  "shared-folder-banner--shared-title": "Shared list „{{folderName}}\" by {{ownerName}}",
+  "shared-folder-banner--shared-message": "Don't show this message again. You'll find the actions under the three dots in the left panel.",
+  "shared-folder-banner--save-action": "Save to my library",
+  "shared-folder-banner--remove-action": "Remove from shared"
 }
