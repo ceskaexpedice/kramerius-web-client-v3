@@ -1,0 +1,63 @@
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  min-height: var(--info-banner-height);
+  padding: var(--spacing-x2) var(--spacing-x3);
+
+  &--primary {
+    background: var(--color-primary);
+    color: var(--color-text-on-color);
+
+    .info-banner__icon i { color: var(--color-icon-on-color, var(--color-text-on-color)); }
+    .info-banner__title,
+    .info-banner__message { color: var(--color-text-on-color); }
+  }
+
+  &--light {
+    background: var(--color-bg-low-efford);
+    color: var(--color-text-base);
+  }
+
+  &__icon i { font-size: var(--font-size-xlarge); }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title { margin: 0; font-weight: 700; }
+  &__message { margin: 0; }
+
+  &__dont-show {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    cursor: pointer;
+
+    input[type=checkbox] {
+      margin: 0;
+      height: 16px;
+      width: 16px;
+      background-color: transparent;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    margin-left: auto;
+    flex-shrink: 0;
+
+    button {
+      padding: var(--spacing-x2) var(--spacing-x4);
+      gap: var(--spacing-x1);
+      border: 1px solid var(--color-border-secondary-default);
+    }
+  }
+}
