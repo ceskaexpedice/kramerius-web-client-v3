@@ -110,25 +110,6 @@
         }
       }
 
-      @if ((selectedTags$ | async); as selectedTags) {
-        @if (selectedTags.length > 0) {
-        <div class="page-content__selected-tags">
-          <app-selected-tags
-            [items]="selectedTags"
-            [showClearAll]="selectedTags.length > 1"
-            [textTransform]="'capitalize'"
-            [operators]="(savedListsFilterService.getFiltersWithOperators() | async) || {}"
-            [showOperators]="false"
-            [translateItems]="true"
-            (remove)="savedListsFilterService.removeFilter($event)"
-            (removeGroup)="savedListsFilterService.resetOperator($event)"
-            (clearAll)="savedListsFilterService.clearAllFilters()"
-            clearButtonPosition="left">
-          </app-selected-tags>
-        </div>
-        }
-      }
-
       <div class="content-with-sidebar">
 
       <aside class="facet-filter-column" [class.open]="showFacetFilters()"
@@ -164,6 +145,25 @@
       </aside>
 
       <div class="page-content__wrapper">
+
+        @if ((selectedTags$ | async); as selectedTags) {
+          @if (selectedTags.length > 0) {
+          <div class="page-content__sticky-tags">
+            <app-selected-tags
+              [items]="selectedTags"
+              [showClearAll]="selectedTags.length > 1"
+              [textTransform]="'capitalize'"
+              [operators]="(savedListsFilterService.getFiltersWithOperators() | async) || {}"
+              [showOperators]="false"
+              [translateItems]="true"
+              (remove)="savedListsFilterService.removeFilter($event)"
+              (removeGroup)="savedListsFilterService.resetOperator($event)"
+              (clearAll)="savedListsFilterService.clearAllFilters()"
+              clearButtonPosition="left">
+            </app-selected-tags>
+          </div>
+          }
+        }
 
         <!-- OTHER ITEMS SECTION -->
         <ng-container *ngIf="{ items: nonSoundRecordingItems | async, loading: loading$ | async } as data">

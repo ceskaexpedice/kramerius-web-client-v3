@@ -3,10 +3,6 @@
 // Component-specific styles only
 // Common layout styles moved to /public/styles/_page-layout.scss
 
-.page-content__selected-tags {
-  padding: var(--spacing-x2) var(--spacing-x4) 0;
-}
-
 .content-with-sidebar {
   display: flex;
   flex-direction: row;
