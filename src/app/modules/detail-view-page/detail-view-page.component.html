@@ -53,7 +53,7 @@
         <div class="max-width-100" left>
           <app-toolbar-header [title]="document?.mainTitle || ''"
                               [showBackButton]="recordHandler.shouldShowBackButton(document)"
-                              [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical"
+                              [titleClickable]="document?.rootModel === DocumentTypeEnum.periodical && document?.model !== DocumentTypeEnum.periodical"
                               [titleTooltip]="'go-to-volume--tooltip' | translate"
                               (titleClick)="recordHandler.clickedToolbarTitle(document.rootModel, document.rootPid)"
                               (goBack)="recordHandler.goBackClicked(document)">

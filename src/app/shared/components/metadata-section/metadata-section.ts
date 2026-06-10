@@ -30,6 +30,9 @@ import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { pickCdkCollection } from '../../utils/cdk-collection';
+import { RecordHandlerService } from '../../services/record-handler.service';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
+import { CdkTooltipDirective } from '../../directives';
 
 @Component({
   selector: 'app-metadata-section',
@@ -44,7 +47,8 @@ import { pickCdkCollection } from '../../utils/cdk-collection';
     ModelBadgeComponent,
     RouterLink,
     SelectComponent,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    CdkTooltipDirective
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -104,6 +108,7 @@ export class MetadataSection implements OnInit, OnChanges {
   private destroyRef = inject(DestroyRef);
   private libraryContext = inject(LibraryContextService);
   private configService = inject(ConfigService);
+  recordHandler = inject(RecordHandlerService);
   private availableYears = toSignal(this.store.select(selectAvailableYears));
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
@@ -472,6 +477,44 @@ export class MetadataSection implements OnInit, OnChanges {
     return parts.join(': ');
   }
 
+  get solrData(): Metadata | null { return this._solrData(); }
+
+  // True when this document is a child of a periodical hierarchy (volume/issue/supplement)
+  // and clicking the title should navigate up to the periodical (volumes screen).
+  isPeriodicalChild(): boolean {
+    const sd = this._solrData();
+    const rootModel = sd?.rootModel;
+    const currentModel = sd?.model || this.data?.model;
+    return rootModel === DocumentTypeEnum.periodical && currentModel !== DocumentTypeEnum.periodical;
+  }
+
+  clickedTitle(): void {
+    if (!this.isPeriodicalChild()) return;
+    const rootPid = this._solrData()?.rootPid;
+    if (rootPid) {
+      this.recordHandler.navigateToPeriodical(rootPid);
+    }
+  }
+
+  getIssn(): string | null {
+    if (!this.data?.identifiers) {
+      return null;
+    }
+    const issn = this.data.identifiers['issn'] ||
+      this.data.identifiers['ISSN'] ||
+      this.data.identifiers['id_issn'];
+    if (issn) {
+      return Array.isArray(issn) ? issn.join(', ') : String(issn);
+    }
+    return null;
+  }
+
+  // Identifier keys that are internal/operational (used pre-digitization) and
+  // should not be shown in the user-facing identifier list.
+  private readonly internalIdentifierKeys = new Set(
+    ['uuid', 'iduuid', 'id_uuid', 'barcode'].map(k => k.toLowerCase())
+  );
+
   getIsbn(): string | null {
     if (!this.data?.identifiers) {
       return null;
@@ -501,11 +544,14 @@ export class MetadataSection implements OnInit, OnChanges {
       return undefined;
     }
     const filtered: { [key: string]: any } = {};
+    const excluded = new Set([
+      'isbn', 'ISBN', 'id_isbn',
+      'issn', 'ISSN', 'id_issn',
+    ]);
     for (const key of Object.keys(this.data.identifiers)) {
-      // Exclude ISBN-related keys
-      if (!['isbn', 'ISBN', 'id_isbn'].includes(key)) {
-        filtered[key] = this.data.identifiers[key];
-      }
+      if (excluded.has(key)) continue;
+      if (this.internalIdentifierKeys.has(key.toLowerCase())) continue;
+      filtered[key] = this.data.identifiers[key];
     }
     return Object.keys(filtered).length > 0 ? filtered : undefined;
   }

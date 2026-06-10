@@ -25,7 +25,13 @@
   <!-- Title -->
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
-    <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
+    <h2 [class.clickable-title]="isPeriodicalChild()"
+        [attr.role]="isPeriodicalChild() ? 'link' : null"
+        [attr.tabindex]="isPeriodicalChild() ? 0 : null"
+        [appCdkTooltip]="isPeriodicalChild() ? ('go-to-volume--tooltip' | translate) : ''"
+        [tooltipPosition]="'bottom'"
+        (click)="clickedTitle()"
+        (keydown.enter)="clickedTitle()">{{ data.mainTitle || data.titles[0].title }}</h2>
     <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="data.titles.length">
       <div class="titles--container" *ngFor="let title of data.titles">
@@ -35,6 +41,10 @@
     </app-collapsible-content>
   </section>
   }
+
+  <!-- ISSN (standalone, right under title) -->
+  <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
+  </app-metadata-section-item>
 
   <!-- ISBN (standalone) -->
   <app-metadata-section-item *ngIf="getIsbn()" [label]="'ISBN' | translate" type="text" [value]="getIsbn()!">

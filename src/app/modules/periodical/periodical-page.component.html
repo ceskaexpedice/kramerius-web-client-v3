@@ -32,10 +32,9 @@
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
-              [titleClickable]="true"
-              [titleTooltip]="'go-to-volume--tooltip' | translate"
-              (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
-              (goBack)="recordHandler.goBackClicked(document)">
+              [titleClickable]="document.uuid !== document['root.pid']"
+                                (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
+                                (goBack)="recordHandler.goBackClicked(document)">
 
               <!-- Show admin actions when in SearchResults mode and admin mode is active -->
               <app-admin-actions *ngIf="adminModeService.adminMode()" (exportRequested)="onExportSelected()"
