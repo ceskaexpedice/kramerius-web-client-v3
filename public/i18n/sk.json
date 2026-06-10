@@ -793,6 +793,8 @@
   "day-month-from": "Deň a mesiac od",
   "day-month-to": "Deň a mesiac do",
   "shared-folder-banner--login-title": "Prezeráte zdieľaný zoznam „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--invite-title": "Prezeráte zdieľaný zoznam „{{folderName}}\" od {{ownerName}}. Chcete ho pridať do zdieľaných?",
+  "shared-folder-banner--add-action": "Pridať",
   "shared-folder-banner--login-message": "Prihláste sa a získajte filtrovanie, prehľadávanie a možnosť vytvoriť si vlastné zoznamy vo vašej knižnici.",
   "shared-folder-banner--login-action": "Prihlásiť sa",
   "shared-folder-banner--shared-title": "Zdieľaný zoznam „{{folderName}}\" od {{ownerName}}",

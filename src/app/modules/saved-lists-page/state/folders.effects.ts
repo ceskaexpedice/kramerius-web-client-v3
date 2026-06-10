@@ -83,6 +83,32 @@ export class FoldersEffects {
     { dispatch: false }
   );
 
+  // Copy a shared folder into the user's own library: create a new folder, then
+  // add a copy of all the source items to it.
+  copyFolderToLibrary$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.copyFolderToLibrary),
+      switchMap(({ name, items }) =>
+        this.foldersService.createFolder({ name }).pipe(
+          switchMap(folder =>
+            (items.length
+              ? this.foldersService.updateFolderItems({ uuid: folder.uuid, items })
+              : of(void 0)
+            ).pipe(map(() => FoldersActions.copyFolderToLibrarySuccess({ folder })))
+          ),
+          catchError(error => of(FoldersActions.copyFolderToLibraryFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+
+  copyFolderToLibraryReload$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.copyFolderToLibrarySuccess),
+      map(() => FoldersActions.loadFolders())
+    )
+  );
+
   createFolder$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.createFolder),

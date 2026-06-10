@@ -188,3 +188,18 @@ export const unfollowFolderFailure = createAction(
   '[Folders] Unfollow Folder Failure',
   props<{ error: string }>()
 );
+
+export const copyFolderToLibrary = createAction(
+  '[Folders] Copy Folder To Library',
+  props<{ name: string; items: string[] }>()
+);
+
+export const copyFolderToLibrarySuccess = createAction(
+  '[Folders] Copy Folder To Library Success',
+  props<{ folder: Folder }>()
+);
+
+export const copyFolderToLibraryFailure = createAction(
+  '[Folders] Copy Folder To Library Failure',
+  props<{ error: string }>()
+);

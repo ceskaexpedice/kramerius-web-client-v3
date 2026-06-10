@@ -792,6 +792,8 @@
   "day-month-from": "Dzień i miesiąc od",
   "day-month-to": "Dzień i miesiąc do",
   "shared-folder-banner--login-title": "Przeglądasz udostępnioną listę „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--invite-title": "Przeglądasz udostępnioną listę „{{folderName}}\" od {{ownerName}}. Czy chcesz dodać ją do udostępnionych?",
+  "shared-folder-banner--add-action": "Dodaj",
   "shared-folder-banner--login-message": "Zaloguj się, aby uzyskać filtrowanie, wyszukiwanie i możliwość tworzenia własnych list w swojej bibliotece.",
   "shared-folder-banner--login-action": "Zaloguj się",
   "shared-folder-banner--shared-title": "Udostępniona lista „{{folderName}}\" od {{ownerName}}",

@@ -802,6 +802,8 @@
   "day-month-from": "Day and month from",
   "day-month-to": "Day and month to",
   "shared-folder-banner--login-title": "You are viewing the shared list „{{folderName}}\" by {{ownerName}}.",
+  "shared-folder-banner--invite-title": "You are viewing the shared list „{{folderName}}\" by {{ownerName}}. Do you want to add it to your shared lists?",
+  "shared-folder-banner--add-action": "Add",
   "shared-folder-banner--login-message": "Sign in to get filtering, searching, and the ability to create your own lists in your library.",
   "shared-folder-banner--login-action": "Sign in",
   "shared-folder-banner--shared-title": "Shared list „{{folderName}}\" by {{ownerName}}",

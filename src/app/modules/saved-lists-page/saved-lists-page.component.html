@@ -19,11 +19,13 @@
               <div class="flex flex--align-center flex--gap-2">
                 <app-toolbar-header [title]="folderDisplayName(folder)" [showBackButton]="false">
                 </app-toolbar-header>
-                <button class="icon-button transparent" [class.active]="showFacetFilters()"
-                  [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
-                  (click)="toggleFacetFilters()">
-                  <i class="icon-search-normal-1"></i>
-                </button>
+                @if (isLoggedIn$ | async) {
+                  <button class="icon-button transparent" [class.active]="showFacetFilters()"
+                          [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
+                          (click)="toggleFacetFilters()">
+                    <i class="icon-search-normal-1"></i>
+                  </button>
+                }
                 @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
@@ -74,19 +76,34 @@
               | translate:{ folderName: (activeFolder | async)?.name }">
         </app-info-banner>
       } @else if (bannerState$ | async; as banner) {
-        @if (banner.kind === 'login' || shouldShowSharedBanner()) {
+        @if (banner.kind === 'login') {
         <app-info-banner
-          [icon]="banner.kind === 'login' ? 'icon-notification-2' : 'icon-info'"
-          [variant]="banner.kind === 'login' ? 'primary' : 'light'"
-          [title]="(banner.kind === 'login'
-              ? 'shared-folder-banner--login-title'
-              : 'shared-folder-banner--shared-title')
+          icon="icon-notification-2"
+          variant="primary"
+          [title]="'shared-folder-banner--login-title'
               | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
-          [message]="(banner.kind === 'login'
-              ? 'shared-folder-banner--login-message'
-              : 'shared-folder-banner--shared-message') | translate"
+          [message]="'shared-folder-banner--login-message' | translate"
           [actions]="bannerActions(banner)"
-          [dontShowId]="banner.kind === 'shared' ? 'shared-folder-banner' : undefined"
+          (actionClick)="onBannerAction($event)">
+        </app-info-banner>
+        } @else if (banner.kind === 'invite') {
+        <app-info-banner
+          icon="icon-notification-2"
+          variant="primary"
+          [title]="'shared-folder-banner--invite-title'
+              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+          [actions]="bannerActions(banner)"
+          (actionClick)="onBannerAction($event)">
+        </app-info-banner>
+        } @else if (banner.kind === 'follower' && shouldShowSharedBanner()) {
+        <app-info-banner
+          icon="icon-info"
+          variant="light"
+          [title]="'shared-folder-banner--shared-title'
+              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+          [message]="'shared-folder-banner--shared-message' | translate"
+          [actions]="bannerActions(banner)"
+          dontShowId="shared-folder-banner"
           (actionClick)="onBannerAction($event)"
           (dontShowAgainChange)="onBannerDontShow($event)">
         </app-info-banner>

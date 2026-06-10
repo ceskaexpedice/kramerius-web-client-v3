@@ -130,7 +130,8 @@ export const selectFolderItemsMappingLoading = createSelector(
 
 export type FolderBannerState =
   | { kind: 'login'; folderName: string; ownerName: string }
-  | { kind: 'shared'; folderName: string; ownerName: string }
+  | { kind: 'invite'; folderName: string; ownerName: string }
+  | { kind: 'follower'; folderName: string; ownerName: string }
   | null;
 
 export const selectFolderBannerState = createSelector(
@@ -149,18 +150,25 @@ export const selectFolderBannerState = createSelector(
       return { kind: 'login', folderName, ownerName };
     }
 
-    // The banner offers to add a shared folder to the user's library. Show it
-    // whenever the logged-in user is NOT the owner of the open folder — i.e. a
-    // follower (whether or not they've added it) or a non-member. Owners never
-    // see it. Match against user.id (the account uid) as the ownership selectors
-    // do, with email as a fallback.
-    const isOwner =
-      !!owner &&
-      ((!!user?.id && owner.userId === user.id) ||
-        (!!user?.email && owner.userId === user.email));
-    if (!isOwner) {
-      return { kind: 'shared', folderName, ownerName };
+    // Match the current user against a folder member by account uid, with email
+    // as a fallback — mirroring how the ownership selectors resolve identity.
+    const matchesUser = (u: { userId: string }) =>
+      (!!user?.id && u.userId === user.id) ||
+      (!!user?.email && u.userId === user.email);
+
+    // Owners never see a banner.
+    if (owner && matchesUser(owner)) {
+      return null;
     }
-    return null;
+
+    // A logged-in follower (already a member, not the owner) is offered to copy
+    // the shared folder into their own library.
+    if (allUsers.some(matchesUser)) {
+      return { kind: 'follower', folderName, ownerName };
+    }
+
+    // A logged-in user who is not in the folder's users array at all is invited
+    // to add (follow) the shared folder.
+    return { kind: 'invite', folderName, ownerName };
   }
 );

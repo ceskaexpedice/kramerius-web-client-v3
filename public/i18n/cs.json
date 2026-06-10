@@ -794,6 +794,8 @@
   "day-month-from": "Den a měsíc od",
   "day-month-to": "Den a měsíc do",
   "shared-folder-banner--login-title": "Prohlížíte sdílený seznam „{{folderName}}\" od {{ownerName}}.",
+  "shared-folder-banner--invite-title": "Prohlížíte sdílený seznam „{{folderName}}\" od {{ownerName}}. Chcete ho přidat do sdílených?",
+  "shared-folder-banner--add-action": "Přidat",
   "shared-folder-banner--login-message": "Přihlaste se a získejte filtrování, prohledávání a možnost si vytvořit vlastní seznamy ve vaší knihovně.",
   "shared-folder-banner--login-action": "Přihlásit se",
   "shared-folder-banner--shared-title": "Sdílený seznam „{{folderName}}\" od {{ownerName}}",

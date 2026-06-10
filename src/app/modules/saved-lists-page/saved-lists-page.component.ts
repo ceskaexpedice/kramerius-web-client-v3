@@ -248,9 +248,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
         style: 'login secondary',
       }];
     }
+    if (state.kind === 'invite') {
+      return [{
+        id: 'follow',
+        label: this.translate.instant('shared-folder-banner--add-action'),
+        icon: 'icon-add',
+        style: 'login secondary',
+      }];
+    }
     return [
       {
-        id: 'save',
+        id: 'copy',
         label: this.translate.instant('shared-folder-banner--save-action'),
         icon: 'icon-heart',
         style: 'outlined light',
@@ -272,11 +280,23 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
           this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
           break;
         }
-        case 'save':
-          this.commitDontShowIfPending();
+        case 'follow':
+          // Non-member adds (follows) the shared folder. followFolderSuccess
+          // reloads the folder list.
           if (folder?.uuid) this.store.dispatch(FoldersActions.followFolder({ uuid: folder.uuid }));
           this.showSavedBanner();
           break;
+        case 'copy': {
+          // Follower copies the shared folder into their own library: a new
+          // owned folder with the same name and a copy of all its items.
+          this.commitDontShowIfPending();
+          const items = (folder?.items ?? []).flat().map(item => item.id);
+          if (folder?.name) {
+            this.store.dispatch(FoldersActions.copyFolderToLibrary({ name: folder.name, items }));
+          }
+          this.showSavedBanner();
+          break;
+        }
         case 'remove':
           this.commitDontShowIfPending();
           if (folder?.uuid) this.store.dispatch(FoldersActions.unfollowFolder({ uuid: folder.uuid }));

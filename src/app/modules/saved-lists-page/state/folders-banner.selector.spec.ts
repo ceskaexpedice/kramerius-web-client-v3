@@ -45,19 +45,19 @@ describe('selectFolderBannerState', () => {
     expect(result).toBeNull();
   });
 
-  it('returns "shared" when the authenticated user is a follower (not owner)', () => {
+  it('returns "follower" when the authenticated user is a follower (not owner)', () => {
     const result = selectFolderBannerState.projector(true, user, followerFolder);
-    expect(result?.kind).toBe('shared');
+    expect(result?.kind).toBe('follower');
     expect(result?.ownerName).toBe('jan.rychtar@trinera.cz');
   });
 
-  it('returns "shared" when the authenticated user is not a member at all', () => {
+  it('returns "invite" when the authenticated user is not a member at all', () => {
     const result = selectFolderBannerState.projector(
       true,
       { id: 'stranger@mzk.cz' } as any,
       followerFolder
     );
-    expect(result?.kind).toBe('shared');
+    expect(result?.kind).toBe('invite');
   });
 
   it('matches ownership by email when id does not match', () => {
