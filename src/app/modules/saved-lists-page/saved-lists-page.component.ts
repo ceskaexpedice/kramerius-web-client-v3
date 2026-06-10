@@ -73,6 +73,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   currentEditingFolder = signal<{ uuid: string, name: string } | null>(null);
   exportRecord = signal<SearchDocument | null>(null);
   showFacetFilters = signal<boolean>(false);
+  facetFiltersContentVisible = signal(false);
   // Pending "don't show again" choice — persisted only when an action (Save/Remove)
   // is taken, not when the checkbox is toggled.
   pendingDontShow = signal(false);
@@ -82,6 +83,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   titleEditPopupState: PopupState;
 
   private fqParamsSubscription?: Subscription;
+  private facetFiltersContentTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private store: Store,
@@ -154,7 +156,16 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   }
 
   toggleFacetFilters() {
-    this.showFacetFilters.update(open => !open);
+    const willOpen = !this.showFacetFilters();
+    this.showFacetFilters.set(willOpen);
+    clearTimeout(this.facetFiltersContentTimer);
+
+    if (willOpen) {
+      this.facetFiltersContentTimer = setTimeout(() => this.facetFiltersContentVisible.set(true), 300);
+      return;
+    }
+
+    this.facetFiltersContentVisible.set(false);
   }
 
   /** Filter items in the active folder by a free-text query (q). */
@@ -231,6 +242,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.popupPositioningService.cleanup();
     this.fqParamsSubscription?.unsubscribe();
+    clearTimeout(this.facetFiltersContentTimer);
     clearTimeout(this.savedBannerTimer);
   }
 

@@ -114,34 +114,36 @@
 
       <aside class="facet-filter-column" [class.open]="showFacetFilters()"
         role="complementary" [attr.aria-label]="'search-filters' | translate" [attr.aria-hidden]="!showFacetFilters()">
-        <div class="facet-filter-column__header">
-          <span class="facet-filter-column__title">{{ 'search-and-filter-in-list--title' | translate }}</span>
-          <button class="icon-button transparent" [attr.aria-label]="'close-filters' | translate"
-            (click)="toggleFacetFilters()">
-            <i class="icon-close"></i>
-          </button>
-        </div>
-        <div class="facet-filter-column__content">
-          @if (showFacetFilters()) {
-          <app-input
-            class="facet-filter-column__search"
-            [theme]="'dark'"
-            [size]="'sm'"
-            [type]="'text'"
-            [prefixIcon]="'icon-search-normal-1'"
-            [placeholder]="'search-in-list--placeholder' | translate"
-            [ariaLabel]="'search-in-list--placeholder' | translate"
-            [showHelpButton]="false"
-            [showSubmitButton]="false"
-            [showMicButton]="true"
-            [showClearButton]="true"
-            [signalInput]="searchInput"
-            (valueChange)="onSearchQuery($event)"
-            (clearEmit)="onClearSearchQuery()">
-          </app-input>
-          <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
-          }
-        </div>
+        @if (facetFiltersContentVisible()) {
+          <div class="facet-filter-column__inner">
+            <div class="facet-filter-column__header">
+              <span class="facet-filter-column__title">{{ 'search-and-filter-in-list--title' | translate }}</span>
+              <button class="icon-button transparent" [attr.aria-label]="'close-filters' | translate"
+                (click)="toggleFacetFilters()">
+                <i class="icon-close"></i>
+              </button>
+            </div>
+            <div class="facet-filter-column__content">
+              <app-input
+                class="facet-filter-column__search"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [type]="'text'"
+                [prefixIcon]="'icon-search-normal-1'"
+                [placeholder]="'search-in-list--placeholder' | translate"
+                [ariaLabel]="'search-in-list--placeholder' | translate"
+                [showHelpButton]="false"
+                [showSubmitButton]="false"
+                [showMicButton]="true"
+                [showClearButton]="true"
+                [signalInput]="searchInput"
+                (valueChange)="onSearchQuery($event)"
+                (clearEmit)="onClearSearchQuery()">
+              </app-input>
+              <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
+            </div>
+          </div>
+        }
       </aside>
 
       <div class="page-content__wrapper">
