@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../input/input.component';
 import { resolveNamespacedTranslation } from '../../translation/namespaced-translation';
 
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-select',
@@ -64,6 +64,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   @ViewChild('wrapper') wrapperRef?: ElementRef;
   @ViewChild('filterInput') filterInputRef?: InputComponent;
+  @ViewChild(CdkVirtualScrollViewport) virtualViewport?: CdkVirtualScrollViewport;
 
   constructor(
     private hostRef: ElementRef,
@@ -257,6 +258,14 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   private scrollFocusedIntoView() {
     requestAnimationFrame(() => {
+      if (this.virtualScroll && this.virtualViewport) {
+        // Virtual scroll: off-screen options aren't in the DOM, so scrollIntoView
+        // can't find them. Drive the viewport directly, centering when possible.
+        const offset = Math.max(0, Math.floor(this.visibleItemsCount / 2) - 1);
+        const target = Math.max(0, this.focusedIndex - offset);
+        this.virtualViewport.scrollToIndex(target);
+        return;
+      }
       const el = document.getElementById('option-' + this.focusedIndex);
       el?.scrollIntoView({ block: 'nearest' });
     });
