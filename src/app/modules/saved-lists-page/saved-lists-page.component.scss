@@ -56,15 +56,16 @@
     overflow-y: auto;
     padding: var(--spacing-x3);
     opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity 0.18s ease 0.12s, transform 0.18s ease 0.12s;
-    will-change: opacity, transform;
+    visibility: hidden;
+    transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+    will-change: opacity;
   }
 
   &.open {
     .facet-filter-column__content {
       opacity: 1;
-      transform: translateX(0);
+      visibility: visible;
+      transition-delay: 0.28s;
     }
   }
 
