@@ -32,7 +32,8 @@
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
-              [titleClickable]="document.uuid !== document['root.pid']"
+                                [titleTooltip]="document.uuid !== document['root.pid'] ? ('go-to-volume--tooltip' | translate) : ''"
+                                [titleClickable]="document.uuid !== document['root.pid']"
                                 (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
                                 (goBack)="recordHandler.goBackClicked(document)">
 
