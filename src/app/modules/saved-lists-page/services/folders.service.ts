@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from '../state/folders.models';
 import { EnvironmentService } from '../../../shared/services/environment.service';
@@ -94,6 +94,16 @@ export class FoldersService {
     filters: FolderSearchFilters = {}
   ): Observable<any> {
     const searchUrl = this.environmentService.getApiUrl('search') || '';
+
+    // An empty folder would produce `q=()`, which Solr rejects with a 500. Short-circuit
+    // with an empty, Solr-shaped response so callers parse empty results + facets instead.
+    if (itemIds.length === 0) {
+      return of({
+        response: { docs: [], numFound: 0 },
+        facet_counts: { facet_fields: {}, facet_queries: {} }
+      });
+    }
+
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
 
     // Base query is the folder's items; AND any free-text term and range clauses.
