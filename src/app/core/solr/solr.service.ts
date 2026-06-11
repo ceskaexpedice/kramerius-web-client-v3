@@ -381,7 +381,12 @@ export class SolrService {
       const hasFilter = filtersByField.has(field) && filtersByField.get(field)!.length > 0;
 
       if (field === facetKeysEnum.model && filtersByField.has(facetKeysEnum.rootModel)) {
-        return `{!ex=${facetKeysEnum.rootModel}}${field}`;
+        // Exclude BOTH the root.model filter and the model filter so the model
+        // facet counts stay independent of the active document-type selection.
+        // Excluding only root.model leaves the base {!tag=model}(model:...) filter
+        // applied, which strips page/article/supplement and zeroes their counts —
+        // collapsing the where-to-search toggle whenever a doc-type filter is on.
+        return `{!ex=${facetKeysEnum.rootModel},${facetKeysEnum.model}}${field}`;
       }
 
       // Don't exclude licenses.facet from calculations - we want accurate counts
