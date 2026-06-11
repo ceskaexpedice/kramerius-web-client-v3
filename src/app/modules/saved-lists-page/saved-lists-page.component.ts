@@ -453,13 +453,15 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  onPlayAll(tracks: SoundTrackModel[]) {
+    if (tracks && tracks.length > 0) {
+      this.musicService.addTracksFromListToQueueAndPlayFirst(tracks[0], tracks);
+    }
+  }
+
   playAllTracks() {
     this.soundRecordingItems.pipe(first()).subscribe(tracks => {
-      if (tracks && tracks.length > 0) {
-        this.soundService.clearQueue();
-        this.soundService.addTracksToQueue(tracks as SoundTrackModel[]);
-        this.soundService.play(tracks[0] as SoundTrackModel);
-      }
+      this.onPlayAll(tracks as SoundTrackModel[]);
     });
   }
 

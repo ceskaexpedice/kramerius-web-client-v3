@@ -27,6 +27,7 @@ export class MusicTrackListComponent implements OnDestroy {
   @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
 
   @Output() select = new EventEmitter<any>();
+  @Output() playAll = new EventEmitter<any[]>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
@@ -46,6 +47,10 @@ export class MusicTrackListComponent implements OnDestroy {
 
   onSelect(track: any) {
     this.select.emit(track);
+  }
+
+  onPlayAll() {
+    this.playAll.emit(this.tracks);
   }
 
   onFavoriteToggled(data: {track: any, event: Event}) {

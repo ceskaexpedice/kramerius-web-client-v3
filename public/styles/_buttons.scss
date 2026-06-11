@@ -326,6 +326,10 @@ button.with-icon {
     display: inline-block;
     font-size: var(--font-size-base);
   }
+
+  &.sm {
+    gap: var(--spacing-x1);
+  }
 }
 
 button.compact {

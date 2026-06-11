@@ -6,18 +6,38 @@
 
   <ng-container left-sidebar>
 
-    <div class="sidebar--wrapper" *ngIf="detailViewService.document$ | async as document">
-
+    <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
       @if (document.model === DocumentTypeEnum.soundrecording) {
-            <app-input
-              [placeholder]="'search-in-document--placeholder' | translate"
-              [theme]="'dark'"
-              [size]="'sm'"
-              [showMicButton]="true"
-            ></app-input>
+        <app-tabs
+          [noPadding]="true"
+          [initialTab]="detailViewService.soundRecordingViewMode()"
+          (tabChanged)="detailViewService.setSoundRecordingViewView($event)">
 
-            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
+          <app-tab-item id="records" [label]="'sound-records--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
+            </div>
+          </app-tab-item>
+
+          <app-tab-item id="images" [label]="'images--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
               <hr>
               <app-page-navigator
                 [currentPage]="detailViewService.currentPageIndex + 1"
@@ -26,13 +46,15 @@
                 (prev)="detailViewService.goToPrevious()"
                 (pageChange)="detailViewService.goToPage($event)"
               ></app-page-navigator>
-            </ng-container>
 
-            <div class="sidebar--wrapper--scroll-content">
-              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
             </div>
-        }
+          </app-tab-item>
 
+        </app-tabs>
+      }
 
     </div>
   </ng-container>
@@ -50,15 +72,11 @@
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls
-              [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="viewToggleOptions"
               [showFavorites]="true"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="false" [showEdit]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
-              [activeViewValue]="detailViewService.soundRecordingViewMode()"
-              (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
@@ -111,6 +129,7 @@
                   [tracks]="tracks"
                   [playingPid]="soundService.currentTrackPid"
                   (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                  (playAll)="musicService.addTracksToQueueAndPlayFirst($event[0])"
                   (addToQueue)="musicService.addTrackToQueue($event)"
                   (download)="musicService.downloadTrack($event)"
                 ></app-music-track-list>

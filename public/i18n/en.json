@@ -143,6 +143,7 @@
   "track-list-table--title": "Title",
   "track-list-table--duration": "Duration",
   "track-list-table--actions": "Actions",
+  "play-all--button": "Play all",
   "page": "Page",
   "playback-previous": "Previous track",
   "playback-play": "Play",

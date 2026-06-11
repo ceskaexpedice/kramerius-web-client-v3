@@ -200,15 +200,16 @@
 
           <div class="music-section">
 
-            <div class="music-section--actions">
-              <button class="with-icon primary" (click)="playAllTracks()" [title]="'play-all-tracks' | translate">
-                <i class="icon-play"></i>
-                {{ 'play-all' | translate }}
-              </button>
-            </div>
+<!--            <div class="music-section&#45;&#45;actions">-->
+<!--              <button class="with-icon primary" (click)="playAllTracks()" [title]="'play-all-tracks' | translate">-->
+<!--                <i class="icon-play"></i>-->
+<!--                {{ 'play-all' | translate }}-->
+<!--              </button>-->
+<!--            </div>-->
 
             <app-music-track-list [tracks]="soundRecordings" [playingPid]="soundService.currentTrackPid"
               [viewType]="TrackViewType.FOLDER" (select)="onTrackSelect($event)"
+              (playAll)="onPlayAll($event)"
               (addToQueue)="onTrackAddToQueue($event)" (download)="onTrackDownload($event)"
               (remove)="onTrackRemove($event)" [currentFolderId]="(activeFolder | async)?.uuid">
             </app-music-track-list>
