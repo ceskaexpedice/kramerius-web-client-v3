@@ -97,26 +97,33 @@
         <div class="detail-view--page--content--wrapper" >
 
           @let checkState = documentInfoService.state();
+          @let accessDenied = checkState === 'LOADED' && isAccessDenied(document);
 
-          <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
-            <app-document-access-denied [metadata]="document"
-              [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
-            </app-document-access-denied>
-          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+          @if (checkState === 'INITIAL' || checkState === 'LOADING') {
             <app-inline-loader></app-inline-loader>
           } @else {
 
             @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-              @if (detailViewService.isCurrentPageAccessible) {
-                <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
-                </app-iiif-viewer>
+              <!-- Images view: access denied replaces content -->
+              @if (accessDenied) {
+                <app-document-access-denied [metadata]="document"
+                  [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+                </app-document-access-denied>
               } @else {
-                <div class="access-restricted-message">
-                  <span class="icon icon-lock-1"></span>
-                  <p>{{ 'image-access-restricted' | translate }}</p>
-                </div>
+
+                @if (detailViewService.isCurrentPageAccessible) {
+                  <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+                  </app-iiif-viewer>
+                } @else {
+                  <div class="access-restricted-message">
+                    <span class="icon icon-lock-1"></span>
+                    <p>{{ 'image-access-restricted' | translate }}</p>
+                  </div>
+                }
+
+                <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
+
               }
 
             }
@@ -125,22 +132,30 @@
 
               <ng-container *ngIf="musicService.tracks$ | async as tracks">
 
+                <!-- Records view: track list stays visible (rows disabled individually),
+                     access-denied panel rendered below -->
                 <app-music-track-list
                   [tracks]="tracks"
                   [playingPid]="soundService.currentTrackPid"
+                  [accessDenied]="accessDenied"
                   (select)="musicService.addTracksToQueueAndPlayFirst($event)"
                   (playAll)="musicService.addTracksToQueueAndPlayFirst($event[0])"
                   (addToQueue)="musicService.addTrackToQueue($event)"
                   (download)="musicService.downloadTrack($event)"
+                  (scrollToAccessDenied)="scrollToAccessDenied()"
                 ></app-music-track-list>
 
               </ng-container>
 
-            </ng-container>
+              @if (accessDenied) {
+                <div id="music-access-denied-section">
+                  <app-document-access-denied [metadata]="document"
+                    [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+                  </app-document-access-denied>
+                </div>
+              }
 
-            @if (detailViewService.soundRecordingViewMode() === 'images') {
-              <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
-            }
+            </ng-container>
 
           }
 

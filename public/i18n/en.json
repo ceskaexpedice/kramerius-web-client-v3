@@ -144,6 +144,7 @@
   "track-list-table--duration": "Duration",
   "track-list-table--actions": "Actions",
   "play-all--button": "Play all",
+  "music-access-denied--info-button": "Why can't I play these tracks?",
   "page": "Page",
   "playback-previous": "Previous track",
   "playback-play": "Play",

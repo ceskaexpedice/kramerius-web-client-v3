@@ -76,6 +76,17 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     return this.krameriusBaseUrl;
   }
 
+  isAccessDenied(document: any): boolean {
+    return !this.recordHandler.isRecordPublic(document.licences)
+      && !this.documentInfoService.canAccessDocument()
+      && !this.userService.hasAnyLicense(document.licences);
+  }
+
+  scrollToAccessDenied(): void {
+    document.getElementById('music-access-denied-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 
 }

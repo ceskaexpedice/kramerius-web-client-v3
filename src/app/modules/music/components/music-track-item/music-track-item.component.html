@@ -57,6 +57,7 @@
   <td class="duration duration-col">{{ duration }}</td>
   <td class="actions actions-col">
     <button class="icon-button rounded light"
+            [disabled]="isDisabled"
             [appCdkTooltip]="'add-to-queue' | translate"
             [attr.aria-label]="'add-to-queue--arialabel' | translate"
             (click)="addToQueue(); $event.stopPropagation()" [title]="'add-to-queue' | translate">
@@ -64,6 +65,7 @@
     </button>
     @if (showRemoveButton) {
       <button class="icon-button rounded light"
+              [disabled]="isDisabled"
               [appCdkTooltip]="'remove-from-list' | translate"
               [attr.aria-label]="'remove-track-from-list--arialabel' | translate"
               (click)="remove(); $event.stopPropagation()" [title]="'remove-from-list' | translate">
@@ -71,6 +73,7 @@
       </button>
     } @else {
       <button class="icon-button rounded light"
+              [disabled]="isDisabled"
               [appCdkTooltip]="'save-to-list' | translate"
               [attr.aria-label]="'save-track-to-list--arialabel' | translate"
               (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited$ | async" [title]="'save-to-list' | translate">

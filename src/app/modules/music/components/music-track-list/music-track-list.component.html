@@ -1,9 +1,16 @@
 @if (tracks.length) {
   <div class="track-list-header">
-    <button class="button primary with-icon sm" (click)="onPlayAll()">
-      <i class="icon-play" aria-hidden="true"></i>
-      {{ 'play-all--button' | translate }}
-    </button>
+    @if (accessDenied) {
+      <button class="button primary with-icon sm" (click)="onScrollToAccessDenied()">
+        <i class="icon-info" aria-hidden="true"></i>
+        {{ 'music-access-denied--info-button' | translate }}
+      </button>
+    } @else {
+      <button class="button primary with-icon sm" (click)="onPlayAll()">
+        <i class="icon-play" aria-hidden="true"></i>
+        {{ 'play-all--button' | translate }}
+      </button>
+    }
   </div>
 }
 
