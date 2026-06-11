@@ -11,29 +11,29 @@
     <div class="content">
       <p class="description">{{ 'email-export-dialog--description' | translate }}</p>
 
-      @if (options().length) {
-        <div class="export-options" role="group" aria-labelledby="email-export-options-label">
-          <span class="export-options__label" id="email-export-options-label">{{ 'email-export-dialog--options-label' | translate }}</span>
-          @for (option of options(); track option.param) {
-            <div class="export-options__row">
-              <mat-slide-toggle
-                [hideIcon]="true"
-                [class]="'size-sm'"
-                [checked]="!!optionValues()[option.param]"
-                (change)="onOptionChange(option.param, $event.checked)">
-                {{ option.label | translate }}
-              </mat-slide-toggle>
-              @if (option.tooltip) {
-                <button type="button" class="export-options__info"
-                  [appCdkTooltip]="option.tooltip | translate" [tooltipPosition]="'right'"
-                  [attr.aria-label]="option.tooltip | translate">
-                  <i class="icon-question" aria-hidden="true"></i>
-                </button>
-              }
-            </div>
-          }
-        </div>
-      }
+<!--      @if (options().length) {-->
+<!--        <div class="export-options" role="group" aria-labelledby="email-export-options-label">-->
+<!--          <span class="export-options__label" id="email-export-options-label">{{ 'email-export-dialog&#45;&#45;options-label' | translate }}</span>-->
+<!--          @for (option of options(); track option.param) {-->
+<!--            <div class="export-options__row">-->
+<!--              <mat-slide-toggle-->
+<!--                [hideIcon]="true"-->
+<!--                [class]="'size-sm'"-->
+<!--                [checked]="!!optionValues()[option.param]"-->
+<!--                (change)="onOptionChange(option.param, $event.checked)">-->
+<!--                {{ option.label | translate }}-->
+<!--              </mat-slide-toggle>-->
+<!--              @if (option.tooltip) {-->
+<!--                <button type="button" class="export-options__info"-->
+<!--                  [appCdkTooltip]="option.tooltip | translate" [tooltipPosition]="'right'"-->
+<!--                  [attr.aria-label]="option.tooltip | translate">-->
+<!--                  <i class="icon-question" aria-hidden="true"></i>-->
+<!--                </button>-->
+<!--              }-->
+<!--            </div>-->
+<!--          }-->
+<!--        </div>-->
+<!--      }-->
 
       <div class="email-field">
         <app-input
