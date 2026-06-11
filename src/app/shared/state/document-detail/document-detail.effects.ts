@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter, take } from 'rxjs/operators';
+import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter, take, finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as DocumentDetailActions from './document-detail.actions';
 import { SolrService } from '../../../core/solr/solr.service';
@@ -26,18 +26,33 @@ export class DocumentDetailEffects {
   ) {
   }
 
+  // Tracks the uuid currently being loaded so back-to-back dispatches for the same
+  // document (e.g. ngOnInit's loadDocument() AND reloadOnUuidChange$ on initial
+  // navigation) don't each fire the same detail + children Solr requests.
+  private inFlightUuid: string | null = null;
+
   loadDocumentDetail$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(DocumentDetailActions.loadDocumentDetail),
-      switchMap(({ uuid }) => {
-        if (uuid) {
-          return this.loadDetail(uuid);
-        }
-
-        return this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid).pipe(
-          filter(storeUuid => !!storeUuid),
-          take(1),
-          switchMap(storeUuid => this.loadDetail(storeUuid))
+      // Resolve the target uuid (action may omit it; fall back to the router param)
+      switchMap(({ uuid }) =>
+        uuid
+          ? of(uuid)
+          : this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid).pipe(
+              filter(storeUuid => !!storeUuid),
+              take(1)
+            )
+      ),
+      // Drop a duplicate load while the same uuid is already in flight
+      filter(uuid => uuid !== this.inFlightUuid),
+      switchMap(uuid => {
+        this.inFlightUuid = uuid;
+        return this.loadDetail(uuid).pipe(
+          finalize(() => {
+            if (this.inFlightUuid === uuid) {
+              this.inFlightUuid = null;
+            }
+          })
         );
       })
     )
