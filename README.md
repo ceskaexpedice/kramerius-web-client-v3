@@ -51,7 +51,7 @@ Docker HUB: [https://hub.docker.com/r/trinera/cdk-client](https://hub.docker.com
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.14-beta .
+docker build -t trinera/cdk-client:3.0.15-beta .
 ```
 
 ### Build & push (multiplatformní) image na Docker Hub
@@ -59,7 +59,7 @@ docker build -t trinera/cdk-client:3.0.14-beta .
 ```shell
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.14-beta \
+  -t trinera/cdk-client:3.0.15-beta \
   --push .
 ```
 
@@ -68,7 +68,7 @@ docker buildx build \
 ```shell
 docker run -p 1234:80 \
   -e APP_KRAMERIUS_ID=mzk \
-  trinera/cdk-client:3.0.14-beta
+  trinera/cdk-client:3.0.15-beta
 ```
 
 Otevřít v prohlížeči:
@@ -85,7 +85,7 @@ Volitelně lze přepsat výchozí lokální konfiguraci připojením lokálního
 docker run -p 1234:80 \
   -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.14-beta
+  trinera/cdk-client:3.0.15-beta
 ```
 
 ## Spuštění pomocí Docker Compose
@@ -95,7 +95,7 @@ Vytvořte soubor `docker-compose.yml`:
 ```yaml
 services:
   cdk-client:
-    image: trinera/cdk-client:3.0.14-beta
+    image: trinera/cdk-client:3.0.15-beta
     ports:
       - "1234:80"
     environment:
