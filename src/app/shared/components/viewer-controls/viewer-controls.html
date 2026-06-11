@@ -1,39 +1,46 @@
-<div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'">
+<div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'"
+     role="toolbar" [attr.aria-label]="'viewer-controls--arialabel' | translate">
   <!-- Common buttons for both viewers -->
 
   <button *ngIf="showZoomIn" (click)="onZoomIn()" class="button tertiary outlined"
-          [appCdkTooltip]="'viewer-controls.zoom-in' | translate">
-    <i class="icon icon-search-zoom-in-1"></i>
+          [appCdkTooltip]="'viewer-controls.zoom-in' | translate"
+          [attr.aria-label]="'viewer-controls.zoom-in' | translate">
+    <i class="icon icon-search-zoom-in-1" aria-hidden="true"></i>
   </button>
 
   <button *ngIf="showZoomOut" (click)="onZoomOut()" class="button tertiary outlined"
-          [appCdkTooltip]="'viewer-controls.zoom-out' | translate">
-    <i class="icon icon-search-zoom-out-1"></i>
+          [appCdkTooltip]="'viewer-controls.zoom-out' | translate"
+          [attr.aria-label]="'viewer-controls.zoom-out' | translate">
+    <i class="icon icon-search-zoom-out-1" aria-hidden="true"></i>
   </button>
 
   <ng-container *ngIf="type === 'image' && (iiifMapMode$ | async) === false">
     <button *ngIf="showCrop && showSelectArea && (iiifBookMode$ | async) === false" (click)="onSelectArea()"
             class="button tertiary outlined"
-            [appCdkTooltip]="'viewer-controls.select-area' | translate">
-      <i class="icon icon-crop"></i>
+            [appCdkTooltip]="'viewer-controls.select-area' | translate"
+            [attr.aria-label]="'viewer-controls.select-area' | translate">
+      <i class="icon icon-crop" aria-hidden="true"></i>
     </button>
   </ng-container>
 
   <button *ngIf="showFullscreen" (click)="onFullscreen()" class="button tertiary outlined"
-          [appCdkTooltip]="'viewer-controls.fullscreen' | translate">
-    <i class="icon icon-maximize-3"></i>
+          [appCdkTooltip]="'viewer-controls.fullscreen' | translate"
+          [attr.aria-label]="'viewer-controls.fullscreen' | translate">
+    <i class="icon icon-maximize-3" aria-hidden="true"></i>
   </button>
 
   <button *ngIf="showFitToScreen" (click)="onFitToScreen()" class="button tertiary outlined"
-          [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate">
-    <i class="icon icon-pharagraphspacing"></i>
+          [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate"
+          [attr.aria-label]="'viewer-controls.fit-to-screen' | translate">
+    <i class="icon icon-pharagraphspacing" aria-hidden="true"></i>
   </button>
 
   <button
     *ngIf="showFitToWidth && (type === 'pdf' ? (pdfBookMode$ | async) === false : (iiifBookMode$ | async) === false) && (type !== 'image' || (iiifMapMode$ | async) === false)"
     (click)="onToggleFitToWidth()" class="button tertiary outlined"
-    [appCdkTooltip]="'viewer-controls.fit-to-width' | translate">
-    <i class="icon icon-grid-lock"></i>
+    [appCdkTooltip]="'viewer-controls.fit-to-width' | translate"
+    [attr.aria-label]="'viewer-controls.fit-to-width' | translate">
+    <i class="icon icon-grid-lock" aria-hidden="true"></i>
   </button>
 
   <ng-container *ngIf="type === 'image' && (iiifMapMode$ | async) === false">
@@ -42,8 +49,10 @@
             [class.tertiary]="(iiifZoomLock$ | async) === false"
             [class.outlined]="(iiifZoomLock$ | async) === false"
             class="button"
-            [appCdkTooltip]="'viewer-controls.zoom-lock' | translate">
-      <i class="icon icon-maximize-lock"></i>
+            [appCdkTooltip]="'viewer-controls.zoom-lock' | translate"
+            [attr.aria-label]="'viewer-controls.zoom-lock' | translate"
+            [attr.aria-pressed]="(iiifZoomLock$ | async) === true">
+      <i class="icon icon-maximize-lock" aria-hidden="true"></i>
     </button>
   </ng-container>
 
@@ -51,20 +60,23 @@
   <ng-container *ngIf="type === 'pdf'">
 
     <button *ngIf="showScrollMode" (click)="onScrollMode()" class="button tertiary outlined"
-            [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | translate">
-      <i class="icon icon-pharagraphspacing"></i>
+            [appCdkTooltip]="'viewer-controls.toggle-scroll-mode' | translate"
+            [attr.aria-label]="'viewer-controls.toggle-scroll-mode' | translate">
+      <i class="icon icon-pharagraphspacing" aria-hidden="true"></i>
     </button>
 
   </ng-container>
 
   <button *ngIf="showRotate && (type !== 'image' || (iiifMapMode$ | async) === false)" class="button tertiary outlined" (click)="onRotate()"
-          [appCdkTooltip]="'viewer-controls.rotate' | translate">
-    <i class="icon icon-rotate-right1"></i>
+          [appCdkTooltip]="'viewer-controls.rotate' | translate"
+          [attr.aria-label]="'viewer-controls.rotate' | translate">
+    <i class="icon icon-rotate-right1" aria-hidden="true"></i>
   </button>
 
   <button *ngIf="showPageText && (type !== 'image' || (iiifMapMode$ | async) === false)" class="button tertiary outlined" (click)="onPageText()"
-          [appCdkTooltip]="'viewer-controls.page-text' | translate">
-    <i class="icon icon-text"></i>
+          [appCdkTooltip]="'viewer-controls.page-text' | translate"
+          [attr.aria-label]="'viewer-controls.page-text' | translate">
+    <i class="icon icon-text" aria-hidden="true"></i>
   </button>
 
   <button *ngIf="showBookModeButton && (type !== 'image' || (iiifMapMode$ | async) === false)" (click)="onBookMode()"
@@ -72,17 +84,21 @@
           [class.tertiary]="(iiifBookMode$ | async) === false"
           [class.outlined]="(iiifBookMode$ | async) === false"
           class="button"
-          [appCdkTooltip]="'viewer-controls.book-mode' | translate">
-    <i class="icon icon-book-1"></i>
+          [appCdkTooltip]="'viewer-controls.book-mode' | translate"
+          [attr.aria-label]="'viewer-controls.book-mode' | translate"
+          [attr.aria-pressed]="(iiifBookMode$ | async) === true">
+    <i class="icon icon-book-1" aria-hidden="true"></i>
   </button>
 
   @if (ttsService.isReading() && !aiPanelService.panelVisible()) {
     <button class="button primary" (click)="onTtsPlayPause()"
-            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
-      <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
+            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate"
+            [attr.aria-label]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+      <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()" aria-hidden="true"></i>
     </button>
-    <button class="button primary" (click)="onTtsStop()" [appCdkTooltip]="'ai.tts-stop' | translate">
-      <i class="icon icon-stop"></i>
+    <button class="button primary" (click)="onTtsStop()" [appCdkTooltip]="'ai.tts-stop' | translate"
+            [attr.aria-label]="'ai.tts-stop' | translate">
+      <i class="icon icon-stop" aria-hidden="true"></i>
     </button>
   }
 

@@ -2,12 +2,13 @@ import { Component, Input, TemplateRef } from '@angular/core';
 import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CollapsibleContent } from '../collapsible-content/collapsible-content';
+import { NamespacedTranslatePipe } from '../../../pipes/namespaced-translate.pipe';
 
 export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'key-value';
 
 @Component({
   selector: 'app-metadata-section-item',
-  imports: [NgIf, NgForOf, NgTemplateOutlet, TranslatePipe, CollapsibleContent],
+  imports: [NgIf, NgForOf, NgTemplateOutlet, TranslatePipe, NamespacedTranslatePipe, CollapsibleContent],
   templateUrl: './metadata-section-item.html',
   styleUrl: './metadata-section-item.scss'
 })
@@ -24,6 +25,12 @@ export class MetadataSectionItem {
   @Input() icon?: string;
   @Input() listKeyUppercase: boolean = false;
   @Input() disableTranslate: boolean = false;
+  /**
+   * When set, list/clickable-list items are translated within this namespace
+   * (e.g. 'language' -> key 'language-{code}'), falling back to the raw value
+   * when no translation exists. Avoids collisions with the global namespace.
+   */
+  @Input() translateNamespace?: string;
   @Input() collapsible: boolean = false;
   @Input() itemSuffixTpl?: TemplateRef<{ $implicit: any }>;
   @Input() maxItems?: number;

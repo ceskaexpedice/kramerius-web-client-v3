@@ -33,7 +33,12 @@ export class ExportDocumentSectionItemComponent {
 
   @Input() title = '';
   @Input() icon = '';
-  @Input() options: ExportOption[] = [];
+  @Input() set options(value: ExportOption[]) {
+    this._options = value ?? [];
+    this.ensureSelection();
+  }
+  get options(): ExportOption[] { return this._options; }
+  private _options: ExportOption[] = [];
   @Input() groupName = '';
   @Input() collapsible = false;
   @Input() loading = false;
@@ -61,6 +66,21 @@ export class ExportDocumentSectionItemComponent {
 
   onOptionChange(event: any) {
     this.optionChange.emit(event.value);
+  }
+
+  /**
+   * Pre-select a default option once enabled options are available.
+   * Prefers "whole-document", falling back to the first enabled option.
+   * Keeps an existing, still-enabled selection untouched.
+   */
+  private ensureSelection(): void {
+    const enabled = this._options.filter(o => !o.disabled);
+    const current = enabled.find(o => o.value === this.selectedOption);
+    if (current) {
+      return;
+    }
+    const preferred = enabled.find(o => o.value === 'whole-document') ?? enabled[0];
+    this.selectedOption = preferred ? preferred.value : null;
   }
 
 }

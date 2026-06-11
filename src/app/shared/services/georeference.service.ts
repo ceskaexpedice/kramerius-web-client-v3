@@ -4,12 +4,14 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ConfigService } from '../../core/config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens';
+import { SolrService } from '../../core/solr/solr.service';
 
 @Injectable({ providedIn: 'root' })
 export class GeoreferenceService {
 
   private http = inject(HttpClient);
   private configService = inject(ConfigService);
+  private solr = inject(SolrService);
 
   private hasGeoreferenceSubject = new BehaviorSubject<boolean>(false);
   public hasGeoreference$ = this.hasGeoreferenceSubject.asObservable();
@@ -90,9 +92,30 @@ export class GeoreferenceService {
         if (!annotation || (annotation.type !== 'Annotation' && annotation.type !== 'AnnotationPage')) {
           return null;
         }
+        this.rewriteImageSource(annotation, pid);
         return annotation;
       }),
       catchError(() => of(null))
     );
+  }
+
+  /**
+   * The georeference server bakes the IIIF image host into the stored annotation
+   * (e.g. `kramerius.mzk.cz`), which may differ from this deployment's configured
+   * API host. Like the old client, we ignore the embedded host and rebuild the
+   * IIIF resource URL from config so `info.json` is fetched from the right place.
+   */
+  private rewriteImageSource(annotation: any, pid: string): void {
+    const iiifBase = this.solr.getIiifBaseUrl(pid);
+    const items = annotation.type === 'AnnotationPage' ? (annotation.items ?? []) : [annotation];
+    for (const item of items) {
+      const source = item?.target?.source;
+      if (source?.id) {
+        source.id = iiifBase;
+      }
+      if (source?.uri) {
+        source.uri = iiifBase;
+      }
+    }
   }
 }

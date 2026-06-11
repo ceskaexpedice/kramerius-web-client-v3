@@ -33,6 +33,7 @@ import { TtsService } from '../../services/tts.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 
 @Component({
@@ -41,7 +42,8 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-toke
     SelectionControls,
     CommonModule,
     ThumbnailImageComponent,
-    ViewerWatermarkComponent
+    ViewerWatermarkComponent,
+    TranslatePipe
   ],
   templateUrl: './iiif-viewer.html',
   styleUrl: './iiif-viewer.scss'

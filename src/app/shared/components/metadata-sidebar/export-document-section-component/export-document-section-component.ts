@@ -15,6 +15,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../services/toast.service';
 import { AppConfigService } from '../../../services/app-config.service';
+import { ConfigService } from '../../../../core/config';
 import { PdfService } from '../../../services/pdf.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../services/user.service';
@@ -38,6 +39,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
   detailViewService = inject(DetailViewService);
   appConfig = inject(AppConfigService);
+  configService = inject(ConfigService);
   pdfService = inject(PdfService);
   userService = inject(UserService);
   toastService = inject(ToastService);
@@ -129,6 +131,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   });
 
   isLoggedIn = computed(() => !!this.userService.userSession$()?.authenticated);
+
+  // Per-format visibility driven by the instance's export config (config-main.json).
+  printEnabled = this.configService.isExportFormatEnabled('print');
+  jpegEnabled = this.configService.isExportFormatEnabled('jpeg');
+  pdfEnabled = this.configService.isExportFormatEnabled('pdf');
+  epubEnabled = this.configService.isExportFormatEnabled('epub');
+  txtEnabled = this.configService.isExportFormatEnabled('txt');
 
   epubOptions = computed(() => {
     const hasPages = this.detailViewService.pages?.length > 0;

@@ -6,10 +6,19 @@
     <i class="icon-arrow-left-3"></i>
   </button>
 
-  <h2
-    [class.clickable]="enableCalendarPopup"
-    (click)="toggleCalendar()">
-    {{ value }}@if (issueTypeCode) {<span class="issue-type">&nbsp;·&nbsp;{{ issueTypeCode + '-issue' | translate }}</span>}
+  <h2 [class.clickable]="enableCalendarPopup">
+    @if (enableCalendarPopup) {
+      <button type="button" class="calendar-trigger"
+              (click)="toggleCalendar()"
+              aria-haspopup="dialog"
+              [attr.aria-expanded]="showCalendarPopup()"
+              aria-controls="date-navigator-calendar-popup"
+              [attr.aria-label]="'open-calendar--arialabel' | translate">
+        {{ value }}@if (issueTypeCode) {<span class="issue-type">&nbsp;·&nbsp;{{ issueTypeCode + '-issue' | translate }}</span>}
+      </button>
+    } @else {
+      {{ value }}@if (issueTypeCode) {<span class="issue-type">&nbsp;·&nbsp;{{ issueTypeCode + '-issue' | translate }}</span>}
+    }
   </h2>
 
   <button (click)="next()" class="icon-button outlined tertiary square-button"
@@ -19,6 +28,7 @@
   </button>
 
   <app-calendar-popup
+    id="date-navigator-calendar-popup"
     *ngIf="showCalendarPopup()"
     [year]="getYearFromValue()"
     [preselectedDate]="value"

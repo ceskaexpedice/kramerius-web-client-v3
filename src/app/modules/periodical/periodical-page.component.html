@@ -9,6 +9,22 @@
 
       <h1 class="visually-hidden">{{ (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
+      <!-- Screen-reader announcement of loading status / result count. -->
+      <!-- Kept permanently in the DOM so the first update is reliably announced. -->
+      <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        @if (periodical.loading$ | async) {
+          {{ 'loading-search-results' | translate }}
+        } @else if (mode === ViewMode.SearchResults && periodical.totalCount > 0) {
+          {{ 'search-results-count-range' | translate:{
+            count: (periodical.totalCount | formatNumber),
+            start: (periodical.resultStart | formatNumber),
+            end: (periodical.resultEnd | formatNumber)
+          } }}
+        } @else if (mode === ViewMode.SearchResults) {
+          {{ 'search-results-count' | translate:{ count: periodical.totalCount } }}
+        }
+      </div>
+
       <div class="page-content__filters">
         <!-- Action Toolbar -->
         <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !breakpointService.isMobile()">
@@ -16,10 +32,10 @@
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
             <app-toolbar-header [title]="document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
-              [titleClickable]="true"
-              [titleTooltip]="'go-to-volume--tooltip' | translate"
-              (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
-              (goBack)="recordHandler.goBackClicked(document)">
+                                [titleTooltip]="document.uuid !== document['root.pid'] ? ('go-to-volume--tooltip' | translate) : ''"
+                                [titleClickable]="document.uuid !== document['root.pid']"
+                                (titleClick)="recordHandler.navigateToPeriodical(document['root.pid'])"
+                                (goBack)="recordHandler.goBackClicked(document)">
 
               <!-- Show admin actions when in SearchResults mode and admin mode is active -->
               <app-admin-actions *ngIf="adminModeService.adminMode()" (exportRequested)="onExportSelected()"

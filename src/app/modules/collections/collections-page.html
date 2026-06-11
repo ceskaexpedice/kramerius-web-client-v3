@@ -11,6 +11,24 @@
         <h1 class="visually-hidden">{{ getLocalizedTitle(metadata) }}</h1>
       }
 
+      <!-- Screen-reader announcement of loading status / result count. -->
+      <!-- Kept permanently in the DOM so the first update is reliably announced. -->
+      <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        @if (collectionsService.loading$ | async) {
+          {{ 'loading-search-results' | translate }}
+        } @else if (collectionsService.viewMode() === 'cuttings') {
+          {{ 'search-results-count' | translate:{ count: ((collectionsService.cuttings$ | async)?.length ?? 0) } }}
+        } @else if (collectionsService.totalCount > 0) {
+          {{ 'search-results-count-range' | translate:{
+            count: (collectionsService.totalCount | formatNumber),
+            start: (collectionsService.resultStart | formatNumber),
+            end: (collectionsService.resultEnd | formatNumber)
+          } }}
+        } @else {
+          {{ 'search-results-count' | translate:{ count: collectionsService.totalCount } }}
+        }
+      </div>
+
       <div class="page-content__filters">
 
         @if (collectionsService.detail$ | async; as metadata) {

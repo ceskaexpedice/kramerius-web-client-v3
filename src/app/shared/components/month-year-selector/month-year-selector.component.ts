@@ -72,6 +72,12 @@ export class MonthYearSelectorComponent implements OnInit, OnChanges {
   @Input() month: number = 0; // 0-based month
   @Input() year: number = new Date().getFullYear();
   @Input() showMonthNavigation: boolean = false;
+  /**
+   * Optional whitelist of years to expose in the year dropdown.
+   * When provided (non-empty), the dropdown is restricted to these years
+   * (sorted descending) instead of the generic env-driven range.
+   */
+  @Input() availableYears: number[] | null = null;
   @Output() monthYearChange = new EventEmitter<MonthYearChange>();
 
   monthOptions: { value: number, label: string }[] = [];
@@ -88,6 +94,11 @@ export class MonthYearSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['availableYears'] && !changes['availableYears'].firstChange) {
+      this.generateYearOptions();
+      const yearOption = this.yearOptions.find(y => y.value === this.year);
+      if (yearOption) this.selectedYear.set(yearOption);
+    }
     // Update signals when month or year inputs change from parent
     if (changes['month'] && !changes['month'].firstChange && this.monthOptions.length > 0) {
       const monthOption = this.monthOptions.find(m => m.value === this.month);
@@ -122,6 +133,14 @@ export class MonthYearSelectorComponent implements OnInit, OnChanges {
   }
 
   private generateYearOptions() {
+    if (this.availableYears && this.availableYears.length > 0) {
+      // Restrict to the periodical's real years, newest first.
+      const unique = Array.from(new Set(this.availableYears));
+      unique.sort((a, b) => b - a);
+      this.yearOptions = unique.map(year => ({ value: year, label: year.toString() }));
+      return;
+    }
+
     const currentYear = new Date().getFullYear();
     const startYear = ENVIRONMENT.dateRangeStartYear;
 

@@ -38,6 +38,7 @@ import { FavoritesPopupComponent } from '../../shared/components/favorites-popup
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
+import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 
 const routes: Routes = [
   {
@@ -80,7 +81,8 @@ const routes: Routes = [
     FavoritesPopupComponent,
     MetadataSidebarComponent,
     InlineLoaderComponent,
-    ScrollHideHeaderDirective
+    ScrollHideHeaderDirective,
+    FormatNumberPipe
   ],
   providers: [
     PeriodicalService,

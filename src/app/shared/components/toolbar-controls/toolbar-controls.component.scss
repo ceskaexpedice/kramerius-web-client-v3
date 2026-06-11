@@ -12,6 +12,10 @@
 }
 
 .view-toggle {
+  background: none;
+  border: none;
+  margin: 0;
+  text-align: inherit;
   position: relative;
   color: var(--color-text-tertiary);
   display: flex;

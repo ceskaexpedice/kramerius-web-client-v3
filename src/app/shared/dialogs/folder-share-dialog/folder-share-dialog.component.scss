@@ -1,21 +1,85 @@
-.generic-dialog-container {
+.folder-share {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-x6);
+  background-color: var(--color-bg-base);
+  border-radius: var(--spacing-x4);
 
-  .dialog-body {
+  &--title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-3);
+    gap: var(--spacing-x2);
+    margin: 0;
+  }
 
-    .content {
-      padding: 0 24px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+  .close-button {
+    font-size: var(--font-size-large);
+    color: var(--color-tertiary);
+    padding: 6px;
+  }
+
+  &--description {
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+    margin: var(--spacing-x3) 0 0 0;
+    color: var(--color-tertiary);
+  }
+
+  &--url-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    margin-top: var(--spacing-x5);
+  }
+
+  &--url-input {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    ::ng-deep .input-container,
+    ::ng-deep input {
+      height: 38px;
+      font-size: var(--font-size-xsmall) !important;
+      color: var(--color-tertiary) !important;
     }
   }
-}
 
-.folder-share--description {
-  margin: 0;
-  color: var(--color-text-secondary);
-}
+  &--copy-button {
+    flex: 0 0 auto;
+    height: 38px;
+    white-space: nowrap;
+  }
 
-.folder-share--url {
-  word-break: break-all;
+  &--note {
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+    gap: 10px;
+    margin-top: var(--spacing-x5);
+    padding: var(--spacing-x3);
+    border-radius: var(--spacing-x2);
+    background: #eff2f5;
+  }
+
+  &--note-icon {
+    flex: 0 0 auto;
+    font-size: var(--font-size-base);
+    color: var(--color-tertiary);
+  }
+
+  &--note-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+    font-size: var(--font-size-xsmall);
+    line-height: var(--line-height-xs-15);
+    color: var(--color-tertiary);
+
+    p {
+      margin: 0;
+    }
+  }
 }

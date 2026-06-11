@@ -9,6 +9,12 @@
           } @else {
             {{ label | configLabel:'license' }}
           }
+        } @else if (langCode) {
+          @if (truncateLabel) {
+            {{ (label | namespacedTranslate:'language').length > 15 ? (label | namespacedTranslate:'language').slice(0, 15) + '...' : (label | namespacedTranslate:'language') }}
+          } @else {
+            {{ label | namespacedTranslate:'language' }}
+          }
         } @else {
           @if (truncateLabel) {
             {{ (label | translate).length > 15 ? (label | translate).slice(0, 15) + '...' : (label | translate) }}
@@ -21,8 +27,9 @@
       @if (hasLicenseInfo) {
         <button type="button" class="license-info-icon"
           [appCdkTooltip]="'license-info-tooltip' | translate" [tooltipPosition]="'right'"
+          #licenseTooltip="cdkTooltip"
           [attr.aria-label]="'license-info-tooltip' | translate"
-          (click)="openLicenseInfo($event)">
+          (click)="openLicenseInfo($event); licenseTooltip.hideImmediately()">
           <i class="icon-question" aria-hidden="true"></i>
         </button>
       }

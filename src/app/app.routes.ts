@@ -61,7 +61,6 @@ function defineMainRoutes(): Routes {
     {
       path: APP_ROUTES_ENUM.SAVED_LISTS,
       loadChildren: () => import('./modules/saved-lists-page/saved-lists-page.module').then(m => m.SavedListsPageModule),
-      canActivate: [AuthGuard]
     },
     {
       path: APP_ROUTES_ENUM.COLLECTION,

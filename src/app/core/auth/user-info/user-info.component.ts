@@ -6,8 +6,6 @@ import {Store} from '@ngrx/store';
 import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
 import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.component';
-import {APP_ROUTES_ENUM} from '../../../app.routes';
-import {selectFoldersCount} from '../../../modules/saved-lists-page/state';
 import {_} from '../../../shared/translation/translate-placeholder';
 import {SettingsService} from '../../../modules/settings/settings.service';
 
@@ -25,14 +23,14 @@ export class UserInfoComponent {
 
   userMenuItemsIds = {
     account: 'account',
-    saved: 'saved',
+    settings: 'settings',
     help: 'help',
     logout: 'logout'
   }
 
   userMenuItems: MenuItem[] = [
     { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square' },
-    { id: this.userMenuItemsIds.saved, label: _('user-info--saved-lists'), icon: 'heart', route: [APP_ROUTES_ENUM.SAVED_LISTS] },
+    { id: this.userMenuItemsIds.settings, label: _('settings'), icon: 'settings-2' },
     // { id: this.userMenuItemsIds.help, label: _('user-info--help'), icon: 'question', route: [APP_ROUTES_ENUM.HELP]},
     { id: this.userMenuItemsIds.logout, label: _('user-info--logout'), icon: 'logout', variant: 'danger' }
   ];
@@ -44,20 +42,11 @@ export class UserInfoComponent {
   isAuthenticated = this.store.select(selectIsAuthenticated);
   user = this.store.select(selectUser);
 
-  savedListsCount = this.store.select(selectFoldersCount);
-
-  constructor() {
-    this.savedListsCount.subscribe(count => {
-      const savedItem = this.userMenuItems.find(item => item.id === this.userMenuItemsIds.saved);
-      if (savedItem) {
-        savedItem.count = count;
-      }
-    });
-  }
-
   onUserMenu(item: MenuItem) {
     if (item.id === this.userMenuItemsIds.account) {
       this.settingsService.openSettingsDialog('account');
+    } else if (item.id === this.userMenuItemsIds.settings) {
+      this.settingsService.openSettingsDialog();
     } else if (item.id === this.userMenuItemsIds.logout) {
       this.logout();
     }

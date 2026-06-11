@@ -36,7 +36,7 @@
     </ng-template>
 
     <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available OR AI Available -->
-    @if ((tools.search && (searchResult.count || 0) > 0) || tools.export || (tools.ai && configService.isFeatureEnabled('ai'))) {
+    @if ((tools.search && (searchResult.count || 0) > 0) || (tools.export && configService.isAnyExportFormatEnabled()) || (tools.ai && configService.isFeatureEnabled('ai'))) {
     <app-tabs (tabChanged)="onTabChanged($event)" [initialTab]="uiStateService.metadataSidebarActiveTab() || undefined">
 
       @if (tools.description) {
@@ -46,7 +46,7 @@
       </app-tab-item>
       }
 
-      @if (tools.export) {
+      @if (tools.export && configService.isAnyExportFormatEnabled()) {
       <app-tab-item [id]="'export'" [label]="'export' | translate" [icon]="'icon-download'" [onlyIcon]="true"
         [tooltip]="'export' | translate">
         <app-export-document-section-component

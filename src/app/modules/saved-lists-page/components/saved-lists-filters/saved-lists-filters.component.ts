@@ -11,6 +11,7 @@ import {Store} from '@ngrx/store';
 import {FoldersService} from '../../services/folders.service';
 import {AsyncPipe} from '@angular/common';
 import {InputComponent} from '../../../../shared/components/input/input.component';
+import {MenuComponent, MenuItem} from '../../../../shared/components/menu/menu.component';
 import {map, startWith} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
@@ -19,11 +20,20 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
   selector: 'app-saved-lists-filters',
   standalone: true,
   styles: `
+    .filters-content > hr {
+      margin-top: var(--spacing-x5);
+      margin-bottom: var(--spacing-x3);
+    }
+
+    app-collapsible-category::ng-deep .category--content {
+      padding-top: var(--spacing-x3);
+      gap: var(--spacing-x2);
+    }
+
     .filter-section-title {
       font-size: var(--font-size-small);
-      font-weight: 500;
-      color: var(--color-text-base);
-      margin-bottom: var(--spacing-x3);
+      line-height: var(--line-height-1);
+      color: var(--color-text-tertiary);
       cursor: pointer;
 
       .count {
@@ -31,12 +41,42 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
       }
 
       &.active {
-        color: var(--color-primary);
+        color: var(--color-text-link);
         font-weight: 700;
 
         .count {
           color: var(--color-text-tertiary);
         }
+      }
+    }
+
+    .filter-section-title--with-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-x2);
+    }
+
+    .filter-section-title__label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .filter-section-title__menu-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      padding: var(--spacing-x1);
+      border: none;
+      background: transparent;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      border-radius: var(--border-radius-small);
+
+      &:hover {
+        color: var(--color-text-base);
       }
     }
   `,
@@ -45,6 +85,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
     CollapsibleCategoryComponent,
     AsyncPipe,
     InputComponent,
+    MenuComponent,
   ],
   template: `
     <div class="filters-content">
@@ -64,7 +105,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
       </app-input>
 
 
-      <hr>
+      <hr aria-hidden="true">
 
       <app-collapsible-category
         [label]="'my-favorites-list--title' | translate"
@@ -89,10 +130,26 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
         [initiallyExpanded]="true">
 
         @for (folder of filteredFollowedFolders | async; track folder.uuid) {
-          <div class="filter-section-title"
+          <div class="filter-section-title filter-section-title--with-actions"
                (click)="changeFolder(folder)"
                [class.active]="activeFolder?.uuid === folder.uuid">
-            {{ folder.name }} <span class="count">({{getOwnerOfFolder(folder)}})</span>
+            <span class="filter-section-title__label">
+              {{ folder.name }} <span class="count">({{getOwnerOfFolder(folder)}})</span>
+            </span>
+
+            <app-menu
+              [customTrigger]="true"
+              placement="bottom-end"
+              [items]="sharedFolderMenuItems"
+              (select)="onSharedFolderMenuSelect($event, folder)"
+              (click)="$event.stopPropagation()">
+              <button menuTrigger
+                      type="button"
+                      class="filter-section-title__menu-trigger"
+                      [attr.aria-label]="'shared-folder-menu--aria-label' | translate">
+                <i class="icon-more-horizontal" aria-hidden="true"></i>
+              </button>
+            </app-menu>
           </div>
         }
 
@@ -110,6 +167,20 @@ export class SavedListsFiltersComponent {
   private foldersService = inject(FoldersService);
 
   search = signal('');
+
+  readonly sharedFolderMenuItems: MenuItem[] = [
+    {
+      id: 'save',
+      label: 'shared-folder-banner--save-action',
+      icon: 'heart',
+    },
+    {
+      id: 'remove',
+      label: 'shared-folder-banner--remove-action',
+      icon: 'trash',
+      variant: 'danger',
+    },
+  ];
 
   private allFolders = this.store.select(selectUserOwnedFolders);
   private allFollowedFolders = this.store.select(selectUserFollowedFolders);
@@ -158,6 +229,21 @@ export class SavedListsFiltersComponent {
 
   searchValueChanged(value: string | number) {
     this.search.set(value.toString());
+  }
+
+  onSharedFolderMenuSelect(item: MenuItem, folder: Folder) {
+    if (!folder?.uuid) {
+      return;
+    }
+
+    switch (item.id) {
+      case 'save':
+        this.store.dispatch(FoldersActions.followFolder({ uuid: folder.uuid }));
+        break;
+      case 'remove':
+        this.store.dispatch(FoldersActions.unfollowFolder({ uuid: folder.uuid }));
+        break;
+    }
   }
 
   displayName(folder: Folder): string {

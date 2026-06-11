@@ -18,6 +18,7 @@ import {FolderItemsService} from '../../../modules/saved-lists-page/services/fol
 import {LocalStorageService} from '../../services/local-storage.service';
 import {ToastService} from '../../services/toast.service';
 import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../document-hierarchy-selector/document-hierarchy-selector.component';
+import {CdkTrapFocus} from '@angular/cdk/a11y';
 
 
 @Component({
@@ -32,6 +33,7 @@ import {DocumentHierarchySelectorComponent, DocumentHierarchyItem} from '../docu
     MatCheckbox,
     FormsModule,
     DocumentHierarchySelectorComponent,
+    CdkTrapFocus,
   ],
   templateUrl: './favorites-popup.component.html',
   styleUrl: './favorites-popup.component.scss'

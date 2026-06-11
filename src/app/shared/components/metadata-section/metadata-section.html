@@ -25,7 +25,13 @@
   <!-- Title -->
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
-    <h2>{{ data.mainTitle || data.titles[0].title }}</h2>
+    <h2 [class.clickable-title]="isPeriodicalChild()"
+        [attr.role]="isPeriodicalChild() ? 'link' : null"
+        [attr.tabindex]="isPeriodicalChild() ? 0 : null"
+        [appCdkTooltip]="isPeriodicalChild() ? ('go-to-volume--tooltip' | translate) : ''"
+        [tooltipPosition]="'bottom'"
+        (click)="clickedTitle()"
+        (keydown.enter)="clickedTitle()">{{ data.mainTitle || data.titles[0].title }}</h2>
     <app-collapsible-content *ngIf="data.titles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="data.titles.length">
       <div class="titles--container" *ngFor="let title of data.titles">
@@ -35,6 +41,10 @@
     </app-collapsible-content>
   </section>
   }
+
+  <!-- ISSN (standalone, right under title) -->
+  <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
+  </app-metadata-section-item>
 
   <!-- ISBN (standalone) -->
   <app-metadata-section-item *ngIf="getIsbn()" [label]="'ISBN' | translate" type="text" [value]="getIsbn()!">
@@ -144,16 +154,20 @@
   @let hasChildTitle = !!(childData.titles && childData.titles.length > 0 && childData.titles[0].title);
   <div class="article-card-wrapper">
     @if (!hasChildTitle) {
-      <button class="toggle-btn toggle-btn--standalone" (click)="toggleChild()">
-        <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      <button class="toggle-btn toggle-btn--standalone" (click)="toggleChild()"
+              [attr.aria-expanded]="childExpanded()"
+              [attr.aria-label]="(childExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+        <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
       </button>
     }
     <div class="article-card" *ngIf="hasChildTitle || childExpanded()">
       @if (hasChildTitle) {
         <div class="article-header">
           <span class="label">{{ childData.titles[0].title }}</span>
-          <button class="toggle-btn" (click)="toggleChild()">
-            <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+          <button class="toggle-btn" (click)="toggleChild()"
+                  [attr.aria-expanded]="childExpanded()"
+                  [attr.aria-label]="(childExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+            <i [class]="childExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
           </button>
         </div>
       }
@@ -173,7 +187,7 @@
 
       <!-- Languages -->
       <app-metadata-section-item *ngIf="childData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="childData.languages" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="childData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
       </app-metadata-section-item>
 
       <!-- Locations -->
@@ -196,8 +210,10 @@
   <div class="article-card">
     <div class="article-header">
       <span class="label">{{ 'article' | translate }}</span>
-      <button class="toggle-btn" (click)="toggleArticle()">
-        <i [class]="articleExpanded() ? 'icon-minus-square' : 'icon-add-square'"></i>
+      <button class="toggle-btn" (click)="toggleArticle()"
+              [attr.aria-expanded]="articleExpanded()"
+              [attr.aria-label]="(articleExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+        <i [class]="articleExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
       </button>
     </div>
 
@@ -224,13 +240,13 @@
           <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
             {{ articleData.identifiers['doi'] }}
           </a>
-          <i class="icon-copy" title="Copy"></i>
+          <i class="icon-copy" aria-hidden="true"></i>
         </div>
       </div>
 
       <!-- Language -->
       <app-metadata-section-item *ngIf="articleData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="articleData.languages" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="articleData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
       </app-metadata-section-item>
 
       <app-metadata-section-item *ngIf="articleData.extent" [label]="'range--label' | translate" type="text"
@@ -243,7 +259,7 @@
 
   <!-- Languages -->
   <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
-    [items]="data.languages" [onItemClick]="clickedLanguage">
+    [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
   </app-metadata-section-item>
 
   <!-- Locations -->
@@ -313,8 +329,8 @@
 
   <div class="metadata--actions">
     <button class="primary link with-icon p-left-0" (click)="openMetadataDialog()">
-      <i class="icon-code-3"></i>
-      Metadata
+      <i class="icon-code-3" aria-hidden="true"></i>
+      {{ 'metadata--button' | translate }}
     </button>
   </div>
 

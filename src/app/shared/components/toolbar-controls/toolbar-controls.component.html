@@ -1,14 +1,18 @@
 <div class="toolbar-controls">
 
   <ng-container *ngIf="showViewToggle && viewToggleOptions.length > 0">
-    <div class="toggle--container">
-      <div
+    <div class="toggle--container" role="radiogroup"
+         [attr.aria-label]="'view-mode-group--arialabel' | translate">
+      <button
+        type="button"
         class="view-toggle"
         *ngFor="let option of viewToggleOptions"
+        role="radio"
+        [attr.aria-checked]="activeViewValue === option.value"
         [class.active]="activeViewValue === option.value"
         (click)="onToggle(option)">
-        <i class="{{ option.icon }}"></i> {{ option.label | translate }}
-      </div>
+        <i class="{{ option.icon }}" aria-hidden="true"></i> {{ option.label | translate }}
+      </button>
     </div>
   </ng-container>
 
@@ -30,7 +34,7 @@
       [disabled]="action.disabled"
       [title]="action.tooltip | translate"
       [appCdkTooltip]="action.tooltip | translate"
-      [attr.aria-label]="action.label"
+      [attr.aria-label]="(action.tooltip | translate) || action.label"
       (click)="onActionClick(action, $event)"
     >
       <i [class]="action.icon"></i>

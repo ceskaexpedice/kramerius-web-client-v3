@@ -20,6 +20,7 @@ Každá knihovní instance (MZK, KNAV, CDK…) má vlastní adresář pod `publi
   "integrations": {},
   "features": {},
   "ui": {},
+  "export": {},
   "viewer": {},
   "search": {},
   "pages": []
@@ -196,6 +197,34 @@ Když některé pole chybí a celý blok `features` **není** v configu, použij
 
 ---
 
+## `export` — formáty exportu dokumentu
+
+Přepínače jednotlivých formátů v sekci „Export“ v postranním panelu detailu dokumentu. Když některý formát instance nenabízí (např. nechce EPUB), nastaví se na `false` a jeho dlaždice se v sekci exportu nezobrazí.
+
+```json
+"export": {
+  "print": true,
+  "jpeg": true,
+  "pdf": true,
+  "epub": true,
+  "txt": true
+}
+```
+
+| Pole | Co zapíná | Výchozí |
+|---|---|---------|
+| `print` | Tisk dokumentu (celý dokument / výběr stran). | `true`  |
+| `jpeg` | Export stránky jako JPEG (aktuální strana / výřez). | `true`  |
+| `pdf` | Export do PDF (celý dokument / výběr stran / odeslání e-mailem). | `true`  |
+| `epub` | Export do EPUB. | `true`  |
+| `txt` | Export do prostého textu (TXT). | `true`  |
+
+Když se celý blok `export` vynechá, použijí se výchozí hodnoty z tabulky (`print`, `jpeg`, `pdf` zapnuté; `epub`, `txt` vypnuté). Když blok uvedete, ale některé pole vynecháte, doplní se z výchozích hodnot.
+
+> **Když jsou všechny formáty `false`, celá záložka „Export“ se v postranním panelu skryje.**
+
+---
+
 ## `viewer` — prohlížeč dokumentů
 
 ```json
@@ -363,7 +392,7 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
 }
 ```
 
-> **Poznámka:** Bloky `features`, `ui`, `viewer`, `integrations`, `search` a `pages` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
+> **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search` a `pages` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
 
 ---
 

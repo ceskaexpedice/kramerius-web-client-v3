@@ -10,6 +10,7 @@
 
   --font-size-xs: calc(11px * var(--accessibility-text-scale));
   --font-size-xxsmall: calc(12px * var(--accessibility-text-scale));
+  --font-size-xsmall: calc(13px * var(--accessibility-text-scale));
   --font-size-small: calc(14px * var(--accessibility-text-scale));
   --font-size-base: calc(16px * var(--accessibility-text-scale));
   --font-size-large: calc(18px * var(--accessibility-text-scale));
@@ -25,6 +26,7 @@
   --small-gap: 1px;
   --license-bar-height: 38px;
   --playback-bar-height-value: 52px;
+  --info-banner-height: 55px;
   --metadata-sidebar-width: 285px;
 
   --spacing-x05: 2px;
@@ -46,6 +48,7 @@
   --viewer-controls-width: 48px;
 
   --line-height-xs: calc(16px * var(--accessibility-text-scale));
+  --line-height-xs-15: calc(18px * var(--accessibility-text-scale));
   --line-height-xs2: calc(22px * var(--accessibility-text-scale));
   --line-height-1: calc(20px * var(--accessibility-text-scale));
   --line-height-2: calc(24px * var(--accessibility-text-scale));

@@ -15,8 +15,9 @@ import { NgIf, NgForOf, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../input/input.component';
+import { resolveNamespacedTranslation } from '../../translation/namespaced-translation';
 
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-select',
@@ -34,6 +35,12 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];
   @Input() displayFn: (option: T | null) => string = (o: T | null) => (o != null ? String(o) : '-');
+  /**
+   * When set, option labels are translated within this namespace
+   * (e.g. 'language' -> key 'language-{code}'), falling back to the raw value
+   * when no translation exists. Avoids collisions with the global namespace.
+   */
+  @Input() translateNamespace?: string;
   @Input() value: T | null = null;
   @Input() filterable = false;
   @Input() filterPlaceholder = 'Filter...';
@@ -57,6 +64,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   @ViewChild('wrapper') wrapperRef?: ElementRef;
   @ViewChild('filterInput') filterInputRef?: InputComponent;
+  @ViewChild(CdkVirtualScrollViewport) virtualViewport?: CdkVirtualScrollViewport;
 
   constructor(
     private hostRef: ElementRef,
@@ -70,7 +78,19 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   get focusedOptionLabel(): string {
     const option = this.filteredOptions[this.focusedIndex];
     if (this.focusedIndex < 0 || option === undefined) return '';
-    return this.translate.instant(this.displayFn(option));
+    return this.displayLabel(option);
+  }
+
+  /**
+   * Resolves the visible label for an option, honoring translateNamespace when
+   * set (with raw-value fallback) and falling back to plain translation otherwise.
+   */
+  displayLabel(option: T | null): string {
+    const raw = this.displayFn(option);
+    if (this.translateNamespace) {
+      return resolveNamespacedTranslation(this.translate, raw, this.translateNamespace);
+    }
+    return this.translate.instant(raw);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -223,8 +243,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
     } else {
       const filterLower = this.filterText.toLowerCase();
       this.filteredOptions = this.options.filter((option) => {
-        const raw = this.displayFn(option);
-        const translated = this.translate.instant(raw);
+        const translated = this.displayLabel(option);
         return translated.toLowerCase().includes(filterLower);
       });
     }
@@ -239,6 +258,14 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   private scrollFocusedIntoView() {
     requestAnimationFrame(() => {
+      if (this.virtualScroll && this.virtualViewport) {
+        // Virtual scroll: off-screen options aren't in the DOM, so scrollIntoView
+        // can't find them. Drive the viewport directly, centering when possible.
+        const offset = Math.max(0, Math.floor(this.visibleItemsCount / 2) - 1);
+        const target = Math.max(0, this.focusedIndex - offset);
+        this.virtualViewport.scrollToIndex(target);
+        return;
+      }
       const el = document.getElementById('option-' + this.focusedIndex);
       el?.scrollIntoView({ block: 'nearest' });
     });
@@ -253,8 +280,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
     this.searchTimeout = setTimeout(() => (this.searchBuffer = ''), 500);
 
     const matchIndex = this.filteredOptions.findIndex((opt) => {
-      const raw = this.displayFn(opt);
-      const translated = this.translate.instant(raw);
+      const translated = this.displayLabel(opt);
       return translated.toLowerCase().startsWith(this.searchBuffer);
     });
 

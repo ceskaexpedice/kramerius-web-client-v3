@@ -1,0 +1,23 @@
+<div class="generic-dialog-container">
+  <h2 id="email-export-success-dialog-title">
+    {{ 'email-export-success-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()"
+      [attr.aria-label]="'close' | translate">
+      <i class="icon-close" aria-hidden="true"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <p class="email-export-success-dialog__description">
+        {{ 'email-export-success-dialog--description' | translate }}
+      </p>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button filled primary" (click)="onClose()">
+      {{ 'ok-button' | translate }}
+    </button>
+  </div>
+</div>

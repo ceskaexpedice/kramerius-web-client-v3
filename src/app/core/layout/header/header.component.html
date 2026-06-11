@@ -75,10 +75,21 @@
         <i class="icon-search-normal-1"></i>
       </button>
 
-      <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
-        aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
-        <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-2'"></i>
+      <button class="icon-button saved-lists-btn" [class.hide-on-search-active]="isMobileSearchOpen"
+        aria-label="{{'user-info--saved-lists' | translate}}" (click)="openSavedLists()">
+        <i class="icon-heart">
+          @if (!isLoggedIn()) {
+            <span class="saved-lists-btn__dot"></span>
+          }
+        </i>
       </button>
+
+      @if (!isLoggedIn() || isMobileSearchOpen) {
+        <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
+          aria-label="{{'settings' | translate}}" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
+          <i [class]="isMobileSearchOpen ? 'icon-close' : 'icon-settings-2'"></i>
+        </button>
+      }
 
       <app-lang-picker [class.hide-on-search-active]="isMobileSearchOpen"></app-lang-picker>
 

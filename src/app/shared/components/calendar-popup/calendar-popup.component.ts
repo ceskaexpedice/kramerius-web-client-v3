@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   signal,
+  computed,
   SimpleChanges,
   ChangeDetectorRef,
   ViewChild,
@@ -25,7 +26,9 @@ import {
   selectMonthLoading,
   selectPidFromAvailableYears,
   selectPeriodicalState,
+  selectAvailableYears,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject, take } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
@@ -62,6 +65,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
         <app-month-year-selector
           [month]="currentMonth()"
           [year]="currentYear()"
+          [availableYears]="availableYearNumbers()"
           [showMonthNavigation]="true"
           (monthYearChange)="onMonthYearChange($event)">
         </app-month-year-selector>
@@ -404,6 +408,14 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
   // Always lazy load
   currentMonthIssues = signal<any[]>([]);
+
+  // Real years carried by this periodical (drives the year dropdown).
+  private availableYearsSig = toSignal(this.store.select(selectAvailableYears), { initialValue: [] as any[] });
+  availableYearNumbers = computed(() =>
+    (this.availableYearsSig() || [])
+      .map((y: any) => parseInt(String(y.year), 10))
+      .filter((n: number) => Number.isFinite(n))
+  );
 
 
   private destroy$ = new Subject<void>();

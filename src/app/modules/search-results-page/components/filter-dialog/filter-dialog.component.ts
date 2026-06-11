@@ -26,6 +26,7 @@ import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-se
 import {FormatNumberPipe} from '../../../../shared/pipes/format-number.pipe';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {ConfigLabelPipe} from '../../../../shared/pipes/config-label.pipe';
+import {NamespacedTranslatePipe} from '../../../../shared/pipes/namespaced-translate.pipe';
 import {facetKeysEnum} from '../../const/facets';
 
 @Component({
@@ -44,6 +45,7 @@ import {facetKeysEnum} from '../../const/facets';
     FormatNumberPipe,
     MatCheckbox,
     ConfigLabelPipe,
+    NamespacedTranslatePipe,
   ],
   standalone: true,
   templateUrl: './filter-dialog.component.html',
@@ -380,5 +382,9 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
 
   get isLicenseFacet(): boolean {
     return this.data.facetKey === facetKeysEnum.license;
+  }
+
+  get isLanguageFacet(): boolean {
+    return this.data.facetKey === facetKeysEnum.languages;
   }
 }

@@ -1,5 +1,6 @@
 <div class="export-document--container">
 
+  @if (printEnabled) {
   <app-export-document-section-item-component
     [title]="'export-print-title'"
     [icon]="'icon-printer'"
@@ -11,7 +12,9 @@
     (toggle)="onSectionToggle('print')"
     (submit)="onPrintSubmit($event)">
   </app-export-document-section-item-component>
+  }
 
+  @if (jpegEnabled) {
   <app-export-document-section-item-component [title]="'export-jpeg-title'" [icon]="'icon-gallery-import'"
                                               [options]="jpegOptions()" [groupName]="'jpeg-export'"
                                               [selectedOption]="selectedJpegOption" [collapsible]="true"
@@ -19,7 +22,9 @@
                                               (optionChange)="onJpegOptionChange($event)"
                                               (toggle)="onSectionToggle('jpeg-export')"
                                               (submit)="onJpegSubmit($event)"></app-export-document-section-item-component>
+  }
 
+  @if (pdfEnabled) {
   <app-export-document-section-item-component
     [title]="'export-pdf-title'"
     [icon]="'icon-document-download'"
@@ -32,7 +37,9 @@
     (toggle)="onSectionToggle('pdf')"
     (submit)="onPdfSubmit($event)">
   </app-export-document-section-item-component>
+  }
 
+  @if (epubEnabled) {
   <app-export-document-section-item-component
     [title]="'export-epub-title'"
     [icon]="'icon-book-export'"
@@ -44,7 +51,9 @@
     (toggle)="onSectionToggle('epub')"
     (submit)="onEpubSubmit($event)">
   </app-export-document-section-item-component>
+  }
 
+  @if (txtEnabled) {
   <app-export-document-section-item-component
     [title]="'export-text-title'"
     [icon]="'icon-document-text'"
@@ -56,4 +65,5 @@
     (toggle)="onSectionToggle('text')"
     (submit)="onTextSubmit($event)">
   </app-export-document-section-item-component>
+  }
 </div>

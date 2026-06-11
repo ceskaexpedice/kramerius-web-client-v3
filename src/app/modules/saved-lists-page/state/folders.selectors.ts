@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { FoldersState } from './folders.models';
 import { foldersFeatureKey } from './folders.reducer';
-import { selectUser } from '../../../core/auth/store/auth.selectors';
+import { selectUser, selectIsAuthenticated } from '../../../core/auth/store/auth.selectors';
 
 export const selectFoldersState = createFeatureSelector<FoldersState>(foldersFeatureKey);
 
@@ -97,6 +97,11 @@ export const selectFolderSearchResultsTotalCount = createSelector(
   (state: FoldersState) => state.folderSearchResultsTotalCount
 );
 
+export const selectFolderFacets = createSelector(
+  selectFoldersState,
+  (state: FoldersState) => state.folderFacets
+);
+
 export const selectActiveFolderItems = createSelector(
   selectFolderDetails,
   (folderDetails) => folderDetails?.items.flat() || []
@@ -121,4 +126,49 @@ export const selectFolderItemsMapping = createSelector(
 export const selectFolderItemsMappingLoading = createSelector(
   selectFoldersState,
   (state: FoldersState) => state.folderItemsMappingLoading
+);
+
+export type FolderBannerState =
+  | { kind: 'login'; folderName: string; ownerName: string }
+  | { kind: 'invite'; folderName: string; ownerName: string }
+  | { kind: 'follower'; folderName: string; ownerName: string }
+  | null;
+
+export const selectFolderBannerState = createSelector(
+  selectIsAuthenticated,
+  selectUser,
+  selectFolderDetails,
+  (isAuthenticated, user, folder): FolderBannerState => {
+    if (!folder) return null;
+
+    const allUsers = (folder.users ?? []).flat();
+    const owner = allUsers.find(u => u.userRole === 'owner');
+    const ownerName = owner?.userId ?? '';
+    const folderName = folder.name ?? '';
+
+    if (!isAuthenticated) {
+      return { kind: 'login', folderName, ownerName };
+    }
+
+    // Match the current user against a folder member by account uid, with email
+    // as a fallback — mirroring how the ownership selectors resolve identity.
+    const matchesUser = (u: { userId: string }) =>
+      (!!user?.id && u.userId === user.id) ||
+      (!!user?.email && u.userId === user.email);
+
+    // Owners never see a banner.
+    if (owner && matchesUser(owner)) {
+      return null;
+    }
+
+    // A logged-in follower (already a member, not the owner) is offered to copy
+    // the shared folder into their own library.
+    if (allUsers.some(matchesUser)) {
+      return { kind: 'follower', folderName, ownerName };
+    }
+
+    // A logged-in user who is not in the folder's users array at all is invited
+    // to add (follow) the shared folder.
+    return { kind: 'invite', folderName, ownerName };
+  }
 );

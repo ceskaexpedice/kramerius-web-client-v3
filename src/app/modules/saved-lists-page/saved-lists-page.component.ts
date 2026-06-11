@@ -1,11 +1,16 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { Store } from '@ngrx/store';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders } from './state';
-import { combineLatest, first, map } from 'rxjs';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders, selectSearchQuery, selectFolderBannerState, FolderBannerState } from './state';
+import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
+import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
+import { take } from 'rxjs/operators';
+import { combineLatest, first, map, Observable, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers';
 import { ViewMode } from '../periodical/models/view-mode.enum';
 import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -16,11 +21,13 @@ import { SoundTrackModel, TrackViewType } from '../models/sound-track.model';
 import { PopupPositioningService, PopupState } from '../../shared/services/popup-positioning.service';
 import { SavedListsService } from './services/saved-lists.service';
 import { FoldersService } from './services/folders.service';
+import { SavedListsFilterService } from './services/saved-lists-filter.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
 import { ExportService } from '../../shared/services/export.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FolderShareDialogComponent } from '../../shared/dialogs/folder-share-dialog/folder-share-dialog.component';
+import { selectIsAuthenticated } from '../../core/auth/store';
 
 @Component({
   selector: 'app-saved-lists-page',
@@ -36,6 +43,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   sortParams = this.store.select(selectSortParams);
   userOwnedFolders = this.store.select(selectUserOwnedFolders);
   loading$ = this.store.select(selectFolderDetailsLoading);
+  isLoggedIn$ = this.store.select(selectIsAuthenticated);
+  bannerState$ = this.store.select(selectFolderBannerState);
+
+  // Active facet/range filters rendered as removable tags above the results,
+  // mirroring the search-results page. Assigned in the constructor so the
+  // filter service is available.
+  selectedTags$!: Observable<string[]>;
+
+  // Free-text query (q) used to filter items within the active folder. Seeded
+  // from stored state so it survives reopening the panel.
+  searchInput = signal<string | number>('');
 
   // Separate sound recordings from other items
   soundRecordingItems = this.activeFolderItems.pipe(
@@ -54,7 +72,18 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
   currentEditingFolder = signal<{ uuid: string, name: string } | null>(null);
   exportRecord = signal<SearchDocument | null>(null);
+  showFacetFilters = signal<boolean>(false);
+  facetFiltersContentVisible = signal(false);
+  // Pending "don't show again" choice — persisted only when an action (Save/Remove)
+  // is taken, not when the checkbox is toggled.
+  pendingDontShow = signal(false);
+  // Transient success banner shown for 5s after saving the folder to the library.
+  savedBannerVisible = signal(false);
+  private savedBannerTimer?: ReturnType<typeof setTimeout>;
   titleEditPopupState: PopupState;
+
+  private fqParamsSubscription?: Subscription;
+  private facetFiltersContentTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private store: Store,
@@ -65,9 +94,16 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private savedListsService: SavedListsService,
     private exportService: ExportService,
     private dialog: MatDialog,
-    private foldersService: FoldersService
+    private foldersService: FoldersService,
+    public savedListsFilterService: SavedListsFilterService,
+    private router: Router,
+    private translate: TranslateService,
+    private dontShowAgain: DontShowAgainService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
+    this.selectedTags$ = this.savedListsFilterService.selectedTags;
+    // Seed the search box with any query already stored in state.
+    this.store.select(selectSearchQuery).pipe(take(1)).subscribe(q => this.searchInput.set(q ?? ''));
   }
 
   ngOnInit() {
@@ -98,6 +134,48 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       this.activeFolderItems,
       doc => this.exportRecord.set(doc)
     );
+
+    // Re-run the folder search whenever the selected filters change. Facet toggles
+    // and range/accessibility selections update the URL; this picks up the change
+    // once navigation has committed, so the effect reads the current params.
+    const FILTER_PARAM_KEYS = ['fq', 'customSearch', 'yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset'];
+    let firstFilterEmission = true;
+    this.fqParamsSubscription = this.route.queryParams.pipe(
+      map(params => JSON.stringify(FILTER_PARAM_KEYS.map(key => params[key] ?? null))),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      // Skip the initial emission — the folder is loaded via loadFolderDetails →
+      // loadFolderSearchResults, which already honors the URL filters.
+      if (firstFilterEmission) {
+        firstFilterEmission = false;
+        return;
+      }
+      // Omit searchQuery so the effect reuses the active text search.
+      this.store.dispatch(FoldersActions.searchFolders({}));
+    });
+  }
+
+  toggleFacetFilters() {
+    const willOpen = !this.showFacetFilters();
+    this.showFacetFilters.set(willOpen);
+    clearTimeout(this.facetFiltersContentTimer);
+
+    if (willOpen) {
+      this.facetFiltersContentTimer = setTimeout(() => this.facetFiltersContentVisible.set(true), 300);
+      return;
+    }
+
+    this.facetFiltersContentVisible.set(false);
+  }
+
+  /** Filter items in the active folder by a free-text query (q). */
+  onSearchQuery(query: string | number): void {
+    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: String(query ?? '').trim() }));
+  }
+
+  /** Clear the free-text query and reload the folder. */
+  onClearSearchQuery(): void {
+    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: '' }));
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
@@ -106,7 +184,6 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       sortDirection: event.direction
     }));
     this.store.dispatch(FoldersActions.searchFolders({
-      searchQuery: '',
       sortBy: event.value,
       sortDirection: event.direction
     }));
@@ -164,6 +241,96 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.popupPositioningService.cleanup();
+    this.fqParamsSubscription?.unsubscribe();
+    clearTimeout(this.facetFiltersContentTimer);
+    clearTimeout(this.savedBannerTimer);
+  }
+
+  shouldShowSharedBanner(): boolean {
+    return this.dontShowAgain.shouldShowDialog(DontShowDialogs.SharedFolderBanner);
+  }
+
+  bannerActions(state: FolderBannerState): InfoBannerAction[] {
+    if (!state) return [];
+    if (state.kind === 'login') {
+      return [{
+        id: 'login',
+        label: this.translate.instant('shared-folder-banner--login-action'),
+        icon: 'icon-login',
+        style: 'login secondary',
+      }];
+    }
+    if (state.kind === 'invite') {
+      return [{
+        id: 'follow',
+        label: this.translate.instant('shared-folder-banner--add-action'),
+        icon: 'icon-add',
+        style: 'login secondary',
+      }];
+    }
+    return [
+      {
+        id: 'copy',
+        label: this.translate.instant('shared-folder-banner--save-action'),
+        icon: 'icon-heart',
+        style: 'outlined light',
+      },
+      {
+        id: 'remove',
+        label: this.translate.instant('shared-folder-banner--remove-action'),
+        icon: 'icon-trash',
+        style: 'outlined light',
+      },
+    ];
+  }
+
+  onBannerAction(id: string): void {
+    this.activeFolder.pipe(first()).subscribe(folder => {
+      switch (id) {
+        case 'login': {
+          const returnUrl = this.router.url;
+          this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
+          break;
+        }
+        case 'follow':
+          // Non-member adds (follows) the shared folder. followFolderSuccess
+          // reloads the folder list.
+          if (folder?.uuid) this.store.dispatch(FoldersActions.followFolder({ uuid: folder.uuid }));
+          this.showSavedBanner();
+          break;
+        case 'copy': {
+          // Follower copies the shared folder into their own library: a new
+          // owned folder with the same name and a copy of all its items.
+          this.commitDontShowIfPending();
+          const items = (folder?.items ?? []).flat().map(item => item.id);
+          if (folder?.name) {
+            this.store.dispatch(FoldersActions.copyFolderToLibrary({ name: folder.name, items }));
+          }
+          this.showSavedBanner();
+          break;
+        }
+        case 'remove':
+          this.commitDontShowIfPending();
+          if (folder?.uuid) this.store.dispatch(FoldersActions.unfollowFolder({ uuid: folder.uuid }));
+          break;
+      }
+    });
+  }
+
+  onBannerDontShow(checked: boolean): void {
+    this.pendingDontShow.set(checked);
+  }
+
+  private commitDontShowIfPending(): void {
+    if (this.pendingDontShow()) {
+      this.dontShowAgain.setDontShowAgain(DontShowDialogs.SharedFolderBanner);
+    }
+  }
+
+  private showSavedBanner(): void {
+    this.savedBannerVisible.set(true);
+    clearTimeout(this.savedBannerTimer);
+    this.savedBannerTimer = setTimeout(() => this.savedBannerVisible.set(false), 5000);
   }
 
   folderDisplayName(folder: any): string {
@@ -225,8 +392,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     this.activeFolder.pipe(first()).subscribe(folder => {
       if (folder) {
         this.dialog.open(FolderShareDialogComponent, {
-          width: '60vw',
-          data: { uuid: folder.uuid },
+          panelClass: 'folder-share-dialog-panel',
+          data: { uuid: folder.uuid, name: folder.name },
         });
       }
     });

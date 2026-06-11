@@ -46,6 +46,14 @@
     "cookiebar": true
   },
 
+  "export": {
+    "print": true,
+    "jpeg": true,
+    "pdf": true,
+    "epub": true,
+    "txt": true
+  },
+
   "viewer": {
     "defaultMode": "single",
     "availableModes": ["book", "single"],

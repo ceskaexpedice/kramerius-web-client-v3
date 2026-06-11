@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 0;
 }
 
 h2 {
@@ -10,11 +10,16 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--spacing-x1);
+  gap: var(--spacing-x2);
   width: 100%;
   font-size: var(--font-size-base);
   font-weight: 500;
   line-height: var(--line-height-2);
+  color: var(--color-text-base);
+
+  i {
+    color: var(--color-icon-tertiary-default);
+  }
 }
 
 .indicator {
@@ -30,4 +35,9 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+hr {
+  margin-top: var(--spacing-x5);
+  margin-bottom: var(--spacing-x3);
 }

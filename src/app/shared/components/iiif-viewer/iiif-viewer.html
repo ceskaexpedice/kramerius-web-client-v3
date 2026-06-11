@@ -7,7 +7,8 @@
         size="auto">
       </app-thumbnail-image>
     </div>
-    <div #viewerContainer class="openseadragon-container" [class.hidden]="showFallback()"></div>
+    <div #viewerContainer class="openseadragon-container" [class.hidden]="showFallback()"
+         role="img" [attr.aria-label]="'document-image-viewer--arialabel' | translate">
     <app-viewer-watermark [docLicenses]="docLicenses()" [pagePid]="imagePid"></app-viewer-watermark>
     <app-selection-controls *ngIf="showSelectionControls && selectionRect && !showFallback()" [style.top.px]="selectionRect.top"
       [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"

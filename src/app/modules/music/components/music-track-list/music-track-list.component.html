@@ -11,6 +11,11 @@
 
   <tr *ngFor="let track of tracks; let i = index"
       (click)="onSelect(track)"
+      (keydown.enter)="onSelect(track); $event.preventDefault()"
+      (keydown.space)="onSelect(track); $event.preventDefault()"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'play-track--arialabel' | translate:{title: track['title.search']}"
       app-music-track-item
       [class.playing]="track.pid === playingPid"
       [track]="track"
