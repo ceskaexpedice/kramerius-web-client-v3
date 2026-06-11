@@ -5,12 +5,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders, selectSearchQuery, selectFolderBannerState, FolderBannerState } from './state';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
-import { take } from 'rxjs/operators';
-import { combineLatest, first, map, Observable, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { combineLatest, first, map, Observable, Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers';
 import { ViewMode } from '../periodical/models/view-mode.enum';
 import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -83,6 +82,9 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   titleEditPopupState: PopupState;
 
   private fqParamsSubscription?: Subscription;
+  private searchInputSubscription?: Subscription;
+  private searchQueryInput$ = new Subject<string>();
+  private searchQuerySubscription?: Subscription;
   private facetFiltersContentTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
@@ -102,8 +104,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
     this.selectedTags$ = this.savedListsFilterService.selectedTags;
-    // Seed the search box with any query already stored in state.
-    this.store.select(selectSearchQuery).pipe(take(1)).subscribe(q => this.searchInput.set(q ?? ''));
+    // The search box is seeded from the URL (?query=...) in ngOnInit so it survives
+    // reloads and stays in sync with the selected-tag.
   }
 
   ngOnInit() {
@@ -135,10 +137,32 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       doc => this.exportRecord.set(doc)
     );
 
-    // Re-run the folder search whenever the selected filters change. Facet toggles
-    // and range/accessibility selections update the URL; this picks up the change
-    // once navigation has committed, so the effect reads the current params.
-    const FILTER_PARAM_KEYS = ['fq', 'customSearch', 'yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset'];
+    // Keep the search box in sync with the URL (?query=...) — covers back/forward
+    // navigation and the tag's remove/clear-all, both of which clear the param.
+    this.searchInputSubscription = this.route.queryParams.subscribe(params => {
+      this.searchInput.set(params['query'] ?? '');
+    });
+
+    // Debounce keystrokes before writing the term to the URL, and replace history
+    // (rather than push) so typing doesn't stack back-button entries.
+    this.searchQuerySubscription = this.searchQueryInput$.pipe(
+      debounceTime(300),
+      map(q => q.trim()),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { query: term || null, page: 1 },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    });
+
+    // Re-run the folder search whenever the selected filters change. Facet toggles,
+    // range/accessibility selections, and the free-text query (?query=...) update
+    // the URL; this picks up the change once navigation has committed, so the effect
+    // reads the current params.
+    const FILTER_PARAM_KEYS = ['fq', 'customSearch', 'yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', 'query'];
     let firstFilterEmission = true;
     this.fqParamsSubscription = this.route.queryParams.pipe(
       map(params => JSON.stringify(FILTER_PARAM_KEYS.map(key => params[key] ?? null))),
@@ -150,7 +174,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
         firstFilterEmission = false;
         return;
       }
-      // Omit searchQuery so the effect reuses the active text search.
+      // The effect reads the free-text query straight from the URL.
       this.store.dispatch(FoldersActions.searchFolders({}));
     });
   }
@@ -168,14 +192,19 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     this.facetFiltersContentVisible.set(false);
   }
 
-  /** Filter items in the active folder by a free-text query (q). */
+  /**
+   * Filter items in the active folder by a free-text query (q). Writes the term to
+   * the URL (?query=...) so it shows up as a selected tag, persists in the URL, and
+   * hits the same Solr attributes as the main search — the queryParams subscription
+   * picks up the change and re-runs the folder search.
+   */
   onSearchQuery(query: string | number): void {
-    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: String(query ?? '').trim() }));
+    this.searchQueryInput$.next(String(query ?? ''));
   }
 
-  /** Clear the free-text query and reload the folder. */
+  /** Clear the free-text query (removes ?query= from the URL) and reload the folder. */
   onClearSearchQuery(): void {
-    this.store.dispatch(FoldersActions.searchFolders({ searchQuery: '' }));
+    this.searchQueryInput$.next('');
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
@@ -242,6 +271,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.popupPositioningService.cleanup();
     this.fqParamsSubscription?.unsubscribe();
+    this.searchInputSubscription?.unsubscribe();
+    this.searchQuerySubscription?.unsubscribe();
     clearTimeout(this.facetFiltersContentTimer);
     clearTimeout(this.savedBannerTimer);
   }

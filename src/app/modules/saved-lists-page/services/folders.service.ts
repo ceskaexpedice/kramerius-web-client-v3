@@ -8,6 +8,7 @@ import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-help
 import { HttpParams } from '@angular/common/http';
 import { facetKeys, facetKeysEnum, mapFacetsToSearchFields } from '../../search-results-page/const/facets';
 import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../../core/solr/solr-misc';
+import { SolrQueryBuilder } from '../../../core/solr/solr-query-builder';
 
 /**
  * Extra filter dimensions for a folder-items search, assembled by the effect
@@ -109,7 +110,7 @@ export class FoldersService {
     // Base query is the folder's items; AND any free-text term and range clauses.
     const qClauses: string[] = [`(${pidQuery})`];
     if (searchQuery && searchQuery.trim()) {
-      qClauses.push(`title.search:"${searchQuery.trim()}"`);
+      qClauses.push(SolrQueryBuilder.buildSearchClause(searchQuery.trim()));
     }
     for (const clause of filters.queryClauses ?? []) {
       if (clause) qClauses.push(clause);

@@ -247,7 +247,7 @@ export class FoldersEffects {
         const filters = this.buildFolderSearchFilters();
         return this.foldersService.searchFolderItems(
           action.itemIds,
-          undefined,
+          this.urlSearchQuery(),
           undefined,
           undefined,
           filters
@@ -263,32 +263,28 @@ export class FoldersEffects {
     this.actions$.pipe(
       ofType(FoldersActions.searchFolders),
       switchMap(action =>
-        // Get current folder details and search query from state
+        // Get current folder details from state; the free-text query is read from
+        // the URL (?query=...) so it stays in sync with the selected-tags / URL —
+        // mirroring the main search.
         this.store.select(FoldersSelectors.selectFolderDetails).pipe(
           take(1),
           filter(folderDetails => !!folderDetails),
-          switchMap(folderDetails =>
-            this.store.select(FoldersSelectors.selectSearchQuery).pipe(
-              take(1),
-              switchMap(currentSearchQuery => {
-                const itemIds = folderDetails!.items.flat().map(item => item.id);
-                // undefined → reuse stored query (facet change); '' clears it.
-                const searchQuery = action.searchQuery ?? currentSearchQuery;
+          switchMap(folderDetails => {
+            const itemIds = folderDetails!.items.flat().map(item => item.id);
+            const searchQuery = this.urlSearchQuery();
 
-                const filters = this.buildFolderSearchFilters();
-                return this.foldersService.searchFolderItems(
-                  itemIds,
-                  searchQuery,
-                  action.sortBy,
-                  action.sortDirection,
-                  filters
-                ).pipe(
-                  map(response => this.parseFolderSearchResponse(response, filters)),
-                  catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
-                );
-              })
-            )
-          )
+            const filters = this.buildFolderSearchFilters();
+            return this.foldersService.searchFolderItems(
+              itemIds,
+              searchQuery,
+              action.sortBy,
+              action.sortDirection,
+              filters
+            ).pipe(
+              map(response => this.parseFolderSearchResponse(response, filters)),
+              catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
+            );
+          })
         )
       )
     )
@@ -577,6 +573,12 @@ export class FoldersEffects {
       totalCount,
       facets
     });
+  }
+
+  /** Free-text search term from the URL (?query=...), mirroring the main search. */
+  private urlSearchQuery(): string {
+    const query = this.router.parseUrl(this.router.url).queryParamMap.get('query');
+    return query?.trim() ?? '';
   }
 
   /** Current URL query params as a plain record (single value or array per key). */

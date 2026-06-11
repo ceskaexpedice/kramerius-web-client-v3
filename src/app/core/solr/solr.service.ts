@@ -175,17 +175,8 @@ export class SolrService {
           ];
           parts.push(`(${queryParts.join(' OR ')})`);
         } else {
-          const queryParts = [
-            `title.search:(${normalizedQuery})^3`,
-            `titles.search:(${normalizedQuery})`,
-            `authors.search:(${normalizedQuery})^2`,
-            `keywords.search:(${normalizedQuery})`,
-            `genres.search:(${normalizedQuery})`,
-            `text_ocr:(${normalizedQuery})^0.1`,
-            `id_isbn:(${normalizedQuery})`,
-            `shelf_locators:(${normalizedQuery})`
-          ];
-          parts.push(`(${queryParts.join(' OR ')})`);
+          // Simple (non-collection) search — shared with the saved-lists folder search.
+          parts.push(SolrQueryBuilder.buildSearchClause(query));
         }
       } else {
         const sanitizedQuery = this.sanitizeSearchTerms(query);
@@ -225,26 +216,9 @@ export class SolrService {
             }
             parts.push(`(${queryParts.join(' OR ')})`);
           } else {
-            // Simple search - title, author, keyword, genre, OCR, ISBN, shelf locator
-            const queryParts = [
-              `title.search:(${q})^3`,
-              `titles.search:(${q})`,
-              `authors.search:(${q})^2`,
-              `keywords.search:(${q})`,
-              `genres.search:(${q})`,
-              `text_ocr:(${q})^0.1`,
-              `id_isbn:(${q})`,
-              `shelf_locators:(${q})`
-            ];
-            if (hasDiacritics) {
-              queryParts.push(
-                `title.search:(${qAscii})^1.5`,
-                `titles.search:(${qAscii})^0.8`,
-                `authors.search:(${qAscii})^1.5`,
-                `text_ocr:(${qAscii})^0.05`
-              );
-            }
-            parts.push(`(${queryParts.join(' OR ')})`);
+            // Simple search — title, author, keyword, genre, OCR, ISBN, shelf locator.
+            // Shared with the saved-lists folder search.
+            parts.push(SolrQueryBuilder.buildSearchClause(query));
           }
         }
       }

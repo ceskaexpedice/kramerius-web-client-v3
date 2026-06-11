@@ -277,4 +277,111 @@ export class SolrQueryBuilder {
     return conditions.join(` ${SolrOperators.and} `);
   }
 
+  /**
+   * Returns true if the query contains special Solr search operators that should be
+   * passed directly to Solr without term-splitting or wildcard injection.
+   * Supported: * ? AND OR NOT "phrase" ~n (proximity/fuzzy)
+   */
+  static hasSpecialOperators(query: string): boolean {
+    if (/[*?~]/.test(query)) return true;
+    if (/"[^"]+"/.test(query)) return true;
+    if (/\b(AND|OR|NOT)\b/.test(query)) return true;
+    return false;
+  }
+
+  static sanitizeSearchTerms(query: string): string {
+    // Preserve quoted phrases
+    if (query.startsWith('"') && query.endsWith('"')) {
+      return query;
+    }
+
+    return query
+      .replace(/[:\(\)\[\]\{\}~^\\\/;.!,]/g, ' ')  // Keep * ? " for wildcards/phrases
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /**
+   * Removes diacritics from a string (ASCII folding)
+   */
+  static removeDiacritics(str: string): string {
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
+  /**
+   * Builds the multi-field free-text search clause used by the main search
+   * (the "simple search" variant: title/titles/authors/keywords/genres/OCR/ISBN/
+   * shelf-locators with boosting and diacritic folding). Shared between the main
+   * Solr search and the saved-lists (folder) search so a free-text term hits the
+   * same attributes in both places.
+   *
+   * Returns a parenthesised OR clause, or `*:*` when the query is empty.
+   */
+  static buildSearchClause(query: string): string {
+    if (!query?.trim()) {
+      return '*:*';
+    }
+
+    if (this.hasSpecialOperators(query)) {
+      // Query uses special operators — pass directly to Solr without term-splitting
+      // or wildcard injection. If no explicit boolean operators, join multiple terms
+      // with AND so "Kar* Háj*" → "Kar* AND Háj*".
+      const hasExplicitBooleans = /\b(AND|OR|NOT)\b/.test(query) || /"[^"]+"/.test(query);
+      const normalizedQuery = !hasExplicitBooleans
+        ? query.trim().split(/\s+/).join(' AND ')
+        : query;
+      const startsWithNot = /^\s*NOT\b/i.test(query);
+      if (startsWithNot) {
+        // Leading NOT: rewrite "NOT term" as exclusion from all docs
+        const excluded = query.replace(/^\s*NOT\s+/i, '').trim();
+        return `(*:* NOT (title.search:${excluded} OR titles.search:${excluded} OR text_ocr:${excluded}))`;
+      }
+      const queryParts = [
+        `title.search:(${normalizedQuery})^3`,
+        `titles.search:(${normalizedQuery})`,
+        `authors.search:(${normalizedQuery})^2`,
+        `keywords.search:(${normalizedQuery})`,
+        `genres.search:(${normalizedQuery})`,
+        `text_ocr:(${normalizedQuery})^0.1`,
+        `id_isbn:(${normalizedQuery})`,
+        `shelf_locators:(${normalizedQuery})`
+      ];
+      return `(${queryParts.join(' OR ')})`;
+    }
+
+    const sanitizedQuery = this.sanitizeSearchTerms(query);
+    const terms = sanitizedQuery.split(/\s+/).filter(t => t.length > 0);
+
+    if (terms.length === 0) {
+      return '*:*';
+    }
+
+    // Convert terms to lowercase and create ASCII-folded versions
+    const lowerTerms = terms.map(t => t.toLowerCase());
+
+    const q = lowerTerms.join(' AND ');
+    const qAscii = lowerTerms.map(t => this.removeDiacritics(t)).join(' AND ');
+    const hasDiacritics = q !== qAscii;
+
+    const queryParts = [
+      `title.search:(${q})^3`,
+      `titles.search:(${q})`,
+      `authors.search:(${q})^2`,
+      `keywords.search:(${q})`,
+      `genres.search:(${q})`,
+      `text_ocr:(${q})^0.1`,
+      `id_isbn:(${q})`,
+      `shelf_locators:(${q})`
+    ];
+    if (hasDiacritics) {
+      queryParts.push(
+        `title.search:(${qAscii})^1.5`,
+        `titles.search:(${qAscii})^0.8`,
+        `authors.search:(${qAscii})^1.5`,
+        `text_ocr:(${qAscii})^0.05`
+      );
+    }
+    return `(${queryParts.join(' OR ')})`;
+  }
+
 }
