@@ -51,7 +51,14 @@ export const initialState: PeriodicalDetailState = {
 
 export const periodicalDetailReducer = createReducer(
   initialState,
-  on(loadPeriodical, state => ({ ...state, loading: true })),
+  on(loadPeriodical, state => ({
+    ...state,
+    loading: true,
+    // Clear stale document/metadata so the header and metadata sidebar don't
+    // keep rendering the previously opened periodical while the new one loads.
+    document: null,
+    metadata: null
+  })),
   on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection }) => {
     console.log('setPeriodicalSearchParams reducer - filters:', {
       filters,
