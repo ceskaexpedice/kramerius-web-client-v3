@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export interface InfoBannerAction {
   id: string;
@@ -11,7 +12,7 @@ export interface InfoBannerAction {
 @Component({
   selector: 'app-info-banner',
   standalone: true,
-  imports: [],
+  imports: [MatCheckboxModule],
   templateUrl: './info-banner.component.html',
   styleUrl: './info-banner.component.scss',
 })
@@ -33,8 +34,7 @@ export class InfoBannerComponent {
     this.actionClick.emit(id);
   }
 
-  onDontShowToggle(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+  onDontShowToggle(checked: boolean): void {
     this.dontShowAgainChange.emit(checked);
   }
 }

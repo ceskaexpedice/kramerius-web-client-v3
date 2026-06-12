@@ -104,6 +104,7 @@
           [message]="'shared-folder-banner--shared-message' | translate"
           [actions]="bannerActions(banner)"
           dontShowId="shared-folder-banner"
+          [dontShowChecked]="pendingDontShow()"
           (actionClick)="onBannerAction($event)"
           (dontShowAgainChange)="onBannerDontShow($event)">
         </app-info-banner>

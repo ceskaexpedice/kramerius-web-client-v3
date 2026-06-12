@@ -349,6 +349,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   }
 
   onBannerDontShow(checked: boolean): void {
+    // Only stash the choice; it is persisted later via commitDontShowIfPending
+    // once the user triggers a banner action (Save/Remove).
     this.pendingDontShow.set(checked);
   }
 

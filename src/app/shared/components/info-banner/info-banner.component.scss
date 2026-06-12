@@ -43,22 +43,13 @@
   &__message { margin: 0; }
 
   &__dont-show {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-x2);
-    cursor: pointer;
+    ::ng-deep .mdc-label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-low-efford);
+    }
 
-    input[type=checkbox] {
-      appearance: none;
-      -webkit-appearance: none;
-      margin: 0;
-      height: 16px;
-      padding: 0;
-      width: 16px;
-      background-color: transparent;
-      border: 1px solid var(--color-text-low-efford);
-      border-radius: var(--spacing-x1);
-      cursor: pointer;
+    ::ng-deep .mdc-checkbox__background {
+      border-color: var(--color-text-low-efford) !important;
     }
   }
 

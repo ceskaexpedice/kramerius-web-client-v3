@@ -3,16 +3,16 @@
   [class.info-banner--success]="variant === 'success'" role="status">
 
   <div class="info-banner__icon">
-    <i [class]="icon"></i>
+    <i [class]="icon" aria-hidden="true"></i>
   </div>
 
   <div class="info-banner__text">
     <p class="info-banner__title">{{ title }}</p>
     @if (dontShowId) {
-      <label class="info-banner__dont-show">
-        <input type="checkbox" [checked]="dontShowChecked" (change)="onDontShowToggle($event)" />
-        <span class="info-banner__message">{{ message }}</span>
-      </label>
+      <mat-checkbox class="info-banner__dont-show p-left-0" [checked]="dontShowChecked"
+        (change)="onDontShowToggle($event.checked)">
+        {{ message }}
+      </mat-checkbox>
     } @else {
       <p class="info-banner__message">{{ message }}</p>
     }
@@ -22,7 +22,7 @@
     @for (action of actions; track action.id) {
       <button [class]="(action.style || '') + ' with-icon sm'" type="button"
         (click)="onAction(action.id)">
-        @if (action.icon) { <i [class]="action.icon"></i> }
+        @if (action.icon) { <i [class]="action.icon" aria-hidden="true"></i> }
         {{ action.label }}
       </button>
     }
