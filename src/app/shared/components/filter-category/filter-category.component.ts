@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, signal, effect } from '@angular/core';
+import { Component, EventEmitter, Inject, Injector, Input, OnChanges, Output, signal, effect } from '@angular/core';
 import { NgForOf, NgIf, SlicePipe } from '@angular/common';
 import { FilterItemComponent } from '../filter-item/filter-item.component';
 import { FacetItem } from '../../../modules/models/facet-item';
@@ -8,7 +8,7 @@ import {
 } from '../../../modules/search-results-page/components/filter-dialog/filter-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { SearchService } from '../../services/search.service';
+import { FILTER_SERVICE, FilterService } from '../../services/filter.service';
 import { expandCollapseAnimation } from '../../animations';
 import {
   customDefinedFacetsEnum, FacetAccessibilityTypes, FacetElementType,
@@ -98,14 +98,15 @@ export class FilterCategoryComponent implements OnChanges {
   constructor(
     private route: ActivatedRoute,
     private dialog: MatDialog,
-    private searchService: SearchService,
+    private injector: Injector,
+    @Inject(FILTER_SERVICE) private filterService: FilterService,
     private customSearchService: CustomSearchService
   ) {
 
     effect(() => {
       if (this.facetKey === customDefinedFacetsEnum.whereToSearchModel) {
-        this.showPageFacet = this.searchService.hasSubmittedQuery() || this.searchService.hasFulltextFilter();
-        this.showPeriodicalItemFacet = this.searchService.filtersContainDate() || this.searchService.hasFulltextFilter();
+        this.showPageFacet = this.filterService.hasSubmittedQuery() || this.filterService.hasFulltextFilter();
+        this.showPeriodicalItemFacet = this.filterService.filtersContainDate() || this.filterService.hasFulltextFilter();
         this.updateVisibleItems();
       }
     });
@@ -207,12 +208,15 @@ export class FilterCategoryComponent implements OnChanges {
 
     const dialogRef = this.dialog.open(FilterDialogComponent, {
       width: '600px',
-      data: { facetKey, facetLabel, items, selected }
+      data: { facetKey, facetLabel, items, selected },
+      // Pass this component's injector so the dialog resolves the page-scoped
+      // FILTER_SERVICE (folder, monograph, …) rather than the root SearchService.
+      injector: this.injector
     });
 
     dialogRef.afterClosed().subscribe((selectedValues: string[]) => {
       if (selectedValues) {
-        this.searchService.updateFilters(
+        this.filterService.updateFilters(
           this.route,
           facetKey,
           selectedValues

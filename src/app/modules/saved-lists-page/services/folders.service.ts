@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from '../state/folders.models';
 import { EnvironmentService } from '../../../shared/services/environment.service';
-import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
+import { SolrOperators, SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
 import { HttpParams } from '@angular/common/http';
 import { facetKeys, facetKeysEnum, mapFacetsToSearchFields } from '../../search-results-page/const/facets';
 import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../../core/solr/solr-misc';
@@ -105,6 +106,84 @@ export class FoldersService {
       });
     }
 
+    // Facet fields: standard set plus accessibility + license (rendered nested
+    // under the accessibility block, matching the search filters panel).
+    const facetFields = [...facetKeys, facetKeysEnum.accessibility];
+
+    let params = this.buildFolderQuery(itemIds, searchQuery, filters)
+      .set('rows', '1000');
+
+    for (const field of facetFields) {
+      params = params.append('facet.field', field);
+    }
+
+    if (sortBy && sortDirection) {
+      params = params.set('sort', `${sortBy} ${sortDirection}`);
+    }
+
+    return this.http.get<any>(searchUrl, { params });
+  }
+
+  /**
+   * Load a single facet's items scoped to a folder's items, for the "show more"
+   * dialog. Mirrors searchFolderItems' folder/availability scoping but requests
+   * only one facet field with pagination, sort and contains, and applies the
+   * dialog's pending selection/operator using the {!ex=}/{!tag=} OR-with-selection
+   * pattern (same as SolrService.loadFacetWithPendingChanges).
+   */
+  loadFolderFacetPage(
+    itemIds: string[],
+    facetKey: string,
+    pendingSelection: Set<string>,
+    pendingOperator: SolrOperators,
+    options: { searchTerm?: string; limit: number; offset: number; sortBy: SolrSortFields },
+    filters: FolderSearchFilters = {}
+  ): Observable<any> {
+    const searchUrl = this.environmentService.getApiUrl('search') || '';
+    // Facet on the original .facet field (full values), but apply the pending
+    // selection as fq on the mapped .search field — matching how applied folder
+    // filters work (see buildFolderQuery's fqFilters mapping). The {!ex}/{!tag}
+    // names just have to match each other, so we key them on facetKey.
+    const fqField = mapFacetsToSearchFields([`${facetKey}:x`])[0]?.split(':')[0] || facetKey;
+
+    // rows=0: the dialog only needs facet counts, not documents.
+    let params = this.buildFolderQuery(itemIds, undefined, filters).set('rows', '0');
+
+    const isOrWithSelection = pendingOperator === SolrOperators.or && pendingSelection.size > 0;
+    params = params.append('facet.field', isOrWithSelection ? `{!ex=${facetKey}}${facetKey}` : facetKey);
+    params = params
+      .set('facet.limit', options.limit.toString())
+      .set('facet.offset', options.offset.toString())
+      .set('facet.sort', options.sortBy === SolrSortFields.title ? 'index' : 'count');
+    if (options.searchTerm) {
+      params = params.set('facet.contains', options.searchTerm).set('facet.contains.ignoreCase', 'true');
+    }
+
+    if (pendingSelection.size > 0) {
+      const escaped = Array.from(pendingSelection).map(v => `"${v}"`);
+      let fqParam = isOrWithSelection ? `{!tag=${facetKey}}` : '';
+      fqParam += escaped.length === 1
+        ? `${fqField}:${escaped[0]}`
+        : `(${escaped.map(val => `${fqField}:${val}`).join(` ${pendingOperator} `)})`;
+      params = params.append('fq', fqParam);
+    }
+
+    return this.http.get<any>(searchUrl, { params }).pipe(
+      map(response => ({ response, facetField: facetKey }))
+    );
+  }
+
+  /**
+   * Builds the shared base Solr query for a folder-items search: the folder's
+   * items (pid: scope) AND optional free-text/range clauses on q, the
+   * accessibility facet.query counts, and the standard/custom/availability fq
+   * filters. Callers add rows, facet fields and sort on top.
+   */
+  private buildFolderQuery(
+    itemIds: string[],
+    searchQuery: string | undefined,
+    filters: FolderSearchFilters
+  ): HttpParams {
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
 
     // Base query is the folder's items; AND any free-text term and range clauses.
@@ -117,19 +196,10 @@ export class FoldersService {
     }
     const finalQuery = qClauses.join(' AND ');
 
-    // Facet fields: standard set plus accessibility + license (rendered nested
-    // under the accessibility block, matching the search filters panel).
-    const facetFields = [...facetKeys, facetKeysEnum.accessibility];
-
     let params = new HttpParams()
       .set('q', finalQuery)
-      .set('rows', '1000')
       .set('facet', 'true')
       .set('facet.mincount', '1');
-
-    for (const field of facetFields) {
-      params = params.append('facet.field', field);
-    }
 
     // Accessibility facet counts come from facet.query (not facet.field), mirroring
     // SolrService.getFacetsWithOperators. The availability fq below is tagged
@@ -169,11 +239,7 @@ export class FoldersService {
       params = params.append('fq', `{!tag=avail}(${this.licenseClauses(filters.availabilityLicenses)})`);
     }
 
-    if (sortBy && sortDirection) {
-      params = params.set('sort', `${sortBy} ${sortDirection}`);
-    }
-
-    return this.http.get<any>(searchUrl, { params });
+    return params;
   }
 
   /**

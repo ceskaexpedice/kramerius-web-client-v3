@@ -5,9 +5,9 @@ import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService, FolderSearchFilters } from '../services/folders.service';
+import { FolderSearchFiltersBuilder } from '../services/folder-search-filters.builder';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { QueryParamsService } from '../../../core/services/QueryParamsManager';
-import { buildYearRangeQuery, buildDateMinRangeQuery } from '../../../shared/utils/date-range-query';
 import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -506,7 +506,8 @@ export class FoldersEffects {
     private translateService: TranslateService,
     private customSearchService: CustomSearchService,
     private queryParamsService: QueryParamsService,
-    private userService: UserService
+    private userService: UserService,
+    private folderSearchFiltersBuilder: FolderSearchFiltersBuilder
   ) {}
 
   private extractFolderUuidFromUrl(url: string): string | null {
@@ -515,32 +516,12 @@ export class FoldersEffects {
   }
 
   /**
-   * Assembles all active filter dimensions for a folder search from the current
-   * URL + CustomSearchService: standard facet fq, custom-defined facet clauses,
-   * accessibility/availability licenses, and year/date range query clauses.
+   * Assembles all active filter dimensions for a folder search. Delegates to the
+   * shared FolderSearchFiltersBuilder so the facet dialog (SavedListsFilterService)
+   * applies exactly the same scope.
    */
   private buildFolderSearchFilters(): FolderSearchFilters {
-    const params = this.urlParams();
-
-    // Sync custom-search state (accessibility, where-to-search, ranges) from URL.
-    this.customSearchService.initializeFromRoute();
-
-    const queryClauses = [
-      buildYearRangeQuery(params),
-      buildDateMinRangeQuery(params)
-    ].filter((c): c is string => !!c);
-
-    const availabilityLicenses = this.customSearchService.isAvailabilityFilterActive()
-      ? this.customSearchService.getUserAvailableLicenses()
-      : [];
-
-    return {
-      fqFilters: this.queryParamsService.getFilters(params),
-      customFqClauses: this.customSearchService.getSolrFqFilters(),
-      availabilityLicenses,
-      userLicenses: this.userService.licenses,
-      queryClauses
-    };
+    return this.folderSearchFiltersBuilder.build();
   }
 
   private parseFolderSearchResponse(response: any, filters: FolderSearchFilters) {

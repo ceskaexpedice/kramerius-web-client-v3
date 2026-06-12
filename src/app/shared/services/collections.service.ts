@@ -4,11 +4,11 @@ import { Store } from '@ngrx/store';
 import { filter, forkJoin, map, Observable, of, takeUntil, combineLatest } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrSortDirections, SolrSortFields, SolrOperators } from '../../core/solr/solr-helpers';
-import { SolrService } from '../../core/solr/solr.service';
 import {
   customDefinedFacetsEnum,
   facetKeysEnum,
   mapFacetsToSearchFields,
+  mapOperatorsToSearchFields,
 } from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
@@ -67,7 +67,6 @@ export class CollectionsService extends BaseFilterService {
     'dateTo'
   ];
 
-  private solrService = inject(SolrService);
   override advancedSearchService = inject(AdvancedSearchService);
   private breadcrumbsService = inject(BreadcrumbsService);
   private translationService = inject(TranslateService);
@@ -355,6 +354,22 @@ export class CollectionsService extends BaseFilterService {
 
     const includePeriodicalItem = this.filtersContainDate() || this.hasFulltextFilter();
     const includePage = this.hasSubmittedQuery() || this.hasFulltextFilter();
+
+    // Snapshot for the "show more" dialog: same filters + collection scope.
+    this.captureFacetRequest({
+      query,
+      filters,
+      facetOperators: mapOperatorsToSearchFields(this.queryParamsService.getOperators(params || {})),
+      advancedQuery,
+      collectionUuid: uuid,
+      includePeriodicalItem,
+      includePage,
+      availabilityFilter: {
+        isActive: this.customSearchService.isAvailabilityFilterActive(),
+        licenses: this.customSearchService.getUserAvailableLicenses(),
+        userLicenses: this.userService.licenses
+      }
+    });
 
     this.store.dispatch(loadCollectionSearchResults({
       uuid,

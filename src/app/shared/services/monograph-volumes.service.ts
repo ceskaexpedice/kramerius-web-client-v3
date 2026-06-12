@@ -8,14 +8,12 @@ import * as MonographVolumesActions from '../state/monograph-volumes/monograph-v
 import * as MonographVolumesSelectors from '../state/monograph-volumes/monograph-volumes.selectors';
 import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { APP_ROUTES_ENUM } from '../../app.routes';
-import { SolrService } from '../../core/solr/solr.service';
+import { SolrQueryBuilder } from '../../core/solr/solr-query-builder';
 
 @Injectable()
 export class MonographVolumesService extends BaseFilterService {
   uuid: string | null = null;
   inputSearchTerm = '';
-
-  private solrService = inject(SolrService);
 
   // Observables from store
   volumes$ = this.store.select(MonographVolumesSelectors.selectMonographVolumes);
@@ -117,6 +115,21 @@ export class MonographVolumesService extends BaseFilterService {
     console.log('Custom filters:', customFilters);
     console.log('Combined filters:', filters);
     console.log('Query:', query);
+
+    // Snapshot for the "show more" dialog: same filters + own_parent.pid child
+    // scope, mirroring the volume search (SolrService.getChildrenByModel). q stays
+    // empty — the scope lives entirely in extraQueryClause.
+    const escaped = SolrQueryBuilder.escapeSolrQuery(this.uuid);
+    this.captureFacetRequest({
+      query: '',
+      filters,
+      extraQueryClause: `!pid:${escaped} AND own_parent.pid:${escaped}`,
+      availabilityFilter: {
+        isActive: this.customSearchService.isAvailabilityFilterActive(),
+        licenses: this.customSearchService.getUserAvailableLicenses(),
+        userLicenses: this.userService.licenses
+      }
+    });
 
     // Dispatch action with filters (like SearchService does)
     this.store.dispatch(MonographVolumesActions.loadMonographVolumes({

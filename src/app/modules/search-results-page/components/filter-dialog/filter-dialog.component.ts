@@ -1,16 +1,12 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, Inject, inject, OnInit, signal} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FacetItem} from '../../../models/facet-item';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgForOf, NgIf} from '@angular/common';
 import {debounceTime, Subject, take} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {SelectedTagsComponent} from '../../../../shared/components/selected-tags/selected-tags.component';
-import {SearchService} from '../../../../shared/services/search.service';
 import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
-import {SolrService} from '../../../../core/solr/solr.service';
-import {SolrResponseParser} from '../../../../core/solr/solr-response-parser';
 import {BasePaginatorComponent} from '../../../../shared/components/paginator/base-paginator.component';
 import {SolrOperators, SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
@@ -19,9 +15,8 @@ import {
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
 import {PaginatorInfoComponent} from '../../../../shared/components/paginator-info/paginator-info.component';
 import {QueryParamsService} from '../../../../core/services/QueryParamsManager';
-import {FilterService} from '../../../../core/services/FilterUtilities';
+import {FILTER_SERVICE, FilterService} from '../../../../shared/services/filter.service';
 import {InputComponent} from '../../../../shared/components/input/input.component';
-import {AdvancedSearchService} from '../../../../shared/services/advanced-search.service';
 import {isFrontendFilteredFacetKey} from '../../../../shared/dialogs/advanced-search-dialog/solr-filters';
 import {FormatNumberPipe} from '../../../../shared/pipes/format-number.pipe';
 import {MatCheckbox} from '@angular/material/checkbox';
@@ -118,9 +113,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   private searchTermInitialized = false;
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
   private route = inject(ActivatedRoute);
-  public searchService = inject(SearchService);
-  private solrService = inject(SolrService);
-  private advancedSearchService = inject(AdvancedSearchService);
   private translateService = inject(TranslateService);
 
   readonly selected = signal<Set<string>>(new Set());
@@ -139,7 +131,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
   }
 
   constructor(
-    private filterService: FilterService,
+    @Inject(FILTER_SERVICE) private filterService: FilterService,
     private queryParamsService: QueryParamsService,
   ) {
 
@@ -212,7 +204,7 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     // Get the operator value
     const operator = this.pendingOperator();
 
-    this.searchService.resetPage();
+    this.filterService.resetPage();
 
     // Update filters with the chosen operator
     this.queryParamsService.updateFilters(
@@ -242,69 +234,35 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
     const facetLimit = paginator ? this.pageSize : -1;
     const facetOffset = paginator ? (page - 1) * this.pageSize : 0;
 
-    // Get existing operators from URL (for other facets)
-    const params = this.route.snapshot.queryParams;
-    const existingOperators = this.queryParamsService.getOperators(params);
-
-    this.searchService.activeFilters$
-      .pipe(
-        take(1),
-        switchMap(allFilters => {
-          // Get all currently selected values for highlighting
-          const activeSelections = new Set(
-            allFilters
-              .filter(f => f.startsWith(this.data.facetKey + ':'))
-              .map(f => f.split(':')[1])
-          );
-
-          // Use the new method with pending selection and operator
-          return this.solrService.loadFacetWithPendingChanges(
-            this.searchService.searchTerm(),
-            allFilters,
-            this.data.facetKey,
-            this.pendingSelection(),
-            this.pendingOperator(),
-            existingOperators,
-            {
-              searchTerm: this.searchTerm() || '',
-              limit: facetLimit,
-              offset: facetOffset,
-              sortBy: this.sortBy(),
-              minCount: 1,
-              advancedQuery: this.advancedSearchService.getAdvancedQueryString()
-            }
-          ).pipe(
-            map(response => ({
-              response,
-              selectedValues: activeSelections
-            }))
-          );
-        })
-      )
+    // Delegate to the page's FilterService so the facet counts are scoped to the
+    // current context (basic search, folder, monograph, …) instead of always the
+    // global basic-search index.
+    this.filterService.loadFacetPage(this.data.facetKey, {
+      pendingSelection: this.pendingSelection(),
+      pendingOperator: this.pendingOperator(),
+      contains: this.searchTerm() || '',
+      sortBy: this.sortBy(),
+      limit: facetLimit,
+      offset: facetOffset
+    })
+      .pipe(take(1))
       .subscribe({
-        next: ({ response, selectedValues }) => {
-          const parsed = SolrResponseParser.parseFacet(
-            response.facet_counts.facet_fields?.[this.data.facetKey] || []
-          );
-
-          // Sort with selected items at the top
-          const sortedItems = this.filterService.sortWithSelectedOnTop(parsed, selectedValues);
-
+        next: ({ items, totalCount }) => {
           if (!paginator) {
             // When loading all items (for total count)
-            this.totalCount = parsed.length;
-            this.allItems.set(sortedItems);
+            this.totalCount = totalCount;
+            this.allItems.set(items);
 
             // Now load the paginated items
-            if (this.pageSize < parsed.length) {
+            if (this.pageSize < totalCount) {
               this.loadFacetsWithPendingChanges(true);
             } else {
-              this.items.set(sortedItems);
+              this.items.set(items);
             }
 
           } else {
             // When loading paginated items
-            this.items.set(sortedItems);
+            this.items.set(items);
           }
 
           this.loading.set(false);
