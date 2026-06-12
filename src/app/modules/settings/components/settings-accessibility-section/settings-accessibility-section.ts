@@ -41,7 +41,7 @@ export class SettingsAccessibilitySection {
   }
 
   onTextScaleChange(scale: number) {
-    this.accessibilityService.setTextScale(scale as 100 | 125 | 150 | 200 | 300);
+    this.accessibilityService.setTextScale(scale);
   }
 
   onDyslexiaFriendlyChange() {

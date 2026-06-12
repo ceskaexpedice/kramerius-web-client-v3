@@ -2,7 +2,8 @@
   {{ label | translate}}
 </label>
 
-<div class="toggle-group" [ngClass]="[size, 'variant-' + variant]" role="group">
+<div class="toggle-group" [ngClass]="[size, 'variant-' + variant]" role="group"
+     [attr.aria-label]="groupAriaLabel ? (groupAriaLabel | translate) : null">
   <button
     *ngFor="let option of options"
     type="button"

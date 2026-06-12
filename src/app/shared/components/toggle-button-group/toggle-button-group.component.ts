@@ -25,6 +25,8 @@ export class ToggleButtonGroupComponent<T = any> {
   @Output() valueChange = new EventEmitter<T>();
   @Input() size: 'sm' | 'md' | 'lg' = 'sm';
   @Input() variant: 'default' | 'pill' = 'default';
+  /** Accessible name for the whole group (translation key). */
+  @Input() groupAriaLabel = '';
 
   select(option: ToggleOption<T>) {
     if (option.value !== this.value) this.valueChange.emit(option.value);

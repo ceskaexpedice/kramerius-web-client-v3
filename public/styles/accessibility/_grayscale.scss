@@ -1,6 +1,53 @@
 // Grayscale Mode
-// Removes all color from the application
+// Removes all color from the application.
+//
+// All filter-based vision modes (grayscale, daltonization, photophobia) compose
+// into a single `filter` via CSS variables, so they can be combined instead of
+// silently overriding each other (a single `filter:` only keeps the last value).
+//
+// `--a11y-filter-vision` holds an SVG daltonization filter (e.g. url(#tritanopia))
+// set by the color-blindness modes; see _tritanopia.scss / index.html.
+//
+// A `filter` on <html>/<body> does NOT visually cover Angular CDK overlays:
+// the CDK appends `.cdk-overlay-container` (position: fixed, high z-index) to
+// <body>, and browsers composite that fixed layer separately, so a root filter
+// skips it — which is why dialogs/menus stayed un-recolored.
+//
+// Fix: filter the two DISJOINT sibling subtrees independently —
+//   - `app-root`               → the page content
+//   - `.cdk-overlay-container` → all overlays (dialogs, menus, tooltips)
+// They don't contain each other, so the filter is applied exactly once to each
+// (no double-filtering). Variables are declared on :root and inherit into both.
+//
+// Trade-off to verify visually: filtering `app-root` makes it the containing
+// block for `position: fixed` descendants (mobile menu, playback bar). They are
+// anchored to app-root, which fills the viewport, so they should stay put.
+
+// Empty fallbacks live INSIDE each var() — `var(--x, )` — rather than as a
+// separate `:root { --x: ; }` reset. A `:root` reset sits on <html>, the SAME
+// element the mode classes target, so with equal specificity source order
+// decided the winner and the empty reset could clobber the mode value. Inline
+// fallbacks avoid that entirely: a mode only needs to SET its own var.
+.grayscale-mode,
+.tritanopia-mode,
+.photophobia-mode {
+  // Note: descendant combinator — the mode class is on <html>, these targets
+  // live inside it.
+  //
+  // We filter the individual overlay panes/backdrops (not just the overlay
+  // container) because the dialog surface and connected panes are promoted to
+  // their own compositing layer (transform/animation/z-index), which a filter on
+  // an ancestor container does NOT visually reach. Applying the filter on the
+  // pane itself — the element that forms the layer — guarantees the effect lands.
+  app-root,
+  .cdk-overlay-pane,
+  .cdk-overlay-backdrop,
+  .cdk-global-overlay-wrapper,
+  .cdk-overlay-connected-position-bounding-box {
+    filter: var(--a11y-filter-grayscale, ) var(--a11y-filter-vision, ) var(--a11y-filter-brightness, );
+  }
+}
 
 .grayscale-mode {
-    filter: grayscale(100%);
+  --a11y-filter-grayscale: grayscale(100%);
 }

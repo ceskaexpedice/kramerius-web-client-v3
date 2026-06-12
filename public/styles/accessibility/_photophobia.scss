@@ -1,7 +1,13 @@
 // Photophobia Mode (Light Sensitivity)
-// Reduces brightness and contrast to reduce eye strain
+// Reduces brightness and harsh contrast to ease eye strain (pure-white glare is
+// the main trigger). This is a luminance adjustment, not a color remap, so it
+// composes alongside the daltonization filters via its own variable.
+// See _grayscale.scss for how the body filter is assembled.
 
 .photophobia-mode {
-    // Shift colors (Blue -> Cyan approx) and reduce brightness
-    filter: hue-rotate(-40deg) brightness(0.9);
+  // Light-sensitivity relief: meaningfully dim the screen, soften harsh
+  // contrast (pure-white glare is the main trigger), and warm the colour
+  // temperature slightly to cut fatiguing blue light. `brightness(0.9)` alone
+  // was too weak to actually help.
+  --a11y-filter-brightness: brightness(0.82) contrast(0.9) sepia(0.18);
 }

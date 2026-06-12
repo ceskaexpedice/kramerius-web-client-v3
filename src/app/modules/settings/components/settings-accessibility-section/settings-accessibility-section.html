@@ -1,6 +1,6 @@
-<div class="section--row">
+<div class="section--row" role="group" aria-labelledby="a11y-color-title">
 
-  <h3 class="section--row--title">{{'settings-accessibility-color-title' | translate}}</h3>
+  <h3 class="section--row--title" id="a11y-color-title">{{'settings-accessibility-color-title' | translate}}</h3>
 
   <div class="settings-row">
 
@@ -54,9 +54,9 @@
 
 </div>
 
-<div class="section--row">
+<div class="section--row" role="group" aria-labelledby="a11y-font-title">
 
-  <h3 class="section--row--title">{{'settings-accessibility-font-title' | translate}}</h3>
+  <h3 class="section--row--title" id="a11y-font-title">{{'settings-accessibility-font-title' | translate}}</h3>
 
   <div class="settings-row">
 
@@ -69,14 +69,15 @@
 
 </div>
 
-<div class="section--row">
+<div class="section--row" role="group" aria-labelledby="a11y-zoom-title">
 
-  <h3 class="section--row--title">{{'zoom-interface-settings' | translate}}</h3>
+  <h3 class="section--row--title" id="a11y-zoom-title">{{'zoom-interface-settings' | translate}}</h3>
 
   <div class="toggle-buttons--container">
 
     <app-toggle-button-group [options]="textSizeOptions" [value]="accessibilityService.settings().textScale"
                              [showLabel]="false"
+                             [groupAriaLabel]="'zoom-interface-settings'"
                              (valueChange)="onTextScaleChange($event)" [size]="'lg'">
     </app-toggle-button-group>
 

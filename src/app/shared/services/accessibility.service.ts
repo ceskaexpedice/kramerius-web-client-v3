@@ -1,5 +1,7 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SettingsService } from '../../modules/settings/settings.service';
+import { AppSettingsThemeEnum } from '../../modules/settings/settings.model';
 
 export interface AccessibilitySettings {
   textScale: number;
@@ -37,9 +39,19 @@ export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
 export class AccessibilityService {
   private readonly STORAGE_KEY = 'accessibility-settings';
 
+  private settingsService = inject(SettingsService);
+
+  // Dark mode is owned by SettingsService (single source of truth for the app
+  // theme). We mirror its effective value into a signal so templates that read
+  // `settings().darkMode` stay reactive.
+  private darkModeSignal = signal<boolean>(false);
+
   private settingsSignal = signal<AccessibilitySettings>(this.loadSettings());
 
-  readonly settings = this.settingsSignal.asReadonly();
+  readonly settings = computed<AccessibilitySettings>(() => ({
+    ...this.settingsSignal(),
+    darkMode: this.darkModeSignal(),
+  }));
 
   readonly textScaleClass = computed(() => {
     const scale = this.settings().textScale;
@@ -50,8 +62,10 @@ export class AccessibilityService {
     return 'text-scale-100';
   });
 
+  // Classes applied to <body>. Note: `dark` is intentionally NOT here — the
+  // app theme (light/dark) is owned by SettingsService and applied to <html>.
   readonly accessibilityClasses = computed(() => {
-    const settings = this.settings();
+    const settings = this.settingsSignal();
     const classes: string[] = [this.textScaleClass()];
 
     if (settings.highContrast) classes.push('high-contrast');
@@ -60,7 +74,6 @@ export class AccessibilityService {
     if (settings.focusVisible) classes.push('focus-visible');
     if (settings.screenReaderOptimized) classes.push('screen-reader-optimized');
     if (settings.dyslexiaFriendly) classes.push('dyslexia-friendly');
-    if (settings.darkMode) classes.push('dark');
     if (settings.grayscaleMode) classes.push('grayscale-mode');
     if (settings.lowVisionMode) classes.push('low-vision-mode');
     if (settings.tritanopiaMode) classes.push('tritanopia-mode');
@@ -70,6 +83,12 @@ export class AccessibilityService {
   });
 
   constructor() {
+    // Mirror the app's effective theme into our dark-mode signal so the toggle
+    // reflects reality (including System preference) and stays in sync.
+    this.settingsService.effectiveTheme$
+      .pipe(takeUntilDestroyed())
+      .subscribe(theme => this.darkModeSignal.set(theme === 'dark'));
+
     effect(() => {
       this.applyAccessibilitySettings();
       this.saveSettings();
@@ -87,7 +106,7 @@ export class AccessibilityService {
     this.settingsSignal.set(DEFAULT_ACCESSIBILITY_SETTINGS);
   }
 
-  setTextScale(scale: 100 | 125 | 150 | 200 | 300): void {
+  setTextScale(scale: number): void {
     this.updateSettings({ textScale: scale });
   }
 
@@ -112,7 +131,8 @@ export class AccessibilityService {
   }
 
   toggleDarkMode(): void {
-    this.updateSettings({ darkMode: !this.settings().darkMode });
+    // Delegate to the single source of truth for the app theme.
+    this.settingsService.toggleLightDarkMode();
   }
 
   toggleGrayscaleMode(): void {
@@ -136,6 +156,8 @@ export class AccessibilityService {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        // darkMode is owned by SettingsService — never restore it from here.
+        delete parsed.darkMode;
         return { ...DEFAULT_ACCESSIBILITY_SETTINGS, ...parsed };
       }
     } catch (error) {
@@ -146,7 +168,10 @@ export class AccessibilityService {
 
   private saveSettings(): void {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.settings()));
+      // Persist everything except darkMode (owned by SettingsService).
+      const toStore = { ...this.settings() };
+      delete (toStore as Partial<AccessibilitySettings>).darkMode;
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(toStore));
     } catch (error) {
       console.warn('Failed to save accessibility settings:', error);
     }
@@ -154,19 +179,33 @@ export class AccessibilityService {
 
   private applyAccessibilitySettings(): void {
     const body = document.body;
+    const html = document.documentElement;
     const classes = this.accessibilityClasses();
 
-    // Remove existing accessibility classes
+    // Remove existing accessibility classes (never touch `dark` — SettingsService
+    // owns the app theme on <html>).
     body.classList.remove(
       'text-scale-100', 'text-scale-125', 'text-scale-150', 'text-scale-200', 'text-scale-300',
       'high-contrast', 'large-components', 'reduce-motion',
       'focus-visible', 'screen-reader-optimized', 'dyslexia-friendly',
-      'dark', 'grayscale-mode', 'low-vision-mode',
+      'grayscale-mode', 'low-vision-mode',
       'tritanopia-mode', 'photophobia-mode'
     );
 
-    // Apply current accessibility classes
+    // Apply current accessibility classes to <body>...
     body.classList.add(...classes);
+
+    // ...and mirror a few classes onto <html>:
+    // - `high-contrast` so its CSS-variable palette overrides :root / :root.dark.
+    // - the filter-based vision modes so the page-wide `filter` lives on the true
+    //   root and also covers CDK overlays (dialogs/menus) that are appended to
+    //   <body> as siblings of <app-root>; a `filter` on <body> does not reliably
+    //   cover those fixed-positioned overlays.
+    const s = this.settingsSignal();
+    html.classList.toggle('high-contrast', s.highContrast);
+    html.classList.toggle('grayscale-mode', s.grayscaleMode);
+    html.classList.toggle('tritanopia-mode', s.tritanopiaMode);
+    html.classList.toggle('photophobia-mode', s.photophobiaMode);
 
     // Set CSS custom property for text scaling
     const scale = this.settings().textScale;

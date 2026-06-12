@@ -1,7 +1,9 @@
 // Tritanopia Mode (Blue-Yellow Color Blindness)
-// Adjusts colors to improve distinction for users with tritanopia
+// Applies a proper daltonization color matrix (SVG #tritanopia, defined in
+// index.html) instead of a uniform hue-rotate, so confusable blue/yellow hues
+// are remapped correctly across the whole page. Composes into the shared body
+// filter (see _grayscale.scss).
 
 .tritanopia-mode {
-    // Shift colors (Blue -> Purple approx)
-    filter: hue-rotate(20deg);
+  --a11y-filter-vision: url(#tritanopia);
 }
