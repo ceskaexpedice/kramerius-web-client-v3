@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
 import { combineLatest, first, map, Observable, Subject, Subscription } from 'rxjs';
@@ -41,7 +41,14 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   folders = this.store.select(selectAllFolders);
   sortParams = this.store.select(selectSortParams);
   userOwnedFolders = this.store.select(selectUserOwnedFolders);
-  loading$ = this.store.select(selectFolderDetailsLoading);
+  // Drive the loading skeleton off both the initial folder-details load and the
+  // item search-results load. The grid items come from selectFolderSearchResults,
+  // whose fetch toggles selectFolderSearchResultsLoading — that flag (not just the
+  // details one) is what must gate the skeleton so it also shows on filter/sort/search.
+  loading$ = combineLatest([
+    this.store.select(selectFolderDetailsLoading),
+    this.store.select(selectFolderSearchResultsLoading),
+  ]).pipe(map(([detailsLoading, resultsLoading]) => detailsLoading || resultsLoading));
   isLoggedIn$ = this.store.select(selectIsAuthenticated);
   bannerState$ = this.store.select(selectFolderBannerState);
 
