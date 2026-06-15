@@ -28,13 +28,14 @@
     .info-banner__message { color: var(--color-text-available); }
   }
 
-  &__icon i { font-size: var(--font-size-xlarge); }
+  &__icon i { font-size: var(--font-size-xlarge); color: var(--color-text-low-efford);}
 
   &__text {
     display: flex;
     flex-direction: column;
     font-size: var(--font-size-small);
     line-height: var(--line-height-1);
+    color: var(--color-text-low-efford);
     min-width: 0;
     flex: 1;
   }
