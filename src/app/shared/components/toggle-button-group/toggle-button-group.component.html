@@ -8,11 +8,15 @@
     *ngFor="let option of options"
     type="button"
     class="toggle-btn"
-    aria-label="{{ option.ariaLabel | translate }}"
+    [attr.aria-label]="option.ariaLabel ? (option.ariaLabel | translate) : null"
+    [attr.aria-pressed]="option.value === value"
+    [appCdkTooltip]="option.ariaLabel ? (option.ariaLabel | translate) : ''"
+    [tooltipDisabled]="!option.ariaLabel"
+    tooltipPosition="bottom"
     [class.active]="option.value === value"
     (click)="select(option)"
   >
-    <i *ngIf="option.icon" [ngClass]="option.icon" [style.color]="'var(' + option.iconColor + ')'"></i>
+    <i *ngIf="option.icon" [ngClass]="option.icon" [style.color]="'var(' + option.iconColor + ')'" aria-hidden="true"></i>
 
     <ng-container *ngIf="option.label">
       {{ option.label | translate }}
