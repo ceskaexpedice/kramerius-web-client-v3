@@ -8,7 +8,7 @@ import {
   QueryList,
   Signal,
   signal,
-  ViewChild,
+  viewChild,
   ViewChildren,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -61,7 +61,7 @@ export class MenuComponent {
   // Local state
   open = signal(false);
 
-  @ViewChild('trigger') triggerEl!: ElementRef;
+  triggerEl = viewChild<ElementRef>('trigger');
   @ViewChildren('menuItem', { read: ElementRef }) private itemEls!: QueryList<ElementRef<HTMLButtonElement>>;
 
   // Keep overlay positions in sync with placement input
@@ -115,7 +115,7 @@ export class MenuComponent {
   }
 
   outsideClicked(event: MouseEvent | void) {
-    if (event && this.triggerEl.nativeElement.contains(event.target)) {
+    if (event && this.triggerEl()?.nativeElement.contains(event.target)) {
       return;
     }
     if (this.open()) {

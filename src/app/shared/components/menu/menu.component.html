@@ -13,7 +13,7 @@
   </button>
 }
 
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayOpen]="open()" [cdkConnectedOverlayOrigin]="triggerEl"
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOpen]="open()" [cdkConnectedOverlayOrigin]="triggerEl()!"
   [cdkConnectedOverlayHasBackdrop]="false" [cdkConnectedOverlayPositions]="overlayPositions()" (backdropClick)="close()"
   (detach)="close()">
   <div class="menu-panel" role="menu" cdkTrapFocus (keydown.escape)="close()" (keydown.arrowDown)="focusNext()"
