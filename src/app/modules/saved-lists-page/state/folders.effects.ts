@@ -114,7 +114,7 @@ export class FoldersEffects {
       ofType(FoldersActions.createFolder),
       switchMap(action =>
         this.foldersService.createFolder(action.folder).pipe(
-          map(folder => FoldersActions.createFolderSuccess({ folder })),
+          map(folder => FoldersActions.createFolderSuccess({ folder, suppressToast: action.suppressToast })),
           catchError(error => of(FoldersActions.createFolderFailure({ error: error.message })))
         )
       )
@@ -153,7 +153,8 @@ export class FoldersEffects {
           map(() => FoldersActions.updateFolderItemsSuccess({
             uuid: action.request.uuid,
             itemsCount: action.request.items.length,
-            items: action.request.items
+            items: action.request.items,
+            suppressToast: action.suppressToast
           })),
           catchError(error => of(FoldersActions.updateFolderItemsFailure({ error: error.message })))
         )
@@ -209,13 +210,19 @@ export class FoldersEffects {
       ),
       tap(action => {
         if (action.type === FoldersActions.createFolderSuccess.type) {
-          this.toastService.show(this.translateService.instant('folders.messages.created'));
+          // Popup-driven adds suppress this toast; they show their own feedback.
+          if (!action.suppressToast) {
+            this.toastService.show(this.translateService.instant('folders.messages.created'));
+          }
         } else if (action.type === FoldersActions.updateFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.updated'));
         } else if (action.type === FoldersActions.deleteFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.deleted'));
         } else if (action.type === FoldersActions.updateFolderItemsSuccess.type) {
-          this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
+          // Popup-driven adds suppress this toast; they show their own feedback.
+          if (!action.suppressToast) {
+            this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
+          }
         } else if (action.type === FoldersActions.removeItemFromFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.items-removed'));
         }

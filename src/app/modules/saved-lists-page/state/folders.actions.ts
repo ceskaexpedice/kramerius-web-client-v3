@@ -17,12 +17,12 @@ export const loadFoldersFailure = createAction(
 
 export const createFolder = createAction(
   '[Folders] Create Folder',
-  props<{ folder: CreateFolderRequest }>()
+  props<{ folder: CreateFolderRequest; suppressToast?: boolean }>()
 );
 
 export const createFolderSuccess = createAction(
   '[Folders] Create Folder Success',
-  props<{ folder: Folder }>()
+  props<{ folder: Folder; suppressToast?: boolean }>()
 );
 
 export const createFolderFailure = createAction(
@@ -62,12 +62,12 @@ export const deleteFolderFailure = createAction(
 
 export const updateFolderItems = createAction(
   '[Folders] Update Folder Items',
-  props<{ request: FolderItemsRequest }>()
+  props<{ request: FolderItemsRequest; suppressToast?: boolean }>()
 );
 
 export const updateFolderItemsSuccess = createAction(
   '[Folders] Update Folder Items Success',
-  props<{ uuid: string; itemsCount: number; items: string[] }>()
+  props<{ uuid: string; itemsCount: number; items: string[]; suppressToast?: boolean }>()
 );
 
 export const updateFolderItemsFailure = createAction(
