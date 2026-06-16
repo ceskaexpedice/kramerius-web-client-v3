@@ -12,6 +12,8 @@ import { RecordHandlerService } from '../../shared/services/record-handler.servi
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { Subject, takeUntil } from 'rxjs';
 import { UiStateService } from '../../shared/services/ui-state.service';
+import { getLanguageFallbackChain } from '../../shared/translation/translation-fallback-chain';
+import { resolveLocalizedValue } from '../../shared/utils/language-utils';
 
 @Component({
   selector: 'app-collections-page',
@@ -104,24 +106,20 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
    * Gets the collection description in the current language
    */
   getLocalizedDescription(metadata: Metadata): string {
-    if (!metadata || !metadata.notes) return '';
+    if (!metadata || !metadata.notes || metadata.notes.length === 0) return '';
 
     const currentLang = this.translationService.currentLanguage().code;
 
-    const note = metadata.notes.find(n => n.lang === currentLang);
-
-    // Try current language
-    if (note) {
-      return note.text;
+    // Prefer the current UI language, then walk the configured fallback chain,
+    // and finally the first available note when none of those languages are present.
+    for (const lang of getLanguageFallbackChain(currentLang)) {
+      const note = metadata.notes.find(n => n.lang === lang);
+      if (note) {
+        return note.text;
+      }
     }
 
-    const enNote = metadata.notes.find(n => n.lang === 'en');
-    // Fall back to English
-    if (enNote) {
-      return enNote.text;
-    }
-
-    return '';
+    return metadata.notes[0].text;
   }
 
   /**
@@ -131,25 +129,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
     if (!metadata || !metadata.collectionTitles) return metadata?.mainTitle || '';
 
     const currentLang = this.translationService.currentLanguage().code;
-
-    // Try current language
-    if (metadata.collectionTitles[currentLang]) {
-      return metadata.collectionTitles[currentLang];
-    }
-
-    // Fall back to English
-    if (metadata.collectionTitles['en']) {
-      return metadata.collectionTitles['en'];
-    }
-
-    // Fall back to any available language
-    const availableLanguages = Object.keys(metadata.collectionTitles);
-    if (availableLanguages.length > 0) {
-      return metadata.collectionTitles[availableLanguages[0]];
-    }
-
-    // Last resort: use mainTitle
-    return metadata.mainTitle || '';
+    return resolveLocalizedValue(metadata.collectionTitles, currentLang) || metadata.mainTitle || '';
   }
 
   onExportSelected(): void {

@@ -2,6 +2,35 @@
  * Utility functions for handling multilingual Solr fields
  */
 
+import { getLanguageFallbackChain } from '../translation/translation-fallback-chain';
+
+/**
+ * Resolves a value from a `{ lang: value }` map using the language fallback chain
+ * (current language → configured fallbacks → first available entry).
+ *
+ * @param byLang - Map keyed by app language code (e.g. { cs: '…', en: '…' })
+ * @param currentLang - The current app language code
+ * @returns The best-matching value, or '' when the map is empty
+ *
+ * @example
+ * // current lang 'sk', map has only cs/en → returns the cs value
+ * resolveLocalizedValue({ cs: 'Houbařské příručky', en: 'Mushroom guidebooks' }, 'sk')
+ */
+export function resolveLocalizedValue(
+  byLang: { [lang: string]: string } | undefined | null,
+  currentLang: string
+): string {
+  if (!byLang) return '';
+
+  for (const lang of getLanguageFallbackChain(currentLang)) {
+    if (byLang[lang]) return byLang[lang];
+  }
+
+  // Nothing in the preferred chain – fall back to the first available language.
+  const available = Object.keys(byLang);
+  return available.length > 0 ? byLang[available[0]] : '';
+}
+
 /**
  * Maps application language codes to Solr field suffixes
  */
@@ -42,25 +71,14 @@ export function getLocalizedField(
 ): string {
   if (!doc) return '';
 
-  const solrSuffix = APP_LANG_TO_SOLR_SUFFIX[currentLang] || 'eng';
-  const langSpecificField = `${fieldBase}_${solrSuffix}`;
-
-  // Try language-specific field first (e.g., 'collection.desc_slo' for Slovak)
-  if (doc[langSpecificField]) {
-    // Language-specific fields can be arrays or strings
-    const value = Array.isArray(doc[langSpecificField])
-      ? doc[langSpecificField][0] || ''
-      : doc[langSpecificField];
-    if (value) return value;
-  }
-
-  // Fall back to English if requested language not available
-  if (currentLang !== 'en') {
-    const englishField = `${fieldBase}_eng`;
-    if (doc[englishField]) {
-      const value = Array.isArray(doc[englishField])
-        ? doc[englishField][0] || ''
-        : doc[englishField];
+  // Walk the language fallback chain (e.g. sk → cs → en), trying each language's
+  // suffixed field (collection.desc_slo / _cze / _eng) in turn.
+  for (const lang of getLanguageFallbackChain(currentLang)) {
+    const solrSuffix = APP_LANG_TO_SOLR_SUFFIX[lang];
+    if (!solrSuffix) continue;
+    const field = doc[`${fieldBase}_${solrSuffix}`];
+    if (field) {
+      const value = Array.isArray(field) ? field[0] || '' : field;
       if (value) return value;
     }
   }
@@ -124,23 +142,16 @@ export function getLocalizedTitle(
 ): string {
   if (!doc) return '';
 
-  const solrSuffix = APP_LANG_TO_SOLR_SUFFIX[currentLang] || 'eng';
-  const langSpecificField = `title.search_${solrSuffix}`;
-
-  // Try language-specific title field first (e.g., 'title.search_slo')
-  if (doc[langSpecificField]) {
-    const value = Array.isArray(doc[langSpecificField])
-      ? doc[langSpecificField][0] || ''
-      : doc[langSpecificField];
-    if (value) return value;
-  }
-
-  // Fall back to English if not requested language
-  if (currentLang !== 'en' && doc['title.search_eng']) {
-    const value = Array.isArray(doc['title.search_eng'])
-      ? doc['title.search_eng'][0] || ''
-      : doc['title.search_eng'];
-    if (value) return value;
+  // Walk the language fallback chain (e.g. sk → cs → en), trying each language's
+  // suffixed Solr field (title.search_slo / _cze / _eng) in turn.
+  for (const lang of getLanguageFallbackChain(currentLang)) {
+    const solrSuffix = APP_LANG_TO_SOLR_SUFFIX[lang];
+    if (!solrSuffix) continue;
+    const field = doc[`title.search_${solrSuffix}`];
+    if (field) {
+      const value = Array.isArray(field) ? field[0] || '' : field;
+      if (value) return value;
+    }
   }
 
   // Try generic title.search field

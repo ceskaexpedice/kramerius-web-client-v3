@@ -6,10 +6,7 @@ import { ConfigService } from '../../core/config';
 import { AppMissingTranslationService } from './app-missing-translation-handler';
 import { HttpBackend } from '@angular/common/http';
 import { HttpLoaderFactory } from './translate-http-loader';
-import { LANG_FALLBACK_CHAIN, DEFAULT_LANG_FALLBACK } from './translation-fallback-chain';
-
-const FALLBACK_CHAIN = LANG_FALLBACK_CHAIN;
-const DEFAULT_FALLBACK = DEFAULT_LANG_FALLBACK;
+import { getLanguageFallbackChain } from './translation-fallback-chain';
 
 @Injectable({
   providedIn: 'root'
@@ -93,7 +90,7 @@ export class AppTranslationService {
 
   private preloadFallbackLanguages(): void {
     const currentCode = this._currentLanguage().code;
-    const fallbacks = FALLBACK_CHAIN[currentCode] ?? DEFAULT_FALLBACK;
+    const fallbacks = getLanguageFallbackChain(currentCode);
     const loader = HttpLoaderFactory(this.httpBackend);
 
     for (const lang of fallbacks) {

@@ -112,6 +112,7 @@ export class ModsParserService {
     this.processNotes(this.getElements(modsElement, 'note'), metadata);
     this.processSimpleArray(this.getElements(modsElement, 'tableOfContents'), metadata.contents, null);
     this.processSimpleArray(this.getElements(modsElement, 'abstract'), metadata.abstracts, null);
+    this.processAbstracts(this.getElements(modsElement, 'abstract'), metadata);
     this.processGenres(this.getElements(modsElement, 'genre'), metadata);
 
     return metadata;
@@ -199,6 +200,26 @@ export class ModsParserService {
       noteInfo.text = this.replaceHTMLTags(this.getText(item) || '');
 
       metadata.notes.push(noteInfo);
+    }
+  }
+
+  private processAbstracts(elements: Element[], metadata: Metadata) {
+    for (const item of elements) {
+      const abstractInfo = new NoteInfo();
+
+      const lang = item.getAttribute('lang');
+      if (lang) {
+        const mappedLang = SOLR_LANG_TO_APP_LANG[lang];
+        if (mappedLang) {
+          abstractInfo.lang = mappedLang;
+        }
+      }
+
+      abstractInfo.text = this.replaceHTMLTags(this.getText(item) || '');
+
+      if (abstractInfo.text) {
+        metadata.abstractInfos.push(abstractInfo);
+      }
     }
   }
 

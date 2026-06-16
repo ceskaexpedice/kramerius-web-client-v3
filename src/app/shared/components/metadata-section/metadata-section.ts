@@ -33,6 +33,9 @@ import { pickCdkCollection } from '../../utils/cdk-collection';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CdkTooltipDirective } from '../../directives';
+import { AppTranslationService } from '../../translation/app-translation.service';
+import { getLanguageFallbackChain } from '../../translation/translation-fallback-chain';
+import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/language-utils';
 
 @Component({
   selector: 'app-metadata-section',
@@ -91,6 +94,76 @@ export class MetadataSection implements OnInit, OnChanges {
     return !!this.data?.titles.some(t => !!t.title);
   }
 
+  /**
+   * Picks the best item from a language-tagged list, preferring the current UI
+   * language, then Slovak, Czech, English, and finally the first available entry.
+   * `langOf` maps an item to a normalized app language code ('sk' | 'cs' | 'en' | …).
+   */
+  private pickLocalized<T>(items: T[], langOf: (item: T) => string): T[] {
+    if (!items || items.length <= 1) return items ?? [];
+
+    const current = this.appTranslation.currentLanguage().code;
+    const fallbackChain = getLanguageFallbackChain(current);
+
+    for (const lang of fallbackChain) {
+      const matches = items.filter(item => langOf(item) === lang);
+      if (matches.length) return matches;
+    }
+
+    // Nothing matched the preferred languages – fall back to the first entry.
+    return [items[0]];
+  }
+
+  /**
+   * Collection titles tagged in multiple languages: show only the entry matching
+   * the current language (with sk → cs → en fallback) instead of every language.
+   */
+  get localizedTitles() {
+    const titles = this.data?.titles ?? [];
+    if (!this.collectionsMode) return titles;
+    return this.pickLocalized(titles, t => SOLR_LANG_TO_APP_LANG[t.lang] ?? t.lang);
+  }
+
+  /**
+   * The collection's main title resolved against the current UI language. Reads the
+   * per-language `collectionTitles` map live so the heading re-renders on language
+   * switch (unlike the parse-time `mainTitle`). Falls back to `mainTitle` for
+   * non-collections or when no localized title is available.
+   */
+  get localizedMainTitle(): string {
+    const data = this.data;
+    if (!data) return '';
+    if (this.collectionsMode && data.collectionTitles) {
+      const current = this.appTranslation.currentLanguage().code;
+      const resolved = resolveLocalizedValue(data.collectionTitles, current);
+      if (resolved) return resolved;
+    }
+    return data.mainTitle || data.titles[0]?.title || '';
+  }
+
+  /**
+   * Collection notes/description tagged in multiple languages: show only the entry
+   * matching the current language (with sk → cs → en fallback).
+   */
+  get localizedNotes(): NoteInfo[] {
+    const notes = this.data?.notes ?? [];
+    if (!this.collectionsMode) return notes;
+    return this.pickLocalized(notes, n => n.lang);
+  }
+
+  /**
+   * Collection abstracts tagged in multiple languages: show only the entry matching
+   * the current language (with sk → cs → en fallback). Falls back to the plain
+   * `abstracts` list when language-tagged abstracts aren't available.
+   */
+  get localizedAbstracts(): string[] {
+    const infos = this.data?.abstractInfos ?? [];
+    if (!this.collectionsMode || infos.length === 0) {
+      return this.data?.abstracts ?? [];
+    }
+    return this.pickLocalized(infos, a => a.lang).map(a => a.text);
+  }
+
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
   solrService = inject(SolrService);
@@ -99,6 +172,7 @@ export class MetadataSection implements OnInit, OnChanges {
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
+  private appTranslation = inject(AppTranslationService);
 
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
