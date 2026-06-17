@@ -42,7 +42,8 @@
 
         <button class="button secondary rounded icon-button favorites-button"
           *ngIf="!adminModeService.adminMode() && (isItemFavorited$ | async) && currentFolderId"
-          (click)="onRemoveFromCurrentFolder($event)" [title]="'remove-from-favorites' | translate"
+          (click)="onRemoveFromCurrentFolder($event)"
+          [appCdkTooltip]="'remove-from-favorites' | translate"
           aria-label="{{'remove-from-favorites' | translate}}">
           <i class="icon-trash" aria-hidden="true"></i>
         </button>
