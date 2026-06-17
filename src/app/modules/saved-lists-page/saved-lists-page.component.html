@@ -95,7 +95,7 @@
           [actions]="bannerActions(banner)"
           (actionClick)="onBannerAction($event)">
         </app-info-banner>
-        } @else if (banner.kind === 'follower' && shouldShowSharedBanner()) {
+        } @else if (banner.kind === 'follower' && shouldShowSharedBanner() && !bannerDismissed()) {
         <app-info-banner
           icon="icon-info"
           variant="light"
@@ -105,8 +105,10 @@
           [actions]="bannerActions(banner)"
           dontShowId="shared-folder-banner"
           [dontShowChecked]="pendingDontShow()"
+          [closable]="true"
           (actionClick)="onBannerAction($event)"
-          (dontShowAgainChange)="onBannerDontShow($event)">
+          (dontShowAgainChange)="onBannerDontShow($event)"
+          (close)="onBannerClose()">
         </app-info-banner>
         }
       }

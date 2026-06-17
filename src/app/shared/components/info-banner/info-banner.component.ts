@@ -26,9 +26,12 @@ export class InfoBannerComponent {
   @Input() dontShowId?: string;
   /** Initial checked state of the don't-show checkbox. */
   @Input() dontShowChecked = false;
+  /** When true, renders an X button that emits `close`. */
+  @Input() closable = false;
 
   @Output() actionClick = new EventEmitter<string>();
   @Output() dontShowAgainChange = new EventEmitter<boolean>();
+  @Output() close = new EventEmitter<void>();
 
   onAction(id: string): void {
     this.actionClick.emit(id);
@@ -36,5 +39,9 @@ export class InfoBannerComponent {
 
   onDontShowToggle(checked: boolean): void {
     this.dontShowAgainChange.emit(checked);
+  }
+
+  onClose(): void {
+    this.close.emit();
   }
 }

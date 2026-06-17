@@ -67,4 +67,17 @@
       border: 1px solid var(--color-border-secondary-default);
     }
   }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-x1) !important;
+    border: none !important;
+    background: transparent;
+    color: var(--accessibility-public-text-color);
+    cursor: pointer;
+
+    i { font-size: var(--font-size-large); }
+  }
 }

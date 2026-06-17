@@ -83,6 +83,9 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   // Pending "don't show again" choice — persisted only when an action (Save/Remove)
   // is taken, not when the checkbox is toggled.
   pendingDontShow = signal(false);
+  // Hides the shared-folder banner for the current session (until reload) when
+  // the user dismisses it via the X without checking "don't show again".
+  bannerDismissed = signal(false);
   // Transient success banner shown for 5s after saving the folder to the library.
   savedBannerVisible = signal(false);
   private savedBannerTimer?: ReturnType<typeof setTimeout>;
@@ -357,8 +360,15 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   onBannerDontShow(checked: boolean): void {
     // Only stash the choice; it is persisted later via commitDontShowIfPending
-    // once the user triggers a banner action (Save/Remove).
+    // once the user triggers a banner action (Save/Remove) or closes the banner.
     this.pendingDontShow.set(checked);
+  }
+
+  onBannerClose(): void {
+    // X dismisses the banner. If "don't show again" was checked, persist it so
+    // it stays hidden; otherwise only hide it for this session (until reload).
+    this.commitDontShowIfPending();
+    this.bannerDismissed.set(true);
   }
 
   private commitDontShowIfPending(): void {
