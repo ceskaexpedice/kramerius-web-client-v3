@@ -41,7 +41,7 @@
                     {{ trackYear }}
                   }
 
-                  <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+                  <!-- <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span> -->
 
                 </span>
               }
@@ -50,7 +50,7 @@
         </div>
       } @else {
         <span class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</span>
-        <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+        <!-- <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span> -->
       }
     </div>
   </td>

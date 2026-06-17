@@ -20,9 +20,9 @@
         @if (soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr) {
           · {{ soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr }}
         }
-        @if (soundService.getCurrentTrack()?.part) {
+        <!-- @if (soundService.getCurrentTrack()?.part) {
           · {{ 'page' | translate }} {{ soundService.getCurrentTrack()!.part }}
-        }
+        } -->
       </div>
     </div>
   </div>
