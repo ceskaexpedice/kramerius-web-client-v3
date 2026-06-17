@@ -142,7 +142,7 @@
                 [showMicButton]="true"
                 [showClearButton]="true"
                 [signalInput]="searchInput"
-                (valueChange)="onSearchQuery($event)"
+                (enter)="onSearchQuery($event)"
                 (clearEmit)="onClearSearchQuery()">
               </app-input>
               <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
