@@ -70,6 +70,15 @@ export class FavoritesPopupHelper {
   }
 
   /**
+   * Get favorited status for an item (mirrors record-item's heart state)
+   * @param itemId - Item ID to check
+   * @returns Observable<boolean> indicating if item is in any folder
+   */
+  getFavoritedStatus(itemId: string): Observable<boolean> {
+    return this.favoritesService.getFavoritedStatus(itemId);
+  }
+
+  /**
    * Close the favorites popup
    */
   onFavoritesPopupClose(): void {

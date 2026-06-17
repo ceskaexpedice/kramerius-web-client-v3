@@ -73,6 +73,7 @@
           <div class="flex flex--align-center">
             <app-toolbar-controls
               [showFavorites]="true"
+              [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="false" [showEdit]="true"

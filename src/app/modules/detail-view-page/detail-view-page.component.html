@@ -94,7 +94,9 @@
               </div>
             }
             <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-                                  [viewToggleOptions]="viewToggleOptions" [showFavorites]="true" [showShare]="true" [showQuote]="true"
+                                  [viewToggleOptions]="viewToggleOptions" [showFavorites]="true"
+                                  [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
+                                  [showShare]="true" [showQuote]="true"
                                   [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
                                   [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
                                   (infoClicked)="detailViewService.openRecordInfo()"
