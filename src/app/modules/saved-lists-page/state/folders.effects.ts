@@ -5,9 +5,9 @@ import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService, FolderSearchFilters } from '../services/folders.service';
+import { FolderSearchFiltersBuilder } from '../services/folder-search-filters.builder';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { QueryParamsService } from '../../../core/services/QueryParamsManager';
-import { buildYearRangeQuery, buildDateMinRangeQuery } from '../../../shared/utils/date-range-query';
 import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -114,7 +114,7 @@ export class FoldersEffects {
       ofType(FoldersActions.createFolder),
       switchMap(action =>
         this.foldersService.createFolder(action.folder).pipe(
-          map(folder => FoldersActions.createFolderSuccess({ folder })),
+          map(folder => FoldersActions.createFolderSuccess({ folder, suppressToast: action.suppressToast })),
           catchError(error => of(FoldersActions.createFolderFailure({ error: error.message })))
         )
       )
@@ -153,7 +153,8 @@ export class FoldersEffects {
           map(() => FoldersActions.updateFolderItemsSuccess({
             uuid: action.request.uuid,
             itemsCount: action.request.items.length,
-            items: action.request.items
+            items: action.request.items,
+            suppressToast: action.suppressToast
           })),
           catchError(error => of(FoldersActions.updateFolderItemsFailure({ error: error.message })))
         )
@@ -209,13 +210,19 @@ export class FoldersEffects {
       ),
       tap(action => {
         if (action.type === FoldersActions.createFolderSuccess.type) {
-          this.toastService.show(this.translateService.instant('folders.messages.created'));
+          // Popup-driven adds suppress this toast; they show their own feedback.
+          if (!action.suppressToast) {
+            this.toastService.show(this.translateService.instant('folders.messages.created'));
+          }
         } else if (action.type === FoldersActions.updateFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.updated'));
         } else if (action.type === FoldersActions.deleteFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.deleted'));
         } else if (action.type === FoldersActions.updateFolderItemsSuccess.type) {
-          this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
+          // Popup-driven adds suppress this toast; they show their own feedback.
+          if (!action.suppressToast) {
+            this.toastService.show(this.translateService.instant('folders.messages.items-updated'));
+          }
         } else if (action.type === FoldersActions.removeItemFromFolderSuccess.type) {
           this.toastService.show(this.translateService.instant('folders.messages.items-removed'));
         }
@@ -247,7 +254,7 @@ export class FoldersEffects {
         const filters = this.buildFolderSearchFilters();
         return this.foldersService.searchFolderItems(
           action.itemIds,
-          undefined,
+          this.urlSearchQuery(),
           undefined,
           undefined,
           filters
@@ -263,32 +270,28 @@ export class FoldersEffects {
     this.actions$.pipe(
       ofType(FoldersActions.searchFolders),
       switchMap(action =>
-        // Get current folder details and search query from state
+        // Get current folder details from state; the free-text query is read from
+        // the URL (?query=...) so it stays in sync with the selected-tags / URL —
+        // mirroring the main search.
         this.store.select(FoldersSelectors.selectFolderDetails).pipe(
           take(1),
           filter(folderDetails => !!folderDetails),
-          switchMap(folderDetails =>
-            this.store.select(FoldersSelectors.selectSearchQuery).pipe(
-              take(1),
-              switchMap(currentSearchQuery => {
-                const itemIds = folderDetails!.items.flat().map(item => item.id);
-                // undefined → reuse stored query (facet change); '' clears it.
-                const searchQuery = action.searchQuery ?? currentSearchQuery;
+          switchMap(folderDetails => {
+            const itemIds = folderDetails!.items.flat().map(item => item.id);
+            const searchQuery = this.urlSearchQuery();
 
-                const filters = this.buildFolderSearchFilters();
-                return this.foldersService.searchFolderItems(
-                  itemIds,
-                  searchQuery,
-                  action.sortBy,
-                  action.sortDirection,
-                  filters
-                ).pipe(
-                  map(response => this.parseFolderSearchResponse(response, filters)),
-                  catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
-                );
-              })
-            )
-          )
+            const filters = this.buildFolderSearchFilters();
+            return this.foldersService.searchFolderItems(
+              itemIds,
+              searchQuery,
+              action.sortBy,
+              action.sortDirection,
+              filters
+            ).pipe(
+              map(response => this.parseFolderSearchResponse(response, filters)),
+              catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
+            );
+          })
         )
       )
     )
@@ -510,7 +513,8 @@ export class FoldersEffects {
     private translateService: TranslateService,
     private customSearchService: CustomSearchService,
     private queryParamsService: QueryParamsService,
-    private userService: UserService
+    private userService: UserService,
+    private folderSearchFiltersBuilder: FolderSearchFiltersBuilder
   ) {}
 
   private extractFolderUuidFromUrl(url: string): string | null {
@@ -519,32 +523,12 @@ export class FoldersEffects {
   }
 
   /**
-   * Assembles all active filter dimensions for a folder search from the current
-   * URL + CustomSearchService: standard facet fq, custom-defined facet clauses,
-   * accessibility/availability licenses, and year/date range query clauses.
+   * Assembles all active filter dimensions for a folder search. Delegates to the
+   * shared FolderSearchFiltersBuilder so the facet dialog (SavedListsFilterService)
+   * applies exactly the same scope.
    */
   private buildFolderSearchFilters(): FolderSearchFilters {
-    const params = this.urlParams();
-
-    // Sync custom-search state (accessibility, where-to-search, ranges) from URL.
-    this.customSearchService.initializeFromRoute();
-
-    const queryClauses = [
-      buildYearRangeQuery(params),
-      buildDateMinRangeQuery(params)
-    ].filter((c): c is string => !!c);
-
-    const availabilityLicenses = this.customSearchService.isAvailabilityFilterActive()
-      ? this.customSearchService.getUserAvailableLicenses()
-      : [];
-
-    return {
-      fqFilters: this.queryParamsService.getFilters(params),
-      customFqClauses: this.customSearchService.getSolrFqFilters(),
-      availabilityLicenses,
-      userLicenses: this.userService.licenses,
-      queryClauses
-    };
+    return this.folderSearchFiltersBuilder.build();
   }
 
   private parseFolderSearchResponse(response: any, filters: FolderSearchFilters) {
@@ -577,6 +561,12 @@ export class FoldersEffects {
       totalCount,
       facets
     });
+  }
+
+  /** Free-text search term from the URL (?query=...), mirroring the main search. */
+  private urlSearchQuery(): string {
+    const query = this.router.parseUrl(this.router.url).queryParamMap.get('query');
+    return query?.trim() ?? '';
   }
 
   /** Current URL query params as a plain record (single value or array per key). */

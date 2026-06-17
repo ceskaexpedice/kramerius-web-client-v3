@@ -17,6 +17,9 @@ export class Metadata {
   public languages: string[] = [];
   public locations: Location[] = [];
   public abstracts: string[] = [];
+  // Language-tagged abstracts (app lang codes), parallel to `abstracts`.
+  // Used to show a single localized abstract for multilingual collections.
+  public abstractInfos: NoteInfo[] = [];
   public genres: string[] = [];
   public contents: string[] = [];
   public cartographicData: CartographicData[] = [];
@@ -127,6 +130,10 @@ export class TitleInfo {
   public subTitle: string = '';
   public partName: string = '';
   public partNumber: string = '';
+
+  mainTitle(): string {
+    return this.nonSort ? `${this.nonSort} ${this.title}` : (this.title || '');
+  }
 }
 
 export class NoteInfo {
@@ -500,6 +507,17 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
     for (const abstract of modsMetadata.abstracts) {
       if (!existingAbstracts.has(abstract)) {
         merged.abstracts.push(abstract);
+      }
+    }
+  }
+
+  // Language-tagged abstracts (parallel to `abstracts`)
+  if (modsMetadata.abstractInfos && modsMetadata.abstractInfos.length > 0) {
+    merged.abstractInfos = [...(merged.abstractInfos ?? [])];
+    const existingAbstractInfos = new Set(merged.abstractInfos.map(a => a.text));
+    for (const info of modsMetadata.abstractInfos) {
+      if (!existingAbstractInfos.has(info.text)) {
+        merged.abstractInfos.push(info);
       }
     }
   }

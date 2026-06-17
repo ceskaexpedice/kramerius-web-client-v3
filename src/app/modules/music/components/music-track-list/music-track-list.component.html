@@ -1,3 +1,19 @@
+@if (tracks.length) {
+  <div class="track-list-header">
+    @if (accessDenied) {
+      <button class="button primary with-icon sm" (click)="onScrollToAccessDenied()">
+        <i class="icon-info" aria-hidden="true"></i>
+        {{ 'music-access-denied--info-button' | translate }}
+      </button>
+    } @else {
+      <button class="button primary with-icon sm" (click)="onPlayAll()">
+        <i class="icon-play" aria-hidden="true"></i>
+        {{ 'play-all--button' | translate }}
+      </button>
+    }
+  </div>
+}
+
 <table class="track-table">
   <thead>
   <tr>
@@ -33,7 +49,7 @@
 
 <!-- Favorites Popup positioned fixed to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {
-  <div class="favorites-popup-wrapper" 
+  <div class="favorites-popup-wrapper"
        [class.positioned]="favoritesPopupState.popupPositioned()">
     <app-favorites-popup
       [itemId]="currentTrackId()"

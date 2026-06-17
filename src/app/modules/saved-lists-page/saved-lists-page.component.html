@@ -22,12 +22,14 @@
                 @if (isLoggedIn$ | async) {
                   <button class="icon-button transparent" [class.active]="showFacetFilters()"
                           [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
+                          [appCdkTooltip]="'open-filters' | translate"
                           (click)="toggleFacetFilters()">
                     <i class="icon-search-normal-1"></i>
                   </button>
                 }
                 @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
+                  [appCdkTooltip]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
                   <i class="icon-edit-2"></i>
                 </button>
@@ -95,7 +97,7 @@
           [actions]="bannerActions(banner)"
           (actionClick)="onBannerAction($event)">
         </app-info-banner>
-        } @else if (banner.kind === 'follower' && shouldShowSharedBanner()) {
+        } @else if (banner.kind === 'follower' && shouldShowSharedBanner() && !bannerDismissed()) {
         <app-info-banner
           icon="icon-info"
           variant="light"
@@ -104,8 +106,11 @@
           [message]="'shared-folder-banner--shared-message' | translate"
           [actions]="bannerActions(banner)"
           dontShowId="shared-folder-banner"
+          [dontShowChecked]="pendingDontShow()"
+          [closable]="true"
           (actionClick)="onBannerAction($event)"
-          (dontShowAgainChange)="onBannerDontShow($event)">
+          (dontShowAgainChange)="onBannerDontShow($event)"
+          (close)="onBannerClose()">
         </app-info-banner>
         }
       }
@@ -137,7 +142,7 @@
                 [showMicButton]="true"
                 [showClearButton]="true"
                 [signalInput]="searchInput"
-                (valueChange)="onSearchQuery($event)"
+                (enter)="onSearchQuery($event)"
                 (clearEmit)="onClearSearchQuery()">
               </app-input>
               <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
@@ -200,15 +205,16 @@
 
           <div class="music-section">
 
-            <div class="music-section--actions">
-              <button class="with-icon primary" (click)="playAllTracks()" [title]="'play-all-tracks' | translate">
-                <i class="icon-play"></i>
-                {{ 'play-all' | translate }}
-              </button>
-            </div>
+<!--            <div class="music-section&#45;&#45;actions">-->
+<!--              <button class="with-icon primary" (click)="playAllTracks()" [title]="'play-all-tracks' | translate">-->
+<!--                <i class="icon-play"></i>-->
+<!--                {{ 'play-all' | translate }}-->
+<!--              </button>-->
+<!--            </div>-->
 
             <app-music-track-list [tracks]="soundRecordings" [playingPid]="soundService.currentTrackPid"
               [viewType]="TrackViewType.FOLDER" (select)="onTrackSelect($event)"
+              (playAll)="onPlayAll($event)"
               (addToQueue)="onTrackAddToQueue($event)" (download)="onTrackDownload($event)"
               (remove)="onTrackRemove($event)" [currentFolderId]="(activeFolder | async)?.uuid">
             </app-music-track-list>

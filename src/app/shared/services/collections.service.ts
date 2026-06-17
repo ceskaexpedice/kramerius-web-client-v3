@@ -4,11 +4,11 @@ import { Store } from '@ngrx/store';
 import { filter, forkJoin, map, Observable, of, takeUntil, combineLatest } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrSortDirections, SolrSortFields, SolrOperators } from '../../core/solr/solr-helpers';
-import { SolrService } from '../../core/solr/solr.service';
 import {
   customDefinedFacetsEnum,
   facetKeysEnum,
   mapFacetsToSearchFields,
+  mapOperatorsToSearchFields,
 } from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
@@ -30,6 +30,7 @@ import { BreadcrumbsService } from './breadcrumbs.service';
 import { Breadcrumb } from '../models/breadcrumb.model';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { fromSolrToMetadata, Metadata } from '../models/metadata.model';
+import { resolveLocalizedValue } from '../utils/language-utils';
 import { TranslateService } from '@ngx-translate/core';
 import { selectActiveFilters } from '../../modules/search-results-page/state/search.selectors';
 import { SearchService } from './search.service';
@@ -67,7 +68,6 @@ export class CollectionsService extends BaseFilterService {
     'dateTo'
   ];
 
-  private solrService = inject(SolrService);
   override advancedSearchService = inject(AdvancedSearchService);
   private breadcrumbsService = inject(BreadcrumbsService);
   private translationService = inject(TranslateService);
@@ -356,6 +356,22 @@ export class CollectionsService extends BaseFilterService {
     const includePeriodicalItem = this.filtersContainDate() || this.hasFulltextFilter();
     const includePage = this.hasSubmittedQuery() || this.hasFulltextFilter();
 
+    // Snapshot for the "show more" dialog: same filters + collection scope.
+    this.captureFacetRequest({
+      query,
+      filters,
+      facetOperators: mapOperatorsToSearchFields(this.queryParamsService.getOperators(params || {})),
+      advancedQuery,
+      collectionUuid: uuid,
+      includePeriodicalItem,
+      includePage,
+      availabilityFilter: {
+        isActive: this.customSearchService.isAvailabilityFilterActive(),
+        licenses: this.customSearchService.getUserAvailableLicenses(),
+        userLicenses: this.userService.licenses
+      }
+    });
+
     this.store.dispatch(loadCollectionSearchResults({
       uuid,
       query,
@@ -559,25 +575,7 @@ export class CollectionsService extends BaseFilterService {
     if (!metadata || !metadata.collectionTitles) return metadata?.mainTitle || '';
 
     const currentLang = this.translationService.getCurrentLang();
-
-    // Try current language
-    if (metadata.collectionTitles[currentLang]) {
-      return metadata.collectionTitles[currentLang];
-    }
-
-    // Fall back to English
-    if (metadata.collectionTitles['en']) {
-      return metadata.collectionTitles['en'];
-    }
-
-    // Fall back to any available language
-    const availableLanguages = Object.keys(metadata.collectionTitles);
-    if (availableLanguages.length > 0) {
-      return metadata.collectionTitles[availableLanguages[0]];
-    }
-
-    // Last resort: use mainTitle
-    return metadata.mainTitle || '';
+    return resolveLocalizedValue(metadata.collectionTitles, currentLang) || metadata.mainTitle || '';
   }
 
   /**

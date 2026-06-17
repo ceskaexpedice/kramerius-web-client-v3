@@ -26,6 +26,7 @@ import { customDefinedFacetsEnum } from '../../../modules/search-results-page/co
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CollectionsService } from '../../../shared/services/collections.service';
 import { ClickOutsideDirective } from '../../../shared/directives';
+import { CdkTooltipDirective } from '../../../shared/directives/cdk-tooltip/cdk-tooltip.directive';
 import { ConfigService } from '../../config';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
@@ -46,6 +47,7 @@ import { LocalizedLabel } from '../../config/config.interfaces';
     TranslatePipe,
     UserInfoComponent,
     ClickOutsideDirective,
+    CdkTooltipDirective,
     RouterLink,
     LocalizedPipe,
   ],

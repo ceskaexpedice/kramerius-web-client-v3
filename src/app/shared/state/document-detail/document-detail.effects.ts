@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter, take } from 'rxjs/operators';
+import { catchError, map, switchMap, tap, withLatestFrom, distinctUntilChanged, filter, take, finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as DocumentDetailActions from './document-detail.actions';
 import { SolrService } from '../../../core/solr/solr.service';
 import { Store } from '@ngrx/store';
 import * as DocumentDetailSelectors from './document-detail.selectors';
-import { fromSolrToMetadata } from '../../models/metadata.model';
+import { fromSolrToMetadata, mergeMetadata } from '../../models/metadata.model';
+import { ModsParserService } from '../../services/mods-parser.service';
 import { Router } from '@angular/router';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { APP_ROUTES_ENUM } from "../../../app.routes";
@@ -23,21 +24,46 @@ export class DocumentDetailEffects {
     private store: Store,
     private router: Router,
     private libraryContext: LibraryContextService,
+    private modsParser: ModsParserService,
   ) {
+  }
+
+  // Tracks the uuid currently being loaded so back-to-back dispatches for the same
+  // document (e.g. ngOnInit's loadDocument() AND reloadOnUuidChange$ on initial
+  // navigation) don't each fire the same detail + children Solr requests.
+  private inFlightUuid: string | null = null;
+
+  /** Loads parsed MODS for a pid, failing soft to null so a MODS error never
+   *  blocks the Solr-backed detail load. */
+  private fetchMods(pid: string, libraryCode: string | null) {
+    return this.modsParser.getMods(pid, 'full', libraryCode ?? undefined).catch(err => {
+      console.warn('Failed to load MODS data for', pid, '- continuing with Solr data only:', err);
+      return null;
+    });
   }
 
   loadDocumentDetail$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(DocumentDetailActions.loadDocumentDetail),
-      switchMap(({ uuid }) => {
-        if (uuid) {
-          return this.loadDetail(uuid);
-        }
-
-        return this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid).pipe(
-          filter(storeUuid => !!storeUuid),
-          take(1),
-          switchMap(storeUuid => this.loadDetail(storeUuid))
+      // Resolve the target uuid (action may omit it; fall back to the router param)
+      switchMap(({ uuid }) =>
+        uuid
+          ? of(uuid)
+          : this.store.select(DocumentDetailSelectors.selectDocumentDetailUuid).pipe(
+              filter(storeUuid => !!storeUuid),
+              take(1)
+            )
+      ),
+      // Drop a duplicate load while the same uuid is already in flight
+      filter(uuid => uuid !== this.inFlightUuid),
+      switchMap(uuid => {
+        this.inFlightUuid = uuid;
+        return this.loadDetail(uuid).pipe(
+          finalize(() => {
+            if (this.inFlightUuid === uuid) {
+              this.inFlightUuid = null;
+            }
+          })
         );
       })
     )
@@ -57,10 +83,27 @@ export class DocumentDetailEffects {
           detailItem?.['cdk.leader'],
           collections,
         );
+        // Fetch the document's own MODS and (when distinct) its root's MODS.
+        // The toolbar title comes from the root's MODS — e.g. a periodical
+        // issue's own MODS only carries a part designation, while the title
+        // belongs to the periodical (root). ModsParserService caches by
+        // uuid/library, so the metadata sidebar's own getMods calls reuse these.
+        const rootPid: string = detailItem?.['root.pid'] ?? uuid;
+        const hasDistinctRoot = !!rootPid && rootPid !== uuid;
         return forkJoin({
           detailItem: of(detailItem),
           children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection),
-        });
+          currentMods: this.fetchMods(uuid, cdkCollection),
+          rootMods: hasDistinctRoot
+            ? this.fetchMods(rootPid, cdkCollection)
+            : of(null),
+        }).pipe(
+          // When the document is its own root, root MODS === current MODS.
+          map(result => ({
+            ...result,
+            rootMods: hasDistinctRoot ? result.rootMods : result.currentMods,
+          })),
+        );
       }),
       tap(({ detailItem, children }) => {
         const isMonograph = detailItem?.model === DocumentTypeEnum.monograph;
@@ -89,7 +132,7 @@ export class DocumentDetailEffects {
           );
         }
       }),
-      switchMap(({ detailItem, children }) => {
+      switchMap(({ detailItem, children, currentMods, rootMods }) => {
         console.log('detailItem', detailItem);
         console.log('children', children);
         if (!detailItem) {
@@ -99,8 +142,21 @@ export class DocumentDetailEffects {
         // Check if children contain any articles
         const hasArticles = children?.some((child: any) => child.model === DocumentTypeEnum.article);
 
+        // Enrich the document's metadata with its own MODS (authors, publishers,
+        // extent, …). The title is then overridden with the root's MODS title so
+        // an issue/volume shows the periodical title, falling back to Solr's
+        // `root.title` when root MODS provides none.
+        let metadata = fromSolrToMetadata(detailItem);
+        if (currentMods) {
+          metadata = mergeMetadata(metadata, currentMods);
+        }
+        const rootTitle = rootMods?.titles?.[0]?.mainTitle();
+        if (rootTitle && metadata.model !== 'collection') {
+          metadata.mainTitle = rootTitle;
+        }
+
         const successAction = DocumentDetailActions.loadDocumentDetailSuccess({
-          data: fromSolrToMetadata(detailItem),
+          data: metadata,
           pages: children,
         });
 

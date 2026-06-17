@@ -20,7 +20,6 @@ import { loadPeriodical } from '../../modules/periodical/state/periodical-detail
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
-import { SolrService } from '../../core/solr/solr.service';
 import { loadPeriodicalSearchResults } from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
   selectPeriodicalSearchStateFacets,
@@ -91,7 +90,6 @@ export class PeriodicalService extends BaseFilterService {
 
 
 
-  private solrService = inject(SolrService);
   override advancedSearchService = inject(AdvancedSearchService);
   private searchService = inject(SearchService);
 
@@ -429,6 +427,12 @@ export class PeriodicalService extends BaseFilterService {
   getFacets(): Observable<any> {
     return this.store.select(selectPeriodicalSearchStateFacets);
   }
+
+  // Periodical's "show more" dialog uses the inherited default (replays the captured
+  // request). It does not capture a scoped FacetRequest yet — the inline facets are
+  // computed over a specific child model (model:page) in a multi-level structure, so
+  // a simple parent scope wouldn't match. Until that's modelled, the dialog falls
+  // back to the unscoped index (pre-existing behavior; no regression).
 
   getFiltersWithOperators(): Observable<Record<string, string>> {
     return this.route.queryParams.pipe(

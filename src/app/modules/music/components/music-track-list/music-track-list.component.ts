@@ -7,6 +7,7 @@ import {PopupPositioningService, PopupState} from '../../../../shared/services/p
 import {TrackViewType} from '../../../models/sound-track.model';
 import {Router} from '@angular/router';
 import {FavoritesService} from '../../../../shared/services/favorites.service';
+import {UserService} from '../../../../shared/services/user.service';
 
 @Component({
   selector: 'app-music-track-list',
@@ -25,8 +26,11 @@ export class MusicTrackListComponent implements OnDestroy {
   @Input() playingPid: string | null = null;
   @Input() currentFolderId?: string;
   @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
+  @Input() accessDenied = false;
 
   @Output() select = new EventEmitter<any>();
+  @Output() playAll = new EventEmitter<any[]>();
+  @Output() scrollToAccessDenied = new EventEmitter<void>();
   @Output() favoriteToggled = new EventEmitter<any>();
   @Output() addToQueue = new EventEmitter<any>();
   @Output() download = new EventEmitter<any>();
@@ -35,6 +39,7 @@ export class MusicTrackListComponent implements OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   favoritesService = inject(FavoritesService);
   router = inject(Router);
+  private userService = inject(UserService);
 
   favoritesPopupState: PopupState;
   currentTrackId = signal<string>('');
@@ -44,8 +49,23 @@ export class MusicTrackListComponent implements OnDestroy {
     this.favoritesPopupState = this.favoritesService.createPopupState();
   }
 
+  isTrackDisabled(track: any): boolean {
+    return !this.userService.hasAnyLicense(track?.licenses_of_ancestors || []);
+  }
+
   onSelect(track: any) {
+    if (this.isTrackDisabled(track)) {
+      return;
+    }
     this.select.emit(track);
+  }
+
+  onPlayAll() {
+    this.playAll.emit(this.tracks);
+  }
+
+  onScrollToAccessDenied() {
+    this.scrollToAccessDenied.emit();
   }
 
   onFavoriteToggled(data: {track: any, event: Event}) {

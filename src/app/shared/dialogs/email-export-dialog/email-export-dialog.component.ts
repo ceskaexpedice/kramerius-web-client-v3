@@ -9,6 +9,7 @@ import { InputComponent } from '../../components/input/input.component';
 import { EnvironmentService } from '../../services/environment.service';
 import { UserService } from '../../services/user.service';
 import { HttpClient } from '@angular/common/http';
+import { ConfigService } from '../../../core/config/config.service';
 
 export type EmailExportType = 'pdf' | 'epub' | 'txt';
 
@@ -26,10 +27,12 @@ interface EmailExportOption {
   types: EmailExportType[];
   /** Optional translation key for an info tooltip shown next to the label. */
   tooltip?: string;
+  /** When true, the option is only shown if the `export.enrichWithAI` config flag is enabled. */
+  requiresEnrichWithAI?: boolean;
 }
 
 const EMAIL_EXPORT_OPTIONS: EmailExportOption[] = [
-  { label: 'email-export-dialog--option-enrich-llm', param: 'enrich_with_llm', types: ['epub', 'txt'], tooltip: 'email-export-dialog--option-enrich-llm-tooltip' },
+  { label: 'email-export-dialog--option-enrich-llm', param: 'enrich_with_llm', types: ['epub', 'txt'], tooltip: 'email-export-dialog--option-enrich-llm-tooltip', requiresEnrichWithAI: true },
   { label: 'email-export-dialog--option-include-images', param: 'include_images', types: ['epub'] },
   { label: 'email-export-dialog--option-skip-page-numbers', param: 'skip_page_numbers', types: ['epub', 'txt'] },
 ];
@@ -62,10 +65,14 @@ export class EmailExportDialogComponent {
   private environmentService = inject(EnvironmentService);
   private userService = inject(UserService);
   private http = inject(HttpClient);
+  private configService = inject(ConfigService);
 
-  /** Options relevant to the current export type. */
+  /** Options relevant to the current export type and enabled by config. */
   options = computed<EmailExportOption[]>(() =>
-    EMAIL_EXPORT_OPTIONS.filter(o => o.types.includes(this.data.exportType ?? 'pdf'))
+    EMAIL_EXPORT_OPTIONS.filter(o =>
+      o.types.includes(this.data.exportType ?? 'pdf') &&
+      (!o.requiresEnrichWithAI || this.configService.isEnrichWithAIEnabled())
+    )
   );
 
   constructor() {

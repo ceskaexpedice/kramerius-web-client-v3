@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, HostBinding, inject, Input, OnInit, Output} from '@angular/core';
 import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import {SoundTrackModel, TrackViewType} from '../../../models/sound-track.model';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -109,5 +109,10 @@ export class MusicTrackItemComponent implements OnInit {
 
   get canAccessTrack(): boolean {
     return this.userService.hasAnyLicense(this.track?.licenses_of_ancestors || []);
+  }
+
+  @HostBinding('class.disabled')
+  get isDisabled(): boolean {
+    return !this.canAccessTrack;
   }
 }

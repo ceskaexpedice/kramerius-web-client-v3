@@ -23,6 +23,8 @@ import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/f
 import {DocumentAccessDenied} from '../detail-view-page/components/access-denied/document-access-denied/document-access-denied';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 import {MetadataSidebarComponent} from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import {TabsComponent} from '../../shared/components/tabs/tabs.component';
+import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
 
 const routes: Routes = [
   {
@@ -57,6 +59,8 @@ const routes: Routes = [
         DocumentAccessDenied,
         InlineLoaderComponent,
         MetadataSidebarComponent,
+        TabsComponent,
+        TabItemComponent,
     ],
   providers: [
   ]

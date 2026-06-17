@@ -175,17 +175,8 @@ export class SolrService {
           ];
           parts.push(`(${queryParts.join(' OR ')})`);
         } else {
-          const queryParts = [
-            `title.search:(${normalizedQuery})^3`,
-            `titles.search:(${normalizedQuery})`,
-            `authors.search:(${normalizedQuery})^2`,
-            `keywords.search:(${normalizedQuery})`,
-            `genres.search:(${normalizedQuery})`,
-            `text_ocr:(${normalizedQuery})^0.1`,
-            `id_isbn:(${normalizedQuery})`,
-            `shelf_locators:(${normalizedQuery})`
-          ];
-          parts.push(`(${queryParts.join(' OR ')})`);
+          // Simple (non-collection) search — shared with the saved-lists folder search.
+          parts.push(SolrQueryBuilder.buildSearchClause(query));
         }
       } else {
         const sanitizedQuery = this.sanitizeSearchTerms(query);
@@ -225,26 +216,9 @@ export class SolrService {
             }
             parts.push(`(${queryParts.join(' OR ')})`);
           } else {
-            // Simple search - title, author, keyword, genre, OCR, ISBN, shelf locator
-            const queryParts = [
-              `title.search:(${q})^3`,
-              `titles.search:(${q})`,
-              `authors.search:(${q})^2`,
-              `keywords.search:(${q})`,
-              `genres.search:(${q})`,
-              `text_ocr:(${q})^0.1`,
-              `id_isbn:(${q})`,
-              `shelf_locators:(${q})`
-            ];
-            if (hasDiacritics) {
-              queryParts.push(
-                `title.search:(${qAscii})^1.5`,
-                `titles.search:(${qAscii})^0.8`,
-                `authors.search:(${qAscii})^1.5`,
-                `text_ocr:(${qAscii})^0.05`
-              );
-            }
-            parts.push(`(${queryParts.join(' OR ')})`);
+            // Simple search — title, author, keyword, genre, OCR, ISBN, shelf locator.
+            // Shared with the saved-lists folder search.
+            parts.push(SolrQueryBuilder.buildSearchClause(query));
           }
         }
       }
@@ -589,33 +563,8 @@ export class SolrService {
       params = params.append('facet.field', field);
     });
 
-    // Add facet.query for accessibility counts (same pattern as getFacetsWithOperators)
-    // 1. "All" count - excludes availability filter (tagged with avail), respects user-selected license filters
-    params = params.append('facet.query', '{!ex=avail}*:*');
-
-    // 2. "Available only" count - query for user's accessible licenses
-    if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
-      const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
-    }
-
-    // 3. "Open" count - query for getOpenLicenses()
-    if (getOpenLicenses().length > 0) {
-      const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
-    }
-
-    // 4. "Terminal" count - query for getTerminalLicenses()
-    if (getTerminalLicenses().length > 0) {
-      const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
-    }
-
-    // 5. "After Login" count - query for getAfterLoginLicenses()
-    if (getAfterLoginLicenses().length > 0) {
-      const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
-    }
+    // Accessibility facet.query counts (same pattern as getFacetsWithOperators).
+    params = this.appendAccessibilityFacetQueries(params, availabilityFilter);
 
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
@@ -659,33 +608,8 @@ export class SolrService {
       params = params.append('facet.field', field);
     });
 
-    // Always add facet.query for accessibility counts:
-    // 1. "All" count - excludes availability filter (tagged with avail), respects user-selected license filters
-    params = params.append('facet.query', '{!ex=avail}*:*');
-
-    // 2. "Available only" count - query for user's accessible licenses
-    if (availabilityFilter?.userLicenses && availabilityFilter.userLicenses.length > 0) {
-      const licenseClauses = availabilityFilter.userLicenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${licenseClauses})`);
-    }
-
-    // 3. "Open" count - query for getOpenLicenses()
-    if (getOpenLicenses().length > 0) {
-      const openLicenseClauses = getOpenLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${openLicenseClauses})`);
-    }
-
-    // 4. "Terminal" count - query for getTerminalLicenses()
-    if (getTerminalLicenses().length > 0) {
-      const terminalLicenseClauses = getTerminalLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${terminalLicenseClauses})`);
-    }
-
-    // 5. "After Login" count - query for getAfterLoginLicenses()
-    if (getAfterLoginLicenses().length > 0) {
-      const afterLoginLicenseClauses = getAfterLoginLicenses().map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
-      params = params.append('facet.query', `{!ex=avail}(${afterLoginLicenseClauses})`);
-    }
+    // Accessibility facet.query counts (All / Available / Open / Terminal / After-Login).
+    params = this.appendAccessibilityFacetQueries(params, availabilityFilter);
 
     // Use filterGroups if provided, otherwise fall back to flat filters
     if (filterGroups && filterGroups.length > 0) {
@@ -785,15 +709,75 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  loadFacetWithPendingChanges(query: string, allFilters: string[], currentFacet: string, pendingSelections: Set<string>, pendingOperator: SolrOperators, otherOperators: Record<string, string> = {}, options: any = {}): Observable<any> {
-    const { advancedQuery } = options;
-    const paramsObject = this.createFacetBaseParams(options);
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery));
-    const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
-    params = this.addFilterQueries(params, otherFilters, otherOperators);
+  /**
+   * Appends the accessibility facet.query counts (All / Available / Open / Terminal
+   * / After-Login), each tagged {!ex=avail} so they ignore the availability toggle
+   * while respecting selected license filters. Shared by every facet query so the
+   * accessibility counts are computed identically.
+   */
+  private appendAccessibilityFacetQueries(params: HttpParams, availabilityFilter?: { userLicenses?: string[] }): HttpParams {
+    params = params.append('facet.query', '{!ex=avail}*:*');
+    const licenseGroups = [
+      availabilityFilter?.userLicenses ?? [],
+      getOpenLicenses(),
+      getTerminalLicenses(),
+      getAfterLoginLicenses()
+    ];
+    for (const licenses of licenseGroups) {
+      if (licenses.length > 0) {
+        const clauses = licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+        params = params.append('facet.query', `{!ex=avail}(${clauses})`);
+      }
+    }
+    return params;
+  }
 
+  loadFacetWithPendingChanges(query: string, allFilters: string[], currentFacet: string, pendingSelections: Set<string>, pendingOperator: SolrOperators, otherOperators: Record<string, string> = {}, options: any = {}): Observable<any> {
+    const {
+      advancedQuery, collectionUuid = null, rootPid = null,
+      includePeriodicalItem = false, includePage = false, extraQueryClause = null,
+      filterGroups = null, availabilityFilter = null
+    } = options;
+
+    let qParam = this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid, collectionUuid);
+    // Scope clause for sub-index pages (e.g. monograph own_parent.pid) that aren't
+    // expressed via collectionUuid / rootPid — AND-appended to q.
+    if (extraQueryClause) {
+      qParam = `(${qParam}) AND (${extraQueryClause})`;
+    }
+
+    // Base filters (page/periodicalitem doc-type scoping, periodical root) must match
+    // the page's facet query so counts line up.
+    const baseFilters = rootPid
+      ? SolrQueryBuilder.basePeriodicalFilters(includePeriodicalItem, includePage, rootPid)
+      : SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
+    const paramsObject = { ...this.createFacetBaseParams(options), ...baseFilters };
+    let params = this.createHttpParams(paramsObject).set('q', qParam);
+
+    const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
     const isOrWithSelection = pendingOperator === SolrOperators.or && pendingSelections.size > 0;
     params = params.append('facet.field', isOrWithSelection ? `{!ex=${currentFacet}}${currentFacet}` : currentFacet);
+
+    // Accessibility counts, matching the page's getFacets* methods.
+    params = this.appendAccessibilityFacetQueries(params, availabilityFilter ?? undefined);
+
+    // Other-facet filters (excluding the current facet): use filterGroups if the
+    // page provided them (AND-between-groups), else the flat list.
+    if (filterGroups && filterGroups.length > 0) {
+      const otherGroups = filterGroups
+        .map((g: string[]) => g.filter(f => !f.startsWith(`${currentFacet}:`)))
+        .filter((g: string[]) => g.length > 0);
+      this.buildFqParamsFromGroups(otherGroups, otherOperators).forEach(fq => params = params.append('fq', fq));
+    } else {
+      params = this.addFilterQueries(params, otherFilters, otherOperators);
+    }
+
+    // Availability ({!tag=avail}) fq so the accessibility facet.query counts above
+    // can exclude it via {!ex=avail}.
+    if (availabilityFilter?.isActive && availabilityFilter.licenses?.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map((lic: string) => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
 
     if (pendingSelections.size > 0) {
       const values = Array.from(pendingSelections);

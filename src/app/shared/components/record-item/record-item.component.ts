@@ -22,6 +22,7 @@ import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.comp
 import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
+import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 
 @Component({
   selector: 'app-record-item',
@@ -38,6 +39,7 @@ import { PluralizePipe } from '../../pipes/pluralize.pipe';
     SlideUpPanelComponent,
     MetadataSection,
     PluralizePipe,
+    CdkTooltipDirective,
   ],
   templateUrl: './record-item.component.html',
   styleUrl: './record-item.component.scss'

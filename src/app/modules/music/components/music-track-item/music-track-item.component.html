@@ -41,7 +41,7 @@
                     {{ trackYear }}
                   }
 
-                  <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+                  <!-- <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span> -->
 
                 </span>
               }
@@ -50,30 +50,33 @@
         </div>
       } @else {
         <span class="track-link" [class.active]="isSelected">{{ track['title.search'] }}</span>
-        <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span>
+        <!-- <span class="page-ref"> · {{'page' | translate}} {{track.part}}</span> -->
       }
     </div>
   </td>
   <td class="duration duration-col">{{ duration }}</td>
   <td class="actions actions-col">
     <button class="icon-button rounded light"
+            [disabled]="isDisabled"
             [appCdkTooltip]="'add-to-queue' | translate"
             [attr.aria-label]="'add-to-queue--arialabel' | translate"
-            (click)="addToQueue(); $event.stopPropagation()" [title]="'add-to-queue' | translate">
+            (click)="addToQueue(); $event.stopPropagation()">
       <i class="icon icon-additem"></i>
     </button>
     @if (showRemoveButton) {
       <button class="icon-button rounded light"
+              [disabled]="isDisabled"
               [appCdkTooltip]="'remove-from-list' | translate"
               [attr.aria-label]="'remove-track-from-list--arialabel' | translate"
-              (click)="remove(); $event.stopPropagation()" [title]="'remove-from-list' | translate">
+              (click)="remove(); $event.stopPropagation()">
         <i class="icon icon-trash"></i>
       </button>
     } @else {
       <button class="icon-button rounded light"
+              [disabled]="isDisabled"
               [appCdkTooltip]="'save-to-list' | translate"
               [attr.aria-label]="'save-track-to-list--arialabel' | translate"
-              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited$ | async" [title]="'save-to-list' | translate">
+              (click)="toggleFavorite($event); $event.stopPropagation()" [class.favorited]="isFavorited$ | async">
         <i [ngClass]="(isFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'"></i>
       </button>
     }

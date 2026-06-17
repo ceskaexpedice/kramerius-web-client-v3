@@ -7,7 +7,7 @@
 
     <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode">
 
-      <h1 class="visually-hidden">{{ (periodical.document$ | async)?.['root.title'] || '' }}</h1>
+      <h1 class="visually-hidden">{{ periodical.metadata?.mainTitle || (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
       <!-- Screen-reader announcement of loading status / result count. -->
       <!-- Kept permanently in the DOM so the first update is reliably announced. -->
@@ -30,7 +30,7 @@
         <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !breakpointService.isMobile()">
 
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
-            <app-toolbar-header [title]="document?.['root.title'] || ''"
+            <app-toolbar-header [title]="periodical.metadata?.mainTitle || document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
                                 [titleTooltip]="document.uuid !== document['root.pid'] ? ('go-to-volume--tooltip' | translate) : ''"
                                 [titleClickable]="document.uuid !== document['root.pid']"
@@ -62,7 +62,9 @@
                 @if (breakpointService.isMobile()) {
                   <!-- Mobile: actions collapse into hamburger; view toggle + sort move to the sub-toolbar below -->
                   <app-toolbar-controls [showViewToggle]="false" [mobileMenuMode]="true"
-                    [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                    [showFavorites]="true"
+                    [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
+                    [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
                     (infoClicked)="openRecordInfo()"
                     (favoritesClicked)="onFavoritesClicked($event)"
                     (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
@@ -72,7 +74,9 @@
                 } @else {
                   <div class="flex flex--align-center flex--gap-x6">
                     <app-toolbar-controls [showViewToggle]="periodical.viewMode() !== ViewMode.SearchResults"
-                      [showFavorites]="true" [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                      [showFavorites]="true"
+                      [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
+                      [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
                       [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
                       (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
                       (favoritesClicked)="onFavoritesClicked($event)"

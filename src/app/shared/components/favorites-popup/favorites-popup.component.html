@@ -28,7 +28,8 @@
         [theme]="'dark'"
         [placeholder]="'search-saved-lists' | translate"
         [size]="'sm'"
-        [prefixIcon]="'icon-search-normal'"
+        [prefixIcon]="'icon-search-normal-1'"
+        [showMicButton]="true"
         [signalInput]="searchTerm">
       </app-input>
     </div>
@@ -43,7 +44,7 @@
         <div *ngFor="let listItem of lists" class="list-item">
           <div class="list-item__content">
             <span class="list-name">{{ listItem.displayName }}</span>
-            <span class="list-count">({{ listItem.folder.itemsCount }})</span>
+<!--            <span class="list-count">({{ listItem.folder.itemsCount }})</span>-->
           </div>
           <mat-checkbox
             [checked]="listItem.isSelected"
@@ -112,7 +113,7 @@
 
       <div class="dont-ask-again--container">
         <mat-checkbox [(ngModel)]="dontShowSuccessAgain">
-          {{ 'dont-ask-again' | translate }}
+          {{ 'add-to-favorites-success--dont-show' | translate }}
         </mat-checkbox>
       </div>
 

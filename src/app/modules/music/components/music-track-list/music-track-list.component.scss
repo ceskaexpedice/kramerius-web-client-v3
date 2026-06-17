@@ -1,5 +1,10 @@
 @use "_z-index.scss" as z;
 
+.track-list-header {
+  display: flex;
+  margin-bottom: var(--spacing-x3);
+}
+
 .track-table {
   width: 100%;
   border-collapse: collapse;

@@ -1,0 +1,70 @@
+<div class="generic-dialog-container download-history">
+  <h2>
+    {{ 'download-history' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onClose()"
+      [attr.aria-label]="'close' | translate">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+
+      @if (loading()) {
+        <div class="state-message">{{ 'download-history--loading' | translate }}</div>
+      } @else if (error()) {
+        <div class="state-message error">{{ 'download-history--error' | translate }}</div>
+      } @else if (rows().length === 0) {
+        <div class="state-message">{{ 'download-history--empty' | translate }}</div>
+      } @else {
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th class="col-name">{{ 'download-history--col-name' | translate }}</th>
+              <th class="col-year">{{ 'download-history--col-year' | translate }}</th>
+              <th class="col-uid">{{ 'download-history--col-uid' | translate }}</th>
+              <th class="col-type">{{ 'download-history--col-type' | translate }}</th>
+              <th class="col-date">{{ 'download-history--col-date' | translate }}</th>
+              <th class="col-status">{{ 'download-history--col-status' | translate }}</th>
+              <th class="col-action">{{ 'download-history--col-action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.file.token) {
+              <tr [class.expired]="row.status === 'expired'">
+                <td class="col-name">
+                  <div class="name-cell">
+                    <app-thumbnail-image class="thumb" [src]="row.thumbnailUrl ?? null" size="auto"
+                      fallbackIcon="document" [alt]="row.title ?? row.file.pid">
+                    </app-thumbnail-image>
+                    <span class="name-text">{{ row.title ?? row.file.pid }}</span>
+                  </div>
+                </td>
+                <td class="col-year">{{ row.year ?? '—' }}</td>
+                <td class="col-uid">{{ row.file.pid }}</td>
+                <td class="col-type">
+                  <span class="tag-document">{{ row.file.type | uppercase }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(row.file.created) }}</td>
+                <td class="col-status">
+                  <span class="badge" [class.available]="row.status === 'available'"
+                    [class.expired]="row.status === 'expired'">
+                    <span class="dot" aria-hidden="true"></span>
+                    {{ 'download-history--status-' + row.status | translate }}
+                  </span>
+                </td>
+                <td class="col-action">
+                  <button type="button" class="action-button" [disabled]="row.status !== 'available'"
+                    (click)="download(row)" [attr.aria-label]="'download-history--download' | translate">
+                    <i class="icon-download" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+    </div>
+  </div>
+</div>

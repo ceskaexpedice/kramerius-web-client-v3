@@ -51,7 +51,8 @@
     "jpeg": true,
     "pdf": true,
     "epub": true,
-    "txt": true
+    "txt": true,
+    "enrichWithAI": true
   },
 
   "viewer": {

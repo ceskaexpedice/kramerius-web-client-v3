@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { Folder, CreateFolderRequest, UpdateFolderRequest, FolderItemsRequest, FolderDetails } from '../state/folders.models';
 import { EnvironmentService } from '../../../shared/services/environment.service';
-import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
+import { SolrOperators, SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
 import { HttpParams } from '@angular/common/http';
 import { facetKeys, facetKeysEnum, mapFacetsToSearchFields } from '../../search-results-page/const/facets';
 import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../../core/solr/solr-misc';
+import { SolrQueryBuilder } from '../../../core/solr/solr-query-builder';
 
 /**
  * Extra filter dimensions for a folder-items search, assembled by the effect
@@ -104,31 +106,235 @@ export class FoldersService {
       });
     }
 
+    // Facet fields: standard set plus accessibility + license (rendered nested
+    // under the accessibility block, matching the search filters panel).
+    const facetFields = [...facetKeys, facetKeysEnum.accessibility];
+
+    // The Solr endpoint only accepts GET, so the whole query (all `pid:` clauses
+    // plus the facet payload) must fit in the URL. A large folder + 16 facet
+    // fields + 4 facet.query clauses overflows the server's URI/header limit and
+    // the request is rejected. So we batch the PIDs into chunks (matching the old
+    // client) and merge the responses client-side. Counts sum correctly because
+    // the chunks are disjoint sets of items.
+    const requests = this.chunk(itemIds, FoldersService.PID_BATCH_SIZE).map(chunkIds => {
+      let params = this.buildFolderQuery(chunkIds, searchQuery, filters)
+        .set('rows', '1000');
+
+      for (const field of facetFields) {
+        params = params.append('facet.field', field);
+      }
+
+      if (sortBy && sortDirection) {
+        params = params.set('sort', `${sortBy} ${sortDirection}`);
+      }
+
+      return this.http.get<any>(searchUrl, { params });
+    });
+
+    return forkJoin(requests).pipe(
+      map(responses => this.mergeSearchResponses(responses, sortBy, sortDirection))
+    );
+  }
+
+  /**
+   * Max number of `pid:` clauses per Solr request. The endpoint is GET-only, so
+   * the URL (PIDs + facet payload) must stay under the server's URI/header limit;
+   * batching at this size keeps each request well within it. Mirrors the old
+   * client's chunk size.
+   */
+  private static readonly PID_BATCH_SIZE = 50;
+
+  /** Splits an array into consecutive chunks of at most `size`. */
+  private chunk<T>(array: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  }
+
+  /**
+   * Merges the per-chunk Solr search responses into a single response of the same
+   * shape the effect expects. Chunks are disjoint item sets, so docs/highlighting
+   * concatenate and numFound / facet field counts / facet.query counts sum. Docs
+   * are re-sorted across chunks since each chunk only sorted within itself.
+   */
+  private mergeSearchResponses(
+    responses: any[],
+    sortBy?: SolrSortFields,
+    sortDirection?: SolrSortDirections
+  ): any {
+    const docs: any[] = [];
+    let numFound = 0;
+    const highlighting: Record<string, any> = {};
+    const facetFieldCounts: Record<string, Map<string, number>> = {};
+    const facetQueryCounts: Record<string, number> = {};
+
+    for (const response of responses) {
+      docs.push(...(response?.response?.docs ?? []));
+      numFound += response?.response?.numFound ?? 0;
+      Object.assign(highlighting, response?.highlighting ?? {});
+
+      // facet_fields: Solr's flat [name, count, name, count, ...] arrays. Sum per name.
+      const facetFields = response?.facet_counts?.facet_fields ?? {};
+      for (const [field, flat] of Object.entries<any[]>(facetFields)) {
+        const counts = facetFieldCounts[field] ??= new Map<string, number>();
+        for (let i = 0; i + 1 < flat.length; i += 2) {
+          const name = flat[i];
+          const count = flat[i + 1] ?? 0;
+          counts.set(name, (counts.get(name) ?? 0) + count);
+        }
+      }
+
+      // facet_queries: { queryString: count }. Sum per query string.
+      const facetQueries = response?.facet_counts?.facet_queries ?? {};
+      for (const [queryStr, count] of Object.entries<number>(facetQueries)) {
+        facetQueryCounts[queryStr] = (facetQueryCounts[queryStr] ?? 0) + count;
+      }
+    }
+
+    if (sortBy && sortDirection) {
+      const dir = sortDirection === SolrSortDirections.desc ? -1 : 1;
+      docs.sort((a, b) => {
+        const av = a?.[sortBy];
+        const bv = b?.[sortBy];
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return av < bv ? -dir : av > bv ? dir : 0;
+      });
+    }
+
+    // Rebuild Solr's flat facet_fields arrays from the summed counts.
+    const mergedFacetFields: Record<string, any[]> = {};
+    for (const [field, counts] of Object.entries(facetFieldCounts)) {
+      const flat: any[] = [];
+      counts.forEach((count, name) => flat.push(name, count));
+      mergedFacetFields[field] = flat;
+    }
+
+    return {
+      response: { docs, numFound },
+      highlighting,
+      facet_counts: {
+        facet_fields: mergedFacetFields,
+        facet_queries: facetQueryCounts
+      }
+    };
+  }
+
+  /**
+   * Load a single facet's items scoped to a folder's items, for the "show more"
+   * dialog. Mirrors searchFolderItems' folder/availability scoping but requests
+   * only one facet field with pagination, sort and contains, and applies the
+   * dialog's pending selection/operator using the {!ex=}/{!tag=} OR-with-selection
+   * pattern (same as SolrService.loadFacetWithPendingChanges).
+   */
+  loadFolderFacetPage(
+    itemIds: string[],
+    facetKey: string,
+    pendingSelection: Set<string>,
+    pendingOperator: SolrOperators,
+    options: { searchTerm?: string; limit: number; offset: number; sortBy: SolrSortFields },
+    filters: FolderSearchFilters = {}
+  ): Observable<any> {
+    const searchUrl = this.environmentService.getApiUrl('search') || '';
+    // Facet on the original .facet field (full values), but apply the pending
+    // selection as fq on the mapped .search field — matching how applied folder
+    // filters work (see buildFolderQuery's fqFilters mapping). The {!ex}/{!tag}
+    // names just have to match each other, so we key them on facetKey.
+    const fqField = mapFacetsToSearchFields([`${facetKey}:x`])[0]?.split(':')[0] || facetKey;
+
+    const isOrWithSelection = pendingOperator === SolrOperators.or && pendingSelection.size > 0;
+
+    // GET-only endpoint, so we batch PIDs the same way searchFolderItems does (see
+    // PID_BATCH_SIZE). Because the page slice (offset/limit/sort) can't be merged
+    // across chunks server-side, each chunk requests ALL of this facet's values
+    // (facet.limit=-1, no offset); we sum disjoint-chunk counts, then sort and
+    // slice the merged values to reproduce Solr's paging client-side.
+    const requests = this.chunk(itemIds, FoldersService.PID_BATCH_SIZE).map(chunkIds => {
+      // rows=0: the dialog only needs facet counts, not documents.
+      let params = this.buildFolderQuery(chunkIds, undefined, filters).set('rows', '0');
+
+      params = params.append('facet.field', isOrWithSelection ? `{!ex=${facetKey}}${facetKey}` : facetKey);
+      params = params.set('facet.limit', '-1');
+      if (options.searchTerm) {
+        params = params.set('facet.contains', options.searchTerm).set('facet.contains.ignoreCase', 'true');
+      }
+
+      if (pendingSelection.size > 0) {
+        const escaped = Array.from(pendingSelection).map(v => `"${v}"`);
+        let fqParam = isOrWithSelection ? `{!tag=${facetKey}}` : '';
+        fqParam += escaped.length === 1
+          ? `${fqField}:${escaped[0]}`
+          : `(${escaped.map(val => `${fqField}:${val}`).join(` ${pendingOperator} `)})`;
+        params = params.append('fq', fqParam);
+      }
+
+      return this.http.get<any>(searchUrl, { params });
+    });
+
+    return forkJoin(requests).pipe(
+      map(responses => {
+        // Sum each value's count across the disjoint chunks.
+        const counts = new Map<string, number>();
+        for (const response of responses) {
+          const flat: any[] = response?.facet_counts?.facet_fields?.[facetKey] ?? [];
+          for (let i = 0; i + 1 < flat.length; i += 2) {
+            const name = flat[i];
+            counts.set(name, (counts.get(name) ?? 0) + (flat[i + 1] ?? 0));
+          }
+        }
+
+        // Sort to match the requested facet.sort, then page with offset/limit.
+        const entries = Array.from(counts.entries());
+        if (options.sortBy === SolrSortFields.title) {
+          entries.sort((a, b) => a[0].localeCompare(b[0]));
+        } else {
+          entries.sort((a, b) => b[1] - a[1]);
+        }
+        const paged = entries.slice(options.offset, options.offset + options.limit);
+
+        // Re-encode as Solr's flat [name, count, ...] array under the same shape
+        // the caller parses with SolrResponseParser.parseFacet.
+        const flat: any[] = [];
+        paged.forEach(([name, count]) => flat.push(name, count));
+
+        return {
+          response: { facet_counts: { facet_fields: { [facetKey]: flat } } },
+          facetField: facetKey
+        };
+      })
+    );
+  }
+
+  /**
+   * Builds the shared base Solr query for a folder-items search: the folder's
+   * items (pid: scope) AND optional free-text/range clauses on q, the
+   * accessibility facet.query counts, and the standard/custom/availability fq
+   * filters. Callers add rows, facet fields and sort on top.
+   */
+  private buildFolderQuery(
+    itemIds: string[],
+    searchQuery: string | undefined,
+    filters: FolderSearchFilters
+  ): HttpParams {
     const pidQuery = itemIds.map(id => `pid:"${id}"`).join(' OR ');
 
     // Base query is the folder's items; AND any free-text term and range clauses.
     const qClauses: string[] = [`(${pidQuery})`];
     if (searchQuery && searchQuery.trim()) {
-      qClauses.push(`title.search:"${searchQuery.trim()}"`);
+      qClauses.push(SolrQueryBuilder.buildSearchClause(searchQuery.trim()));
     }
     for (const clause of filters.queryClauses ?? []) {
       if (clause) qClauses.push(clause);
     }
     const finalQuery = qClauses.join(' AND ');
 
-    // Facet fields: standard set plus accessibility + license (rendered nested
-    // under the accessibility block, matching the search filters panel).
-    const facetFields = [...facetKeys, facetKeysEnum.accessibility];
-
     let params = new HttpParams()
       .set('q', finalQuery)
-      .set('rows', '1000')
       .set('facet', 'true')
       .set('facet.mincount', '1');
-
-    for (const field of facetFields) {
-      params = params.append('facet.field', field);
-    }
 
     // Accessibility facet counts come from facet.query (not facet.field), mirroring
     // SolrService.getFacetsWithOperators. The availability fq below is tagged
@@ -168,11 +374,7 @@ export class FoldersService {
       params = params.append('fq', `{!tag=avail}(${this.licenseClauses(filters.availabilityLicenses)})`);
     }
 
-    if (sortBy && sortDirection) {
-      params = params.set('sort', `${sortBy} ${sortDirection}`);
-    }
-
-    return this.http.get<any>(searchUrl, { params });
+    return params;
   }
 
   /**

@@ -5,9 +5,12 @@ import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import { CustomSearchService } from './custom-search.service';
 import { UserService } from './user.service';
-import { FilterService } from './filter.service';
+import { FacetPageQuery, FacetPageResult, FacetRequest, FilterService } from './filter.service';
 import { AdvancedSearchService } from './advanced-search.service';
 import { SettingsService } from '../../modules/settings/settings.service';
+import { SolrService } from '../../core/solr/solr.service';
+import { SolrResponseParser } from '../../core/solr/solr-response-parser';
+import { FilterService as FilterUtilities } from '../../core/services/FilterUtilities';
 
 const DEFAULT_PAGE_SIZE = 60;
 
@@ -21,6 +24,8 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   protected advancedSearchService = inject(AdvancedSearchService);
   protected userService = inject(UserService);
   protected settingsService = inject(SettingsService);
+  protected solrService = inject(SolrService);
+  protected filterUtilities = inject(FilterUtilities);
 
   // Common properties
   protected _searchTerm = signal('');
@@ -248,6 +253,80 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Snapshot of the Solr facet request from the page's last search. Each page sets
+   * this at dispatch time (see captureFacetRequest); the "show more" dialog replays
+   * it via loadFacetPageFromRequest so its counts always match the page's results
+   * without re-deriving the scope/filters a second time.
+   */
+  protected lastFacetRequest: FacetRequest | null = null;
+
+  /** Record the request the page just searched with, so the dialog can replay it. */
+  protected captureFacetRequest(req: FacetRequest): void {
+    this.lastFacetRequest = req;
+  }
+
+  /**
+   * Replay the page's last search as a single-facet, paginated query for the "show
+   * more" dialog. This is the one shared facet code path; per-page scope lives
+   * entirely in the captured FacetRequest.
+   */
+  protected loadFacetPageFromRequest(facetKey: string, query: FacetPageQuery): Observable<FacetPageResult> {
+    const req = this.lastFacetRequest ?? { query: this.searchTerm(), filters: [] };
+
+    // Highlight currently-applied values from the page's filter set.
+    const activeSelections = new Set(
+      (req.filters ?? [])
+        .filter(f => f.startsWith(facetKey + ':'))
+        .map(f => f.split(':')[1])
+    );
+
+    return this.solrService.loadFacetWithPendingChanges(
+      req.query,
+      req.filters ?? [],
+      facetKey,
+      query.pendingSelection,
+      query.pendingOperator,
+      req.facetOperators ?? {},
+      {
+        searchTerm: query.contains || '',
+        limit: query.limit,
+        offset: query.offset,
+        sortBy: query.sortBy,
+        minCount: 1,
+        advancedQuery: req.advancedQuery,
+        collectionUuid: req.collectionUuid ?? null,
+        rootPid: req.rootPid ?? null,
+        extraQueryClause: req.extraQueryClause ?? null,
+        includePeriodicalItem: req.includePeriodicalItem ?? false,
+        includePage: req.includePage ?? false,
+        filterGroups: req.filterGroups ?? null,
+        availabilityFilter: req.availabilityFilter ?? null
+      }
+    ).pipe(
+      map(response => {
+        const parsed = SolrResponseParser.parseFacet(
+          response.facet_counts?.facet_fields?.[facetKey] || []
+        );
+        return {
+          items: this.filterUtilities.sortWithSelectedOnTop(parsed, activeSelections),
+          totalCount: parsed.length
+        };
+      })
+    );
+  }
+
+  // Default loadFacetPage replays the captured request; pages with a non-standard
+  // Solr scope (e.g. saved-lists / folders) override it.
+  loadFacetPage(facetKey: string, query: FacetPageQuery): Observable<FacetPageResult> {
+    return this.loadFacetPageFromRequest(facetKey, query);
+  }
+
+  updateFilters(route: ActivatedRoute, facetKey: string, selectedValues: string[]): void {
+    const operator = this.queryParamsService.getOperatorForFacet(route.snapshot.queryParams, facetKey);
+    this.queryParamsService.updateFilters(route, facetKey, selectedValues, operator);
   }
 
   // Abstract methods that each service must implement

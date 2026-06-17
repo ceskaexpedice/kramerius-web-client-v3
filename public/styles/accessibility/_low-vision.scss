@@ -1,20 +1,26 @@
 // Low Vision Mode
-// Enhances visual clarity with stronger borders and fonts
+// Enhances visual clarity with stronger borders and slightly heavier body text.
+//
+// The `.low-vision-mode` class sits on <body>, so a bare `body` selector here
+// would compile to `.low-vision-mode body` and match nothing. We set the base
+// weight on the class element itself (`&`) and let it inherit, then keep
+// emphasis and form controls explicit.
 
 .low-vision-mode {
+    // Raise the inherited baseline weight for legibility. `font-weight` inherits,
+    // so setting it on <body> cascades to normal body text — but NOT to elements
+    // with their own explicit weight (headings, strong), so bold stays bold.
+    font-weight: 500;
 
-    // Increase font weight for better legibility
-    * {
-        font-weight: 500 !important;
+    // Keep semantic emphasis clearly bolder than the raised baseline.
+    b,
+    strong,
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
     }
 
-    // Ensure borders are visible and thicker
+    // Ensure borders are visible and thicker.
     button,
-    .mat-button,
-    .mat-raised-button,
-    .mat-stroked-button,
-    .mat-flat-button,
-    .mat-icon-button,
     input,
     select,
     textarea,

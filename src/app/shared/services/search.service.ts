@@ -23,7 +23,7 @@ import { SolrOperators, SolrSortFields } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
 import { AdvancedSearchService } from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { facetKeysEnum, mapFacetsToSearchFields } from '../../modules/search-results-page/const/facets';
+import { facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
 import { isMapTab } from '../../modules/search-results-page/const/map-utils';
@@ -146,7 +146,7 @@ export class SearchService extends BaseFilterService {
 
   constructor(
     private store: Store,
-    private solrService: SolrService,
+    protected override solrService: SolrService,
     override advancedSearchService: AdvancedSearchService
   ) {
     super();
@@ -519,6 +519,24 @@ export class SearchService extends BaseFilterService {
     // override so subsequent isGrouped() calls (without params) follow the URL.
     this._groupedOverride.set(isGrouped);
 
+    // Snapshot this exact request so the "show more" dialog can replay it (same q,
+    // fq, scope flags) instead of re-deriving the scope. Flags mirror the values
+    // the search effect computes for getFacetsWithOperators.
+    this.captureFacetRequest({
+      query,
+      filters,
+      filterGroups,
+      facetOperators: mapOperatorsToSearchFields(this.queryParamsService.getOperators(params)),
+      advancedQuery,
+      includePeriodicalItem: this.filtersContainDate() || this.hasFulltextFilter(),
+      includePage: this.hasSubmittedQuery() || this.hasFulltextFilter(),
+      availabilityFilter: {
+        isActive: this.customSearchService.isAvailabilityFilterActive(),
+        licenses: this.customSearchService.getUserAvailableLicenses(),
+        userLicenses: this.userService.licenses
+      }
+    });
+
     this.store.dispatch(loadSearchResults({
       query,
       filters,
@@ -535,7 +553,7 @@ export class SearchService extends BaseFilterService {
     // titlesTotal is known, sized to fill the remainder of this window.
   }
 
-  updateFilters(
+  override updateFilters(
     route: ActivatedRoute,
     facetKey: string,
     selectedValues: string[],

@@ -132,12 +132,13 @@
 }
 
 .music-section--actions {
-  margin-bottom: var(--spacing-x4);
+  margin-bottom: var(--spacing-x3);
 }
 
-:has(> .grid--container)~.music-section .music-section--actions {
-  margin-top: var(--spacing-x4);
+.music-section {
+  margin-top: var(--spacing-x3);
 }
+
 
 app-record-export-panel {
   height: 100%;

@@ -54,6 +54,8 @@ export class ToolbarControlsComponent implements OnChanges {
 
   // Legacy boolean inputs - maintained for backward compatibility
   @Input() showFavorites = false;
+  // Whether the current item is favorited - controls heart icon/tooltip (mirrors record-item)
+  @Input() favoritesActive = false;
   @Input() showShare = false;
   @Input() showQuote = false;
   @Input() showInfo = false;
@@ -106,6 +108,7 @@ export class ToolbarControlsComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     // Recalculate mergedActions only when relevant inputs change
     if (changes['actions'] || changes['showInfo'] || changes['showFavorites'] ||
+      changes['favoritesActive'] ||
       changes['showShare'] || changes['showQuote'] || changes['showDelete'] ||
       changes['showDownload'] || changes['showEdit'] || changes['showSelect'] ||
       changes['showEditSingle'] || changes['disableEditSingle']) {
@@ -123,7 +126,12 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'info', icon: 'icon-info', tooltip: 'toolbar.tooltip.info', label: 'Info' });
     }
     if (this.showFavorites) {
-      legacyActions.push({ id: 'favorites', icon: 'icon-heart', tooltip: 'toolbar.tooltip.favorites', label: 'Favorites' });
+      legacyActions.push({
+        id: 'favorites',
+        icon: this.favoritesActive ? 'icon-heart-filled' : 'icon-heart',
+        tooltip: this.favoritesActive ? 'remove-from-my-library' : 'add-to-favorites',
+        label: 'Favorites'
+      });
     }
     if (this.showShare) {
       legacyActions.push({ id: 'share', icon: 'icon-send-2', tooltip: 'toolbar.tooltip.share', label: 'Share' });

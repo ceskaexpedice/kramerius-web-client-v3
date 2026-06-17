@@ -66,6 +66,20 @@ describe('SavedListsPageComponent banner logic', () => {
     expect(dontShowAgain.setDontShowAgain).not.toHaveBeenCalled();
   });
 
+  it('hides the banner for the session on close without persisting when unchecked', () => {
+    component.onBannerClose();
+    expect(component.bannerDismissed()).toBe(true);
+    expect(dontShowAgain.setDontShowAgain).not.toHaveBeenCalled();
+  });
+
+  it('persists the preference on close when the checkbox was checked', () => {
+    component.onBannerDontShow(true);
+    component.onBannerClose();
+    expect(component.bannerDismissed()).toBe(true);
+    expect(dontShowAgain.setDontShowAgain)
+      .toHaveBeenCalledWith(DontShowDialogs.SharedFolderBanner);
+  });
+
   it('dispatches followFolder and shows the success banner on Save', () => {
     component.onBannerAction('save');
     expect(store.dispatch)

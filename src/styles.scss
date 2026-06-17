@@ -8,6 +8,18 @@
 
 @use '../public/styles/highlight';
 
+// Base accessibility variables. These back the focus-visibility / high-contrast
+// rules; previously they lived in an _accessibility.scss partial that is not in
+// the compiled style graph, so the values silently fell back to invalid.
+:root {
+  --accessibility-focus-outline-width: 2px;
+  --accessibility-focus-outline-offset: 2px;
+  --accessibility-focus-outline-color: var(--color-primary);
+  --accessibility-min-touch-target: 44px;
+  --accessibility-transition-duration: 300ms;
+  --accessibility-animation-duration: 300ms;
+}
+
 html,
 body {
   height: 100%;

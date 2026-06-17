@@ -8,6 +8,20 @@
   cursor: pointer;
 }
 
+:host.disabled {
+  color: var(--color-text-disable);
+  //opacity: 0.5;
+
+  .title, .page-ref {
+    color: var(--color-text-disable);
+  }
+
+  &:hover {
+    background: none;
+    cursor: default;
+  }
+}
+
 :host.playing {
   color: var(--color-primary);
 

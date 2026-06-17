@@ -6,7 +6,6 @@ import { EnvironmentService } from "../../shared/services/environment.service";
 import { DocumentTypeEnum } from "../constants/document-type";
 import { MusicService } from "./services/music.service";
 import { SoundService } from '../../shared/services/sound.service';
-import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
 import { Router } from '@angular/router';
@@ -34,12 +33,6 @@ export class MusicPageComponent implements OnInit, OnDestroy {
 
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
-
-  // View toggle options for sound recordings - static to prevent re-rendering
-  readonly viewToggleOptions: ViewToggleOption[] = [
-    { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
-    { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
-  ];
 
   constructor(
     private envService: EnvironmentService,
@@ -81,6 +74,17 @@ export class MusicPageComponent implements OnInit, OnDestroy {
 
   getKrameriusBaseUrl(): string {
     return this.krameriusBaseUrl;
+  }
+
+  isAccessDenied(document: any): boolean {
+    return !this.recordHandler.isRecordPublic(document.licences)
+      && !this.documentInfoService.canAccessDocument()
+      && !this.userService.hasAnyLicense(document.licences);
+  }
+
+  scrollToAccessDenied(): void {
+    document.getElementById('music-access-denied-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export interface InfoBannerAction {
   id: string;
@@ -11,7 +12,7 @@ export interface InfoBannerAction {
 @Component({
   selector: 'app-info-banner',
   standalone: true,
-  imports: [],
+  imports: [MatCheckboxModule],
   templateUrl: './info-banner.component.html',
   styleUrl: './info-banner.component.scss',
 })
@@ -25,16 +26,22 @@ export class InfoBannerComponent {
   @Input() dontShowId?: string;
   /** Initial checked state of the don't-show checkbox. */
   @Input() dontShowChecked = false;
+  /** When true, renders an X button that emits `close`. */
+  @Input() closable = false;
 
   @Output() actionClick = new EventEmitter<string>();
   @Output() dontShowAgainChange = new EventEmitter<boolean>();
+  @Output() close = new EventEmitter<void>();
 
   onAction(id: string): void {
     this.actionClick.emit(id);
   }
 
-  onDontShowToggle(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+  onDontShowToggle(checked: boolean): void {
     this.dontShowAgainChange.emit(checked);
+  }
+
+  onClose(): void {
+    this.close.emit();
   }
 }

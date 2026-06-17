@@ -6,18 +6,38 @@
 
   <ng-container left-sidebar>
 
-    <div class="sidebar--wrapper" *ngIf="detailViewService.document$ | async as document">
-
+    <div class="sidebar--container" *ngIf="detailViewService.document$ | async as document">
 
       @if (document.model === DocumentTypeEnum.soundrecording) {
-            <app-input
-              [placeholder]="'search-in-document--placeholder' | translate"
-              [theme]="'dark'"
-              [size]="'sm'"
-              [showMicButton]="true"
-            ></app-input>
+        <app-tabs
+          [noPadding]="true"
+          [initialTab]="detailViewService.soundRecordingViewMode()"
+          (tabChanged)="detailViewService.setSoundRecordingViewView($event)">
 
-            <ng-container *ngIf="detailViewService.soundRecordingViewMode() === 'images'">
+          <app-tab-item id="records" [label]="'sound-records--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
+            </div>
+          </app-tab-item>
+
+          <app-tab-item id="images" [label]="'images--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
               <hr>
               <app-page-navigator
                 [currentPage]="detailViewService.currentPageIndex + 1"
@@ -26,13 +46,15 @@
                 (prev)="detailViewService.goToPrevious()"
                 (pageChange)="detailViewService.goToPage($event)"
               ></app-page-navigator>
-            </ng-container>
 
-            <div class="sidebar--wrapper--scroll-content">
-              <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
             </div>
-        }
+          </app-tab-item>
 
+        </app-tabs>
+      }
 
     </div>
   </ng-container>
@@ -50,15 +72,12 @@
         <div right>
           <div class="flex flex--align-center">
             <app-toolbar-controls
-              [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-              [viewToggleOptions]="viewToggleOptions"
               [showFavorites]="true"
+              [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
               [showShare]="true"
               [showQuote]="true"
               [showInfo]="false" [showEdit]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
-              [activeViewValue]="detailViewService.soundRecordingViewMode()"
-              (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
               (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)">
@@ -79,26 +98,33 @@
         <div class="detail-view--page--content--wrapper" >
 
           @let checkState = documentInfoService.state();
+          @let accessDenied = checkState === 'LOADED' && isAccessDenied(document);
 
-          <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) && !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
-            <app-document-access-denied [metadata]="document"
-              [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
-            </app-document-access-denied>
-          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+          @if (checkState === 'INITIAL' || checkState === 'LOADING') {
             <app-inline-loader></app-inline-loader>
           } @else {
 
             @if (detailViewService.soundRecordingViewMode() === 'images') {
 
-              @if (detailViewService.isCurrentPageAccessible) {
-                <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
-                </app-iiif-viewer>
+              <!-- Images view: access denied replaces content -->
+              @if (accessDenied) {
+                <app-document-access-denied [metadata]="document"
+                  [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+                </app-document-access-denied>
               } @else {
-                <div class="access-restricted-message">
-                  <span class="icon icon-lock-1"></span>
-                  <p>{{ 'image-access-restricted' | translate }}</p>
-                </div>
+
+                @if (detailViewService.isCurrentPageAccessible) {
+                  <app-iiif-viewer [imagePid]="detailViewService.currentPagePid">
+                  </app-iiif-viewer>
+                } @else {
+                  <div class="access-restricted-message">
+                    <span class="icon icon-lock-1"></span>
+                    <p>{{ 'image-access-restricted' | translate }}</p>
+                  </div>
+                }
+
+                <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
+
               }
 
             }
@@ -107,21 +133,30 @@
 
               <ng-container *ngIf="musicService.tracks$ | async as tracks">
 
+                <!-- Records view: track list stays visible (rows disabled individually),
+                     access-denied panel rendered below -->
                 <app-music-track-list
                   [tracks]="tracks"
                   [playingPid]="soundService.currentTrackPid"
+                  [accessDenied]="accessDenied"
                   (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                  (playAll)="musicService.addTracksToQueueAndPlayFirst($event[0])"
                   (addToQueue)="musicService.addTrackToQueue($event)"
                   (download)="musicService.downloadTrack($event)"
+                  (scrollToAccessDenied)="scrollToAccessDenied()"
                 ></app-music-track-list>
 
               </ng-container>
 
-            </ng-container>
+              @if (accessDenied) {
+                <div id="music-access-denied-section">
+                  <app-document-access-denied [metadata]="document"
+                    [requiredLicenses]="documentInfoService.getRuntimeLicenses().length ? documentInfoService.getRuntimeLicenses() : document.licences">
+                  </app-document-access-denied>
+                </div>
+              }
 
-            @if (detailViewService.soundRecordingViewMode() === 'images') {
-              <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
-            }
+            </ng-container>
 
           }
 

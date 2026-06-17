@@ -207,7 +207,8 @@ Přepínače jednotlivých formátů v sekci „Export“ v postranním panelu d
   "jpeg": true,
   "pdf": true,
   "epub": true,
-  "txt": true
+  "txt": true,
+  "enrichWithAI": true
 }
 ```
 
@@ -218,6 +219,7 @@ Přepínače jednotlivých formátů v sekci „Export“ v postranním panelu d
 | `pdf` | Export do PDF (celý dokument / výběr stran / odeslání e-mailem). | `true`  |
 | `epub` | Export do EPUB. | `true`  |
 | `txt` | Export do prostého textu (TXT). | `true`  |
+| `enrichWithAI` | Přepínač „obohatit pomocí AI“ v dialogu pro odeslání EPUB/TXT exportu e-mailem. Když je `false`, přepínač se v dialogu nezobrazí. Není to samostatný formát exportu — neovlivňuje skrytí záložky „Export“. | `true`  |
 
 Když se celý blok `export` vynechá, použijí se výchozí hodnoty z tabulky (`print`, `jpeg`, `pdf` zapnuté; `epub`, `txt` vypnuté). Když blok uvedete, ale některé pole vynecháte, doplní se z výchozích hodnot.
 

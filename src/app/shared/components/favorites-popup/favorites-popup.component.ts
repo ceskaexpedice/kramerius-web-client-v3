@@ -5,7 +5,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
-import {combineLatest, map, startWith, takeUntil, Subject, of, Observable} from 'rxjs';
+import {combineLatest, map, startWith, takeUntil, Subject, of, Observable, filter} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
@@ -63,12 +63,16 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   private dontShowAgainService = inject(DontShowAgainService);
   private folderItemsService = inject(FolderItemsService);
   private localStorage = inject(LocalStorageService);
+  private toastService = inject(ToastService);
   private destroy$ = new Subject<void>();
 
   private readonly LAST_USED_FOLDER_KEY = 'last_used_folder';
 
   private _shouldAddItemToNewFolder = false;
   private _shouldCreateRealFavoritesFolder = false;
+  // Guards against showing the success feedback more than once when a single
+  // "Done" triggers multiple add operations.
+  private feedbackShown = false;
   private _hasFavoritesFolder = false;
   private readonly FAKE_FAVORITES_UUID = 'fake-favorites-folder-uuid';
 
@@ -314,27 +318,52 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         // Store newly created folder as last used
         this.setLastUsedFolder(folder.uuid);
 
-        // Add the item to the newly created folder
+        // Add the item to the newly created folder. The success feedback is
+        // shown once this add completes (see updateFolderItemsSuccess below),
+        // so suppress the global toast here.
         this.store.dispatch(FoldersActions.updateFolderItems({
           request: {
             uuid: folder.uuid,
             items: [this.itemId]
-          }
+          },
+          suppressToast: true
         }));
 
         // Reset the flags
         this.setShouldAddItemToNewFolder(false);
         this.setShouldCreateRealFavoritesFolder(false);
-
-        const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
-
-        if (showSuccessPopup) {
-          this.showSuccess.set(true);
-        } else {
-          this.onCloseSuccess();
-        }
       }
     });
+
+    // Once the item has actually been added to a folder, show the success
+    // feedback for popup-driven adds (suppressToast === true).
+    this.actions$.pipe(
+      ofType(FoldersActions.updateFolderItemsSuccess),
+      filter(action => !!action.suppressToast),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      if (this.feedbackShown) {
+        return;
+      }
+      this.feedbackShown = true;
+      this.showSuccessFeedback();
+    });
+  }
+
+  /**
+   * Show feedback after an item was added to a folder from this popup.
+   * If the user has not dismissed the help dialog, show the in-popup success
+   * state. Otherwise show only the short "Hotovo!" toast and close.
+   */
+  private showSuccessFeedback() {
+    const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
+
+    if (showSuccessPopup) {
+      this.showSuccess.set(true);
+    } else {
+      this.toastService.show(this.translateService.instant('add-to-favorites-success--header'));
+      this.onCloseSuccess();
+    }
   }
 
   ngOnDestroy() {
@@ -417,22 +446,31 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       this.setLastUsedFolder(realSelectedIds[0]);
     }
 
+    // Handle fake favorites folder selection
+    const isFakeFavoritesSelected = selectedIds.includes(this.FAKE_FAVORITES_UUID);
+
+    // Whether this action results in the item being added to at least one
+    // folder. Drives whether we show the success feedback or just close.
+    const hasAdditions = !!newListName || isFakeFavoritesSelected || realSelectedIds.length > 0;
+
+    // Reset the guard for this round of additions.
+    this.feedbackShown = false;
+
     if (newListName) {
       // Create new list and set flag to add item to it
       this.setShouldAddItemToNewFolder(true);
       this.store.dispatch(FoldersActions.createFolder({
-        folder: { name: newListName }
+        folder: { name: newListName },
+        suppressToast: true
       }));
     }
-
-    // Handle fake favorites folder selection
-    const isFakeFavoritesSelected = selectedIds.includes(this.FAKE_FAVORITES_UUID);
 
     if (isFakeFavoritesSelected) {
       // Set flag to create real favorites folder and add item to it
       this.setShouldCreateRealFavoritesFolder(true);
       this.store.dispatch(FoldersActions.createFolder({
-        folder: { name: this.foldersService.getFavoritesFolderName() }
+        folder: { name: this.foldersService.getFavoritesFolderName() },
+        suppressToast: true
       }));
     }
 
@@ -442,7 +480,8 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         request: {
           uuid: folderId,
           items: [this.itemId]
-        }
+        },
+        suppressToast: true
       }));
     });
 
@@ -457,17 +496,12 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       }));
     });
 
-    // Show success state only if no new folder is being created (otherwise the subscription will handle it)
-    this.onCloseSuccess();
-    // if (!newListName && !isFakeFavoritesSelected) {
-    //   const showSuccessPopup = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesPopup);
-    //
-    //   if (showSuccessPopup) {
-    //     this.showSuccess.set(true);
-    //   } else {
-    //     this.onCloseSuccess();
-    //   }
-    // }
+    // When items were added, the updateFolderItemsSuccess subscription shows the
+    // success feedback (in-popup state or short toast). When there are no
+    // additions (e.g. only removals), nothing will trigger it, so close now.
+    if (!hasAdditions) {
+      this.onCloseSuccess();
+    }
   }
 
   onCloseSuccess() {

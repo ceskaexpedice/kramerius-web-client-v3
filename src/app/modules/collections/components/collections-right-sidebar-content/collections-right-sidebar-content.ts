@@ -2,6 +2,8 @@ import { Component, computed, EventEmitter, inject, Input, Output } from '@angul
 import { TranslatePipe } from '@ngx-translate/core';
 import { Metadata } from '../../../../shared/models/metadata.model';
 import { BreadcrumbsService } from '../../../../shared/services/breadcrumbs.service';
+import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
+import { resolveLocalizedValue } from '../../../../shared/utils/language-utils';
 
 @Component({
   selector: 'app-collections-right-sidebar-content',
@@ -19,9 +21,21 @@ export class CollectionsRightSidebarContent {
   @Output() onClose = new EventEmitter<void>();
 
   private breadcrumbsService = inject(BreadcrumbsService);
+  private appTranslation = inject(AppTranslationService);
 
   @Input() set setMetadata(metadata: Metadata) {
     this.metadata = metadata;
+  }
+
+  /**
+   * Collection title resolved against the current UI language (live, so it updates
+   * on language switch). Falls back to the parse-time `mainTitle`.
+   */
+  get localizedTitle(): string {
+    const current = this.appTranslation.currentLanguage().code;
+    return resolveLocalizedValue(this.metadata?.collectionTitles, current)
+      || this.metadata?.mainTitle
+      || '';
   }
 
   /**
