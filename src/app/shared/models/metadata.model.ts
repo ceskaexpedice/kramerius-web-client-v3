@@ -130,6 +130,10 @@ export class TitleInfo {
   public subTitle: string = '';
   public partName: string = '';
   public partNumber: string = '';
+
+  mainTitle(): string {
+    return this.nonSort ? `${this.nonSort} ${this.title}` : (this.title || '');
+  }
 }
 
 export class NoteInfo {

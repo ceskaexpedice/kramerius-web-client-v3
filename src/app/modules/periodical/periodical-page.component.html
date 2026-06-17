@@ -7,7 +7,7 @@
 
     <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode">
 
-      <h1 class="visually-hidden">{{ (periodical.document$ | async)?.['root.title'] || '' }}</h1>
+      <h1 class="visually-hidden">{{ periodical.metadata?.mainTitle || (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
       <!-- Screen-reader announcement of loading status / result count. -->
       <!-- Kept permanently in the DOM so the first update is reliably announced. -->
@@ -30,7 +30,7 @@
         <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !breakpointService.isMobile()">
 
           <div class="max-width-100" left *ngIf="periodical.document$ | async as document">
-            <app-toolbar-header [title]="document?.['root.title'] || ''"
+            <app-toolbar-header [title]="periodical.metadata?.mainTitle || document?.['root.title'] || ''"
               [showBackButton]="recordHandler.shouldShowBackButton(document)"
                                 [titleTooltip]="document.uuid !== document['root.pid'] ? ('go-to-volume--tooltip' | translate) : ''"
                                 [titleClickable]="document.uuid !== document['root.pid']"
