@@ -249,7 +249,16 @@ export class ConfigService {
    * tab in the metadata sidebar should be hidden entirely.
    */
   isAnyExportFormatEnabled(): boolean {
-    return Object.values(this.export).some(Boolean);
+    const formats: ExportFormat[] = ['print', 'jpeg', 'pdf', 'epub', 'txt'];
+    return formats.some(f => this.export[f]);
+  }
+
+  /**
+   * Whether the "enrich with AI" toggle is offered in the email export dialog
+   * (EPUB/TXT exports). Defaults to true when unset.
+   */
+  isEnrichWithAIEnabled(): boolean {
+    return this.export.enrichWithAI ?? true;
   }
 
   // Viewer config accessors

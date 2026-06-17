@@ -71,10 +71,16 @@ export interface ExportConfig {
   pdf: boolean;
   epub: boolean;
   txt: boolean;
+  /**
+   * Enables the "enrich with AI" toggle in the email export dialog for EPUB
+   * and TXT exports. Not a standalone export format — see `enrichWithAI`
+   * exclusion from `ExportFormat`.
+   */
+  enrichWithAI?: boolean;
 }
 
-// Export format keys
-export type ExportFormat = keyof ExportConfig;
+// Export format keys (excludes non-format toggles like `enrichWithAI`)
+export type ExportFormat = Exclude<keyof ExportConfig, 'enrichWithAI'>;
 
 // Viewer mode type
 export type ViewerMode = 'book' | 'single';

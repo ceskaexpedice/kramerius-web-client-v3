@@ -32,7 +32,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     jpeg: true,
     pdf: true,
     epub: true,
-    txt: true
+    txt: true,
+    enrichWithAI: true
   },
   viewer: {
     defaultMode: 'book',
