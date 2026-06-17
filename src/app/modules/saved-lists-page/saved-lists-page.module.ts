@@ -30,6 +30,7 @@ import { TitleEditPopupComponent } from '../../shared/components/title-edit-popu
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { InfoBannerComponent } from '../../shared/components/info-banner/info-banner.component';
+import { CdkTooltipDirective } from '../../shared/directives/cdk-tooltip/cdk-tooltip.directive';
 
 const routes: Routes = [
   {
@@ -76,6 +77,7 @@ const routes: Routes = [
     SkeletonListPipe,
     RecordExportPanelComponent,
     InfoBannerComponent,
+    CdkTooltipDirective,
   ],
   providers: [
     { provide: FILTER_SERVICE, useExisting: SavedListsFilterService },

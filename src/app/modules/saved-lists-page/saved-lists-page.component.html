@@ -22,12 +22,14 @@
                 @if (isLoggedIn$ | async) {
                   <button class="icon-button transparent" [class.active]="showFacetFilters()"
                           [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
+                          [appCdkTooltip]="'open-filters' | translate"
                           (click)="toggleFacetFilters()">
                     <i class="icon-search-normal-1"></i>
                   </button>
                 }
                 @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
+                  [appCdkTooltip]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
                   <i class="icon-edit-2"></i>
                 </button>

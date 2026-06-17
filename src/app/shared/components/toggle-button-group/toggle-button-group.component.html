@@ -12,7 +12,6 @@
     [attr.aria-pressed]="option.value === value"
     [appCdkTooltip]="option.ariaLabel ? (option.ariaLabel | translate) : ''"
     [tooltipDisabled]="!option.ariaLabel"
-    tooltipPosition="bottom"
     [class.active]="option.value === value"
     (click)="select(option)"
   >
