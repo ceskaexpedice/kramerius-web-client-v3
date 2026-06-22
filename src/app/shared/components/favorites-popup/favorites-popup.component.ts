@@ -47,6 +47,10 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Input() showRemoveButton = false;
   @Input() showHierarchySelector = false;
   @Input() document?: any;
+  // 'add' (default): pick folders to add the item to.
+  // 'remove': list only the folders that already contain the item, all
+  // pre-checked, and remove the item from the checked folders on Done.
+  @Input() mode: 'add' | 'remove' = 'add';
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
@@ -183,6 +187,11 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(([folders, searchTerm, selectedFolderIds, foldersContainingItem, lastUsedFolderId]) => {
         let filteredFolders = folders;
+
+        // In remove mode, only list the folders that already contain the item.
+        if (this.mode === 'remove') {
+          filteredFolders = filteredFolders.filter(folder => foldersContainingItem.includes(folder.uuid));
+        }
 
         // Apply search filter if search term exists
         if (searchTerm && searchTerm.trim()) {
@@ -436,6 +445,23 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   }
 
   onDone() {
+    // Remove mode: the listed (containing) folders are pre-checked; Done removes
+    // the item from every still-checked folder, then closes with a short toast.
+    if (this.mode === 'remove') {
+      const checkedIds = Array.from(this.selectedFolderIds());
+      checkedIds.forEach(folderId => {
+        this.store.dispatch(FoldersActions.removeItemFromFolder({
+          request: {
+            uuid: folderId,
+            items: [this.itemId]
+          }
+        }));
+      });
+      this.toastService.show(this.translateService.instant('remove-from-my-library'));
+      this.close.emit();
+      return;
+    }
+
     const newListName = this.newListName().trim();
     const selectedIds = Array.from(this.selectedFolderIds());
     const originalFolderIds = this.foldersContainingItem();

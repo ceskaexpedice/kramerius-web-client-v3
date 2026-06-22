@@ -15,6 +15,7 @@ import { SavedListsService } from '../../../modules/saved-lists-page/services/sa
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
+import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
 import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
@@ -49,6 +50,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
   favoritesService = inject(FavoritesService);
+  private folderItemsService = inject(FolderItemsService);
   popupPositioning = inject(PopupPositioningService);
   public adminModeService = inject(AdminModeService);
   private savedListsService = inject(SavedListsService);
@@ -86,6 +88,17 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   // Observable to check if this item is in any folder
   isItemFavorited$: Observable<boolean> = EMPTY;
 
+  // IDs of every folder that currently contains this item. Drives the trash
+  // (remove) action: shown whenever the item is in at least one folder. When it
+  // is in exactly one folder we remove immediately; when it is in several we
+  // open the favorites popup in 'remove' mode so the user picks which to remove
+  // from. Derived from the mapping, so it works anywhere (not only the
+  // saved-lists page where currentFolderId is set).
+  itemFolderIds$: Observable<string[]> = EMPTY;
+
+  // Opens the favorites popup in remove mode instead of the default add mode.
+  popupMode = signal<'add' | 'remove'>('add');
+
   constructor() {
     this.favoritesPopupState = this.favoritesService.createPopupState();
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
@@ -95,6 +108,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     // Initialize the observable once we have the item
     if (this.item?.id) {
       this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item!.id);
+      this.itemFolderIds$ = this.folderItemsService.getFolderIdsContainingItem(this.item!.id);
     }
   }
 
@@ -165,6 +179,8 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
     if (this.item.showFavoriteButton === false) return;
 
+    this.popupMode.set('add');
+
     // Handle favorite toggle with authentication check
     this.favoritesService.handleFavoriteToggle(
       this.router.url,
@@ -178,19 +194,30 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     this.popupPositioning.cleanup();
   }
 
-  onRemoveFromCurrentFolder(event: Event) {
+  onRemoveFromFolder(event: Event, folderIds: string[]) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!this.currentFolderId || !this.item) return;
+    if (!this.item || folderIds.length === 0) return;
 
-    this.savedListsService.removeItemFromFolder(
-      this.currentFolderId,
-      this.item.id,
-      this.item.title,
-      () => {
+    // In a single folder: remove right away (with the standard confirmation).
+    if (folderIds.length === 1) {
+      this.savedListsService.removeItemFromFolder(
+        folderIds[0],
+        this.item.id,
+        this.item.title,
+        () => {}
+      );
+      return;
+    }
 
-      }
+    // In several folders: open the popup in remove mode so the user picks which
+    // folders to remove the item from.
+    this.popupMode.set('remove');
+    this.favoritesService.handleFavoriteToggle(
+      this.router.url,
+      event,
+      this.favoritesPopupState
     );
   }
 

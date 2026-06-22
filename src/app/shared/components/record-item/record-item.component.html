@@ -35,18 +35,21 @@
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button" *ngIf="shouldShowFavoriteButton()"
           [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
-          [appCdkTooltip]="((isItemFavorited$ | async) ? 'remove-from-my-library' : 'add-to-favorites') | translate"
-          [attr.aria-label]="((isItemFavorited$ | async) ? 'remove-from-my-library' : 'add-to-favorites') | translate">
+          [appCdkTooltip]="('add-to-favorites') | translate"
+          [attr.aria-label]="('add-to-favorites') | translate">
           <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
         </button>
 
+        @if (!adminModeService.adminMode() && (itemFolderIds$ | async); as itemFolderIds) {
+        @if (itemFolderIds.length > 0) {
         <button class="button secondary rounded icon-button favorites-button"
-          *ngIf="!adminModeService.adminMode() && (isItemFavorited$ | async) && currentFolderId"
-          (click)="onRemoveFromCurrentFolder($event)"
-          [appCdkTooltip]="'remove-from-favorites' | translate"
-          aria-label="{{'remove-from-favorites' | translate}}">
+          (click)="onRemoveFromFolder($event, itemFolderIds)"
+          [appCdkTooltip]="'remove-from-my-library' | translate"
+          aria-label="{{'remove-from-my-library' | translate}}">
           <i class="icon-trash" aria-hidden="true"></i>
         </button>
+        }
+        }
       </div>
       }
 
@@ -154,6 +157,7 @@
 @if (item && favoritesPopupState.showPopup()) {
 <div class="favorites-popup-wrapper" [class.positioned]="favoritesPopupState.popupPositioned()">
   <app-favorites-popup [itemId]="item.id" [itemName]="item.title" [currentFolderId]="currentFolderId"
+    [mode]="popupMode()"
     [showRemoveButton]="!!currentFolderId" (close)="favoritesPopupState.closePopup()">
   </app-favorites-popup>
 </div>
