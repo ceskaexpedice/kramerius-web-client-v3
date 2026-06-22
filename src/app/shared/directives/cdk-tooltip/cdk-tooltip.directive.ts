@@ -17,6 +17,7 @@ import {
   FlexibleConnectedPositionStrategy,
 } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { CdkTooltipComponent } from './cdk-tooltip.component';
 import {
   TooltipPosition,
@@ -57,6 +58,7 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   private overlay = inject(Overlay);
   private overlayPositionBuilder = inject(OverlayPositionBuilder);
   private elementRef = inject(ElementRef);
+  private focusMonitor = inject(FocusMonitor);
 
   /**
    * The tooltip content text (plain text)
@@ -108,6 +110,9 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   private tooltipInstance?: CdkTooltipComponent;
   private showTimeoutId?: ReturnType<typeof setTimeout>;
   private hideTimeoutId?: ReturnType<typeof setTimeout>;
+  // Timer that disposes the overlay after the hide animation. Tracked so it can
+  // be cancelled; an untracked timer was firing against a recreated overlay.
+  private destroyTimeoutId?: ReturnType<typeof setTimeout>;
   private isTooltipVisible = signal(false);
 
   /**
@@ -131,11 +136,26 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
     if (this.content) {
       this.elementRef.nativeElement.setAttribute('aria-label', this.content);
     }
+
+    // Drive focus show/hide through FocusMonitor so we know the focus ORIGIN.
+    // Only keyboard focus should reveal the tooltip; mouse focus is already
+    // covered by mouseenter, and 'program' focus (e.g. a closing dialog/popup
+    // restoring focus to this trigger) must NOT reopen the tooltip while the
+    // pointer is elsewhere — that was the stuck-tooltip-after-closing-popup bug.
+    this.focusMonitor.monitor(this.elementRef).subscribe(origin => {
+      if (origin === 'keyboard') {
+        this.show();
+      } else if (origin === null) {
+        // Element lost focus.
+        this.hide();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.clearTimeouts();
     this.destroyTooltip();
+    this.focusMonitor.stopMonitoring(this.elementRef);
   }
 
   /**
@@ -155,19 +175,27 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   }
 
   /**
-   * Show tooltip on focus
+   * Hide immediately when the host is clicked.
+   *
+   * A click commonly opens a dialog/overlay, navigates away, or toggles the
+   * host out of the DOM (@if/*ngIf). In those cases neither mouseleave nor blur
+   * fires reliably, leaving the tooltip stranded on screen. Killing it on click
+   * makes that correct everywhere, without each call site having to opt in.
    */
-  @HostListener('focus')
-  onFocus(): void {
-    this.show();
+  @HostListener('click')
+  onClick(): void {
+    this.hideImmediately();
   }
 
   /**
-   * Hide tooltip on blur
+   * Hide immediately when the window loses focus (e.g. an alert, tab switch, or
+   * native dialog), which can leave the host without emitting mouseleave/blur.
    */
-  @HostListener('blur')
-  onBlur(): void {
-    this.hide();
+  @HostListener('window:blur')
+  onWindowBlur(): void {
+    if (this.isTooltipVisible() || this.showTimeoutId) {
+      this.hideImmediately();
+    }
   }
 
   /**
@@ -202,6 +230,16 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
     if (this.hideTimeoutId) {
       clearTimeout(this.hideTimeoutId);
       this.hideTimeoutId = undefined;
+    }
+
+    // Cancel a pending post-animation destroy so re-entering during the hide
+    // animation keeps (and re-shows) the existing tooltip instead of disposing it.
+    if (this.destroyTimeoutId) {
+      clearTimeout(this.destroyTimeoutId);
+      this.destroyTimeoutId = undefined;
+      if (this.tooltipInstance) {
+        this.tooltipInstance.show();
+      }
     }
 
     // Don't show if disabled or no content/template
@@ -253,7 +291,8 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
       }
 
       // Wait for animation to complete before destroying
-      setTimeout(() => {
+      this.destroyTimeoutId = setTimeout(() => {
+        this.destroyTimeoutId = undefined;
         this.destroyTooltip();
         this.isTooltipVisible.set(false);
       }, 150); // Match animation duration
@@ -340,6 +379,10 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
     if (this.hideTimeoutId) {
       clearTimeout(this.hideTimeoutId);
       this.hideTimeoutId = undefined;
+    }
+    if (this.destroyTimeoutId) {
+      clearTimeout(this.destroyTimeoutId);
+      this.destroyTimeoutId = undefined;
     }
   }
 
