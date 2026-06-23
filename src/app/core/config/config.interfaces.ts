@@ -117,7 +117,13 @@ export interface ViewerConfig {
 // Search configuration
 export interface SearchConfig {
   doctypes: string[];
-  filters: string[];
+  filters?: string[];
+  /**
+   * Optional Solr `facet.threads` value used to parallelize faceting across
+   * fields. Omitted from the query when unset. Use -1 for one thread per
+   * facet field, or a positive number to cap the thread count.
+   */
+  facetThreads?: number;
 }
 
 // License access type

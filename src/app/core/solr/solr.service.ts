@@ -20,6 +20,7 @@ import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
 import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { ConfigService } from '../config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
@@ -30,8 +31,24 @@ export class SolrService {
   constructor(
     private http: HttpClient,
     private env: EnvironmentService,
-    private displayConfigService: DisplayConfigService
+    private displayConfigService: DisplayConfigService,
+    private configService: ConfigService
   ) {
+  }
+
+  /**
+   * Reads the optional `search.facetThreads` value from the library config
+   * (config-main.json). Returns null when unset/invalid so facet.threads is
+   * omitted from the query. Set to -1 for one thread per facet field, or a
+   * positive cap to parallelize faceting across fields.
+   */
+  private getFacetThreads(): number | null {
+    const raw = this.configService.getConfig().search?.facetThreads;
+    if (raw === undefined || raw === null) {
+      return null;
+    }
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
   }
 
   private get API_URL(): string {
@@ -387,7 +404,7 @@ export class SolrService {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(facetFields),
+      ...SolrQueryBuilder.facetFields(facetFields, 1, this.getFacetThreads()),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -511,7 +528,7 @@ export class SolrService {
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(facetFields),
+      ...SolrQueryBuilder.facetFields(facetFields, 1, this.getFacetThreads()),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };

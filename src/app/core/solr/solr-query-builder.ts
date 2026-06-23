@@ -14,7 +14,7 @@ export class SolrQueryBuilder {
     SolrQueryBuilder.configuredModels = models;
   }
 
-  private static buildModelList(includePeriodicalItem: boolean, includePage: boolean, includeSupplement: boolean = true, includeArticle: boolean = true): string[] {
+  private static buildModelList(includePeriodicalItem: boolean, includePage: boolean, includeSupplement: boolean = true, includeArticle: boolean = true, withBoosts: boolean = true): string[] {
     const models = SolrQueryBuilder.configuredModels.length > 0
       ? SolrQueryBuilder.configuredModels
       : ['periodical', 'monograph', 'map', 'graphic', 'archive', 'manuscript', 'soundrecording', 'sheetmusic', 'convolute', 'collection', 'monographunit', 'supplement', 'article'];
@@ -29,20 +29,21 @@ export class SolrQueryBuilder {
         return true;
       })
       .map(m => {
+        if (!withBoosts) return `model:${m}`;
         const boost = SolrQueryBuilder.boostMap[m] ?? 2;
         return `model:${m}^${boost}`;
       });
 
     if (includePeriodicalItem) {
       if (!result.some(r => r.startsWith('model:periodicalitem'))) {
-        result.push('model:periodicalitem^2');
+        result.push(withBoosts ? 'model:periodicalitem^2' : 'model:periodicalitem');
       }
       if (!result.some(r => r.startsWith('model:periodicalvolume'))) {
-        result.push('model:periodicalvolume^2');
+        result.push(withBoosts ? 'model:periodicalvolume^2' : 'model:periodicalvolume');
       }
     }
     if (includePage) {
-      result.push('model:page^0.001');
+      result.push(withBoosts ? 'model:page^0.001' : 'model:page');
     }
 
     return result;
@@ -56,16 +57,17 @@ export class SolrQueryBuilder {
   }
 
   static basePeriodicalFilters(includePeriodicalItem: boolean = false, includePage: boolean = false, rootPid: string | null = null): any {
+    // fq is a pure filter — boosts are ignored by Solr here, so list models without them.
     const baseModels = [
-      'model:periodical^10'
+      'model:periodical'
     ];
 
     if (includePeriodicalItem) {
-      baseModels.push('model:periodicalitem^2');
-      baseModels.push('model:periodicalvolume^2');
+      baseModels.push('model:periodicalitem');
+      baseModels.push('model:periodicalvolume');
     }
     if (includePage) {
-      baseModels.push('model:page^0.001');  // Very low boost for pages
+      baseModels.push('model:page');
     }
 
     return {
@@ -80,7 +82,8 @@ export class SolrQueryBuilder {
   }
 
   static baseFilters(includePeriodicalItem: boolean = false, includePage: boolean = false, includeSupplement: boolean = true, includeArticle: boolean = true): any {
-    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement, includeArticle);
+    // fq is a pure filter — Solr ignores boosts here, so emit the model list without them.
+    const baseModels = SolrQueryBuilder.buildModelList(includePeriodicalItem, includePage, includeSupplement, includeArticle, false);
 
     return {
       fq: `(${baseModels.join(' OR ')})`
@@ -184,12 +187,18 @@ export class SolrQueryBuilder {
     return this.facetByField('model');
   }
 
-  static facetFields(fields: string[], minCount = 1): Record<string, any> {
-    return {
+  static facetFields(fields: string[], minCount = 1, facetThreads?: number | null): Record<string, any> {
+    const params: Record<string, any> = {
       facet: 'true',
       'facet.mincount': `${minCount}`,
       'facet.field': fields
     };
+    // facet.threads parallelizes faceting across fields. Only sent when configured
+    // (env.json key `solrFacetThreads`); -1 means one thread per field.
+    if (facetThreads !== undefined && facetThreads !== null) {
+      params['facet.threads'] = `${facetThreads}`;
+    }
+    return params;
   }
 
   static facetContains(contains: string, ignoreCase: boolean = true): Record<string, any> {

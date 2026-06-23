@@ -313,13 +313,15 @@ Výchozí hodnota pro každé pole je `true`. Když se celý blok `controls` vyn
     "convolute",
     "collection",
     "page"
-  ]
+  ],
+  "facetThreads": -1
 }
 ```
 
 | Pole | Povinné | Popis |
 |---|---|---|
 | `doctypes` | ne | Seznam typů dokumentů, které se mají brát v úvahu při vyhledávání (omezení modelů). Hodnoty musí odpovídat typům uloženým v backendu Krameria. Když pole chybí nebo je prázdné, nefiltruje se podle modelu — pracuje se se všemi typy, které backend vrací. |
+| `facetThreads` | ne | Hodnota Solr parametru `facet.threads` — paralelizuje výpočet facetů přes jednotlivá facetová pole. Když pole chybí, `facet.threads` se do dotazu vůbec neposílá (chování beze změny). `-1` = jedno vlákno na každé facetové pole (maximální paralelizace), kladné číslo = strop počtu vláken. Má smysl, protože vyhledávání facetuje více polí najednou. |
 
 ---
 
