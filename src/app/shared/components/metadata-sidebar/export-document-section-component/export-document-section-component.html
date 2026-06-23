@@ -1,6 +1,6 @@
 <div class="export-document--container">
 
-  @if (printEnabled) {
+  @if (printEnabled && !detailViewService.isPdf) {
   <app-export-document-section-item-component
     [title]="'export-print-title'"
     [icon]="'icon-printer'"
@@ -14,7 +14,7 @@
   </app-export-document-section-item-component>
   }
 
-  @if (jpegEnabled) {
+  @if (jpegEnabled && !detailViewService.isPdf) {
   <app-export-document-section-item-component [title]="'export-jpeg-title'" [icon]="'icon-gallery-import'"
                                               [options]="jpegOptions()" [groupName]="'jpeg-export'"
                                               [selectedOption]="selectedJpegOption" [collapsible]="true"
@@ -33,13 +33,13 @@
     [collapsible]="true"
     [expanded]="expandedSection() === 'pdf'"
     [loading]="pdfLoading()"
-    [loginRequired]="!isLoggedIn()"
+    [loginRequired]="!detailViewService.isPdf && !isLoggedIn()"
     (toggle)="onSectionToggle('pdf')"
     (submit)="onPdfSubmit($event)">
   </app-export-document-section-item-component>
   }
 
-  @if (epubEnabled) {
+  @if (epubEnabled && !detailViewService.isPdf) {
   <app-export-document-section-item-component
     [title]="'export-epub-title'"
     [icon]="'icon-book-export'"
@@ -53,7 +53,7 @@
   </app-export-document-section-item-component>
   }
 
-  @if (txtEnabled) {
+  @if (txtEnabled && !detailViewService.isPdf) {
   <app-export-document-section-item-component
     [title]="'export-text-title'"
     [icon]="'icon-document-text'"

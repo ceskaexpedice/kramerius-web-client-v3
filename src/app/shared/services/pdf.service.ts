@@ -660,6 +660,50 @@ export class PdfService {
     this.pdfProperties.zoom = 'page-width';
   }
 
+  /**
+   * Returns the original filename of the loaded PDF, taken from the PDF's own
+   * Content-Disposition metadata (set by pdf.js when the file was fetched).
+   * Returns null when no PDF is loaded or the file carried no filename.
+   */
+  getCurrentPdfFilename(): string | null {
+    const name = this._pdfDocument?._contentDispositionFilename;
+    return typeof name === 'string' && name.trim() ? name : null;
+  }
+
+  /**
+   * Downloads the PDF that is already loaded in the viewer, without any
+   * server-side export round-trip. Used when the current document is itself a
+   * PDF — the file is already in the browser, so we just save it.
+   *
+   * The file name is, in order of preference: the PDF's own original filename,
+   * then the provided fallback (e.g. the article title), then 'document'.
+   * @param fallbackName Name to use when the PDF has no original filename
+   * @returns true if the download was triggered, false if no PDF was loaded
+   */
+  async downloadCurrentPdf(fallbackName?: string): Promise<boolean> {
+    try {
+      const blob = await this.ngxExtendedPdfViewerService.getCurrentDocumentAsBlob();
+      if (!blob) {
+        return false;
+      }
+
+      const rawName = this.getCurrentPdfFilename() || fallbackName?.trim() || 'document';
+      const name = rawName.replace(/\.pdf$/i, '');
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${name}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      return true;
+    } catch (error) {
+      console.error('Error downloading current PDF:', error);
+      return false;
+    }
+  }
+
   async getPageAsText(pageNumber?: number): Promise<string | undefined> {
     const currentPage = pageNumber || this.getCurrentPage();
 
