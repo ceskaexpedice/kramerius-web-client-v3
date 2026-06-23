@@ -11,6 +11,8 @@ import { PopupPositioningService, PopupState } from '../../services/popup-positi
 import { AdminModeService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { Observable, EMPTY, take } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { selectUserOwnedFolders } from '../../../modules/saved-lists-page/state';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
@@ -54,6 +56,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   public adminModeService = inject(AdminModeService);
   private savedListsService = inject(SavedListsService);
+  private store = inject(Store);
   private envService = inject(EnvironmentService);
   private translateService = inject(TranslateService);
 
@@ -200,25 +203,34 @@ export class RecordItemComponent implements OnInit, OnDestroy {
 
     if (!this.item || folderIds.length === 0) return;
 
-    // In a single folder: remove right away (with the standard confirmation).
-    if (folderIds.length === 1) {
-      this.savedListsService.removeItemFromFolder(
-        folderIds[0],
-        this.item.id,
-        this.item.title,
-        () => {}
-      );
-      return;
-    }
+    // Only the user's OWN folders can have items removed; followed/shared folders
+    // aren't editable, so the single/multi decision must ignore them.
+    this.store.select(selectUserOwnedFolders).pipe(take(1)).subscribe(ownedFolders => {
+      const ownedFolderIds = new Set(ownedFolders.map(f => f.uuid));
+      const ownedContaining = folderIds.filter(id => ownedFolderIds.has(id));
 
-    // In several folders: open the popup in remove mode so the user picks which
-    // folders to remove the item from.
-    this.popupMode.set('remove');
-    this.favoritesService.handleFavoriteToggle(
-      this.router.url,
-      event,
-      this.favoritesPopupState
-    );
+      if (ownedContaining.length === 0) return;
+
+      // In a single owned folder: remove right away (with the standard confirmation).
+      if (ownedContaining.length === 1) {
+        this.savedListsService.removeItemFromFolder(
+          ownedContaining[0],
+          this.item!.id,
+          this.item!.title,
+          () => {}
+        );
+        return;
+      }
+
+      // In several owned folders: open the popup in remove mode so the user picks
+      // which folders to remove the item from.
+      this.popupMode.set('remove');
+      this.favoritesService.handleFavoriteToggle(
+        this.router.url,
+        event,
+        this.favoritesPopupState
+      );
+    });
   }
 
   onInfoClick(event: Event) {

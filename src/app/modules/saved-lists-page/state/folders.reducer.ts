@@ -135,16 +135,38 @@ export const foldersReducer = createReducer(
     items.forEach(item => newItems.delete(item));
     updatedMapping.set(uuid, newItems);
 
+    // When the item is removed from the folder currently shown in the grid,
+    // optimistically drop its card from the displayed results so it doesn't
+    // linger with an empty heart. The grid renders folderSearchResults, keyed
+    // by pid (RecordItem.id === doc.pid).
+    const isDisplayedFolder = state.folderDetails?.uuid === uuid;
+    const removedSet = new Set(items);
+    const updatedSearchResults = isDisplayedFolder
+      ? state.folderSearchResults.filter(doc => !removedSet.has(doc.pid))
+      : state.folderSearchResults;
+    const removedFromResults = state.folderSearchResults.length - updatedSearchResults.length;
+
     return {
       ...state,
       folders: updatedFolders,
       folderItemsMapping: updatedMapping,
+      folderSearchResults: updatedSearchResults,
+      folderSearchResultsTotalCount: Math.max(0, state.folderSearchResultsTotalCount - removedFromResults),
       error: null,
       selectedFolder: state.selectedFolder?.uuid === uuid
         ? { ...state.selectedFolder, itemsCount: Math.max(0, state.selectedFolder.itemsCount - itemsCount) }
         : state.selectedFolder,
       folderDetails: state.folderDetails?.uuid === uuid
-        ? { ...state.folderDetails, itemsCount: Math.max(0, state.folderDetails.itemsCount - itemsCount) }
+        ? {
+            ...state.folderDetails,
+            itemsCount: Math.max(0, state.folderDetails.itemsCount - itemsCount),
+            // Keep the detail's item list in sync so a later sort/filter/search
+            // re-fetch (which derives results from folderDetails.items) doesn't
+            // resurrect the removed item. items is paged: FolderItem[][].
+            items: state.folderDetails.items.map(page =>
+              page.filter(item => !removedSet.has(item.id))
+            )
+          }
         : state.folderDetails
     };
   }),

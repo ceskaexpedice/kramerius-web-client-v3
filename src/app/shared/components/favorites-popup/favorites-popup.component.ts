@@ -3,9 +3,9 @@ import {Store} from '@ngrx/store';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
-import {Folder, selectUserOwnedFolders, selectUserFollowedFolders} from '../../../modules/saved-lists-page/state';
+import {Folder, selectUserOwnedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
-import {combineLatest, map, startWith, takeUntil, Subject, of, Observable, filter} from 'rxjs';
+import {combineLatest, map, startWith, takeUntil, Subject, of, Observable, filter, take} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {Actions, ofType} from '@ngrx/effects';
@@ -125,15 +125,13 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   foldersContainingItem = signal<string[]>([]);
 
   ownedFolders$ = this.store.select(selectUserOwnedFolders);
-  followedFolders$ = this.store.select(selectUserFollowedFolders);
 
-  // Combine owned and followed folders, add fake favorites unless real one exists
-  allFolders$ = combineLatest([
-    this.ownedFolders$,
-    this.followedFolders$
-  ]).pipe(
-    map(([owned, followed]) => {
-      const allFolders = [...owned, ...followed];
+  // Only the user's OWN folders are listed: items can't be added to or removed
+  // from followed/shared folders. Add the fake favorites folder unless a real
+  // one already exists.
+  allFolders$ = this.ownedFolders$.pipe(
+    map((owned) => {
+      const allFolders = [...owned];
       const favoritesTitle = this.foldersService.getFavoritesFolderName();
 
       // Check if user already has a favorites folder in ANY language, so switching
@@ -188,7 +186,8 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       map(([folders, searchTerm, selectedFolderIds, foldersContainingItem, lastUsedFolderId]) => {
         let filteredFolders = folders;
 
-        // In remove mode, only list the folders that already contain the item.
+        // allFolders$ is already owned-only, so in remove mode we just keep the
+        // owned folders that already contain the item.
         if (this.mode === 'remove') {
           filteredFolders = filteredFolders.filter(folder => foldersContainingItem.includes(folder.uuid));
         }
@@ -448,14 +447,20 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     // Remove mode: the listed (containing) folders are pre-checked; Done removes
     // the item from every still-checked folder, then closes with a short toast.
     if (this.mode === 'remove') {
-      const checkedIds = Array.from(this.selectedFolderIds());
-      checkedIds.forEach(folderId => {
-        this.store.dispatch(FoldersActions.removeItemFromFolder({
-          request: {
-            uuid: folderId,
-            items: [this.itemId]
-          }
-        }));
+      // Only ever remove from folders the user owns. Followed/shared folders may
+      // have been pre-checked (the item is in them) but aren't shown in remove
+      // mode and aren't the user's to edit.
+      this.ownedFolders$.pipe(take(1)).subscribe(ownedFolders => {
+        const ownedFolderIds = new Set(ownedFolders.map(f => f.uuid));
+        const checkedIds = Array.from(this.selectedFolderIds()).filter(id => ownedFolderIds.has(id));
+        checkedIds.forEach(folderId => {
+          this.store.dispatch(FoldersActions.removeItemFromFolder({
+            request: {
+              uuid: folderId,
+              items: [this.itemId]
+            }
+          }));
+        });
       });
       this.toastService.show(this.translateService.instant('remove-from-my-library'));
       this.close.emit();
