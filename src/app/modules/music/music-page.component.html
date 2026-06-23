@@ -41,7 +41,7 @@
               <hr>
               <app-page-navigator
                 [currentPage]="detailViewService.currentPageIndex + 1"
-                [totalPages]="detailViewService.totalPages"
+                [totalPages]="detailViewService.totalPagesOnly"
                 (next)="detailViewService.goToNext()"
                 (prev)="detailViewService.goToPrevious()"
                 (pageChange)="detailViewService.goToPage($event)"

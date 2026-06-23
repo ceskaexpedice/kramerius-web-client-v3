@@ -16,8 +16,57 @@
         <app-epub-sidebar></app-epub-sidebar>
       </ng-container>
 
+      <!-- Sound Recording Sidebar: records / images tabs (same as music page) -->
+      <ng-container *ngIf="document.model === DocumentTypeEnum.soundrecording">
+        <app-tabs
+          [noPadding]="true"
+          [initialTab]="detailViewService.soundRecordingViewMode()"
+          (tabChanged)="detailViewService.setSoundRecordingViewView($event)">
+
+          <app-tab-item id="records" [label]="'sound-records--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
+            </div>
+          </app-tab-item>
+
+          <app-tab-item id="images" [label]="'images--toggle' | translate">
+            <div class="sidebar--wrapper">
+              <app-input
+                [placeholder]="'search-in-document--placeholder' | translate"
+                [theme]="'dark'"
+                [size]="'sm'"
+                [showMicButton]="true"
+              ></app-input>
+
+              <hr>
+              <app-page-navigator
+                [currentPage]="detailViewService.currentPageIndex + 1"
+                [totalPages]="detailViewService.totalPagesOnly"
+                (next)="detailViewService.goToNext()"
+                (prev)="detailViewService.goToPrevious()"
+                (pageChange)="detailViewService.goToPage($event)"
+              ></app-page-navigator>
+
+              <div class="sidebar--wrapper--scroll-content">
+                <app-detail-pages-grid [type]="'recording'"></app-detail-pages-grid>
+              </div>
+            </div>
+          </app-tab-item>
+
+        </app-tabs>
+      </ng-container>
+
       <!-- Document Sidebar for non-PDF/non-EPUB documents or articles -->
-      <ng-container *ngIf="(!document.pdf && !detailViewService.isEpub && !document.epub) || document.model === DocumentTypeEnum.article">
+      <ng-container *ngIf="((!document.pdf && !detailViewService.isEpub && !document.epub) || document.model === DocumentTypeEnum.article) && document.model !== DocumentTypeEnum.soundrecording">
         @let hasArticles = detailViewService.hasArticles$ | async;
         @let hasPages = detailViewService.pagesOnly && detailViewService.pagesOnly.length > 0;
 
@@ -93,15 +142,12 @@
                 </button>
               </div>
             }
-            <app-toolbar-controls [showViewToggle]="document.model === DocumentTypeEnum.soundrecording"
-                                  [viewToggleOptions]="viewToggleOptions" [showFavorites]="true"
+            <app-toolbar-controls [showFavorites]="true"
                                   [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
                                   [showShare]="true" [showQuote]="true"
                                   [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
                                   [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
                                   (infoClicked)="detailViewService.openRecordInfo()"
-                                  [activeViewValue]="detailViewService.soundRecordingViewMode()"
-                                  (viewChanged)="detailViewService.setSoundRecordingViewView($event)"
                                   (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
                                   (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
                                   (shareClicked)="recordHandler.openShareDialog(document)"
@@ -124,6 +170,7 @@
         <div class="detail-view--page--content--wrapper"
              [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
              [class.selection-mode]="iiifViewerService.isSelectionMode$ | async"
+             [class.records-view]="document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records'"
              [class.hidden]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
 
@@ -151,6 +198,18 @@
                 <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
               } @else if (detailViewService.isEpub || document.epub) {
                 <app-epub-viewer [metadata]="document"></app-epub-viewer>
+              } @else if (document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records') {
+                <!-- Sound recording in records mode: show music track list (same as music page) -->
+                <ng-container *ngIf="musicService.tracks$ | async as tracks">
+                  <app-music-track-list
+                    [tracks]="tracks"
+                    [playingPid]="soundService.currentTrackPid"
+                    (select)="musicService.addTracksToQueueAndPlayFirst($event)"
+                    (playAll)="musicService.addTracksToQueueAndPlayFirst($event[0])"
+                    (addToQueue)="musicService.addTrackToQueue($event)"
+                    (download)="musicService.downloadTrack($event)"
+                  ></app-music-track-list>
+                </ng-container>
               } @else {
                 @if ((iiifViewerService.mapMode$ | async) && detailViewService.currentPagePid) {
                   <app-georeference-viewer [metadata]="document"
@@ -181,6 +240,8 @@
             }
           } @else if (detailViewService.isEpub || document.epub) {
             <app-viewer-controls type="epub"></app-viewer-controls>
+          } @else if (document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records') {
+            <!-- No image viewer controls in records (track list) mode -->
           } @else {
             @if (!(iiifViewerService.isSelectionMode$ | async)) {
               <app-viewer-controls type="image"></app-viewer-controls>

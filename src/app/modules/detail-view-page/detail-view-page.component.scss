@@ -172,6 +172,12 @@ app-fullscreen {
   &.hidden {
     display: none;
   }
+
+  // Sound recording "records" mode shows the music track list, which needs
+  // the same padded, flowing layout as the standalone music page.
+  &.records-view {
+    padding: var(--spacing-x3);
+  }
 }
 
 .app-document-thumbnail {
