@@ -11,7 +11,9 @@
              [alt]="headerName || 'Česká digitální knihovna'"
              (load)="onLogoLoad(logoImg)" />
       }
-      <span *ngIf="(homepageTitle | localized) || headerName" class="header-client-name">{{ (homepageTitle | localized) || headerName }}</span>
+      @if (!isCdk && ((homepageTitle | localized) || headerName)) {
+        <span class="header-client-name">{{ (homepageTitle | localized) || headerName }}</span>
+      }
     </a>
 
   </div>

@@ -23,7 +23,8 @@ Každá knihovní instance (CDK, MZK, KNAV…) má vlastní adresář pod `publi
   "export": {},
   "viewer": {},
   "search": {},
-  "pages": []
+  "pages": [],
+  "footer": {}
 }
 ```
 
@@ -376,6 +377,70 @@ Když chybí překlad pro zvolený jazyk, použije se fallback (`cs → en`). Kd
 
 ---
 
+## `footer` — patička
+
+Konfiguruje **prostřední část** patičky (skupiny log s popiskem — „Financuje“, „Provozuje“, „Vývoj“…) a **pravou část** (seznam odkazů). Levé logo a jeho chování (skrytý odkaz na commit po pěti kliknutích) konfigurovatelné **nejsou**.
+
+```json
+"footer": {
+  "groups": [
+    {
+      "label": { "cs": "Financuje", "en": "Financed by" },
+      "text": "RightLib"
+    },
+    {
+      "label": { "cs": "Provozuje", "en": "Operated by" },
+      "logos": [
+        { "src": "img/logo/mzk-logo.png", "alt": "Moravská zemská knihovna", "url": "https://www.mzk.cz" }
+      ]
+    },
+    {
+      "label": { "cs": "Vývoj", "en": "Development" },
+      "logos": [
+        { "src": "img/logo/trinera-logo.png", "alt": "Trinera", "size": "large", "url": "https://www.trinera.cz" },
+        { "src": "img/logo/inovatika-logo.png", "srcDark": "img/logo/inovatika-logo-dark.png", "alt": "Inovatika", "size": "small", "url": "https://www.inovatika.cz" }
+      ]
+    }
+  ],
+  "links": [
+    { "label": "Instagram", "url": "https://www.instagram.com/...", "external": true },
+    { "label": { "cs": "Zapojené instituce", "en": "Participating institutions" }, "url": "/institutions" }
+  ]
+}
+```
+
+### `footer.groups` — skupiny v prostřední části
+
+Každá skupina má popisek a buď text, **nebo** řadu log.
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `label` | ano | Lokalizovaný text popisku skupiny (např. „Provozuje“). |
+| `text` | ne | Lokalizovaný text zobrazený místo log (např. `"RightLib"`). Když je vyplněn, `logos` se ignorují. |
+| `logos` | ne | Pole log zobrazených v řadě. Použije se, když není uveden `text`. |
+
+#### Logo (`groups[].logos[]`)
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `src` | ano | Cesta k obrázku loga (relativní pod `local-config/{kód}/img/` nebo absolutní URL). |
+| `alt` | ano | Alternativní text obrázku (prostý řetězec, nelokalizuje se). |
+| `srcDark` | ne | Varianta loga pro tmavý motiv. Použije se, když je aktivní tmavý motiv a pole je vyplněné; jinak se použije `src`. |
+| `url` | ne | Cílová adresa odkazu. Když je vyplněna, logo je proklikávací a otevře se v nové záložce (`target="_blank"`). Když chybí, logo není odkaz. |
+| `size` | ne | Velikost loga — `"small"` nebo `"large"`. Když chybí, použije se výchozí velikost. |
+
+### `footer.links` — odkazy v pravé části
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `label` | ano | Lokalizovaný (nebo prostý) text odkazu. |
+| `url` | ano | Cíl odkazu. U externích odkazů celá URL (`https://…`), u interních cesta v aplikaci (`/institutions`). |
+| `external` | ne | `true` = externí odkaz (otevře se v nové záložce, `rel="noopener noreferrer"`). `false`/chybí = interní routerLink v rámci aplikace. |
+
+Když celý blok `footer` chybí, použije se vestavěná výchozí patička (skupiny „Financuje / Provozuje / Vývoj“ a odkazy Instagram, Facebook, Zapojené instituce).
+
+---
+
 ## Minimální config
 
 Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích hodnot:
@@ -398,7 +463,7 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
 }
 ```
 
-> **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search` a `pages` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
+> **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search`, `pages` a `footer` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
 
 ---
 

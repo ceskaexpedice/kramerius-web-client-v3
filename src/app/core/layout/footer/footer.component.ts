@@ -1,16 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import { SettingsService } from '../../../modules/settings/settings.service';
 import { ConfigService } from '../../config';
+import { FooterGroup, FooterLink, FooterLogo } from '../../config/config.interfaces';
+import { LocalizedPipe } from '../../../shared/pipes/localized.pipe';
 
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, LocalizedPipe, RouterLink],
   standalone: true,
 })
 export class FooterComponent implements OnInit, OnDestroy {
@@ -62,10 +65,20 @@ export class FooterComponent implements OnInit, OnDestroy {
     );
   }
 
-  getInovatikaLogo(): string {
-    return this.effectiveTheme === 'dark'
-      ? 'img/logo/inovatika-logo-dark.png'
-      : 'img/logo/inovatika-logo.png';
+  get footerGroups(): FooterGroup[] {
+    return this.configService.footerGroups;
+  }
+
+  get footerLinks(): FooterLink[] {
+    return this.configService.footerLinks;
+  }
+
+  /**
+   * Resolve a logo's image source, preferring its dark-theme variant when the
+   * effective theme is dark and one is configured.
+   */
+  logoSrc(logo: FooterLogo): string {
+    return this.effectiveTheme === 'dark' && logo.srcDark ? logo.srcDark : logo.src;
   }
 
   private initializeTheme(): void {
@@ -77,6 +90,11 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   private async initializeFooterLogo(): Promise<void> {
+    // CDK always uses its own logo, regardless of any selected dev library.
+    if (this.configService.isCdk()) {
+      this.footerLogo = 'img/logo.svg';
+      return;
+    }
     const activeLib = await this.configService.getActiveLibrary();
     this.footerLogo = activeLib?.logo ?? this.configService.app.logo ?? 'img/logo.svg';
   }

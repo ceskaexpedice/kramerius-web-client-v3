@@ -10,65 +10,59 @@
 </div>
 
 <div class="footer-middle">
-    <div class="footer-group">
-        <span class="group-label" id="financed-label">{{ 'footer.financed-by' | translate }}</span>
-        <span class="logo-text" aria-labelledby="financed-label">RightLib</span>
-    </div>
-
-    <div class="footer-group">
-        <span class="group-label" id="operated-label">{{ 'footer.operated-by' | translate }}</span>
-        <div class="logos" role="group" aria-labelledby="operated-label">
-            <img src="img/logo/mzk-logo.png" alt="Moravská zemská knihovna">
-            <img src="img/logo/nk-logo.png" alt="Národní knihovna">
-            <img src="img/logo/avcr-logo.png" alt="Knihovna Akademie věd ČR">
+    @for (group of footerGroups; track $index) {
+        <div class="footer-group">
+            <span class="group-label" [id]="'footer-group-label-' + $index">{{ group.label | localized }}</span>
+            @if (group.text) {
+                <span class="logo-text" [attr.aria-labelledby]="'footer-group-label-' + $index">{{ group.text | localized }}</span>
+            } @else if (group.logos) {
+                <div class="logos" role="group" [attr.aria-labelledby]="'footer-group-label-' + $index">
+                    @for (logo of group.logos; track $index) {
+                        @if (logo.url) {
+                            <a [href]="logo.url" target="_blank" rel="noopener noreferrer">
+                                <img
+                                    [src]="logoSrc(logo)"
+                                    [alt]="logo.alt"
+                                    [class.logo-small]="logo.size === 'small'"
+                                    [class.logo-large]="logo.size === 'large'"
+                                >
+                            </a>
+                        } @else {
+                            <img
+                                [src]="logoSrc(logo)"
+                                [alt]="logo.alt"
+                                [class.logo-small]="logo.size === 'small'"
+                                [class.logo-large]="logo.size === 'large'"
+                            >
+                        }
+                    }
+                </div>
+            }
         </div>
-    </div>
-
-    <div class="footer-group">
-        <span class="group-label" id="development-label">{{ 'footer.development' | translate }}</span>
-        <div class="logos" role="group" aria-labelledby="development-label">
-            <img
-                src="img/logo/trinera-logo.png"
-                alt="Trinera"
-                class="logo-large"
-            >
-            <img
-                [src]="getInovatikaLogo()"
-                class="logo-small"
-                alt="Inovatika"
-            >
-        </div>
-    </div>
+    }
 </div>
 
 <div class="footer-right">
-    <nav class="footer-nav" aria-label="Social links">
+    <nav class="footer-nav" aria-label="Footer links">
         <ul class="footer-links">
-            <li>
-                <a
-                    href="https://www.instagram.com/ceskadigitalniknihovna"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-link"
-                >
-                    Instagram
-                </a>
-            </li>
-            <li>
-                <a
-                    href="https://www.facebook.com/ceskadigitalniknihovna"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-link"
-                >
-                    Facebook
-                </a>
-            </li>
-            <li>
-                <a href="/institutions" class="social-link">
-                    {{ 'footer.participating-institutions' | translate }}
-                </a>
-            </li>
+            @for (link of footerLinks; track link.url) {
+                <li>
+                    @if (link.external) {
+                        <a
+                            [href]="link.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="social-link"
+                        >
+                            {{ link.label | localized }}
+                        </a>
+                    } @else {
+                        <a [routerLink]="link.url" class="social-link">
+                            {{ link.label | localized }}
+                        </a>
+                    }
+                </li>
+            }
         </ul>
     </nav>
 </div>
