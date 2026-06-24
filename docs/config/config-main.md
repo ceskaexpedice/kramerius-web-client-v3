@@ -2,7 +2,7 @@
 
 Hlavní konfigurační soubor klienta. Říká aplikaci, jak se jmenuje knihovna, kam se připojit, jaké funkce má zapnuté a jak vypadá prohlížeč dokumentů.
 
-Každá knihovní instance (MZK, KNAV, CDK…) má vlastní adresář pod `public/local-config/{kód-knihovny}/` a v něm svůj `config-main.json`.
+Každá knihovní instance (CDK, MZK, KNAV…) má vlastní adresář pod `public/local-config/{kód-knihovny}/` a v něm svůj `config-main.json`. Výchozí instancí je **CDK** (`public/local-config/cdk/`) — použije se, když není v prostředí (`APP_KRAMERIUS_ID`) ani ve vývojářském úložišti (`CDK_DEV_KRAMERIUS_ID`) zvolena jiná.
 
 **Cesta k souboru:** `public/local-config/{kód-knihovny}/config-main.json`
 
@@ -321,7 +321,7 @@ Výchozí hodnota pro každé pole je `true`. Když se celý blok `controls` vyn
 | Pole | Povinné | Popis |
 |---|---|---|
 | `doctypes` | ne | Seznam typů dokumentů, které se mají brát v úvahu při vyhledávání (omezení modelů). Hodnoty musí odpovídat typům uloženým v backendu Krameria. Když pole chybí nebo je prázdné, nefiltruje se podle modelu — pracuje se se všemi typy, které backend vrací. |
-| `facetThreads` | ne | Hodnota Solr parametru `facet.threads` — paralelizuje výpočet facetů přes jednotlivá facetová pole. Když pole chybí, `facet.threads` se do dotazu vůbec neposílá (chování beze změny). `-1` = jedno vlákno na každé facetové pole (maximální paralelizace), kladné číslo = strop počtu vláken. Má smysl, protože vyhledávání facetuje více polí najednou. |
+| `facetThreads` | ne | Hodnota Solr parametru `facet.threads` — paralelizuje výpočet facetů přes jednotlivá facetová pole. Když pole chybí nebo má neplatnou hodnotu, použije se výchozí **`-1`** (`facet.threads` se vždy posílá). `-1` = jedno vlákno na každé facetové pole (maximální paralelizace), kladné číslo = strop počtu vláken. Má smysl, protože vyhledávání facetuje více polí najednou. |
 
 ---
 

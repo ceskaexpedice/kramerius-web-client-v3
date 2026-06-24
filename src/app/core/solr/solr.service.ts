@@ -40,17 +40,19 @@ export class SolrService {
 
   /**
    * Reads the optional `search.facetThreads` value from the library config
-   * (config-main.json). Returns null when unset/invalid so facet.threads is
-   * omitted from the query. Set to -1 for one thread per facet field, or a
-   * positive cap to parallelize faceting across fields.
+   * (config-main.json). Defaults to -1 (one thread per facet field) when unset
+   * or invalid, so faceting is parallelized even without explicit config. Set a
+   * positive cap to limit the thread count.
    */
-  private getFacetThreads(): number | null {
+  private static readonly DEFAULT_FACET_THREADS = -1;
+
+  private getFacetThreads(): number {
     const raw = this.configService.getConfig().search?.facetThreads;
     if (raw === undefined || raw === null) {
-      return null;
+      return SolrService.DEFAULT_FACET_THREADS;
     }
     const value = Number(raw);
-    return Number.isFinite(value) ? value : null;
+    return Number.isFinite(value) ? value : SolrService.DEFAULT_FACET_THREADS;
   }
 
   private get API_URL(): string {

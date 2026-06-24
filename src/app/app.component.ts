@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
     console.log('AppComponent ngOnInit, branch: dev');
 
     if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
-      localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
+      localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'cdk');
     }
 
     // Recover from stale lazy-chunk loads after a new deploy. A failed lazy

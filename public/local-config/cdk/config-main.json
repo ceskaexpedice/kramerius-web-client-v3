@@ -1,14 +1,14 @@
 {
   "app": {
-    "code": "mzk",
-    "name": { "cs": "Moravská zemská knihovna", "en": "Moravian Library", "sk": "Moravská zemská knižnica", "pl": "Morawska Biblioteka Krajowa" },
-    "contactEmail": "digitalniknihovna@mzk.cz",
+    "code": "cdk",
+    "name": { "cs": "Česká digitální knihovna", "en": "Czech Digital Library", "sk": "Česká digitálna knižnica", "pl": "Czeska Biblioteka Cyfrowa" },
+    "contactEmail": "info@ceskadigitalniknihovna.cz",
     "logo": "/favicon.svg",
-    "adminClientUrl": "https://admin.kramerius.mzk.cz"
+    "adminClientUrl": "https://admin.kramerius.ceskadigitalniknihovna.cz"
   },
 
   "api": {
-    "baseUrl": "https://api.kramerius.example.org/search/api/client",
+    "baseUrl": "https://cdk-api.dev.ceskadigitalniknihovna.cz/search/api/client",
     "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
     "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest"
   },
@@ -103,35 +103,35 @@
     {
       "id": "about",
       "label": { "cs": "O projektu", "en": "About", "sk": "O projekte", "pl": "O projekcie" },
-      "content": { "cs": "local-config/mzk/html/about/about.cs.html", "en": "local-config/mzk/html/about/about.en.html" },
+      "content": { "cs": "local-config/cdk/html/about/about.cs.html", "en": "local-config/cdk/html/about/about.en.html" },
       "showInHeader": true
     },
     {
       "id": "terms",
       "content": {
-        "cs": ["local-config/mzk/html/terms/terms.cs.html", "local-config/mzk/html/terms/terms2.cs.html"],
-        "en": ["local-config/mzk/html/terms/terms.en.html", "local-config/mzk/html/terms/terms2.en.html"]
+        "cs": ["local-config/cdk/html/terms/terms.cs.html", "local-config/cdk/html/terms/terms2.cs.html"],
+        "en": ["local-config/cdk/html/terms/terms.en.html", "local-config/cdk/html/terms/terms2.en.html"]
       }
     },
     {
       "id": "copyright",
       "content": {
-        "cs": "local-config/mzk/html/copyright/copyright.cs.html",
-        "en": "local-config/mzk/html/copyright/copyright.en.html"
+        "cs": "local-config/cdk/html/copyright/copyright.cs.html",
+        "en": "local-config/cdk/html/copyright/copyright.en.html"
       }
     },
     {
       "id": "gdpr",
       "content": {
-        "cs": "local-config/mzk/html/gdpr/gdpr.cs.html",
-        "en": "local-config/mzk/html/gdpr/gdpr.en.html"
+        "cs": "local-config/cdk/html/gdpr/gdpr.cs.html",
+        "en": "local-config/cdk/html/gdpr/gdpr.en.html"
       }
     },
     {
       "id": "faq",
       "content": {
-        "cs": "local-config/mzk/html/faq/faq.cs.html",
-        "en": "local-config/mzk/html/faq/faq.en.html"
+        "cs": "local-config/cdk/html/faq/faq.cs.html",
+        "en": "local-config/cdk/html/faq/faq.en.html"
       }
     }
   ]
