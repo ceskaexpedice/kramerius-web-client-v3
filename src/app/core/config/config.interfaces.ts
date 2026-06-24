@@ -55,6 +55,12 @@ export interface FeaturesConfig {
   ai: boolean;
   folders: boolean;
   librarySwitch: boolean;
+  /**
+   * Shows the "Download history" item in the user menu. Unlike the other
+   * feature flags, this defaults to `false` when omitted (the feature is
+   * opt-in), so it must be read directly rather than via `isFeatureEnabled`.
+   */
+  showExportHistory?: boolean;
 }
 
 // UI configuration

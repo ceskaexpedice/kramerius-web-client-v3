@@ -163,7 +163,8 @@ Volitelný anonymní identifikátor klienta, který se posílá do analytiky / b
   "georef": true,
   "ai": false,
   "folders": true,
-  "librarySwitch": false
+  "librarySwitch": false,
+  "showExportHistory": false
 }
 ```
 
@@ -178,8 +179,9 @@ Přepínače hlavních funkcí. Všechna pole jsou `true` / `false`.
 | `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `true` |
 | `folders` | Uživatelské složky / oblíbené dokumenty. Vyžaduje zapnutý `keycloak`. | `true` |
 | `librarySwitch` | Přepínač knihoven v hlavičce. | `true` |
+| `showExportHistory` | Položka „Historie stahování“ v uživatelském menu. Na rozdíl od ostatních přepínačů je tato funkce **opt-in** — výchozí hodnota je `false`. | `false` |
 
-Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`).
+Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`) — **výjimkou** je `showExportHistory`, které zůstává vypnuté (`false`), pokud ho výslovně nezapnete.
 
 ---
 

@@ -9,7 +9,7 @@ import {MenuComponent, MenuItem} from '../../../shared/components/menu/menu.comp
 import {_} from '../../../shared/translation/translate-placeholder';
 import {SettingsService} from '../../../modules/settings/settings.service';
 import {DownloadHistoryService} from '../../../shared/services/download-history.service';
-import {LibraryContextService} from '../../../shared/services/library-context.service';
+import {ConfigService} from '../../config/config.service';
 
 @Component({
   selector: 'app-user-info',
@@ -35,11 +35,9 @@ export class UserInfoComponent {
   private store = inject(Store);
   private settingsService = inject(SettingsService);
   private downloadHistoryService = inject(DownloadHistoryService);
-  private libraryContextService = inject(LibraryContextService);
+  private config = inject(ConfigService);
 
-  // TODO: temporary — only show download history for inovatika libraries.
-  private readonly showDownloadHistory =
-    (this.libraryContextService.getActiveLibraryCode() ?? '').includes('inovatika');
+  private readonly showDownloadHistory = this.config.features.showExportHistory ?? false;
 
   userMenuItems: MenuItem[] = [
     { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square' },

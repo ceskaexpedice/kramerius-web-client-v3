@@ -39,7 +39,8 @@
     "georef": true,
     "ai": true,
     "folders": true,
-    "librarySwitch": true
+    "librarySwitch": true,
+    "showExportHistory": false
   },
 
   "ui": {
