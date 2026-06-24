@@ -20,6 +20,7 @@ import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
 import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { CdkSourceService } from '../../shared/services/cdk-source.service';
 import { ConfigService } from '../config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
@@ -32,7 +33,8 @@ export class SolrService {
     private http: HttpClient,
     private env: EnvironmentService,
     private displayConfigService: DisplayConfigService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private cdkSource: CdkSourceService
   ) {
   }
 
@@ -1154,11 +1156,11 @@ export class SolrService {
   }
 
   getAudioTrackMp3Url(pid: string): string {
-    return `${this.API_BASE_URL}items/${pid}/audio/mp3`;
+    return `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(pid, 'audio/mp3');
   }
 
   getImageThumbnailUrl(pid: string): string {
-    return `${this.API_BASE_URL}items/${pid}/image/thumb`;
+    return `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(pid, 'image/thumb');
   }
 
   /**
@@ -1167,7 +1169,7 @@ export class SolrService {
    * @returns Observable with page info including available data formats and licenses
    */
   getPageInfo(uuid: string): Observable<DocumentInfo> {
-    const url = `${this.API_BASE_URL}items/${uuid}/info`;
+    const url = `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(uuid, 'info');
     return this.http.get<DocumentInfo>(url, {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     });

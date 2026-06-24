@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EnvironmentService } from './environment.service';
+import { CdkSourceService } from './cdk-source.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens';
 
 export interface AltoBox {
@@ -34,11 +35,12 @@ export class AltoService {
 
   constructor(
     private http: HttpClient,
-    private env: EnvironmentService
+    private env: EnvironmentService,
+    private cdkSource: CdkSourceService
   ) { }
 
   private get API_URL(): string {
-    const url = this.env.getBaseApiUrl();
+    const url = this.env.getApiUrl('items');
     if (!url) {
       console.warn('AltoService: API URL not available. Environment may not be loaded yet.');
       return '';
@@ -47,12 +49,14 @@ export class AltoService {
   }
 
   /**
-   * Fetches ALTO XML for a specific page
+   * Fetches ALTO XML for a specific page. The URL is prefixed with the selected
+   * CDK member library so the request targets the right library instead of the
+   * aggregated endpoint.
    * @param pid - Page identifier
    * @returns Observable with ALTO XML string
    */
   fetchAltoXml(pid: string): Observable<string> {
-    const url = `${this.API_URL}/search/api/client/v7.0/items/${pid}/ocr/alto`;
+    const url = this.API_URL + this.cdkSource.prefixedItemPath(pid, 'ocr/alto');
     return this.http.get(url, {
       responseType: 'text',
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)

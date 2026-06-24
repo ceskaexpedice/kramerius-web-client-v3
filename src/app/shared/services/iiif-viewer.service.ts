@@ -3,6 +3,7 @@ import { EnvironmentService } from './environment.service';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
+import { CdkSourceService } from './cdk-source.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast.service';
 import { DetailFullscreenService } from './detail-fullscreen.service';
@@ -116,21 +117,18 @@ export class IIIFViewerService {
 
   private testFallbackMode = false;
 
-  // CDK aggregator: selected member library. When set, it is prefixed into
-  // IIIF / items URLs the same way as in MODS fetches.
-  private cdkLibraryCode: string | null = null;
-  private cdkLibraryCodeSubject = new BehaviorSubject<string | null>(null);
-  public cdkLibraryCode$ = this.cdkLibraryCodeSubject.asObservable();
+  // CDK aggregator: selected member library. The state lives in CdkSourceService
+  // (the single source of truth shared by every reader URL builder); these members
+  // delegate to it so existing callers/subscribers keep working unchanged.
+  private cdkSource = inject(CdkSourceService);
+  public cdkLibraryCode$ = this.cdkSource.code$;
 
   setCdkLibraryCode(code: string | null): void {
-    const normalized = code || null;
-    if (normalized === this.cdkLibraryCode) return;
-    this.cdkLibraryCode = normalized;
-    this.cdkLibraryCodeSubject.next(normalized);
+    this.cdkSource.setCode(code);
   }
 
   getCdkLibraryCode(): string | null {
-    return this.cdkLibraryCode;
+    return this.cdkSource.getCode();
   }
 
   private altoService = inject(AltoService);
@@ -284,7 +282,8 @@ export class IIIFViewerService {
       console.warn('TEST_FALLBACK is enabled - returning invalid URL to test error handling');
       return `https://invalid-url.example.com/fake-${pid}-info.json`;
     }
-    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
+    const code = this.cdkSource.getCode();
+    const prefix = code ? `/${code}` : '';
     return `${this.API_URL}/search/iiif${prefix}/${pid}/info.json`;
   }
 
@@ -296,16 +295,12 @@ export class IIIFViewerService {
 
   // Get direct image URL (fallback when IIIF fails)
   getDirectImageUrl(pid: string): string {
-    const itemsUrl = this.env.getApiUrl('items');
-    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
-    return `${itemsUrl}${prefix}/${pid}/image`;
+    return this.env.getApiUrl('items') + this.cdkSource.prefixedItemPath(pid, 'image');
   }
 
   // Get thumbnail URL (shown as placeholder while IIIF tiles load)
   getThumbnailUrl(pid: string): string {
-    const itemsUrl = this.env.getApiUrl('items');
-    const prefix = this.cdkLibraryCode ? `/${this.cdkLibraryCode}` : '';
-    return `${itemsUrl}${prefix}/${pid}/image/thumb`;
+    return this.env.getApiUrl('items') + this.cdkSource.prefixedItemPath(pid, 'image/thumb');
   }
 
   // Get authorization headers for OpenSeadragon AJAX requests

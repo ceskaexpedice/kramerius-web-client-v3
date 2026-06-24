@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { EnvironmentService } from './environment.service';
+import { CdkSourceService } from './cdk-source.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
 import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
@@ -91,7 +92,8 @@ export class PdfService {
     private env: EnvironmentService,
     private ngZone: NgZone,
     private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdkSource: CdkSourceService
   ) {
   }
 
@@ -123,7 +125,7 @@ export class PdfService {
   }
 
   get url(): string | null {
-    return this.uuid ? `${this.API_URL}/${this.uuid}/image` : null;
+    return this.uuid ? this.API_URL + this.cdkSource.prefixedItemPath(this.uuid, 'image') : null;
   }
 
   /**
