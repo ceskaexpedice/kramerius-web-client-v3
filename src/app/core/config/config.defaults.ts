@@ -133,38 +133,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       id: 'copyright',
       content: { cs: 'local-config/cdk/html/copyright/copyright.cs.html', en: 'local-config/cdk/html/copyright/copyright.en.html' }
     }
-  ],
-  footer: {
-    groups: [
-      {
-        label: { cs: 'Financuje', en: 'Financed by', sk: 'Financuje', pl: 'Finansuje' },
-        text: 'RightLib'
-      },
-      {
-        label: { cs: 'Provozuje', en: 'Operated by', sk: 'Prevádzkuje', pl: 'Obsługuje' },
-        logos: [
-          { src: 'img/logo/mzk-logo.png', alt: 'Moravská zemská knihovna', url: 'https://www.mzk.cz' },
-          { src: 'img/logo/nk-logo.png', alt: 'Národní knihovna', url: 'https://www.nkp.cz' },
-          { src: 'img/logo/avcr-logo.png', alt: 'Knihovna Akademie věd ČR', url: 'https://www.lib.cas.cz' }
-        ]
-      },
-      {
-        label: { cs: 'Vývoj', en: 'Development', sk: 'Vývoj', pl: 'Rozwój' },
-        logos: [
-          { src: 'img/logo/trinera-logo.png', alt: 'Trinera', size: 'large', url: 'https://www.trinera.cz' },
-          { src: 'img/logo/inovatika-logo.png', srcDark: 'img/logo/inovatika-logo-dark.png', alt: 'Inovatika', size: 'small', url: 'https://www.inovatika.cz' }
-        ]
-      }
-    ],
-    links: [
-      { label: 'Instagram', url: 'https://www.instagram.com/trinera_software/', external: true },
-      { label: 'Facebook', url: 'https://www.facebook.com/61574258172559/about/', external: true },
-      {
-        label: { cs: 'Zapojené instituce', en: 'Participating institutions', sk: 'Zapojené inštitúcie', pl: 'Instytucje uczestniczące' },
-        url: '/institutions'
-      }
-    ]
-  }
+  ]
 };
 
 export const DEFAULT_HOME_SECTIONS: HomepageSectionConfig[] = [

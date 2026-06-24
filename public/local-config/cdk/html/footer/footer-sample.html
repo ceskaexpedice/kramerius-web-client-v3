@@ -1,0 +1,230 @@
+<style>
+  .cdk-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px 24px 32px;
+    background-color: var(--color-bg-base);
+    border-top: 1px solid var(--color-border-light);
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    gap: 32px;
+  }
+
+  .cdk-footer .footer-middle {
+    display: flex;
+    align-items: flex-start;
+    gap: 80px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .cdk-footer .footer-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x2);
+    align-items: center;
+  }
+
+  .cdk-footer .group-label {
+    font-size: var(--font-size-small);
+    color: var(--color-tertiary);
+    font-weight: 600;
+  }
+
+  .cdk-footer .logo-text {
+    font-weight: 400;
+    color: var(--color-tertiary);
+    font-size: var(--font-size-large);
+  }
+
+  .cdk-footer .logos {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    filter: grayscale(1);
+  }
+
+  .cdk-footer .logos img {
+    height: 32px;
+    width: auto;
+    transition: opacity 0.2s ease;
+  }
+
+  .cdk-footer .logos img:hover {
+    opacity: 0.8;
+  }
+
+  .cdk-footer .logos img.logo-small {
+    height: 18px;
+  }
+
+  .cdk-footer .logos img.logo-large {
+    height: 42px;
+  }
+
+  .cdk-footer .footer-right {
+    flex-shrink: 0;
+  }
+
+  .cdk-footer .footer-nav {
+    margin: 0;
+    padding: 0;
+  }
+
+  .cdk-footer .footer-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+  }
+
+  .cdk-footer .footer-links li {
+    line-height: var(--line-height-1);
+  }
+
+  .cdk-footer .footer-links a {
+    text-decoration: underline;
+    color: var(--color-tertiary);
+    transition: color 0.2s ease;
+    font-size: var(--font-size-small);
+  }
+
+  .cdk-footer .footer-links a:hover,
+  .cdk-footer .footer-links a:focus {
+    color: var(--color-primary, var(--color-tertiary));
+  }
+
+  .cdk-footer .footer-links a:focus-visible {
+    outline: 2px solid var(--color-focus, currentColor);
+    outline-offset: 2px;
+  }
+
+  .cdk-footer .footer-links li:last-child {
+    margin-top: var(--spacing-x1);
+  }
+
+  @media (max-width: 960px) {
+    .cdk-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 24px 16px;
+    }
+
+    .cdk-footer .footer-middle {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .cdk-footer .footer-group {
+      width: 100%;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .cdk-footer .logos {
+      gap: 12px;
+    }
+
+    .cdk-footer .logos img {
+      height: 20px;
+    }
+
+    .cdk-footer .logos img.logo-small {
+      height: 22px;
+    }
+
+    .cdk-footer .logos img.logo-large {
+      height: 28px;
+    }
+
+    .cdk-footer .logo-text {
+      font-size: var(--font-size-base);
+    }
+
+    .cdk-footer .footer-right {
+      width: 100%;
+    }
+
+    .cdk-footer .footer-links {
+      text-align: left;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .cdk-footer .footer-links li:last-child {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 1200px) and (min-width: 961px) {
+    .cdk-footer {
+      gap: 24px;
+      padding: 16px 24px 24px 24px;
+    }
+
+    .cdk-footer .footer-middle {
+      gap: 32px;
+    }
+  }
+</style>
+
+<div class="cdk-footer">
+  <div class="footer-middle">
+    <div class="footer-group">
+      <span class="group-label">Financuje</span>
+      <span class="logo-text">RightLib</span>
+    </div>
+
+    <div class="footer-group">
+      <span class="group-label">Provozuje</span>
+      <div class="logos">
+        <a href="https://www.mzk.cz" target="_blank" rel="noopener noreferrer">
+          <img src="img/logo/mzk-logo.png" alt="Moravská zemská knihovna">
+        </a>
+        <a href="https://www.nkp.cz" target="_blank" rel="noopener noreferrer">
+          <img src="img/logo/nk-logo.png" alt="Národní knihovna">
+        </a>
+        <a href="https://www.lib.cas.cz" target="_blank" rel="noopener noreferrer">
+          <img src="img/logo/avcr-logo.png" alt="Knihovna Akademie věd ČR">
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-group">
+      <span class="group-label">Vývoj</span>
+      <div class="logos">
+        <a href="https://www.trinera.cz" target="_blank" rel="noopener noreferrer">
+          <img src="img/logo/trinera-logo.png" alt="Trinera" class="logo-large">
+        </a>
+        <a href="https://www.inovatika.cz" target="_blank" rel="noopener noreferrer">
+          <img src="img/logo/inovatika-logo.png" alt="Inovatika" class="logo-small">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-right">
+    <nav class="footer-nav" aria-label="Odkazy v patičce">
+      <ul class="footer-links">
+        <li>
+          <a href="https://www.instagram.com/ceskadigitalniknihovna" target="_blank" rel="noopener noreferrer" class="social-link">Instagram</a>
+        </li>
+        <li>
+          <a href="https://www.facebook.com/ceskadigitalniknihovna" target="_blank" rel="noopener noreferrer" class="social-link">Facebook</a>
+        </li>
+        <li>
+          <a href="/institutions" class="social-link">Zapojené instituce</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

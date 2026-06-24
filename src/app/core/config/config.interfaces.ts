@@ -252,35 +252,10 @@ export interface HomepageSectionConfig {
   tags?: SuggestedSearchTagItem[];
 }
 
-// A single logo within a footer group
-export interface FooterLogo {
-  src: string;                  // image URL (relative or absolute)
-  srcDark?: string;             // optional dark-theme variant; used when the effective theme is dark
-  alt: string;                  // alt text (plain string; not localized)
-  url?: string;                 // optional link target
-  size?: 'small' | 'default' | 'large'; // maps to the logo-small / logo-large SCSS classes
-}
-
-// A labeled group in the footer middle section
-export interface FooterGroup {
-  label: string | LocalizedLabel;     // group heading, e.g. { cs: 'Financuje', en: 'Financed by' }
-  logos?: FooterLogo[];               // image logos rendered in a row
-  text?: string | LocalizedLabel;     // OR a text value (e.g. 'RightLib') rendered instead of logos
-}
-
-// A right-side footer link
-export interface FooterLink {
-  label: string | LocalizedLabel;
-  url: string;
-  external?: boolean;           // true => target=_blank rel=noopener; otherwise an internal routerLink
-}
-
-// Footer configuration — drives the middle logo groups and the right-side links.
-// The left logo and its git-commit easter egg are not configurable.
-export interface FooterConfig {
-  groups?: FooterGroup[];       // middle section
-  links?: FooterLink[];         // right section
-}
+// Footer configuration — localized HTML, one URL per language.
+// Rendered as raw HTML (like content pages); resolved through the language
+// fallback chain (e.g. sk → cs → en).
+export type FooterConfig = LocalizedContent;
 
 // Root configuration interface
 export interface AppConfiguration {

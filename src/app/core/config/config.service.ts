@@ -24,9 +24,7 @@ import {
   PageConfig,
   SuggestedSearchTagItem,
   LocalizedLabel,
-  FooterConfig,
-  FooterGroup,
-  FooterLink
+  FooterConfig
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -527,17 +525,22 @@ export class ConfigService {
     return this.getConfig().homepageSubtitle;
   }
 
-  // Footer config accessors
+  // Footer config accessor
   get footer(): FooterConfig {
     return this.getConfig().footer ?? DEFAULT_CONFIG.footer ?? {};
   }
 
-  get footerGroups(): FooterGroup[] {
-    return this.footer.groups ?? [];
-  }
-
-  get footerLinks(): FooterLink[] {
-    return this.footer.links ?? [];
+  /**
+   * Resolve the footer HTML URL for the given language, walking the language
+   * fallback chain (e.g. sk → cs → en). Returns null when no footer is configured.
+   */
+  getFooterContentUrl(lang: string): string | null {
+    const footer = this.footer;
+    for (const l of this.getLangChain(lang)) {
+      const url = footer[l];
+      if (url) return Array.isArray(url) ? url[0] : url;
+    }
+    return null;
   }
 
   // Active library accessor (for dynamic header branding)
