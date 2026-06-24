@@ -1,5 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { EnvironmentService } from '../../../../shared/services/environment.service';
+import { CdkSourceService } from '../../../../shared/services/cdk-source.service';
 import {LowerCasePipe, NgClass, NgIf} from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
 import { AdminModeService } from '../../../../shared/services';
@@ -29,6 +30,7 @@ export class DetailPageItemComponent {
   private krameriusBaseUrl: string;
 
   private envService = inject(EnvironmentService);
+  private cdkSource = inject(CdkSourceService);
   public adminModeService = inject(AdminModeService);
 
   @Input() page: any; // Replace 'any' with the actual type of 'page' if known
@@ -62,11 +64,11 @@ export class DetailPageItemComponent {
   }
 
   getImageUrl(): string {
-    return this.krameriusBaseUrl + '/' + this.page.pid + '/image/thumb';
+    return this.krameriusBaseUrl + this.cdkSource.prefixedItemPath(this.page.pid, 'image/thumb');
   }
 
   getFullImageUrl(): string {
-    return this.krameriusBaseUrl + '/' + this.page.pid + '/image';
+    return this.krameriusBaseUrl + this.cdkSource.prefixedItemPath(this.page.pid, 'image');
   }
 
   onPreviewClick(event: Event): void {

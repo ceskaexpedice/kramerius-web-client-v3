@@ -37,7 +37,7 @@
         </app-tab-item>
 
         <app-tab-item [label]="'html' | translate">
-          <div class="tab-item--content">{{citationResponse?.iso690html}}</div>
+          <div class="tab-item--content" [innerHTML]="citationResponse?.iso690html"></div>
         </app-tab-item>
 
         <app-tab-item [label]="'bibtex' | translate">

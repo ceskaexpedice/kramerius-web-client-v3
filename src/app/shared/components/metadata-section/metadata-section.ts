@@ -18,7 +18,7 @@ import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibilit
 import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
-import { IIIFViewerService } from '../../services/iiif-viewer.service';
+import { CdkSourceService } from '../../services/cdk-source.service';
 import { LibraryContextService } from '../../services/library-context.service';
 import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
@@ -167,7 +167,7 @@ export class MetadataSection implements OnInit, OnChanges {
   modsParser = inject(ModsParserService);
   searchService = inject(SearchService);
   solrService = inject(SolrService);
-  private iiifViewerService = inject(IIIFViewerService);
+  private cdkSource = inject(CdkSourceService);
   documentInfoService = inject(DocumentInfoService);
   userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
@@ -200,14 +200,14 @@ export class MetadataSection implements OnInit, OnChanges {
 
   constructor() {
     // Single source of truth: whenever the selected collection changes, push it
-    // into the IIIF viewer service so tile/thumbnail/fallback URLs get prefixed
-    // with the right member library. One wiring point instead of three manual calls.
-    // In collections mode the host page owns the source selection (it re-scopes the
-    // child document grid), so we don't touch the IIIF viewer from here.
+    // into CdkSourceService so every reader API call (IIIF tiles, images, ALTO,
+    // PDF, audio, page-info, thumbnails) gets prefixed with the right member
+    // library. One wiring point. In collections mode the host page owns the source
+    // selection (it re-scopes the child document grid), so we don't touch it here.
     effect(() => {
       if (this.collectionsMode) return;
       const selected = this.selectedCdkCollection();
-      this.iiifViewerService.setCdkLibraryCode(this.isCdk() ? (selected || null) : null);
+      this.cdkSource.setCode(this.isCdk() ? (selected || null) : null);
     });
   }
 
@@ -392,7 +392,7 @@ export class MetadataSection implements OnInit, OnChanges {
     }
 
     // Persist the selection in the URL so the view is linkable. The `effect()` in
-    // the constructor propagates the new selection into IIIFViewerService.
+    // the constructor propagates the new selection into CdkSourceService.
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { source: collection },

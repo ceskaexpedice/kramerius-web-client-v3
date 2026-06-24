@@ -8,10 +8,9 @@ import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
 import { AdminModeService } from '../../shared/services';
 import { Observable, Subscription } from 'rxjs';
-import { map, shareReplay, distinctUntilChanged, skip } from 'rxjs/operators';
+import { map, shareReplay, distinctUntilChanged, skip, filter } from 'rxjs/operators';
 import { PdfService } from '../../shared/services/pdf.service';
 import { IIIFViewerService } from '../../shared/services/iiif-viewer.service';
-import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,6 +37,8 @@ import { ConfigService } from '../../core/config/config.service';
 import { MapViewerService } from '../../shared/services/map-viewer.service';
 import { DetailFullscreenService } from '../../shared/services/detail-fullscreen.service';
 import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
+import { MusicService } from '../music/services/music.service';
+import { SoundService } from '../../shared/services/sound.service';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -74,6 +75,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   public georeferenceService = inject(GeoreferenceService);
   private configService = inject(ConfigService);
   public detailFullscreen = inject(DetailFullscreenService);
+  public musicService = inject(MusicService);
+  public soundService = inject(SoundService);
 
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
@@ -101,12 +104,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   // Active sidebar tab id ('articles' when an article is selected, 'pages' otherwise)
   activeSidebarTab$: Observable<string>;
-
-  // View toggle options for sound recordings - static to prevent re-rendering
-  readonly viewToggleOptions: ViewToggleOption[] = [
-    { label: 'sound-records--toggle', icon: 'icon-music-filter', value: 'records' },
-    { label: 'images--toggle', icon: 'icon-gallery', value: 'images' }
-  ];
 
   constructor(
     private envService: EnvironmentService,
@@ -201,6 +198,19 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
         skip(1)
       ).subscribe(() => {
         this.aiPanelService.close();
+      })
+    );
+
+    // Load music tracks so the records (track list) view can be shown for sound recordings.
+    // The recordings selector emits a new array on every store change, so dedupe by pid set
+    // to avoid re-dispatching loadMusic (and re-firing the track API) multiple times.
+    this.subscriptions.push(
+      this.detailViewService.getSoundRecordings().pipe(
+        filter((recordings): recordings is NonNullable<typeof recordings> => !!recordings && recordings.length > 0),
+        distinctUntilChanged((prev, curr) =>
+          prev.length === curr.length && prev.every((p, i) => p.pid === curr[i].pid))
+      ).subscribe(recordings => {
+        this.musicService.loadMusic(recordings);
       })
     );
 

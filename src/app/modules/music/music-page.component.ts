@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { filter, distinctUntilChanged } from 'rxjs/operators';
 import { DetailViewService } from "../detail-view-page/services/detail-view.service";
 import { RecordHandlerService } from "../../shared/services/record-handler.service";
 import { EnvironmentService } from "../../shared/services/environment.service";
@@ -49,9 +50,15 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     this.detailViewService.loadDocument();
     this.detailViewService.loadPages();
 
+    // The recordings selector emits a new array on every store change, so dedupe by pid set
+    // to avoid re-dispatching loadMusic (and re-firing the track API) multiple times.
     this.soundRecordingsSub = this.detailViewService.getSoundRecordings()
+      .pipe(
+        filter((recordings): recordings is NonNullable<typeof recordings> => !!recordings && recordings.length > 0),
+        distinctUntilChanged((prev, curr) =>
+          prev.length === curr.length && prev.every((p, i) => p.pid === curr[i].pid))
+      )
       .subscribe(recordings => {
-        if (!recordings) return;
         this.musicService.loadMusic(recordings);
       });
 

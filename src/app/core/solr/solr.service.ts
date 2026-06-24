@@ -20,6 +20,8 @@ import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { SearchDocument } from '../../modules/models/search-document';
 import { DocumentInfo } from '../../shared/models/document-info';
 import { DisplayConfigService } from '../../shared/services/display-config.service';
+import { CdkSourceService } from '../../shared/services/cdk-source.service';
+import { ConfigService } from '../config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
@@ -30,8 +32,27 @@ export class SolrService {
   constructor(
     private http: HttpClient,
     private env: EnvironmentService,
-    private displayConfigService: DisplayConfigService
+    private displayConfigService: DisplayConfigService,
+    private configService: ConfigService,
+    private cdkSource: CdkSourceService
   ) {
+  }
+
+  /**
+   * Reads the optional `search.facetThreads` value from the library config
+   * (config-main.json). Defaults to -1 (one thread per facet field) when unset
+   * or invalid, so faceting is parallelized even without explicit config. Set a
+   * positive cap to limit the thread count.
+   */
+  private static readonly DEFAULT_FACET_THREADS = -1;
+
+  private getFacetThreads(): number {
+    const raw = this.configService.getConfig().search?.facetThreads;
+    if (raw === undefined || raw === null) {
+      return SolrService.DEFAULT_FACET_THREADS;
+    }
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : SolrService.DEFAULT_FACET_THREADS;
   }
 
   private get API_URL(): string {
@@ -387,7 +408,7 @@ export class SolrService {
       ...simpleBaseFilters,
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(facetFields),
+      ...SolrQueryBuilder.facetFields(facetFields, 1, this.getFacetThreads()),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -511,7 +532,7 @@ export class SolrService {
     let paramsObject = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
-      ...SolrQueryBuilder.facetFields(facetFields),
+      ...SolrQueryBuilder.facetFields(facetFields, 1, this.getFacetThreads()),
       ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
       ...SolrQueryBuilder.pagination(page, pageCount)
     };
@@ -1137,11 +1158,11 @@ export class SolrService {
   }
 
   getAudioTrackMp3Url(pid: string): string {
-    return `${this.API_BASE_URL}items/${pid}/audio/mp3`;
+    return `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(pid, 'audio/mp3');
   }
 
   getImageThumbnailUrl(pid: string): string {
-    return `${this.API_BASE_URL}items/${pid}/image/thumb`;
+    return `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(pid, 'image/thumb');
   }
 
   /**
@@ -1150,7 +1171,7 @@ export class SolrService {
    * @returns Observable with page info including available data formats and licenses
    */
   getPageInfo(uuid: string): Observable<DocumentInfo> {
-    const url = `${this.API_BASE_URL}items/${uuid}/info`;
+    const url = `${this.API_BASE_URL}items` + this.cdkSource.prefixedItemPath(uuid, 'info');
     return this.http.get<DocumentInfo>(url, {
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     });

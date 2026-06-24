@@ -76,7 +76,10 @@ export class MusicTrackItemComponent implements OnInit {
   }
 
   get duration(): string {
-    const seconds = this.track?.['track.length'] ?? 0;
+    const seconds = this.track?.['track.length'];
+    if (seconds == null) {
+      return '-';
+    }
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;

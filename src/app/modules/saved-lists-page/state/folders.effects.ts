@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of, combineLatest } from 'rxjs';
-import { catchError, map, switchMap, tap, filter, take } from 'rxjs/operators';
+import { catchError, map, switchMap, mergeMap, tap, filter, take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FoldersService, FolderSearchFilters } from '../services/folders.service';
@@ -148,7 +148,7 @@ export class FoldersEffects {
   updateFolderItems$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.updateFolderItems),
-      switchMap(action =>
+      mergeMap(action =>
         this.foldersService.updateFolderItems(action.request).pipe(
           map(() => FoldersActions.updateFolderItemsSuccess({
             uuid: action.request.uuid,
@@ -165,7 +165,7 @@ export class FoldersEffects {
   removeItemFromFolder$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.removeItemFromFolder),
-      switchMap(action =>
+      mergeMap(action =>
         this.foldersService.removeItemFromFolder(action.request).pipe(
           map(() => FoldersActions.removeItemFromFolderSuccess({
             uuid: action.request.uuid,

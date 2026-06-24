@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EnvironmentService } from './environment.service';
+import { CdkSourceService } from './cdk-source.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface ImageViewerProperties {
@@ -37,7 +38,8 @@ export class ImageViewerService {
   private fullscreenComponentGetter: (() => any) | null = null;
 
   constructor(
-    private env: EnvironmentService
+    private env: EnvironmentService,
+    private cdkSource: CdkSourceService
   ) {
   }
 
@@ -63,7 +65,7 @@ export class ImageViewerService {
   }
 
   get url(): string | null {
-    return this.uuid ? `${this.API_URL}/${this.uuid}/image` : null;
+    return this.uuid ? this.API_URL + this.cdkSource.prefixedItemPath(this.uuid, 'image') : null;
   }
 
   // Set current page number

@@ -45,6 +45,7 @@ import { SearchResultsSidebarComponent } from '../../shared/components/metadata-
 import { AiContentPanelComponent } from '../../shared/components/ai-content-panel/ai-content-panel.component';
 import { AiActionsComponent } from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
 import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
+import { MusicTrackListComponent } from '../music/components/music-track-list/music-track-list.component';
 
 const routes: Routes = [
   {
@@ -107,6 +108,7 @@ const routes: Routes = [
 		AiContentPanelComponent,
 		AiActionsComponent,
 		FullscreenComponent,
+		MusicTrackListComponent,
 	],
 })
 

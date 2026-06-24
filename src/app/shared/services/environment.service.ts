@@ -66,10 +66,10 @@ export class EnvironmentService {
 
     switch (krameriusId) {
       case 'mzk': baseUrl = 'https://api.kramerius.mzk.cz'; break;
-      case 'cdk': baseUrl = 'https://api.ceskadigitalniknihovna.cz'; break;
+      case 'cdk': baseUrl = 'https://cdk-api.dev.ceskadigitalniknihovna.cz'; break;
       case 'knav': baseUrl = 'https://kramerius.lib.cas.cz/'; break;
       case 'cdk-test': baseUrl = 'https://api-npo.val.ceskadigitalniknihovna.cz'; break;
-      default: baseUrl = 'https://api.kramerius.mzk.cz'; break;
+      default: baseUrl = 'https://cdk-api.dev.ceskadigitalniknihovna.cz'; break;
     }
 
     if (withParam) {
@@ -81,7 +81,7 @@ export class EnvironmentService {
 
   getKrameriusId(): string {
     const devId = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    return devId || this.get('krameriusId') || 'mzk';
+    return devId || this.get('krameriusId') || 'cdk';
   }
 
   getApiUrl(path: string = ''): string {

@@ -18,7 +18,7 @@ export class LibraryContextService {
 
   getActiveLibraryCode(): string | null {
     const code = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    if (!code || code === 'mzk') return null;
+    if (!code || code === 'cdk') return null;
     return code;
   }
 

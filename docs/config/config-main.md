@@ -2,7 +2,7 @@
 
 Hlavní konfigurační soubor klienta. Říká aplikaci, jak se jmenuje knihovna, kam se připojit, jaké funkce má zapnuté a jak vypadá prohlížeč dokumentů.
 
-Každá knihovní instance (MZK, KNAV, CDK…) má vlastní adresář pod `public/local-config/{kód-knihovny}/` a v něm svůj `config-main.json`.
+Každá knihovní instance (CDK, MZK, KNAV…) má vlastní adresář pod `public/local-config/{kód-knihovny}/` a v něm svůj `config-main.json`. Výchozí instancí je **CDK** (`public/local-config/cdk/`) — použije se, když není v prostředí (`APP_KRAMERIUS_ID`) ani ve vývojářském úložišti (`CDK_DEV_KRAMERIUS_ID`) zvolena jiná.
 
 **Cesta k souboru:** `public/local-config/{kód-knihovny}/config-main.json`
 
@@ -163,7 +163,8 @@ Volitelný anonymní identifikátor klienta, který se posílá do analytiky / b
   "georef": true,
   "ai": false,
   "folders": true,
-  "librarySwitch": false
+  "librarySwitch": false,
+  "showExportHistory": false
 }
 ```
 
@@ -178,8 +179,9 @@ Přepínače hlavních funkcí. Všechna pole jsou `true` / `false`.
 | `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `true` |
 | `folders` | Uživatelské složky / oblíbené dokumenty. Vyžaduje zapnutý `keycloak`. | `true` |
 | `librarySwitch` | Přepínač knihoven v hlavičce. | `true` |
+| `showExportHistory` | Položka „Historie stahování“ v uživatelském menu. Na rozdíl od ostatních přepínačů je tato funkce **opt-in** — výchozí hodnota je `false`. | `false` |
 
-Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`).
+Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`) — **výjimkou** je `showExportHistory`, které zůstává vypnuté (`false`), pokud ho výslovně nezapnete.
 
 ---
 
@@ -313,13 +315,15 @@ Výchozí hodnota pro každé pole je `true`. Když se celý blok `controls` vyn
     "convolute",
     "collection",
     "page"
-  ]
+  ],
+  "facetThreads": -1
 }
 ```
 
 | Pole | Povinné | Popis |
 |---|---|---|
 | `doctypes` | ne | Seznam typů dokumentů, které se mají brát v úvahu při vyhledávání (omezení modelů). Hodnoty musí odpovídat typům uloženým v backendu Krameria. Když pole chybí nebo je prázdné, nefiltruje se podle modelu — pracuje se se všemi typy, které backend vrací. |
+| `facetThreads` | ne | Hodnota Solr parametru `facet.threads` — paralelizuje výpočet facetů přes jednotlivá facetová pole. Když pole chybí nebo má neplatnou hodnotu, použije se výchozí **`-1`** (`facet.threads` se vždy posílá). `-1` = jedno vlákno na každé facetové pole (maximální paralelizace), kladné číslo = strop počtu vláken. Má smysl, protože vyhledávání facetuje více polí najednou. |
 
 ---
 

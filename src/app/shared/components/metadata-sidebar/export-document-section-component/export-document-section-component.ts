@@ -156,6 +156,14 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   });
 
   pdfOptions = computed(() => {
+    // For PDF documents the file is downloaded directly, so only offer the
+    // whole-document option ("Celý dokument").
+    if (this.detailViewService.isPdf) {
+      return [
+        { label: 'whole-document', value: 'whole-document', disabled: false },
+      ];
+    }
+
     const pages = this.detailViewService.pages;
     const maxRange = this.appConfig.pdfMaxRange();
     const exportablePages = this.getExportablePages();
@@ -252,6 +260,20 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onPdfSubmit(value: string) {
+    // When the current document is itself a PDF, it is already loaded in the
+    // viewer — just download that file directly instead of opening any dialog
+    // or triggering a server-side export. No login required in this case.
+    if (this.detailViewService.isPdf) {
+      this.pdfLoading.set(true);
+      // Prefer the article title when an article is being viewed; the service
+      // falls back to this only when the PDF has no original filename of its own.
+      const article = this.detailViewService.getCurrentArticle() as any;
+      const articleTitle = article?.['title.search'] || article?.title;
+      const fallbackName = articleTitle || this.detailViewService.title;
+      this.pdfService.downloadCurrentPdf(fallbackName)
+        .finally(() => this.pdfLoading.set(false));
+      return;
+    }
     if (!this.isLoggedIn()) {
       this.openLoginPrompt();
       return;

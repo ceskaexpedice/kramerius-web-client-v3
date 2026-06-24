@@ -9,7 +9,7 @@
   <!-- Main Form State -->
   <div *ngIf="!showSuccess()" class="favorites-popup__content">
     <div class="favorites-popup__header">
-      <h3 id="favorites-popup-title">{{ 'move-to' | translate }}:</h3>
+      <h3 id="favorites-popup-title">{{ (mode === 'remove' ? 'remove-from-my-library' : 'move-to') | translate }}:</h3>
     </div>
 
     <!-- Hierarchy Selector (only shown when enabled) -->
@@ -23,7 +23,7 @@
     <hr *ngIf="showHierarchySelector && document">
 
     <!-- Search existing lists -->
-    <div class="favorites-popup__section p-top-0" *ngIf="shouldShowSearch$ | async">
+    <div class="favorites-popup__section p-top-0" *ngIf="mode !== 'remove' && (shouldShowSearch$ | async)">
       <app-input
         [theme]="'dark'"
         [placeholder]="'search-saved-lists' | translate"
@@ -59,10 +59,10 @@
       </div>
     </div>
 
-    <hr>
+    <hr *ngIf="mode !== 'remove'">
 
     <!-- Create new list -->
-    <div class="favorites-popup__section">
+    <div class="favorites-popup__section" *ngIf="mode !== 'remove'">
       <app-input
         [placeholder]="'create-new-list--placeholder' | translate"
         [label]="'create-new-list--label' | translate"

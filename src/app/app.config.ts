@@ -9,7 +9,7 @@ export const ENVIRONMENT = {
   fallbackLanguage: 'en',
   dateRangeStartYear: 1162,
   translationVersion: '2.0.6',
-  contactEmail: 'digitalniknihovna@mzk.cz'
+  contactEmail: 'info@ceskadigitalniknihovna.cz'
 };
 
 export const API_URL = new InjectionToken<string>('API_URL');

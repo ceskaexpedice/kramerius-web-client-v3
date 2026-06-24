@@ -39,7 +39,8 @@
     "georef": true,
     "ai": true,
     "folders": true,
-    "librarySwitch": true
+    "librarySwitch": true,
+    "showExportHistory": false
   },
 
   "ui": {
@@ -95,7 +96,8 @@
       "convolute",
       "collection",
       "page"
-    ]
+    ],
+    "facetThreads": -1
   },
 
   "pages": [
