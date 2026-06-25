@@ -9,6 +9,16 @@ const path = require('path');
 let commitHash;
 let commitTag;
 let isDirty;
+let clientVersion;
+
+try {
+    // Read the client version from package.json
+    clientVersion = require('../package.json').version;
+    console.log('[collect-build-info] ✅ Client Version:', clientVersion);
+} catch (error) {
+    clientVersion = undefined;
+    console.error('[collect-build-info] ❌ Error reading client version from package.json:', error);
+}
 
 try {
     // Get the latest commit hash
@@ -44,6 +54,7 @@ const info = {
     git_commit_hash: commitHash,
     git_tag: commitTag,
     git_dirty: isDirty,
+    client_version: clientVersion,
     build_date: new Date().toISOString()
 };
 const versionInfoJson = JSON.stringify(info, null, 2);

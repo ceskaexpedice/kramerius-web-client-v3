@@ -22,6 +22,10 @@
     position: fixed;
     right: var(--spacing-x3);
     bottom: var(--spacing-x3);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
     font-size: var(--font-size-xxsmall);
     color: var(--color-text-secondary);
     pointer-events: none;

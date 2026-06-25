@@ -31,8 +31,11 @@
       }
     }
 
-    @if (isAboutPage && gitTag) {
-      <div class="content-page__version">{{ gitTag }}</div>
+    @if (isAboutPage) {
+      <div class="content-page__version">
+        <span>{{ 'version--client' | translate }} {{ clientVersion || '—' }}</span>
+        <span>{{ 'version--api' | translate }} {{ apiVersion() || '—' }}</span>
+      </div>
     }
   </div>
 }

@@ -1,10 +1,11 @@
-import { Component, inject, effect, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, inject, effect, ChangeDetectorRef, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SafeHtmlPipe } from '../../../shared/pipes/safe-html.pipe';
 import { ConfigService } from '../../config/config.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { AuthService } from '../../auth/auth.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
+import { VersionService } from '../../../shared/services/version.service';
 import { PageConfig } from '../../config/config.interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -24,6 +25,7 @@ export class ContentPageComponent implements OnInit {
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   private envService = inject(EnvironmentService);
+  private versionService = inject(VersionService);
 
   pageConfig: PageConfig | undefined;
   htmlParts: string[] = [];
@@ -32,6 +34,8 @@ export class ContentPageComponent implements OnInit {
   termsAgreed = false;
   isTermsPage = false;
   gitTag = this.envService.get('git_tag');
+  clientVersion = this.versionService.getClientVersion();
+  apiVersion = signal('');
   isAboutPage = false;
 
   constructor() {
@@ -41,6 +45,7 @@ export class ContentPageComponent implements OnInit {
         this.loadContent();
       }
     });
+    this.versionService.getApiVersion().then(version => this.apiVersion.set(version));
   }
 
   ngOnInit(): void {

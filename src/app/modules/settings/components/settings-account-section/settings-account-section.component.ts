@@ -6,6 +6,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthService} from '../../../../core/auth/auth.service';
 import {AuthDataDialogComponent} from './auth-data-dialog/auth-data-dialog.component';
+import {VersionService} from '../../../../shared/services/version.service';
 
 @Component({
   selector: 'app-settings-account-section',
@@ -22,12 +23,20 @@ import {AuthDataDialogComponent} from './auth-data-dialog/auth-data-dialog.compo
 export class SettingsAccountSectionComponent {
   authService = inject(AuthService);
   private dialog = inject(MatDialog);
+  private versionService = inject(VersionService);
 
-  openAuthDataDialog() {
+  async openAuthDataDialog() {
     const data = this.authService.getRawUserSession();
+    const apiVersion = await this.versionService.getApiVersion();
+
+    const payload = {
+      clientVersion: this.versionService.getClientVersion(),
+      apiVersion,
+      ...data,
+    };
 
     this.dialog.open(AuthDataDialogComponent, {
-      data: {userJson: JSON.stringify(data, null, 2)},
+      data: {userJson: JSON.stringify(payload, null, 2)},
       width: '60vw',
       maxHeight: '90vh',
     });

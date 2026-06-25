@@ -656,6 +656,8 @@
   "pages--tab": "Strany",
   "articles--tab": "Články",
   "auth-data-dialog--header": "Podklady pro technickou podporu",
+  "version--client": "Verze klienta:",
+  "version--api": "Verze API:",
   "license-info-tooltip": "Zobrazit popis licence",
   "custom-accessibility--all-tooltip": "Některé dokumenty jsou volně přístupné, jiné jsou stále chráněné autorským zákonem a jejich zobrazení závisí na typu přístupu (bez přihlášení, po přihlášení nebo pouze v knihovně).",
   "custom-accessibility--available-tooltip": "Pouze dostupné zobrazí jen dokumenty, které si můžete právě teď otevřít. Bez přihlášení uvidíte jen veřejná díla. Po přihlášení i další dokumenty zpřístupněné vaší knihovnou (např. DNNT).",
