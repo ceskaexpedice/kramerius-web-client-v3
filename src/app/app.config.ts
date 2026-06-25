@@ -8,7 +8,7 @@ export const ENVIRONMENT = {
   defaultLanguage: 'cs',
   fallbackLanguage: 'en',
   dateRangeStartYear: 1162,
-  translationVersion: '2.0.6',
+  translationVersion: '2.0.7',
   contactEmail: 'info@ceskadigitalniknihovna.cz'
 };
 
