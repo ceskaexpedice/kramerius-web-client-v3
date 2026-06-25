@@ -252,6 +252,11 @@ export interface HomepageSectionConfig {
   tags?: SuggestedSearchTagItem[];
 }
 
+// Footer configuration — localized HTML, one URL per language.
+// Rendered as raw HTML (like content pages); resolved through the language
+// fallback chain (e.g. sk → cs → en).
+export type FooterConfig = LocalizedContent;
+
 // Root configuration interface
 export interface AppConfiguration {
   app: AppConfig;
@@ -268,4 +273,5 @@ export interface AppConfiguration {
   homeSections?: HomepageSectionConfig[];
   homepageTitle?: LocalizedLabel;
   homepageSubtitle?: LocalizedLabel;
+  footer?: FooterConfig;
 }

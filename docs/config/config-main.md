@@ -23,7 +23,8 @@ Každá knihovní instance (CDK, MZK, KNAV…) má vlastní adresář pod `publi
   "export": {},
   "viewer": {},
   "search": {},
-  "pages": []
+  "pages": [],
+  "footer": {}
 }
 ```
 
@@ -69,7 +70,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 |---|---|---|
 | `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Musí odpovídat názvu adresáře pod `local-config/`. |
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
-| `contactEmail` | ano | Kontaktní e-mail zobrazovaný v patičce a na chybových stránkách. |
+| `contactEmail` | ano | Kontaktní e-mail zobrazovaný na chybových stránkách. |
 | `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/{kód}/img/`. Když chybí, zobrazí se výchozí logo. |
 | `adminClientUrl` | ne | URL administrátorského rozhraní. Používá se jako cíl přesměrování z administrátorského dialogu do admin klienta. Když chybí, odkaz na admin rozhraní není dostupný. |
 
@@ -376,6 +377,31 @@ Když chybí překlad pro zvolený jazyk, použije se fallback (`cs → en`). Kd
 
 ---
 
+## `footer` — patička
+
+Patička se vykresluje z **lokalizovaného HTML souboru**, podobně jako obsahové stránky (`pages`). Pro každý jazyk se uvede cesta k HTML souboru; při přepnutí jazyka se patička načte znovu z odpovídajícího souboru. Když pro zvolený jazyk soubor není, použije se fallback řetězec (`požadovaný → cs → en`).
+
+```json
+"footer": {
+  "cs": "local-config/cdk/html/footer/footer.cs.html",
+  "en": "local-config/cdk/html/footer/footer.en.html"
+}
+```
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `{kód jazyka}` | ano | Cesta k HTML souboru patičky pro daný jazyk (relativní pod `public/` nebo absolutní URL). Klíčem je kód jazyka (`cs`, `en`, `sk`, `pl`…). |
+
+### Obsah HTML souboru
+
+HTML soubor obsahuje kompletní markup patičky i jeho stylování. Styly se vkládají přímo do souboru jako `<style>` blok — díky tomu je každá patička přenositelná (zkopírujete soubor, upravíte markup i styly na jednom místě, nasměrujete na něj config). Doporučuje se obalit pravidla vlastní třídou (např. `.cdk-footer`), aby styly neunikaly mimo patičku.
+
+### Žádná patička
+
+Když blok `footer` chybí (nebo se pro zvolený jazyk ani přes fallback nenajde soubor), **patička se nevykreslí**. Výchozí konfigurace ani dodávané configy (`cdk`, `mzk`) žádnou patičku nedefinují — patička se zobrazí jen tehdy, když ji explicitně nakonfigurujete.
+
+---
+
 ## Minimální config
 
 Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích hodnot:
@@ -398,7 +424,7 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
 }
 ```
 
-> **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search` a `pages` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše). Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
+> **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search`, `pages` a `footer` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše) — výjimkou je `footer`, který výchozí hodnotu nemá, takže při jeho vynechání se patička nevykreslí. Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
 
 ---
 

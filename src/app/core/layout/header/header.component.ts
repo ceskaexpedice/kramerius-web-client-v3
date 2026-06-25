@@ -120,6 +120,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   get homepageTitle(): LocalizedLabel | undefined { return this.configService.homepageTitle; }
 
+  /** True when the active instance is the default CDK aggregator. */
+  get isCdk(): boolean { return this.configService.isCdk(); }
+
   /** Real URL for the logo anchor so it can be opened in a new tab (ctrl/cmd/middle-click). */
   get homeHref(): string {
     return this.router.serializeUrl(this.router.createUrlTree(this.homeLink));
@@ -162,14 +165,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.updateHeaderType();
 
     // Load active library branding
-    const activeLib = await this.configService.getActiveLibrary();
-    if (activeLib) {
-      this.headerLogo = activeLib.logo;
-      this.headerLogoDark = activeLib.logo;
-      this.headerName = activeLib.name;
+    // CDK always uses its own logo, regardless of any selected dev library.
+    if (this.configService.isCdk()) {
+      this.headerLogo = 'img/logo.svg';
+      this.headerLogoDark = 'img/logo.svg';
     } else {
-      this.headerLogo = this.configService.app.logo || '/favicon.svg';
-      this.headerLogoDark = '/favicon-dark.svg';
+      const activeLib = await this.configService.getActiveLibrary();
+      if (activeLib) {
+        this.headerLogo = activeLib.logo;
+        this.headerLogoDark = activeLib.logo;
+        this.headerName = activeLib.name;
+      } else {
+        this.headerLogo = this.configService.app.logo || '/favicon.svg';
+        this.headerLogoDark = '/favicon-dark.svg';
+      }
     }
 
     this.logDevInfo();

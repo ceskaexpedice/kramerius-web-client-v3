@@ -23,7 +23,8 @@ import {
   HomepageSectionConfig,
   PageConfig,
   SuggestedSearchTagItem,
-  LocalizedLabel
+  LocalizedLabel,
+  FooterConfig
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -183,7 +184,8 @@ export class ConfigService {
       pages: loaded.pages ?? [],
       homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS,
       homepageTitle: loaded.homepageTitle,
-      homepageSubtitle: loaded.homepageSubtitle
+      homepageSubtitle: loaded.homepageSubtitle,
+      footer: loaded.footer ?? DEFAULT_CONFIG.footer
     };
   }
 
@@ -521,6 +523,24 @@ export class ConfigService {
 
   get homepageSubtitle(): LocalizedLabel | undefined {
     return this.getConfig().homepageSubtitle;
+  }
+
+  // Footer config accessor
+  get footer(): FooterConfig {
+    return this.getConfig().footer ?? DEFAULT_CONFIG.footer ?? {};
+  }
+
+  /**
+   * Resolve the footer HTML URL for the given language, walking the language
+   * fallback chain (e.g. sk → cs → en). Returns null when no footer is configured.
+   */
+  getFooterContentUrl(lang: string): string | null {
+    const footer = this.footer;
+    for (const l of this.getLangChain(lang)) {
+      const url = footer[l];
+      if (url) return Array.isArray(url) ? url[0] : url;
+    }
+    return null;
   }
 
   // Active library accessor (for dynamic header branding)
