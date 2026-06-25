@@ -61,7 +61,7 @@
     margin-top: var(--spacing-x5);
     padding: var(--spacing-x3);
     border-radius: var(--spacing-x2);
-    background: #eff2f5;
+    background: var(--color-bg-light);
   }
 
   &--note-icon {
@@ -80,6 +80,10 @@
 
     p {
       margin: 0;
+
+      .highlighted {
+        color: var(--color-text-base);
+      }
     }
   }
 }
