@@ -16,7 +16,10 @@
   </div>
 
   @if (advancedSearchService.isAdvancedSearchActive()) {
-    <app-advanced-search-indicator></app-advanced-search-indicator>
+    <app-advanced-search-indicator
+      [totalCount$]="mapSearchService.totalCount$"
+      [loading$]="mapSearchService.loading$">
+    </app-advanced-search-indicator>
   }
 
   <div class="map-browse__content">

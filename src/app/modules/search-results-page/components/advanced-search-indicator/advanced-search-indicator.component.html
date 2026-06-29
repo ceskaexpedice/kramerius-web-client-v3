@@ -39,7 +39,7 @@
     </div>
   </div>
 
-  @if (searchService.totalCount === 0 && ((searchService.loading$ | async) === false)){
+  @if (((totalCount$ | async) ?? 0) === 0 && ((loading$ | async) === false)){
   <div class="advanced-search-indicator--no-results">
     <img src="/img/warning-image.png" alt="warning">
     <div>
