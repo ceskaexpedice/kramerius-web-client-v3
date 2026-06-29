@@ -1,4 +1,6 @@
 {
+  "model-badge.tooltip.multivolume": "Vícesvazek",
+  "model-badge.tooltip.multivolume-part": "Část vícesvazku",
   "volume": "Ročník",
   "issue": "Číslo",
   "morning-issue": "Ranní vydání",
@@ -477,6 +479,7 @@
   "next-issue--tooltip": "Následující číslo",
   "search-results--tooltip": "Zpět na výsledky vyhledávání",
   "go-to-volume--tooltip": "Přejít na periodikum",
+  "go-to-monograph": "Přejít na svazek knih",
   "page--number": "Číslo stránky",
   "current-page-input--arialabel": "Aktuální číslo stránky",
   "edit-title-button--arialabel": "Upravit název seznamu",

@@ -42,6 +42,14 @@
   </section>
   }
 
+  <!-- Link back to the root multivolume monograph (only for monograph units) -->
+  @if (isMonographUnitDoc()) {
+  <button type="button" class="go-to-monograph" (click)="goToMonograph()">
+    <span>{{ 'go-to-monograph' | translate }}</span>
+    <i class="icon-export-1" aria-hidden="true"></i>
+  </button>
+  }
+
   <!-- ISSN (standalone, right under title) -->
   <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
   </app-metadata-section-item>
@@ -62,7 +70,7 @@
   <!-- Document Type -->
   <app-metadata-section-item *ngIf="data.model" [label]="'model' | translate" [onItemClick]="clickedDocumentType">
     <div metadata-section-item-content>
-      <app-model-badge [model]="$any(data.model)"></app-model-badge>
+      <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount"></app-model-badge>
     </div>
   </app-metadata-section-item>
 

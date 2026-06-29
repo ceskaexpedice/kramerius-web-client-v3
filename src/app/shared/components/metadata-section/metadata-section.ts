@@ -66,6 +66,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   private _solrData = signal<Metadata | null>(null);
 
+  // Unit count of the root multivolume monograph, fetched for monographunit documents
+  // so the badge can show the root "Knihy (n)" instead of the unit "Díl".
+  private _rootUnitCount = signal<number>(0);
+
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
 
@@ -278,6 +282,24 @@ export class MetadataSection implements OnInit, OnChanges {
     this._data.set(baseMods);
     this.cdr.markForCheck();
     this.loadCollectionNames();
+    this.loadRootUnitCount();
+  }
+
+  // For a unit of a multivolume monograph, fetch the root document so the badge can
+  // show the parent's unit count ("Knihy (n)"). The count lives only on the root.
+  private async loadRootUnitCount(): Promise<void> {
+    this._rootUnitCount.set(0);
+    if (!this.isMonographUnitDoc()) return;
+    const rootPid = this._solrData()?.rootPid;
+    if (!rootPid) return;
+    try {
+      const root = await firstValueFrom(this.solrService.getDetailItem(rootPid));
+      const count = root?.['count_monograph_unit'];
+      this._rootUnitCount.set(count ? parseInt(count, 10) : 0);
+      this.cdr.markForCheck();
+    } catch (e) {
+      console.warn('MetadataSection: failed to load root unit count for', rootPid, e);
+    }
   }
 
   /**
@@ -334,6 +356,13 @@ export class MetadataSection implements OnInit, OnChanges {
       baseMods.issueNumber = solrData.issueNumber;
       baseMods.issueDate = solrData.issueDate;
     }
+
+    // The unit count is Solr-derived and the MODS default (0) blocks `mergeMissing`,
+    // so force it from whichever source actually carries it (store doc or input).
+    const unitCount = (solrData?.uuid === this.uuid ? solrData?.monographUnitCount : undefined)
+      ?? this.metadata?.monographUnitCount
+      ?? 0;
+    baseMods.monographUnitCount = unitCount;
 
     return baseMods;
   }
@@ -552,6 +581,40 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   get solrData(): Metadata | null { return this._solrData(); }
+
+  // True when the current document is a unit of a multivolume monograph.
+  isMonographUnitDoc(): boolean {
+    const sd = this._solrData();
+    const model = sd?.model || this.data?.model;
+    const rootModel = sd?.rootModel;
+    return model === DocumentTypeEnum.monographunit && rootModel === DocumentTypeEnum.monograph;
+  }
+
+  // Navigate from a monograph unit back to its root multivolume monograph page.
+  goToMonograph(): void {
+    if (!this.isMonographUnitDoc()) return;
+    const rootPid = this._solrData()?.rootPid;
+    if (rootPid) {
+      this.recordHandler.navigateToMonograph(rootPid);
+    }
+  }
+
+  // Model shown in the document-type badge. For a unit of a multivolume monograph we
+  // show the root monograph ("Knihy (n)") rather than the unit itself ("Díl").
+  get badgeModel(): string {
+    if (this.isMonographUnitDoc()) {
+      return this._solrData()?.rootModel || this.data?.model || '';
+    }
+    return this.data?.model || '';
+  }
+
+  // Unit count passed to the badge so a multivolume root renders as "Knihy (n)".
+  get badgeUnitCount(): number {
+    if (this.isMonographUnitDoc()) {
+      return this._rootUnitCount();
+    }
+    return this.data?.monographUnitCount || 0;
+  }
 
   // True when this document is a child of a periodical hierarchy (volume/issue/supplement)
   // and clicking the title should navigate up to the periodical (volumes screen).

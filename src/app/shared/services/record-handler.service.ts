@@ -155,6 +155,13 @@ export class RecordHandlerService {
     this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.MUSIC_VIEW, pid]));
   }
 
+  /**
+   * Navigate to the volumes (units) page of a multivolume monograph.
+   */
+  public navigateToMonograph(pid: string): void {
+    this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.MONOGRAPH_VIEW, pid]));
+  }
+
   public navigateToEmptySearch(): void {
     this.searchService.searchTerm.set('');
     this.router.navigate(['/'], { queryParams: {}, queryParamsHandling: null });

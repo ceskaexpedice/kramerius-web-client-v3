@@ -28,6 +28,27 @@
     }
   }
 
+  .go-to-monograph {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    align-self: flex-start;
+    // Title-to-link spacing is x1 per design; cancel the .data flex gap (x4).
+    margin-top: calc(var(--spacing-x1) - var(--spacing-x4));
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-primary);
+    font-size: var(--font-size-base);
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+  }
+
   .titles--container {
     margin: var(--spacing-x1) 0;
   }

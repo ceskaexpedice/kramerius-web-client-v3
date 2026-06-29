@@ -1,4 +1,6 @@
 {
+  "model-badge.tooltip.multivolume": "Viaczväzok",
+  "model-badge.tooltip.multivolume-part": "Časť viaczväzku",
   "volume": "Ročník",
   "issue": "Číslo",
   "morning-issue": "Ranné vydanie",
@@ -474,6 +476,7 @@
   "next-issue--tooltip": "Nasledujúce číslo",
   "search-results--tooltip": "Späť na výsledky vyhľadávania",
   "go-to-volume--tooltip": "Prejsť na periodikum",
+  "go-to-monograph": "Prejsť na zväzok kníh",
   "page--number": "Číslo strany",
   "current-page-input--arialabel": "Aktuálne číslo strany",
   "edit-title-button--arialabel": "Upraviť názov zoznamu",

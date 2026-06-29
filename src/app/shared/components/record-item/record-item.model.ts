@@ -49,6 +49,9 @@ export interface RecordItem {
 
   monographUnitCount?: number;
 
+  /** Order of this part within its multivolume parent (from `part.number.sort`) */
+  partNumber?: number;
+
   /** Custom image URL for local items */
   imageUrl?: string;
 
@@ -103,6 +106,7 @@ export function searchDocumentToRecordItem(doc: any): RecordItem {
     showFavoriteButton: true,
     showAccessibilityBadge: true,
     monographUnitCount: doc.monographUnitCount || 0,
+    partNumber: doc.partNumber ?? (doc['part.number.sort'] != null ? parseInt(doc['part.number.sort'], 10) : undefined),
 
     'collection.desc': doc['collection.desc'] || [],
     'collection.desc_cze': doc['collection.desc_cze'] || [],

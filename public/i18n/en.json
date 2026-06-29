@@ -1,4 +1,6 @@
 {
+  "model-badge.tooltip.multivolume": "Multivolume",
+  "model-badge.tooltip.multivolume-part": "Part of a multivolume",
   "volume": "Volume",
   "issue": "Issue",
   "morning-issue": "Morning issue",
@@ -482,6 +484,7 @@
   "next-issue--tooltip": "Next issue",
   "search-results--tooltip": "Back to search results",
   "go-to-volume--tooltip": "Go to periodical",
+  "go-to-monograph": "Go to book bundle",
   "page--number": "Page number",
   "current-page-input--arialabel": "Current page number",
   "edit-title-button--arialabel": "Edit list title",

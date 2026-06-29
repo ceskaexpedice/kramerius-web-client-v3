@@ -1,4 +1,6 @@
 {
+  "model-badge.tooltip.multivolume": "Wielotomowy",
+  "model-badge.tooltip.multivolume-part": "Część wielotomowego",
   "volume": "Rocznik",
   "issue": "Numer",
   "morning-issue": "Wydanie poranne",
@@ -473,6 +475,7 @@
   "next-issue--tooltip": "Następny numer",
   "search-results--tooltip": "Powrót do wyników wyszukiwania",
   "go-to-volume--tooltip": "Przejdź do periodyku",
+  "go-to-monograph": "Przejdź do pakietu książek",
   "page--number": "Numer strony",
   "current-page-input--arialabel": "Aktualny numer strony",
   "edit-title-button--arialabel": "Edytuj nazwę listy",
