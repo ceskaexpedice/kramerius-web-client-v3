@@ -15,6 +15,10 @@
     </app-selected-tags>
   </div>
 
+  @if (advancedSearchService.isAdvancedSearchActive()) {
+    <app-advanced-search-indicator></app-advanced-search-indicator>
+  }
+
   <div class="map-browse__content">
 
     <div class="map-browse__map">

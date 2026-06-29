@@ -22,6 +22,8 @@ import { SelectedTagsComponent } from '../../../../shared/components/selected-ta
 import { TranslatePipe } from '@ngx-translate/core';
 import type { AllmapsViewer } from '@allmaps/viewer-lite';
 import { ConfigService } from '../../../../core/config/config.service';
+import { AdvancedSearchService } from '../../../../shared/services/advanced-search.service';
+import { AdvancedSearchIndicatorComponent } from '../advanced-search-indicator/advanced-search-indicator.component';
 
 const EARTH_RADIUS = 6378137;
 
@@ -41,7 +43,8 @@ function lonLatToMercator(lon: number, lat: number): [number, number] {
     NgIf,
     SearchResultsSidebarComponent,
     SelectedTagsComponent,
-    TranslatePipe
+    TranslatePipe,
+    AdvancedSearchIndicatorComponent
   ],
   templateUrl: './map-browse.component.html',
   styleUrl: './map-browse.component.scss'
@@ -52,6 +55,7 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
 
   mapSearchService = inject(MapSearchService);
   searchService = inject(SearchService);
+  advancedSearchService = inject(AdvancedSearchService);
   private mapService = inject(MapService);
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
