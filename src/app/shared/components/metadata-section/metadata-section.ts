@@ -26,6 +26,7 @@ import { isDocumentPublic } from '../record-item/record-item.model';
 import { MatDialog } from '@angular/material/dialog';
 import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
+import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
 import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
@@ -802,6 +803,43 @@ export class MetadataSection implements OnInit, OnChanges {
     'ilnorway': 'https://eeagrants.org',
     'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
   };
+
+  /** Message page key used for the license description shown in the info dialog. */
+  private static readonly LICENSE_INFO_PAGE_KEY = 'unauthenticated';
+
+  /**
+   * True for a license that has a description HTML page configured
+   * (e.g. public -> local-config/<lib>/html/licenses/public.cs.html), so its
+   * name can be rendered as a clickable link opening the info dialog.
+   */
+  hasLicenseInfo(license: string): boolean {
+    const lang = this.appTranslation.currentLanguage().code;
+    return !!this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
+  }
+
+  /**
+   * Opens a dialog with the license description, loaded from the license's
+   * "unauthenticated" message page HTML defined in config-licenses.json
+   * (e.g. public -> local-config/<lib>/html/licenses/public.cs.html), in the
+   * currently active language.
+   */
+  async openLicenseInfo(license: string, event: Event): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const lang = this.appTranslation.currentLanguage().code;
+    const url = this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
+    if (!url) return;
+
+    const content = await this.configService.loadHtmlContent(url);
+    const title = this.configService.getLocalizedLabel('license', license, lang);
+
+    this.dialog.open(LicenseInfoDialogComponent, {
+      data: { title, content },
+      autoFocus: false,
+      restoreFocus: false
+    });
+  }
 
   getProvidedByLicenseImage(license: string): string | null {
     return this.configService.getLicenseConfig(license)?.providedBy?.imageUrl ?? null;

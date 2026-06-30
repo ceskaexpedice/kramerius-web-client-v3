@@ -86,7 +86,6 @@
   <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
     <div class="flex flex--gap-x2" metadata-section-item-content>
       <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-      <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>
     </div>
   </app-metadata-section-item>
 
@@ -95,7 +94,12 @@
       <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
       @for (license of providedByLicenses(); track license) {
         <div class="provided-licenses__item">
-          @if (getProvidedByLicenseUrl(license); as url) {
+          @if (hasLicenseInfo(license)) {
+            <button type="button" class="provided-licenses__link provided-licenses__info"
+                    (click)="openLicenseInfo(license, $event)">
+              {{ license | translate }}
+            </button>
+          } @else if (getProvidedByLicenseUrl(license); as url) {
             <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">
               {{ license | translate }}
             </a>
@@ -111,6 +115,9 @@
               <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
             }
           }
+
+          <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>
+
         </div>
       }
     </section>

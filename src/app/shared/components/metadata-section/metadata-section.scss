@@ -177,9 +177,9 @@
 
     &__item {
       display: flex;
-      flex-direction: column;
-      gap: var(--spacing-x1);
-      align-items: flex-start;
+      flex-direction: row;
+      gap: var(--spacing-x2);
+      align-items: center;
     }
 
     &__link {
@@ -188,6 +188,20 @@
       font-size: var(--font-size-base);
 
       &:hover {
+        text-decoration: none;
+      }
+    }
+
+    &__info {
+      padding: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+
+      &:focus-visible {
+        outline: none;
         text-decoration: none;
       }
     }
