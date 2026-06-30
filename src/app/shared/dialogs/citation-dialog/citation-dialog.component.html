@@ -32,19 +32,19 @@
 
         </div>
 
-        <app-tab-item label="text">
+        <app-tab-item id="text" label="text">
           <div class="tab-item--content" [innerHTML]="citationResponse?.iso690"></div>
         </app-tab-item>
 
-        <app-tab-item [label]="'html' | translate">
+        <app-tab-item id="html" [label]="'html' | translate">
           <div class="tab-item--content" [innerHTML]="citationResponse?.iso690html"></div>
         </app-tab-item>
 
-        <app-tab-item [label]="'bibtex' | translate">
+        <app-tab-item id="bibtex" [label]="'bibtex' | translate">
           <div class="tab-item--content" [innerHTML]="citationResponse?.bibtex"></div>
         </app-tab-item>
 
-        <app-tab-item [label]="'wiki' | translate">
+        <app-tab-item id="wiki" [label]="'wiki' | translate">
           <div class="tab-item--content" [innerHTML]="citationResponse?.wiki"></div>
         </app-tab-item>
 
