@@ -64,10 +64,16 @@ export class ConfigService {
    * Returns true when the active instance is the CDK aggregator
    * (Česká digitální knihovna). Enables CDK-specific extended features
    * such as the "cdk.collection" source facet.
+   *
+   * Driven by the library code in config-main.json (`app.code`), so a
+   * standalone library never accidentally enables CDK aggregator features.
+   * When the internal library switch is on, the selected dev library id wins.
    */
   isCdk(): boolean {
-    const id = this.envService.getKrameriusId();
-    return id.includes('cdk');
+    if (this.envService.isLibrarySwitchEnabled()) {
+      return this.envService.getKrameriusId().includes('cdk');
+    }
+    return (this.app?.code ?? '').includes('cdk');
   }
 
   private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
@@ -95,12 +101,52 @@ export class ConfigService {
   async load(): Promise<void> {
     if (this.loaded) return;
 
-    const code = this.envService.getKrameriusId();
-    const timestamp = Date.now();
+    // 1. Load the config of the instance this build ships as (env-only code,
+    //    never the localStorage switch). This base config decides whether the
+    //    internal library switch is enabled (features.librarySwitch).
+    const baseCode = this.envService.getBaseKrameriusId();
+    const baseConfig = await this.fetchLibraryConfig(baseCode);
 
+    const switchEnabled = baseConfig?.features?.librarySwitch ?? false;
+
+    // 2. Default path: switch off → use the base config as-is. Nothing is read
+    //    from localStorage or the registry.
+    if (!switchEnabled) {
+      this.applyResolvedConfig(baseConfig ?? this.buildNeutralConfig(), baseCode, false);
+      return;
+    }
+
+    // 3. Switch on (internal hack). If a different library was selected (stored
+    //    in localStorage by the switch UI), try to load ITS config; otherwise
+    //    stay on the base config.
+    const selectedCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    if (!selectedCode || selectedCode === baseCode) {
+      this.applyResolvedConfig(baseConfig ?? this.buildNeutralConfig(), baseCode, true);
+      return;
+    }
+
+    const selectedConfig = await this.fetchLibraryConfig(selectedCode);
+    if (selectedConfig) {
+      this.applyResolvedConfig(selectedConfig, selectedCode, true);
+      return;
+    }
+
+    // 4. Switched to a library that has no local config (e.g. nm). Brand the app
+    //    from the central registry (name/logo) and use DEFAULT homepage sections,
+    //    since there is no config-homepage.json for it. Keep the switch enabled.
+    const fallback = await this.buildRegistryFallbackConfig(selectedCode);
+    this.applyResolvedConfig(fallback, selectedCode, true);
+  }
+
+  /**
+   * Fetch and merge a single library's config (config-main.json + licenses +
+   * homepage). Returns null when the library has no config-main.json.
+   */
+  private async fetchLibraryConfig(code: string): Promise<AppConfiguration | null> {
+    const timestamp = Date.now();
     try {
       const configResponse = await fetch(`${this.configUrlFor(code)}?t=${timestamp}`);
-      if (!configResponse.ok) throw new Error('Config load failed');
+      if (!configResponse.ok) return null;
       const configData = await configResponse.json();
 
       const [licensesResponse, homeSectionsResponse] = await Promise.all([
@@ -127,15 +173,57 @@ export class ConfigService {
 
       const homeSections = homeSectionsData?.filter(s => s.visible !== false) ?? DEFAULT_HOME_SECTIONS;
 
-      const mergedConfig = this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections, homepageTitle, homepageSubtitle });
-      this.config$.next(mergedConfig);
-      this.loaded = true;
-      console.log(`ConfigService: Configuration loaded for library '${code}'.`);
+      return this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections, homepageTitle, homepageSubtitle });
     } catch (err) {
-      console.warn('ConfigService: Configuration not found or invalid. Using default configuration.', err);
-      this.config$.next(DEFAULT_CONFIG);
-      this.loaded = true;
+      console.warn(`ConfigService: Failed to load configuration for library '${code}'.`, err);
+      return null;
     }
+  }
+
+  /**
+   * Publish a resolved config and push its backend URL + the (base-config-owned)
+   * library-switch flag to EnvironmentService. The switch flag comes from the
+   * base instance, NOT from the effective config — a switched-to library's
+   * config (or registry fallback) must not be able to turn the switch off,
+   * otherwise the localStorage backend override would stop being honored.
+   */
+  private applyResolvedConfig(config: AppConfiguration, code: string, switchEnabled: boolean): void {
+    this.config$.next(config);
+    this.envService.applyAppConfig(config.api?.baseUrl ?? null, switchEnabled);
+    this.loaded = true;
+    console.log(`ConfigService: Configuration loaded for library '${code}'.`);
+  }
+
+  /** Neutral config (no CDK branding) used when no config could be loaded. */
+  private buildNeutralConfig(): AppConfiguration {
+    return {
+      ...DEFAULT_CONFIG,
+      app: { ...DEFAULT_CONFIG.app, code: '', name: '' },
+      homeSections: DEFAULT_HOME_SECTIONS,
+      homepageTitle: undefined,
+      homepageSubtitle: undefined
+    };
+  }
+
+  /**
+   * Config for a switched-to library that has no local config dir: generic
+   * defaults branded with the library's name/logo from the central registry.
+   * Homepage uses DEFAULT_HOME_SECTIONS (there is no config-homepage.json).
+   */
+  private async buildRegistryFallbackConfig(code: string): Promise<AppConfiguration> {
+    const neutral = this.buildNeutralConfig();
+    const activeLib = await this.getActiveLibrary();
+    if (!activeLib) return neutral;
+
+    return {
+      ...neutral,
+      app: {
+        ...neutral.app,
+        code,
+        name: { cs: activeLib.name, en: activeLib.name_en || activeLib.name },
+        logo: activeLib.logo || neutral.app.logo
+      }
+    };
   }
 
   private async safeParseJson(response: Response, fileName: string): Promise<any | null> {

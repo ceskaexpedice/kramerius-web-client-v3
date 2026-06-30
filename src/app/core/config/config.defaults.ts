@@ -22,7 +22,9 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     georef: true,
     ai: true,
     folders: true,
-    librarySwitch: true
+    // Internal-testing-only multi-library switch. Off by default — the client
+    // is configured for a single Kramerius via config-main.json (api.baseUrl).
+    librarySwitch: false
   },
   ui: {
     cookiebar: true

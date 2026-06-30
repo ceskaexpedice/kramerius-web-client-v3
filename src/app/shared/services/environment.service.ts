@@ -13,6 +13,31 @@ export class EnvironmentService {
   private configRuntime: any = {};
   private configBuildtime: any = {};
 
+  // Backend URL and library-switch flag resolved from config-main.json.
+  // Pushed in by ConfigService.load() to avoid a circular dependency
+  // (ConfigService injects EnvironmentService, not the other way around).
+  private configApiBaseUrl: string | null = null;
+  private librarySwitchEnabled = false;
+
+  /**
+   * Called by ConfigService once config-main.json is loaded. Provides the
+   * single backend URL (`api.baseUrl`) the client points at, and whether the
+   * internal-only library switch is enabled (`features.librarySwitch`).
+   */
+  public applyAppConfig(apiBaseUrl: string | null, librarySwitchEnabled: boolean): void {
+    this.configApiBaseUrl = apiBaseUrl || null;
+    this.librarySwitchEnabled = librarySwitchEnabled;
+  }
+
+  /**
+   * Whether the (undocumented, internal-testing) multi-library switch is on.
+   * Off by default: the client is configured for a single Kramerius via
+   * config-main.json and never reads from the central registry.
+   */
+  public isLibrarySwitchEnabled(): boolean {
+    return this.librarySwitchEnabled;
+  }
+
   public async load(): Promise<void> {
     // Load runtime configuration from env.json or static environment (environment.ts)
     if (staticEnv.useStaticRuntimeConfig) {
@@ -54,16 +79,32 @@ export class EnvironmentService {
   }
 
   getKrameriusUrl(withParam = true): string {
-    const krameriusId = this.getKrameriusId();
-    const devOverride = localStorage.getItem('CDK_DEV_BASE_URL');
-    if (devOverride) {
-      return ensureTrailingSlash(devOverride) + (withParam ? 'search/api/client/v7.0/' : '');
+    // Internal-only library switch: when enabled, a selected dev library's
+    // base URL is kept in localStorage. Ignored entirely in the default
+    // (single-Kramerius) deployment.
+    if (this.librarySwitchEnabled) {
+      const devOverride = localStorage.getItem('CDK_DEV_BASE_URL');
+      if (devOverride) {
+        return ensureTrailingSlash(devOverride) + (withParam ? 'search/api/client/v7.0/' : '');
+      }
     }
 
+    // Primary source of truth: api.baseUrl from config-main.json. The whole
+    // backend connection lives in config — the client points at a single
+    // Kramerius and nothing is read from the central registry.
+    const configBaseUrl = this.configApiBaseUrl;
+    if (configBaseUrl) {
+      // config-main.json's api.baseUrl already includes '/search/api/client';
+      // append only the version segment when params are requested.
+      const trimmed = configBaseUrl.replace(/\/+$/, '');
+      const normalized = trimmed.replace(/\/search\/api\/client$/, '');
+      return normalized + (withParam ? '/search/api/client/v7.0/' : '');
+    }
+
+    // Fallback for legacy CDK/MZK deployments that don't set api.baseUrl:
+    // resolve from the known-instance switch (defaults to CDK).
+    const krameriusId = this.getKrameriusId();
     let baseUrl = '';
-
-    // https://kramerius.difmoe.trinera.cloud
-
     switch (krameriusId) {
       case 'mzk': baseUrl = 'https://api.kramerius.mzk.cz'; break;
       case 'cdk': baseUrl = 'https://cdk-api.dev.ceskadigitalniknihovna.cz'; break;
@@ -80,8 +121,21 @@ export class EnvironmentService {
   }
 
   getKrameriusId(): string {
-    const devId = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    return devId || this.get('krameriusId') || 'cdk';
+    // The dev library id is only honored when the internal library switch is on.
+    if (this.librarySwitchEnabled) {
+      const devId = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+      if (devId) return devId;
+    }
+    return this.getBaseKrameriusId();
+  }
+
+  /**
+   * The library code this build ships as, taken purely from the environment
+   * (never from the localStorage switch). This is the instance whose
+   * config-main.json holds `features.librarySwitch`.
+   */
+  getBaseKrameriusId(): string {
+    return this.get('krameriusId') || 'cdk';
   }
 
   getApiUrl(path: string = ''): string {

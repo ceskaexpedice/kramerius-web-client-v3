@@ -54,7 +54,12 @@ export interface FeaturesConfig {
   georef: boolean;
   ai: boolean;
   folders: boolean;
-  librarySwitch: boolean;
+  /**
+   * Internal-testing-only multi-library switch. Opt-in (defaults to `false`
+   * when omitted): the client is otherwise configured for a single Kramerius
+   * via `api.baseUrl`. Not shipped in the default config files or docs.
+   */
+  librarySwitch?: boolean;
   /**
    * Shows the "Download history" item in the user menu. Unlike the other
    * feature flags, this defaults to `false` when omitted (the feature is

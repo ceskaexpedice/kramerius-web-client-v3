@@ -125,7 +125,7 @@ services:
       # Optional: override the bundled default local configuration.
       - ./public/local-config:/usr/share/nginx/local-config:ro
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/libraries.json"]
+      test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/mzk/config-main.json"]
       start_period: 30s
       interval: 30s
       timeout: 5s
@@ -200,19 +200,19 @@ This allows the container image to work out of the box with the bundled default 
 For example, the following local file:
 
 ```text
-./public/local-config/libraries.json
+./public/local-config/mzk/config-main.json
 ```
 
 will override the bundled file and will be served by nginx as:
 
 ```text
-/local-config/libraries.json
+/local-config/mzk/config-main.json
 ```
 
 The file can be checked from the host at:
 
 ```text
-http://localhost:1234/local-config/libraries.json
+http://localhost:1234/local-config/mzk/config-main.json
 ```
 
 If you do not need a custom local configuration, you can remove the `volumes` section from `docker-compose.yml`.

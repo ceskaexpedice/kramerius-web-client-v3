@@ -2,7 +2,9 @@
 
 Hlavní konfigurační soubor klienta. Říká aplikaci, jak se jmenuje knihovna, kam se připojit, jaké funkce má zapnuté a jak vypadá prohlížeč dokumentů.
 
-Každá knihovní instance (CDK, MZK, KNAV…) má vlastní adresář pod `public/local-config/{kód-knihovny}/` a v něm svůj `config-main.json`. Výchozí instancí je **CDK** (`public/local-config/cdk/`) — použije se, když není v prostředí (`APP_KRAMERIUS_ID`) ani ve vývojářském úložišti (`CDK_DEV_KRAMERIUS_ID`) zvolena jiná.
+Klient se vždy nastavuje na **jednoho jediného Krameria**. Adresu backendu i veškeré chování určuje pouze tento konfigurační soubor.
+
+Konfigurace knihovny leží v adresáři `public/local-config/{kód-knihovny}/`. Který adresář se použije, určuje proměnná prostředí `APP_KRAMERIUS_ID` (viz README). Adresu Kramerius API backendu, na který se klient připojí, řídí pole [`api.baseUrl`](#api--připojení-k-backendu).
 
 **Cesta k souboru:** `public/local-config/{kód-knihovny}/config-main.json`
 
@@ -88,7 +90,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 
 | Pole | Povinné | Popis |
 |---|---|---|
-| `baseUrl` | ano | Základní URL Kramerius API backendu. |
+| `baseUrl` | ano | Základní URL Kramerius API backendu — **jediný zdroj pravdy** pro to, na jakého Krameria je klient připojen. Klient odsud odvozuje všechny API požadavky (`{baseUrl}/search/api/client/v7.0/…`). Hodnota může být uvedena buď bez cesty (`https://api.kramerius.example.org`), nebo včetně `/search/api/client` (`https://api.kramerius.example.org/search/api/client`) — obojí se normalizuje na stejný výsledek. |
 | `citationUrl` | ne | URL citační služby. Používá se při generování citací dokumentů. Když chybí, použije se výchozí `https://citace.ceskadigitalniknihovna.cz/api/v1`. |
 | `georefUrl` | ne | Základní URL služby s georeferenčními anotacemi (Allmaps anotace). Aktivní jen když `features.georef: true`. Když chybí, georeferenční zobrazení se nikdy nenabídne. Výchozí `https://api.georeference.trinera.cloud/georefs/latest`. |
 
@@ -164,7 +166,6 @@ Volitelný anonymní identifikátor klienta, který se posílá do analytiky / b
   "georef": true,
   "ai": false,
   "folders": true,
-  "librarySwitch": false,
   "showExportHistory": false
 }
 ```
@@ -179,7 +180,6 @@ Přepínače hlavních funkcí. Všechna pole jsou `true` / `false`.
 | `georef` | Zobrazení georeferencovaných map přímo v prohlížeči. Pro funkční zobrazení musí být zároveň vyplněné `api.georefUrl`. Když je `false`, tlačítko „Zobrazení na mapě“ se v detailu dokumentu vůbec nenabízí. | `true` |
 | `ai` | AI funkce v postranním panelu detailu dokumentu (shrnutí, překlady, doplňující informace). | `true` |
 | `folders` | Uživatelské složky / oblíbené dokumenty. Vyžaduje zapnutý `keycloak`. | `true` |
-| `librarySwitch` | Přepínač knihoven v hlavičce. | `true` |
 | `showExportHistory` | Položka „Historie stahování“ v uživatelském menu. Na rozdíl od ostatních přepínačů je tato funkce **opt-in** — výchozí hodnota je `false`. | `false` |
 
 Když některé pole chybí a celý blok `features` **není** v configu, použijí se výchozí hodnoty z tabulky. Pokud blok `features` **je** v configu, ale konkrétní pole v něm chybí, funkce bude **zapnuta** (`true`) — **výjimkou** je `showExportHistory`, které zůstává vypnuté (`false`), pokud ho výslovně nezapnete.

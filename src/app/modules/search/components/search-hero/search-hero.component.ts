@@ -49,10 +49,13 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private intersectionObserver?: IntersectionObserver;
 
-  async ngOnInit() {
-    const activeLib = await this.configService.getActiveLibrary();
-    if (activeLib) {
-      this.activeLibName = activeLib.name;
+  ngOnInit() {
+    // Library name from the resolved config — set for both locally-configured
+    // libraries and switched-to libraries branded from the central registry.
+    // Not shown for the CDK aggregator (it uses the default hero title).
+    if (!this.configService.isCdk()) {
+      const lang = this.translationService.currentLanguage().code;
+      this.activeLibName = this.configService.resolveLabel(this.configService.app.name, lang, '');
     }
   }
 
