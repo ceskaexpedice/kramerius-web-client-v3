@@ -44,11 +44,19 @@
 
   <!-- Link back to the root multivolume monograph (only for monograph units) -->
   @if (isMonographUnitDoc()) {
-  <button type="button" class="go-to-monograph" (click)="goToMonograph()">
+  <button type="button" class="go-to-parent" (click)="goToMonograph()">
     <span>{{ 'go-to-monograph' | translate }}</span>
     <i class="icon-export-1" aria-hidden="true"></i>
   </button>
   }
+
+  <!-- Link up to the periodical (only for periodical children) -->
+<!--  @if (isPeriodicalChild()) {-->
+<!--  <button type="button" class="go-to-parent" (click)="clickedTitle()">-->
+<!--    <span>{{ 'go-to-periodical' | translate }}</span>-->
+<!--    <i class="icon-export-1" aria-hidden="true"></i>-->
+<!--  </button>-->
+<!--  }-->
 
   <!-- ISSN (standalone, right under title) -->
   <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
