@@ -2,6 +2,15 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6. Later upgraded to Angular 19.
 
+> **Which library does the client run as?**
+> The client always runs as a **single** Kramerius instance. Which one is selected
+> by the `APP_KRAMERIUS_ID` environment variable, whose value must match a directory
+> under [`public/local-config/`](public/local-config/) (e.g. `mzk`, `cdk`, `nm`).
+> If you run a different library, create your own config directory there first —
+> see [Running as your own library](#running-as-your-own-library) and the config
+> docs in [`docs/config/`](docs/config/). When `APP_KRAMERIUS_ID` is not set, the
+> client falls back to `cdk`.
+
 ## Run for development
 
 ```shell
@@ -18,11 +27,30 @@ http://localhost:4200/
 
 The application will automatically reload when source files change.
 
+> **Selecting the library in dev mode.** `npm run start` does **not** read
+> `APP_KRAMERIUS_ID` — the dev server uses `src/environments/environment.local.ts`
+> (auto-created on first run from `environment.ts`, git-ignored). To run the dev
+> server as a specific library, set `krameriusId` in that file:
+>
+> ```ts
+> export const environment = {
+>   useStaticRuntimeConfig: false,
+>   krameriusId: 'xy', // your library code under public/local-config/
+>   // ...
+> };
+> ```
+>
+> Without it, `krameriusId` is empty and the dev server falls back to `cdk`.
+> (For a production-like run that *does* honor `APP_KRAMERIUS_ID`, use the
+> build below.)
+
 ## Build & Run classic
 
 ### Build
 
-First define the configuration using environment variables:
+First define the configuration using environment variables. Set
+`APP_KRAMERIUS_ID` to the library you want the client to run as — the value
+must match a directory under `public/local-config/` (here: `mzk`):
 
 ```shell
 export APP_DEV_MODE=false
@@ -56,6 +84,47 @@ Open in browser:
 ```text
 http://localhost:8080
 ```
+
+## Running as your own library
+
+The client ships with configurations for a few libraries under
+`public/local-config/`. To run it as **your own** library (`xy` in the steps
+below), you do **not** need to modify any source code — just add a config
+directory and point the client at it.
+
+1. **Create your config directory** `public/local-config/xy/` with at least:
+
+   ```text
+   public/local-config/xy/config-main.json       # required: app.code "xy", api.baseUrl, i18n
+   public/local-config/xy/config-licenses.json    # optional
+   public/local-config/xy/config-homepage.json    # optional
+   ```
+
+   The format of each file is documented in [`docs/config/`](docs/config/).
+   `config-main.json` is the only required file; the rest fall back to built-in
+   defaults when omitted.
+
+2. **Build the client as `xy`** (this is the same mechanism Docker uses, just
+   without a container):
+
+   ```shell
+   export APP_DEV_MODE=false
+   export APP_KRAMERIUS_ID=xy
+   npm run build
+   npx serve dist/cdk-client/browser -l 8080
+   ```
+
+   The client now starts as the `xy` instance and connects to the backend from
+   `public/local-config/xy/config-main.json` → `api.baseUrl`.
+
+> **Note.** The backend the client talks to comes entirely from
+> `config-main.json` (`api.baseUrl`) of the selected library. There is no
+> hard-coded backend for configured libraries — only an internal fallback that
+> applies when `api.baseUrl` is missing. Always set `api.baseUrl` in your
+> `config-main.json`.
+
+For running as your own library in the dev server (`npm run start`), see the
+note under [Run for development](#run-for-development).
 
 ## Build & Run with Docker
 
