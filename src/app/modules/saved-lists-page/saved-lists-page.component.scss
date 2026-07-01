@@ -16,6 +16,15 @@
   }
 }
 
+// Toggle (where-to-search) + selected tags share one wrapping flex row, so the
+// pill group hugs its content instead of stretching to the full page width.
+.page-content__sticky-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-x3);
+}
+
 .facet-filter-column {
   flex: 0 0 320px;
   width: 320px;

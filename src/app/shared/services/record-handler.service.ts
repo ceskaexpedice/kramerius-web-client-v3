@@ -75,8 +75,8 @@ export class RecordHandlerService {
     }
   }
 
-  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; grouped?: boolean }): string {
-    const { model, pid, ownParentPid, ownParentModel, fulltext, grouped } = opts;
+  getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; fulltextForDocument?: string | null; grouped?: boolean }): string {
+    const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument, grouped } = opts;
     // Only pages carry the search term in the URL; other models navigate
     // without it.
     const pageFulltext = model === DocumentTypeEnum.page ? fulltext : null;
@@ -92,7 +92,35 @@ export class RecordHandlerService {
       const sep = url.includes('?') ? '&' : '?';
       url += `${sep}fulltext=${encodeURIComponent(pageFulltext)}`;
     }
+    // Document-level fulltext override (e.g. a folder/search query that should be
+    // re-run inside the opened document). Applies to models that open in the
+    // detail view; models routing elsewhere (collection, periodical, sound,
+    // convolute) don't support in-document search, so the term is dropped.
+    const term = fulltextForDocument?.trim();
+    if (term && !grouped && !url.includes('fulltext=') && this.supportsInDocumentSearch(model)) {
+      const sep = url.includes('?') ? '&' : '?';
+      url += `${sep}fulltext=${encodeURIComponent(term)}`;
+    }
     return url;
+  }
+
+  /**
+   * Whether a model opens in the detail view (where in-document fulltext search
+   * is available). Models that route to their own landing page — periodical,
+   * periodical volume, sound recording, collection, convolute — don't carry a
+   * document-level fulltext term. Mirrors getHandleDocumentUrlByModelAndPid.
+   */
+  private supportsInDocumentSearch(model: string): boolean {
+    switch (model) {
+      case DocumentTypeEnum.periodical:
+      case DocumentTypeEnum.periodicalvolume:
+      case DocumentTypeEnum.soundrecording:
+      case DocumentTypeEnum.collection:
+      case DocumentTypeEnum.convolute:
+        return false;
+      default:
+        return true;
+    }
   }
 
   getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null, fulltext: string | null = null): string {

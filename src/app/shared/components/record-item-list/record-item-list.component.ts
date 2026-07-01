@@ -27,6 +27,10 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
 
   @Input() records: SearchDocument[] = [];
   @Input() currentFolderId?: string;
+  // Free-text term to re-run inside the opened document (e.g. the active folder
+  // or search query). When set, each row's detail link carries ?fulltext= so the
+  // in-document search restores automatically on the detail view.
+  @Input() fulltextOverride?: string | null;
   @Input() exportedRecord: SearchDocument | null = null;
   @Input() loading = false;
   @Input() skeletonCount = 60;
@@ -120,6 +124,7 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
       ownParentPid: record.ownParentPid,
       ownParentModel: record.ownParentModel,
       fulltext: record.fulltext,
+      fulltextForDocument: this.fulltextOverride,
       grouped: record.grouped,
     });
   }
