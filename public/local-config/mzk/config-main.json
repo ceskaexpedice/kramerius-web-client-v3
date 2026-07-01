@@ -8,7 +8,7 @@
   },
 
   "api": {
-    "baseUrl": "https://api.kramerius.example.org/search/api/client",
+    "baseUrl": "https://api.kramerius.mzk.cz/search/api/client",
     "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
     "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest"
   },
