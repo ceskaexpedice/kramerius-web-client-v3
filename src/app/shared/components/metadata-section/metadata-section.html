@@ -35,7 +35,7 @@
     <app-collapsible-content *ngIf="localizedTitles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="localizedTitles.length">
       <div class="titles--container" *ngFor="let title of localizedTitles">
-        <span>{{ title.title }}</span>
+<!--        <span>{{ title.title }}</span>-->
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
     </app-collapsible-content>
@@ -51,12 +51,12 @@
   }
 
   <!-- Link up to the periodical (only for periodical children) -->
-<!--  @if (isPeriodicalChild()) {-->
-<!--  <button type="button" class="go-to-parent" (click)="clickedTitle()">-->
-<!--    <span>{{ 'go-to-periodical' | translate }}</span>-->
-<!--    <i class="icon-export-1" aria-hidden="true"></i>-->
-<!--  </button>-->
-<!--  }-->
+  @if (isPeriodicalChild()) {
+  <button type="button" class="go-to-parent" (click)="clickedTitle()">
+    <span>{{ 'go-to-periodical' | translate }}</span>
+    <i class="icon-export-1" aria-hidden="true"></i>
+  </button>
+  }
 
   <!-- ISSN (standalone, right under title) -->
   <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
