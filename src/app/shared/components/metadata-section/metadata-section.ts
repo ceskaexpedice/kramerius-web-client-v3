@@ -543,18 +543,34 @@ export class MetadataSection implements OnInit, OnChanges {
     return text;
   };
 
-  getVolumeItems(): string[] {
-    const d = this.data;
+  // Bulleted items for the "Ročník" section. The publication-year item is `clickable`
+  // and navigates to the parent volume's detail view; the volume number is plain text.
+  //
+  // A `computed` (not a plain method) is essential here: the template's *ngFor renders
+  // these objects, so returning fresh references on every change-detection pass would
+  // make Angular tear down and rebuild the <li>/<a> between a real click's mousedown and
+  // mouseup, swallowing the click. `computed` keeps a stable reference until its inputs
+  // change, so the DOM node survives the click.
+  readonly volumeItems = computed<{ label: string; value: string; clickable?: boolean }[]>(() => {
+    const d = this._data();
     if (!d?.ownParentPid) return [];
-    const years = this.availableYears();
-    const vol: any = years?.find((y: any) => y.pid === d.ownParentPid);
+    const vol: any = this.availableYears()?.find((y: any) => y.pid === d.ownParentPid);
     if (!vol) return [];
-    const items: string[] = [];
+    const items: { label: string; value: string; clickable?: boolean }[] = [];
     const year = vol['date.str'] ?? vol.year;
     const number = vol['part.number.str'];
-    if (year) items.push(`${this.translate.instant('publication-year')} ${year}`);
-    if (number) items.push(`${this.translate.instant('volume')} ${number}`);
+    if (year) items.push({ label: this.translate.instant('publication-year'), value: String(year), clickable: true });
+    if (number) items.push({ label: this.translate.instant('volume'), value: String(number) });
     return items;
+  });
+
+  clickedVolumeYear(): void {
+    // ownParentPid points at the periodical volume, which opens under the
+    // periodical (year/volume) view rather than the plain detail view.
+    const parentPid = this.data?.ownParentPid;
+    if (parentPid) {
+      this.recordHandler.navigateToPeriodical(parentPid);
+    }
   }
 
   getIssueItems(): string[] {

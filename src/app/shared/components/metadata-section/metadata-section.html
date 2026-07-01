@@ -140,10 +140,18 @@
   </div>
   }
 
-  <!-- Volume (Ročník) -->
-  <app-metadata-section-item *ngIf="getVolumeItems().length"
+  <!-- Volume (Ročník) - publication year links to the parent periodical volume -->
+  <ng-template #volumeItemTpl let-item>
+    @if (item.clickable) {
+      <a class="volume-year-link" role="link" tabindex="0"
+         (click)="clickedVolumeYear()" (keydown.enter)="clickedVolumeYear()">{{ item.label }}: {{ item.value }}</a>
+    } @else {
+      {{ item.label }}: {{ item.value }}
+    }
+  </ng-template>
+  <app-metadata-section-item *ngIf="volumeItems().length"
     [label]="'volume' | translate" type="list" [showListBullets]="true"
-    [items]="getVolumeItems()" [disableTranslate]="true">
+    [items]="volumeItems()" [itemTpl]="volumeItemTpl">
   </app-metadata-section-item>
 
   <!-- Issue (Číslo) -->

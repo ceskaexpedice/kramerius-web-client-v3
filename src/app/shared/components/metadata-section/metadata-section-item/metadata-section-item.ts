@@ -33,6 +33,8 @@ export class MetadataSectionItem {
   @Input() translateNamespace?: string;
   @Input() collapsible: boolean = false;
   @Input() itemSuffixTpl?: TemplateRef<{ $implicit: any }>;
+  /** Optional custom renderer for each item of a `type="list"` list. */
+  @Input() itemTpl?: TemplateRef<{ $implicit: any }>;
   @Input() maxItems?: number;
   @Input() headerActionLabel?: string;
   @Input() headerActionClick?: () => void;
