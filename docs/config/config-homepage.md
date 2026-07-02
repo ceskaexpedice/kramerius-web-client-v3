@@ -4,7 +4,7 @@ Tento soubor definuje, co uživatel uvidí po otevření kořenové URL (`/`) �
 
 Sekce se na stránce vykreslují **v pořadí, ve kterém jsou v souboru**. Když se položka v `sections[]` přesune, přesune se i na stránce.
 
-**Cesta k souboru:** `public/local-config/{kód-knihovny}/config-homepage.json`
+**Cesta k souboru:** `public/local-config/config-homepage.json`
 
 > Pokud soubor chybí, aplikace naběhne s minimálním výchozím setem čtyř sekcí:
 > - **`periodicals`** — vykreslí periodika z API,
@@ -162,7 +162,7 @@ Když `id` **není** Kramerius UUID (např. libovolný řetězec `"25"`, `"genre
         "en": "The Brontë sisters"
       },
       "date": "1816–1855, 1818–1848, 1820–1849",
-      "imageUrl": "local-config/mzk/img/authors/bronte.png",
+      "imageUrl": "local-config/img/authors/bronte.png",
       "externalUrl": "/search?query=&fq=authors.facet:Brontë,%20Charlotte"
     }
   ]
@@ -190,7 +190,7 @@ Minimální položka má jen `id` nebo jen `title`. Všechna ostatní pole jsou 
 |---|---|
 | `id` | Identifikátor položky. Když je ve formátu `uuid:...`, aplikace si dotáhne metadata z backendu. Jinak (libovolný řetězec, nebo zcela chybí) se položka vykreslí jen z configu. |
 | `title` | Lokalizovaný název. Když je vyplněný, přebije název z backendu — užitečné pro zkrácení dlouhých katalogových názvů nebo ruční úpravu. |
-| `imageUrl` | Cesta k vlastnímu obrázku (typicky pod `local-config/{kód}/img/...`). Přebije náhled z backendu. U varianty B (vlastní obsah) je to obvykle jediný obrázek. |
+| `imageUrl` | Cesta k vlastnímu obrázku (typicky pod `local-config/img/...`). Přebije náhled z backendu. U varianty B (vlastní obsah) je to obvykle jediný obrázek. |
 | `externalUrl` | Kam vede klik na kartu. Může to být deep-link do vyhledávání, externí URL, nebo cokoli jiného. Když chybí a `id` je UUID, klik vede na detail dokumentu. |
 | `date` | Volný text s datem nebo rozsahem let (zobrazuje se u karet, hodí se pro životopisné údaje u autorů). |
 

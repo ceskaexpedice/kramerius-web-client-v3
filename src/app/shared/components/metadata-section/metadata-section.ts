@@ -825,7 +825,7 @@ export class MetadataSection implements OnInit, OnChanges {
 
   /**
    * True for a license that has a description HTML page configured
-   * (e.g. public -> local-config/<lib>/html/licenses/public.cs.html), so its
+   * (e.g. public -> local-config/html/licenses/public.cs.html), so its
    * name can be rendered as a clickable link opening the info dialog.
    */
   hasLicenseInfo(license: string): boolean {
@@ -836,7 +836,7 @@ export class MetadataSection implements OnInit, OnChanges {
   /**
    * Opens a dialog with the license description, loaded from the license's
    * "unauthenticated" message page HTML defined in config-licenses.json
-   * (e.g. public -> local-config/<lib>/html/licenses/public.cs.html), in the
+   * (e.g. public -> local-config/html/licenses/public.cs.html), in the
    * currently active language.
    */
   async openLicenseInfo(license: string, event: Event): Promise<void> {

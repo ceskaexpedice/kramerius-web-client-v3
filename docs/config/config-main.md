@@ -4,11 +4,11 @@ Hlavní konfigurační soubor klienta. Říká aplikaci, jak se jmenuje knihovna
 
 Klient se vždy nastavuje na **jednoho jediného Krameria**. Adresu backendu i veškeré chování určuje pouze tento konfigurační soubor.
 
-Konfigurace knihovny leží v adresáři `public/local-config/{kód-knihovny}/`. Který adresář se použije, určuje proměnná prostředí `APP_KRAMERIUS_ID` (viz README). Adresu Kramerius API backendu, na který se klient připojí, řídí pole [`api.baseUrl`](#api--připojení-k-backendu).
+Konfigurace knihovny leží přímo v adresáři `public/local-config/`. Kód knihovny určuje pole [`app.code`](#app--identita-knihovny) v tomto souboru. Adresu Kramerius API backendu, na který se klient připojí, řídí pole [`api.baseUrl`](#api--připojení-k-backendu).
 
-**Cesta k souboru:** `public/local-config/{kód-knihovny}/config-main.json`
+**Cesta k souboru:** `public/local-config/config-main.json`
 
-> Když některý blok v souboru chybí, použije se výchozí hodnota popsaná u jednotlivých sekcí níže. Když se celý soubor nepodaří načíst nebo naparsovat, aplikace naběhne s vestavěnými defaulty.
+> Když některý blok v souboru chybí, použije se výchozí hodnota popsaná u jednotlivých sekcí níže. Když se `config-main.json` vůbec nepodaří načíst nebo naparsovat, aplikace **nenaběhne** a zobrazí chybu konfigurace.
 
 ---
 
@@ -70,10 +70,10 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 
 | Pole | Povinné | Popis |
 |---|---|---|
-| `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Musí odpovídat názvu adresáře pod `local-config/`. |
+| `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Slouží jako identita instance (IIIF, rozpoznání CDK agregátoru). |
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
 | `contactEmail` | ano | Kontaktní e-mail zobrazovaný na chybových stránkách. |
-| `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/{kód}/img/`. Když chybí, zobrazí se výchozí logo. |
+| `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/img/`. Když chybí, zobrazí se výchozí logo. |
 | `adminClientUrl` | ne | URL administrátorského rozhraní. Používá se jako cíl přesměrování z administrátorského dialogu do admin klienta. Když chybí, odkaz na admin rozhraní není dostupný. |
 
 ---
@@ -330,7 +330,7 @@ Výchozí hodnota pro každé pole je `true`. Když se celý blok `controls` vyn
 
 ## `pages` — statické obsahové stránky
 
-Pole stránek dostupných v aplikaci (O projektu, Podmínky užití, GDPR, FAQ…). HTML obsah stránek je v samostatných souborech pod `local-config/{kód}/html/`.
+Pole stránek dostupných v aplikaci (O projektu, Podmínky užití, GDPR, FAQ…). HTML obsah stránek je v samostatných souborech pod `local-config/html/`.
 
 ```json
 "pages": [
@@ -343,8 +343,8 @@ Pole stránek dostupných v aplikaci (O projektu, Podmínky užití, GDPR, FAQ�
       "pl": "O projekcie"
     },
     "content": {
-      "cs": "local-config/mzk/html/about/about.cs.html",
-      "en": "local-config/mzk/html/about/about.en.html"
+      "cs": "local-config/html/about/about.cs.html",
+      "en": "local-config/html/about/about.en.html"
     },
     "showInHeader": true
   },
@@ -352,12 +352,12 @@ Pole stránek dostupných v aplikaci (O projektu, Podmínky užití, GDPR, FAQ�
     "id": "terms",
     "content": {
       "cs": [
-        "local-config/mzk/html/terms/terms.cs.html",
-        "local-config/mzk/html/terms/terms2.cs.html"
+        "local-config/html/terms/terms.cs.html",
+        "local-config/html/terms/terms2.cs.html"
       ],
       "en": [
-        "local-config/mzk/html/terms/terms.en.html",
-        "local-config/mzk/html/terms/terms2.en.html"
+        "local-config/html/terms/terms.en.html",
+        "local-config/html/terms/terms2.en.html"
       ]
     }
   }
@@ -383,8 +383,8 @@ Patička se vykresluje z **lokalizovaného HTML souboru**, podobně jako obsahov
 
 ```json
 "footer": {
-  "cs": "local-config/cdk/html/footer/footer.cs.html",
-  "en": "local-config/cdk/html/footer/footer.en.html"
+  "cs": "local-config/html/footer/footer.cs.html",
+  "en": "local-config/html/footer/footer.en.html"
 }
 ```
 

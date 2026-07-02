@@ -49,7 +49,9 @@ export class AppComponent implements OnInit {
     // id nor rewrite navigations with a library prefix.
     if (this.env.isLibrarySwitchEnabled()) {
       if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
-        localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'cdk');
+        // Seed with the base library (app.code), not a hardcoded 'cdk', so the
+        // switch defaults to whichever library this build ships as.
+        localStorage.setItem('CDK_DEV_KRAMERIUS_ID', this.env.getBaseKrameriusId());
       }
 
       // Auto-prefix navigations with the active library code when missing

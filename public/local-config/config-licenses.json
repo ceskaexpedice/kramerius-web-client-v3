@@ -25,7 +25,7 @@
         "pl": "Domena publiczna"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public.cs.html", "en": "local-config/mzk/html/licenses/public.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/public.cs.html", "en": "local-config/html/licenses/public.en.html" } }
       ],
       "actions": {
         "pdf": true,
@@ -50,7 +50,7 @@
         "pl": "Utwory osierocone"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/orphan.cs.html", "en": "local-config/mzk/html/licenses/orphan.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/orphan.cs.html", "en": "local-config/html/licenses/orphan.en.html" } }
       ],
       "actions": {
         "pdf": true,
@@ -72,7 +72,7 @@
         "pl": "Utwory opublikowane na podstawie umowy"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public-contract.cs.html", "en": "local-config/mzk/html/licenses/public-contract.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/public-contract.cs.html", "en": "local-config/html/licenses/public-contract.en.html" } }
       ],
       "actions": {
         "pdf": true,
@@ -94,7 +94,7 @@
         "pl": "Nutowe rękopisy Kromieryż"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/public-muo.cs.html", "en": "local-config/mzk/html/licenses/public-muo.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/public-muo.cs.html", "en": "local-config/html/licenses/public-muo.en.html" } }
       ],
       "actions": {
         "pdf": true,
@@ -143,13 +143,13 @@
         "logo": "/img/logo/dnnt-white.png"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/dnnto.cs.html", "en": "local-config/mzk/html/licenses/dnnto.en.html" } },
-        { "key": "unauthorized", "page": { "cs": "local-config/mzk/html/licenses/dnnto2.cs.html", "en": "local-config/mzk/html/licenses/dnnto2.en.html" } },
-        { "key": "available", "page": { "cs": "local-config/mzk/html/licenses/dnnto3.cs.html", "en": "local-config/mzk/html/licenses/dnnto3.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/dnnto.cs.html", "en": "local-config/html/licenses/dnnto.en.html" } },
+        { "key": "unauthorized", "page": { "cs": "local-config/html/licenses/dnnto2.cs.html", "en": "local-config/html/licenses/dnnto2.en.html" } },
+        { "key": "available", "page": { "cs": "local-config/html/licenses/dnnto3.cs.html", "en": "local-config/html/licenses/dnnto3.en.html" } }
       ],
       "instructionPage": {
-        "cs": "local-config/mzk/html/licenses/dnnto.instruction.cs.html",
-        "en": "local-config/mzk/html/licenses/dnnto.instruction.en.html"
+        "cs": "local-config/html/licenses/dnnto.instruction.cs.html",
+        "en": "local-config/html/licenses/dnnto.instruction.en.html"
       },
       "providedBy": {
         "display": true,
@@ -168,11 +168,11 @@
         "pl": "Utwory niedostępné w handlu – terminal biblioteczny"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/dnntt.cs.html", "en": "local-config/mzk/html/licenses/dnntt.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/dnntt.cs.html", "en": "local-config/html/licenses/dnntt.en.html" } }
       ],
       "instructionPage": {
-        "cs": "local-config/mzk/html/licenses/dnntt.instruction.cs.html",
-        "en": "local-config/mzk/html/licenses/dnntt.instruction.en.html"
+        "cs": "local-config/html/licenses/dnntt.instruction.cs.html",
+        "en": "local-config/html/licenses/dnntt.instruction.en.html"
       },
       "actions": {
         "print": true,
@@ -190,11 +190,11 @@
         "pl": "Czytelnia"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/onsite.cs.html", "en": "local-config/mzk/html/licenses/onsite.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/onsite.cs.html", "en": "local-config/html/licenses/onsite.en.html" } }
       ],
       "instructionPage": {
-        "cs": "local-config/mzk/html/licenses/onsite.instruction.cs.html",
-        "en": "local-config/mzk/html/licenses/onsite.instruction.en.html"
+        "cs": "local-config/html/licenses/onsite.instruction.cs.html",
+        "en": "local-config/html/licenses/onsite.instruction.en.html"
       },
       "actions": {
         "print": true,
@@ -212,11 +212,11 @@
         "pl": "Czytelnia – nuty"
       },
       "messagePages": [
-        { "key": "unauthenticated", "page": { "cs": "local-config/mzk/html/licenses/onsite-sheetmusic.cs.html", "en": "local-config/mzk/html/licenses/onsite-sheetmusic.en.html" } }
+        { "key": "unauthenticated", "page": { "cs": "local-config/html/licenses/onsite-sheetmusic.cs.html", "en": "local-config/html/licenses/onsite-sheetmusic.en.html" } }
       ],
       "instructionPage": {
-        "cs": "local-config/mzk/html/licenses/onsite-sheetmusic.instruction.cs.html",
-        "en": "local-config/mzk/html/licenses/onsite-sheetmusic.instruction.en.html"
+        "cs": "local-config/html/licenses/onsite-sheetmusic.instruction.cs.html",
+        "en": "local-config/html/licenses/onsite-sheetmusic.instruction.en.html"
       },
       "actions": {
         "print": true,

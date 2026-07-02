@@ -8,6 +8,4 @@ export const environment = {
   environmentName: 'deployed (branch dev)', // pro produkci ziskej z promenne APP_ENV_NAME (přes env.json)
   environmentCode: 'd_d', // pro produkci ziskej z promenne APP_ENV_CODE (přes env.json)
 
-  krameriusId: '', // pro produkci ziskej z promenne APP_KRAMERIUS_ID (přes env.json)
-
 };

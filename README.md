@@ -3,13 +3,16 @@
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6. Later upgraded to Angular 19.
 
 > **Which library does the client run as?**
-> The client always runs as a **single** Kramerius instance. Which one is selected
-> by the `APP_KRAMERIUS_ID` environment variable, whose value must match a directory
-> under [`public/local-config/`](public/local-config/) (e.g. `mzk`, `cdk`, `nm`).
-> If you run a different library, create your own config directory there first —
-> see [Running as your own library](#running-as-your-own-library) and the config
-> docs in [`docs/config/`](docs/config/). When `APP_KRAMERIUS_ID` is not set, the
-> client falls back to `cdk`.
+> The client always runs as a **single** Kramerius instance, configured entirely
+> by the files in [`public/local-config/`](public/local-config/) — read directly
+> from that directory, with no per-library subfolder. The library code comes from
+> `app.code` in `config-main.json`, and the backend from `api.baseUrl`. To run a
+> different library, replace the files in `local-config/` (or mount your own — see
+> [Running as your own library](#running-as-your-own-library)) and the config docs
+> in [`docs/config/`](docs/config/).
+>
+> If `config-main.json` is missing or invalid, the app **does not start** and
+> shows a configuration error — there is no built-in fallback library.
 
 ## Run for development
 
@@ -27,34 +30,22 @@ http://localhost:4200/
 
 The application will automatically reload when source files change.
 
-> **Selecting the library in dev mode.** `npm run start` does **not** read
-> `APP_KRAMERIUS_ID` — the dev server uses `src/environments/environment.local.ts`
-> (auto-created on first run from `environment.ts`, git-ignored). To run the dev
-> server as a specific library, set `krameriusId` in that file:
->
-> ```ts
-> export const environment = {
->   useStaticRuntimeConfig: false,
->   krameriusId: 'xy', // your library code under public/local-config/
->   // ...
-> };
-> ```
->
-> Without it, `krameriusId` is empty and the dev server falls back to `cdk`.
-> (For a production-like run that *does* honor `APP_KRAMERIUS_ID`, use the
-> build below.)
+> **Selecting the library in dev mode.** The dev server reads config from
+> `public/local-config/` — the same flat directory used everywhere. To run as a
+> different library, replace the files in `public/local-config/` (the library
+> code comes from `app.code` in `config-main.json`). No environment variable
+> selects the library.
 
 ## Build & Run classic
 
 ### Build
 
-First define the configuration using environment variables. Set
-`APP_KRAMERIUS_ID` to the library you want the client to run as — the value
-must match a directory under `public/local-config/` (here: `mzk`):
+The library the client runs as is determined by the files in
+`public/local-config/` (read directly, no per-library subfolder), not by an
+environment variable. Optionally set dev mode:
 
 ```shell
 export APP_DEV_MODE=false
-export APP_KRAMERIUS_ID="mzk"
 ```
 
 Run the build:
@@ -87,44 +78,39 @@ http://localhost:8080
 
 ## Running as your own library
 
-The client ships with configurations for a few libraries under
-`public/local-config/`. To run it as **your own** library (`xy` in the steps
-below), you do **not** need to modify any source code — just add a config
-directory and point the client at it.
+To run the client as **your own** library, you do **not** need to modify any
+source code — just provide your config files in `public/local-config/`.
 
-1. **Create your config directory** `public/local-config/xy/` with at least:
+1. **Put your config files directly in** `public/local-config/`:
 
    ```text
-   public/local-config/xy/config-main.json       # required: app.code "xy", api.baseUrl, i18n
-   public/local-config/xy/config-licenses.json    # optional
-   public/local-config/xy/config-homepage.json    # optional
+   public/local-config/config-main.json       # required: app.code, api.baseUrl, i18n
+   public/local-config/config-licenses.json    # optional
+   public/local-config/config-homepage.json    # optional
    ```
 
    The format of each file is documented in [`docs/config/`](docs/config/).
    `config-main.json` is the only required file; the rest fall back to built-in
-   defaults when omitted.
+   defaults when omitted. If `config-main.json` is missing or invalid, the app
+   does not start.
 
-2. **Build the client as `xy`** (this is the same mechanism Docker uses, just
-   without a container):
+2. **Build & serve:**
 
    ```shell
    export APP_DEV_MODE=false
-   export APP_KRAMERIUS_ID=xy
    npm run build
    npx serve dist/cdk-client/browser -l 8080
    ```
 
-   The client now starts as the `xy` instance and connects to the backend from
-   `public/local-config/xy/config-main.json` → `api.baseUrl`.
+   The client starts as the instance defined by `app.code` and connects to the
+   backend from `public/local-config/config-main.json` → `api.baseUrl`.
 
 > **Note.** The backend the client talks to comes entirely from
-> `config-main.json` (`api.baseUrl`) of the selected library. There is no
-> hard-coded backend for configured libraries — only an internal fallback that
-> applies when `api.baseUrl` is missing. Always set `api.baseUrl` in your
-> `config-main.json`.
+> `config-main.json` (`api.baseUrl`). Always set `api.baseUrl` in your
+> `config-main.json` — there is no hard-coded backend.
 
-For running as your own library in the dev server (`npm run start`), see the
-note under [Run for development](#run-for-development).
+In Docker, the same files can be mounted at runtime instead of baked into the
+image — see [Local configuration volume](#local-configuration-volume).
 
 ## Build & Run with Docker
 
@@ -148,7 +134,6 @@ docker buildx build \
 ```shell
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
-  -e APP_KRAMERIUS_ID=mzk \
   trinera/cdk-client:1.0.0
 ```
 
@@ -158,12 +143,13 @@ Open in browser:
 http://localhost:1234
 ```
 
-Optionally, override the bundled local configuration by mounting a local directory:
+The library the container runs as comes from the config files it serves from
+`local-config/`. Override the bundled configuration by mounting your own
+directory:
 
 ```shell
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
-  -e APP_KRAMERIUS_ID=mzk \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
   trinera/cdk-client:1.0.0
 ```
@@ -174,7 +160,6 @@ The container can be configured using environment variables:
 
 | Variable | Default | Description |
 |---|---:|---|
-| `APP_KRAMERIUS_ID` | `mzk` | ID of the default Kramerius instance. |
 | `APP_DEV_MODE` | `true` | Enables or disables development mode. |
 
 ## Run with Docker Compose
@@ -188,13 +173,12 @@ services:
     ports:
       - "1234:80"
     environment:
-      - APP_KRAMERIUS_ID=${APP_KRAMERIUS_ID:-mzk}
       - APP_DEV_MODE=${APP_DEV_MODE:-true}
     volumes:
       # Optional: override the bundled default local configuration.
       - ./public/local-config:/usr/share/nginx/local-config:ro
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/mzk/config-main.json"]
+      test: ["CMD", "wget", "--quiet", "-O", "/dev/stdout", "http://127.0.0.1/local-config/config-main.json"]
       start_period: 30s
       interval: 30s
       timeout: 5s
@@ -224,7 +208,6 @@ http://localhost:1234
 The values can be overridden before starting Docker Compose:
 
 ```shell
-export APP_KRAMERIUS_ID=mzk
 export APP_DEV_MODE=false
 
 docker compose up -d
@@ -233,7 +216,6 @@ docker compose up -d
 Alternatively, create a `.env` file next to `docker-compose.yml`:
 
 ```env
-APP_KRAMERIUS_ID=mzk
 APP_DEV_MODE=false
 ```
 
@@ -269,19 +251,19 @@ This allows the container image to work out of the box with the bundled default 
 For example, the following local file:
 
 ```text
-./public/local-config/mzk/config-main.json
+./public/local-config/config-main.json
 ```
 
 will override the bundled file and will be served by nginx as:
 
 ```text
-/local-config/mzk/config-main.json
+/local-config/config-main.json
 ```
 
 The file can be checked from the host at:
 
 ```text
-http://localhost:1234/local-config/mzk/config-main.json
+http://localhost:1234/local-config/config-main.json
 ```
 
 If you do not need a custom local configuration, you can remove the `volumes` section from `docker-compose.yml`.

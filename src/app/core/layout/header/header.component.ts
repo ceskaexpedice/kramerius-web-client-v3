@@ -378,7 +378,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       environmentCode: this.envService.get('environmentCode'),
       environmentName: this.envService.get('environmentName'),
 
-      krameriusId: this.envService.get('krameriusId'),
+      krameriusId: this.envService.getKrameriusId(),
       krameriusBaseUrl: this.envService.getKrameriusUrl(),
 
       gitCommitHash: this.envService.get('git_commit_hash'),

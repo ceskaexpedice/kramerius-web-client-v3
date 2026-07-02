@@ -18,9 +18,7 @@ const config = {
 
   devMode: process.env.APP_DEV_MODE === 'true',
   environmentName: process.env.APP_ENV_NAME || 'not defined',
-  environmentCode: process.env.APP_ENV_CODE || 'n-d',
-
-  krameriusId: process.env.APP_KRAMERIUS_ID || ''
+  environmentCode: process.env.APP_ENV_CODE || 'n-d'
 };
 
 fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));

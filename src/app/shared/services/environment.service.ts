@@ -18,15 +18,18 @@ export class EnvironmentService {
   // (ConfigService injects EnvironmentService, not the other way around).
   private configApiBaseUrl: string | null = null;
   private librarySwitchEnabled = false;
+  private baseCode = '';
 
   /**
    * Called by ConfigService once config-main.json is loaded. Provides the
-   * single backend URL (`api.baseUrl`) the client points at, and whether the
-   * internal-only library switch is enabled (`features.librarySwitch`).
+   * single backend URL (`api.baseUrl`) the client points at, whether the
+   * internal-only library switch is enabled (`features.librarySwitch`), and the
+   * loaded library code (`app.code`).
    */
-  public applyAppConfig(apiBaseUrl: string | null, librarySwitchEnabled: boolean): void {
+  public applyAppConfig(apiBaseUrl: string | null, librarySwitchEnabled: boolean, code: string): void {
     this.configApiBaseUrl = apiBaseUrl || null;
     this.librarySwitchEnabled = librarySwitchEnabled;
+    this.baseCode = code || '';
   }
 
   /**
@@ -101,23 +104,9 @@ export class EnvironmentService {
       return normalized + (withParam ? '/search/api/client/v7.0/' : '');
     }
 
-    // Fallback for legacy CDK/MZK deployments that don't set api.baseUrl:
-    // resolve from the known-instance switch (defaults to CDK).
-    const krameriusId = this.getKrameriusId();
-    let baseUrl = '';
-    switch (krameriusId) {
-      case 'mzk': baseUrl = 'https://api.kramerius.mzk.cz'; break;
-      case 'cdk': baseUrl = 'https://cdk-api.dev.ceskadigitalniknihovna.cz'; break;
-      case 'knav': baseUrl = 'https://kramerius.lib.cas.cz/'; break;
-      case 'cdk-test': baseUrl = 'https://api-npo.val.ceskadigitalniknihovna.cz'; break;
-      default: baseUrl = 'https://cdk-api.dev.ceskadigitalniknihovna.cz'; break;
-    }
-
-    if (withParam) {
-      baseUrl += '/search/api/client/v7.0/';
-    }
-
-    return baseUrl;
+    // No api.baseUrl means an invalid config; ConfigService.load() already
+    // throws before we get here. Return empty rather than a hardcoded guess.
+    return '';
   }
 
   getKrameriusId(): string {
@@ -130,12 +119,12 @@ export class EnvironmentService {
   }
 
   /**
-   * The library code this build ships as, taken purely from the environment
-   * (never from the localStorage switch). This is the instance whose
-   * config-main.json holds `features.librarySwitch`.
+   * The library code of the loaded instance, taken from config-main.json
+   * (`app.code`), pushed in by ConfigService. Empty until config is loaded.
+   * This is the instance whose config holds `features.librarySwitch`.
    */
   getBaseKrameriusId(): string {
-    return this.get('krameriusId') || 'cdk';
+    return this.baseCode;
   }
 
   getApiUrl(path: string = ''): string {

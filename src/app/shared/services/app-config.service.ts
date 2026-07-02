@@ -26,8 +26,8 @@ export interface AppConfig {
 const DEFAULT_CONFIG: AppConfig = {
     rightMsg: '',
     instance: {
-        registr: 'https://registr.digitalniknihovna.cz/library/mzk',
-        acronym: 'mzk'
+        registr: '',
+        acronym: ''
     },
     pdfMaxRange: '120',
     version: '7.1.3',

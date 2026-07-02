@@ -76,9 +76,16 @@ export class ConfigService {
     return (this.app?.code ?? '').includes('cdk');
   }
 
-  private configUrlFor(code: string) { return `local-config/${code}/config-main.json`; }
-  private licensesUrlFor(code: string) { return `local-config/${code}/config-licenses.json`; }
-  private homeSectionsUrlFor(code: string) { return `local-config/${code}/config-homepage.json`; }
+  /**
+   * Single seam for fetching a config file. Today it reads the flat local-config
+   * dir. FUTURE: configs move to an API — the resolver will fetch from the API
+   * and, when a local file for the same name exists, the LOCAL file wins as a
+   * whole (per-file override, no merge). Keep that switch isolated here.
+   */
+  private resolveConfigFile(name: 'config-main' | 'config-licenses' | 'config-homepage'): Promise<Response> {
+    const timestamp = Date.now();
+    return fetch(`local-config/${name}.json?t=${timestamp}`);
+  }
 
   /**
    * Returns the URL to fetch libraries.json from.
@@ -101,39 +108,34 @@ export class ConfigService {
   async load(): Promise<void> {
     if (this.loaded) return;
 
-    // 1. Load the config of the instance this build ships as (env-only code,
-    //    never the localStorage switch). This base config decides whether the
-    //    internal library switch is enabled (features.librarySwitch).
-    const baseCode = this.envService.getBaseKrameriusId();
-    const baseConfig = await this.fetchLibraryConfig(baseCode);
+    // 1. Load the single flat config. It decides whether the internal library
+    //    switch is enabled (features.librarySwitch). No env-based folder lookup;
+    //    the library code comes from the config itself (app.code).
+    const baseConfig = await this.fetchLibraryConfig();
+    if (!baseConfig) {
+      throw new Error('ConfigService: config-main.json missing or invalid — cannot start.');
+    }
 
-    const switchEnabled = baseConfig?.features?.librarySwitch ?? false;
+    const switchEnabled = baseConfig.features?.librarySwitch ?? false;
+    const baseCode = baseConfig.app?.code ?? '';
 
-    // 2. Default path: switch off → use the base config as-is. Nothing is read
+    // 2. Default path: switch off → use the flat config as-is. Nothing is read
     //    from localStorage or the registry.
     if (!switchEnabled) {
-      this.applyResolvedConfig(baseConfig ?? this.buildNeutralConfig(), baseCode, false);
+      this.applyResolvedConfig(baseConfig, baseCode, false);
       return;
     }
 
-    // 3. Switch on (internal hack). If a different library was selected (stored
-    //    in localStorage by the switch UI), try to load ITS config; otherwise
-    //    stay on the base config.
+    // 3. Switch on (internal dev hack). If a different library was selected in
+    //    localStorage, its local config no longer exists (the flat dir holds a
+    //    single library), so brand it from the central registry (name/logo) with
+    //    DEFAULT homepage sections. Otherwise stay on the base config.
     const selectedCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
     if (!selectedCode || selectedCode === baseCode) {
-      this.applyResolvedConfig(baseConfig ?? this.buildNeutralConfig(), baseCode, true);
+      this.applyResolvedConfig(baseConfig, baseCode, true);
       return;
     }
 
-    const selectedConfig = await this.fetchLibraryConfig(selectedCode);
-    if (selectedConfig) {
-      this.applyResolvedConfig(selectedConfig, selectedCode, true);
-      return;
-    }
-
-    // 4. Switched to a library that has no local config (e.g. nm). Brand the app
-    //    from the central registry (name/logo) and use DEFAULT homepage sections,
-    //    since there is no config-homepage.json for it. Keep the switch enabled.
     const fallback = await this.buildRegistryFallbackConfig(selectedCode);
     this.applyResolvedConfig(fallback, selectedCode, true);
   }
@@ -142,16 +144,15 @@ export class ConfigService {
    * Fetch and merge a single library's config (config-main.json + licenses +
    * homepage). Returns null when the library has no config-main.json.
    */
-  private async fetchLibraryConfig(code: string): Promise<AppConfiguration | null> {
-    const timestamp = Date.now();
+  private async fetchLibraryConfig(): Promise<AppConfiguration | null> {
     try {
-      const configResponse = await fetch(`${this.configUrlFor(code)}?t=${timestamp}`);
+      const configResponse = await this.resolveConfigFile('config-main');
       if (!configResponse.ok) return null;
       const configData = await configResponse.json();
 
       const [licensesResponse, homeSectionsResponse] = await Promise.all([
-        fetch(`${this.licensesUrlFor(code)}?t=${timestamp}`),
-        fetch(`${this.homeSectionsUrlFor(code)}?t=${timestamp}`)
+        this.resolveConfigFile('config-licenses'),
+        this.resolveConfigFile('config-homepage')
       ]);
 
       const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
@@ -175,7 +176,7 @@ export class ConfigService {
 
       return this.mergeWithDefaults({ ...configData, licenses: processedLicenses, homeSections, homepageTitle, homepageSubtitle });
     } catch (err) {
-      console.warn(`ConfigService: Failed to load configuration for library '${code}'.`, err);
+      console.warn(`ConfigService: Failed to load configuration.`, err);
       return null;
     }
   }
@@ -189,7 +190,7 @@ export class ConfigService {
    */
   private applyResolvedConfig(config: AppConfiguration, code: string, switchEnabled: boolean): void {
     this.config$.next(config);
-    this.envService.applyAppConfig(config.api?.baseUrl ?? null, switchEnabled);
+    this.envService.applyAppConfig(config.api?.baseUrl ?? null, switchEnabled, code);
     this.loaded = true;
     console.log(`ConfigService: Configuration loaded for library '${code}'.`);
   }

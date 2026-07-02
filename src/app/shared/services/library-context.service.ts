@@ -23,7 +23,9 @@ export class LibraryContextService {
     // Library prefixes only exist when the internal library switch is on.
     if (!this.env.isLibrarySwitchEnabled()) return null;
     const code = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-    if (!code || code === 'cdk') return null;
+    // The base library (app.code) is served unprefixed; only a switched-to
+    // library gets a URL prefix.
+    if (!code || code === this.env.getBaseKrameriusId()) return null;
     return code;
   }
 
