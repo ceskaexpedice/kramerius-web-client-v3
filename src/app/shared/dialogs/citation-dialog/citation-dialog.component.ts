@@ -34,7 +34,9 @@ export class CitationDialogComponent {
   citationResponse: CitationResponse | null = null;
 
   selectedPid: string = '';
-  activeTabLabel: string = '';
+  // Defaults to the first tab's id, since the tabs component does not emit
+  // tabChanged for the initially-selected tab.
+  activeTabLabel: string = 'text';
 
   @Output() close = new EventEmitter<void>();
 

@@ -16,7 +16,9 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
   MatOption,
+  MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
 } from '@angular/material/autocomplete';
+import {Overlay, ScrollStrategy} from '@angular/cdk/overlay';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {Observable, Subscription, debounceTime, switchMap, of} from 'rxjs';
@@ -39,6 +41,17 @@ import {SearchHistoryService} from '../../services/search-history.service';
   ],
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
+  providers: [
+    {
+      // Close the panel immediately on any scroll, so it can never reposition
+      // up and over the header. The overlay shares the header's z-index, so
+      // closing is simpler and more robust than fighting the stacking order.
+      provide: MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
+      deps: [Overlay],
+      useFactory: (overlay: Overlay): (() => ScrollStrategy) =>
+        () => overlay.scrollStrategies.close(),
+    },
+  ],
 })
 export class AutocompleteComponent implements OnInit, OnDestroy {
   suggestions = signal<string[]>([]);

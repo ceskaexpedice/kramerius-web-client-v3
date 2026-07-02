@@ -65,7 +65,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Dynamic header branding
   headerLogo: string = '/favicon.svg';
   headerLogoDark: string = '/favicon-dark.svg';
-  headerName: string = '';
+
+  /** Localized library name from config (local config or registry fallback). */
+  get headerName(): string {
+    const lang = this.translationService.currentLanguage().code;
+    return this.configService.resolveLabel(this.configService.app.name, lang, '');
+  }
 
   // Mobile menu state
   isMobileMenuOpen = false;
@@ -164,21 +169,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Initial check
     this.updateHeaderType();
 
-    // Load active library branding
-    // CDK always uses its own logo, regardless of any selected dev library.
+    // Library branding (name + logo). Always sourced from the resolved config:
+    // app.name/app.logo hold the right values whether they came from the
+    // library's own local config or — for a switched-to library without one —
+    // from the central registry (see ConfigService.buildRegistryFallbackConfig).
+    // CDK keeps its own bundled logo regardless.
     if (this.configService.isCdk()) {
       this.headerLogo = 'img/logo.svg';
       this.headerLogoDark = 'img/logo.svg';
     } else {
-      const activeLib = await this.configService.getActiveLibrary();
-      if (activeLib) {
-        this.headerLogo = activeLib.logo;
-        this.headerLogoDark = activeLib.logo;
-        this.headerName = activeLib.name;
-      } else {
-        this.headerLogo = this.configService.app.logo || '/favicon.svg';
-        this.headerLogoDark = '/favicon-dark.svg';
-      }
+      const logo = this.configService.app.logo;
+      this.headerLogo = logo || '/favicon.svg';
+      this.headerLogoDark = logo || '/favicon-dark.svg';
     }
 
     this.logDevInfo();
@@ -256,7 +258,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.logoClickTimer = null;
     }
 
-    if (this.logoClickCount >= 5) {
+    // The libraries page is part of the internal-only library switch.
+    // Only reachable via this easter egg when the switch is enabled.
+    if (this.logoClickCount >= 5 && this.envService.isLibrarySwitchEnabled()) {
       this.router.navigate([`/${APP_ROUTES_ENUM.LIBRARIES}`]);
 
       this.logoClickTimer = setTimeout(() => {
@@ -374,7 +378,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       environmentCode: this.envService.get('environmentCode'),
       environmentName: this.envService.get('environmentName'),
 
-      krameriusId: this.envService.get('krameriusId'),
+      krameriusId: this.envService.getKrameriusId(),
       krameriusBaseUrl: this.envService.getKrameriusUrl(),
 
       gitCommitHash: this.envService.get('git_commit_hash'),

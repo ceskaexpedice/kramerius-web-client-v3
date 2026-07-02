@@ -18,16 +18,19 @@ const SUBJECT_AUTHORITIES = ['czenas', 'eczenas'];
   providedIn: 'root'
 })
 export class ModsParserService {
-  API_URL = '';
-
   private cache = new Map<string, Promise<Metadata>>();
 
   constructor(
     private env: EnvironmentService
-  ) {
+  ) {}
 
-    this.API_URL = this.env.getApiUrl('items');
-
+  // Resolve lazily on every call: this service is providedIn:'root' and may be
+  // constructed before ConfigService.load() has pushed api.baseUrl into
+  // EnvironmentService. Caching the URL in the constructor would freeze the
+  // pre-config fallback (cdk-api), so other API calls would hit the right
+  // backend while MODS stayed on the fallback.
+  private get apiUrl(): string {
+    return this.env.getApiUrl('items');
   }
 
   async getMods(uuid: string, type: 'full' | 'plain' = 'full', libraryCode?: string): Promise<Metadata> {
@@ -62,8 +65,8 @@ export class ModsParserService {
   // .../items/{libraryCode}/{uuid}/metadata/mods on CDK, .../items/{uuid}/metadata/mods otherwise.
   private buildModsUrl(uuid: string, libraryCode?: string): string {
     return libraryCode
-      ? `${this.API_URL}/${libraryCode}/${uuid}/metadata/mods`
-      : `${this.API_URL}/${uuid}/metadata/mods`;
+      ? `${this.apiUrl}/${libraryCode}/${uuid}/metadata/mods`
+      : `${this.apiUrl}/${uuid}/metadata/mods`;
   }
 
   private parseMods(modsXml: string, uuid: string, type: 'full' | 'plain'): Promise<Metadata> {

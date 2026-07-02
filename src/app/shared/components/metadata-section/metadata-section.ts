@@ -26,6 +26,7 @@ import { isDocumentPublic } from '../record-item/record-item.model';
 import { MatDialog } from '@angular/material/dialog';
 import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
+import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
 import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
@@ -65,6 +66,10 @@ export class MetadataSection implements OnInit, OnChanges {
   get articleData() { return this._articleData(); }
 
   private _solrData = signal<Metadata | null>(null);
+
+  // Unit count of the root multivolume monograph, fetched for monographunit documents
+  // so the badge can show the root "Knihy (n)" instead of the unit "Díl".
+  private _rootUnitCount = signal<number>(0);
 
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
@@ -278,6 +283,24 @@ export class MetadataSection implements OnInit, OnChanges {
     this._data.set(baseMods);
     this.cdr.markForCheck();
     this.loadCollectionNames();
+    this.loadRootUnitCount();
+  }
+
+  // For a unit of a multivolume monograph, fetch the root document so the badge can
+  // show the parent's unit count ("Knihy (n)"). The count lives only on the root.
+  private async loadRootUnitCount(): Promise<void> {
+    this._rootUnitCount.set(0);
+    if (!this.isMonographUnitDoc()) return;
+    const rootPid = this._solrData()?.rootPid;
+    if (!rootPid) return;
+    try {
+      const root = await firstValueFrom(this.solrService.getDetailItem(rootPid));
+      const count = root?.['count_monograph_unit'];
+      this._rootUnitCount.set(count ? parseInt(count, 10) : 0);
+      this.cdr.markForCheck();
+    } catch (e) {
+      console.warn('MetadataSection: failed to load root unit count for', rootPid, e);
+    }
   }
 
   /**
@@ -334,6 +357,13 @@ export class MetadataSection implements OnInit, OnChanges {
       baseMods.issueNumber = solrData.issueNumber;
       baseMods.issueDate = solrData.issueDate;
     }
+
+    // The unit count is Solr-derived and the MODS default (0) blocks `mergeMissing`,
+    // so force it from whichever source actually carries it (store doc or input).
+    const unitCount = (solrData?.uuid === this.uuid ? solrData?.monographUnitCount : undefined)
+      ?? this.metadata?.monographUnitCount
+      ?? 0;
+    baseMods.monographUnitCount = unitCount;
 
     return baseMods;
   }
@@ -513,18 +543,34 @@ export class MetadataSection implements OnInit, OnChanges {
     return text;
   };
 
-  getVolumeItems(): string[] {
-    const d = this.data;
+  // Bulleted items for the "Ročník" section. The publication-year item is `clickable`
+  // and navigates to the parent volume's detail view; the volume number is plain text.
+  //
+  // A `computed` (not a plain method) is essential here: the template's *ngFor renders
+  // these objects, so returning fresh references on every change-detection pass would
+  // make Angular tear down and rebuild the <li>/<a> between a real click's mousedown and
+  // mouseup, swallowing the click. `computed` keeps a stable reference until its inputs
+  // change, so the DOM node survives the click.
+  readonly volumeItems = computed<{ label: string; value: string; clickable?: boolean }[]>(() => {
+    const d = this._data();
     if (!d?.ownParentPid) return [];
-    const years = this.availableYears();
-    const vol: any = years?.find((y: any) => y.pid === d.ownParentPid);
+    const vol: any = this.availableYears()?.find((y: any) => y.pid === d.ownParentPid);
     if (!vol) return [];
-    const items: string[] = [];
+    const items: { label: string; value: string; clickable?: boolean }[] = [];
     const year = vol['date.str'] ?? vol.year;
     const number = vol['part.number.str'];
-    if (year) items.push(`${this.translate.instant('publication-year')} ${year}`);
-    if (number) items.push(`${this.translate.instant('volume')} ${number}`);
+    if (year) items.push({ label: this.translate.instant('publication-year'), value: String(year), clickable: true });
+    if (number) items.push({ label: this.translate.instant('volume'), value: String(number) });
     return items;
+  });
+
+  clickedVolumeYear(): void {
+    // ownParentPid points at the periodical volume, which opens under the
+    // periodical (year/volume) view rather than the plain detail view.
+    const parentPid = this.data?.ownParentPid;
+    if (parentPid) {
+      this.recordHandler.navigateToPeriodical(parentPid);
+    }
   }
 
   getIssueItems(): string[] {
@@ -552,6 +598,40 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   get solrData(): Metadata | null { return this._solrData(); }
+
+  // True when the current document is a unit of a multivolume monograph.
+  isMonographUnitDoc(): boolean {
+    const sd = this._solrData();
+    const model = sd?.model || this.data?.model;
+    const rootModel = sd?.rootModel;
+    return model === DocumentTypeEnum.monographunit && rootModel === DocumentTypeEnum.monograph;
+  }
+
+  // Navigate from a monograph unit back to its root multivolume monograph page.
+  goToMonograph(): void {
+    if (!this.isMonographUnitDoc()) return;
+    const rootPid = this._solrData()?.rootPid;
+    if (rootPid) {
+      this.recordHandler.navigateToMonograph(rootPid);
+    }
+  }
+
+  // Model shown in the document-type badge. For a unit of a multivolume monograph we
+  // show the root monograph ("Knihy (n)") rather than the unit itself ("Díl").
+  get badgeModel(): string {
+    if (this.isMonographUnitDoc()) {
+      return this._solrData()?.rootModel || this.data?.model || '';
+    }
+    return this.data?.model || '';
+  }
+
+  // Unit count passed to the badge so a multivolume root renders as "Knihy (n)".
+  get badgeUnitCount(): number {
+    if (this.isMonographUnitDoc()) {
+      return this._rootUnitCount();
+    }
+    return this.data?.monographUnitCount || 0;
+  }
 
   // True when this document is a child of a periodical hierarchy (volume/issue/supplement)
   // and clicking the title should navigate up to the periodical (volumes screen).
@@ -739,6 +819,43 @@ export class MetadataSection implements OnInit, OnChanges {
     'ilnorway': 'https://eeagrants.org',
     'dkrvo19-23': 'https://kramerius.nm.cz/dkrvo',
   };
+
+  /** Message page key used for the license description shown in the info dialog. */
+  private static readonly LICENSE_INFO_PAGE_KEY = 'unauthenticated';
+
+  /**
+   * True for a license that has a description HTML page configured
+   * (e.g. public -> local-config/html/licenses/public.cs.html), so its
+   * name can be rendered as a clickable link opening the info dialog.
+   */
+  hasLicenseInfo(license: string): boolean {
+    const lang = this.appTranslation.currentLanguage().code;
+    return !!this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
+  }
+
+  /**
+   * Opens a dialog with the license description, loaded from the license's
+   * "unauthenticated" message page HTML defined in config-licenses.json
+   * (e.g. public -> local-config/html/licenses/public.cs.html), in the
+   * currently active language.
+   */
+  async openLicenseInfo(license: string, event: Event): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const lang = this.appTranslation.currentLanguage().code;
+    const url = this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
+    if (!url) return;
+
+    const content = await this.configService.loadHtmlContent(url);
+    const title = this.configService.getLocalizedLabel('license', license, lang);
+
+    this.dialog.open(LicenseInfoDialogComponent, {
+      data: { title, content },
+      autoFocus: false,
+      restoreFocus: false
+    });
+  }
 
   getProvidedByLicenseImage(license: string): string | null {
     return this.configService.getLicenseConfig(license)?.providedBy?.imageUrl ?? null;

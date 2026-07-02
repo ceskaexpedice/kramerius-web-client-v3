@@ -7,6 +7,7 @@ import { AccessibilityService } from './shared/services/accessibility.service';
 import { ErrorDialogService } from './shared/services/error-dialog.service';
 import { UiStateService } from './shared/services/ui-state.service';
 import { LibraryContextService } from './shared/services/library-context.service';
+import { EnvironmentService } from './shared/services/environment.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit {
 
   private router = inject(Router);
   private libraryContext = inject(LibraryContextService);
+  private env = inject(EnvironmentService);
   private soundService = inject(SoundService);
   private appLoader = inject(AppLoaderService);
   private accessibilityService = inject(AccessibilityService);
@@ -42,8 +44,25 @@ export class AppComponent implements OnInit {
     //TODO: remove this for production. This is just for testing CI pipeline
     console.log('AppComponent ngOnInit, branch: main');
 
-    if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
-      localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'cdk');
+    // Library switching is an internal-testing-only feature (off by default).
+    // In the default single-Kramerius deployment we never seed the dev library
+    // id nor rewrite navigations with a library prefix.
+    if (this.env.isLibrarySwitchEnabled()) {
+      if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
+        // Seed with the base library (app.code), not a hardcoded 'cdk', so the
+        // switch defaults to whichever library this build ships as.
+        localStorage.setItem('CDK_DEV_KRAMERIUS_ID', this.env.getBaseKrameriusId());
+      }
+
+      // Auto-prefix navigations with the active library code when missing
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationStart && event.navigationTrigger === 'imperative') {
+          const corrected = this.libraryContext.ensureLibraryPrefix(event.url);
+          if (corrected) {
+            this.router.navigateByUrl(corrected, { replaceUrl: true });
+          }
+        }
+      });
     }
 
     // Recover from stale lazy-chunk loads after a new deploy. A failed lazy
@@ -51,16 +70,6 @@ export class AppComponent implements OnInit {
     // promise rejection, so it never reaches the global ErrorHandler) — reload
     // once to pull the new chunk filenames.
     this.registerChunkErrorRecovery();
-
-    // Auto-prefix navigations with the active library code when missing
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart && event.navigationTrigger === 'imperative') {
-        const corrected = this.libraryContext.ensureLibraryPrefix(event.url);
-        if (corrected) {
-          this.router.navigateByUrl(corrected, { replaceUrl: true });
-        }
-      }
-    });
 
     // Initialize app through centralized loader service
     this.appLoader.appInit().catch(error => {

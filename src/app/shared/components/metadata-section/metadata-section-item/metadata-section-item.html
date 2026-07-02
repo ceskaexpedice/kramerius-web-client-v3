@@ -16,9 +16,14 @@
     <!-- List type: non-clickable vertical list -->
     <ul *ngIf="type === 'list'" [class.with-bullets]="showListBullets">
       <li *ngFor="let item of items">
-        <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
-        <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
-        <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
+        <ng-container *ngIf="itemTpl; else defaultListItem">
+          <ng-container *ngTemplateOutlet="itemTpl; context: { $implicit: item }"></ng-container>
+        </ng-container>
+        <ng-template #defaultListItem>
+          <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+          <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
+          <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
+        </ng-template>
       </li>
     </ul>
 

@@ -20,6 +20,7 @@ import { ToggleButtonGroupComponent } from '../../shared/components/toggle-butto
 import { TranslatePipe } from '@ngx-translate/core';
 import { SavedListsFiltersComponent } from './components/saved-lists-filters/saved-lists-filters.component';
 import { SavedListsFacetFiltersComponent } from './components/saved-lists-facet-filters/saved-lists-facet-filters.component';
+import { SavedListsWhereToSearchToggleComponent } from './components/saved-lists-where-to-search-toggle/saved-lists-where-to-search-toggle.component';
 import { FILTER_SERVICE } from '../../shared/services/filter.service';
 import { SavedListsFilterService } from './services/saved-lists-filter.service';
 import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
@@ -67,6 +68,7 @@ const routes: Routes = [
     TranslatePipe,
     SavedListsFiltersComponent,
     SavedListsFacetFiltersComponent,
+    SavedListsWhereToSearchToggleComponent,
     NgClass,
     ToolbarHeaderComponent,
     InputComponent,

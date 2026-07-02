@@ -4,7 +4,6 @@ services:
     ports:
       - "1234:80"
     environment:
-       - APP_KRAMERIUS_ID=${APP_KRAMERIUS_ID:-mzk}       
        - APP_DEV_MODE=${APP_DEV_MODE:-true}
     volumes:
       # Optional: override the bundled default local configuration.

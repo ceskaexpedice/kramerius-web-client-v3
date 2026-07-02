@@ -8,15 +8,20 @@ import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens'
     providedIn: 'root'
 })
 export class KrameriusApiService {
-    private apiUrl: string;
-    private krameriusId: string;
-
     constructor(
         private http: HttpClient,
         private env: EnvironmentService
-    ) {
-        this.apiUrl = this.env.getApiUrl('');
-        this.krameriusId = this.env.getKrameriusId();
+    ) {}
+
+    // Resolved lazily: this service is providedIn:'root' and may be constructed
+    // before ConfigService.load() pushes api.baseUrl into EnvironmentService.
+    // Caching these in the constructor would freeze the pre-config fallback.
+    private get apiUrl(): string {
+        return this.env.getApiUrl('');
+    }
+
+    private get krameriusId(): string {
+        return this.env.getKrameriusId();
     }
 
     getMods(uuid: string, skipErrorHandling = false): Observable<string> {

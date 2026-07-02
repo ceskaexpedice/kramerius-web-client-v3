@@ -44,10 +44,10 @@
 
             <div class="flex flex--align-center flex--gap-x2">
 
-              @if (activeFolder | async; as folder) {
+              @if (activeFolder | async) {
               <div class="items-count-display">
                 <span class="count-label">{{ 'count' | translate }}:</span>
-                <span class="count-value">{{ folder.itemsCount || 0 }}</span>
+                <span class="count-value">{{ (resultsCount$ | async) ?? 0 }}</span>
               </div>
               }
 
@@ -153,23 +153,24 @@
 
       <div class="page-content__wrapper">
 
-        @if ((selectedTags$ | async); as selectedTags) {
-          @if (selectedTags.length > 0) {
+        @if (selectedTags$ | async; as selectedTags) {
           <div class="page-content__sticky-tags">
-            <app-selected-tags
-              [items]="selectedTags"
-              [showClearAll]="selectedTags.length > 1"
-              [textTransform]="'capitalize'"
-              [operators]="(savedListsFilterService.getFiltersWithOperators() | async) || {}"
-              [showOperators]="false"
-              [translateItems]="true"
-              (remove)="savedListsFilterService.removeFilter($event)"
-              (removeGroup)="savedListsFilterService.resetOperator($event)"
-              (clearAll)="savedListsFilterService.clearAllFilters()"
-              clearButtonPosition="left">
-            </app-selected-tags>
+            <app-saved-lists-where-to-search-toggle></app-saved-lists-where-to-search-toggle>
+            @if (selectedTags.length > 0) {
+              <app-selected-tags
+                [items]="selectedTags"
+                [showClearAll]="selectedTags.length > 1"
+                [textTransform]="'capitalize'"
+                [operators]="(savedListsFilterService.getFiltersWithOperators() | async) || {}"
+                [showOperators]="false"
+                [translateItems]="true"
+                (remove)="savedListsFilterService.removeFilter($event)"
+                (removeGroup)="savedListsFilterService.resetOperator($event)"
+                (clearAll)="savedListsFilterService.clearAllFilters()"
+                clearButtonPosition="left">
+              </app-selected-tags>
+            }
           </div>
-          }
         }
 
         <!-- OTHER ITEMS SECTION -->
@@ -181,7 +182,8 @@
             @if (view() === ViewOptions.grid) {
             <div class="grid--container">
               <app-record-item *ngFor="let doc of (data.items || []) | skeletonList:50:data.loading"
-                [item]="doc ? toRecordItem(doc) : null" [currentFolderId]="(activeFolder | async)?.uuid">
+                [item]="doc ? toRecordItem(doc) : null" [currentFolderId]="(activeFolder | async)?.uuid"
+                [fulltextOverride]="activeQuery()">
               </app-record-item>
             </div>
 
@@ -190,6 +192,7 @@
             <!-- LIST VIEW -->
             <app-record-item-list *ngIf="data.items?.length" [records]="data.items || []"
               [currentFolderId]="(activeFolder | async)?.uuid"
+              [fulltextOverride]="activeQuery()"
               (exportRecord)="openExportPanel($event)">
             </app-record-item-list>
             }

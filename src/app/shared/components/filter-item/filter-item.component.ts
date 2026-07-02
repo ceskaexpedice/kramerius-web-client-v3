@@ -71,7 +71,7 @@ export class FilterItemComponent {
   /**
    * Opens a dialog with the license description, loaded from the license's
    * "unauthenticated" message page HTML defined in config-licenses.json
-   * (e.g. dnnto -> local-config/mzk/html/licenses/dnnto.cs.html).
+   * (e.g. dnnto -> local-config/html/licenses/dnnto.cs.html).
    */
   async openLicenseInfo(event: Event): Promise<void> {
     event.preventDefault();

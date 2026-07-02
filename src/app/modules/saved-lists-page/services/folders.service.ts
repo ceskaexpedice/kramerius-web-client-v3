@@ -121,7 +121,11 @@ export class FoldersService {
         .set('rows', '1000');
 
       for (const field of facetFields) {
-        params = params.append('facet.field', field);
+        // Exclude the where-to-search fq from the model facet so its per-category
+        // counts (titles/page/article/supplement) stay stable after a category is
+        // selected — Solr returns these under the plain "model" key.
+        const facetField = field === facetKeysEnum.model ? `{!ex=wts}${field}` : field;
+        params = params.append('facet.field', facetField);
       }
 
       if (sortBy && sortDirection) {
@@ -362,9 +366,18 @@ export class FoldersService {
       params = params.append('fq', this.quoteFqValue(fq));
     }
 
-    // Custom-defined facet clauses (already in Solr-field form).
-    for (const fq of filters.customFqClauses ?? []) {
-      if (fq) params = params.append('fq', fq);
+    // Custom-defined facet clauses (already in Solr-field form). These are OR-ed
+    // into a single fq — mirroring the search-results page, where custom filters
+    // form one group ("OR within the group, AND between groups"). The
+    // where-to-search "titles" option expands to several model: clauses
+    // (model:monograph OR model:periodical OR ...), so appending them as separate
+    // fq params would AND them and match nothing. Tagged {!tag=wts} so the model
+    // facet (requested as {!ex=wts}model) reports unfiltered counts — the
+    // where-to-search toggle needs every category's count to stay visible even
+    // after a category is selected.
+    const customClauses = (filters.customFqClauses ?? []).filter(fq => !!fq);
+    if (customClauses.length > 0) {
+      params = params.append('fq', `{!tag=wts}(${customClauses.join(' OR ')})`);
     }
 
     // Accessibility / availability: OR the active filter's licenses into one fq,

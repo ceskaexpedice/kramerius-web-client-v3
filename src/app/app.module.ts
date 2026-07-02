@@ -26,6 +26,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpLoaderFactory } from './shared/translation/translate-http-loader';
 import { EnvironmentService } from './shared/services/environment.service';
 import { ConfigService } from './core/config';
+import { UserService } from './shared/services/user.service';
 import { initApp } from './core/init/app-init';
 import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
 import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
@@ -149,7 +150,7 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
-      deps: [EnvironmentService, ConfigService],
+      deps: [EnvironmentService, ConfigService, UserService],
       multi: true
     },
     {

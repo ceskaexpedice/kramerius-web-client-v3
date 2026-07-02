@@ -4,7 +4,7 @@ Tento soubor definuje, jaké licence (= režimy přístupu k dokumentu) knihovna
 
 Každý dokument v Krameriu má v metadatech přiřazenou jednu nebo více licencí. Tento soubor říká klientovi, jak licenci pojmenovat uživateli, jaké akce jsou povolené, a jestli se má zobrazit informační banner nebo vodoznak.
 
-**Cesta k souboru:** `public/local-config/{kód-knihovny}/config-licenses.json`
+**Cesta k souboru:** `public/local-config/config-licenses.json`
 
 > Když soubor chybí, aplikace použije vestavěný minimální seznam licencí (`public`, `dnnto`, `dnntt`, `onsite`).
 
@@ -177,22 +177,22 @@ Pole HTML stránek (dialogů) vázaných k licenci. Aplikace vybere správný te
   {
     "key": "unauthenticated",
     "page": {
-      "cs": "local-config/mzk/html/licenses/dnnto.cs.html",
-      "en": "local-config/mzk/html/licenses/dnnto.en.html"
+      "cs": "local-config/html/licenses/dnnto.cs.html",
+      "en": "local-config/html/licenses/dnnto.en.html"
     }
   },
   {
     "key": "unauthorized",
     "page": {
-      "cs": "local-config/mzk/html/licenses/dnnto2.cs.html",
-      "en": "local-config/mzk/html/licenses/dnnto2.en.html"
+      "cs": "local-config/html/licenses/dnnto2.cs.html",
+      "en": "local-config/html/licenses/dnnto2.en.html"
     }
   },
   {
     "key": "available",
     "page": {
-      "cs": "local-config/mzk/html/licenses/dnnto3.cs.html",
-      "en": "local-config/mzk/html/licenses/dnnto3.en.html"
+      "cs": "local-config/html/licenses/dnnto3.cs.html",
+      "en": "local-config/html/licenses/dnnto3.en.html"
     }
   }
 ]
@@ -215,7 +215,7 @@ Tlačítko „?" u licence vždy otevře jeden ze tří textů podle aktuálníh
 | `unauthorized` | Uživatel **je přihlášen**, ale nesplňuje podmínky licence (např. u dnnto nemá ověřenou způsobilost). Typicky: "Váš účet nemá oprávnění pro tuto licenci." |
 | `available` | Uživatel **má přístup** — dokument je pro něj dostupný. Obecné informace o licenci (co licence znamená, za jakých podmínek platí). |
 
-HTML soubory se obvykle ukládají pod `local-config/{kód}/html/licenses/`.
+HTML soubory se obvykle ukládají pod `local-config/html/licenses/`.
 
 ---
 
@@ -223,8 +223,8 @@ HTML soubory se obvykle ukládají pod `local-config/{kód}/html/licenses/`.
 
 ```json
 "instructionPage": {
-  "cs": "local-config/mzk/html/licenses/dnnto.instruction.cs.html",
-  "en": "local-config/mzk/html/licenses/dnnto.instruction.en.html"
+  "cs": "local-config/html/licenses/dnnto.instruction.cs.html",
+  "en": "local-config/html/licenses/dnnto.instruction.en.html"
 }
 ```
 
@@ -287,7 +287,7 @@ Dva režimy — textový nebo obrázkový.
   "rowCount": 2,
   "colCount": 2,
   "probability": 100,
-  "logo": "/local-config/mzk/img/watermark.png",
+  "logo": "/local-config/img/watermark.png",
   "scale": 1.0
 }
 ```

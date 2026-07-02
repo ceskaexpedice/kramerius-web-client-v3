@@ -26,6 +26,8 @@ export interface SearchDocument {
   day?: number;
 
   monographUnitCount?: number;
+  /** Order of this part within its multivolume parent (from `part.number.sort`) */
+  partNumber?: number;
   publicationPlaces?: string[];
   keywords?: string[];
   mdt?: string;
@@ -83,6 +85,7 @@ export const parseSearchDocument = (doc: any): SearchDocument => ({
   month: doc['date_range_start.month'] ? parseInt(doc['date_range_start.month'], 10) : undefined,
   day: doc['date_range_start.day'] ? parseInt(doc['date_range_start.day'], 10) : undefined,
   monographUnitCount: doc['count_monograph_unit'] ? parseInt(doc['count_monograph_unit'], 10) : undefined,
+  partNumber: doc['part.number.sort'] != null ? parseInt(doc['part.number.sort'], 10) : undefined,
 
   publicationPlaces: doc['publication_places.search'] ? doc['publication_places.search'] : undefined,
   keywords: doc['keywords.search'] ? doc['keywords.search'] : undefined,

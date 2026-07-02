@@ -35,11 +35,27 @@
     <app-collapsible-content *ngIf="localizedTitles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="localizedTitles.length">
       <div class="titles--container" *ngFor="let title of localizedTitles">
-        <span>{{ title.title }}</span>
+<!--        <span>{{ title.title }}</span>-->
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
     </app-collapsible-content>
   </section>
+  }
+
+  <!-- Link back to the root multivolume monograph (only for monograph units) -->
+  @if (isMonographUnitDoc()) {
+  <button type="button" class="go-to-parent" (click)="goToMonograph()">
+    <span>{{ 'go-to-monograph' | translate }}</span>
+    <i class="icon-export-1" aria-hidden="true"></i>
+  </button>
+  }
+
+  <!-- Link up to the periodical (only for periodical children) -->
+  @if (isPeriodicalChild()) {
+  <button type="button" class="go-to-parent" (click)="clickedTitle()">
+    <span>{{ 'go-to-periodical' | translate }}</span>
+    <i class="icon-export-1" aria-hidden="true"></i>
+  </button>
   }
 
   <!-- ISSN (standalone, right under title) -->
@@ -62,7 +78,7 @@
   <!-- Document Type -->
   <app-metadata-section-item *ngIf="data.model" [label]="'model' | translate" [onItemClick]="clickedDocumentType">
     <div metadata-section-item-content>
-      <app-model-badge [model]="$any(data.model)"></app-model-badge>
+      <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount"></app-model-badge>
     </div>
   </app-metadata-section-item>
 
@@ -70,7 +86,6 @@
   <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
     <div class="flex flex--gap-x2" metadata-section-item-content>
       <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-      <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>
     </div>
   </app-metadata-section-item>
 
@@ -79,7 +94,12 @@
       <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
       @for (license of providedByLicenses(); track license) {
         <div class="provided-licenses__item">
-          @if (getProvidedByLicenseUrl(license); as url) {
+          @if (hasLicenseInfo(license)) {
+            <button type="button" class="provided-licenses__link provided-licenses__info"
+                    (click)="openLicenseInfo(license, $event)">
+              {{ license | translate }}
+            </button>
+          } @else if (getProvidedByLicenseUrl(license); as url) {
             <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">
               {{ license | translate }}
             </a>
@@ -95,6 +115,9 @@
               <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
             }
           }
+
+<!--          <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>-->
+
         </div>
       }
     </section>
@@ -117,10 +140,18 @@
   </div>
   }
 
-  <!-- Volume (Ročník) -->
-  <app-metadata-section-item *ngIf="getVolumeItems().length"
+  <!-- Volume (Ročník) - publication year links to the parent periodical volume -->
+  <ng-template #volumeItemTpl let-item>
+    @if (item.clickable) {
+      <a class="volume-year-link" role="link" tabindex="0"
+         (click)="clickedVolumeYear()" (keydown.enter)="clickedVolumeYear()">{{ item.label }}: {{ item.value }}</a>
+    } @else {
+      {{ item.label }}: {{ item.value }}
+    }
+  </ng-template>
+  <app-metadata-section-item *ngIf="volumeItems().length"
     [label]="'volume' | translate" type="list" [showListBullets]="true"
-    [items]="getVolumeItems()" [disableTranslate]="true">
+    [items]="volumeItems()" [itemTpl]="volumeItemTpl">
   </app-metadata-section-item>
 
   <!-- Issue (Číslo) -->

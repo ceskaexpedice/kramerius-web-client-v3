@@ -79,6 +79,10 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     showAccessibilityBadge: false
   };
   @Input() currentFolderId?: string;
+  // Free-text term to re-run inside the opened document (e.g. the active folder
+  // or search query). When set, the detail link carries ?fulltext= so the
+  // in-document search restores automatically on the detail view.
+  @Input() fulltextOverride?: string | null;
 
   // Mobile info bottom sheet
   infoSheetOpen = signal(false);
@@ -156,6 +160,7 @@ export class RecordItemComponent implements OnInit, OnDestroy {
       ownParentPid: this.item.ownParentPid,
       ownParentModel: this.item.ownParentModel,
       fulltext: this.item.fulltext,
+      fulltextForDocument: this.fulltextOverride,
       grouped: this.item.grouped,
     });
   }

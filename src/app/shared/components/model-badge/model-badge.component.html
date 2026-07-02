@@ -1,3 +1,4 @@
-  <span class="badge model" [ngClass]="model">
-    {{ getLabelKey() | translate }}@if (shouldShowCount()) { ({{ monographUnitCount }})}
+  <span class="badge model" [ngClass]="model"
+        [appCdkTooltip]="getTooltipKey() ? (getTooltipKey() | translate) : ''">
+    {{ getLabelKey() | translate }}@if (hasUnitPartNumber()) { ({{ getUnitCountLabel() }})}@else if (!isMonographUnit() && shouldShowCount()) { ({{ monographUnitCount }})}
   </span>

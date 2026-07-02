@@ -1,11 +1,11 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderSearchResultsTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
 import { combineLatest, first, map, Observable, Subject, Subscription } from 'rxjs';
@@ -14,6 +14,7 @@ import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers
 import { ViewMode } from '../periodical/models/view-mode.enum';
 import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { DocumentTypeEnum } from '../constants/document-type';
+import { customDefinedFacetsEnum } from '../search-results-page/const/facets';
 import { MusicService } from '../music/services/music.service';
 import { SoundService } from '../../shared/services/sound.service';
 import { SoundTrackModel, TrackViewType } from '../models/sound-track.model';
@@ -51,6 +52,9 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   ]).pipe(map(([detailsLoading, resultsLoading]) => detailsLoading || resultsLoading));
   isLoggedIn$ = this.store.select(selectIsAuthenticated);
   bannerState$ = this.store.select(selectFolderBannerState);
+  // Live result count for the active folder — reflects the current search/filter
+  // scope (unlike folder.itemsCount, which is the static total folder size).
+  resultsCount$ = this.store.select(selectFolderSearchResultsTotalCount);
 
   // Active facet/range filters rendered as removable tags above the results,
   // mirroring the search-results page. Assigned in the constructor so the
@@ -60,6 +64,10 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   // Free-text query (q) used to filter items within the active folder. Seeded
   // from stored state so it survives reopening the panel.
   searchInput = signal<string | number>('');
+
+  // Active free-text query as a trimmed string, fed to record items so opening a
+  // document carries ?fulltext= and the in-document search restores automatically.
+  activeQuery = computed(() => String(this.searchInput() ?? '').trim());
 
   // Separate sound recordings from other items
   soundRecordingItems = this.activeFolderItems.pipe(
@@ -113,7 +121,11 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private dontShowAgain: DontShowAgainService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
-    this.selectedTags$ = this.savedListsFilterService.selectedTags;
+    // Drop the where-to-search filter from the tag row — it's already surfaced by
+    // the dedicated toggle, so showing it as a removable tag too would be redundant.
+    this.selectedTags$ = this.savedListsFilterService.selectedTags.pipe(
+      map(tags => tags.filter(t => !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':')))
+    );
     // The search box is seeded from the URL (?query=...) in ngOnInit so it survives
     // reloads and stays in sync with the selected-tag.
   }

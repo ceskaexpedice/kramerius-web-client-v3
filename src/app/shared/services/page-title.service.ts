@@ -41,31 +41,14 @@ export class PageTitleService {
 
     private titleSubscription?: Subscription;
     private defaultTitle = 'Česká digitální knihovna';
-    private activeLibName = '';
 
     constructor() {
-        this.initDefaultTitle();
         this.init();
         effect(() => {
             const lang = this.translationService.currentLanguage().code;
-            if (!this.activeLibName) {
-                this.defaultTitle = this.configService.resolveLabel(this.configService.app.name, lang, 'Česká digitální knihovna');
-            }
+            this.defaultTitle = this.configService.resolveLabel(this.configService.app.name, lang, 'Česká digitální knihovna');
             this.updateTitleBasedOnRoute(this.router.url);
         });
-    }
-
-    private async initDefaultTitle() {
-        const activeLib = await this.configService.getActiveLibrary();
-        if (activeLib) {
-            this.activeLibName = activeLib.name;
-            this.defaultTitle = activeLib.name;
-        } else {
-            const lang = this.translationService.currentLanguage().code;
-            this.defaultTitle = this.configService.resolveLabel(this.configService.app.name, lang, 'Česká digitální knihovna');
-        }
-
-        this.updateTitleBasedOnRoute(this.router.url);
     }
 
     private init() {

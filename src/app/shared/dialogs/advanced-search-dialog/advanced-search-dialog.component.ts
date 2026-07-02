@@ -10,6 +10,7 @@ import {
   AdvancedSearchFilterGroupComponent,
 } from './components/advanced-search-filter-group/advanced-search-filter-group.component';
 import {MatNativeDateModule} from '@angular/material/core';
+import {CdkScrollable} from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-advanced-search-dialog',
@@ -20,6 +21,7 @@ import {MatNativeDateModule} from '@angular/material/core';
     AdvancedSearchFilterGroupComponent,
     NgForOf,
     MatNativeDateModule,
+    CdkScrollable,
   ],
   templateUrl: './advanced-search-dialog.component.html',
   styleUrl: './advanced-search-dialog.component.scss'
