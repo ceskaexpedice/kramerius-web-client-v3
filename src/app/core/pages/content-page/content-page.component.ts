@@ -36,6 +36,8 @@ export class ContentPageComponent implements OnInit {
   gitTag = this.envService.get('git_tag');
   clientVersion = this.versionService.getClientVersion();
   apiVersion = signal('');
+  indexerVersion = signal<number | null>(null);
+  baseApiUrl = signal('');
   isAboutPage = false;
 
   constructor() {
@@ -45,7 +47,11 @@ export class ContentPageComponent implements OnInit {
         this.loadContent();
       }
     });
-    this.versionService.getApiVersion().then(version => this.apiVersion.set(version));
+    this.versionService.getApiInfo().then(info => {
+      this.apiVersion.set(info.version);
+      this.indexerVersion.set(info.indexerVersion);
+      this.baseApiUrl.set(info.baseApiUrl);
+    });
   }
 
   ngOnInit(): void {

@@ -35,6 +35,8 @@
       <div class="content-page__version">
         <span>{{ 'version--client' | translate }} {{ clientVersion || '—' }}</span>
         <span>{{ 'version--api' | translate }} {{ apiVersion() || '—' }}</span>
+        <span>{{ 'version--indexer' | translate }} {{ indexerVersion() ?? '—' }}</span>
+        <span>{{ 'version--api-url' | translate }} {{ baseApiUrl() || '—' }}</span>
       </div>
     }
   </div>

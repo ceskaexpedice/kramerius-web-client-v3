@@ -673,6 +673,8 @@
   "auth-data-dialog--header": "Technical support data",
   "version--client": "Client version:",
   "version--api": "API version:",
+  "version--indexer": "Indexer version:",
+  "version--api-url": "API URL:",
   "license-info-tooltip": "Show license description",
   "custom-accessibility--all-tooltip": "Some documents are freely accessible, while others are still protected by copyright and their availability depends on the access type (without login, after login, or in-library only).",
   "custom-accessibility--available-tooltip": "Only available shows documents you can open right now. Without login you see only public domain works. After login, additional documents made accessible by your library (e.g. out-of-commerce works) are also shown.",
