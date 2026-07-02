@@ -1,94 +1,76 @@
-# CDK Client
+# Uživatelský klient Krameria
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6. Later upgraded to Angular 19.
+> Toto je uživatelské rozhraní pro [systém Kramerius](https://system-kramerius.cz/). Jádro systému a hlavní dokumentaci najdete v [`ceskaexpedice/kramerius`](https://github.com/ceskaexpedice/kramerius).
+----
 
-> **Which library does the client run as?**
-> The client always runs as a **single** Kramerius instance, configured entirely
-> by the files in [`public/local-config/`](public/local-config/) — read directly
-> from that directory, with no per-library subfolder. The library code comes from
-> `app.code` in `config-main.json`, and the backend from `api.baseUrl`. To run a
-> different library, replace the files in `local-config/` (or mount your own — see
-> [Running as your own library](#running-as-your-own-library)) and the config docs
-> in [`docs/config/`](docs/config/).
->
-> If `config-main.json` is missing or invalid, the app **does not start** and
-> shows a configuration error — there is no built-in fallback library.
+Docker HUB: [https://hub.docker.com/r/trinera/cdk-client](https://hub.docker.com/r/trinera/cdk-client)
 
-## Run for development
+Tento projekt byl vygenerován pomocí [Angular CLI](https://github.com/angular/angular-cli) verze 18.0.6. Později byl aktualizován na Angular 19.
+
+## Spuštění pro vývoj
 
 ```shell
 npm run start
 ```
 
-Starts a local development server.
+Spustí lokální vývojový server.
 
-Open in browser:
+Otevřít v prohlížeči:
 
 ```text
 http://localhost:4200/
 ```
 
-The application will automatically reload when source files change.
+Aplikace se automaticky znovu načte při změně zdrojových souborů.
 
-> **Selecting the library in dev mode.** The dev server reads config from
-> `public/local-config/` — the same flat directory used everywhere. To run as a
-> different library, replace the files in `public/local-config/` (the library
-> code comes from `app.code` in `config-main.json`). No environment variable
-> selects the library.
-
-## Build & Run classic
+## Build & Run (klasické)
 
 ### Build
 
-The library the client runs as is determined by the files in
-`public/local-config/` (read directly, no per-library subfolder), not by an
-environment variable. Optionally set dev mode:
+Knihovna, jako která klient běží, je určena soubory v `public/local-config/`.
 
-```shell
-export APP_DEV_MODE=false
-```
-
-Run the build:
+Spusťte build:
 
 ```shell
 npm run build
 ```
 
-The build artifacts will be stored in the `dist/` directory.
+Výstupy buildu budou uloženy v adresáři `dist/`.
 
-### Run
+### Spuštění
 
-To test the application you have just built, run:
+Chcete-li otestovat aplikaci, kterou jste právě sestavili, spusťte:
 
 ```shell
 npx serve dist/cdk-client/browser -l 8080
 ```
 
-Open in browser:
+Otevřít v prohlížeči:
 
 ```text
 http://localhost:8080
 ```
 
-## Running as your own library
+## Spuštění jako vaše vlastní knihovna
 
-To run the client as **your own** library, you do **not** need to modify any
-source code — just provide your config files in `public/local-config/`.
+Chcete-li klienta spustit jako **svou vlastní** knihovnu, **nemusíte** upravovat
+žádný zdrojový kód — stačí poskytnout vaše konfigurační soubory v
+`public/local-config/`.
 
-1. **Put your config files directly in** `public/local-config/`:
+1. **Umístěte své konfigurační soubory přímo do** `public/local-config/`:
 
    ```text
-   public/local-config/config-main.json       # required: app.code, api.baseUrl, i18n
-   public/local-config/config-licenses.json    # optional
-   public/local-config/config-homepage.json    # optional
+   public/local-config/config-main.json       # povinné: app.code, api.baseUrl, i18n
+   public/local-config/config-licenses.json    # volitelné
+   public/local-config/config-homepage.json    # volitelné
    ```
 
-   The format of each file is documented in [`docs/config/`](docs/config/).
-   `config-main.json` is the only required file; the rest fall back to built-in
-   defaults when omitted. If `config-main.json` is missing or invalid, the app
-   does not start.
+   Formát každého souboru je zdokumentován v [`docs/config/`](docs/config/).
+   `config-main.json` je jediný povinný soubor; ostatní se při vynechání vrátí
+   k vestavěným výchozím hodnotám. Pokud soubor `config-main.json` chybí nebo je
+   neplatný, aplikace se nespustí.
 
-2. **Build & serve:**
+2. **Sestavte a spusťte:**
 
    ```shell
    export APP_DEV_MODE=false
@@ -96,17 +78,15 @@ source code — just provide your config files in `public/local-config/`.
    npx serve dist/cdk-client/browser -l 8080
    ```
 
-   The client starts as the instance defined by `app.code` and connects to the
-   backend from `public/local-config/config-main.json` → `api.baseUrl`.
+   Klient se spustí jako instance definovaná pomocí `app.code` a připojí se
+   k backendu z `public/local-config/config-main.json` → `api.baseUrl`.
 
-> **Note.** The backend the client talks to comes entirely from
-> `config-main.json` (`api.baseUrl`). Always set `api.baseUrl` in your
-> `config-main.json` — there is no hard-coded backend.
+> **Poznámka.** Backend, se kterým klient komunikuje, pochází výhradně z
+> `config-main.json` (`api.baseUrl`). Vždy nastavte `api.baseUrl` ve svém
+> `config-main.json` — neexistuje žádný napevno zakódovaný backend.
 
-In Docker, the same files can be mounted at runtime instead of baked into the
-image — see [Local configuration volume](#local-configuration-volume).
-
-Docker HUB: [https://hub.docker.com/r/trinera/cdk-client](https://hub.docker.com/r/trinera/cdk-client)
+V Dockeru lze tytéž soubory připojit za běhu, místo aby byly zapečené do image —
+viz [Lokální konfigurace (volume)](#lokální-konfigurace-volume).
 
 ## Build & Run s Dockerem
 
@@ -138,9 +118,9 @@ Otevřít v prohlížeči:
 http://localhost:1234
 ```
 
-The library the container runs as comes from the config files it serves from
-`local-config/`. Override the bundled configuration by mounting your own
-directory:
+Knihovna, jako která kontejner běží, pochází z konfiguračních souborů, které
+servíruje z `local-config/`. Výchozí konfiguraci přepíšete připojením vlastního
+adresáře:
 
 ```shell
 docker run -p 1234:80 \
