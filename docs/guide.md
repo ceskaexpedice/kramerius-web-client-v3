@@ -1,12 +1,10 @@
-# Návod: jak rozběhat CDK klienta
-
-Tento návod popisuje, jak spustit CDK klienta (webové rozhraní pro Kramerius) —
+Tento návod popisuje, jak spustit webové rozhraní pro Kramerius —
 buď přes Docker, nebo z naklonovaného projektu — a co musí udělat knihovna, která
 chce klienta provozovat nad **svým** Krameriem.
 
 > **Klíčový princip.** Klient vždy běží jako **jedna konkrétní knihovna**. Veškeré
 > chování (název, logo, adresa backendu, funkce, licence, obsah domovské stránky…)
-> určují konfigurační soubory v adresáři [`public/local-config/`](../public/local-config/).
+> určují konfigurační soubory v adresáři [`public/local-config/`](https://github.com/ceskaexpedice/kramerius-web-client-v3/tree/main/public/local-config).
 > Tyto soubory se čtou **přímo z tohoto adresáře**. Kód knihovny se bere z pole `app.code` v `config-main.json`.
 >
 > Pokud `config-main.json` chybí nebo je neplatný, aplikace **nenaběhne** a zobrazí
@@ -50,7 +48,6 @@ public/local-config/
 ├── config-homepage.json    # volitelný — obsah a pořadí sekcí domovské stránky
 ├── html/                   # volitelné — HTML stránky (O projektu, Podmínky, licence…)
 ├── img/                    # volitelné — obrázky (autoři, žánry, watermark…)
-└── libraries.json          # seznam knihoven pro interní přepínač (nechte být)
 ```
 
 Formát každého souboru je podrobně popsaný v [`docs/config/`](config/):
@@ -83,8 +80,7 @@ pole se doplní vestavěnými výchozími hodnotami.
 }
 ```
 
-- `app.code` — krátký kód knihovny. Slouží jako identita instance (IIIF, rozpoznání
-  CDK agregátoru). **Není** to název adresáře — adresář žádný není.
+- `app.code` — krátký kód knihovny. Slouží jako identita instance.
 - `api.baseUrl` — adresa Kramerius API backendu. Obvykle končí na `/search/api/client`.
   Toto je jediný zdroj připojení k backendu; klient nikdy neháduje adresu jinak.
 
@@ -239,7 +235,8 @@ Chcete-li provozovat klienta nad **svým** Krameriem (kód `xy`), nemusíte upra
    }
    ```
 
-   Podrobnosti k jednotlivým polím jsou v [`docs/config/config-main.md`](config/config-main.md).
+   Podrobnosti k jednotlivým polím jsou v [`Hlavní konfigurační soubor
+`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Hlavn%C3%AD-konfigura%C4%8Dn%C3%AD-soubor).
 
 2. **Volitelně přidejte** `config-licenses.json`, `config-homepage.json` a soubory
    v `html/` a `img/`. Když je vynecháte, použijí se výchozí hodnoty.
@@ -248,10 +245,10 @@ Chcete-li provozovat klienta nad **svým** Krameriem (kód `xy`), nemusíte upra
    Bez správné adresy klient nenačte žádné dokumenty.
 
 4. **Nasaďte** jedním ze způsobů výše:
-   - **Docker:** namountujte svůj `local-config` přes volbu `-v` (nebo přes volume
-     v Compose). Viz [Varianta A](#varianta-a--spuštění-přes-docker).
-   - **Z projektu:** vložte soubory do `public/local-config/`, spusťte `npm run build`
-     a naservírujte `dist/cdk-client/browser/`. Viz [Varianta B](#varianta-b--spuštění-z-naklonovaného-projektu).
+  - **Docker:** namountujte svůj `local-config` přes volbu `-v` (nebo přes volume
+    v Compose). Viz [Varianta A](#varianta-a--spuštění-přes-docker).
+  - **Z projektu:** vložte soubory do `public/local-config/`, spusťte `npm run build`
+    a naservírujte `dist/cdk-client/browser/`. Viz [Varianta B](#varianta-b--spuštění-z-naklonovaného-projektu).
 
 5. **Ověřte**, že se konfigurace načetla — otevřete v prohlížeči:
 

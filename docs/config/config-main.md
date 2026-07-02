@@ -55,22 +55,22 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 
 ```json
 "app": {
-  "code": "mzk",
-  "name": {
-    "cs": "Moravská zemská knihovna",
-    "en": "Moravian Library",
-    "sk": "Moravská zemská knižnica",
-    "pl": "Morawska Biblioteka Krajowa"
-  },
-  "contactEmail": "digitalniknihovna@mzk.cz",
-  "logo": "/favicon.svg",
-  "adminClientUrl": "https://admin.kramerius.mzk.cz"
+"code": "mzk",
+"name": {
+"cs": "Moravská zemská knihovna",
+"en": "Moravian Library",
+"sk": "Moravská zemská knižnica",
+"pl": "Morawska Biblioteka Krajowa"
+},
+"contactEmail": "digitalniknihovna@mzk.cz",
+"logo": "/favicon.svg",
+"adminClientUrl": "https://admin.kramerius.mzk.cz"
 }
 ```
 
 | Pole | Povinné | Popis |
 |---|---|---|
-| `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Slouží jako identita instance (IIIF, rozpoznání CDK agregátoru). |
+| `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Slouží jako identita instance. |
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
 | `contactEmail` | ano | Kontaktní e-mail zobrazovaný na chybových stránkách. |
 | `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/img/`. Když chybí, zobrazí se výchozí logo. |
@@ -427,8 +427,8 @@ Nejmenší validní konfigurace — všechno ostatní se doplní z výchozích h
 > **Poznámka:** Bloky `features`, `ui`, `export`, `viewer`, `integrations`, `search`, `pages` a `footer` jsou volitelné. Když celý blok chybí, použijí se výchozí hodnoty (viz jednotlivé sekce výše) — výjimkou je `footer`, který výchozí hodnotu nemá, takže při jeho vynechání se patička nevykreslí. Merge probíhá na úrovni celého bloku — pokud blok uvedete pouze částečně, chybějící pole `features` se chovají jako `true` (funkce zapnuta). Pokud chcete funkci vypnout, musíte ji explicitně nastavit na `false`.
 
 ---
-
 ## Související
 
-- [`config-licenses.md`](config-licenses.md) — licence a práva k dokumentům
-- [`config-homepage.md`](config-homepage.md) — obsah domovské stránky
+- [`config-licenses.json — konfigurace licencí`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Konfigurace-licenc%C3%AD)
+- [`config-homepage.json — obsah domovské stránky
+`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Konfigurace-%C3%BAvodn%C3%AD-strany)

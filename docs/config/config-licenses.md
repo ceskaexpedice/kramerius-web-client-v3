@@ -32,18 +32,18 @@ Dva bloky:
 
 ```json
 "_defaults": {
-  "actions": {
-    "pdf": false,
-    "print": false,
-    "jpeg": false,
-    "text": false,
-    "textMode": true,
-    "citation": true,
-    "metadata": true,
-    "share": true,
-    "selection": false,
-    "crop": false
-  }
+"actions": {
+"pdf": false,
+"print": false,
+"jpeg": false,
+"text": false,
+"textMode": true,
+"citation": true,
+"metadata": true,
+"share": true,
+"selection": false,
+"crop": false
+}
 }
 ```
 
@@ -149,13 +149,13 @@ Když má dokument licenci s nastaveným `bar`, nad prohlížečem se zobrazí l
 
 ```json
 "bar": {
-  "licenses": ["dnnto"],
-  "text": {
-    "cs": "Díla nedostupná na trhu - online",
-    "en": "Out of Commerce Works - online"
-  },
-  "logo": "/img/logo/dnnt-gray-transparent.png",
-  "link": "https://dnnt.cz"
+"licenses": ["dnnto"],
+"text": {
+"cs": "Díla nedostupná na trhu - online",
+"en": "Out of Commerce Works - online"
+},
+"logo": "/img/logo/dnnt-gray-transparent.png",
+"link": "https://dnnt.cz"
 }
 ```
 
@@ -174,27 +174,27 @@ Pole HTML stránek (dialogů) vázaných k licenci. Aplikace vybere správný te
 
 ```json
 "messagePages": [
-  {
-    "key": "unauthenticated",
-    "page": {
-      "cs": "local-config/html/licenses/dnnto.cs.html",
-      "en": "local-config/html/licenses/dnnto.en.html"
-    }
-  },
-  {
-    "key": "unauthorized",
-    "page": {
-      "cs": "local-config/html/licenses/dnnto2.cs.html",
-      "en": "local-config/html/licenses/dnnto2.en.html"
-    }
-  },
-  {
-    "key": "available",
-    "page": {
-      "cs": "local-config/html/licenses/dnnto3.cs.html",
-      "en": "local-config/html/licenses/dnnto3.en.html"
-    }
-  }
+{
+"key": "unauthenticated",
+"page": {
+"cs": "local-config/html/licenses/dnnto.cs.html",
+"en": "local-config/html/licenses/dnnto.en.html"
+}
+},
+{
+"key": "unauthorized",
+"page": {
+"cs": "local-config/html/licenses/dnnto2.cs.html",
+"en": "local-config/html/licenses/dnnto2.en.html"
+}
+},
+{
+"key": "available",
+"page": {
+"cs": "local-config/html/licenses/dnnto3.cs.html",
+"en": "local-config/html/licenses/dnnto3.en.html"
+}
+}
 ]
 ```
 
@@ -223,8 +223,8 @@ HTML soubory se obvykle ukládají pod `local-config/html/licenses/`.
 
 ```json
 "instructionPage": {
-  "cs": "local-config/html/licenses/dnnto.instruction.cs.html",
-  "en": "local-config/html/licenses/dnnto.instruction.en.html"
+"cs": "local-config/html/licenses/dnnto.instruction.cs.html",
+"en": "local-config/html/licenses/dnnto.instruction.en.html"
 }
 ```
 
@@ -238,9 +238,9 @@ V detailu dokumentu se v metadatech zobrazuje sekce „Poskytováno pod licencí
 
 ```json
 "providedBy": {
-  "display": true,
-  "imageUrl": "/img/logo/provided-by-licenses/dnnto-logo.png",
-  "url": "https://dnnt.cz/"
+"display": true,
+"imageUrl": "/img/logo/provided-by-licenses/dnnto-logo.png",
+"url": "https://dnnt.cz/"
 }
 ```
 
@@ -264,17 +264,17 @@ Dva režimy — textový nebo obrázkový.
 
 ```json
 "watermark": {
-  "type": "text",
-  "opacity": 0.15,
-  "rowCount": 3,
-  "colCount": 3,
-  "probability": 100,
-  "staticText": {
-    "cs": "Nekopírovat",
-    "en": "Do not copy"
-  },
-  "fontSize": 14,
-  "color": "rgba(0,0,0,0.5)"
+"type": "text",
+"opacity": 0.15,
+"rowCount": 3,
+"colCount": 3,
+"probability": 100,
+"staticText": {
+"cs": "Nekopírovat",
+"en": "Do not copy"
+},
+"fontSize": 14,
+"color": "rgba(0,0,0,0.5)"
 }
 ```
 
@@ -282,13 +282,13 @@ Dva režimy — textový nebo obrázkový.
 
 ```json
 "watermark": {
-  "type": "image",
-  "opacity": 0.2,
-  "rowCount": 2,
-  "colCount": 2,
-  "probability": 100,
-  "logo": "/local-config/img/watermark.png",
-  "scale": 1.0
+"type": "image",
+"opacity": 0.2,
+"rowCount": 2,
+"colCount": 2,
+"probability": 100,
+"logo": "/local-config/img/watermark.png",
+"scale": 1.0
 }
 ```
 
@@ -378,5 +378,5 @@ Dva režimy — textový nebo obrázkový.
 
 ## Související
 
-- [`config-main.md`](config-main.md) — hlavní konfigurace
-- [`config-homepage.md`](config-homepage.md) — domovská stránka
+- [`config-main.json — hlavní konfigurační soubor`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Hlavn%C3%AD-konfigura%C4%8Dn%C3%AD-soubor)
+- [`config-homepage.json — obsah domovské stránky`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Konfigurace-%C3%BAvodn%C3%AD-strany)

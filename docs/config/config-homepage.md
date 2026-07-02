@@ -326,10 +326,9 @@ Když se u těchto sekcí napíše `title`, `buttonText` nebo jiné pole, nic se
   ]
 }
 ```
-
 ---
 
 ## Související
 
-- [`config-main.md`](config-main.md) — hlavní konfigurace
-- [`config-licenses.md`](config-licenses.md) — licence dokumentů
+- [`config-main.json — hlavní konfigurační soubor`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Hlavn%C3%AD-konfigura%C4%8Dn%C3%AD-soubor)
+- [`config-licenses.json — konfigurace licencí`](https://github.com/ceskaexpedice/kramerius-web-client-v3/wiki/Konfigurace-licenc%C3%AD)
