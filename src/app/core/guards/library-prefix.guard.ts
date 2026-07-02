@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { ConfigService } from '../config/config.service';
+import { EnvironmentService } from '../../shared/services/environment.service';
 
 const libraryCache = new Map<string, { code: string; url: string } | null>();
 
@@ -25,6 +26,15 @@ async function loadLibraryByCode(code: string): Promise<{ code: string; url: str
 
 export const libraryPrefixGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);
+  const envService = inject(EnvironmentService);
+
+  // The library switch is an internal-only feature. When it's off the client is
+  // pinned to a single Kramerius and must never hit the central registry, so
+  // library-prefixed routes are not available.
+  if (!envService.isLibrarySwitchEnabled()) {
+    return router.createUrlTree(['/404']);
+  }
+
   const libCode = route.params['libCode'];
 
   if (!libCode) {
