@@ -99,7 +99,12 @@
     }
 
     <div class="sidebar--wrapper--scroll-content">
-      @if ((iiifViewerService.searchQuery$ | async) && !detailViewService.isPdf && !(detailViewService.hasArticles$ | async)) {
+      <!-- Gate on the active fulltext search term (documentSearchService), not the
+           viewer's transient searchQuery$. The viewer's query can be momentarily
+           cleared when the IIIF viewer re-mounts during page navigation, which made
+           the plain page grid flash in for a few seconds before the highlights
+           re-fetch re-set it. The search term stays set for the whole search session. -->
+      @if ((documentSearchService.searchTerm$ | async) && !detailViewService.isPdf && !(detailViewService.hasArticles$ | async)) {
         <app-search-results-list
           [results]="(documentSearchService.searchResults$ | async) || []"
           [currentPid]="detailViewService.currentPagePid"
