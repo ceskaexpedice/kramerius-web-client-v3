@@ -29,27 +29,53 @@
 
     <!-- Clickable list type: vertical list with underlined clickable items -->
     <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
-      <li *ngFor="let item of visibleItems; let last = last" (click)="handleClick(item)" class="clickable"
-        role="button" tabindex="0" (keydown.enter)="handleClick(item)" (keydown.space)="$event.preventDefault(); handleClick(item)">
-        <span class="item-content">
-          <span class="item-label">
-            <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
-            <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
-            <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
+      <li *ngFor="let item of visibleItems; let last = last" class="clickable"
+        [attr.role]="getItemHref(item) ? null : 'button'"
+        [attr.tabindex]="getItemHref(item) ? null : 0"
+        (click)="handleItemClick(item)"
+        (keydown.enter)="handleItemClick(item)"
+        (keydown.space)="handleItemSpace($event, item)">
+        @if (getItemHref(item); as href) {
+          <a [href]="href" class="item-content item-link" (click)="handleLinkClick($event, item)">
+            <span class="item-label">
+              <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+              <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
+              <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
+            </span>
+            <ng-container *ngIf="itemSuffixTpl">
+              <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>
+            </ng-container>
+          </a>
+        } @else {
+          <span class="item-content">
+            <span class="item-label">
+              <ng-container *ngIf="disableTranslate">{{ getDisplayText(item) }}</ng-container>
+              <ng-container *ngIf="!disableTranslate && translateNamespace">{{ getDisplayText(item) | namespacedTranslate:translateNamespace }}</ng-container>
+              <ng-container *ngIf="!disableTranslate && !translateNamespace">{{ getDisplayText(item) | translate }}</ng-container>
+            </span>
+            <ng-container *ngIf="itemSuffixTpl">
+              <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>
+            </ng-container>
           </span>
-          <ng-container *ngIf="itemSuffixTpl">
-            <ng-container *ngTemplateOutlet="itemSuffixTpl; context: { $implicit: item }"></ng-container>
-          </ng-container>
-        </span><span *ngIf="last && hiddenCount > 0" class="items-more-inline" role="button" tabindex="0" (click)="expanded = true; $event.stopPropagation()" (keydown.enter)="expanded = true; $event.stopPropagation()" (keydown.space)="$event.preventDefault(); expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>
+        }<span *ngIf="last && hiddenCount > 0" class="items-more-inline" role="button" tabindex="0" (click)="expanded = true; $event.stopPropagation()" (keydown.enter)="expanded = true; $event.stopPropagation()" (keydown.space)="$event.preventDefault(); expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>
       </li>
     </ul>
 
     <!-- Badge type: pill-styled clickable badge -->
-    <span *ngIf="type === 'badge' && value" class="badge" (click)="handleClick(value)"
-      role="button" tabindex="0" (keydown.enter)="handleClick(value)" (keydown.space)="$event.preventDefault(); handleClick(value)">
-      <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
-      {{ value | translate }}
-    </span>
+    @if (type === 'badge' && value) {
+      @if (getItemHref(value); as href) {
+        <a [href]="href" class="badge" (click)="handleLinkClick($event, value)">
+          <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
+          {{ value | translate }}
+        </a>
+      } @else {
+        <span class="badge" (click)="handleClick(value)"
+          role="button" tabindex="0" (keydown.enter)="handleClick(value)" (keydown.space)="$event.preventDefault(); handleClick(value)">
+          <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
+          {{ value | translate }}
+        </span>
+      }
+    }
 
     <!-- Key-value type: display object properties as key-value pairs -->
     <ul *ngIf="type === 'key-value'" [class.with-bullets]="showListBullets">

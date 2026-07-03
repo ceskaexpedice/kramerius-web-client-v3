@@ -21,6 +21,12 @@ export class MetadataSectionItem {
   @Input() keyValuePairs?: { [key: string]: any };
   @Input() displayFn?: (item: any) => string;
   @Input() onItemClick?: (item: any) => void;
+  /**
+   * When set, each clickable item (clickable-list / badge) renders as a real
+   * `<a href>` so it can be opened in a new tab. A plain left-click is still
+   * handled in-app via `onItemClick`; modifier/middle clicks follow the href.
+   */
+  @Input() itemHref?: (item: any) => string | null | undefined;
   @Input() showListBullets: boolean = false;
   @Input() icon?: string;
   @Input() listKeyUppercase: boolean = false;
@@ -70,6 +76,39 @@ export class MetadataSectionItem {
     if (this.onItemClick) {
       this.onItemClick(item);
     }
+  }
+
+  getItemHref(item: any): string | null {
+    return this.itemHref?.(item) ?? null;
+  }
+
+  /**
+   * Keyboard/click on the <li>. When the item has an href it's rendered as an
+   * inner <a> that owns navigation, so the <li> handler is a no-op; otherwise
+   * the <li> is the interactive element and fires the in-app handler.
+   */
+  handleItemClick(item: any): void {
+    if (this.getItemHref(item)) return;
+    this.handleClick(item);
+  }
+
+  handleItemSpace(event: Event, item: any): void {
+    if (this.getItemHref(item)) return;
+    event.preventDefault();
+    this.handleClick(item);
+  }
+
+  /**
+   * Left-click on an item link: run the in-app handler and suppress the default
+   * navigation. Modifier / middle clicks fall through so the browser opens the
+   * href in a new tab as usual.
+   */
+  handleLinkClick(event: MouseEvent, item: any): void {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    this.handleClick(item);
   }
 
   getKeys(): string[] {
