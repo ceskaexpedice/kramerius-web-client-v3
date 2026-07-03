@@ -272,7 +272,13 @@ export class MetadataSection implements OnInit, OnChanges {
       const urlSource = this.route.snapshot.queryParamMap.get('source');
       this.cdkCollections.set(collections);
       this.selectedCdkCollection.set(
-        pickCdkCollection(urlSource, cdkSource?.cdkLeader, collections) ?? ''
+        pickCdkCollection(
+          urlSource,
+          cdkSource?.cdkLeader,
+          collections,
+          cdkSource?.cdkLicenses ?? [],
+          this.userService.licenses,
+        ) ?? ''
       );
     } else {
       this.cdkCollections.set([]);
