@@ -9,7 +9,6 @@ import { UserService } from '../../shared/services/user.service';
 import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth.actions';
 import { AuthTokens, TokenResponse, User } from './auth.models';
-import { clearSimpleCache } from '../cache/simple-cache.interceptor-fn';
 
 @Injectable({
   providedIn: 'root'
@@ -90,23 +89,25 @@ export class AuthService {
   }
 
   logout() {
-    // Clear storage
+    // Clear persisted storage. This does NOT trigger any UI re-render, so it's
+    // safe to do before navigating away.
     this.storage.remove(this.TOKEN_KEY);
     this.storage.remove(this.USER_KEY);
     this.storage.remove(this.ORIGINAL_ROUTE_KEY);
 
-    // Reset auth subjects
-    this.isAuthenticatedSubject.next(false);
-    this.userSubject.next(null);
-
-    // Clear user-specific cached data
-    this.userService.clearUserData();
-
-    // Clear HTTP cache to prevent showing cached authenticated data
-    clearSimpleCache();
-
-    // Redirect to backend logout endpoint which handles Keycloak logout
-    // and redirects back to the current page after logout completes
+    // Redirect to backend logout endpoint (which handles Keycloak logout and
+    // redirects back to the current page) FIRST.
+    //
+    // We must NOT clear the in-memory user state (auth subjects, licenses,
+    // HTTP cache) before this navigation: doing so synchronously invalidates
+    // the license signals and lets Angular run a change-detection tick that
+    // repaints every document with lock icons before the browser leaves the
+    // page. The result is a jarring "everything locks up, then the Keycloak
+    // logout screen appears" flash (issue #115).
+    //
+    // Because this is a full-page navigation, the in-memory state is discarded
+    // anyway; when the user returns from Keycloak the app reloads fresh and the
+    // locks re-render correctly at that point instead of before logout.
     const redirectUri = encodeURIComponent(window.location.href);
     window.location.href = `${this.API_URL}/auth/logout?redirect_uri=${redirectUri}`;
   }
