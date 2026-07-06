@@ -688,11 +688,15 @@ export class RecordHandlerService {
    * If any item in the provided array should show a badge, all items get the 'with-badge' class
    */
   periodicalYearToRecordItemWithBadgeLayout(year: PeriodicalItemYear, allYears: PeriodicalItemYear[]): RecordItem {
+    const partNumberStr = year['part.number.str'];
+    const partNumber = partNumberStr != null && partNumberStr !== '' ? parseInt(partNumberStr, 10) : undefined;
+
     const recordItem: RecordItem = {
       id: year.pid,
       title: year.year,
       model: year.model as DocumentTypeEnum,
       licenses: year.licenses || [],
+      partNumber: Number.isNaN(partNumber as number) ? undefined : partNumber,
       className: 'card--fluid',
       showFavoriteButton: true,
       showAccessibilityBadge: true
