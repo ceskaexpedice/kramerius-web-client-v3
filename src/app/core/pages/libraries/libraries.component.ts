@@ -38,7 +38,7 @@ async function loadExtraLibraries(): Promise<Library[]> {
       } catch {
         return {
           id: -(index + 1),
-          alive: false,
+          alive: true,
           name: def.name,
           name_en: def.name_en,
           code: def.code,

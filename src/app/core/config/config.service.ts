@@ -32,12 +32,13 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
 // Libraries not in the central registry but available as dev/testing instances.
-export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string; name_en: string; logo: string; url: string }> = {
+export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string; name_en: string; logo: string; url: string; alive: boolean }> = {
   'inovatika-k7': {
     code: 'inovatika-k7',
     name: 'Inovatika K7 (dev)',
     name_en: 'Inovatika K7 (dev)',
-    logo: '',
+    logo: '/img/logo/inovatika-logo.png',
+    alive: true,
     url: 'https://k7.inovatika.dev/',
   },
   'trinera-k7': {
@@ -45,13 +46,15 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     name: 'Trinera K7 (dev)',
     name_en: 'Trinera K7 (dev)',
     logo: '/img/logo/logo-trinera-symbol.png',
+    alive: true,
     url: 'https://kramerius.k7.trinera.cloud',
   },
   'cdk-dev': {
     code: 'cdk-dev',
     name: 'CDK (dev)',
     name_en: 'CDK (dev)',
-    logo: '/img/logo/logo.svg',
+    logo: '/img/logo.svg',
+    alive: true,
     url: 'https://cdk-api.dev.ceskadigitalniknihovna.cz',
   },
 };
