@@ -76,6 +76,16 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       id: 'dnnto',
       accessType: 'login',
       isOnline: true,
+      bar: {
+        licenses: ["dnnto"],
+        text: {
+          cs: "Díla nedostupná na trhu - online",
+          en: "Out of Commerce Works - online",
+          sk: "Diela nedostupná na trhu - online",
+          pl: "Utwory niedostępne w handlu – online"
+        },
+        logo: "/img/logo/dnnt-white.png"
+      },
       label: { cs: 'Díla nedostupná na trhu - online', en: 'Out of Commerce Works - online', sk: 'Diela nedostupná na trhu - online', pl: 'Utwory niedostępne w handlu – online' },
       messagePages: [
         { key: 'unauthenticated', page: { cs: 'local-config/html/licenses/dnnto.cs.html', en: 'local-config/html/licenses/dnnto.en.html' } },
@@ -86,6 +96,11 @@ export const DEFAULT_CONFIG: AppConfiguration = {
       actions: {
         pdf: false, print: false, jpeg: false, text: false, textMode: true,
         citation: true, metadata: true, share: true, selection: false, crop: false
+      },
+      providedBy: {
+        display: true,
+        imageUrl: "/img/logo/provided-by-licenses/dnnto-logo.png",
+        url: "https://dnnt.cz/"
       }
     },
     {
