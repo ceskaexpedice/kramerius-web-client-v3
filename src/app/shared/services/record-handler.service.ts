@@ -76,9 +76,9 @@ export class RecordHandlerService {
   }
 
   getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; fulltextForDocument?: string | null; grouped?: boolean }): string {
-    const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument, grouped } = opts;
-    // Only pages carry the search term in the URL; other models navigate
-    // without it.
+    const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument } = opts;
+    // Only pages carry the search term inside getHandleDocumentUrlByModelAndPid
+    // (as a ?fulltext next to ?page). Other models get the term appended below.
     const pageFulltext = model === DocumentTypeEnum.page ? fulltext : null;
     let url: string;
     if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
@@ -86,41 +86,16 @@ export class RecordHandlerService {
     } else {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid);
     }
-    // Grouped page representatives navigate to the root document without the
-    // search term, so the viewer doesn't jump to a single occurrence.
-    if (pageFulltext && !grouped && !url.includes('fulltext=')) {
-      const sep = url.includes('?') ? '&' : '?';
-      url += `${sep}fulltext=${encodeURIComponent(pageFulltext)}`;
-    }
-    // Document-level fulltext override (e.g. a folder/search query that should be
-    // re-run inside the opened document). Applies to models that open in the
-    // detail view; models routing elsewhere (collection, periodical, sound,
-    // convolute) don't support in-document search, so the term is dropped.
-    const term = fulltextForDocument?.trim();
-    if (term && !grouped && !url.includes('fulltext=') && this.supportsInDocumentSearch(model)) {
+    // Always forward the search term as ?fulltext so the opened page (detail view,
+    // periodical, collection, etc.) can re-run the query. Grouped page
+    // representatives carry it too. Prefer the explicit document-level override,
+    // falling back to the record's own fulltext term.
+    const term = (fulltextForDocument?.trim() || fulltext?.trim());
+    if (term && !url.includes('fulltext=')) {
       const sep = url.includes('?') ? '&' : '?';
       url += `${sep}fulltext=${encodeURIComponent(term)}`;
     }
     return url;
-  }
-
-  /**
-   * Whether a model opens in the detail view (where in-document fulltext search
-   * is available). Models that route to their own landing page — periodical,
-   * periodical volume, sound recording, collection, convolute — don't carry a
-   * document-level fulltext term. Mirrors getHandleDocumentUrlByModelAndPid.
-   */
-  private supportsInDocumentSearch(model: string): boolean {
-    switch (model) {
-      case DocumentTypeEnum.periodical:
-      case DocumentTypeEnum.periodicalvolume:
-      case DocumentTypeEnum.soundrecording:
-      case DocumentTypeEnum.collection:
-      case DocumentTypeEnum.convolute:
-        return false;
-      default:
-        return true;
-    }
   }
 
   getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null, fulltext: string | null = null): string {

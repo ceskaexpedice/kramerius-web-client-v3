@@ -540,16 +540,19 @@ export class PeriodicalService extends BaseFilterService {
     const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
 
     if (hasSearchQuery || this.hasSubmittedQuery()) {
+      // In search mode the view must stay on the search results. Return early so
+      // the stored-view restore below can't clobber it back to the years grid.
       this.viewMode.set(ViewMode.SearchResults);
       this.setSelectedYear(null);
-    } else {
-      if (model === 'periodical') {
-        this.viewMode.set(ViewMode.Timeline);
-        this.setSelectedYear(null);
-      } else if (model === 'periodicalvolume') {
-        this.setSelectedYear(dateStr);
-        this.viewMode.set(ViewMode.Calendar);
-      }
+      return;
+    }
+
+    if (model === 'periodical') {
+      this.viewMode.set(ViewMode.Timeline);
+      this.setSelectedYear(null);
+    } else if (model === 'periodicalvolume') {
+      this.setSelectedYear(dateStr);
+      this.viewMode.set(ViewMode.Calendar);
     }
 
     const storedView = this.loadViewModeFromLocalStorage();
