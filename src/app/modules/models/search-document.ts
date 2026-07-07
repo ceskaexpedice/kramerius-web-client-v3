@@ -58,7 +58,7 @@ export interface SearchDocument {
   // Grouping (only set when grouped search returns this doc)
   occurrenceCount?: number;
   fulltext?: string;
-  /** True when this doc is a grouped page representative; navigation omits ?fulltext */
+  /** True when this doc is a grouped page representative (matched on page fulltext); only then does navigation forward ?fulltext */
   grouped?: boolean;
 }
 

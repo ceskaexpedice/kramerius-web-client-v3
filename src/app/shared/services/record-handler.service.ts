@@ -76,7 +76,7 @@ export class RecordHandlerService {
   }
 
   getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; fulltextForDocument?: string | null; grouped?: boolean }): string {
-    const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument } = opts;
+    const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument, grouped } = opts;
     // Only pages carry the search term inside getHandleDocumentUrlByModelAndPid
     // (as a ?fulltext next to ?page). Other models get the term appended below.
     const pageFulltext = model === DocumentTypeEnum.page ? fulltext : null;
@@ -86,11 +86,19 @@ export class RecordHandlerService {
     } else {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid);
     }
-    // Always forward the search term as ?fulltext so the opened page (detail view,
-    // periodical, collection, etc.) can re-run the query. Grouped page
-    // representatives carry it too. Prefer the explicit document-level override,
-    // falling back to the record's own fulltext term.
-    const term = (fulltextForDocument?.trim() || fulltext?.trim());
+    // Forward the search term as ?fulltext only when it actually came from
+    // searching *within* the pages, so the opened view can re-run the in-document
+    // query. Two cases qualify:
+    //   1. An explicit document-level override (fulltextForDocument), e.g. the
+    //      active folder/query on the saved-lists page.
+    //   2. A grouped page representative — the record matched on page fulltext.
+    // A plain title/metadata match from a global search (grouped is falsy) must
+    // NOT carry the term: the record's own `fulltext` is just the global query
+    // stamped onto every result, and forwarding it would wrongly restore an
+    // in-document search the user never ran (e.g. clicking a periodical whose
+    // title matched).
+    const override = fulltextForDocument?.trim();
+    const term = override || (grouped ? fulltext?.trim() : undefined);
     if (term && !url.includes('fulltext=')) {
       const sep = url.includes('?') ? '&' : '?';
       url += `${sep}fulltext=${encodeURIComponent(term)}`;

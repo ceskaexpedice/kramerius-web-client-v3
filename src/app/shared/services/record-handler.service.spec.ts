@@ -44,21 +44,33 @@ describe('RecordHandlerService.getDocumentUrl fulltext forwarding', () => {
     service = TestBed.inject(RecordHandlerService);
   });
 
-  it('carries ?fulltext for a periodical (landing-page model)', () => {
+  it('omits ?fulltext for a periodical matched on title/metadata (non-grouped)', () => {
+    // The global query is stamped onto every result as `fulltext`, but a plain
+    // title match is not a within-pages hit, so it must not restore an
+    // in-document search.
     const url = service.getDocumentUrl({
       model: DocumentTypeEnum.periodical,
       pid: 'uuid:root',
       fulltext: 'chochola',
     });
-    expect(url).toContain('fulltext=chochola');
+    expect(url).not.toContain('fulltext=');
   });
 
-  it('carries ?fulltext for a grouped page representative', () => {
+  it('carries ?fulltext for a grouped page representative (within-pages hit)', () => {
     const url = service.getDocumentUrl({
       model: DocumentTypeEnum.periodical,
       pid: 'uuid:root',
       fulltext: 'chochola',
       grouped: true,
+    });
+    expect(url).toContain('fulltext=chochola');
+  });
+
+  it('carries ?fulltext for an explicit document-level override regardless of grouping', () => {
+    const url = service.getDocumentUrl({
+      model: DocumentTypeEnum.periodical,
+      pid: 'uuid:root',
+      fulltextForDocument: 'chochola',
     });
     expect(url).toContain('fulltext=chochola');
   });
