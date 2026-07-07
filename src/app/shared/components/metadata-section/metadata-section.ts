@@ -363,6 +363,11 @@ export class MetadataSection implements OnInit, OnChanges {
       baseMods.ownParentPid = solrData.ownParentPid;
       baseMods.issueNumber = solrData.issueNumber;
       baseMods.issueDate = solrData.issueDate;
+      // For a periodical volume the primary `data` is the root periodical's MODS, so the
+      // volume fields must be carried over from the volume's own Solr doc, or the Volume
+      // section can't render them.
+      baseMods.volumeNumber = solrData.volumeNumber;
+      baseMods.volumeYear = solrData.volumeYear;
     }
 
     // The unit count is Solr-derived and the MODS default (0) blocks `mergeMissing`,
@@ -560,10 +565,23 @@ export class MetadataSection implements OnInit, OnChanges {
   // change, so the DOM node survives the click.
   readonly volumeItems = computed<{ label: string; value: string; clickable?: boolean }[]>(() => {
     const d = this._data();
-    if (!d?.ownParentPid) return [];
+    if (!d) return [];
+
+    const items: { label: string; value: string; clickable?: boolean }[] = [];
+
+    // When the opened document is itself the volume (periodical volume page), describe
+    // it directly from its own parsed volume fields — no parent lookup needed.
+    if (d.volumeYear || d.volumeNumber) {
+      if (d.volumeYear) items.push({ label: this.translate.instant('publication-year'), value: String(d.volumeYear) });
+      if (d.volumeNumber) items.push({ label: this.translate.instant('volume'), value: String(d.volumeNumber) });
+      return items;
+    }
+
+    // Otherwise (a child document, e.g. an issue) look up the parent volume so the
+    // publication-year item can link up to it.
+    if (!d.ownParentPid) return [];
     const vol: any = this.availableYears()?.find((y: any) => y.pid === d.ownParentPid);
     if (!vol) return [];
-    const items: { label: string; value: string; clickable?: boolean }[] = [];
     const year = vol['date.str'] ?? vol.year;
     const number = vol['part.number.str'];
     if (year) items.push({ label: this.translate.instant('publication-year'), value: String(year), clickable: true });
