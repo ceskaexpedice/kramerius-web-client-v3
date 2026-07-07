@@ -51,7 +51,7 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     code: 'cdk-dev',
     name: 'CDK (dev)',
     name_en: 'CDK (dev)',
-    logo: '',
+    logo: '/img/logo/logo.svg',
     url: 'https://cdk-api.dev.ceskadigitalniknihovna.cz',
   },
 };
