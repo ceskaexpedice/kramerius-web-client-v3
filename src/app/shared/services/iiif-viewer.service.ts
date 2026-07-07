@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { EnvironmentService } from './environment.service';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
 import { CdkSourceService } from './cdk-source.service';
@@ -150,6 +150,14 @@ export class IIIFViewerService {
   private imageLoadedSubject = new Subject<void>();
   public imageLoaded$ = this.imageLoadedSubject.asObservable();
 
+  // Fires every time ANY viewer instance raises OpenSeadragon's `open` event.
+  // Routed through setViewer() so it survives viewer re-creation — the viewer
+  // component is torn down and rebuilt (via *ngIf on loading$) during page
+  // navigation, which swaps out this.viewer. nextPageFullyLoaded$ listens here
+  // rather than binding to a single captured viewer, so it can't get stranded
+  // on a destroyed instance.
+  private viewerOpenedSubject = new Subject<void>();
+
   /**
    * Returns an observable that emits exactly once when the NEXT page open cycle
    * finishes (image fully loaded). Anchors on OpenSeadragon's `open` event so
@@ -160,14 +168,9 @@ export class IIIFViewerService {
    */
   nextPageFullyLoaded$(): Observable<void> {
     return new Observable<void>(subscriber => {
-      const viewer = this.viewer;
-      if (!viewer) {
-        subscriber.complete();
-        return;
-      }
-
       let tiledImage: OpenSeadragon.TiledImage | null = null;
       let onFullyLoaded: ((e: any) => void) | null = null;
+      let openSub: Subscription | null = null;
 
       const cleanupTiledImage = () => {
         if (tiledImage && onFullyLoaded) {
@@ -177,43 +180,57 @@ export class IIIFViewerService {
         onFullyLoaded = null;
       };
 
-      const waitForFullyLoaded = (item: OpenSeadragon.TiledImage) => {
+      const emit = () => {
+        cleanupTiledImage();
+        openSub?.unsubscribe();
+        openSub = null;
+        subscriber.next();
+        subscriber.complete();
+      };
+
+      // Wait for the given item to finish loading, then emit. If the item is
+      // swapped out of the world before it loads (e.g. direct-image fallback
+      // re-opens the viewer), ignore its late events and let the next `open`
+      // arm a fresh wait.
+      const waitForFullyLoaded = (viewer: OpenSeadragon.Viewer, item: OpenSeadragon.TiledImage) => {
         if (item.getFullyLoaded()) {
-          subscriber.next();
-          subscriber.complete();
+          emit();
           return;
         }
+        cleanupTiledImage();
         tiledImage = item;
         onFullyLoaded = (e: any) => {
-          if (e.fullyLoaded) {
-            cleanupTiledImage();
-            subscriber.next();
-            subscriber.complete();
+          if (e.fullyLoaded && viewer.world.getItemAt(0) === item) {
+            emit();
           }
         };
         item.addHandler('fully-loaded-change', onFullyLoaded);
       };
 
-      const onOpen = () => {
-        viewer.removeHandler('open', onOpen);
+      // On each `open` (from whichever viewer is currently active — the viewer
+      // can be re-created during navigation), arm a wait on the freshly opened
+      // image. Listening via the instance-independent viewerOpenedSubject keeps
+      // this from being stranded on a destroyed viewer.
+      openSub = this.viewerOpenedSubject.subscribe(() => {
+        const viewer = this.viewer;
+        if (!viewer) return;
         const item = viewer.world.getItemAt(0);
         if (item) {
-          waitForFullyLoaded(item);
+          waitForFullyLoaded(viewer, item);
         } else {
           // Image may still be in the process of being added (direct image fallback)
           const onAddItem = (e: any) => {
             viewer.world.removeHandler('add-item', onAddItem);
-            waitForFullyLoaded(e.item);
+            waitForFullyLoaded(viewer, e.item);
           };
           viewer.world.addHandler('add-item', onAddItem);
         }
-      };
-
-      viewer.addHandler('open', onOpen);
+      });
 
       return () => {
-        viewer.removeHandler('open', onOpen);
         cleanupTiledImage();
+        openSub?.unsubscribe();
+        openSub = null;
       };
     });
   }
@@ -321,6 +338,9 @@ export class IIIFViewerService {
     this.viewer = viewer;
     this.setupRectangleClickHandler();
     this.setupImageLoadedHandler();
+    // Forward this viewer's `open` events into the instance-independent stream
+    // so waiters (nextPageFullyLoaded$) survive a viewer swap on page navigation.
+    viewer.addHandler('open', () => this.viewerOpenedSubject.next());
     // Re-attach scroll lock handler on new viewer instance if zoom lock is active
     if (this.scrollLockHandler) {
       this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
