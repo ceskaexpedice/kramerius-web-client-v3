@@ -16,6 +16,10 @@
         [type]="'page'"
         [pageNumberPosition]="'left'"
         [pageNumber]="showAllPages ? (item.pageNumber?.toString() || null) : null"
+        [isLocked]="detailViewService.isPageLocked(item.pid)"
+        [isUnlocked]="detailViewService.isPageUnlocked(item.pid)"
+        [isAccessible]="detailViewService.isDocumentRestrictedButAccessible()"
+        [lockStyle]="detailViewService.pageLockStyle()"
       >
       </app-detail-page-item>
 

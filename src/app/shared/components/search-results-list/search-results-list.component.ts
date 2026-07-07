@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, ElementRef, AfterViewChecked, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, AfterViewChecked, SimpleChanges, OnChanges, inject } from '@angular/core';
 import {
   DetailPageItemComponent
 } from '../../../modules/detail-view-page/components/detail-page-item/detail-page-item.component';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { Page } from '../../models/page.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {CdkTooltipDirective} from '../../directives';
@@ -30,6 +31,8 @@ export class SearchResultsListComponent implements OnChanges, AfterViewChecked {
   @Input() allPages: Page[] = [];
 
   @Output() resultClick = new EventEmitter<SearchResult>();
+
+  public detailViewService = inject(DetailViewService);
 
   private previousPid: string | null = null;
   private shouldScroll = false;
