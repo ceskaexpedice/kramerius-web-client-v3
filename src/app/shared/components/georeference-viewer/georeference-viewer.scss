@@ -23,26 +23,4 @@
     font-size: 0.95rem;
     pointer-events: none;
   }
-
-  &__bottom-bar {
-    height: 32px;
-    padding: var(--spacing-x2) var(--spacing-x4);
-    background: var(--color-bg-base);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-x2);
-    flex: 0 0 32px;
-  }
-
-  &__opacity-label {
-    font-size: var(--font-size-small);
-    color: var(--color-text-base);
-    white-space: nowrap;
-  }
-
-  &__slider {
-    flex: 1;
-    max-width: 200px;
-  }
 }

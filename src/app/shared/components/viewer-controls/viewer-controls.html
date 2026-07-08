@@ -90,6 +90,20 @@
     <i class="icon icon-book-1" aria-hidden="true"></i>
   </button>
 
+  @if (type === 'image' && (iiifMapMode$ | async)) {
+    <div class="viewer-controls__background-removal">
+      <app-slider class="viewer-controls__background-removal-slider"
+                  [vertical]="true"
+                  [value]="backgroundRemovalPercent"
+                  [min]="0"
+                  [max]="100"
+                  [step]="1"
+                  [ariaLabel]="'viewer-controls.background-removal' | translate"
+                  (valueChange)="onBackgroundRemovalChange($event)">
+      </app-slider>
+    </div>
+  }
+
   @if (ttsService.isReading() && !aiPanelService.panelVisible()) {
     <button class="button primary" (click)="onTtsPlayPause()"
             [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate"

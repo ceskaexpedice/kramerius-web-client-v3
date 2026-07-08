@@ -714,6 +714,7 @@
   "tab-page": "Strona",
   "tab-map-view": "Pokaż na mapie",
   "georeference-viewer.opacity": "Przezroczystość",
+  "viewer-controls.background-removal": "Usuń tło",
   "page_type.unknown": "strona",
   "page_type.advertisement": "reklama",
   "page_type.backcover": "tylna okładka",

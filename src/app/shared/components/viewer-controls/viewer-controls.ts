@@ -11,11 +11,12 @@ import { AiPanelService } from '../../services/ai-panel.service';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { MapViewerService } from '../../services/map-viewer.service';
 import { TtsService } from '../../services/tts.service';
+import { SliderComponent } from '../slider/slider.component';
 
 @Component({
   selector: 'app-viewer-controls',
   standalone: true,
-  imports: [CommonModule, CdkTooltipDirective, TranslatePipe],
+  imports: [CommonModule, CdkTooltipDirective, TranslatePipe, SliderComponent],
   templateUrl: './viewer-controls.html',
   styleUrl: './viewer-controls.scss'
 })
@@ -35,6 +36,9 @@ export class ViewerControls {
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public iiifMapMode$ = this.iiifViewerService.mapMode$;
   public pdfBookMode$ = this.pdfService.properties$.pipe(map(p => !!p.bookMode));
+
+  /** Background-removal strength for the georeferenced map layer (0..100). */
+  backgroundRemovalPercent = 0;
 
   // Viewer control visibility getters
   get showZoomIn(): boolean {
@@ -201,6 +205,14 @@ export class ViewerControls {
 
   onTtsStop(): void {
     this.ttsService.stop();
+  }
+
+  onBackgroundRemovalChange(percent: number): void {
+    this.backgroundRemovalPercent = percent;
+    this.mapViewerService?.setBackgroundRemoval({
+      enabled: percent > 0,
+      threshold: percent / 100
+    });
   }
 
 }

@@ -6,15 +6,4 @@
   @if (loadError) {
     <div class="georeference-viewer__overlay">{{ loadError }}</div>
   }
-  <div class="georeference-viewer__bottom-bar">
-    <label class="georeference-viewer__opacity-label">{{ 'georeference-viewer.opacity' | translate }}</label>
-    <app-slider class="georeference-viewer__slider"
-                [value]="opacityPercent"
-                [min]="0"
-                [max]="100"
-                [step]="1"
-                [ariaLabel]="'georeference-viewer.opacity' | translate"
-                (valueChange)="onOpacityChange($event)">
-    </app-slider>
-  </div>
 </div>

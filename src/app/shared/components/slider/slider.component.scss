@@ -44,4 +44,37 @@ $slider-height: 4px;
       border: none;
     }
   }
+
+  // Vertical mode renders a normal horizontal slider rotated 90° clockwise.
+  // This keeps WebKit's symmetric thumb inset (a native `writing-mode: vertical`
+  // range has an asymmetric inset that leaves a gap at the max end), so the fill
+  // and thumb stay aligned. `rotate(90deg)` puts the max value at the bottom, so
+  // the fill grows from the top down. The host must expose its height as the
+  // rotation container (`container-type: size`) so the track length can be read
+  // via `cqh`.
+  &--vertical {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100cqh; // = host height (the visual vertical length)
+    height: $slider-height;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center;
+
+    input[type='range'] {
+      inset: 0;
+      width: 100%;
+      height: $slider-height;
+    }
+  }
+}
+
+:host {
+  display: block;
+}
+
+:host(.slider--vertical-host) {
+  container-type: size;
+  position: relative;
+  width: 20px; // thumb diameter — gives the rotated track a definite box to centre in
 }

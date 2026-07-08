@@ -1,4 +1,4 @@
-<div class="slider" [style.background]="getSliderBackground()">
+<div class="slider" [class.slider--vertical]="vertical" [style.background]="getSliderBackground()">
   <input type="range"
          [min]="min"
          [max]="max"
@@ -6,6 +6,7 @@
          [value]="value"
          (input)="onInput($any($event.target).valueAsNumber)"
          [attr.aria-label]="ariaLabel"
+         [attr.aria-orientation]="vertical ? 'vertical' : 'horizontal'"
          [attr.aria-valuemin]="min"
          [attr.aria-valuemax]="max"
          [attr.aria-valuenow]="value" />

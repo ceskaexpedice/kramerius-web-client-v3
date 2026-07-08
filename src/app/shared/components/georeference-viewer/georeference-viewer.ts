@@ -10,17 +10,15 @@ import {
   ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { Metadata } from '../../models/metadata.model';
 import { GeoreferenceService } from '../../services/georeference.service';
 import { MapViewerService } from '../../services/map-viewer.service';
-import { SliderComponent } from '../slider/slider.component';
 
 @Component({
   selector: 'app-georeference-viewer',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, SliderComponent],
+  imports: [CommonModule],
   templateUrl: './georeference-viewer.html',
   styleUrl: './georeference-viewer.scss'
 })
@@ -32,7 +30,6 @@ export class GeoreferenceViewerComponent implements OnInit, OnChanges, OnDestroy
 
   loading = true;
   loadError: string | null = null;
-  opacityPercent = 100;
 
   private destroyed = false;
   private georeferenceService = inject(GeoreferenceService);
@@ -98,7 +95,6 @@ export class GeoreferenceViewerComponent implements OnInit, OnChanges, OnDestroy
 
       await this.mapViewer.setMaps(maps);
       this.mapViewer.fitToMaps();
-      this.mapViewer.setOpacity(this.opacityPercent);
       this.loadError = null;
     } catch (err) {
       console.error('Failed to load Allmaps annotation', err);
@@ -106,8 +102,4 @@ export class GeoreferenceViewerComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
-  onOpacityChange(value: number): void {
-    this.opacityPercent = value;
-    this.mapViewer.setOpacity(value);
-  }
 }

@@ -565,6 +565,7 @@
   "tab-page": "Page",
   "tab-map-view": "Show on map",
   "georeference-viewer.opacity": "Opacity",
+  "viewer-controls.background-removal": "Remove background",
   "filters": "Filters",
   "action-confirmation-dialog--message": "Are you sure you want to execute this action?",
   "action-error": "Action failed",
