@@ -193,10 +193,16 @@ export class MetadataSection implements OnInit, OnChanges {
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
-  // Runtime licenses that the licenses config has flagged with a `providedBy` entry —
-  // these are the ones rendered in the "provided under license" metadata section.
+  // Runtime licenses rendered in the "provided under license" metadata section.
+  // A license is shown if it's open (public-domain) or flagged with `providedBy.display`
+  // in config. Every open license is collapsed to the generic `public` label so e.g.
+  // `knav_public_contract` still reads as "provided under license: public".
   providedByLicenses = computed(() => {
-    return this.runtimeLicenses().filter(id => this.configService.getLicenseConfig(id)?.providedBy?.display === true);
+    const openLicenses = new Set(this.configService.getOpenLicenses());
+    const shown = this.runtimeLicenses()
+      .filter(id => openLicenses.has(id) || this.configService.getLicenseConfig(id)?.providedBy?.display === true)
+      .map(id => (openLicenses.has(id) ? 'public' : id));
+    return [...new Set(shown)];
   });
 
   // CDK aggregator: sources (collections) for this document and the selected one.

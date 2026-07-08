@@ -41,6 +41,7 @@ import { PdfService } from '../../../shared/services/pdf.service';
 import { UserService } from '../../../shared/services/user.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
 import { ConfigService } from '../../../core/config/config.service';
+import { CdkSourceService } from '../../../shared/services/cdk-source.service';
 
 @Injectable({
   providedIn: 'root'
@@ -73,6 +74,7 @@ export class DetailViewService {
   private userService = inject(UserService);
   private recordHandlerService = inject(RecordHandlerService);
   private configService = inject(ConfigService);
+  private cdkSource = inject(CdkSourceService);
   private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
@@ -187,6 +189,10 @@ export class DetailViewService {
     this._isDocumentAccessDenied.set(false);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
+    // Clear the CDK member-library source so the next document can't inherit the
+    // previous one's code (e.g. an `svkhk` doc leaking `svkhk` into an `nkp` doc's
+    // `items/…/info` and image calls before its own source is resolved).
+    this.cdkSource.setCode(null);
     this.soundRecordingViewMode.set('records');
     this.uiStateService.setMetadataSidebarActiveTab(null);
     this.stripDetailViewOnlyParams();
