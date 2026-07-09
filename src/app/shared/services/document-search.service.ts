@@ -388,6 +388,16 @@ export class DocumentSearchService {
    */
   private fetchAndDisplayHighlights(pid: string, searchTerm: string): void {
     this.iiifViewerService.setSearchQuery(searchTerm);
+
+    // Don't request ALTO for a page the user can't access. The document is
+    // access-denied and this page hasn't been confirmed accessible, so the
+    // request would only 403 — and the ALTO clearly exists, the user just
+    // lacks permission. Fetching it would wrongly flag ALTO as unavailable.
+    if (this.detailViewService.isPageLocked(pid)) {
+      this.altoUnavailable.set(false);
+      return;
+    }
+
     this.altoService.fetchAltoXml(pid).subscribe({
       next: (altoXml) => {
         this.altoUnavailable.set(false);
@@ -402,7 +412,11 @@ export class DocumentSearchService {
       },
       error: (error) => {
         console.error('Error fetching ALTO XML for PID:', pid, error);
-        this.altoUnavailable.set(true);
+        // A 401/403 means the user lacks permission — the ALTO may well exist.
+        // Only a genuine failure (e.g. 404) means ALTO is truly unavailable, so
+        // don't show the misleading "no ALTO" message for permission errors.
+        const status = error?.status;
+        this.altoUnavailable.set(status !== 401 && status !== 403);
       }
     });
   }

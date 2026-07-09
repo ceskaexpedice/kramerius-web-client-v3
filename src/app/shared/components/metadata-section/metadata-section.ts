@@ -3,6 +3,7 @@ import { NgForOf, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
 import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
@@ -192,10 +193,16 @@ export class MetadataSection implements OnInit, OnChanges {
 
   runtimeLicenses = computed(() => this.documentInfoService.getRuntimeLicenses());
 
-  // Runtime licenses that the licenses config has flagged with a `providedBy` entry —
-  // these are the ones rendered in the "provided under license" metadata section.
+  // Runtime licenses rendered in the "provided under license" metadata section.
+  // A license is shown if it's open (public-domain) or flagged with `providedBy.display`
+  // in config. Every open license is collapsed to the generic `public` label so e.g.
+  // `knav_public_contract` still reads as "provided under license: public".
   providedByLicenses = computed(() => {
-    return this.runtimeLicenses().filter(id => this.configService.getLicenseConfig(id)?.providedBy?.display === true);
+    const openLicenses = new Set(this.configService.getOpenLicenses());
+    const shown = this.runtimeLicenses()
+      .filter(id => openLicenses.has(id) || this.configService.getLicenseConfig(id)?.providedBy?.display === true)
+      .map(id => (openLicenses.has(id) ? 'public' : id));
+    return [...new Set(shown)];
   });
 
   // CDK aggregator: sources (collections) for this document and the selected one.
@@ -271,7 +278,13 @@ export class MetadataSection implements OnInit, OnChanges {
       const urlSource = this.route.snapshot.queryParamMap.get('source');
       this.cdkCollections.set(collections);
       this.selectedCdkCollection.set(
-        pickCdkCollection(urlSource, cdkSource?.cdkLeader, collections) ?? ''
+        pickCdkCollection(
+          urlSource,
+          cdkSource?.cdkLeader,
+          collections,
+          cdkSource?.cdkLicenses ?? [],
+          this.userService.licenses,
+        ) ?? ''
       );
     } else {
       this.cdkCollections.set([]);
@@ -356,6 +369,11 @@ export class MetadataSection implements OnInit, OnChanges {
       baseMods.ownParentPid = solrData.ownParentPid;
       baseMods.issueNumber = solrData.issueNumber;
       baseMods.issueDate = solrData.issueDate;
+      // For a periodical volume the primary `data` is the root periodical's MODS, so the
+      // volume fields must be carried over from the volume's own Solr doc, or the Volume
+      // section can't render them.
+      baseMods.volumeNumber = solrData.volumeNumber;
+      baseMods.volumeYear = solrData.volumeYear;
     }
 
     // The unit count is Solr-derived and the MODS default (0) blocks `mergeMissing`,
@@ -553,10 +571,23 @@ export class MetadataSection implements OnInit, OnChanges {
   // change, so the DOM node survives the click.
   readonly volumeItems = computed<{ label: string; value: string; clickable?: boolean }[]>(() => {
     const d = this._data();
-    if (!d?.ownParentPid) return [];
+    if (!d) return [];
+
+    const items: { label: string; value: string; clickable?: boolean }[] = [];
+
+    // When the opened document is itself the volume (periodical volume page), describe
+    // it directly from its own parsed volume fields — no parent lookup needed.
+    if (d.volumeYear || d.volumeNumber) {
+      if (d.volumeYear) items.push({ label: this.translate.instant('publication-year'), value: String(d.volumeYear) });
+      if (d.volumeNumber) items.push({ label: this.translate.instant('volume'), value: String(d.volumeNumber) });
+      return items;
+    }
+
+    // Otherwise (a child document, e.g. an issue) look up the parent volume so the
+    // publication-year item can link up to it.
+    if (!d.ownParentPid) return [];
     const vol: any = this.availableYears()?.find((y: any) => y.pid === d.ownParentPid);
     if (!vol) return [];
-    const items: { label: string; value: string; clickable?: boolean }[] = [];
     const year = vol['date.str'] ?? vol.year;
     const number = vol['part.number.str'];
     if (year) items.push({ label: this.translate.instant('publication-year'), value: String(year), clickable: true });
@@ -708,6 +739,99 @@ export class MetadataSection implements OnInit, OnChanges {
       filtered[key] = this.data.identifiers[key];
     }
     return Object.keys(filtered).length > 0 ? filtered : undefined;
+  }
+
+  // Href builders — parallel to the click handlers below. These produce real
+  // navigable URLs so every clickable metadata item renders as an <a href> and
+  // can be opened in a new tab (Ctrl/Cmd/middle-click). A plain left-click is
+  // still intercepted and handled in-app by the matching `clicked*` handler.
+
+  /** Serialize a router segment array (already library-prefixed) into an href string. */
+  private routeHref(segments: any[]): string {
+    return this.router.serializeUrl(this.router.createUrlTree(segments));
+  }
+
+  /** Href for a search-results filter URL (same query string the handlers navigate to). */
+  private searchHref(url: string): string {
+    return this.searchService.getRedirectUrl(url);
+  }
+
+  authorHref = (author: Author): string => {
+    const filterName = author.nameForFilter || author.name;
+    return this.searchHref(`?fq=${facetKeysEnum.authors}:${filterName}&${facetKeysEnum.authors}_operator=OR`);
+  };
+
+  subjectNamePersonalHref = (subject: Author): string => {
+    const filterName = subject.nameForFilter || subject.name;
+    return this.searchHref(`?fq=${facetKeysEnum.subjectNamesPersonal}:${encodeURIComponent(filterName)}&${facetKeysEnum.subjectNamesPersonal}_operator=OR`);
+  };
+
+  subjectNameCorporateHref = (subject: Author): string => {
+    const filterName = subject.nameForFilter || subject.name;
+    return this.searchHref(`?fq=${facetKeysEnum.subjectNamesCorporate}:${encodeURIComponent(filterName)}&${facetKeysEnum.subjectNamesCorporate}_operator=OR`);
+  };
+
+  subjectTemporalHref = (subjectTemporal: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.subjectTemporals}:${encodeURIComponent(subjectTemporal)}&${facetKeysEnum.subjectTemporals}_operator=OR`);
+
+  languageHref = (language: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.languages}:${encodeURIComponent(language)}&${facetKeysEnum.languages}_operator=OR`);
+
+  locationHref = (location: Location): string =>
+    this.searchHref(`?fq=${facetKeysEnum.physical_locations}:${encodeURIComponent(location.physicalLocation)}&${facetKeysEnum.physical_locations}_operator=OR`);
+
+  keywordHref = (keyword: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.keywords}:${encodeURIComponent(keyword)}&${facetKeysEnum.keywords}_operator=OR`);
+
+  genreHref = (genre: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.genres}:${encodeURIComponent(genre)}&${facetKeysEnum.genres}_operator=OR`);
+
+  geoNameHref = (geoName: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.geographic_names}:${encodeURIComponent(geoName)}&${facetKeysEnum.geographic_names}_operator=OR`);
+
+  collectionHref = (collection: InCollections): string =>
+    this.routeHref(this.libraryContext.prependLibraryPrefix(['/collection', collection.uuid]));
+
+  documentTypeHref = (model: string): string =>
+    this.searchHref(`?fq=model:${encodeURIComponent(model)}`);
+
+  accessibilityHref = (accessibility: string): string =>
+    this.searchHref(`?fq=${facetKeysEnum.accessibility}:${encodeURIComponent(accessibility)}`);
+
+  /** Href for the clickable publication-year (parent periodical volume). */
+  volumeYearHref(): string | null {
+    const parentPid = this.data?.ownParentPid;
+    if (!parentPid) return null;
+    return this.routeHref(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, parentPid]));
+  }
+
+  /** Href for the title / "go to periodical" link (root periodical). */
+  periodicalHref(): string | null {
+    if (!this.isPeriodicalChild()) return null;
+    const rootPid = this._solrData()?.rootPid;
+    if (!rootPid) return null;
+    return this.routeHref(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.PERIODICAL_VIEW, rootPid]));
+  }
+
+  /** Href for the "go to monograph" link (root multivolume monograph). */
+  monographHref(): string | null {
+    if (!this.isMonographUnitDoc()) return null;
+    const rootPid = this._solrData()?.rootPid;
+    if (!rootPid) return null;
+    return this.routeHref(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.MONOGRAPH_VIEW, rootPid]));
+  }
+
+  /**
+   * Intercept a left-click on a link that navigates in-app: run the SPA handler
+   * and prevent the default full navigation. Modifier / middle clicks fall
+   * through so the browser opens the href in a new tab/window as usual.
+   */
+  handleLinkNav(event: MouseEvent, run: () => void): void {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    run();
   }
 
   // Click handlers

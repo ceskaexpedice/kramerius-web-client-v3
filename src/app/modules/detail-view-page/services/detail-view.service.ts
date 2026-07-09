@@ -41,6 +41,7 @@ import { PdfService } from '../../../shared/services/pdf.service';
 import { UserService } from '../../../shared/services/user.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
 import { ConfigService } from '../../../core/config/config.service';
+import { CdkSourceService } from '../../../shared/services/cdk-source.service';
 
 @Injectable({
   providedIn: 'root'
@@ -73,6 +74,7 @@ export class DetailViewService {
   private userService = inject(UserService);
   private recordHandlerService = inject(RecordHandlerService);
   private configService = inject(ConfigService);
+  private cdkSource = inject(CdkSourceService);
   private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
@@ -110,10 +112,12 @@ export class DetailViewService {
   });
 
   constructor() {
-    // Latch isDocumentAccessDenied as soon as the document metadata is available.
-    // Uses only static document-level licenses so the latch is set before any page
-    // loads — preventing the first page's runtime license from unlocking all grid pages.
+    // Re-evaluate isDocumentAccessDenied whenever the document metadata is available
+    // OR the user's licenses change (e.g. after login). Uses only static document-level
+    // licenses so the flag is set before any page loads — preventing the first page's
+    // runtime license from unlocking all grid pages.
     effect(() => {
+      this.userService.licenses$(); // re-run when licenses change (login/logout)
       if (this.documentSignal()) {
         this.updateDocumentAccessDenied();
       }
@@ -185,6 +189,10 @@ export class DetailViewService {
     this._isDocumentAccessDenied.set(false);
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
+    // Clear the CDK member-library source so the next document can't inherit the
+    // previous one's code (e.g. an `svkhk` doc leaking `svkhk` into an `nkp` doc's
+    // `items/…/info` and image calls before its own source is resolved).
+    this.cdkSource.setCode(null);
     this.soundRecordingViewMode.set('records');
     this.uiStateService.setMetadataSidebarActiveTab(null);
     this.stripDetailViewOnlyParams();
@@ -251,9 +259,9 @@ export class DetailViewService {
   }
 
   /**
-   * Sticky signal: set to true once the initial page-info load confirms the document is
-   * access-denied. Never flips back to false during per-page loads — only reset by resetState().
-   * This prevents the lock overlay from blinking when navigating between pages.
+   * True when the document is access-denied for the current user. Evaluated from static
+   * document-level licenses only, so it stays stable during per-page loads (no lock blinking
+   * when navigating between pages). Re-evaluated when the user's licenses change (login/logout).
    */
   private _isDocumentAccessDenied = signal<boolean>(false);
   readonly isDocumentAccessDenied = this._isDocumentAccessDenied.asReadonly();
@@ -287,23 +295,21 @@ export class DetailViewService {
   });
 
   /**
-   * Called after every loadPageInfo() response. Latches the denied flag on first confirmation
-   * and never un-latches it (individual page unlocks are tracked via _pageAccessMap instead).
+   * Re-evaluates whether the document is access-denied. Runs when document metadata arrives
+   * and whenever the user's licenses change (e.g. after login), so gaining access clears the
+   * flag and unlocks the grid without requiring a full page reload.
    *
    * Uses only static document-level licenses to determine restricted access — NOT the per-page
    * runtime providedByLicenses. This prevents the first accessible page's runtime license from
    * making the document appear fully open on initial load.
    */
   updateDocumentAccessDenied(): void {
-    if (this._isDocumentAccessDenied()) return; // already latched, nothing to do
     const doc = this.documentSignal();
     if (!doc) return;
     const licences = doc.licences ?? [];
     const isPublic = this.recordHandlerService.isRecordPublic(licences);
     const userHasAccess = this.userService.hasAnyLicense(licences);
-    if (!isPublic && !userHasAccess) {
-      this._isDocumentAccessDenied.set(true);
-    }
+    this._isDocumentAccessDenied.set(!isPublic && !userHasAccess);
   }
 
   /**

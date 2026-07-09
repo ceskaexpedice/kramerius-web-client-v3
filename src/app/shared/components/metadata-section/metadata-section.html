@@ -25,13 +25,16 @@
   <!-- Title -->
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
-    <h2 [class.clickable-title]="isPeriodicalChild()"
-        [attr.role]="isPeriodicalChild() ? 'link' : null"
-        [attr.tabindex]="isPeriodicalChild() ? 0 : null"
-        [appCdkTooltip]="isPeriodicalChild() ? ('go-to-volume--tooltip' | translate) : ''"
-        [tooltipPosition]="'bottom'"
-        (click)="clickedTitle()"
-        (keydown.enter)="clickedTitle()">{{ localizedMainTitle }}</h2>
+    @if (isPeriodicalChild() && periodicalHref(); as href) {
+      <a class="title-link"
+         [href]="href"
+         [appCdkTooltip]="'go-to-volume--tooltip' | translate"
+         [tooltipPosition]="'bottom'"
+         (click)="handleLinkNav($event, clickedTitle.bind(this))"
+         (keydown.enter)="clickedTitle()"><h2 class="clickable-title">{{ localizedMainTitle }}</h2></a>
+    } @else {
+      <h2>{{ localizedMainTitle }}</h2>
+    }
     <app-collapsible-content *ngIf="localizedTitles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="localizedTitles.length">
       <div class="titles--container" *ngFor="let title of localizedTitles">
@@ -43,19 +46,21 @@
   }
 
   <!-- Link back to the root multivolume monograph (only for monograph units) -->
-  @if (isMonographUnitDoc()) {
-  <button type="button" class="go-to-parent" (click)="goToMonograph()">
+  @if (isMonographUnitDoc() && monographHref(); as href) {
+  <a class="go-to-parent" [href]="href"
+     (click)="handleLinkNav($event, goToMonograph.bind(this))">
     <span>{{ 'go-to-monograph' | translate }}</span>
     <i class="icon-export-1" aria-hidden="true"></i>
-  </button>
+  </a>
   }
 
   <!-- Link up to the periodical (only for periodical children) -->
-  @if (isPeriodicalChild()) {
-  <button type="button" class="go-to-parent" (click)="clickedTitle()">
+  @if (isPeriodicalChild() && periodicalHref(); as href) {
+  <a class="go-to-parent" [href]="href"
+     (click)="handleLinkNav($event, clickedTitle.bind(this))">
     <span>{{ 'go-to-periodical' | translate }}</span>
     <i class="icon-export-1" aria-hidden="true"></i>
-  </button>
+  </a>
   }
 
   <!-- ISSN (standalone, right under title) -->
@@ -69,6 +74,7 @@
   <!-- Authors -->
   <app-metadata-section-item *ngIf="data.authors.length" [label]="'authors' | translate"
     type="clickable-list" [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
+    [itemHref]="authorHref"
     [maxItems]="authorsDisplayLimit"
     [headerActionLabel]="'authors-dialog--details-button' | translate"
     [headerActionClick]="openAuthorsDialog.bind(this)"
@@ -142,9 +148,10 @@
 
   <!-- Volume (Ročník) - publication year links to the parent periodical volume -->
   <ng-template #volumeItemTpl let-item>
-    @if (item.clickable) {
-      <a class="volume-year-link" role="link" tabindex="0"
-         (click)="clickedVolumeYear()" (keydown.enter)="clickedVolumeYear()">{{ item.label }}: {{ item.value }}</a>
+    @if (item.clickable && volumeYearHref(); as href) {
+      <a class="volume-year-link" [href]="href"
+         (click)="handleLinkNav($event, clickedVolumeYear.bind(this))"
+         (keydown.enter)="clickedVolumeYear()">{{ item.label }}: {{ item.value }}</a>
     } @else {
       {{ item.label }}: {{ item.value }}
     }
@@ -167,18 +174,18 @@
 
   <!-- Genres -->
   <app-metadata-section-item *ngIf="data.genres.length" [label]="'genres' | translate" type="clickable-list"
-    [items]="data.genres" [onItemClick]="clickedGenre">
+    [items]="data.genres" [onItemClick]="clickedGenre" [itemHref]="genreHref">
   </app-metadata-section-item>
 
   <!-- Geographic names -->
   <app-metadata-section-item *ngIf="data.geonames.length" [label]="'geonames' | translate" type="clickable-list"
-    [items]="data.geonames" [disableTranslate]="true" [onItemClick]="clickedGeoName">
+    [items]="data.geonames" [disableTranslate]="true" [onItemClick]="clickedGeoName" [itemHref]="geoNameHref">
   </app-metadata-section-item>
 
   <!-- Collections -->
   <app-metadata-section-item *ngIf="data.inCollections.length" [label]="'collections' | translate" type="clickable-list"
     [items]="data.inCollections" [showListBullets]="true" [disableTranslate]="true" [displayFn]="getCollectionName"
-    [onItemClick]="clickedCollection">
+    [onItemClick]="clickedCollection" [itemHref]="collectionHref">
   </app-metadata-section-item>
 
   @if (childData) {
@@ -212,19 +219,20 @@
 
       <!-- Authors -->
       <app-metadata-section-item *ngIf="childData.authors.length" [label]="'author' | translate" type="clickable-list"
-        [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
+        [items]="childData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor" [itemHref]="authorHref"
         [itemSuffixTpl]="authorIdentifiersTpl">
       </app-metadata-section-item>
 
       <!-- Languages -->
       <app-metadata-section-item *ngIf="childData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="childData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="childData.languages" translateNamespace="language" [onItemClick]="clickedLanguage"
+        [itemHref]="languageHref">
       </app-metadata-section-item>
 
       <!-- Locations -->
       <app-metadata-section-item *ngIf="childData.locations.length" [label]="'locations' | translate"
         type="clickable-list" [items]="childData.locations" [displayFn]="getLocationLabel" [showListBullets]="true"
-        [disableTranslate]="true" [onItemClick]="clickedLocation">
+        [disableTranslate]="true" [onItemClick]="clickedLocation" [itemHref]="locationHref">
       </app-metadata-section-item>
 
       <!-- Notes -->
@@ -260,7 +268,7 @@
       <!-- Authors -->
       <app-metadata-section-item *ngIf="articleData.authors.length" [label]="'author' | translate"
         type="clickable-list" [items]="articleData.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
-        [maxItems]="authorsDisplayLimit" [itemSuffixTpl]="authorIdentifiersTpl">
+        [itemHref]="authorHref" [maxItems]="authorsDisplayLimit" [itemSuffixTpl]="authorIdentifiersTpl">
       </app-metadata-section-item>
 
 
@@ -277,7 +285,8 @@
 
       <!-- Language -->
       <app-metadata-section-item *ngIf="articleData.languages.length" [label]="'languages' | translate"
-        type="clickable-list" [items]="articleData.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
+        type="clickable-list" [items]="articleData.languages" translateNamespace="language" [onItemClick]="clickedLanguage"
+        [itemHref]="languageHref">
       </app-metadata-section-item>
 
       <app-metadata-section-item *ngIf="articleData.extent" [label]="'range--label' | translate" type="text"
@@ -290,18 +299,18 @@
 
   <!-- Languages -->
   <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
-    [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage">
+    [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage" [itemHref]="languageHref">
   </app-metadata-section-item>
 
   <!-- Locations -->
   <app-metadata-section-item *ngIf="data.locations.length" [label]="'locations' | translate" type="clickable-list"
     [items]="data.locations" [displayFn]="getLocationLabel" [showListBullets]="true" [disableTranslate]="true"
-    [onItemClick]="clickedLocation">
+    [onItemClick]="clickedLocation" [itemHref]="locationHref">
   </app-metadata-section-item>
 
   <!-- Keywords -->
   <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [showListBullets]="true" [collapsible]="true"
-    type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword">
+    type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword" [itemHref]="keywordHref">
   </app-metadata-section-item>
 
   <!-- Physical Description -->
@@ -317,18 +326,19 @@
   <!-- Subject Names (Personal) -->
   <app-metadata-section-item *ngIf="data.subjectNamesPersonal.length" [label]="'subject-names-personal' | translate"
     type="clickable-list" [items]="data.subjectNamesPersonal" [displayFn]="getAuthorName"
-    [onItemClick]="clickedSubjectNamePersonal">
+    [onItemClick]="clickedSubjectNamePersonal" [itemHref]="subjectNamePersonalHref">
   </app-metadata-section-item>
 
   <!-- Subject Names (Corporate) -->
   <app-metadata-section-item *ngIf="data.subjectNamesCorporate.length" [label]="'subject-names-corporate' | translate"
     type="clickable-list" [items]="data.subjectNamesCorporate" [displayFn]="getAuthorName"
-    [onItemClick]="clickedSubjectNameCorporate">
+    [onItemClick]="clickedSubjectNameCorporate" [itemHref]="subjectNameCorporateHref">
   </app-metadata-section-item>
 
   <!-- Subject Temporals -->
   <app-metadata-section-item *ngIf="data.subjectTemporals.length" [label]="'subject-temporals' | translate"
-    type="clickable-list" [items]="data.subjectTemporals" [onItemClick]="clickedSubjectTemporal">
+    type="clickable-list" [items]="data.subjectTemporals" [onItemClick]="clickedSubjectTemporal"
+    [itemHref]="subjectTemporalHref">
   </app-metadata-section-item>
 
   <app-metadata-section-item *ngIf="data.contents.length" [label]="'content' | translate" [collapsible]="true"

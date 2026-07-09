@@ -77,8 +77,8 @@ export class RecordHandlerService {
 
   getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; fulltextForDocument?: string | null; grouped?: boolean }): string {
     const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument, grouped } = opts;
-    // Only pages carry the search term in the URL; other models navigate
-    // without it.
+    // Only pages carry the search term inside getHandleDocumentUrlByModelAndPid
+    // (as a ?fulltext next to ?page). Other models get the term appended below.
     const pageFulltext = model === DocumentTypeEnum.page ? fulltext : null;
     let url: string;
     if ((model === DocumentTypeEnum.page || model === DocumentTypeEnum.article) && ownParentPid) {
@@ -86,41 +86,24 @@ export class RecordHandlerService {
     } else {
       url = this.getHandleDocumentUrlByModelAndPid(model, pid);
     }
-    // Grouped page representatives navigate to the root document without the
-    // search term, so the viewer doesn't jump to a single occurrence.
-    if (pageFulltext && !grouped && !url.includes('fulltext=')) {
-      const sep = url.includes('?') ? '&' : '?';
-      url += `${sep}fulltext=${encodeURIComponent(pageFulltext)}`;
-    }
-    // Document-level fulltext override (e.g. a folder/search query that should be
-    // re-run inside the opened document). Applies to models that open in the
-    // detail view; models routing elsewhere (collection, periodical, sound,
-    // convolute) don't support in-document search, so the term is dropped.
-    const term = fulltextForDocument?.trim();
-    if (term && !grouped && !url.includes('fulltext=') && this.supportsInDocumentSearch(model)) {
+    // Forward the search term as ?fulltext only when it actually came from
+    // searching *within* the pages, so the opened view can re-run the in-document
+    // query. Two cases qualify:
+    //   1. An explicit document-level override (fulltextForDocument), e.g. the
+    //      active folder/query on the saved-lists page.
+    //   2. A grouped page representative — the record matched on page fulltext.
+    // A plain title/metadata match from a global search (grouped is falsy) must
+    // NOT carry the term: the record's own `fulltext` is just the global query
+    // stamped onto every result, and forwarding it would wrongly restore an
+    // in-document search the user never ran (e.g. clicking a periodical whose
+    // title matched).
+    const override = fulltextForDocument?.trim();
+    const term = override || (grouped ? fulltext?.trim() : undefined);
+    if (term && !url.includes('fulltext=')) {
       const sep = url.includes('?') ? '&' : '?';
       url += `${sep}fulltext=${encodeURIComponent(term)}`;
     }
     return url;
-  }
-
-  /**
-   * Whether a model opens in the detail view (where in-document fulltext search
-   * is available). Models that route to their own landing page — periodical,
-   * periodical volume, sound recording, collection, convolute — don't carry a
-   * document-level fulltext term. Mirrors getHandleDocumentUrlByModelAndPid.
-   */
-  private supportsInDocumentSearch(model: string): boolean {
-    switch (model) {
-      case DocumentTypeEnum.periodical:
-      case DocumentTypeEnum.periodicalvolume:
-      case DocumentTypeEnum.soundrecording:
-      case DocumentTypeEnum.collection:
-      case DocumentTypeEnum.convolute:
-        return false;
-      default:
-        return true;
-    }
   }
 
   getHandleDocumentUrlByModelAndPid(model: string, pid: string, rootPid: string | null = null, ownParentModel: string | null = null, fulltext: string | null = null): string {
@@ -688,11 +671,15 @@ export class RecordHandlerService {
    * If any item in the provided array should show a badge, all items get the 'with-badge' class
    */
   periodicalYearToRecordItemWithBadgeLayout(year: PeriodicalItemYear, allYears: PeriodicalItemYear[]): RecordItem {
+    const partNumberStr = year['part.number.str'];
+    const partNumber = partNumberStr != null && partNumberStr !== '' ? parseInt(partNumberStr, 10) : undefined;
+
     const recordItem: RecordItem = {
       id: year.pid,
       title: year.year,
       model: year.model as DocumentTypeEnum,
       licenses: year.licenses || [],
+      partNumber: Number.isNaN(partNumber as number) ? undefined : partNumber,
       className: 'card--fluid',
       showFavoriteButton: true,
       showAccessibilityBadge: true

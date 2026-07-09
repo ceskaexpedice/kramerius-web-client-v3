@@ -31,13 +31,28 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
+// Config file name handled by resolveConfigFile / the /ui-config API.
+type ConfigFileName = 'config-main' | 'config-licenses' | 'config-homepage';
+
+// Maps a local config file name to its /ui-config API endpoint. The API
+// returns the same shapes the local loader already expects:
+//   general       → config-main.json     (app, api, i18n, pages, viewer, ...)
+//   licenses      → config-licenses.json  ({ _defaults, licenses: [...] })
+//   curator-lists → config-homepage.json  ({ title, subtitle, sections })
+const API_CONFIG_ENDPOINTS: Record<ConfigFileName, string> = {
+  'config-main': 'general',
+  'config-licenses': 'licenses',
+  'config-homepage': 'curator-lists',
+};
+
 // Libraries not in the central registry but available as dev/testing instances.
-export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string; name_en: string; logo: string; url: string }> = {
+export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string; name_en: string; logo: string; url: string; alive: boolean }> = {
   'inovatika-k7': {
     code: 'inovatika-k7',
     name: 'Inovatika K7 (dev)',
     name_en: 'Inovatika K7 (dev)',
-    logo: '',
+    logo: '/img/logo/inovatika-logo.png',
+    alive: true,
     url: 'https://k7.inovatika.dev/',
   },
   'trinera-k7': {
@@ -45,13 +60,15 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
     name: 'Trinera K7 (dev)',
     name_en: 'Trinera K7 (dev)',
     logo: '/img/logo/logo-trinera-symbol.png',
+    alive: true,
     url: 'https://kramerius.k7.trinera.cloud',
   },
   'cdk-dev': {
     code: 'cdk-dev',
     name: 'CDK (dev)',
     name_en: 'CDK (dev)',
-    logo: '',
+    logo: '/img/logo.svg',
+    alive: true,
     url: 'https://cdk-api.dev.ceskadigitalniknihovna.cz',
   },
 };
@@ -77,14 +94,61 @@ export class ConfigService {
   }
 
   /**
-   * Single seam for fetching a config file. Today it reads the flat local-config
-   * dir. FUTURE: configs move to an API — the resolver will fetch from the API
-   * and, when a local file for the same name exists, the LOCAL file wins as a
-   * whole (per-file override, no merge). Keep that switch isolated here.
+   * Single seam for fetching a config file. Resolution rules (local always
+   * wins when present):
+   *
+   *   API enabled  + local file present → local file (overrides API)
+   *   API enabled  + no local file      → API
+   *   API disabled + local file present → local file
+   *   API disabled + no local file      → not found → caller uses defaults /
+   *                                        (for config-main) fails to boot
+   *
+   * API loading is opt-in via EnvironmentService (useApiConfig + apiConfigBaseUrl),
+   * so the default deployment behaves exactly as before (local-config only).
    */
-  private resolveConfigFile(name: 'config-main' | 'config-licenses' | 'config-homepage'): Promise<Response> {
+  private async resolveConfigFile(name: ConfigFileName): Promise<Response> {
+    const local = await this.fetchLocalConfig(name);
+    if (local.ok) return local;
+
+    if (this.isApiConfigEnabled()) {
+      const apiResponse = await this.fetchApiConfig(name);
+      if (apiResponse) return apiResponse;
+    }
+
+    // Nothing available: hand back the (non-OK) local response so existing
+    // callers keep their current not-found handling.
+    return local;
+  }
+
+  private fetchLocalConfig(name: ConfigFileName): Promise<Response> {
     const timestamp = Date.now();
     return fetch(`local-config/${name}.json?t=${timestamp}`);
+  }
+
+  /** API config loading is enabled and a base URL is configured. */
+  private isApiConfigEnabled(): boolean {
+    return this.envService.isApiConfigEnabled() && !!this.envService.getApiConfigBaseUrl();
+  }
+
+  /**
+   * Fetch a config file from the /ui-config API. Returns null (→ no API config)
+   * when the request fails, returns a non-OK status, or has an empty body
+   * (the API answers 200 with an empty body when a config is not populated).
+   */
+  private async fetchApiConfig(name: ConfigFileName): Promise<Response | null> {
+    const base = this.envService.getApiConfigBaseUrl().replace(/\/+$/, '');
+    const endpoint = API_CONFIG_ENDPOINTS[name];
+    const timestamp = Date.now();
+    try {
+      const response = await fetch(`${base}/ui-config/${endpoint}?t=${timestamp}`);
+      if (!response.ok) return null;
+      const text = await response.text();
+      if (!text.trim()) return null;
+      return new Response(text, { headers: { 'Content-Type': 'application/json' } });
+    } catch (err) {
+      console.warn(`ConfigService: Failed to load '${endpoint}' from API.`, err);
+      return null;
+    }
   }
 
   /**

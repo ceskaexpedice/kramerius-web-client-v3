@@ -8,4 +8,15 @@ export const environment = {
   environmentName: 'deployed (branch main)', // pro produkci ziskej z promenne APP_ENV_NAME (přes env.json)
   environmentCode: 'd_m', // pro produkci ziskej z promenne APP_ENV_CODE (přes env.json)
 
+  // --- UI config from API (/ui-config/*) ---
+  // When true, ConfigService tries to load config-main/licenses/homepage from
+  // the Kramerius client API. A local-config file, when present, still wins.
+  // Default false → behaves exactly like before (local-config only).
+  // Pro produkci ziskej z promenne APP_USE_API_CONFIG (přes env.json).
+  useApiConfig: true,
+  // Base URL of the client API incl. version, e.g.
+  // https://.../search/api/client/v7.0 (no trailing /ui-config).
+  // Pro produkci: APP_API_CONFIG_BASE_URL.
+  apiConfigBaseUrl: '',
+
 };

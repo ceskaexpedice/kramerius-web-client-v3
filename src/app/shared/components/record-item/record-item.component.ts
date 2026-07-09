@@ -176,6 +176,13 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   }
 
   getSubtitle(): string {
+    // Periodical volumes read e.g. "Ročník 1": the localized model label followed
+    // by the volume number (from `part.number.sort`). Resolved at render time so it
+    // follows language changes, like the title/collection handling above.
+    if (this.item?.model === DocumentTypeEnum.periodicalvolume && this.item.partNumber != null) {
+      const label = this.translateService.instant(DocumentTypeEnum.periodicalvolume);
+      return `${label} ${this.item.partNumber}`;
+    }
     return this.item?.subtitle || '';
   }
 

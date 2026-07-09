@@ -99,6 +99,18 @@ app-collapsible-content {
         text-decoration: none;
       }
     }
+
+    // Item rendered as a real link (openable in a new tab). Inherit the list
+    // item's color/underline so it looks identical to the button variant.
+    a.item-link {
+      color: inherit;
+      text-decoration: inherit;
+
+      &:focus-visible {
+        outline: none;
+        color: var(--color-primary);
+      }
+    }
   }
 }
 
@@ -108,6 +120,8 @@ app-collapsible-content {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-x1);
+  color: inherit;
+  text-decoration: none;
   padding: var(--spacing-x05) var(--spacing-x1);
   border: 1px solid var(--color-border-bright);
   border-radius: var(--spacing-x1);

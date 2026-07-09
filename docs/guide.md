@@ -16,6 +16,7 @@ chce klienta provozovat nad **svým** Krameriem.
 
 - [Předpoklady](#předpoklady)
 - [Konfigurační soubory](#konfigurační-soubory)
+  - [Načítání konfigurace z API](#načítání-konfigurace-z-api-volitelné)
 - [Varianta A — spuštění přes Docker](#varianta-a--spuštění-přes-docker)
 - [Varianta B — spuštění z naklonovaného projektu](#varianta-b--spuštění-z-naklonovaného-projektu)
 - [Postup pro knihovnu XY](#postup-pro-knihovnu-xy)
@@ -58,6 +59,37 @@ Formát každého souboru je podrobně popsaný v [`docs/config/`](config/):
 
 **Povinný je pouze `config-main.json`.** Ostatní soubory a jednotlivá chybějící
 pole se doplní vestavěnými výchozími hodnotami.
+
+### Načítání konfigurace z API (volitelné)
+
+Trojici konfiguračních souborů (`config-main`, `config-licenses`,
+`config-homepage`) lze místo z `local-config/` načítat z Kramerius API přes
+endpointy `/ui-config/*`:
+
+| Lokální soubor | API endpoint |
+|---|---|
+| `config-main.json` | `{apiConfigBaseUrl}/ui-config/general` |
+| `config-licenses.json` | `{apiConfigBaseUrl}/ui-config/licenses` |
+| `config-homepage.json` | `{apiConfigBaseUrl}/ui-config/curator-lists` |
+
+API vrací **stejné tvary**, jaké očekává lokální loader, takže se nic
+netransformuje. Načítání z API je **vypnuté ve výchozím stavu** — zapíná se
+runtime konfigurací (env proměnné v Dockeru, viz níže; nebo `environment.ts` pro
+lokální vývoj).
+
+**Pravidla priority (lokální soubor vždy vyhrává, když existuje):**
+
+| API zapnuté | soubor v `local-config/` | použije se |
+|---|---|---|
+| ano | existuje | **lokální** (přepíše API) |
+| ano | chybí | **API** |
+| ne | existuje | **lokální** |
+| ne | chybí | nic → chyba (u `config-main` aplikace nenaběhne) |
+
+Takže s prázdným `local-config/` (bez JSON souborů) a zapnutým API klient
+naběhne kompletně z API. **Adresu backendu si aplikace vezme z `api.baseUrl`
+uvnitř konfigurace vrácené z API** (endpoint `general`) — ne z proměnné
+`apiConfigBaseUrl`, ta určuje jen, odkud se čte samotná konfigurace.
 
 ### Minimální `config-main.json`
 
@@ -167,6 +199,10 @@ docker compose down       # zastaví
 | Proměnná | Výchozí | Popis |
 |---|---:|---|
 | `APP_DEV_MODE` | `true` | Zapíná/vypíná vývojový režim. |
+| `APP_USE_API_CONFIG` | `false` | Zapne načítání konfigurace z API (`/ui-config/*`). Lokální soubor v `local-config/`, pokud existuje, má stále přednost. |
+| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. Odkud se čtou `/ui-config/*`. |
+
+> Viz [Načítání konfigurace z API](#načítání-konfigurace-z-api-volitelné).
 
 ---
 

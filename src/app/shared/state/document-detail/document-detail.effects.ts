@@ -15,6 +15,7 @@ import { ROUTER_NAVIGATED } from '@ngrx/router-store';
 import { selectRouterUrl, selectRouterQueryParams } from '../router/router.selectors';
 import { pickCdkCollection } from '../../utils/cdk-collection';
 import { LibraryContextService } from '../../services/library-context.service';
+import { UserService } from '../../services/user.service';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -25,6 +26,7 @@ export class DocumentDetailEffects {
     private router: Router,
     private libraryContext: LibraryContextService,
     private modsParser: ModsParserService,
+    private userService: UserService,
   ) {
   }
 
@@ -82,6 +84,8 @@ export class DocumentDetailEffects {
           queryParams?.['source'],
           detailItem?.['cdk.leader'],
           collections,
+          detailItem?.['cdk.licenses'] ?? [],
+          this.userService.licenses,
         );
         // Fetch the document's own MODS and (when distinct) its root's MODS.
         // The toolbar title comes from the root's MODS — e.g. a periodical

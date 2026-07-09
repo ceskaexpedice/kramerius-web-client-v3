@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, ElementRef, AfterViewChecked, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, AfterViewChecked, SimpleChanges, OnChanges, inject } from '@angular/core';
 import {
   DetailPageItemComponent
 } from '../../../modules/detail-view-page/components/detail-page-item/detail-page-item.component';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { Page } from '../../models/page.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {CdkTooltipDirective} from '../../directives';
@@ -31,6 +32,8 @@ export class SearchResultsListComponent implements OnChanges, AfterViewChecked {
 
   @Output() resultClick = new EventEmitter<SearchResult>();
 
+  public detailViewService = inject(DetailViewService);
+
   private previousPid: string | null = null;
   private shouldScroll = false;
 
@@ -43,7 +46,7 @@ export class SearchResultsListComponent implements OnChanges, AfterViewChecked {
    */
   get displayItems(): DisplayItem[] {
     if (!this.showAllPages) {
-      return this.results;
+      return this.sortByPageNumber(this.results);
     }
 
     const resultsMap = new Map<string, SearchResult>();
@@ -51,7 +54,7 @@ export class SearchResultsListComponent implements OnChanges, AfterViewChecked {
       resultsMap.set(result.pid, result);
     });
 
-    return this.allPages.map(page => {
+    const items = this.allPages.map(page => {
       const searchResult = resultsMap.get(page.pid);
       return {
         pid: page.pid,
@@ -59,6 +62,28 @@ export class SearchResultsListComponent implements OnChanges, AfterViewChecked {
         pageNumber: searchResult?.pageNumber || page['page.number'],
         page: page
       };
+    });
+
+    return this.sortByPageNumber(items);
+  }
+
+  private sortByPageNumber<T extends { pageNumber?: string }>(items: T[]): T[] {
+    return [...items].sort((a, b) => {
+      const aNum = Number(a.pageNumber);
+      const bNum = Number(b.pageNumber);
+      const aValid = !Number.isNaN(aNum);
+      const bValid = !Number.isNaN(bNum);
+
+      if (aValid && bValid) {
+        return aNum - bNum;
+      }
+      if (aValid) {
+        return -1;
+      }
+      if (bValid) {
+        return 1;
+      }
+      return (a.pageNumber || '').localeCompare(b.pageNumber || '');
     });
   }
 

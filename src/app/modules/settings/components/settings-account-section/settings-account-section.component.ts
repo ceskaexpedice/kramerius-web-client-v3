@@ -27,11 +27,13 @@ export class SettingsAccountSectionComponent {
 
   async openAuthDataDialog() {
     const data = this.authService.getRawUserSession();
-    const apiVersion = await this.versionService.getApiVersion();
+    const { version: apiVersion, indexerVersion, baseApiUrl } = await this.versionService.getApiInfo();
 
     const payload = {
       clientVersion: this.versionService.getClientVersion(),
       apiVersion,
+      indexerVersion,
+      baseApiUrl,
       ...data,
     };
 

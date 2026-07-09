@@ -36,7 +36,7 @@
   <div class="page--item__lock locked" [class]="'page--item__lock locked style-' + lockStyle" *ngIf="isLocked">
     <i [class]="lockStyle === 'dnntt' ? 'icon-in-house' : 'icon-locked'"></i>
   </div>
-  <div [class]="'page--item__lock unlocked style-' + lockStyle" *ngIf="isAccessible">
+  <div [class]="'page--item__lock unlocked style-' + lockStyle" *ngIf="isUnlocked || isAccessible">
     <i class="icon-open-lock"></i>
   </div>
 
