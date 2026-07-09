@@ -73,9 +73,10 @@ endpointy `/ui-config/*`:
 | `config-homepage.json` | `{apiConfigBaseUrl}/ui-config/curator-lists` |
 
 API vrací **stejné tvary**, jaké očekává lokální loader, takže se nic
-netransformuje. Načítání z API je **vypnuté ve výchozím stavu** — zapíná se
-runtime konfigurací (env proměnné v Dockeru, viz níže; nebo `environment.ts` pro
-lokální vývoj).
+netransformuje. Načítání z API se **zapíná nastavením `apiConfigBaseUrl`**
+(env proměnná `APP_API_CONFIG_BASE_URL` v Dockeru, viz níže; nebo
+`environment.ts` pro lokální vývoj) — žádný samostatný přepínač není. Prázdná
+hodnota → jen `local-config`, jako dřív.
 
 **Pravidla priority (lokální soubor vždy vyhrává, když existuje):**
 
@@ -85,6 +86,12 @@ lokální vývoj).
 | ano | chybí | **API** |
 | ne | existuje | **lokální** |
 | ne | chybí | nic → chyba (u `config-main` aplikace nenaběhne) |
+
+> **Force režim.** S `APP_FORCE_API_CONFIG=true` (resp. `forceApiConfig: true`
+> v `environment.ts`) se `local-config/` ignoruje úplně — konfigurace se čte
+> **jen z API**, i když lokální soubory existují. Priorita výše se neuplatní.
+> Vhodné pro nasazení, které `local-config/` JSON vůbec neobsahuje. Pokud API
+> pro `config-main` nic nevrátí, aplikace nenaběhne.
 
 Takže s prázdným `local-config/` (bez JSON souborů) a zapnutým API klient
 naběhne kompletně z API. **Adresu backendu si aplikace vezme z `api.baseUrl`
@@ -199,8 +206,8 @@ docker compose down       # zastaví
 | Proměnná | Výchozí | Popis |
 |---|---:|---|
 | `APP_DEV_MODE` | `true` | Zapíná/vypíná vývojový režim. |
-| `APP_USE_API_CONFIG` | `false` | Zapne načítání konfigurace z API (`/ui-config/*`). Lokální soubor v `local-config/`, pokud existuje, má stále přednost. |
-| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. Odkud se čtou `/ui-config/*`. |
+| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. Odkud se čtou `/ui-config/*`. **Nastavení této proměnné zapíná načítání z API** (žádný samostatný přepínač). Lokální soubor v `local-config/`, pokud existuje, má stále přednost. Prázdné → jen `local-config`. |
+| `APP_FORCE_API_CONFIG` | `false` | Načítá konfiguraci **výhradně** z API a `local-config/` úplně přeskočí (i když soubory existují). Pro nasazení bez `local-config`. Vyžaduje `APP_API_CONFIG_BASE_URL`. |
 
 > Viz [Načítání konfigurace z API](#načítání-konfigurace-z-api-volitelné).
 

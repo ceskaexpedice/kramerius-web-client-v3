@@ -94,19 +94,29 @@ export class ConfigService {
   }
 
   /**
-   * Single seam for fetching a config file. Resolution rules (local always
-   * wins when present):
+   * Single seam for fetching a config file. Resolution rules:
    *
+   *   forceApiConfig on               → API only (local-config skipped entirely)
    *   API enabled  + local file present → local file (overrides API)
    *   API enabled  + no local file      → API
    *   API disabled + local file present → local file
    *   API disabled + no local file      → not found → caller uses defaults /
    *                                        (for config-main) fails to boot
    *
-   * API loading is opt-in via EnvironmentService (useApiConfig + apiConfigBaseUrl),
-   * so the default deployment behaves exactly as before (local-config only).
+   * API loading is enabled simply by setting apiConfigBaseUrl (no separate
+   * on/off flag), so the default deployment — with no base URL — behaves
+   * exactly as before (local-config only). forceApiConfig additionally bypasses
+   * the local override, for deployments that ship no local-config at all.
    */
   private async resolveConfigFile(name: ConfigFileName): Promise<Response> {
+    // Force mode: read only from the API, never touch local-config.
+    if (this.isApiConfigForced()) {
+      const apiResponse = await this.fetchApiConfig(name);
+      // Return a synthetic 404 when the API has nothing, so callers keep their
+      // existing not-found handling (config-main → boot error).
+      return apiResponse ?? new Response(null, { status: 404 });
+    }
+
     const local = await this.fetchLocalConfig(name);
     if (local.ok) return local;
 
@@ -125,9 +135,20 @@ export class ConfigService {
     return fetch(`local-config/${name}.json?t=${timestamp}`);
   }
 
-  /** API config loading is enabled and a base URL is configured. */
+  /**
+   * API config loading is enabled — i.e. a base URL is configured. Setting
+   * apiConfigBaseUrl is the single switch; there is no separate on/off flag.
+   */
   private isApiConfigEnabled(): boolean {
-    return this.envService.isApiConfigEnabled() && !!this.envService.getApiConfigBaseUrl();
+    return !!this.envService.getApiConfigBaseUrl();
+  }
+
+  /**
+   * Force mode: load config exclusively from the API and skip local-config
+   * entirely (even when a local file exists). Requires a configured base URL.
+   */
+  private isApiConfigForced(): boolean {
+    return this.envService.isApiConfigForced() && this.isApiConfigEnabled();
   }
 
   /**
