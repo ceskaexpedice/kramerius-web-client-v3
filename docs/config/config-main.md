@@ -10,7 +10,7 @@ Konfigurace knihovny leží přímo v adresáři `public/local-config/`. Kód kn
 
 > Když některý blok v souboru chybí, použije se výchozí hodnota popsaná u jednotlivých sekcí níže. Když se `config-main.json` vůbec nepodaří načíst nebo naparsovat, aplikace **nenaběhne** a zobrazí chybu konfigurace.
 
-> **Načítání z API.** Tento soubor lze místo z `local-config/` načítat z Kramerius API přes endpoint `/ui-config/general` (stejný tvar, žádná transformace). Pokud lokální soubor existuje, má přednost před API. Načítání z API je vypnuté ve výchozím stavu — zapíná se runtime konfigurací (`APP_USE_API_CONFIG` + `APP_API_CONFIG_BASE_URL`). Podrobnosti viz [`guide.md` → Načítání konfigurace z API](../guide.md#načítání-konfigurace-z-api-volitelné).
+> **Načítání z API.** Tento soubor lze místo z `local-config/` načítat z Kramerius API přes endpoint `/ui-config/general` (stejný tvar, žádná transformace). Pokud lokální soubor existuje, má přednost před API. Načítání z API se zapíná nastavením `APP_API_CONFIG_BASE_URL` (base URL API). Podrobnosti viz [`guide.md` → Načítání konfigurace z API](../guide.md#načítání-konfigurace-z-api-volitelné).
 
 ---
 

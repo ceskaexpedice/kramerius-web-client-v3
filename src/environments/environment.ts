@@ -9,14 +9,17 @@ export const environment = {
   environmentCode: 'd_m', // pro produkci ziskej z promenne APP_ENV_CODE (přes env.json)
 
   // --- UI config from API (/ui-config/*) ---
-  // When true, ConfigService tries to load config-main/licenses/homepage from
-  // the Kramerius client API. A local-config file, when present, still wins.
-  // Default false → behaves exactly like before (local-config only).
-  // Pro produkci ziskej z promenne APP_USE_API_CONFIG (přes env.json).
-  useApiConfig: true,
   // Base URL of the client API incl. version, e.g.
-  // https://.../search/api/client/v7.0 (no trailing /ui-config).
-  // Pro produkci: APP_API_CONFIG_BASE_URL.
+  // https://.../search/api/client/v7.0 (no trailing /ui-config). Setting this
+  // is the single switch that enables loading config-main/licenses/homepage
+  // from the API; a local-config file, when present, still wins. Empty →
+  // behaves exactly like before (local-config only).
+  // Pro produkci ziskej z promenne APP_API_CONFIG_BASE_URL (přes env.json).
   apiConfigBaseUrl: '',
+  // When true, config is loaded EXCLUSIVELY from the API — local-config is
+  // skipped entirely, even when a local file exists. For deployments that ship
+  // no local-config. Requires apiConfigBaseUrl. Default false.
+  // Pro produkci: APP_FORCE_API_CONFIG.
+  forceApiConfig: false,
 
 };

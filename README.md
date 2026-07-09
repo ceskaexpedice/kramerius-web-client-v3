@@ -101,10 +101,13 @@ endpointy `/ui-config/*`:
 | `config-homepage.json` | `.../ui-config/curator-lists` |
 
 API vrací **stejné tvary**, jaké očekává lokální loader — nic se netransformuje.
-Načítání z API je **vypnuté ve výchozím stavu** a zapíná se runtime konfigurací
-(env proměnné v Dockeru níže, nebo `environment.ts` pro lokální vývoj).
+Načítání z API se **zapíná nastavením `apiConfigBaseUrl`** (env proměnná
+`APP_API_CONFIG_BASE_URL` v Dockeru, nebo `environment.ts` pro lokální vývoj);
+žádný samostatný přepínač zapnuto/vypnuto není. Prázdná hodnota → jen
+`local-config`, jako dřív.
 
-**Priorita: lokální soubor vždy vyhrává, když existuje.**
+**Priorita: lokální soubor vždy vyhrává, když existuje** (pokud není zapnutý
+`APP_FORCE_API_CONFIG`).
 
 | API zapnuté | soubor v `local-config/` | použije se |
 |---|---|---|
@@ -112,6 +115,9 @@ Načítání z API je **vypnuté ve výchozím stavu** a zapíná se runtime kon
 | ano | chybí | **API** |
 | ne | existuje | **lokální** |
 | ne | chybí | nic → chyba (u `config-main` aplikace nenaběhne) |
+
+S `APP_FORCE_API_CONFIG=true` se `local-config/` ignoruje úplně a čte se **jen
+z API** — priorita výše se neuplatní.
 
 S prázdným `local-config/` a zapnutým API klient naběhne kompletně z API. Adresu
 backendu si aplikace vezme z `api.baseUrl` **uvnitř** konfigurace vrácené z API
@@ -122,8 +128,8 @@ Env proměnné (Docker):
 
 | Proměnná | Výchozí | Popis |
 |---|---:|---|
-| `APP_USE_API_CONFIG` | `false` | Zapne načítání konfigurace z API. |
-| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. |
+| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. **Nastavení této proměnné zapíná načítání z API** (žádný samostatný přepínač). Prázdné → jen `local-config`. |
+| `APP_FORCE_API_CONFIG` | `false` | Načítá konfiguraci **výhradně** z API a `local-config/` úplně přeskočí (i když soubory existují). Pro nasazení bez `local-config`. Vyžaduje `APP_API_CONFIG_BASE_URL`. |
 
 Podrobnosti viz [`docs/guide.md`](docs/guide.md#načítání-konfigurace-z-api-volitelné).
 
@@ -182,8 +188,10 @@ services:
       - APP_DEV_MODE=${APP_DEV_MODE:-true}
       # Volitelné: načítání konfigurace z API (/ui-config/*). Namountovaný
       # lokální soubor má stále přednost. Ve výchozím stavu vypnuto.
-      - APP_USE_API_CONFIG=${APP_USE_API_CONFIG:-false}
+      # Nastavení base URL zapíná načítání z API. Prázdné → jen local-config.
       - APP_API_CONFIG_BASE_URL=${APP_API_CONFIG_BASE_URL:-}
+      # Jen API, local-config se přeskočí úplně (i namountovaný).
+      - APP_FORCE_API_CONFIG=${APP_FORCE_API_CONFIG:-false}
     volumes:
       # Volitelné: přepíše výchozí lokální konfiguraci.
       - ./public/local-config:/usr/share/nginx/local-config:ro

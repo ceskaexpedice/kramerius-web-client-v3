@@ -7,8 +7,8 @@ cat <<EOF > /usr/share/nginx/html/assets/env.json
   "devMode": ${APP_DEV_MODE:-false},
   "environmentName": "${APP_ENV_NAME:-docker runtime}",
   "environmentCode": "${APP_ENV_CODE:-docker}",
-  "useApiConfig": ${APP_USE_API_CONFIG:-false},
-  "apiConfigBaseUrl": "${APP_API_CONFIG_BASE_URL:-}"
+  "apiConfigBaseUrl": "${APP_API_CONFIG_BASE_URL:-}",
+  "forceApiConfig": ${APP_FORCE_API_CONFIG:-false}
 }
 EOF
 

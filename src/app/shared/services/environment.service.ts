@@ -42,20 +42,21 @@ export class EnvironmentService {
   }
 
   /**
-   * Whether the client should try to load config (config-main/licenses/homepage)
-   * from the Kramerius client API (/ui-config/*). A local-config file, when
-   * present, still overrides what comes from the API. Off by default.
-   */
-  public isApiConfigEnabled(): boolean {
-    return this.get('useApiConfig') === true;
-  }
-
-  /**
    * Base URL of the client API used for /ui-config/*, including the version
    * segment (e.g. https://.../search/api/client/v7.0). Empty when unset.
+   * A non-empty value is what enables API config loading — there is no separate
+   * on/off flag.
    */
   public getApiConfigBaseUrl(): string {
     return this.get('apiConfigBaseUrl') || '';
+  }
+
+  /**
+   * Force mode: load config exclusively from the API and skip local-config
+   * entirely. For deployments that ship no local-config files. Off by default.
+   */
+  public isApiConfigForced(): boolean {
+    return this.get('forceApiConfig') === true;
   }
 
   public async load(): Promise<void> {
