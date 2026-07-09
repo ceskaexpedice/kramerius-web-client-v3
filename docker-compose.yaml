@@ -1,6 +1,6 @@
 services:
   cdk-client:
-    image: trinera/cdk-client:1.0.0
+    image: trinera/cdk-client:3.0.19-beta
     ports:
       - "1234:80"
     environment:
@@ -21,4 +21,3 @@ services:
        interval: 30s
        timeout: 5s
        retries: 3
-  
