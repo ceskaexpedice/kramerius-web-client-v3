@@ -6,6 +6,8 @@ Sekce se na stránce vykreslují **v pořadí, ve kterém jsou v souboru**. Kdy�
 
 **Cesta k souboru:** `public/local-config/config-homepage.json`
 
+> **Načítání z API.** Tento soubor lze místo z `local-config/` načítat z Kramerius API přes endpoint `/ui-config/curator-lists`. Lokální soubor, pokud existuje, má přednost. Viz [`guide.md` → Načítání konfigurace z API](../guide.md#načítání-konfigurace-z-api-volitelné).
+
 > Pokud soubor chybí, aplikace naběhne s minimálním výchozím setem čtyř sekcí:
 > - **`periodicals`** — vykreslí periodika z API,
 > - **`books`** — knihy z API,

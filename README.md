@@ -88,6 +88,45 @@ Chcete-li klienta spustit jako **svou vlastní** knihovnu, **nemusíte** upravov
 V Dockeru lze tytéž soubory připojit za běhu, místo aby byly zapečené do image —
 viz [Lokální konfigurace (volume)](#lokální-konfigurace-volume).
 
+## Načítání konfigurace z API
+
+Trojici konfiguračních souborů (`config-main`, `config-licenses`,
+`config-homepage`) lze místo z `local-config/` načítat z Kramerius API přes
+endpointy `/ui-config/*`:
+
+| Lokální soubor | API endpoint |
+|---|---|
+| `config-main.json` | `.../ui-config/general` |
+| `config-licenses.json` | `.../ui-config/licenses` |
+| `config-homepage.json` | `.../ui-config/curator-lists` |
+
+API vrací **stejné tvary**, jaké očekává lokální loader — nic se netransformuje.
+Načítání z API je **vypnuté ve výchozím stavu** a zapíná se runtime konfigurací
+(env proměnné v Dockeru níže, nebo `environment.ts` pro lokální vývoj).
+
+**Priorita: lokální soubor vždy vyhrává, když existuje.**
+
+| API zapnuté | soubor v `local-config/` | použije se |
+|---|---|---|
+| ano | existuje | **lokální** (přepíše API) |
+| ano | chybí | **API** |
+| ne | existuje | **lokální** |
+| ne | chybí | nic → chyba (u `config-main` aplikace nenaběhne) |
+
+S prázdným `local-config/` a zapnutým API klient naběhne kompletně z API. Adresu
+backendu si aplikace vezme z `api.baseUrl` **uvnitř** konfigurace vrácené z API
+(endpoint `general`) — proměnná `APP_API_CONFIG_BASE_URL` určuje jen, odkud se
+čte samotná konfigurace.
+
+Env proměnné (Docker):
+
+| Proměnná | Výchozí | Popis |
+|---|---:|---|
+| `APP_USE_API_CONFIG` | `false` | Zapne načítání konfigurace z API. |
+| `APP_API_CONFIG_BASE_URL` | — | Základní adresa API vč. verze, např. `https://.../search/api/client/v7.0`. |
+
+Podrobnosti viz [`docs/guide.md`](docs/guide.md#načítání-konfigurace-z-api-volitelné).
+
 ## Build & Run s Dockerem
 
 ### Build image
@@ -141,6 +180,10 @@ services:
       - "1234:80"
     environment:
       - APP_DEV_MODE=${APP_DEV_MODE:-true}
+      # Volitelné: načítání konfigurace z API (/ui-config/*). Namountovaný
+      # lokální soubor má stále přednost. Ve výchozím stavu vypnuto.
+      - APP_USE_API_CONFIG=${APP_USE_API_CONFIG:-false}
+      - APP_API_CONFIG_BASE_URL=${APP_API_CONFIG_BASE_URL:-}
     volumes:
       # Volitelné: přepíše výchozí lokální konfiguraci.
       - ./public/local-config:/usr/share/nginx/local-config:ro

@@ -5,6 +5,13 @@ services:
       - "1234:80"
     environment:
        - APP_DEV_MODE=${APP_DEV_MODE:-true}
+       # Load config (config-main/licenses/homepage) from the client API's
+       # /ui-config/* endpoints. A mounted local-config file still overrides
+       # what comes from the API. Leave APP_USE_API_CONFIG=false (default) to
+       # use local-config only, as before.
+       - APP_USE_API_CONFIG=${APP_USE_API_CONFIG:-false}
+       # Base URL incl. version, e.g. https://.../search/api/client/v7.0
+       - APP_API_CONFIG_BASE_URL=${APP_API_CONFIG_BASE_URL:-}
     volumes:
       # Optional: override the bundled default local configuration.
       - ./public/local-config:/usr/share/nginx/local-config:ro

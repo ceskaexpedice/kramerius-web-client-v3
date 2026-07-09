@@ -41,6 +41,23 @@ export class EnvironmentService {
     return this.librarySwitchEnabled;
   }
 
+  /**
+   * Whether the client should try to load config (config-main/licenses/homepage)
+   * from the Kramerius client API (/ui-config/*). A local-config file, when
+   * present, still overrides what comes from the API. Off by default.
+   */
+  public isApiConfigEnabled(): boolean {
+    return this.get('useApiConfig') === true;
+  }
+
+  /**
+   * Base URL of the client API used for /ui-config/*, including the version
+   * segment (e.g. https://.../search/api/client/v7.0). Empty when unset.
+   */
+  public getApiConfigBaseUrl(): string {
+    return this.get('apiConfigBaseUrl') || '';
+  }
+
   public async load(): Promise<void> {
     // Load runtime configuration from env.json or static environment (environment.ts)
     if (staticEnv.useStaticRuntimeConfig) {

@@ -8,6 +8,8 @@ Každý dokument v Krameriu má v metadatech přiřazenou jednu nebo více licen
 
 > Když soubor chybí, aplikace použije vestavěný minimální seznam licencí (`public`, `dnnto`, `dnntt`, `onsite`).
 
+> **Načítání z API.** Tento soubor lze místo z `local-config/` načítat z Kramerius API přes endpoint `/ui-config/licenses`. Lokální soubor, pokud existuje, má přednost. Viz [`guide.md` → Načítání konfigurace z API](../guide.md#načítání-konfigurace-z-api-volitelné).
+
 ---
 
 ## Kořenová struktura
