@@ -2,6 +2,15 @@ import {SearchDocument} from '../../models/search-document';
 import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 import {FacetItem} from '../../models/facet-item';
 
+export interface FolderLastSearchPayload {
+  itemIds: string[];
+  query: string;
+  filters: string[];
+  sortBy: SolrSortFields;
+  sortDirection: SolrSortDirections;
+  grouped?: boolean;
+}
+
 export interface FolderUser {
   createdAt: string;
   userRole: 'owner' | 'follower';
@@ -53,6 +62,10 @@ export interface FoldersState {
   folderSearchResults: any[];
   folderSearchResultsLoading: boolean;
   folderSearchResultsTotalCount: number;
+  folderPageSearchResults: any[];
+  folderPageTotalCount: number;
+  folderPageResultsLoading: boolean;
+  lastFolderSearchPayload: FolderLastSearchPayload | null;
   folderFacets: Record<string, FacetItem[]>;
   searchQuery: string;
   sortBy: SolrSortFields;
@@ -72,6 +85,10 @@ export const initialFoldersState: FoldersState = {
   folderSearchResults: [],
   folderSearchResultsLoading: false,
   folderSearchResultsTotalCount: 0,
+  folderPageSearchResults: [],
+  folderPageTotalCount: 0,
+  folderPageResultsLoading: false,
+  lastFolderSearchPayload: null,
   folderFacets: {},
   searchQuery: '',
   sortBy: SolrSortFields.relevance,

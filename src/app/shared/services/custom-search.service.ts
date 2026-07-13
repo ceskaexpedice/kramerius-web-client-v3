@@ -279,12 +279,13 @@ export class CustomSearchService {
     });
   }
 
-  removeAllFiltersByFacetKey(facetKey: string): void {
+  removeAllFiltersByFacetKey(facetKey: string, extraParams: Record<string, any> = {}): void {
     const updated = this._appliedFilters().filter(k => !k.startsWith(facetKey + ':'));
     this._appliedFilters.set(updated);
 
     this.queryParamsService.appendToQueryParams(this.route, {
       customSearch: updated.length > 0 ? updated.join(',') : null,
+      ...extraParams,
     });
   }
 

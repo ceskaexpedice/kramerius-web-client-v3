@@ -5,6 +5,7 @@ import { QueryParamsService } from '../../../core/services/QueryParamsManager';
 import { UserService } from '../../../shared/services/user.service';
 import { buildYearRangeQuery, buildDateMinRangeQuery } from '../../../shared/utils/date-range-query';
 import { FolderSearchFilters } from './folders.service';
+import { customDefinedFacetsEnum } from '../../search-results-page/const/facets';
 
 /**
  * Assembles the extra filter dimensions for a folder-items Solr search from the
@@ -39,8 +40,21 @@ export class FolderSearchFiltersBuilder {
       customFqClauses: this.customSearchService.getSolrFqFilters(),
       availabilityLicenses,
       userLicenses: this.userService.licenses,
-      queryClauses
+      queryClauses,
+      // Grouping (by root.pid) is a pages-scope concept: it only applies when the
+      // where-to-search toggle is on `page`. On "all"/titles/etc the lazy pages
+      // section is always ungrouped, even if a stale ?group=true lingers in the URL.
+      grouped: this.isPageScope(params) && params['group'] === 'true'
     };
+  }
+
+  /** Whether the where-to-search selection in ?customSearch is the pages scope. */
+  private isPageScope(params: Record<string, string | string[]>): boolean {
+    const raw = params['customSearch'];
+    const customSearch = Array.isArray(raw) ? raw[0] : raw;
+    const entry = customSearch?.split(',')
+      .find(k => k.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'));
+    return entry?.split(':')[1] === 'page';
   }
 
   /** Current URL query params as a plain record (single value or array per key). */

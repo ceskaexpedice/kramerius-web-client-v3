@@ -140,6 +140,28 @@
   }
 }
 
+h2 {
+  // Match search-results-view: the global bare `h2` rule in
+  // public/styles/_dialog.scss forces flexbox layout (justify-content:
+  // space-between), which pushes the section subtitle to the far right.
+  // Reset those leaked properties so the heading keeps its block rendering.
+  display: block;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xlarge);
+  font-weight: 700;
+  line-height: var(--line-height-4);
+  margin: 0 0 var(--spacing-x3) 0;
+}
+
+.grid--container + h2 {
+  margin-top: var(--spacing-x10);
+}
+
+.section-header__subtitle {
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-regular);
+}
+
 .music-section--actions {
   margin-bottom: var(--spacing-x3);
 }

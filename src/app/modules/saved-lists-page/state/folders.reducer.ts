@@ -205,10 +205,19 @@ export const foldersReducer = createReducer(
     error
   })),
 
-  on(FoldersActions.loadFolderSearchResults, (state): FoldersState => ({
+  on(FoldersActions.loadFolderSearchResults, (state, { itemIds, grouped }): FoldersState => ({
     ...state,
     folderSearchResultsLoading: true,
-    error: null
+    folderPageResultsLoading: true,
+    error: null,
+    lastFolderSearchPayload: {
+      itemIds,
+      query: state.searchQuery,
+      filters: [],
+      sortBy: state.sortBy,
+      sortDirection: state.sortDirection,
+      grouped,
+    },
   })),
 
   on(FoldersActions.loadFolderSearchResultsSuccess, (state, { results, totalCount, facets }): FoldersState => ({
@@ -224,6 +233,25 @@ export const foldersReducer = createReducer(
     ...state,
     folderSearchResultsLoading: false,
     error
+  })),
+
+  on(FoldersActions.loadFolderPageSearchResults, (state): FoldersState => ({
+    ...state,
+    folderPageResultsLoading: true,
+    error: null,
+  })),
+
+  on(FoldersActions.loadFolderPageSearchResultsSuccess, (state, { results, totalCount }): FoldersState => ({
+    ...state,
+    folderPageSearchResults: results,
+    folderPageTotalCount: totalCount,
+    folderPageResultsLoading: false,
+  })),
+
+  on(FoldersActions.loadFolderPageSearchResultsFailure, (state, { error }): FoldersState => ({
+    ...state,
+    folderPageResultsLoading: false,
+    error,
   })),
 
   on(FoldersActions.setSearchQuery, (state, { searchQuery }): FoldersState => ({

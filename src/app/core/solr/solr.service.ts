@@ -161,8 +161,27 @@ export class SolrService {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
-  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true): string {
+  /**
+   * Builds a pid_paths subtree-scope clause for a folder/collection-style search:
+   * `(pid_paths:<uuid\:...>* OR ...)`. Each id's ':' is escaped (matching the old
+   * client's `pid_paths:uuid\:...*` form); the trailing '*' stays a wildcard.
+   * Returns null when there is nothing to scope, so callers can skip it.
+   */
+  private buildPidScopeClause(pidScope: string[]): string | null {
+    if (!pidScope || pidScope.length === 0) {
+      return null;
+    }
+    const clauses = pidScope.map(id => `pid_paths:${id.replace(/:/g, '\\:')}*`);
+    return `(${clauses.join(' OR ')})`;
+  }
+
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = []): string {
     const parts: string[] = [];
+
+    const pidScopeClause = this.buildPidScopeClause(pidScope);
+    if (pidScopeClause) {
+      parts.push(pidScopeClause);
+    }
 
     if (rootUuid) {
       parts.push(`root.pid:${SolrQueryBuilder.escapeSolrQuery(rootUuid)}`);
@@ -394,7 +413,7 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true, grouped = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true, grouped = false, pidScope: string[] = []): Observable<SearchResultResponse> {
 
     const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement, includeArticle);
 
@@ -431,7 +450,7 @@ export class SolrService {
       }
     }
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, null, includeSupplement, includeArticle));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, null, includeSupplement, includeArticle, pidScope));
 
     // Use filterGroups if provided, otherwise fall back to flat filters
     if (filterGroups && filterGroups.length > 0) {
@@ -599,7 +618,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false, pidScope: string[] = []): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -614,7 +633,7 @@ export class SolrService {
       ...baseFilters
     };
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid, null, true, true, pidScope));
 
     if (grouped) {
       params = params
@@ -811,7 +830,7 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params });
   }
 
-  loadFacet(query: string, filters: string[], facetField: string, contains?: string, ignoreCase?: boolean, facetLimit?: number, facetOffset?: number, sortBy?: SolrSortFields, minCount: number = 1, existingOperators?: Record<string, string>): Observable<any> {
+  loadFacet(query: string, filters: string[], facetField: string, contains?: string, ignoreCase?: boolean, facetLimit?: number, facetOffset?: number, sortBy?: SolrSortFields, minCount: number = 1, existingOperators?: Record<string, string>, pidScope: string[] = []): Observable<any> {
     const paramsObject = this.createFacetBaseParams({
       searchTerm: contains,
       limit: facetLimit,
@@ -820,6 +839,10 @@ export class SolrService {
       minCount
     });
     let params = this.createHttpParams(paramsObject).set('q', query || '*:*').append('facet.field', facetField);
+    const loadFacetScope = this.buildPidScopeClause(pidScope);
+    if (loadFacetScope) {
+      params = params.set('q', `(${params.get('q')}) AND ${loadFacetScope}`);
+    }
     const otherFilters = filters.filter(f => !f.startsWith(`${facetField}:`));
     params = this.addFilterQueries(params, otherFilters, existingOperators);
     return this.http.get<any>(this.API_URL, { params });

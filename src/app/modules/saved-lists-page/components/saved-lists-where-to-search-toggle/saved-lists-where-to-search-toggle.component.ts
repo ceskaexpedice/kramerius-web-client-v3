@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
+import { SearchService } from '../../../../shared/services/search.service';
 import { CustomSearchService } from '../../../../shared/services/custom-search.service';
 import {
   ToggleButtonGroupComponent,
@@ -10,7 +11,7 @@ import {
 import { customDefinedFacetsEnum } from '../../../search-results-page/const/facets';
 import { SavedListsFilterService } from '../../services/saved-lists-filter.service';
 
-type WhereToSearchValue = 'all' | 'titles' | 'article' | 'supplement' | 'page' | null;
+type WhereToSearchValue = 'all' | 'titles' | 'pageGrouped' | 'article' | 'supplement' | 'page' | null;
 
 interface FacetItem {
   name: string;
@@ -25,8 +26,8 @@ const FACET_KEY = customDefinedFacetsEnum.whereToSearchModel;
  * Mirrors the search-results WhereToSearchToggleComponent but is scoped to a
  * folder: facet counts come from the folder Solr search (SavedListsFilterService)
  * and the selection is written to ?customSearch via CustomSearchService — the
- * same param the folder search builder already applies. Unlike the search page
- * there is no grouped-pages mode, so the page/pageGrouped split is omitted.
+ * same param the folder search builder already applies. Like the search page,
+ * pages offer a grouped ("Strany v tituloch") and an ungrouped mode via ?group.
  */
 @Component({
   selector: 'app-saved-lists-where-to-search-toggle',
@@ -52,8 +53,10 @@ const FACET_KEY = customDefinedFacetsEnum.whereToSearchModel;
 })
 export class SavedListsWhereToSearchToggleComponent {
   private filterService = inject(SavedListsFilterService);
+  private searchService = inject(SearchService);
   private customSearchService = inject(CustomSearchService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   private whereToSearchItems = toSignal(
     this.filterService.getFacets().pipe(
@@ -62,6 +65,11 @@ export class SavedListsWhereToSearchToggleComponent {
       ),
     ),
     { initialValue: [] as FacetItem[] },
+  );
+
+  private groupParam = toSignal(
+    this.route.queryParams.pipe(map(p => p['group'] as string | undefined)),
+    { initialValue: undefined as string | undefined },
   );
 
   // Read the active selection straight from the URL (?customSearch=) so the
@@ -78,9 +86,24 @@ export class SavedListsWhereToSearchToggleComponent {
     { initialValue: null as string | null },
   );
 
+  private isGrouped = computed<boolean>(() => {
+    // Read ?group straight from the URL — the folder search builder does the
+    // same (`params['group'] === 'true'`), so the toggle always reflects what
+    // the folder search actually ran with. Don't consult SearchService here:
+    // its in-memory override belongs to the main search page and can be stale.
+    const param = this.groupParam();
+    if (param === 'true') return true;
+    if (param === 'false') return false;
+    return this.searchService.isGrouped();
+  });
+
   value = computed<WhereToSearchValue>(() => {
     const selected = this.selectedWhereToSearch();
-    return (selected ?? 'all') as WhereToSearchValue;
+    if (!selected) return 'all';
+    if (selected === 'page') {
+      return this.isGrouped() ? 'pageGrouped' : 'page';
+    }
+    return selected as WhereToSearchValue;
   });
 
   options = computed<ToggleOption<WhereToSearchValue>[]>(() => {
@@ -96,7 +119,8 @@ export class SavedListsWhereToSearchToggleComponent {
       result.push({ value: 'titles', label: 'titles-section-header' });
     }
     if (has('page')) {
-      result.push({ value: 'page', label: 'pages-section-header' });
+      result.push({ value: 'pageGrouped', label: 'group-results--titles' });
+      result.push({ value: 'page', label: 'group-results--pages' });
     }
     if (has('article')) {
       result.push({ value: 'article', label: 'articles-section-header' });
@@ -120,13 +144,39 @@ export class SavedListsWhereToSearchToggleComponent {
 
     if (next === 'all') {
       if (this.selectedWhereToSearch()) {
-        this.customSearchService.removeAllFiltersByFacetKey(FACET_KEY);
+        // Leaving page mode: drop the ?group param too — grouping only applies
+        // to the pages scope, and a lingering group=true would group the lazy
+        // pages section on "all".
+        this.customSearchService.removeAllFiltersByFacetKey(FACET_KEY, { group: null });
       }
       return;
     }
 
-    if (this.selectedWhereToSearch() !== next) {
-      this.customSearchService.setSingleFilterForFacet(FACET_KEY, next);
+    const targetWhereToSearch = next === 'pageGrouped' || next === 'page' ? 'page' : next;
+    const currentWhereToSearch = this.selectedWhereToSearch();
+    const isPage = next === 'page' || next === 'pageGrouped';
+    const desiredGrouped = next === 'pageGrouped';
+
+    // For page/pageGrouped, set the `group` URL param in the same navigation
+    // as the customSearch update so there's only one search reload. For any
+    // other scope, remove it — grouping is a pages-only concept here.
+    const extraParams = isPage
+      ? { group: desiredGrouped ? 'true' : 'false' }
+      : { group: null };
+
+    if (currentWhereToSearch !== targetWhereToSearch) {
+      this.customSearchService.setSingleFilterForFacet(FACET_KEY, targetWhereToSearch, extraParams);
+    } else if (isPage && this.isGrouped() !== desiredGrouped) {
+      // whereToSearch already on `page` — flip ?group via a real router
+      // navigation so the saved-lists queryParams subscription refires the
+      // folder search. (SearchService.setGroupResults would silently
+      // replaceState and reload the MAIN search page's pages request, which
+      // does nothing here.)
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { group: desiredGrouped ? 'true' : 'false', page: 1 },
+        queryParamsHandling: 'merge',
+      });
     }
   }
 }

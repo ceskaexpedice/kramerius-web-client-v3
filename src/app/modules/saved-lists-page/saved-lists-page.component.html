@@ -173,33 +173,115 @@
           </div>
         }
 
-        <!-- OTHER ITEMS SECTION -->
-        <ng-container *ngIf="{ items: nonSoundRecordingItems | async, loading: loading$ | async } as data">
-          @if ((data.items && data.items.length > 0) || data.loading) {
-          <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
+        <!-- RESULT SECTIONS: titles / articles / pages (lazy) / attachments,
+             mirroring the search-results view's stacked sections. -->
+        <div [ngClass]="view() === ViewOptions.grid ? '' : 'list--container'">
 
-            <!-- GRID VIEW -->
-            @if (view() === ViewOptions.grid) {
-            <div class="grid--container">
-              <app-record-item *ngFor="let doc of (data.items || []) | skeletonList:50:data.loading"
-                [item]="doc ? toRecordItem(doc) : null" [currentFolderId]="(activeFolder | async)?.uuid"
-                [fulltextOverride]="activeQuery()">
-              </app-record-item>
-            </div>
-
-            } @else {
-
-            <!-- LIST VIEW -->
-            <app-record-item-list *ngIf="data.items?.length" [records]="data.items || []"
-              [currentFolderId]="(activeFolder | async)?.uuid"
-              [fulltextOverride]="activeQuery()"
-              (exportRecord)="openExportPanel($event)">
-            </app-record-item-list>
+          <!-- TITLES SECTION -->
+          @if ({ items: titleItems$ | async, loading: titlesLoading$ | async }; as titles) {
+            @if ((titles.items?.length ?? 0) > 0 || titles.loading) {
+              @if (showSectionHeaders$ | async) {
+                <h2>
+                  {{ 'titles-section-header' | translate }}
+                  <span class="section-header__subtitle">({{ 'titles-section-header--subtitle' | translate }})</span>
+                </h2>
+              }
+              @if (view() === ViewOptions.grid) {
+                <div class="grid--container">
+                  @for (doc of (titles.items || []) | skeletonList:50:titles.loading; track $index) {
+                    <app-record-item [item]="doc ? toRecordItem(doc) : null"
+                      [currentFolderId]="(activeFolder | async)?.uuid"
+                      [fulltextOverride]="activeQuery()">
+                    </app-record-item>
+                  }
+                </div>
+              } @else {
+                <app-record-item-list [records]="titles.items || []" [loading]="titles.loading ?? false"
+                  [currentFolderId]="(activeFolder | async)?.uuid"
+                  [fulltextOverride]="activeQuery()"
+                  (exportRecord)="openExportPanel($event)">
+                </app-record-item-list>
+              }
             }
-
-          </div>
           }
-        </ng-container>
+
+          <!-- ARTICLES SECTION -->
+          @if (articleItems$ | async; as articleItems) {
+            @if (articleItems.length > 0) {
+              @if (showSectionHeaders$ | async) {
+                <h2>{{ 'articles-section-header' | translate }}</h2>
+              }
+              @if (view() === ViewOptions.grid) {
+                <div class="grid--container">
+                  @for (doc of articleItems; track doc.pid) {
+                    <app-record-item [item]="toRecordItem(doc)"
+                      [currentFolderId]="(activeFolder | async)?.uuid"
+                      [fulltextOverride]="activeQuery()">
+                    </app-record-item>
+                  }
+                </div>
+              } @else {
+                <app-record-item-list [records]="articleItems"
+                  [currentFolderId]="(activeFolder | async)?.uuid"
+                  [fulltextOverride]="activeQuery()"
+                  (exportRecord)="openExportPanel($event)">
+                </app-record-item-list>
+              }
+            }
+          }
+
+          <!-- PAGES SECTION (lazy-loaded after titles) -->
+          @if ({ items: pageItems$ | async, loading: pagesLoading$ | async }; as pages) {
+            @if ((pages.items?.length ?? 0) > 0 || pages.loading) {
+              <h2>
+                {{ 'pages-section-header' | translate }}
+                <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
+              </h2>
+              @if (view() === ViewOptions.grid) {
+                <div class="grid--container">
+                  @for (doc of (pages.items || []) | skeletonList:50:pages.loading; track $index) {
+                    <app-record-item [item]="doc ? toRecordItem(doc) : null" [showPageTag]="true"
+                      [currentFolderId]="(activeFolder | async)?.uuid"
+                      [fulltextOverride]="activeQuery()">
+                    </app-record-item>
+                  }
+                </div>
+              } @else {
+                <app-record-item-list [records]="pages.items || []" [loading]="pages.loading ?? false"
+                  [currentFolderId]="(activeFolder | async)?.uuid"
+                  [fulltextOverride]="activeQuery()"
+                  (exportRecord)="openExportPanel($event)">
+                </app-record-item-list>
+              }
+            }
+          }
+
+          <!-- ATTACHMENTS SECTION -->
+          @if (attachmentItems$ | async; as attachmentItems) {
+            @if (attachmentItems.length > 0) {
+              @if (showSectionHeaders$ | async) {
+                <h2>{{ 'attachments-section-header' | translate }}</h2>
+              }
+              @if (view() === ViewOptions.grid) {
+                <div class="grid--container">
+                  @for (doc of attachmentItems; track doc.pid) {
+                    <app-record-item [item]="toRecordItem(doc)"
+                      [currentFolderId]="(activeFolder | async)?.uuid"
+                      [fulltextOverride]="activeQuery()">
+                    </app-record-item>
+                  }
+                </div>
+              } @else {
+                <app-record-item-list [records]="attachmentItems"
+                  [currentFolderId]="(activeFolder | async)?.uuid"
+                  [fulltextOverride]="activeQuery()"
+                  (exportRecord)="openExportPanel($event)">
+                </app-record-item-list>
+              }
+            }
+          }
+
+        </div>
 
         <!-- SOUND RECORDINGS SECTION -->
         <ng-container *ngIf="soundRecordingItems | async as soundRecordings">
@@ -224,6 +306,15 @@
           </div>
           }
         </ng-container>
+
+        <!-- Classic paginator over the combined titles+pages window, same as
+             the search-results page. -->
+        <app-paginator [page]="(page$ | async) ?? 1"
+          [totalCount]="(resultsCount$ | async) ?? 0"
+          [pageSize]="(pageSize$ | async) ?? 60"
+          [pageSizeOptions]="[60, 120, 180]"
+          (pageChange)="goToPage($event)" (pageSizeChange)="changePageSize($event)">
+        </app-paginator>
 
       </div>
 
