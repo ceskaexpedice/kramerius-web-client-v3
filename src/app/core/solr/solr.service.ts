@@ -281,30 +281,15 @@ export class SolrService {
       parts.push(`${finalAdvancedQuery}`);
     }
 
-    // Handle collection filter as part of query (not fq)
-    if (collectionUuid) {
-      const modelParts: string[] = [];
-
-      if (includePage) {
-        modelParts.push('model:page');
-        modelParts.push('model:article');
-      }
-
-      if (includePeriodicalItem) {
-        modelParts.push('model:periodicalitem');
-      }
-
-      let collectionFilter = `in_collections.direct:"${collectionUuid}"`;
-
-      if (modelParts.length > 0) {
-        const modelQuery = modelParts.join(' OR ');
-        collectionFilter = `((${collectionFilter}) OR ((${modelQuery}) AND in_collections:"${collectionUuid}"))`;
-      }
-
-      parts.push(collectionFilter);
-    }
-
     return parts.length ? parts.join(' AND ') : '*:*';
+  }
+
+  /**
+   * Builds the collection-scope filter as an fq (matching the old client's
+   * `fq=(in_collections.direct:"uuid:...")`): direct members only.
+   */
+  private buildCollectionScopeFq(collectionUuid: string): string {
+    return `(in_collections.direct:"${collectionUuid}")`;
   }
 
   /**
@@ -564,9 +549,9 @@ export class SolrService {
     }
 
     let params = this.createHttpParams(paramsObject)
-      .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
+      .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid))
+      .append('fq', this.buildCollectionScopeFq(collectionUuid));
 
-    // Add other filters (collection filter is now part of q parameter)
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
     // Add availability filter with tag if active
@@ -595,9 +580,9 @@ export class SolrService {
       ...this.createFacetBaseParams({})
     };
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid));
-
-    // Collection filter is now part of q parameter
+    let params = this.createHttpParams(paramsObject)
+      .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid))
+      .append('fq', this.buildCollectionScopeFq(collectionUuid));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);
@@ -793,6 +778,12 @@ export class SolrService {
       : SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
     const paramsObject = { ...this.createFacetBaseParams(options), ...baseFilters };
     let params = this.createHttpParams(paramsObject).set('q', qParam);
+
+    // Collection scoping is applied via fq (see buildCollectionScopeFq), matching
+    // the page's searchInCollection/getFacetsInCollection so counts line up.
+    if (collectionUuid) {
+      params = params.append('fq', this.buildCollectionScopeFq(collectionUuid));
+    }
 
     const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));
     const isOrWithSelection = pendingOperator === SolrOperators.or && pendingSelections.size > 0;

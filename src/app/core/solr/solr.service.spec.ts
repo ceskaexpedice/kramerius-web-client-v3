@@ -32,3 +32,24 @@ describe('SolrService pidScope', () => {
     expect(withEmpty).not.toContain('pid_paths:');
   });
 });
+
+describe('SolrService collection scope', () => {
+  let service: SolrService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+  });
+
+  it('buildQParam no longer embeds the collection filter in q', () => {
+    const q = (service as any).buildQParam(
+      '', undefined, false, false, false, null, 'uuid:1045ed89-7f7e-48c9-a4c5-9a921b97b9e6'
+    );
+    expect(q).not.toContain('in_collections');
+  });
+
+  it('buildCollectionScopeFq filters by direct membership only', () => {
+    const fq = (service as any).buildCollectionScopeFq('uuid:abc');
+    expect(fq).toEqual('(in_collections.direct:"uuid:abc")');
+  });
+});
