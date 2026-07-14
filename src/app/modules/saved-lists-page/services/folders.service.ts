@@ -142,9 +142,9 @@ export class FoldersService {
     }
     const query = qClauses.join(' AND ');
 
-    return this.folderSearchScope.resolveRootPids(itemIds).pipe(
-      switchMap(rootPids => {
-        const chunks = this.folderSearchScope.chunk(rootPids, FolderSearchScope.PID_BATCH_SIZE);
+    return this.folderSearchScope.resolveScopePaths(itemIds).pipe(
+      switchMap(scopePaths => {
+        const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
         if (chunks.length === 0) {
           return of({
             response: { facet_counts: { facet_fields: { [facetKey]: [] } } },

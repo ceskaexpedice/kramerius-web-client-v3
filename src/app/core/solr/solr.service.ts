@@ -162,23 +162,27 @@ export class SolrService {
   }
 
   /**
-   * Builds a pid_paths subtree-scope clause for a folder/collection-style search:
-   * `(pid_paths:<uuid\:...>* OR ...)`. Each id's ':' is escaped (matching the old
-   * client's `pid_paths:uuid\:...*` form); the trailing '*' stays a wildcard.
-   * Returns null when there is nothing to scope, so callers can skip it.
+   * Builds the scope clause for a folder/collection-style search. Default form is
+   * a pid_paths subtree scope: `(pid_paths:<uuid\:...>* OR ...)` — each id's ':'
+   * is escaped (matching the old client's `pid_paths:uuid\:...*` form) and the
+   * trailing '*' stays a wildcard. With `exact` the clause matches only the listed
+   * documents themselves: `(pid:"..." OR ...)` — the old client's folder listing
+   * query. Returns null when there is nothing to scope, so callers can skip it.
    */
-  private buildPidScopeClause(pidScope: string[]): string | null {
+  private buildPidScopeClause(pidScope: string[], exact = false): string | null {
     if (!pidScope || pidScope.length === 0) {
       return null;
     }
-    const clauses = pidScope.map(id => `pid_paths:${id.replace(/:/g, '\\:')}*`);
+    const clauses = exact
+      ? pidScope.map(id => `pid:"${id}"`)
+      : pidScope.map(id => `pid_paths:${id.replace(/:/g, '\\:')}*`);
     return `(${clauses.join(' OR ')})`;
   }
 
-  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = []): string {
+  private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = [], pidScopeExact = false): string {
     const parts: string[] = [];
 
-    const pidScopeClause = this.buildPidScopeClause(pidScope);
+    const pidScopeClause = this.buildPidScopeClause(pidScope, pidScopeExact);
     if (pidScopeClause) {
       parts.push(pidScopeClause);
     }
@@ -266,9 +270,13 @@ export class SolrService {
       parts.push('*:*');
     }
 
-    // Add boosted model query for proper ranking
-    const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly, includeSupplement, includeArticle);
-    parts.push(boostedModelQuery);
+    // Add boosted model query for proper ranking. Skipped for an exact pid scope:
+    // the docs are explicitly enumerated (old client's folder listing has no model
+    // clause), and the AND-ed model list would drop saved items of other models.
+    if (!pidScopeExact) {
+      const boostedModelQuery = SolrQueryBuilder.buildBoostedModelQuery(includePeriodicalItem, includePage, periodicalOnly, includeSupplement, includeArticle);
+      parts.push(boostedModelQuery);
+    }
 
     // Handle advanced query
     if (advancedQuery?.trim()) {
@@ -398,11 +406,11 @@ export class SolrService {
   }
 
   search(query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true, grouped = false, pidScope: string[] = []): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, facetFields: string[] = DEFAULT_FACET_FIELDS, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, includeSupplement = true, includeArticle = true, grouped = false, pidScope: string[] = [], pidScopeExact = false): Observable<SearchResultResponse> {
 
-    const simpleBaseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement, includeArticle);
-
-    console.log('includeArticle::', includeArticle);
+    // Exact pid scope (folder listing): no model base fq — the old client lists the
+    // saved items with a bare `pid:"..."` query, whatever their models are.
+    const simpleBaseFilters = pidScopeExact ? {} : SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage, includeSupplement, includeArticle);
 
     // Get fields to return: base fields + optional fields for visible columns
     const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
@@ -435,7 +443,7 @@ export class SolrService {
       }
     }
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, null, includeSupplement, includeArticle, pidScope));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, null, includeSupplement, includeArticle, pidScope, pidScopeExact));
 
     // Use filterGroups if provided, otherwise fall back to flat filters
     if (filterGroups && filterGroups.length > 0) {
@@ -454,7 +462,9 @@ export class SolrService {
       ...((filterGroups ?? []).flat()),
     ].some(f => f.includes('model:collection'));
     const hasTextQuery = !!query?.trim();
-    if (!collectionAlreadyConstrained && !hasTextQuery) {
+    // Also skip in folder scope (pidScope): the old client never constrains the
+    // folder search this way, and it would hide saved non-standalone collections.
+    if (!collectionAlreadyConstrained && !hasTextQuery && pidScope.length === 0) {
       params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
     }
 
@@ -603,11 +613,15 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false, pidScope: string[] = []): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false, pidScope: string[] = [], pidScopeExact = false): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
       baseFilters = SolrQueryBuilder.basePeriodicalFilters(includePeriodicalItem, includePage, rootPid);
+    } else if (pidScopeExact) {
+      // Exact pid scope (folder listing): no model base fq — facet counts must
+      // cover every saved item, whatever its model.
+      baseFilters = {};
     } else {
       baseFilters = SolrQueryBuilder.baseFilters(includePeriodicalItem, includePage);
     }
@@ -618,7 +632,7 @@ export class SolrService {
       ...baseFilters
     };
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid, null, true, true, pidScope));
+    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, !!rootPid, rootPid, null, true, true, pidScope, pidScopeExact));
 
     if (grouped) {
       params = params
@@ -653,7 +667,9 @@ export class SolrService {
       ...((filterGroups ?? []).flat()),
     ].some(f => f.includes('model:collection'));
     const hasTextQuery = !!query?.trim();
-    if (!collectionAlreadyConstrained && !hasTextQuery) {
+    // Also skip in folder scope (pidScope): the old client never constrains the
+    // folder search this way, and it would hide saved non-standalone collections.
+    if (!collectionAlreadyConstrained && !hasTextQuery && pidScope.length === 0) {
       params = params.append('fq', '((*:* -model:collection) OR collection.is_standalone:true)');
     }
 

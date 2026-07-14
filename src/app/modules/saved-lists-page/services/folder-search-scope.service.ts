@@ -7,17 +7,18 @@ import { SearchResultResponse } from '../../models/search-result-response';
 
 /**
  * Folder-specific scope layer for the saved-lists search. Resolves saved item
- * ids to their distinct root.pid (folder items may be pages/issues; the old
- * client scoped by each item's root), and merges the per-chunk Solr responses
- * produced when the caller chunks large folders. This is the ONLY folder-specific
- * search logic — the actual query/facet/parse work is the shared SolrService path.
+ * ids to each item's own_pid_path (the old client scopes the folder search with
+ * `pid_paths:<own_pid_path>*`, i.e. each saved item's own subtree — NOT the whole
+ * root tree), and merges the per-chunk Solr responses produced when the caller
+ * chunks large folders. This is the ONLY folder-specific search logic — the
+ * actual query/facet/parse work is the shared SolrService path.
  */
 @Injectable({ providedIn: 'root' })
 export class FolderSearchScope {
   private http = inject(HttpClient);
   private environmentService = inject(EnvironmentService);
 
-  /** Max root pids per scoped request, keeping the GET URL under the server limit. */
+  /** Max scope paths per scoped request, keeping the GET URL under the server limit. */
   static readonly PID_BATCH_SIZE = 50;
 
   /** Splits an array into consecutive chunks of at most `size`. */
@@ -30,11 +31,12 @@ export class FolderSearchScope {
   }
 
   /**
-   * Resolves saved item ids to the distinct root.pid of each item's document, so
-   * a folder search covers each item's whole root tree. Uses each doc's own pid
-   * when root.pid is absent (root-level items). Batched into PID_BATCH_SIZE.
+   * Resolves saved item ids to each item's own_pid_path (the full path from the
+   * root down to the item), so a folder search covers exactly each item's own
+   * subtree — same as the old client's `buildFolderItemsPathsQuery`. Uses the
+   * doc's pid when own_pid_path is absent. Batched into PID_BATCH_SIZE.
    */
-  resolveRootPids(itemIds: string[]): Observable<string[]> {
+  resolveScopePaths(itemIds: string[]): Observable<string[]> {
     if (itemIds.length === 0) {
       return of([]);
     }
@@ -43,7 +45,7 @@ export class FolderSearchScope {
       const pidQuery = chunkIds.map(id => `pid:"${id}"`).join(' OR ');
       const params = new HttpParams()
         .set('q', `(${pidQuery})`)
-        .set('fl', 'pid,root.pid')
+        .set('fl', 'pid,own_pid_path')
         .set('rows', `${chunkIds.length}`)
         .set('wt', 'json');
       return this.http.get<any>(searchUrl, { params });
@@ -51,22 +53,24 @@ export class FolderSearchScope {
 
     return forkJoin(lookups).pipe(
       map(responses => {
-        const roots = new Set<string>();
+        const paths = new Set<string>();
         for (const response of responses) {
           for (const doc of response?.response?.docs ?? []) {
-            roots.add(doc['root.pid'] || doc.pid);
+            paths.add(doc['own_pid_path'] || doc.pid);
           }
         }
-        return Array.from(roots);
+        return Array.from(paths);
       })
     );
   }
 
   /**
-   * Merges per-chunk Solr responses into one response of the same shape. Roots are
-   * distinct across chunks and each item's subtree lives in one chunk, so this is a
-   * plain sum/concat: numFound and grouped ngroups sum; docs and grouped groups
-   * concat; facet_fields (flat [name,count,...]) and facet_queries counts sum.
+   * Merges per-chunk Solr responses into one response of the same shape. Scope
+   * paths are distinct across chunks, so this is a plain sum/concat: numFound and
+   * grouped ngroups sum; docs and grouped groups concat; facet_fields (flat
+   * [name,count,...]) and facet_queries counts sum. (If one saved item is nested
+   * under another AND they land in different chunks, its subtree double-counts —
+   * within one chunk Solr dedupes naturally, matching the old client's single request.)
    */
   mergeResponses(responses: SearchResultResponse[]): SearchResultResponse {
     const docs: any[] = [];

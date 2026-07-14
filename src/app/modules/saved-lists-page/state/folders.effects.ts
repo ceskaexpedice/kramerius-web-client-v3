@@ -257,9 +257,19 @@ export class FoldersEffects {
         const ctx = this.folderRequestContext();
         const query = this.urlSearchQuery();
 
-        return this.folderSearchScope.resolveRootPids(action.itemIds).pipe(
-          switchMap(rootPids => {
-            const chunks = this.folderSearchScope.chunk(rootPids, FolderSearchScope.PID_BATCH_SIZE);
+        // No text term: the folder shows exactly the saved items (`pid:"..." OR ...`),
+        // and facet/range/availability filters narrow that exact set — a filter must
+        // never widen it. Only a fulltext search broadens the scope to each item's
+        // own subtree (`pid_paths:<own_pid_path>*`), matching the old client's
+        // ?folder= search (find the term inside the saved titles).
+        const exactScope = !query.trim();
+        const scope$ = exactScope
+          ? of(action.itemIds)
+          : this.folderSearchScope.resolveScopePaths(action.itemIds);
+
+        return scope$.pipe(
+          switchMap(scopePaths => {
+            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
             if (chunks.length === 0) {
               // Empty folder: nothing to scope to — report empty results directly
               // (forkJoin over no sources would complete without emitting).
@@ -278,7 +288,7 @@ export class FoldersEffects {
                   query, ctx.fqFilters, ctx.facetOperators, start, pageSize,
                   this.storeSortBy(), this.storeSortDirection(),
                   ctx.advancedQuery, ctx.includePeriodicalItem, false, [], undefined, ctx.availabilityFilter,
-                  true, true, false, chunk
+                  true, true, false, chunk, exactScope
                 )
               )
             ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
@@ -293,7 +303,7 @@ export class FoldersEffects {
                 this.solrService.getFacetsWithOperators(
                   query, ctx.fqFilters, this.folderFacetFields(), ctx.facetOperators,
                   ctx.advancedQuery, ctx.includePeriodicalItem, includePageInFacets, null, undefined,
-                  ctx.availabilityFilter, false, chunk
+                  ctx.availabilityFilter, false, chunk, exactScope
                 )
               )
             ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
@@ -347,7 +357,11 @@ export class FoldersEffects {
 
         return FoldersActions.loadFolderPageSearchResults({
           itemIds: payload.itemIds,
-          query: payload.query,
+          // Read the term from the URL like the titles/facets requests do —
+          // payload.query comes from store state that the URL-driven search
+          // never syncs, so it would run the pages request with q=*:* and
+          // count every page in scope instead of the matching ones.
+          query: this.urlSearchQuery(),
           filters: payload.filters,
           sortBy: payload.sortBy,
           sortDirection: payload.sortDirection,
@@ -376,9 +390,9 @@ export class FoldersEffects {
           ? [ctx.fqFilters, pageOnlyGroup]
           : [pageOnlyGroup];
 
-        return this.folderSearchScope.resolveRootPids(action.itemIds).pipe(
-          switchMap(rootPids => {
-            const chunks = this.folderSearchScope.chunk(rootPids, FolderSearchScope.PID_BATCH_SIZE);
+        return this.folderSearchScope.resolveScopePaths(action.itemIds).pipe(
+          switchMap(scopePaths => {
+            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
             if (chunks.length === 0) {
               return of(FoldersActions.loadFolderPageSearchResultsSuccess({ results: [], totalCount: 0 }));
             }

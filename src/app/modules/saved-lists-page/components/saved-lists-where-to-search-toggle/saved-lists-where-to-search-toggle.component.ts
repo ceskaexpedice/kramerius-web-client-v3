@@ -72,6 +72,14 @@ export class SavedListsWhereToSearchToggleComponent {
     { initialValue: undefined as string | undefined },
   );
 
+  // Free-text term (?query=): the page scopes only exist while a fulltext
+  // search is active — the folder search fires its pages request under the
+  // same condition (FoldersEffects.shouldIncludePages).
+  private searchQuery = toSignal(
+    this.route.queryParams.pipe(map(p => ((p['query'] as string | undefined) ?? '').trim())),
+    { initialValue: '' },
+  );
+
   // Read the active selection straight from the URL (?customSearch=) so the
   // toggle reflects the real state on load and back/forward, independent of
   // whether the facet panel (which seeds CustomSearchService) has been opened.
@@ -110,6 +118,7 @@ export class SavedListsWhereToSearchToggleComponent {
     const items = this.whereToSearchItems();
     const byName = new Map(items.map(i => [i.name, i.count]));
     const has = (name: string) => (byName.get(name) ?? 0) > 0;
+    const selected = this.selectedWhereToSearch();
 
     const result: ToggleOption<WhereToSearchValue>[] = [
       { value: 'all', label: 'tab-all' },
@@ -118,7 +127,11 @@ export class SavedListsWhereToSearchToggleComponent {
     if (has('titles')) {
       result.push({ value: 'titles', label: 'titles-section-header' });
     }
-    if (has('page')) {
+    // Page scopes only make sense while a fulltext term is active (that's when
+    // the folder search actually queries pages) — a saved page item alone must
+    // not surface them. Keep them while the page scope is selected, though, so
+    // clearing the term doesn't strand the toggle on a value it can't render.
+    if (has('page') && (this.searchQuery().length > 0 || selected === 'page')) {
       result.push({ value: 'pageGrouped', label: 'group-results--titles' });
       result.push({ value: 'page', label: 'group-results--pages' });
     }
@@ -127,6 +140,12 @@ export class SavedListsWhereToSearchToggleComponent {
     }
     if (has('supplement')) {
       result.push({ value: 'supplement', label: 'attachments-section-header' });
+    }
+
+    // With a scope selected the toggle must stay visible whatever the counts
+    // say — it's the only way back to "all".
+    if (selected) {
+      return result;
     }
 
     // Hide the toggle when there's no meaningful choice:

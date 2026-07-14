@@ -1,17 +1,41 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { FolderSearchScope } from './folder-search-scope.service';
 
 describe('FolderSearchScope', () => {
   let service: FolderSearchScope;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
     service = TestBed.inject(FolderSearchScope);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('chunk splits into consecutive batches', () => {
     expect(service.chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  it('resolveScopePaths requests own_pid_path and falls back to pid', (done) => {
+    service.resolveScopePaths(['uuid:child', 'uuid:root']).subscribe(paths => {
+      expect(paths).toEqual(['uuid:parent/uuid:child', 'uuid:root']);
+      done();
+    });
+
+    const req = httpMock.expectOne(r => r.params.get('fl') === 'pid,own_pid_path');
+    expect(req.request.params.get('q')).toBe('(pid:"uuid:child" OR pid:"uuid:root")');
+    req.flush({
+      response: {
+        docs: [
+          { pid: 'uuid:child', 'own_pid_path': 'uuid:parent/uuid:child' },
+          { pid: 'uuid:root' },
+        ],
+      },
+    });
   });
 
   it('mergeResponses sums ungrouped numFound and concats docs', () => {
