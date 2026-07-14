@@ -32,7 +32,7 @@ import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-res
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
 import { SearchService } from './search.service';
-import { appendToAdvancedQuery, buildYearRangeQuery } from '../utils/date-range-query';
+import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -131,6 +131,7 @@ export class PeriodicalService extends BaseFilterService {
         tap(data => {
           this.availableYears = data;
           this.generateYearsFromAvailable();
+          this.maybeAutoOpenSingleYear();
         }),
       ).subscribe();
     }
@@ -300,89 +301,12 @@ export class PeriodicalService extends BaseFilterService {
 
     filters = [...baseFilters, ...customFilters];
 
-    // Date range below uses periodical-specific component-based logic (different from search/map),
-    // so only year-range is shared via the helper.
-    const dateFrom = params && params['dateFrom'];
-    const dateTo = params && params['dateTo'];
-
-    let finalAdvancedQuery = appendToAdvancedQuery(advancedQuery || '', buildYearRangeQuery(params)) || '';
-
-    // Add date range query using separate date components
-    if (dateFrom || dateTo) {
-      let dateRangeQuery = '';
-
-      if (dateFrom && dateTo) {
-        // Both dates provided - parse dates to get components
-        const fromDate = new Date(dateFrom);
-        const toDate = new Date(dateTo);
-
-        const fromDay = fromDate.getDate();
-        const fromMonth = fromDate.getMonth() + 1; // getMonth() returns 0-11
-        const fromYear = fromDate.getFullYear();
-
-        const toDay = toDate.getDate();
-        const toMonth = toDate.getMonth() + 1;
-        const toYear = toDate.getFullYear();
-
-        // Build comprehensive date range query
-        if (fromYear === toYear && fromMonth === toMonth) {
-          // Same year and month - simple day range
-          dateRangeQuery = `(date_range_start.year:${fromYear} AND date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO ${toDay}])`;
-        } else if (fromYear === toYear) {
-          // Same year, different months
-          const parts = [];
-          if (fromMonth === toMonth) {
-            parts.push(`(date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO ${toDay}])`);
-          } else {
-            // First month (from day to end of month)
-            parts.push(`(date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31])`);
-            // Middle months (if any)
-            if (toMonth - fromMonth > 1) {
-              parts.push(`(date_range_start.month:[${fromMonth + 1} TO ${toMonth - 1}])`);
-            }
-            // Last month (from start of month to day)
-            parts.push(`(date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}])`);
-          }
-          dateRangeQuery = `(date_range_start.year:${fromYear} AND (${parts.join(' OR ')}))`;
-        } else {
-          // Different years
-          const parts = [];
-          // First year (from month/day to end of year)
-          parts.push(`(date_range_start.year:${fromYear} AND ((date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31]) OR date_range_start.month:[${fromMonth + 1} TO 12]))`);
-          // Middle years (if any)
-          if (toYear - fromYear > 1) {
-            parts.push(`(date_range_start.year:[${fromYear + 1} TO ${toYear - 1}])`);
-          }
-          // Last year (from start of year to month/day)
-          parts.push(`(date_range_start.year:${toYear} AND ((date_range_start.month:[1 TO ${toMonth - 1}]) OR (date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}])))`);
-          dateRangeQuery = `(${parts.join(' OR ')})`;
-        }
-      } else if (dateFrom) {
-        // Only from date provided
-        const fromDate = new Date(dateFrom);
-        const fromDay = fromDate.getDate();
-        const fromMonth = fromDate.getMonth() + 1;
-        const fromYear = fromDate.getFullYear();
-
-        dateRangeQuery = `((date_range_start.year:${fromYear} AND ((date_range_start.month:${fromMonth} AND date_range_start.day:[${fromDay} TO 31]) OR date_range_start.month:[${fromMonth + 1} TO 12])) OR date_range_start.year:[${fromYear + 1} TO *])`;
-      } else if (dateTo) {
-        // Only to date provided
-        const toDate = new Date(dateTo);
-        const toDay = toDate.getDate();
-        const toMonth = toDate.getMonth() + 1;
-        const toYear = toDate.getFullYear();
-
-        dateRangeQuery = `((date_range_start.year:[* TO ${toYear - 1}]) OR (date_range_start.year:${toYear} AND ((date_range_start.month:[1 TO ${toMonth - 1}]) OR (date_range_start.month:${toMonth} AND date_range_start.day:[1 TO ${toDay}]))))`;
-      }
-
-      if (finalAdvancedQuery && finalAdvancedQuery.length > 0) {
-        // Combine existing advanced query with date range
-        finalAdvancedQuery = `${finalAdvancedQuery} AND ${dateRangeQuery}`;
-      } else {
-        // Just use date range as advanced query
-        finalAdvancedQuery = dateRangeQuery;
-      }
-    }
+    // Date filter uses interval overlap on date.min/date.max so it matches both
+    // issues (single-day range) and yearly volumes spanning the requested date.
+    const finalAdvancedQuery = appendToAdvancedQuery(
+      appendToAdvancedQuery(advancedQuery || '', buildYearRangeQuery(params || {})),
+      buildDateOverlapQuery(params || {})
+    ) || '';
 
     if (!query) {
       this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
@@ -551,12 +475,60 @@ export class PeriodicalService extends BaseFilterService {
       this.viewMode.set(ViewMode.Timeline);
       this.setSelectedYear(null);
     } else if (model === 'periodicalvolume') {
+      // A date filter outside this volume's year would leave the view empty;
+      // jump back to the years timeline (keeping the filter) instead.
+      if (this.dateFilterMissesVolume()) {
+        const rootPid = this.metadata?.rootPid;
+        if (rootPid && rootPid !== this.uuid) {
+          this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, rootPid], { queryParamsHandling: 'preserve' });
+          return;
+        }
+      }
       this.setSelectedYear(dateStr);
       this.viewMode.set(ViewMode.Calendar);
     }
 
     const storedView = this.loadViewModeFromLocalStorage();
     this.setView(storedView);
+  }
+
+  /**
+   * True when a dateFrom/dateTo filter is active but its year span does not
+   * overlap the currently opened volume's year(s) — the issue list would be
+   * empty, so the caller should navigate back to the years timeline.
+   */
+  private dateFilterMissesVolume(): boolean {
+    const { dateFrom, dateTo } = normalizeDateRangeParams(this.route.snapshot.queryParams);
+    if (!dateFrom && !dateTo) return false;
+
+    const meta = this.metadata;
+    const volStart = meta?.dateRangeStartYear ?? parseInt(meta?.dateStr ?? '', 10);
+    const volEnd = meta?.dateRangeEndYear ?? volStart;
+    if (!Number.isFinite(volStart)) return false;
+
+    const fromYear = dateFrom ? parseInt(dateFrom.slice(0, 4), 10) : null;
+    const toYear = dateTo ? parseInt(dateTo.slice(0, 4), 10) : null;
+    const overlaps = (toYear === null || volStart <= toYear) && (fromYear === null || volEnd >= fromYear);
+    return !overlaps;
+  }
+
+  /**
+   * When a date filter within a single year leaves exactly one matching year
+   * on the years level, open that year's calendar directly (filter preserved).
+   */
+  private maybeAutoOpenSingleYear(): void {
+    if (this.metadata?.model !== 'periodical') return;
+    if (this.hasSubmittedQuery()) return;
+
+    const { dateFrom, dateTo } = normalizeDateRangeParams(this.route.snapshot.queryParams);
+    if (!dateFrom || !dateTo) return;
+    if (dateFrom.slice(0, 4) !== dateTo.slice(0, 4)) return;
+    if (this.availableYears.length !== 1) return;
+
+    const pid = this.availableYears[0].pid;
+    if (pid && pid !== this.uuid) {
+      this.router.navigate([APP_ROUTES_ENUM.PERIODICAL_VIEW, pid], { queryParamsHandling: 'preserve' });
+    }
   }
 
   setView(view: string): void {

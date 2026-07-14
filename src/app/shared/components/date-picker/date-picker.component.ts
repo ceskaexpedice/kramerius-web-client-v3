@@ -109,6 +109,8 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() initialDateFrom: Date | null = null;
   @Input() initialDateTo: Date | null = null;
   @Input() initialOffset: number = 0;
+  /** Fallback date shown when the popup opens with no committed value (defaults to today) */
+  @Input() defaultDate: Date | null = null;
   @Input() showInput: boolean = true; // Control whether to show built-in input
   @Input() directInput: boolean = false; // Render input with formatted value; click opens popup focused on first field
   @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
@@ -229,9 +231,9 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   private initializePopupValues() {
-    // Initialize popup with current committed values, or today's date if no dateFrom exists
-    const today = new Date();
-    const initialFromDate = this.fromDate() || today;
+    // Initialize popup with current committed values; without a committed dateFrom
+    // fall back to the context's default date (e.g. a periodical volume's year), then today
+    const initialFromDate = this.fromDate() || this.defaultDate || new Date();
     const initialToDate = this.toDate() || initialFromDate; // Default to same as fromDate if no toDate
 
     this.selectedDateFrom.set(initialFromDate);
@@ -458,6 +460,14 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
         this.selectedDateTo.set(parsedDate);
         this.dateToInput.set(this.formatDate(parsedDate));
         this.updateToCalendarMonth(parsedDate);
+      } else {
+        // Range mode: moving FROM past TO would invert the interval — pull TO up
+        const currentToDate = this.selectedDateTo();
+        if (currentToDate && parsedDate > currentToDate) {
+          this.selectedDateTo.set(parsedDate);
+          this.dateToInput.set(this.formatDate(parsedDate));
+          this.updateToCalendarMonth(parsedDate);
+        }
       }
 
       // Trigger change detection to update month-year selector
@@ -531,11 +541,14 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateFromSelect(date: Date | null): void {
     if (!date) return;
 
-    // Block selection if date is after current toDate (only in range mode)
+    // In range mode, selecting FROM after current TO pulls TO up so the
+    // interval stays valid instead of silently ignoring the click
     if (this.isRangeModeActive) {
       const currentToDate = this.selectedDateTo();
       if (currentToDate && date > currentToDate) {
-        return;
+        this.selectedDateTo.set(date);
+        this.dateToInput.set(this.formatDate(date));
+        this.updateToCalendarMonth(date);
       }
     }
 
@@ -793,6 +806,14 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   onSubmit(): void {
+    // Safety clamp: never commit an inverted interval
+    const from = this.selectedDateFrom();
+    const to = this.selectedDateTo();
+    if (from && to && from > to) {
+      this.selectedDateTo.set(from);
+      this.dateToInput.set(this.formatDate(from));
+    }
+
     // Commit the selected values to the actual state
     this.fromDate.set(this.selectedDateFrom() || undefined);
     this.toDate.set(this.selectedDateTo() || undefined);

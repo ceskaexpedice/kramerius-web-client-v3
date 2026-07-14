@@ -130,11 +130,12 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [selected]="selectedFilters"
         [loading]="(periodicalService.facetsLoading$ | async) || false"
         [type]="getElementTypeByFacetKey(customDefinedFacetsEnum.yearRange)"
-        [yearRangeMin]="defaultYearRangeFrom"
-        [yearRangeMax]="currentYear"
-        [yearRangeFrom]="yearRangeFrom"
-        [yearRangeTo]="yearRangeTo"
+        [yearRangeMin]="periodicalYearMin"
+        [yearRangeMax]="periodicalYearMax"
+        [yearRangeFrom]="periodicalYearFrom"
+        [yearRangeTo]="periodicalYearTo"
         (rangeChange)="onYearRangeChange($event)"
+        (rangeSubmit)="submitYearRange()"
       >
         <button
           class="outlined submit-year-range-btn w-100"
@@ -157,6 +158,7 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [dateFrom]="dateFrom"
         [dateTo]="dateTo"
         [dateOffset]="dateOffset"
+        [datePickerDefault]="periodicalDefaultDate"
         (datePickerChange)="onDateRangeChange($event)"
       >
         <button
@@ -179,6 +181,32 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
 
   protected readonly customDefinedFacetsEnum = customDefinedFacetsEnum;
   protected readonly facetKeysEnum = facetKeysEnum;
+
+  // Year range slider bounds follow the periodical's actual publication span
+  // (falling back to the global defaults until metadata loads).
+  get periodicalYearMin(): number {
+    const year = Number(this.periodicalService.metadata?.dateRangeStartYear);
+    return Number.isFinite(year) && year > 0 ? year : this.defaultYearRangeFrom;
+  }
+
+  get periodicalYearMax(): number {
+    const year = Number(this.periodicalService.metadata?.dateRangeEndYear);
+    return Number.isFinite(year) && year > 0 ? year : this.currentYear;
+  }
+
+  /** Date picker opens on 1.1. of the current volume's (or periodical's first) year instead of today */
+  get periodicalDefaultDate(): Date | null {
+    const year = Number(this.periodicalService.metadata?.dateRangeStartYear);
+    return Number.isFinite(year) && year > 0 ? new Date(year, 0, 1) : null;
+  }
+
+  get periodicalYearFrom(): number {
+    return this.customSearchService.getYearFrom() ?? this.periodicalYearMin;
+  }
+
+  get periodicalYearTo(): number {
+    return this.customSearchService.getYearTo() ?? this.periodicalYearMax;
+  }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {
     const facet = getCustomDefinedFacets().find(f => f.facetKey === facetKey);

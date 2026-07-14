@@ -127,3 +127,9 @@
     }
   }
 }
+
+.no-results-message {
+  padding: var(--spacing-x6) var(--spacing-x3);
+  text-align: center;
+  color: var(--color-text-tertiary);
+}

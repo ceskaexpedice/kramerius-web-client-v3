@@ -65,6 +65,8 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() dateFrom: Date | null = null;
   @Input() dateTo: Date | null = null;
   @Input() dateOffset: number = 0;
+  /** Fallback date the picker opens on when nothing is selected yet */
+  @Input() datePickerDefault: Date | null = null;
 
   // Year range inputs
   @Input() yearRangeMin: number = 1400;
@@ -76,6 +78,8 @@ export class FilterCategoryComponent implements OnChanges {
   @Output() showMore = new EventEmitter<void>();
   @Output() datePickerChange = new EventEmitter<any>();
   @Output() rangeChange = new EventEmitter<any>();
+  /** Re-emitted when the user presses Enter in a range slider input */
+  @Output() rangeSubmit = new EventEmitter<void>();
 
   visibleItems = signal<FacetItem[]>([]);
 

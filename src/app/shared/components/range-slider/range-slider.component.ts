@@ -45,6 +45,8 @@ export class RangeSliderComponent implements OnInit, OnChanges {
 
   @Output() rangeChange = new EventEmitter<NumberRange>();
   @Output() dateRangeChange = new EventEmitter<DateRange>();
+  /** Emitted when the user presses Enter in one of the numeric inputs */
+  @Output() rangeSubmit = new EventEmitter<void>();
 
   from = signal(this.initialFrom);
   to = signal(this.initialTo);
@@ -262,8 +264,11 @@ export class RangeSliderComponent implements OnInit, OnChanges {
     const from = this.from();
     const to = this.to();
     const range = max - min;
-    const fromPercent = ((from - min) / range) * 100;
-    const toPercent = ((to - min) / range) * 100;
+    // Degenerate range (min === max, e.g. a single-year periodical) would divide
+    // by zero — the selection is a single point (both thumbs overlap), so there
+    // is no interval to fill; keep the track unpainted.
+    const fromPercent = range === 0 ? 0 : ((from - min) / range) * 100;
+    const toPercent = range === 0 ? 0 : ((to - min) / range) * 100;
 
     return `linear-gradient(
       to right,
