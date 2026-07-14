@@ -25,6 +25,7 @@ import { SavedListsFilterService } from './services/saved-lists-filter.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
 import { ExportService } from '../../shared/services/export.service';
+import { CustomSearchService } from '../../shared/services/custom-search.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FolderShareDialogComponent } from '../../shared/dialogs/folder-share-dialog/folder-share-dialog.component';
 import { selectIsAuthenticated } from '../../core/auth/store';
@@ -150,7 +151,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     public savedListsFilterService: SavedListsFilterService,
     private router: Router,
     private translate: TranslateService,
-    private dontShowAgain: DontShowAgainService
+    private dontShowAgain: DontShowAgainService,
+    private customSearchService: CustomSearchService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
     // Drop the where-to-search filter from the tag row — it's already surfaced by
@@ -234,6 +236,23 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       // loadFolderSearchResults, which already honors the URL filters.
       if (firstFilterEmission) {
         firstFilterEmission = false;
+        return;
+      }
+      // The pages scope only exists while a fulltext term is active. If the term
+      // disappears (cleared input, removed tag, back navigation) while the toggle
+      // sits on "Strany v tituloch"/"Samostatné strany", fall back to "all" — a
+      // pages search without a term would render nothing. The navigation issued
+      // here re-emits with the cleaned params and runs the search.
+      const queryGone = !(params['query'] as string | undefined)?.trim();
+      const pageScopeActive = ((params['customSearch'] as string | undefined) ?? '')
+        .split(',')
+        .includes(`${customDefinedFacetsEnum.whereToSearchModel}:page`);
+      if (queryGone && pageScopeActive) {
+        this.customSearchService.initializeFromRoute();
+        this.customSearchService.removeAllFiltersByFacetKey(
+          customDefinedFacetsEnum.whereToSearchModel,
+          { group: null, page: 1 }
+        );
         return;
       }
       // A filter change invalidates the current page — reset to page 1 first;
