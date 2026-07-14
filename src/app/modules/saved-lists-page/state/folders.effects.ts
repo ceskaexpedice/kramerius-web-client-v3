@@ -298,12 +298,17 @@ export class FoldersEffects {
             // the model facet carries a `page` bucket — that's what makes the
             // where-to-search toggle's grouped/ungrouped page options appear.
             const includePageInFacets = this.shouldIncludePages();
+            // In the grouped pages scope ("Strany v tituloch") the result list
+            // shows one row per title (ngroups), so facet counts — including the
+            // accessibility {!ex=avail}*:* "All" count — must be grouped the same
+            // way, or they'd count the individual page hits instead.
+            const groupedFacets = !!action.grouped && includePageInFacets;
             const facets$ = forkJoin(
               chunks.map(chunk =>
                 this.solrService.getFacetsWithOperators(
                   query, ctx.fqFilters, this.folderFacetFields(), ctx.facetOperators,
                   ctx.advancedQuery, ctx.includePeriodicalItem, includePageInFacets, null, undefined,
-                  ctx.availabilityFilter, false, chunk, exactScope
+                  ctx.availabilityFilter, groupedFacets, chunk, exactScope
                 )
               )
             ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
