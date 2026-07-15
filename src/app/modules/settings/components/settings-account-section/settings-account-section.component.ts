@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDialog} from '@angular/material/dialog';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {AuthService} from '../../../../core/auth/auth.service';
 import {AuthDataDialogComponent} from './auth-data-dialog/auth-data-dialog.component';
 import {VersionService} from '../../../../shared/services/version.service';
@@ -15,7 +15,7 @@ import {VersionService} from '../../../../shared/services/version.service';
     CommonModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './settings-account-section.component.html',
   styleUrl: './settings-account-section.component.scss',

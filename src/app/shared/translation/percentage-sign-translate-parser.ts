@@ -14,9 +14,9 @@ import {InterpolateFunction, TranslateDefaultParser, InterpolationParameters} fr
  * <div>{{ 'Hello {{ who }}' | translate:{who: 'world'} }}</div>
  *
  *
- * Usage - in NgModule definition when configuring imported TranslateModule:
+ * Usage - in providers when configuring provideTranslateService:
  *
- * 		TranslateModule.forRoot({
+ * 		provideTranslateService({
  *			// loaders, missing translation handlers, etc
  *			parser: {
  *				provide: TranslateParser,

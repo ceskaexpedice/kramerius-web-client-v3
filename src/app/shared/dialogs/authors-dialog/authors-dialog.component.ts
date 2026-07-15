@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author } from '../../models/metadata.model';
 
 export interface AuthorsDialogData {
@@ -22,7 +22,7 @@ export function buildNkpAuthorityUrl(identifier: string): string {
 
 @Component({
   selector: 'app-authors-dialog',
-  imports: [TranslateModule],
+  imports: [TranslatePipe],
   templateUrl: './authors-dialog.component.html',
   styleUrls: ['./authors-dialog.component.scss', '../generic-dialog.scss']
 })

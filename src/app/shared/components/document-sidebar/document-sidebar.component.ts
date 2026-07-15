@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, effect, OnDestroy} from '@angular/core';
 import { NgIf, AsyncPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
 import { AdminActionsComponent } from '../admin-actions/admin-actions.component';
 import { DetailPagesGridComponent } from '../../../modules/detail-view-page/components/detail-pages-grid/detail-pages-grid.component';
@@ -28,7 +28,7 @@ import { SearchDebounceService } from '../../services/search-debounce.service';
   imports: [
     NgIf,
     AsyncPipe,
-    TranslateModule,
+    TranslatePipe,
     PageNavigatorComponent,
     AdminActionsComponent,
     DetailPagesGridComponent,

@@ -16,7 +16,6 @@ import { selectAvailableYears } from '../../../modules/periodical/state/periodic
 import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
-import { LicenseBadgeComponent } from '../license-badge/license-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { SolrService } from '../../../core/solr/solr.service';
 import { CdkSourceService } from '../../services/cdk-source.service';
@@ -48,7 +47,6 @@ import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/langua
     MetadataSectionItem,
     CollapsibleContent,
     AccessibilityBadgeComponent,
-    LicenseBadgeComponent,
     ModelBadgeComponent,
     RouterLink,
     SelectComponent,

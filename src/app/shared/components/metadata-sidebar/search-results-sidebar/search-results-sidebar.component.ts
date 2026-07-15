@@ -7,7 +7,7 @@ import { SearchDocument } from '../../../../modules/models/search-document';
 import { Observable, Subscription, combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PaginatorComponent } from '../../paginator/paginator.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../record-item/record-item.component';
 import { RecordItem, searchDocumentToRecordItem } from '../../record-item/record-item.model';
 import { Metadata } from '../../../models/metadata.model';
@@ -20,7 +20,7 @@ import {AppResultsViewType} from '../../../../modules/settings/settings.model';
   imports: [
     CommonModule,
     PaginatorComponent,
-    TranslateModule,
+    TranslatePipe,
     RecordItemComponent,
     PaginatorInfoComponent,
   ],

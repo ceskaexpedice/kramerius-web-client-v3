@@ -50,7 +50,7 @@ interface CalendarIssue {
   providers: [
     {
       provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.currentLang,
+      useFactory: (translate: TranslateService) => translate.getCurrentLang(),
       deps: [TranslateService],
     },
   ],
@@ -96,7 +96,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
 
   constructor() {
     // Init date locale
-    this.adapter.setLocale(this.translate.currentLang);
+    this.adapter.setLocale(this.translate.getCurrentLang());
     this.translate.onLangChange
       .pipe(takeUntilDestroyed())
       .subscribe(e => this.adapter.setLocale(e.lang));

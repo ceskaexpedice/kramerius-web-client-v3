@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface LicenseInfoDialogData {
     title: string;
@@ -9,7 +9,7 @@ export interface LicenseInfoDialogData {
 
 @Component({
     selector: 'app-license-info-dialog',
-    imports: [TranslateModule],
+    imports: [TranslatePipe],
     templateUrl: './license-info-dialog.component.html',
     styleUrls: ['./license-info-dialog.component.scss', '../generic-dialog.scss']
 })

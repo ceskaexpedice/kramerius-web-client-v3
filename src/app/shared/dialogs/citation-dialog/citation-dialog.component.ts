@@ -88,7 +88,7 @@ export class CitationDialogComponent {
     this.error = null;
     this.citationResponse = null;
 
-    const lang = this.translationService.currentLang;
+    const lang = this.translationService.getCurrentLang();
     const apiUrl = this.environmentService.getBaseApiUrl();
     // refurl is the public uuid url of the selected item (e.g. /uuid/uuid:...)
     const refUrl = this.shareService.getCurrentUrl(this.selectedPid);

@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CollectionsPage } from './collections-page';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
@@ -12,7 +13,6 @@ import { AdminActionsComponent } from '../../shared/components/admin-actions';
 import { AdminSelectionCountComponent } from '../../shared/components/admin-selection-count/admin-selection-count.component';
 import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
 import { BreadcrumbsComponent } from '../../shared/components/breadcrumbs/breadcrumbs.component';
-import { TranslateModule } from '@ngx-translate/core';
 import { CollectionFiltersComponent } from './components/collection-filters/collection-filters.component';
 import { SelectedTagsComponent } from '../../shared/components/selected-tags/selected-tags.component';
 import { EffectsModule } from '@ngrx/effects';
@@ -39,6 +39,7 @@ const routes: Routes = [
   declarations: [CollectionsPage],
   imports: [
     RouterModule.forChild(routes),
+    TranslatePipe,
     FilterSidebarComponent,
     ActionToolbarComponent,
     NgForOf,
@@ -49,7 +50,6 @@ const routes: Routes = [
     AdminSelectionCountComponent,
     NgIf,
     ToolbarHeaderComponent,
-    TranslateModule,
     CollectionFiltersComponent,
     SelectedTagsComponent,
     EffectsModule.forFeature([CollectionsEffects]),

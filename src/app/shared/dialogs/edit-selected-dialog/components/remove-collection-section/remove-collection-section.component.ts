@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {CollectionsListComponent} from '../../../../components/collections-list/collections-list.component';
 import {Observable} from 'rxjs';
 import {Store} from '@ngrx/store';
@@ -16,7 +16,7 @@ export interface RemoveCollectionSectionData {
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
+    TranslatePipe,
     CollectionsListComponent,
     CollectionsListComponent,
   ],

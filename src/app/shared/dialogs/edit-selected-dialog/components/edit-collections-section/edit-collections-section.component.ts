@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AddCollectionSectionComponent, AddCollectionSectionData } from '../add-collection-section/add-collection-section.component';
 import { RemoveCollectionSectionComponent, RemoveCollectionSectionData } from '../remove-collection-section/remove-collection-section.component';
 
@@ -19,7 +19,7 @@ export interface CollectionsSectionData {
     CommonModule,
     FormsModule,
     MatRadioModule,
-    TranslateModule,
+    TranslatePipe,
     AddCollectionSectionComponent,
     RemoveCollectionSectionComponent
   ],

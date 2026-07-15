@@ -83,7 +83,7 @@ export class ViewerWatermarkComponent implements OnChanges, AfterViewInit, OnDes
   private resolveStaticText(staticText: string | LocalizedLabel | undefined): string | null {
     if (!staticText) return null;
     if (typeof staticText === 'string') return staticText;
-    const lang = this.translateService.currentLang;
+    const lang = this.translateService.getCurrentLang();
     return staticText[lang] ?? staticText['en'] ?? staticText[Object.keys(staticText)[0]] ?? null;
   }
 

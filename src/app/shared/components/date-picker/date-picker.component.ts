@@ -137,7 +137,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.updateFromInitialValues();
 
     const applyLocaleFromTranslate = () => {
-      const lang = this.translate.getCurrentLang() || this.translate.getDefaultLang();
+      const lang = this.translate.getCurrentLang() || this.translate.getFallbackLang();
       if (lang) {
         this.dateAdapter.setLocale(lang);
         this.forceCalendarRefresh();

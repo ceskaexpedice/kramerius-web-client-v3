@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {LicensesListComponent} from '../../../../components/licenses-list/licenses-list.component';
 import {Observable, forkJoin} from 'rxjs';
 import {Store} from '@ngrx/store';
@@ -17,7 +17,7 @@ export interface AddLicenseSectionData {
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
+    TranslatePipe,
     LicensesListComponent,
   ],
   templateUrl: './add-license-section.component.html',

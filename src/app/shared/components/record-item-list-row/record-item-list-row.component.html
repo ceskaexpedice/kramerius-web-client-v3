@@ -84,7 +84,7 @@
 
   <td *ngIf="column.id === 'doctype'">
 
-    <app-model-badge [model]="getColumnValue(column)" [monographUnitCount]="record?.monographUnitCount || 0" [partNumber]="record?.partNumber" [showUnitDetails]="true"></app-model-badge>
+    <app-model-badge [model]="getColumnValue(column)" [monographUnitCount]="record.monographUnitCount || 0" [partNumber]="record.partNumber" [showUnitDetails]="true"></app-model-badge>
 
 <!--    {{ getColumnValue(column) | translate }}-->
   </td>

@@ -1,6 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { CategoryItemComponent } from '../../../../shared/components/category-item/category-item.component';
 import { HomepageSectionConfig, HomepageLinkItem, LocalizedLabel } from '../../../../core/config/config.interfaces';
 import { getModelIcon } from '../../../../shared/utils/filter-icons.utils';
@@ -13,7 +12,6 @@ import { ConfigService } from '../../../../core/config/config.service';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
     CategoryItemComponent,
     LocalizedPipe
   ],

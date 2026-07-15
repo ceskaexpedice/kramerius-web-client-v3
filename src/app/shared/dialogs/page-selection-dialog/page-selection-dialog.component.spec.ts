@@ -2,7 +2,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { PageSelectionDialogComponent, PageSelectionDialogData } from './page-selection-dialog.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Page } from '../../models/page.model';
 
@@ -34,10 +34,10 @@ describe('PageSelectionDialogComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 PageSelectionDialogComponent,
-                TranslateModule.forRoot(),
                 NoopAnimationsModule
             ],
             providers: [
+                provideTranslateService(),
                 { provide: MatDialogRef, useValue: mockDialogRef },
                 { provide: MAT_DIALOG_DATA, useValue: mockData }
             ]

@@ -9,7 +9,7 @@ export class PluralizePipe implements PipeTransform {
   private translateService = inject(TranslateService);
 
   transform(count: number, translationKey: string): string {
-    const currentLang = this.translateService.currentLang || 'sk';
+    const currentLang = this.translateService.getCurrentLang() || 'sk';
     const pluralForm = this.getPluralForm(count, currentLang);
     const key = `${translationKey}.${pluralForm}`;
 
