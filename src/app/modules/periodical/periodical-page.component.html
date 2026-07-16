@@ -153,6 +153,15 @@
           <app-periodical-search-results *ngIf="mode === ViewMode.SearchResults">
           </app-periodical-search-results>
 
+          <!-- Empty state: active filters (e.g. date range) can leave the view with no items -->
+          @if (!(periodical.loading$ | async)) {
+            @if ((mode === ViewMode.Timeline || mode === ViewMode.GridYears) && periodical.periodicalYears.length === 0) {
+              <p class="no-results-message">{{ 'no-results' | translate }}</p>
+            } @else if (mode === ViewMode.GridIssues && ((periodical.periodicalChildren$ | async) || []).length === 0) {
+              <p class="no-results-message">{{ 'no-results' | translate }}</p>
+            }
+          }
+
           <!-- Loading and error states - scoped to main content -->
           <app-inline-loader
             *ngIf="(periodical.loading$ | async) && mode !== ViewMode.GridIssues && mode !== ViewMode.GridYears"

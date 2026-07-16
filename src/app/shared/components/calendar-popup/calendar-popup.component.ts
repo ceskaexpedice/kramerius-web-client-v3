@@ -45,7 +45,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside/click-outs
   providers: [
     {
       provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.currentLang,
+      useFactory: (translate: TranslateService) => translate.getCurrentLang(),
       deps: [TranslateService],
     },
   ],
@@ -435,7 +435,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     this.adapter.getDayOfWeekNames = (style: 'long' | 'short' | 'narrow') =>
       originalGetDayOfWeekNames(style === 'narrow' ? 'short' : style);
 
-    this.adapter.setLocale(this.translate.currentLang);
+    this.adapter.setLocale(this.translate.getCurrentLang());
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
       .subscribe(e => this.adapter.setLocale(e.lang));

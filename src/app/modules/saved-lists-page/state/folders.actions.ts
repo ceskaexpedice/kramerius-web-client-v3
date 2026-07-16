@@ -114,7 +114,22 @@ export const loadFolderDetailsFailure = createAction(
 
 export const loadFolderSearchResults = createAction(
   '[Folders] Load Folder Search Results',
-  props<{ itemIds: string[] }>()
+  props<{ itemIds: string[]; grouped?: boolean }>()
+);
+
+export const loadFolderPageSearchResults = createAction(
+  '[Folders] Load Folder Page Search Results',
+  props<{ itemIds: string[]; query: string; filters: string[]; sortBy: SolrSortFields; sortDirection: SolrSortDirections; grouped?: boolean; page: number; pageCount: number }>()
+);
+
+export const loadFolderPageSearchResultsSuccess = createAction(
+  '[Folders] Load Folder Page Search Results Success',
+  props<{ results: any[]; totalCount: number }>()
+);
+
+export const loadFolderPageSearchResultsFailure = createAction(
+  '[Folders] Load Folder Page Search Results Failure',
+  props<{ error: string }>()
 );
 
 export const loadFolderSearchResultsSuccess = createAction(

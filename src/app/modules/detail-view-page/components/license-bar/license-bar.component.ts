@@ -42,7 +42,7 @@ export class LicenseBarComponent implements OnDestroy {
   }
 
   getLocalizedText(bar: LicenseBarConfig): string {
-    const lang = this.translateService.currentLang;
+    const lang = this.translateService.getCurrentLang();
     return bar.text[lang] ?? bar.text['en'] ?? bar.text[Object.keys(bar.text)[0]] ?? '';
   }
 

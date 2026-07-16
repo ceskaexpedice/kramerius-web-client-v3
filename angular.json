@@ -44,6 +44,17 @@
               "src/styles.scss"
             ],
             "scripts": [],
+            "allowedCommonJsDependencies": [
+              "openseadragon",
+              "file-saver",
+              "event-emitter",
+              "@xmldom/xmldom",
+              "path-webpack",
+              "jszip",
+              "localforage",
+              "marks-pane",
+              "lodash"
+            ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "public/styles"

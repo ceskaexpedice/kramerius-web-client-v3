@@ -1,21 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of, combineLatest } from 'rxjs';
-import { catchError, map, switchMap, mergeMap, tap, filter, take } from 'rxjs/operators';
+import { of, combineLatest, forkJoin } from 'rxjs';
+import { catchError, map, switchMap, mergeMap, tap, filter, take, withLatestFrom } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FoldersService, FolderSearchFilters } from '../services/folders.service';
+import { FoldersService } from '../services/folders.service';
 import { FolderSearchFiltersBuilder } from '../services/folder-search-filters.builder';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { QueryParamsService } from '../../../core/services/QueryParamsManager';
 import { FolderItemsService } from '../services/folder-items.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
-import { parseSearchDocument } from '../../models/search-document';
-import { parseSoundTrack } from '../../models/sound-track.model';
-import { DocumentTypeEnum } from '../../constants/document-type';
 import { SolrService } from '../../../core/solr/solr.service';
+import { SolrSortFields, SolrSortDirections } from '../../../core/solr/solr-helpers';
+import { FolderSearchScope } from '../services/folder-search-scope.service';
+import { parseSolrSearchResponse, getTotalCountFromResponse } from '../../search-results-page/state/parse-search-results';
+import { facetKeys, facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../search-results-page/const/facets';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
+import { appendToAdvancedQuery } from '../../../shared/utils/date-range-query';
 import { UserService } from '../../../shared/services/user.service';
 import * as FoldersActions from './folders.actions';
 import * as FoldersSelectors from './folders.selectors';
@@ -238,7 +240,8 @@ export class FoldersEffects {
           switchMap(folderDetails => [
             FoldersActions.loadFolderDetailsSuccess({ folderDetails }),
             FoldersActions.loadFolderSearchResults({
-              itemIds: folderDetails.items.flat().map(item => item.id)
+              itemIds: folderDetails.items.flat().map(item => item.id),
+              grouped: this.folderSearchFiltersBuilder.build().grouped,
             })
           ]),
           catchError(error => of(FoldersActions.loadFolderDetailsFailure({ error: error.message })))
@@ -251,16 +254,174 @@ export class FoldersEffects {
     this.actions$.pipe(
       ofType(FoldersActions.loadFolderSearchResults),
       switchMap(action => {
-        const filters = this.buildFolderSearchFilters();
-        return this.foldersService.searchFolderItems(
-          action.itemIds,
-          this.urlSearchQuery(),
-          undefined,
-          undefined,
-          filters
-        ).pipe(
-          map(response => this.parseFolderSearchResponse(response, filters)),
-          catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
+        const ctx = this.folderRequestContext();
+        const query = this.urlSearchQuery();
+
+        // No text term: the folder shows exactly the saved items (`pid:"..." OR ...`),
+        // and facet/range/availability filters narrow that exact set — a filter must
+        // never widen it. Only a fulltext search broadens the scope to each item's
+        // own subtree (`pid_paths:<own_pid_path>*`), matching the old client's
+        // ?folder= search (find the term inside the saved titles).
+        const exactScope = !query.trim();
+        const scope$ = exactScope
+          ? of(action.itemIds)
+          : this.folderSearchScope.resolveScopePaths(action.itemIds);
+
+        return scope$.pipe(
+          switchMap(scopePaths => {
+            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
+            if (chunks.length === 0) {
+              // Empty folder: nothing to scope to — report empty results directly
+              // (forkJoin over no sources would complete without emitting).
+              return of(FoldersActions.loadFolderSearchResultsSuccess({ results: [], totalCount: 0, facets: {} }));
+            }
+
+            // Titles request: non-page docs, never grouped. Paged via ?page/?pageSize
+            // like the main search (start/rows per chunk). With multiple chunks the
+            // merged window can exceed pageSize, so the results are sliced below —
+            // per-chunk ordering is exact; cross-chunk ordering (>50 roots) is
+            // approximate, as it already was for the unpaged fetch.
+            const { start, pageSize } = this.urlPaging();
+            const titles$ = forkJoin(
+              chunks.map(chunk =>
+                this.solrService.search(
+                  query, ctx.fqFilters, ctx.facetOperators, start, pageSize,
+                  this.storeSortBy(), this.storeSortDirection(),
+                  ctx.advancedQuery, ctx.includePeriodicalItem, false, [], undefined, ctx.availabilityFilter,
+                  true, true, false, chunk, exactScope
+                )
+              )
+            ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
+
+            // Facets request (all fields), also scoped. Include pages when a text
+            // term is active (same condition that fires the pages-only request) so
+            // the model facet carries a `page` bucket — that's what makes the
+            // where-to-search toggle's grouped/ungrouped page options appear.
+            const includePageInFacets = this.shouldIncludePages();
+            // In the grouped pages scope ("Strany v tituloch") the result list
+            // shows one row per title (ngroups), so facet counts — including the
+            // accessibility {!ex=avail}*:* "All" count — must be grouped the same
+            // way, or they'd count the individual page hits instead.
+            const groupedFacets = !!action.grouped && includePageInFacets;
+            const facets$ = forkJoin(
+              chunks.map(chunk =>
+                this.solrService.getFacetsWithOperators(
+                  query, ctx.fqFilters, this.folderFacetFields(), ctx.facetOperators,
+                  ctx.advancedQuery, ctx.includePeriodicalItem, includePageInFacets, null, undefined,
+                  ctx.availabilityFilter, groupedFacets, chunk, exactScope
+                )
+              )
+            ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
+
+            return forkJoin({ titlesRes: titles$, facetsRes: facets$ }).pipe(
+              map(({ titlesRes, facetsRes }) => {
+                const { results: allResults } = parseSolrSearchResponse(titlesRes, query);
+                // Multi-chunk merges can return up to chunks×pageSize docs — cap the
+                // window so the paginator page size holds.
+                const results = allResults.slice(0, pageSize);
+                const totalCount = getTotalCountFromResponse(titlesRes);
+                const facets = handleFacetsWithOperators(
+                  (facetsRes as any).facet_counts?.facet_fields ?? {},
+                  (facetsRes as any).facet_counts?.facet_fields ?? {},
+                  this.queryParamsService.getOperators(this.urlParams()),
+                  {},
+                  this.userService.licenses,
+                  totalCount,
+                  ctx.fqFilters,
+                  (facetsRes as any).facet_counts?.facet_queries,
+                  this.userService.isLoggedIn
+                );
+                return FoldersActions.loadFolderSearchResultsSuccess({ results, totalCount, facets });
+              }),
+              catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
+            );
+          })
+        );
+      })
+    )
+  );
+
+  triggerFolderPageSearchAfterMain$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.loadFolderSearchResultsSuccess),
+      withLatestFrom(this.store.select(FoldersSelectors.selectLastFolderSearchPayload)),
+      map(([{ results, totalCount }, payload]) => {
+        if (!payload || !this.shouldIncludePages()) {
+          return FoldersActions.loadFolderPageSearchResultsSuccess({ results: [], totalCount: 0 });
+        }
+        // Same spill math as the main search (triggerPageSearchAfterMain$):
+        // pages fill the remainder of the current paginator window after
+        // titles. For window [start, start+pageSize): the pages slice begins
+        // where the window extends past titlesTotal, sized to what titles
+        // didn't fill. Runs even when pagesNeeded is 0 (rows=0) so the pages
+        // numFound still feeds the combined paginator total.
+        const { start, pageSize } = this.urlPaging();
+        const titlesShown = results.length;
+        const pagesNeeded = Math.max(0, pageSize - titlesShown);
+        const pagesStart = Math.max(0, start - totalCount);
+
+        return FoldersActions.loadFolderPageSearchResults({
+          itemIds: payload.itemIds,
+          // Read the term from the URL like the titles/facets requests do —
+          // payload.query comes from store state that the URL-driven search
+          // never syncs, so it would run the pages request with q=*:* and
+          // count every page in scope instead of the matching ones.
+          query: this.urlSearchQuery(),
+          filters: payload.filters,
+          sortBy: payload.sortBy,
+          sortDirection: payload.sortDirection,
+          grouped: payload.grouped,
+          page: pagesStart,
+          pageCount: pagesNeeded,
+        });
+      })
+    )
+  );
+
+  loadFolderPageSearchResults$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.loadFolderPageSearchResults),
+      switchMap(action => {
+        // Note: pageCount 0 still runs (rows=0) — the pages numFound must feed the
+        // combined paginator total even when titles filled the whole window.
+        const ctx = this.folderRequestContext();
+        // Constrain to page-level docs, keeping the active filters as their own
+        // group — same as the main search's pages-only effect. (When filterGroups
+        // are set, SolrService ignores the flat filters, so the active filters
+        // MUST ride along as a group or the pages request loses all filtering —
+        // e.g. whereToSearch:titles would still return pages.)
+        const pageOnlyGroup = ['model:page'];
+        const effectiveFilterGroups = ctx.fqFilters.length > 0
+          ? [ctx.fqFilters, pageOnlyGroup]
+          : [pageOnlyGroup];
+
+        return this.folderSearchScope.resolveScopePaths(action.itemIds).pipe(
+          switchMap(scopePaths => {
+            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
+            if (chunks.length === 0) {
+              return of(FoldersActions.loadFolderPageSearchResultsSuccess({ results: [], totalCount: 0 }));
+            }
+            return forkJoin(
+              chunks.map(chunk =>
+                this.solrService.search(
+                  action.query, ctx.fqFilters, ctx.facetOperators, action.page, action.pageCount,
+                  action.sortBy, action.sortDirection,
+                  ctx.advancedQuery, ctx.includePeriodicalItem, true, [], effectiveFilterGroups, ctx.availabilityFilter,
+                  false, false, !!action.grouped, chunk
+                )
+              )
+            ).pipe(
+              map(resps => this.folderSearchScope.mergeResponses(resps)),
+              map(merged => {
+                const { results: allResults } = parseSolrSearchResponse(merged, action.query);
+                // Multi-chunk merges can exceed the requested window — cap it.
+                const results = allResults.slice(0, action.pageCount);
+                const totalCount = getTotalCountFromResponse(merged);
+                return FoldersActions.loadFolderPageSearchResultsSuccess({ results, totalCount });
+              }),
+              catchError(error => of(FoldersActions.loadFolderPageSearchResultsFailure({ error: error.message })))
+            );
+          })
         );
       })
     )
@@ -269,29 +430,14 @@ export class FoldersEffects {
   searchFolders$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.searchFolders),
-      switchMap(action =>
-        // Get current folder details from state; the free-text query is read from
-        // the URL (?query=...) so it stays in sync with the selected-tags / URL —
-        // mirroring the main search.
+      switchMap(() =>
         this.store.select(FoldersSelectors.selectFolderDetails).pipe(
           take(1),
           filter(folderDetails => !!folderDetails),
-          switchMap(folderDetails => {
-            const itemIds = folderDetails!.items.flat().map(item => item.id);
-            const searchQuery = this.urlSearchQuery();
-
-            const filters = this.buildFolderSearchFilters();
-            return this.foldersService.searchFolderItems(
-              itemIds,
-              searchQuery,
-              action.sortBy,
-              action.sortDirection,
-              filters
-            ).pipe(
-              map(response => this.parseFolderSearchResponse(response, filters)),
-              catchError(error => of(FoldersActions.loadFolderSearchResultsFailure({ error: error.message })))
-            );
-          })
+          map(folderDetails => FoldersActions.loadFolderSearchResults({
+            itemIds: folderDetails!.items.flat().map(item => item.id),
+            grouped: this.folderSearchFiltersBuilder.build().grouped,
+          }))
         )
       )
     )
@@ -514,8 +660,59 @@ export class FoldersEffects {
     private customSearchService: CustomSearchService,
     private queryParamsService: QueryParamsService,
     private userService: UserService,
-    private folderSearchFiltersBuilder: FolderSearchFiltersBuilder
+    private folderSearchFiltersBuilder: FolderSearchFiltersBuilder,
+    private folderSearchScope: FolderSearchScope
   ) {}
+
+  /** Whether a pages request should run: only when a text term is active. */
+  private shouldIncludePages(): boolean {
+    return this.urlSearchQuery().trim().length > 0;
+  }
+
+  /**
+   * The shared per-request context for the folder Solr requests (titles, facets,
+   * pages), derived the same way SearchService.dispatchSearch derives it for the
+   * main search: filters mapped to their search fields, per-facet operators,
+   * year/date range clauses as the advanced query, and periodicalitem inclusion
+   * when a date filter is active.
+   */
+  private folderRequestContext() {
+    const filters = this.folderSearchFiltersBuilder.build();
+    const fqFilters = [
+      ...mapFacetsToSearchFields(filters.fqFilters ?? []),
+      ...mapFacetsToSearchFields(filters.customFqClauses ?? []),
+    ];
+    const queryClauses = filters.queryClauses ?? [];
+    return {
+      fqFilters,
+      facetOperators: mapOperatorsToSearchFields(this.queryParamsService.getOperators(this.urlParams())),
+      advancedQuery: queryClauses.reduce<string | undefined>(
+        (acc, clause) => appendToAdvancedQuery(acc, clause), undefined),
+      includePeriodicalItem: queryClauses.length > 0,
+      availabilityFilter: {
+        isActive: this.customSearchService.isAvailabilityFilterActive(),
+        licenses: this.customSearchService.getUserAvailableLicenses(),
+        userLicenses: this.userService.licenses,
+      },
+    };
+  }
+
+  /** The facet field list for the folder search (standard + accessibility). */
+  private folderFacetFields(): string[] {
+    return [...facetKeys, facetKeysEnum.accessibility];
+  }
+
+  private storeSortBy(): SolrSortFields {
+    let value = SolrSortFields.relevance;
+    this.store.select(FoldersSelectors.selectSortParams).pipe(take(1)).subscribe(p => value = p.sortBy);
+    return value;
+  }
+
+  private storeSortDirection(): SolrSortDirections {
+    let value = SolrSortDirections.desc;
+    this.store.select(FoldersSelectors.selectSortParams).pipe(take(1)).subscribe(p => value = p.sortDirection);
+    return value;
+  }
 
   private extractFolderUuidFromUrl(url: string): string | null {
     const matches = url.match(/\/folders\/([^\/\?]+)/);
@@ -523,44 +720,14 @@ export class FoldersEffects {
   }
 
   /**
-   * Assembles all active filter dimensions for a folder search. Delegates to the
-   * shared FolderSearchFiltersBuilder so the facet dialog (SavedListsFilterService)
-   * applies exactly the same scope.
+   * Paginator window from the URL (?page/?pageSize), mirroring the main search.
+   * `start` is the 0-based Solr offset of the combined titles+pages window.
    */
-  private buildFolderSearchFilters(): FolderSearchFilters {
-    return this.folderSearchFiltersBuilder.build();
-  }
-
-  private parseFolderSearchResponse(response: any, filters: FolderSearchFilters) {
-    const parsedResults = (response.response?.docs ?? []).map((doc: any) => {
-      doc['highlighting'] = response.highlighting?.[doc.pid] || {};
-      return this.parseDocument(doc);
-    });
-
-    const facetFields = response.facet_counts?.facet_fields ?? {};
-    const totalCount = response.response?.numFound || 0;
-
-    // Merge static custom-defined facets (accessibility, model, ranges) with the
-    // Solr facet counts — same pipeline the search-results page uses.
-    const facets = handleFacetsWithOperators(
-      facetFields,
-      facetFields,
-      this.queryParamsService.getOperators(
-        this.urlParams()
-      ),
-      {},
-      this.userService.licenses,
-      totalCount,
-      [...(filters.fqFilters ?? []), ...(filters.customFqClauses ?? [])],
-      response.facet_counts?.facet_queries,
-      this.userService.isLoggedIn
-    );
-
-    return FoldersActions.loadFolderSearchResultsSuccess({
-      results: parsedResults,
-      totalCount,
-      facets
-    });
+  private urlPaging(): { page: number; pageSize: number; start: number } {
+    const queryParamMap = this.router.parseUrl(this.router.url).queryParamMap;
+    const page = Math.max(1, Number(queryParamMap.get('page')) || 1);
+    const pageSize = Number(queryParamMap.get('pageSize')) || 60;
+    return { page, pageSize, start: (page - 1) * pageSize };
   }
 
   /** Free-text search term from the URL (?query=...), mirroring the main search. */
@@ -580,12 +747,4 @@ export class FoldersEffects {
     return params;
   }
 
-  private parseDocument(doc: any) {
-    if (doc.model === DocumentTypeEnum.track) {
-      const soundTrack = parseSoundTrack(doc);
-      soundTrack.url = this.solrService.getAudioTrackMp3Url(soundTrack.pid);
-      return soundTrack;
-    }
-    return parseSearchDocument(doc);
-  }
 }

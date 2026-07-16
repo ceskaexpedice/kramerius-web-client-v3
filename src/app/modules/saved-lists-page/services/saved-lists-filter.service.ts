@@ -12,8 +12,9 @@ import * as FoldersSelectors from '../state/folders.selectors';
 /**
  * FilterService implementation for the saved-lists (folder) page.
  *
- * Facets are produced as a side effect of the folder-items Solr search
- * (see FoldersService.searchFolderItems) and stored in folder NgRx state.
+ * Facets are produced as a side effect of the folder search (the shared Solr
+ * pipeline scoped by folder roots, see FoldersEffects) and stored in folder
+ * NgRx state.
  * Selecting a facet writes it to the URL (fq + per-facet operator) and
  * re-runs the folder search so results and counts reflect the selection.
  */

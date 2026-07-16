@@ -6,9 +6,9 @@ import { RouterModule } from '@angular/router';
 import { routes } from './app.routes';
 import {
   MissingTranslationHandler,
+  provideTranslateService,
   TranslateLoader,
-  TranslateModule, TranslateParser,
-  TranslateService,
+  TranslateParser,
 } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
@@ -82,21 +82,6 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     }),
     OverlayModule,
     PortalModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpBackend],
-      },
-      parser: {
-        provide: TranslateParser,
-        useClass: PercentageSignTranslateParser,
-      },
-      missingTranslationHandler: {
-        provide: MissingTranslationHandler,
-        useExisting: AppMissingTranslationService,
-      },
-    }),
     StoreModule.forRoot({
       router: routerReducer,
       [authFeatureKey]: authReducer,
@@ -141,6 +126,22 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     ImagePreviewOverlayComponent,
   ],
   providers: [
+    provideTranslateService({
+      fallbackLang: ENVIRONMENT.fallbackLanguage,
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpBackend],
+      },
+      parser: {
+        provide: TranslateParser,
+        useClass: PercentageSignTranslateParser,
+      },
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useExisting: AppMissingTranslationService,
+      },
+    }),
     provideHttpClient(
       withFetch(),
       withJsonpSupport(),
@@ -165,8 +166,4 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
   bootstrap: [AppComponent]
 })
 
-export class AppModule {
-  constructor(translate: TranslateService) {
-    translate.setDefaultLang(ENVIRONMENT.fallbackLanguage);
-  }
-}
+export class AppModule {}

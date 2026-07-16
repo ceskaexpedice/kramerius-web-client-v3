@@ -38,6 +38,7 @@ describe('SavedListsPageComponent banner logic', () => {
       {} as any, // router
       translate as any,
       dontShowAgain as any,
+      {} as any, // customSearchService
     );
 
     // activeFolder is read by onBannerAction; override the store-backed value with a

@@ -55,13 +55,14 @@
 
       <ng-container *ngIf="type === 'dateRange'">
         <app-date-picker [initialDateFrom]="getDateFrom()" [directInput]="true" [initialDateTo]="getDateTo()" [size]="'md-lg'"
-          [initialOffset]="getDateOffset()" (datePickerChange)="onDatePickerChange($event)"></app-date-picker>
+          [initialOffset]="getDateOffset()" [defaultDate]="datePickerDefault"
+          (datePickerChange)="onDatePickerChange($event)"></app-date-picker>
       </ng-container>
 
       <ng-container *ngIf="type === 'yearRange'">
         <app-range-slider [min]="getRangeMin()" [max]="getRangeMax()" [step]="1" [initialFrom]="getRangeFrom()"
-          [initialTo]="getRangeTo()" (rangeChange)="onRangeChange($event)" [inputStyle]="'wide'"
-          [showInputNumberStepper]="false"></app-range-slider>
+          [initialTo]="getRangeTo()" (rangeChange)="onRangeChange($event)" (rangeSubmit)="rangeSubmit.emit()"
+          [inputStyle]="'wide'" [showInputNumberStepper]="false"></app-range-slider>
       </ng-container>
 
       <button class="button primary link p-left-0 flex--space-start" *ngIf="shouldShowMoreButton"

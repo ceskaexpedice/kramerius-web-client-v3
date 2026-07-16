@@ -124,7 +124,7 @@ export class ExportService {
     }
 
     const baseUrl = this.environmentService.getBaseApiUrl();
-    const currentLanguage = this.translateService.currentLang || 'cs';
+    const currentLanguage = this.translateService.getCurrentLang() || 'cs';
     const pidsParam = pageUuids.join(',');
     const url = `${baseUrl}/search/api/client/v7.0/pdf/selection?pids=${pidsParam}&language=${currentLanguage}`;
 

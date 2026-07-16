@@ -68,13 +68,21 @@ export function handleFacetsWithOperators(
   }
 
   // Preserve unfiltered model counts for custom facet count resolution (e.g. whereToSearchModel).
-  // When a root.model filter is active, Solr returns the model facet under "{!ex=root.model}model" key.
-  const taggedModelKey = `{!ex=${facetKeysEnum.rootModel}}${facetKeysEnum.model}`;
+  // When a model or root.model filter is active, the facet is requested with an
+  // exclusion tag and Solr echoes it under the literal key (e.g. "{!ex=model}model",
+  // "{!ex=root.model,model}model"). Normalize it back to "model" so the doc-type
+  // facet and the where-to-search counts below keep working with a filter active.
+  if (!result[facetKeysEnum.model]) {
+    const taggedModelKey = Object.keys(result).find(
+      key => key.startsWith('{!ex=') && key.endsWith(`}${facetKeysEnum.model}`)
+    );
+    if (taggedModelKey) {
+      result[facetKeysEnum.model] = result[taggedModelKey];
+    }
+  }
   const unfilteredModelCounts = result[facetKeysEnum.model]
     ? [...result[facetKeysEnum.model]]
-    : result[taggedModelKey]
-      ? [...result[taggedModelKey]]
-      : [];
+    : [];
 
   // Filter models to only include those defined in config
   const configuredModels = getConfiguredModels();

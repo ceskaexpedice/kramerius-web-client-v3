@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../../../shared/components/record-item/record-item.component';
 import { CarouselComponent } from '../../../../shared/components/carousel/carousel.component';
 import { HomepageSectionConfig, LocalizedLabel } from '../../../../core/config/config.interfaces';
@@ -18,7 +18,7 @@ import { ConfigService } from '../../../../core/config/config.service';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
+    TranslatePipe,
     RecordItemComponent,
     CarouselComponent,
     LocalizedPipe
@@ -46,7 +46,7 @@ import { ConfigService } from '../../../../core/config/config.service';
   `,
   styles: [`
     @use 'sass:math';
-    @import '../search-section.scss';
+    @use '../search-section';
   `]
 })
 export class FeaturedDocumentsSectionComponent implements OnInit {

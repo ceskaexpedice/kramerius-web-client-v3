@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { FoldersState } from './folders.models';
 import { foldersFeatureKey } from './folders.reducer';
 import { selectUser, selectIsAuthenticated } from '../../../core/auth/store/auth.selectors';
+import { DocumentTypeEnum } from '../../constants/document-type';
 
 export const selectFoldersState = createFeatureSelector<FoldersState>(foldersFeatureKey);
 
@@ -92,9 +93,58 @@ export const selectFolderSearchResultsLoading = createSelector(
   (state: FoldersState) => state.folderSearchResultsLoading
 );
 
+// Section splits of the folder titles response, mirroring the search-results
+// page's selectNonPage/Article/Attachment selectors. Tracks are excluded from
+// the titles section — the saved-lists page renders them in its own music section.
+export const selectFolderNonPageResults = createSelector(
+  selectFolderSearchResults,
+  (results) => results && results.filter(s =>
+    s.model !== DocumentTypeEnum.page &&
+    !s.ownModelPath?.includes(DocumentTypeEnum.page) &&
+    s.model !== DocumentTypeEnum.article &&
+    s.model !== DocumentTypeEnum.supplement &&
+    s.model !== DocumentTypeEnum.track
+  )
+);
+
+export const selectFolderArticleResults = createSelector(
+  selectFolderSearchResults,
+  (results) => results && results.filter(s => s.model === DocumentTypeEnum.article)
+);
+
+export const selectFolderAttachmentResults = createSelector(
+  selectFolderSearchResults,
+  (results) => results && results.filter(s => s.model === DocumentTypeEnum.supplement)
+);
+
 export const selectFolderSearchResultsTotalCount = createSelector(
   selectFoldersState,
   (state: FoldersState) => state.folderSearchResultsTotalCount
+);
+
+export const selectFolderPageSearchResults = createSelector(
+  selectFoldersState,
+  (state) => state.folderPageSearchResults
+);
+
+export const selectFolderPageTotalCount = createSelector(
+  selectFoldersState,
+  (state) => state?.folderPageTotalCount ?? 0
+);
+
+export const selectFolderPageResultsLoading = createSelector(
+  selectFoldersState,
+  (state) => state?.folderPageResultsLoading ?? false
+);
+
+export const selectLastFolderSearchPayload = createSelector(
+  selectFoldersState,
+  (state) => state.lastFolderSearchPayload
+);
+
+export const selectFolderCombinedTotalCount = createSelector(
+  selectFoldersState,
+  (state) => (state?.folderSearchResultsTotalCount ?? 0) + (state?.folderPageTotalCount ?? 0)
 );
 
 export const selectFolderFacets = createSelector(

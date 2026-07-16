@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Accordion, AccordionItemData } from '../../../../../shared/components/accordion/accordion';
 import { SafeHtmlPipe } from '../../../../../shared/pipes/safe-html.pipe';
 import { Metadata } from '../../../../../shared/models/metadata.model';
@@ -19,7 +19,7 @@ import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/sol
 
 @Component({
   selector: 'app-document-access-denied',
-  imports: [CommonModule, TranslateModule, Accordion, SafeHtmlPipe],
+  imports: [CommonModule, TranslatePipe, Accordion, SafeHtmlPipe],
   templateUrl: './document-access-denied.html',
   styleUrls: ['./document-access-denied.scss', '../access-denied.scss'],
   standalone: true

@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import {Observable, Subject, combineLatest, of} from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
@@ -40,7 +40,7 @@ import {AppTranslationService} from '../../translation/app-translation.service';
     MatButtonModule,
     ScrollingModule,
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     InputComponent,
     ConfigLabelPipe,
   ],

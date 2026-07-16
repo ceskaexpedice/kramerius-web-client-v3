@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderSearchResultsTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState } from './state';
+import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderPageSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderPageResultsLoading, selectFolderCombinedTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState, selectFolderNonPageResults, selectFolderArticleResults, selectFolderAttachmentResults } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
 import { combineLatest, first, map, Observable, Subject, Subscription } from 'rxjs';
@@ -25,6 +25,7 @@ import { SavedListsFilterService } from './services/saved-lists-filter.service';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import { SearchDocument } from '../models/search-document';
 import { ExportService } from '../../shared/services/export.service';
+import { CustomSearchService } from '../../shared/services/custom-search.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FolderShareDialogComponent } from '../../shared/dialogs/folder-share-dialog/folder-share-dialog.component';
 import { selectIsAuthenticated } from '../../core/auth/store';
@@ -37,7 +38,14 @@ import { selectIsAuthenticated } from '../../core/auth/store';
 })
 export class SavedListsPageComponent implements OnInit, OnDestroy {
 
-  activeFolderItems = this.store.select(selectFolderSearchResults);
+  // Titles first, then page-level results spilled in after — mirroring the main
+  // search-results page's two-request split.
+  activeFolderItems = combineLatest([
+    this.store.select(selectFolderSearchResults),
+    this.store.select(selectFolderPageSearchResults),
+  ]).pipe(
+    map(([titles, pages]) => [...(titles ?? []), ...(pages ?? [])])
+  );
   activeFolder = this.store.select(selectFolderDetails);
   folders = this.store.select(selectAllFolders);
   sortParams = this.store.select(selectSortParams);
@@ -49,12 +57,18 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   loading$ = combineLatest([
     this.store.select(selectFolderDetailsLoading),
     this.store.select(selectFolderSearchResultsLoading),
-  ]).pipe(map(([detailsLoading, resultsLoading]) => detailsLoading || resultsLoading));
+    this.store.select(selectFolderPageResultsLoading),
+  ]).pipe(map(([detailsLoading, resultsLoading, pageResultsLoading]) => detailsLoading || resultsLoading || pageResultsLoading));
   isLoggedIn$ = this.store.select(selectIsAuthenticated);
   bannerState$ = this.store.select(selectFolderBannerState);
   // Live result count for the active folder — reflects the current search/filter
   // scope (unlike folder.itemsCount, which is the static total folder size).
-  resultsCount$ = this.store.select(selectFolderSearchResultsTotalCount);
+  resultsCount$ = this.store.select(selectFolderCombinedTotalCount);
+
+  // Paginator window from the URL (?page/?pageSize), mirroring the main
+  // search-results page. The folder search effect reads the same params.
+  page$ = this.route.queryParams.pipe(map(p => Math.max(1, Number(p['page']) || 1)));
+  pageSize$ = this.route.queryParams.pipe(map(p => Number(p['pageSize']) || 60));
 
   // Active facet/range filters rendered as removable tags above the results,
   // mirroring the search-results page. Assigned in the constructor so the
@@ -74,8 +88,27 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     map(items => items.filter(item => item.model === DocumentTypeEnum.track))
   );
 
-  nonSoundRecordingItems = this.activeFolderItems.pipe(
-    map(items => items.filter(item => item.model !== DocumentTypeEnum.track))
+  // Section splits mirroring search-results-view: titles first, then articles,
+  // the lazy-loaded pages section, and attachments (supplements).
+  titleItems$ = this.store.select(selectFolderNonPageResults);
+  articleItems$ = this.store.select(selectFolderArticleResults);
+  attachmentItems$ = this.store.select(selectFolderAttachmentResults);
+  pageItems$ = this.store.select(selectFolderPageSearchResults);
+  titlesLoading$ = combineLatest([
+    this.store.select(selectFolderDetailsLoading),
+    this.store.select(selectFolderSearchResultsLoading),
+  ]).pipe(map(([detailsLoading, resultsLoading]) => detailsLoading || resultsLoading));
+  pagesLoading$ = this.store.select(selectFolderPageResultsLoading);
+
+  // Show section headers only when more than one section has content — same
+  // rule as the search-results page.
+  showSectionHeaders$ = combineLatest([
+    this.store.select(selectFolderNonPageResults),
+    this.store.select(selectFolderArticleResults),
+    this.store.select(selectFolderPageSearchResults),
+    this.store.select(selectFolderAttachmentResults),
+  ]).pipe(
+    map(sections => sections.filter(s => s && s.length > 0).length > 1)
   );
 
   viewOptions = [
@@ -118,7 +151,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     public savedListsFilterService: SavedListsFilterService,
     private router: Router,
     private translate: TranslateService,
-    private dontShowAgain: DontShowAgainService
+    private dontShowAgain: DontShowAgainService,
+    private customSearchService: CustomSearchService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
     // Drop the where-to-search filter from the tag row — it's already surfaced by
@@ -184,19 +218,55 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     // range/accessibility selections, and the free-text query (?query=...) update
     // the URL; this picks up the change once navigation has committed, so the effect
     // reads the current params.
-    const FILTER_PARAM_KEYS = ['fq', 'customSearch', 'yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', 'query'];
+    const FILTER_PARAM_KEYS = ['fq', 'customSearch', 'yearFrom', 'yearTo', 'dateFrom', 'dateTo', 'dateOffset', 'query', 'group'];
+    const PAGING_PARAM_KEYS = ['page', 'pageSize'];
     let firstFilterEmission = true;
+    let lastFilterSig: string | null = null;
     this.fqParamsSubscription = this.route.queryParams.pipe(
-      map(params => JSON.stringify(FILTER_PARAM_KEYS.map(key => params[key] ?? null))),
-      distinctUntilChanged()
-    ).subscribe(() => {
+      map(params => ({
+        params,
+        filterSig: JSON.stringify(FILTER_PARAM_KEYS.map(key => params[key] ?? null)),
+        pagingSig: JSON.stringify(PAGING_PARAM_KEYS.map(key => params[key] ?? null)),
+      })),
+      distinctUntilChanged((a, b) => a.filterSig === b.filterSig && a.pagingSig === b.pagingSig)
+    ).subscribe(({ params, filterSig }) => {
+      const filtersChanged = filterSig !== lastFilterSig;
+      lastFilterSig = filterSig;
       // Skip the initial emission — the folder is loaded via loadFolderDetails →
       // loadFolderSearchResults, which already honors the URL filters.
       if (firstFilterEmission) {
         firstFilterEmission = false;
         return;
       }
-      // The effect reads the free-text query straight from the URL.
+      // The pages scope only exists while a fulltext term is active. If the term
+      // disappears (cleared input, removed tag, back navigation) while the toggle
+      // sits on "Strany v tituloch"/"Samostatné strany", fall back to "all" — a
+      // pages search without a term would render nothing. The navigation issued
+      // here re-emits with the cleaned params and runs the search.
+      const queryGone = !(params['query'] as string | undefined)?.trim();
+      const pageScopeActive = ((params['customSearch'] as string | undefined) ?? '')
+        .split(',')
+        .includes(`${customDefinedFacetsEnum.whereToSearchModel}:page`);
+      if (queryGone && pageScopeActive) {
+        this.customSearchService.initializeFromRoute();
+        this.customSearchService.removeAllFiltersByFacetKey(
+          customDefinedFacetsEnum.whereToSearchModel,
+          { group: null, page: 1 }
+        );
+        return;
+      }
+      // A filter change invalidates the current page — reset to page 1 first;
+      // that navigation re-emits here (paging changed) and runs the search.
+      if (filtersChanged && Number(params['page']) > 1) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { page: 1 },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+        return;
+      }
+      // The effect reads the free-text query and ?page/?pageSize straight from the URL.
       this.store.dispatch(FoldersActions.searchFolders({}));
     });
   }
@@ -227,6 +297,23 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   /** Clear the free-text query (removes ?query= from the URL) and reload the folder. */
   onClearSearchQuery(): void {
     this.searchQueryInput$.next('');
+  }
+
+  /** Navigate the paginator — the queryParams subscription refires the folder search. */
+  goToPage(page: number): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  changePageSize(size: number): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: 1, pageSize: size },
+      queryParamsHandling: 'merge',
+    });
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

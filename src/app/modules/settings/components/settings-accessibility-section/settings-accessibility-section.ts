@@ -6,7 +6,7 @@ import { AppSettingsThemeEnum } from '../../settings.model';
 import { AccessibilityService } from '../../../../shared/services/accessibility.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-settings-accessibility-section',
@@ -14,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
     ToggleButtonGroupComponent,
     MatSlideToggleModule,
     FormsModule,
-    TranslateModule
+    TranslatePipe
   ],
   templateUrl: './settings-accessibility-section.html',
   styleUrl: './settings-accessibility-section.scss',

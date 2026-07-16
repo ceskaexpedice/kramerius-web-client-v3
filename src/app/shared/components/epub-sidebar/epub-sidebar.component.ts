@@ -4,7 +4,7 @@ import { EpubService } from '../../services/epub.service';
 import { SearchDebounceService } from '../../services/search-debounce.service';
 import { InputComponent } from '../input/input.component';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DetailArticleItemComponent } from '../../../modules/detail-view-page/components/detail-article-item/detail-article-item.component';
 import { SearchNavigationComponent } from '../search-navigation/search-navigation.component';
 
@@ -15,7 +15,7 @@ import { SearchNavigationComponent } from '../search-navigation/search-navigatio
     CommonModule,
     InputComponent,
     PageNavigatorComponent,
-    TranslateModule,
+    TranslatePipe,
     DetailArticleItemComponent,
     SearchNavigationComponent
   ],

@@ -18,7 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, takeUntil } from 'rxjs/operators';
@@ -45,7 +45,7 @@ import {loadAllCollections} from '../../state/collections/collections.actions';
     MatButtonModule,
     ScrollingModule,
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     InputComponent,
   ],
   templateUrl: './collections-list.component.html',

@@ -1,11 +1,11 @@
 import { Component, inject, Input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RecordHandlerService } from '../../services/record-handler.service';
 
 @Component({
     selector: 'app-license-badge',
     standalone: true,
-    imports: [TranslateModule],
+    imports: [TranslatePipe],
     templateUrl: './license-badge.component.html',
     styleUrl: './license-badge.component.scss'
 })

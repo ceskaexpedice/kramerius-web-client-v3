@@ -41,7 +41,7 @@ export class AppTranslationService {
   private _currentLanguage = signal<Language>(this.detectInitialLanguage());
 
   constructor() {
-    this.translate.setDefaultLang(this.fallbackLanguageCode);
+    this.translate.setFallbackLang(this.fallbackLanguageCode);
     this.translate.use(this._currentLanguage().code);
     this.preloadFallbackLanguages();
   }
