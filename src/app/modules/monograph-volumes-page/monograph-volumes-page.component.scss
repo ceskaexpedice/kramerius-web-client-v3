@@ -1,23 +1,29 @@
 @use "mixins";
 // Common layout styles moved to /public/styles/_page-layout.scss
 
-.page-content__wrapper {
+// Row container holding the scrolling content column and the fixed metadata
+// sidebar, like search-results-view's .content-with-sidebar. The inner
+// .page-content__wrapper keeps the global styles (flex column, overflow-y auto),
+// so the whole column scrolls with the paginator at the bottom.
+.content-with-sidebar {
   position: relative;
   display: flex;
   flex-direction: row;
-  height: 100%;
-  overflow: hidden;
-  padding: 0;
-}
-
-.page-content__main {
-  position: relative;
   flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--spacing-x4);
-  height: 100%;
+  overflow: hidden;
+
+  .page-content__wrapper {
+    min-width: 0;
+
+    // The wrapper is a column flexbox and .grid--container is scrollable
+    // (overflow-x hidden makes overflow-y compute to auto), so flexbox would
+    // shrink the grid to the viewport and scroll it internally. Keep children
+    // at natural height so the wrapper itself scrolls, exactly like
+    // search-results-view (where the grid sits in a plain block div).
+    > * {
+      flex-shrink: 0;
+    }
+  }
 }
 
 .page-content__sidebar-right {
@@ -48,7 +54,6 @@
   padding: var(--base-gap-x3);
 }
 
-.loading-container,
 .error-container {
   display: flex;
   justify-content: center;
@@ -56,7 +61,6 @@
   min-height: 400px;
   text-align: center;
 
-  .loading-message,
   p {
     font-size: var(--font-size-medium);
     color: var(--color-text-muted);

@@ -51,9 +51,10 @@
                                         (selectClicked)="adminModeService.toggle()">
                   </app-toolbar-controls>
 
-<!--                  <app-results-sort [selectedSort]="periodical.sortBy" [selectedDirection]="periodical.sortDirection"-->
-<!--                                    (sortChange)="onSortChange($event)">-->
-<!--                  </app-results-sort>-->
+                  <app-results-sort [selectedSort]="monographVolumesService.sortBy"
+                                    [selectedDirection]="monographVolumesService.sortDirection"
+                                    (sortChange)="onSortChange($event)">
+                  </app-results-sort>
                 </ng-container>
 
                 <app-admin-selection-count></app-admin-selection-count>
@@ -68,19 +69,12 @@
 
       </div>
 
-      <!-- Content with right sidebar wrapper -->
-      <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()">
+      <!-- Content with right sidebar: the wrapper is the single scroll container
+           (like search-results-view), so the whole column scrolls with the
+           paginator at the bottom; the metadata sidebar stays fixed beside it. -->
+      <div class="content-with-sidebar">
 
-        <div class="page-content__main">
-
-          <!-- Loading State -->
-          @if (loading()) {
-            <div class="loading-container">
-              <div class="loading-message">
-                <p>{{ 'loading-document' | translate }}</p>
-              </div>
-            </div>
-          }
+        <div class="page-content__wrapper">
 
           <!-- Error State -->
           @if (error() && !loading()) {
@@ -89,18 +83,43 @@
             </div>
           }
 
-          <!-- Content -->
-          @if (!loading() && !error() && parent()) {
-            <!-- Volumes Grid -->
-            @if (volumeItems().length > 0) {
+          <!-- Content — while loading, the grids render skeleton cards via the
+               skeletonList pipe (null items), like search-results-view. -->
+          @if (!error()) {
+            @if (monographVolumesService.hasSubmittedQuery()) {
+              <!-- In-monograph search results (pages + units), like the periodical search -->
+              @if ({ items: monographVolumesService.searchResults$ | async, loading: monographVolumesService.searchLoading$ | async }; as search) {
+                @if ((search.items?.length ?? 0) > 0 || search.loading) {
+                  <div class="grid--container">
+                    @for (doc of (search.items || []) | skeletonList:60:search.loading; track $index) {
+                      <app-record-item [item]="doc ? toSearchRecordItem(doc, search.items || []) : null"></app-record-item>
+                    }
+                  </div>
 
-              <div class="grid--container">
-                @for (volume of volumeItems(); track volume.id) {
-                  <app-record-item [item]="volume"></app-record-item>
+                  <app-paginator
+                    [page]="monographVolumesService.page"
+                    [totalCount]="(monographVolumesService.searchTotalCount$ | async) ?? 0"
+                    [pageSize]="monographVolumesService.pageSize"
+                    [pageSizeOptions]="[60, 120, 180]"
+                    (pageChange)="monographVolumesService.goToPage($event)"
+                    (pageSizeChange)="monographVolumesService.changePageSize($event)">
+                  </app-paginator>
+                } @else {
+                  <p class="no-volumes">{{ 'no-volumes-found' | translate }}</p>
                 }
-              </div>
+              }
             } @else {
-              <p class="no-volumes">{{ 'no-volumes-found' | translate }}</p>
+              <!-- Volumes Grid -->
+              @if (volumeItems().length > 0 || loading()) {
+
+                <div class="grid--container">
+                  @for (volume of volumeItems() | skeletonList:10:loading(); track $index) {
+                    <app-record-item [item]="volume"></app-record-item>
+                  }
+                </div>
+              } @else {
+                <p class="no-volumes">{{ 'no-volumes-found' | translate }}</p>
+              }
             }
 
           }

@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { EnvironmentService } from './environment.service';
+import { APP_ROUTES_ENUM } from '../../app.routes';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
@@ -135,6 +137,7 @@ export class IIIFViewerService {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private detailFullscreen = inject(DetailFullscreenService);
+  private router = inject(Router);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -1130,10 +1133,17 @@ export class IIIFViewerService {
     this.clearAllOverlays();
     this.clearSearchState();
 
-    // Remove fulltext parameter from URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('fulltext');
-    window.history.replaceState({}, '', url.toString());
+    // Remove fulltext parameter from URL — but only while still on the viewer.
+    // On teardown after navigating away (e.g. the multi-volume redirect to
+    // /monograph) window.location already points at the destination, and
+    // rewriting it here would strip the destination's ?fulltext param.
+    const onViewer = this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`)
+      || this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`);
+    if (onViewer) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('fulltext');
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
   /**

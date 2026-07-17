@@ -524,6 +524,47 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
+  /**
+   * Search within a (multi-volume) monograph — mirrors the old client's
+   * in-monograph search: the term matches pages (OCR) and monograph units
+   * (titles etc.) under the given root, with OCR highlighting for snippets.
+   */
+  searchMonographVolumes(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 60, sortBy: SolrSortFields = SolrSortFields.relevance, sortDirection: SolrSortDirections = SolrSortDirections.desc,
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
+
+    // Get fields to return: base fields + optional fields for visible columns
+    const optionalFields = this.displayConfigService.getSolrFieldsForVisibleColumns();
+    const fieldsToReturn = [...SEARCH_RETURN_FIELDS, ...optionalFields];
+
+    const paramsObject = {
+      ...SolrQueryBuilder.baseParams(),
+      ...SolrQueryBuilder.fieldsToReturn(fieldsToReturn),
+      ...SolrQueryBuilder.sortBy(sortBy, sortDirection),
+      ...SolrQueryBuilder.pagination(page, pageCount),
+      ...SolrQueryBuilder.highlight(),
+      fq: `(model:${DocumentTypeEnum.page} OR model:${DocumentTypeEnum.monographunit})`
+    };
+
+    const escapedRoot = SolrQueryBuilder.escapeSolrQuery(rootUuid);
+    const q = [
+      `root.pid:${escapedRoot}`,
+      SolrQueryBuilder.buildSearchClause(query),
+      // Boost units (title matches) over individual pages, like the periodical search.
+      `(model:${DocumentTypeEnum.monographunit}^2 OR model:${DocumentTypeEnum.page}^0.001)`
+    ].join(' AND ');
+
+    let params = this.createHttpParams(paramsObject).set('q', q);
+    this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
+
+    // Add availability filter with tag if active
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
+
+    return this.http.get<SearchResultResponse>(this.API_URL, { params });
+  }
+
   searchInCollection(
     collectionUuid: string,
     query: string,

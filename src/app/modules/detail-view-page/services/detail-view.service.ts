@@ -704,6 +704,12 @@ export class DetailViewService {
    * @param searchTerm - The search term to add to the URL, or null to remove it
    */
   setFulltextParam(searchTerm: string | null): void {
+    // Skip when the viewer is being torn down after navigating away (e.g. the
+    // multi-volume redirect to /monograph): window.location already points at
+    // the destination, and rewriting it here would strip its ?fulltext param.
+    if (!this.isOnDetailViewPage()) {
+      return;
+    }
     const url = new URL(window.location.href);
 
     if (searchTerm && searchTerm.trim().length > 0) {

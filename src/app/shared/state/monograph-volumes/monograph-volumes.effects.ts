@@ -10,6 +10,7 @@ import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { CustomSearchService } from '../../services/custom-search.service';
+import { parseSolrSearchResponse } from '../../../modules/search-results-page/state/parse-search-results';
 
 @Injectable()
 export class MonographVolumesEffects {
@@ -24,7 +25,7 @@ export class MonographVolumesEffects {
   loadMonographVolumes$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(MonographVolumesActions.loadMonographVolumes),
-      switchMap(({ uuid, filters }) => {
+      switchMap(({ uuid, filters, sort }) => {
         const facetFields = [facetKeysEnum.license];
 
         // Availability filter: active when "Available only" toggle is ON
@@ -38,7 +39,7 @@ export class MonographVolumesEffects {
 
         return forkJoin({
           parent: this.solr.getDetailItem(uuid),
-          volumesWithFacets: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, true, facetFields, filters, {}, availabilityFilter),
+          volumesWithFacets: this.solr.getChildrenByModel(uuid, sort ?? 'rels_ext_index.sort asc', null, true, facetFields, filters, {}, availabilityFilter),
         }).pipe(
           map(({ parent, volumesWithFacets }) => {
             const volumes = volumesWithFacets.docs || [];
@@ -70,6 +71,32 @@ export class MonographVolumesEffects {
           catchError(error => {
             console.log('Error loading monograph volumes:', error);
             return of(MonographVolumesActions.loadMonographVolumesFailure({ error }));
+          })
+        );
+      })
+    );
+  });
+
+  // In-monograph search: term over pages (OCR) + monograph units under the root,
+  // mirroring the periodical search effect.
+  loadMonographVolumesSearchResults$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(MonographVolumesActions.loadMonographVolumesSearchResults),
+      switchMap(({ uuid, query, filters, page, pageCount, sortBy, sortDirection }) => {
+        const availabilityFilter = {
+          isActive: this.customSearchService.isAvailabilityFilterActive(),
+          licenses: this.customSearchService.getUserAvailableLicenses(),
+          userLicenses: this.userService.licenses
+        };
+
+        return this.solr.searchMonographVolumes(uuid, query, filters, {}, page, pageCount, sortBy, sortDirection, availabilityFilter).pipe(
+          map(resultsRes => {
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, query);
+            return MonographVolumesActions.loadMonographVolumesSearchSuccess({ results, totalCount });
+          }),
+          catchError(error => {
+            console.log('Error searching monograph volumes:', error);
+            return of(MonographVolumesActions.loadMonographVolumesSearchFailure({ error }));
           })
         );
       })

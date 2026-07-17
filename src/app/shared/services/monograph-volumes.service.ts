@@ -9,6 +9,7 @@ import * as MonographVolumesSelectors from '../state/monograph-volumes/monograph
 import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrQueryBuilder } from '../../core/solr/solr-query-builder';
+import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 
 @Injectable()
 export class MonographVolumesService extends BaseFilterService {
@@ -22,6 +23,10 @@ export class MonographVolumesService extends BaseFilterService {
   error$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesError);
   facets$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesFacets);
   override facetsLoading$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesFacetsLoading);
+  // In-monograph search (term over pages + units), mirroring periodical search
+  searchResults$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesSearchResults);
+  searchTotalCount$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesSearchTotalCount);
+  searchLoading$ = this.store.select(MonographVolumesSelectors.selectMonographVolumesSearchLoading);
 
   POSSIBLE_FILTERS = [customDefinedFacetsEnum.accessibility, facetKeysEnum.license];
 
@@ -91,11 +96,21 @@ export class MonographVolumesService extends BaseFilterService {
 
     console.log('Dispatching load volumes with params:', params);
 
-    const query = params && params['query'] || '';
+    // Accept ?fulltext as a query fallback, same as PeriodicalService — a search
+    // term carried over from another page (e.g. saved lists) seeds the input.
+    const query = (params && (params['query'] || params['fulltext'])) || '';
 
     if (query && query.length > 0) {
+      this.inputSearchTerm = query;
       this._searchTerm.set(query);
       this._submittedTerm.set(query);
+    } else {
+      // Query removed from the URL: clear the stale term and any search results
+      // so the plain volumes grid shows again.
+      this.inputSearchTerm = '';
+      this._searchTerm.set('');
+      this._submittedTerm.set('');
+      this.store.dispatch(MonographVolumesActions.clearMonographVolumesSearch());
     }
 
     this.customSearchService.initializeFromRoute();
@@ -131,11 +146,41 @@ export class MonographVolumesService extends BaseFilterService {
       }
     });
 
+    // Toolbar sort (?sortBy/?sortDirection). Relevance only makes sense for the
+    // term search; the plain volumes listing keeps its natural (rels_ext) order.
+    const sortBy = (params && params['sortBy']) as SolrSortFields || SolrSortFields.relevance;
+    const sortDirection = (params && params['sortDirection']) as SolrSortDirections || SolrSortDirections.desc;
+    this._sortBy.set(sortBy);
+    this._sortDirection.set(sortDirection);
+    const volumesSort = params && params['sortBy'] && sortBy !== SolrSortFields.relevance
+      ? `${sortBy} ${sortDirection}`
+      : null;
+
     // Dispatch action with filters (like SearchService does)
     this.store.dispatch(MonographVolumesActions.loadMonographVolumes({
       uuid: this.uuid,
-      filters
+      filters,
+      sort: volumesSort
     }));
+
+    // Active term: run the in-monograph search (pages + units under this root),
+    // mirroring the periodical page's search-results mode.
+    if (query && query.length > 0) {
+      const page = Number(params && params['page']) || 1;
+      const pageSize = Number(params && params['pageSize']) || this._pageSize();
+      this._page.set(page);
+      this._pageSize.set(pageSize);
+
+      this.store.dispatch(MonographVolumesActions.loadMonographVolumesSearchResults({
+        uuid: this.uuid,
+        query,
+        filters,
+        page: (page - 1) * pageSize,
+        pageCount: pageSize,
+        sortBy,
+        sortDirection
+      }));
+    }
   }
 
   getBaseFilters(): Observable<string[]> {
@@ -222,7 +267,10 @@ export class MonographVolumesService extends BaseFilterService {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        query,
+        // null removes the param — a user-initiated search (or clear) takes over
+        // from a ?fulltext term carried in from another page (e.g. saved lists).
+        query: query || null,
+        fulltext: null,
         page: 1,
         pageSize: this._pageSize()
       },

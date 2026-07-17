@@ -23,6 +23,11 @@ import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper'
 import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
+import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
+import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
+import {SkeletonListPipe} from '../../shared/pipes/skeleton-list.pipe';
+import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
+import {SearchDocument} from '../models/search-document';
 
 @Component({
   selector: 'app-monograph-volumes-page',
@@ -38,6 +43,9 @@ import {UiStateService} from '../../shared/services/ui-state.service';
     ToolbarHeaderComponent,
     ToolbarControlsComponent,
     AdminSelectionCountComponent,
+    PaginatorComponent,
+    ResultsSortComponent,
+    SkeletonListPipe,
   ],
   providers: [
     MonographVolumesService,
@@ -53,6 +61,7 @@ export class MonographVolumesPageComponent implements OnInit {
   adminModeService = inject(AdminModeService);
   recordHandler = inject(RecordHandlerService);
   private uiStateService = inject(UiStateService);
+  public monographVolumesService = inject(MonographVolumesService);
 
   // Signals from store
   parent = toSignal(this.store.select(MonographVolumesSelectors.selectMonographVolumesParent));
@@ -91,6 +100,17 @@ export class MonographVolumesPageComponent implements OnInit {
 
   onFavoritesClicked(event: Event) {
     this.favoritesHelper.onFavoritesClicked(event, this.parent() || null, true);
+  }
+
+  onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {
+    this.monographVolumesService.changeSortBy(event.value, event.direction);
+  }
+
+  // Convert a search result to a RecordItem with badge layout consideration,
+  // like the periodical search results view — result cards carry the fulltext
+  // snippet and page badge.
+  toSearchRecordItem(doc: SearchDocument, allDocs: SearchDocument[]): RecordItem {
+    return this.recordHandler.searchDocumentToRecordItemWithBadgeLayout(doc, allDocs);
   }
 
 }
