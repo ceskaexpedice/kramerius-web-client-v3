@@ -1,13 +1,13 @@
-<div class="selection-mode-info has-selection">
-  <div class="selection-mode-info--header">
-    <span>{{ 'selection-edit-or-cancel' | translate }}</span>
-    <div class="selection-mode-info--actions">
-      <button class="button primary sm" (click)="onEditSelection()">
-        {{ 'ok' | translate }}
-      </button>
+@if (showTip()) {
+  <div class="selection-mode-info has-selection">
+    <div class="selection-mode-info--header">
+      <span>{{ 'selection-edit-or-cancel' | translate }}</span>
+      <div class="selection-mode-info--actions">
+        <button class="button primary sm" (click)="onEditSelection()">
+          {{ 'ok' | translate }}
+        </button>
+      </div>
     </div>
-  </div>
-  @if (showTip()) {
     <div class="selection-mode-info--tip">
       <div class="tip-row">
         <span>{{ 'selection-tip-right-click' | translate }}</span>
@@ -17,5 +17,5 @@
         <span>{{ 'selection-tip-dont-show-again' | translate }}</span>
       </label>
     </div>
-  }
-</div>
+  </div>
+}
