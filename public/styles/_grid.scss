@@ -1,3 +1,5 @@
+@use 'mixins' as m;
+
 /* Base grid container */
 .grid--container {
   display: grid;
@@ -18,6 +20,15 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--card-min-width) * var(--accessibility-text-scale))), 1fr));
   overflow-x: hidden;
   max-width: 100%;
+
+  /* On xs screens the cards render in their horizontal (full-row) layout — see
+     `_record-item-mobile.scss` (`respond(mobile-xs)` => max-width: 407px). A
+     horizontal card only makes sense as a single full-width row, so force one
+     column here to keep the two decisions in sync (otherwise `auto-fill` still
+     fits 2 columns at ~380px, producing a broken 2-up grid of horizontal cards). */
+  @include m.respond(mobile-xs) {
+    grid-template-columns: 1fr;
+  }
 
   //@container page-main (max-width: 407px) {
   //  grid-template-columns: 1fr;
