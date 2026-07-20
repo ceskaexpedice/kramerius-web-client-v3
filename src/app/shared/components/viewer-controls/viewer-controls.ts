@@ -12,6 +12,7 @@ import { DetailViewService } from '../../../modules/detail-view-page/services/de
 import { MapViewerService } from '../../services/map-viewer.service';
 import { TtsService } from '../../services/tts.service';
 import { SliderComponent } from '../slider/slider.component';
+import { ToolbarAction } from '../toolbar-controls/toolbar-controls.component';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -23,6 +24,8 @@ import { SliderComponent } from '../slider/slider.component';
 export class ViewerControls {
   @Input() type: 'pdf' | 'image' | 'epub' = 'pdf';
   @Input() showCrop: boolean = true;
+  /** When true, the component renders no floating UI; its actions are surfaced via getMenuItems()/handleMenuAction() for the mobile toolbar menu. */
+  @Input() mobileMenuMode = false;
 
   private pdfService = inject(PdfService);
   private iiifViewerService = inject(IIIFViewerService);
@@ -213,6 +216,93 @@ export class ViewerControls {
       enabled: percent > 0,
       threshold: percent / 100
     });
+  }
+
+  /**
+   * Viewer actions for the mobile toolbar "more" menu. Mirrors the visibility
+   * rules of the floating template but excludes zoom in/out (users pinch-zoom on
+   * touch). Returned as ToolbarAction[] so they merge into app-toolbar-controls;
+   * `tooltip` holds the translation key used as the menu label.
+   */
+  getMenuItems(): ToolbarAction[] {
+    const items: ToolbarAction[] = [];
+    const isImage = this.type === 'image';
+    const isPdf = this.type === 'pdf';
+    const mapMode = this.iiifViewerService.isMapMode();
+    const imageInterior = isImage && !mapMode;
+    const notImageInMap = !isImage || !mapMode;
+
+    if (imageInterior && this.showCrop && this.showSelectArea && !this.iiifViewerService.isBookMode()) {
+      items.push({ id: 'select-area', icon: 'icon-crop', tooltip: 'viewer-controls.select-area' });
+    }
+
+    if (this.showFullscreen) {
+      items.push({ id: 'fullscreen', icon: 'icon-maximize-3', tooltip: 'viewer-controls.fullscreen' });
+    }
+
+    if (this.showFitToScreen) {
+      items.push({ id: 'fit-to-screen', icon: 'icon-pharagraphspacing', tooltip: 'viewer-controls.fit-to-screen' });
+    }
+
+    const pdfBookMode = isPdf ? !!this.pdfService.pdfProperties.bookMode : this.iiifViewerService.isBookMode();
+    if (this.showFitToWidth && !pdfBookMode && notImageInMap) {
+      items.push({ id: 'fit-to-width', icon: 'icon-grid-lock', tooltip: 'viewer-controls.fit-to-width' });
+    }
+
+    if (imageInterior) {
+      items.push({ id: 'zoom-lock', icon: 'icon-maximize-lock', tooltip: 'viewer-controls.zoom-lock' });
+    }
+
+    if (isPdf && this.showScrollMode) {
+      items.push({ id: 'scroll-mode', icon: 'icon-pharagraphspacing', tooltip: 'viewer-controls.toggle-scroll-mode' });
+    }
+
+    if (this.showRotate && notImageInMap) {
+      items.push({ id: 'rotate', icon: 'icon-rotate-right1', tooltip: 'viewer-controls.rotate' });
+    }
+
+    if (this.showPageText && notImageInMap) {
+      items.push({ id: 'page-text', icon: 'icon-text', tooltip: 'viewer-controls.page-text' });
+    }
+
+    if (this.showBookModeButton && notImageInMap) {
+      items.push({ id: 'book-mode', icon: 'icon-book-1', tooltip: 'viewer-controls.book-mode' });
+    }
+
+    return items;
+  }
+
+  /** Routes a menu item id (from getMenuItems) to the matching viewer action. */
+  handleMenuAction(id: string): void {
+    switch (id) {
+      case 'select-area':
+        this.onSelectArea();
+        break;
+      case 'fullscreen':
+        this.onFullscreen();
+        break;
+      case 'fit-to-screen':
+        this.onFitToScreen();
+        break;
+      case 'fit-to-width':
+        this.onToggleFitToWidth();
+        break;
+      case 'zoom-lock':
+        this.onZoomLock();
+        break;
+      case 'scroll-mode':
+        this.onScrollMode();
+        break;
+      case 'rotate':
+        this.onRotate();
+        break;
+      case 'page-text':
+        this.onPageText();
+        break;
+      case 'book-mode':
+        this.onBookMode();
+        break;
+    }
   }
 
 }

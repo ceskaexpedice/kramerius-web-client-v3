@@ -1,3 +1,4 @@
+@if (!mobileMenuMode) {
 <div class="viewer-controls" [class.pdf-layout]="type === 'pdf'" [class.image-layout]="type === 'image'"
      role="toolbar" [attr.aria-label]="'viewer-controls--arialabel' | translate">
   <!-- Common buttons for both viewers -->
@@ -117,3 +118,4 @@
   }
 
 </div>
+}

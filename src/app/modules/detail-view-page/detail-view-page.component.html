@@ -142,16 +142,29 @@
                 </button>
               </div>
             }
+            <!-- Hidden viewer-controls instance: on mobile it supplies the viewer
+                 actions merged into the toolbar's "more" menu (no floating UI).
+                 Rendered as a sibling so its template ref is in scope for the toolbar. -->
+            @let showMobileViewerMenu = breakpointService.isMobile() &&
+                 documentInfoService.canAccessDocument(document.licences) &&
+                 !(iiifViewerService.isSelectionMode$ | async) &&
+                 !(document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records');
+
+            <app-viewer-controls #mobileViewerControls [mobileMenuMode]="true"
+                                 [type]="currentViewerType"></app-viewer-controls>
+
             <app-toolbar-controls [showFavorites]="true"
                                   [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
                                   [showShare]="true" [showQuote]="true"
+                                  [actions]="showMobileViewerMenu ? mobileViewerControls.getMenuItems() : []"
                                   [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
                                   [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
                                   (infoClicked)="detailViewService.openRecordInfo()"
                                   (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
                                   (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
                                   (shareClicked)="recordHandler.openShareDialog(document)"
-                                  (quoteClicked)="recordHandler.openCitationDialog(document)">
+                                  (quoteClicked)="recordHandler.openCitationDialog(document)"
+                                  (actionClicked)="onToolbarAction($event, mobileViewerControls)">
             </app-toolbar-controls>
           </div>
         </div>
@@ -234,18 +247,22 @@
           </button>
         }
 
-        <!-- Viewer controls - hide when AI panel is in ai-only mode (viewer not visible) -->
+        <!-- Viewer controls - hide when AI panel is in ai-only mode (viewer not visible).
+             On mobile the floating column is suppressed; its actions live in the
+             toolbar "more" menu instead (see mobileViewerControls above). -->
         @if (documentInfoService.canAccessDocument(document.licences) && !(aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only')) {
           @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
-            @if (!(pdfService.properties$ | async)?.fullscreen) {
+            @if (!breakpointService.isMobile() && !(pdfService.properties$ | async)?.fullscreen) {
               <app-viewer-controls type="pdf"></app-viewer-controls>
             }
           } @else if (detailViewService.isEpub || document.epub) {
-            <app-viewer-controls type="epub"></app-viewer-controls>
+            @if (!breakpointService.isMobile()) {
+              <app-viewer-controls type="epub"></app-viewer-controls>
+            }
           } @else if (document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records') {
             <!-- No image viewer controls in records (track list) mode -->
           } @else {
-            @if (!(iiifViewerService.isSelectionMode$ | async)) {
+            @if (!breakpointService.isMobile() && !(iiifViewerService.isSelectionMode$ | async)) {
               <app-viewer-controls type="image"></app-viewer-controls>
             }
 

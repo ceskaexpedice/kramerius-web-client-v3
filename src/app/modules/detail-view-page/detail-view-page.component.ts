@@ -39,6 +39,7 @@ import { DetailFullscreenService } from '../../shared/services/detail-fullscreen
 import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
 import { MusicService } from '../music/services/music.service';
 import { SoundService } from '../../shared/services/sound.service';
+import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -274,6 +275,29 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       items.push(this.mobileSearchNavItem);
     }
     return items;
+  }
+
+  /** Viewer type for the mobile viewer-controls menu, mirroring the main-content viewer selection. */
+  get currentViewerType(): 'pdf' | 'image' | 'epub' {
+    if (this.detailViewService.isPdf) return 'pdf';
+    if (this.detailViewService.isEpub || this.detailViewService.document?.epub) return 'epub';
+    return 'image';
+  }
+
+  /** Viewer action ids surfaced in the mobile toolbar menu (see ViewerControls.getMenuItems). */
+  private static readonly VIEWER_MENU_ACTION_IDS = new Set([
+    'select-area', 'fullscreen', 'fit-to-screen', 'fit-to-width',
+    'zoom-lock', 'scroll-mode', 'rotate', 'page-text', 'book-mode',
+  ]);
+
+  /**
+   * Routes toolbar "more"-menu selections that belong to the viewer back to the
+   * hidden viewer-controls instance. Favorites/share/quote keep their own outputs.
+   */
+  onToolbarAction(event: { id: string }, viewerControls: ViewerControls): void {
+    if (DetailViewPageComponent.VIEWER_MENU_ACTION_IDS.has(event.id)) {
+      viewerControls.handleMenuAction(event.id);
+    }
   }
 
   getMobilePanelTitle(): string {
