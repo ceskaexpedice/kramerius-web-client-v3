@@ -177,7 +177,7 @@
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-fullscreen #contentFullscreen [showCloseButton]="!aiPanelService.panelVisible()"
                       (fullscreenChange)="detailFullscreen.setFullscreen($event)">
-      <div class="detail-view--page--content--body"
+      <div class="detail-view--page--content--body" #contentBody
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"
@@ -303,9 +303,11 @@
 
 </app-detail-layout>
 
-<!-- Mobile navigation bar -->
+<!-- Mobile navigation bar - immersive: hidden by default, tap viewer to toggle -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
+    class="mobile-nav-bar--immersive"
+    [class.mobile-nav-bar--hidden]="!mobileNavVisible()"
     [items]="mobileNavItems"
     [activeId]="mobileActivePanel()"
     (activeIdChange)="onMobileNavChange($event)">

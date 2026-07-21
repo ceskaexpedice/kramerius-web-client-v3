@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -55,6 +55,28 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   @ViewChild('contentFullscreen') contentFullscreen!: FullscreenComponent;
 
+  // The viewer container is bound via a setter because it lives inside async
+  // *ngIf/app-fullscreen wrappers. Listeners are attached in the capture phase
+  // so they run before OpenSeadragon consumes pointer events on its canvas.
+  private contentBodyEl: HTMLElement | null = null;
+  @ViewChild('contentBody') set contentBody(ref: ElementRef<HTMLElement> | undefined) {
+    const el = ref?.nativeElement ?? null;
+    if (el === this.contentBodyEl) return;
+    this.detachViewerTapListeners();
+    this.contentBodyEl = el;
+    if (el) {
+      el.addEventListener('pointerdown', this.onViewerPointerDown, { capture: true });
+      el.addEventListener('pointerup', this.onViewerPointerUp, { capture: true });
+    }
+  }
+
+  private detachViewerTapListeners(): void {
+    if (this.contentBodyEl) {
+      this.contentBodyEl.removeEventListener('pointerdown', this.onViewerPointerDown, { capture: true } as EventListenerOptions);
+      this.contentBodyEl.removeEventListener('pointerup', this.onViewerPointerUp, { capture: true } as EventListenerOptions);
+    }
+  }
+
   public detailViewService = inject(DetailViewService);
   public recordHandler = inject(RecordHandlerService);
   public adminModeService = inject(AdminModeService);
@@ -97,6 +119,27 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   mobileActivePanel = signal<string>('');
   mobileSlideUpOpen = signal(false);
 
+  // Immersive mobile chrome: the bottom nav bar is hidden by default and
+  // toggled by a clean tap on the viewer (reader-style), then hidden again
+  // when a slide-up panel opens.
+  mobileNavVisible = signal(false);
+  // Pointer-down tracking to tell a tap apart from a pan/zoom gesture.
+  private tapStartX = 0;
+  private tapStartY = 0;
+  private tapStartTime = 0;
+  private static readonly TAP_MOVE_THRESHOLD = 10; // px
+  private static readonly TAP_TIME_THRESHOLD = 300; // ms
+  // Single-tap toggle is deferred briefly so a second tap (double-tap to zoom)
+  // can cancel it instead of flickering the nav bar.
+  private pendingTapToggle: ReturnType<typeof setTimeout> | null = null;
+  private lastTapUpTime = 0;
+  private static readonly DOUBLE_TAP_WINDOW = 300; // ms
+  // Reserved height (px) the visible nav bar takes from the viewer.
+  private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
+  private static readonly NAV_HEIGHT_ANIM_MS = 250;
+  private navHeightRaf: number | null = null;
+  private navHeightCurrent = 0;
+
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
 
@@ -111,8 +154,16 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     favoritesService: FavoritesService,
     popupPositioning: PopupPositioningService,
     router: Router,
-    route: ActivatedRoute
+    route: ActivatedRoute,
+    private hostRef: ElementRef<HTMLElement>
   ) {
+    // Animate the reserved nav-bar height so the viewer grows/shrinks smoothly
+    // when the immersive bar shows/hides. Driven in JS because a CSS transition
+    // cannot interpolate a calc() height that changes via a custom property.
+    effect(() => {
+      const target = this.mobileNavVisible() ? DetailViewPageComponent.MOBILE_NAV_BAR_HEIGHT : 0;
+      this.animateMobileNavBarHeight(target);
+    });
     this.activeSidebarTab$ = route.queryParamMap.pipe(
       map(params => (params.get('article') ? 'articles' : 'pages')),
       distinctUntilChanged()
@@ -239,6 +290,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnDestroy(): void {
+    if (this.pendingTapToggle !== null) {
+      clearTimeout(this.pendingTapToggle);
+    }
+    if (this.navHeightRaf !== null) {
+      cancelAnimationFrame(this.navHeightRaf);
+    }
+    this.detachViewerTapListeners();
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
@@ -322,12 +380,108 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
         this.mobileActivePanel.set(id);
         this.mobileSlideUpOpen.set(true);
       }
+      // Opening a panel takes over the screen: hide the immersive nav bar.
+      this.mobileNavVisible.set(false);
     }
   }
 
   onMobileSlideUpClosed() {
     this.mobileSlideUpOpen.set(false);
     this.mobileActivePanel.set('');
+  }
+
+  /** Record where a pointer press started, to discriminate tap from drag. */
+  onViewerPointerDown = (event: PointerEvent): void => {
+    this.tapStartX = event.clientX;
+    this.tapStartY = event.clientY;
+    this.tapStartTime = event.timeStamp;
+  };
+
+  /**
+   * Toggle the immersive mobile nav bar on a clean tap (reader-style). A press
+   * that moved beyond the threshold or lasted too long is a pan/zoom gesture
+   * and is ignored so the bar doesn't flicker while manipulating the viewer.
+   *
+   * The toggle is deferred by one double-tap window so a double-tap (zoom) does
+   * not flip the bar: the second tap cancels the pending single-tap toggle.
+   *
+   * Bound as a capture-phase listener so it runs before OpenSeadragon consumes
+   * pointer events on its canvas.
+   */
+  onViewerPointerUp = (event: PointerEvent): void => {
+    if (!this.breakpointService.isMobile()) return;
+
+    const movedX = Math.abs(event.clientX - this.tapStartX);
+    const movedY = Math.abs(event.clientY - this.tapStartY);
+    const elapsed = event.timeStamp - this.tapStartTime;
+
+    const isCleanTap =
+      movedX <= DetailViewPageComponent.TAP_MOVE_THRESHOLD &&
+      movedY <= DetailViewPageComponent.TAP_MOVE_THRESHOLD &&
+      elapsed <= DetailViewPageComponent.TAP_TIME_THRESHOLD;
+
+    if (!isCleanTap) return;
+
+    // A second tap within the double-tap window cancels the pending toggle
+    // (this tap is part of a double-tap-to-zoom, not a chrome toggle).
+    if (this.pendingTapToggle !== null &&
+        event.timeStamp - this.lastTapUpTime <= DetailViewPageComponent.DOUBLE_TAP_WINDOW) {
+      clearTimeout(this.pendingTapToggle);
+      this.pendingTapToggle = null;
+      this.lastTapUpTime = 0;
+      return;
+    }
+
+    this.lastTapUpTime = event.timeStamp;
+    this.pendingTapToggle = setTimeout(() => {
+      this.pendingTapToggle = null;
+      this.mobileNavVisible.update(v => !v);
+    }, DetailViewPageComponent.DOUBLE_TAP_WINDOW);
+  };
+
+  /**
+   * Tween the --mobile-nav-bar-height custom property so the viewer's calc()
+   * height animates. Uses rAF because a CSS transition can't interpolate a
+   * calc() driven by a custom property. Honors prefers-reduced-motion.
+   */
+  private animateMobileNavBarHeight(target: number): void {
+    const layout = this.hostRef.nativeElement.querySelector('app-detail-layout') as HTMLElement | null;
+    if (!layout) return;
+
+    const setVar = (px: number) => {
+      this.navHeightCurrent = px;
+      layout.style.setProperty('--mobile-nav-bar-height', `${px}px`);
+    };
+
+    if (this.navHeightRaf !== null) {
+      cancelAnimationFrame(this.navHeightRaf);
+      this.navHeightRaf = null;
+    }
+
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const from = this.navHeightCurrent;
+    // Snap instantly when motion is reduced, already there, or rAF is paused
+    // (hidden tab) — otherwise the value could be stranded mid-tween.
+    if (reduceMotion || from === target || document.hidden) {
+      setVar(target);
+      return;
+    }
+
+    const start = performance.now();
+    const duration = DetailViewPageComponent.NAV_HEIGHT_ANIM_MS;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      // ease-out (matches the nav bar's ease feel)
+      const eased = 1 - Math.pow(1 - t, 3);
+      setVar(from + (target - from) * eased);
+      if (t < 1) {
+        this.navHeightRaf = requestAnimationFrame(step);
+      } else {
+        this.navHeightRaf = null;
+        setVar(target);
+      }
+    };
+    this.navHeightRaf = requestAnimationFrame(step);
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
