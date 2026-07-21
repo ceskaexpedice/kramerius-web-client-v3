@@ -695,10 +695,21 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const viewportRect = this.viewer.viewport.imageToViewportRectangle(this.currentImageRect);
     const elementRect = this.viewer.viewport.viewportToViewerElementRectangle(viewportRect);
 
-    this.selectionRect = {
-      top: elementRect.y,
-      left: elementRect.x + elementRect.width + 10
-    };
+    const top = elementRect.y;
+    const left = elementRect.x + elementRect.width + 10;
+
+    // `update-viewport` and `animation` fire continuously. Allocating a new
+    // object each time would hand the template a fresh identity on every frame
+    // and re-run the bindings for the floating controls; mutate in place and
+    // bail out when the position is unchanged.
+    if (this.selectionRect) {
+      if (this.selectionRect.top === top && this.selectionRect.left === left) return;
+      this.selectionRect.top = top;
+      this.selectionRect.left = left;
+      return;
+    }
+
+    this.selectionRect = { top, left };
   }
 
   onText() {
