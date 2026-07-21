@@ -15,7 +15,19 @@ import { Store } from '@ngrx/store';
 import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
 import { TranslateService } from '@ngx-translate/core';
 import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/solr-misc';
+import { escapeHtml } from '../../../../../shared/utils/escape-html';
+import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
 
+
+interface FaqAnswer {
+  licenseType: string;
+  contentKey: string;
+}
+
+interface FaqGroup {
+  titleKey: string;
+  answers: FaqAnswer[];
+}
 
 @Component({
   selector: 'app-document-access-denied',
@@ -47,10 +59,14 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private dialog = inject(MatDialog);
 
   constructor() {
-    // Reload HTML content when language changes
+    // Reload HTML content when language changes. FAQ items are rebuilt too:
+    // grouping matches on translated question text and merged answers embed
+    // resolved translations, so both go stale on a language switch.
     effect(() => {
       this.translationService.currentLanguage(); // track the signal
       this.loadHtmlContent();
+      this.faqItems = this.getAllFaqItems();
+      this.cdr.markForCheck();
     });
   }
 
@@ -121,6 +137,10 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   }
 
   detectAllLicenseTypes(): void {
+    // Reset first: this runs again on metadata changes, and leftover types from
+    // a previously viewed document would leak into the licenses shown here.
+    this.licenseTypes.clear();
+
     if (!this.metadata || !this.metadata.licences || this.metadata.licences.length === 0) {
       this.licenseTypes.add('other');
       this.uniqueLicenseTypes = ['other'];
@@ -142,22 +162,52 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   }
 
   getAllFaqItems(): AccordionItemData[] {
-    const allItems: AccordionItemData[] = [];
-    let indexCounter = 1;
+    // Different license types share several identically worded questions, but
+    // their answers differ (e.g. remote vs. on-site access). Group by the
+    // translated question text so each one is asked once, and collect every
+    // license's answer underneath it.
+    const groups: FaqGroup[] = [];
+    const groupsByQuestion = new Map<string, FaqGroup>();
 
     this.uniqueLicenseTypes.forEach(type => {
-      const items = this.getFaqItemsForLicenseType(type);
-      items.forEach(item => {
-        allItems.push({
-          ...item,
-          id: indexCounter,
-          index: indexCounter++,
-          isOpen: indexCounter === 2
-        });
+      this.getFaqItemsForLicenseType(type).forEach(item => {
+        const key = normalizeForComparison(this.translate.instant(item.title));
+        const existing = groupsByQuestion.get(key);
+
+        if (existing) {
+          existing.answers.push({ licenseType: type, contentKey: item.content });
+        } else {
+          const group: FaqGroup = {
+            titleKey: item.title,
+            answers: [{ licenseType: type, contentKey: item.content }]
+          };
+          groups.push(group);
+          groupsByQuestion.set(key, group);
+        }
       });
     });
 
-    return allItems;
+    return groups.map((group, i) => ({
+      id: i + 1,
+      index: i + 1,
+      title: group.titleKey,
+      isOpen: i === 0,
+      // A single answer stays a plain translation key so the accordion keeps
+      // translating it; merged answers must be pre-resolved and labelled.
+      ...(group.answers.length === 1
+        ? { content: group.answers[0].contentKey }
+        : { content: this.buildMergedAnswer(group.answers), allowHtml: true })
+    }));
+  }
+
+  private buildMergedAnswer(answers: FaqAnswer[]): string {
+    return answers
+      .map(answer => {
+        const label = this.translate.instant(`access-denied.license-${answer.licenseType}`);
+        const text = this.translate.instant(answer.contentKey);
+        return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${escapeHtml(text)}</p>`;
+      })
+      .join('');
   }
 
   getFaqItemsForLicenseType(type: string): AccordionItemData[] {

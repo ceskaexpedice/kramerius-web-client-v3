@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { EnvironmentService } from './environment.service';
 import { CdkSourceService } from './cdk-source.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens';
+import { escapeHtml } from '../utils/escape-html';
 
 export interface AltoBox {
   x: number;
@@ -544,7 +545,7 @@ export class AltoService {
       const isHeadingLine = currentBaseFontSize > 11 || lineAllBold;
       let lineHtml = words
         .map(({ content, isBold, isItalic }) => {
-          let word = this.escapeHtml(content);
+          let word = escapeHtml(content);
           if (!isHeadingLine) {
             if (isBold) word = `<strong>${word}</strong>`;
             if (isItalic) word = `<em>${word}</em>`;
@@ -583,14 +584,6 @@ export class AltoService {
     if (altoSize <= 30) return '2em';
     if (altoSize <= 40) return '2.5em';
     return '3em';
-  }
-
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
   }
 
   /**
