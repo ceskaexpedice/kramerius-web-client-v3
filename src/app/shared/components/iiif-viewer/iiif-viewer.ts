@@ -177,6 +177,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
             this.currentImageRect = null;
           }
           this.cdr.detectChanges();
+
+          // The first placement above runs before the controls exist in the
+          // DOM, so it has to clamp against fallback dimensions. Now that
+          // detectChanges() has rendered them, recompute with the measured box
+          // and repaint if that moved anything.
+          if (rect) {
+            const before = this.selectionRect ? { ...this.selectionRect } : null;
+            this.updateControlsPosition();
+            if (before && this.selectionRect &&
+                (before.top !== this.selectionRect.top || before.left !== this.selectionRect.left)) {
+              this.cdr.detectChanges();
+            }
+          }
         });
       })
     );
@@ -689,14 +702,55 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.updateControlsPosition();
   }
 
+  /** Gap between the selection box and the floating controls, in px. */
+  private static readonly CONTROLS_GAP = 10;
+  /** Keep this much clearance from the viewer edges when clamping. */
+  private static readonly CONTROLS_MARGIN = 8;
+  /** Fallback size used before the controls have been measured (see SCSS). */
+  private static readonly CONTROLS_FALLBACK_WIDTH = 48;
+  private static readonly CONTROLS_FALLBACK_HEIGHT = 168;
+
   private updateControlsPosition() {
     if (!this.viewer || !this.currentImageRect || !this.showSelectionControls) return;
 
     const viewportRect = this.viewer.viewport.imageToViewportRectangle(this.currentImageRect);
     const elementRect = this.viewer.viewport.viewportToViewerElementRectangle(viewportRect);
 
-    const top = elementRect.y;
-    const left = elementRect.x + elementRect.width + 10;
+    const container = this.viewerContainer?.nativeElement as HTMLElement | undefined;
+    const containerWidth = container?.clientWidth ?? 0;
+    const containerHeight = container?.clientHeight ?? 0;
+
+    // Measure the rendered controls when available so the clamp matches the
+    // actual box (its height depends on how many buttons config enables).
+    const controlsEl = container?.querySelector('app-selection-controls') as HTMLElement | null;
+    const controlsWidth = controlsEl?.offsetWidth || IIIFViewer.CONTROLS_FALLBACK_WIDTH;
+    const controlsHeight = controlsEl?.offsetHeight || IIIFViewer.CONTROLS_FALLBACK_HEIGHT;
+
+    const gap = IIIFViewer.CONTROLS_GAP;
+    const margin = IIIFViewer.CONTROLS_MARGIN;
+
+    // Preferred placement: just outside the selection's right edge.
+    let left = elementRect.x + elementRect.width + gap;
+
+    if (containerWidth > 0) {
+      const overflowsRight = left + controlsWidth + margin > containerWidth;
+      if (overflowsRight) {
+        // Flip to the selection's left edge; if that would also clip (selection
+        // is wide or hugs the left), clamp inside the viewer instead.
+        const flipped = elementRect.x - gap - controlsWidth;
+        left = flipped >= margin
+          ? flipped
+          : Math.max(margin, containerWidth - controlsWidth - margin);
+      }
+    }
+
+    // Vertically the controls track the selection's top edge, clamped so they
+    // never run past the bottom (or above the top) of the viewer.
+    let top = elementRect.y;
+    if (containerHeight > 0) {
+      const maxTop = Math.max(margin, containerHeight - controlsHeight - margin);
+      top = Math.min(Math.max(top, margin), maxTop);
+    }
 
     // `update-viewport` and `animation` fire continuously. Allocating a new
     // object each time would hand the template a fresh identity on every frame
