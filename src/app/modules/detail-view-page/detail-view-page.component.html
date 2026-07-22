@@ -178,6 +178,7 @@
       <app-fullscreen #contentFullscreen [showCloseButton]="!aiPanelService.panelVisible()"
                       (fullscreenChange)="detailFullscreen.setFullscreen($event)">
       <div class="detail-view--page--content--body" #contentBody
+           appViewerTapToggle (cleanTap)="onViewerCleanTap()"
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"

@@ -27,6 +27,7 @@ import { MetadataSidebarComponent } from '../../shared/components/metadata-sideb
 import { IIIFViewer } from '../../shared/components/iiif-viewer/iiif-viewer';
 import { GeoreferenceViewerComponent } from '../../shared/components/georeference-viewer/georeference-viewer';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
+import { ViewerTapToggleDirective } from '../../shared/directives/viewer-tap-toggle.directive';
 import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
@@ -89,6 +90,7 @@ const routes: Routes = [
 		IIIFViewer,
 		GeoreferenceViewerComponent,
 		ViewerControls,
+		ViewerTapToggleDirective,
 		FavoritesPopupComponent,
 		InlineLoaderComponent,
 		SelectionModeInfoComponent,
