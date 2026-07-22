@@ -1,10 +1,15 @@
 :host {
   display: block;
   position: absolute;
-  bottom: 24px;
+  // Sit above the mobile nav bar: lift by its reserved height (0 when the bar
+  // is hidden, ~60px when visible; the value is tweened on <app-detail-layout>
+  // and inherited here) plus the base gap.
+  bottom: calc(24px + var(--mobile-nav-bar-height, 0px));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  // Keep the panel above the fixed mobile nav bar (z-index: 100) for safety,
+  // in addition to the bottom offset that already clears it visually.
+  z-index: 101;
   max-width: 340px;
 
   // On mobile, widen to use most of the viewport (leaving small side margins).
