@@ -22,6 +22,8 @@ export interface ToolbarAction {
   disabled?: boolean;
   visible?: boolean;
   label?: string;
+  /** Render a divider above this item in mobile menu mode. */
+  dividerAbove?: boolean;
 }
 
 export interface ToolbarActionEvent {
@@ -90,6 +92,7 @@ export class ToolbarControlsComponent implements OnChanges {
       label: a.tooltip || a.label || a.id,
       icon: a.icon.replace('icon-', ''),
       disabled: a.disabled,
+      dividerAbove: a.dividerAbove,
     }));
   }
 
@@ -157,8 +160,14 @@ export class ToolbarControlsComponent implements OnChanges {
       legacyActions.push({ id: 'select', icon: 'icon-tick-square', tooltip: 'toolbar.tooltip.select', disabled: false, label: 'Select' });
     }
 
-    // Combine both sets of actions
-    this.mergedActions = [...configActions, ...legacyActions];
+    // Config actions (e.g. viewer controls on mobile) render after the legacy
+    // favorites/share/quote group, separated by a divider.
+    if (configActions.length > 0 && legacyActions.length > 0) {
+      configActions[0] = { ...configActions[0], dividerAbove: true };
+    }
+
+    // Combine both sets of actions (legacy first, then config)
+    this.mergedActions = [...legacyActions, ...configActions];
   }
 
   // TrackBy function for *ngFor to help Angular track button identity

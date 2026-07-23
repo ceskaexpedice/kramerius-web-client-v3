@@ -100,8 +100,16 @@ export class PeriodicalDetailEffects {
 
               if (hasMonographUnits) {
                 console.log('Backward compatibility: redirecting from /periodical/ to /monograph/ for multi-volume monograph:', data.uuid);
-                // Use replaceUrl to replace history entry, preventing back button issues
-                this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, data.uuid], { replaceUrl: true });
+                // Use replaceUrl to replace history entry, preventing back button issues.
+                // Carry ?fulltext so a search term from the source page (e.g. saved
+                // lists) survives — this effect fires on every document detail load
+                // and would otherwise clobber the param set by the document-detail
+                // effect's own redirect.
+                const fulltext = this.router.parseUrl(this.router.url).queryParams['fulltext'];
+                this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, data.uuid], {
+                  queryParams: fulltext ? { fulltext } : {},
+                  replaceUrl: true,
+                });
               }
             }),
             switchMap(() => of(loadPeriodicalFailure({ error: 'Redirecting to monograph view' }))),

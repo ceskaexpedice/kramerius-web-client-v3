@@ -10,6 +10,11 @@ export interface MonographVolumesState {
   facets: any;
   facetsLoading: boolean;
   facetsError: any;
+  // In-monograph search (term over pages + units), mirroring periodical search
+  searchResults: any[];
+  searchTotalCount: number;
+  searchLoading: boolean;
+  searchError: any;
 }
 
 export const initialState: MonographVolumesState = {
@@ -20,6 +25,10 @@ export const initialState: MonographVolumesState = {
   facets: {},
   facetsLoading: false,
   facetsError: null,
+  searchResults: [],
+  searchTotalCount: 0,
+  searchLoading: false,
+  searchError: null,
 };
 
 export const monographVolumesReducer = createReducer(
@@ -48,5 +57,29 @@ export const monographVolumesReducer = createReducer(
     error,
     facetsError: error
   })),
-  on(MonographVolumesActions.clearMonographVolumes, () => initialState)
+  on(MonographVolumesActions.clearMonographVolumes, () => initialState),
+  on(MonographVolumesActions.loadMonographVolumesSearchResults, state => ({
+    ...state,
+    searchLoading: true,
+    searchError: null
+  })),
+  on(MonographVolumesActions.loadMonographVolumesSearchSuccess, (state, { results, totalCount }) => ({
+    ...state,
+    searchLoading: false,
+    searchResults: results || [],
+    searchTotalCount: totalCount || 0,
+    searchError: null
+  })),
+  on(MonographVolumesActions.loadMonographVolumesSearchFailure, (state, { error }) => ({
+    ...state,
+    searchLoading: false,
+    searchError: error
+  })),
+  on(MonographVolumesActions.clearMonographVolumesSearch, state => ({
+    ...state,
+    searchResults: [],
+    searchTotalCount: 0,
+    searchLoading: false,
+    searchError: null
+  }))
 );

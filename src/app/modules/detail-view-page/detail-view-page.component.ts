@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -39,6 +39,7 @@ import { DetailFullscreenService } from '../../shared/services/detail-fullscreen
 import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
 import { MusicService } from '../music/services/music.service';
 import { SoundService } from '../../shared/services/sound.service';
+import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 
 @Component({
   selector: 'app-detail-view-page',
@@ -96,6 +97,16 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   mobileActivePanel = signal<string>('');
   mobileSlideUpOpen = signal(false);
 
+  // Immersive mobile chrome: the bottom nav bar is hidden by default and
+  // toggled by a clean tap on the viewer (see ViewerTapToggleDirective), then
+  // hidden again when a slide-up panel opens.
+  mobileNavVisible = signal(false);
+  // Reserved height (px) the visible nav bar takes from the viewer.
+  private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
+  private static readonly NAV_HEIGHT_ANIM_MS = 250;
+  private navHeightRaf: number | null = null;
+  private navHeightCurrent = 0;
+
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
 
@@ -110,8 +121,16 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     favoritesService: FavoritesService,
     popupPositioning: PopupPositioningService,
     router: Router,
-    route: ActivatedRoute
+    route: ActivatedRoute,
+    private hostRef: ElementRef<HTMLElement>
   ) {
+    // Animate the reserved nav-bar height so the viewer grows/shrinks smoothly
+    // when the immersive bar shows/hides. Driven in JS because a CSS transition
+    // cannot interpolate a calc() height that changes via a custom property.
+    effect(() => {
+      const target = this.mobileNavVisible() ? DetailViewPageComponent.MOBILE_NAV_BAR_HEIGHT : 0;
+      this.animateMobileNavBarHeight(target);
+    });
     this.activeSidebarTab$ = route.queryParamMap.pipe(
       map(params => (params.get('article') ? 'articles' : 'pages')),
       distinctUntilChanged()
@@ -238,6 +257,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnDestroy(): void {
+    if (this.navHeightRaf !== null) {
+      cancelAnimationFrame(this.navHeightRaf);
+    }
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.favoritesHelper.cleanup();
     this.detailViewService.resetState();
@@ -276,6 +298,29 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     return items;
   }
 
+  /** Viewer type for the mobile viewer-controls menu, mirroring the main-content viewer selection. */
+  get currentViewerType(): 'pdf' | 'image' | 'epub' {
+    if (this.detailViewService.isPdf) return 'pdf';
+    if (this.detailViewService.isEpub || this.detailViewService.document?.epub) return 'epub';
+    return 'image';
+  }
+
+  /** Viewer action ids surfaced in the mobile toolbar menu (see ViewerControls.getMenuItems). */
+  private static readonly VIEWER_MENU_ACTION_IDS = new Set([
+    'select-area', 'fullscreen', 'fit-to-screen', 'fit-to-width',
+    'zoom-lock', 'scroll-mode', 'rotate', 'page-text', 'book-mode',
+  ]);
+
+  /**
+   * Routes toolbar "more"-menu selections that belong to the viewer back to the
+   * hidden viewer-controls instance. Favorites/share/quote keep their own outputs.
+   */
+  onToolbarAction(event: { id: string }, viewerControls: ViewerControls): void {
+    if (DetailViewPageComponent.VIEWER_MENU_ACTION_IDS.has(event.id)) {
+      viewerControls.handleMenuAction(event.id);
+    }
+  }
+
   getMobilePanelTitle(): string {
     const item = this.mobileNavItems.find(i => i.id === this.mobileActivePanel());
     return item ? this.translate.instant(item.label) : '';
@@ -298,12 +343,64 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
         this.mobileActivePanel.set(id);
         this.mobileSlideUpOpen.set(true);
       }
+      // Opening a panel takes over the screen: hide the immersive nav bar.
+      this.mobileNavVisible.set(false);
     }
   }
 
   onMobileSlideUpClosed() {
     this.mobileSlideUpOpen.set(false);
     this.mobileActivePanel.set('');
+  }
+
+  /** Toggle the immersive mobile nav bar on a clean tap on the viewer. */
+  onViewerCleanTap(): void {
+    this.mobileNavVisible.update(v => !v);
+  }
+
+  /**
+   * Tween the --mobile-nav-bar-height custom property so the viewer's calc()
+   * height animates. Uses rAF because a CSS transition can't interpolate a
+   * calc() driven by a custom property. Honors prefers-reduced-motion.
+   */
+  private animateMobileNavBarHeight(target: number): void {
+    const layout = this.hostRef.nativeElement.querySelector('app-detail-layout') as HTMLElement | null;
+    if (!layout) return;
+
+    const setVar = (px: number) => {
+      this.navHeightCurrent = px;
+      layout.style.setProperty('--mobile-nav-bar-height', `${px}px`);
+    };
+
+    if (this.navHeightRaf !== null) {
+      cancelAnimationFrame(this.navHeightRaf);
+      this.navHeightRaf = null;
+    }
+
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const from = this.navHeightCurrent;
+    // Snap instantly when motion is reduced, already there, or rAF is paused
+    // (hidden tab) — otherwise the value could be stranded mid-tween.
+    if (reduceMotion || from === target || document.hidden) {
+      setVar(target);
+      return;
+    }
+
+    const start = performance.now();
+    const duration = DetailViewPageComponent.NAV_HEIGHT_ANIM_MS;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      // ease-out (matches the nav bar's ease feel)
+      const eased = 1 - Math.pow(1 - t, 3);
+      setVar(from + (target - from) * eased);
+      if (t < 1) {
+        this.navHeightRaf = requestAnimationFrame(step);
+      } else {
+        this.navHeightRaf = null;
+        setVar(target);
+      }
+    };
+    this.navHeightRaf = requestAnimationFrame(step);
   }
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;

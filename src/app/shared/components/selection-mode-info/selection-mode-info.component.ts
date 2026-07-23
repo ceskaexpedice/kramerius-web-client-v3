@@ -8,7 +8,12 @@ import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './selection-mode-info.component.html',
-  styleUrl: './selection-mode-info.component.scss'
+  styleUrl: './selection-mode-info.component.scss',
+  host: {
+    // Collapse the host when there is nothing to show (tip suppressed), so the
+    // empty absolutely-positioned box neither shows nor catches clicks.
+    '[style.display]': 'showTip() ? "block" : "none"',
+  },
 })
 export class SelectionModeInfoComponent implements OnInit {
   @Output() editSelection = new EventEmitter<void>();

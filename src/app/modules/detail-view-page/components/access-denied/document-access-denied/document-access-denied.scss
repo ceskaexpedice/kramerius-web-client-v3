@@ -1,3 +1,17 @@
+// Answers merged from multiple licenses under one shared question. Each is
+// prefixed with the license it applies to, since the answers can contradict
+// one another (remote vs. on-site access).
+::ng-deep .faq-answer {
+  & + & {
+    margin-top: 0.75rem;
+  }
+
+  .faq-answer__license {
+    display: block;
+    font-weight: 600;
+  }
+}
+
 .license-link {
   display: inline;
   background: none;

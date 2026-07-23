@@ -117,7 +117,16 @@ export class DocumentDetailEffects {
 
         if ((isMonograph && hasMonographUnits) || isConvolute) {
           console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
-          this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], { replaceUrl: true });
+          // Carry ?fulltext through the redirect so an in-document search term
+          // (e.g. from the saved-lists page) survives, matching the periodical
+          // flow which keeps it because no redirect happens there. Other params
+          // (?page, ?article) target a concrete page/article and are meaningless
+          // on the volumes list, so they are intentionally dropped.
+          const fulltext = this.router.parseUrl(this.router.url).queryParams['fulltext'];
+          this.router.navigate([APP_ROUTES_ENUM.MONOGRAPH_VIEW, uuid], {
+            queryParams: fulltext ? { fulltext } : {},
+            replaceUrl: true,
+          });
         }
       }),
       tap(({ detailItem }) => {

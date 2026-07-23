@@ -1,6 +1,9 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { EnvironmentService } from './environment.service';
+import { APP_ROUTES_ENUM } from '../../app.routes';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock } from './alto.service';
 import { CdkSourceService } from './cdk-source.service';
@@ -135,6 +138,7 @@ export class IIIFViewerService {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private detailFullscreen = inject(DetailFullscreenService);
+  private router = inject(Router);
 
   // Search matches tracking
   private searchMatches: Array<{ rect: OpenSeadragon.Rect; overlay: HTMLElement }> = [];
@@ -248,7 +252,11 @@ export class IIIFViewerService {
   public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
 
   private isDraggingSubject = new BehaviorSubject<boolean>(false);
-  public isDragging$ = this.isDraggingSubject.asObservable();
+  // distinctUntilChanged: a BehaviorSubject re-emits even when the value is
+  // unchanged, and each emission drives an async pipe that triggers change
+  // detection. Dropping the no-op emissions avoids pointless re-renders of the
+  // floating selection UI during pointer gestures.
+  public isDragging$ = this.isDraggingSubject.pipe(distinctUntilChanged());
 
   private lastSelectionTime: number = 0;
 
@@ -691,13 +699,36 @@ export class IIIFViewerService {
       element: this.viewer.element,
       clickDistThreshold: 5,
       clickTimeThreshold: 300,
+      // The tracker is bound to the whole viewer element, which also hosts the
+      // floating selection controls. On pointerdown OpenSeadragon captures the
+      // pointer to that element (setPointerCapture), after which every
+      // pointerup/click retargets to the container and the buttons never
+      // receive their own click. Guarding inside pressHandler cannot help:
+      // OSD captures *after* running the gesture handlers. preProcessEventHandler
+      // runs before that decision, and setting preventGesture leaves
+      // shouldCapture false, so presses on the controls keep their natural
+      // target. Covers touch too — OSD reports taps as 'pointerdown' as well.
+      preProcessEventHandler: (eventInfo: any) => {
+        if (eventInfo.eventType !== 'pointerdown') return;
+        if (!this.isEventOnSelectionControls(eventInfo)) return;
+        eventInfo.preventGesture = true;
+        eventInfo.preventDefault = false;
+        eventInfo.stopPropagation = false;
+      },
       pressHandler: (event: any) => {
+        // The tracker spans the whole viewer element, which also contains the
+        // floating selection controls. Ignore presses that land on those
+        // controls so their own click handlers run and the selection survives.
+        if (this.isEventOnSelectionControls(event)) return;
         console.log('MouseTracker: press');
         this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
         this.isDraggingSubject.next(true);
         event.preventDefaultAction = true;
       },
       clickHandler: (event: any) => {
+        // Don't treat a click on the selection controls as a click on the
+        // canvas (which would clear the selection out from under the button).
+        if (this.isEventOnSelectionControls(event)) return;
         console.log('MouseTracker: click', event.quick);
         // Prevent clearing if selection was just made (within 300ms)
         if (Date.now() - this.lastSelectionTime < 300) {
@@ -740,6 +771,17 @@ export class IIIFViewerService {
       },
       releaseHandler: (event: any) => {
         try {
+          // A release over the selection controls belongs to their button, not
+          // to a canvas drag; skip the selection maths so we don't clear the
+          // just-made selection. Still clear the dragging flag: a drag that
+          // started on the canvas and ended over the controls would otherwise
+          // leave it stuck true and hide the selection info panel. isDragging$
+          // is distinctUntilChanged, so this is a no-op when already false.
+          if (this.isEventOnSelectionControls(event)) {
+            this.isDraggingSubject.next(false);
+            this.drawStartPoint = null;
+            return;
+          }
           this.isDraggingSubject.next(false);
           if (!this.drawStartPoint) return;
 
@@ -774,6 +816,52 @@ export class IIIFViewerService {
         }
       }
     });
+  }
+
+  // The MouseTracker is bound to the whole viewer element, which also hosts the
+  // floating <app-selection-controls>. Detect events originating on those
+  // controls so the tracker's press/click/release handlers can skip them and
+  // let the buttons' own click handlers run without clearing the selection.
+  private isEventOnSelectionControls(event: any): boolean {
+    const controls = this.viewer?.element?.querySelector('app-selection-controls') as HTMLElement | null;
+    if (!controls) return false;
+
+    const oe = event?.originalEvent as any;
+
+    // Fast path: the DOM target is inside the controls. Unreliable once
+    // OpenSeadragon captures the pointer (the target stays pinned to the canvas
+    // where the press started), so it's only a positive signal, never negative.
+    const target = (oe?.target ?? oe?.srcElement) as Node | null;
+    if (target && controls.contains(target)) return true;
+
+    const rect = controls.getBoundingClientRect();
+
+    // Robust path A: hit-test the pointer's page coordinates against the
+    // controls' box. Correct even under pointer capture (unlike the DOM target).
+    const clientX = oe?.clientX;
+    const clientY = oe?.clientY;
+    if (typeof clientX === 'number' && typeof clientY === 'number') {
+      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        return true;
+      }
+    }
+
+    // Robust path B: OpenSeadragon's own event.position is relative to the
+    // viewer element and always present, even when originalEvent is missing
+    // synthesized coordinates. Compare it in viewer-element-local space.
+    const viewerRect = (this.viewer!.element as HTMLElement).getBoundingClientRect();
+    const pos = event?.position;
+    if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
+      const localLeft = rect.left - viewerRect.left;
+      const localTop = rect.top - viewerRect.top;
+      const localRight = rect.right - viewerRect.left;
+      const localBottom = rect.bottom - viewerRect.top;
+      if (pos.x >= localLeft && pos.x <= localRight && pos.y >= localTop && pos.y <= localBottom) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   // Create the dim layer around the selected area.
@@ -1130,10 +1218,17 @@ export class IIIFViewerService {
     this.clearAllOverlays();
     this.clearSearchState();
 
-    // Remove fulltext parameter from URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('fulltext');
-    window.history.replaceState({}, '', url.toString());
+    // Remove fulltext parameter from URL — but only while still on the viewer.
+    // On teardown after navigating away (e.g. the multi-volume redirect to
+    // /monograph) window.location already points at the destination, and
+    // rewriting it here would strip the destination's ?fulltext param.
+    const onViewer = this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`)
+      || this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`);
+    if (onViewer) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('fulltext');
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
   /**

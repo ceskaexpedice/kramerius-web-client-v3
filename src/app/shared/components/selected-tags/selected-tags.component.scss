@@ -29,7 +29,7 @@ label {
 
 .text-first-letter-capitalize mat-chip label {
   display: inline-block;
-  text-transform: lowercase;
+  //text-transform: lowercase;
 
   &::first-letter {
     text-transform: uppercase;

@@ -43,3 +43,18 @@ export const selectMonographVolumesFacetsError = createSelector(
   selectMonographVolumesState,
   state => state?.facetsError
 );
+
+export const selectMonographVolumesSearchResults = createSelector(
+  selectMonographVolumesState,
+  state => state?.searchResults
+);
+
+export const selectMonographVolumesSearchTotalCount = createSelector(
+  selectMonographVolumesState,
+  state => state?.searchTotalCount ?? 0
+);
+
+export const selectMonographVolumesSearchLoading = createSelector(
+  selectMonographVolumesState,
+  state => state?.searchLoading
+);

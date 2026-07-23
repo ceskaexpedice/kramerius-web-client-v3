@@ -266,8 +266,25 @@ app-mobile-nav-bar {
   z-index: 100;
 }
 
-:host:has(app-mobile-nav-bar) {
-  app-detail-layout {
-    --mobile-nav-bar-height: 60px;
+// Immersive nav bar: slide down out of view when hidden, respecting motion prefs.
+app-mobile-nav-bar.mobile-nav-bar--immersive {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform: translateY(0);
+  opacity: 1;
+
+  &.mobile-nav-bar--hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  app-mobile-nav-bar.mobile-nav-bar--immersive {
+    transition: none;
+  }
+}
+
+// The reserved height (--mobile-nav-bar-height) is driven imperatively from the
+// component so it can be tweened; see animateMobileNavBarHeight(). It defaults
+// to 0 (viewer full height) via the calc() fallback in detail-layout.

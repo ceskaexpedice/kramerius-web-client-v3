@@ -1,12 +1,11 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ConfigService } from '../../../core/config';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-selection-controls',
     standalone: true,
-    imports: [CommonModule, TranslatePipe],
+    imports: [TranslatePipe],
     templateUrl: './selection-controls.html',
     styleUrl: './selection-controls.scss'
 })
