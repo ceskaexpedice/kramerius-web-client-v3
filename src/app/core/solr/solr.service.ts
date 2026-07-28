@@ -1261,8 +1261,16 @@ export class SolrService {
     rows: number = 300,
     forAutocomplete: boolean = false,
     caseSensitive: boolean = false,
+    cdkCollection?: string | null,
   ): Observable<any> {
     const ocrSearchTerm = searchTerm;
+
+    // CDK: scope the search to the selected member library so returned page pids
+    // come from the same source copy as the pages loaded in the viewer.
+    let fq = `(own_parent.pid:"${parentPid}") AND model:page`;
+    if (cdkCollection) {
+      fq += ` AND cdk.collection:${cdkCollection}`;
+    }
 
     const paramsObject = {
       fl: 'pid,root.pid',
@@ -1274,7 +1282,7 @@ export class SolrService {
       'hl.simple.post': forAutocomplete ? '<<' : '</strong>',
       'hl.simple.pre': forAutocomplete ? '>>' : '<strong>',
       'hl.snippets': forAutocomplete ? '10' : '1',
-      fq: `(own_parent.pid:"${parentPid}") AND model:page`,
+      fq,
       rows: rows.toString(),
       wt: 'json'
     };
@@ -1296,7 +1304,7 @@ export class SolrService {
    * @param rows - Number of suggestions to return (default: 10)
    * @returns Observable with array of suggestion objects containing pid and highlighted text
    */
-  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10): Observable<Array<{ pid: string, highlights: string[] }>> {
+  getInDocumentSuggestions(parentPid: string, searchTerm: string, rows: number = 10, cdkCollection?: string | null): Observable<Array<{ pid: string, highlights: string[] }>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       return new Observable(observer => {
         observer.next([]);
@@ -1304,7 +1312,7 @@ export class SolrService {
       });
     }
 
-    return this.searchInDocument(parentPid, searchTerm, rows, true).pipe(
+    return this.searchInDocument(parentPid, searchTerm, rows, true, false, cdkCollection).pipe(
       map(response => {
         const results: Array<{ pid: string, highlights: string[] }> = [];
 
@@ -1330,7 +1338,7 @@ export class SolrService {
    * @param searchTerm - Search term
    * @returns Observable with array of search results including highlighted text snippets
    */
-  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false): Observable<Array<{ pid: string, highlightedText: string }>> {
+  getInDocumentSearchResults(parentPid: string, searchTerm: string, caseSensitive = false, cdkCollection?: string | null): Observable<Array<{ pid: string, highlightedText: string }>> {
     if (!searchTerm || searchTerm.trim().length < 2) {
       return new Observable(observer => {
         observer.next([]);
@@ -1338,7 +1346,7 @@ export class SolrService {
       });
     }
 
-    return this.searchInDocument(parentPid, searchTerm, 300, false, caseSensitive).pipe(
+    return this.searchInDocument(parentPid, searchTerm, 300, false, caseSensitive, cdkCollection).pipe(
       map(response => {
         const results: Array<{ pid: string, highlightedText: string }> = [];
 
