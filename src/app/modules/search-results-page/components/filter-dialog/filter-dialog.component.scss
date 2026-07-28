@@ -211,11 +211,17 @@
 }
 
 .loading {
+  // Overlay the list area instead of taking flow space, so showing the loading
+  // state during API filtering doesn't push the list down (no layout jump).
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-x6);
   color: var(--color-text-light);
+  background-color: color-mix(in srgb, var(--color-bg-base) 75%, transparent);
 }
 
 .dialog-footer {

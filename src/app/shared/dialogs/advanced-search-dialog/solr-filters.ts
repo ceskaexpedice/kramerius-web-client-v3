@@ -132,8 +132,24 @@ export const FRONTEND_FILTERED_FACET_KEYS: SolrFacetKey[] = [
   SolrFacetKey.Language, SolrFacetKey.Doctype, SolrFacetKey.PhysicalLocations
 ]
 
+/**
+ * Raw Solr facet fields whose displayed labels come from client-side i18n while
+ * the stored values are opaque codes. Solr's facet.contains only matches the raw
+ * codes, so the "show more" dialog must filter these on the frontend by their
+ * translated label instead. The CDK "source" facet (cdk.collection) stores
+ * library codes like "cuni"/"mzk" that render as "Univerzita Karlova"/… .
+ *
+ * Kept separate from FRONTEND_FILTERED_FACET_KEYS because these fields don't have
+ * a matching SolrFacetKey enum value (SolrFacetKey.CdkCollection is 'cdkCollection',
+ * not the 'cdk.collection' field name).
+ */
+export const FRONTEND_FILTERED_FACET_FIELDS: string[] = [
+  'cdk.collection'
+]
+
 export function isFrontendFilteredFacetKey(key: string): boolean {
   if (!key) return false;
+  if (FRONTEND_FILTERED_FACET_FIELDS.includes(key)) return true;
   // if key contains -facet, remove it
   if (key.endsWith('.facet')) {
     key = key.slice(0, -6);

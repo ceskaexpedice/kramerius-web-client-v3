@@ -163,12 +163,13 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
         this.page = 1;
 
         if (this.isFrontendFiltered) {
-          this.items.set(
-            this.allItems().filter(item => {
-              const translated = this.getItemLabel(item.name);
-              return translated.toLowerCase().includes(term.toLowerCase())
-            })
-          )
+          const filtered = this.allItems().filter(item => {
+            const translated = this.getItemLabel(item.name);
+            return translated.toLowerCase().includes(term.toLowerCase())
+          });
+          this.items.set(filtered);
+          // Keep the count display in sync with the frontend-filtered results.
+          this.totalCount = filtered.length;
         } else {
           this.loadFacets(false);
         }
