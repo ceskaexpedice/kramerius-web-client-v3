@@ -23,6 +23,10 @@
     background: transparent !important;
     scroll-behavior: smooth !important;
     top: 32px !important;
+    // The sidebar is always hidden (see pdf-sidebar above), but pdf.js keeps
+    // ~230px reserved on the left for it, pushing the page off-centre to the
+    // right. Reclaim that space so the page centres in the full viewer width.
+    left: 0 !important;
   }
 
   .pdfViewer {
