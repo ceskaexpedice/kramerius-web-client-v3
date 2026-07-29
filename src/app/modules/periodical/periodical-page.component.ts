@@ -37,6 +37,11 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   // Mobile right-panel state (bottom nav bar + slide-up panel).
   private static readonly MOBILE_DATE_BAR_HEIGHT = 48;
+  // Height of the collapsed peek band (mirrors --slide-up-peek-height), used to
+  // lift the filter toggle button clear of the peeking panel.
+  private static readonly MOBILE_PEEK_BAND_HEIGHT = 56;
+  // Gap between the peek band's top edge and the lifted toggle button.
+  private static readonly FILTER_TOGGLE_GAP = 12;
   public hasSearchResults = signal(false);
   public mobileActivePanel = signal<string>('');
   public mobileSlideUpOpen = signal(false);
@@ -157,7 +162,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   private mobileNavItemsBase: MobileNavItem[] = [
     { id: 'description', label: 'description', icon: 'icon-note' },
   ];
-  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: 'search', icon: 'icon-receipt-search' };
+  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
 
   get mobileNavItems(): MobileNavItem[] {
     const items = [...this.mobileNavItemsBase];
@@ -177,7 +182,30 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return this.periodical.selectedYear() ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0;
   }
 
+  /**
+   * Extra bottom offset for the filter-sidebar toggle button so it clears the
+   * peeking slide-up panel (Mode B). The button's own base bottom acts as the gap.
+   */
+  get filterToggleBottomOffset(): number {
+    // Only Mode B renders a peeking panel that overlaps the toggle. Mode A shows a
+    // (non-fixed) nav bar, and with no metadata / in admin mode no panel renders.
+    const peekPanelShown = !!this.periodical.metadata && !this.adminModeService.adminMode() && !this.hasMobileTabs;
+    if (!peekPanelShown) {
+      return 0;
+    }
+    // Target the button's bottom just above the peek band's top edge
+    // (band spans [peekOffset, peekOffset + bandHeight]) with a small gap.
+    return this.mobilePeekOffset
+      + PeriodicalPageComponent.MOBILE_PEEK_BAND_HEIGHT
+      + PeriodicalPageComponent.FILTER_TOGGLE_GAP;
+  }
+
   getMobilePanelTitle(): string {
+    // The description panel's header shows the document title (next to the close button),
+    // so the metadata-section inside hides its own title to avoid duplication.
+    if (this.mobileActivePanel() === 'description') {
+      return this.periodical.metadata?.mainTitle || '';
+    }
     const item = this.mobileNavItems.find(i => i.id === this.mobileActivePanel());
     return item ? this.translate.instant(item.label) : (this.periodical.metadata?.mainTitle || '');
   }

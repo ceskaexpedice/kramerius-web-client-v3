@@ -325,7 +325,9 @@
       [maxHeight]="90">
       @switch (mobileActivePanel()) {
         @case ('description') {
-          <app-metadata-section [showTitle]="true" [metadata]="document"
+          <!-- Panel header already shows the title, so hide metadata-section's own
+               title (the go-to-parent link still renders below it). -->
+          <app-metadata-section [showTitle]="false" [metadata]="document"
                                 [uuid]="detailViewService.document?.uuid || document.uuid || ''">
           </app-metadata-section>
         }

@@ -91,7 +91,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     { id: 'pages', label: 'pages--tab', icon: 'icon-simcard-2' },
     { id: 'export', label: 'export', icon: 'icon-download' },
   ];
-  mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'search', icon: 'icon-receipt-search' };
+  mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
   mobileAiNavItem: MobileNavItem = { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
@@ -322,6 +322,11 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getMobilePanelTitle(): string {
+    // The description panel's header shows the document title (next to the close button),
+    // so the metadata-section inside hides its own title to avoid duplication.
+    if (this.mobileActivePanel() === 'description') {
+      return this.detailViewService.document?.mainTitle || '';
+    }
     const item = this.mobileNavItems.find(i => i.id === this.mobileActivePanel());
     return item ? this.translate.instant(item.label) : '';
   }

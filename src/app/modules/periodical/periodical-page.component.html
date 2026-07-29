@@ -1,7 +1,8 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()">
+    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()"
+      [toggleButtonBottomOffset]="breakpointService.isMobile() ? filterToggleBottomOffset : 0">
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
@@ -217,7 +218,9 @@
             [maxHeight]="90">
             @switch (mobileActivePanel()) {
               @case ('description') {
-                <app-metadata-section [showTitle]="true" [metadata]="periodical.metadata"
+                <!-- Panel header already shows the title, so hide metadata-section's own
+                     title (the go-to-parent link still renders below it). -->
+                <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
                                       [uuid]="periodical.metadata.uuid || ''">
                 </app-metadata-section>
               }
@@ -236,7 +239,9 @@
             [(isOpen)]="mobileSlideUpOpen"
             [initialHeight]="60"
             [maxHeight]="90">
-            <app-metadata-section [showTitle]="true" [metadata]="periodical.metadata"
+            <!-- Peek header already shows the title, so metadata-section hides its own
+                 title (the go-to-parent link still renders below it). -->
+            <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
                                   [uuid]="periodical.metadata.uuid || ''">
             </app-metadata-section>
           </app-slide-up-panel>
