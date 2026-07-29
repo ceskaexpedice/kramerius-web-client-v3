@@ -1,13 +1,15 @@
 <!-- Backdrop -->
-<div *ngIf="showBackdrop && (isRendered || isClosing)" class="slide-up-panel-backdrop"
+<div *ngIf="showBackdrop && (isRendered || isClosing) && (!peek || isOpen())" class="slide-up-panel-backdrop"
   [class.fade-out]="isClosing" (click)="onBackdropClick()"></div>
 
 <!-- Panel -->
-<div *ngIf="isOpen() || isClosing" class="slide-up-panel" [class.open]="isRendered"
-  [class.dragging]="isDragging" [class.expanded]="isExpanded" [style.height.vh]="currentHeight"
+<div *ngIf="isOpen() || isClosing || peek" class="slide-up-panel"
+  [class.open]="peek ? isOpen() : isRendered" [class.peek]="peek"
+  [class.collapsed-peek]="isCollapsedPeek" [class.dragging]="isDragging" [class.expanded]="isExpanded"
+  [style.height.vh]="currentHeight" [style.bottom.px]="peek ? peekOffset : 0"
   role="dialog" aria-modal="true"
   [attr.aria-labelledby]="title ? 'slide-up-panel-title' : null"
-  cdkTrapFocus cdkTrapFocusAutoCapture
+  cdkTrapFocus [cdkTrapFocusAutoCapture]="isOpen()"
   (keydown.escape)="close()">
 
   <!-- Drag handle -->

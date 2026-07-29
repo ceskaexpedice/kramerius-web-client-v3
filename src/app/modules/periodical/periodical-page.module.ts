@@ -39,6 +39,10 @@ import { MetadataSidebarComponent } from '../../shared/components/metadata-sideb
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
+import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
+import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 
 const routes: Routes = [
   {
@@ -82,7 +86,11 @@ const routes: Routes = [
     MetadataSidebarComponent,
     InlineLoaderComponent,
     ScrollHideHeaderDirective,
-    FormatNumberPipe
+    FormatNumberPipe,
+    MobileNavBarComponent,
+    SlideUpPanelComponent,
+    MetadataSection,
+    SearchResultsSidebarComponent
   ],
   providers: [
     PeriodicalService,

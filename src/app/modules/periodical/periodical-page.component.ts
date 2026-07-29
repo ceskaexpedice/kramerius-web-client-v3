@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
 import { PeriodicalService } from '../../shared/services/periodical.service';
@@ -15,6 +15,9 @@ import { Router } from '@angular/router';
 import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 import { UiStateService } from '../../shared/services/ui-state.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { SearchService } from '../../shared/services/search.service';
+import { TranslateService } from '@ngx-translate/core';
+import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -29,6 +32,14 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public adminModeService = inject(AdminModeService);
   public breakpointService = inject(BreakpointService);
   private uiStateService = inject(UiStateService);
+  private searchService = inject(SearchService);
+  private translate = inject(TranslateService);
+
+  // Mobile right-panel state (bottom nav bar + slide-up panel).
+  private static readonly MOBILE_DATE_BAR_HEIGHT = 48;
+  public hasSearchResults = signal(false);
+  public mobileActivePanel = signal<string>('');
+  public mobileSlideUpOpen = signal(false);
 
   private subscriptions: Subscription[] = [];
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
@@ -81,6 +92,18 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
       })
     );
 
+    // Mobile: tabs appear in the bottom nav only when there are search results.
+    this.subscriptions.push(
+      this.searchService.totalCount$.subscribe(count => {
+        this.hasSearchResults.set((count || 0) > 0);
+        if ((count || 0) === 0 && this.mobileActivePanel() === 'results') {
+          // The results tab vanished — collapse it.
+          this.mobileActivePanel.set('');
+          this.mobileSlideUpOpen.set(false);
+        }
+      })
+    );
+
     // track available years for years grid view
     this.subscriptions.push(
       this.periodical.availableYears$.subscribe(years => {
@@ -129,6 +152,49 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   toggleMetadataSidebar() {
     this.uiStateService.toggleMetadataSidebar();
+  }
+
+  private mobileNavItemsBase: MobileNavItem[] = [
+    { id: 'description', label: 'description', icon: 'icon-note' },
+  ];
+  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: 'search', icon: 'icon-receipt-search' };
+
+  get mobileNavItems(): MobileNavItem[] {
+    const items = [...this.mobileNavItemsBase];
+    if (this.hasSearchResults()) {
+      items.push(this.mobileResultsNavItem);
+    }
+    return items;
+  }
+
+  /** Mode A (nav bar) when there are 2+ tabs; Mode B (peek panel) otherwise. */
+  get hasMobileTabs(): boolean {
+    return this.hasSearchResults();
+  }
+
+  /** Peek sits above the fixed date bar when a year is selected. */
+  get mobilePeekOffset(): number {
+    return this.periodical.selectedYear() ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0;
+  }
+
+  getMobilePanelTitle(): string {
+    const item = this.mobileNavItems.find(i => i.id === this.mobileActivePanel());
+    return item ? this.translate.instant(item.label) : (this.periodical.metadata?.mainTitle || '');
+  }
+
+  onMobileNavChange(id: string): void {
+    if (this.mobileActivePanel() === id && this.mobileSlideUpOpen()) {
+      this.mobileSlideUpOpen.set(false);
+      this.mobileActivePanel.set('');
+    } else {
+      this.mobileActivePanel.set(id);
+      this.mobileSlideUpOpen.set(true);
+    }
+  }
+
+  onMobileSlideUpClosed(): void {
+    this.mobileSlideUpOpen.set(false);
+    this.mobileActivePanel.set('');
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

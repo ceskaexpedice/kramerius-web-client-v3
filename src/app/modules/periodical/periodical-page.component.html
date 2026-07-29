@@ -168,7 +168,7 @@
             [overlay]="true"></app-inline-loader>
         </div>
 
-        @if (!showMetadataSidebar()) {
+        @if (!showMetadataSidebar() && !breakpointService.isMobile()) {
         <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()"
           [attr.aria-label]="'show-info' | translate">
           <i class="icon-info-full" aria-hidden="true"></i>
@@ -197,6 +197,50 @@
             (goToNext)="periodical.goToNextYear()">
           </app-date-navigator>
         </div>
+      }
+
+      <!-- Mobile right-panel: bottom nav bar (Mode A) or peekable panel (Mode B) -->
+      @if (breakpointService.isMobile() && periodical.metadata && !adminModeService.adminMode()) {
+        @if (hasMobileTabs) {
+          <!-- Mode A: 2+ tabs → bottom nav bar + slide-up panel -->
+          <app-mobile-nav-bar
+            [items]="mobileNavItems"
+            [activeId]="mobileActivePanel()"
+            (activeIdChange)="onMobileNavChange($event)">
+          </app-mobile-nav-bar>
+
+          <app-slide-up-panel
+            [title]="getMobilePanelTitle()"
+            [(isOpen)]="mobileSlideUpOpen"
+            (closed)="onMobileSlideUpClosed()"
+            [initialHeight]="60"
+            [maxHeight]="90">
+            @switch (mobileActivePanel()) {
+              @case ('description') {
+                <app-metadata-section [showTitle]="true" [metadata]="periodical.metadata"
+                                      [uuid]="periodical.metadata.uuid || ''">
+                </app-metadata-section>
+              }
+              @case ('results') {
+                <app-search-results-sidebar [currentDocument]="periodical.metadata">
+                </app-search-results-sidebar>
+              }
+            }
+          </app-slide-up-panel>
+        } @else {
+          <!-- Mode B: description only → peekable panel (handle + title visible) -->
+          <app-slide-up-panel
+            [peek]="true"
+            [peekOffset]="mobilePeekOffset"
+            [title]="periodical.metadata.mainTitle || ''"
+            [(isOpen)]="mobileSlideUpOpen"
+            [initialHeight]="60"
+            [maxHeight]="90">
+            <app-metadata-section [showTitle]="true" [metadata]="periodical.metadata"
+                                  [uuid]="periodical.metadata.uuid || ''">
+            </app-metadata-section>
+          </app-slide-up-panel>
+        }
       }
 
     </div>

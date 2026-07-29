@@ -71,15 +71,6 @@
   height: 40px;
   z-index: 50;
   box-shadow: var(--shadow-elevated);
-
-  // On mobile, match the filter sidebar toggle (48x48) and stack directly above it
-  // on the same right edge. The filter toggle is fixed at bottom:72px and is 48px
-  // tall, so this FAB sits a spacing-x3 gap above it (72 + 48 + 12).
-  @include mixins.respond(mobile-sm) {
-    width: 48px;
-    height: 48px;
-    bottom: calc(72px + 48px + var(--spacing-x3));
-  }
 }
 
 // Mobile sub-toolbar: view toggle (left) + sort (right), below the action toolbar.
