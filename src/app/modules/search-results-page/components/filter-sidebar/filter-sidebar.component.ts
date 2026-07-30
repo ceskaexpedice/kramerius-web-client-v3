@@ -1,4 +1,4 @@
-import { Component, Input, inject, computed, OnDestroy, OnInit, Renderer2, ElementRef } from '@angular/core';
+import { Component, HostBinding, Input, inject, computed, OnDestroy, OnInit, Renderer2, ElementRef } from '@angular/core';
 import { NgClass, NgIf, NgTemplateOutlet } from '@angular/common';
 import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -28,6 +28,13 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
   @Input() toggleButtonPosition: 'left' | 'right' = 'right';
   @Input() toggleButtonIcon: string = 'icon-filter';
   @Input() hideToggleButton = false;
+  /**
+   * Extra bottom offset (px) for the fixed toggle button, so it can be lifted
+   * clear of a peeking slide-up panel that would otherwise overlap it.
+   */
+  @Input()
+  @HostBinding('style.--filter-toggle-bottom-offset.px')
+  toggleButtonBottomOffset = 0;
 
   // Resize hide state
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;

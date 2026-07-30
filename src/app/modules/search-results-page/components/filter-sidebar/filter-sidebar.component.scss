@@ -59,7 +59,9 @@
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
   position: fixed;
-  bottom: 12px;
+  // Sit at the normal 12px, unless a peeking slide-up panel needs the button
+  // lifted above it (host sets --filter-toggle-bottom-offset to the target bottom).
+  bottom: max(12px, var(--filter-toggle-bottom-offset, 0px));
   right: 12px;
   z-index: $filter-sidebar-backdrop;
   width: 48px;
@@ -75,7 +77,7 @@
   transition: all 0.3s ease;
 
   @include respond(mobile-sm) {
-    bottom: 72px;
+    bottom: max(72px, var(--filter-toggle-bottom-offset, 0px));
   }
 
   &.left {

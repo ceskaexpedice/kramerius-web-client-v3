@@ -9,6 +9,27 @@
 
 <div class="data" *ngIf="data">
 
+  <!-- Parent-navigation links.
+       Rendered at the very top so that when the title is shown in a host header
+       (e.g. mobile slide-up panel with showTitle=false) the link sits directly
+       under it, ahead of the CDK selector and metadata. -->
+  @if (!showTitle) {
+    @if (isMonographUnitDoc() && monographHref(); as href) {
+    <a class="go-to-parent" [href]="href"
+       (click)="handleLinkNav($event, goToMonograph.bind(this))">
+      <span>{{ 'go-to-monograph' | translate }}</span>
+      <i class="icon-export-1" aria-hidden="true"></i>
+    </a>
+    }
+    @if (isPeriodicalChild() && periodicalHref(); as href) {
+    <a class="go-to-parent" [href]="href"
+       (click)="handleLinkNav($event, clickedTitle.bind(this))">
+      <span>{{ 'go-to-periodical' | translate }}</span>
+      <i class="icon-export-1" aria-hidden="true"></i>
+    </a>
+    }
+  }
+
   <!-- CDK source selector (only on CDK aggregator when document has cdk.collection) -->
   <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0"
     [label]="'cdk.collection' | translate">
@@ -45,22 +66,26 @@
   </section>
   }
 
-  <!-- Link back to the root multivolume monograph (only for monograph units) -->
-  @if (isMonographUnitDoc() && monographHref(); as href) {
-  <a class="go-to-parent" [href]="href"
-     (click)="handleLinkNav($event, goToMonograph.bind(this))">
-    <span>{{ 'go-to-monograph' | translate }}</span>
-    <i class="icon-export-1" aria-hidden="true"></i>
-  </a>
-  }
+  <!-- Parent-navigation links (rendered here in the default layout, right under the
+       inline title). When showTitle is false they are hoisted to the top instead. -->
+  @if (showTitle) {
+    <!-- Link back to the root multivolume monograph (only for monograph units) -->
+    @if (isMonographUnitDoc() && monographHref(); as href) {
+    <a class="go-to-parent" [href]="href"
+       (click)="handleLinkNav($event, goToMonograph.bind(this))">
+      <span>{{ 'go-to-monograph' | translate }}</span>
+      <i class="icon-export-1" aria-hidden="true"></i>
+    </a>
+    }
 
-  <!-- Link up to the periodical (only for periodical children) -->
-  @if (isPeriodicalChild() && periodicalHref(); as href) {
-  <a class="go-to-parent" [href]="href"
-     (click)="handleLinkNav($event, clickedTitle.bind(this))">
-    <span>{{ 'go-to-periodical' | translate }}</span>
-    <i class="icon-export-1" aria-hidden="true"></i>
-  </a>
+    <!-- Link up to the periodical (only for periodical children) -->
+    @if (isPeriodicalChild() && periodicalHref(); as href) {
+    <a class="go-to-parent" [href]="href"
+       (click)="handleLinkNav($event, clickedTitle.bind(this))">
+      <span>{{ 'go-to-periodical' | translate }}</span>
+      <i class="icon-export-1" aria-hidden="true"></i>
+    </a>
+    }
   }
 
   <!-- ISSN (standalone, right under title) -->

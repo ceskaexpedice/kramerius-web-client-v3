@@ -8,6 +8,7 @@ import { DetailViewService } from '../../modules/detail-view-page/services/detai
 import { ActivatedRoute } from '@angular/router';
 import { SearchResult } from '../components/search-results-list/search-results-list.component';
 import {removeInterpunction} from '../utils/remove-interpunction';
+import { CdkSourceService } from './cdk-source.service';
 
 /**
  * Service to manage in-document search functionality
@@ -22,6 +23,7 @@ export class DocumentSearchService {
   private iiifViewerService = inject(IIIFViewerService);
   private detailViewService = inject(DetailViewService);
   private route = inject(ActivatedRoute);
+  private cdkSource = inject(CdkSourceService);
 
   // Search state
   private searchTermSubject = new BehaviorSubject<string>('');
@@ -73,7 +75,7 @@ export class DocumentSearchService {
 
     console.log('Fetching suggestions for document:', documentUuid);
 
-    return this.solrService.getInDocumentSuggestions(documentUuid, term).pipe(
+    return this.solrService.getInDocumentSuggestions(documentUuid, term, 10, this.cdkSource.getCode()).pipe(
       map(results => {
         console.log('Received suggestions:', results.length, 'pages with matches');
 
@@ -279,7 +281,7 @@ export class DocumentSearchService {
     targetPid?: string,
     skipNavigation: boolean = false
   ): void {
-    this.solrService.getInDocumentSearchResults(documentUuid, searchTerm, this.isCaseSensitive).subscribe({
+    this.solrService.getInDocumentSearchResults(documentUuid, searchTerm, this.isCaseSensitive, this.cdkSource.getCode()).subscribe({
       next: (results) => {
         console.log(`Received ${results.length} search results with highlights`);
 
@@ -365,7 +367,7 @@ export class DocumentSearchService {
       return {
         pid: r.pid,
         highlightedText: r.highlightedText,
-        pageNumber: page['page.number'] !== undefined ? page['page.number'] : undefined
+        pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
       };
     });
 

@@ -2,6 +2,8 @@
 
 :host {
   display: contents;
+  // Collapsed peek band: just the drag handle (20px) + header row (title/close).
+  --slide-up-peek-height: 56px;
 }
 
 .slide-up-panel-backdrop {
@@ -40,6 +42,27 @@
   }
 
   &.dragging {
+    transition: none;
+  }
+
+  // Peek mode anchors the sheet at `bottom: peekOffset` (set inline) and grows
+  // upward via its bound height, so it never overhangs a fixed bar below it.
+  &.peek {
+    transform: translateY(0);
+    transition: height 0.3s ease-out;
+  }
+
+  // Collapsed peek: constrain the box to just the peek band so only the handle
+  // + header show and nothing overhangs the year bar. Height wins over the
+  // inline vh via !important; overflow clips the content row that would
+  // otherwise bleed past the fixed height and overlap the bar below.
+  &.peek.collapsed-peek {
+    height: var(--slide-up-peek-height, 56px) !important;
+    overflow: hidden;
+  }
+
+  // While dragging the sheet tracks the finger live (no easing).
+  &.peek.dragging {
     transition: none;
   }
 }
