@@ -31,6 +31,7 @@ import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { pickCdkCollection } from '../../utils/cdk-collection';
+import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CdkTooltipDirective } from '../../directives';
@@ -208,6 +209,17 @@ export class MetadataSection implements OnInit, OnChanges {
   selectedCdkCollection = signal<string>('');
   isCdk = () => this.configService.isCdk();
 
+  // Options shown in the source <app-select>: the member libraries, optionally
+  // prefixed with the ALL_SOURCES sentinel when includeAllOption is set.
+  cdkSourceOptions = computed<string[]>(() =>
+    this.includeAllOption ? [ALL_SOURCES, ...this.cdkCollections()] : this.cdkCollections()
+  );
+
+  // Label resolver for the source dropdown: the ALL_SOURCES sentinel renders as the
+  // translated "All sources" label; every real collection code renders as-is.
+  cdkSourceLabel = (code: string | null): string =>
+    code === ALL_SOURCES ? this.translate.instant('cdk.all-sources') : (code ?? '');
+
   constructor() {
     // Single source of truth: whenever the selected collection changes, push it
     // into CdkSourceService so every reader API call (IIIF tiles, images, ALTO,
@@ -230,6 +242,12 @@ export class MetadataSection implements OnInit, OnChanges {
   // parent instead of triggering detail-page side effects (IIIF viewer, page reload,
   // MODS refetch). The collections page uses the selection to re-scope its child grid.
   @Input() collectionsMode: boolean = false;
+
+  // When true (periodical page), the source dropdown gains a leading "All sources"
+  // entry (ALL_SOURCES sentinel) meaning no cdk.collection filter, and defaults to it
+  // unless ?source= already names a concrete collection. Off by default so the
+  // detail/collections selectors are unchanged.
+  @Input() includeAllOption: boolean = false;
 
   @Output() cdkCollectionChange = new EventEmitter<string>();
 
@@ -275,26 +293,45 @@ export class MetadataSection implements OnInit, OnChanges {
       const collections = cdkSource?.cdkCollections ?? [];
       const urlSource = this.route.snapshot.queryParamMap.get('source');
       this.cdkCollections.set(collections);
-      this.selectedCdkCollection.set(
-        pickCdkCollection(
-          urlSource,
-          cdkSource?.cdkLeader,
-          collections,
-          cdkSource?.cdkLicenses ?? [],
-          this.userService.licenses,
-        ) ?? ''
-      );
+      if (this.includeAllOption) {
+        // "All sources" is the deliberate default here; only a concrete ?source=
+        // already present in the URL overrides it (linkable state wins). We do NOT
+        // apply the leader-preference of pickCdkCollection in this mode.
+        this.selectedCdkCollection.set(
+          urlSource && collections.includes(urlSource) ? urlSource : ALL_SOURCES
+        );
+      } else {
+        this.selectedCdkCollection.set(
+          pickCdkCollection(
+            urlSource,
+            cdkSource?.cdkLeader,
+            collections,
+            cdkSource?.cdkLicenses ?? [],
+            this.userService.licenses,
+          ) ?? ''
+        );
+      }
     } else {
       this.cdkCollections.set([]);
       this.selectedCdkCollection.set('');
       this.stripSourceParamIfPresent();
     }
 
-    const baseMods = await this.buildMergedMetadata(this.selectedCdkCollection() || undefined);
+    const baseMods = await this.buildMergedMetadata(this.effectiveLibraryCode());
     this._data.set(baseMods);
     this.cdr.markForCheck();
     this.loadCollectionNames();
     this.loadRootUnitCount();
+  }
+
+  /**
+   * The member-library code to fetch MODS for: the selected collection, or undefined
+   * when nothing is selected or "All sources" is active (leader/default MODS).
+   */
+  private effectiveLibraryCode(): string | undefined {
+    const selected = this.selectedCdkCollection();
+    if (!selected || selected === ALL_SOURCES) return undefined;
+    return selected;
   }
 
   // For a unit of a multivolume monograph, fetch the root document so the badge can

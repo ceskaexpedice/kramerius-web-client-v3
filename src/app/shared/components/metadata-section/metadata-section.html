@@ -35,8 +35,9 @@
     [label]="'cdk.collection' | translate">
     <div metadata-section-item-content class="cdk-source-select">
       <app-select
-        [options]="cdkCollections()" [size]="'sm'"
+        [options]="cdkSourceOptions()" [size]="'sm'"
         [value]="selectedCdkCollection()"
+        [displayFn]="cdkSourceLabel"
         [theme]="'base'"
         (valueChange)="onCdkCollectionChange($event)">
       </app-select>

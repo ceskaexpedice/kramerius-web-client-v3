@@ -99,3 +99,28 @@ describe('SolrService standalone-collection fq', () => {
     expect(fqParamsOfSearch(['uuid:parent/uuid:child'])).not.toContain(standaloneFq);
   });
 });
+
+describe('SolrService periodical children query — cdk.collection scoping', () => {
+  let service: SolrService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+  });
+
+  function query(cdkCollection?: string | null): string {
+    return (service as any).buildPeriodicalChildrenQuery('uuid:1', 'periodicalvolume', undefined, cdkCollection);
+  }
+
+  it('omits cdk.collection when no source is given', () => {
+    expect(query(null)).not.toContain('cdk.collection');
+  });
+
+  it('omits cdk.collection for the empty string', () => {
+    expect(query('')).not.toContain('cdk.collection');
+  });
+
+  it('appends cdk.collection:<source> when a source is given', () => {
+    expect(query('nkp')).toContain('AND cdk.collection:nkp');
+  });
+});

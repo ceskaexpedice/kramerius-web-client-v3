@@ -131,6 +131,7 @@
   "custom-accessibility": "Accessibility",
   "licenses.facet": "License",
   "cdk.collection": "Source",
+  "cdk.all-sources": "All sources",
   "show-licenses-label": "Show licenses",
   "hide-licenses-label": "Hide licenses",
   "all-label": "All",

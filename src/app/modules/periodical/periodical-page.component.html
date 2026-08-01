@@ -177,16 +177,24 @@
         }
 
         <!-- Right Sidebar -->
-        <ng-container *ngIf="periodical.metadata">
+        @if (periodical.metadata) {
           <div class="page-content__sidebar-right"
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
             [class.collapsed]="!showMetadataSidebar()">
             <app-metadata-sidebar [metadata]="periodical.metadata" mode="floating"
-              [tools]="{search: true, export: false, description: true}" (close)="toggleMetadataSidebar()">
+              [tools]="{search: true, export: false, description: true}" [customDescription]="true"
+              (close)="toggleMetadataSidebar()">
+              <div description-content>
+                <app-metadata-section [uuid]="periodical.metadata.uuid || ''"
+                  [metadata]="periodical.metadata" [showTitle]="true"
+                  [collectionsMode]="true" [includeAllOption]="true"
+                  (cdkCollectionChange)="periodical.setCdkSource($event)">
+                </app-metadata-section>
+              </div>
             </app-metadata-sidebar>
           </div>
-        </ng-container>
+        }
 
       </div>
 
@@ -221,7 +229,9 @@
                 <!-- Panel header already shows the title, so hide metadata-section's own
                      title (the go-to-parent link still renders below it). -->
                 <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
-                                      [uuid]="periodical.metadata.uuid || ''">
+                                      [uuid]="periodical.metadata.uuid || ''"
+                                      [collectionsMode]="true" [includeAllOption]="true"
+                                      (cdkCollectionChange)="periodical.setCdkSource($event)">
                 </app-metadata-section>
               }
               @case ('results') {
@@ -242,7 +252,9 @@
             <!-- Peek header already shows the title, so metadata-section hides its own
                  title (the go-to-parent link still renders below it). -->
             <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
-                                  [uuid]="periodical.metadata.uuid || ''">
+                                  [uuid]="periodical.metadata.uuid || ''"
+                                  [collectionsMode]="true" [includeAllOption]="true"
+                                  (cdkCollectionChange)="periodical.setCdkSource($event)">
             </app-metadata-section>
           </app-slide-up-panel>
         }
