@@ -220,6 +220,14 @@ export class MetadataSection implements OnInit, OnChanges {
   cdkSourceLabel = (code: string | null): string =>
     code === ALL_SOURCES ? this.translate.instant('cdk.all-sources') : (code ?? '');
 
+  // Logo URL for a CDK source option. The collection code is the member library's
+  // shortcut, which the central registry serves a logo for at this path. The
+  // ALL_SOURCES sentinel has no library, so it gets no logo.
+  cdkSourceLogo = (code: string | null): string | null =>
+    code && code !== ALL_SOURCES
+      ? `https://registr.digitalniknihovna.cz/libraries/${code}/logo`
+      : null;
+
   constructor() {
     // Single source of truth: whenever the selected collection changes, push it
     // into CdkSourceService so every reader API call (IIIF tiles, images, ALTO,

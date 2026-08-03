@@ -30,6 +30,13 @@ $filter-height: 44px;
     text-overflow: ellipsis;
   }
 
+  .select-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    min-width: 0;
+  }
+
   &.size-sm {
     font-size: var(--font-size-small);
   }
@@ -96,7 +103,8 @@ $filter-height: 44px;
   transition: background 0.2s;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--spacing-x2);
+  line-height: var(--line-height-xs);
 
   &.selected {
     font-weight: bold;
