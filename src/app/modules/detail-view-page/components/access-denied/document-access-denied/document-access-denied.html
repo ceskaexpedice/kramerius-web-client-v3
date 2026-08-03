@@ -10,8 +10,8 @@
         <p>
           <span>{{ 'access-denied.document-available-under' | translate }}: </span>
           @for (type of uniqueLicenseTypes; track type; let last = $last) {
-          <button type="button" (click)="openLicenseDialog(type)" class="license-link">{{ 'access-denied.license-'
-            + type | translate }}</button>@if (!last) {<span>, </span>}
+          <a href="#" class="license-link" (click)="$event.preventDefault(); openLicenseDialog(type)">{{
+            'access-denied.license-' + type | translate }}</a>@if (!last) {<span>, </span>}
           }
         </p>
 

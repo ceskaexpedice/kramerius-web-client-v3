@@ -92,6 +92,25 @@
   padding: 0 38px;
   width: 100%;
 
+  // Answers are rendered via [innerHTML], so their links carry no component
+  // style attribute — ::ng-deep is what makes the link styling stick.
+  ::ng-deep a {
+    font-weight: 500;
+    color: var(--color-text-link);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-text-link);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
   p, div {
     flex: 1;
     font-weight: 400;

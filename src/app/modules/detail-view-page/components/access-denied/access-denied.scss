@@ -62,6 +62,34 @@
     &:hover {
       text-decoration: none;
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-text-link);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+}
+
+// Links inside content injected via [innerHTML] carry no component style
+// attribute, so they need ::ng-deep to pick up the same link styling.
+:host ::ng-deep {
+  .instruction-content a,
+  .banner-content a {
+    font-weight: 500;
+    color: var(--color-text-link);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-text-link);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
   }
 }
 

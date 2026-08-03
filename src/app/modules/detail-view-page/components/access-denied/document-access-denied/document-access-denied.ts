@@ -16,6 +16,7 @@ import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
 import { TranslateService } from '@ngx-translate/core';
 import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/solr-misc';
 import { escapeHtml } from '../../../../../shared/utils/escape-html';
+import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
 
 
@@ -194,8 +195,10 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       isOpen: i === 0,
       // A single answer stays a plain translation key so the accordion keeps
       // translating it; merged answers must be pre-resolved and labelled.
+      // Either way the answer text can contain a bare URL or e-mail, so it is
+      // linkified — up front here, or by the accordion for the key form.
       ...(group.answers.length === 1
-        ? { content: group.answers[0].contentKey }
+        ? { content: group.answers[0].contentKey, linkify: true }
         : { content: this.buildMergedAnswer(group.answers), allowHtml: true })
     }));
   }
@@ -205,7 +208,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       .map(answer => {
         const label = this.translate.instant(`access-denied.license-${answer.licenseType}`);
         const text = this.translate.instant(answer.contentKey);
-        return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${escapeHtml(text)}</p>`;
+        return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${linkifyText(text)}</p>`;
       })
       .join('');
   }

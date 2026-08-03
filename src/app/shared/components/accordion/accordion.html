@@ -9,6 +9,7 @@
       [openIconClass]="openIconClass"
       [closeIconClass]="closeIconClass"
       [allowHtml]="item.allowHtml || false"
+      [linkify]="item.linkify || false"
       (toggle)="toggleItem(item.id)">
     </app-accordion-item>
   }

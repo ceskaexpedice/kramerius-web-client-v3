@@ -9,6 +9,8 @@ export interface AccordionItemData {
   isOpen?: boolean;
   index?: number;
   allowHtml?: boolean;
+  /** Turn bare URLs and e-mails in the (plain-text) content into links. */
+  linkify?: boolean;
 }
 
 @Component({
