@@ -328,8 +328,8 @@ export const DEFAULT_FACET_FILTERS: FacetFilterConfig[] = [
     id: 'physical_locations.facet',
     labelKey: 'filter-physical-locations-label',
     facetKey: 'physical_locations.facet',
-    visible: true,
-    defaultVisible: true,
+    visible: false,
+    defaultVisible: false,
     order: 12,
     isCustomDefined: false
   },
