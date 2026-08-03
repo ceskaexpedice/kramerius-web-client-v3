@@ -18,6 +18,7 @@ import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/sol
 import { escapeHtml } from '../../../../../shared/utils/escape-html';
 import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
+import { APP_ROUTES_ENUM } from '../../../../../app.routes';
 
 
 interface FaqAnswer {
@@ -131,10 +132,32 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       copyrightUrl ? this.configService.loadHtmlContent(copyrightUrl) : Promise.resolve('')
     ]);
 
-    this.instructionHtml = instruction;
-    this.copyrightHtml = copyright;
+    this.instructionHtml = this.resolveLoginLinks(instruction);
+    this.copyrightHtml = this.resolveLoginLinks(copyright);
     this.htmlLoading = false;
     this.cdr.markForCheck();
+  }
+
+  /**
+   * The login links inside the config HTML are copied from the legacy
+   * digitalniknihovna.cz portal: they point at `.../mzk/terms?redirect_path=${PATH}`,
+   * where `${PATH}` is a placeholder the portal used to substitute server-side.
+   * In this app that path 404s and the placeholder is never resolved, so rewrite
+   * both to the app's own terms route with the current location as the returnUrl.
+   */
+  private resolveLoginLinks(html: string): string {
+    if (!html) return html;
+
+    const returnUrl = encodeURIComponent(this.router.url);
+    const target = `/${APP_ROUTES_ENUM.PAGES}/terms?returnUrl=${returnUrl}`;
+
+    // Match both the relative (`/mzk/terms?...`) and absolute
+    // (`https://www.digitalniknihovna.cz/mzk/terms?...`) forms, with the
+    // literal `${PATH}` placeholder still in place.
+    return html.replace(
+      /(?:https?:\/\/[^/"']*)?\/mzk\/terms\?redirect_path=\$\{PATH\}/g,
+      target
+    );
   }
 
   detectAllLicenseTypes(): void {
