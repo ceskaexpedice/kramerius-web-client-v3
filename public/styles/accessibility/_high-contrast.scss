@@ -1,10 +1,18 @@
 // High Contrast Theme
-// A distinct high-contrast LIGHT scheme (black text on white) targeting
-// WCAG 2.1 AAA contrast (>= 7:1 for normal text). Intentionally different from
-// dark mode so the two settings don't look identical. Applied on <html> via the
-// `high-contrast` class so these CSS-variable overrides win over :root / :root.dark.
+// Two coherent high-contrast schemes selected by whether dark mode is active:
+//   - Light + high-contrast → black text on white (`:root.high-contrast`).
+//   - Dark  + high-contrast → white/yellow text on black (`:root.dark.high-contrast`).
+// Both target WCAG 2.1 AAA contrast (>= 7:1 for normal text). Applied on <html>
+// via the `high-contrast` class alongside the app theme (`dark`).
+//
+// Specificity matters here: the app's dark palette lives on `:root.dark` (0,2,0),
+// so the palette blocks below are raised to `:root.high-contrast` (0,2,0) and
+// `:root.dark.high-contrast` (0,3,0) to reliably win. The structural / emphasis
+// rules are shared under `.high-contrast` and driven by the --color-* variables,
+// so they automatically follow whichever palette is active.
 
-.high-contrast {
+// --- Light high-contrast palette -------------------------------------------
+:root.high-contrast {
   color-scheme: light;
 
   // Maximum-contrast surfaces: pure white backgrounds, pure black text.
@@ -58,6 +66,72 @@
   // Enhanced focus indicators.
   --accessibility-focus-outline-width: 3px;
   --accessibility-focus-outline-color: #00339c;
+}
+
+// --- Dark high-contrast palette ---------------------------------------------
+// White/yellow on pure black. Beats both :root.dark (0,2,0) and the light
+// high-contrast block (0,2,0).
+:root.dark.high-contrast {
+  color-scheme: dark;
+
+  // Maximum-contrast surfaces: pure black backgrounds, pure white text.
+  --color-bg-base: #000000;
+  --color-bg-light: #000000;
+  --color-bg-bright: #0d0d0d;
+  --color-bg-contrast: #1a1a1a;
+  --overlay-bg: rgba(0, 0, 0, 0.92);
+
+  --color-text-base: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-tertiary: #e6e6e6;
+  --color-text-light: #e6e6e6;
+  --color-text-dark: #ffffff;
+  --color-text-disable: #a6a6a6; // ~7:1 on black
+  --color-text-on-color: #000000;
+  // Yellow links: the classic dark high-contrast convention, >= 19:1 on black.
+  --color-text-link: #ffff00;
+
+  // Accent: light blue keeps >= 7:1 contrast on black.
+  --color-primary: #66b2ff;
+  --color-primary-hover: #99ccff;
+  --color-primary-pressed: #cce5ff;
+  --color-primary-disabled: #a6a6a6;
+
+  --color-secondary: #000000;
+  --color-secondary-hover: #1a1a1a;
+  --color-secondary-pressed: #333333;
+
+  // Lightened status colors (text-safe on black).
+  --color-error: #ff6b6b;
+  --color-success: #4ade80;
+  --color-warning: #ffb84d;
+  --color-text-error: #ff6b6b;
+  --color-text-success: #4ade80;
+  --color-text-warning: #ffb84d;
+
+  // Borders: white and thick so every edge is visible.
+  --color-border-base: #ffffff;
+  --color-border-light: #ffffff;
+  --color-border-bright: #ffffff;
+  --color-border-contrast: #ffffff;
+  --color-border-primary-default: #66b2ff;
+  --color-border-error: #ff6b6b;
+  --color-border-success: #4ade80;
+
+  // Icons inherit the strong palette.
+  --color-icon-primary-default: #66b2ff;
+  --color-icon-secondary-default: #ffffff;
+  --color-icon-tertiary-default: #e6e6e6;
+
+  // Enhanced focus indicators (yellow ring on black).
+  --accessibility-focus-outline-width: 3px;
+  --accessibility-focus-outline-color: #ffff00;
+}
+
+// --- Shared structural / emphasis rules ------------------------------------
+// Driven by the --color-* variables above, so they follow whichever palette
+// (light or dark) is active. Matches both variants via the bare class.
+.high-contrast {
 
   // Make every focusable element show an obvious focus ring.
   a:focus-visible,

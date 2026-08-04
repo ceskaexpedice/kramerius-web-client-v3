@@ -69,6 +69,12 @@ export class SettingsDialogComponent implements OnInit {
 
   save() {
     const settingsToSave = this.localSettings();
+    // The app theme (light/dark/system) is owned by SettingsService and applied
+    // immediately when toggled (from the display section AND the accessibility
+    // section's dark-mode switch). The dialog's draft was snapshotted on open and
+    // does not learn about out-of-band theme changes, so take the live theme here
+    // to avoid reverting it on save.
+    settingsToSave.theme = this.settingsService.theme;
     this.settingsService.settings = settingsToSave;
     this.dialogRef.close();
   }
