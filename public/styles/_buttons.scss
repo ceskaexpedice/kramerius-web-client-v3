@@ -26,7 +26,7 @@ button.icon-button {
 
   &.light {
     color: var(--color-text-btn-secondary-default);
-    background: var(--color-bg-light);
+    background-color: var(--color-bg-light);
 
     &:hover {
       color: var(--color-text-btn-secondary-hover);
@@ -220,7 +220,7 @@ button.outlined {
   }
 
   &.tertiary {
-    border-color: var(--color-border-tertiary-default);
+    border-color: var(--color-border-bright);
     color: var(--color-text-btn-tertiary-default);
 
     &:hover {
@@ -256,8 +256,9 @@ button.outlined {
     }
 
     &:disabled {
-      border-color: var(--color-border-secondary-disabled);
-      color: var(--color-text-btn-secondary-disable);
+      background-color: var(--color-bg-light);
+      border-color: var(--color-border-bright);
+      color: var(--color-icon-tertiary-disabled);
       cursor: not-allowed;
     }
   }

@@ -179,7 +179,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // CDK keeps its own bundled logo regardless.
     if (this.configService.isCdk()) {
       this.headerLogo = 'img/logo.svg';
-      this.headerLogoDark = 'img/logo.svg';
+      this.headerLogoDark = 'img/logo-darkmode.svg';
     } else {
       const logo = this.configService.app.logo;
       this.headerLogo = logo || '/favicon.svg';
