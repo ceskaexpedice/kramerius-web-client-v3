@@ -16,7 +16,9 @@ import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
 import { TranslateService } from '@ngx-translate/core';
 import { selectPrimaryLicense, sortLicenses } from '../../../../../core/solr/solr-misc';
 import { escapeHtml } from '../../../../../shared/utils/escape-html';
+import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
+import { APP_ROUTES_ENUM } from '../../../../../app.routes';
 
 
 interface FaqAnswer {
@@ -130,10 +132,32 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       copyrightUrl ? this.configService.loadHtmlContent(copyrightUrl) : Promise.resolve('')
     ]);
 
-    this.instructionHtml = instruction;
-    this.copyrightHtml = copyright;
+    this.instructionHtml = this.resolveLoginLinks(instruction);
+    this.copyrightHtml = this.resolveLoginLinks(copyright);
     this.htmlLoading = false;
     this.cdr.markForCheck();
+  }
+
+  /**
+   * The login links inside the config HTML are copied from the legacy
+   * digitalniknihovna.cz portal: they point at `.../mzk/terms?redirect_path=${PATH}`,
+   * where `${PATH}` is a placeholder the portal used to substitute server-side.
+   * In this app that path 404s and the placeholder is never resolved, so rewrite
+   * both to the app's own terms route with the current location as the returnUrl.
+   */
+  private resolveLoginLinks(html: string): string {
+    if (!html) return html;
+
+    const returnUrl = encodeURIComponent(this.router.url);
+    const target = `/${APP_ROUTES_ENUM.PAGES}/terms?returnUrl=${returnUrl}`;
+
+    // Match both the relative (`/mzk/terms?...`) and absolute
+    // (`https://www.digitalniknihovna.cz/mzk/terms?...`) forms, with the
+    // literal `${PATH}` placeholder still in place.
+    return html.replace(
+      /(?:https?:\/\/[^/"']*)?\/mzk\/terms\?redirect_path=\$\{PATH\}/g,
+      target
+    );
   }
 
   detectAllLicenseTypes(): void {
@@ -194,8 +218,10 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       isOpen: i === 0,
       // A single answer stays a plain translation key so the accordion keeps
       // translating it; merged answers must be pre-resolved and labelled.
+      // Either way the answer text can contain a bare URL or e-mail, so it is
+      // linkified — up front here, or by the accordion for the key form.
       ...(group.answers.length === 1
-        ? { content: group.answers[0].contentKey }
+        ? { content: group.answers[0].contentKey, linkify: true }
         : { content: this.buildMergedAnswer(group.answers), allowHtml: true })
     }));
   }
@@ -205,7 +231,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       .map(answer => {
         const label = this.translate.instant(`access-denied.license-${answer.licenseType}`);
         const text = this.translate.instant(answer.contentKey);
-        return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${escapeHtml(text)}</p>`;
+        return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${linkifyText(text)}</p>`;
       })
       .join('');
   }

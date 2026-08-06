@@ -33,6 +33,8 @@ import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
 import { SearchService } from './search.service';
 import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
+import { ConfigService } from '../../core/config/config.service';
+import { ALL_SOURCES } from '../utils/cdk-source.constants';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -92,6 +94,7 @@ export class PeriodicalService extends BaseFilterService {
 
   override advancedSearchService = inject(AdvancedSearchService);
   private searchService = inject(SearchService);
+  private configService = inject(ConfigService);
 
   constructor(
     private store: Store,
@@ -250,6 +253,11 @@ export class PeriodicalService extends BaseFilterService {
       this._submittedTerm.set(query);
     }
 
+    // CDK aggregator: when a concrete member-library source is selected (metadata
+    // sidebar selector, persisted in ?source=), scope the child grid + facets to it.
+    // ALL_SOURCES / no source ⇒ null ⇒ unscoped aggregated view (current behavior).
+    const cdkCollection = this.configService.isCdk() ? (params?.['source'] || null) : null;
+
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters(this.POSSIBLE_FILTERS);
 
@@ -309,7 +317,7 @@ export class PeriodicalService extends BaseFilterService {
     ) || '';
 
     if (!query) {
-      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection, cdkCollection }));
       return;
     }
 
@@ -321,7 +329,7 @@ export class PeriodicalService extends BaseFilterService {
     // empty, so the header and metadata sidebar would have no document to render.
     // Load it here when it isn't already in the store for this uuid.
     if (this.metadata?.uuid !== this.uuid) {
-      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection }));
+      this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection, cdkCollection }));
     }
 
     this.store.dispatch(loadPeriodicalSearchResults({
@@ -403,6 +411,23 @@ export class PeriodicalService extends BaseFilterService {
         sortDirection: this._sortDirection()
       },
       queryParamsHandling: 'merge'
+    });
+  }
+
+  /**
+   * CDK aggregator: select the member-library source for this periodical. Persisting it
+   * in `?source=` re-triggers the route subscription, which re-runs dispatchPeriodicalSearch
+   * re-scoped to `cdk.collection:<source>`. The ALL_SOURCES sentinel (and empty) clears the
+   * param, restoring the unscoped (aggregated) view. Reset to page 1 — the result set changes.
+   */
+  setCdkSource(source: string): void {
+    this._page.set(1);
+    const sourceParam = source && source !== ALL_SOURCES ? source : null;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: sourceParam, page: 1 },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 

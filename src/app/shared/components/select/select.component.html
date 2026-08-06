@@ -2,7 +2,11 @@
   aria-haspopup="listbox"
   [attr.aria-activedescendant]="!filterable && open() && focusedIndex >= 0 ? 'option-' + focusedIndex : null"
   [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
-  <span>{{ displayLabel(value) }}</span>
+  <span class="select-value">
+    <ng-container *ngIf="optionPrefixTpl && value != null"
+      [ngTemplateOutlet]="optionPrefixTpl" [ngTemplateOutletContext]="{ $implicit: value }"></ng-container>
+    {{ displayLabel(value) }}
+  </span>
   <i class="icon-arrow-down arrow-icon" [class.open]="open()" aria-hidden="true"></i>
 </div>
 
@@ -24,6 +28,8 @@
           [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
           (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
           [attr.aria-selected]="option === value">
+          <ng-container *ngIf="optionPrefixTpl"
+            [ngTemplateOutlet]="optionPrefixTpl" [ngTemplateOutletContext]="{ $implicit: option }"></ng-container>
           {{ displayLabel(option) }}
           <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
         </div>
@@ -34,6 +40,8 @@
       <div class="option" *ngFor="let option of filteredOptions; let i = index; trackBy: trackByFn"
         [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
         (click)="select(option)" (mouseenter)="focusedIndex = i" role="option" [attr.aria-selected]="option === value">
+        <ng-container *ngIf="optionPrefixTpl"
+          [ngTemplateOutlet]="optionPrefixTpl" [ngTemplateOutletContext]="{ $implicit: option }"></ng-container>
         {{ displayLabel(option) }}
         <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
       </div>

@@ -39,6 +39,18 @@
 
     .record-item-card__content {
       color: var(--color-text-link);
+
+      .title {
+        text-decoration: underline;
+      }
+
+      // These set their own colour at rest, so they need to be pulled in
+      // explicitly — inheriting from the content block isn't enough.
+      .occurrence-count,
+      .collection-description,
+      .text-ocr {
+        color: var(--color-text-link);
+      }
     }
   }
 

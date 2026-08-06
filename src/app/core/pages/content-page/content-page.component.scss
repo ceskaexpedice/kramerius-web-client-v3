@@ -28,8 +28,9 @@
     text-align: right;
     font-size: var(--font-size-xxsmall);
     color: var(--color-text-secondary);
-    pointer-events: none;
-    user-select: none;
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
   }
 }
 

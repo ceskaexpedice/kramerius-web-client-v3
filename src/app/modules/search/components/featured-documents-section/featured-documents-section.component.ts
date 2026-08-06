@@ -92,18 +92,25 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
           if (item.id && docMap.has(item.id)) {
             const doc = docMap.get(item.id);
             const fetchedItem = searchDocumentToRecordItem(parseSearchDocument(doc));
-            // Spread item config (imageUrl, externalUrl, date, etc.); prefer config title over API title
-            recordItem = { ...fetchedItem, ...item, title: configTitle || fetchedItem.title } as RecordItem;
+            // Spread item config (imageUrl, externalUrl, date, etc.); prefer config title over API title.
+            // Licenses stay whatever the API returned unless the config explicitly overrides them,
+            // so restricted documents render locked instead of looking public.
+            recordItem = {
+              ...fetchedItem,
+              ...item,
+              title: configTitle || fetchedItem.title,
+              licenses: item.licenses ?? fetchedItem.licenses ?? [],
+            } as RecordItem;
           } else {
+            // Config-only entry: nothing to derive access from, so treat it as public.
             recordItem = { ...item, title: configTitle } as RecordItem;
             if (!recordItem.model) {
               recordItem.model = '';
             }
-          }
-
-          const currentLicenses = recordItem.licenses || [];
-          if (!currentLicenses.includes('public')) {
-            recordItem.licenses = ['public', ...currentLicenses];
+            const currentLicenses = recordItem.licenses || [];
+            if (!currentLicenses.includes('public')) {
+              recordItem.licenses = ['public', ...currentLicenses];
+            }
           }
 
           return recordItem;

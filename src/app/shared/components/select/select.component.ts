@@ -10,8 +10,9 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
+  TemplateRef,
 } from '@angular/core';
-import { NgIf, NgForOf, NgClass } from '@angular/common';
+import { NgIf, NgForOf, NgClass, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../input/input.component';
@@ -22,7 +23,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrollin
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgIf, NgForOf, TranslatePipe, NgClass, FormsModule, InputComponent, ScrollingModule],
+  imports: [NgIf, NgForOf, TranslatePipe, NgClass, NgTemplateOutlet, FormsModule, InputComponent, ScrollingModule],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
@@ -42,6 +43,13 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
    */
   @Input() translateNamespace?: string;
   @Input() value: T | null = null;
+  /**
+   * Optional per-option leading content (e.g. a logo), rendered before the label
+   * in both the trigger and the dropdown options. The template receives the
+   * option as implicit context: `<ng-template let-option>`. When unset, nothing
+   * extra is rendered and the select looks exactly as before.
+   */
+  @Input() optionPrefixTpl?: TemplateRef<{ $implicit: T | null }>;
   @Input() filterable = false;
   @Input() filterPlaceholder = 'Filter...';
   @Input() disabled = false;

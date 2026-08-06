@@ -12,13 +12,8 @@
   }
 }
 
+// Visual styling comes from the shared `a` rule in access-denied.scss so the
+// license links match every other link on the page.
 .license-link {
   display: inline;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
 }

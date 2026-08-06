@@ -24,6 +24,7 @@ export interface PeriodicalDetailState {
     pageCount: number;
     sortBy: any;
     sortDirection: any;
+    cdkCollection?: string | null;
   };
   monthIssues: Record<string, any[]>;
   monthLoading: Record<string, boolean>;
@@ -43,7 +44,8 @@ export const initialState: PeriodicalDetailState = {
     page: 1,
     pageCount: 10000,
     sortBy: SolrSortFields.dateMin,
-    sortDirection: SolrSortDirections.asc
+    sortDirection: SolrSortDirections.asc,
+    cdkCollection: null
   },
   monthIssues: {},
   monthLoading: {}
@@ -59,7 +61,7 @@ export const periodicalDetailReducer = createReducer(
     document: null,
     metadata: null
   })),
-  on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection }) => {
+  on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
     console.log('setPeriodicalSearchParams reducer - filters:', {
       filters,
       advancedQuery,
@@ -76,7 +78,8 @@ export const periodicalDetailReducer = createReducer(
         page,
         pageCount,
         sortBy,
-        sortDirection
+        sortDirection,
+        cdkCollection
       }
     };
   }),

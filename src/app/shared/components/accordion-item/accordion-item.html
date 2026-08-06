@@ -14,6 +14,8 @@
     <div class="accordion-item__content" [id]="panelId" role="region">
       @if (allowHtml) {
         <div [innerHTML]="content | translate"></div>
+      } @else if (linkify) {
+        <p [innerHTML]="content | translate | linkify"></p>
       } @else {
         <p>{{ content | translate }}</p>
       }

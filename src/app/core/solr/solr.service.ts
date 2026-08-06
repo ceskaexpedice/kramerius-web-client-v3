@@ -303,12 +303,18 @@ export class SolrService {
   /**
    * Builds a specific query for periodical children (volumes/items)
    */
-  private buildPeriodicalChildrenQuery(parentPid: string, model: string, advancedQuery?: string): string {
+  private buildPeriodicalChildrenQuery(parentPid: string, model: string, advancedQuery?: string, cdkCollection?: string | null): string {
     const baseParts = [
       `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
       `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
       `(model:${model})`
     ];
+
+    // CDK: scope children to a specific member library so the grid/facets come from
+    // the selected source. Omitted ⇒ aggregated (unscoped) view.
+    if (cdkCollection) {
+      baseParts.push(`cdk.collection:${cdkCollection}`);
+    }
 
     // Handle advanced query like in buildQParam
     if (advancedQuery?.trim()) {
@@ -733,12 +739,13 @@ export class SolrService {
     facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
     facetOperators: { [field: string]: SolrOperators } = {},
     advancedQuery?: string,
-    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] },
+    cdkCollection?: string | null
   ): Observable<SearchResultResponse> {
 
     console.log('getPeriodicalChildrenFacets', parentPid, model);
 
-    const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery);
+    const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery, cdkCollection);
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({});
 
@@ -1081,9 +1088,9 @@ export class SolrService {
 
   getPeriodicalVolumes(pid: string,
     filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
-    advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
+    advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, cdkCollection?: string | null
   ): Observable<any[]> {
-    const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery);
+    const query = this.buildPeriodicalChildrenQuery(pid, DocumentTypeEnum.periodicalvolume, advancedQuery, cdkCollection);
 
     let params = this.createHttpParams({
       q: query,
@@ -1114,12 +1121,14 @@ export class SolrService {
     sortBy: SolrSortFields = SolrSortFields.dateMin,
     sortDirection: SolrSortDirections = SolrSortDirections.asc,
     advancedQuery?: string,
-    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] },
+    cdkCollection?: string | null
   ): Observable<any[]> {
     const query = this.buildPeriodicalChildrenQuery(
       pid,
       `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`,
-      advancedQuery
+      advancedQuery,
+      cdkCollection
     );
 
     // Build HttpParams so we can safely add repeated `fq` keys

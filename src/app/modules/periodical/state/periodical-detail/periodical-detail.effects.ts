@@ -47,7 +47,7 @@ export class PeriodicalDetailEffects {
   triggerDocumentLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadPeriodical),
-      mergeMap(({ uuid, filters, advancedQuery, page, pageCount, sortBy, sortDirection }) => {
+      mergeMap(({ uuid, filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
         console.log('triggerDocumentLoad$ - filters:', {
           uuid,
           filters,
@@ -60,7 +60,7 @@ export class PeriodicalDetailEffects {
 
         return [
           DocumentDetailActions.loadDocumentDetail({ uuid }),
-          PeriodicalDetailActions.setPeriodicalSearchParams({ filters, advancedQuery, page, pageCount, sortBy, sortDirection })
+          PeriodicalDetailActions.setPeriodicalSearchParams({ filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection })
         ];
       })
     )
@@ -82,13 +82,14 @@ export class PeriodicalDetailEffects {
         // facets state, so skip them in that case.
         const hasActiveQuery = !!routerQueryParams?.['query'];
 
-        const { filters, advancedQuery, page, pageCount, sortBy, sortDirection } = params || {
+        const { filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection } = params || {
           filters: [],
           advancedQuery: '',
           page: 1,
           pageCount: 10000,
           sortBy: 'date.min',
-          sortDirection: 'asc'
+          sortDirection: 'asc',
+          cdkCollection: null
         };
 
         // Backward compatibility: Handle old /periodical/ URLs that point to monographs
@@ -160,7 +161,7 @@ export class PeriodicalDetailEffects {
 
         if (data.model === DocumentTypeEnum.periodical) {
 
-          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, 10000, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
+          const volumes$ = this.solr.getPeriodicalVolumes(data.uuid, filters, facetOperators, page, 10000, sortBy, sortDirection, advancedQuery, availabilityFilter, cdkCollection).pipe(
             shareReplay(1)
           );
 
@@ -181,11 +182,11 @@ export class PeriodicalDetailEffects {
           );
 
           const filtersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
-          const facetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          const facetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection).pipe(shareReplay(1));
           // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
           const facetsWithoutLicenses$ = filtersWithoutLicenses.length === filters.length
             ? facetsRes$
-            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection);
           const processFacets$ = forkJoin({
             facetsRes: facetsRes$,
             facetsWithoutLicenses: facetsWithoutLicenses$
@@ -211,7 +212,7 @@ export class PeriodicalDetailEffects {
 
         if (data.model === DocumentTypeEnum.periodicalvolume) {
 
-          const children$ = this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery, availabilityFilter).pipe(
+          const children$ = this.solr.getPeriodicalItems(data.uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery, availabilityFilter, cdkCollection).pipe(
             shareReplay(1)
           );
 
@@ -267,11 +268,11 @@ export class PeriodicalDetailEffects {
 
           const facetsQueryModel = `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`;
           const itemFiltersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
-          const itemFacetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter).pipe(shareReplay(1));
+          const itemFacetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection).pipe(shareReplay(1));
           // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
           const itemFacetsWithoutLicenses$ = itemFiltersWithoutLicenses.length === filters.length
             ? itemFacetsRes$
-            : this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, itemFiltersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter);
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, facetsQueryModel, itemFiltersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection);
           const processFacets$ = forkJoin({
             facetsRes: itemFacetsRes$,
             facetsWithoutLicenses: itemFacetsWithoutLicenses$

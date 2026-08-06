@@ -17,7 +17,7 @@ import { NgClass, NgIf } from '@angular/common';
 import { AutocompleteComponent } from '../../../shared/components/autocomplete/autocomplete.component';
 import { LangPickerComponent } from '../../../shared/translation/lang-picker/lang-picker.component';
 import { SearchService } from '../../../shared/services/search.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
 import { EnvironmentService } from '../../../shared/services/environment.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
@@ -29,6 +29,7 @@ import { ClickOutsideDirective } from '../../../shared/directives';
 import { CdkTooltipDirective } from '../../../shared/directives/cdk-tooltip/cdk-tooltip.directive';
 import { ConfigService } from '../../config';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
+import { SearchPlaceholderService } from '../../../shared/services/search-placeholder.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { AppTranslationService } from '../../../shared/translation/app-translation.service';
 import { PageConfig } from '../../config/config.interfaces';
@@ -104,6 +105,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private translationService: AppTranslationService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
+    private searchPlaceholderService: SearchPlaceholderService,
+    private translate: TranslateService,
   ) {
     effect(() => {
       this.uiState.searchHeroVisible(); // track signal
@@ -176,7 +179,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // CDK keeps its own bundled logo regardless.
     if (this.configService.isCdk()) {
       this.headerLogo = 'img/logo.svg';
-      this.headerLogoDark = 'img/logo.svg';
+      this.headerLogoDark = 'img/logo-darkmode.svg';
     } else {
       const logo = this.configService.app.logo;
       this.headerLogo = logo || '/favicon.svg';
@@ -232,8 +235,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.searchService;
   }
 
+  /**
+   * Placeholder for the header search input.
+   *
+   * Collections keep their own static text; everywhere else the placeholder
+   * reflects the currently active filters (see SearchPlaceholderService), so it
+   * reads "Hledat v celé digitální knihovně" with no filters and
+   * "Hledat s filtry Veřejné, Hudebniny, ..." once filters are applied.
+   */
   get autocompletePlaceholder(): string {
-    return this.isOnCollectionRoute ? 'search-in-collection-placeholder' : 'search-input-placeholder';
+    return this.isOnCollectionRoute
+      ? this.translate.instant('search-in-collection-placeholder')
+      : this.searchPlaceholderService.placeholder();
   }
 
   onLogoLoad(img: HTMLImageElement) {
