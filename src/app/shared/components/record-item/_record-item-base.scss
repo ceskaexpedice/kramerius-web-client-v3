@@ -241,7 +241,7 @@
     .title {
       font-size: var(--font-size-base);
       line-height: calc(20px * var(--accessibility-text-scale));
-      font-weight: 700;
+      font-weight: 600;
 
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -333,7 +333,7 @@
   .occurrence-count {
     font-size: var(--font-size-small);
     color: var(--color-text-base);
-    font-weight: 700;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   .collection-description {

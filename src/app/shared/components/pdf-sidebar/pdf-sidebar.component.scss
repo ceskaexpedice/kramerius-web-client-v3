@@ -62,7 +62,7 @@ hr {
   }
 
   .currentMatchNumber {
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
     color: var(--color-text-base);
   }
 

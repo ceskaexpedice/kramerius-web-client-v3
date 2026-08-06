@@ -142,7 +142,7 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
     .label {
       display: block;
       margin-bottom: 0.5rem;
-      font-weight: bold;
+      font-weight: var(--font-weight-semi-bold);
     }
     .hint {
       font-size: 0.85rem;

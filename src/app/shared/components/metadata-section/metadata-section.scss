@@ -13,7 +13,7 @@
   h2 {
     font-size: var(--font-size-large);
     line-height: var(--line-height-3);
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
 
     &.clickable-title {
@@ -106,7 +106,7 @@
       align-items: center;
 
       .label {
-        font-weight: 700;
+        font-weight: 600;
         font-size: var(--font-size-base);
         color: var(--color-text-secondary);
       }
@@ -190,7 +190,7 @@
 
     &__title {
       font-size: var(--font-size-base);
-      font-weight: 700;
+      font-weight: 600;
       margin: 0;
     }
 

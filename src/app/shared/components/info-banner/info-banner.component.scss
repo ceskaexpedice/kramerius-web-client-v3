@@ -40,7 +40,8 @@
     flex: 1;
   }
 
-  &__title { margin: 0; font-weight: 700; }
+  &__title { margin: 0;     font-weight: var(--font-weight-semi-bold);
+  }
   &__message { margin: 0; }
 
   &__dont-show {

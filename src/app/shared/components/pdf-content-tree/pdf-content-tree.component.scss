@@ -44,12 +44,12 @@
       padding-left: calc(var(--spacing-x2) - 2px);
 
       .pdf-content-tree__title {
-        font-weight: 700;
+        font-weight: var(--font-weight-semi-bold);
         color: var(--color-primary);
       }
 
       .pdf-content-tree__page {
-        font-weight: 700;
+        font-weight: var(--font-weight-semi-bold);
         color: var(--color-primary);
       }
     }

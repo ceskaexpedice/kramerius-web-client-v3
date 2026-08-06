@@ -37,7 +37,7 @@
     width: 100%;
 
     > span {
-      font-weight: 700;
+      font-weight: var(--font-weight-semi-bold);
       font-size: var(--font-size-base);
       line-height: var(--line-height-1);
       color: var(--color-text-base);

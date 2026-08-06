@@ -107,7 +107,7 @@ $filter-height: 44px;
   line-height: var(--line-height-xs);
 
   &.selected {
-    font-weight: bold;
+    font-weight: 600;
 
     i {
       color: var(--color-primary);

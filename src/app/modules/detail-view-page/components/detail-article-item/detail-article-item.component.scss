@@ -11,7 +11,7 @@
   &.selected {
     color: var(--color-primary);
     border-left: 2px solid var(--color-primary);
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   &__content {

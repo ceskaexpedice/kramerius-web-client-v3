@@ -51,7 +51,7 @@
   &--title {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   &--content {
@@ -64,7 +64,7 @@ h4 {
   font-size: var(--font-size-large);
   color: var(--color-text-secondary);
   margin: 0;
-  font-weight: bold;
+  font-weight: var(--font-weight-semi-bold);
 }
 
 .collections-list {

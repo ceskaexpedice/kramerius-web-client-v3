@@ -42,7 +42,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
 
       &.active {
         color: var(--color-text-link);
-        font-weight: 700;
+        font-weight: 600;
 
         .count {
           color: var(--color-text-tertiary);

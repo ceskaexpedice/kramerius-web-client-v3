@@ -8,7 +8,7 @@
   }
 
   &__title {
-    font-weight: 700;
+    font-weight: var(--font-weight-semi-bold);
     font-size: var(--font-size-large);
     font-family: var(--font-family-body);
     line-height: var(--line-height-3);

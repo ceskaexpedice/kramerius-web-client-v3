@@ -15,7 +15,7 @@
 
   &__title {
     font-size: var(--font-size-base);
-    font-weight: 700;
+    font-weight: var(--font-weight-semi-bold);
     color: var(--color-text-secondary);
     white-space: nowrap;
   }

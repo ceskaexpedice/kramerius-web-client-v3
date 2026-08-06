@@ -52,7 +52,7 @@
 
     &.limit-reached {
       color: var(--color-error);
-      font-weight: bold;
+      font-weight: var(--font-weight-semi-bold);
     }
   }
 }

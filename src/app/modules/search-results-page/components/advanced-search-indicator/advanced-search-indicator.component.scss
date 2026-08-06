@@ -34,7 +34,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        font-weight: 700;
+        font-weight: var(--font-weight-semi-bold);
         font-size: var(--font-size-base);
         line-height: var(--line-height-1);
       }
