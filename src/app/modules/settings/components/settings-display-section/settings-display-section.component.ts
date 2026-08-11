@@ -123,19 +123,22 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
     this.settingsChange.emit(updatedSettings);
   }
 
-  loadTableColumns() {
-    // If displayConfig exists in settings, use it; otherwise use service defaults
+  loadTableColumns() {// Merge saved columns with defaults so newly added default columns still appear
     if (this.settings.displayConfig) {
-      this.tableColumns = this.settings.displayConfig.tableColumns.sort((a, b) => a.order - b.order);
+      this.tableColumns = this.displayConfigService
+        .mergeColumnsWithSavedConfig(this.settings.displayConfig.tableColumns)
+        .sort((a, b) => a.order - b.order);
     } else {
       this.tableColumns = this.displayConfigService.getAllColumns();
     }
   }
 
   loadFacetFilters() {
-    // If displayConfig exists in settings and has facetFilters, use them; otherwise use service defaults
+    // Merge saved filters with defaults so newly added default filters still appear
     if (this.settings.displayConfig && this.settings.displayConfig.facetFilters) {
-      this.facetFilters = this.settings.displayConfig.facetFilters.sort((a, b) => a.order - b.order);
+      this.facetFilters = this.displayConfigService
+        .mergeFacetFiltersWithSavedConfig(this.settings.displayConfig.facetFilters)
+        .sort((a, b) => a.order - b.order);
     } else {
       this.facetFilters = this.displayConfigService.getAllFacetFilters();
     }
