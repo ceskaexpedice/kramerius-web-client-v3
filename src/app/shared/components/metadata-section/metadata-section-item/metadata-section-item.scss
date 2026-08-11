@@ -45,20 +45,24 @@ app-collapsible-content {
     padding: 0;
   }
 
+  // Shared row rhythm for every section; only the indent differs, so a list
+  // without markers sits flush with the section label instead of hanging.
+  ul {
+    margin: 0;
+
+    li {
+      padding: var(--spacing-x0-5) 0;
+    }
+  }
+
   ul.with-bullets {
     list-style: disc;
-    margin: 0;
     padding-left: var(--spacing-x5);
   }
 
   ul:not(.with-bullets) {
     list-style: none;
     padding-left: 0;
-    margin: 0;
-
-    li {
-      padding: var(--spacing-x0-5) 0;
-    }
   }
 
   .uppercase {

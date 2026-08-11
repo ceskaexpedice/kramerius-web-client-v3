@@ -176,6 +176,8 @@ export class ModsParserService {
         titleInfo.lang = lang;
       }
 
+      titleInfo.type = item.getAttribute('type') ?? '';
+
       titleInfo.nonSort = this.getText(item.querySelector('nonSort'));
       titleInfo.title = this.getText(item.querySelector('title'));
       titleInfo.subTitle = this.getText(item.querySelector('subTitle'));
@@ -506,15 +508,9 @@ export class ModsParserService {
         }
       }
 
-      // Process form elements
-      const formElements = this.getElements(item, 'form');
-      for (const form of formElements) {
-        const text = this.getText(form);
-        if (text) {
-          const desc = new PhysicalDescription(text);
-          metadata.physicalDescriptions.push(desc);
-        }
-      }
+      // mods:form is deliberately not shown: it carries controlled vocabulary
+      // ("print", "text") that reads as noise in the metadata panel. Only
+      // extent and note make up the physical description.
     }
   }
 

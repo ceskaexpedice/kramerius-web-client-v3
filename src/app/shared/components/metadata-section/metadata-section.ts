@@ -1,5 +1,5 @@
 import { Component, inject, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect } from '@angular/core';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
@@ -44,6 +44,7 @@ import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/langua
   imports: [
     NgForOf,
     NgIf,
+    NgTemplateOutlet,
     TranslatePipe,
     MetadataSectionItem,
     CollapsibleContent,
@@ -144,6 +145,41 @@ export class MetadataSection implements OnInit, OnChanges {
       if (resolved) return resolved;
     }
     return data.mainTitle || data.titles[0]?.title || '';
+  }
+
+  /** Alternative titles start hidden; the "more" toggle under the title reveals them. */
+  alternativeTitlesExpanded = signal(false);
+
+  toggleAlternativeTitles() {
+    this.alternativeTitlesExpanded.update(v => !v);
+  }
+
+  /**
+   * Alternative titles (MODS `titleInfo type="alternative"`), revealed under the
+   * main title by the "more" toggle. Subtitle and part designations are appended
+   * so a variant reads in full, and anything identical to the displayed main
+   * title is dropped to avoid repeating the heading.
+   */
+  get alternativeTitles(): string[] {
+    const titles = this.data?.titles ?? [];
+    const main = this.localizedMainTitle.trim();
+    const seen = new Set<string>();
+    const result: string[] = [];
+
+    for (const t of titles) {
+      if (t.type !== 'alternative') continue;
+
+      let text = t.mainTitle().trim();
+      if (t.subTitle) text += `: ${t.subTitle}`;
+      if (t.partNumber) text += `. ${t.partNumber}`;
+      if (t.partName) text += `. ${t.partName}`;
+      text = text.trim();
+
+      if (!text || text === main || seen.has(text)) continue;
+      seen.add(text);
+      result.push(text);
+    }
+    return result;
   }
 
   /**
@@ -738,9 +774,14 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   // Identifier keys that are internal/operational (used pre-digitization) and
-  // should not be shown in the user-facing identifier list.
+  // should not be shown in the user-facing identifier list. `other` / `sici` are
+  // cataloguing leftovers that are especially noisy on periodicals.
   private readonly internalIdentifierKeys = new Set(
-    ['uuid', 'iduuid', 'id_uuid', 'barcode'].map(k => k.toLowerCase())
+    [
+      'uuid', 'iduuid', 'id_uuid', 'barcode',
+      'other', 'idother', 'id_other',
+      'sici', 'idsici', 'id_sici',
+    ].map(k => k.toLowerCase())
   );
 
   getIsbn(): string | null {
@@ -754,6 +795,24 @@ export class MetadataSection implements OnInit, OnChanges {
 
     if (isbn) {
       return Array.isArray(isbn) ? isbn.join(', ') : String(isbn);
+    }
+    return null;
+  }
+
+  /**
+   * ISMN (music publications). Promoted next to ISBN/ISSN instead of being
+   * buried in the generic identifier list.
+   */
+  getIsmn(): string | null {
+    if (!this.data?.identifiers) {
+      return null;
+    }
+    const ismn = this.data.identifiers['ismn'] ||
+      this.data.identifiers['ISMN'] ||
+      this.data.identifiers['id_ismn'];
+
+    if (ismn) {
+      return Array.isArray(ismn) ? ismn.join(', ') : String(ismn);
     }
     return null;
   }
@@ -775,6 +834,7 @@ export class MetadataSection implements OnInit, OnChanges {
     const excluded = new Set([
       'isbn', 'ISBN', 'id_isbn',
       'issn', 'ISSN', 'id_issn',
+      'ismn', 'ISMN', 'id_ismn',
     ]);
     for (const key of Object.keys(this.data.identifiers)) {
       if (excluded.has(key)) continue;

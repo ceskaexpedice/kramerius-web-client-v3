@@ -125,6 +125,8 @@ export class Metadata {
 
 export class TitleInfo {
   public lang: string = '';
+  /** MODS titleInfo/@type, e.g. 'alternative', 'translated', 'uniform'. Empty for the primary title. */
+  public type: string = '';
   public nonSort: string = '';
   public title: string = '';
   public subTitle: string = '';
