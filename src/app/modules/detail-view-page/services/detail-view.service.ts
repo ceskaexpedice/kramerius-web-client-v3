@@ -259,6 +259,44 @@ export class DetailViewService {
   }
 
   /**
+   * The works bound in a convolute, in binding order, derived from the loaded
+   * pages (SolrService.getConvolutePages stamps each page with its work).
+   *
+   * Empty for every other document, which is what keeps the "parts" sidebar tab
+   * hidden outside convolutes.
+   */
+  convoluteParts(): { pid: string; title: string; firstPageIndex: number }[] {
+    const parts: { pid: string; title: string; firstPageIndex: number }[] = [];
+    this._pages().forEach((page: any, index: number) => {
+      const pid = page['convolute.part.pid'];
+      if (!pid || parts.some(p => p.pid === pid)) {
+        return;
+      }
+      parts.push({ pid, title: page['convolute.part.title'] || '', firstPageIndex: index });
+    });
+    return parts;
+  }
+
+  hasConvoluteParts(): boolean {
+    return this.convoluteParts().length > 0;
+  }
+
+  /** Index of the part that the currently displayed page belongs to (-1 when none). */
+  currentConvolutePartIndex(): number {
+    const current: any = this._pages()[this._currentPageIndex()];
+    const pid = current?.['convolute.part.pid'];
+    return pid ? this.convoluteParts().findIndex(p => p.pid === pid) : -1;
+  }
+
+  /** Jumps the reader to the first page of a bound work. */
+  goToConvolutePart(index: number): void {
+    const part = this.convoluteParts()[index];
+    if (part) {
+      this.goToPage(part.firstPageIndex);
+    }
+  }
+
+  /**
    * True when the document is access-denied for the current user. Evaluated from static
    * document-level licenses only, so it stays stable during per-page loads (no lock blinking
    * when navigating between pages). Re-evaluated when the user's licenses change (login/logout).
@@ -502,15 +540,38 @@ export class DetailViewService {
       // No page param - default to first page
       const isMonographUnit = this.pages.some(page => page.model === DocumentTypeEnum.monographunit || page.model === DocumentTypeEnum.periodicalvolume || page.model === DocumentTypeEnum.periodicalitem);
       if (this._pages().length > 0 && !isMonographUnit) {
-        this._currentPageIndex.set(0);
+        // Inside a convolute the reader holds every bound work's pages, so index
+        // 0 is the first page of the *first* work. Start at the opened work's own
+        // first page instead; other documents keep starting at 0.
+        const startIndex = this.firstPageIndexOfOpenedDocument();
+        this._currentPageIndex.set(startIndex);
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: { page: this.pages[0].pid },
+          queryParams: { page: this.pages[startIndex].pid },
           queryParamsHandling: "merge",
           replaceUrl: true
         })
       }
     }
+  }
+
+  /**
+   * Index of the first page belonging to the document that was actually opened.
+   *
+   * Normally that is 0. Inside a convolute the reader holds the pages of every
+   * bound work (see SolrService.getConvolutePages), so opening the second work
+   * must not drop the user on the first work's opening page.
+   *
+   * Falls back to 0 whenever the pages carry no parent information or none match
+   * — a wrong-but-harmless first page beats an out-of-range index.
+   */
+  private firstPageIndexOfOpenedDocument(): number {
+    const openedPid = this.document?.uuid;
+    if (!openedPid) {
+      return 0;
+    }
+    const index = this._pages().findIndex((page: any) => page['own_parent.pid'] === openedPid);
+    return index === -1 ? 0 : index;
   }
 
   checkAndSetCurrentArticleFromUrl() {

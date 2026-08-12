@@ -32,6 +32,7 @@ import { FavoritesPopupComponent } from '../../shared/components/favorites-popup
 import {InlineLoaderComponent} from '../../shared/components/inline-loader/inline-loader.component';
 import { SelectionModeInfoComponent } from '../../shared/components/selection-mode-info/selection-mode-info.component';
 import { DetailArticlesListComponent } from './components/detail-articles-list/detail-articles-list.component';
+import { DetailPartsListComponent } from './components/detail-parts-list/detail-parts-list.component';
 import {DocumentAccessDenied} from './components/access-denied/document-access-denied/document-access-denied';
 import { LicenseBarComponent } from './components/license-bar/license-bar.component';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -95,6 +96,7 @@ const routes: Routes = [
 		InlineLoaderComponent,
 		SelectionModeInfoComponent,
 		DetailArticlesListComponent,
+		DetailPartsListComponent,
 		DocumentAccessDenied,
 		DatePipe,
 		LicenseBarComponent,

@@ -69,9 +69,25 @@
       <ng-container *ngIf="((!document.pdf && !detailViewService.isEpub && !document.epub) || document.model === DocumentTypeEnum.article) && document.model !== DocumentTypeEnum.soundrecording">
         @let hasArticles = detailViewService.hasArticles$ | async;
         @let hasPages = detailViewService.pagesOnly && detailViewService.pagesOnly.length > 0;
+        @let hasParts = detailViewService.hasConvoluteParts();
 
+        <!-- Convolute: pages of every bound work plus a "parts" tab listing the works -->
+        @if (hasParts && hasPages) {
+          <app-tabs [noPadding]="true" [initialTab]="(activeSidebarTab$ | async) || 'pages'">
+            <app-tab-item id="pages" [label]="'pages--tab' | translate">
+              <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>
+            </app-tab-item>
+            <app-tab-item id="parts" [label]="'parts--tab' | translate">
+              <div class="sidebar--wrapper">
+                <div class="sidebar--wrapper--scroll-content">
+                  <app-detail-parts-list></app-detail-parts-list>
+                </div>
+              </div>
+            </app-tab-item>
+          </app-tabs>
+        }
         <!-- Show tabs when document has both articles and pages -->
-        @if (hasArticles && hasPages) {
+        @else if (hasArticles && hasPages) {
           <app-tabs [noPadding]="true" [initialTab]="(activeSidebarTab$ | async) || 'pages'">
             <app-tab-item id="pages" [label]="'pages--tab' | translate">
               <app-document-sidebar [document]="document" [mode]="'pages'"></app-document-sidebar>

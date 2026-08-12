@@ -94,9 +94,19 @@ export class DocumentDetailEffects {
         // uuid/library, so the metadata sidebar's own getMods calls reuse these.
         const rootPid: string = detailItem?.['root.pid'] ?? uuid;
         const hasDistinctRoot = !!rootPid && rootPid !== uuid;
+        // A work bound in a convolute is read as part of the whole convolute:
+        // the reader shows every bound work's pages as one continuous sequence
+        // (e.g. 28 + 13 = 41), matching the legacy client. The volumes list at
+        // /monograph stays the entry point — this only affects what the reader
+        // gets once a work is opened.
+        const isInConvolute = detailItem?.['root.model'] === DocumentTypeEnum.convolute
+          && detailItem?.model !== DocumentTypeEnum.convolute
+          && hasDistinctRoot;
         return forkJoin({
           detailItem: of(detailItem),
-          children: this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection),
+          children: isInConvolute
+            ? this.solr.getConvolutePages(rootPid, cdkCollection)
+            : this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection),
           currentMods: this.fetchMods(uuid, cdkCollection),
           rootMods: hasDistinctRoot
             ? this.fetchMods(rootPid, cdkCollection)

@@ -664,6 +664,7 @@
   "toolbar.tooltip.select": "Vybrat",
   "pages--tab": "Strany",
   "articles--tab": "Články",
+  "parts--tab": "Části",
   "auth-data-dialog--header": "Podklady pro technickou podporu",
   "version--client": "Verze klienta:",
   "version--api": "Verze API:",
