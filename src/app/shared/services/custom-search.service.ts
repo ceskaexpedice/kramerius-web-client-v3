@@ -6,8 +6,10 @@ import {filter, take} from 'rxjs';
 import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum,
+  facetKeysEnum,
   FacetAccessibilityTypes,
 } from '../../modules/search-results-page/const/facets';
+import { DocumentTypeEnum } from '../../modules/constants/document-type';
 import { getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses } from '../../core/solr/solr-misc';
 
 @Injectable({ providedIn: 'root' })
@@ -107,13 +109,35 @@ export class CustomSearchService {
         default:
           // Only add if we found a valid filterItem
           if (filterItem?.solrFacetKey) {
-            result.push(`${filterItem.solrFacetKey}:${value}`);
+            result.push(`${this.getSolrFieldForFilter(filterItem.solrFacetKey, value)}:${value}`);
           }
           break;
       }
     }
 
     return result;
+  }
+
+  /**
+   * Picks the Solr field the document-type filter should target.
+   *
+   * The document-type facet normally filters on `root.model` so that selecting
+   * e.g. "periodical" also matches its volumes/items. That breaks down for
+   * convolutes: a convolute binds independent works together, so its children
+   * are themselves top-level models (monograph, sheetmusic, graphic) that pass
+   * the base model filter. Filtering on `root.model:convolute` therefore returns
+   * every document bound inside a convolute (1120) instead of the convolutes
+   * themselves (256) — and disagrees with the sidebar count, which is computed
+   * from `model` (see solrFacetKeyForCount in facets.ts).
+   *
+   * For convolute we filter on the document's own `model`, matching the legacy
+   * client's `fq=(model:convolute)`.
+   */
+  private getSolrFieldForFilter(solrFacetKey: string, value: string): string {
+    if (solrFacetKey === facetKeysEnum.rootModel && value === DocumentTypeEnum.convolute) {
+      return facetKeysEnum.model;
+    }
+    return solrFacetKey;
   }
 
   /**

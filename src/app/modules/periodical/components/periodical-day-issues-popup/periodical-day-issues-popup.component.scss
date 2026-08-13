@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 700;
+  font-weight: var(--font-weight-semi-bold);
   gap: var(--spacing-x2);
 }
 

@@ -96,7 +96,7 @@ td {
   text-decoration: none;
 
   &.active {
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
     color: var(--color-primary);
   }
 }

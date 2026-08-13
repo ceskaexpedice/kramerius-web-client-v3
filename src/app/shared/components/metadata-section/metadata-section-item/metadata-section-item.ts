@@ -27,7 +27,13 @@ export class MetadataSectionItem {
    * handled in-app via `onItemClick`; modifier/middle clicks follow the href.
    */
   @Input() itemHref?: (item: any) => string | null | undefined;
-  @Input() showListBullets: boolean = false;
+  /**
+   * Bulleted lists are the panel-wide default so every multi-value section
+   * (keywords, languages, genres, notes, …) shares one indentation and marker.
+   * Set to false only for a section that must render flush, e.g. a single
+   * free-text block that would look odd with a bullet.
+   */
+  @Input() showListBullets: boolean = true;
   @Input() icon?: string;
   @Input() listKeyUppercase: boolean = false;
   @Input() disableTranslate: boolean = false;
@@ -46,6 +52,18 @@ export class MetadataSectionItem {
   @Input() headerActionClick?: () => void;
 
   expanded = false;
+
+  /**
+   * Bullets are only drawn once a section holds more than one value — a lone
+   * value reads as a plain paragraph, so it renders flush with the label
+   * instead of hanging off a marker. `showListBullets` can still opt out
+   * entirely.
+   */
+  get bulletsVisible(): boolean {
+    if (!this.showListBullets) return false;
+    const count = this.type === 'key-value' ? this.getKeys().length : (this.items?.length ?? 0);
+    return count > 1;
+  }
 
   get visibleItems(): any[] {
     if (!this.items) return [];

@@ -13,7 +13,7 @@
   h2 {
     font-size: var(--font-size-large);
     line-height: var(--line-height-3);
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
 
     &.clickable-title {
@@ -72,6 +72,108 @@
     margin: var(--spacing-x1) 0;
   }
 
+  // Standalone (showTitle=false, host header owns the title): cancel the .data
+  // flex gap so the toggle sits tight under that header, as it does under an
+  // inline title. Inside the title section the block is already flush.
+  > .alternative-titles--block {
+    margin-top: calc(var(--spacing-x1) - var(--spacing-x4));
+  }
+
+  // "more" toggle revealing the alternative titles under the main title.
+  // Mirrors the collapsible-content action so both read the same.
+  .alternative-titles--toggle {
+    gap: var(--spacing-x2);
+    line-height: var(--line-height-2);
+
+    i {
+      font-size: var(--font-size-xlarge);
+      transition: transform 0.2s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .alternative-titles {
+    margin-top: var(--spacing-x2);
+
+    &--label {
+      color: var(--color-text-secondary);
+      font-weight: 600;
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-2);
+      margin: 0 0 var(--spacing-x0-5);
+      font-family: var(--font-family-body);
+    }
+
+    &--list {
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-2);
+
+      &.with-bullets {
+        list-style: disc;
+        padding-left: var(--spacing-x5);
+      }
+
+      li {
+        padding: var(--spacing-x0-5) 0;
+      }
+    }
+  }
+
+  // Cartographic data is rendered inline (not through app-metadata-section-item),
+  // so mirror that component's label and list geometry to keep the panel aligned.
+  // The Notes list is projected into app-metadata-section-item, so it keeps this
+  // component's style scope and the item component's `ul` rules never reach it.
+  // The global reset only clears list-style, leaving the UA's padding-left — so
+  // the geometry has to be restated here.
+  ul[metadata-section-item-content] {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-2);
+
+    &.with-bullets {
+      list-style: disc;
+      padding-left: var(--spacing-x5);
+    }
+
+    li {
+      padding: var(--spacing-x0-5) 0;
+    }
+  }
+
+  .cartographic-data {
+    h3 {
+      color: var(--color-text-secondary);
+      font-weight: 600;
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-2);
+      margin: 0 0 var(--spacing-x0-5);
+      font-family: var(--font-family-body);
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+
+      &.with-bullets {
+        list-style: disc;
+        padding-left: var(--spacing-x5);
+      }
+
+      li {
+        padding: var(--spacing-x0-5) 0;
+      }
+    }
+  }
+
   .article-card-wrapper {
     position: relative;
 
@@ -106,7 +208,7 @@
       align-items: center;
 
       .label {
-        font-weight: 700;
+        font-weight: 600;
         font-size: var(--font-size-base);
         color: var(--color-text-secondary);
       }
@@ -190,7 +292,7 @@
 
     &__title {
       font-size: var(--font-size-base);
-      font-weight: 700;
+      font-weight: 600;
       margin: 0;
     }
 

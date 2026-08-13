@@ -1,0 +1,17 @@
+<div class="parts--list">
+  @for (part of detailViewService.convoluteParts(); track part.pid; let index = $index) {
+    <a class="part--item"
+       #partItem
+       [class.selected]="detailViewService.currentConvolutePartIndex() === index"
+       role="button" tabindex="0" [attr.aria-label]="part.title"
+       (keydown.enter)="clickedPart(index)"
+       (keydown.space)="$event.preventDefault(); clickedPart(index)"
+       (click)="clickedPart(index)">
+
+      <div class="part--item__content">
+        <span class="part--item__title">{{ part.title }}</span>
+      </div>
+
+    </a>
+  }
+</div>

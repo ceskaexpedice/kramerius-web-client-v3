@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { SolrResponseParser } from './solr-response-parser';
 import { SolrQueryBuilder } from './solr-query-builder';
 import { SolrOperators, SolrSortDirections, SolrSortFields } from './solr-helpers';
@@ -1167,7 +1167,7 @@ export class SolrService {
     let httpParams = new HttpParams({
       fromObject: {
         q: query,
-        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors,ds.img_full.mime,part.number.sort',
+        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors,ds.img_full.mime,part.number.sort,own_parent.pid',
         rows: '10000',
         sort
       }
@@ -1233,6 +1233,50 @@ export class SolrService {
         }
         // Return just docs for backward compatibility
         return res.response?.docs ?? [];
+      })
+    );
+  }
+
+  /**
+   * Pages of a whole convolute, in binding order.
+   *
+   * A convolute binds independent works (sheetmusic, monograph, graphic …) and
+   * holds no pages itself — each bound work holds its own. The reader shows the
+   * convolute as ONE continuous sequence, so its pages are the concatenation of
+   * each work's pages, in the works' binding order.
+   *
+   * This cannot be done with a single `root.pid` query: `rels_ext_index.sort`
+   * restarts at 0 inside every work, so a global sort interleaves them, and
+   * `own_pid_path` orders by uuid rather than binding order. Like the legacy
+   * client we therefore fetch the works, then each work's pages, and concatenate
+   * — which keeps `rels_ext_index.sort` meaningful within each work.
+   */
+  getConvolutePages(convolutePid: string, cdkCollection?: string | null): Observable<any[]> {
+    const sort = 'rels_ext_index.sort asc';
+    return this.getChildrenByModel(convolutePid, sort, null, false, [], [], {}, undefined, cdkCollection).pipe(
+      switchMap((works: any[]) => {
+        const safeWorks = works ?? [];
+        if (safeWorks.length === 0) {
+          return of([]);
+        }
+        return forkJoin(
+          safeWorks.map(work =>
+            // A page directly under the convolute is already a leaf — keep it as is.
+            work?.model === DocumentTypeEnum.page
+              ? of([work])
+              : this.getChildrenByModel(work.pid, sort, null, false, [], [], {}, undefined, cdkCollection).pipe(
+                  // Stamp each page with the work it belongs to, so the sidebar can
+                  // list the bound works ("parts") without re-fetching them.
+                  map((pages: any[]) => (pages ?? []).map(p => ({
+                    ...p,
+                    'convolute.part.pid': work.pid,
+                    'convolute.part.title': work['title.search'] ?? '',
+                  }))),
+                  // One unreadable work must not blank out the whole reader.
+                  catchError(() => of([])),
+                )
+          )
+        ).pipe(map(groups => groups.flat()));
       })
     );
   }

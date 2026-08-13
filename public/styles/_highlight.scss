@@ -69,7 +69,7 @@
 
   .hljs-section {
     color: #316dca;
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   .hljs-bullet {
@@ -83,7 +83,7 @@
 
   .hljs-strong {
     color: #adbac7;
-    font-weight: bold;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   .hljs-addition {

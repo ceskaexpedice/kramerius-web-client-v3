@@ -14,7 +14,7 @@
     <p *ngIf="type === 'text' && value">{{ value | translate }}</p>
 
     <!-- List type: non-clickable vertical list -->
-    <ul *ngIf="type === 'list'" [class.with-bullets]="showListBullets">
+    <ul *ngIf="type === 'list'" [class.with-bullets]="bulletsVisible">
       <li *ngFor="let item of items">
         <ng-container *ngIf="itemTpl; else defaultListItem">
           <ng-container *ngTemplateOutlet="itemTpl; context: { $implicit: item }"></ng-container>
@@ -28,7 +28,7 @@
     </ul>
 
     <!-- Clickable list type: vertical list with underlined clickable items -->
-    <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="showListBullets">
+    <ul *ngIf="type === 'clickable-list'" class="clickable-list" [class.with-bullets]="bulletsVisible">
       <li *ngFor="let item of visibleItems; let last = last" class="clickable"
         [attr.role]="getItemHref(item) ? null : 'button'"
         [attr.tabindex]="getItemHref(item) ? null : 0"
@@ -78,7 +78,7 @@
     }
 
     <!-- Key-value type: display object properties as key-value pairs -->
-    <ul *ngIf="type === 'key-value'" [class.with-bullets]="showListBullets">
+    <ul *ngIf="type === 'key-value'" [class.with-bullets]="bulletsVisible">
       <li *ngFor="let key of getKeys()">
         <strong [class.uppercase]="listKeyUppercase">{{ key }}:</strong> {{ getKeyValue(key) | translate }}
       </li>

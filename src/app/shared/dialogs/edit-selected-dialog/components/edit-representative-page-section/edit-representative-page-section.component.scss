@@ -11,7 +11,7 @@
 
   h3 {
     font-size: var(--font-size-large);
-    font-weight: 700;
+    font-weight: var(--font-weight-semi-bold);
     margin: 0;
     color: var(--color-text-primary);
   }
@@ -38,7 +38,7 @@
   }
 
   .group-label {
-    font-weight: 600;
+    font-weight: var(--font-weight-semi-bold);
     color: var(--color-text-secondary);
   }
 

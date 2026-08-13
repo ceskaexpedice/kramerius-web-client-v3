@@ -26,7 +26,7 @@
   color: var(--color-text-base);
   font-size: var(--badge-font-size);
   font-family: var(--font-family-body);
-  font-weight: 700;
+  font-weight: var(--font-weight-semi-bold);
   vertical-align: middle;
   line-height: var(--badge-size);
 }

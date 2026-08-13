@@ -124,3 +124,101 @@ describe('SolrService periodical children query — cdk.collection scoping', () 
     expect(query('nkp')).toContain('AND cdk.collection:nkp');
   });
 });
+
+describe('SolrService.getConvolutePages', () => {
+  let service: SolrService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  // getChildrenByModel runs the pid through escapeSolrQuery, so the colon is
+  // backslash-escaped and the value is not quoted: own_parent.pid:uuid\:conv
+  const childrenClause = (parentPid: string) => `own_parent.pid:${parentPid.replace(/:/g, '\\:')}`;
+
+  /** Answers the pending children request for `parentPid` with `docs`. */
+  function flushChildren(parentPid: string, docs: any[]): void {
+    const req = httpMock.expectOne(r => r.params.get('q')?.includes(childrenClause(parentPid)) ?? false);
+    req.flush({ response: { docs } });
+  }
+
+  const page = (pid: string, parent: string) => ({ pid, model: 'page', 'own_parent.pid': parent });
+
+  it('concatenates each bound work\'s pages in binding order', () => {
+    let result: any[] | undefined;
+    service.getConvolutePages('uuid:conv').subscribe(pages => (result = pages));
+
+    flushChildren('uuid:conv', [
+      { pid: 'uuid:work1', model: 'sheetmusic' },
+      { pid: 'uuid:work2', model: 'sheetmusic' },
+    ]);
+    flushChildren('uuid:work1', [page('uuid:p1', 'uuid:work1'), page('uuid:p2', 'uuid:work1')]);
+    flushChildren('uuid:work2', [page('uuid:p3', 'uuid:work2')]);
+
+    // work1's pages precede work2's — the reader shows one continuous sequence.
+    expect(result?.map(p => p.pid)).toEqual(['uuid:p1', 'uuid:p2', 'uuid:p3']);
+  });
+
+  it('keeps a page that hangs directly off the convolute instead of descending', () => {
+    let result: any[] | undefined;
+    service.getConvolutePages('uuid:conv').subscribe(pages => (result = pages));
+
+    flushChildren('uuid:conv', [
+      page('uuid:loose', 'uuid:conv'),
+      { pid: 'uuid:work1', model: 'sheetmusic' },
+    ]);
+    flushChildren('uuid:work1', [page('uuid:p1', 'uuid:work1')]);
+
+    expect(result?.map(p => p.pid)).toEqual(['uuid:loose', 'uuid:p1']);
+  });
+
+  it('skips a work whose pages fail to load rather than blanking the reader', () => {
+    let result: any[] | undefined;
+    service.getConvolutePages('uuid:conv').subscribe(pages => (result = pages));
+
+    flushChildren('uuid:conv', [
+      { pid: 'uuid:work1', model: 'sheetmusic' },
+      { pid: 'uuid:work2', model: 'sheetmusic' },
+    ]);
+    httpMock
+      .expectOne(r => r.params.get('q')?.includes(childrenClause('uuid:work1')) ?? false)
+      .flush('boom', { status: 500, statusText: 'Server Error' });
+    flushChildren('uuid:work2', [page('uuid:p3', 'uuid:work2')]);
+
+    expect(result?.map(p => p.pid)).toEqual(['uuid:p3']);
+  });
+
+  it('emits an empty list for a convolute with no children', () => {
+    let result: any[] | undefined;
+    service.getConvolutePages('uuid:conv').subscribe(pages => (result = pages));
+
+    flushChildren('uuid:conv', []);
+
+    expect(result).toEqual([]);
+  });
+
+  it('requests own_parent.pid so the reader can tell the works apart', () => {
+    service.getConvolutePages('uuid:conv').subscribe();
+
+    const req = httpMock.expectOne(r => r.params.get('q')?.includes(childrenClause('uuid:conv')) ?? false);
+    expect(req.request.params.get('fl')).toContain('own_parent.pid');
+    req.flush({ response: { docs: [] } });
+  });
+
+  it('scopes every request to the selected cdk collection', () => {
+    service.getConvolutePages('uuid:conv', 'mzk').subscribe();
+
+    const rootReq = httpMock.expectOne(r => r.params.get('q')?.includes(childrenClause('uuid:conv')) ?? false);
+    expect(rootReq.request.params.get('q')).toContain('cdk.collection:mzk');
+    rootReq.flush({ response: { docs: [{ pid: 'uuid:work1', model: 'sheetmusic' }] } });
+
+    const workReq = httpMock.expectOne(r => r.params.get('q')?.includes(childrenClause('uuid:work1')) ?? false);
+    expect(workReq.request.params.get('q')).toContain('cdk.collection:mzk');
+    workReq.flush({ response: { docs: [] } });
+  });
+});

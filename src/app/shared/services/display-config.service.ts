@@ -154,6 +154,50 @@ export class DisplayConfigService {
   }
 
   /**
+   * Merges saved columns with default columns, preserving the saved order.
+   * Saved columns keep their visibility/order; new default columns not present
+   * in the saved config are appended at the end so they become visible in settings.
+   */
+  mergeColumnsWithSavedConfig(savedColumns: TableColumnConfig[]): TableColumnConfig[] {
+    const savedIds = new Set(savedColumns.map(col => col.id));
+
+    const mergedSaved = savedColumns.map(savedCol => {
+      const defaultCol = DEFAULT_TABLE_COLUMNS.find(col => col.id === savedCol.id);
+      return defaultCol ? { ...defaultCol, ...savedCol } : { ...savedCol };
+    });
+
+    const newDefaults = DEFAULT_TABLE_COLUMNS
+      .filter(col => !savedIds.has(col.id))
+      .map(col => ({ ...col }));
+
+    const merged = [...mergedSaved, ...newDefaults];
+    merged.forEach((col, index) => (col.order = index));
+    return merged;
+  }
+
+  /**
+   * Merges saved facet filters with default facet filters, preserving the saved order.
+   * Saved filters keep their visibility/order; new default filters not present
+   * in the saved config are appended at the end so they become visible in settings.
+   */
+  mergeFacetFiltersWithSavedConfig(savedFilters: FacetFilterConfig[]): FacetFilterConfig[] {
+    const savedIds = new Set(savedFilters.map(f => f.id));
+
+    const mergedSaved = savedFilters.map(savedFilter => {
+      const defaultFilter = DEFAULT_FACET_FILTERS.find(f => f.id === savedFilter.id);
+      return defaultFilter ? { ...defaultFilter, ...savedFilter } : { ...savedFilter };
+    });
+
+    const newDefaults = DEFAULT_FACET_FILTERS
+      .filter(f => !savedIds.has(f.id))
+      .map(f => ({ ...f }));
+
+    const merged = [...mergedSaved, ...newDefaults];
+    merged.forEach((filter, index) => (filter.order = index));
+    return merged;
+  }
+
+  /**
    * Merges saved columns with default columns to handle new columns added in updates
    */
   private mergeColumnsWithDefaults(savedColumns: TableColumnConfig[]): TableColumnConfig[] {

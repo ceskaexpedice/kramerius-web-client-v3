@@ -264,7 +264,7 @@ hr {
         color: var(--color-text-secondary) !important;
         border: 2px solid var(--color-primary);
         border-radius: 0 0 8px 8px !important;
-        font-weight: bold;
+        font-weight: var(--font-weight-semi-bold);
         position: relative;
         z-index: z.$date-picker-navigation-active;
       }
@@ -314,7 +314,7 @@ hr {
         color: var(--color-text-secondary) !important;
         border: 2px solid var(--color-primary);
         border-radius: 0 0 8px 8px !important;
-        font-weight: bold;
+        font-weight: var(--font-weight-semi-bold);
         position: relative;
         z-index: z.$date-picker-navigation-active;
       }
@@ -378,7 +378,7 @@ hr {
         color: var(--color-text-secondary) !important;
         border: 2px dashed var(--color-border-additional) !important;
         border-radius: 0 0 8px 8px !important;
-        font-weight: bold;
+        font-weight: var(--font-weight-semi-bold);
         position: relative;
         z-index: z.$date-picker-navigation-active;
       }

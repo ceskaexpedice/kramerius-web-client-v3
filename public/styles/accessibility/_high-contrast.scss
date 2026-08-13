@@ -272,7 +272,7 @@
     text-decoration: underline !important;
     text-decoration-thickness: 2px;
     text-underline-offset: 2px;
-    font-weight: 700;
+    font-weight: var(--font-weight-semi-bold);
   }
 
   // Images often carry meaning here; a thin frame separates them from the white

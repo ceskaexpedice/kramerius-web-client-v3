@@ -37,7 +37,7 @@
 
     .separator {
       color: #666;
-      font-weight: bold;
+      font-weight: var(--font-weight-semi-bold);
       font-size: var(--font-size-small);
       margin: 0 4px;
     }

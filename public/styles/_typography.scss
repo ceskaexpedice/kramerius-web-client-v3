@@ -66,3 +66,7 @@ a {
   color: var(--accessibility-public-text-color) !important;
   --accessibility-bg: var(--accessibility-public-bg);
 }
+
+strong {
+  font-weight: 600;
+}
