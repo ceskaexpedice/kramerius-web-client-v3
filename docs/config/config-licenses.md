@@ -89,6 +89,8 @@ Výsledné akce pro licenci `public`:
 
 Tedy: defaultní hodnoty, přepsané tím, co je v licenci. Licence nemusí opakovat pole, která nemění.
 
+> **Výjimka: varianty licencí.** Na [varianty podle knihovny](#varianty-licencí-podle-knihovny-cdk) (záznamy s polem `base`) se `_defaults.actions` **neaplikuje** — jejich akce se slučují nad akcemi základní licence. Viz [`actions` u variant](#actions-u-variant).
+
 ---
 
 ## `licenses[]` — jeden licenční záznam
@@ -142,6 +144,7 @@ Tedy: defaultní hodnoty, přepsané tím, co je v licenci. Licence nemusí opak
 | `instructionPage` | ne | HTML stránka s návodem, jak získat přístup k dokumentu. Když chybí, tlačítko "návod" se neukáže. |
 | `watermark` | ne | Vodoznak vykreslovaný přes obraz stránky. Viz níže. Když chybí, žádný vodoznak se nevykresluje. |
 | `providedBy` | ne | Zařadí licenci do sekce „Poskytováno pod licencí" v metadatech dokumentu. Viz níže. Když chybí (nebo má `display: false`), licence se v této sekci nezobrazuje. |
+| `base` | ne | Označuje záznam jako **variantu jiné licence pro konkrétní knihovnu** (jen v agregátoru CDK). Obsahuje `id` základní licence, kterou tento záznam přepisuje. Viz [Varianty licencí podle knihovny](#varianty-licencí-podle-knihovny-cdk). Když chybí, jde o běžnou samostatnou licenci. |
 
 ---
 
@@ -231,6 +234,96 @@ HTML soubory se obvykle ukládají pod `local-config/html/licenses/`.
 ```
 
 Jeden HTML soubor (per jazyk) s návodem, jak získat přístup k dokumentu pod touto licencí. Typicky něco jako "Jak se zaregistrovat do dnnto". Zobrazuje se jako samostatná stránka / dialog z tlačítka "Návod" uvnitř dialogu přístupu.
+
+---
+
+## Varianty licencí podle knihovny (CDK)
+
+> Týká se **jen agregátoru CDK**. V samostatné instanci knihovny se nic nemění — když není zvolený zdroj, chová se vše přesně jako bez variant.
+
+### Problém, který to řeší
+
+Varianta umožňuje připojit k licenci texty pro konkrétní knihovnu. Klient pak vybere ty, které odpovídají **aktuálně zvolenému zdroji** (té členské knihovně, z níž se právě načítají data). Když pro danou knihovnu varianta neexistuje, použije se původní obecný text.
+
+### Zápis
+
+Varianta je běžná položka v poli `licenses` se dvěma odlišnostmi — `id` ve tvaru `<základní-licence>__<kód-knihovny>` a pole `base`:
+
+```json
+{
+  "id": "onsite",
+  "accessType": "terminal",
+  "label": { "cs": "Studovna", "en": "Reading room" },
+  "instructionPage": {
+    "cs": "local-config/html/licenses/onsite.instruction.cs.html",
+    "en": "local-config/html/licenses/onsite.instruction.en.html"
+  },
+  "actions": { "print": true, "text": true }
+},
+{
+  "id": "onsite__mzk",
+  "base": "onsite",
+  "label": {
+    "cs": "Studovna MZK",
+    "en": "MZK reading room"
+  },
+  "instructionPage": {
+    "cs": "local-config/html/licenses/onsite.mzk.instruction.cs.html",
+    "en": "local-config/html/licenses/onsite.mzk.instruction.en.html"
+  }
+}
+```
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `id` | ano | Tvar `<base>__<kód-knihovny>`, **dvojité podtržítko**. Kód knihovny odpovídá hodnotě `cdk.collection` z API (např. `mzk`, `nkp`). |
+| `base` | ano | `id` základní licence, kterou varianta přepisuje. Musí ukazovat na běžnou licenci — varianta varianty se nepodporuje. |
+
+### Co varianta přepisuje
+
+Varianta je **částečný přepis**, ne samostatná licence. Uvádí se v ní jen to, co se má lišit; všechno ostatní se dědí ze základní licence. Prakticky to znamená, že varianta obvykle obsahuje jen `label` a `instructionPage`, případně `messagePages` — a když se pro danou knihovnu liší i povolené akce, ještě `actions`.
+
+| Chování | Popis |
+|---|---|
+| Přepisuje se | `label`, `instructionPage`, `messagePages`, `providedBy`, `bar`, `watermark` — tedy vše prezentační. |
+| **Slučuje se po polích** | **`actions`** (pdf, print, text…). Viz níže — varianta může jednotlivé akce přidat nebo odebrat, ostatní zůstávají ze základní licence. |
+| Dědí se | `accessType` a všechna pole, která varianta neuvádí. |
+
+#### `actions` u variant
+
+Akce se **neslučují jako celek, ale po jednotlivých polích**: základ tvoří `actions` základní licence a varianta nad nimi přepisuje jen ty, které uvede.
+
+Základní licence `onsite`:
+```json
+"actions": { "print": true, "text": true }
+```
+
+Varianta `onsite__mzk`:
+```json
+"actions": { "pdf": true, "print": false }
+```
+
+Výsledek pro zvolený zdroj `mzk`:
+```json
+{ "pdf": true, "print": false, "text": true }
+```
+
+Tedy `pdf` varianta přidala, `print` odebrala a `text` zůstal ze základní licence.
+
+### Kde se varianty neobjeví
+
+Varianty jsou čistě prezentační. **Nezobrazují se ve filtrech, facetech vyhledávání ani v řazení licencí** — tam figurují pouze základní licence. Přidání varianty tedy nijak nezasáhne do vyhledávání.
+
+### Jak se vybírá knihovna
+
+Podle aktuálně zvoleného zdroje v detailu dokumentu — tedy té knihovny, z níž se načítají data (přepínač zdrojů v postranním panelu, případně parametr `?source=` v URL). Když uživatel zdroj přepne, texty se překreslí okamžitě.
+
+Zvolí-li uživatel „Všechny zdroje" (na periodikách), žádná konkrétní knihovna neexistuje a použije se obecný text základní licence.
+
+### Postup přidání knihovny
+
+1. Vytvořte HTML soubory s texty, např. `local-config/html/licenses/onsite.nkp.instruction.cs.html` (a `.en.html`).
+2. Přidejte do `licenses` záznam `{ "id": "onsite__nkp", "base": "onsite", ... }` s `label` a `instructionPage`.
 
 ---
 
@@ -371,10 +464,24 @@ Dva režimy — textový nebo obrázkový.
         "print": true,
         "text": true
       }
+    },
+    {
+      "id": "onsite__mzk",
+      "base": "onsite",
+      "label": {
+        "cs": "Studovna MZK",
+        "en": "MZK reading room"
+      },
+      "instructionPage": {
+        "cs": "local-config/html/licenses/onsite.mzk.instruction.cs.html",
+        "en": "local-config/html/licenses/onsite.mzk.instruction.en.html"
+      }
     }
   ]
 }
 ```
+
+> Poslední záznam je [varianta podle knihovny](#varianty-licencí-podle-knihovny-cdk) — uplatní se jen v CDK, když je zvolený zdroj `mzk`.
 
 ---
 

@@ -207,6 +207,13 @@ export interface LicenseConfig {
   bar?: LicenseBarConfig;       // optional info bar shown in detail view
   watermark?: LicenseWatermarkConfig; // optional watermark overlay in IIIF viewer
   providedBy?: LicenseProvidedByConfig; // when set, display this license in the metadata "provided under license" section
+  /**
+   * Source-scoped variant: id of the base license this entry overrides.
+   * Present only on variants (`<base>__<source>`, e.g. `onsite__mzk`), which carry
+   * per-member-library texts. Variants are excluded from every license list
+   * (facets, ordering, access-type lookups) — see `license-variants.ts`.
+   */
+  base?: string;
 }
 
 // Licenses configuration (ordered array of license configs)
