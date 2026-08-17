@@ -1,3 +1,5 @@
+@use 'mixins' as m;
+
 .content-page {
   max-width: 900px;
   margin: 0 auto;
@@ -31,6 +33,14 @@
     user-select: text;
     -webkit-user-select: text;
     cursor: text;
+
+    // MOB-4: na mobilu do toku obsahu, aby neprekryval tekouci text
+    @include m.respond(mobile-sm) {
+      position: static;
+      align-items: flex-start;
+      text-align: left;
+      margin-top: var(--spacing-x6);
+    }
   }
 }
 

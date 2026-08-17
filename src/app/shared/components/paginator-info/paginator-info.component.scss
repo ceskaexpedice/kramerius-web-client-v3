@@ -14,13 +14,18 @@
 
 /* Mobile bottom sheet */
 @include m.respond(md) {
+  // MOB-3: column + lamani rozsahu delalo z bloku tri radky.
+  // Drzime jeden radek a rozsah nechame nedelitelny.
   .pagination-info {
-    flex-direction: column;
-    align-items: start;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-x1);
+    flex-wrap: wrap;
   }
 
   .results-range {
     padding: 0;
+    white-space: nowrap;
   }
 
 }

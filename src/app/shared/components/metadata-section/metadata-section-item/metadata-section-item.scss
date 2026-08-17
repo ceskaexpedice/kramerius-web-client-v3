@@ -37,8 +37,9 @@
 }
 
 app-collapsible-content {
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-2);
+  // CTE-3: hodnoty v pravem panelu 14px + kompaktnejsi radkovani (labely zustavaji 16px/600)
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
 
   p {
     margin: 0;

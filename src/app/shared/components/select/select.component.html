@@ -5,7 +5,7 @@
   <span class="select-value">
     <ng-container *ngIf="optionPrefixTpl && value != null"
       [ngTemplateOutlet]="optionPrefixTpl" [ngTemplateOutletContext]="{ $implicit: value }"></ng-container>
-    {{ displayLabel(value) }}
+    <span class="select-label">{{ displayLabel(value) }}</span>
   </span>
   <i class="icon-arrow-down arrow-icon" [class.open]="open()" aria-hidden="true"></i>
 </div>
