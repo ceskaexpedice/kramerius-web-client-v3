@@ -138,6 +138,8 @@
 
   --color-gray-500: #8099B3;
 
+  --color-bg-thumbnail: #EFF2F5;
+
   // Model tag background colors
   --color-bg-tag-monograph: #a046ce;
   --color-bg-tag-monograph-multivolume: #8b22bf;
@@ -297,4 +299,8 @@
   --icon-error: #FF3A30;
 
   --color-gray-500: #8099B3;
+
+  // CRD-1: zamerne stejna svetla hodnota jako v light rezimu - nahledy dokumentu
+  // maji byt na svetle plose i v dark, jinak vznikaji cerne letterbox pruhy.
+  --color-bg-thumbnail: #EFF2F5;
 }
