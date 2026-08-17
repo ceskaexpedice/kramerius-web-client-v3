@@ -23,7 +23,8 @@ export class SavedListsService {
         titleParams: { name: folderName },
         message: 'delete-list-message',
         messageParams: { name: folderName }
-      }
+      },
+      panelClass: 'simple-dialog-panel'
     });
 
     return dialogRef.afterClosed();
@@ -44,7 +45,8 @@ export class SavedListsService {
     }
 
     const dialogRef = this.dialog.open(DeleteItemDialogComponent, {
-      data: dialogData
+      data: dialogData,
+      panelClass: 'simple-dialog-panel'
     });
 
     return dialogRef.afterClosed();
@@ -60,7 +62,8 @@ export class SavedListsService {
         titleParams: { name: track['title.search'] },
         message: 'remove-track-message',
         messageParams: { name: track['title.search'] }
-      }
+      },
+      panelClass: 'simple-dialog-panel'
     });
 
     return dialogRef.afterClosed();

@@ -322,7 +322,8 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
         title: `access-denied.dialog.${this.getType(type)}.title`,
         content: `access-denied.dialog.${this.getType(type)}.content`
       },
-      autoFocus: false
+      autoFocus: false,
+      panelClass: 'simple-dialog-panel'
     });
   }
 

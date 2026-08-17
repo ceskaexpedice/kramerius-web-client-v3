@@ -195,6 +195,7 @@ export class RecordHandlerService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     this.dialog.open(CitationDialogComponent, {
       width: isMobileOrTablet ? '100vw' : '60vw',
+      panelClass: isMobileOrTablet ? undefined : 'simple-dialog-panel',
       data: { document },
     });
   }
@@ -207,6 +208,7 @@ export class RecordHandlerService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     this.dialog.open(ShareDialogComponent, {
       width: isMobileOrTablet ? '100vw' : '60vw',
+      panelClass: isMobileOrTablet ? undefined : 'simple-dialog-panel',
       data: { document, queryParams },
     })
   }

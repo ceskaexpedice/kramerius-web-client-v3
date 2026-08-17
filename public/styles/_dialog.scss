@@ -2,6 +2,10 @@
   max-width: none !important;
 }
 
+.cdk-overlay-pane.simple-dialog-panel {
+  max-width: 840px !important;
+}
+
 .cdk-overlay-pane.folder-share-dialog-panel {
   width: 100%;
   max-width: 460px !important;

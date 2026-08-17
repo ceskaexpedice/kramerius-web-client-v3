@@ -1080,7 +1080,8 @@ export class MetadataSection implements OnInit, OnChanges {
     this.dialog.open(LicenseInfoDialogComponent, {
       data: { title, content },
       autoFocus: false,
-      restoreFocus: false
+      restoreFocus: false,
+      panelClass: 'simple-dialog-panel'
     });
   }
 
