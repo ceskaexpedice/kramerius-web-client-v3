@@ -1,4 +1,4 @@
-<div #fullscreenContainer class="fullscreen-container">
+<div #fullscreenContainer class="fullscreen-container" [class.fullscreen-fallback]="isCssFallback">
   @if (isFullscreen && showCloseButton) {
     <button
       class="fullscreen-close-button button tertiary outlined"

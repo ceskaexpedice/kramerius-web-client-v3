@@ -1,3 +1,5 @@
+@use "z-index" as z;
+
 .fullscreen-container {
   position: relative;
   height: 100%;
@@ -40,6 +42,38 @@
   top: 12px;
   right: 16px;
   z-index: 10000;
+}
+
+// CSS-only fullscreen fallback, used when the browser has no element
+// Fullscreen API (iOS: every browser there is WebKit, and only <video> can go
+// fullscreen). The container is pinned over the whole page instead. Browser
+// chrome (URL bar, tab bar) necessarily stays visible - only the native API can
+// hide that, and it does not exist here.
+.fullscreen-container.fullscreen-fallback {
+  position: fixed;
+  inset: 0;
+  // dvh tracks Safari's collapsing toolbars; vh is the fallback for older
+  // WebKit, where it is the only supported unit.
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: 100vh;
+  max-height: 100dvh;
+  background: var(--color-bg-base);
+  z-index: z.$fullscreen-fallback;
+  // Respect the notch/home indicator so controls stay tappable.
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+
+  .fullscreen-content {
+    width: 100%;
+    height: 100%;
+  }
+
+  .fullscreen-close-button {
+    z-index: z.$fullscreen-fallback-close;
+  }
 }
 
 .fullscreen-content {

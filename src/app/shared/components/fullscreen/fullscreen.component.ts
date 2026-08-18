@@ -15,6 +15,14 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   @ViewChild('fullscreenContainer', { static: true }) containerRef!: ElementRef;
 
   public isFullscreen: boolean = false;
+
+  /**
+   * True while we are faking fullscreen with CSS because the browser has no
+   * element Fullscreen API (iOS). Drives the .fullscreen-fallback class, which
+   * pins the container over the page; native fullscreen never sets this.
+   */
+  public isCssFallback: boolean = false;
+
   private fullscreenChangeHandler = this.onFullscreenChange.bind(this);
 
   /**
@@ -61,6 +69,13 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     if (this.isFullscreen) {
       this.exitFullscreen();
     }
+
+    // Belt and braces: never leave the page unscrollable if we are torn down
+    // mid-fallback (e.g. a route change while faking fullscreen).
+    if (this.isCssFallback) {
+      this.isCssFallback = false;
+      this.lockBodyScroll(false);
+    }
   }
 
   /**
@@ -78,8 +93,12 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   private enterFullscreen(): void {
     const request = this.requestFullscreenFn;
     if (!request) {
-      // No element Fullscreen API (notably iOS). Bailing out keeps isFullscreen
-      // false, so we never show a close button over an unchanged page.
+      // No element Fullscreen API (notably iOS): pin the container over the
+      // page with CSS instead, so the viewer still fills the screen. Browser
+      // chrome stays visible — that part is not ours to remove.
+      this.isCssFallback = true;
+      this.lockBodyScroll(true);
+      this.setFullscreenState(true);
       return;
     }
 
@@ -110,6 +129,13 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   }
 
   private exitFullscreen(): void {
+    if (this.isCssFallback) {
+      this.isCssFallback = false;
+      this.lockBodyScroll(false);
+      this.setFullscreenState(false);
+      return;
+    }
+
     // Check if we're actually in fullscreen before trying to exit
     const isInFullscreen = !!(
       document.fullscreenElement ||
@@ -147,6 +173,18 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     if (!isCurrentlyFullscreen && this.isFullscreen) {
       this.setFullscreenState(false);
     }
+  }
+
+  /**
+   * Prevents the page behind the CSS-fullscreen overlay from scrolling. Native
+   * fullscreen gets this from the browser; the fallback has to do it itself.
+   */
+  private lockBodyScroll(locked: boolean): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    document.body.style.overflow = locked ? 'hidden' : '';
   }
 
   onClose(): void {

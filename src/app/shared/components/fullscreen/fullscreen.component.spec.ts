@@ -42,27 +42,55 @@ describe('FullscreenComponent', () => {
       expect(component.isFullscreenSupported).toBe(false);
     });
 
-    it('does not enter fullscreen state on toggle', () => {
+    it('falls back to CSS fullscreen instead of doing nothing', () => {
       component.toggle();
 
-      expect(component.isFullscreen).toBe(false);
+      expect(component.isCssFallback).toBe(true);
+      expect(component.isFullscreen).toBe(true);
     });
 
-    it('emits no fullscreenChange, so the host is not left out of sync', () => {
-      const emitted: boolean[] = [];
-      component.fullscreenChange.subscribe(v => emitted.push(v));
-
-      component.toggle();
-
-      expect(emitted).toEqual([]);
-    });
-
-    it('renders no close button', () => {
+    it('applies the fallback class so the container is pinned over the page', () => {
       component.toggle();
       fixture.detectChanges();
 
-      const closeButton = fixture.nativeElement.querySelector('.fullscreen-close-button');
-      expect(closeButton).toBeNull();
+      const container = fixture.nativeElement.querySelector('.fullscreen-container');
+      expect(container.classList).toContain('fullscreen-fallback');
+    });
+
+    it('locks page scrolling while the fallback is active, and releases it', () => {
+      component.toggle();
+      expect(document.body.style.overflow).toBe('hidden');
+
+      component.toggle();
+      expect(document.body.style.overflow).toBe('');
+    });
+
+    it('renders the close button so the fallback can be dismissed', () => {
+      component.toggle();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.fullscreen-close-button')).not.toBeNull();
+    });
+
+    it('leaves the fallback and notifies the host on exit', () => {
+      component.toggle();
+
+      const emitted: boolean[] = [];
+      component.fullscreenChange.subscribe(v => emitted.push(v));
+      component.toggle();
+
+      expect(component.isCssFallback).toBe(false);
+      expect(component.isFullscreen).toBe(false);
+      expect(emitted).toEqual([false]);
+    });
+
+    it('releases the scroll lock when destroyed mid-fallback', () => {
+      component.toggle();
+      expect(document.body.style.overflow).toBe('hidden');
+
+      fixture.destroy();
+
+      expect(document.body.style.overflow).toBe('');
     });
   });
 
@@ -79,6 +107,15 @@ describe('FullscreenComponent', () => {
       expect(requestFullscreen).toHaveBeenCalled();
       expect(component.isFullscreen).toBe(true);
       expect(emitted).toEqual([true]);
+    });
+
+    it('never uses the CSS fallback when the native API exists', () => {
+      setContainerApi({ requestFullscreen: () => Promise.resolve() });
+
+      component.toggle();
+
+      expect(component.isCssFallback).toBe(false);
+      expect(document.body.style.overflow).toBe('');
     });
 
     it('is supported even when document.fullscreenEnabled is falsy (Android regression)', () => {
