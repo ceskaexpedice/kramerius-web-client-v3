@@ -36,6 +36,7 @@ import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { CdkTooltipDirective } from '../../directives';
 import { AppTranslationService } from '../../translation/app-translation.service';
+import { SettingsService } from '../../../modules/settings/settings.service';
 import { getLanguageFallbackChain } from '../../translation/translation-fallback-chain';
 import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/language-utils';
 
@@ -223,6 +224,7 @@ export class MetadataSection implements OnInit, OnChanges {
   private destroyRef = inject(DestroyRef);
   private libraryContext = inject(LibraryContextService);
   private configService = inject(ConfigService);
+  private settingsService = inject(SettingsService);
   recordHandler = inject(RecordHandlerService);
   private availableYears = toSignal(this.store.select(selectAvailableYears));
 
@@ -1093,8 +1095,34 @@ export class MetadataSection implements OnInit, OnChanges {
     return this.configService.getLicenseConfig(license)?.providedBy?.url ?? null;
   }
 
+  /**
+   * Efektivni tema (uz ma vyreseny i rezim "system"), pouzita pro vyber
+   * dark varianty loga donatora.
+   */
+  private effectiveTheme = toSignal(this.settingsService.effectiveTheme$, { initialValue: 'light' as const });
+
+  /**
+   * Logo donatora. V tmave teme se nejdriv zkusi varianta `<donator>-dark.png`;
+   * dark verzi ale nemaji vsichni donatori, takze kdyz se obrazek nenacte,
+   * `onDonatorImageError` prepne src zpet na normalni logo.
+   */
   getDonatorImage(donator: string): string | null {
-    return `/img/logo/donator/${donator.toLowerCase()}.png`;
+    const base = `/img/logo/donator/${donator.toLowerCase()}`;
+    return this.effectiveTheme() === 'dark' ? `${base}-dark.png` : `${base}.png`;
+  }
+
+  /**
+   * Fallback pro donatory bez dark varianty: pri 404 na `-dark.png` se nacte
+   * normalni logo. Hlida se, aby se pri chybejicim normalnim logu necyklilo.
+   */
+  onDonatorImageError(event: Event, donator: string): void {
+    const img = event.target as HTMLImageElement;
+    const fallback = `/img/logo/donator/${donator.toLowerCase()}.png`;
+    if (img.getAttribute('src') === fallback) {
+      img.style.display = 'none';
+      return;
+    }
+    img.src = fallback;
   }
 
   getDonatorUrl(donator: string): string | null {
