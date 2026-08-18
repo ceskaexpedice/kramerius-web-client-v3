@@ -17,6 +17,33 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   public isFullscreen: boolean = false;
   private fullscreenChangeHandler = this.onFullscreenChange.bind(this);
 
+  /**
+   * Whether this browser can actually put an arbitrary element in fullscreen.
+   * iOS (all browsers, including Chrome — they are all WebKit under the hood)
+   * exposes no element-level Fullscreen API: only <video> has
+   * webkitEnterFullscreen. Without this guard we flipped state optimistically
+   * and rendered a close button over an unchanged page (issue #162).
+   */
+  public get isFullscreenSupported(): boolean {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+
+    const elem = this.containerRef?.nativeElement as (HTMLElement & Record<string, unknown>) | undefined;
+    const hasRequestMethod = !!elem && (
+      typeof elem['requestFullscreen'] === 'function' ||
+      typeof elem['webkitRequestFullscreen'] === 'function' ||
+      typeof elem['msRequestFullscreen'] === 'function'
+    );
+
+    // fullscreenEnabled is false when a permissions policy blocks it (e.g. an
+    // iframe without allow="fullscreen"), even where the methods exist.
+    const doc = document as Document & Record<string, unknown>;
+    const enabled = doc.fullscreenEnabled ?? doc['webkitFullscreenEnabled'] ?? true;
+
+    return hasRequestMethod && enabled !== false;
+  }
+
   ngOnInit(): void {
     // Listen for fullscreen change events (user pressing ESC, F11, etc.)
     document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
@@ -51,7 +78,10 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    if (!this.containerRef) {
+    if (!this.containerRef || !this.isFullscreenSupported) {
+      // Nothing to do on browsers without element fullscreen (notably iOS).
+      // Bailing out keeps isFullscreen false, so no close button is shown over
+      // a page whose layout never changed.
       return;
     }
 
@@ -61,7 +91,10 @@ export class FullscreenComponent implements OnInit, OnDestroy {
       const result = elem.requestFullscreen();
       if (result && typeof result.catch === 'function') {
         result.catch((err: unknown) => {
+          // The request can still be refused (gesture expired, policy). Undo the
+          // optimistic state so the UI matches what the user actually sees.
           console.error('requestFullscreen rejected', err);
+          this.setFullscreenState(false);
         });
       }
     } else if (elem.webkitRequestFullscreen) { // Safari
@@ -70,8 +103,17 @@ export class FullscreenComponent implements OnInit, OnDestroy {
       elem.msRequestFullscreen();
     }
 
-    this.isFullscreen = true;
-    this.fullscreenChange.emit(true);
+    this.setFullscreenState(true);
+  }
+
+  /** Updates local state and notifies the host only on an actual change. */
+  private setFullscreenState(value: boolean): void {
+    if (this.isFullscreen === value) {
+      return;
+    }
+
+    this.isFullscreen = value;
+    this.fullscreenChange.emit(value);
   }
 
   private exitFullscreen(): void {
@@ -83,7 +125,9 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     );
 
     if (!isInFullscreen) {
-      this.isFullscreen = false;
+      // Emit as well as reset: the host mirrors this state, so a silent reset
+      // would leave it stuck reporting fullscreen.
+      this.setFullscreenState(false);
       return;
     }
 
@@ -95,8 +139,7 @@ export class FullscreenComponent implements OnInit, OnDestroy {
       (document as any).msExitFullscreen();
     }
 
-    this.isFullscreen = false;
-    this.fullscreenChange.emit(false);
+    this.setFullscreenState(false);
   }
 
   private onFullscreenChange(): void {
@@ -109,8 +152,7 @@ export class FullscreenComponent implements OnInit, OnDestroy {
 
     // If user exited fullscreen (e.g., pressed ESC), update state and emit event
     if (!isCurrentlyFullscreen && this.isFullscreen) {
-      this.isFullscreen = false;
-      this.fullscreenChange.emit(false);
+      this.setFullscreenState(false);
     }
   }
 

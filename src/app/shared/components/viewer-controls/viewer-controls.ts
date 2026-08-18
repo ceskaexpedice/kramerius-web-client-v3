@@ -13,6 +13,7 @@ import { MapViewerService } from '../../services/map-viewer.service';
 import { TtsService } from '../../services/tts.service';
 import { SliderComponent } from '../slider/slider.component';
 import { ToolbarAction } from '../toolbar-controls/toolbar-controls.component';
+import { DetailFullscreenService } from '../../services/detail-fullscreen.service';
 
 @Component({
   selector: 'app-viewer-controls',
@@ -35,6 +36,7 @@ export class ViewerControls {
   public ttsService = inject(TtsService);
   private detailViewService = inject(DetailViewService, { optional: true });
   private mapViewerService = inject(MapViewerService, { optional: true });
+  private detailFullscreen = inject(DetailFullscreenService);
   public iiifBookMode$ = this.iiifViewerService.bookMode$;
   public iiifZoomLock$ = this.iiifViewerService.zoomLock$;
   public iiifMapMode$ = this.iiifViewerService.mapMode$;
@@ -53,7 +55,9 @@ export class ViewerControls {
   }
 
   get showFullscreen(): boolean {
-    return this.configService.isViewerControlEnabled('fullscreen');
+    // Hide rather than offer a no-op: iOS browsers cannot fullscreen an
+    // element, so the control would do nothing at all (issue #162).
+    return this.configService.isViewerControlEnabled('fullscreen') && this.detailFullscreen.isSupported();
   }
 
   get showFitToScreen(): boolean {

@@ -51,11 +51,33 @@ export class BreakpointService {
     { initialValue: BreakpointSize.DesktopXL }
   );
 
+  /**
+   * True when the viewport is too short to host tall floating UI, regardless of
+   * width. A phone in landscape is ~360-410px tall but 800-910px wide, so it
+   * matches the tablet width breakpoints and would otherwise be treated as a
+   * roomy desktop-like layout. 620px sits above every common landscape phone
+   * height and below every tablet/desktop height.
+   */
+  isShortViewport = toSignal(
+    this.breakpointObserver.observe('(max-height: 620px)').pipe(map(result => result.matches)),
+    { initialValue: false }
+  );
+
   // Computed properties for responsive behavior
   isMobile = computed(() => {
     const bp = this.currentBreakpoint();
     return bp === BreakpointSize.MobileXS || bp === BreakpointSize.MobileSM;
   });
+
+  /**
+   * True when viewer chrome must collapse into the toolbar "more" menu instead
+   * of rendering as a tall floating column: either a narrow (mobile) viewport
+   * or any short one, such as a landscape phone. Deliberately separate from
+   * isMobile(), which drives full mobile layout (nav bar, slide-up panels) and
+   * must not switch on in landscape — that chrome costs vertical space, which
+   * is precisely what is scarce there.
+   */
+  isCompactViewer = computed(() => this.isMobile() || this.isShortViewport());
 
   isTablet = computed(() => {
     const bp = this.currentBreakpoint();

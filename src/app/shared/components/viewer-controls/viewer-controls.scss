@@ -9,9 +9,19 @@
   gap: var(--spacing-x2);
   box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
 
+  // Never extend past the bottom of the viewer: the column is absolutely
+  // positioned, so without a cap a long button list simply renders off-screen
+  // (issue #162). The host sets a top offset, which --viewer-controls-offset
+  // mirrors so the cap accounts for it. Scrolls internally as a last resort.
+  max-height: calc(100% - var(--viewer-controls-offset, 0px));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+
   button {
     width: var(--spacing-x8);
     height: var(--spacing-x8);
+    flex-shrink: 0;
   }
 
   &__background-removal {

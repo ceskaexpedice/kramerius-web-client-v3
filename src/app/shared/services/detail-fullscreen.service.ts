@@ -23,4 +23,26 @@ export class DetailFullscreenService {
   toggle(): void {
     this.toggleFn?.();
   }
+
+  /**
+   * Whether element fullscreen is usable at all. iOS has no element-level
+   * Fullscreen API in any browser (they all run WebKit), so offering the
+   * control there gives users a button that cannot do anything (issue #162).
+   */
+  isSupported(): boolean {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+
+    const el = document.documentElement as HTMLElement & Record<string, unknown>;
+    const hasRequestMethod =
+      typeof el['requestFullscreen'] === 'function' ||
+      typeof el['webkitRequestFullscreen'] === 'function' ||
+      typeof el['msRequestFullscreen'] === 'function';
+
+    const doc = document as Document & Record<string, unknown>;
+    const enabled = doc.fullscreenEnabled ?? doc['webkitFullscreenEnabled'] ?? true;
+
+    return hasRequestMethod && enabled !== false;
+  }
 }

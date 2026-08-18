@@ -197,16 +197,6 @@ hr {
   margin: 0;
 }
 
-.admin-selection-count {
-  color: var(--color-text-base);
-  background: var(--color-bg-elevated);
-  padding: 4px 12px;
-  border-radius: var(--base-border-radius);
-  border: 1px solid var(--color-border-base);
-  font-size: var(--font-size-small);
-  text-align: left;
-}
-
 .floating-sidebar-toggle {
   position: fixed;
   right: var(--spacing-x3);
@@ -225,10 +215,18 @@ app-georeference-viewer{
 
 // Viewer controls positioning - similar to pdf-viewer
 app-viewer-controls {
+  // Distance from the top of the (positioned) content body. Published as a
+  // custom property so the control column can subtract it from its own
+  // max-height and stay inside the viewer on short viewports (issue #162).
+  --viewer-controls-offset: calc(var(--spacing-x3) + var(--license-bar-offset, 0px));
+
   position: absolute;
-  top: calc(var(--spacing-x3) + var(--license-bar-offset, 0px));
+  top: var(--viewer-controls-offset);
   left: var(--spacing-x4);
   z-index: 10;
+  // Cap the host too: percentage max-heights inside resolve against it, and an
+  // absolutely positioned box would otherwise size to its content.
+  max-height: calc(100% - var(--viewer-controls-offset) - var(--spacing-x3));
 
   &[type="epub"] {
     left: auto;
