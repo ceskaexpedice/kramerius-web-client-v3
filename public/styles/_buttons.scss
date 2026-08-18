@@ -157,11 +157,11 @@ button.link {
     color: var(--color-text-base);
 
     &:hover {
-      color: var(--color-text-base-hover);
+      color: var(--color-text-btn-secondary-hover);
     }
 
     &:active {
-      color: var(--color-text-base-pressed);
+      color: var(--color-text-btn-secondary-pressed);
     }
 
     &:disabled {
@@ -303,12 +303,17 @@ button.transparent {
   background: transparent;
   color: var(--color-text-base);
 
+  // --color-bg-hover / --color-bg-pressed nebyly nikde definovane, takze
+  // pruhledne tlacitko nemelo zadny hover ani active stav. Nepouzivame
+  // secondary-pressed: ten je v light rezimu #fff, tedy shodny s podkladem.
   &:hover {
-    background: var(--color-bg-hover);
+    background: var(--color-bg-light);
   }
 
+  // bg-bright je v dark shodny s bg-light, takze by active splynul s hoverem;
+  // bg-contrast se odlisi v obou rezimech.
   &:active {
-    background: var(--color-bg-pressed);
+    background: var(--color-bg-contrast);
   }
 
   &:disabled {
