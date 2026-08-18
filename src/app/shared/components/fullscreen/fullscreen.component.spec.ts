@@ -81,6 +81,24 @@ describe('FullscreenComponent', () => {
       expect(emitted).toEqual([true]);
     });
 
+    it('is supported even when document.fullscreenEnabled is falsy (Android regression)', () => {
+      // Gating on document.fullscreenEnabled hid the control on Android, where
+      // element fullscreen actually works. Only the request method matters.
+      setContainerApi({ webkitRequestFullscreen: () => undefined });
+
+      expect(component.isFullscreenSupported).toBe(true);
+    });
+
+    it('uses the webkit-prefixed request method when that is all there is', () => {
+      const webkitRequestFullscreen = jasmine.createSpy('webkitRequestFullscreen');
+      setContainerApi({ webkitRequestFullscreen });
+
+      component.toggle();
+
+      expect(webkitRequestFullscreen).toHaveBeenCalled();
+      expect(component.isFullscreen).toBe(true);
+    });
+
     it('rolls the state back when the request is rejected', async () => {
       const rejection = Promise.reject(new Error('gesture expired'));
       setContainerApi({ requestFullscreen: () => rejection });

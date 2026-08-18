@@ -18,30 +18,28 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   private fullscreenChangeHandler = this.onFullscreenChange.bind(this);
 
   /**
-   * Whether this browser can actually put an arbitrary element in fullscreen.
-   * iOS (all browsers, including Chrome — they are all WebKit under the hood)
-   * exposes no element-level Fullscreen API: only <video> has
-   * webkitEnterFullscreen. Without this guard we flipped state optimistically
-   * and rendered a close button over an unchanged page (issue #162).
+   * The element-level Fullscreen API entry point for this browser, or null when
+   * there is none. iOS exposes no element fullscreen in any browser (they all
+   * run WebKit; only <video> has webkitEnterFullscreen), which is why the page
+   * stayed unchanged while we showed a close button over it (issue #162).
+   *
+   * Deliberately feature-detects the request method only. document.fullscreenEnabled
+   * is NOT consulted: it is unreliable across mobile browsers and gating on it
+   * hid the button on Android, where fullscreen works fine.
    */
-  public get isFullscreenSupported(): boolean {
-    if (typeof document === 'undefined') {
-      return false;
+  private get requestFullscreenFn(): ((options?: FullscreenOptions) => Promise<void> | void) | null {
+    const elem = this.containerRef?.nativeElement as (HTMLElement & Record<string, unknown>) | undefined;
+    if (!elem) {
+      return null;
     }
 
-    const elem = this.containerRef?.nativeElement as (HTMLElement & Record<string, unknown>) | undefined;
-    const hasRequestMethod = !!elem && (
-      typeof elem['requestFullscreen'] === 'function' ||
-      typeof elem['webkitRequestFullscreen'] === 'function' ||
-      typeof elem['msRequestFullscreen'] === 'function'
-    );
+    const fn = elem['requestFullscreen'] ?? elem['webkitRequestFullscreen'] ?? elem['msRequestFullscreen'];
+    return typeof fn === 'function' ? (fn as () => Promise<void> | void).bind(elem) : null;
+  }
 
-    // fullscreenEnabled is false when a permissions policy blocks it (e.g. an
-    // iframe without allow="fullscreen"), even where the methods exist.
-    const doc = document as Document & Record<string, unknown>;
-    const enabled = doc.fullscreenEnabled ?? doc['webkitFullscreenEnabled'] ?? true;
-
-    return hasRequestMethod && enabled !== false;
+  /** True when this browser can put an arbitrary element in fullscreen. */
+  public get isFullscreenSupported(): boolean {
+    return this.requestFullscreenFn !== null;
   }
 
   ngOnInit(): void {
@@ -78,29 +76,24 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    if (!this.containerRef || !this.isFullscreenSupported) {
-      // Nothing to do on browsers without element fullscreen (notably iOS).
-      // Bailing out keeps isFullscreen false, so no close button is shown over
-      // a page whose layout never changed.
+    const request = this.requestFullscreenFn;
+    if (!request) {
+      // No element Fullscreen API (notably iOS). Bailing out keeps isFullscreen
+      // false, so we never show a close button over an unchanged page.
       return;
     }
 
-    const elem = this.containerRef.nativeElement;
+    // Native browser fullscreen. Must stay synchronous inside the user gesture.
+    const result = request();
 
-    if (elem.requestFullscreen) {
-      const result = elem.requestFullscreen();
-      if (result && typeof result.catch === 'function') {
-        result.catch((err: unknown) => {
-          // The request can still be refused (gesture expired, policy). Undo the
-          // optimistic state so the UI matches what the user actually sees.
-          console.error('requestFullscreen rejected', err);
-          this.setFullscreenState(false);
-        });
-      }
-    } else if (elem.webkitRequestFullscreen) { // Safari
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { // IE11
-      elem.msRequestFullscreen();
+    if (result && typeof (result as Promise<void>).catch === 'function') {
+      (result as Promise<void>).catch((err: unknown) => {
+        // The request can still be refused (gesture expired, permissions
+        // policy). Undo the optimistic state so the UI matches what the user
+        // actually sees.
+        console.error('requestFullscreen rejected', err);
+        this.setFullscreenState(false);
+      });
     }
 
     this.setFullscreenState(true);
