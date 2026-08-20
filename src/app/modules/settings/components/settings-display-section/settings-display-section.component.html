@@ -44,7 +44,7 @@
           <i class="icon-row-horizontal"></i>
           {{ 'view-mode--grid' | translate }}
         </div>
-        <img src="/img/view-mode-grid-image.png">
+        <img [src]="gridPreviewImage()" alt="">
       </div>
 
       <div class="display-section--view-mode-col"
@@ -54,7 +54,7 @@
           <i class="icon-grid-8"></i>
           {{ 'view-mode--rows' | translate }}
         </div>
-        <img src="/img/view-mode-rows-image.png">
+        <img [src]="rowsPreviewImage()" alt="">
       </div>
 
     </div>

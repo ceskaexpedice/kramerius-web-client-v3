@@ -28,6 +28,8 @@ import {
 } from './config.interfaces';
 import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import { CdkSourceService } from '../../shared/services/cdk-source.service';
+import { splitLicenseVariants, resolveLicenseForSource } from './license-variants';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
@@ -75,7 +77,10 @@ export const EXTRA_LIBRARY_REGISTRY: Record<string, { code: string; name: string
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
-  constructor(private envService: EnvironmentService) {}
+  constructor(
+    private envService: EnvironmentService,
+    private cdkSource: CdkSourceService,
+  ) {}
 
   /**
    * Returns true when the active instance is the CDK aggregator
@@ -333,11 +338,23 @@ export class ConfigService {
       ? licenses
       : Object.entries(licenses ?? {}).map(([id, v]) => ({ id, ...(v as any) }));
 
-    return licenseArray.map(lic => ({
-      ...lic,
-      isOnline: lic.accessType !== 'terminal',
-      actions: { ...defaultActions, ...lic.actions }
-    }));
+    return licenseArray.map(lic => lic.base
+      // Variants carry partial overrides only. They must not be pre-filled here:
+      //  - `isOnline`/`accessType`: `resolveLicenseForSource` merges as
+      //    `{ ...base, ...variant }`, so a variant with no real `accessType` would
+      //    inject a derived `isOnline: true` (undefined !== 'terminal') over the
+      //    base license's true value.
+      //  - `actions`: the resolver layers the variant's actions on top of the
+      //    base's. Seeding a variant with `_defaults.actions` would turn those
+      //    defaults into explicit overrides and strip the base's permissions from
+      //    every variant that does not restate them.
+      // Leaving all three absent lets the base license's values survive the merge.
+      ? { ...lic }
+      : {
+        ...lic,
+        isOnline: lic.accessType !== 'terminal',
+        actions: { ...defaultActions, ...lic.actions }
+      });
   }
 
   /**
@@ -480,7 +497,17 @@ export class ConfigService {
   }
 
   // License config accessors
+  /**
+   * Base licenses only — variants (`<base>__<source>`) are filtered out here so
+   * they can never reach facets, license ordering or access-type lookups. Every
+   * list accessor below derives from this getter.
+   */
   get licenses(): LicensesConfig {
+    return splitLicenseVariants(this.getConfig().licenses).base;
+  }
+
+  /** Base licenses *and* source-scoped variants. Only variant resolution reads this. */
+  get allLicenses(): LicensesConfig {
     return this.getConfig().licenses;
   }
 
@@ -528,10 +555,34 @@ export class ConfigService {
   }
 
   /**
-   * Get a specific license configuration
+   * Resolves a license id to the entry whose texts should be shown: the variant for
+   * the currently selected CDK member library when one is configured, otherwise the
+   * base license. Off CDK (and on the aggregated "all sources" view) no source is
+   * set, so this always yields the base license — i.e. the pre-variant behaviour.
+   */
+  private resolveLicense(licenseId: string) {
+    return resolveLicenseForSource(this.allLicenses, licenseId, this.cdkSource.getCode());
+  }
+
+  /**
+   * Always resolves to the base license (no source), regardless of the currently
+   * selected CDK member library. Used as the language-chain fallback: a variant's
+   * localized fields (`label`, `instructionPage`, `messagePages[].page`) are whole-field
+   * overrides — see `resolveLicenseForSource` — so a variant that defines only `cs`
+   * shadows the base's `en` entirely rather than merging per language. Reaching back
+   * into the base license here restores per-language fallback without deep-merging
+   * the resolved license (which would break the "variant wins wholesale" contract
+   * that `getLicenseConfig` and `getLocalizedLabel` rely on).
+   */
+  private resolveBaseLicense(licenseId: string) {
+    return resolveLicenseForSource(this.allLicenses, licenseId, null);
+  }
+
+  /**
+   * Get a specific license configuration, source-scoped when a variant applies.
    */
   getLicenseConfig(licenseId: string) {
-    return this.licenses.find(l => l.id === licenseId);
+    return this.resolveLicense(licenseId);
   }
 
   /**
@@ -582,11 +633,21 @@ export class ConfigService {
    * Get localized label from config for any entity type.
    * Supports: 'license' (more types can be added in future)
    * Falls back to: requested lang -> fallback chain -> key itself
+   *
+   * SOURCE-SCOPED BY DESIGN: with a CDK member library selected, this may return a
+   * library-specific label (a source-scoped variant), not the generic/global one. A
+   * caller wiring this into a global or search-results context — where `key` is the
+   * global id, not scoped to the current selection — should pass `ignoreSource: true`
+   * to always resolve the base label. `ConfigLabelPipe` (and everything that flows
+   * through it: filter-item, selected-tags, licenses-list, filter-dialog) currently
+   * calls this without `ignoreSource`; that is correct where the surrounding UI is
+   * itself scoped to the selected source, but is worth re-checking for any global
+   * context added later.
    */
-  getLocalizedLabel(type: 'license', key: string, lang: string): string {
+  getLocalizedLabel(type: 'license', key: string, lang: string, ignoreSource = false): string {
     switch (type) {
       case 'license': {
-        const license = this.licenses.find(l => l.id === key);
+        const license = ignoreSource ? this.resolveBaseLicense(key) : this.resolveLicense(key);
         if (!license?.label) return key;
         for (const l of this.getLangChain(lang)) {
           if (license.label[l]) return license.label[l];
@@ -599,20 +660,49 @@ export class ConfigService {
   }
 
   /**
+   * Resolves a localized URL field (e.g. `instructionPage`, a `messagePages[].page`)
+   * against the language chain, exhausting the variant's field across the WHOLE chain
+   * before ever looking at the base license's field.
+   *
+   * This order matters: a source-scoped variant exists to say "here is the
+   * library-specific text," so if the variant has that text in ANY language of the
+   * chain, it must win over the generic base text — even if the base happens to have
+   * an exact match for the originally requested language. Interleaving the two
+   * per-language (checking variant then base at each language before moving to the
+   * next) would let a generic base match at the first language mask a real
+   * library-specific match at a later language in the chain, silently defeating the
+   * whole point of the feature. The base is a last resort, tried only once the
+   * variant field has nothing left to offer in any language.
+   */
+  private resolveLocalizedUrl(
+    variantField: LocalizedLabel | undefined,
+    baseField: LocalizedLabel | undefined,
+    lang: string,
+  ): string | null {
+    const chain = this.getLangChain(lang);
+    for (const l of chain) {
+      if (variantField?.[l]) return variantField[l];
+    }
+    for (const l of chain) {
+      if (baseField?.[l]) return baseField[l];
+    }
+    return null;
+  }
+
+  /**
    * Get the URL for a specific message page by license ID, page key, and language.
    * Falls back through the language chain if the requested language is not available.
    */
   getMessagePageUrl(licenseId: string, pageKey: string, lang: string): string | null {
-    const license = this.licenses.find(l => l.id === licenseId);
+    const license = this.resolveLicense(licenseId);
     if (!license?.messagePages) return null;
 
     const messagePage = license.messagePages.find(mp => mp.key === pageKey);
     if (!messagePage) return null;
 
-    for (const l of this.getLangChain(lang)) {
-      if (messagePage.page[l]) return messagePage.page[l];
-    }
-    return null;
+    const baseMessagePage = this.resolveBaseLicense(licenseId)?.messagePages?.find(mp => mp.key === pageKey);
+
+    return this.resolveLocalizedUrl(messagePage.page, baseMessagePage?.page, lang);
   }
 
   /**
@@ -620,13 +710,12 @@ export class ConfigService {
    * Falls back through the language chain if the requested language is not available.
    */
   getInstructionPageUrl(licenseId: string, lang: string): string | null {
-    const license = this.licenses.find(l => l.id === licenseId);
+    const license = this.resolveLicense(licenseId);
     if (!license?.instructionPage) return null;
 
-    for (const l of this.getLangChain(lang)) {
-      if (license.instructionPage[l]) return license.instructionPage[l];
-    }
-    return null;
+    const baseInstructionPage = this.resolveBaseLicense(licenseId)?.instructionPage;
+
+    return this.resolveLocalizedUrl(license.instructionPage, baseInstructionPage, lang);
   }
 
   /**

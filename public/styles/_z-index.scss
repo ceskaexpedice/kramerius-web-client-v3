@@ -35,6 +35,12 @@ $filter-sidebar-overlay: 9999;
 $filter-sidebar-close: 802;
 $slide-up-panel-backdrop: 800;
 $slide-up-panel: 9999;
+
+// CSS-only fullscreen fallback for browsers without the element Fullscreen API
+// (iOS). Unlike native fullscreen it cannot escape the document, so it must
+// paint over the fixed header (1000) and the mobile nav bar.
+$fullscreen-fallback: 10000;
+$fullscreen-fallback-close: 10001;
 $sidebar-disabled-overlay-z-index: 803;
 $tooltip: 800;
 $saved-lists-popup: 800;

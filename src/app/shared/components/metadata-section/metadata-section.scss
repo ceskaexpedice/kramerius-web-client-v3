@@ -336,9 +336,21 @@
 
   .donators {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-x3);
-    align-items: center;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+
+    &__title {
+      font-size: var(--font-size-base);
+      font-weight: 400;
+      margin: 0;
+    }
+
+    &__logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-x3);
+      align-items: center;
+    }
 
     .donator-logo {
       height: 55px;

@@ -55,6 +55,7 @@ export class FavoritesService {
       const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
         data: { dontShowDialogId: DontShowDialogs.FavoritesLoginDialog },
         width: isMobileOrTablet ? '90vw' : '60vw',
+        panelClass: 'simple-dialog-panel',
         disableClose: false
       });
 

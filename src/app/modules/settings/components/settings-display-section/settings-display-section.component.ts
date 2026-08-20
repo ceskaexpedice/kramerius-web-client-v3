@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AppSettingsThemeEnum, AppResultsViewType, Settings } from '../../settings.model';
 import {
   ToggleButtonGroupComponent, ToggleOption,
@@ -43,6 +44,18 @@ export class SettingsDisplaySectionComponent implements OnInit, OnChanges {
 
   private settingsService = inject(SettingsService);
   private displayConfigService = inject(DisplayConfigService);
+
+  // SET-1: nahledy rezimu zobrazeni maji vlastni dark variantu. effectiveTheme
+  // uz resi i rezim "system", takze staci sledovat jeho vysledek.
+  private effectiveTheme = toSignal(this.settingsService.effectiveTheme$, { initialValue: 'light' as const });
+
+  gridPreviewImage = computed(() =>
+    this.effectiveTheme() === 'dark' ? '/img/view-mode-grid-image-dark.png' : '/img/view-mode-grid-image.png'
+  );
+
+  rowsPreviewImage = computed(() =>
+    this.effectiveTheme() === 'dark' ? '/img/view-mode-rows-image-dark.png' : '/img/view-mode-rows-image.png'
+  );
 
   ngOnInit() {
     this.generateToggleButtons();

@@ -41,6 +41,7 @@ export class SettingsAccountSectionComponent {
       data: {userJson: JSON.stringify(payload, null, 2)},
       width: '60vw',
       maxHeight: '90vh',
+      panelClass: 'simple-dialog-panel',
     });
   }
 

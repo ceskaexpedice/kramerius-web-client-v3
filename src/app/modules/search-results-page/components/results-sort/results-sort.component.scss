@@ -8,7 +8,11 @@
   min-width: 0;
   flex-shrink: 1;
 
+  // MOB-2: kontrola zustava uzka; pripadne zkraceni resi ellipsis v app-select
+  // (drive se text orezaval uprostred znaku, protoze text-overflow nefungoval
+  // na inline-flex kontejneru .select-value).
   @include m.respond(md) {
-    max-width: 130px;
+    max-width: 150px;
+    width: fit-content;
   }
 }

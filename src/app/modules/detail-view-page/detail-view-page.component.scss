@@ -116,6 +116,19 @@ app-fullscreen {
   }
 }
 
+// Same stretching for the CSS-only fallback used where the Fullscreen API does
+// not exist (iOS). Kept as its own rule, not grouped with :fullscreen above:
+// browsers that fail to parse an unknown pseudo-class drop the whole selector
+// list, which would silently break the native case too.
+:host ::ng-deep .fullscreen-container.fullscreen-fallback {
+  .fullscreen-content,
+  .detail-view--page--content--body {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+}
+
 .detail-view--page--content--body {
   flex: 1;
   display: flex;
@@ -197,16 +210,6 @@ hr {
   margin: 0;
 }
 
-.admin-selection-count {
-  color: var(--color-text-base);
-  background: var(--color-bg-elevated);
-  padding: 4px 12px;
-  border-radius: var(--base-border-radius);
-  border: 1px solid var(--color-border-base);
-  font-size: var(--font-size-small);
-  text-align: left;
-}
-
 .floating-sidebar-toggle {
   position: fixed;
   right: var(--spacing-x3);
@@ -225,10 +228,18 @@ app-georeference-viewer{
 
 // Viewer controls positioning - similar to pdf-viewer
 app-viewer-controls {
+  // Distance from the top of the (positioned) content body. Published as a
+  // custom property so the control column can subtract it from its own
+  // max-height and stay inside the viewer on short viewports (issue #162).
+  --viewer-controls-offset: calc(var(--spacing-x3) + var(--license-bar-offset, 0px));
+
   position: absolute;
-  top: calc(var(--spacing-x3) + var(--license-bar-offset, 0px));
+  top: var(--viewer-controls-offset);
   left: var(--spacing-x4);
   z-index: 10;
+  // Cap the host too: percentage max-heights inside resolve against it, and an
+  // absolutely positioned box would otherwise size to its content.
+  max-height: calc(100% - var(--viewer-controls-offset) - var(--spacing-x3));
 
   &[type="epub"] {
     left: auto;

@@ -205,17 +205,22 @@
   <!-- Donators -->
   @if ((data.donators || []).length) {
   <div class="donators">
+    <h3 class="donators__title">{{ 'donators--title' | translate }}</h3>
+    <div class="donators__logos">
     @for (donator of data.donators; track donator) {
       @if (getDonatorImage(donator); as imgSrc) {
         @if (getDonatorUrl(donator); as url) {
           <a [href]="url" target="_blank" rel="noopener noreferrer">
-            <img [src]="imgSrc" [alt]="donator" class="donator-logo" />
+            <img [src]="imgSrc" [alt]="donator" class="donator-logo"
+                 (error)="onDonatorImageError($event, donator)" />
           </a>
         } @else {
-          <img [src]="imgSrc" [alt]="donator" class="donator-logo" />
+          <img [src]="imgSrc" [alt]="donator" class="donator-logo"
+               (error)="onDonatorImageError($event, donator)" />
         }
       }
     }
+    </div>
   </div>
   }
 

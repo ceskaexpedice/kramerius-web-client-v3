@@ -142,7 +142,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     effect(() => {
       if (this.detailViewService.isDocumentAccessDenied()) {
         if (this.dontShowAgainService.shouldShowDialog(DontShowDialogs.RestrictedPagesInfoDialog)) {
-          this.dialog.open(RestrictedPagesInfoDialogComponent);
+          this.dialog.open(RestrictedPagesInfoDialogComponent, {
+            panelClass: 'simple-dialog-panel'
+          });
         }
       }
     });

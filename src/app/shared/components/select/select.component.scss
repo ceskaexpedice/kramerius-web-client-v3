@@ -30,11 +30,26 @@ $filter-height: 44px;
     text-overflow: ellipsis;
   }
 
+  // MOB-2: text-overflow se na inline-flex kontejneru neuplatni, takze se
+  // popisek orezaval uprostred znaku misto "...". Prefix (ikona) drzime
+  // nescvrkavatelny a ellipsis resi az samotny text v .select-label.
   .select-value {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: var(--spacing-x2);
     min-width: 0;
+    overflow: hidden;
+
+    > *:not(.select-label) {
+      flex: 0 0 auto;
+    }
+  }
+
+  .select-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &.size-sm {

@@ -1,4 +1,6 @@
-import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef, effect } from '@angular/core';
+import { Component, Input, OnInit, inject, SimpleChanges, OnChanges, ChangeDetectorRef, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { skip } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Accordion, AccordionItemData } from '../../../../../shared/components/accordion/accordion';
@@ -19,6 +21,7 @@ import { escapeHtml } from '../../../../../shared/utils/escape-html';
 import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
 import { APP_ROUTES_ENUM } from '../../../../../app.routes';
+import { CdkSourceService } from '../../../../../shared/services/cdk-source.service';
 
 
 interface FaqAnswer {
@@ -59,6 +62,8 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private configService = inject(ConfigService);
   private translationService = inject(AppTranslationService);
   private dialog = inject(MatDialog);
+  private cdkSource = inject(CdkSourceService);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     // Reload HTML content when language changes. FAQ items are rebuilt too:
@@ -70,6 +75,20 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       this.faqItems = this.getAllFaqItems();
       this.cdr.markForCheck();
     });
+
+    // Switching the CDK member library changes which library's on-site instructions
+    // apply ("find it at MZK" vs. "at NKP"), so re-resolve the HTML the same way a
+    // language switch does. FAQ items are keyed by license type, not source, so they
+    // do not need rebuilding here. `code$` is a BehaviorSubject that replays its
+    // current value synchronously on subscribe; skip(1) drops that initial replay
+    // because the language effect above already performs the first load, so only
+    // actual source changes should trigger a reload here.
+    this.cdkSource.code$
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadHtmlContent();
+        this.cdr.markForCheck();
+      });
   }
 
   ngOnInit(): void {
@@ -229,7 +248,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private buildMergedAnswer(answers: FaqAnswer[]): string {
     return answers
       .map(answer => {
-        const label = this.translate.instant(`access-denied.license-${answer.licenseType}`);
+        const label = this.licenseLabel(answer.licenseType);
         const text = this.translate.instant(answer.contentKey);
         return `<p class="faq-answer"><span class="faq-answer__license">${escapeHtml(label)}</span>${linkifyText(text)}</p>`;
       })
@@ -252,6 +271,31 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       return this.metadata.licences.map(license => `access-denied.license-${license}`);
     }
     return ['access-denied.license-default'];
+  }
+
+  /**
+   * License label for display. The config label is only used when a source-scoped
+   * variant is actually in play (e.g. "Studovna MZK" instead of "Studovna" once a CDK
+   * member library is selected); otherwise the i18n translation is the label source,
+   * exactly as before this feature existed. This matters off CDK / with no source
+   * selected — e.g. a standalone MZK instance — where config labels can differ
+   * materially in wording from the i18n labels (`access-denied.license-*`), and
+   * behaviour there must stay bit-for-bit identical to before.
+   *
+   * Resolve twice — source-scoped and base (ignoreSource) — and compare: if they
+   * differ, a variant applies and its config label wins; if they match, there is no
+   * variant to justify preferring config, so fall back to the i18n key. `getLocalizedLabel`
+   * returns the key itself when nothing is configured, which is the signal to fall back
+   * to the existing translation key in that case too.
+   */
+  licenseLabel(type: string): string {
+    const lang = this.translationService.currentLanguage().code;
+    const configured = this.configService.getLocalizedLabel('license', type, lang);
+    const base = this.configService.getLocalizedLabel('license', type, lang, true);
+    const variantInPlay = configured !== type && configured !== base;
+    return variantInPlay
+      ? configured
+      : this.translate.instant(`access-denied.license-${type}`);
   }
 
   getFaqTitle(): string {
@@ -278,7 +322,8 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
         title: `access-denied.dialog.${this.getType(type)}.title`,
         content: `access-denied.dialog.${this.getType(type)}.content`
       },
-      autoFocus: false
+      autoFocus: false,
+      panelClass: 'simple-dialog-panel'
     });
   }
 

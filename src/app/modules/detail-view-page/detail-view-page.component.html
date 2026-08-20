@@ -158,10 +158,12 @@
                 </button>
               </div>
             }
-            <!-- Hidden viewer-controls instance: on mobile it supplies the viewer
-                 actions merged into the toolbar's "more" menu (no floating UI).
+            <!-- Hidden viewer-controls instance: on compact viewports (narrow
+                 mobile, or any short one such as a landscape phone) it supplies
+                 the viewer actions merged into the toolbar's "more" menu (no
+                 floating UI), since the tall floating column would overflow.
                  Rendered as a sibling so its template ref is in scope for the toolbar. -->
-            @let showMobileViewerMenu = breakpointService.isMobile() &&
+            @let showMobileViewerMenu = breakpointService.isCompactViewer() &&
                  documentInfoService.canAccessDocument(document.licences) &&
                  !(iiifViewerService.isSelectionMode$ | async) &&
                  !(document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records');
@@ -174,7 +176,7 @@
                                   [showShare]="true" [showQuote]="true"
                                   [actions]="showMobileViewerMenu ? mobileViewerControls.getMenuItems() : []"
                                   [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
-                                  [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isMobile()"
+                                  [showSelect]="!breakpointService.isMobile()" [mobileMenuMode]="breakpointService.isCompactViewer()"
                                   (infoClicked)="detailViewService.openRecordInfo()"
                                   (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
                                   (selectClicked)="adminModeService.enable()" (favoritesClicked)="onFavoritesClicked($event)"
@@ -265,21 +267,22 @@
         }
 
         <!-- Viewer controls - hide when AI panel is in ai-only mode (viewer not visible).
-             On mobile the floating column is suppressed; its actions live in the
-             toolbar "more" menu instead (see mobileViewerControls above). -->
+             On compact viewports (narrow mobile or short landscape) the floating
+             column is suppressed; its actions live in the toolbar "more" menu
+             instead (see mobileViewerControls above). -->
         @if (documentInfoService.canAccessDocument(document.licences) && !(aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only')) {
           @if (detailViewService.isPdf || (articleMetadata$ | async)?.pdf) {
-            @if (!breakpointService.isMobile() && !(pdfService.properties$ | async)?.fullscreen) {
+            @if (!breakpointService.isCompactViewer() && !(pdfService.properties$ | async)?.fullscreen) {
               <app-viewer-controls type="pdf"></app-viewer-controls>
             }
           } @else if (detailViewService.isEpub || document.epub) {
-            @if (!breakpointService.isMobile()) {
+            @if (!breakpointService.isCompactViewer()) {
               <app-viewer-controls type="epub"></app-viewer-controls>
             }
           } @else if (document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records') {
             <!-- No image viewer controls in records (track list) mode -->
           } @else {
-            @if (!breakpointService.isMobile() && !(iiifViewerService.isSelectionMode$ | async)) {
+            @if (!breakpointService.isCompactViewer() && !(iiifViewerService.isSelectionMode$ | async)) {
               <app-viewer-controls type="image"></app-viewer-controls>
             }
 

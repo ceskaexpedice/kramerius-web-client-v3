@@ -89,7 +89,8 @@ export class FilterItemComponent {
     this.dialog.open(LicenseInfoDialogComponent, {
       data: { title, content },
       autoFocus: false,
-      restoreFocus: false
+      restoreFocus: false,
+      panelClass: 'simple-dialog-panel'
     });
   }
 

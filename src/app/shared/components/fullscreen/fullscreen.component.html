@@ -1,11 +1,12 @@
-<div #fullscreenContainer class="fullscreen-container">
-  <button
-    *ngIf="isFullscreen && showCloseButton"
-    class="fullscreen-close-button button tertiary outlined"
-    (click)="onClose()"
-    [attr.aria-label]="'exit-fullscreen--arialabel' | translate" [title]="'exit-fullscreen--arialabel' | translate">
-    <i class="icon-close" aria-hidden="true"></i>
-  </button>
+<div #fullscreenContainer class="fullscreen-container" [class.fullscreen-fallback]="isCssFallback">
+  @if (isFullscreen && showCloseButton) {
+    <button
+      class="fullscreen-close-button button tertiary outlined"
+      (click)="onClose()"
+      [attr.aria-label]="'exit-fullscreen--arialabel' | translate" [title]="'exit-fullscreen--arialabel' | translate">
+      <i class="icon-close" aria-hidden="true"></i>
+    </button>
+  }
 
   <div class="fullscreen-content">
     <ng-content></ng-content>

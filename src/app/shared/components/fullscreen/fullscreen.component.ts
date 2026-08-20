@@ -15,7 +15,40 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   @ViewChild('fullscreenContainer', { static: true }) containerRef!: ElementRef;
 
   public isFullscreen: boolean = false;
+
+  /**
+   * True while we are faking fullscreen with CSS because the browser has no
+   * element Fullscreen API (iOS). Drives the .fullscreen-fallback class, which
+   * pins the container over the page; native fullscreen never sets this.
+   */
+  public isCssFallback: boolean = false;
+
   private fullscreenChangeHandler = this.onFullscreenChange.bind(this);
+
+  /**
+   * The element-level Fullscreen API entry point for this browser, or null when
+   * there is none. iOS exposes no element fullscreen in any browser (they all
+   * run WebKit; only <video> has webkitEnterFullscreen), which is why the page
+   * stayed unchanged while we showed a close button over it (issue #162).
+   *
+   * Deliberately feature-detects the request method only. document.fullscreenEnabled
+   * is NOT consulted: it is unreliable across mobile browsers and gating on it
+   * hid the button on Android, where fullscreen works fine.
+   */
+  private get requestFullscreenFn(): ((options?: FullscreenOptions) => Promise<void> | void) | null {
+    const elem = this.containerRef?.nativeElement as (HTMLElement & Record<string, unknown>) | undefined;
+    if (!elem) {
+      return null;
+    }
+
+    const fn = elem['requestFullscreen'] ?? elem['webkitRequestFullscreen'] ?? elem['msRequestFullscreen'];
+    return typeof fn === 'function' ? (fn as () => Promise<void> | void).bind(elem) : null;
+  }
+
+  /** True when this browser can put an arbitrary element in fullscreen. */
+  public get isFullscreenSupported(): boolean {
+    return this.requestFullscreenFn !== null;
+  }
 
   ngOnInit(): void {
     // Listen for fullscreen change events (user pressing ESC, F11, etc.)
@@ -36,6 +69,13 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     if (this.isFullscreen) {
       this.exitFullscreen();
     }
+
+    // Belt and braces: never leave the page unscrollable if we are torn down
+    // mid-fallback (e.g. a route change while faking fullscreen).
+    if (this.isCssFallback) {
+      this.isCssFallback = false;
+      this.lockBodyScroll(false);
+    }
   }
 
   /**
@@ -51,30 +91,51 @@ export class FullscreenComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    if (!this.containerRef) {
+    const request = this.requestFullscreenFn;
+    if (!request) {
+      // No element Fullscreen API (notably iOS): pin the container over the
+      // page with CSS instead, so the viewer still fills the screen. Browser
+      // chrome stays visible — that part is not ours to remove.
+      this.isCssFallback = true;
+      this.lockBodyScroll(true);
+      this.setFullscreenState(true);
       return;
     }
 
-    const elem = this.containerRef.nativeElement;
+    // Native browser fullscreen. Must stay synchronous inside the user gesture.
+    const result = request();
 
-    if (elem.requestFullscreen) {
-      const result = elem.requestFullscreen();
-      if (result && typeof result.catch === 'function') {
-        result.catch((err: unknown) => {
-          console.error('requestFullscreen rejected', err);
-        });
-      }
-    } else if (elem.webkitRequestFullscreen) { // Safari
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { // IE11
-      elem.msRequestFullscreen();
+    if (result && typeof (result as Promise<void>).catch === 'function') {
+      (result as Promise<void>).catch((err: unknown) => {
+        // The request can still be refused (gesture expired, permissions
+        // policy). Undo the optimistic state so the UI matches what the user
+        // actually sees.
+        console.error('requestFullscreen rejected', err);
+        this.setFullscreenState(false);
+      });
     }
 
-    this.isFullscreen = true;
-    this.fullscreenChange.emit(true);
+    this.setFullscreenState(true);
+  }
+
+  /** Updates local state and notifies the host only on an actual change. */
+  private setFullscreenState(value: boolean): void {
+    if (this.isFullscreen === value) {
+      return;
+    }
+
+    this.isFullscreen = value;
+    this.fullscreenChange.emit(value);
   }
 
   private exitFullscreen(): void {
+    if (this.isCssFallback) {
+      this.isCssFallback = false;
+      this.lockBodyScroll(false);
+      this.setFullscreenState(false);
+      return;
+    }
+
     // Check if we're actually in fullscreen before trying to exit
     const isInFullscreen = !!(
       document.fullscreenElement ||
@@ -83,7 +144,9 @@ export class FullscreenComponent implements OnInit, OnDestroy {
     );
 
     if (!isInFullscreen) {
-      this.isFullscreen = false;
+      // Emit as well as reset: the host mirrors this state, so a silent reset
+      // would leave it stuck reporting fullscreen.
+      this.setFullscreenState(false);
       return;
     }
 
@@ -95,8 +158,7 @@ export class FullscreenComponent implements OnInit, OnDestroy {
       (document as any).msExitFullscreen();
     }
 
-    this.isFullscreen = false;
-    this.fullscreenChange.emit(false);
+    this.setFullscreenState(false);
   }
 
   private onFullscreenChange(): void {
@@ -109,9 +171,20 @@ export class FullscreenComponent implements OnInit, OnDestroy {
 
     // If user exited fullscreen (e.g., pressed ESC), update state and emit event
     if (!isCurrentlyFullscreen && this.isFullscreen) {
-      this.isFullscreen = false;
-      this.fullscreenChange.emit(false);
+      this.setFullscreenState(false);
     }
+  }
+
+  /**
+   * Prevents the page behind the CSS-fullscreen overlay from scrolling. Native
+   * fullscreen gets this from the browser; the fallback has to do it itself.
+   */
+  private lockBodyScroll(locked: boolean): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    document.body.style.overflow = locked ? 'hidden' : '';
   }
 
   onClose(): void {
