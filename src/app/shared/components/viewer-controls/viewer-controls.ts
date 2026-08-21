@@ -269,6 +269,21 @@ export class ViewerControls {
       items.push({ id: 'book-mode', icon: 'icon-book-1', tooltip: 'viewer-controls.book-mode' });
     }
 
+    // Read-aloud controls. The floating layout renders these as their own
+    // buttons, but on compact viewports the whole column collapses into this
+    // menu — without them there is no way to stop reading (issue #161).
+    if (this.ttsService.isReading()) {
+      const blocked = this.ttsService.playbackBlocked();
+      const paused = this.ttsService.isPaused();
+      items.push({
+        id: 'tts-play-pause',
+        icon: paused ? 'icon-play' : 'icon-pause',
+        tooltip: blocked ? 'ai.tts-blocked' : paused ? 'ai.tts-resume' : 'ai.tts-pause',
+        dividerAbove: true,
+      });
+      items.push({ id: 'tts-stop', icon: 'icon-stop', tooltip: 'ai.tts-stop' });
+    }
+
     return items;
   }
 
@@ -301,6 +316,12 @@ export class ViewerControls {
         break;
       case 'book-mode':
         this.onBookMode();
+        break;
+      case 'tts-play-pause':
+        this.onTtsPlayPause();
+        break;
+      case 'tts-stop':
+        this.onTtsStop();
         break;
     }
   }
