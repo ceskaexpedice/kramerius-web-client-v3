@@ -12,7 +12,7 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { CdkConnectedOverlay } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, Overlay } from '@angular/cdk/overlay';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ClickOutsideDirective } from '../../directives';
@@ -44,6 +44,13 @@ export interface MenuItem {
 })
 export class MenuComponent {
   private router = inject(Router);
+  private overlay = inject(Overlay);
+
+  /**
+   * Reposition on scroll rather than staying put, so the panel keeps honouring
+   * its flipped position and available height while the page moves under it.
+   */
+  scrollStrategy = this.overlay.scrollStrategies.reposition({ autoClose: true });
 
   // Inputs (signals)
   displayName = input<string>('');
@@ -64,15 +71,23 @@ export class MenuComponent {
   triggerEl = viewChild<ElementRef>('trigger');
   @ViewChildren('menuItem', { read: ElementRef }) private itemEls!: QueryList<ElementRef<HTMLButtonElement>>;
 
-  // Keep overlay positions in sync with placement input
+  /**
+   * Each placement resolves to the requested position followed by its vertical
+   * flip, so the CDK can fall back when the preferred side has no room. Without
+   * a fallback the panel stays pinned below the trigger and runs off screen on
+   * short viewports such as a landscape phone (issue #162).
+   */
   overlayPositions: Signal<any[]> = computed(() => {
     const p = this.placement();
-    const base = { offsetX: 0, offsetY: 8 };
+    const below = { offsetX: 0, offsetY: 8, originY: 'bottom', overlayY: 'top' };
+    const above = { offsetX: 0, offsetY: -8, originY: 'top', overlayY: 'bottom' };
+    const start = { originX: 'start', overlayX: 'start' };
+    const end = { originX: 'end', overlayX: 'end' };
     const map: Record<MenuPlacement, any[]> = {
-      'bottom-start': [{ ...base, originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' }],
-      'bottom-end': [{ ...base, originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top' }],
-      'top-start': [{ ...base, originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }],
-      'top-end': [{ ...base, originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' }],
+      'bottom-start': [{ ...below, ...start }, { ...above, ...start }],
+      'bottom-end': [{ ...below, ...end }, { ...above, ...end }],
+      'top-start': [{ ...above, ...start }, { ...below, ...start }],
+      'top-end': [{ ...above, ...end }, { ...below, ...end }],
     };
     return map[p];
   });

@@ -53,7 +53,19 @@
   border: 1px solid var(--color-primary);
   border-radius: var(--spacing-x2);
   outline: none;
-  overflow: clip;
+  // Never grow past the space the overlay actually has. On a landscape phone
+  // the viewport is ~360-410px tall while the merged viewer + toolbar menu can
+  // reach a dozen items, so the panel has to scroll instead of running off
+  // screen (issue #162). --cdk-overlay-max-height is set by the CDK from the
+  // connected position's available space; the vh value is the fallback for
+  // when it is absent.
+  max-height: var(--cdk-overlay-max-height, 60vh);
+  // overflow-y auto (not clip) keeps the rounded corners clipping item hovers
+  // while allowing the list to scroll.
+  overflow-y: auto;
+  overflow-x: clip;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .menu-list {
