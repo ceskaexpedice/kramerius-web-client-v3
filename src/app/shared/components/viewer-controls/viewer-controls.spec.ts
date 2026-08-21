@@ -106,3 +106,31 @@ describe('ViewerControls.getMenuItems TTS entries', () => {
   });
 
 });
+
+/**
+ * The menu ids from getMenuItems() only reach the viewer once
+ * DetailViewPageComponent's allowlist recognises them. It is a plain static Set,
+ * so a new menu entry that is not added there is silently dropped on tap — which
+ * is exactly what happened to the read-aloud buttons on mobile (issue #161).
+ */
+describe('viewer menu action ids are routable', () => {
+
+  it('every id getMenuItems can emit is present in the detail page allowlist', async () => {
+    const { DetailViewPageComponent } = await import(
+      '../../../modules/detail-view-page/detail-view-page.component'
+    );
+    const allowlist: Set<string> = (DetailViewPageComponent as any).VIEWER_MENU_ACTION_IDS;
+
+    // Ids handleMenuAction knows how to route.
+    const routableIds = [
+      'select-area', 'fullscreen', 'fit-to-screen', 'fit-to-width',
+      'zoom-lock', 'scroll-mode', 'rotate', 'page-text', 'book-mode',
+      'tts-play-pause', 'tts-stop',
+    ];
+
+    for (const id of routableIds) {
+      expect(allowlist.has(id)).withContext(`"${id}" missing from VIEWER_MENU_ACTION_IDS`).toBe(true);
+    }
+  });
+
+});
