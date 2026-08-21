@@ -793,6 +793,7 @@
   "ai.tts-pause": "Pozastaviť čítanie",
   "ai.tts-resume": "Pokračovať v čítaní",
   "ai.tts-stop": "Zastaviť čítanie",
+  "ai.tts-blocked": "Klepnutím spustíte čítanie",
   "ai.loading": "Spracovávam...",
   "ai.loading-translation": "Pracujeme na preklade",
   "ai.loading-summary": "Pracujeme na zhrnutí",

@@ -21,6 +21,15 @@ export class TtsService {
   private prefetchingBlockIndex = -1;
   private destroyed = false;
   private isPlayingBlock = false;
+  /** True once playback has been unlocked by a user gesture (mobile autoplay policy). */
+  private audioUnlocked = false;
+  /**
+   * Consecutive blocks that failed to produce audio. Advancing on failure is what
+   * lets reading skip an unreadable block, but without a ceiling it turns into a
+   * runaway "speedrun" through blocks and pages (see issue #161).
+   */
+  private consecutiveFailures = 0;
+  private static readonly MAX_CONSECUTIVE_FAILURES = 3;
 
   // --- State signals ---
   private _isReading = signal(false);
@@ -30,6 +39,7 @@ export class TtsService {
   private _blocks = signal<AltoTextBlock[]>([]);
   private _detectedLanguage = signal<string | null>(null);
   private _documentUuid = signal<string | null>(null);
+  private _playbackBlocked = signal(false);
 
   // Public readonly signals
   readonly isReading = this._isReading.asReadonly();
@@ -38,6 +48,8 @@ export class TtsService {
   readonly currentPagePid = this._currentPagePid.asReadonly();
   readonly blocks = this._blocks.asReadonly();
   readonly detectedLanguage = this._detectedLanguage.asReadonly();
+  /** Set when the browser refused to play audio, so the UI can prompt for a tap. */
+  readonly playbackBlocked = this._playbackBlocked.asReadonly();
 
   readonly currentBlock = computed(() => {
     const blocks = this._blocks();
@@ -53,6 +65,7 @@ export class TtsService {
     this.audio.addEventListener('ended', () => {
       if (this.isPlayingBlock) {
         this.isPlayingBlock = false;
+        this.consecutiveFailures = 0;
         this.onBlockEnded();
       }
     });
@@ -60,7 +73,7 @@ export class TtsService {
       console.error('TTS audio error:', e);
       if (this.isPlayingBlock) {
         this.isPlayingBlock = false;
-        this.onBlockEnded();
+        this.onBlockFailed();
       }
     });
   }
@@ -69,6 +82,9 @@ export class TtsService {
 
   startReading(pagePid: string, documentUuid?: string): void {
     this.stop();
+    // Called from a click handler, so this is inside a user gesture — the one
+    // moment a mobile browser lets us prime the audio element (issue #161).
+    this.unlockAudio();
     this._currentPagePid.set(pagePid);
     this._documentUuid.set(documentUuid || null);
     this._isReading.set(true);
@@ -85,10 +101,20 @@ export class TtsService {
   }
 
   resume(): void {
-    if (this._isReading() && this._isPaused()) {
-      this.audio.play();
+    if (!this._isReading() || !this._isPaused()) return;
+
+    // Resuming after a blocked autoplay: the element has no usable source yet,
+    // so re-request the current block rather than playing silence.
+    if (this._playbackBlocked()) {
+      this._playbackBlocked.set(false);
       this._isPaused.set(false);
+      this.unlockAudio();
+      this.readCurrentBlock();
+      return;
     }
+
+    this.audio.play().catch(err => console.error('Failed to resume TTS audio:', err));
+    this._isPaused.set(false);
   }
 
   togglePlayPause(): void {
@@ -105,6 +131,8 @@ export class TtsService {
     this.cleanupBlobUrl();
     this.prefetchedAudio = null;
     this.prefetchingBlockIndex = -1;
+    this.consecutiveFailures = 0;
+    this._playbackBlocked.set(false);
 
     this._isReading.set(false);
     this._isPaused.set(false);
@@ -133,6 +161,31 @@ export class TtsService {
   }
 
   // --- Private methods ---
+
+  /**
+   * Primes the audio element inside a user gesture so later programmatic play()
+   * calls are allowed. Mobile Safari/Chrome only grant playback permission to an
+   * element that has been played during a gesture; the element is constructed in
+   * this service's constructor, long before any tap, so without this the very
+   * first play() is refused (issue #161).
+   */
+  private unlockAudio(): void {
+    if (this.audioUnlocked) return;
+
+    // A silent WAV is enough to satisfy the gesture requirement.
+    this.audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    this.audio.play().then(() => {
+      this.audioUnlocked = true;
+      // Real block audio may have started while the silent clip was warming up;
+      // only rewind the element if it is still the silent clip playing.
+      if (!this.isPlayingBlock) {
+        this.audio.pause();
+        this.audio.currentTime = 0;
+      }
+    }).catch(() => {
+      // Still blocked — playAudioContent surfaces this to the user instead.
+    });
+  }
 
   private loadPageAndRead(pagePid: string): void {
     this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
@@ -215,8 +268,8 @@ export class TtsService {
         },
         error: (err) => {
           console.error('TTS error for block:', err);
-          // Skip to next block on error
-          this.onBlockEnded();
+          // Skip to next block, but under the consecutive-failure ceiling.
+          this.onBlockFailed();
         }
       });
   }
@@ -263,14 +316,27 @@ export class TtsService {
 
     this.audio.src = url;
     this.isPlayingBlock = true;
-    this.audio.play().catch(err => {
-      console.error('Failed to play TTS audio:', err);
-      // play() rejection — don't advance here, the 'error' event handler will handle it
-      // But if there's no error event (e.g. autoplay policy), we need to stop
-      if (this.isPlayingBlock) {
-        this.isPlayingBlock = false;
-        this.onBlockEnded();
+    this.audio.play().then(() => {
+      // Playback actually started: the block is being read, so reset the guard.
+      this.audioUnlocked = true;
+      this._playbackBlocked.set(false);
+      this.consecutiveFailures = 0;
+    }).catch(err => {
+      if (!this.isPlayingBlock) return;
+      this.isPlayingBlock = false;
+
+      // A blocked autoplay is NOT a reason to skip the block: advancing here is
+      // what made reading race through the whole document highlighting blocks and
+      // turning pages while silent (issue #161). Hold position and let the user
+      // resume with a tap, which counts as the gesture the browser is waiting for.
+      if (this.isAutoplayBlocked(err)) {
+        this._playbackBlocked.set(true);
+        this._isPaused.set(true);
+        return;
       }
+
+      console.error('Failed to play TTS audio:', err);
+      this.onBlockFailed();
     });
   }
 
@@ -278,6 +344,31 @@ export class TtsService {
     if (this.audio.src && this.audio.src.startsWith('blob:')) {
       URL.revokeObjectURL(this.audio.src);
     }
+  }
+
+  /**
+   * A rejected play() means "blocked", not "broken", when the browser refused the
+   * gesture-less playback. Chrome/Safari report NotAllowedError for this.
+   */
+  private isAutoplayBlocked(err: unknown): boolean {
+    return (err as { name?: string } | null)?.name === 'NotAllowedError';
+  }
+
+  /**
+   * A block produced no audio. Skipping one bad block is fine, but a run of them
+   * means something systemic is wrong, so stop instead of racing to the end.
+   */
+  private onBlockFailed(): void {
+    if (!this._isReading()) return;
+
+    this.consecutiveFailures++;
+    if (this.consecutiveFailures >= TtsService.MAX_CONSECUTIVE_FAILURES) {
+      console.error(`TTS: stopping after ${this.consecutiveFailures} consecutive failures`);
+      this.stop();
+      return;
+    }
+
+    this.onBlockEnded();
   }
 
   private onBlockEnded(): void {

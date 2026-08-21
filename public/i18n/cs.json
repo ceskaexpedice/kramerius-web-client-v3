@@ -794,6 +794,7 @@
   "ai.tts-pause": "Pozastavit čtení",
   "ai.tts-resume": "Pokračovat ve čtení",
   "ai.tts-stop": "Zastavit čtení",
+  "ai.tts-blocked": "Klepnutím spustíte čtení",
   "ai.loading": "Zpracovávám...",
   "ai.loading-translation": "Pracujeme na překladu",
   "ai.loading-summary": "Pracujeme na shrnutí",

@@ -106,9 +106,11 @@
   }
 
   @if (ttsService.isReading() && !aiPanelService.panelVisible()) {
+    @let ttsPlayPauseKey = ttsService.playbackBlocked() ? 'ai.tts-blocked'
+                           : ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause';
     <button class="button primary" (click)="onTtsPlayPause()"
-            [appCdkTooltip]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate"
-            [attr.aria-label]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+            [appCdkTooltip]="ttsPlayPauseKey | translate"
+            [attr.aria-label]="ttsPlayPauseKey | translate">
       <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()" aria-hidden="true"></i>
     </button>
     <button class="button primary" (click)="onTtsStop()" [appCdkTooltip]="'ai.tts-stop' | translate"
