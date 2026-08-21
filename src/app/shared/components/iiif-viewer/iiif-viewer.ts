@@ -463,6 +463,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       });
     });
 
+    // The container changes size without the image reopening — most visibly when
+    // the AI panel splits the viewer in half — and minZoomLevel is derived from
+    // that size, so recompute it on resize (issue #161).
+    this.viewer.addHandler('resize', () => {
+      this.updateMinZoomLevel();
+    });
+
     // Setup native touch event listeners for swipe navigation
     // Note: We use native touch events instead of OpenSeadragon's gesture system
     // because they're more reliable across different browsers and devices
@@ -860,10 +867,12 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private isAtBaseZoom(): boolean {
     if (!this.viewer) return false;
 
-    const currentZoom = this.viewer.viewport.getZoom();
-    const homeZoom = this.viewer.viewport.getHomeZoom();
+    const viewport = this.viewer.viewport;
+    const currentZoom = viewport.getZoom();
 
-    return currentZoom <= homeZoom * this.SWIPE_CONFIG.zoomTolerance;
+    const restingZoom = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
+
+    return currentZoom <= restingZoom * this.SWIPE_CONFIG.zoomTolerance;
   }
 
   /**
