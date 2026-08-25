@@ -312,7 +312,8 @@ export class ConfigService {
         ...neutral.app,
         code,
         name: { cs: activeLib.name, en: activeLib.name_en || activeLib.name },
-        logo: activeLib.logo || neutral.app.logo
+        logo: activeLib.logo || neutral.app.logo,
+        logoDark: undefined
       }
     };
   }

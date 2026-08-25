@@ -4,6 +4,7 @@ export interface AppConfig {
   name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
   contactEmail: string;            // Contact email
   logo?: string;                   // URL to the app/library logo
+  logoDark?: string;               // URL to the dark-theme variant; falls back to `logo` when omitted
   adminClientUrl?: string;         // URL to admin client app
 }
 

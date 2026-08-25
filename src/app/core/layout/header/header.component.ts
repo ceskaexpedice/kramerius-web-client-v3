@@ -177,14 +177,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // library's own local config or — for a switched-to library without one —
     // from the central registry (see ConfigService.buildRegistryFallbackConfig).
     // CDK keeps its own bundled logo regardless.
-    if (this.configService.isCdk()) {
-      this.headerLogo = 'img/logo.svg';
-      this.headerLogoDark = 'img/logo-darkmode.svg';
-    } else {
-      const logo = this.configService.app.logo;
-      this.headerLogo = logo || '/favicon.svg';
-      this.headerLogoDark = logo || '/favicon-dark.svg';
-    }
+    this.resolveBranding();
 
     this.logDevInfo();
   }
@@ -247,6 +240,40 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.isOnCollectionRoute
       ? this.translate.instant('search-in-collection-placeholder')
       : this.searchPlaceholderService.placeholder();
+  }
+
+  /**
+   * Resolves the header logo pair from config. CDK keeps its own bundled logos;
+   * every other library is branded from `app.logo` / `app.logoDark`.
+   *
+   * `app.logoDark` is optional — libraries that ship a single logo keep it in
+   * both themes, exactly as before. Same idea as the donator logos in
+   * metadata-section.ts: prefer the dark variant, fall back to the light one.
+   */
+  private resolveBranding(): void {
+    if (this.configService.isCdk()) {
+      this.headerLogo = 'img/logo.svg';
+      this.headerLogoDark = 'img/logo-darkmode.svg';
+      return;
+    }
+    const logo = this.configService.app.logo;
+    const logoDark = this.configService.app.logoDark;
+    this.headerLogo = logo || '/favicon.svg';
+    this.headerLogoDark = logoDark || logo || '/favicon-dark.svg';
+  }
+
+  /**
+   * Fallback for a configured `app.logoDark` that fails to load (bad path in the
+   * config, or a file that was never uploaded): swap back to the light logo so a
+   * broken image never lands in the header. Guarded against looping when the
+   * light logo is missing too.
+   */
+  onLogoError(img: HTMLImageElement) {
+    if (img.getAttribute('src') === this.headerLogo) {
+      img.style.display = 'none';
+      return;
+    }
+    img.src = this.headerLogo;
   }
 
   onLogoLoad(img: HTMLImageElement) {

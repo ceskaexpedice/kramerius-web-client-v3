@@ -66,6 +66,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 },
 "contactEmail": "digitalniknihovna@mzk.cz",
 "logo": "/favicon.svg",
+"logoDark": "/local-config/img/logo-dark.svg",
 "adminClientUrl": "https://admin.kramerius.mzk.cz"
 }
 ```
@@ -76,6 +77,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
 | `contactEmail` | ano | Kontaktní e-mail zobrazovaný na chybových stránkách. |
 | `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/img/`. Když chybí, zobrazí se výchozí logo. |
+| `logoDark` | ne | Cesta k variantě loga pro tmavý režim. Když chybí, použije se v tmavém režimu logo z `logo`. Když se soubor nepodaří načíst, klient se rovněž vrátí k `logo`. |
 | `adminClientUrl` | ne | URL administrátorského rozhraní. Používá se jako cíl přesměrování z administrátorského dialogu do admin klienta. Když chybí, odkaz na admin rozhraní není dostupný. |
 
 ---

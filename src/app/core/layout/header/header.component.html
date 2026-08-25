@@ -9,7 +9,8 @@
       @if (headerLogo || headerLogoDark) {
         <img #logoImg [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark"
              [alt]="headerName || 'Česká digitální knihovna'"
-             (load)="onLogoLoad(logoImg)" />
+             (load)="onLogoLoad(logoImg)"
+             (error)="onLogoError(logoImg)" />
       }
       @if (!isCdk && ((homepageTitle | localized) || headerName)) {
         <span class="header-client-name">{{ (homepageTitle | localized) || headerName }}</span>
