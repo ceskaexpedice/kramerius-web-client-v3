@@ -10,6 +10,12 @@
         [selectedCode]="aiPanelService.targetLanguage()"
         (langChange)="onLangChange($event)">
       </app-language-select>
+    } @else if (aiPanelService.contentType() === 'summary') {
+      <app-language-select
+        [languages]="translationLanguages"
+        [selectedCode]="aiPanelService.summaryLanguage()"
+        (langChange)="onSummaryLangChange($event)">
+      </app-language-select>
     }
   </div>
 

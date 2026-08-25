@@ -59,6 +59,12 @@ export class AiContentToolbarComponent {
     }
   }
 
+  onSummaryLangChange(code: string): void {
+    if (code !== this.aiPanelService.summaryLanguage()) {
+      this.aiPanelService.resummarize(code);
+    }
+  }
+
   onTtsPlayPause(): void {
     this.ttsService.togglePlayPause();
   }

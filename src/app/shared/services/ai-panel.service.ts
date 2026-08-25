@@ -2,6 +2,8 @@ import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { AltoService } from './alto.service';
 import { AiApiService, AI_MODELS, AiModel, TranslateProvider } from './ai-api.service';
 import { LocalStorageService } from './local-storage.service';
+import { TranslateService } from '@ngx-translate/core';
+import { TRANSLATION_LANGUAGES } from '../translation/translation-languages';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -19,6 +21,7 @@ export class AiPanelService {
   private altoService = inject(AltoService);
   private aiApiService = inject(AiApiService);
   private localStorageService = inject(LocalStorageService);
+  private translate = inject(TranslateService);
   private activeSubscription: Subscription | null = null;
 
   constructor() {
@@ -45,6 +48,11 @@ export class AiPanelService {
   readonly selectedModel = signal<AiModel>(AI_MODELS[1]); // gpt-4o-mini
   readonly translateProvider = signal<TranslateProvider>('google');
   readonly targetLanguage = signal<string>('cs');
+  /**
+   * Language the summary is produced in. Defaults to the UI language, since a
+   * summary in a language the reader does not know is of no use (issue #161).
+   */
+  readonly summaryLanguage = signal<string>(this.defaultSummaryLanguage());
 
   // Computed: panel mode driven by showOriginal toggle
   readonly effectivePanelMode = computed<AiPanelMode>(() =>
@@ -127,7 +135,7 @@ export class AiPanelService {
           return;
         }
 
-        const instructions = 'You are a helpful assistant. Summarize the following text concisely. Keep the summary in the same language as the original text.';
+        const instructions = this.buildSummaryInstructions(this.summaryLanguage());
         this.activeSubscription = this.aiApiService.askLLM(text, instructions, this.selectedModel(), 2000).pipe(take(1)).subscribe({
           next: (summary) => {
             this.styledHtml.set('');
@@ -192,6 +200,33 @@ export class AiPanelService {
         this.error.set('Failed to load page text');
       }
     });
+  }
+
+  resummarize(language: string): void {
+    const pid = this.currentPagePid();
+    if (!pid) return;
+    this.summaryLanguage.set(language);
+    this.showSummary(pid);
+  }
+
+  /**
+   * Names the target language for the model. The language is identified by both
+   * its endonym and its code, so the model has an unambiguous target without a
+   * separate English-name table to keep in sync. Falls back to the original
+   * language, which is the previous behaviour.
+   */
+  private buildSummaryInstructions(languageCode: string): string {
+    const language = TRANSLATION_LANGUAGES.find(l => l.code === languageCode);
+    const target = language
+      ? `Write the summary in ${language.name} (language code: ${language.code}), regardless of the language of the source text.`
+      : 'Keep the summary in the same language as the original text.';
+    return `You are a helpful assistant. Summarize the following text concisely. ${target}`;
+  }
+
+  /** The UI language when it is one we can ask for, otherwise Czech. */
+  private defaultSummaryLanguage(): string {
+    const uiLang = this.translate.getCurrentLang() || this.translate.getDefaultLang() || '';
+    return TRANSLATION_LANGUAGES.some(l => l.code === uiLang) ? uiLang : 'cs';
   }
 
   retranslate(targetLang: string): void {
