@@ -106,7 +106,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 "i18n": {
   "defaultLanguage": "cs",
   "fallbackLanguage": "en",
-  "supportedLanguages": ["cs", "en", "sk", "pl"]
+  "supportedLanguages": ["cs", "en", "sk", "pl", "de", "et", "hu", "lt", "pt", "sl", "sv", "zh-CN", "zh-TW"]
 }
 ```
 
@@ -114,9 +114,13 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 |---|---|---|---|
 | `defaultLanguage` | ano | Výchozí jazyk při prvním otevření aplikace. | `cs` |
 | `fallbackLanguage` | ano | Záchranný jazyk, když v lokalizovaném textu chybí požadovaný překlad. | `en` |
-| `supportedLanguages` | ano | Jazyky nabízené v přepínači jazyka v hlavičce. | `["cs", "en", "sk", "pl"]` |
+| `supportedLanguages` | ano | Jazyky nabízené v přepínači jazyka v hlavičce. Uveďte jen ty, které chcete čtenářům nabídnout — překlady jsou dodané pro všechny níže uvedené. | `["cs", "en", "sk", "pl", "de", "et", "hu", "lt", "pt", "sl", "sv", "zh-CN", "zh-TW"]` |
 
-Jazykové kódy jsou dvouznaková ISO označení (`cs`, `en`, `sk`, `pl`, `de`…).
+Jazykové kódy jsou dvouznaková ISO označení (`cs`, `en`, `sk`, `pl`, `de`…); výjimkou jsou varianty čínštiny `zh-CN` (zjednodušená) a `zh-TW` (tradiční).
+
+Dodané překlady: `cs`, `en`, `sk`, `pl`, `de`, `et`, `hu`, `lt`, `pt`, `sl`, `sv`, `zh-CN`, `zh-TW`. Jazyk, který v `supportedLanguages` neuvedete, se v přepínači nezobrazí, i když jeho soubory existují. Jazyky mimo `cs`/`sk` používají při chybějícím klíči záložní jazyk `en`.
+
+> **Poznámka k překladům:** jazyky doplněné nad rámec původní čtveřice (`de`, `et`, `hu`, `lt`, `pt`, `sl`, `sv`, `zh-CN`, `zh-TW`) vznikly strojovým překladem. Odborná knihovnická terminologie (`relators/`, `access_denied/`, `codetables/`) by před nasazením měla projít korekturou rodilého mluvčího.
 
 ---
 

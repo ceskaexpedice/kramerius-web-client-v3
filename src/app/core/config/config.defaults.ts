@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   i18n: {
     defaultLanguage: 'cs',
     fallbackLanguage: 'en',
-    supportedLanguages: ['cs', 'en', 'sk', 'pl']
+    supportedLanguages: ['cs', 'en', 'sk', 'pl', 'de']
   },
   features: {
     keycloak: true,
