@@ -25,6 +25,7 @@ import { DocumentTypeEnum } from '../../../constants/document-type';
 import { PopupPositioningService, PopupState } from '../../../../shared/services/popup-positioning.service';
 import { normalizeIssueTypeCode } from '../../../../shared/utils/issue-type-code';
 import { PeriodicalDayIssuesPopupComponent } from '../periodical-day-issues-popup/periodical-day-issues-popup.component';
+import { parseIssueStartDate } from '../../../../shared/utils/periodical-date';
 
 interface CalendarIssue {
   pid: string;
@@ -34,8 +35,7 @@ interface CalendarIssue {
   partNumber?: string;
   issueTypeCode?: string;
   dateStr?: string;
-  dateRangeEndDay?: number;
-  dateRangeEndMonth?: number;
+  startDate?: Date;
 }
 
 @Component({
@@ -120,7 +120,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
     const map = new Map<string, CalendarIssue[]>();
 
     for (const item of items) {
-      const date = this.parseDate(item['date.str']);
+      const date = parseIssueStartDate(item);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);
@@ -132,8 +132,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
         partNumber: item['part.number.str'],
         issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
         dateStr: item['date.str'],
-        dateRangeEndDay: item['date_range_end.day'],
-        dateRangeEndMonth: item['date_range_end.month'],
+        startDate: date,
       };
 
       if (map.has(key)) {
@@ -150,12 +149,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
     setTimeout(() => {
       this.shouldShowCalendars.set(true);
     }, 0);
-  }
-
-  // Utility: parse date from DD.MM.YYYY
-  parseDate(str: string): Date | null {
-    const [day, month, year] = str.split('.').map(Number);
-    return day && month && year ? new Date(year, month - 1, day) : null;
   }
 
   formatDateKey(date: Date): string {
@@ -251,8 +244,8 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
     subtitle = issue.dateStr ?? '';
     if (issue.issueTypeCode) {
       title = this.translate.instant(`${issue.issueTypeCode}-issue`);
-    } else if (issue.dateRangeEndDay && issue.dateRangeEndMonth) {
-      title = `${issue.dateRangeEndDay}.${issue.dateRangeEndMonth}`;
+    } else if (issue.startDate) {
+      title = `${issue.startDate.getDate()}.${issue.startDate.getMonth() + 1}.`;
     } else if (issue.partNumber) {
       title = `${subtitlePrefix} ${issue.partNumber}`;
     }
@@ -284,7 +277,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
     const currentMap = new Map(this.issueMap());
 
     for (const item of items) {
-      const date = this.parseDate(item['date.str']);
+      const date = parseIssueStartDate(item);
       if (!date || !item.pid || date.getMonth() !== monthIndex) continue;
 
       const key = this.formatDateKey(date);
@@ -296,8 +289,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
         partNumber: item['part.number.str'],
         issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
         dateStr: item['date.str'],
-        dateRangeEndDay: item['date_range_end.day'],
-        dateRangeEndMonth: item['date_range_end.month'],
+        startDate: date,
       };
 
       if (currentMap.has(key)) {

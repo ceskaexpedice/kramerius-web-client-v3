@@ -18,6 +18,7 @@ import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { SearchService } from '../../shared/services/search.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { formatIssueDateLabel } from '../../shared/utils/periodical-date';
 
 @Component({
   selector: 'app-periodical-view-page',
@@ -134,7 +135,7 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
           // Convert PeriodicalItemChild[] to SearchDocument format that AdminModeService expects
           const childrenItems = children.map(child => ({
             pid: child.pid,
-            title: child['date.str'] || `${child['date_range_end.day']}.${child['date_range_end.month']}`,
+            title: child['date.str'] || formatIssueDateLabel(child),
             model: child.model as DocumentTypeEnum,
             accessibility: child.licenses?.length ? DocumentAccessibilityEnum.PRIVATE : DocumentAccessibilityEnum.PUBLIC,
             licenses: child['licenses.facet'] || child.licenses || [],

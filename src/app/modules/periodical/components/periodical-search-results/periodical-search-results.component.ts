@@ -7,6 +7,7 @@ import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {SearchDocument} from '../../../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
+import { parseIssueDateStr } from '../../../../shared/utils/periodical-date';
 
 @Component({
   selector: 'app-periodical-search-results',
@@ -94,9 +95,9 @@ export class PeriodicalSearchResultsComponent {
 
     // If no year field, try to extract from date field (dd.mm.yyyy format)
     if (doc.date) {
-      const dateParts = doc.date.split('.');
-      if (dateParts.length === 3) {
-        return dateParts[2]; // yyyy part
+      const date = parseIssueDateStr(doc.date);
+      if (date) {
+        return date.getFullYear().toString();
       }
     }
 
@@ -128,11 +129,12 @@ export class PeriodicalSearchResultsComponent {
 
     // If we have date field in dd.mm.yyyy format
     if (doc.date) {
-      const dateParts = doc.date.split('.');
-      if (dateParts.length === 3) {
-        const day = dateParts[0].padStart(2, '0');
-        const month = dateParts[1].padStart(2, '0');
-        const year = dateParts[2];
+      // Multi-day issues sort by the first day of their range.
+      const date = parseIssueDateStr(doc.date);
+      if (date) {
+        const year = date.getFullYear().toString().padStart(4, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
       }
     }

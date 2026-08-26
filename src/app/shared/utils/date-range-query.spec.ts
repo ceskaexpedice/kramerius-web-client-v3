@@ -49,4 +49,33 @@ describe('buildDateOverlapQuery', () => {
     expect(buildDateOverlapQuery({ dateTo: '1901-03-02' }))
       .toBe('(date.min:[* TO 1901-03-02T23:59:59Z])');
   });
+
+  // Month windows are how the periodical calendar loads its issues; a
+  // multi-day issue must show up in EVERY month its range touches (issue #166).
+  describe('month windows for the periodical calendar', () => {
+    const monthQuery = (year: number, month: number, lastDay: number) => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return buildDateOverlapQuery({
+        dateFrom: `${year}-${pad(month)}-01`,
+        dateTo: `${year}-${pad(month)}-${pad(lastDay)}`,
+      })!;
+    };
+
+    it('matches an issue whose range starts in the previous month', () => {
+      // 31.12.1998-01.01.1999 has date.min in December, yet January must show it.
+      const january = monthQuery(1999, 1, 31);
+      expect(january).toBe('(date.min:[* TO 1999-01-31T23:59:59Z] AND date.max:[1999-01-01T00:00:00Z TO *])');
+      // date.min (1998-12-31) <= 1999-01-31 and date.max (1999-01-01) >= 1999-01-01
+    });
+
+    it('matches the same issue from the month it starts in', () => {
+      const december = monthQuery(1998, 12, 31);
+      expect(december).toBe('(date.min:[* TO 1998-12-31T23:59:59Z] AND date.max:[1998-12-01T00:00:00Z TO *])');
+    });
+
+    it('builds a correct window for a leap February', () => {
+      expect(monthQuery(2024, 2, 29))
+        .toBe('(date.min:[* TO 2024-02-29T23:59:59Z] AND date.max:[2024-02-01T00:00:00Z TO *])');
+    });
+  });
 });
