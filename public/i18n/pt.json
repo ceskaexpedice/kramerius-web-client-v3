@@ -814,6 +814,7 @@
   "ai.login-required": "Disponível após iniciar sessão",
   "ai.login-register-link": "Como posso registar-me e o que obtenho?",
   "ai.login-button": "Iniciar sessão",
+  "ai.quota-exceeded": "O limite mensal de funcionalidades de IA foi atingido. Tente novamente mais tarde.",
   "settings.tts.language": "Idioma",
   "settings.tts.voice": "Voz",
   "settings.tts.preview": "Pré-visualização",

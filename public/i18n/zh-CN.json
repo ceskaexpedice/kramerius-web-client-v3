@@ -814,6 +814,7 @@
   "ai.login-required": "登录后可用",
   "ai.login-register-link": "我该如何注册，能获得什么？",
   "ai.login-button": "登录",
+  "ai.quota-exceeded": "本月 AI 功能额度已用尽，请稍后再试。",
   "settings.tts.language": "语言",
   "settings.tts.voice": "声音",
   "settings.tts.preview": "试听",

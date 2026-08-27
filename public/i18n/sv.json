@@ -814,6 +814,7 @@
   "ai.login-required": "Tillgängligt efter inloggning",
   "ai.login-register-link": "Hur registrerar jag mig och vad får jag?",
   "ai.login-button": "Logga in",
+  "ai.quota-exceeded": "Den månatliga gränsen för AI-funktioner är nådd. Försök igen senare.",
   "settings.tts.language": "Språk",
   "settings.tts.voice": "Röst",
   "settings.tts.preview": "Förhandsvisning",

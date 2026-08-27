@@ -814,6 +814,7 @@
   "ai.login-required": "Bejelentkezés után elérhető",
   "ai.login-register-link": "Hogyan regisztrálhatok, és mit kapok?",
   "ai.login-button": "Bejelentkezés",
+  "ai.quota-exceeded": "Az AI-funkciók havi kerete elfogyott. Kérjük, próbálja meg később.",
   "settings.tts.language": "Nyelv",
   "settings.tts.voice": "Hang",
   "settings.tts.preview": "Előnézet",

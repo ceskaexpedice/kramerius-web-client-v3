@@ -814,6 +814,7 @@
   "ai.login-required": "Saadaval pärast sisselogimist",
   "ai.login-register-link": "Kuidas saan registreeruda ja mida ma saan?",
   "ai.login-button": "Logi sisse",
+  "ai.quota-exceeded": "Kuine AI-funktsioonide limiit on täis. Palun proovige hiljem uuesti.",
   "settings.tts.language": "Keel",
   "settings.tts.voice": "Hääl",
   "settings.tts.preview": "Eelvaade",

@@ -814,6 +814,7 @@
   "ai.login-required": "Prieinama po prisijungimo",
   "ai.login-register-link": "Kaip užsiregistruoti ir ką gausiu?",
   "ai.login-button": "Prisijungti",
+  "ai.quota-exceeded": "Mėnesio AI funkcijų limitas išnaudotas. Bandykite vėliau.",
   "settings.tts.language": "Kalba",
   "settings.tts.voice": "Balsas",
   "settings.tts.preview": "Peržiūra",

@@ -814,6 +814,7 @@
   "ai.login-required": "Nach der Anmeldung verfügbar",
   "ai.login-register-link": "Wie kann ich mich registrieren und was bekomme ich?",
   "ai.login-button": "Anmelden",
+  "ai.quota-exceeded": "Das monatliche Limit für KI-Funktionen ist erreicht. Bitte versuchen Sie es später erneut.",
   "settings.tts.language": "Sprache",
   "settings.tts.voice": "Stimme",
   "settings.tts.preview": "Vorschau",

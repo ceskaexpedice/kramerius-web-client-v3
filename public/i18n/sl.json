@@ -814,6 +814,7 @@
   "ai.login-required": "Na voljo po prijavi",
   "ai.login-register-link": "Kako se lahko registriram in kaj dobim?",
   "ai.login-button": "Prijava",
+  "ai.quota-exceeded": "Mesečna omejitev funkcij UI je porabljena. Poskusite znova pozneje.",
   "settings.tts.language": "Jezik",
   "settings.tts.voice": "Glas",
   "settings.tts.preview": "Predogled",

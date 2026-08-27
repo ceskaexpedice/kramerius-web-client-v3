@@ -812,7 +812,7 @@
   "ai.login-required": "Dostępne po zalogowaniu",
   "ai.login-register-link": "Jak mogę się zarejestrować i co zyskam?",
   "ai.login-button": "Zaloguj się",
-
+  "ai.quota-exceeded": "Miesięczny limit funkcji AI został wyczerpany. Spróbuj ponownie później.",
   "settings.tts.language": "Język",
   "settings.tts.voice": "Głos",
   "settings.tts.preview": "Odtwórz",
