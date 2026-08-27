@@ -1,6 +1,6 @@
 {
   "name": "cdk-client",
-  "version": "3.0.24",
+  "version": "3.0.25",
   "scripts": {
     "ng": "ng",
     "prestart": "node scripts/bootstrap_file_environment-local-ts.js && node scripts/collect-build-info.js",
