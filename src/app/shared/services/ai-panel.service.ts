@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { AltoService } from './alto.service';
-import { AiApiService, AI_MODELS, AiModel, TranslateProvider } from './ai-api.service';
+import { AiApiService, AI_MODELS, AiModel, TranslateProvider, isQuotaExceeded } from './ai-api.service';
 import { LocalStorageService } from './local-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TRANSLATION_LANGUAGES } from '../translation/translation-languages';
@@ -102,7 +102,7 @@ export class AiPanelService {
           },
           error: (err) => {
             this.isLoading.set(false);
-            this.error.set(err.message || 'Translation failed');
+            this.error.set(this.describeError(err, 'Translation failed'));
           }
         });
       },
@@ -144,7 +144,7 @@ export class AiPanelService {
           },
           error: (err) => {
             this.isLoading.set(false);
-            this.error.set(err.message || 'Summary failed');
+            this.error.set(this.describeError(err, 'Summary failed'));
           }
         });
       },
@@ -215,6 +215,20 @@ export class AiPanelService {
    * separate English-name table to keep in sync. Falls back to the original
    * language, which is the previous behaviour.
    */
+  /**
+   * Human-readable text for a failed AI call.
+   *
+   * Quota exhaustion gets a localized explanation — it is an expected, recurring
+   * state the user can act on (wait for the monthly reset), not a glitch. Other
+   * failures keep the previous behaviour of showing the raw error message.
+   */
+  private describeError(err: unknown, fallback: string): string {
+    if (isQuotaExceeded(err)) {
+      return this.translate.instant('ai.quota-exceeded');
+    }
+    return (err as { message?: string } | null)?.message || fallback;
+  }
+
   private buildSummaryInstructions(languageCode: string): string {
     const language = TRANSLATION_LANGUAGES.find(l => l.code === languageCode);
     const target = language

@@ -6,6 +6,7 @@ import { AiApiService } from './ai-api.service';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { IIIFViewerService } from './iiif-viewer.service';
 import { SettingsService } from '../../modules/settings/settings.service';
+import { ToastService } from './toast.service';
 
 /**
  * Regression tests for issue #161: on mobile, a blocked autoplay made reading
@@ -51,6 +52,7 @@ describe('TtsService playback failure handling', () => {
           clearTtsHighlight: () => {},
         } },
         { provide: SettingsService, useValue: { settings: null } },
+        { provide: ToastService, useValue: { show: () => {} } },
       ],
     });
     service = TestBed.inject(TtsService);

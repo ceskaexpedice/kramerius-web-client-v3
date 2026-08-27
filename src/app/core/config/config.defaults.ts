@@ -2,13 +2,14 @@ import { AppConfiguration, HomepageSectionConfig } from './config.interfaces';
 
 export const DEFAULT_CONFIG: AppConfiguration = {
   app: {
-    code: 'cdk',
-    name: 'Czech Digital Library',
-    contactEmail: 'info@ceskadigitalniknihovna.cz'
+    code: '',
+    name: '',
+    contactEmail: ''
   },
   api: {
     baseUrl: '',
-    georefUrl: 'https://api.georeference.trinera.cloud/georefs/latest'
+    georefUrl: 'https://api.georeference.trinera.cloud/georefs/latest',
+    aiProxyUrl: ''
   },
   i18n: {
     defaultLanguage: 'cs',

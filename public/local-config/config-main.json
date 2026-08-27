@@ -9,13 +9,15 @@
       "de": "Tschechische digitale Bibliothek"
     },
     "contactEmail": "info@ceskadigitalniknihovna.cz",
-    "logo": "/favicon.svg",
+    "logo": "/img/logo.svg",
+    "logoDark": "/img/logo-darkmode.svg",
     "adminClientUrl": "https://admin.kramerius.ceskadigitalniknihovna.cz"
   },
   "api": {
     "baseUrl": "https://cdk-api.dev.ceskadigitalniknihovna.cz/search/api/client",
     "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
-    "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest"
+    "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest",
+    "aiProxyUrl": "https://api.trinera.cloud/api"
   },
   "i18n": {
     "defaultLanguage": "cs",
@@ -48,7 +50,7 @@
     "ai": true,
     "folders": true,
     "librarySwitch": true,
-    "showExportHistory": false
+    "showExportHistory": true
   },
   "ui": {
     "cookiebar": true

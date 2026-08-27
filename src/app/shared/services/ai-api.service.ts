@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpContext } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
+import { ConfigService } from '../../core/config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../../core/services/http-context-tokens';
 
 export interface AiModel {
@@ -13,6 +14,30 @@ export interface AiModel {
 
 export type TtsProvider = 'openai' | 'google' | 'elevenlabs';
 export type TranslateProvider = 'google' | 'deepl';
+
+/**
+ * Error code the AI proxy returns once the monthly token budget is spent
+ * Unlike a one-off failure this will not recover on the next request, so callers
+ * must abort the whole operation rather than retry the next block. Thrown as the
+ * message of the Error so every existing `err.message` consumer can match on it.
+ */
+export const AI_QUOTA_EXCEEDED = 'quota_exceeded';
+
+/**
+ * True when a thrown AI error is the quota-exhausted case.
+ * Accepts unknown so callers can pass an untyped RxJS error straight in.
+ */
+export function isQuotaExceeded(err: unknown): boolean {
+  return (err as { message?: string } | null)?.message === AI_QUOTA_EXCEEDED;
+}
+
+/**
+ * The AI proxy is config-driven only: no `api.aiProxyUrl` means no proxy URL, the
+ * same rule the header applies to `app.logo`. Requests then resolve against the
+ * app's own origin and fail loudly rather than silently reaching a third-party
+ * default the deployment never opted into.
+ */
+const DEFAULT_AI_URL = '';
 
 export const AI_MODELS: AiModel[] = [
   { provider: 'openai', name: 'GPT 4o', code: 'gpt-4o' },
@@ -26,11 +51,20 @@ export const AI_MODELS: AiModel[] = [
 @Injectable({ providedIn: 'root' })
 export class AiApiService {
 
-  private readonly baseUrl = 'https://api.trinera.cloud/api';
   private readonly temperature = 0;
 
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private configService = inject(ConfigService);
+
+  /**
+   * Base URL of the AI proxy, from `api.aiProxyUrl` in config-main.json (same
+   * pattern as `citationUrl` / `georefUrl`). Empty when the config omits it —
+   * see DEFAULT_AI_URL.
+   */
+  private get baseUrl(): string {
+    return this.configService.api?.aiProxyUrl || DEFAULT_AI_URL;
+  }
 
   // --- TTS ---
 
@@ -204,7 +238,24 @@ export class AiApiService {
       headers,
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).pipe(
+      // The proxy reports quota exhaustion as an `errorCode` body. Some endpoints
+      // send it with an error status, others with 200 — in the 200 case it would
+      // otherwise flow into the per-endpoint `map()`, which expects a success
+      // shape and would throw an opaque TypeError, losing the real reason. Turn
+      // it into a proper error here so both paths surface the same code.
+      map(response => {
+        const code = (response as { errorCode?: string } | null)?.errorCode;
+        if (code) {
+          throw new Error(code);
+        }
+        return response;
+      }),
       catchError(error => {
+        // Already normalized by the map() above — don't re-wrap it as unknown_error.
+        if (error instanceof Error) {
+          return throwError(() => error);
+        }
+
         let errorCode = 'unknown_error';
         if (error.error?.errorCode) {
           errorCode = error.error.errorCode;

@@ -13,6 +13,7 @@ export interface ApiConfig {
   baseUrl: string;          // API base URL
   citationUrl?: string;     // Citation service API URL
   georefUrl?: string;       // Georeference annotations API base URL (Allmaps annotations)
+  aiProxyUrl?: string;      // AI proxy API base URL (TTS, translation, summaries)
 }
 
 // Internationalization configuration
