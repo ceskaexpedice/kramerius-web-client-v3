@@ -421,6 +421,28 @@ export class ConfigService {
     return this.features[feature] ?? true;
   }
 
+  /**
+   * Whether user login (Keycloak OAuth/OIDC) is available in this deployment.
+   * When `features.keycloak` is false the whole authenticated surface — login
+   * button, user menu, favorites/folders and login-gated AI and export actions —
+   * is hidden, and `AuthService.login()` refuses to start a flow.
+   *
+   * Read this instead of `features.keycloak` directly so the default (enabled
+   * when omitted) stays in one place.
+   */
+  isLoginEnabled(): boolean {
+    return this.isFeatureEnabled('keycloak');
+  }
+
+  /**
+   * Whether user folders / favorites are available. Requires login: folders are
+   * stored per user account, so they are unusable with `keycloak` off regardless
+   * of the `folders` flag.
+   */
+  isFoldersEnabled(): boolean {
+    return this.isLoginEnabled() && this.isFeatureEnabled('folders');
+  }
+
   // UI config accessors
   get ui(): UiConfig {
     return this.getConfig().ui;
