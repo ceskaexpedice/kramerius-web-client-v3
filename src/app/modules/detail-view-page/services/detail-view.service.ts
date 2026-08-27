@@ -42,6 +42,7 @@ import { UserService } from '../../../shared/services/user.service';
 import { RecordHandlerService } from '../../../shared/services/record-handler.service';
 import { ConfigService } from '../../../core/config/config.service';
 import { CdkSourceService } from '../../../shared/services/cdk-source.service';
+import { parseIssueStartDate } from '../../../shared/utils/periodical-date';
 
 @Injectable({
   providedIn: 'root'
@@ -977,11 +978,10 @@ export class DetailViewService {
       if (children && children.length > 0) {
         // Get year from first child's date
         const firstChild = children[0];
-        if (firstChild['date.str']) {
-          const dateParts = firstChild['date.str'].split('.');
-          if (dateParts.length >= 3) {
-            currentYear = parseInt(dateParts[2], 10);
-          }
+        // Ranges like "03.-09.01.1986" have no year in the third '.'-part.
+        const firstChildDate = parseIssueStartDate(firstChild);
+        if (firstChildDate) {
+          currentYear = firstChildDate.getFullYear();
         }
       }
     });

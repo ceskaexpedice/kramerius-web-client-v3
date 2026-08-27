@@ -10,6 +10,12 @@
         [selectedCode]="aiPanelService.targetLanguage()"
         (langChange)="onLangChange($event)">
       </app-language-select>
+    } @else if (aiPanelService.contentType() === 'summary') {
+      <app-language-select
+        [languages]="translationLanguages"
+        [selectedCode]="aiPanelService.summaryLanguage()"
+        (langChange)="onSummaryLangChange($event)">
+      </app-language-select>
     }
   </div>
 
@@ -42,7 +48,8 @@
 
     @if (ttsService.isReading()) {
       <button class="button square-button primary" (click)="onTtsPlayPause()"
-              [title]="(ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
+              [title]="(ttsService.playbackBlocked() ? 'ai.tts-blocked'
+                        : ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
         <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
       </button>
       <button class="button square-button primary" (click)="onTtsStop()" [title]="'ai.tts-stop' | translate">

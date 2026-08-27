@@ -793,6 +793,7 @@
   "ai.tts-pause": "Pozastaviť čítanie",
   "ai.tts-resume": "Pokračovať v čítaní",
   "ai.tts-stop": "Zastaviť čítanie",
+  "ai.tts-blocked": "Klepnutím spustíte čítanie",
   "ai.loading": "Spracovávam...",
   "ai.loading-translation": "Pracujeme na preklade",
   "ai.loading-summary": "Pracujeme na zhrnutí",
@@ -812,7 +813,7 @@
   "ai.login-required": "K dispozícii po prihlásení",
   "ai.login-register-link": "Ako sa môžem zaregistrovať a čo získam?",
   "ai.login-button": "Prihlásiť sa",
-
+  "ai.quota-exceeded": "Mesačný limit AI funkcií bol vyčerpaný. Skúste to prosím neskôr.",
   "settings.tts.language": "Jazyk",
   "settings.tts.voice": "Hlas",
   "settings.tts.preview": "Prehrať",

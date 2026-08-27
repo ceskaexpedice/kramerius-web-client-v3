@@ -66,6 +66,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 },
 "contactEmail": "digitalniknihovna@mzk.cz",
 "logo": "/favicon.svg",
+"logoDark": "/local-config/img/logo-dark.svg",
 "adminClientUrl": "https://admin.kramerius.mzk.cz"
 }
 ```
@@ -75,7 +76,8 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 | `code` | ano | Krátký kód knihovny (`mzk`, `cdk`, `knav`…). Slouží jako identita instance. |
 | `name` | ano | Zobrazovaný název knihovny. Může být jeden řetězec, nebo lokalizovaný text. |
 | `contactEmail` | ano | Kontaktní e-mail zobrazovaný na chybových stránkách. |
-| `logo` | ne | Cesta k logu knihovny. Obvykle `/favicon.svg` nebo cesta pod `local-config/img/`. Když chybí, zobrazí se výchozí logo. |
+| `logo` | ne | Cesta k logu knihovny — např. `/img/logo.svg` nebo cesta pod `local-config/img/`. Když chybí, **v hlavičce se nezobrazí žádné logo**. Klient nikdy nedoplňuje náhradní logo (dříve se v takovém případě podstrčilo logo CDK nebo `/favicon.svg`), takže nasazení bez loga nikdy neukáže cizí značku. |
+| `logoDark` | ne | Cesta k variantě loga pro tmavý režim. Když chybí, použije se v tmavém režimu logo z `logo`. Když se soubor nepodaří načíst, klient se rovněž vrátí k `logo`; pokud ani ten není nastavený, obrázek se skryje. |
 | `adminClientUrl` | ne | URL administrátorského rozhraní. Používá se jako cíl přesměrování z administrátorského dialogu do admin klienta. Když chybí, odkaz na admin rozhraní není dostupný. |
 
 ---
@@ -86,7 +88,8 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 "api": {
   "baseUrl": "https://api.kramerius.mzk.cz",
   "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
-  "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest"
+  "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest",
+  "aiProxyUrl": "https://api.trinera.cloud/api"
 }
 ```
 
@@ -95,6 +98,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 | `baseUrl` | ano | Základní URL Kramerius API backendu — **jediný zdroj pravdy** pro to, na jakého Krameria je klient připojen. Klient odsud odvozuje všechny API požadavky (`{baseUrl}/search/api/client/v7.0/…`). Hodnota může být uvedena buď bez cesty (`https://api.kramerius.example.org`), nebo včetně `/search/api/client` (`https://api.kramerius.example.org/search/api/client`) — obojí se normalizuje na stejný výsledek. |
 | `citationUrl` | ne | URL citační služby. Používá se při generování citací dokumentů. Když chybí, použije se výchozí `https://citace.ceskadigitalniknihovna.cz/api/v1`. |
 | `georefUrl` | ne | Základní URL služby s georeferenčními anotacemi (Allmaps anotace). Aktivní jen když `features.georef: true`. Když chybí, georeferenční zobrazení se nikdy nenabídne. Výchozí `https://api.georeference.trinera.cloud/georefs/latest`. |
+| `aiProxyUrl` | ne | Základní URL AI proxy služby (shrnutí, překlady, předčítání). Aktivní jen když `features.ai: true`. Když chybí, **žádná výchozí adresa se nedoplňuje** — AI požadavky se nikam neodešlou. Klient tedy nikdy nevolá cizí službu, kterou si nasazení výslovně nenastavilo. |
 
 ---
 
@@ -104,7 +108,7 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 "i18n": {
   "defaultLanguage": "cs",
   "fallbackLanguage": "en",
-  "supportedLanguages": ["cs", "en", "sk", "pl"]
+  "supportedLanguages": ["cs", "en", "sk", "pl", "de", "et", "hu", "lt", "pt", "sl", "sv", "zh-CN", "zh-TW"]
 }
 ```
 
@@ -112,9 +116,13 @@ Když chybí překlad pro zvolený jazyk, použije se fallback — jazyky se zko
 |---|---|---|---|
 | `defaultLanguage` | ano | Výchozí jazyk při prvním otevření aplikace. | `cs` |
 | `fallbackLanguage` | ano | Záchranný jazyk, když v lokalizovaném textu chybí požadovaný překlad. | `en` |
-| `supportedLanguages` | ano | Jazyky nabízené v přepínači jazyka v hlavičce. | `["cs", "en", "sk", "pl"]` |
+| `supportedLanguages` | ano | Jazyky nabízené v přepínači jazyka v hlavičce. Uveďte jen ty, které chcete čtenářům nabídnout — překlady jsou dodané pro všechny níže uvedené. | `["cs", "en", "sk", "pl", "de", "et", "hu", "lt", "pt", "sl", "sv", "zh-CN", "zh-TW"]` |
 
-Jazykové kódy jsou dvouznaková ISO označení (`cs`, `en`, `sk`, `pl`, `de`…).
+Jazykové kódy jsou dvouznaková ISO označení (`cs`, `en`, `sk`, `pl`, `de`…); výjimkou jsou varianty čínštiny `zh-CN` (zjednodušená) a `zh-TW` (tradiční).
+
+Dodané překlady: `cs`, `en`, `sk`, `pl`, `de`, `et`, `hu`, `lt`, `pt`, `sl`, `sv`, `zh-CN`, `zh-TW`. Jazyk, který v `supportedLanguages` neuvedete, se v přepínači nezobrazí, i když jeho soubory existují. Jazyky mimo `cs`/`sk` používají při chybějícím klíči záložní jazyk `en`.
+
+> **Poznámka k překladům:** jazyky doplněné nad rámec původní čtveřice (`de`, `et`, `hu`, `lt`, `pt`, `sl`, `sv`, `zh-CN`, `zh-TW`) vznikly strojovým překladem. Odborná knihovnická terminologie (`relators/`, `access_denied/`, `codetables/`) by před nasazením měla projít korekturou rodilého mluvčího.
 
 ---
 

@@ -19,6 +19,7 @@ import { DocumentTypeEnum } from "../../../constants/document-type";
 import { selectPeriodicalLoading } from '../../state/periodical-detail/periodical-detail.selectors';
 import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
 import { normalizeIssueTypeCode } from '../../../../shared/utils/issue-type-code';
+import { formatIssueDateLabel } from '../../../../shared/utils/periodical-date';
 // --- GROUPED/POPUP VIEW (disabled, kept for later) ---
 // Imports needed only by the grouped-by-date + selection-popup view.
 // CdkTooltipDirective backs the issue-type tooltip in the grouped template.
@@ -85,13 +86,9 @@ export class PeriodicalYearIssuesGridComponent {
   }
 
   getItemTitle(item: PeriodicalItemChild): string {
-    // Base title is the date (range end if present, otherwise the date string).
-    let title: string;
-    if (item['date_range_end.day'] && item['date_range_end.month']) {
-      title = `${item['date_range_end.day']}.${item['date_range_end.month']}.`;
-    } else {
-      title = item['date.str'];
-    }
+    // Base title is the date. Issues published over a range of days are labelled
+    // by the FIRST day of that range (see issue #166).
+    let title = formatIssueDateLabel(item);
     // When the issue carries a morning/evening (issue-type) attribute, append its
     // localized label so the title reads e.g. "12.5. - morning".
     const issueTypeCode = this.getIssueTypeCode(item);

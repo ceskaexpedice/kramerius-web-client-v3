@@ -1094,7 +1094,7 @@ export class SolrService {
 
     let params = this.createHttpParams({
       q: query,
-      fl: 'date.str, pid, accessibility, model, part.number.str,issue.type.code,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet,own_parent.pid',
+      fl: 'date.str, pid, accessibility, model, part.number.str,issue.type.code,date_range_start.day,date_range_start.month,date_range_start.year,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet,own_parent.pid',
       rows: pageCount,
       sort: `${sortBy} ${sortDirection}`,
       wt: 'json'
@@ -1134,7 +1134,7 @@ export class SolrService {
     // Build HttpParams so we can safely add repeated `fq` keys
     let params = new HttpParams()
       .set('q', query)
-      .set('fl', 'date.str, pid, accessibility,model,part.number.str,issue.type.code,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid, own_parent.pid')
+      .set('fl', 'date.str, pid, accessibility,model,part.number.str,issue.type.code,date_range_start.day,date_range_start.month,date_range_start.year,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid, own_parent.pid')
       .set('rows', '10000')
       .set('sort', 'date.min asc, part.number.sort asc, model asc, issue.type.sort asc')
       .set('wt', 'json');

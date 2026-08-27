@@ -3,6 +3,7 @@ import {CalendarPopupComponent} from '../calendar-popup/calendar-popup.component
 import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import {CdkTooltipDirective} from '../../directives';
+import {parseIssueDateStr} from '../../utils/periodical-date';
 
 @Component({
   selector: 'app-date-navigator',
@@ -50,10 +51,12 @@ export class DateNavigatorComponent {
   }
 
   getYearFromValue(): string {
-    // Extract year from date string (DD.MM.YYYY format)
+    // `value` is either a plain year (mode 'year') or a publication date, which
+    // may be a range of days such as "03.-09.01.1986" — splitting on '.' and
+    // taking the third part would yield "01" there (see issue #166).
     if (this.value && this.value.includes('.')) {
-      const parts = this.value.split('.');
-      return parts[2] || '';
+      const date = parseIssueDateStr(this.value);
+      return date ? date.getFullYear().toString() : '';
     }
     return this.value;
   }

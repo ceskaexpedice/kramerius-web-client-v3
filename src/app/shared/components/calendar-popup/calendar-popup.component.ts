@@ -33,6 +33,7 @@ import { Subject, take } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside.directive';
+import { parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -559,10 +560,9 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
 
-  // Utility: parse date from DD.MM.YYYY
+  // Utility: parse a publication date, tolerating day ranges (see issue #166).
   parseDate(str: string): Date | null {
-    const [day, month, year] = str.split('.').map(Number);
-    return day && month && year ? new Date(year, month - 1, day) : null;
+    return parseIssueDateStr(str);
   }
 
   formatDateKey(date: Date): string {
@@ -750,7 +750,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
 
     for (const item of items) {
-      const date = this.parseDate(item['date.str']);
+      const date = parseIssueStartDate(item);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);

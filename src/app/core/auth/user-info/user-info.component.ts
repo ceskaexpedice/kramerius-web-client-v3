@@ -39,6 +39,12 @@ export class UserInfoComponent {
 
   private readonly showDownloadHistory = this.config.features.showExportHistory ?? false;
 
+  /**
+   * When `features.keycloak` is off there is no identity provider, so neither the
+   * login button nor the signed-in user menu is rendered.
+   */
+  readonly loginEnabled = this.config.isLoginEnabled();
+
   userMenuItems: MenuItem[] = [
     { id: this.userMenuItemsIds.account, label: _('user-info--my-account'), icon: 'user-square' },
     { id: this.userMenuItemsIds.settings, label: _('settings'), icon: 'settings-2' },

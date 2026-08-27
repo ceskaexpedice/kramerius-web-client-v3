@@ -1,11 +1,11 @@
-@if (!(isAuthenticated | async)) {
+@if (loginEnabled && !(isAuthenticated | async)) {
   <button type="button" class="cursor-pointer login-link" (click)="login()">{{'log-in' | translate}}</button>
 }
 
 <!--{{(user | async)?.name}}-->
 <!--<a class="cursor-pointer" (click)="logout()">{{'log-out' | translate}}</a>-->
 
-@if ((isAuthenticated | async)) {
+@if (loginEnabled && (isAuthenticated | async)) {
 
   <app-menu
     [displayName]="truncateDisplayName((user | async)?.name)"

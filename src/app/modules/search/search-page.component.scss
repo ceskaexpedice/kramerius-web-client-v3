@@ -3,8 +3,7 @@
 :host {
   display: block;
   padding: 0 var(--search-page-padding);
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
-  overflow-y: auto;
+  min-height: calc(100dvh - var(--header-height) - var(--playback-bar-height, 0px));
 
   app-search-hero {
     display: block;
@@ -24,6 +23,7 @@
   }
 
   app-footer {
+    display: block;
     margin-left: calc(var(--search-page-padding) * -1);
     margin-right: calc(var(--search-page-padding) * -1);
   }

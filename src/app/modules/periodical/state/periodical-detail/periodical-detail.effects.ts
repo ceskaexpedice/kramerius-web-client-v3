@@ -32,6 +32,7 @@ import { Router } from '@angular/router';
 import { APP_ROUTES_ENUM } from '../../../../app.routes';
 import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
 import { CustomSearchService } from '../../../../shared/services/custom-search.service';
+import { buildDateOverlapQuery } from '../../../../shared/utils/date-range-query';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -458,11 +459,18 @@ export class PeriodicalDetailEffects {
     this.actions$.pipe(
       ofType(PeriodicalDetailActions.loadMonthIssues),
       switchMap(({ parentVolumeUuid, year, month }) => {
-        // build date range: [YYYY-MM-01 TO YYYY-MM-lastDay]
-        const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
-        const end = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
-
-        const fq = [`date.min:[${start.toISOString()} TO ${end.toISOString()}]`];
+        // An issue belongs to this month if its publication range OVERLAPS it, not
+        // only if it starts in it: a range like 31.12.1998-01.01.1999 has date.min
+        // in December but is still shown on 31.12., and a range starting in the
+        // previous month must not disappear from either month (see issue #166).
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+        const fq = [
+          buildDateOverlapQuery({
+            dateFrom: `${year}-${pad(month)}-01`,
+            dateTo: `${year}-${pad(month)}-${pad(lastDay)}`,
+          })!,
+        ];
 
         return this.solr.getPeriodicalItems(
           parentVolumeUuid,

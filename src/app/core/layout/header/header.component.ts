@@ -63,9 +63,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Track the application's effective theme correctly considering system overrides
   effectiveTheme: 'light' | 'dark' = 'light';
 
-  // Dynamic header branding
-  headerLogo: string = '/favicon.svg';
-  headerLogoDark: string = '/favicon-dark.svg';
+  // Dynamic header branding. Empty until resolved from config; an unconfigured
+  // logo stays empty so the header renders no image at all.
+  headerLogo: string = '';
+  headerLogoDark: string = '';
 
   /** Localized library name from config (local config or registry fallback). */
   get headerName(): string {
@@ -131,6 +132,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /** True when the active instance is the default CDK aggregator. */
   get isCdk(): boolean { return this.configService.isCdk(); }
 
+  /**
+   * Favorites/folders live per user account, so the heart button is hidden when
+   * either `features.folders` or `features.keycloak` is off.
+   */
+  get foldersEnabled(): boolean { return this.configService.isFoldersEnabled(); }
+
   /** Real URL for the logo anchor so it can be opened in a new tab (ctrl/cmd/middle-click). */
   get homeHref(): string {
     return this.router.serializeUrl(this.router.createUrlTree(this.homeLink));
@@ -177,14 +184,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // library's own local config or — for a switched-to library without one —
     // from the central registry (see ConfigService.buildRegistryFallbackConfig).
     // CDK keeps its own bundled logo regardless.
-    if (this.configService.isCdk()) {
-      this.headerLogo = 'img/logo.svg';
-      this.headerLogoDark = 'img/logo-darkmode.svg';
-    } else {
-      const logo = this.configService.app.logo;
-      this.headerLogo = logo || '/favicon.svg';
-      this.headerLogoDark = logo || '/favicon-dark.svg';
-    }
+    this.resolveBranding();
 
     this.logDevInfo();
   }
@@ -247,6 +247,51 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.isOnCollectionRoute
       ? this.translate.instant('search-in-collection-placeholder')
       : this.searchPlaceholderService.placeholder();
+  }
+
+  /**
+   * The logo for the current theme, or '' when this deployment configures none.
+   * The template keys the `@if` off this same value, so it never renders an
+   * `<img>` with an empty `src` (which the browser resolves against the page URL
+   * and reports as a broken image).
+   */
+  get activeLogo(): string {
+    return this.effectiveTheme === 'light' ? this.headerLogo : this.headerLogoDark;
+  }
+
+  /**
+   * Resolves the header logo pair from config.
+   *
+   * The logo is config-driven only: a deployment that configures no `app.logo`
+   * gets **no logo at all**, not a stand-in. Both previous fallbacks stamped
+   * someone else's branding onto an unbranded instance — the bundled CDK logos
+   * for any `app.code` containing "cdk", and `/favicon.svg` for everyone else —
+   * so a library that deliberately ships without a logo still showed one.
+   *
+   * `app.logoDark` stays optional: libraries that ship a single logo keep it in
+   * both themes. Same idea as the donator logos in metadata-section.ts — prefer
+   * the dark variant, fall back to the light one.
+   */
+  private resolveBranding(): void {
+    const logo = this.configService.app.logo;
+    const logoDark = this.configService.app.logoDark;
+    this.headerLogo = logo || '';
+    this.headerLogoDark = logoDark || logo || '';
+  }
+
+  /**
+   * Fallback for a configured `app.logoDark` that fails to load (bad path in the
+   * config, or a file that was never uploaded): swap back to the light logo so a
+   * broken image never lands in the header. Hides the image instead when there
+   * is no light logo to fall back to, or when the light logo is what broke —
+   * both would otherwise loop or leave a broken-image icon behind.
+   */
+  onLogoError(img: HTMLImageElement) {
+    if (!this.headerLogo || img.getAttribute('src') === this.headerLogo) {
+      img.style.display = 'none';
+      return;
+    }
+    img.src = this.headerLogo;
   }
 
   onLogoLoad(img: HTMLImageElement) {

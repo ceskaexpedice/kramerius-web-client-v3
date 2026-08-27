@@ -34,7 +34,7 @@ export class AppTranslationService {
     return this.availableLanguageCodes.map((code: string) => ({
       code,
       name: this.languageName(code),
-      icon: `img/flag/${code}.svg`,
+      icon: `img/flag/${this.flagCode(code)}.svg`,
     }));
   }
 
@@ -102,12 +102,33 @@ export class AppTranslationService {
     }
   }
 
+  /**
+   * Flag asset for a language code. Most codes match the flag file name, but
+   * regional variants do not (`zh-CN`/`zh-TW` ship as `cn`/`tw`).
+   */
+  private flagCode(code: string): string {
+    switch (code) {
+      case 'zh-CN': return 'cn';
+      case 'zh-TW': return 'tw';
+      default: return code;
+    }
+  }
+
   private languageName(code: string): string {
     switch (code) {
       case 'cs': return 'Čeština';
       case 'en': return 'English';
       case 'sk': return 'Slovenčina';
       case 'pl': return 'Polski';
+      case 'de': return 'Deutsch';
+      case 'et': return 'Eesti';
+      case 'hu': return 'Magyar';
+      case 'lt': return 'Lietuvių';
+      case 'pt': return 'Português';
+      case 'sl': return 'Slovenščina';
+      case 'sv': return 'Svenska';
+      case 'zh-CN': return '简体中文';
+      case 'zh-TW': return '繁體中文';
       default: return code;
     }
   }

@@ -1,5 +1,12 @@
 @use "_z-index" as *;
 
+:host {
+  // Exposed as custom properties so the component can read the intended dropdown
+  // size before that element has rendered, without duplicating the numbers in TS.
+  --lang-dropdown-width: 225px;
+  --lang-dropdown-max-height: 320px;
+}
+
 .lang-switcher-pos {
   position: relative;
   display: inline-block;
@@ -95,8 +102,9 @@
     left: 0;
     right: auto;
   }
-  width: 225px;
-  max-height: 320px;
+
+  width: var(--lang-dropdown-width);
+  max-height: var(--lang-dropdown-max-height);
   overflow-y: auto;
   background-color: var(--color-bg-base);
   border: 1px solid var(--color-primary);

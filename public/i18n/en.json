@@ -802,6 +802,7 @@
   "ai.tts-pause": "Pause reading",
   "ai.tts-resume": "Resume reading",
   "ai.tts-stop": "Stop reading",
+  "ai.tts-blocked": "Tap to start reading",
   "ai.loading": "Processing...",
   "ai.loading-translation": "Working on translation",
   "ai.loading-summary": "Working on summary",
@@ -821,7 +822,7 @@
   "ai.login-required": "Available after login",
   "ai.login-register-link": "How can I register and what do I get?",
   "ai.login-button": "Log in",
-
+  "ai.quota-exceeded": "The monthly AI usage limit has been reached. Please try again later.",
   "settings.tts.language": "Language",
   "settings.tts.voice": "Voice",
   "settings.tts.preview": "Preview",

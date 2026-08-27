@@ -14,7 +14,9 @@
 }
 
 <ng-template cdkConnectedOverlay [cdkConnectedOverlayOpen]="open()" [cdkConnectedOverlayOrigin]="triggerEl()!"
-  [cdkConnectedOverlayHasBackdrop]="false" [cdkConnectedOverlayPositions]="overlayPositions()" (backdropClick)="close()"
+  [cdkConnectedOverlayHasBackdrop]="false" [cdkConnectedOverlayPositions]="overlayPositions()"
+  [cdkConnectedOverlayViewportMargin]="8" [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (backdropClick)="close()"
   (detach)="close()">
   <div class="menu-panel" role="menu" cdkTrapFocus (keydown.escape)="close()" (keydown.arrowDown)="focusNext()"
     (keydown.arrowUp)="focusPrev()" (keydown.home)="focusIndex(0)" (keydown.end)="focusIndex(items().length - 1)"

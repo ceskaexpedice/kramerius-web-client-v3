@@ -311,6 +311,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   private static readonly VIEWER_MENU_ACTION_IDS = new Set([
     'select-area', 'fullscreen', 'fit-to-screen', 'fit-to-width',
     'zoom-lock', 'scroll-mode', 'rotate', 'page-text', 'book-mode',
+    // Read-aloud controls, which on compact viewports are only reachable here.
+    'tts-play-pause', 'tts-stop',
   ]);
 
   /**

@@ -19,10 +19,12 @@
   }
 
   @if (expanded) {
-    <div class="available-languages"
+    <div #dropdown class="available-languages"
          [class.available-languages--absolute]="!dropdownFixed"
          [style.top.px]="dropdownFixed ? dropdownTop : null"
-         [style.right.px]="dropdownFixed ? dropdownRight : null">
+         [style.right.px]="dropdownFixed ? dropdownRight : null"
+         [style.max-width.px]="dropdownFixed ? dropdownMaxWidth : null"
+         [style.max-height.px]="dropdownFixed ? dropdownMaxHeight : null">
       <div class="languages-list" role="listbox" [attr.aria-label]="'select-language--arialabel' | translate">
         @for (lang of languages; track lang.code) {
           <button type="button" class="lang-item" (click)="pick(lang.code)"

@@ -1,3 +1,5 @@
+@use 'mixins' as m;
+
 .ai-content-toolbar {
   display: flex;
   align-items: center;
@@ -6,11 +8,16 @@
   border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
   gap: var(--spacing-x3);
+  // Roughly ten controls live here. Without wrapping they overflow a narrow
+  // panel and the trailing ones — including close — end up off-screen and
+  // unreachable (issue #161).
+  flex-wrap: wrap;
 
   &__left {
     display: flex;
     align-items: center;
     gap: var(--spacing-x3);
+    min-width: 0;
   }
 
   &__title {
@@ -18,14 +25,36 @@
     font-weight: var(--font-weight-semi-bold);
     color: var(--color-text-secondary);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   &__right {
     display: flex;
     align-items: center;
     gap: var(--spacing-x2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex-shrink: 0;
   }
 
+  @include m.respond(mobile-sm) {
+    padding: var(--spacing-x2);
+    gap: var(--spacing-x2);
+
+    &__title {
+      display: none;
+    }
+
+    &__left {
+      flex: 0 1 auto;
+    }
+
+    &__right {
+      flex: 0 1 auto;
+    }
+  }
 }
 
 :host ::ng-deep mat-slide-toggle label {

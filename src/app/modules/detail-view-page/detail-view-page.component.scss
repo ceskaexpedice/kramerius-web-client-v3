@@ -151,6 +151,27 @@ app-fullscreen {
       border-left: 1px solid var(--color-border-light);
       margin-right: var(--spacing-x3);
     }
+
+    @include m.respond(mobile-sm) {
+      flex-direction: column;
+
+      .detail-view--page--content--wrapper {
+        min-width: 100%;
+        min-height: 0;
+      }
+
+      app-ai-content-panel {
+        min-width: 100%;
+        min-height: 0;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        margin-right: 0;
+      }
+    }
+
+    @media (max-height: 620px) and (min-width: 604px) {
+      flex-direction: row;
+    }
   }
 
   &.ai-only-view {

@@ -792,6 +792,7 @@
   "ai.tts-pause": "Wstrzymaj czytanie",
   "ai.tts-resume": "Wznów czytanie",
   "ai.tts-stop": "Zatrzymaj czytanie",
+  "ai.tts-blocked": "Dotknij, aby rozpocząć czytanie",
   "ai.loading": "Przetwarzam...",
   "ai.loading-translation": "Pracujemy nad tłumaczeniem",
   "ai.loading-summary": "Pracujemy nad podsumowaniem",
@@ -811,7 +812,7 @@
   "ai.login-required": "Dostępne po zalogowaniu",
   "ai.login-register-link": "Jak mogę się zarejestrować i co zyskam?",
   "ai.login-button": "Zaloguj się",
-
+  "ai.quota-exceeded": "Miesięczny limit funkcji AI został wyczerpany. Spróbuj ponownie później.",
   "settings.tts.language": "Język",
   "settings.tts.voice": "Głos",
   "settings.tts.preview": "Odtwórz",

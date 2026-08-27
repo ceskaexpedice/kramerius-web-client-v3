@@ -1,24 +1,35 @@
 {
   "app": {
     "code": "cdk",
-    "name": { "cs": "Česká digitální knihovna", "en": "Czech Digital Library", "sk": "Česká digitálna knižnica", "pl": "Czeska Biblioteka Cyfrowa" },
+    "name": {
+      "cs": "Česká digitální knihovna",
+      "en": "Czech Digital Library",
+      "sk": "Česká digitálna knižnica",
+      "pl": "Czeska Biblioteka Cyfrowa",
+      "de": "Tschechische digitale Bibliothek"
+    },
     "contactEmail": "info@ceskadigitalniknihovna.cz",
-    "logo": "/favicon.svg",
+    "logo": "/img/logo.svg",
+    "logoDark": "/img/logo-darkmode.svg",
     "adminClientUrl": "https://admin.kramerius.ceskadigitalniknihovna.cz"
   },
-
   "api": {
     "baseUrl": "https://cdk-api.dev.ceskadigitalniknihovna.cz/search/api/client",
     "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
-    "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest"
+    "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest",
+    "aiProxyUrl": "https://api.trinera.cloud/api"
   },
-
   "i18n": {
     "defaultLanguage": "cs",
     "fallbackLanguage": "en",
-    "supportedLanguages": ["cs", "en", "sk", "pl"]
+    "supportedLanguages": [
+      "cs",
+      "en",
+      "sk",
+      "pl",
+      "de"
+    ]
   },
-
   "integrations": {
     "clientId": "",
     "analytics": {
@@ -31,7 +42,6 @@
       "apiKey": "AIzaSyCGDIOYeh5bw_vsBcZxZH3GOzmA0aetqBw"
     }
   },
-
   "features": {
     "keycloak": true,
     "mapSearch": true,
@@ -40,13 +50,11 @@
     "ai": true,
     "folders": true,
     "librarySwitch": true,
-    "showExportHistory": false
+    "showExportHistory": true
   },
-
   "ui": {
     "cookiebar": true
   },
-
   "export": {
     "print": true,
     "jpeg": true,
@@ -55,10 +63,12 @@
     "txt": true,
     "enrichWithAI": true
   },
-
   "viewer": {
     "defaultMode": "single",
-    "availableModes": ["book", "single"],
+    "availableModes": [
+      "book",
+      "single"
+    ],
     "rememberLastMode": true,
     "controls": {
       "zoomIn": true,
@@ -77,7 +87,6 @@
       "share": true
     }
   },
-
   "search": {
     "doctypes": [
       "monograph",
@@ -99,40 +108,62 @@
     ],
     "facetThreads": -1
   },
-
   "pages": [
     {
       "id": "about",
-      "label": { "cs": "O projektu", "en": "About", "sk": "O projekte", "pl": "O projekcie" },
-      "content": { "cs": "local-config/html/about/about.cs.html", "en": "local-config/html/about/about.en.html" },
+      "label": {
+        "cs": "O projektu",
+        "en": "About",
+        "sk": "O projekte",
+        "pl": "O projekcie",
+        "de": "Über das Projekt"
+      },
+      "content": {
+        "cs": "local-config/html/about/about.cs.html",
+        "en": "local-config/html/about/about.en.html",
+        "de": "local-config/html/about/about.de.html"
+      },
       "showInHeader": true
     },
     {
       "id": "terms",
       "content": {
-        "cs": ["local-config/html/terms/terms.cs.html", "local-config/html/terms/terms2.cs.html"],
-        "en": ["local-config/html/terms/terms.en.html", "local-config/html/terms/terms2.en.html"]
+        "cs": [
+          "local-config/html/terms/terms.cs.html",
+          "local-config/html/terms/terms2.cs.html"
+        ],
+        "en": [
+          "local-config/html/terms/terms.en.html",
+          "local-config/html/terms/terms2.en.html"
+        ],
+        "de": [
+          "local-config/html/terms/terms.de.html",
+          "local-config/html/terms/terms2.de.html"
+        ]
       }
     },
     {
       "id": "copyright",
       "content": {
         "cs": "local-config/html/copyright/copyright.cs.html",
-        "en": "local-config/html/copyright/copyright.en.html"
+        "en": "local-config/html/copyright/copyright.en.html",
+        "de": "local-config/html/copyright/copyright.de.html"
       }
     },
     {
       "id": "gdpr",
       "content": {
         "cs": "local-config/html/gdpr/gdpr.cs.html",
-        "en": "local-config/html/gdpr/gdpr.en.html"
+        "en": "local-config/html/gdpr/gdpr.en.html",
+        "de": "local-config/html/gdpr/gdpr.de.html"
       }
     },
     {
       "id": "faq",
       "content": {
         "cs": "local-config/html/faq/faq.cs.html",
-        "en": "local-config/html/faq/faq.en.html"
+        "en": "local-config/html/faq/faq.en.html",
+        "de": "local-config/html/faq/faq.de.html"
       }
     }
   ]

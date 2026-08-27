@@ -4,6 +4,7 @@ export interface AppConfig {
   name: string | LocalizedLabel;   // e.g., 'Czech Digital Library' or { cs: '...', en: '...' }
   contactEmail: string;            // Contact email
   logo?: string;                   // URL to the app/library logo
+  logoDark?: string;               // URL to the dark-theme variant; falls back to `logo` when omitted
   adminClientUrl?: string;         // URL to admin client app
 }
 
@@ -12,6 +13,7 @@ export interface ApiConfig {
   baseUrl: string;          // API base URL
   citationUrl?: string;     // Citation service API URL
   georefUrl?: string;       // Georeference annotations API base URL (Allmaps annotations)
+  aiProxyUrl?: string;      // AI proxy API base URL (TTS, translation, summaries)
 }
 
 // Internationalization configuration

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import { ConfigService } from '../config/config.service';
 import { LocalStorageService } from '../../shared/services/local-storage.service';
 import { UserService } from '../../shared/services/user.service';
 import { Store } from '@ngrx/store';
@@ -24,6 +25,7 @@ export class AuthService {
   private storage = inject(LocalStorageService);
   private userService = inject(UserService);
   private store = inject(Store);
+  private config = inject(ConfigService);
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userSubject = new BehaviorSubject<User | null>(this.getStoredUser());
@@ -45,14 +47,30 @@ export class AuthService {
     return url;
   }
 
+  /**
+   * Whether login is available at all in this deployment (`features.keycloak`).
+   * Callers that render login affordances should check this before showing them;
+   * `login()` itself also refuses when it is false, so a stray call from a guard
+   * or a deep link can never navigate the user to Keycloak.
+   */
+  isLoginEnabled(): boolean {
+    return this.config.isLoginEnabled();
+  }
+
   login(returnUrl?: string) {
+    // features.keycloak off — there is no identity provider to send the user to.
+    if (!this.isLoginEnabled()) {
+      console.warn('AuthService: login is disabled (features.keycloak is false).');
+      return;
+    }
+
     console.log('AuthService returnUrl', returnUrl);
 
     if (returnUrl) {
       this.storage.set(this.ORIGINAL_ROUTE_KEY, returnUrl);
     }
     const redirectUri = `${window.location.origin}/auth/callback`;
-    window.location.href = `${this.API_URL}/auth/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    this.navigateExternal(`${this.API_URL}/auth/login?redirect_uri=${encodeURIComponent(redirectUri)}`);
   }
 
   exchangeCodeForToken(code: string): Observable<AuthTokens> {
@@ -109,7 +127,16 @@ export class AuthService {
     // anyway; when the user returns from Keycloak the app reloads fresh and the
     // locks re-render correctly at that point instead of before logout.
     const redirectUri = encodeURIComponent(window.location.href);
-    window.location.href = `${this.API_URL}/auth/logout?redirect_uri=${redirectUri}`;
+    this.navigateExternal(`${this.API_URL}/auth/logout?redirect_uri=${redirectUri}`);
+  }
+
+  /**
+   * Full-page navigation to the backend auth endpoints. Extracted into a method
+   * so specs can observe it — `window.location` cannot be redefined in current
+   * Chrome, which makes assigning `href` unobservable from a test.
+   */
+  protected navigateExternal(url: string): void {
+    window.location.href = url;
   }
 
   getAccessToken(): string | null {

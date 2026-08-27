@@ -1,0 +1,308 @@
+<style>
+  .cdk-footer {
+    --bg: #ffffff;
+    --bg-soft: #f4f7f8;
+    --ink: #1b2a33;
+    --slate: #51647e;
+    --muted: #76858d;
+    --brand: #0064cd;
+    --brand-deep: #0052ad;
+    --line: #e4ebed;
+    --maxw: 1200px;
+    color: var(--ink);
+    background: var(--bg);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    border-top: 3px solid var(--brand);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cdk-footer *,
+  .cdk-footer *::before,
+  .cdk-footer *::after { box-sizing: border-box }
+
+  .cdk-footer .container { max-width: var(--maxw); margin: 0 auto; padding: 0 32px }
+  .cdk-footer a { color: inherit; text-decoration: none }
+  .cdk-footer ul { list-style: none; margin: 0; padding: 0 }
+
+  /* ---------- HORNÍ ZÓNA: značka + navigace ---------- */
+  .cdk-footer .ftr-main { padding: 56px 0 44px }
+
+  .cdk-footer .grid-main {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px;
+  }
+
+  .cdk-footer .brand-mark { display: inline-flex; align-items: center; margin-bottom: 20px }
+  .cdk-footer .brand-mark img { height: 58px; width: auto; display: block }
+
+  .cdk-footer .brand-desc {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 34ch;
+    margin: 0 0 22px;
+  }
+
+  .cdk-footer .social { display: flex; gap: 10px }
+
+  .cdk-footer .social a {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--slate);
+    transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+
+  .cdk-footer .social a:hover {
+    color: #fff;
+    background: var(--brand);
+    border-color: var(--brand);
+    transform: translateY(-2px);
+  }
+
+  .cdk-footer .social svg { width: 18px; height: 18px; display: block }
+
+  .cdk-footer .col h3 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--slate);
+    margin: 6px 0 18px;
+  }
+
+  .cdk-footer .col li + li { margin-top: 11px }
+
+  .cdk-footer .col a {
+    font-size: 14.5px;
+    color: var(--ink);
+    position: relative;
+    transition: color .16s ease;
+  }
+
+  .cdk-footer .col a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 0;
+    background: var(--brand);
+    transition: width .2s ease;
+  }
+
+  .cdk-footer .col a:hover { color: var(--brand) }
+  .cdk-footer .col a:hover::after { width: 100% }
+
+  /* ---------- STŘEDNÍ ZÓNA: partneři ---------- */
+  .cdk-footer .ftr-partners {
+    background: var(--bg-soft);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cdk-footer .partners { display: flex; flex-wrap: wrap; gap: 48px 64px; padding: 34px 32px }
+  .cdk-footer .pgroup { display: flex; flex-direction: column; gap: 14px }
+
+  .cdk-footer .pgroup .plabel {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--muted);
+  }
+
+  .cdk-footer .plogos { display: flex; align-items: center; flex-wrap: wrap; gap: 28px }
+
+  .cdk-footer .plogos img {
+    height: 34px;
+    width: auto;
+    display: block;
+    opacity: .78;
+    transition: opacity .18s ease;
+  }
+
+  .cdk-footer .plogos a:hover img,
+  .cdk-footer .plogos img:hover { opacity: 1 }
+
+  .cdk-footer .plogos .lg-nk { height: 30px }
+
+  .cdk-footer .plogos .lg-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--slate);
+    letter-spacing: .01em;
+    opacity: .85;
+  }
+
+  /* ---------- SPODNÍ LIŠTA ---------- */
+  .cdk-footer .ftr-bottom .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 22px 32px;
+  }
+
+  .cdk-footer .copy { font-size: 13px; color: var(--muted); margin: 0 }
+  .cdk-footer .legal { display: flex; flex-wrap: wrap; gap: 8px 0 }
+  .cdk-footer .legal li { display: flex; align-items: center }
+
+  .cdk-footer .legal li:not(:last-child)::after {
+    content: "";
+    width: 1px;
+    height: 12px;
+    background: var(--line);
+    margin: 0 14px;
+  }
+
+  .cdk-footer .legal a { font-size: 13px; color: var(--slate); transition: color .16s ease }
+  .cdk-footer .legal a:hover { color: var(--brand) }
+
+  /* ---------- FOCUS / PŘÍSTUPNOST ---------- */
+  .cdk-footer a:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* ---------- RESPONSIVITA ---------- */
+  @media (max-width: 920px) {
+    .cdk-footer .grid-main { grid-template-columns: 1fr 1fr; gap: 40px 32px }
+    .cdk-footer .brand { grid-column: 1 / -1 }
+  }
+
+  @media (max-width: 560px) {
+    .cdk-footer .container,
+    .cdk-footer .partners,
+    .cdk-footer .ftr-bottom .bottom { padding-left: 22px; padding-right: 22px }
+
+    .cdk-footer .ftr-main { padding: 40px 0 32px }
+    .cdk-footer .grid-main { grid-template-columns: 1fr; gap: 32px }
+    .cdk-footer .partners { gap: 30px; flex-direction: column }
+    .cdk-footer .ftr-bottom .bottom { justify-content: flex-start }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cdk-footer * { transition: none !important }
+  }
+</style>
+
+<footer class="cdk-footer" aria-labelledby="ftr-heading">
+  <h2 id="ftr-heading" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Patička webu</h2>
+
+  <!-- HORNÍ ZÓNA -->
+  <div class="ftr-main">
+    <div class="container grid-main">
+      <div class="brand">
+        <a class="brand-mark" href="/" aria-label="Česká digitální knihovna – domů">
+          <img src="img/logo.svg" alt="Česká digitální knihovna">
+        </a>
+        <p class="brand-desc">Portál pro vyhledávání a zpřístupnění digitalizovaných dokumentů z českých knihoven.</p>
+        <div class="social">
+          <a href="https://www.instagram.com/ceskadigitalniknihovna" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+              <circle cx="12" cy="12" r="4"></circle>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/ceskadigitalniknihovna" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M14 9h3l.4-3H14V4.3c0-.86.24-1.45 1.48-1.45H17.5V.17C17.16.12 16.2 0 15.07 0 12.72 0 11.1 1.43 11.1 4.06V6H8v3h3.1v8H14V9z"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <nav class="col" aria-label="Prohlížení">
+        <h3>Prohlížení</h3>
+        <ul>
+          <li><a href="#">Vyhledávání</a></li>
+          <li><a href="#">Sbírky a fondy</a></li>
+          <li><a href="#">Periodika</a></li>
+          <li><a href="#">Monografie</a></li>
+          <li><a href="#">Novinky</a></li>
+        </ul>
+      </nav>
+
+      <nav class="col" aria-label="Pro knihovny">
+        <h3>Pro knihovny</h3>
+        <ul>
+          <li><a href="#">Jak se zapojit</a></li>
+          <li><a href="#">Technická dokumentace</a></li>
+          <li><a href="#">API a sklízení (OAI-PMH)</a></li>
+          <li><a href="#">Stav služeb</a></li>
+        </ul>
+      </nav>
+
+      <nav class="col" aria-label="Nápověda">
+        <h3>Nápověda</h3>
+        <ul>
+          <li><a href="#">Časté dotazy</a></li>
+          <li><a href="#">Podmínky užití</a></li>
+          <li><a href="#">Přístupnost</a></li>
+          <li><a href="#">Kontakt</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- STŘEDNÍ ZÓNA: partneři -->
+  <div class="ftr-partners">
+    <div class="container partners">
+      <div class="pgroup">
+        <span class="plabel">Financuje</span>
+        <div class="plogos">
+          <span class="lg-text">RightLib</span>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <span class="plabel">Provozuje</span>
+        <div class="plogos">
+          <a href="https://www.mzk.cz" target="_blank" rel="noopener noreferrer" aria-label="Moravská zemská knihovna">
+            <img src="img/logo/mzk-logo.png" alt="Moravská zemská knihovna">
+          </a>
+          <a href="https://www.nkp.cz" target="_blank" rel="noopener noreferrer" aria-label="Národní knihovna ČR">
+            <img class="lg-nk" src="img/logo/nk-logo.png" alt="Národní knihovna ČR">
+          </a>
+          <a href="https://lib.cas.cz/" target="_blank" rel="noopener noreferrer" aria-label="Knihovna Akademie věd ČR">
+            <img src="img/logo/avcr-logo.png" alt="Knihovna Akademie věd ČR">
+          </a>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <span class="plabel">Vývoj</span>
+        <div class="plogos">
+          <a href="https://www.trinera.cz" target="_blank" rel="noopener noreferrer" aria-label="Trinera">
+            <img src="img/logo/trinera-logo.png" alt="Trinera">
+          </a>
+          <a href="https://inovatika.cz/" target="_blank" rel="noopener noreferrer" aria-label="Inovatika">
+            <img src="img/logo/inovatika-logo.png" alt="Inovatika">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPODNÍ LIŠTA -->
+  <div class="ftr-bottom">
+    <div class="container bottom">
+      <p class="copy">©2026 Česká digitální knihovna</p>
+      <ul class="legal">
+        <li><a href="/institutions">Zapojené instituce</a></li>
+        <li><a href="#">Ochrana osobních údajů</a></li>
+        <li><a href="#">Prohlášení o přístupnosti</a></li>
+        <li><a href="#">Cookies</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

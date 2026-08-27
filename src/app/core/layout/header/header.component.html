@@ -6,10 +6,11 @@
 
 <!--      <app-thumbnail-image [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark" [alt]="headerName || 'Česká digitální knihovna'" ></app-thumbnail-image>-->
 
-      @if (headerLogo || headerLogoDark) {
-        <img #logoImg [src]="effectiveTheme === 'light' ? headerLogo : headerLogoDark"
+      @if (activeLogo) {
+        <img #logoImg [src]="activeLogo"
              [alt]="headerName || 'Česká digitální knihovna'"
-             (load)="onLogoLoad(logoImg)" />
+             (load)="onLogoLoad(logoImg)"
+             (error)="onLogoError(logoImg)" />
       }
       @if (!isCdk && ((homepageTitle | localized) || headerName)) {
         <span class="header-client-name">{{ (homepageTitle | localized) || headerName }}</span>
@@ -78,14 +79,16 @@
         <i class="icon-search-normal-1" aria-hidden="true"></i>
       </button>
 
-      <button class="icon-button saved-lists-btn" [class.hide-on-search-active]="isMobileSearchOpen"
-        [appCdkTooltip]="'user-info--saved-lists' | translate" [tooltipPosition]="'bottom'" (click)="openSavedLists()">
-        <i class="icon-heart" aria-hidden="true">
-          @if (!isLoggedIn()) {
-            <span class="saved-lists-btn__dot"></span>
-          }
-        </i>
-      </button>
+      @if (foldersEnabled) {
+        <button class="icon-button saved-lists-btn" [class.hide-on-search-active]="isMobileSearchOpen"
+          [appCdkTooltip]="'user-info--saved-lists' | translate" [tooltipPosition]="'bottom'" (click)="openSavedLists()">
+          <i class="icon-heart" aria-hidden="true">
+            @if (!isLoggedIn()) {
+              <span class="saved-lists-btn__dot"></span>
+            }
+          </i>
+        </button>
+      }
 
       @if (!isLoggedIn() || isMobileSearchOpen) {
         <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
