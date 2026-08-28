@@ -5,6 +5,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 export interface LicenseInfoDialogData {
     title: string;
     content: string;
+    /**
+     * True when `title`/`content` are already-resolved strings (e.g. HTML loaded from
+     * a license's `messagePages`) rather than translation keys. Callers that pass raw
+     * content must set this so the template renders it verbatim instead of pushing it
+     * through the translate pipe.
+     */
+    raw?: boolean;
 }
 
 @Component({
