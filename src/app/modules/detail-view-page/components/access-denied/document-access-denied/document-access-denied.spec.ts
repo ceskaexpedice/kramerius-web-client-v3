@@ -89,3 +89,58 @@ describe('DocumentAccessDenied code$ subscription behaviour (skip(1))', () => {
     expect(reload).toHaveBeenCalledTimes(2);
   });
 });
+
+/**
+ * Regression coverage for the bug this feature was reported against: the license
+ * info dialog on the access-denied screen used to read STATIC translation keys
+ * (`access-denied.dialog.<type>.content`, where `getType()` collapses everything
+ * except dnnto/dnntt to `other`). It never consulted config at all, so the main
+ * license text stayed identical for every library — the source-scoped
+ * `messagePages` of `onsite__mzk` / `onsite__nkp` could never reach the screen,
+ * even though `instructionPage` (which does go through ConfigService) worked.
+ */
+describe('DocumentAccessDenied.openLicenseDialog', () => {
+  function makeComponent(messagePageUrl: string | null, html: string) {
+    const component = Object.create(DocumentAccessDenied.prototype) as DocumentAccessDenied;
+    const opened: any[] = [];
+    (component as any).configService = {
+      getMessagePageUrl: () => messagePageUrl,
+      loadHtmlContent: () => Promise.resolve(html),
+      getLocalizedLabel: (_t: string, key: string) => key,
+    };
+    (component as any).translationService = { currentLanguage: () => ({ code: 'cs' }) };
+    (component as any).translate = { instant: (key: string) => key };
+    (component as any).dialog = { open: (_c: unknown, cfg: any) => { opened.push(cfg.data); } };
+    return { component, opened };
+  }
+
+  it('shows the license description from config instead of the static translation key', async () => {
+    const { component, opened } = makeComponent('licence_onsite_mzk.cs.html', '<p>MZK text</p>');
+
+    await component.openLicenseDialog('onsite');
+
+    expect(opened.length).toBe(1);
+    expect(opened[0].content).toBe('<p>MZK text</p>');
+    expect(opened[0].raw).toBe(true);
+    // The old behaviour passed a translation key; it must not come back.
+    expect(opened[0].content).not.toBe('access-denied.dialog.other.content');
+  });
+
+  it('falls back to the translation keys when no message page is configured', async () => {
+    const { component, opened } = makeComponent(null, '');
+
+    await component.openLicenseDialog('onsite');
+
+    expect(opened.length).toBe(1);
+    expect(opened[0].content).toBe('access-denied.dialog.other.content');
+    expect(opened[0].raw).toBeUndefined();
+  });
+
+  it('falls back to the translation keys when the configured page loads empty', async () => {
+    const { component, opened } = makeComponent('licence_onsite.cs.html', '');
+
+    await component.openLicenseDialog('onsite');
+
+    expect(opened[0].content).toBe('access-denied.dialog.other.content');
+  });
+});

@@ -24,7 +24,7 @@
                                               (submit)="onJpegSubmit($event)"></app-export-document-section-item-component>
   }
 
-  @if (pdfEnabled) {
+  @if (pdfEnabled()) {
   <app-export-document-section-item-component
     [title]="'export-pdf-title'"
     [icon]="'icon-document-download'"
@@ -39,7 +39,7 @@
   </app-export-document-section-item-component>
   }
 
-  @if (epubEnabled && !detailViewService.isPdf) {
+  @if (epubEnabled() && !detailViewService.isPdf) {
   <app-export-document-section-item-component
     [title]="'export-epub-title'"
     [icon]="'icon-book-export'"

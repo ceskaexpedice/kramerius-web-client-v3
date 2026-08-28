@@ -6,7 +6,9 @@
 
   <div class="input-container" [ngClass]="[theme, size, clickable ? 'clickable' : '', withIcons ? 'with-icons' : '']">
     <!-- Prefix Icon -->
-    <span class="prefix-icon" *ngIf="prefixIcon">
+    <span class="prefix-icon" *ngIf="prefixIcon"
+      [class.clickable-icon]="prefixIconClick.observed"
+      (click)="onPrefixIconClick($event)">
       <i [class]="prefixIcon"></i>
     </span>
 

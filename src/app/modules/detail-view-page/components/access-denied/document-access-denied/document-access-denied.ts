@@ -316,7 +316,32 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     return this.licenseTypes.has('dnnto') || this.licenseTypes.has('dnntt');
   }
 
-  openLicenseDialog(type: string) {
+  /** Message page key holding the license description shown in the info dialog. */
+  private static readonly LICENSE_INFO_PAGE_KEY = 'unauthenticated';
+
+  async openLicenseDialog(type: string) {
+    // Prefer the license's own description from config (`messagePages`), which is
+    // source-scoped: with a CDK member library selected this resolves to that
+    // library's text (e.g. `onsite__mzk`) instead of the generic one. Only when no
+    // message page is configured do we fall back to the static translation keys,
+    // which lump every non-DNNT license together under `other`.
+    const lang = this.translationService.currentLanguage().code;
+    const url = this.configService.getMessagePageUrl(
+      type, DocumentAccessDenied.LICENSE_INFO_PAGE_KEY, lang
+    );
+
+    if (url) {
+      const content = await this.configService.loadHtmlContent(url);
+      if (content) {
+        this.dialog.open(LicenseInfoDialogComponent, {
+          data: { title: this.licenseLabel(type), content, raw: true },
+          autoFocus: false,
+          panelClass: 'simple-dialog-panel'
+        });
+        return;
+      }
+    }
+
     this.dialog.open(LicenseInfoDialogComponent, {
       data: {
         title: `access-denied.dialog.${this.getType(type)}.title`,

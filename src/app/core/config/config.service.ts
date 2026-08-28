@@ -454,9 +454,45 @@ export class ConfigService {
   }
 
   /**
+   * Library codes whose backend runs the public worker that generates the
+   * whole-document PDF and EPUB exports. Everywhere else those two formats are
+   * unavailable regardless of config, because the request would simply fail.
+   *
+   * Hardcoded deliberately (decision of 2026-08-27): the list tracks worker
+   * rollout, not per-instance preference. Extend it as libraries gain the worker
+   * — and once every library has it, drop this gate and let config decide again.
+   */
+  private static readonly PUBLIC_WORKER_LIBRARIES = ['knav', 'nkp'];
+
+  /** Export formats produced by the public worker. */
+  private static readonly PUBLIC_WORKER_FORMATS: ExportFormat[] = ['pdf', 'epub'];
+
+  /**
+   * True when the library that actually serves the open document runs the public
+   * worker.
+   *
+   * On CDK this is NOT the instance code (`app.code` is always `cdk` there) but the
+   * selected `cdk.collection` member — the library the document's data is being
+   * loaded from, which is also the backend that would have to produce the export.
+   * Off CDK there is no source, so the instance's own code decides.
+   */
+  private hasPublicWorker(): boolean {
+    const code = this.cdkSource.getCode() || this.envService.getKrameriusId() || this.app?.code || '';
+    return ConfigService.PUBLIC_WORKER_LIBRARIES.some(lib => code.includes(lib));
+  }
+
+  /**
    * Check whether a document export format (print/jpeg/pdf/epub/txt) is enabled.
+   *
+   * PDF and EPUB additionally require the serving library's backend to run the
+   * public worker — config alone cannot enable them for a library that has none.
+   * Because that depends on the selected CDK source, callers must re-evaluate this
+   * when the source changes (see `CdkSourceService.code$`).
    */
   isExportFormatEnabled(format: ExportFormat): boolean {
+    if (ConfigService.PUBLIC_WORKER_FORMATS.includes(format) && !this.hasPublicWorker()) {
+      return false;
+    }
     return this.export[format] ?? true;
   }
 
@@ -466,7 +502,10 @@ export class ConfigService {
    */
   isAnyExportFormatEnabled(): boolean {
     const formats: ExportFormat[] = ['print', 'jpeg', 'pdf', 'epub', 'txt'];
-    return formats.some(f => this.export[f]);
+    // Goes through isExportFormatEnabled so the public-worker gate counts here too:
+    // a library whose only configured formats are pdf/epub must not show an empty
+    // export tab.
+    return formats.some(f => this.isExportFormatEnabled(f));
   }
 
   /**

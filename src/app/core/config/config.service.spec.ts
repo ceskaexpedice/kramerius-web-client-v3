@@ -264,3 +264,102 @@ describe('ConfigService source-scoped license resolution — language-chain fall
     expect(service.getMessagePageUrl('onsite', 'unauthenticated', 'cs')).toBe('variant-message-en.html');
   });
 });
+
+/**
+ * Whole-document PDF and EPUB are produced by the backend "public worker", which
+ * currently runs only at KNAV and NKP (decision of 2026-08-27).
+ *
+ * The deciding factor is the library that SERVES the document, not the instance the
+ * user is on: on CDK `app.code` is always `cdk`, and the aggregated document is
+ * fetched from the selected `cdk.collection` member — that member's backend is the
+ * one that would have to produce the export. Off CDK no source is set and the
+ * instance's own code decides.
+ */
+describe('ConfigService public-worker export gate', () => {
+  function serviceFor(
+    opts: { source?: string | null; krameriusId?: string; exportConfig?: Record<string, boolean> },
+  ) {
+    const { source = null, krameriusId = 'cdk' } = opts;
+    const exportConfig = opts.exportConfig ?? { print: true, jpeg: true, pdf: true, epub: true, txt: true };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        ConfigService,
+        CdkSourceService,
+        {
+          provide: EnvironmentService,
+          useValue: { getKrameriusId: () => krameriusId, isLibrarySwitchEnabled: () => true },
+        },
+      ],
+    });
+    const service = TestBed.inject(ConfigService);
+    TestBed.inject(CdkSourceService).setCode(source);
+    (service as any).config$.next({
+      ...service.getConfig(),
+      app: { ...service.getConfig().app, code: krameriusId },
+      export: exportConfig,
+    });
+    return service;
+  }
+
+  it('allows pdf and epub when the selected CDK source is knav', () => {
+    const service = serviceFor({ source: 'knav' });
+    expect(service.isExportFormatEnabled('pdf')).toBe(true);
+    expect(service.isExportFormatEnabled('epub')).toBe(true);
+  });
+
+  it('allows pdf and epub when the selected CDK source is nkp', () => {
+    const service = serviceFor({ source: 'nkp' });
+    expect(service.isExportFormatEnabled('pdf')).toBe(true);
+    expect(service.isExportFormatEnabled('epub')).toBe(true);
+  });
+
+  it('blocks pdf and epub when the selected CDK source has no public worker', () => {
+    const service = serviceFor({ source: 'mzk' });
+    expect(service.isExportFormatEnabled('pdf')).toBe(false);
+    expect(service.isExportFormatEnabled('epub')).toBe(false);
+  });
+
+  it('reflects a source switch: mzk blocks, switching to knav allows', () => {
+    const service = serviceFor({ source: 'mzk' });
+    expect(service.isExportFormatEnabled('pdf')).toBe(false);
+    TestBed.inject(CdkSourceService).setCode('knav');
+    expect(service.isExportFormatEnabled('pdf')).toBe(true);
+  });
+
+  it('blocks pdf and epub on the cdk aggregator when no source is selected', () => {
+    // app.code is `cdk` there, which is not a public-worker library.
+    const service = serviceFor({ source: null });
+    expect(service.isExportFormatEnabled('pdf')).toBe(false);
+  });
+
+  it('falls back to the instance code off CDK, where no source is ever set', () => {
+    const knav = serviceFor({ source: null, krameriusId: 'knav' });
+    expect(knav.isExportFormatEnabled('pdf')).toBe(true);
+
+    const mzk = serviceFor({ source: null, krameriusId: 'mzk' });
+    expect(mzk.isExportFormatEnabled('pdf')).toBe(false);
+  });
+
+  it('leaves the other export formats untouched by the gate', () => {
+    const service = serviceFor({ source: 'mzk' });
+    expect(service.isExportFormatEnabled('print')).toBe(true);
+    expect(service.isExportFormatEnabled('jpeg')).toBe(true);
+    expect(service.isExportFormatEnabled('txt')).toBe(true);
+  });
+
+  it('still lets config disable pdf on a public-worker library', () => {
+    // The gate only ever subtracts: config remains authoritative for turning off.
+    const service = serviceFor({ source: 'knav', exportConfig: { pdf: false, epub: true, print: true, jpeg: true, txt: true } });
+    expect(service.isExportFormatEnabled('pdf')).toBe(false);
+    expect(service.isExportFormatEnabled('epub')).toBe(true);
+  });
+
+  it('hides the export tab when the gate removes the only configured formats', () => {
+    const service = serviceFor({
+      source: 'mzk',
+      exportConfig: { print: false, jpeg: false, txt: false, pdf: true, epub: true },
+    });
+    expect(service.isAnyExportFormatEnabled()).toBe(false);
+  });
+});
