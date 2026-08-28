@@ -41,12 +41,16 @@
           [prefixIcon]="'icon-sms'" [size]="'sm'"
           type="email"
           [initialValue]="email" [theme]="'dark'"
+          [readonly]="emailLocked()"
+          (prefixIconClick)="onEmailIconClick()"
           (valueChange)="onEmailChange($event)"
           (enter)="onSubmit()"
         ></app-input>
-        <span class="email-error" role="alert" *ngIf="emailInvalid()">
-          {{ 'email-export-dialog--email-invalid' | translate }}
-        </span>
+        @if (emailInvalid()) {
+          <span class="email-error" role="alert">
+            {{ 'email-export-dialog--email-invalid' | translate }}
+          </span>
+        }
       </div>
     </div>
   </div>
@@ -56,8 +60,11 @@
       {{ 'cancel' | translate }}
     </button>
     <button class="button filled primary" (click)="onSubmit()" [disabled]="loading()">
-      <span *ngIf="!loading()">{{ 'email-export-dialog--submit' | translate }}</span>
-      <span *ngIf="loading()">{{ 'loading' | translate }}</span>
+      @if (loading()) {
+        <span>{{ 'loading' | translate }}</span>
+      } @else {
+        <span>{{ 'email-export-dialog--submit' | translate }}</span>
+      }
     </button>
   </div>
 </div>

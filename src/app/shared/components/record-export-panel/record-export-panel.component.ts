@@ -1,10 +1,12 @@
 import { Component, computed, inject, Input, OnInit, Output, EventEmitter, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SearchDocument } from '../../../modules/models/search-document';
 import { ExportService } from '../../services/export.service';
 import { AppConfigService } from '../../services/app-config.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SolrService } from '../../../core/solr/solr.service';
 import { UserService } from '../../services/user.service';
+import { CdkSourceService } from '../../services/cdk-source.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgIf } from '@angular/common';
 import { Page } from '../../models/page.model';
@@ -53,11 +55,24 @@ export class RecordExportPanelComponent implements OnInit {
   private router = inject(Router);
   private configService = inject(ConfigService);
 
-  // Per-format visibility driven by the instance's export config (config-main.json).
+  // Tracks the selected CDK member library: PDF/EPUB availability depends on whether
+  // THAT library's backend runs the public worker, so the flags below must be
+  // re-evaluated whenever the source changes.
+  private cdkSource = inject(CdkSourceService);
+  private cdkSourceCode = toSignal(this.cdkSource.code$, { initialValue: this.cdkSource.getCode() });
+
+  // Per-format visibility driven by the instance's export config (config-main.json),
+  // plus — for pdf/epub — the serving library's public-worker support.
   printEnabled = this.configService.isExportFormatEnabled('print');
-  pdfEnabled = this.configService.isExportFormatEnabled('pdf');
-  epubEnabled = this.configService.isExportFormatEnabled('epub');
   txtEnabled = this.configService.isExportFormatEnabled('txt');
+  pdfEnabled = computed(() => {
+    this.cdkSourceCode();
+    return this.configService.isExportFormatEnabled('pdf');
+  });
+  epubEnabled = computed(() => {
+    this.cdkSourceCode();
+    return this.configService.isExportFormatEnabled('epub');
+  });
 
   private pages = signal<Page[]>([]);
   private pagesLoaded = signal(false);

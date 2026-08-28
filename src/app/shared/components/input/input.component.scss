@@ -99,6 +99,13 @@
       display: flex;
       align-items: center;
       font-size: var(--font-size-base);
+
+      // Only when a click handler is bound (see [class.clickable-icon]); otherwise
+      // the icon stays pointer-transparent so clicks fall through to the input.
+      &.clickable-icon {
+        pointer-events: auto;
+        cursor: pointer;
+      }
     }
 
     // Postfix icon styles

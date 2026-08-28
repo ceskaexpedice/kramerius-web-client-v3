@@ -17,6 +17,7 @@ import { ToastService } from '../../../services/toast.service';
 import { AppConfigService } from '../../../services/app-config.service';
 import { ConfigService } from '../../../../core/config';
 import { PdfService } from '../../../services/pdf.service';
+import { CdkSourceService } from '../../../services/cdk-source.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../services/user.service';
 import { Page } from '../../../models/page.model';
@@ -132,12 +133,25 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
 
   isLoggedIn = computed(() => !!this.userService.userSession$()?.authenticated);
 
-  // Per-format visibility driven by the instance's export config (config-main.json).
+  // Tracks the selected CDK member library: PDF/EPUB availability depends on whether
+  // THAT library's backend runs the public worker, so the flags below must be
+  // re-evaluated whenever the source changes.
+  private cdkSource = inject(CdkSourceService);
+  private cdkSourceCode = toSignal(this.cdkSource.code$, { initialValue: this.cdkSource.getCode() });
+
+  // Per-format visibility driven by the instance's export config (config-main.json),
+  // plus — for pdf/epub — the serving library's public-worker support.
   printEnabled = this.configService.isExportFormatEnabled('print');
   jpegEnabled = this.configService.isExportFormatEnabled('jpeg');
-  pdfEnabled = this.configService.isExportFormatEnabled('pdf');
-  epubEnabled = this.configService.isExportFormatEnabled('epub');
   txtEnabled = this.configService.isExportFormatEnabled('txt');
+  pdfEnabled = computed(() => {
+    this.cdkSourceCode();
+    return this.configService.isExportFormatEnabled('pdf');
+  });
+  epubEnabled = computed(() => {
+    this.cdkSourceCode();
+    return this.configService.isExportFormatEnabled('epub');
+  });
 
   epubOptions = computed(() => {
     const hasPages = this.detailViewService.pages?.length > 0;

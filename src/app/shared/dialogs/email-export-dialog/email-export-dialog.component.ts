@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 import { InputComponent } from '../../components/input/input.component';
@@ -42,7 +41,6 @@ const EMAIL_EXPORT_OPTIONS: EmailExportOption[] = [
   imports: [
     TranslatePipe,
     FormsModule,
-    NgIf,
     MatSlideToggleModule,
     CdkTooltipDirective,
     InputComponent,
@@ -75,8 +73,36 @@ export class EmailExportDialogComponent {
     )
   );
 
+  /**
+   * Clicks on the envelope icon needed to unlock the recipient field.
+   *
+   * Exports may only be delivered to the address the IdP provides, so the field is
+   * read-only in normal use. Testers still need to route an export to their own
+   * mailbox; tapping the icon this many times reveals the field for them. Deliberately
+   * undiscoverable rather than secret — it only affects this dialog's own input, and
+   * the address is still validated before sending.
+   */
+  private static readonly UNLOCK_CLICKS = 10;
+
+  /** True when the address comes from the IdP and must not be edited. */
+  emailLocked = signal(true);
+
+  private unlockClicks = 0;
+
   constructor() {
     this.email = this.userService.userSession$()?.email || '';
+  }
+
+  /**
+   * Counts taps on the envelope icon and unlocks the field once the threshold is
+   * reached. No-op after unlocking, so the counter cannot wrap around and re-lock.
+   */
+  onEmailIconClick(): void {
+    if (!this.emailLocked()) return;
+    this.unlockClicks++;
+    if (this.unlockClicks >= EmailExportDialogComponent.UNLOCK_CLICKS) {
+      this.emailLocked.set(false);
+    }
   }
 
   onClose(): void {
