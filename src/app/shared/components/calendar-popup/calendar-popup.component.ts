@@ -352,13 +352,17 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
       height: 100% !important;
     }
 
-    :host ::ng-deep .has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    /* Specificita musi odpovidat obecnemu hover pravidlu vyse (0,6,0), jinak
+       vyhraje ono a zelena/amber dlazdice pri hoveru zcerna (1.18:1). */
+    :host ::ng-deep .mat-calendar-body-cell.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-public-bg) !important;
+      color: var(--accessibility-public-text-color) !important;
       filter: brightness(0.95);
     }
 
-    :host ::ng-deep .has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    :host ::ng-deep .mat-calendar-body-cell.has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-private-bg) !important;
+      color: var(--accessibility-private-text-color) !important;
     }
 
     :host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
@@ -375,9 +379,13 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
       height: 100% !important;
     }
 
+    /* Preselected ma prednost pred has-issue hover pravidly vyse (0,7,0 / 0,8,0),
+       proto musi mit vyssi specificitu - jinak by predvybrane datum s vydanim
+       pri hoveru ztratilo modrou a zezelenalo. */
     :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover .mat-calendar-body-cell-content,
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue:not(.mat-calendar-body-disabled):not(.mat-calendar-body-comparison-identical):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--color-primary-hover) !important;
+      color: white !important;
     }
 
     :host ::ng-deep .mat-calendar-body-cell.preselected-date.multiple-issues::after,
