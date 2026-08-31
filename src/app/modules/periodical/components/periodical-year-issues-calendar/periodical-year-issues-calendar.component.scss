@@ -169,14 +169,19 @@ h3 {
       height: 100% !important;
     }
 
-    // For has-issue cells, keep their colored background on hover
-    ::ng-deep .has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    // For has-issue cells, keep their colored background on hover.
+    // Selektor musi zrcadlit specificitu obecneho hover pravidla vyse
+    // (0,6,0) - jinak vyhraje ono a zelena/amber dlazdice pri hoveru zcerna:
+    // tmavy text #294400 na --color-bg-light dava 1.18:1, bunka vypada jako dira.
+    ::ng-deep .mat-calendar-body-cell.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-public-bg) !important;
+      color: var(--accessibility-public-text-color) !important;
       filter: brightness(0.95);
     }
 
-    ::ng-deep .has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    ::ng-deep .mat-calendar-body-cell.has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-private-bg) !important;
+      color: var(--accessibility-private-text-color) !important;
     }
 
     // Remove Material's today indicator

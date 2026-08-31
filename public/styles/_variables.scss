@@ -51,6 +51,11 @@
   // document type tag (from Figma: BG/Tags/pdf)
   --color-bg-tag-document: #3F4143;
 
+  // Neutralni plny tag (bily text na plose). Nelze pouzit --color-text-tertiary
+  // jako pozadi: textove tokeny se pri prepnutí tematu prevraceji opacne, takze
+  // v dark vznikal bily text na svetle plose (2.17:1). Zamerne stejna hodnota
+  // v obou tematech - drzi 6.03:1 v light i dark.
+  --color-bg-tag-neutral: #4C6580;
   // text color
   --color-text-base: #0A0D10;
   --color-text-secondary: #263340;
@@ -223,6 +228,8 @@
 
   // document type tag (from Figma: BG/Tags/pdf)
   --color-bg-tag-document: #3F4143;
+
+  --color-bg-tag-neutral: #4C6580;
 
   // text btn color primary
   --color-text-btn-primary-disable: #fff;
