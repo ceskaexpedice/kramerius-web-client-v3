@@ -3,6 +3,7 @@ import {
   splitLicenseVariants,
   resolveLicenseForSource,
   shouldShowAccessibility,
+  collapsesToPublic,
   LicenseLike,
 } from './license-variants';
 
@@ -138,5 +139,24 @@ describe('shouldShowAccessibility', () => {
 
   it('keeps the row for a locked document without a watermark', () => {
     expect(shouldShowAccessibility(false, false)).toBe(true);
+  });
+});
+
+describe('collapsesToPublic', () => {
+  // Sekcia "Zpřístupněno pod licencí" zbaluje otvorene licencie na vseobecne
+  // "Volná díla", aby sa nezobrazovalo interne id. Licencia s vodoznakom si vsak
+  // musi ponechat vlastny nazov — skeny su zverejnene len s ochrannym prekryvom,
+  // takze oznacit ich za volne dielo skresluje podmienky.
+  it('keeps the own label of a watermarked open license', () => {
+    expect(collapsesToPublic(true, true)).toBe(false);
+  });
+
+  it('collapses a plain open license to the generic public label', () => {
+    expect(collapsesToPublic(true, false)).toBe(true);
+  });
+
+  it('never collapses a non-open license', () => {
+    expect(collapsesToPublic(false, false)).toBe(false);
+    expect(collapsesToPublic(false, true)).toBe(false);
   });
 });

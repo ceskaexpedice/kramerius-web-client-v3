@@ -37,6 +37,20 @@ export function shouldShowAccessibility(isPublic: boolean, hasWatermark: boolean
   return !isPublic || !hasWatermark;
 }
 
+/**
+ * Whether an open license collapses to the generic `public` label in the
+ * "Zpřístupněno pod licencí" section.
+ *
+ * Open licenses are normally collapsed so that e.g. `knav_public_contract` reads
+ * as the plain "Volná díla" rather than an internal id. But a watermarked license
+ * (e.g. `mzk_public-muo` — Hudebniny Kroměříž) carries its own name for a reason:
+ * the scans are published only under the protective overlay, so labelling them a
+ * free work misstates the terms — and the id has its own translation to use instead.
+ */
+export function collapsesToPublic(isOpen: boolean, hasWatermark: boolean): boolean {
+  return isOpen && !hasWatermark;
+}
+
 /** True when the license is a per-source override rather than a standalone license. */
 export function isLicenseVariant(license: { base?: string }): boolean {
   return !!license.base;
