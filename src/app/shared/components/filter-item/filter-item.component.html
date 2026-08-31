@@ -40,6 +40,11 @@
   <span class="icon icon--flag" [class.active]="checked" aria-hidden="true">
     <app-language-badge [size]="20" [lang]="langCode" [src]="icon" [rounded]="true" [active]="checked"></app-language-badge>
   </span>
+  } @else if (colorDot && icon) {
+  <!-- Document type: icon inside a tile filled with the type's colour. -->
+  <span class="model-tile" [class.active]="checked" [style.--tile-color]="colorDot" aria-hidden="true">
+    <i [ngClass]="[icon, itemIconClass || '']">{{ materialIcon }}</i>
+  </span>
   } @else if (colorDot) {
   <span class="color-dot" [class.active]="checked" [style.--dot-color]="colorDot" aria-hidden="true"></span>
   } @else if (icon) {

@@ -21,7 +21,7 @@ import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-ra
 import { RangeSliderComponent } from '../range-slider/range-slider.component';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
-import { getModelColor, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
+import { getModelColor, getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
 import { SkeletonListPipe } from '../../pipes/skeleton-list.pipe';
 
 @Component({
@@ -173,11 +173,14 @@ export class FilterCategoryComponent implements OnChanges {
       });
     }
 
-    // Add colored dots for model facets
+    // Model facets get a coloured tile with the document-type icon inside, so the
+    // type is carried by both colour and shape (the colour alone is hard to tell
+    // apart between e.g. the several purple-ish types).
     if (this.facetKey === customDefinedFacetsEnum.model) {
       sorted = sorted.map(item => ({
         ...item,
-        colorDot: getModelColor(item.name) || undefined
+        colorDot: getModelColor(item.name) || undefined,
+        icon: getModelIcon(item.name) || undefined
       }));
     }
 

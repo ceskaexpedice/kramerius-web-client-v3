@@ -118,6 +118,35 @@
   }
 }
 
+/**
+ * Document-type marker: the type's colour as a filled tile with its icon inside.
+ * Same 20px footprint as .color-dot so rows stay aligned whichever marker a facet
+ * uses. Colour alone was ambiguous between the several purple/teal-ish types, so
+ * the icon carries the distinction and the colour reinforces it.
+ */
+.model-tile {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all .4s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--tile-color);
+  border: 1px solid transparent;
+  color: var(--color-text-on-color);
+
+  i {
+    font-size: var(--font-size-small);
+    line-height: 1;
+  }
+
+  &.active {
+    border-color: var(--color-primary);
+  }
+}
+
 :host ::ng-deep .mdc-form-field {
   align-items: start;
 
