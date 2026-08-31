@@ -8,6 +8,7 @@ import {
 import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
 import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {monthCacheKey} from './periodical-detail.selectors';
 
 export interface PeriodicalDetailState {
   document: PeriodicalItem | null;
@@ -59,7 +60,11 @@ export const periodicalDetailReducer = createReducer(
     // Clear stale document/metadata so the header and metadata sidebar don't
     // keep rendering the previously opened periodical while the new one loads.
     document: null,
-    metadata: null
+    metadata: null,
+    // Drop the calendar's month cache as well: it belongs to the volumes of the
+    // periodical being left behind and must not leak into the new one.
+    monthIssues: {},
+    monthLoading: {}
   })),
   on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
     console.log('setPeriodicalSearchParams reducer - filters:', {
@@ -102,23 +107,23 @@ export const periodicalDetailReducer = createReducer(
     availableYears: availableYears ?? state.availableYears,
   })),
   on(loadPeriodicalItemsFailure, (state, { error }) => ({ ...state, loading: false, error })),
-  on(loadMonthIssues, (state, { year, month }) => {
-    const key = `${year}-${String(month).padStart(2, '0')}`;
+  on(loadMonthIssues, (state, { parentVolumeUuid, year, month }) => {
+    const key = monthCacheKey(parentVolumeUuid, year, month);
     return {
       ...state,
       monthLoading: { ...state.monthLoading, [key]: true }
     };
   }),
-  on(loadMonthIssuesSuccess, (state, { year, month, issues }) => {
-    const key = `${year}-${String(month).padStart(2, '0')}`;
+  on(loadMonthIssuesSuccess, (state, { parentVolumeUuid, year, month, issues }) => {
+    const key = monthCacheKey(parentVolumeUuid, year, month);
     return {
       ...state,
       monthIssues: { ...state.monthIssues, [key]: issues },
       monthLoading: { ...state.monthLoading, [key]: false }
     };
   }),
-  on(loadMonthIssuesFailure, (state, { year, month }) => {
-    const key = `${year}-${String(month).padStart(2, '0')}`;
+  on(loadMonthIssuesFailure, (state, { parentVolumeUuid, year, month }) => {
+    const key = monthCacheKey(parentVolumeUuid, year, month);
     return {
       ...state,
       monthLoading: { ...state.monthLoading, [key]: false }

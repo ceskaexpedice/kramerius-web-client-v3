@@ -27,6 +27,7 @@ import {
   selectPidFromAvailableYears,
   selectPeriodicalState,
   selectAvailableYears,
+  monthCacheKey,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject, take } from 'rxjs';
@@ -656,9 +657,25 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     const year = this.currentYear();
     const month = this.currentMonth() + 1;
 
+    // The month cache is scoped per volume, so read it under the volume that owns
+    // the displayed year. Without a volume there is nothing cached to show.
+    let volumeUuid = '';
+    this.store.select(selectPidFromAvailableYears(year.toString()))
+      .pipe(take(1))
+      .subscribe(pid => {
+        volumeUuid = (pid as string) || '';
+      });
+
+    if (!volumeUuid) {
+      this.currentMonthIssues.set([]);
+      this.issueMap.set(new Map());
+      this.isLoadingCalendar.set(false);
+      return;
+    }
+
     // Get the current data from store (synchronously)
     let currentData: any[] = [];
-    this.store.select(selectMonthIssues(year, month))
+    this.store.select(selectMonthIssues(volumeUuid, year, month))
       .pipe(take(1))
       .subscribe(issues => {
         currentData = issues as any[];
@@ -709,7 +726,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
         // Check current state by looking at the raw store data
         this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
-          const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+          const monthKey = monthCacheKey(uuid, year, month);
           const monthIssues = state?.monthIssues[monthKey];
           const isLoading = !!state?.monthLoading[monthKey];
           const hasBeenLoaded = monthKey in (state?.monthIssues || {});

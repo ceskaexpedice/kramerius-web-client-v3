@@ -458,7 +458,11 @@ export class PeriodicalDetailEffects {
   loadMonthIssues$ = createEffect(() =>
     this.actions$.pipe(
       ofType(PeriodicalDetailActions.loadMonthIssues),
-      switchMap(({ parentVolumeUuid, year, month }) => {
+      // mergeMap, not switchMap: each month is cached under its own key, so requests
+      // are independent. switchMap cancelled the in-flight request when the user
+      // moved to another month, and the cancelled month kept `loading = true`
+      // forever because neither success nor failure ever arrived for it.
+      mergeMap(({ parentVolumeUuid, year, month }) => {
         // An issue belongs to this month if its publication range OVERLAPS it, not
         // only if it starts in it: a range like 31.12.1998-01.01.1999 has date.min
         // in December but is still shown on 31.12., and a range starting in the
@@ -484,9 +488,9 @@ export class PeriodicalDetailEffects {
               }
             });
 
-            return PeriodicalDetailActions.loadMonthIssuesSuccess({ year, month, issues })
+            return PeriodicalDetailActions.loadMonthIssuesSuccess({ parentVolumeUuid, year, month, issues })
           }),
-          catchError(error => of(PeriodicalDetailActions.loadMonthIssuesFailure({ year, month, error })))
+          catchError(error => of(PeriodicalDetailActions.loadMonthIssuesFailure({ parentVolumeUuid, year, month, error })))
         );
       })
     )
