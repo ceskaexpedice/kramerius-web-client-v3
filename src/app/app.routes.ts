@@ -125,9 +125,11 @@ export const routes: Routes = [
   },
 
   // Library-prefixed routes (/:libCode/*)
+  // canMatch, not canActivate: an unknown code must leave this route unmatched so
+  // the wildcard below can render the real 404 (see libraryPrefixGuard).
   {
     path: ':libCode',
-    canActivate: [libraryPrefixGuard],
+    canMatch: [libraryPrefixGuard],
     children: defineMainRoutes()
   },
 
