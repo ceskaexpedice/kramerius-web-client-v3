@@ -45,6 +45,8 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--color-bg-base));
+  // Viz filter-dialog: `transparent` misto `rgba(255,255,255,0)`, aby fade
+  // v dark rezimu neprosvital pres sedou (WebKit interpolace).
+  background: linear-gradient(to bottom, transparent, var(--color-bg-base));
   pointer-events: none;
 }
