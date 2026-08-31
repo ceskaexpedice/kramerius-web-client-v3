@@ -30,6 +30,7 @@ import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/li
 import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
+import { shouldShowAccessibility } from '../../../core/config/license-variants';
 import { pickCdkCollection } from '../../utils/cdk-collection';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
@@ -241,6 +242,15 @@ export class MetadataSection implements OnInit, OnChanges {
       .map(id => (openLicenses.has(id) ? 'public' : id));
     return [...new Set(shown)];
   });
+
+  // Hides "Dostupnost" for public documents under a watermarked license — see
+  // `shouldShowAccessibility`.
+  showAccessibility = computed(() =>
+    shouldShowAccessibility(
+      this._isPublic(),
+      !!this.configService.getWatermarkConfig(this._data()?.licences ?? []),
+    )
+  );
 
   // CDK aggregator: sources (collections) for this document and the selected one.
   cdkCollections = signal<string[]>([]);

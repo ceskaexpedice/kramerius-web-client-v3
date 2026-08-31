@@ -22,6 +22,21 @@ export const VARIANT_SEPARATOR = '__';
 
 export type LicenseLike = { id: string; base?: string; actions?: unknown };
 
+/**
+ * Whether the metadata sidebar's "Dostupnost" row should be shown.
+ *
+ * A watermarked license (e.g. `mzk_public-muo` — Hudebniny Kroměříž) is
+ * `accessType: open`, so the badge collapses it to the generic "Volná díla".
+ * That overstates the rights: the scans may only be read under the protective
+ * overlay, so calling them free works contradicts the overlay drawn over the
+ * very same page. Where a watermark applies we drop the row instead.
+ *
+ * Locked documents always keep the row — there it states a real restriction.
+ */
+export function shouldShowAccessibility(isPublic: boolean, hasWatermark: boolean): boolean {
+  return !isPublic || !hasWatermark;
+}
+
 /** True when the license is a per-source override rather than a standalone license. */
 export function isLicenseVariant(license: { base?: string }): boolean {
   return !!license.base;

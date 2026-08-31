@@ -131,6 +131,14 @@
         "text": true,
         "selection": true,
         "crop": true
+      },
+      "watermark": {
+        "type": "image",
+        "logo": "/img/logo/licenses/muo.png",
+        "rowCount": 1,
+        "colCount": 1,
+        "scale": 1.0,
+        "opacity": 0.8
       }
     },
     {

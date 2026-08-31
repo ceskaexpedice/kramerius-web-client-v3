@@ -107,6 +107,10 @@ export class ViewerWatermarkComponent implements OnChanges, AfterViewInit, OnDes
     const cols = config.colCount ?? 3;
     const probability = config.probability ?? 100;
     const opacity = config.opacity ?? 0.15;
+    // Upright by default. The diagonal tilt suits a tiled anti-copy text watermark,
+    // but a single full-page logo (e.g. mzk_public-muo) must read straight, so the
+    // angle is opt-in per license rather than imposed on every watermark.
+    const rotation = ((config.rotation ?? 0) * Math.PI) / 180;
     const cellW = canvas.width / cols;
     const cellH = canvas.height / rows;
 
@@ -121,7 +125,7 @@ export class ViewerWatermarkComponent implements OnChanges, AfterViewInit, OnDes
 
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.rotate(-Math.PI / 4);
+        if (rotation) ctx.rotate(-rotation);
 
         if (img && config.type === 'image') {
           const scale = config.scale ?? 1.0;

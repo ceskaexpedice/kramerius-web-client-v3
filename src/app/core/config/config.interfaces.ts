@@ -173,6 +173,7 @@ export interface LicenseWatermarkConfig {
   rowCount?: number;          // grid rows, default 3
   colCount?: number;          // grid columns, default 3
   probability?: number;       // 0–100 chance per cell, default 100
+  rotation?: number;          // degrees, counter-clockwise; default 0 (upright)
   // Image mode
   logo?: string;              // URL to image
   scale?: number;             // image scale factor, default 1.0
