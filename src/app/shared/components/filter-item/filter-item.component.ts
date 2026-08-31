@@ -45,6 +45,8 @@ export class FilterItemComponent {
   @Input() langCode: string | null = null;
   @Input() disabled = false;
   @Input() itemIconClass?: string;
+  /** Material Icons ligature name, rendered as the icon element's text. */
+  @Input() materialIcon?: string;
   @Input() colorDot: string | null = null;
   @Output() toggled = new EventEmitter<void>();
 

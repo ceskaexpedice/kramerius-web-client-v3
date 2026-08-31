@@ -44,7 +44,7 @@
   <span class="color-dot" [class.active]="checked" [style.--dot-color]="colorDot" aria-hidden="true"></span>
   } @else if (icon) {
   <span class="icon" [class.active]="checked" aria-hidden="true">
-    <i [ngClass]="[icon, itemIconClass || '']"></i>
+    <i [ngClass]="[icon, itemIconClass || '']">{{ materialIcon }}</i>
   </span>
   }
 

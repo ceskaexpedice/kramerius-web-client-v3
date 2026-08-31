@@ -47,11 +47,11 @@ export function handleFacetsWithOperators(
     if (facetKey === facetKeysEnum.license) {
       primaryValues.forEach(item => {
         if (getOpenLicenses().includes(item.name)) {
-          item.iconClass = FacetIcons.public.iconClass;
+          Object.assign(item, FacetIcons.public);
         } else if (getTerminalLicenses().includes(item.name)) {
-          item.iconClass = FacetIcons.onsite.iconClass;
+          Object.assign(item, FacetIcons.onsite);
         } else if (getAfterLoginLicenses().includes(item.name)) {
-          item.iconClass = FacetIcons.locked.iconClass;
+          Object.assign(item, FacetIcons.locked);
         }
       });
     }
@@ -175,7 +175,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to public licenses for when the filter is applied
           item.fq = openLicenses;
-          item.iconClass = FacetIcons.public.iconClass;
+          Object.assign(item, FacetIcons.public);
         } else if (item.key === FacetAccessibilityTypes.onsite) {
           // "Onsite" count from facet.query for onsite licenses
           if (facetQueries && terminalLicenses.length > 0) {
@@ -185,7 +185,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to onsite licenses for when the filter is applied
           item.fq = terminalLicenses;
-          item.iconClass = FacetIcons.onsite.iconClass;
+          Object.assign(item, FacetIcons.onsite);
         } else if (item.key === FacetAccessibilityTypes.afterLogin) {
           // "After Login" count from facet.query for after-login licenses
           if (facetQueries && afterLoginLicenses.length > 0) {
@@ -195,7 +195,7 @@ export function handleFacetsWithOperators(
           }
           // Set fq to after-login licenses for when the filter is applied
           item.fq = afterLoginLicenses;
-          item.iconClass = FacetIcons.locked.iconClass;
+          Object.assign(item, FacetIcons.locked);
         }
       }
 

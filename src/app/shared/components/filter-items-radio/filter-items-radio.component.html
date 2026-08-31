@@ -14,11 +14,11 @@
     </span>
     <span *ngIf="item.icons && item.icons.length > 0" class="icons-group" [class.active]="item.name === selected" aria-hidden="true">
       <span *ngFor="let ic of item.icons" class="icon">
-        <i [ngClass]="[ic.icon, ic.iconClass || '']"></i>
+        <i [ngClass]="[ic.icon, ic.iconClass || '']">{{ ic.materialIcon }}</i>
       </span>
     </span>
     <span *ngIf="!item.icons && item.icon" class="icon" [class.active]="item.name === selected" aria-hidden="true">
-      <i [ngClass]="[item.icon, item.iconClass || '']"></i>
+      <i [ngClass]="[item.icon, item.iconClass || '']">{{ item.materialIcon }}</i>
     </span>
   </mat-radio-button>
 </mat-radio-group>

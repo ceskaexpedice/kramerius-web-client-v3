@@ -17,11 +17,30 @@ export enum FacetAccessibilityTypes {
   afterLogin = 'afterLogin'
 }
 
+/**
+ * Accessibility icons, taken verbatim from the legacy client
+ * (kramerius-web-client, LicenceService.accessIcon) so users moving between the
+ * two clients see identical symbols:
+ *
+ *   open     → visibility
+ *   login    → key
+ *   terminal → account_balance
+ *
+ * These are Material Icons ligatures, not glyphs from this app's own icon font —
+ * Material Icons is already loaded in index.html. They render as
+ * `<i class="material-icons">visibility</i>`, i.e. the name is the element's TEXT,
+ * which is why `materialIcon` is a separate field from the `icon` CSS class used
+ * by the rest of the icons. Templates branch on its presence.
+ *
+ * `locked` and `unlocked` are the two states of the after-login case; the legacy
+ * client differentiates them by a crossed-out key, which we approximate with the
+ * existing iconClass colours.
+ */
 export const FacetIcons = {
-  locked:   { icon: 'icon-locked',    iconClass: 'accessibility-private'    },
-  unlocked:   { icon: 'icon-locked',    iconClass: 'accessibility-public'    },
-  public:   { icon: 'icon-eye-public', iconClass: 'accessibility-public'    },
-  onsite:   { icon: 'icon-in-house',  iconClass: 'accessibility-in_library' },
+  locked:   { icon: 'material-icons', materialIcon: 'key',             iconClass: 'accessibility-private'    },
+  unlocked: { icon: 'material-icons', materialIcon: 'key',             iconClass: 'accessibility-public'     },
+  public:   { icon: 'material-icons', materialIcon: 'visibility',      iconClass: 'accessibility-public'     },
+  onsite:   { icon: 'material-icons', materialIcon: 'account_balance', iconClass: 'accessibility-in_library' },
 } as const;
 
 

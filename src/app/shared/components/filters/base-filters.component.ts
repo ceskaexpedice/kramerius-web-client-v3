@@ -8,6 +8,7 @@ import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum,
   facetKeysEnum,
+  FacetIcons,
 } from '../../../modules/search-results-page/const/facets';
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
@@ -128,11 +129,14 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
             .map((item: FacetItem) => ({
               ...item,
               available: userLicenses.includes(item.name),
-              icon: userLicenses.includes(item.name)
-                ? 'icon-eye-public'
+              // Same accessibility icons as FacetIcons, so the license facet
+              // matches the accessibility facet above it. Spread the whole entry:
+              // Material icons need `materialIcon` alongside the `icon` class.
+              ...(userLicenses.includes(item.name)
+                ? FacetIcons.public
                 : onlineLicenses.includes(item.name)
-                  ? 'icon-locked'
-                  : 'icon-in-house'
+                  ? FacetIcons.locked
+                  : FacetIcons.onsite)
             }));
         }
 

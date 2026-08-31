@@ -5,8 +5,7 @@
   }
 
   @if (showIcon) {
-  <i
-    [class]="accessibility === 'public' ? 'icon-eye-public' : (accessibility === 'in_library' ? 'icon-in-house' : 'icon-locked')"></i>
+  <i [class]="iconClass">{{ materialIcon }}</i>
   }
 
 </div>
