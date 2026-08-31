@@ -25,7 +25,7 @@ import { DocumentTypeEnum } from '../../../constants/document-type';
 import { PopupPositioningService, PopupState } from '../../../../shared/services/popup-positioning.service';
 import { normalizeIssueTypeCode } from '../../../../shared/utils/issue-type-code';
 import { PeriodicalDayIssuesPopupComponent } from '../periodical-day-issues-popup/periodical-day-issues-popup.component';
-import { parseIssueStartDate } from '../../../../shared/utils/periodical-date';
+import { formatLocalDateKey, parseIssueStartDate } from '../../../../shared/utils/periodical-date';
 
 interface CalendarIssue {
   pid: string;
@@ -152,7 +152,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
   }
 
   formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    return formatLocalDateKey(date);
   }
 
   getMonthDate(monthIndex: number): Date {

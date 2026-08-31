@@ -34,7 +34,7 @@ import { Subject, take } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside.directive';
-import { parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
+import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -488,7 +488,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   private updateCurrentDate(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
     this.currentDate.set(date);
-    console.log(`Updated current date to: ${date.toISOString().split('T')[0]}`);
+    console.log(`Updated current date to: ${formatLocalDateKey(date)}`);
   }
 
   private updateCalendarToPreselectedDate(): void {
@@ -567,7 +567,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    return formatLocalDateKey(date);
   }
 
 

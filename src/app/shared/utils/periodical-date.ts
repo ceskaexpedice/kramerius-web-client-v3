@@ -103,6 +103,22 @@ export function parseIssueStartDate(item: IssueDateFields | undefined | null): D
 }
 
 /**
+ * `YYYY-MM-DD` key for a calendar day, read from the LOCAL calendar fields.
+ *
+ * Issue dates and the calendar's own day cells are both built as local midnight
+ * (`new Date(y, m, d)`). Formatting those with `toISOString()` converts them to
+ * UTC first, which east of Greenwich lands on the previous day — 12.05.1986 keyed
+ * as "1986-05-11", and 1 January slipped into the previous year. Both sides of a
+ * lookup shifted alike so entries still matched, but the keys named the wrong day
+ * and anything comparing them against a real date would silently be off by one.
+ */
+export function formatLocalDateKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
  * Label for an issue card: the first day of the range as `D.M.`, falling back to
  * the raw `date.str` when no date can be derived.
  */

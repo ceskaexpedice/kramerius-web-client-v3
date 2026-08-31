@@ -1,4 +1,4 @@
-import { formatIssueDateLabel, parseIssueDateStr, parseIssueStartDate } from './periodical-date';
+import { formatIssueDateLabel, formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from './periodical-date';
 
 describe('periodical-date', () => {
 
@@ -145,4 +145,34 @@ describe('periodical-date', () => {
     });
 
   });
+
+  // Regression: calendar day keys were built with `toISOString()`, which converts a
+  // local-midnight Date to UTC. East of Greenwich that lands on the previous day, so
+  // every key named the wrong date (12.05.1986 -> "1986-05-11") and 1 January even
+  // escaped into the previous year. The key must read the local calendar fields.
+  describe('formatLocalDateKey', () => {
+
+    it('keeps the calendar date the Date object denotes', () => {
+      expect(formatLocalDateKey(new Date(1986, 4, 12))).toBe('1986-05-12');
+    });
+
+    it('does not shift new year into the previous year', () => {
+      expect(formatLocalDateKey(new Date(1986, 0, 1))).toBe('1986-01-01');
+    });
+
+    it('zero-pads month and day', () => {
+      expect(formatLocalDateKey(new Date(1998, 1, 3))).toBe('1998-02-03');
+    });
+
+    it('agrees with the parsed start date of an issue', () => {
+      // The two sides of every calendar lookup must produce the same key.
+      expect(formatLocalDateKey(parseIssueDateStr('31.12.1998\u20131.01.1999')!)).toBe('1998-12-31');
+    });
+
+    it('handles a date carrying a wall-clock time', () => {
+      expect(formatLocalDateKey(new Date(2020, 6, 4, 23, 45))).toBe('2020-07-04');
+    });
+
+  });
+
 });
