@@ -142,6 +142,26 @@ export function getConfiguredModels(): string[] {
   return [];
 }
 
+/**
+ * Merge every license field a Solr document may carry into one deduplicated list.
+ *
+ * Solr reports a record's own licenses (`licenses`, `licenses.facet`) separately
+ * from those inherited from its descendants (`contains_licenses`). Selecting the
+ * first non-empty field with `||` dropped the others, so a public work holding a
+ * restricted child was judged by the child's licenses alone and appeared locked.
+ * Access checks need the union: an open license anywhere keeps the record open.
+ */
+export function mergeDocumentLicenses(...fields: (string[] | string | undefined | null)[]): string[] {
+  const merged = new Set<string>();
+  for (const field of fields) {
+    if (!field) continue;
+    for (const license of Array.isArray(field) ? field : [field]) {
+      if (license) merged.add(license);
+    }
+  }
+  return [...merged];
+}
+
 // Legacy exports for backward compatibility
 // These are kept as constants but components should migrate to using the functions above
 export const ONLINE_LICENSES = DEFAULT_ONLINE_LICENSES;
