@@ -1,4 +1,4 @@
-import { FacetIcons } from './facets';
+import { FacetIcons, getAccessIcon } from './facets';
 
 /**
  * The accessibility icons must stay identical to the legacy client
@@ -14,7 +14,8 @@ import { FacetIcons } from './facets';
 describe('FacetIcons accessibility symbols', () => {
   it('uses the legacy client ligature names', () => {
     expect(FacetIcons.public.materialIcon).toBe('visibility');
-    expect(FacetIcons.locked.materialIcon).toBe('key');
+    // Not held by the user → struck-through key, exactly as the legacy client draws it.
+    expect(FacetIcons.locked.materialIcon).toBe('key_off');
     expect(FacetIcons.unlocked.materialIcon).toBe('key');
     expect(FacetIcons.onsite.materialIcon).toBe('account_balance');
   });
@@ -70,5 +71,49 @@ describe('accessibility icon rendering', () => {
     expect(icon).toBeTruthy();
     expect(icon.classList).toContain('material-icons');
     expect(icon.textContent?.trim()).toBe('account_balance');
+  });
+});
+
+/**
+ * Mirrors the legacy client's LicenceService.accessIcon(access, accessible):
+ * the glyph comes from the license's access type, and whether the user actually
+ * holds the license picks the plain vs. the struck-through variant.
+ */
+describe('getAccessIcon', () => {
+  it('uses key vs key_off for after-login licenses', () => {
+    expect(getAccessIcon('login', true).materialIcon).toBe('key');
+    expect(getAccessIcon('login', false).materialIcon).toBe('key_off');
+  });
+
+  it('uses visibility vs visibility_off for open licenses', () => {
+    expect(getAccessIcon('open', true).materialIcon).toBe('visibility');
+    expect(getAccessIcon('open', false).materialIcon).toBe('visibility_off');
+  });
+
+  it('uses account_balance for terminal licenses regardless of access', () => {
+    // The legacy client returns the same glyph either way: the building is where
+    // you go to read it, whether or not you already hold the licence.
+    expect(getAccessIcon('terminal', true).materialIcon).toBe('account_balance');
+    expect(getAccessIcon('terminal', false).materialIcon).toBe('account_balance');
+  });
+
+  it('falls back to lock_open / lock for anything else', () => {
+    expect(getAccessIcon('inaccessible', true).materialIcon).toBe('lock_open');
+    expect(getAccessIcon('inaccessible', false).materialIcon).toBe('lock');
+  });
+
+  it('marks every result as a Material icon with a ligature', () => {
+    for (const type of ['open', 'login', 'terminal', 'inaccessible']) {
+      for (const accessible of [true, false]) {
+        const res = getAccessIcon(type, accessible);
+        expect(res.icon).toBe('material-icons');
+        expect(res.materialIcon).toBeTruthy();
+      }
+    }
+  });
+
+  it('colours a held login licence as available and a missing one as private', () => {
+    expect(getAccessIcon('login', true).iconClass).toBe('accessibility-public');
+    expect(getAccessIcon('login', false).iconClass).toBe('accessibility-private');
   });
 });
