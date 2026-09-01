@@ -206,7 +206,10 @@
   left: 0;
   right: 12px;
   height: 36px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--color-bg-base));
+  // Pruhledny okraj musi vychazet z podkladu, ne z bile. `rgba(255,255,255,0)`
+  // se ve WebKitu interpoluje pres sedou, takze v dark rezimu vznikal svetly
+  // zavoj misto plynuleho ztmaveni. `transparent` se interpoluje premultiplied.
+  background: linear-gradient(to bottom, transparent, var(--color-bg-base));
   pointer-events: none;
 }
 

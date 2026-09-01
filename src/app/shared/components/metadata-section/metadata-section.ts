@@ -30,6 +30,7 @@ import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/li
 import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
+import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection } from '../../utils/cdk-collection';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
@@ -232,15 +233,25 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // Runtime licenses rendered in the "provided under license" metadata section.
   // A license is shown if it's open (public-domain) or flagged with `providedBy.display`
-  // in config. Every open license is collapsed to the generic `public` label so e.g.
-  // `knav_public_contract` still reads as "provided under license: public".
+  // in config. Open licenses collapse to the generic `public` label so e.g.
+  // `knav_public_contract` still reads as "provided under license: public" — except
+  // watermarked ones, which keep their own name (see `collapsesToPublic`).
   providedByLicenses = computed(() => {
     const openLicenses = new Set(this.configService.getOpenLicenses());
     const shown = this.runtimeLicenses()
       .filter(id => openLicenses.has(id) || this.configService.getLicenseConfig(id)?.providedBy?.display === true)
-      .map(id => (openLicenses.has(id) ? 'public' : id));
+      .map(id => (collapsesToPublic(openLicenses.has(id), !!this.configService.getWatermarkConfig([id])) ? 'public' : id));
     return [...new Set(shown)];
   });
+
+  // Hides "Dostupnost" for public documents under a watermarked license — see
+  // `shouldShowAccessibility`.
+  showAccessibility = computed(() =>
+    shouldShowAccessibility(
+      this._isPublic(),
+      !!this.configService.getWatermarkConfig(this._data()?.licences ?? []),
+    )
+  );
 
   // CDK aggregator: sources (collections) for this document and the selected one.
   cdkCollections = signal<string[]>([]);

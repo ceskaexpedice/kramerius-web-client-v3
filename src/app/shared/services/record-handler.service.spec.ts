@@ -75,3 +75,64 @@ describe('RecordHandlerService.getDocumentUrl fulltext forwarding', () => {
     expect(url).toContain('fulltext=chochola');
   });
 });
+
+describe('RecordHandlerService.isRecordLocked open-access handling', () => {
+  /**
+   * Builds the service with a user holding `userLicenses` (empty = anonymous).
+   * `isRecordLocked` must agree with `isRecordPublic`: an openly licensed record
+   * is readable by everyone, so it can never be reported as locked.
+   */
+  function makeService(userLicenses: string[]): RecordHandlerService {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        RecordHandlerService,
+        { provide: Router, useValue: { createUrlTree: () => ({ toString: () => '' }) } },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParams: {} } } },
+        { provide: LibraryContextService, useValue: { prependLibraryPrefix: (s: any[]) => s } },
+        { provide: SearchService, useValue: {} },
+        { provide: AdminModeService, useValue: {} },
+        { provide: BreakpointService, useValue: {} },
+        {
+          provide: UserService,
+          useValue: {
+            hasAnyLicense: (required: string[]) =>
+              !!required?.length && required.some(l => userLicenses.includes(l)),
+          },
+        },
+        { provide: MatDialog, useValue: {} },
+      ],
+    });
+    return TestBed.inject(RecordHandlerService);
+  }
+
+  it('reports a public record as unlocked for an anonymous user', () => {
+    // The core defect: `public` is open access, but the anonymous user holds no
+    // licenses, so a pure `!hasAnyLicense()` check marked every free work locked.
+    const service = makeService([]);
+    expect(service.isRecordPublic(['public'])).toBe(true);
+    expect(service.isRecordLocked(['public'])).toBe(false);
+  });
+
+  it('keeps a record unlocked when an open license sits beside a restrictive one', () => {
+    // A public work whose child carries `dnntt` stays public — the restrictive
+    // license of a descendant must not win over the work's own open license.
+    const service = makeService([]);
+    expect(service.isRecordLocked(['dnntt', 'public'])).toBe(false);
+  });
+
+  it('still reports a purely restricted record as locked for an anonymous user', () => {
+    const service = makeService([]);
+    expect(service.isRecordLocked(['dnntt'])).toBe(true);
+  });
+
+  it('reports a restricted record as unlocked when the user holds the license', () => {
+    const service = makeService(['dnntt']);
+    expect(service.isRecordLocked(['dnntt'])).toBe(false);
+  });
+
+  it('treats a record with no licenses as locked', () => {
+    const service = makeService([]);
+    expect(service.isRecordLocked([])).toBe(true);
+  });
+});

@@ -27,13 +27,14 @@ import {
   selectPidFromAvailableYears,
   selectPeriodicalState,
   selectAvailableYears,
+  monthCacheKey,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject, take } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside.directive';
-import { parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
+import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
 
 @Component({
   selector: 'app-calendar-popup',
@@ -351,13 +352,17 @@ import { parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-d
       height: 100% !important;
     }
 
-    :host ::ng-deep .has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    /* Specificita musi odpovidat obecnemu hover pravidlu vyse (0,6,0), jinak
+       vyhraje ono a zelena/amber dlazdice pri hoveru zcerna (1.18:1). */
+    :host ::ng-deep .mat-calendar-body-cell.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-public-bg) !important;
+      color: var(--accessibility-public-text-color) !important;
       filter: brightness(0.95);
     }
 
-    :host ::ng-deep .has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    :host ::ng-deep .mat-calendar-body-cell.has-issue.accessibility-private:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--accessibility-private-bg) !important;
+      color: var(--accessibility-private-text-color) !important;
     }
 
     :host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
@@ -374,9 +379,13 @@ import { parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-d
       height: 100% !important;
     }
 
+    /* Preselected ma prednost pred has-issue hover pravidly vyse (0,7,0 / 0,8,0),
+       proto musi mit vyssi specificitu - jinak by predvybrane datum s vydanim
+       pri hoveru ztratilo modrou a zezelenalo. */
     :host ::ng-deep .mat-calendar-body-cell.preselected-date:hover .mat-calendar-body-cell-content,
-    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content {
+    :host ::ng-deep .mat-calendar-body-cell.preselected-date.has-issue:not(.mat-calendar-body-disabled):not(.mat-calendar-body-comparison-identical):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
       background-color: var(--color-primary-hover) !important;
+      color: white !important;
     }
 
     :host ::ng-deep .mat-calendar-body-cell.preselected-date.multiple-issues::after,
@@ -487,7 +496,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   private updateCurrentDate(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
     this.currentDate.set(date);
-    console.log(`Updated current date to: ${date.toISOString().split('T')[0]}`);
+    console.log(`Updated current date to: ${formatLocalDateKey(date)}`);
   }
 
   private updateCalendarToPreselectedDate(): void {
@@ -566,7 +575,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    return formatLocalDateKey(date);
   }
 
 
@@ -656,9 +665,25 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     const year = this.currentYear();
     const month = this.currentMonth() + 1;
 
+    // The month cache is scoped per volume, so read it under the volume that owns
+    // the displayed year. Without a volume there is nothing cached to show.
+    let volumeUuid = '';
+    this.store.select(selectPidFromAvailableYears(year.toString()))
+      .pipe(take(1))
+      .subscribe(pid => {
+        volumeUuid = (pid as string) || '';
+      });
+
+    if (!volumeUuid) {
+      this.currentMonthIssues.set([]);
+      this.issueMap.set(new Map());
+      this.isLoadingCalendar.set(false);
+      return;
+    }
+
     // Get the current data from store (synchronously)
     let currentData: any[] = [];
-    this.store.select(selectMonthIssues(year, month))
+    this.store.select(selectMonthIssues(volumeUuid, year, month))
       .pipe(take(1))
       .subscribe(issues => {
         currentData = issues as any[];
@@ -709,7 +734,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
         // Check current state by looking at the raw store data
         this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
-          const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+          const monthKey = monthCacheKey(uuid, year, month);
           const monthIssues = state?.monthIssues[monthKey];
           const isLoading = !!state?.monthLoading[monthKey];
           const hasBeenLoaded = monthKey in (state?.monthIssues || {});

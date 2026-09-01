@@ -51,6 +51,11 @@
   // document type tag (from Figma: BG/Tags/pdf)
   --color-bg-tag-document: #3F4143;
 
+  // Neutralni plny tag (bily text na plose). Nelze pouzit --color-text-tertiary
+  // jako pozadi: textove tokeny se pri prepnutí tematu prevraceji opacne, takze
+  // v dark vznikal bily text na svetle plose (2.17:1). Zamerne stejna hodnota
+  // v obou tematech - drzi 6.03:1 v light i dark.
+  --color-bg-tag-neutral: #4C6580;
   // text color
   --color-text-base: #0A0D10;
   --color-text-secondary: #263340;
@@ -141,22 +146,22 @@
   --color-bg-thumbnail: #EFF2F5;
 
   // Model tag background colors
-  --color-bg-tag-monograph: #a046ce;
-  --color-bg-tag-monograph-multivolume: #8b22bf;
-  --color-bg-tag-monographunit: #7a09b2;
-  --color-bg-tag-periodical: #00807c;
-  --color-bg-tag-periodicalitem: #005e5b;
-  --color-bg-tag-periodicalvolume: #005e5b;
-  --color-bg-tag-supplement: #00413f;
-  --color-bg-tag-article: #003331;
-  --color-bg-tag-sheetmusic: #6556d6;
-  --color-bg-tag-soundrecording: #5634a3;
-  --color-bg-tag-convolute: #0047aa;
-  --color-bg-tag-collection: #102f75;
-  --color-bg-tag-graphic: #b18e00;
-  --color-bg-tag-map: #95652d;
-  --color-bg-tag-archive: #884404;
-  --color-bg-tag-manuscript: #0089f9;
+  --color-bg-tag-monograph: #6c5ed7;
+  --color-bg-tag-monograph-multivolume: #5a4cc4;
+  --color-bg-tag-monographunit: #4a3cb0;
+  --color-bg-tag-periodical: #228aa2;
+  --color-bg-tag-periodicalitem: #1b7183;
+  --color-bg-tag-periodicalvolume: #1b7183;
+  --color-bg-tag-supplement: #145966;
+  --color-bg-tag-article: #0f434d;
+  --color-bg-tag-sheetmusic: #be5d9c;
+  --color-bg-tag-soundrecording: #ae52de;
+  --color-bg-tag-convolute: #2cada5;
+  --color-bg-tag-collection: #e94787;
+  --color-bg-tag-graphic: #b99a25;
+  --color-bg-tag-map: #95652e;
+  --color-bg-tag-archive: #894607;
+  --color-bg-tag-manuscript: #2689f9;
   --color-bg-tag-page: #3c7ab9;
   --color-bg-tag-cut: #0058B0;
 }
@@ -168,7 +173,7 @@
   --color-bg-base: #0E1216;
   --color-bg-light: #263340;
   --color-bg-bright: #263340;
-  --color-bg-contrast: #394C60;
+  --color-bg-contrast: #4C6580;
   --overlay-bg: rgba(14, 18, 22, 0.7);
   --overlay-lock-bg: rgba(33, 33, 33, 0.5);
   --color-bg-low-efford: #FAEAC8;
@@ -185,7 +190,7 @@
   --color-subdued-blue: rgba(0, 123, 255, 0.1);
 
   // secondary color
-  --color-secondary: #07121D;
+  --color-secondary: #171E26;
   --color-secondary-hover: #263340;
   --color-secondary-pressed: #394C60;
   --color-secondary-disabled: #171E26;
@@ -224,6 +229,8 @@
   // document type tag (from Figma: BG/Tags/pdf)
   --color-bg-tag-document: #3F4143;
 
+  --color-bg-tag-neutral: #4C6580;
+
   // text btn color primary
   --color-text-btn-primary-disable: #fff;
 
@@ -240,7 +247,7 @@
   --color-text-btn-tertiary-disable: #4C6580;
 
   // text color
-  --color-text-link: #0063cc;
+  --color-text-link: #66B0FF;
   --color-text-error: #FF443A;
   --color-text-success: #58DA79;
   --color-text-warning: #FF9D0A;
@@ -248,8 +255,8 @@
   // border color
   --color-border-base: #0E1216;
   --color-border-light: #171E26;
-  --color-border-bright: #263340;
-  --color-border-contrast: #394C60;
+  --color-border-bright: #394C60;
+  --color-border-contrast: #4C6580;
 
   // border primary color
   --color-border-primary-default: #0A85FF;
@@ -258,10 +265,10 @@
   --color-border-primary-disabled: #003366;
 
   // border secondary color
-  --color-border-secondary-default: #171E26;
+  --color-border-secondary-default: #394C60;
   --color-border-secondary-hover: #263340;
   --color-border-secondary-pressed: #394C60;
-  --color-border-secondary-disabled: #171E26;
+  --color-border-secondary-disabled: #394C60;
 
   // border tertiary color
   --color-border-tertiary-default: #8099B3;
@@ -296,7 +303,7 @@
   --icon-grey: #9FB2C6;
   --icon-success: #2AA248;
   --icon-warning: #FF9500;
-  --icon-error: #FF3A30;
+  --icon-error: #FF443A;
 
   --color-gray-500: #8099B3;
 

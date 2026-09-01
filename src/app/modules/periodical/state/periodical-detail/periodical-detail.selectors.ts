@@ -29,14 +29,26 @@ export const selectPeriodicalFacetOperators = createSelector(
   }
 );
 
-export const selectMonthIssues = (year: number, month: number) => createSelector(
+/**
+ * Cache key for one month of issues.
+ *
+ * The parent volume UUID is part of the key because year/month alone are not
+ * unique across periodicals: opening another title and landing on the same month
+ * would otherwise hit the previous title's cached issues. Shared by the reducer
+ * and the selectors so both sides always agree on the key format.
+ */
+export function monthCacheKey(parentVolumeUuid: string, year: number, month: number): string {
+  return `${parentVolumeUuid}|${year}-${String(month).padStart(2, '0')}`;
+}
+
+export const selectMonthIssues = (parentVolumeUuid: string, year: number, month: number) => createSelector(
   selectPeriodicalState,
-  s => s.monthIssues[`${year}-${String(month).padStart(2, '0')}`] ?? []
+  s => s.monthIssues[monthCacheKey(parentVolumeUuid, year, month)] ?? []
 );
 
-export const selectMonthLoading = (year: number, month: number) => createSelector(
+export const selectMonthLoading = (parentVolumeUuid: string, year: number, month: number) => createSelector(
   selectPeriodicalState,
-  s => !!s.monthLoading[`${year}-${String(month).padStart(2, '0')}`]
+  s => !!s.monthLoading[monthCacheKey(parentVolumeUuid, year, month)]
 );
 
 export const selectPidFromAvailableYears = (year: string) => createSelector(

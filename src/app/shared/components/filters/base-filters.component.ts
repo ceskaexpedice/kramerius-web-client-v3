@@ -2,12 +2,14 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {combineLatest, map, Observable, Subscription} from 'rxjs';
 import {FILTER_SERVICE, FilterService} from '../../services/filter.service';
-import {getOnlineLicenses} from '../../../core/solr/solr-misc';
+import {getOnlineLicenses, getOpenLicenses, getTerminalLicenses, getAfterLoginLicenses} from '../../../core/solr/solr-misc';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum,
   facetKeysEnum,
+  FacetIcons,
+  getAccessIcon,
 } from '../../../modules/search-results-page/const/facets';
 import {FacetItem} from '../../../modules/models/facet-item';
 import {CustomSearchService} from '../../services/custom-search.service';
@@ -128,11 +130,16 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
             .map((item: FacetItem) => ({
               ...item,
               available: userLicenses.includes(item.name),
-              icon: userLicenses.includes(item.name)
-                ? 'icon-eye-public'
-                : onlineLicenses.includes(item.name)
-                  ? 'icon-locked'
-                  : 'icon-in-house'
+              // Icon follows the legacy client: the glyph comes from the license's
+              // access type, and holding the license picks the plain vs. the
+              // struck-through variant (key vs. key_off).
+              ...getAccessIcon(
+                getOpenLicenses().includes(item.name) ? 'open'
+                  : getTerminalLicenses().includes(item.name) ? 'terminal'
+                  : getAfterLoginLicenses().includes(item.name) ? 'login'
+                  : 'inaccessible',
+                userLicenses.includes(item.name),
+              )
             }));
         }
 

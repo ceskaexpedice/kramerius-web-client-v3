@@ -161,12 +161,14 @@
     </div>
   </app-metadata-section-item>
 
-  <!-- Accessibility -->
-  <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
-    <div class="flex flex--gap-x2" metadata-section-item-content>
-      <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-    </div>
-  </app-metadata-section-item>
+  <!-- Accessibility — hidden for public documents under a watermarked license (see showAccessibility) -->
+  @if (showAccessibility()) {
+    <app-metadata-section-item [label]="'accessibility' | translate" type="badge" [onItemClick]="clickedAccessibility">
+      <div class="flex flex--gap-x2" metadata-section-item-content>
+        <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
+      </div>
+    </app-metadata-section-item>
+  }
 
   @if (providedByLicenses().length > 0) {
     <section class="provided-licenses">

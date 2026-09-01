@@ -2,6 +2,8 @@ import {
   isLicenseVariant,
   splitLicenseVariants,
   resolveLicenseForSource,
+  shouldShowAccessibility,
+  collapsesToPublic,
   LicenseLike,
 } from './license-variants';
 
@@ -114,5 +116,47 @@ describe('resolveLicenseForSource', () => {
     const contract = { id: 'mzk_public-contract', label: { cs: 'Smluvni' }, actions: {} };
     expect(resolveLicenseForSource([contract], 'mzk_public-contract', 'mzk')?.id)
       .toBe('mzk_public-contract');
+  });
+});
+
+describe('shouldShowAccessibility', () => {
+  // Licencia s vodoznakom (napr. `mzk_public-muo` — Hudebniny Kroměříž) je
+  // `accessType: open`, takze badge ju zhrnie na vseobecne "Volná díla". To ale
+  // nadhodnocuje prava: skeny sa smu citat len s ochranným prekryvom, takze
+  // riadok "Dostupnost" by protirecil vodoznaku na tej istej strane.
+  it('hides the row for a public document under a watermarked license', () => {
+    expect(shouldShowAccessibility(true, true)).toBe(false);
+  });
+
+  it('shows the row for a public document without a watermark', () => {
+    expect(shouldShowAccessibility(true, false)).toBe(true);
+  });
+
+  it('keeps the row for a locked document even when watermarked', () => {
+    // Pri zamknutom dokumente riadok vyjadruje skutocne obmedzenie — musi zostat.
+    expect(shouldShowAccessibility(false, true)).toBe(true);
+  });
+
+  it('keeps the row for a locked document without a watermark', () => {
+    expect(shouldShowAccessibility(false, false)).toBe(true);
+  });
+});
+
+describe('collapsesToPublic', () => {
+  // Sekcia "Zpřístupněno pod licencí" zbaluje otvorene licencie na vseobecne
+  // "Volná díla", aby sa nezobrazovalo interne id. Licencia s vodoznakom si vsak
+  // musi ponechat vlastny nazov — skeny su zverejnene len s ochrannym prekryvom,
+  // takze oznacit ich za volne dielo skresluje podmienky.
+  it('keeps the own label of a watermarked open license', () => {
+    expect(collapsesToPublic(true, true)).toBe(false);
+  });
+
+  it('collapses a plain open license to the generic public label', () => {
+    expect(collapsesToPublic(true, false)).toBe(true);
+  });
+
+  it('never collapses a non-open license', () => {
+    expect(collapsesToPublic(false, false)).toBe(false);
+    expect(collapsesToPublic(false, true)).toBe(false);
   });
 });

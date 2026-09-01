@@ -15,7 +15,7 @@ import { PeriodicalItemChild, PeriodicalItemYear } from '../../modules/models/pe
 import { BreakpointService } from './breakpoint.service';
 import { UserService } from './user.service';
 import { LibraryContextService } from './library-context.service';
-import {getAfterLoginLicenses, getOnlineLicenses, getOpenLicenses, getTerminalLicenses} from '../../core/solr/solr-misc';
+import {getAfterLoginLicenses, getOnlineLicenses, getOpenLicenses, getTerminalLicenses, mergeDocumentLicenses} from '../../core/solr/solr-misc';
 import { isViewerRoutePath } from '../constants/viewer-routes';
 
 @Injectable({
@@ -598,8 +598,16 @@ export class RecordHandlerService {
   }
 
   isRecordLocked(licenses: string[]): boolean {
-    // Check if user has any license that grants access to this content
-    // Returns true (locked) if user doesn't have access, false (unlocked) if user has access
+    // An openly licensed record is readable by everyone, so it is never locked.
+    // Checking only `hasAnyLicense` marked every public work locked for anonymous
+    // users (they hold no licenses) and let a descendant's restrictive license
+    // outweigh the work's own open one. Mirrors the check in
+    // `DetailViewService.updateDocumentAccessDenied`.
+    if (this.isRecordPublic(licenses)) {
+      return false;
+    }
+
+    // Otherwise access depends on the licenses the current user holds.
     return !this.userService.hasAnyLicense(licenses);
   }
 
@@ -699,7 +707,7 @@ export class RecordHandlerService {
    */
   private shouldAnySearchDocumentShowBadge(docs: SearchDocument[]): boolean {
     return docs.some(doc => {
-      const licenses = doc.containsLicenses || doc.licenses || [];
+      const licenses = mergeDocumentLicenses(doc.licenses, doc.containsLicenses);
       return this.isRecordLocked(licenses);
     });
   }

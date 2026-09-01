@@ -27,12 +27,16 @@ export const loadMonthIssues = createAction(
   props<{ parentVolumeUuid: string; year: number; month: number }>() // month: 1-12
 );
 
+// `parentVolumeUuid` is carried through the whole round trip: the month cache is
+// keyed per volume, so a response must be filed under the volume it was requested
+// for. Without it, two periodicals sharing a year/month would overwrite and read
+// each other's issues.
 export const loadMonthIssuesSuccess = createAction(
   '[Periodical] Load Month Issues Success',
-  props<{ year: number; month: number; issues: any[] }>()
+  props<{ parentVolumeUuid: string; year: number; month: number; issues: any[] }>()
 );
 
 export const loadMonthIssuesFailure = createAction(
   '[Periodical] Load Month Issues Failure',
-  props<{ year: number; month: number; error: any }>()
+  props<{ parentVolumeUuid: string; year: number; month: number; error: any }>()
 );

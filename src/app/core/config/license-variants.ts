@@ -22,6 +22,35 @@ export const VARIANT_SEPARATOR = '__';
 
 export type LicenseLike = { id: string; base?: string; actions?: unknown };
 
+/**
+ * Whether the metadata sidebar's "Dostupnost" row should be shown.
+ *
+ * A watermarked license (e.g. `mzk_public-muo` — Hudebniny Kroměříž) is
+ * `accessType: open`, so the badge collapses it to the generic "Volná díla".
+ * That overstates the rights: the scans may only be read under the protective
+ * overlay, so calling them free works contradicts the overlay drawn over the
+ * very same page. Where a watermark applies we drop the row instead.
+ *
+ * Locked documents always keep the row — there it states a real restriction.
+ */
+export function shouldShowAccessibility(isPublic: boolean, hasWatermark: boolean): boolean {
+  return !isPublic || !hasWatermark;
+}
+
+/**
+ * Whether an open license collapses to the generic `public` label in the
+ * "Zpřístupněno pod licencí" section.
+ *
+ * Open licenses are normally collapsed so that e.g. `knav_public_contract` reads
+ * as the plain "Volná díla" rather than an internal id. But a watermarked license
+ * (e.g. `mzk_public-muo` — Hudebniny Kroměříž) carries its own name for a reason:
+ * the scans are published only under the protective overlay, so labelling them a
+ * free work misstates the terms — and the id has its own translation to use instead.
+ */
+export function collapsesToPublic(isOpen: boolean, hasWatermark: boolean): boolean {
+  return isOpen && !hasWatermark;
+}
+
 /** True when the license is a per-source override rather than a standalone license. */
 export function isLicenseVariant(license: { base?: string }): boolean {
   return !!license.base;

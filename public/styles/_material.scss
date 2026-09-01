@@ -281,3 +281,23 @@ mat-slide-toggle.size-sm .mdc-switch__handle {
     }
   }
 }
+
+// Angular Material je nakonfigurovan natvrdo jako `theme-type: light` (viz
+// `mat.theme` vyse) a v dark rezimu se neprepina. Vsechny `--mat-sys-*` tedy
+// drzi svetle hodnoty i v dark, takze `on-surface` (#101d26, temer cerna) se
+// v kalendari klade na tmavy podklad:
+//   disabled den v dark    1.03:1
+//   disabled den + hover   1.12:1
+// -> dny bez vydani jsou v dark prakticky neviditelne.
+//
+// Prepisujeme jen datepicker tokeny, ktere se v dark chovaji spatne. Hodnoty
+// vychazi z nasi vlastni palety, aby zustaly konzistentni se zbytkem aplikace.
+:root.dark {
+  // Bezny (aktivni) den - stejny token jako .mat-calendar-body-cell-content nize.
+  --mat-datepicker-calendar-date-text-color: var(--color-text-btn-tertiary-default);
+
+  // Disabled den: --color-text-disable je v dark #8099B3 a na podkladu karty
+  // (--color-bg-base) drzi 6.38:1, po hoveru (--color-bg-light) 4.37:1. Od
+  // aktivnich dnu (#9FB2C6) zustava odliseny, ale uz je citelny.
+  --mat-datepicker-calendar-date-disabled-state-text-color: var(--color-text-disable);
+}

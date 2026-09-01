@@ -17,12 +17,66 @@ export enum FacetAccessibilityTypes {
   afterLogin = 'afterLogin'
 }
 
+/**
+ * Accessibility icons, taken verbatim from the legacy client
+ * (kramerius-web-client, LicenceService.accessIcon) so users moving between the
+ * two clients see identical symbols:
+ *
+ *   open     → visibility
+ *   login    → key
+ *   terminal → account_balance
+ *
+ * These are Material Icons ligatures, not glyphs from this app's own icon font —
+ * Material Icons is already loaded in index.html. They render as
+ * `<i class="material-icons">visibility</i>`, i.e. the name is the element's TEXT,
+ * which is why `materialIcon` is a separate field from the `icon` CSS class used
+ * by the rest of the icons. Templates branch on its presence.
+ *
+ * `locked` and `unlocked` are the two states of the after-login case, exactly as
+ * the legacy client draws them (LicenceService.buildLock → accessIcon(access,
+ * accessible)): `key_off` when the user does NOT hold the licence, `key` when they
+ * do. The iconClass colours reinforce the same distinction.
+ */
 export const FacetIcons = {
-  locked:   { icon: 'icon-locked',    iconClass: 'accessibility-private'    },
-  unlocked:   { icon: 'icon-locked',    iconClass: 'accessibility-public'    },
-  public:   { icon: 'icon-eye-public', iconClass: 'accessibility-public'    },
-  onsite:   { icon: 'icon-in-house',  iconClass: 'accessibility-in_library' },
+  locked:   { icon: 'material-icons', materialIcon: 'key_off',         iconClass: 'accessibility-private'    },
+  unlocked: { icon: 'material-icons', materialIcon: 'key',             iconClass: 'accessibility-public'     },
+  public:   { icon: 'material-icons', materialIcon: 'visibility',      iconClass: 'accessibility-public'     },
+  onsite:   { icon: 'material-icons', materialIcon: 'account_balance', iconClass: 'accessibility-in_library' },
 } as const;
+
+/**
+ * Icon for a license, mirroring the legacy client's
+ * `LicenceService.accessIcon(access, accessible)`: the glyph comes from the
+ * license's access type, and whether the user actually holds it decides between
+ * the plain and the struck-through variant.
+ *
+ *   open     → visibility / visibility_off
+ *   login    → key        / key_off
+ *   terminal → account_balance (same either way — the building is where you go,
+ *                               holding the license or not)
+ *
+ * @param accessType the license's access type
+ * @param accessible true when the current user holds the license
+ */
+export function getAccessIcon(
+  accessType: LicenseAccessTypeLike,
+  accessible: boolean,
+): { icon: string; materialIcon: string; iconClass: string } {
+  const iconClass = accessible ? 'accessibility-public' : 'accessibility-private';
+  switch (accessType) {
+    case 'open':
+      return { icon: 'material-icons', materialIcon: accessible ? 'visibility' : 'visibility_off', iconClass: 'accessibility-public' };
+    case 'login':
+      return { icon: 'material-icons', materialIcon: accessible ? 'key' : 'key_off', iconClass };
+    case 'terminal':
+      return { icon: 'material-icons', materialIcon: 'account_balance', iconClass: 'accessibility-in_library' };
+    default:
+      return { icon: 'material-icons', materialIcon: accessible ? 'lock_open' : 'lock', iconClass };
+  }
+}
+
+/** Access types a license can declare; mirrors LicenseAccessType in the config. */
+export type LicenseAccessTypeLike = 'open' | 'login' | 'terminal' | string;
 
 
 export const facetKeysEnum = {
