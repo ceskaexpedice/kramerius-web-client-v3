@@ -25,6 +25,16 @@ import {InlineLoaderComponent} from '../../shared/components/inline-loader/inlin
 import {MetadataSidebarComponent} from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import {TabsComponent} from '../../shared/components/tabs/tabs.component';
 import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
+import {MobileNavBarComponent} from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import {ViewerTapToggleDirective} from '../../shared/directives/viewer-tap-toggle.directive';
+import {SlideUpPanelComponent} from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import {MetadataSection} from '../../shared/components/metadata-section/metadata-section';
+import {
+  ExportDocumentSectionComponent
+} from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
+import {
+  SearchResultsSidebarComponent
+} from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 
 const routes: Routes = [
   {
@@ -61,6 +71,12 @@ const routes: Routes = [
         MetadataSidebarComponent,
         TabsComponent,
         TabItemComponent,
+        MobileNavBarComponent,
+        ViewerTapToggleDirective,
+        SlideUpPanelComponent,
+        MetadataSection,
+        ExportDocumentSectionComponent,
+        SearchResultsSidebarComponent,
     ],
   providers: [
   ]

@@ -2,6 +2,7 @@
   [showBottomToolbar]="false"
   [constrainBottomToolbar]="true"
   [showRightSidebar]="true"
+  [hideFilterToggle]="breakpointService.isMobile()"
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
 
   <ng-container left-sidebar>
@@ -71,16 +72,30 @@
 
         <div right>
           <div class="flex flex--align-center">
+            <!-- Hidden viewer-controls instance: on compact viewports it supplies
+                 the viewer actions merged into the toolbar's "more" menu (no
+                 floating UI). Only meaningful in images mode - the records track
+                 list has no viewer. Sibling so its template ref is in scope. -->
+            @let showMobileViewerMenu = breakpointService.isCompactViewer() &&
+                 documentInfoService.canAccessDocument() &&
+                 detailViewService.soundRecordingViewMode() === 'images';
+
+            <app-viewer-controls #mobileViewerControls [mobileMenuMode]="true"
+                                 type="image" [showCrop]="false"></app-viewer-controls>
+
             <app-toolbar-controls
               [showFavorites]="true"
               [favoritesActive]="(favoritesHelper.getFavoritedStatus(document.uuid) | async) ?? false"
               [showShare]="true"
               [showQuote]="true"
+              [actions]="showMobileViewerMenu ? mobileViewerControls.getMenuItems() : []"
+              [mobileMenuMode]="breakpointService.isCompactViewer()"
               [showInfo]="false" [showEdit]="true"
               (infoClicked)="detailViewService.openRecordInfo()"
               (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
-              (quoteClicked)="recordHandler.openCitationDialog(document)">
+              (quoteClicked)="recordHandler.openCitationDialog(document)"
+              (actionClicked)="onToolbarAction($event, mobileViewerControls)">
             </app-toolbar-controls>
           </div>
         </div>
@@ -93,9 +108,11 @@
 
     <ng-container *ngIf="detailViewService.document$ | async as document">
 
-      <div class="detail-view--page--content--body">
+      <div class="detail-view--page--content--body"
+           appViewerTapToggle (cleanTap)="onViewerCleanTap()">
 
-        <div class="detail-view--page--content--wrapper" >
+        <div class="detail-view--page--content--wrapper"
+             [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'">
 
           @let checkState = documentInfoService.state();
           @let accessDenied = checkState === 'LOADED' && isAccessDenied(document);
@@ -123,7 +140,13 @@
                   </div>
                 }
 
-                <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
+                <!-- Floating column only on roomy viewports; on compact ones
+                     (narrow mobile or short landscape) these actions live in the
+                     toolbar "more" menu instead - the tall column would overflow
+                     and, with the mini-player docked, be unreachable (issue #172). -->
+                @if (!breakpointService.isCompactViewer()) {
+                  <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
+                }
 
               }
 
@@ -162,7 +185,7 @@
 
         </div>
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument()) {
+        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument() && !breakpointService.isMobile()) {
         <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
           <i class="icon-info-full"></i>
@@ -189,6 +212,47 @@
 
   </ng-container>
 </app-detail-layout>
+
+<!-- Mobile navigation bar: replaces the desktop floating sidebar toggles and
+     mirrors the right metadata sidebar's tabs (GitHub issue #172). -->
+@if (breakpointService.isMobile()) {
+  <app-mobile-nav-bar
+    [class.mobile-nav-bar--immersive]="isImmersiveMode()"
+    [class.mobile-nav-bar--hidden]="!mobileNavShown()"
+    [items]="mobileNavItems"
+    [activeId]="mobileActivePanel()"
+    (activeIdChange)="onMobileNavChange($event)">
+  </app-mobile-nav-bar>
+
+  <!-- Mobile slide-up panels. "records" is absent on purpose: it opens the left
+       filter-sidebar, which renders its own slide-up. -->
+  @if (detailViewService.document$ | async; as document) {
+    <app-slide-up-panel
+      [title]="getMobilePanelTitle()"
+      [(isOpen)]="mobileSlideUpOpen"
+      (closed)="onMobileSlideUpClosed()"
+      [initialHeight]="60"
+      [maxHeight]="90">
+      @switch (mobileActivePanel()) {
+        @case ('description') {
+          <!-- Panel header already shows the title, so hide the section's own. -->
+          <app-metadata-section [showTitle]="false" [metadata]="document"
+                                [uuid]="detailViewService.document?.uuid || document.uuid || ''">
+          </app-metadata-section>
+        }
+        @case ('export') {
+          <app-export-document-section-component
+            [pagePid]="detailViewService.currentPagePid || null">
+          </app-export-document-section-component>
+        }
+        @case ('results') {
+          <app-search-results-sidebar [currentDocument]="document">
+          </app-search-results-sidebar>
+        }
+      }
+    </app-slide-up-panel>
+  }
+}
 
 <!-- Favorites Popup positioned fixed to avoid overflow clipping -->
 @if (favoritesHelper.favoritesPopupState.showPopup()) {

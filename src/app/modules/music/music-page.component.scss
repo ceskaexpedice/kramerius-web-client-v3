@@ -84,10 +84,25 @@
 .detail-view--page--content--wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-x3);
+  // No padding by default so the IIIF viewer fills the pane, as on detail-view.
+  // The padding predates the images view, when this wrapper only ever held the
+  // track list; there it inset the viewer by 24px on both axes for no reason.
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-x4);
+
+  // "records" mode shows the track list, which does want the padded, flowing
+  // layout. Mirrors detail-view's .records-view rule (same spacing token).
+  &.records-view {
+    padding: var(--spacing-x3);
+  }
+
+  // In images mode the wrapper no longer pads, so the access-denied panel needs
+  // its own inset or it would sit flush against the edges (as on detail-view).
+  &:not(.records-view) app-document-access-denied {
+    margin: var(--spacing-x4);
+  }
 }
 
 .app-document-thumbnail {
@@ -162,5 +177,38 @@ app-iiif-viewer {
 
   app-favorites-popup {
     display: block;
+  }
+}
+
+// Mobile nav bar replaces the floating sidebar toggles on phones. It is fixed
+// to the viewport bottom, offset by the global mini-player so the two stack
+// instead of overlapping (GitHub issue #172). Unlike detail-view's immersive
+// bar this one stays visible - /music has no tap-to-toggle viewer surface in
+// the records view, so a self-hiding bar would be unreachable there.
+app-mobile-nav-bar {
+  position: fixed;
+  bottom: var(--playback-bar-height, 0px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+// Immersive nav bar (images mode): slide down out of view when hidden, so a
+// clean tap on the viewer brings it back. Respects motion prefs.
+app-mobile-nav-bar.mobile-nav-bar--immersive {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform: translateY(0);
+  opacity: 1;
+
+  &.mobile-nav-bar--hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-mobile-nav-bar.mobile-nav-bar--immersive {
+    transition: none;
   }
 }

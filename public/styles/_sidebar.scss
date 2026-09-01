@@ -62,10 +62,13 @@
 }
 
 // Floating toggle button
+// Sits above the global mini-player rather than under it - the player is fixed
+// to the viewport bottom at the same stacking level, so without this offset a
+// collapsed sidebar could not be reopened while audio played (issue #172).
 .floating-sidebar-toggle {
   position: fixed;
   right: var(--spacing-x3);
-  bottom: var(--spacing-x3);
+  bottom: calc(var(--spacing-x3) + var(--playback-bar-height, 0px));
   transition: all 0.2s ease;
   background-color: var(--color-secondary);
   z-index: 1000;
