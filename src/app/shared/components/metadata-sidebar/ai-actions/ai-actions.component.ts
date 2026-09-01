@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TtsService } from '../../../services/tts.service';
 import { AiPanelService } from '../../../services/ai-panel.service';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
 import { UserService } from '../../../services/user.service';
-import { AuthService } from '../../../../core/auth/auth.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
@@ -22,7 +22,7 @@ export class AiActionsComponent {
   aiPanelService = inject(AiPanelService);
   private detailViewService = inject(DetailViewService);
   userService = inject(UserService);
-  private authService = inject(AuthService);
+  private router = inject(Router);
   private settingsService = inject(SettingsService);
   documentInfoService = inject(DocumentInfoService);
   private configService = inject(ConfigService);
@@ -52,7 +52,11 @@ export class AiActionsComponent {
   }
 
   login(): void {
-    this.authService.login(window.location.pathname);
+    // Route through the terms page so the licence/GDPR consent step is not
+    // bypassed, and carry the full router URL (incl. ?page=) so the user comes
+    // back to the page they were on rather than the first page of the document.
+    const returnUrl = this.router.url;
+    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
   }
 
   onRead(): void {
