@@ -30,6 +30,7 @@ import { DEFAULT_CONFIG, DEFAULT_HOME_SECTIONS } from './config.defaults';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { CdkSourceService } from '../../shared/services/cdk-source.service';
 import { splitLicenseVariants, resolveLicenseForSource } from './license-variants';
+import { sanitizeContentHtml } from '../../shared/utils/sanitize-content-html';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
@@ -790,7 +791,10 @@ export class ConfigService {
       const response = await fetch(`${url}?t=${timestamp}`);
       if (!response.ok) return '';
       const buffer = await response.arrayBuffer();
-      return new TextDecoder('utf-8').decode(buffer);
+      const html = new TextDecoder('utf-8').decode(buffer);
+      // Editor-authored HTML often carries pasted inline colours and fonts that
+      // break dark mode and the design system; strip those, keep layout styles.
+      return sanitizeContentHtml(html);
     } catch (err) {
       console.warn(`ConfigService: Failed to load HTML content from ${url}.`, err);
       return '';

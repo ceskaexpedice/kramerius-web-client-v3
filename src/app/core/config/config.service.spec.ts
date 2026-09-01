@@ -363,3 +363,55 @@ describe('ConfigService public-worker export gate', () => {
     expect(service.isAnyExportFormatEnabled()).toBe(false);
   });
 });
+
+/**
+ * Editor-authored page HTML (public/local-config/html/) is regularly pasted out of a
+ * WYSIWYG and arrives carrying hardcoded light-theme colours and font stacks. Those
+ * must be stripped at load time so every consumer — content pages, footer, license
+ * banners — renders through the design system and stays readable in dark mode.
+ */
+describe('ConfigService HTML content sanitisation', () => {
+  let service: ConfigService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [ConfigService, { provide: EnvironmentService, useValue: {} }],
+    });
+    service = TestBed.inject(ConfigService);
+  });
+
+  function mockHtmlResponse(html: string): void {
+    spyOn(window, 'fetch').and.resolveTo({
+      ok: true,
+      arrayBuffer: () => Promise.resolve(new TextEncoder().encode(html).buffer),
+    } as unknown as Response);
+  }
+
+  it('strips pasted colours and fonts from loaded page HTML', async () => {
+    mockHtmlResponse(
+      '<p style="margin: 0px 0px 1rem; color: rgb(38, 51, 64); font-family: &quot;IBM Plex Sans&quot;, sans-serif; font-size: medium;">Přihlášení uživatelé</p>'
+    );
+
+    const html = await service.loadHtmlContent('/local-config/html/about/about.cs.html');
+
+    expect(html).not.toContain('rgb(38, 51, 64)');
+    expect(html).not.toContain('IBM Plex Sans');
+    expect(html).not.toContain('font-size');
+    expect(html).toContain('margin: 0px 0px 1rem');
+    expect(html).toContain('Přihlášení uživatelé');
+  });
+
+  it('leaves well-authored HTML unchanged', async () => {
+    mockHtmlResponse('<p>Text with a <a href="https://sdnnt.nkp.cz">link</a></p>');
+
+    const html = await service.loadHtmlContent('/local-config/html/about/about.cs.html');
+
+    expect(html).toBe('<p>Text with a <a href="https://sdnnt.nkp.cz">link</a></p>');
+  });
+
+  it('returns an empty string when the request fails', async () => {
+    spyOn(window, 'fetch').and.resolveTo({ ok: false } as Response);
+
+    expect(await service.loadHtmlContent('/missing.html')).toBe('');
+  });
+});
