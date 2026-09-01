@@ -52,6 +52,13 @@
           </span>
         }
       </div>
+
+      @if (showAlgorithmicNote()) {
+        <div class="algorithmic-note">
+          <i class="icon-info algorithmic-note__icon" aria-hidden="true"></i>
+          <p class="algorithmic-note__text">{{ 'export-generated-algorithmically-note' | translate }}</p>
+        </div>
+      }
     </div>
   </div>
 

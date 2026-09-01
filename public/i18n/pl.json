@@ -696,6 +696,7 @@
   "email-export-dialog--option-enrich-llm-tooltip": "Modele językowe mogą generować nieprawdziwe lub zmyślone informacje i może to potrwać dłużej.",
   "email-export-dialog--option-include-images": "Dołączyć obrazy?",
   "email-export-dialog--option-skip-page-numbers": "Czy chcesz pominąć numery stron?",
+  "export-generated-algorithmically-note": "Plik jest generowany algorytmicznie i nie stanowi oficjalnej publikacji wydawcy.",
   "email-export-success-dialog--header": "Żądanie zostało utworzone",
   "email-export-success-dialog--description": "Na podany adres e-mail wysyłamy żądanie pobrania. Cały proces może potrwać nawet kilkadziesiąt minut.",
   "actions--col": "Akcje",
