@@ -109,7 +109,9 @@
     <ng-container *ngIf="detailViewService.document$ | async as document">
 
       <div class="detail-view--page--content--body"
-           appViewerTapToggle (cleanTap)="onViewerCleanTap()">
+           appViewerTapToggle (cleanTap)="onViewerCleanTap()"
+           [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
+           [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
         <div class="detail-view--page--content--wrapper"
              [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'">
@@ -144,7 +146,8 @@
                      (narrow mobile or short landscape) these actions live in the
                      toolbar "more" menu instead - the tall column would overflow
                      and, with the mini-player docked, be unreachable (issue #172). -->
-                @if (!breakpointService.isCompactViewer()) {
+                @if (!breakpointService.isCompactViewer() &&
+                     !(aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only')) {
                   <app-viewer-controls type="image" [showCrop]="false"></app-viewer-controls>
                 }
 
@@ -185,6 +188,13 @@
 
         </div>
 
+        <!-- AI output (translation/summary) renders beside the viewer, as a
+             sibling of the wrapper - without it the AI tab's actions would set
+             panelVisible() with nowhere to draw (GitHub issue #170). -->
+        @if (aiPanelService.panelVisible()) {
+          <app-ai-content-panel></app-ai-content-panel>
+        }
+
         @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument() && !breakpointService.isMobile()) {
         <button class="floating-sidebar-toggle button icon-button primary rounded"
           (click)="detailViewService.showMetadataSidebar()">
@@ -199,7 +209,7 @@
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
       <app-metadata-sidebar [metadata]="document" mode="floating"
-        [tools]="{search: true, export: true, description: true}">
+        [tools]="{search: true, export: true, description: true, ai: true}">
       </app-metadata-sidebar>
     </ng-container>
   </ng-container>
@@ -244,6 +254,9 @@
           <app-export-document-section-component
             [pagePid]="detailViewService.currentPagePid || null">
           </app-export-document-section-component>
+        }
+        @case ('ai') {
+          <app-ai-actions></app-ai-actions>
         }
         @case ('results') {
           <app-search-results-sidebar [currentDocument]="document">

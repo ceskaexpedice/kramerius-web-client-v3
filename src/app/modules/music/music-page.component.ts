@@ -19,6 +19,7 @@ import { SearchService } from '../../shared/services/search.service';
 import { ConfigService } from '../../core/config';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
+import { AiPanelService } from '../../shared/services/ai-panel.service';
 
 @Component({
   selector: 'app-music-page',
@@ -42,6 +43,7 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   public searchService = inject(SearchService);
   public configService = inject(ConfigService);
   public translate = inject(TranslateService);
+  public aiPanelService = inject(AiPanelService);
   private hostRef = inject(ElementRef<HTMLElement>);
 
   // Mobile chrome: the bottom nav bar replaces the two floating sidebar toggles
@@ -52,6 +54,7 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     { id: 'records', label: 'sound-records--toggle', icon: 'icon-simcard-2' },
   ];
   mobileExportNavItem: MobileNavItem = { id: 'export', label: 'export', icon: 'icon-download' };
+  mobileAiNavItem: MobileNavItem = { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' };
   mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
@@ -170,6 +173,9 @@ export class MusicPageComponent implements OnInit, OnDestroy {
     const items = [...this.mobileNavItemsBase];
     if (this.configService.isAnyExportFormatEnabled()) {
       items.push(this.mobileExportNavItem);
+    }
+    if (this.configService.isFeatureEnabled('ai')) {
+      items.push(this.mobileAiNavItem);
     }
     if (this.hasSearchResults()) {
       items.push(this.mobileSearchNavItem);

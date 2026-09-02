@@ -27,6 +27,8 @@ import {TabsComponent} from '../../shared/components/tabs/tabs.component';
 import {TabItemComponent} from '../../shared/components/tabs/tab-item.component';
 import {MobileNavBarComponent} from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import {ViewerTapToggleDirective} from '../../shared/directives/viewer-tap-toggle.directive';
+import {AiContentPanelComponent} from '../../shared/components/ai-content-panel/ai-content-panel.component';
+import {AiActionsComponent} from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
 import {SlideUpPanelComponent} from '../../shared/components/slide-up-panel/slide-up-panel.component';
 import {MetadataSection} from '../../shared/components/metadata-section/metadata-section';
 import {
@@ -73,6 +75,8 @@ const routes: Routes = [
         TabItemComponent,
         MobileNavBarComponent,
         ViewerTapToggleDirective,
+        AiContentPanelComponent,
+        AiActionsComponent,
         SlideUpPanelComponent,
         MetadataSection,
         ExportDocumentSectionComponent,

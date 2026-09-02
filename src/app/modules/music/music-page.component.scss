@@ -1,3 +1,5 @@
+@use "mixins";
+
 //.detail-view--page {
 //  height: calc(100vh - var(--header-height));
 //  overflow: hidden;
@@ -79,6 +81,55 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+
+  // AI output beside the viewer, mirroring detail-view so both pages split the
+  // same way (GitHub issue #170).
+  &.ai-split-view {
+    flex-direction: row;
+    gap: 0;
+
+    .detail-view--page--content--wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+
+    app-ai-content-panel {
+      flex: 1;
+      min-width: 0;
+      border-left: 1px solid var(--color-border-light);
+      margin-right: var(--spacing-x3);
+    }
+
+    // Stack on phones - side-by-side leaves neither pane usable. Kept in a
+    // landscape phone (short but wide), where vertical space is what's scarce.
+    @include mixins.respond(mobile-sm) {
+      flex-direction: column;
+
+      .detail-view--page--content--wrapper {
+        min-width: 100%;
+        min-height: 0;
+      }
+
+      app-ai-content-panel {
+        min-width: 100%;
+        min-height: 0;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        margin-right: 0;
+      }
+    }
+
+    @media (max-height: 620px) and (min-width: 604px) {
+      flex-direction: row;
+    }
+  }
+
+  &.ai-only-view {
+    app-ai-content-panel {
+      flex: 1;
+      margin-right: var(--spacing-x3);
+    }
+  }
 }
 
 .detail-view--page--content--wrapper {
