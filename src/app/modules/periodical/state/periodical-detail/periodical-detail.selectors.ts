@@ -1,6 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {PeriodicalDetailState} from './periodical-detail.reducer';
 import {selectRouterQueryParams} from '../../../../shared/state/router/router.selectors';
+import {selectDocumentDetail} from '../../../../shared/state/document-detail/document-detail.selectors';
 import {SolrOperators} from '../../../../core/solr/solr-helpers';
 
 export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical-detail');
@@ -8,6 +9,33 @@ export const selectPeriodicalDocument = createSelector(selectPeriodicalState, st
 export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state?.children || []);
 export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state?.years);
 export const selectAvailableYears = createSelector(selectPeriodicalState, state => state?.availableYears);
+/** Root periodical the cached `availableYears` belong to; see the reducer note (issue #169). */
+export const selectAvailableYearsRootPid = createSelector(selectPeriodicalState, state => state?.availableYearsRootPid ?? null);
+/** Cached years together with their owner, so effects can check before reusing them. */
+export const selectCachedAvailableYears = createSelector(
+  selectAvailableYears,
+  selectAvailableYearsRootPid,
+  (years, rootPid) => ({ years: years ?? [], rootPid })
+);
+/**
+ * `availableYears` only when they demonstrably belong to the periodical currently
+ * open in the detail view. While another title is being loaded the store still
+ * holds the previous one's volumes; consumers that resolve a date to a volume
+ * (the calendar popup) must not use those - it would query the wrong periodical
+ * and show either nothing or foreign issues (issue #169).
+ */
+export const selectAvailableYearsForCurrentDocument = createSelector(
+  selectCachedAvailableYears,
+  selectDocumentDetail,
+  ({ years, rootPid }, document) => {
+    const documentRootPid = (document as any)?.rootPid || (document as any)?.['root.pid'] || '';
+    if (!documentRootPid || !rootPid) {
+      return years;
+    }
+    return rootPid === documentRootPid ? years : [];
+  }
+);
+
 export const selectPeriodicalLoading = createSelector(selectPeriodicalState, state => state?.loading);
 export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state?.error);
 export const selectPeriodicalMetadata = createSelector(selectPeriodicalState, state => state?.metadata);
@@ -51,7 +79,10 @@ export const selectMonthLoading = (parentVolumeUuid: string, year: number, month
   s => !!s.monthLoading[monthCacheKey(parentVolumeUuid, year, month)]
 );
 
+// Scoped to the current document on purpose: resolving a year to a volume pid is
+// only meaningful within the periodical being viewed, and the unscoped list can
+// still hold the previously opened title (issue #169).
 export const selectPidFromAvailableYears = (year: string) => createSelector(
-  selectAvailableYears,
+  selectAvailableYearsForCurrentDocument,
   years => years.find(y => y.year === year)?.pid || ''
 );

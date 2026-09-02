@@ -26,7 +26,7 @@ import {
   selectMonthLoading,
   selectPidFromAvailableYears,
   selectPeriodicalState,
-  selectAvailableYears,
+  selectAvailableYearsForCurrentDocument,
   monthCacheKey,
 } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -35,6 +35,22 @@ import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { MonthYearSelectorComponent, MonthYearChange } from '../month-year-selector/month-year-selector.component';
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside.directive';
 import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../../utils/periodical-date';
+import { PeriodicalDayIssuesPopupComponent } from '../../../modules/periodical/components/periodical-day-issues-popup/periodical-day-issues-popup.component';
+import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
+import { RecordItem } from '../record-item/record-item.model';
+import { DocumentTypeEnum } from '../../../modules/constants/document-type';
+import { normalizeIssueTypeCode } from '../../utils/issue-type-code';
+
+interface CalendarPopupIssue {
+  pid: string;
+  accessibility: string;
+  licenses: string[];
+  model?: string;
+  partNumber?: string;
+  issueTypeCode?: string;
+  dateStr?: string;
+  startDate?: Date;
+}
 
 @Component({
   selector: 'app-calendar-popup',
@@ -43,6 +59,7 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
     NgIf,
     MonthYearSelectorComponent,
     ClickOutsideDirective,
+    PeriodicalDayIssuesPopupComponent,
   ],
   providers: [
     {
@@ -52,7 +69,7 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
     },
   ],
   template: `
-    <div class="calendar-dropdown" appClickOutside (clickOutside)="close()">
+    <div class="calendar-dropdown" appClickOutside (clickOutside)="onClickOutside($event)">
 <!--      <div class="calendar-popup-header">-->
 <!--        <button class="nav-btn" (click)="previousMonth()">-->
 <!--          <i class="icon-arrow-left-1"></i>-->
@@ -72,7 +89,7 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
           (monthYearChange)="onMonthYearChange($event)">
         </app-month-year-selector>
       </div>
-      <div class="single-calendar-container">
+      <div class="single-calendar-container" (mousedown)="onCalendarClick($event)">
         <div class="loading-overlay" *ngIf="isLoadingCalendar()">
           <div class="loading-spinner">
             <div class="spinner"></div>
@@ -87,7 +104,22 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
                       (selectedChange)="onDateSelected($event)">
         </mat-calendar>
       </div>
+
     </div>
+
+    <!-- Deliberately a SIBLING of .calendar-dropdown, not a child: the dropdown
+         carries transform: translateX(-50%), which makes it the containing block
+         for position:fixed descendants. Nested, the popup's viewport coordinates
+         were resolved against the dropdown and it rendered off-screen. Clicks in
+         it are excluded from the calendar's click-outside by onDocumentClick(). -->
+    @if (issuesPopupState.showPopup()) {
+      <div class="issues-popup-wrapper" [class.positioned]="issuesPopupState.popupPositioned()">
+        <app-periodical-day-issues-popup
+          [items]="popupRecordItems()"
+          (close)="closeIssuesPopup()">
+        </app-periodical-day-issues-popup>
+      </div>
+    }
   `,
   styles: `
     :host { display: contents; }
@@ -104,6 +136,20 @@ import { formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from '../.
       z-index: 800;
       margin-top: 4px;
       padding: var(--spacing-x2);
+    }
+
+    .issues-popup-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 900;
+      pointer-events: auto;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }
+
+    .issues-popup-wrapper.positioned {
+      opacity: 1;
     }
 
     .calendar-popup-header {
@@ -400,6 +446,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   private recordHandler = inject(RecordHandlerService);
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
+  private popupPositioningService = inject(PopupPositioningService);
 
   @Input() year!: string;
   @Input() preselectedDate?: string;
@@ -414,13 +461,22 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   isOpen = false;
 
   // Data map for current month only
-  issueMap = signal(new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>());
+  issueMap = signal(new Map<string, CalendarPopupIssue[]>());
+
+  // Day with more than one issue opens a picker instead of jumping straight to
+  // the first one, same as the year calendar (issue #169).
+  popupIssues = signal<CalendarPopupIssue[]>([]);
+  popupRecordItems = computed<RecordItem[]>(() => this.popupIssues().map(issue => this.toRecordItem(issue)));
+  issuesPopupState: PopupState = this.popupPositioningService.createPopupState();
+  private pendingClickEvent: Event | null = null;
 
   // Always lazy load
   currentMonthIssues = signal<any[]>([]);
 
   // Real years carried by this periodical (drives the year dropdown).
-  private availableYearsSig = toSignal(this.store.select(selectAvailableYears), { initialValue: [] as any[] });
+  // Scoped to the open document: the raw store list can still hold the previously
+  // viewed periodical's volumes while a new title loads (issue #169).
+  private availableYearsSig = toSignal(this.store.select(selectAvailableYearsForCurrentDocument), { initialValue: [] as any[] });
   availableYearNumbers = computed(() =>
     (this.availableYearsSig() || [])
       .map((y: any) => parseInt(String(y.year), 10))
@@ -618,17 +674,90 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   onDateSelected(date: Date | null): void {
     if (!date) return;
     const issues = this.issueMap().get(this.formatDateKey(date));
-    if (issues && issues.length > 0) {
-      this.dateSelected.emit({
-        pid: issues[0].pid,
-        year: date.getFullYear()
-      });
+    if (!issues || issues.length === 0) return;
+
+    // More than one issue on the day: let the user pick instead of silently
+    // opening the first one (issue #169).
+    if (issues.length > 1) {
+      this.popupIssues.set(issues);
+      const triggerEvent = this.pendingClickEvent
+        ? this.synthesizeCellTrigger(this.pendingClickEvent)
+        : undefined;
+      this.popupPositioningService.showPopup(
+        this.issuesPopupState,
+        {
+          triggerEvent,
+          preferredSide: 'right',
+          offsetY: 4,
+        },
+        '.issues-popup-wrapper',
+      );
+      return;
     }
+
+    this.dateSelected.emit({
+      pid: issues[0].pid,
+      year: date.getFullYear()
+    });
+  }
+
+  onCalendarClick(event: MouseEvent): void {
+    this.pendingClickEvent = event;
+  }
+
+  closeIssuesPopup(): void {
+    this.issuesPopupState.closePopup();
+    this.popupIssues.set([]);
+  }
+
+  // PopupPositioningService positions relative to event.target. For mat-calendar
+  // clicks the target is usually an inner span; align to the whole day cell.
+  private synthesizeCellTrigger(event: Event): Event {
+    const target = event.target as HTMLElement | null;
+    const cell = target?.closest('.mat-calendar-body-cell') as HTMLElement | null;
+    if (!cell) return event;
+    return { ...event, target: cell } as unknown as Event;
+  }
+
+  private toRecordItem(issue: CalendarPopupIssue): RecordItem {
+    const subtitlePrefix = this.translate.instant('periodicalvolume-part-subtitle');
+    let title = '';
+    const subtitle = issue.dateStr ?? '';
+    if (issue.issueTypeCode) {
+      title = this.translate.instant(`${issue.issueTypeCode}-issue`);
+    } else if (issue.startDate) {
+      title = `${issue.startDate.getDate()}.${issue.startDate.getMonth() + 1}.`;
+    } else if (issue.partNumber) {
+      title = `${subtitlePrefix} ${issue.partNumber}`;
+    }
+    return {
+      id: issue.pid,
+      title,
+      subtitle,
+      model: (issue.model as DocumentTypeEnum) ?? '',
+      licenses: issue.licenses || [],
+      className: 'card--fluid',
+      showFavoriteButton: false,
+      showAccessibilityBadge: true,
+    };
+  }
+
+  // The day-issues popup renders outside the click-outside host (it has to escape
+  // the dropdown's transform), so a click inside it looks "outside" to the
+  // directive. Treat it as part of the calendar, otherwise picking an issue tears
+  // the calendar down before the record item can handle the click.
+  onClickOutside(event?: MouseEvent | void): void {
+    const target = (event as MouseEvent | undefined)?.target as HTMLElement | null;
+    if (target?.closest('.issues-popup-wrapper')) {
+      return;
+    }
+    this.close();
   }
 
   close(): void {
     if (!this.isOpen) return;
     this.isOpen = false;
+    this.closeIssuesPopup();
     this.closePopup.emit();
   }
 
@@ -772,17 +901,22 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
   private updateIssueMapForMonth(items: any[]): void {
-    const map = new Map<string, { pid: string; accessibility: string, licenses: string[] }[]>();
+    const map = new Map<string, CalendarPopupIssue[]>();
 
     for (const item of items) {
       const date = parseIssueStartDate(item);
       if (!date || !item.pid) continue;
 
       const key = this.formatDateKey(date);
-      const issueData = {
+      const issueData: CalendarPopupIssue = {
         pid: item.pid,
         accessibility: item.accessibility || 'private',
-        licenses: item.licenses || [],
+        licenses: item['licenses.facet'] || item.licenses || [],
+        model: item.model,
+        partNumber: item['part.number.str'],
+        issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
+        dateStr: item['date.str'],
+        startDate: date,
       };
 
       if (map.has(key)) {
@@ -807,6 +941,11 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     // Clear all pending timeouts
     this.loadingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
     this.loadingTimeouts.clear();
+
+    // Close our own popup rather than calling the service's cleanup(): the
+    // service is a root singleton holding a single click-outside listener, so
+    // cleanup() would also detach a listener belonging to another popup.
+    this.closeIssuesPopup();
 
     this.destroy$.next();
     this.destroy$.complete();

@@ -5,7 +5,12 @@ import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../cor
 import {FacetItem} from '../../../models/facet-item';
 
 export const loadPeriodical = createAction('[Periodical] Load', props<{ uuid: string; filters: string[], advancedQuery?: string, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections, cdkCollection?: string | null }>());
-export const loadPeriodicalSuccess = createAction('[Periodical] Load Success', props<{ document: PeriodicalItem; metadata: Metadata; years: PeriodicalItemYear[]; availableYears: PeriodicalItemYear[]; children?: any[]; facets?: { [key: string]: FacetItem[] } }>());
+// `availableYearsRootPid` says which periodical the years belong to. The list is
+// cached in the store and reused across navigations to save a volumes request,
+// but it is only valid for its own title - without the root pid, opening another
+// periodical kept the previous one's volumes and the calendar queried the wrong
+// title (issue #169).
+export const loadPeriodicalSuccess = createAction('[Periodical] Load Success', props<{ document: PeriodicalItem; metadata: Metadata; years: PeriodicalItemYear[]; availableYears: PeriodicalItemYear[]; availableYearsRootPid?: string | null; children?: any[]; facets?: { [key: string]: FacetItem[] } }>());
 export const loadPeriodicalFailure = createAction('[Periodical] Load Failure', props<{ error: any }>());
 
 export const setPeriodicalSearchParams = createAction('[Periodical] Set Search Params', props<{
@@ -19,7 +24,7 @@ export const setPeriodicalSearchParams = createAction('[Periodical] Set Search P
 }>());
 
 export const loadPeriodicalItems = createAction('[Periodical] Load Items', props<{ parentVolumeUuid: string }>());
-export const loadPeriodicalItemsSuccess = createAction('[Periodical] Load Items Success', props<{ children: any[]; availableYears?: PeriodicalItemYear[] }>());
+export const loadPeriodicalItemsSuccess = createAction('[Periodical] Load Items Success', props<{ children: any[]; availableYears?: PeriodicalItemYear[]; availableYearsRootPid?: string | null }>());
 export const loadPeriodicalItemsFailure = createAction('[Periodical] Load Items Failure', props<{ error: any }>());
 
 export const loadMonthIssues = createAction(

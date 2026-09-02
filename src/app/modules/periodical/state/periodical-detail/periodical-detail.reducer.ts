@@ -15,6 +15,14 @@ export interface PeriodicalDetailState {
   metadata: Metadata | null;
   years: PeriodicalItemYear[];
   availableYears: PeriodicalItemYear[];
+  /**
+   * Root periodical the cached `availableYears` were loaded for. The list is
+   * reused across navigations to avoid re-requesting the volumes, so it must be
+   * possible to tell whose volumes are being held: without this, opening another
+   * title kept the previous periodical's volumes and the calendar resolved dates
+   * against the wrong title (issue #169).
+   */
+  availableYearsRootPid: string | null;
   children: PeriodicalItemChild[];
   loading: boolean;
   error: any;
@@ -36,6 +44,7 @@ export const initialState: PeriodicalDetailState = {
   metadata: null,
   years: [],
   availableYears: [],
+  availableYearsRootPid: null,
   children: [],
   loading: false,
   error: null,
@@ -88,7 +97,7 @@ export const periodicalDetailReducer = createReducer(
       }
     };
   }),
-  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, children, facets }) => ({
+  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, availableYearsRootPid, children, facets }) => ({
     ...state,
     loading: false,
     facets: facets ?? {},
@@ -96,15 +105,17 @@ export const periodicalDetailReducer = createReducer(
     metadata,
     years,
     availableYears: availableYears ?? state.availableYears,
+    availableYearsRootPid: availableYears ? (availableYearsRootPid ?? null) : state.availableYearsRootPid,
     children: children || []
   })),
   on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error })),
   on(loadPeriodicalItems, state => ({ ...state, loading: true })),
-  on(loadPeriodicalItemsSuccess, (state, { children, availableYears }) => ({
+  on(loadPeriodicalItemsSuccess, (state, { children, availableYears, availableYearsRootPid }) => ({
     ...state,
     loading: false,
     children: children || [],
     availableYears: availableYears ?? state.availableYears,
+    availableYearsRootPid: availableYears ? (availableYearsRootPid ?? null) : state.availableYearsRootPid,
   })),
   on(loadPeriodicalItemsFailure, (state, { error }) => ({ ...state, loading: false, error })),
   on(loadMonthIssues, (state, { parentVolumeUuid, year, month }) => {
