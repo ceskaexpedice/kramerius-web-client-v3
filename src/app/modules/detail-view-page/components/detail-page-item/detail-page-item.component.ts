@@ -63,8 +63,11 @@ export class DetailPageItemComponent {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
+  // Reads the signal, not getCode(): the CDK source is resolved from an effect
+  // that runs after this template was already checked, which made the rendered
+  // URL change between the two dev-mode passes (NG0100).
   getImageUrl(): string {
-    return this.krameriusBaseUrl + this.cdkSource.prefixedItemPath(this.page.pid, 'image/thumb');
+    return this.krameriusBaseUrl + this.cdkSource.prefixedItemPathSignal(this.page.pid, 'image/thumb');
   }
 
   getFullImageUrl(): string {
