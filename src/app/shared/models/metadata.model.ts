@@ -391,7 +391,42 @@ export function fromSolrToMetadata(doc: any, currentLang: string = 'cs'): Metada
  * @param modsMetadata Additional metadata from MODS
  * @returns Merged metadata object
  */
+/**
+ * Deep copy that keeps class prototypes intact.
+ *
+ * `structuredClone` and a JSON round-trip both return plain objects, which would
+ * strip the methods these models carry (TitleInfo.mainTitle(), Publisher.
+ * placeAndName(), Location.fullDetail()) and break every caller of them.
+ */
+function cloneWithPrototype<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(item => cloneWithPrototype(item)) as unknown as T;
+  }
+  if (value === null || typeof value !== 'object' || value instanceof Date) {
+    return value;
+  }
+
+  const copy = Object.create(Object.getPrototypeOf(value)) as any;
+  for (const [key, item] of Object.entries(value as any)) {
+    copy[key] = cloneWithPrototype(item);
+  }
+  return copy as T;
+}
+
 export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): Metadata {
+  // Work on private copies of BOTH sides.
+  //
+  // This function adopts nested objects by reference (`merged.authors.push(
+  // modsAuthor)`) and mutates them in place (`existing.date = ...`). Two things
+  // make those objects shared: ModsParserService caches parsed Metadata and
+  // returns the SAME object to every caller, and the merged result is put into
+  // the NgRx store, which deep-freezes everything it holds. A later merge that
+  // sees one of those frozen objects and writes a different value to it threw
+  // "Cannot assign to read only property 'date'" - which is what happened when
+  // the same document was opened a second time.
+  solrMetadata = cloneWithPrototype(solrMetadata);
+  modsMetadata = cloneWithPrototype(modsMetadata);
+
   const merged = { ...solrMetadata };
 
   // Merge simple string fields - use MODS if Solr field is empty
