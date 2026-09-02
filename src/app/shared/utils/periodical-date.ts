@@ -18,6 +18,13 @@
 /** Dash characters that may separate the two ends of a range in `date.str`. */
 const RANGE_SEPARATOR = /[–—-]/;
 
+export interface VolumeYearFields {
+  year?: string;
+  'date.str'?: string;
+  'date_range_start.year'?: number | string;
+  'date_range_end.year'?: number | string;
+}
+
 export interface IssueDateFields {
   'date.str'?: string;
   'date_range_start.day'?: number | string;
@@ -128,4 +135,69 @@ export function formatIssueDateLabel(item: IssueDateFields | undefined | null): 
     return item?.['date.str'] ?? '';
   }
   return `${date.getDate()}.${date.getMonth() + 1}.`;
+}
+
+/**
+ * Does a periodical volume cover the given calendar year?
+ *
+ * A volume's `year` label is `date.str` verbatim, which for periodicals whose
+ * volume spans a season reads as a RANGE - Světozor carries "1905-1906". A
+ * numeric year taken from a displayed issue date therefore never equals the
+ * label, and a plain `y.year === year` lookup finds no volume at all (issue
+ * #169). Match against the structured range fields instead, falling back to the
+ * label only when they are absent.
+ */
+export function volumeCoversYear(volume: VolumeYearFields | undefined | null, year: string): boolean {
+  if (!volume) {
+    return false;
+  }
+
+  const target = toNumber(year);
+  if (target === null) {
+    return false;
+  }
+
+  const start = toNumber(volume['date_range_start.year']);
+  const end = toNumber(volume['date_range_end.year']);
+  if (start !== null || end !== null) {
+    const from = start ?? end!;
+    const to = end ?? start!;
+    return target >= from && target <= to;
+  }
+
+  // No structured range: fall back to the label, which may itself be a range.
+  const label = volume.year ?? volume['date.str'];
+  if (!label) {
+    return false;
+  }
+  const bounds = String(label)
+    .split(RANGE_SEPARATOR)
+    .map(part => toNumber(part.trim()))
+    .filter((n): n is number => n !== null);
+  if (bounds.length === 0) {
+    return false;
+  }
+  return target >= bounds[0] && target <= bounds[bounds.length - 1];
+}
+
+/**
+ * The volume that should own `year`.
+ *
+ * A year can fall inside two consecutive spanning volumes ("1904-1905" and
+ * "1905-1906" both cover 1905). Prefer the one that STARTS in that year: that is
+ * where the bulk of its issues sit, and it is the volume the year navigation
+ * lands on.
+ */
+export function findVolumeForYear<T extends VolumeYearFields>(volumes: readonly T[] | undefined | null, year: string): T | undefined {
+  if (!volumes?.length) {
+    return undefined;
+  }
+
+  const covering = volumes.filter(volume => volumeCoversYear(volume, year));
+  if (covering.length === 0) {
+    return undefined;
+  }
+
+  const target = toNumber(year);
+  return covering.find(volume => toNumber(volume['date_range_start.year']) === target) ?? covering[0];
 }

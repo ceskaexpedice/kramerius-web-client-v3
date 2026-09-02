@@ -1,4 +1,4 @@
-import { formatIssueDateLabel, formatLocalDateKey, parseIssueDateStr, parseIssueStartDate } from './periodical-date';
+import { findVolumeForYear, formatIssueDateLabel, formatLocalDateKey, parseIssueDateStr, parseIssueStartDate, volumeCoversYear } from './periodical-date';
 
 describe('periodical-date', () => {
 
@@ -171,6 +171,71 @@ describe('periodical-date', () => {
 
     it('handles a date carrying a wall-clock time', () => {
       expect(formatLocalDateKey(new Date(2020, 6, 4, 23, 45))).toBe('2020-07-04');
+    });
+
+  });
+
+
+  describe('volume year ranges', () => {
+    // Real Svetozor volumes: a periodical whose volume spans a season carries
+    // `date.str` as a RANGE, so the year label is "1905-1906" rather than a plain
+    // year. Comparing it against a numeric year found no volume and the calendar
+    // had nothing to query (issue #169).
+
+    const v1904 = {
+      year: '1904-1905', pid: 'uuid:74970240',
+      'date_range_start.year': 1904, 'date_range_end.year': 1905,
+    };
+    const v1905 = {
+      year: '1905-1906', pid: 'uuid:b0ef17b0',
+      'date_range_start.year': 1905, 'date_range_end.year': 1906,
+    };
+    const v1933 = {
+      year: '1933', pid: 'uuid:92c49510',
+      'date_range_start.year': 1933, 'date_range_end.year': 1933,
+    };
+
+    it('matches a spanning volume on both of its years', () => {
+      expect(volumeCoversYear(v1905, '1905')).toBe(true);
+      expect(volumeCoversYear(v1905, '1906')).toBe(true);
+    });
+
+    it('does not match a year outside the range', () => {
+      expect(volumeCoversYear(v1905, '1904')).toBe(false);
+      expect(volumeCoversYear(v1905, '1907')).toBe(false);
+    });
+
+    it('matches a single-year volume', () => {
+      expect(volumeCoversYear(v1933, '1933')).toBe(true);
+      expect(volumeCoversYear(v1933, '1934')).toBe(false);
+    });
+
+    it('falls back to the label when the range fields are absent', () => {
+      expect(volumeCoversYear({ year: '1910-1911' }, '1911')).toBe(true);
+      expect(volumeCoversYear({ year: '1910-1911' }, '1912')).toBe(false);
+      expect(volumeCoversYear({ year: '1936' }, '1936')).toBe(true);
+    });
+
+    it('ignores a volume with no usable year at all', () => {
+      expect(volumeCoversYear({}, '1905')).toBe(false);
+      expect(volumeCoversYear(null, '1905')).toBe(false);
+      expect(volumeCoversYear(v1905, 'not-a-year')).toBe(false);
+    });
+
+    it('prefers the volume that starts in the requested year', () => {
+      // 1905 falls inside both consecutive volumes; the one starting in 1905 owns it.
+      expect(findVolumeForYear([v1904, v1905], '1905')?.pid).toBe('uuid:b0ef17b0');
+      expect(findVolumeForYear([v1904, v1905], '1904')?.pid).toBe('uuid:74970240');
+    });
+
+    it('falls back to any covering volume when none starts in that year', () => {
+      // 1906 is only ever the tail of the 1905-1906 volume.
+      expect(findVolumeForYear([v1904, v1905], '1906')?.pid).toBe('uuid:b0ef17b0');
+    });
+
+    it('returns nothing for a year no volume covers', () => {
+      expect(findVolumeForYear([v1904, v1905], '1950')).toBeUndefined();
+      expect(findVolumeForYear([], '1905')).toBeUndefined();
     });
 
   });

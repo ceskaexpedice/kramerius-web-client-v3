@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {PeriodicalDetailState} from './periodical-detail.reducer';
 import {selectRouterQueryParams} from '../../../../shared/state/router/router.selectors';
 import {selectDocumentDetail} from '../../../../shared/state/document-detail/document-detail.selectors';
+import {findVolumeForYear, volumeCoversYear} from '../../../../shared/utils/periodical-date';
 import {SolrOperators} from '../../../../core/solr/solr-helpers';
 
 export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical-detail');
@@ -82,7 +83,27 @@ export const selectMonthLoading = (parentVolumeUuid: string, year: number, month
 // Scoped to the current document on purpose: resolving a year to a volume pid is
 // only meaningful within the periodical being viewed, and the unscoped list can
 // still hold the previously opened title (issue #169).
+//
+// The match goes through the volume's year RANGE rather than comparing labels: a
+// volume's `year` is `date.str` verbatim, so a periodical whose volumes span a
+// season carries "1905-1906" and an equality check against the numeric year "1905"
+// found nothing - leaving the calendar with no volume to query and no clickable
+// days at all (issue #169, Světozor).
 export const selectPidFromAvailableYears = (year: string) => createSelector(
   selectAvailableYearsForCurrentDocument,
-  years => years.find(y => y.year === year)?.pid || ''
+  years => findVolumeForYear(years, year)?.pid || ''
+);
+
+/**
+ * EVERY volume that covers `year`, not just the best match.
+ *
+ * Volumes spanning a season split a calendar year in two: for Světozor, the
+ * January-September 1905 issues sit in volume "1904-1905" and the rest in
+ * "1905-1906". Loading a month from a single volume therefore shows only half
+ * the year, so the calendar asks all covering volumes and merges the answers
+ * (issue #169).
+ */
+export const selectPidsCoveringYear = (year: string) => createSelector(
+  selectAvailableYearsForCurrentDocument,
+  years => years.filter(y => volumeCoversYear(y, year)).map(y => y.pid).filter(Boolean)
 );

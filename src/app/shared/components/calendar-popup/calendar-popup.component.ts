@@ -24,7 +24,7 @@ import { loadMonthIssues } from '../../../modules/periodical/state/periodical-de
 import {
   selectMonthIssues,
   selectMonthLoading,
-  selectPidFromAvailableYears,
+  selectPidsCoveringYear,
   selectPeriodicalState,
   selectAvailableYearsForCurrentDocument,
   monthCacheKey,
@@ -470,6 +470,9 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   issuesPopupState: PopupState = this.popupPositioningService.createPopupState();
   private pendingClickEvent: Event | null = null;
 
+  // Set when a month load found no volumes yet, so the retry above knows to fire.
+  private awaitingVolumes = false;
+
   // Always lazy load
   currentMonthIssues = signal<any[]>([]);
 
@@ -477,11 +480,26 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   // Scoped to the open document: the raw store list can still hold the previously
   // viewed periodical's volumes while a new title loads (issue #169).
   private availableYearsSig = toSignal(this.store.select(selectAvailableYearsForCurrentDocument), { initialValue: [] as any[] });
-  availableYearNumbers = computed(() =>
-    (this.availableYearsSig() || [])
-      .map((y: any) => parseInt(String(y.year), 10))
-      .filter((n: number) => Number.isFinite(n))
-  );
+  // A volume may span two calendar years ("1905-1906"); parseInt on the label
+  // would expose only its first year and the second would be unreachable in the
+  // dropdown. Expand each volume over the years it actually covers (issue #169).
+  availableYearNumbers = computed(() => {
+    const years = new Set<number>();
+
+    for (const volume of (this.availableYearsSig() || []) as any[]) {
+      const start = parseInt(String(volume['date_range_start.year'] ?? volume.year), 10);
+      const end = parseInt(String(volume['date_range_end.year'] ?? volume.year), 10);
+      if (!Number.isFinite(start) && !Number.isFinite(end)) continue;
+
+      const from = Number.isFinite(start) ? start : end;
+      const to = Number.isFinite(end) ? end : start;
+      for (let year = Math.min(from, to); year <= Math.max(from, to); year++) {
+        years.add(year);
+      }
+    }
+
+    return Array.from(years);
+  });
 
 
   private destroy$ = new Subject<void>();
@@ -508,6 +526,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     // Set up reactive data loading for current month
     this.setupReactiveDataLoading();
+    this.setupVolumeArrivalRetry();
   }
 
   ngOnInit(): void {
@@ -770,6 +789,31 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   }
 
 
+  /**
+   * Retry the month load once the periodical's volumes arrive.
+   *
+   * The calendar can be opened before `availableYears` is in the store - straight
+   * after navigating to an issue, the volumes request may still be in flight.
+   * `loadCurrentMonthIssues` then finds no volume to ask, gives up, and nothing
+   * ever calls it again: the calendar stayed empty until the user closed and
+   * reopened it (issue #169). Watch the volume list and load once it can answer.
+   */
+  private setupVolumeArrivalRetry(): void {
+    // Watch the raw volume list rather than a year-bound selector: the year is
+    // only known once ngOnChanges runs, which is after the constructor.
+    this.store.select(selectAvailableYearsForCurrentDocument)
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      )
+      .subscribe(() => {
+        if (!this.awaitingVolumes) return;
+        if (this.volumesForCurrentYear().length === 0) return;
+        this.awaitingVolumes = false;
+        this.loadCurrentMonthIssues();
+      });
+  }
+
   private setupReactiveDataLoading(): void {
     // Much simpler approach: just listen to the entire periodical state
     // but add a flag to prevent duplicate processing
@@ -782,41 +826,66 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
         })
       )
       .subscribe((state) => {
-        // Only process if we're currently loading
-        if (state?.monthIssues && this.isLoadingCalendar()) {
+        // Repaint on every monthIssues change, not only while the spinner is up.
+        // A season-spanning year is answered by two volumes: the first response
+        // used to clear the loading flag, and the second one was then ignored -
+        // half the year stayed missing until the calendar was reopened.
+        if (state?.monthIssues) {
           console.log('Reactive data loading triggered');
           this.updateCurrentMonthFromStore();
         }
       });
   }
 
+  /** Volumes covering the displayed year; a season-spanning year has two. */
+  private volumesForCurrentYear(): string[] {
+    let uuids: string[] = [];
+    this.store.select(selectPidsCoveringYear(this.currentYear().toString()))
+      .pipe(take(1))
+      .subscribe(pids => {
+        uuids = (pids as string[]) || [];
+      });
+    return uuids;
+  }
+
   private updateCurrentMonthFromStore(): void {
     const year = this.currentYear();
     const month = this.currentMonth() + 1;
 
-    // The month cache is scoped per volume, so read it under the volume that owns
-    // the displayed year. Without a volume there is nothing cached to show.
-    let volumeUuid = '';
-    this.store.select(selectPidFromAvailableYears(year.toString()))
-      .pipe(take(1))
-      .subscribe(pid => {
-        volumeUuid = (pid as string) || '';
-      });
+    // The month cache is scoped per volume, so read it under every volume that
+    // covers the displayed year. Without a volume there is nothing cached to show.
+    const volumeUuids = this.volumesForCurrentYear();
 
-    if (!volumeUuid) {
+    if (volumeUuids.length === 0) {
       this.currentMonthIssues.set([]);
       this.issueMap.set(new Map());
       this.isLoadingCalendar.set(false);
       return;
     }
 
-    // Get the current data from store (synchronously)
-    let currentData: any[] = [];
-    this.store.select(selectMonthIssues(volumeUuid, year, month))
-      .pipe(take(1))
-      .subscribe(issues => {
-        currentData = issues as any[];
+    // Keep the spinner up until every covering volume has answered, so a
+    // half-loaded season-spanning year does not read as a finished one.
+    let stillLoading = false;
+    this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
+      stillLoading = volumeUuids.some(uuid => {
+        const key = monthCacheKey(uuid, year, month);
+        return !!state?.monthLoading[key] || !(key in (state?.monthIssues || {}));
       });
+    });
+
+    // Merge what the store holds for each covering volume, de-duplicated by pid:
+    // a month near the volume boundary can legitimately be answered by both.
+    const byPid = new Map<string, any>();
+    for (const uuid of volumeUuids) {
+      this.store.select(selectMonthIssues(uuid, year, month))
+        .pipe(take(1))
+        .subscribe(issues => {
+          for (const issue of (issues as any[])) {
+            if (issue?.pid) byPid.set(issue.pid, issue);
+          }
+        });
+    }
+    const currentData = Array.from(byPid.values());
 
     // Always clear loading state when data arrives, even if empty
     console.log(`Found ${currentData.length} issues in store for ${year}-${month}, updating calendar`);
@@ -827,7 +896,7 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     } else {
       this.issueMap.set(new Map())
     }
-    this.isLoadingCalendar.set(false);
+    this.isLoadingCalendar.set(stillLoading);
 
   }
 
@@ -851,49 +920,55 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     const timeoutId = setTimeout(() => {
       this.loadingTimeouts.delete(monthKey);
 
-      // Get current state and dispatch if needed
-      this.store.select(selectPidFromAvailableYears(year.toString())).pipe(take(1)).subscribe(volumeUuid => {
-        const uuid = volumeUuid as string;
+      // Get current state and dispatch if needed. A season-spanning year is split
+      // across two volumes, so the month has to be asked of each of them.
+      const uuids = this.volumesForCurrentYear();
 
-        if (!uuid) {
-          console.warn(`No volume UUID found for year ${year}`);
-          this.isLoadingCalendar.set(false);
-          return;
-        }
+      if (uuids.length === 0) {
+        // The volumes have not arrived yet; setupVolumeArrivalRetry() will call
+        // us again as soon as they do.
+        console.warn(`No volume UUID found for year ${year} yet, waiting for volumes`);
+        this.awaitingVolumes = true;
+        this.isLoadingCalendar.set(false);
+        return;
+      }
 
-        // Check current state by looking at the raw store data
-        this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
-          const monthKey = monthCacheKey(uuid, year, month);
-          const monthIssues = state?.monthIssues[monthKey];
-          const isLoading = !!state?.monthLoading[monthKey];
-          const hasBeenLoaded = monthKey in (state?.monthIssues || {});
+      // Check current state by looking at the raw store data
+      this.store.select(selectPeriodicalState).pipe(take(1)).subscribe(state => {
+        const pending = uuids.filter(uuid => {
+          const key = monthCacheKey(uuid, year, month);
+          return !(key in (state?.monthIssues || {})) && !state?.monthLoading[key];
+        });
 
-          console.log(`Month ${year}-${month}: hasBeenLoaded=${hasBeenLoaded}, issues=${monthIssues?.length || 0}, loading=${isLoading}`);
+        const monthIssues = uuids.flatMap(uuid => state?.monthIssues[monthCacheKey(uuid, year, month)] ?? []);
 
-          if (!hasBeenLoaded && !isLoading) {
-            // No data cached and not loading - dispatch new request
-            console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
+        console.log(`Month ${year}-${month}: volumes=${uuids.length}, pending=${pending.length}, issues=${monthIssues.length}`);
+
+        if (pending.length > 0) {
+          // Not cached and not loading - dispatch a request per missing volume.
+          console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
+          for (const uuid of pending) {
             this.store.dispatch(loadMonthIssues({
               parentVolumeUuid: uuid,
               year,
               month,
             }));
-            // Keep loading state - it will be cleared when data arrives via reactive subscription
-          } else {
-            // Data already exists or is loading, clear loading state
-            this.isLoadingCalendar.set(false);
-
-            if (monthIssues && monthIssues.length > 0) {
-              // Update calendar with existing issues
-              this.currentMonthIssues.set(monthIssues);
-              this.updateIssueMapForMonth(monthIssues);
-            } else {
-              // Clear calendar for empty month (including cached empty data)
-              this.currentMonthIssues.set([]);
-              this.issueMap.set(new Map());
-            }
           }
-        });
+          // Keep loading state - it will be cleared when data arrives via reactive subscription
+        } else {
+          // Data already exists or is loading, clear loading state
+          this.isLoadingCalendar.set(false);
+
+          if (monthIssues.length > 0) {
+            // Update calendar with existing issues
+            this.currentMonthIssues.set(monthIssues);
+            this.updateIssueMapForMonth(monthIssues);
+          } else {
+            // Clear calendar for empty month (including cached empty data)
+            this.currentMonthIssues.set([]);
+            this.issueMap.set(new Map());
+          }
+        }
       });
     }, 100); // 100ms debounce
 
