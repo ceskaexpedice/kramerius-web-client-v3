@@ -25,9 +25,9 @@
 
 .metadata-section--item-label {
   color: var(--color-text-secondary);
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-2);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
   margin: 0;
   font-family: var(--font-family-body);
 
@@ -37,7 +37,7 @@
 }
 
 app-collapsible-content {
-  // CTE-3: hodnoty v pravem panelu 14px + kompaktnejsi radkovani (labely zustavaji 16px/600)
+  // CTE-3: cely pravy panel je jednotne 14px (labely 14px/600, hodnoty 14px/400)
   font-size: var(--font-size-small);
   line-height: var(--line-height-1);
 
