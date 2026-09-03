@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 /**
@@ -21,11 +21,30 @@ export class CdkSourceService {
   private codeSubject = new BehaviorSubject<string | null>(null);
   public code$: Observable<string | null> = this.codeSubject.asObservable();
 
+  /**
+   * Signal mirror of the selected code, for templates.
+   *
+   * The code is resolved from an effect, which runs AFTER the change-detection
+   * pass that already rendered the reader. A template reading `getCode()`
+   * directly therefore produced one URL on the first pass and another on dev
+   * mode's verification pass - NG0100 ExpressionChangedAfterItHasBeenChecked.
+   * Reading the signal makes the dependency explicit, so Angular schedules a
+   * proper re-render instead of tripping over the change.
+   */
+  readonly codeSignal = signal<string | null>(null);
+
   setCode(code: string | null): void {
     const normalized = code || null;
     if (normalized === this.code) return;
     this.code = normalized;
+    this.codeSignal.set(normalized);
     this.codeSubject.next(normalized);
+  }
+
+  /** Signal-based variant of prefixedItemPath(), safe to call from a template. */
+  prefixedItemPathSignal(pid: string, suffix: string): string {
+    const prefix = this.codeSignal() ? `/${this.codeSignal()}` : '';
+    return `${prefix}/${pid}/${suffix}`;
   }
 
   getCode(): string | null {

@@ -697,6 +697,7 @@
   "email-export-dialog--option-enrich-llm-tooltip": "Jazykové modely môžu vygenerovať nepravdivé alebo vymyslené informácie a môže to trvať dlhšie.",
   "email-export-dialog--option-include-images": "Zahrnúť obrázky?",
   "email-export-dialog--option-skip-page-numbers": "Chcete preskočiť čísla strán?",
+  "export-generated-algorithmically-note": "Výstup je generovaný algoritmicky a nejde o oficiálnu distribúciu publikácie.",
   "email-export-success-dialog--header": "Požiadavka vytvorená",
   "email-export-success-dialog--description": "Na vami zadaný e-mail odosielame požiadavku na stiahnutie. Celý proces môže trvať aj niekoľko desiatok minút.",
   "actions--col": "Akcie",

@@ -1,4 +1,7 @@
-import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {filter} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CalendarPopupComponent} from '../calendar-popup/calendar-popup.component';
 import {NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -26,6 +29,18 @@ export class DateNavigatorComponent {
   @Output() dateSelected = new EventEmitter<{pid: string, year: number}>();
 
   showCalendarPopup = signal(false);
+
+  private router = inject(Router);
+
+  constructor() {
+    // The navigator survives navigation between issues, so an open calendar
+    // would stay open across it - and after a back navigation it kept showing
+    // the periodical the user had just left (issue #169). Close it whenever the
+    // route changes; the next open then rebuilds from the new document.
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => this.showCalendarPopup.set(false));
+  }
 
   prev() {
     this.goToPrevious.emit();

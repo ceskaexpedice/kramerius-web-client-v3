@@ -1,12 +1,16 @@
 .collapsible--action {
 
+  // Prepinac patri k 14px textu panelu, ale trida .small by k velikosti pridala
+  // i padding 8/12px a prebila tak .no-padding, takze zustava .md a velikost
+  // prepisujeme tady.
   button {
     gap: var(--spacing-x2);
-    line-height: var(--line-height-2);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
   }
 
   i {
-    font-size: var(--font-size-xlarge);
+    font-size: var(--font-size-base);
     transition: transform 0.2s ease;
 
     &.rotated {

@@ -104,3 +104,26 @@ h3 {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.export-document--item--note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-x2);
+  padding: var(--spacing-x2);
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-light);
+}
+
+.export-document--item--note-icon {
+  flex: 0 0 auto;
+  font-size: var(--font-size-xsmall);
+  line-height: var(--line-height-xs-15);
+  color: var(--color-tertiary);
+}
+
+.export-document--item--note-text {
+  margin: 0;
+  font-size: var(--font-size-xsmall);
+  line-height: var(--line-height-xs-15);
+  color: var(--color-tertiary);
+}

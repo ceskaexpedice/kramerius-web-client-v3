@@ -15,7 +15,12 @@ export class ClickOutsideDirective {
 
   constructor(private elementRef: ElementRef) { }
 
-  @HostListener('document:mousedown', ['$event'])
+  // `pointerdown`, not `mousedown`: OpenSeadragon calls preventDefault() on its
+  // own pointer handlers over the viewer canvas, which suppresses the compat
+  // `mousedown` entirely - so on desktop a click on the image never reached this
+  // listener and popups above the viewer stayed open (issue #169). pointerdown
+  // fires first and covers mouse, touch and pen alike.
+  @HostListener('document:pointerdown', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
 

@@ -43,6 +43,8 @@ export class ExportDocumentSectionItemComponent {
   @Input() collapsible = false;
   @Input() loading = false;
   @Input() loginRequired = false;
+  /** Optional translation key rendered as an informational note below the options. */
+  @Input() note = '';
   @Input() set expanded(value: boolean) { this._expanded.set(value); }
 
   @Output() submit = new EventEmitter<string>();

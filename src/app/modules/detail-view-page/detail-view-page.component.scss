@@ -234,7 +234,8 @@ hr {
 .floating-sidebar-toggle {
   position: fixed;
   right: var(--spacing-x3);
-  bottom: var(--spacing-x3);
+  // Clear the global mini-player; see public/styles/_sidebar.scss (issue #172).
+  bottom: calc(var(--spacing-x3) + var(--playback-bar-height, 0px));
   transition: all 0.2s ease;
   z-index: 1000;
 }
@@ -290,9 +291,12 @@ app-document-access-denied {
   margin: var(--spacing-x4);
 }
 
+// Offset by the global mini-player (app-playback-bar), which is fixed to the
+// same viewport bottom and would otherwise cover this bar instead of stacking
+// above it. Resolves to 0px whenever nothing is playing (GitHub issue #172).
 app-mobile-nav-bar {
   position: fixed;
-  bottom: 0;
+  bottom: var(--playback-bar-height, 0px);
   left: 0;
   right: 0;
   z-index: 100;

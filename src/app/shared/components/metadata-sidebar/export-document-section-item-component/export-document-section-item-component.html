@@ -37,6 +37,13 @@
         {{ (loginRequired ? 'confirm--login-required' : 'confirm') | translate }}
       }
     </button>
+
+    @if (note) {
+    <div class="export-document--item--note">
+      <i class="icon-info export-document--item--note-icon" aria-hidden="true"></i>
+      <p class="export-document--item--note-text">{{ note | translate }}</p>
+    </div>
+    }
   </div>
   }
 

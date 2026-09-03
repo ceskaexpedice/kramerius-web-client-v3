@@ -397,7 +397,7 @@
   </app-metadata-section-item>
 
   <!-- Physical Description -->
-  <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'filter-physical-locations-label' | translate" [collapsible]="true"
+  <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
     type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
   </app-metadata-section-item>
 

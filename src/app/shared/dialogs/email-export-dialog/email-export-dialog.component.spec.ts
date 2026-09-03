@@ -71,3 +71,43 @@ describe('EmailExportDialogComponent recipient locking', () => {
     expect(c.emailInvalid()).toBe(true);
   });
 });
+
+/**
+ * EPUB and TXT exports (VISK 2025) are reconstructed algorithmically from OCR, so the
+ * dialog must state that they are not the publisher's official distribution
+ * (issue #174). The plain PDF export reproduces the scanned pages as they are and
+ * carries no such note.
+ */
+describe('EmailExportDialogComponent algorithmic-generation note', () => {
+  function build(exportType: string | undefined) {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        EmailExportDialogComponent,
+        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MAT_DIALOG_DATA, useValue: { pid: 'uuid:1', exportType } },
+        { provide: UserService, useValue: { userSession$: () => ({ email: 'user@knav.cz' }) } },
+        { provide: EnvironmentService, useValue: { getBaseApiUrl: () => '' } },
+        { provide: HttpClient, useValue: { post: () => ({ subscribe: () => {} }) } },
+        { provide: ConfigService, useValue: { isEnrichWithAIEnabled: () => false } },
+      ],
+    });
+    return TestBed.inject(EmailExportDialogComponent);
+  }
+
+  it('shows the note for EPUB', () => {
+    expect(build('epub').showAlgorithmicNote()).toBe(true);
+  });
+
+  it('shows the note for TXT', () => {
+    expect(build('txt').showAlgorithmicNote()).toBe(true);
+  });
+
+  it('hides the note for PDF', () => {
+    expect(build('pdf').showAlgorithmicNote()).toBe(false);
+  });
+
+  it('hides the note when no export type is given (defaults to PDF)', () => {
+    expect(build(undefined).showAlgorithmicNote()).toBe(false);
+  });
+});

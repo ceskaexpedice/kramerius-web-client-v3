@@ -1,6 +1,8 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {PeriodicalDetailState} from './periodical-detail.reducer';
 import {selectRouterQueryParams} from '../../../../shared/state/router/router.selectors';
+import {selectDocumentDetail} from '../../../../shared/state/document-detail/document-detail.selectors';
+import {findVolumeForYear, volumeCoversYear} from '../../../../shared/utils/periodical-date';
 import {SolrOperators} from '../../../../core/solr/solr-helpers';
 
 export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical-detail');
@@ -8,6 +10,33 @@ export const selectPeriodicalDocument = createSelector(selectPeriodicalState, st
 export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state?.children || []);
 export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state?.years);
 export const selectAvailableYears = createSelector(selectPeriodicalState, state => state?.availableYears);
+/** Root periodical the cached `availableYears` belong to; see the reducer note (issue #169). */
+export const selectAvailableYearsRootPid = createSelector(selectPeriodicalState, state => state?.availableYearsRootPid ?? null);
+/** Cached years together with their owner, so effects can check before reusing them. */
+export const selectCachedAvailableYears = createSelector(
+  selectAvailableYears,
+  selectAvailableYearsRootPid,
+  (years, rootPid) => ({ years: years ?? [], rootPid })
+);
+/**
+ * `availableYears` only when they demonstrably belong to the periodical currently
+ * open in the detail view. While another title is being loaded the store still
+ * holds the previous one's volumes; consumers that resolve a date to a volume
+ * (the calendar popup) must not use those - it would query the wrong periodical
+ * and show either nothing or foreign issues (issue #169).
+ */
+export const selectAvailableYearsForCurrentDocument = createSelector(
+  selectCachedAvailableYears,
+  selectDocumentDetail,
+  ({ years, rootPid }, document) => {
+    const documentRootPid = (document as any)?.rootPid || (document as any)?.['root.pid'] || '';
+    if (!documentRootPid || !rootPid) {
+      return years;
+    }
+    return rootPid === documentRootPid ? years : [];
+  }
+);
+
 export const selectPeriodicalLoading = createSelector(selectPeriodicalState, state => state?.loading);
 export const selectPeriodicalError = createSelector(selectPeriodicalState, state => state?.error);
 export const selectPeriodicalMetadata = createSelector(selectPeriodicalState, state => state?.metadata);
@@ -51,7 +80,30 @@ export const selectMonthLoading = (parentVolumeUuid: string, year: number, month
   s => !!s.monthLoading[monthCacheKey(parentVolumeUuid, year, month)]
 );
 
+// Scoped to the current document on purpose: resolving a year to a volume pid is
+// only meaningful within the periodical being viewed, and the unscoped list can
+// still hold the previously opened title (issue #169).
+//
+// The match goes through the volume's year RANGE rather than comparing labels: a
+// volume's `year` is `date.str` verbatim, so a periodical whose volumes span a
+// season carries "1905-1906" and an equality check against the numeric year "1905"
+// found nothing - leaving the calendar with no volume to query and no clickable
+// days at all (issue #169, Světozor).
 export const selectPidFromAvailableYears = (year: string) => createSelector(
-  selectAvailableYears,
-  years => years.find(y => y.year === year)?.pid || ''
+  selectAvailableYearsForCurrentDocument,
+  years => findVolumeForYear(years, year)?.pid || ''
+);
+
+/**
+ * EVERY volume that covers `year`, not just the best match.
+ *
+ * Volumes spanning a season split a calendar year in two: for Světozor, the
+ * January-September 1905 issues sit in volume "1904-1905" and the rest in
+ * "1905-1906". Loading a month from a single volume therefore shows only half
+ * the year, so the calendar asks all covering volumes and merges the answers
+ * (issue #169).
+ */
+export const selectPidsCoveringYear = (year: string) => createSelector(
+  selectAvailableYearsForCurrentDocument,
+  years => years.filter(y => volumeCoversYear(y, year)).map(y => y.pid).filter(Boolean)
 );

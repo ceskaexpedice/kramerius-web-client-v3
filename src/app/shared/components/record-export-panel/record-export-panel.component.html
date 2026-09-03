@@ -46,6 +46,7 @@
       [collapsible]="true"
       [expanded]="expandedSection() === 'epub'"
       [loginRequired]="!isLoggedIn()"
+      [note]="'export-generated-algorithmically-note'"
       (toggle)="onSectionToggle('epub')"
       (submit)="onEpubSubmit($event)">
     </app-export-document-section-item-component>
@@ -60,6 +61,7 @@
       [collapsible]="true"
       [expanded]="expandedSection() === 'text'"
       [loginRequired]="!isLoggedIn()"
+      [note]="'export-generated-algorithmically-note'"
       (toggle)="onSectionToggle('text')"
       (submit)="onTextSubmit($event)">
     </app-export-document-section-item-component>

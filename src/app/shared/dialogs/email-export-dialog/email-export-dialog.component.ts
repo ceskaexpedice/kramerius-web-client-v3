@@ -65,6 +65,16 @@ export class EmailExportDialogComponent {
   private http = inject(HttpClient);
   private configService = inject(ConfigService);
 
+  /**
+   * EPUB and TXT exports are reconstructed algorithmically from OCR, so they are not
+   * the publisher's official distribution — the dialog says so before sending. The
+   * plain PDF export reproduces the scanned pages as they are, so it needs no note.
+   */
+  showAlgorithmicNote = computed(() => {
+    const type = this.data.exportType ?? 'pdf';
+    return type === 'epub' || type === 'txt';
+  });
+
   /** Options relevant to the current export type and enabled by config. */
   options = computed<EmailExportOption[]>(() =>
     EMAIL_EXPORT_OPTIONS.filter(o =>

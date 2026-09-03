@@ -24,6 +24,8 @@ import {ToastService} from '../../../shared/services/toast.service';
 import {DontShowAgainService} from '../../../shared/services';
 import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
 import {UserService} from '../../../shared/services/user.service';
+import {DetailViewService} from '../../detail-view-page/services/detail-view.service';
+import {APP_ROUTES_ENUM} from '../../../app.routes';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +40,7 @@ export class MusicService {
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
+  private detailViewService = inject(DetailViewService);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -176,9 +179,23 @@ export class MusicService {
   }
 
   openTrackDetails(track: SoundTrackModel) {
-    if (track && track['root.pid']) {
-      this.recordHandler.navigateToMusic(track['root.pid']);
+    const rootPid = track?.['root.pid'];
+    if (!rootPid) {
+      return;
     }
+    // Already on this recording (e.g. browsing its scans in the images tab):
+    // navigation would be a no-op, so just switch back to the track list.
+    if (this.isOnMusicPageFor(rootPid)) {
+      this.detailViewService.setSoundRecordingViewView('records');
+      return;
+    }
+    this.recordHandler.navigateToMusic(rootPid);
+  }
+
+  private isOnMusicPageFor(pid: string): boolean {
+    const path = this.router.url.split('?')[0].split('#')[0];
+    return path.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}/`) &&
+      decodeURIComponent(path).endsWith(`/${pid}`);
   }
 
   addTracksFromListToQueueAndPlayFirst(track: SoundTrackModel, tracks: SoundTrackModel[]): void {

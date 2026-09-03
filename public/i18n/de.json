@@ -698,6 +698,7 @@
   "email-export-dialog--option-enrich-llm-tooltip": "Sprachmodelle können falsche oder erfundene Informationen erzeugen, und es kann länger dauern.",
   "email-export-dialog--option-include-images": "Bilder einbeziehen?",
   "email-export-dialog--option-skip-page-numbers": "Möchten Sie Seitenzahlen überspringen?",
+  "export-generated-algorithmically-note": "Die Ausgabe wird algorithmisch erzeugt und stellt nicht die offizielle Ausgabe der Publikation dar.",
   "email-export-success-dialog--header": "Anfrage erstellt",
   "email-export-success-dialog--description": "Wir senden eine Download-Anfrage an die von Ihnen angegebene E-Mail-Adresse. Der gesamte Vorgang kann mehrere zehn Minuten dauern.",
   "actions--col": "Aktionen",

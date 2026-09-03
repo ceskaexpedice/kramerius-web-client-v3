@@ -46,7 +46,9 @@ export class FavoritesService {
       const showDialog = this.dontShowAgainService.shouldShowDialog(DontShowDialogs.FavoritesLoginDialog);
 
       if (!showDialog) {
-        this.authService.login(currentUrl);
+        // "Don't show again" only suppresses the benefits dialog - the licence/GDPR
+        // consent step must still be shown before handing the user to the IdP.
+        this.router.navigate(['pages/terms'], { queryParams: { returnUrl: this.router.url } });
         return true;
       }
 

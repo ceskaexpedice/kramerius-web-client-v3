@@ -15,9 +15,11 @@
   padding-left: 0;
 }
 
+// Stack above the global mini-player instead of hiding underneath it; 0px when
+// nothing is playing. Matches the .page-container calc() below (issue #172).
 app-mobile-nav-bar {
   position: fixed;
-  bottom: 0;
+  bottom: var(--playback-bar-height, 0px);
   left: 0;
   right: 0;
   z-index: 100;
