@@ -28,6 +28,7 @@ import { ToggleButtonGroupComponent } from '../../shared/components/toggle-butto
 import { ButtonToggleComponent } from '../../shared/components/button-toggle/button-toggle.component';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
+import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 
 const routes: Routes = [
   {
@@ -40,6 +41,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     TranslatePipe,
+    MobileNavBarComponent,
     FilterSidebarComponent,
     ActionToolbarComponent,
     NgForOf,

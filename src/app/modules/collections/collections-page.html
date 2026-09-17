@@ -1,7 +1,9 @@
 <div class="page-container">
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()">
+    <!-- Lift the floating toggle clear of the map-series nav bar when it shows. -->
+    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()"
+                        [toggleButtonBottomOffset]="filterToggleBottomOffset()">
       <app-collection-filters></app-collection-filters>
     </app-filter-sidebar>
 
@@ -200,4 +202,13 @@
 
     </div>
   </div>
+
+  <!-- The toolbar tabs collapse on phones; keep the switch reachable here. -->
+  @if (isMapSeries && breakpointService.isMobile()) {
+    <app-mobile-nav-bar
+      [items]="mobileNavItems"
+      [activeId]="'documents'"
+      (activeIdChange)="onMobileNavChange($event)">
+    </app-mobile-nav-bar>
+  }
 </div>

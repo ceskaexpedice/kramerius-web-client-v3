@@ -84,7 +84,7 @@
     <div #viewerEl class="app-map-canvas"></div>
 
     @if (selectedMaps().length > 0) {
-      <div class="app-selected">
+      <div class="app-selected" [class.app-selected--inert]="panelInert()">
         <div class="app-selected-header">
           <div class="app-selected-number">{{ selectedSheetNumber() }}</div>
           <button class="button tertiary outlined app-selected-close"
@@ -107,4 +107,13 @@
       </div>
     }
   </div>
+
+  <!-- The toolbar tabs collapse on phones; keep the switch reachable here. -->
+  @if (breakpointService.isMobile()) {
+    <app-mobile-nav-bar
+      [items]="mobileNavItems"
+      [activeId]="'map'"
+      (activeIdChange)="onMobileNavChange($event)">
+    </app-mobile-nav-bar>
+  }
 </div>
