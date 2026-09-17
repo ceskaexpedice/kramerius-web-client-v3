@@ -1,0 +1,251 @@
+@use 'mixins' as m;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// The app shell's <main> is sized by its content, so a percentage height would
+// collapse to zero and leave the map with nothing to draw into. Size the page
+// against the viewport instead, the way the other full-height views do.
+.app-map-series {
+  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-light);
+
+  // The 1px seam between the header and the toolbar, as detail-layout sets it.
+  padding-top: var(--small-gap);
+}
+
+// In the reader the toolbar's right side is stretched by its tall controls, so
+// the tab underline naturally meets the toolbar's bottom border. Here the
+// content is short, so the slot chain has to be stretched explicitly —
+// otherwise the strip collapses to text height and the underline floats.
+// ::ng-deep reaches the slot wrappers, which live inside ActionToolbarComponent.
+app-action-toolbar {
+  flex: 0 0 auto;
+
+  // The toolbar and the map below it are siblings, so without a stacking order
+  // of its own the toolbar loses to the map's floating controls and the open
+  // series dropdown renders behind them. z-index needs a positioned element.
+  position: relative;
+  z-index: 20;
+
+  ::ng-deep .action-toolbar {
+    // content-box so the 1px bottom border sits below the 48px row, giving the
+    // same 49px overall height as the reader's toolbar.
+    box-sizing: content-box;
+    min-height: var(--toolbar-height);
+
+    .toolbar-right {
+      align-self: stretch;
+    }
+  }
+}
+
+.toolbar-right-content {
+  align-self: stretch;
+  gap: var(--spacing-x3);
+}
+
+// Same tab strip as the reader's page/map switch.
+.view-tabs {
+  display: flex;
+  flex-direction: row;
+  align-self: stretch;
+  height: 100%;
+
+  @include m.respond(mobile-sm) {
+    display: none;
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    padding: 0 var(--spacing-x3);
+    background: none;
+    border: none;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    line-height: var(--line-height-xs);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.15s;
+
+    i {
+      font-size: 16px;
+    }
+
+    &:hover {
+      color: var(--color-text-btn-secondary-default);
+    }
+
+    &.active {
+      color: var(--color-text-btn-secondary-default);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--color-border-primary-default);
+      }
+    }
+  }
+}
+
+// No gap of its own: the select brings its own horizontal padding, which
+// stands in for the spacing toolbar-header gets from its gap.
+.app-toolbar-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+// The toolbar and the map below it are siblings, so without a stacking order of
+// its own the toolbar loses to the map's floating controls and the open
+// dropdown renders behind them. z-index needs a positioned element to apply,
+// hence the explicit `position` here and on the slot.
+:host ::ng-deep .action-toolbar .toolbar-left {
+  position: relative;
+  z-index: 1;
+}
+
+// The picker carries the page title, so it matches toolbar-header's heading
+// (same size and weight) and stays transparent against the toolbar.
+.app-series-select {
+  min-width: 0;
+
+  // The dropdown takes the trigger's width, which is far too narrow for these
+  // names. A couple of them run past 900px, so wrapping cannot be avoided
+  // outright — this fits the majority on one line without a panel that spans
+  // the window.
+  ::ng-deep .options-container {
+    min-width: 560px;
+    max-width: 90vw;
+  }
+
+  ::ng-deep .select-wrapper {
+    padding: var(--spacing-x1);
+    gap: var(--spacing-x2);
+    background-color: transparent;
+    border-radius: var(--spacing-x1);
+
+    .select-label {
+      font-size: var(--font-size-xlarge);
+      font-weight: 500;
+      color: var(--color-text-base);
+    }
+
+    &:hover {
+      background-color: var(--color-bg-light);
+    }
+  }
+}
+
+.app-map-wrapper {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+
+  .app-map-canvas {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  // Floating control column. The reader's .viewer-controls styles are scoped to
+  // that component, so the same look is restated here rather than reached into.
+  .map-series-controls {
+    position: absolute;
+    top: var(--spacing-x3);
+    left: var(--spacing-x3);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-x2);
+    padding: var(--spacing-x2);
+    background-color: var(--color-bg-base);
+    border-radius: var(--spacing-x3);
+    box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
+
+    button {
+      width: var(--spacing-x8);
+      height: var(--spacing-x8);
+      flex-shrink: 0;
+    }
+  }
+
+  // Results panel for the selected sheet: the same sidebar the map search uses,
+  // so the maps read as ordinary record cards.
+  .app-selected {
+    width: var(--metadata-sidebar-width, 320px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-bg-base);
+    border-left: 1px solid var(--color-border-light);
+
+    .app-selected-header {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-x2);
+      padding: var(--spacing-x3);
+      border-bottom: 1px solid var(--color-border-light);
+
+      .app-selected-number {
+        font-size: var(--font-size-large);
+        font-weight: 500;
+        color: var(--color-text-base);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      // Square and compact: the default button padding makes a 48x40 block,
+      // which overpowers the small header it sits in.
+      .app-selected-close {
+        flex-shrink: 0;
+        width: var(--spacing-x8);
+        height: var(--spacing-x8);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    app-search-results-sidebar {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      // The shared list pads vertically only, so the cards would sit flush
+      // against this panel's edges.
+      ::ng-deep .results-list {
+        padding-left: var(--spacing-x1);
+        padding-right: var(--spacing-x1);
+      }
+    }
+  }
+}

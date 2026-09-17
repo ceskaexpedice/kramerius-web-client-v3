@@ -14,6 +14,9 @@ import { Subject, takeUntil } from 'rxjs';
 import { UiStateService } from '../../shared/services/ui-state.service';
 import { getLanguageFallbackChain } from '../../shared/translation/translation-fallback-chain';
 import { resolveLocalizedValue } from '../../shared/utils/language-utils';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MapSeriesService } from '../map-series/map-series.service';
+import { APP_ROUTES_ENUM } from '../../app.routes';
 
 @Component({
   selector: 'app-collections-page',
@@ -28,6 +31,9 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   public translationService = inject(AppTranslationService);
   public recordHandler = inject(RecordHandlerService);
   private uiStateService = inject(UiStateService);
+  private mapSeriesService = inject(MapSeriesService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   @ViewChild('descriptionElement') descriptionElement?: ElementRef<HTMLElement>;
 
@@ -91,6 +97,22 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
   toCuttingRecordItem(cutting: Cutting): RecordItem {
     return cuttingToRecordItem(cutting);
+  }
+
+  /**
+   * True when this collection is a map series, i.e. a grid overlay is
+   * published for it — only those offer the sheet index view.
+   */
+  get isMapSeries(): boolean {
+    const uuid = this.route.snapshot.paramMap.get('uuid');
+    return !!uuid && !!this.mapSeriesService.getShapefileUrl(uuid);
+  }
+
+  goToMapSeries(): void {
+    const uuid = this.route.snapshot.paramMap.get('uuid');
+    if (uuid) {
+      this.router.navigate([APP_ROUTES_ENUM.MAP_SERIES, uuid]);
+    }
   }
 
   viewModeOptions: ToggleOption<'documents' | 'cuttings'>[] = [

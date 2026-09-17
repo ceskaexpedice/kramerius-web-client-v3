@@ -852,5 +852,14 @@
   "shared-folder-banner--save-action": "Save to my library",
   "shared-folder-banner--remove-action": "Remove from shared",
   "shared-folder-menu--aria-label": "Shared folder options",
-  "shared-folder-banner--saved-success": "List \"{{folderName}}\" was saved to your library."
+  "shared-folder-banner--saved-success": "List \"{{folderName}}\" was saved to your library.",
+  "map-series--title": "Map series",
+  "map-series--show-content": "Show content",
+  "map-series--view-map": "Sheet index",
+  "map-series--fit-to-screen": "Fit to screen",
+  "map-series--toggle-grid": "Show the full sheet grid",
+  "map-series--close": "Close",
+  "map-series--view-documents": "Documents",
+  "map-series--change-series": "Change map series",
+  "map-series--filter-series": "Search map series"
 }
