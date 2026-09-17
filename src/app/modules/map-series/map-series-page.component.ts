@@ -14,6 +14,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
 import { SelectComponent } from '../../shared/components/select/select.component';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
+import { MobileNavBarComponent, MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { SearchDocument } from '../models/search-document';
 import { CdkTooltipDirective } from '../../shared/directives';
 import { BehaviorSubject, Observable, Subject, of, takeUntil } from 'rxjs';
@@ -40,6 +42,7 @@ import { APP_ROUTES_ENUM } from '../../app.routes';
     ActionToolbarComponent,
     SelectComponent,
     SearchResultsSidebarComponent,
+    MobileNavBarComponent,
     CdkTooltipDirective
   ],
   templateUrl: './map-series-page.component.html',
@@ -54,9 +57,29 @@ export class MapSeriesPageComponent implements AfterViewInit, OnDestroy {
   private ngZone = inject(NgZone);
 
   mapSeriesService = inject(MapSeriesService);
+  breakpointService = inject(BreakpointService);
+
+  /**
+   * The toolbar's tab strip is hidden on phones, so the same switch is offered
+   * in the bottom nav bar — otherwise there is no way back to the documents.
+   */
+  readonly mobileNavItems: MobileNavItem[] = [
+    { id: 'documents', label: 'map-series--view-documents', icon: 'icon-grid-6' },
+    { id: 'map', label: 'map-series--view-map', icon: 'icon-map' }
+  ];
+
+  onMobileNavChange(id: string): void {
+    if (id === 'documents') {
+      this.goToCollectionView();
+    }
+  }
 
   mapSeries: MapSeriesItem[] = [];
   selectedSeries?: MapSeriesItem;
+
+  /** Blocks the panel's pointer events while a tap's synthetic click settles. */
+  readonly panelInert = signal(false);
+  private panelInertTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Maps of the selected sheet, fed to the results sidebar. */
   readonly selectedMaps = signal<SearchDocument[]>([]);
@@ -102,6 +125,9 @@ export class MapSeriesPageComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    if (this.panelInertTimer !== null) {
+      clearTimeout(this.panelInertTimer);
+    }
     this.destroy$.next();
     this.destroy$.complete();
     this.layer?.destroy();
@@ -185,7 +211,25 @@ export class MapSeriesPageComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * A tap on the map arrives as touchstart/touchend plus a synthetic click a
+   * moment later. The panel opens in between, so that trailing click would land
+   * on whatever record card now sits under the finger and open it. Ignore
+   * pointer events on the panel until the tap has fully played out.
+   */
+  private suppressPanelInput(): void {
+    this.panelInert.set(true);
+    if (this.panelInertTimer !== null) {
+      clearTimeout(this.panelInertTimer);
+    }
+    this.panelInertTimer = setTimeout(() => {
+      this.panelInert.set(false);
+      this.panelInertTimer = null;
+    }, 500);
+  }
+
   private selectSheet(sheet: MapSeriesSheet): void {
+    this.suppressPanelInput();
     const maps = chronoSort(sheet.maps);
     this.selectedMaps.set(maps);
     this.selectedSheetNumber.set(sheet.map_number);

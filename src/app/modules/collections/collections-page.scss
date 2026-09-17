@@ -167,4 +167,27 @@
   height: 40px;
   z-index: 50;
   box-shadow: var(--shadow-elevated);
+
+  // With the map-series nav bar on screen this button would sit behind it, and
+  // the filter toggle (lifted to 85px) would land on top of it. Stack both
+  // above the bar. This one is absolute while the filter toggle is fixed, so
+  // the offset is tuned to the gap it actually produces, not their difference.
+  :host:has(app-mobile-nav-bar) & {
+    bottom: calc(50px + 40px - var(--spacing-x3));
+  }
+}
+
+// Pinned to the bottom like the reader's nav bar: this page scrolls, so a
+// static element would sit below the fold and never be seen.
+app-mobile-nav-bar {
+  position: fixed;
+  bottom: var(--playback-bar-height, 0px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+// Room for the fixed bar so it never covers the last cards.
+:host:has(app-mobile-nav-bar) .page-container {
+  padding-bottom: 60px;
 }

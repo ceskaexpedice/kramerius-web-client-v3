@@ -131,6 +131,18 @@ app-action-toolbar {
   ::ng-deep .options-container {
     min-width: 560px;
     max-width: 90vw;
+
+    // min-width wins over max-width, so on a phone the panel would run off the
+    // screen. The dropdown is anchored to the trigger, which already sits ~50px
+    // in, so pull it back to the viewport's left edge and size it from there.
+    @include m.respond(mobile-sm) {
+      min-width: 0;
+      position: fixed;
+      left: var(--spacing-x2);
+      right: var(--spacing-x2);
+      width: auto;
+      max-width: none;
+    }
   }
 
   ::ng-deep .select-wrapper {
@@ -149,6 +161,11 @@ app-action-toolbar {
       background-color: var(--color-bg-light);
     }
   }
+}
+
+// Sits below the map rather than over it, so the sheets stay fully visible.
+app-mobile-nav-bar {
+  flex: 0 0 auto;
 }
 
 .app-map-wrapper {
@@ -189,6 +206,12 @@ app-action-toolbar {
 
   // Results panel for the selected sheet: the same sidebar the map search uses,
   // so the maps read as ordinary record cards.
+  // See suppressPanelInput(): swallows the synthetic click that follows a tap
+  // on the map, which would otherwise open whichever card opened under it.
+  .app-selected--inert {
+    pointer-events: none;
+  }
+
   .app-selected {
     width: var(--metadata-sidebar-width, 320px);
     position: absolute;
