@@ -843,5 +843,14 @@
   "shared-folder-banner--save-action": "Uložiť do mojej knižnice",
   "shared-folder-banner--remove-action": "Odobrať zo zdieľaných",
   "shared-folder-menu--aria-label": "Možnosti zdieľaného priečinka",
-  "shared-folder-banner--saved-success": "Zoznam „{{folderName}}\" bol uložený do vašej knižnice."
+  "shared-folder-banner--saved-success": "Zoznam „{{folderName}}\" bol uložený do vašej knižnice.",
+  "map-series--title": "Mapové diela",
+  "map-series--show-content": "Zobraziť obsah",
+  "map-series--view-map": "Klad listov",
+  "map-series--fit-to-screen": "Prispôsobiť obrazovke",
+  "map-series--toggle-grid": "Zobraziť úplný klad listov",
+  "map-series--close": "Zavrieť",
+  "map-series--view-documents": "Dokumenty",
+  "map-series--change-series": "Zmeniť mapové dielo",
+  "map-series--filter-series": "Hľadať mapové dielo"
 }

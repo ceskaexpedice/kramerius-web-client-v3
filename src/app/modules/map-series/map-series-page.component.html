@@ -1,0 +1,110 @@
+<div class="app-map-series">
+
+  <app-action-toolbar>
+    <div class="max-width-100 app-toolbar-left" left>
+      <button class="icon-button button secondary link"
+              (click)="goToRootCollection()"
+              [appCdkTooltip]="'map-series--title' | translate"
+              [attr.aria-label]="'map-series--title' | translate">
+        <i class="icon-home-2" aria-hidden="true"></i>
+      </button>
+
+      <!-- The series picker doubles as the page title: the arrow makes it read
+           as a control with options rather than a plain heading. -->
+      <app-select class="app-series-select"
+                  [size]="'sm'"
+                  [options]="seriesMenuItems"
+                  [value]="selectedSeries ?? null"
+                  [displayFn]="seriesDisplayFn"
+                  [filterable]="true"
+                  [filterPlaceholder]="'map-series--filter-series'"
+                  [virtualScroll]="true"
+                  [visibleItemsCount]="10"
+                  [zIndex]="101"
+                  (valueChange)="changeMapSeries($event.pid)">
+      </app-select>
+    </div>
+
+    <div right class="flex flex--align-center toolbar-right-content">
+      <div class="view-tabs">
+        <button class="view-tabs__tab"
+                (click)="goToCollectionView()">
+          <i class="icon-grid-6" aria-hidden="true"></i>
+          {{ 'map-series--view-documents' | translate }}
+        </button>
+        <button class="view-tabs__tab active" type="button">
+          <i class="icon-map" aria-hidden="true"></i>
+          {{ 'map-series--view-map' | translate }}
+        </button>
+      </div>
+    </div>
+  </app-action-toolbar>
+
+  <div class="app-map-wrapper">
+
+    <div class="viewer-controls map-series-controls"
+         role="toolbar"
+         [attr.aria-label]="'viewer-controls--arialabel' | translate">
+
+      <button class="button tertiary outlined"
+              (click)="zoomIn()"
+              [appCdkTooltip]="'viewer-controls.zoom-in' | translate"
+              [attr.aria-label]="'viewer-controls.zoom-in' | translate">
+        <i class="icon-search-zoom-in-1" aria-hidden="true"></i>
+      </button>
+
+      <button class="button tertiary outlined"
+              (click)="zoomOut()"
+              [appCdkTooltip]="'viewer-controls.zoom-out' | translate"
+              [attr.aria-label]="'viewer-controls.zoom-out' | translate">
+        <i class="icon-search-zoom-out-1" aria-hidden="true"></i>
+      </button>
+
+      <button class="button tertiary outlined"
+              (click)="fitToScreen()"
+              [appCdkTooltip]="'viewer-controls.fit-to-screen' | translate"
+              [attr.aria-label]="'viewer-controls.fit-to-screen' | translate">
+        <i class="icon-maximize-3" aria-hidden="true"></i>
+      </button>
+
+      @if (hasGrid) {
+        <button class="button"
+                [class.primary]="gridVisible"
+                [class.tertiary]="!gridVisible"
+                [class.outlined]="!gridVisible"
+                (click)="toggleGrid()"
+                [appCdkTooltip]="'map-series--toggle-grid' | translate"
+                [attr.aria-label]="'map-series--toggle-grid' | translate"
+                [attr.aria-pressed]="gridVisible">
+          <i class="icon-layer" aria-hidden="true"></i>
+        </button>
+      }
+    </div>
+
+    <div #viewerEl class="app-map-canvas"></div>
+
+    @if (selectedMaps().length > 0) {
+      <div class="app-selected">
+        <div class="app-selected-header">
+          <div class="app-selected-number">{{ selectedSheetNumber() }}</div>
+          <button class="button tertiary outlined app-selected-close"
+                  (click)="closeSelected()"
+                  [appCdkTooltip]="'map-series--close' | translate"
+                  [attr.aria-label]="'map-series--close' | translate">
+            <i class="icon-close" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <app-search-results-sidebar
+          [externalResults$]="selectedMaps$"
+          [externalLoading$]="notLoading$"
+          [externalTotalCount$]="selectedCount$"
+          [externalPage]="1"
+          [externalPageSize]="selectedMaps().length"
+          (itemHover)="onItemHover($event)"
+          (itemLeave)="onItemLeave()">
+        </app-search-results-sidebar>
+      </div>
+    }
+  </div>
+</div>

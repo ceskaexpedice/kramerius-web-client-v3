@@ -844,5 +844,14 @@
   "shared-folder-banner--save-action": "Uložit do mojí knihovny",
   "shared-folder-banner--remove-action": "Odebrat ze sdílených",
   "shared-folder-menu--aria-label": "Možnosti sdílené složky",
-  "shared-folder-banner--saved-success": "Seznam „{{folderName}}\" byl uložen do vaší knihovny."
+  "shared-folder-banner--saved-success": "Seznam „{{folderName}}\" byl uložen do vaší knihovny.",
+  "map-series--title": "Mapová díla",
+  "map-series--show-content": "Zobrazit obsah",
+  "map-series--view-map": "Klad listů",
+  "map-series--fit-to-screen": "Přizpůsobit obrazovce",
+  "map-series--toggle-grid": "Zobrazit úplný klad listů",
+  "map-series--close": "Zavřít",
+  "map-series--view-documents": "Dokumenty",
+  "map-series--change-series": "Změnit mapové dílo",
+  "map-series--filter-series": "Hledat mapové dílo"
 }

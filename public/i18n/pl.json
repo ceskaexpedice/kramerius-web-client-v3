@@ -842,5 +842,14 @@
   "shared-folder-banner--save-action": "Zapisz w mojej bibliotece",
   "shared-folder-banner--remove-action": "Usuń z udostępnionych",
   "shared-folder-menu--aria-label": "Opcje udostępnionego folderu",
-  "shared-folder-banner--saved-success": "Lista \"{{folderName}}\" została zapisana w Twojej bibliotece."
+  "shared-folder-banner--saved-success": "Lista \"{{folderName}}\" została zapisana w Twojej bibliotece.",
+  "map-series--title": "Dzieła kartograficzne",
+  "map-series--show-content": "Pokaż zawartość",
+  "map-series--view-map": "Skorowidz arkuszy",
+  "map-series--fit-to-screen": "Dopasuj do ekranu",
+  "map-series--toggle-grid": "Pokaż pełny skorowidz arkuszy",
+  "map-series--close": "Zamknij",
+  "map-series--view-documents": "Dokumenty",
+  "map-series--change-series": "Zmień dzieło kartograficzne",
+  "map-series--filter-series": "Szukaj dzieła kartograficznego"
 }

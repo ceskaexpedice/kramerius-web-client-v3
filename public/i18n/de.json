@@ -844,5 +844,14 @@
   "shared-folder-banner--save-action": "In meiner Bibliothek speichern",
   "shared-folder-banner--remove-action": "Aus geteilten entfernen",
   "shared-folder-menu--aria-label": "Optionen für geteilte Ordner",
-  "shared-folder-banner--saved-success": "Die Liste \"{{folderName}}\" wurde in Ihrer Bibliothek gespeichert."
+  "shared-folder-banner--saved-success": "Die Liste \"{{folderName}}\" wurde in Ihrer Bibliothek gespeichert.",
+  "map-series--title": "Kartenwerke",
+  "map-series--show-content": "Inhalt anzeigen",
+  "map-series--view-map": "Blattübersicht",
+  "map-series--fit-to-screen": "An Bildschirm anpassen",
+  "map-series--toggle-grid": "Vollständigen Blattschnitt anzeigen",
+  "map-series--close": "Schließen",
+  "map-series--view-documents": "Dokumente",
+  "map-series--change-series": "Kartenwerk wechseln",
+  "map-series--filter-series": "Kartenwerk suchen"
 }

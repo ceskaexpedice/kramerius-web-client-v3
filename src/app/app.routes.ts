@@ -20,6 +20,7 @@ export enum APP_ROUTES_ENUM {
   HELP = 'help',
   UUID_REDIRECT = 'uuid',
   COLLECTION = 'collection',
+  MAP_SERIES = 'mapseries',
   LIBRARIES = 'libraries',
   PAGES = 'pages',
   DEV_TOOLS = 'devtools',
@@ -77,6 +78,16 @@ function defineMainRoutes(): Routes {
     {
       path: `${APP_ROUTES_ENUM.PAGES}/:pageId`,
       loadComponent: () => import('./core/pages/content-page/content-page.component').then(c => c.ContentPageComponent)
+    },
+    {
+      path: `${APP_ROUTES_ENUM.MAP_SERIES}/:uuid`,
+      loadComponent: () => import('./modules/map-series/map-series-page.component').then(c => c.MapSeriesPageComponent),
+      canActivate: [legacyRouteGuard]
+    },
+    {
+      path: APP_ROUTES_ENUM.MAP_SERIES,
+      loadComponent: () => import('./modules/map-series/map-series-page.component').then(c => c.MapSeriesPageComponent),
+      canActivate: [legacyRouteGuard]
     },
     {
       path: 'browse',

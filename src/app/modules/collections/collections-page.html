@@ -47,7 +47,21 @@
             </app-toolbar-header>
           </div>
 
-          <div right>
+          <div right class="flex flex--align-center collection-toolbar-right">
+
+            <!-- Sheet index view, offered only for collections that are map series. -->
+            @if (isMapSeries) {
+              <div class="view-tabs">
+                <button class="view-tabs__tab active" type="button">
+                  <i class="icon-grid-6" aria-hidden="true"></i>
+                  {{ 'map-series--view-documents' | translate }}
+                </button>
+                <button class="view-tabs__tab" (click)="goToMapSeries()">
+                  <i class="icon-map" aria-hidden="true"></i>
+                  {{ 'map-series--view-map' | translate }}
+                </button>
+              </div>
+            }
 
             <div class="flex flex--align-center flex--gap-x2">
 
