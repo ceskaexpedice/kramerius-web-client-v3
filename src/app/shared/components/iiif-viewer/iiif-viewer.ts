@@ -84,6 +84,22 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   public showFallback = signal<boolean>(false);
   public fallbackImageUrl = signal<string | null>(null);
 
+  /**
+   * Object URL of the direct-image fallback currently held by OpenSeadragon.
+   * ImageTileSource loads via a plain `new Image()`, which cannot carry an
+   * Authorization header, so licensed images are fetched as a blob instead
+   * (see loadDirectImageFallback). The URL must be revoked once it is no
+   * longer displayed or the blob leaks for the lifetime of the document.
+   */
+  private fallbackObjectUrl: string | null = null;
+
+  /**
+   * Set when the direct image came back 403 — the image exists but the current
+   * user has no right to it (e.g. a `dnnto` page while logged out or without
+   * the licence). Distinguishes "not allowed" from "failed to load".
+   */
+  public accessDenied = signal<boolean>(false);
+
   readonly docLicenses = toSignal(
     this.detailViewService.document$.pipe(map(doc => doc?.licences ?? [])),
     { initialValue: [] as string[] }
@@ -172,6 +188,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.directImageFailedPids.delete(pid);
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
+        this.accessDenied.set(false);
+        this.releaseFallbackObjectUrl();
         this.triggerViewerUpdate();
       })
     );
@@ -277,6 +295,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.osdViewer.set(null);
       this.viewer.destroy();
     }
+
+    // Release the direct-image blob after the viewer that displays it is gone.
+    this.releaseFallbackObjectUrl();
+
     // Disable test mode when component is destroyed
     this.iiifViewerService.setTestFallbackMode(false);
   }
@@ -284,9 +306,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
-      // Reset fallback state when switching to a new image
+      // Reset fallback state when switching to a new image. The blob object URL
+      // is deliberately not revoked here — OpenSeadragon may still be painting
+      // it; loadDirectImageFallback revokes the previous one as it installs the
+      // next, and ngOnDestroy covers the final page.
       this.showFallback.set(false);
       this.fallbackImageUrl.set(null);
+      this.accessDenied.set(false);
       this.triggerViewerUpdate();
     }
   }
@@ -464,6 +490,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.ngZone.run(() => {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
+        this.accessDenied.set(false);
         // Page loaded successfully — unlock it in the sidebar grid
         const pid = this.imagePid || this.metadata?.uuid;
         if (pid) {
@@ -525,11 +552,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    // Check if direct image already failed for this PID
+    // Check if direct image already failed for this PID.
+    // The fallback <img> carries no Authorization header, so it must point at
+    // the thumbnail (always readable) rather than the full image, which 403s
+    // for licensed pages and would render as a broken image.
     if (this.directImageFailedPids.has(currentPid)) {
       console.log(`Both IIIF and direct image failed for PID: ${currentPid}. Showing thumbnail fallback.`);
       this.ngZone.run(() => {
-        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(currentPid));
         this.showFallback.set(true);
         this.cdr.detectChanges();
       });
@@ -541,7 +571,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       console.log(`Direct image fallback also failed for PID: ${currentPid}. Showing thumbnail fallback.`);
       this.directImageFailedPids.add(currentPid);
       this.ngZone.run(() => {
-        this.fallbackImageUrl.set(this.iiifViewerService.getDirectImageUrl(currentPid));
+        this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(currentPid));
         this.showFallback.set(true);
         this.cdr.detectChanges();
       });
@@ -554,23 +584,92 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     // IIIF failed, try direct image URL
     this.failedPids.add(currentPid);
-
-    const directImageUrl = this.iiifViewerService.getDirectImageUrl(currentPid);
-    console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
-
-    const directImageTileSource = { type: 'image', url: directImageUrl };
-
-    if (this.viewer) {
-      this.viewer.open({ tileSource: directImageTileSource });
-    } else {
-      // Viewer was never created (info.json fetch failed before createViewer ran).
-      // Create it now with the direct image as tile source.
-      this.createViewer(directImageTileSource);
-    }
+    this.loadDirectImageFallback(currentPid);
 
     setTimeout(() => {
       this.failedPids.delete(currentPid);
     }, 5000);
+  }
+
+  /**
+   * Load the direct (non-tiled) image as the viewer's source.
+   *
+   * OpenSeadragon's ImageTileSource fetches with `image.src = url` — a plain
+   * <img> request that ignores the viewer's `ajaxHeaders`. Licensed pages
+   * (e.g. `dnnto`) therefore hit the API anonymously and get 403 even when the
+   * user is signed in. Fetching the bytes ourselves via HttpClient lets the
+   * Authorization header through; the resulting blob is handed to OpenSeadragon
+   * as an object URL, which `new Image()` can load without any credentials.
+   */
+  private loadDirectImageFallback(pid: string): void {
+    const directImageUrl = this.iiifViewerService.getDirectImageUrl(pid);
+    console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
+
+    const authHeaders = this.iiifViewerService.getAuthHeaders();
+    let headers = new HttpHeaders();
+    if (authHeaders['Authorization']) {
+      headers = headers.set('Authorization', authHeaders['Authorization']);
+    }
+
+    this.http.get(directImageUrl, {
+      headers,
+      responseType: 'blob',
+      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
+    }).subscribe({
+      next: (blob) => {
+        // Navigation may have moved on while the request was in flight.
+        if ((this.imagePid || this.metadata?.uuid) !== pid) return;
+
+        this.releaseFallbackObjectUrl();
+        this.fallbackObjectUrl = URL.createObjectURL(blob);
+
+        const directImageTileSource = { type: 'image', url: this.fallbackObjectUrl };
+
+        this.ngZone.run(() => {
+          this.accessDenied.set(false);
+
+          if (this.viewer) {
+            this.viewer.open({ tileSource: directImageTileSource });
+          } else {
+            // Viewer was never created (info.json fetch failed before createViewer ran).
+            // Create it now with the direct image as tile source.
+            this.createViewer(directImageTileSource);
+          }
+        });
+      },
+      error: (error) => {
+        if ((this.imagePid || this.metadata?.uuid) !== pid) return;
+
+        // 403 means the image is there but this user may not see it — a licence
+        // prompt is the useful response, not a generic "image broken" fallback.
+        const denied = error?.status === 403 || error?.status === 401;
+        if (denied) {
+          console.log(`Direct image denied (HTTP ${error.status}) for PID: ${pid}. User lacks licence access.`);
+        } else {
+          console.error(`Direct image fallback failed for PID: ${pid}`, error);
+        }
+
+        this.directImageFailedPids.add(pid);
+        this.ngZone.run(() => {
+          this.accessDenied.set(denied);
+          this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(pid));
+          this.showFallback.set(true);
+          this.cdr.detectChanges();
+        });
+
+        setTimeout(() => {
+          this.directImageFailedPids.delete(pid);
+        }, 5000);
+      }
+    });
+  }
+
+  /** Revoke the currently held fallback object URL, if any. */
+  private releaseFallbackObjectUrl(): void {
+    if (this.fallbackObjectUrl) {
+      URL.revokeObjectURL(this.fallbackObjectUrl);
+      this.fallbackObjectUrl = null;
+    }
   }
 
   private updateViewerSource(): void {

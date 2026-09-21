@@ -60,3 +60,148 @@ describe('IIIFViewer.isAtBaseZoom', () => {
   });
 
 });
+
+/**
+ * Regression tests for the licensed-JPEG blank viewer.
+ *
+ * Every JPEG page 404s on IIIF info.json and falls back to the direct image.
+ * That fallback used to be handed to OpenSeadragon as `{type:'image', url}`,
+ * which ImageTileSource loads with `image.src = url` — a plain <img> request
+ * that cannot carry the viewer's ajaxHeaders. Licensed pages (e.g. dnnto)
+ * therefore hit the API anonymously and got 403 even for a signed-in user.
+ * The image is now fetched via HttpClient (token attached) and handed over as
+ * a blob object URL.
+ */
+describe('IIIFViewer direct-image fallback', () => {
+
+  const PID = 'uuid:071b2770-e06e-11e1-9570-000d606f5dc6';
+
+  function makeComponent(opts: {
+    token?: string;
+    respond: (observer: { next: (b: any) => void; error: (e: any) => void }) => void;
+  }) {
+    const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
+    const requests: { url: string; headers: any }[] = [];
+
+    (component as any).imagePid = PID;
+    (component as any).metadata = null;
+    (component as any).viewer = { open: jasmine.createSpy('open') };
+    (component as any).ngZone = { run: (fn: () => void) => fn() };
+    (component as any).cdr = { detectChanges: () => {} };
+    (component as any).directImageFailedPids = new Set<string>();
+    (component as any).failedPids = new Set<string>();
+    (component as any).showFallback = signalStub(false);
+    (component as any).fallbackImageUrl = signalStub<string | null>(null);
+    (component as any).accessDenied = signalStub(false);
+    (component as any).fallbackObjectUrl = null;
+
+    (component as any).iiifViewerService = {
+      getDirectImageUrl: (pid: string) => `https://api.test/items/${pid}/image`,
+      getThumbnailUrl: (pid: string) => `https://api.test/items/${pid}/image/thumb`,
+      getAuthHeaders: () => (opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+    };
+
+    (component as any).http = {
+      get: (url: string, options: any) => {
+        requests.push({ url, headers: options.headers });
+        return { subscribe: (observer: any) => opts.respond(observer) };
+      }
+    };
+
+    return { component, requests };
+  }
+
+  /** Minimal stand-in for an Angular signal. */
+  function signalStub<T>(initial: T) {
+    let value = initial;
+    const fn: any = () => value;
+    fn.set = (v: T) => { value = v; };
+    return fn;
+  }
+
+  it('sends the Authorization header when fetching the direct image', () => {
+    const { component, requests } = makeComponent({
+      token: 'abc123',
+      respond: () => {}
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    expect(requests.length).toBe(1);
+    expect(requests[0].url).toBe(`https://api.test/items/${PID}/image`);
+    // This is the whole point of the fix: a plain <img> could never do this.
+    expect(requests[0].headers.get('Authorization')).toBe('Bearer abc123');
+  });
+
+  it('opens the viewer with a blob object URL, not the API URL', () => {
+    const blob = new Blob(['jpeg-bytes'], { type: 'image/jpeg' });
+    const { component } = makeComponent({
+      token: 'abc123',
+      respond: (o) => o.next(blob)
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    const open = (component as any).viewer.open as jasmine.Spy;
+    expect(open).toHaveBeenCalled();
+    const tileSource = open.calls.mostRecent().args[0].tileSource;
+    expect(tileSource.type).toBe('image');
+    expect(tileSource.url.startsWith('blob:')).toBe(true);
+
+    URL.revokeObjectURL(tileSource.url);
+  });
+
+  it('flags a 403 as access denied rather than a broken image', () => {
+    const { component } = makeComponent({
+      respond: (o) => o.error({ status: 403 })
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    expect((component as any).accessDenied()).toBe(true);
+    expect((component as any).showFallback()).toBe(true);
+    // The fallback <img> has no auth either, so it must use the thumbnail,
+    // which stays readable, instead of the full image that just 403'd.
+    expect((component as any).fallbackImageUrl()).toBe(`https://api.test/items/${PID}/image/thumb`);
+  });
+
+  it('does not flag a network failure as access denied', () => {
+    const { component } = makeComponent({
+      respond: (o) => o.error({ status: 500 })
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    expect((component as any).accessDenied()).toBe(false);
+    expect((component as any).showFallback()).toBe(true);
+  });
+
+  it('ignores a response that arrives after the user navigated away', () => {
+    let deferred: any = null;
+    const { component } = makeComponent({
+      respond: (o) => { deferred = o; }
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+    // User turns the page before the image comes back.
+    (component as any).imagePid = 'uuid:some-other-page';
+    deferred.next(new Blob(['late'], { type: 'image/jpeg' }));
+
+    expect((component as any).viewer.open).not.toHaveBeenCalled();
+  });
+
+  it('revokes the previous blob before installing the next one', () => {
+    const revoke = spyOn(URL, 'revokeObjectURL').and.callThrough();
+    const { component } = makeComponent({
+      respond: (o) => o.next(new Blob(['x'], { type: 'image/jpeg' }))
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+    const first = (component as any).fallbackObjectUrl;
+    (component as any).loadDirectImageFallback(PID);
+
+    expect(revoke).toHaveBeenCalledWith(first);
+    URL.revokeObjectURL((component as any).fallbackObjectUrl);
+  });
+
+});
