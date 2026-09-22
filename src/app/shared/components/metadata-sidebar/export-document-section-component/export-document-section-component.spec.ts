@@ -35,6 +35,9 @@ describe('ExportDocumentSectionComponent PDF options', () => {
   let hasWorker: boolean;
   let pages: any[];
   let isPdf: boolean;
+  // Page scope vs document scope — the split the options are gated on.
+  let pageAllowed: boolean;
+  let documentAllowed: boolean;
 
   function createComponent(): ExportDocumentSectionComponent {
     sourceCode = new BehaviorSubject<string | null>(null);
@@ -63,7 +66,8 @@ describe('ExportDocumentSectionComponent PDF options', () => {
             currentPageIndex: 0,
             title: 'Doc',
             document: { uuid: 'uuid:doc' },
-            isActionAllowed: () => true,
+            isActionAllowed: () => pageAllowed,
+            isDocumentActionAllowed: () => documentAllowed,
           },
         },
         { provide: AppConfigService, useValue: { pdfMaxRange: () => 120 } },
@@ -90,6 +94,8 @@ describe('ExportDocumentSectionComponent PDF options', () => {
     TestBed.resetTestingModule();
     hasWorker = false;
     isPdf = false;
+    pageAllowed = true;
+    documentAllowed = true;
     pages = [{ pid: 'p1', exportable: true }, { pid: 'p2', exportable: true }];
   });
 
@@ -154,5 +160,68 @@ describe('ExportDocumentSectionComponent PDF options', () => {
     const component = createComponent();
 
     expect(component.pdfOptions()).toEqual([{ label: 'whole-document', value: 'whole-document', disabled: false }]);
+  });
+
+  /**
+   * A page served publicly inside a restricted document unlocks that page, not the
+   * document. The whole-document entry reaches pages the reader never opened, so it
+   * is gated on document scope while the page-scoped options stay available.
+   */
+  describe('page scope vs document scope', () => {
+    it('disables the whole-document option while keeping select-pages on a restricted document', () => {
+      pageAllowed = true;
+      documentAllowed = false;
+      const component = createComponent();
+
+      const [whole, selectPages] = component.pdfOptions();
+      expect(whole.disabled).toBe(true);
+      expect(selectPages.disabled).toBe(false);
+      // The section itself stays visible — there is still an export to offer.
+      expect(component.pdfEnabled()).toBe(true);
+    });
+
+    it('applies the same split to print', () => {
+      pageAllowed = true;
+      documentAllowed = false;
+      const component = createComponent();
+
+      const [whole, selectPages] = component.printOptions();
+      expect(whole.disabled).toBe(true);
+      expect(selectPages.disabled).toBe(false);
+      expect(component.printEnabled()).toBe(true);
+    });
+
+    it('hides EPUB and TXT, which only ever produce the whole document', () => {
+      pageAllowed = true;
+      documentAllowed = false;
+      hasWorker = true;
+      const component = createComponent();
+
+      expect(component.epubEnabled()).toBe(false);
+      expect(component.txtEnabled()).toBe(false);
+    });
+
+    it('blocks a whole-document submit that slips past the disabled option', () => {
+      pageAllowed = true;
+      documentAllowed = false;
+      const component = createComponent();
+      const exportService = TestBed.inject(ExportService) as any;
+      let called = false;
+      exportService.exportPdfSelection = () => { called = true; return of(null); };
+
+      component.onPdfSubmit('whole-document-legacy');
+      expect(called).toBe(false);
+    });
+
+    it('still runs a page-scoped submit', () => {
+      pageAllowed = true;
+      documentAllowed = false;
+      const component = createComponent();
+      let opened = false;
+      (component as any).dialog = { open: () => { opened = true; return { afterClosed: () => of(null) }; } };
+
+      component.onPdfSubmit('select-pages');
+      expect(opened).toBe(true);
+    });
   });
 });

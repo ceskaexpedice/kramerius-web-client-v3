@@ -321,32 +321,72 @@ export class DetailViewService {
   });
 
   /**
-   * Whether the current document's licenses permit `action`.
+   * Whether the licences permit `action` on the page the reader has open.
    *
-   * The single place components ask "may this reader do X to *this* document".
+   * The single place components ask "may this reader do X to *this page*".
    * Before this existed the permission matrix was configured but never read, so
    * every restricted action (text selection, area crop, JPEG/PDF/print export)
    * was offered on DNNTO documents. See `ConfigService.isLicenseActionAllowed`
    * for the most-restrictive-wins semantics.
    *
-   * Reads `documentSignal()`, `_pages()` and `_currentPageIndex()`, so calling this
-   * from a template or a `computed` registers a dependency on the document and on
-   * the open page and re-evaluates when either changes. Callers that cache the
-   * result in a plain field instead would go stale on the next page.
+   * PAGE SCOPE. Use this only for actions whose output is the open page — crop,
+   * text selection, single-page JPEG. For anything that produces the whole
+   * document use `isDocumentActionAllowed`: a permissive page must not unlock an
+   * export that reaches pages the reader never opened.
+   *
+   * Reads `currentPageInfo()`, `documentSignal()`, `_pages()` and `_currentPageIndex()`,
+   * so calling this from a template or a `computed` registers a dependency on the
+   * document, on the open page and on that page's loaded runtime info, and
+   * re-evaluates when any of them changes. Callers that cache the result in a plain
+   * field instead would go stale on the next page.
    */
   isActionAllowed(action: keyof LicenseActionsConfig): boolean {
     return this.configService.isLicenseActionAllowed(this.effectiveLicences(), action);
   }
 
   /**
-   * The licences that govern what the reader may do right now.
+   * Whether the licences permit `action` on the document as a whole.
    *
-   * The page on screen decides, not the parent document. `Metadata.licences` comes
-   * from Solr's `licenses.facet`, which is the union of the whole tree — the
-   * object's own licences, its ancestors' AND its descendants' (`contains_licenses`).
-   * Under most-restrictive-wins that union is far too broad: a periodical issue of a
-   * `dnnto` title reports `["public","dnnto","covid"]`, so every export was denied on
-   * issues whose pages are plainly public and the export tab rendered empty.
+   * DOCUMENT SCOPE — the counterpart to `isActionAllowed`, for exports that
+   * deliver more than the open page: whole-document PDF, print, EPUB, TXT.
+   *
+   * The runtime `providedByLicenses` is deliberately NOT consulted here. It answers
+   * "under which licence is this ONE page being served", which says nothing about
+   * the pages the reader has not opened. On a `dnnto` document with a single public
+   * page, honouring it would hand out an export of all 230 pages — including the
+   * restricted ones — off the back of the one page that happens to be open.
+   *
+   * So this stays on the static licences, where a `dnnto` flag anywhere in the
+   * document's own licences still denies the whole-document export.
+   */
+  isDocumentActionAllowed(action: keyof LicenseActionsConfig): boolean {
+    return this.configService.isLicenseActionAllowed(this.documentLicences(), action);
+  }
+
+  /**
+   * The licences that govern what the reader may do to the page on screen.
+   *
+   * `providedByLicenses` from `items/{pid}/info` wins whenever it is non-empty. It
+   * is the backend's runtime answer to "under which licence am I serving this page
+   * to this reader", which is not the same question as "which licence flags hang on
+   * this object". A page flagged `dnnto` in Solr whose protection no longer applies
+   * is served as `["public"]` — the viewer renders it as public, so gating page
+   * actions on the Solr flag contradicted the very response that put the page on
+   * screen and emptied the export tab on a document the reader was plainly allowed
+   * to read.
+   *
+   * Its authority stops at the open page, which is why only `isActionAllowed` reads
+   * this and `isDocumentActionAllowed` does not.
+   *
+   * An empty `providedByLicenses` means the backend is serving nothing, so it grants
+   * nothing: that case falls through to the static fields below rather than being
+   * read as "no licence, therefore unrestricted".
+   *
+   * The static fallback keeps the page on screen deciding over the parent document.
+   * `Metadata.licences` comes from Solr's `licenses.facet`, which is the union of the
+   * whole tree — the object's own licences, its ancestors' AND its descendants'
+   * (`contains_licenses`). Under most-restrictive-wins that union is far too broad: a
+   * periodical issue of a `dnnto` title reports `["public","dnnto","covid"]`.
    *
    * A page carries both licences set directly on it and those inherited from its
    * ancestors, and both bind it, so the two are combined. The document stays as the
@@ -355,18 +395,35 @@ export class DetailViewService {
    * unlock a restricted document.
    */
   private effectiveLicences(): string[] | null | undefined {
-    const page = this.getCurrentPage() as any;
-    if (page) {
-      // Pages reach the store as raw Solr docs, so the field is `licenses`; the
-      // `Page` model spells its own copy `licences`. Read whichever is present.
-      const pageLicences = [
-        ...(page.licences ?? page['licenses'] ?? []),
-        ...(page.licenses_of_ancestors ?? []),
-      ];
-      if (pageLicences.length) {
-        return pageLicences;
-      }
+    // Reads the `currentPageInfo` signal, so `isActionAllowed` re-evaluates once the
+    // info request resolves — the gates are rendered before it lands.
+    const runtimeLicences = this.documentInfoService.currentPageInfo()?.providedByLicenses;
+    if (runtimeLicences?.length) {
+      return runtimeLicences;
     }
+
+    return this.pageLicences() ?? this.documentLicences();
+  }
+
+  /**
+   * The static licences of the page on screen — its own plus its ancestors', which
+   * both bind it. Null when there is no page or the page is indexed without any
+   * licence, so callers fall back to the document rather than treating the gap as
+   * permission.
+   */
+  private pageLicences(): string[] | null {
+    const page = this.getCurrentPage() as any;
+    if (!page) return null;
+    // Pages reach the store as raw Solr docs, so the field is `licenses`; the
+    // `Page` model spells its own copy `licences`. Read whichever is present.
+    const licences = [
+      ...(page.licences ?? page['licenses'] ?? []),
+      ...(page.licenses_of_ancestors ?? []),
+    ];
+    return licences.length ? licences : null;
+  }
+
+  private documentLicences(): string[] | null | undefined {
     return this.documentSignal()?.licences;
   }
 
