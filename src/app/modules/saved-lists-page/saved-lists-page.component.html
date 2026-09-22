@@ -233,10 +233,12 @@
           <!-- PAGES SECTION (lazy-loaded after titles) -->
           @if ({ items: pageItems$ | async, loading: pagesLoading$ | async }; as pages) {
             @if ((pages.items?.length ?? 0) > 0 || pages.loading) {
-              <h2>
-                {{ 'pages-section-header' | translate }}
-                <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
-              </h2>
+              @if (showSectionHeaders$ | async) {
+                <h2>
+                  {{ 'pages-section-header' | translate }}
+                  <span class="section-header__subtitle">({{ 'pages-section-header--subtitle' | translate }})</span>
+                </h2>
+              }
               @if (view() === ViewOptions.grid) {
                 <div class="grid--container">
                   @for (doc of (pages.items || []) | skeletonList:50:pages.loading; track $index) {

@@ -122,9 +122,32 @@ export const selectFolderSearchResultsTotalCount = createSelector(
   (state: FoldersState) => state.folderSearchResultsTotalCount
 );
 
+// Page-level docs of the folder listing itself. A saved item may BE a page
+// (the folder stores a page-level pid), and the exact-scope listing returns it
+// in `folderSearchResults` — where the titles section filters it out. Without
+// this the item renders nowhere and the folder looks empty.
+export const selectFolderOwnPageResults = createSelector(
+  selectFolderSearchResults,
+  (results) => (results ?? []).filter((s: any) =>
+    s.model === DocumentTypeEnum.page ||
+    (s.model !== DocumentTypeEnum.article &&
+      s.model !== DocumentTypeEnum.supplement &&
+      s.model !== DocumentTypeEnum.track &&
+      s.ownModelPath?.includes(DocumentTypeEnum.page))
+  )
+);
+
+// The pages section: the saved page-level items first, then the lazy fulltext
+// page hits. The lazy request is scoped to each saved item's subtree, so with a
+// text query it can return the saved page itself — dedupe by pid.
 export const selectFolderPageSearchResults = createSelector(
+  selectFolderOwnPageResults,
   selectFoldersState,
-  (state) => state.folderPageSearchResults
+  (ownPages, state) => {
+    const lazyPages = state.folderPageSearchResults ?? [];
+    const seen = new Set(ownPages.map((d: any) => d.pid));
+    return [...ownPages, ...lazyPages.filter((d: any) => !seen.has(d.pid))];
+  }
 );
 
 export const selectFolderPageTotalCount = createSelector(
