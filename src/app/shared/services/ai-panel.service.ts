@@ -219,12 +219,18 @@ export class AiPanelService {
    * Human-readable text for a failed AI call.
    *
    * Quota exhaustion gets a localized explanation — it is an expected, recurring
-   * state the user can act on (wait for the monthly reset), not a glitch. Other
-   * failures keep the previous behaviour of showing the raw error message.
+   * state the user can act on (wait for the monthly reset), not a glitch. The
+   * proxy rejecting our authorization gets one too: it is a service-side state
+   * the user can neither diagnose nor fix from the raw `unauthorized` code, and
+   * it no longer ends their CDK session, so the panel has to say what happened.
+   * Other failures keep the previous behaviour of showing the raw error message.
    */
   private describeError(err: unknown, fallback: string): string {
     if (isQuotaExceeded(err)) {
       return this.translate.instant('ai.quota-exceeded');
+    }
+    if ((err as { message?: string } | null)?.message === 'unauthorized') {
+      return this.translate.instant('ai.unauthorized');
     }
     return (err as { message?: string } | null)?.message || fallback;
   }
