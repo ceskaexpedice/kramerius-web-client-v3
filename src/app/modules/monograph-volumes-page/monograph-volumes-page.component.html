@@ -139,7 +139,19 @@
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
             [class.collapsed]="!showMetadataSidebar()">
             <app-metadata-sidebar [metadata]="parent() || null" mode="floating"
-              [tools]="{search: false, export: false, description: true}" (close)="toggleMetadataSidebar()">
+              [tools]="{search: false, export: false, description: true}" [customDescription]="true"
+              (close)="toggleMetadataSidebar()">
+              <div description-content>
+                <!-- The parent record lives in the MonographVolumes store slice, not
+                     document-detail, so the section reads its cdk fields from the
+                     `metadata` input. The source selection re-scopes the volumes grid,
+                     which only this page can do — hence the explicit handler. -->
+                <app-metadata-section [uuid]="parent()?.uuid || ''"
+                  [metadata]="parent() || null" [showTitle]="true"
+                  [hostOwnsCdkSource]="true"
+                  (cdkCollectionChange)="monographVolumesService.setCdkSource($event)">
+                </app-metadata-section>
+              </div>
             </app-metadata-sidebar>
           </div>
         </ng-container>

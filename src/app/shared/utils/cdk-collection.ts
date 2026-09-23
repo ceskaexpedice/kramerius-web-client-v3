@@ -112,3 +112,25 @@ function rankableLicense(bare: string, full: string): string {
 function isMoreOpen(a: string, b: string): boolean {
   return sortLicenses([a, b])[0] === a && a !== b;
 }
+
+/**
+ * Picks which record the CDK source selector should read `cdk.*` fields from.
+ *
+ * The reader keeps the open document in the `document-detail` store slice, so that
+ * is preferred. Title-level pages, however, load their parent record into a slice of
+ * their own and never populate `document-detail` — the multivolume monograph page
+ * (MonographVolumes) is one — but they do pass the record in as the `metadata` input.
+ * Falling back to it keeps the source selector visible there instead of silently
+ * collapsing to an empty collection list.
+ *
+ * Collection-like pages (`collectionsMode`) always own their metadata input outright.
+ */
+export function pickCdkSourceRecord<T extends { cdkCollections?: string[] } | null | undefined>(
+  storeRecord: T,
+  metadataInput: T,
+  collectionsMode: boolean,
+): T {
+  if (collectionsMode) return metadataInput;
+  if (storeRecord?.cdkCollections?.length) return storeRecord;
+  return metadataInput ?? storeRecord;
+}
