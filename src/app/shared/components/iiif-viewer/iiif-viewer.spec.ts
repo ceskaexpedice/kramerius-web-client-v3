@@ -205,3 +205,103 @@ describe('IIIFViewer direct-image fallback', () => {
   });
 
 });
+
+/**
+ * Regression tests for shared crop ("vystrizek") links: /uuid/<pid>?bb=x,y,w,h
+ *
+ * Three defects this covers, all reported against the legacy client's behaviour:
+ *  1. The whole page was shown instead of the crop — the bb handler only drew a
+ *     selection overlay via setSelection() and never zoomed the viewport.
+ *  2. Crops loaded very slowly — the handler was anchored on imageLoaded$, which
+ *     waits for getFullyLoaded() (every visible tile of the full page at home
+ *     zoom) before reacting.
+ *  3. The viewer opened in selection mode with mouse navigation disabled, so the
+ *     first click cleared the crop.
+ */
+describe('IIIFViewer bb crop links', () => {
+
+  function makeComponent(bb: string | null) {
+    const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
+
+    const zoomCalls: { x: number; y: number; width: number; height: number }[] = [];
+    const selectionCalls: any[] = [];
+    const navigations: any[] = [];
+
+    (component as any).iiifViewerService = {
+      zoomToImageRegion: (rect: any) => zoomCalls.push({
+        x: rect.x, y: rect.y, width: rect.width, height: rect.height,
+      }),
+      setSelection: (rect: any) => selectionCalls.push(rect),
+    };
+    (component as any).route = {
+      snapshot: { queryParamMap: { get: (key: string) => (key === 'bb' ? bb : null) } },
+    };
+    (component as any).router = {
+      navigate: (commands: any, extras: any) => navigations.push(extras),
+    };
+
+    return { component, zoomCalls, selectionCalls, navigations };
+  }
+
+  function apply(bb: string | null) {
+    const ctx = makeComponent(bb);
+    (ctx.component as any).applyBoundingBoxFromUrl();
+    return ctx;
+  }
+
+  it('zooms the viewport to the bb region', () => {
+    // The reported URL: ?bb=340,1209,456,449
+    const { zoomCalls } = apply('340,1209,456,449');
+
+    expect(zoomCalls.length).toBe(1);
+    expect(zoomCalls[0]).toEqual({ x: 340, y: 1209, width: 456, height: 449 });
+  });
+
+  it('does not enable selection mode for a shared crop', () => {
+    // setSelection() dims the surroundings and calls setMouseNavEnabled(false),
+    // which broke pan/zoom and let the first click wipe the crop.
+    const { selectionCalls } = apply('340,1209,456,449');
+
+    expect(selectionCalls.length).toBe(0);
+  });
+
+  it('strips the bb param once applied', () => {
+    const { navigations } = apply('340,1209,456,449');
+
+    expect(navigations.length).toBe(1);
+    expect(navigations[0].queryParams).toEqual({ bb: null });
+    expect(navigations[0].replaceUrl).toBe(true);
+    expect(navigations[0].queryParamsHandling).toBe('merge');
+  });
+
+  it('does nothing when no bb param is present', () => {
+    const { zoomCalls, navigations } = apply(null);
+
+    expect(zoomCalls.length).toBe(0);
+    expect(navigations.length).toBe(0);
+  });
+
+  it('ignores a malformed bb param', () => {
+    // Wrong arity, non-numeric, and empty values must not reach the viewport.
+    for (const bad of ['340,1209,456', '340,1209,456,449,7', 'a,b,c,d', '', '340,,456,449']) {
+      const { zoomCalls, navigations } = apply(bad);
+      expect(zoomCalls.length).withContext(bad).toBe(0);
+      expect(navigations.length).withContext(bad).toBe(0);
+    }
+  });
+
+  it('ignores a zero- or negative-area bb param', () => {
+    // fitBounds on an empty rect zooms to infinity and blanks the viewer.
+    for (const bad of ['340,1209,0,449', '340,1209,456,0', '340,1209,-5,449']) {
+      const { zoomCalls } = apply(bad);
+      expect(zoomCalls.length).withContext(bad).toBe(0);
+    }
+  });
+
+  it('accepts fractional coordinates', () => {
+    const { zoomCalls } = apply('340.5,1209.25,456.75,449.5');
+
+    expect(zoomCalls[0]).toEqual({ x: 340.5, y: 1209.25, width: 456.75, height: 449.5 });
+  });
+
+});
