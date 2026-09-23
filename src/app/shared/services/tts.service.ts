@@ -199,10 +199,10 @@ export class TtsService {
   }
 
   private loadPageAndRead(pagePid: string): void {
-    this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
-      next: (altoXml) => {
-        const blocks = this.altoService.getBlocksForReading(altoXml);
-
+    // Falls back to /ocr/text on pages without ALTO; those blocks carry no
+    // geometry, so reading works and only the on-page highlight is lost.
+    this.altoService.fetchBlocksForReading(pagePid).pipe(take(1)).subscribe({
+      next: (blocks) => {
         if (blocks.length === 0) {
           // No text on this page, try next page
           this.advanceToNextPage();

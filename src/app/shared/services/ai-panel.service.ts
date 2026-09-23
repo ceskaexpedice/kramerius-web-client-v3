@@ -75,17 +75,16 @@ export class AiPanelService {
     this.error.set(null);
     this.currentPagePid.set(pagePid);
 
-    this.activeSubscription = this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
-      next: (altoXml) => {
-        const text = this.altoService.getFullText(altoXml);
+    this.activeSubscription = this.altoService.fetchPageText(pagePid).pipe(take(1)).subscribe({
+      next: ({ text, html }) => {
         if (!text) {
           this.isLoading.set(false);
           this.error.set('No text found on this page');
           return;
         }
 
-        // Translate styled HTML to preserve formatting
-        const html = this.altoService.getStyledHtml(altoXml);
+        // Translate styled HTML to preserve formatting. Without ALTO there is no
+        // styling to preserve, so the plain text goes over as text.
         const inputToTranslate = html || text;
         const format = html ? 'html' as const : 'text' as const;
 
@@ -126,9 +125,9 @@ export class AiPanelService {
     this.error.set(null);
     this.currentPagePid.set(pagePid);
 
-    this.activeSubscription = this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
-      next: (altoXml) => {
-        const text = this.altoService.getFullText(altoXml);
+    // Summarisation only ever needed the words, so it follows the same fallback.
+    this.activeSubscription = this.altoService.fetchPageText(pagePid).pipe(take(1)).subscribe({
+      next: ({ text }) => {
         if (!text) {
           this.isLoading.set(false);
           this.error.set('No text found on this page');
@@ -180,15 +179,15 @@ export class AiPanelService {
     this.error.set(null);
     this.currentPagePid.set(pagePid);
 
-    this.activeSubscription = this.altoService.fetchAltoXml(pagePid).pipe(take(1)).subscribe({
-      next: (altoXml) => {
-        const text = this.altoService.getFullText(altoXml);
+    // Falls back to the plain /ocr/text datastream when the page has no ALTO,
+    // which costs only the styling — see `AltoService.fetchPageText`.
+    this.activeSubscription = this.altoService.fetchPageText(pagePid).pipe(take(1)).subscribe({
+      next: ({ text, html }) => {
         this.isLoading.set(false);
         if (!text) {
           this.error.set('No text found on this page');
           return;
         }
-        const html = this.altoService.getStyledHtml(altoXml);
         if (html) {
           this.styledHtml.set(html);
         } else {

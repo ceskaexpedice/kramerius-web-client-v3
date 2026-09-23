@@ -44,6 +44,8 @@ describe('TtsService playback failure handling', () => {
         { provide: AltoService, useValue: {
           fetchAltoXml: () => of('<alto/>'),
           getBlocksForReading: () => BLOCKS,
+          // What TTS actually calls: ALTO blocks when present, /ocr/text otherwise.
+          fetchBlocksForReading: () => of(BLOCKS),
         } },
         { provide: AiApiService, useValue: aiApiStub },
         { provide: DetailViewService, useValue: detailViewStub },
