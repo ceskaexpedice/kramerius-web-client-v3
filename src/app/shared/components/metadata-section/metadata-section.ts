@@ -31,7 +31,7 @@ import { SelectComponent } from '../select/select.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
-import { pickCdkCollection } from '../../utils/cdk-collection';
+import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -284,7 +284,7 @@ export class MetadataSection implements OnInit, OnChanges {
     // library. One wiring point. In collections mode the host page owns the source
     // selection (it re-scopes the child document grid), so we don't touch it here.
     effect(() => {
-      if (this.collectionsMode) return;
+      if (this.collectionsMode || this.hostOwnsCdkSource) return;
       const selected = this.selectedCdkCollection();
       this.cdkSource.setCode(this.isCdk() ? (selected || null) : null);
     });
@@ -299,6 +299,13 @@ export class MetadataSection implements OnInit, OnChanges {
   // parent instead of triggering detail-page side effects (IIIF viewer, page reload,
   // MODS refetch). The collections page uses the selection to re-scope its child grid.
   @Input() collectionsMode: boolean = false;
+
+  // Like collectionsMode's source handling, but without its collection-specific
+  // metadata rendering (localized title/note/abstract picking). Set by title-level
+  // pages that own their own child grid and source persistence — currently the
+  // multivolume monograph page, whose records are ordinary monographs and must keep
+  // showing every alternative title and note.
+  @Input() hostOwnsCdkSource: boolean = false;
 
   // When true (periodical page), the source dropdown gains a leading "All sources"
   // entry (ALL_SOURCES sentinel) meaning no cdk.collection filter, and defaults to it
@@ -344,9 +351,7 @@ export class MetadataSection implements OnInit, OnChanges {
     // then first available. Off-CDK, ensure any stray `source` param is stripped
     // so the URL doesn't leak across instances.
     if (this.isCdk()) {
-      // In collections mode the cdk fields come from the collection's own metadata
-      // (the `metadata` input), not the document-detail store.
-      const cdkSource = this.collectionsMode ? this.metadata : solrData;
+      const cdkSource = pickCdkSourceRecord(solrData, this.metadata, this.collectionsMode);
       const collections = cdkSource?.cdkCollections ?? [];
       const urlSource = this.route.snapshot.queryParamMap.get('source');
       this.cdkCollections.set(collections);
@@ -523,10 +528,11 @@ export class MetadataSection implements OnInit, OnChanges {
     if (!collection || collection === this.selectedCdkCollection()) return;
     this.selectedCdkCollection.set(collection);
 
-    // Collections mode: the host page owns the source-driven behaviour (URL persistence
-    // and re-scoping the child document grid). Just emit the new selection and stop —
-    // none of the detail-page side effects below apply.
-    if (this.collectionsMode) {
+    // Collections mode, or any host that owns the source-driven behaviour (URL
+    // persistence and re-scoping its own child document grid — the multivolume
+    // monograph page does this without being a collection). Just emit the new
+    // selection and stop — none of the detail-page side effects below apply.
+    if (this.collectionsMode || this.hostOwnsCdkSource) {
       this.cdkCollectionChange.emit(collection);
       return;
     }

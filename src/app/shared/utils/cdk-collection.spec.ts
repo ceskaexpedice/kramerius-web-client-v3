@@ -1,4 +1,4 @@
-import { pickCdkCollection } from './cdk-collection';
+import { pickCdkCollection, pickCdkSourceRecord } from './cdk-collection';
 
 describe('pickCdkCollection', () => {
   describe('URL source override', () => {
@@ -101,5 +101,35 @@ describe('pickCdkCollection', () => {
       );
       expect(result).toBe('nkp');
     });
+  });
+});
+
+describe('pickCdkSourceRecord', () => {
+  const withCollections = (cdkCollections: string[]) => ({ cdkCollections });
+
+  it('prefers the document-detail store record on the reader', () => {
+    const store = withCollections(['nkp']);
+    const input = withCollections(['mzk']);
+    expect(pickCdkSourceRecord(store, input, false)).toBe(store);
+  });
+
+  // The reported bug: at the title level of a multivolume monograph the parent record
+  // lives in the MonographVolumes slice, so document-detail is empty and the source
+  // selector had nothing to render.
+  it('falls back to the metadata input when the store record has no cdk collections', () => {
+    const input = withCollections(['mzk', 'knav']);
+    expect(pickCdkSourceRecord(null, input, false)).toBe(input);
+    expect(pickCdkSourceRecord(withCollections([]), input, false)).toBe(input);
+  });
+
+  it('always uses the metadata input in collections mode', () => {
+    const store = withCollections(['nkp']);
+    const input = withCollections(['mzk']);
+    expect(pickCdkSourceRecord(store, input, true)).toBe(input);
+  });
+
+  it('returns the store record when there is no metadata input', () => {
+    const store = withCollections([]);
+    expect(pickCdkSourceRecord(store, null, false)).toBe(store);
   });
 });
