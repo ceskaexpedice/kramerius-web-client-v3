@@ -216,7 +216,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
             const before = this.selectionRect ? { ...this.selectionRect } : null;
             this.updateControlsPosition();
             if (before && this.selectionRect &&
-                (before.top !== this.selectionRect.top || before.left !== this.selectionRect.left)) {
+              (before.top !== this.selectionRect.top || before.left !== this.selectionRect.left)) {
               this.cdr.detectChanges();
             }
           }
@@ -224,53 +224,33 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       })
     );
 
-    // Zoom to the crop ("vystrizek") carried by the ?bb= query param.
-    //
-    // Anchored on viewerOpened$ (OpenSeadragon's `open`, which fires as soon as
-    // the tile source is ready) rather than imageLoaded$. imageLoaded$ only
-    // fires once getFullyLoaded() is true, i.e. after every visible tile of the
-    // WHOLE page at home zoom has downloaded — so a crop link used to pay for a
-    // full-page load before it could react. Zooming at `open` means OSD requests
-    // tiles for the crop region only, which is what makes shared crops load fast.
+    // Check for selection in URL
     this.subscriptions.push(
-      this.iiifViewerService.viewerOpened$.subscribe(() => {
-        this.applyBoundingBoxFromUrl();
+      this.iiifViewerService.imageLoaded$.subscribe(() => {
+        const bb = this.route.snapshot.queryParamMap.get('bb');
+        if (bb) {
+          const parts = bb.split(',');
+          if (parts.length === 4) {
+            const x = parseFloat(parts[0]);
+            const y = parseFloat(parts[1]);
+            const w = parseFloat(parts[2]);
+            const h = parseFloat(parts[3]);
+
+            if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+              const rect = new OpenSeadragon.Rect(x, y, w, h);
+              this.iiifViewerService.setSelection(rect);
+
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { bb: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+              });
+            }
+          }
+        }
       })
     );
-  }
-
-  /**
-   * Reads the `bb` query param (a crop shared from this or the legacy client,
-   * as `x,y,w,h` in IMAGE pixel coordinates) and zooms the viewport to it.
-   *
-   * Zoom only — no selection overlay and no selection mode. Opening a shared
-   * crop must leave a normally navigable viewer: setSelection() would dim the
-   * surroundings and call setMouseNavEnabled(false), so pan/zoom died and the
-   * first click cleared the crop.
-   *
-   * The param is stripped afterwards (replaceUrl) so a later manual zoom-out
-   * isn't undone by a re-run, and so the URL reflects what's on screen.
-   */
-  private applyBoundingBoxFromUrl(): void {
-    const bb = this.route.snapshot.queryParamMap.get('bb');
-    if (!bb) return;
-
-    const parts = bb.split(',');
-    if (parts.length !== 4) return;
-
-    const [x, y, w, h] = parts.map(part => parseFloat(part));
-    if ([x, y, w, h].some(value => isNaN(value))) return;
-    // A zero-area box would make fitBounds zoom to infinity.
-    if (w <= 0 || h <= 0) return;
-
-    this.iiifViewerService.zoomToImageRegion(new OpenSeadragon.Rect(x, y, w, h));
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { bb: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true
-    });
   }
 
   ngAfterViewInit(): void {

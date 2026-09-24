@@ -161,7 +161,6 @@ export class IIIFViewerService {
   // rather than binding to a single captured viewer, so it can't get stranded
   // on a destroyed instance.
   private viewerOpenedSubject = new Subject<void>();
-  public viewerOpened$ = this.viewerOpenedSubject.asObservable();
 
   /**
    * Returns an observable that emits exactly once when the NEXT page open cycle
@@ -649,27 +648,6 @@ export class IIIFViewerService {
       this.isSelectionModeSubject.next(false);
       this.disableSelectionMode();
     }
-  }
-
-  /**
-   * Zooms the viewport to a region given in IMAGE coordinates, as carried by the
-   * `bb` query param of a shared crop ("vystrizek") link.
-   *
-   * Deliberately does NOT draw a selection overlay or enable selection mode:
-   * a shared crop link must open a normally navigable view, matching the old
-   * client. setSelection() is for the interactive select-area tool instead.
-   *
-   * `immediately` skips the springs so the crop is the first thing painted,
-   * rather than animating out from a full-page view.
-   */
-  zoomToImageRegion(imageRect: OpenSeadragon.Rect, immediately = true): void {
-    if (!this.viewer) return;
-
-    const viewportRect = this.viewer.viewport.imageToViewportRectangle(imageRect);
-    this.viewer.viewport.fitBounds(viewportRect, immediately);
-
-    this.viewerProperties.zoom = this.viewer.viewport.getZoom();
-    this.propertiesSubject.next(this.viewerProperties);
   }
 
   // Set selection from image coordinates
