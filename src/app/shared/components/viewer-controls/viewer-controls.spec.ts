@@ -45,7 +45,7 @@ describe('ViewerControls.getMenuItems TTS entries', () => {
           isViewerModeAvailable: () => true,
         } },
         { provide: AiPanelService, useValue: { panelVisible: signal(false) } },
-        { provide: DetailViewService, useValue: {} },
+        { provide: DetailViewService, useValue: { isActionAllowed: () => true } },
         { provide: MapViewerService, useValue: {} },
         { provide: TtsService, useValue: tts },
       ],
@@ -103,6 +103,113 @@ describe('ViewerControls.getMenuItems TTS entries', () => {
 
     component.handleMenuAction('tts-stop');
     expect(tts.stop).toHaveBeenCalled();
+  });
+
+});
+
+/**
+ * The page-text button opens a panel holding the page's full ALTO transcript, so
+ * it has to answer to the same `text` permission as any other route to that text.
+ * It shipped gated only on the `ai` feature flag, which offered a complete
+ * transcript of every DNNTO page whose licence sets `text: false`.
+ */
+describe('ViewerControls page-text licence gate', () => {
+  let component: ViewerControls;
+  let allowed: boolean;
+  let aiPanel: { panelVisible: any; showPageText: jasmine.Spy };
+
+  function build(detailView: unknown) {
+    TestBed.resetTestingModule();
+    aiPanel = {
+      panelVisible: signal(false),
+      showPageText: jasmine.createSpy('showPageText'),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [ViewerControls],
+      providers: [
+        { provide: PdfService, useValue: { properties$: of({}), pdfProperties: {} } },
+        { provide: IIIFViewerService, useValue: {
+          bookMode$: of(false), zoomLock$: of(false), mapMode$: of(false),
+          isMapMode: () => false, isBookMode: () => false,
+        } },
+        { provide: EpubService, useValue: {} },
+        { provide: ConfigService, useValue: {
+          isViewerControlEnabled: () => true,
+          isFeatureEnabled: () => true,
+          isViewerModeAvailable: () => true,
+        } },
+        { provide: AiPanelService, useValue: aiPanel },
+        { provide: DetailViewService, useValue: detailView },
+        { provide: MapViewerService, useValue: {} },
+        { provide: TtsService, useValue: {
+          isReading: signal(false), isPaused: signal(false), playbackBlocked: signal(false),
+        } },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(ViewerControls);
+    component = fixture.componentInstance;
+    component.type = 'image';
+  }
+
+  beforeEach(() => {
+    allowed = true;
+    build({
+      currentPagePid: 'uuid:page-1',
+      isActionAllowed: (action: string) => action === 'text' ? allowed : true,
+    });
+  });
+
+  it('offers the transcript when the licence permits text', () => {
+    expect(component.showPageText).toBe(true);
+    expect(component.getMenuItems().map(i => i.id)).toContain('page-text');
+  });
+
+  it('withholds the transcript when the licence denies text', () => {
+    allowed = false;
+
+    expect(component.showPageText).toBe(false);
+    expect(component.getMenuItems().map(i => i.id)).not.toContain('page-text');
+  });
+
+  it('does not open the panel even if the denied action is invoked directly', () => {
+    allowed = false;
+
+    component.onPageText();
+    component.handleMenuAction('page-text');
+
+    expect(aiPanel.showPageText).not.toHaveBeenCalled();
+  });
+
+  it('opens the panel for the current page when permitted', () => {
+    component.handleMenuAction('page-text');
+
+    expect(aiPanel.showPageText).toHaveBeenCalledWith('uuid:page-1');
+  });
+
+  it('falls open outside the detail view, where no DetailViewService is provided', () => {
+    build(null);
+
+    expect(component.showPageText).toBe(true);
+  });
+
+  /**
+   * The transcript is read out of the page's ALTO OCR, which only exists for
+   * scanned pages. A PDF ships its own selectable text layer, so the button
+   * offered nothing there but a second, worse copy of text already on screen.
+   */
+  it('withholds the transcript in the PDF viewer, which has its own text layer', () => {
+    component.type = 'pdf';
+
+    expect(component.showPageText).toBe(false);
+    expect(component.getMenuItems().map(i => i.id)).not.toContain('page-text');
+  });
+
+  it('still offers the transcript in the image viewer', () => {
+    component.type = 'image';
+
+    expect(component.showPageText).toBe(true);
   });
 
 });

@@ -152,24 +152,39 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   // a file, so it follows the `text` action that governs showing that same text
   // on screen. Without this a DNNTO reader could download what the UI refuses
   // to display.
-  printEnabled = computed(() => this.configService.isExportFormatEnabled('print') && this.isActionAllowed('print'));
+  //
+  // SCOPE. `isActionAllowed` answers for the open page, `isDocumentActionAllowed`
+  // for the whole document — see those two methods. PDF and print offer options of
+  // both kinds in one section, so the section shows when *either* scope permits it
+  // and `pdfOptions()`/`printOptions()` disable the whole-document entry on its own.
+  // EPUB and TXT only ever produce the whole document, so they are document-scoped
+  // outright.
+  printEnabled = computed(() =>
+    this.configService.isExportFormatEnabled('print')
+    && (this.isActionAllowed('print') || this.isDocumentActionAllowed('print')));
   jpegEnabled = computed(() => this.configService.isExportFormatEnabled('jpeg') && this.isActionAllowed('jpeg'));
   txtEnabled = computed(() => {
     this.cdkSourceCode();
-    return this.configService.isExportFormatEnabled('txt') && this.isActionAllowed('text');
+    return this.configService.isExportFormatEnabled('txt') && this.isDocumentActionAllowed('text');
   });
   // PDF is not worker-gated: without the worker the synchronous `/pdf/selection`
   // download still works, so only `pdfOptions()` differs by library, not the
   // section's visibility.
-  pdfEnabled = computed(() => this.configService.isExportFormatEnabled('pdf') && this.isActionAllowed('pdf'));
+  pdfEnabled = computed(() =>
+    this.configService.isExportFormatEnabled('pdf')
+    && (this.isActionAllowed('pdf') || this.isDocumentActionAllowed('pdf')));
   epubEnabled = computed(() => {
     this.cdkSourceCode();
     // EPUB is a full-text rendition of the document, so it follows `text` too.
-    return this.configService.isExportFormatEnabled('epub') && this.isActionAllowed('text');
+    return this.configService.isExportFormatEnabled('epub') && this.isDocumentActionAllowed('text');
   });
 
   private isActionAllowed(action: keyof LicenseActionsConfig): boolean {
     return this.detailViewService.isActionAllowed(action);
+  }
+
+  private isDocumentActionAllowed(action: keyof LicenseActionsConfig): boolean {
+    return this.detailViewService.isDocumentActionAllowed(action);
   }
 
   epubOptions = computed(() => {
@@ -226,13 +241,16 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     // given library, so only one is offered — and both are labelled plainly
     // "whole-document"; the distinct *value* is what routes onPdfSubmit to the
     // right path.
+    // Document scope: a whole-document PDF reaches pages the reader never opened,
+    // so the open page being served publicly must not enable it.
+    const docAllowed = this.isDocumentActionAllowed('pdf');
     const wholeDocument = this.configService.hasPublicWorkerExports()
-      ? { label: 'whole-document', value: 'whole-document', disabled: !pagesLoaded }
-      : { label: 'whole-document', value: 'whole-document-legacy', disabled: disableWholeDocument };
+      ? { label: 'whole-document', value: 'whole-document', disabled: !pagesLoaded || !docAllowed }
+      : { label: 'whole-document', value: 'whole-document-legacy', disabled: disableWholeDocument || !docAllowed };
 
     return [
       wholeDocument,
-      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages },
+      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages || !this.isActionAllowed('pdf') },
     ];
   });
 
@@ -255,8 +273,9 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     const disableSelectPages = !hasExportablePages;
 
     return [
-      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument },
-      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages }
+      // Same page/document split as `pdfOptions`.
+      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument || !this.isDocumentActionAllowed('print') },
+      { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages || !this.isActionAllowed('print') }
     ];
   });
 
@@ -313,7 +332,10 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onPdfSubmit(value: string) {
-    if (!this.isActionAllowed('pdf')) return;
+    // Scoped per option, not per section: the panel offers both a page-scoped and a
+    // document-scoped PDF, and this handler is what actually starts the export.
+    const wholeDocument = value === 'whole-document' || value === 'whole-document-legacy';
+    if (!(wholeDocument ? this.isDocumentActionAllowed('pdf') : this.isActionAllowed('pdf'))) return;
     // When the current document is itself a PDF, it is already loaded in the
     // viewer — just download that file directly instead of opening any dialog
     // or triggering a server-side export. No login required in this case.
@@ -351,7 +373,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onPrintSubmit(value: string) {
-    if (!this.isActionAllowed('print')) return;
+    if (!(value === 'whole-document' ? this.isDocumentActionAllowed('print') : this.isActionAllowed('print'))) return;
     if (!this.isLoggedIn()) {
       this.openLoginPrompt();
       return;
@@ -423,8 +445,9 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onEpubSubmit(value: string): void {
-    // EPUB and TXT both ship the document's OCR text, so both follow `text`.
-    if (!this.isActionAllowed('text')) return;
+    // EPUB and TXT both ship the whole document's OCR text, so both follow `text`
+    // at document scope — the open page's runtime licence must not unlock them.
+    if (!this.isDocumentActionAllowed('text')) return;
     if (!this.isLoggedIn()) {
       this.openLoginPrompt();
       return;
@@ -436,7 +459,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   }
 
   onTextSubmit(value: string): void {
-    if (!this.isActionAllowed('text')) return;
+    if (!this.isDocumentActionAllowed('text')) return;
     if (!this.isLoggedIn()) {
       this.openLoginPrompt();
       return;

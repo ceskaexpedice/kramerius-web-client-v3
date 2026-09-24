@@ -27,8 +27,21 @@ export class AiActionsComponent {
   documentInfoService = inject(DocumentInfoService);
   private configService = inject(ConfigService);
 
-  get altoAvailable(): boolean {
-    return this.documentInfoService.hasAlto();
+  /**
+   * Whether the page has any OCR to work with.
+   *
+   * Read-aloud, translation and summarisation all need only the words, and
+   * `AltoService` falls back to the plain `/ocr/text` datastream when a page has
+   * no ALTO — so gating these on ALTO alone disabled them on pages whose text was
+   * available all along. In a CDK document held by several libraries the same
+   * page exists once per source and one copy can have ALTO where another has only
+   * the text, so this is a real state, not a theoretical one.
+   *
+   * ALTO remains required for coordinates (search highlighting in the scan, and
+   * the highlight that follows read-aloud), which degrade on their own.
+   */
+  get textAvailable(): boolean {
+    return this.documentInfoService.hasAlto() || this.documentInfoService.hasOcrText();
   }
 
   get textActionAllowed(): boolean {
@@ -43,7 +56,7 @@ export class AiActionsComponent {
   }
 
   get actionsDisabled(): boolean {
-    return !this.altoAvailable || !this.textActionAllowed;
+    return !this.textAvailable || !this.textActionAllowed;
   }
 
   openReadingSettings(event: Event): void {

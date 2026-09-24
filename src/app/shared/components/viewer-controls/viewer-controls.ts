@@ -76,11 +76,35 @@ export class ViewerControls {
     return this.configService.isViewerControlEnabled('rotate');
   }
 
+  /**
+   * Whether to offer the page-text transcript button.
+   *
+   * Scanned pages only. The panel this opens reads the page's ALTO XML, which is
+   * produced by OCR over a scan -- a PDF already carries its own text layer that
+   * the reader can select and search in place, so the button adds nothing there.
+   *
+   * PAGE SCOPE, gated on `text`. The panel renders the page's full transcript, so
+   * a licence that denies `text` must not have the button at all --
+   * `AiContentPanelComponent` only blocks *copying* out of the panel, which does
+   * nothing once the whole transcript is already on screen.
+   *
+   * `isActionAllowed` resolves through `providedByLicenses` when the backend sent
+   * them, so this follows the licence the page is actually being served under
+   * rather than the Solr flag: a `dnnto` page served as `public` keeps its
+   * transcript, and a page served as `dnnto` loses it even on an otherwise open
+   * document.
+   *
+   * Falls open when `DetailViewService` is absent (it is injected `optional`), so
+   * viewers outside the detail view behave as before.
+   */
   get showPageText(): boolean {
-    return this.configService.isFeatureEnabled('ai');
+    return this.type !== 'pdf'
+      && this.configService.isFeatureEnabled('ai')
+      && (this.detailViewService?.isActionAllowed('text') ?? true);
   }
 
   onPageText(): void {
+    if (!this.showPageText) return;
     const pid = this.detailViewService?.currentPagePid;
     if (!pid) return;
     this.aiPanelService.showPageText(pid);

@@ -10,9 +10,12 @@ import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrQueryBuilder } from '../../core/solr/solr-query-builder';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
+import { ConfigService } from '../../core/config/config.service';
 
 @Injectable()
 export class MonographVolumesService extends BaseFilterService {
+  private configService = inject(ConfigService);
+
   uuid: string | null = null;
   inputSearchTerm = '';
 
@@ -124,7 +127,13 @@ export class MonographVolumesService extends BaseFilterService {
       customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
     }
 
-    const filters = [...baseFilters, ...customFilters];
+    // CDK aggregator: when a member-library source is selected (via the metadata
+    // sidebar selector, persisted in `?source=`), re-scope the volumes grid to that
+    // library. `cdk.collection` is a raw Solr field, so it is appended as-is.
+    const cdkSource = params && params['source'];
+    const filters = this.configService.isCdk() && cdkSource
+      ? [...baseFilters, ...customFilters, `cdk.collection:${cdkSource}`]
+      : [...baseFilters, ...customFilters];
 
     console.log('Base filters:', baseFilters);
     console.log('Custom filters:', customFilters);
@@ -243,6 +252,23 @@ export class MonographVolumesService extends BaseFilterService {
       relativeTo: this.route,
       queryParams: { page: 1, pageSize: size },
       queryParamsHandling: 'merge'
+    });
+  }
+
+  /**
+   * CDK aggregator: persist the member library picked in the metadata sidebar's
+   * source selector into `?source=`, so the view is linkable and the volumes grid
+   * reloads re-scoped to that library (see dispatchLoadVolumes). Mirrors
+   * CollectionsService.setCdkSource.
+   */
+  setCdkSource(source: string): void {
+    if (!source) return;
+    this._page.set(1);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source, page: 1 },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 

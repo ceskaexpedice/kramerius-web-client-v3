@@ -11,7 +11,8 @@ import { ActivatedRoute } from '@angular/router';
 import * as SearchActions from '../../modules/search-results-page/state/search.actions';
 import { handleFacetsWithOperators } from '../utils/facet-utils';
 import { UserService } from './user.service';
-import { MAP_FACET_FIELDS } from '../../modules/search-results-page/const/facet-fields';
+import { MAP_FACET_FIELDS, withCdkFacetFields } from '../../modules/search-results-page/const/facet-fields';
+import { ConfigService } from '../../core/config/config.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { appendToAdvancedQuery, buildDateMinRangeQuery, buildYearRangeQuery } from '../utils/date-range-query';
 
@@ -31,6 +32,7 @@ export class MapSearchService {
   private route = inject(ActivatedRoute);
   private store = inject(Store);
   private userService = inject(UserService);
+  private configService = inject(ConfigService);
 
   private _results = new BehaviorSubject<SearchDocument[]>([]);
   private _loading = new BehaviorSubject<boolean>(false);
@@ -110,7 +112,8 @@ export class MapSearchService {
     this._searchSub = this.solrService.searchByBoundingBox(
       bounds.north, bounds.south, bounds.east, bounds.west,
       query, filters, {}, this._page.value, this.pageSize, advancedQuery,
-      MAP_FACET_FIELDS, sortBy, sortDirection, availabilityFilter
+      withCdkFacetFields(MAP_FACET_FIELDS, this.configService.isCdk()),
+      sortBy, sortDirection, availabilityFilter
     ).pipe(
       map(res => ({
         docs: (res.response?.docs ?? []).map(doc => parseSearchDocument(doc)),

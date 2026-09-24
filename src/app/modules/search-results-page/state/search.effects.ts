@@ -7,10 +7,9 @@ import * as SearchActions from './search.actions';
 import { SolrResponseParser } from '../../../core/solr/solr-response-parser';
 import { Store } from '@ngrx/store';
 import * as SearchSelectors from './search.selectors';
-import { DEFAULT_FACET_FIELDS } from '../const/facet-fields';
+import { DEFAULT_FACET_FIELDS, withCdkFacetFields } from '../const/facet-fields';
 import {
   getCustomDefinedFacets,
-  facetKeysEnum,
   mapOperatorsToSearchFields,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
@@ -284,9 +283,6 @@ export class SearchEffects {
   }
 
   private withCdkFacets(fields: string[]): string[] {
-    if (!this.configService.isCdk() || fields.includes(facetKeysEnum.cdkCollection)) {
-      return fields;
-    }
-    return [...fields, facetKeysEnum.cdkCollection];
+    return withCdkFacetFields(fields, this.configService.isCdk());
   }
 }

@@ -1,5 +1,5 @@
 import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
-import { visibleMetadataTabs } from './metadata-dialog-tabs';
+import { visibleMetadataTabs, MetadataTabScope } from './metadata-dialog-tabs';
 
 /**
  * `metadata: true` opens the metadata dialog, but says nothing about the content
@@ -45,5 +45,46 @@ describe('visibleMetadataTabs', () => {
   it('preserves the configured display order', () => {
     const tabs = visibleMetadataTabs(deny('text'));
     expect(tabs).toEqual(['mods', 'dc', 'solr', 'item', 'children', 'iiif']);
+  });
+});
+
+/**
+ * Scope, mirroring the page/document split the export panel draws: a page-scoped
+ * tab may consult the runtime licence the backend is actually serving under,
+ * while an ancestor's tabs reach pages the reader never opened and may not.
+ */
+describe('visibleMetadataTabs scope', () => {
+  it('passes the scope through to the predicate', () => {
+    const seen: MetadataTabScope[] = [];
+    visibleMetadataTabs((_action, scope) => { seen.push(scope); return true; }, 'page');
+
+    expect(seen.length).toBeGreaterThan(0);
+    expect(new Set(seen)).toEqual(new Set<MetadataTabScope>(['page']));
+  });
+
+  it('defaults to document scope, preserving the previous behaviour', () => {
+    const seen: MetadataTabScope[] = [];
+    visibleMetadataTabs((_action, scope) => { seen.push(scope); return true; });
+
+    expect(new Set(seen)).toEqual(new Set<MetadataTabScope>(['document']));
+  });
+
+  it('lets a page-scoped allow reveal the OCR tabs a document-scoped deny would hide', () => {
+    // The dnnto case from the report: the document's Solr flags deny `text`, but
+    // the page itself is being served as public.
+    const isAllowed = (action: keyof LicenseActionsConfig, scope: MetadataTabScope) =>
+      scope === 'page' ? true : action !== 'text' && action !== 'jpeg';
+
+    expect(visibleMetadataTabs(isAllowed, 'page')).toContain('ocr');
+    expect(visibleMetadataTabs(isAllowed, 'document')).not.toContain('ocr');
+  });
+
+  it('still hides the OCR tabs at page scope when the runtime licence denies text', () => {
+    const isAllowed = (action: keyof LicenseActionsConfig) => action !== 'text';
+
+    const tabs = visibleMetadataTabs(isAllowed, 'page');
+    expect(tabs).not.toContain('ocr');
+    expect(tabs).not.toContain('alto');
+    expect(tabs).not.toContain('foxml');
   });
 });

@@ -9,6 +9,7 @@ import { RecordItemComponent } from '../../shared/components/record-item/record-
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
 import * as MonographVolumesSelectors from '../../shared/state/monograph-volumes/monograph-volumes.selectors';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
+import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { FilterSidebarComponent } from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import { MonographFiltersComponent } from './components/monograph-filters/monograph-filters.component';
 import { MonographVolumesService } from '../../shared/services/monograph-volumes.service';
@@ -37,6 +38,7 @@ import {SearchDocument} from '../models/search-document';
     RecordItemComponent,
     TranslatePipe,
     MetadataSidebarComponent,
+    MetadataSection,
     FilterSidebarComponent,
     MonographFiltersComponent,
     ActionToolbarComponent,

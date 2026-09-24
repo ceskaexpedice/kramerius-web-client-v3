@@ -59,13 +59,24 @@ describe('DetailViewService.isActionAllowed', () => {
     (config as any).config$.next({ ...config.getConfig(), licenses: licensesConfig });
   });
 
-  function serviceWith(opts: { pages?: any[]; currentPageIndex?: number; documentLicences?: string[] }): DetailViewService {
+  function serviceWith(opts: {
+    pages?: any[];
+    currentPageIndex?: number;
+    documentLicences?: string[];
+    providedByLicenses?: string[];
+  }): DetailViewService {
     const service = Object.create(DetailViewService.prototype) as DetailViewService;
     (service as any)._pages = signal(opts.pages ?? []);
     (service as any)._currentPageIndex = signal(opts.currentPageIndex ?? 0);
     (service as any).documentSignal = signal(
       opts.documentLicences === undefined ? null : { licences: opts.documentLicences },
     );
+    // `providedByLicenses` omitted = info not loaded yet; `[]` = loaded but the
+    // backend is serving nothing. Both must fall through to the static licences.
+    const pageInfo = signal(
+      opts.providedByLicenses === undefined ? null : { providedByLicenses: opts.providedByLicenses },
+    );
+    (service as any).documentInfoService = { currentPageInfo: pageInfo };
     (service as any).configService = config;
     return service;
   }
@@ -142,5 +153,125 @@ describe('DetailViewService.isActionAllowed', () => {
     const service = serviceWith({ pages: [{ pid: 'p1', model: 'page' }], documentLicences: [] });
 
     expect(service.isActionAllowed('pdf')).toBe(true);
+  });
+
+  /**
+   * The runtime licences from `items/{pid}/info` say under which licence the backend
+   * is actually serving the page, which is a different question from which flags Solr
+   * has on the object. Gating on the Solr flag contradicted the response that put the
+   * page on screen in the first place.
+   */
+  describe('runtime providedByLicenses', () => {
+    it('allows exports when the backend serves a dnnto-flagged page as public', () => {
+      // The reported case: page uuid:51769600… is `licenses: ["dnnto"]` in Solr but
+      // `items/…/info` returns `providedByLicenses: ["public"]`, so the viewer shows
+      // it as public while every export section had disappeared.
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'], licenses_of_ancestors: ['public'] }],
+        documentLicences: ['dnnto', 'public'],
+        providedByLicenses: ['public'],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(true);
+      expect(service.isActionAllowed('print')).toBe(true);
+      expect(service.isActionAllowed('jpeg')).toBe(true);
+      expect(service.isActionAllowed('text')).toBe(true);
+    });
+
+    it('denies when the backend serves the page under a restricted licence', () => {
+      // Runtime wins in both directions: a page Solr calls public must not stay
+      // permissive once the backend says it is serving it as dnnto.
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses_of_ancestors: ['public'] }],
+        documentLicences: ['public'],
+        providedByLicenses: ['dnnto'],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(false);
+      expect(service.isActionAllowed('text')).toBe(false);
+    });
+
+    it('falls back to the static licences when the backend serves nothing', () => {
+      // An empty `providedByLicenses` is how a genuinely locked page reports itself.
+      // Reading that as "no licence, therefore unrestricted" would unlock it.
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'] }],
+        documentLicences: ['dnnto'],
+        providedByLicenses: [],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(false);
+      expect(service.isActionAllowed('print')).toBe(false);
+    });
+
+    it('falls back to the static licences before the info request resolves', () => {
+      // The gates render before `items/…/info` lands, so the pre-load state must not
+      // be permissive either.
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'] }],
+        documentLicences: ['dnnto'],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(false);
+    });
+
+    it('re-evaluates once the info request resolves', () => {
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'] }],
+        documentLicences: ['dnnto'],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(false);
+
+      (service as any).documentInfoService.currentPageInfo.set({ providedByLicenses: ['public'] });
+      expect(service.isActionAllowed('pdf')).toBe(true);
+    });
+  });
+
+  /**
+   * `providedByLicenses` describes the ONE page in the viewer. A whole-document
+   * export reaches pages the reader never opened, so it must not inherit that
+   * page's permission — hence the separate document-scoped check.
+   */
+  describe('isDocumentActionAllowed', () => {
+    it('denies a whole-document export on a dnnto document whose open page is served publicly', () => {
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'] }],
+        documentLicences: ['public', 'dnnto'],
+        providedByLicenses: ['public'],
+      });
+
+      // The open page itself stays exportable...
+      expect(service.isActionAllowed('pdf')).toBe(true);
+      expect(service.isActionAllowed('jpeg')).toBe(true);
+      // ...but the document as a whole does not.
+      expect(service.isDocumentActionAllowed('pdf')).toBe(false);
+      expect(service.isDocumentActionAllowed('print')).toBe(false);
+      expect(service.isDocumentActionAllowed('text')).toBe(false);
+    });
+
+    it('allows a whole-document export when the document itself is public', () => {
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['public'] }],
+        documentLicences: ['public'],
+        providedByLicenses: ['public'],
+      });
+
+      expect(service.isDocumentActionAllowed('pdf')).toBe(true);
+      expect(service.isDocumentActionAllowed('text')).toBe(true);
+    });
+
+    it('ignores the open page entirely, restrictive or not', () => {
+      // A restricted page in an otherwise public document must not drag the
+      // whole-document export down either — scope cuts both ways.
+      const service = serviceWith({
+        pages: [{ pid: 'p1', model: 'page', licenses: ['dnnto'] }],
+        documentLicences: ['public'],
+        providedByLicenses: [],
+      });
+
+      expect(service.isActionAllowed('pdf')).toBe(false);
+      expect(service.isDocumentActionAllowed('pdf')).toBe(true);
+    });
   });
 });

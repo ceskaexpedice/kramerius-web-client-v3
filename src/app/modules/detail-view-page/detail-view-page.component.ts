@@ -172,7 +172,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
           } else if (contentType === 'summary') {
             this.aiPanelService.showSummary(pid);
           } else if (contentType === 'text') {
-            this.aiPanelService.showPageText(pid);
+            // Re-check the licence on every page turn: the panel stays open while the
+            // reader pages through the document, so a transcript opened on a permitted
+            // page must not follow them onto one whose licence denies `text`.
+            if (this.detailViewService.isActionAllowed('text')) {
+              this.aiPanelService.showPageText(pid);
+            } else {
+              this.aiPanelService.close();
+            }
           }
         }
       }

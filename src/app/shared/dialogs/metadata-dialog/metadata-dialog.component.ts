@@ -12,7 +12,9 @@ import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 import { ConfigService } from '../../../core/config/config.service';
-import { visibleMetadataTabs } from './metadata-dialog-tabs';
+import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
+import { visibleMetadataTabs, MetadataTabScope } from './metadata-dialog-tabs';
+import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 
 import hljs from 'highlight.js';
 
@@ -41,12 +43,54 @@ export class MetadataDialogComponent implements OnInit {
     private cache: { [pid: string]: { [format: string]: string } } = {};
 
     /**
-     * Tabs the current document's license actually allows — see
-     * `visibleMetadataTabs` for which tab depends on which action and why.
+     * Tabs the current selection's license actually allows — see
+     * `visibleMetadataTabs` for which tab depends on which action and why, and
+     * `MetadataTabScope` for which licences answer.
      */
     get visibleTabs(): string[] {
-        return visibleMetadataTabs(action =>
-            this.configService.isLicenseActionAllowed(this.document?.licences, action));
+        return visibleMetadataTabs((action, scope) => this.isAllowed(action, scope), this.selectionScope);
+    }
+
+    /**
+     * Whether the hierarchy selector is pointing at a single page or at an
+     * ancestor. Page-scoped lookups may consult the runtime licence; anything
+     * above a page reaches pages the reader never opened and may not.
+     */
+    private get selectionScope(): MetadataTabScope {
+        return this.selectedModel === 'page' ? 'page' : 'document';
+    }
+
+    /**
+     * Resolves one action against the licences that govern the current selection.
+     *
+     * At page scope this delegates to `DetailViewService.isActionAllowed`, which
+     * prefers the backend's runtime `providedByLicenses` over the Solr flags —
+     * the same resolution the viewer's own page-text button uses, so the two
+     * routes to a page's OCR can no longer disagree.
+     *
+     * At document scope, and whenever the dialog is opened outside the detail
+     * view (search results, admin), it falls back to the static licences. Note
+     * `Metadata.licences` is Solr's `licenses.facet`, the union of the whole
+     * tree, so this errs restrictive by design.
+     */
+    private isAllowed(action: keyof LicenseActionsConfig, scope: MetadataTabScope): boolean {
+        if (scope === 'page' && this.detailViewService && this.isCurrentViewerPage) {
+            return this.detailViewService.isActionAllowed(action);
+        }
+        return this.configService.isLicenseActionAllowed(this.document?.licences, action);
+    }
+
+    /**
+     * Whether the selected pid is the page the viewer actually has open.
+     *
+     * `DetailViewService.isActionAllowed` answers for *its* current page, so it
+     * may only be consulted when the dialog is pointing at that same page —
+     * otherwise a permissive open page would speak for a different, restricted
+     * one the reader selected in the hierarchy.
+     */
+    private get isCurrentViewerPage(): boolean {
+        const pid = this.selectedPid;
+        return !!pid && pid === this.detailViewService?.currentPagePid;
     }
 
     @Output() close = new EventEmitter<void>();
@@ -62,6 +106,7 @@ export class MetadataDialogComponent implements OnInit {
     private iiifViewerService = inject(IIIFViewerService);
     private http = inject(HttpClient);
     private configService = inject(ConfigService);
+    private detailViewService = inject(DetailViewService, { optional: true });
 
     constructor() {
         this.document = this.data.document;

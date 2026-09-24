@@ -30,6 +30,8 @@ describe('AiPanelService summary language', () => {
         { provide: AltoService, useValue: {
           fetchAltoXml: () => of('<alto/>'),
           getFullText: () => 'some page text',
+          // What the panel actually calls: ALTO when present, /ocr/text otherwise.
+          fetchPageText: () => of({ text: 'some page text', html: '' }),
         } },
         { provide: AiApiService, useValue: { askLLM, translate: () => of('') } },
         { provide: LocalStorageService, useValue: { get: () => null, set: () => {} } },
