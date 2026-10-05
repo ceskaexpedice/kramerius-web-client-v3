@@ -33,8 +33,10 @@ export class ContentPageComponent implements OnInit {
   notFound = false;
   termsAgreed = false;
   isTermsPage = false;
-  gitTag = this.envService.get('git_tag');
-  clientVersion = this.versionService.getClientVersion();
+  // build-info.json loads in the background (it does not block bootstrap), so
+  // these may be empty on first render and are filled in once it settles.
+  gitTag = signal(this.envService.get('git_tag'));
+  clientVersion = signal(this.versionService.getClientVersion());
   apiVersion = signal('');
   indexerVersion = signal<number | null>(null);
   baseApiUrl = signal('');
@@ -46,6 +48,10 @@ export class ContentPageComponent implements OnInit {
       if (this.pageConfig) {
         this.loadContent();
       }
+    });
+    this.envService.whenBuildInfoReady().then(() => {
+      this.gitTag.set(this.envService.get('git_tag'));
+      this.clientVersion.set(this.versionService.getClientVersion());
     });
     this.versionService.getApiInfo().then(info => {
       this.apiVersion.set(info.version);
