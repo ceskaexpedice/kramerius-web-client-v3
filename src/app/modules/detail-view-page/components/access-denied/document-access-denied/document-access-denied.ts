@@ -189,8 +189,16 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
       copyrightUrl ? this.configService.loadHtmlContent(copyrightUrl) : Promise.resolve('')
     ]);
 
+    // Each instruction page is a sentence fragment continuing the "To view it:"
+    // lead-in ("log in with a partner library account", "view the document at a
+    // terminal in ..."), so they cannot simply be concatenated: joined bare they
+    // run together into one ungrammatical line with no cue that each describes a
+    // different route to the content. Keep one paragraph per page.
     this.instructionHtml = this.resolveLoginLinks(
-      instructions.filter(html => !!html).join('')
+      instructions
+        .filter(html => !!html)
+        .map(html => `<p class="instruction-item">${html}</p>`)
+        .join('')
     );
     this.copyrightHtml = this.resolveLoginLinks(copyright);
     this.htmlLoading = false;

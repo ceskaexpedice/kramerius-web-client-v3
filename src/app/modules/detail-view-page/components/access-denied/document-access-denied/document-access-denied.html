@@ -15,8 +15,10 @@
           }
         </p>
 
-        <!-- Display viewing instructions from config HTML -->
+        <!-- Display viewing instructions from config HTML. The instruction pages are
+             sentence fragments continuing this lead-in, so it is shown with them. -->
         @if (instructionHtml) {
+          <p class="instruction-lead-in">{{ 'access-denied.for-viewing-dnnt' | translate }}:</p>
           <div class="instruction-content" [innerHTML]="instructionHtml | safeHtml"></div>
         }
       </div>
