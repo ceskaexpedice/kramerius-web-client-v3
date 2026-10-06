@@ -148,3 +148,15 @@ body.header-hidden .page-content__filters {
   font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+/*
+ * Fit-to-width reuses the fit-to-screen glyph turned on its side: the two
+ * actions are the same gesture along different axes, so one icon rotated
+ * reads as a pair where two unrelated glyphs did not. Applied in both render
+ * paths of the viewer controls -- the floating column and the compact menu --
+ * so the button looks the same wherever it lands.
+ */
+.icon-rotate-90 {
+  display: inline-block;
+  transform: rotate(90deg);
+}
