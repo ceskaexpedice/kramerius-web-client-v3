@@ -207,11 +207,22 @@ export class FoldersService {
   // The backend has no favorites flag, so the folder is identified by matching its
   // stored name against any language's translation — preventing duplicates when the
   // user switches language.
+  // Must list EVERY locale in public/i18n/*.json — a missing one lets the user
+  // create a second favorites folder just by switching language.
   private readonly FAVORITES_NAMES_BY_LANG: Record<string, string> = {
-    en: 'My favorites',
     cs: 'Moje oblíbené',
-    sk: 'Moje obľúbené',
+    de: 'Meine Favoriten',
+    en: 'My favorites',
+    et: 'Minu lemmikud',
+    hu: 'Kedvenceim',
+    lt: 'Mano mėgstamiausi',
     pl: 'Moje ulubione',
+    pt: 'Os meus favoritos',
+    sk: 'Moje obľúbené',
+    sl: 'Moje priljubljene',
+    sv: 'Mina favoriter',
+    'zh-CN': '我的收藏',
+    'zh-TW': '我的收藏',
   };
 
   /**

@@ -77,6 +77,9 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   // Guards against showing the success feedback more than once when a single
   // "Done" triggers multiple add operations.
   private feedbackShown = false;
+  // Guards against a second "Done" click dispatching the same creates again
+  // before the first round has closed the popup.
+  submitting = signal(false);
   private _hasFavoritesFolder = false;
   private readonly FAKE_FAVORITES_UUID = 'fake-favorites-folder-uuid';
 
@@ -316,6 +319,20 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       }
     });
 
+    // A failed create/add leaves the popup open, so release the submit guard to
+    // let the user retry rather than stranding a dead "Done" button.
+    this.actions$.pipe(
+      ofType(
+        FoldersActions.createFolderFailure,
+        FoldersActions.updateFolderItemsFailure
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.submitting.set(false);
+      this.setShouldAddItemToNewFolder(false);
+      this.setShouldCreateRealFavoritesFolder(false);
+    });
+
     this.actions$.pipe(
       ofType(FoldersActions.createFolderSuccess),
       takeUntil(this.destroy$)
@@ -444,6 +461,11 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   }
 
   onDone() {
+    if (this.submitting()) {
+      return;
+    }
+    this.submitting.set(true);
+
     // Remove mode: the listed (containing) folders are pre-checked; Done removes
     // the item from every still-checked folder, then closes with a short toast.
     if (this.mode === 'remove') {
