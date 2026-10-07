@@ -18,9 +18,7 @@
            [innerHTML]="aiPanelService.styledHtml()"></div>
     } @else if (aiPanelService.content()) {
       <div class="ai-content-panel__content" [style.font-size.px]="aiPanelService.fontSize()"
-           [appNoTextCopy]="textCopyBlocked()">
-        {{ aiPanelService.content() }}
-      </div>
+           [appNoTextCopy]="textCopyBlocked()">@for (segment of contentSegments(); track $index) {@if (segment.match) {<mark>{{ segment.text }}</mark>} @else {<span>{{ segment.text }}</span>}}</div>
     }
   </div>
 </div>

@@ -144,6 +144,7 @@
   "titles": "Titles",
   "search-in-document--placeholder": "Search within pages",
   "alto-unavailable-error": "This document does not have extended OCR data (ALTO) available. Therefore it is not possible to highlight the searched text. This is not an error, but an older digitization method.",
+  "alto-unavailable-ocr-hint": "This document has no extended OCR data (ALTO), so the searched text cannot be highlighted on the scan itself. You will find it highlighted in the page text.",
   "sound-records--toggle": "Recordings",
   "sound-records--playlist-title": "Recording list",
   "sound-records--track-count": "{{count}} audio tracks",

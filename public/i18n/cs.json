@@ -139,6 +139,7 @@
   "titles": "Tituly",
   "search-in-document--placeholder": "Hledat na stránkách",
   "alto-unavailable-error": "Tento dokument nemá k dispozici rozšířená OCR data (ALTO). Proto není možné zvýraznit hledaný text. Nejde o chybu, ale o starší způsob digitalizace.",
+  "alto-unavailable-ocr-hint": "Tento dokument nemá k dispozici rozšířená OCR data (ALTO), proto hledaný text nelze zvýraznit přímo ve skenu. Najdete ho zvýrazněný v textu stránky.",
   "sound-records--toggle": "Nahrávky",
   "sound-records--playlist-title": "Seznam nahrávek",
   "sound-records--track-count": "{{count}} zvukových stop",

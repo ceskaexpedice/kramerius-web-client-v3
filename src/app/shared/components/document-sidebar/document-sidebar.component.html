@@ -60,7 +60,17 @@
         </div>
 
         @if (documentSearchService.altoUnavailable()) {
-          <p class="alto-unavailable-error">{{ 'alto-unavailable-error' | translate }}</p>
+          @if (canShowOcrFallback) {
+            <div class="alto-unavailable-ocr">
+              <p>{{ 'alto-unavailable-ocr-hint' | translate }}</p>
+              <button type="button" class="button tertiary outlined with-icon sm" (click)="onShowOcrFallback()">
+                <i class="icon icon-text" aria-hidden="true"></i>
+                {{ 'viewer-controls.page-text' | translate }}
+              </button>
+            </div>
+          } @else {
+            <p class="alto-unavailable-error">{{ 'alto-unavailable-error' | translate }}</p>
+          }
         }
       </div>
 

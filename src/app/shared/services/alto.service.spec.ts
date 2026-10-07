@@ -33,6 +33,36 @@ describe('AltoService', () => {
     service = TestBed.inject(AltoService);
   });
 
+  describe('highlightPlainText', () => {
+    const joined = (segments: { text: string }[]) => segments.map(s => s.text).join('');
+    const hits = (segments: { text: string; match: boolean }[]) =>
+      segments.filter(s => s.match).map(s => s.text);
+
+    it('marks a word regardless of case and trailing punctuation', () => {
+      const text = 'Zajat Jan Semelka, 28. zppl.\nsemelka';
+      const segments = service.highlightPlainText(text, 'Semelka');
+
+      expect(hits(segments)).toEqual(['Semelka,', 'semelka']);
+      expect(joined(segments)).toBe(text);
+    });
+
+    it('marks a quoted phrase as one segment, only where its words are adjacent', () => {
+      const text = 'hájek psal že karel\nhájek přišel, karel ne';
+      const segments = service.highlightPlainText(text, '"karel hájek"');
+
+      expect(hits(segments)).toEqual(['karel\nhájek']);
+      expect(joined(segments)).toBe(text);
+    });
+
+    it('returns the text as one unmatched segment without a query', () => {
+      expect(service.highlightPlainText('some text', '')).toEqual([{ text: 'some text', match: false }]);
+    });
+
+    it('returns nothing for empty text', () => {
+      expect(service.highlightPlainText('', 'karel')).toEqual([]);
+    });
+  });
+
   describe('getBoxes with a quoted phrase', () => {
     it('matches only adjacent words in the quoted order', () => {
       // "hájek" appears alone at index 0, the phrase occupies indexes 3 and 4.

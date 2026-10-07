@@ -43,6 +43,14 @@
       white-space: pre-wrap;
     }
 
+    // Search hit in the OCR fallback text — same tint as the hit boxes the
+    // viewer draws on the scan, so both read as the same thing.
+    mark {
+      background: rgba(255, 0, 0, 0.3);
+      color: inherit;
+      border-radius: 2px;
+    }
+
     // Styled HTML from ALTO
     p {
       margin: 0 0 0.8em;

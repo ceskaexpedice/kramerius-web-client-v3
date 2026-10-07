@@ -24,6 +24,8 @@ import {FormsModule} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FindState } from 'ngx-extended-pdf-viewer';
 import { SearchDebounceService } from '../../services/search-debounce.service';
+import { AiPanelService } from '../../services/ai-panel.service';
+import { ConfigService } from '../../../core/config';
 
 @Component({
   selector: 'app-document-sidebar',
@@ -57,6 +59,8 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   public documentSearchService = inject(DocumentSearchService);
   public pdfService = inject(PdfService);
   private searchDebounceService = inject(SearchDebounceService);
+  private aiPanelService = inject(AiPanelService);
+  private configService = inject(ConfigService);
 
   protected readonly FindState = FindState;
 
@@ -99,6 +103,23 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.searchTermSub?.unsubscribe();
     this.searchDebounceService.cancel('document-pdf-search');
+  }
+
+  /**
+   * The hit page has no ALTO but has plain OCR text the reader may see.
+   *
+   * Gated exactly like the viewer's page-text button (`ViewerControls.showPageText`),
+   * since this opens the same transcript panel.
+   */
+  get canShowOcrFallback(): boolean {
+    return !!this.documentSearchService.ocrFallbackPid()
+      && this.configService.isFeatureEnabled('ai')
+      && this.detailViewService.isActionAllowed('text');
+  }
+
+  onShowOcrFallback(): void {
+    const pid = this.documentSearchService.ocrFallbackPid();
+    if (pid) this.aiPanelService.showPageText(pid);
   }
 
   get isSoundRecording(): boolean {

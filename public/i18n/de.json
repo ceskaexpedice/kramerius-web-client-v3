@@ -139,6 +139,7 @@
   "titles": "Titel",
   "search-in-document--placeholder": "In Seiten suchen",
   "alto-unavailable-error": "Für dieses Dokument sind keine erweiterten OCR-Daten (ALTO) verfügbar. Daher kann der gesuchte Text nicht hervorgehoben werden. Dies ist kein Fehler, sondern eine ältere Digitalisierungsmethode.",
+  "alto-unavailable-ocr-hint": "Für dieses Dokument sind keine erweiterten OCR-Daten (ALTO) verfügbar, daher kann der gesuchte Text nicht direkt im Scan hervorgehoben werden. Sie finden ihn hervorgehoben im Seitentext.",
   "sound-records--toggle": "Aufnahmen",
   "sound-records--playlist-title": "Aufnahmenliste",
   "sound-records--track-count": "{{count}} Audiospuren",
