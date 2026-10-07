@@ -472,12 +472,24 @@ export class ModsParserService {
 
   private processLocations(elements: Element[], metadata: Metadata) {
     for (const item of elements) {
-      const location = new Location();
-      location.physicalLocation = this.getFieldText(item, 'physicalLocation');
-      location.shelfLocator = this.getFieldText(item, 'shelfLocator');
+      const physicalLocation = this.getFieldText(item, 'physicalLocation');
+      // One <location> may list several <shelfLocator>s (a periodical held as
+      // many volumes). Each becomes its own Location carrying the institution,
+      // matching Solr's `shelf_locators` one-to-one so `mergeMetadata` can give
+      // every locator its institution — taking only the first left the rest
+      // shown without a source.
+      const shelfLocators = Array.from(item.getElementsByTagNameNS('*', 'shelfLocator'))
+        .map(el => this.getText(el))
+        .filter(text => text.length > 0);
 
-      if (!location.empty()) {
-        metadata.locations.push(location);
+      for (const shelfLocator of shelfLocators.length ? shelfLocators : ['']) {
+        const location = new Location();
+        location.physicalLocation = physicalLocation;
+        location.shelfLocator = shelfLocator;
+
+        if (!location.empty()) {
+          metadata.locations.push(location);
+        }
       }
     }
   }
