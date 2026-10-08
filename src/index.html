@@ -6,42 +6,71 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+  <!--
+    Pre-bootstrap splash. Angular's APP_INITIALIZER waits on env.json +
+    config-main.json before anything renders, which left the window blank for
+    up to ~1-2 s on reload. These styles are inline (no extra request) and the
+    markup inside <app-root> is replaced by Angular the moment it boots.
+    Theme is resolved from the same 'app-settings' key SettingsService writes,
+    so the splash does not flash the wrong background in dark mode.
+  -->
+  <style>
+    #app-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #EFF2F5;
+    }
+    html.dark #app-splash { background: #263340; }
+    #app-splash .app-splash__spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(38, 51, 64, .18);
+      border-top-color: #263340;
+      border-radius: 50%;
+      animation: app-splash-spin .8s linear infinite;
+    }
+    html.dark #app-splash .app-splash__spinner {
+      border-color: rgba(239, 242, 245, .22);
+      border-top-color: #EFF2F5;
+    }
+    @keyframes app-splash-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      #app-splash .app-splash__spinner { animation-duration: 2.4s; }
+    }
+  </style>
   <script>
-    (function() {
-      var hostname = window.location.hostname;
-      var gId;
-
-      if (hostname.endsWith('cdk.test.trinera.cloud')) {
-        gId = 'G-W742T420R3';
-      } else if (hostname.endsWith('cdk.app.trinera.cloud')) {
-        gId = 'G-674F59YZR2';
-      } else {
-        return;
-      }
-
-      var script = document.createElement('script');
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gId;
-      script.async = true;
-      document.head.appendChild(script);
-
-      script.onload = function() {
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-          window.dataLayer.push(arguments);
+    // Resolve the persisted theme before first paint so the splash (and the
+    // app behind it) start on the correct background instead of flashing light.
+    // Mirrors SettingsService.applyTheme(); SettingsService re-applies the
+    // class itself once it boots, so this is only about the pre-boot frame.
+    (function () {
+      try {
+        var raw = localStorage.getItem('app-settings');
+        var theme = raw ? (JSON.parse(raw) || {}).theme : null;
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', gId);
-      };
+        document.documentElement.classList.add(theme);
+      } catch (e) {
+        document.documentElement.classList.add('light');
+      }
     })();
   </script>
-
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div id="app-splash" role="status" aria-live="polite" aria-label="Načítám…">
+      <div class="app-splash__spinner"></div>
+    </div>
+  </app-root>
 
   <!--
     Color-vision (daltonization) filters for the accessibility settings.

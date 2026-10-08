@@ -16,7 +16,7 @@
   "api": {
     "baseUrl": "https://cdk-api.dev.ceskadigitalniknihovna.cz/search/api/client",
     "citationUrl": "https://citace.ceskadigitalniknihovna.cz/api/v1",
-    "georefUrl": "https://api.georeference.trinera.cloud/georefs/latest",
+    "georefUrl": "https://georeference-api.trinera-apps.mzk.cz/georefs/latest",
     "aiProxyUrl": "https://api.trinera.cloud/api"
   },
   "i18n": {

@@ -149,9 +149,16 @@ Celý blok je volitelný. Když chybí, všechny integrace se tiše vypnou.
 
 | Pole | Povinné | Popis |
 |---|---|---|
-| `provider` | ne | Aktuálně `"ga4"` (Google Analytics 4). |
-| `enabled` | ano | Hlavní přepínač analytiky. Když je `false`, žádné eventy se neposílají bez ohledu na ostatní pole. |
-| `measurementId` | ne | GA4 Measurement ID ve formátu `G-XXXXXXXXXX`. Když chybí a `enabled: true`, analytika nebude fungovat. |
+| `provider` | ne | Aktuálně `"ga4"` (Google Analytics 4). Jiná hodnota analytiku vypne. |
+| `enabled` | ne | Hlavní přepínač analytiky. `false` vypne analytiku úplně, včetně fallbacku podle hostname. Když pole (nebo celý blok `analytics`) chybí, rozhoduje samotné měření — viz pořadí níže. |
+| `measurementId` | ne | GA4 Measurement ID ve formátu `G-XXXXXXXXXX`. Když chybí, použije se fallback podle hostname (viz níže) a na ostatních doménách se analytika nenačte. Ukázková hodnota `G-XXXXXXXXXX` se bere jako nevyplněná. |
+
+Skript GA se načítá až po načtení konfigurace (při startu aplikace). Měření se hledá v tomto pořadí:
+
+1. `measurementId` z konfigurace,
+2. fallback podle hostname — jen pro testovací nasazení `cdk.test.trinera.cloud` a `cdk.app.trinera.cloud` (včetně subdomén).
+
+Konfigurace má vždy přednost: když je `measurementId` vyplněné, hostname se neřeší. `enabled: false` vypne analytiku i na těch dvou doménách. Fallback je čistě pro pohodlí našich testovacích instancí, aby nemusely nosit analytiku v konfigu — běžná instance si měření nastavuje výhradně přes `measurementId`.
 
 ### `googleMaps`
 

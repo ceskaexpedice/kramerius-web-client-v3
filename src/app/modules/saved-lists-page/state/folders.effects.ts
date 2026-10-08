@@ -111,15 +111,30 @@ export class FoldersEffects {
     )
   );
 
+  // mergeMap, not switchMap: a single "Done" in the favorites popup can create
+  // both a named list and the favorites folder, and switchMap would cancel the
+  // first create before it reached the server.
   createFolder$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FoldersActions.createFolder),
-      switchMap(action =>
+      mergeMap(action =>
         this.foldersService.createFolder(action.folder).pipe(
           map(folder => FoldersActions.createFolderSuccess({ folder, suppressToast: action.suppressToast })),
           catchError(error => of(FoldersActions.createFolderFailure({ error: error.message })))
         )
       )
+    )
+  );
+
+  // The POST response carries no `users` array, so a folder taken straight from
+  // it fails the `owner` filter in selectUserOwnedFolders and stays invisible to
+  // owned-folder consumers — which made the favorites popup re-offer its "create
+  // favorites" entry and create a duplicate on every use. Reload the list from
+  // the server, the same way follow/unfollow/copy already do.
+  createFolderReload$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FoldersActions.createFolderSuccess),
+      map(() => FoldersActions.loadFolders())
     )
   );
 

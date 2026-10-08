@@ -460,7 +460,7 @@ export class ViewerControls implements OnInit {
 
     const pdfBookMode = isPdf ? !!this.pdfService.pdfProperties.bookMode : this.iiifViewerService.isBookMode();
     if (this.showFitToWidth && !pdfBookMode && notImageInMap) {
-      items.push({ id: 'fit-to-width', icon: 'icon-grid-lock', tooltip: 'viewer-controls.fit-to-width' });
+      items.push({ id: 'fit-to-width', icon: 'icon-pharagraphspacing icon-rotate-90', tooltip: 'viewer-controls.fit-to-width' });
     }
 
     if (imageInterior) {

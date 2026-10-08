@@ -32,6 +32,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
+import { groupLocationsByInstitution } from '../../utils/group-locations';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -76,6 +77,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
+
+  // One row per holding institution, its shelf locators joined (#156 follow-up).
+  readonly locations = computed(() => groupLocationsByInstitution(this._data()?.locations ?? []));
+  readonly childLocations = computed(() => groupLocationsByInstitution(this._childData()?.locations ?? []));
 
   childExpanded = signal(true);
 

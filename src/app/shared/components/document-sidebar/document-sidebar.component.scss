@@ -57,6 +57,22 @@ hr {
   margin: 0;
 }
 
+// No ALTO, but the page's plain OCR text is there: not an error, so neutral
+// colour, with the way to the text right under it.
+.alto-unavailable-ocr {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-x2);
+
+  p {
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+}
+
 .admin-selection-count {
   font-size: var(--font-size-small);
   color: var(--color-text-tertiary);

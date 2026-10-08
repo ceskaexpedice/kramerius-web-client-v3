@@ -71,6 +71,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private subscriptions: Subscription[] = [];
 
   private viewer: OpenSeadragon.Viewer | null = null;
+  /** Detaches the handlers set up by watchThumbnailPlaceholder, if any are attached. */
+  private stopThumbnailWatch: (() => void) | null = null;
   /**
    * Exposed to the template so the watermark overlay can bind to the live
    * viewer: it draws in image coordinates and needs the viewport to project
@@ -371,6 +373,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * Creates the blur→sharp progressive loading effect
    */
   private setThumbnailBackground(pid: string): void {
+    // A watch left over from the previous page must not clear this one's thumbnail.
+    this.stopThumbnailWatch?.();
     const thumbnailUrl = this.iiifViewerService.getThumbnailUrl(pid);
     // The watermark lays itself out on this thumbnail until the tiled image
     // exists, so it has to learn the URL at the same moment the background does.
@@ -386,6 +390,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * Clear the thumbnail background after IIIF tiles have loaded
    */
   private clearThumbnailBackground(): void {
+    this.stopThumbnailWatch?.();
     // Only the placeholder goes away; the watermark has the real geometry by
     // now and keeps drawing from the viewport.
     this.placeholderUrl.set(null);
@@ -433,9 +438,104 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
   }
 
+  /**
+   * Drop the thumbnail placeholder as soon as it stops being useful, instead
+   * of only on fully-loaded.
+   *
+   * The thumbnail is a static CSS background sized to the home view. Waiting
+   * for fully-loaded keeps it far too long: every pan or zoom asks for new
+   * tiles, so the event may not fire for a long time, and meanwhile the
+   * thumbnail no longer lines up with the image and shows through around it.
+   * It goes away on whichever comes first:
+   * - the viewport is not at the home view (a locked zoom was restored), so
+   *   the thumbnail is out of place from the start;
+   * - the first pan or zoom, for the same reason;
+   * - OpenSeadragon has loaded a whole pyramid level at least as wide as the
+   *   thumbnail, so the canvas already paints the page as sharp as the
+   *   thumbnail would.
+   */
+  private watchThumbnailPlaceholder(): void {
+    this.stopThumbnailWatch?.();
+    const viewer = this.viewer;
+    const thumbnailUrl = this.placeholderUrl();
+    if (!viewer || !thumbnailUrl) return;
+
+    const viewport = viewer.viewport;
+    const homeZoom = viewport.getHomeZoom();
+    if (Math.abs(viewport.getZoom(true) - homeZoom) > homeZoom * 1e-3) {
+      this.clearThumbnailBackground();
+      return;
+    }
+
+    const onViewportChange = () => this.clearThumbnailBackground();
+    viewer.addHandler('pan', onViewportChange);
+    viewer.addHandler('zoom', onViewportChange);
+
+    // Loaded tile coordinates per pyramid level, for the current page only.
+    const tiledImage = viewer.world.getItemAt(0);
+    const loadedTiles = new Map<number, Set<string>>();
+    let targetLevel: number | null = null;
+    let cancelled = false;
+
+    const isCovered = (): boolean => {
+      if (!tiledImage || targetLevel === null) return false;
+      for (const [level, tiles] of loadedTiles) {
+        if (level < targetLevel) continue;
+        const grid = tiledImage.source.getNumTiles(level);
+        if (tiles.size >= grid.x * grid.y) return true;
+      }
+      return false;
+    };
+    const clearIfCovered = () => {
+      // The tile is drawn on the next frame, so the background must outlive it by one.
+      if (!cancelled && isCovered()) requestAnimationFrame(() => this.clearThumbnailBackground());
+    };
+
+    const onTileLoaded = (e: any) => {
+      if (e.tiledImage !== tiledImage) return;
+      const tile = e.tile;
+      // Not awaited: the event docs warn that awaiting it in the handler deadlocks.
+      Promise.resolve(e.promise).then(() => {
+        let tiles = loadedTiles.get(tile.level);
+        if (!tiles) loadedTiles.set(tile.level, tiles = new Set());
+        tiles.add(`${tile.x},${tile.y}`);
+        clearIfCovered();
+      });
+    };
+    if (tiledImage) viewer.addHandler('tile-loaded', onTileLoaded);
+
+    // The thumbnail's pixel width decides which level matches it. It is
+    // already in the browser cache as the container's background.
+    const thumbnail = new Image();
+    thumbnail.onload = () => {
+      if (!tiledImage) return;
+      targetLevel = this.levelMatchingWidth(tiledImage.source, thumbnail.naturalWidth);
+      clearIfCovered();
+    };
+    thumbnail.src = thumbnailUrl;
+
+    this.stopThumbnailWatch = () => {
+      cancelled = true;
+      thumbnail.onload = null;
+      viewer.removeHandler('pan', onViewportChange);
+      viewer.removeHandler('zoom', onViewportChange);
+      viewer.removeHandler('tile-loaded', onTileLoaded);
+      this.stopThumbnailWatch = null;
+    };
+  }
+
+  /** Lowest pyramid level at least `width` pixels wide, or the finest level if none is. */
+  private levelMatchingWidth(source: OpenSeadragon.TileSource, width: number): number {
+    for (let level = source.minLevel; level <= source.maxLevel; level++) {
+      if (source.dimensions.x * source.getLevelScale(level) >= width) return level;
+    }
+    return source.maxLevel;
+  }
+
   private createViewer(tileSource: any): void {
     if (this.viewer) {
       this.osdViewer.set(null);
+      this.stopThumbnailWatch?.();
       this.viewer.destroy();
     }
 
@@ -528,6 +628,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // For IIIF tiled images this creates a blur→sharp progressive loading effect.
       // For direct image fallbacks, the single "tile" loads fully at once.
       this.waitForImageLoaded();
+      // After applyLockedZoom, so the watch sees where the viewport actually is.
+      this.watchThumbnailPlaceholder();
     });
 
     this.viewer.addHandler('update-viewport', () => {

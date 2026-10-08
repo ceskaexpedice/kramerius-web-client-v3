@@ -7,6 +7,9 @@ import { AiContentToolbarComponent } from './ai-content-toolbar/ai-content-toolb
 import { AiLoadingComponent } from './ai-loading/ai-loading.component';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { NoTextCopyDirective } from '../../directives';
+import { IIIFViewerService } from '../../services/iiif-viewer.service';
+import { AltoService } from '../../services/alto.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-ai-content-panel',
@@ -22,6 +25,8 @@ export class AiContentPanelComponent {
   aiPanelService = inject(AiPanelService);
   detailFullscreen = inject(DetailFullscreenService);
   private detailViewService = inject(DetailViewService, { optional: true });
+  private altoService = inject(AltoService);
+  private searchQuery = toSignal(inject(IIIFViewerService).searchQuery$, { initialValue: '' });
 
   /**
    * True when the document's license lets the reader see the text but not take
@@ -31,6 +36,18 @@ export class AiContentPanelComponent {
    * form.
    */
   textCopyBlocked = computed(() => !(this.detailViewService?.isActionAllowed('text') ?? true));
+
+  /**
+   * The plain-text content split around the in-document search matches.
+   *
+   * Only the plain-text path needs this: it is what a page without ALTO shows
+   * (`/ocr/text` fallback), and such a page has no boxes on the scan, so the
+   * transcript is the only place the reader can see where the hit is. The ALTO
+   * path renders `styledHtml` and keeps its highlights on the scan.
+   */
+  contentSegments = computed(() =>
+    this.altoService.highlightPlainText(this.aiPanelService.content(), this.searchQuery())
+  );
 
   close(): void {
     this.aiPanelService.close();

@@ -71,9 +71,25 @@
   }
 }
 
+// Introduces the instruction list ("To view it:"). The instruction pages are
+// sentence fragments that continue this line, so it is emphasised to read as
+// their heading rather than as another sentence of body copy.
+.instruction-lead-in {
+  font-weight: 500;
+}
+
 // Links inside content injected via [innerHTML] carry no component style
 // attribute, so they need ::ng-deep to pick up the same link styling.
 :host ::ng-deep {
+  // One per license, each a separate route to the content.
+  .instruction-content .instruction-item {
+    margin: 0 0 12px 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   .instruction-content a,
   .banner-content a {
     font-weight: 500;

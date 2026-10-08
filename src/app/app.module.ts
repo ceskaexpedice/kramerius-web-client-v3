@@ -28,6 +28,7 @@ import { EnvironmentService } from './shared/services/environment.service';
 import { ConfigService } from './core/config';
 import { UserService } from './shared/services/user.service';
 import { initApp } from './core/init/app-init';
+import { AnalyticsService } from './shared/services/analytics.service';
 import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
 import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
 import { ImagePreviewOverlayComponent } from './shared/components/image-preview-overlay/image-preview-overlay.component';
@@ -151,7 +152,7 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
-      deps: [EnvironmentService, ConfigService, UserService],
+      deps: [EnvironmentService, ConfigService, UserService, AnalyticsService],
       multi: true
     },
     {

@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'cdk-icons';
-  src:  url('./icon-font.woff?f0lu1c') format('woff'),
-    url('./icon-font.ttf?f0lu1c') format('truetype');
+  src:  url('./icon-font.woff?f0lu1f') format('woff'),
+    url('./icon-font.ttf?f0lu1f') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -2675,4 +2675,7 @@
 }
 .icon-magic:before {
   content: "\ec73";
+}
+.icon-list-magnifying-glass:before {
+  content: "\ec74";
 }

@@ -13,6 +13,10 @@ export class EnvironmentService {
   private configRuntime: any = {};
   private configBuildtime: any = {};
 
+  // Settles when build-info.json has loaded. Started by load() but never
+  // awaited there, so it does not delay bootstrap.
+  private buildtimeReady: Promise<void> = Promise.resolve();
+
   // Backend URL and library-switch flag resolved from config-main.json.
   // Pushed in by ConfigService.load() to avoid a circular dependency
   // (ConfigService injects EnvironmentService, not the other way around).
@@ -60,6 +64,13 @@ export class EnvironmentService {
   }
 
   public async load(): Promise<void> {
+    // build-info.json is only read long after bootstrap (client version in the
+    // settings/content pages, git tag in dev logging), so it must not hold up
+    // the first paint. Kick it off here and let it settle in the background;
+    // env.json is the only one bootstrap actually waits for, because
+    // ConfigService reads apiConfigBaseUrl/forceApiConfig from it right after.
+    this.buildtimeReady = this.loadBuildInfo();
+
     // Load runtime configuration from env.json or static environment (environment.ts)
     if (staticEnv.useStaticRuntimeConfig) {
       try {
@@ -74,16 +85,30 @@ export class EnvironmentService {
     } else {
       this.configRuntime = staticEnv;
     }
-    // Load build info from build-info.json
+  }
+
+  /**
+   * Fetch build-info.json into configBuildtime. Never rejects: a missing or
+   * invalid file just leaves the build info empty, exactly as before.
+   */
+  private async loadBuildInfo(): Promise<void> {
     try {
       const response = await fetch('/assets/build-info.json');
       if (!response.ok) throw new Error('build-info.json load failed');
-      const data = await response.json();
-      this.configBuildtime = data;
+      this.configBuildtime = await response.json();
     } catch (err) {
       console.warn('build-info.json not found or invalid. Skipping build info.');
       this.configBuildtime = {};
     }
+  }
+
+  /**
+   * Resolves once build-info.json has settled. Only needed by the few callers
+   * that read build-time keys (client_version, git_tag, build_date) and want to
+   * be sure they are populated; `get()` returns undefined until then.
+   */
+  public whenBuildInfoReady(): Promise<void> {
+    return this.buildtimeReady;
   }
 
   public get(key: string): any {

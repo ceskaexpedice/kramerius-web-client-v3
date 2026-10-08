@@ -303,4 +303,45 @@ describe('DocumentAccessDenied license filtering and instructions', () => {
 
     expect(component.instructionHtml.match(/Shared/g)?.length).toBe(1);
   });
+
+  /**
+   * The instruction pages in config are sentence fragments continuing the
+   * "To view it:" lead-in ("log in with a partner library account.", "view the
+   * document at a terminal in ..."). They were being concatenated bare, which ran
+   * two licenses' instructions together into one ungrammatical line and dropped the
+   * lead-in entirely, so a reader saw neither what the sentences were completing nor
+   * that each described a different route to the content (issue #195).
+   */
+
+  it('keeps each license instruction in its own paragraph', async () => {
+    const { component } = makeComponent({
+      documentLicenses: ['dnnto', 'onsite'],
+      instructionPages: { dnnto: 'dnnto.cs.html', onsite: 'onsite.cs.html' },
+      htmlByUrl: {
+        'dnnto.cs.html': '<a href="#">log in</a> with a partner library account.',
+        'onsite.cs.html': 'View the document at a terminal.',
+      },
+    });
+
+    component.detectAllLicenseTypes();
+    await (component as any).loadHtmlContent();
+
+    expect(component.instructionHtml.match(/<p class="instruction-item">/g)?.length).toBe(2);
+    // The fragments must not run together into a single line.
+    expect(component.instructionHtml).not.toContain('account.View');
+  });
+
+  it('adds no paragraph wrapper when there are no instructions', async () => {
+    const { component } = makeComponent({
+      documentLicenses: ['covid'],
+      instructionPages: { covid: 'covid.cs.html' },
+    });
+
+    component.detectAllLicenseTypes();
+    await (component as any).loadHtmlContent();
+
+    // The template keys the lead-in off this being empty, so an empty run must
+    // stay exactly empty rather than becoming an empty paragraph.
+    expect(component.instructionHtml).toBe('');
+  });
 });

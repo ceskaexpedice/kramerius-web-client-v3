@@ -91,7 +91,7 @@
         </button>
         <button
           class="button primary sm"
-          [disabled]="!hasChanges()"
+          [disabled]="!hasChanges() || submitting()"
           (click)="onDone()">
           {{ 'done' | translate }}
         </button>

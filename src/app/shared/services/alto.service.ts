@@ -30,6 +30,12 @@ export interface AltoTextBlock {
   height: number;
 }
 
+/** A run of plain text, flagged when it is part of a search match. */
+export interface TextSegment {
+  text: string;
+  match: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -152,6 +158,56 @@ export class AltoService {
         text: part,
         hMin: 0, hMax: 0, vMin: 0, vMax: 0, width: 0, height: 0,
       }));
+  }
+
+  /**
+   * Splits plain text into segments, flagging the ones that match the query.
+   *
+   * The plain-text counterpart to `getBoxes`, for pages whose text came from
+   * `/ocr/text` because they have no ALTO: there are no coordinates to draw on
+   * the scan, so the match is marked in the transcript instead. Terms are parsed
+   * and compared exactly as `getBoxes` does — quoted groups are phrases — so a
+   * word counts as a hit in the transcript iff it would on an ALTO page.
+   *
+   * The segments concatenate back to `text` unchanged; the whitespace between
+   * the words of one phrase belongs to the match, so a phrase is a single mark.
+   *
+   * @param text - Plain page text
+   * @param query - Search query string
+   * @returns Segments covering the whole text, in order
+   */
+  highlightPlainText(text: string, query: string): TextSegment[] {
+    if (!text) return [];
+    const terms = query ? this.parseSearchTerms(query) : [];
+    if (terms.length === 0) return [{ text, match: false }];
+
+    const tokens = text.split(/(\s+)/).filter(token => token.length > 0);
+    const wordTokenIndexes: number[] = [];
+    tokens.forEach((token, i) => {
+      if (!/^\s+$/.test(token)) wordTokenIndexes.push(i);
+    });
+    const words = wordTokenIndexes.map(i => this.normalizeWord(tokens[i]));
+    const matched = new Array<boolean>(tokens.length).fill(false);
+
+    for (const term of terms) {
+      for (let w = 0; w <= words.length - term.length; w++) {
+        if (!term.every((word, offset) => words[w + offset] === word)) continue;
+        const first = wordTokenIndexes[w];
+        const last = wordTokenIndexes[w + term.length - 1];
+        for (let i = first; i <= last; i++) matched[i] = true;
+      }
+    }
+
+    const segments: TextSegment[] = [];
+    tokens.forEach((token, i) => {
+      const previous = segments[segments.length - 1];
+      if (previous && previous.match === matched[i]) {
+        previous.text += token;
+      } else {
+        segments.push({ text: token, match: matched[i] });
+      }
+    });
+    return segments;
   }
 
   /**

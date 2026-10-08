@@ -8,7 +8,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   },
   api: {
     baseUrl: '',
-    georefUrl: 'https://api.georeference.trinera.cloud/georefs/latest',
+    georefUrl: 'https://georeference-api.trinera-apps.mzk.cz/georefs/latest',
     aiProxyUrl: ''
   },
   i18n: {

@@ -37,6 +37,13 @@ export class DocumentSearchService {
 
   isCaseSensitive: boolean = false;
   altoUnavailable = signal(false);
+  /**
+   * PID of the current hit page when it has no ALTO but does have plain OCR
+   * text, else null. The sidebar uses it to offer that text as the place to see
+   * the hit, since without ALTO nothing can be marked on the scan.
+   */
+  ocrFallbackPid = signal<string | null>(null);
+  private highlightedPid: string | null = null;
   private allMatchedPages: string[] = [];
   private suggestionToPidMap = new Map<string, string>();
   private hasRestoredSearch = false;
@@ -146,6 +153,7 @@ export class DocumentSearchService {
     this.currentMatchedPageIndexSubject.next(0);
     this.searchResultsSubject.next([]);
     this.altoUnavailable.set(false);
+    this.ocrFallbackPid.set(null);
     this.detailViewService.setFulltextParam(null);
   }
 
@@ -390,6 +398,8 @@ export class DocumentSearchService {
    */
   private fetchAndDisplayHighlights(pid: string, searchTerm: string): void {
     this.iiifViewerService.setSearchQuery(searchTerm);
+    this.highlightedPid = pid;
+    this.ocrFallbackPid.set(null);
 
     // Don't request ALTO for a page the user can't access. The document is
     // access-denied and this page hasn't been confirmed accessible, so the
@@ -418,7 +428,29 @@ export class DocumentSearchService {
         // Only a genuine failure (e.g. 404) means ALTO is truly unavailable, so
         // don't show the misleading "no ALTO" message for permission errors.
         const status = error?.status;
-        this.altoUnavailable.set(status !== 401 && status !== 403);
+        const unavailable = status !== 401 && status !== 403;
+        this.altoUnavailable.set(unavailable);
+        if (unavailable) this.checkOcrFallback(pid);
+      }
+    });
+  }
+
+  /**
+   * Looks for plain OCR text on a page that has no ALTO.
+   *
+   * Pages digitised without ALTO usually still carry `/ocr/text` (issue from
+   * production testing: NK periodicals show "no ALTO" while the text with the
+   * hit is right there). Ignores the answer when the reader has moved on to
+   * another hit page in the meantime.
+   */
+  private checkOcrFallback(pid: string): void {
+    this.altoService.fetchOcrText(pid).pipe(take(1)).subscribe({
+      next: text => {
+        if (this.highlightedPid !== pid) return;
+        this.ocrFallbackPid.set((text ?? '').trim() ? pid : null);
+      },
+      error: () => {
+        if (this.highlightedPid === pid) this.ocrFallbackPid.set(null);
       }
     });
   }
