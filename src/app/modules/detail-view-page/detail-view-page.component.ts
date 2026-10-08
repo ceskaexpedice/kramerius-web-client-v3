@@ -421,6 +421,37 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   protected readonly DocumentTypeEnum = DocumentTypeEnum;
 
+  // Georeferencer editor link (admins only). URL and host are hardcoded for now.
+  // The link goes through the georeferencer's login endpoint, which shares the
+  // client's Keycloak, so a logged-in user lands in the editor already signed in.
+  private static readonly GEOREFERENCER_LOGIN_URL = 'https://georeference-api.trinera-apps.mzk.cz/auth/login';
+  private static readonly GEOREFERENCER_URL = 'https://georeference-editor.trinera-apps.mzk.cz/images';
+  private static readonly GEOREFERENCER_HOST = 'kramerius.mzk.cz';
+
+  /**
+   * Link to the georeferencer editor, or null when it should not be shown.
+   * A map document links its own uuid; otherwise a map page inside a non-map
+   * document links the page uuid.
+   */
+  get georeferencerUrl(): string | null {
+    if (!this.userService.isAdmin) {
+      return null;
+    }
+    const doc = this.detailViewService.document;
+    let uuid: string | null | undefined = null;
+    if (doc?.model === DocumentTypeEnum.map) {
+      uuid = doc.uuid;
+    } else if (this.detailViewService.getCurrentPage()?.model === DocumentTypeEnum.map) {
+      uuid = this.detailViewService.currentPagePid;
+    }
+    if (!uuid) {
+      return null;
+    }
+    const editorParams = new URLSearchParams({ uuid, host: DetailViewPageComponent.GEOREFERENCER_HOST });
+    const returnTo = `${DetailViewPageComponent.GEOREFERENCER_URL}?${editorParams}`;
+    return `${DetailViewPageComponent.GEOREFERENCER_LOGIN_URL}?${new URLSearchParams({ returnTo })}`;
+  }
+
   getIssueTypeCode(children: any[], uuid: string): string | undefined {
     return normalizeIssueTypeCode(children?.find(c => c?.pid === uuid)?.['issue.type.code']);
   }

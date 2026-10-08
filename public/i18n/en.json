@@ -575,6 +575,7 @@
   "viewer-controls.map-view": "Show on map",
   "tab-page": "Page",
   "tab-map-view": "Show on map",
+  "open-in-georeferencer": "Open in georeferencer",
   "georeference-viewer.opacity": "Opacity",
   "viewer-controls.background-removal": "Remove background",
   "filters": "Filters",

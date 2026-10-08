@@ -153,6 +153,14 @@
         </div>
         <div right>
           <div class="flex flex--align-center toolbar-right-content">
+            @if (georeferencerUrl; as url) {
+              <div class="view-tabs">
+                <a class="view-tabs__tab" [href]="url" target="_blank" rel="noopener noreferrer">
+                  <i class="icon-location-add"></i>
+                  {{ 'open-in-georeferencer' | translate }}
+                </a>
+              </div>
+            }
             @if (georeferenceService.hasGeoreference$ | async) {
               <div class="view-tabs">
                 <button class="view-tabs__tab"

@@ -730,6 +730,7 @@
   "tab-maps": "Karten",
   "tab-page": "Seite",
   "tab-map-view": "Auf der Karte anzeigen",
+  "open-in-georeferencer": "Im Georeferenzierer öffnen",
   "georeference-viewer.opacity": "Deckkraft",
   "viewer-controls.background-removal": "Hintergrund entfernen",
   "page_type.unknown": "Seite",

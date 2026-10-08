@@ -730,6 +730,7 @@
   "tab-maps": "Mapy",
   "tab-page": "Strana",
   "tab-map-view": "Zobrazení na mapě",
+  "open-in-georeferencer": "Otevřít v georeferenceru",
   "georeference-viewer.opacity": "Průhlednost",
   "viewer-controls.background-removal": "Odstranit pozadí",
   "page_type.unknown": "strana",
