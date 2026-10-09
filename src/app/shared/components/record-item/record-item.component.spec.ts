@@ -92,7 +92,7 @@ describe('RecordItemComponent (OnPush + shared favourite state)', () => {
         provideRouter([]),
         provideMockStore({ initialState: {} }),
         { provide: FavoritesService, useValue: favoritesServiceStub },
-        { provide: FolderItemsService, useValue: { getFolderIdsContainingItem: () => of([]) } },
+        { provide: FolderItemsService, useValue: { getOwnedFolderIdsContainingItem: () => of([]) } },
         { provide: AdminModeService, useValue: adminModeStub },
         { provide: EnvironmentService, useValue: { getApiUrl: () => 'https://api.test' } },
         { provide: PopupPositioningService, useValue: { createPopupState: () => ({}), cleanup: () => {} } },

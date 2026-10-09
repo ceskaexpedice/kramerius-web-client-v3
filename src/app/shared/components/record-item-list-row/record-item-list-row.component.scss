@@ -148,6 +148,34 @@ td {
   width: 1%;
   white-space: nowrap;
   text-align: right;
+
+  .button ~ .button {
+    margin-left: var(--spacing-x2);
+  }
+}
+
+// Favorites popup (remove mode) — fixed-positioned next to the trash button,
+// same as on the grid card.
+.favorites-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: z.$record-item-favorites-popup;
+  pointer-events: auto;
+  text-align: left;
+  white-space: normal;
+  cursor: default;
+  opacity: 0; // Start hidden to prevent flicker
+  transition: opacity 0.1s ease;
+
+  &.positioned {
+    opacity: 1;
+  }
+
+  app-favorites-popup {
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
 }
 
 .author-not-filled {

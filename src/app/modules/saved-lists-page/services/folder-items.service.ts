@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, map } from 'rxjs';
+import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
 import * as FoldersSelectors from '../state/folders.selectors';
 
 @Injectable({
@@ -45,6 +45,24 @@ export class FolderItemsService {
         }
         return folderIds;
       })
+    );
+  }
+
+  /**
+   * IDs of the user's OWN folders that contain the item. Followed/shared
+   * folders aren't editable, so they're left out — this is what decides whether
+   * the "remove from my library" action is offered at all.
+   */
+  getOwnedFolderIdsContainingItem(itemId: string): Observable<string[]> {
+    return combineLatest([
+      this.getFolderIdsContainingItem(itemId),
+      this.store.select(FoldersSelectors.selectUserOwnedFolders)
+    ]).pipe(
+      map(([folderIds, ownedFolders]) => {
+        const ownedIds = new Set(ownedFolders.map(f => f.uuid));
+        return folderIds.filter(id => ownedIds.has(id));
+      }),
+      distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i]))
     );
   }
 

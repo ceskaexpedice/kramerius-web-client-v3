@@ -28,6 +28,7 @@
       [record]="record"
       [visibleColumns]="visibleColumns"
       [highlighted]="exportedRecord?.pid === record.pid"
+      [currentFolderId]="currentFolderId"
       (downloadClicked)="onDownloadClicked($event)">
     </tr>
     }

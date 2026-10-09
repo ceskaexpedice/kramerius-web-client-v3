@@ -149,7 +149,11 @@
           border-color: var(--color-border-secondary-hover);
         }
 
-        &.favorited {
+        // A saved item keeps its filled heart and its trash visible at rest, so
+        // "remove from my library" is discoverable without hovering the card
+        // (and reachable at all on touch screens, which have no hover).
+        &.favorited,
+        &.remove-button {
           opacity: 1;
         }
 
