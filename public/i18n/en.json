@@ -238,6 +238,7 @@
   "search-saved-lists": "Search",
   "create-new-list--label": "Or create list",
   "create-new-list--placeholder": "Enter a name",
+  "create-new-list--button": "New list",
   "my-saved-lists": "My lists",
   "done": "Done",
   "add-to-favorites-success--header": "Done!",

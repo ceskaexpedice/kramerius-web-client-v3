@@ -13,7 +13,7 @@ import {TranslatePipe} from '@ngx-translate/core';
   ],
   template: `
     <app-base-popup
-      [title]="'edit-title' | translate"
+      [title]="title | translate"
       [width]="'300px'"
       [confirmDisabled]="!currentTitle().trim()"
       (cancel)="onCancel()"
@@ -23,7 +23,8 @@ import {TranslatePipe} from '@ngx-translate/core';
         [theme]="'dark'"
         [size]="'sm'"
         [type]="'text'"
-        [placeholder]="'enter-new-title' | translate"
+        [placeholder]="placeholder | translate"
+        [autofocus]="true"
         [signalInput]="currentTitle"
         (enter)="onConfirm()"
       />
@@ -34,6 +35,8 @@ import {TranslatePipe} from '@ngx-translate/core';
 })
 export class TitleEditPopupComponent implements OnInit {
   @Input() initialTitle: string = '';
+  @Input() title = 'edit-title';
+  @Input() placeholder = 'enter-new-title';
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<string>();
 

@@ -58,6 +58,16 @@
     aspect-ratio: var(--card-width) / var(--card-height-with-badge);
   }
 
+  // On the saved-lists page every item is saved, so the "visible at rest" rule
+  // below would pin the heart and trash on every card — keep them hover-only
+  // there, like the other card actions.
+  &.in-folder:not(:hover):not(:focus-within) .record-item-card__image .record-item-card__actions .favorites-button {
+    &.favorited,
+    &.remove-button {
+      opacity: 0;
+    }
+  }
+
   .record-item-card__inner {
     padding: var(--spacing-x2) var(--spacing-x2) var(--spacing-x3) var(--spacing-x2);
     display: flex;

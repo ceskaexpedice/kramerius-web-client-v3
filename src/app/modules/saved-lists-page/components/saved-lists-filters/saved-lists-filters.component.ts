@@ -1,4 +1,4 @@
-import {Component, inject, Input, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -79,6 +79,11 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
         color: var(--color-text-base);
       }
     }
+
+    .new-list-button {
+      align-self: flex-start;
+      margin-top: var(--spacing-x1);
+    }
   `,
   imports: [
     TranslatePipe,
@@ -121,6 +126,12 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
           </div>
         }
 
+        <button type="button" class="button link primary with-icon p-left-0 new-list-button"
+                (click)="newListRequested.emit($event)">
+          <i class="icon-add-square" aria-hidden="true"></i>
+          {{ 'create-new-list--button' | translate }}
+        </button>
+
       </app-collapsible-category>
 
       <app-collapsible-category
@@ -161,6 +172,7 @@ import {APP_ROUTES_ENUM} from '../../../../app.routes';
 export class SavedListsFiltersComponent {
 
   @Input() activeFolder: FolderDetails | null = {} as FolderDetails;
+  @Output() newListRequested = new EventEmitter<Event>();
 
   private store = inject(Store);
   private router = inject(Router);
