@@ -125,6 +125,60 @@ describe('SolrService periodical children query — cdk.collection scoping', () 
   });
 });
 
+describe('SolrService periodical search scope', () => {
+  let service: SolrService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function qOfSearch(scopePidPath: string): string {
+    service.searchPeriodicals(scopePidPath, 'dolanský', [], {}, 0, 60, SolrSortFields.relevance, SolrSortDirections.desc,
+      '', true, true, false
+    ).subscribe();
+    const req = httpMock.expectOne(() => true);
+    const q = req.request.params.get('q') ?? '';
+    req.flush({ response: { docs: [], numFound: 0 } });
+    return q;
+  }
+
+  it('scopes a root periodical by root.pid', () => {
+    const q = qOfSearch('uuid:root');
+    expect(q).toContain('root.pid:uuid\\:root');
+    expect(q).not.toContain('pid_paths:');
+  });
+
+  // Pages of a volume carry the periodical's root.pid, so root.pid:<volume> found nothing (issue #143).
+  it('scopes a volume by its pid_paths prefix, not root.pid', () => {
+    const q = qOfSearch('uuid:root/uuid:volume');
+    expect(q).toContain('pid_paths:uuid\\:root/uuid\\:volume*');
+    expect(q).not.toContain('root.pid:');
+  });
+
+  it('getOwnPidPath returns the document own_pid_path', () => {
+    let path = '';
+    service.getOwnPidPath('uuid:volume').subscribe(p => path = p);
+    const req = httpMock.expectOne(() => true);
+    expect(req.request.params.get('q')).toEqual('pid:"uuid:volume"');
+    req.flush({ response: { docs: [{ own_pid_path: 'uuid:root/uuid:volume' }], numFound: 1 } });
+    expect(path).toEqual('uuid:root/uuid:volume');
+  });
+
+  it('getOwnPidPath falls back to the pid when the document has no path', () => {
+    let path = '';
+    service.getOwnPidPath('uuid:root').subscribe(p => path = p);
+    httpMock.expectOne(() => true).flush({ response: { docs: [], numFound: 0 } });
+    expect(path).toEqual('uuid:root');
+  });
+});
+
 describe('SolrService.getConvolutePages', () => {
   let service: SolrService;
   let httpMock: HttpTestingController;

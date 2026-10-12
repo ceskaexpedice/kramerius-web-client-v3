@@ -42,7 +42,9 @@ export class PeriodicalSearchEffects {
           userLicenses: this.userService.licenses
         };
 
-        const results$ = this.solr.searchPeriodicals(uuid, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false, availabilityFilter).pipe(
+        // uuid may be a volume/issue, not the periodical root — scope by its pid path.
+        const results$ = this.solr.getOwnPidPath(uuid).pipe(
+          switchMap(pidPath => this.solr.searchPeriodicals(pidPath, query, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery, true, true, false, availabilityFilter)),
           shareReplay(1)
         );
 

@@ -483,7 +483,31 @@ export class SolrService {
     return this.http.get<SearchResultResponse>(this.API_URL, { params });
   }
 
-  searchPeriodicals(rootUuid: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 180, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
+  /**
+   * Resolves a document's `own_pid_path` (e.g. `uuid:root/uuid:volume`), used to
+   * scope a search to that document's subtree. Falls back to the pid itself, which
+   * is also the path of a root document.
+   */
+  getOwnPidPath(pid: string): Observable<string> {
+    const params = this.createHttpParams({
+      q: `pid:"${pid}"`,
+      fl: 'own_pid_path',
+      rows: 1,
+      wt: 'json'
+    });
+    return this.http.get<SearchResultResponse>(this.API_URL, { params }).pipe(
+      map(res => (res.response?.docs?.[0] as any)?.['own_pid_path'] || pid),
+      catchError(() => of(pid))
+    );
+  }
+
+  /**
+   * Search within a periodical subtree. `scopePidPath` is the scoped document's
+   * own_pid_path: a root periodical (path == pid) is scoped by `root.pid`; a volume
+   * or issue by a `pid_paths:<path>*` prefix, since its pages carry the periodical's
+   * root.pid, not the volume's.
+   */
+  searchPeriodicals(scopePidPath: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 180, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
     includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
     console.log('solr search periodicals')
@@ -518,7 +542,11 @@ export class SolrService {
       }
     }
 
-    let params = this.createHttpParams(paramsObject).set('q', this.buildQParam(query, advancedQuery, false, includePage, true, rootUuid));
+    const isRootScope = !scopePidPath.includes('/');
+    const q = isRootScope
+      ? this.buildQParam(query, advancedQuery, false, includePage, true, scopePidPath)
+      : this.buildQParam(query, advancedQuery, false, includePage, true, null, null, true, true, [scopePidPath]);
+    let params = this.createHttpParams(paramsObject).set('q', q);
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
     // Add availability filter with tag if active
