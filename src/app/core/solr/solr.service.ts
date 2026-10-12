@@ -1195,7 +1195,7 @@ export class SolrService {
     let httpParams = new HttpParams({
       fromObject: {
         q: query,
-        fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors,ds.img_full.mime,part.number.sort,own_parent.pid',
+        fl: 'pid,accessibility,model,title.search,date.str,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length,root.pid,root.title,authors,ds.img_full.mime,part.number.sort,own_parent.pid',
         rows: '10000',
         sort
       }

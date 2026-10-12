@@ -160,4 +160,33 @@ describe('RecordItemComponent (OnPush + shared favourite state)', () => {
 
     expect(fixture.nativeElement.querySelector('.favorites-button.favorited')).not.toBeNull();
   });
+
+  // Multivolume monograph volumes (issue #190): the year gets its own line in
+  // place of the title's third line, instead of trailing the clamped authors.
+  describe('dateBelowTitle', () => {
+    const withDate = (dateBelowTitle: boolean) => {
+      host.item = {
+        ...host.item!,
+        authors: ['Palacký, František, 1798-1876'],
+        date: '1936',
+        dateBelowTitle,
+      } as RecordItem;
+      fixture.detectChanges();
+    };
+    const el = (sel: string) => fixture.nativeElement.querySelector(sel);
+
+    it('renders the year on its own line under the title', () => {
+      withDate(true);
+      expect(el('.record-item-card')!.classList).toContain('date-below-title');
+      expect(el('.record-item-card__year')?.textContent.trim()).toBe('1936');
+      expect(el('.authors')?.textContent).not.toContain('1936');
+    });
+
+    it('keeps the year after the authors by default', () => {
+      withDate(false);
+      expect(el('.record-item-card')!.classList).not.toContain('date-below-title');
+      expect(el('.record-item-card__year')).toBeNull();
+      expect(el('.authors')?.textContent).toContain('1936');
+    });
+  });
 });

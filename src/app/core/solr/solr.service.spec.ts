@@ -203,6 +203,13 @@ describe('SolrService.getConvolutePages', () => {
 
   const page = (pid: string, parent: string) => ({ pid, model: 'page', 'own_parent.pid': parent });
 
+  it('requests date.str for children so volume cards can show the year (issue #190)', () => {
+    service.getChildrenByModel('uuid:root').subscribe();
+    const req = httpMock.expectOne(r => r.params.get('q')?.includes(childrenClause('uuid:root')) ?? false);
+    expect(req.request.params.get('fl')?.split(',')).toContain('date.str');
+    req.flush({ response: { docs: [] } });
+  });
+
   it('concatenates each bound work\'s pages in binding order', () => {
     let result: any[] | undefined;
     service.getConvolutePages('uuid:conv').subscribe(pages => (result = pages));

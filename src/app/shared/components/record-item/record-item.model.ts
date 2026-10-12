@@ -30,6 +30,9 @@ export interface RecordItem {
   /** Date string for subtitle display */
   date?: string;
 
+  /** Show `date` on its own line under a 2-line title instead of after the authors */
+  dateBelowTitle?: boolean;
+
   /** Parent PID for pages (special URL handling) */
   ownParentPid?: string;
 

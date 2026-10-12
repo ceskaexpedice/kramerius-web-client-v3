@@ -3,7 +3,7 @@
   [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="adminModeService.adminMode()"
   [class.selected]="item && adminModeService.adminMode() && adminModeService.isSelected(item.id)"
   [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'" [class.vertical]="layout === 'vertical'"
-  [class.variant-portrait]="variant === 'portrait'" [class.in-folder]="!!currentFolderId" [ngClass]="[item?.className || '', item?.model || '']"
+  [class.variant-portrait]="variant === 'portrait'" [class.date-below-title]="!!item?.dateBelowTitle" [class.in-folder]="!!currentFolderId" [ngClass]="[item?.className || '', item?.model || '']"
   [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
   (click)="!loading && item && onRecordClick($event)">
 
@@ -80,17 +80,20 @@
         <div class="title" [title]="getTitle()">{{ getTitle() }}</div>
         <ng-content select="[recordTitleSuffix]"></ng-content>
       </div>
+      @if (item.dateBelowTitle && item.date) {
+      <div class="record-item-card__year">{{ item.date }}</div>
+      }
       }
 
       <!-- SUBTITLE / AUTHORS -->
       @if (loading || !item) {
       <div class="skeleton skeleton-text subtitle-skeleton"></div>
       } @else {
-      <div class="subtitle" *ngIf="item && (getSubtitle() || (item.authors?.length || item.date))">
+      <div class="subtitle" *ngIf="item && (getSubtitle() || (item.authors?.length || (item.date && !item.dateBelowTitle)))">
         {{getSubtitle()}}
 
-        <span class="authors" *ngIf="item.authors?.length || item.date">
-          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{
+        <span class="authors" *ngIf="item.authors?.length || (item.date && !item.dateBelowTitle)">
+          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date && !item.dateBelowTitle">{{ item.authors?.length ? ', ' : '' }}{{
             item.date }}</span>
         </span>
       </div>

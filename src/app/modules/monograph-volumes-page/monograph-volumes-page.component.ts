@@ -6,7 +6,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
-import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { RecordItem } from '../../shared/components/record-item/record-item.model';
+import { monographVolumeToRecordItem } from './monograph-volume-record-item';
 import * as MonographVolumesSelectors from '../../shared/state/monograph-volumes/monograph-volumes.selectors';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
@@ -78,7 +79,7 @@ export class MonographVolumesPageComponent implements OnInit {
   // Computed values
   volumeItems = computed<RecordItem[]>(() => {
     const vols = this.volumes() || [];
-    return vols.map(vol => searchDocumentToRecordItem(vol));
+    return vols.map(vol => monographVolumeToRecordItem(vol));
   });
 
   constructor(

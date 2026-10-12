@@ -56,6 +56,11 @@
       }
     }
 
+    &.date-below-title .record-item-card__content .title {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
     // Access label inline within content on mobile
     .access-label {
       position: static;

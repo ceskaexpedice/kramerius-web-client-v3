@@ -286,6 +286,19 @@
     .date {
       white-space: nowrap;
     }
+
+    .record-item-card__year {
+      font-size: var(--font-size-small);
+      line-height: calc(20px * var(--accessibility-text-scale));
+      flex-shrink: 0;
+    }
+  }
+
+  // The year takes the title's third line (multivolume monograph volumes, #190).
+  &.date-below-title .record-item-card__content .title {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    max-height: calc(40px * var(--accessibility-text-scale));
   }
 
   .record-item-card__badges {
