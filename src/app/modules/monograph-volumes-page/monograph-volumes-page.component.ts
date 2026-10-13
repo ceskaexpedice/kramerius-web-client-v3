@@ -26,6 +26,7 @@ import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
+import {NoResultsComponent} from '../../shared/components/no-results/no-results.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {SkeletonListPipe} from '../../shared/pipes/skeleton-list.pipe';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
@@ -49,6 +50,7 @@ import {SearchDocument} from '../models/search-document';
     PaginatorComponent,
     ResultsSortComponent,
     SkeletonListPipe,
+    NoResultsComponent,
   ],
   providers: [
     MonographVolumesService,

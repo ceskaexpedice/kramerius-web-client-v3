@@ -9,6 +9,7 @@ import {
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { FilterSidebarComponent } from '../search-results-page/components/filter-sidebar/filter-sidebar.component';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { NoResultsComponent } from '../../shared/components/no-results/no-results.component';
 import { PaginatorInfoComponent } from '../../shared/components/paginator-info/paginator-info.component';
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
 import { RecordItemListComponent } from '../../shared/components/record-item-list/record-item-list.component';
@@ -57,6 +58,7 @@ const routes: Routes = [
     NgForOf,
     NgIf,
     PaginatorComponent,
+    NoResultsComponent,
     PaginatorInfoComponent,
     RecordItemComponent,
     RecordItemListComponent,

@@ -310,6 +310,13 @@
           }
         </ng-container>
 
+        <!-- Empty state: a search term or filter left the list with no matches -->
+        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async }; as empty) {
+          @if (!empty.loading && empty.count === 0 && (empty.query || empty.tags?.length)) {
+            <app-no-results [term]="empty.query"></app-no-results>
+          }
+        }
+
         <!-- Classic paginator over the combined titles+pages window, same as
              the search-results page. -->
         <app-paginator [page]="(page$ | async) ?? 1"

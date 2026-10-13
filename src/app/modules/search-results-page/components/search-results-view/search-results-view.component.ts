@@ -14,7 +14,7 @@ import { RecordItemListComponent } from '../../../../shared/components/record-it
 import { SelectedTagsComponent } from '../../../../shared/components/selected-tags/selected-tags.component';
 import { PaginatorComponent } from '../../../../shared/components/paginator/paginator.component';
 import { AdvancedSearchIndicatorComponent } from '../advanced-search-indicator/advanced-search-indicator.component';
-import { NoResultsComponent } from '../no-results/no-results.component';
+import { NoResultsComponent } from '../../../../shared/components/no-results/no-results.component';
 import { RecordExportPanelComponent } from '../../../../shared/components/record-export-panel/record-export-panel.component';
 import { TabsComponent } from '../../../../shared/components/tabs/tabs.component';
 import { TabItemComponent } from '../../../../shared/components/tabs/tab-item.component';

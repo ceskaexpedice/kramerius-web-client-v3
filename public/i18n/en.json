@@ -731,6 +731,7 @@
   "authors-dialog--col-identifiers": "Identifiers",
   "authors-dialog--identifier-link-label": "Authority record {{value}} (opens in a new window)",
   "authors-more": "more",
+  "search-no-results.title": "We found nothing",
   "search-no-results.title-prefix": "We found nothing for the term",
   "search-no-results.description-prefix": "Please check whether the searched term is",
   "search-no-results.description-bold": "spelled correctly.",

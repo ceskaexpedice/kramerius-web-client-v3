@@ -72,6 +72,10 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   page$ = this.route.queryParams.pipe(map(p => Math.max(1, Number(p['page']) || 1)));
   pageSize$ = this.route.queryParams.pipe(map(p => Number(p['pageSize']) || 60));
 
+  // Submitted free-text query from the URL (not the live input), so the empty
+  // state names the term the results actually belong to.
+  submittedQuery$ = this.route.queryParams.pipe(map(p => String(p['query'] ?? '').trim()));
+
   // Active facet/range filters rendered as removable tags above the results,
   // mirroring the search-results page. Assigned in the constructor so the
   // filter service is available.

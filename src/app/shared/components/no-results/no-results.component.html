@@ -5,7 +5,11 @@
 
   <div class="no-results__content">
     <h2 class="no-results__title">
-      {{ 'search-no-results.title-prefix' | translate }}&nbsp;<span class="no-results__term">„{{ searchService.submittedTerm }}"</span>
+      @if (term()) {
+        {{ 'search-no-results.title-prefix' | translate }}&nbsp;<span class="no-results__term">„{{ term() }}"</span>
+      } @else {
+        {{ 'search-no-results.title' | translate }}
+      }
     </h2>
 
     <p class="no-results__body">

@@ -79,6 +79,7 @@ export class PeriodicalService extends BaseFilterService {
   metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
   searchResults$ = this.store.select(selectPeriodicalSearchStateResults);
+  searchLoading$ = this.store.select(selectPeriodicalSearchStateLoading);
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
   private metadataSignal = toSignal(this.metadata$, { initialValue: null });

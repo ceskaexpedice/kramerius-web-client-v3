@@ -105,7 +105,7 @@
                     (pageSizeChange)="monographVolumesService.changePageSize($event)">
                   </app-paginator>
                 } @else {
-                  <p class="no-volumes">{{ 'no-volumes-found' | translate }}</p>
+                  <app-no-results [term]="monographVolumesService.submittedTerm"></app-no-results>
                 }
               }
             } @else {

@@ -718,6 +718,7 @@
   "authors-dialog--col-identifiers": "Identifikatoren",
   "authors-dialog--identifier-link-label": "Normdatensatz {{value}} (wird in einem neuen Fenster geöffnet)",
   "authors-more": "mehr",
+  "search-no-results.title": "Wir haben nichts gefunden",
   "search-no-results.title-prefix": "Wir haben nichts gefunden für den Begriff",
   "search-no-results.description-prefix": "Bitte prüfen Sie, ob der gesuchte Begriff",
   "search-no-results.description-bold": "richtig geschrieben ist.",

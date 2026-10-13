@@ -3,6 +3,7 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {PeriodicalService} from '../../../../shared/services/periodical.service';
 import {RecordItemComponent} from '../../../../shared/components/record-item/record-item.component';
 import {PaginatorComponent} from '../../../../shared/components/paginator/paginator.component';
+import {NoResultsComponent} from '../../../../shared/components/no-results/no-results.component';
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {SearchDocument} from '../../../models/search-document';
 import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
@@ -17,6 +18,7 @@ import { parseIssueDateStr } from '../../../../shared/utils/periodical-date';
     RecordItemComponent,
     NgForOf,
     PaginatorComponent,
+    NoResultsComponent,
   ],
   templateUrl: './periodical-search-results.component.html',
   styleUrl: './periodical-search-results.component.scss'
