@@ -87,13 +87,11 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
     isRefreshing = true;
     refreshTokenSubject.next(null);
 
+    // catchError must sit BEFORE switchMap: only a failed refresh means the
+    // session is gone. Once it succeeds, an error from the retried request (a 403
+    // for a restricted page, a 404 for a missing datastream) is that request's
+    // own failure and must reach the caller without ending the session.
     return authService.refreshToken().pipe(
-      switchMap((tokens) => {
-        isRefreshing = false;
-        isLoggingOut = false;
-        refreshTokenSubject.next(tokens.accessToken);
-        return next(addTokenToRequest(req, tokens.accessToken));
-      }),
       catchError((error) => {
         isRefreshing = false;
         // refreshToken() already logs out on failure; guard against a second,
@@ -103,6 +101,12 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
           authService.logout();
         }
         return throwError(() => error);
+      }),
+      switchMap((tokens) => {
+        isRefreshing = false;
+        isLoggingOut = false;
+        refreshTokenSubject.next(tokens.accessToken);
+        return next(addTokenToRequest(req, tokens.accessToken));
       })
     );
   } else {

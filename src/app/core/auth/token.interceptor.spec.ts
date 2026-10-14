@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Observable, of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { tokenInterceptor } from './token.interceptor';
@@ -24,7 +25,11 @@ describe('tokenInterceptor origin scoping', () => {
   let refreshCalls: number;
   let logoutCalls: number;
 
-  function setup(): { http: HttpClient; httpMock: HttpTestingController } {
+  function setup(
+    refresh: () => Observable<{ accessToken: string }> = () => {
+      throw new Error('refresh must not be attempted here');
+    },
+  ): { http: HttpClient; httpMock: HttpTestingController } {
     refreshCalls = 0;
     logoutCalls = 0;
 
@@ -40,7 +45,7 @@ describe('tokenInterceptor origin scoping', () => {
             isTokenExpired: () => false,
             refreshToken: () => {
               refreshCalls++;
-              throw new Error('refresh must not be attempted here');
+              return refresh();
             },
             logout: () => { logoutCalls++; },
           },
@@ -112,6 +117,49 @@ describe('tokenInterceptor origin scoping', () => {
     const req = httpMock.expectOne('/search/api/client/v7.0/user');
     expect(req.request.headers.get('Authorization')).toBe('Bearer cdk-token');
     req.flush({});
+
+    httpMock.verify();
+  });
+
+  /**
+   * Once the refresh has succeeded the session is fine, so whatever the retried
+   * request answers — a 403 for a restricted page, a 404 for a missing
+   * datastream, even a second 401 — is that request's own failure, not a reason
+   * to end the session.
+   */
+  it('does not log out when the request retried after a successful refresh fails', () => {
+    const { http, httpMock } = setup(() => of({ accessToken: 'new-token' }));
+
+    const ownUrl = `${API_ORIGIN}/search/api/client/v7.0/items/knav/uuid:1/ocr/alto`;
+    let capturedError: unknown = null;
+    http.get(ownUrl).subscribe({
+      next: () => fail('expected the retried request to fail'),
+      error: (err) => { capturedError = err; },
+    });
+
+    httpMock.expectOne(ownUrl).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    const retry = httpMock.expectOne(ownUrl);
+    expect(retry.request.headers.get('Authorization')).toBe('Bearer new-token');
+    retry.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+
+    expect(refreshCalls).toBe(1);
+    expect(logoutCalls).toBe(0);
+    expect((capturedError as { status?: number } | null)?.status).toBe(403);
+
+    httpMock.verify();
+  });
+
+  it('logs out when the refresh itself fails', () => {
+    const { http, httpMock } = setup(() => throwError(() => new Error('refresh failed')));
+
+    const ownUrl = `${API_ORIGIN}/search/api/client/v7.0/user`;
+    http.get(ownUrl).subscribe({ error: () => {} });
+
+    httpMock.expectOne(ownUrl).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    expect(refreshCalls).toBe(1);
+    expect(logoutCalls).toBe(1);
 
     httpMock.verify();
   });
