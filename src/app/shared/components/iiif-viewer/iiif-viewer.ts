@@ -449,10 +449,20 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * It goes away on whichever comes first:
    * - the viewport is not at the home view (a locked zoom was restored), so
    *   the thumbnail is out of place from the start;
-   * - the first pan or zoom, for the same reason;
-   * - OpenSeadragon has loaded a whole pyramid level at least as wide as the
+   * - the first pan or zoom, for the same reason — but only once the canvas
+   *   has drawn some of the page, so the viewer never goes blank;
+   * - OpenSeadragon has drawn a whole pyramid level at least as wide as the
    *   thumbnail, so the canvas already paints the page as sharp as the
    *   thumbnail would.
+   *
+   * Every check runs on `update-viewport`, which OpenSeadragon raises right
+   * after it has drawn a frame, and looks at `tile.beingDrawn` (set for the
+   * tiles in that frame). A loaded tile is not yet a drawn one: the WebGL
+   * drawer may still be preparing it, and a tile-loaded based check cleared
+   * the background a few frames before the canvas had anything on it — the
+   * blank flash between thumbnail and page. A pan or zoom without anything
+   * drawn yet did the same; OpenSeadragon raises those itself when the
+   * layout around the viewer settles and resizes it.
    */
   private watchThumbnailPlaceholder(): void {
     this.stopThumbnailWatch?.();
@@ -467,40 +477,47 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    const onViewportChange = () => this.clearThumbnailBackground();
+    let viewportChanged = false;
+    const onViewportChange = () => { viewportChanged = true; };
     viewer.addHandler('pan', onViewportChange);
     viewer.addHandler('zoom', onViewportChange);
 
-    // Loaded tile coordinates per pyramid level, for the current page only.
+    // Loaded tiles per pyramid level, for the current page only.
     const tiledImage = viewer.world.getItemAt(0);
-    const loadedTiles = new Map<number, Set<string>>();
+    const loadedTiles = new Map<number, Set<OpenSeadragon.Tile>>();
     let targetLevel: number | null = null;
-    let cancelled = false;
 
+    const anyDrawn = (): boolean => {
+      for (const tiles of loadedTiles.values()) {
+        for (const tile of tiles) if (tile.beingDrawn) return true;
+      }
+      return false;
+    };
     const isCovered = (): boolean => {
       if (!tiledImage || targetLevel === null) return false;
       for (const [level, tiles] of loadedTiles) {
         if (level < targetLevel) continue;
         const grid = tiledImage.source.getNumTiles(level);
-        if (tiles.size >= grid.x * grid.y) return true;
+        let drawn = 0;
+        for (const tile of tiles) if (tile.beingDrawn) drawn++;
+        if (drawn >= grid.x * grid.y) return true;
       }
       return false;
     };
-    const clearIfCovered = () => {
-      // The tile is drawn on the next frame, so the background must outlive it by one.
-      if (!cancelled && isCovered()) requestAnimationFrame(() => this.clearThumbnailBackground());
+
+    // Same task as the draw, so the browser paints the drawn canvas and the
+    // removed background together.
+    const onFrameDrawn = () => {
+      if ((viewportChanged && anyDrawn()) || isCovered()) this.clearThumbnailBackground();
     };
+    viewer.addHandler('update-viewport', onFrameDrawn);
 
     const onTileLoaded = (e: any) => {
       if (e.tiledImage !== tiledImage) return;
-      const tile = e.tile;
-      // Not awaited: the event docs warn that awaiting it in the handler deadlocks.
-      Promise.resolve(e.promise).then(() => {
-        let tiles = loadedTiles.get(tile.level);
-        if (!tiles) loadedTiles.set(tile.level, tiles = new Set());
-        tiles.add(`${tile.x},${tile.y}`);
-        clearIfCovered();
-      });
+      const tile: OpenSeadragon.Tile = e.tile;
+      let tiles = loadedTiles.get(tile.level);
+      if (!tiles) loadedTiles.set(tile.level, tiles = new Set());
+      tiles.add(tile);
     };
     if (tiledImage) viewer.addHandler('tile-loaded', onTileLoaded);
 
@@ -510,15 +527,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     thumbnail.onload = () => {
       if (!tiledImage) return;
       targetLevel = this.levelMatchingWidth(tiledImage.source, thumbnail.naturalWidth);
-      clearIfCovered();
     };
     thumbnail.src = thumbnailUrl;
 
     this.stopThumbnailWatch = () => {
-      cancelled = true;
       thumbnail.onload = null;
       viewer.removeHandler('pan', onViewportChange);
       viewer.removeHandler('zoom', onViewportChange);
+      viewer.removeHandler('update-viewport', onFrameDrawn);
       viewer.removeHandler('tile-loaded', onTileLoaded);
       this.stopThumbnailWatch = null;
     };
