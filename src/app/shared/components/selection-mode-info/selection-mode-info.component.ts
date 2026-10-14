@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-again.service';
@@ -16,8 +16,6 @@ import { DontShowAgainService, DontShowDialogs } from '../../services/dont-show-
   },
 })
 export class SelectionModeInfoComponent implements OnInit {
-  @Output() editSelection = new EventEmitter<void>();
-
   private dontShowAgainService = inject(DontShowAgainService);
 
   showTip = signal(true);
@@ -27,9 +25,10 @@ export class SelectionModeInfoComponent implements OnInit {
     this.showTip.set(this.dontShowAgainService.shouldShowDialog(DontShowDialogs.SelectionTip));
   }
 
-  onEditSelection(): void {
+  /** Only acknowledges the tip — the selected area stays as it is. */
+  onConfirm(): void {
     this.saveDontShowPreference();
-    this.editSelection.emit();
+    this.showTip.set(false);
   }
 
   onDontShowAgainChange(checked: boolean): void {

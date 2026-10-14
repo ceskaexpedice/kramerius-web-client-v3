@@ -308,7 +308,7 @@
               @let isDragging = iiifViewerService.isDragging$ | async;
               @let hasSelection = iiifViewerService.selectedArea$ | async;
               @if (!isDragging && !!hasSelection) {
-                <app-selection-mode-info (editSelection)="iiifViewerService.clearSelectedArea()">
+                <app-selection-mode-info>
                 </app-selection-mode-info>
               }
             }

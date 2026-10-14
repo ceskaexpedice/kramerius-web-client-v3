@@ -824,6 +824,7 @@
   "ai.login-register-link": "Jak mogę się zarejestrować i co zyskam?",
   "ai.login-button": "Zaloguj się",
   "ai.quota-exceeded": "Miesięczny limit funkcji AI został wyczerpany. Spróbuj ponownie później.",
+  "ai.no-text-in-selection": "W zaznaczonym obszarze nie znaleziono tekstu.",
   "ai.unauthorized": "Usługa AI nie mogła autoryzować tego żądania. Spróbuj ponownie później.",
   "settings.tts.language": "Język",
   "settings.tts.voice": "Głos",

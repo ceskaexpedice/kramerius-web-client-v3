@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { AltoService, AltoTextBlock } from './alto.service';
+import { AltoService, AltoTextBlock, TextRegion } from './alto.service';
 import { AiApiService, TtsProvider, isQuotaExceeded } from './ai-api.service';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { IIIFViewerService } from './iiif-viewer.service';
@@ -43,6 +43,11 @@ export class TtsService {
   private _documentUuid = signal<string | null>(null);
   private _playbackBlocked = signal(false);
   private _error = signal<string | null>(null);
+  /**
+   * Selected area being read, or null for whole pages. A region is read once
+   * and reading stops there instead of moving on to the next page.
+   */
+  private region: TextRegion | null = null;
 
   // Public readonly signals
   readonly isReading = this._isReading.asReadonly();
@@ -88,8 +93,9 @@ export class TtsService {
 
   // --- Public API ---
 
-  startReading(pagePid: string, documentUuid?: string): void {
+  startReading(pagePid: string, documentUuid?: string, region?: TextRegion | null): void {
     this.stop();
+    this.region = region ?? null;
     // Cleared here rather than in stop(), so the reason for an aborted run
     // survives the stop() that aborting itself performs.
     this._error.set(null);
@@ -152,6 +158,7 @@ export class TtsService {
     this._blocks.set([]);
     this._detectedLanguage.set(null);
     this._documentUuid.set(null);
+    this.region = null;
 
     this.iiifViewerService.clearTtsHighlight();
   }
@@ -201,8 +208,12 @@ export class TtsService {
   private loadPageAndRead(pagePid: string): void {
     // Falls back to /ocr/text on pages without ALTO; those blocks carry no
     // geometry, so reading works and only the on-page highlight is lost.
-    this.altoService.fetchBlocksForReading(pagePid).pipe(take(1)).subscribe({
+    this.altoService.fetchBlocksForReading(pagePid, this.region).pipe(take(1)).subscribe({
       next: (blocks) => {
+        if (blocks.length === 0 && this.region) {
+          this.abortWithError('ai.no-text-in-selection');
+          return;
+        }
         if (blocks.length === 0) {
           // No text on this page, try next page
           this.advanceToNextPage();
@@ -436,6 +447,12 @@ export class TtsService {
 
   private advanceToNextPage(): void {
     if (!this._isReading()) return;
+
+    // A selected area is read on its own; the next page is not part of it.
+    if (this.region) {
+      this.stop();
+      return;
+    }
 
     const pages = this.detailViewService.pages;
     const currentPid = this._currentPagePid();

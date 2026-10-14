@@ -112,3 +112,80 @@ describe('AiPanelService summary language', () => {
   });
 
 });
+
+describe('AiPanelService with a selected area', () => {
+  let service: AiPanelService;
+  let askLLM: jasmine.Spy;
+  let translate: jasmine.Spy;
+  let fetchPageText: jasmine.Spy;
+  let fetchRegionText: jasmine.Spy;
+  const region = { box: [0, 0, 100, 100], imageWidth: 1000, imageHeight: 1000 };
+
+  function configure(regionText = 'selected text'): AiPanelService {
+    askLLM = jasmine.createSpy('askLLM').and.returnValue(of('a summary'));
+    translate = jasmine.createSpy('translate').and.returnValue(of('translated'));
+    fetchPageText = jasmine.createSpy('fetchPageText').and.returnValue(of({ text: 'whole page', html: '<p>whole page</p>' }));
+    fetchRegionText = jasmine.createSpy('fetchRegionText').and.returnValue(of({ text: regionText, html: '' }));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AiPanelService,
+        { provide: AltoService, useValue: { fetchPageText, fetchRegionText } },
+        { provide: AiApiService, useValue: { askLLM, translate } },
+        { provide: LocalStorageService, useValue: { get: () => null, set: () => {} } },
+        { provide: TranslateService, useValue: {
+          getCurrentLang: () => 'cs',
+          getDefaultLang: () => 'cs',
+          instant: (key: string) => key,
+        } },
+      ],
+    });
+    return TestBed.inject(AiPanelService);
+  }
+
+  it('summarises only the selected area', () => {
+    service = configure();
+    service.showSummary('uuid:page-1', region);
+
+    expect(fetchRegionText).toHaveBeenCalledWith('uuid:page-1', region);
+    expect(fetchPageText).not.toHaveBeenCalled();
+    expect(askLLM.calls.mostRecent().args[0]).toBe('selected text');
+  });
+
+  it('translates only the selected area, as plain text', () => {
+    service = configure();
+    service.showTranslation('uuid:page-1', 'en', region);
+
+    expect(fetchPageText).not.toHaveBeenCalled();
+    expect(translate).toHaveBeenCalledWith('selected text', 'en', 'google', 'text');
+    expect(service.content()).toBe('translated');
+  });
+
+  it('keeps the area when the language is changed', () => {
+    service = configure();
+    service.showTranslation('uuid:page-1', 'en', region);
+
+    service.retranslate('de');
+
+    expect(fetchRegionText).toHaveBeenCalledTimes(2);
+    expect(fetchPageText).not.toHaveBeenCalled();
+  });
+
+  it('works on the whole page without a selection', () => {
+    service = configure();
+    service.showSummary('uuid:page-1');
+
+    expect(fetchPageText).toHaveBeenCalled();
+    expect(fetchRegionText).not.toHaveBeenCalled();
+    expect(service.currentRegion()).toBeNull();
+  });
+
+  it('reports an empty selection instead of falling back to the page', () => {
+    service = configure('');
+    service.showSummary('uuid:page-1', region);
+
+    expect(askLLM).not.toHaveBeenCalled();
+    expect(service.error()).toBe('ai.no-text-in-selection');
+  });
+});

@@ -30,6 +30,18 @@ export interface AltoTextBlock {
   height: number;
 }
 
+/**
+ * A rectangle on the page scan, in image pixel coordinates, together with the
+ * size of the image those coordinates refer to — ALTO uses its own coordinate
+ * space, so the image size is what lets the box be scaled onto it.
+ */
+export interface TextRegion {
+  /** [x1, y1, x2, y2] in image pixels. */
+  box: number[];
+  imageWidth: number;
+  imageHeight: number;
+}
+
 /** A run of plain text, flagged when it is part of a search match. */
 export interface TextSegment {
   text: string;
@@ -132,12 +144,39 @@ export class AltoService {
    * out on a zero-size block, so a block with no coordinates is simply not drawn
    * rather than drawn in the wrong place.
    */
-  fetchBlocksForReading(pid: string): Observable<AltoTextBlock[]> {
+  fetchBlocksForReading(pid: string, region?: TextRegion | null): Observable<AltoTextBlock[]> {
+    if (region) {
+      // A region needs coordinates, which only ALTO has. Falling back to the
+      // whole page's text would read something the user did not select, so a
+      // page without ALTO yields no blocks instead.
+      return this.fetchAltoXml(pid).pipe(
+        map(altoXml => this.getBlocksForReading(altoXml, region)),
+        catchError(() => of([])),
+      );
+    }
     return this.fetchAltoXml(pid).pipe(
       map(altoXml => this.getBlocksForReading(altoXml)),
       catchError(() => this.fetchOcrText(pid).pipe(
         map(text => this.textToReadingBlocks(text)),
       )),
+    );
+  }
+
+  /**
+   * The text inside a selected region of the page.
+   *
+   * Same shape as `fetchPageText`, but with `html` always empty: the styled
+   * HTML is built for whole pages, so a region is handed over as plain text.
+   * Without ALTO there are no coordinates to cut the region by, so the result
+   * is empty rather than the whole page's text.
+   */
+  fetchRegionText(pid: string, region: TextRegion): Observable<{ text: string; html: string }> {
+    return this.fetchAltoXml(pid).pipe(
+      map(altoXml => ({
+        text: this.getTextInBox(altoXml, region.box, region.imageWidth, region.imageHeight),
+        html: '',
+      })),
+      catchError(() => of({ text: '', html: '' })),
     );
   }
 
@@ -790,7 +829,7 @@ export class AltoService {
    * @param altoXml - ALTO XML string
    * @returns Array of text blocks with their coordinates
    */
-  getBlocksForReading(altoXml: string): AltoTextBlock[] {
+  getBlocksForReading(altoXml: string, region?: TextRegion | null): AltoTextBlock[] {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(altoXml, 'text/xml');
 
@@ -835,6 +874,30 @@ export class AltoService {
       height: ah
     };
 
+    // Region in ALTO coordinates as [left, top, right, bottom]; strings that do
+    // not overlap it are left out, the same overlap rule as `getTextInBox`.
+    let altoBox: number[] | null = null;
+    if (region && aw > 0 && ah > 0) {
+      const scaleX = region.imageWidth / aw;
+      const scaleY = region.imageHeight / ah;
+      altoBox = [
+        region.box[0] / scaleX,
+        region.box[1] / scaleY,
+        region.box[2] / scaleX,
+        region.box[3] / scaleY,
+      ];
+    } else if (region) {
+      return [];
+    }
+    const overlapsRegion = (el: Element): boolean => {
+      if (!altoBox) return true;
+      const h = parseInt(el.getAttribute('HPOS') || '0', 10);
+      const v = parseInt(el.getAttribute('VPOS') || '0', 10);
+      const w = parseInt(el.getAttribute('WIDTH') || '0', 10);
+      const hh = parseInt(el.getAttribute('HEIGHT') || '0', 10);
+      return h < altoBox[2] && h + w > altoBox[0] && v < altoBox[3] && v + hh > altoBox[1];
+    };
+
     const textLines = Array.from(xmlDoc.getElementsByTagName('TextLine'));
     let lines = 0;
     let lastBottom = 0;
@@ -844,6 +907,11 @@ export class AltoService {
 
       // Skip very narrow lines (likely artifacts)
       if (textLineWidth < 50) {
+        continue;
+      }
+
+      const strings = Array.from(textLine.getElementsByTagName('String')).filter(overlapsRegion);
+      if (strings.length === 0) {
         continue;
       }
 
@@ -861,8 +929,6 @@ export class AltoService {
 
       lastBottom = bottom;
       lines += 1;
-
-      const strings = Array.from(textLine.getElementsByTagName('String'));
 
       for (const stringEl of strings) {
         const stringHpos = parseInt(stringEl.getAttribute('HPOS') || '0', 10);
