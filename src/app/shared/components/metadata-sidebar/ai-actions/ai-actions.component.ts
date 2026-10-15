@@ -8,7 +8,6 @@ import { UserService } from '../../../services/user.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
-import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 
 @Component({
   selector: 'app-ai-actions',
@@ -27,7 +26,6 @@ export class AiActionsComponent {
   private settingsService = inject(SettingsService);
   documentInfoService = inject(DocumentInfoService);
   private configService = inject(ConfigService);
-  private iiifViewerService = inject(IIIFViewerService);
 
   /**
    * Whether the page has any OCR to work with.
@@ -82,7 +80,7 @@ export class AiActionsComponent {
     if (this.ttsService.isReading()) {
       this.ttsService.stop();
     } else {
-      this.ttsService.startReading(pid, this.detailViewService.document?.uuid, this.iiifViewerService.getSelectedRegion());
+      this.ttsService.startReading(pid, this.detailViewService.document?.uuid);
     }
   }
 
@@ -90,13 +88,13 @@ export class AiActionsComponent {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showTranslation(pid, undefined, this.iiifViewerService.getSelectedRegion());
+    this.aiPanelService.showTranslation(pid);
   }
 
   onSummarize(): void {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showSummary(pid, this.iiifViewerService.getSelectedRegion());
+    this.aiPanelService.showSummary(pid);
   }
 }

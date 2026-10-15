@@ -116,6 +116,8 @@ export interface SelectionControlsConfig {
   text: boolean;
   export: boolean;
   share: boolean;
+  /** Read aloud, translate and summarise the selected area. */
+  ai?: boolean;
 }
 
 // Viewer configuration

@@ -1140,6 +1140,29 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     this.iiifViewerService.setSelectionMode(false);
   }
 
+  /** Reads the selected area aloud, or stops reading when it is already running. */
+  onSelectionRead() {
+    if (this.ttsService.isReading()) {
+      this.ttsService.stop();
+      return;
+    }
+    const region = this.iiifViewerService.getSelectedRegion();
+    if (!region || !this.imagePid) return;
+    this.ttsService.startReading(this.imagePid, this.detailViewService.document?.uuid, region);
+  }
+
+  onSelectionTranslate() {
+    const region = this.iiifViewerService.getSelectedRegion();
+    if (!region || !this.imagePid) return;
+    this.aiPanelService.showTranslation(this.imagePid, undefined, region);
+  }
+
+  onSelectionSummarize() {
+    const region = this.iiifViewerService.getSelectedRegion();
+    if (!region || !this.imagePid) return;
+    this.aiPanelService.showSummary(this.imagePid, region);
+  }
+
   /**
    * Check if viewer is at base zoom level (not zoomed in)
    */

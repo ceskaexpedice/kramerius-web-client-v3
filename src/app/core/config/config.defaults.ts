@@ -56,7 +56,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     selectionControls: {
       text: true,
       export: true,
-      share: true
+      share: true,
+      ai: true
     }
   },
   licenses: [

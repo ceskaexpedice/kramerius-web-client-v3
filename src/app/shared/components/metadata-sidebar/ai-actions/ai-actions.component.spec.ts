@@ -8,7 +8,6 @@ import { UserService } from '../../../services/user.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
-import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 
 /**
  * Read-aloud, translation and summarisation need the page's words, not their
@@ -27,7 +26,6 @@ describe('AiActionsComponent OCR availability', () => {
         { provide: UserService, useValue: { isLoggedIn: true } },
         { provide: SettingsService, useValue: {} },
         { provide: Router, useValue: { url: '/view/x' } },
-        { provide: IIIFViewerService, useValue: { getSelectedRegion: () => null } },
         {
           provide: DocumentInfoService,
           useValue: { hasAlto: () => ocr.alto, hasOcrText: () => ocr.text, getRuntimeLicenses: () => [] },

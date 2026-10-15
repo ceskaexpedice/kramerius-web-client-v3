@@ -15,7 +15,8 @@
     @if (showSelectionControls && selectionRect && !showFallback()) {
       <app-selection-controls [style.top.px]="selectionRect.top"
         [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
-        (share)="onShare()" (cancel)="onSelectionCancel()">
+        (share)="onShare()" (cancel)="onSelectionCancel()"
+        (read)="onSelectionRead()" (translate)="onSelectionTranslate()" (summarize)="onSelectionSummarize()">
       </app-selection-controls>
     }
   </div>
