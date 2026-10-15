@@ -32,5 +32,7 @@
       (pageSizeChange)="periodicalService.changePageSize($event)">
     </app-paginator>
 
+  } @else if (!(periodicalService.searchLoading$ | async)) {
+    <app-no-results [term]="periodicalService.submittedTerm"></app-no-results>
   }
 </ng-container>

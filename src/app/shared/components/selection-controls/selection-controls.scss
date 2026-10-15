@@ -16,6 +16,12 @@
         height: 32px;
     }
 
+    // Read aloud is a toggle: highlighted while reading, a second click stops it.
+    .active {
+        color: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+
     .btn-cancel {
         background-color: var(--color-error);
         color: #fff;

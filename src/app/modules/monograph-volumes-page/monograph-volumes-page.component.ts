@@ -6,7 +6,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
-import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
+import { RecordItem } from '../../shared/components/record-item/record-item.model';
+import { monographVolumeToRecordItem } from './monograph-volume-record-item';
 import * as MonographVolumesSelectors from '../../shared/state/monograph-volumes/monograph-volumes.selectors';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
@@ -25,6 +26,7 @@ import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
+import {NoResultsComponent} from '../../shared/components/no-results/no-results.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
 import {SkeletonListPipe} from '../../shared/pipes/skeleton-list.pipe';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
@@ -48,6 +50,7 @@ import {SearchDocument} from '../models/search-document';
     PaginatorComponent,
     ResultsSortComponent,
     SkeletonListPipe,
+    NoResultsComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -78,7 +81,7 @@ export class MonographVolumesPageComponent implements OnInit {
   // Computed values
   volumeItems = computed<RecordItem[]>(() => {
     const vols = this.volumes() || [];
-    return vols.map(vol => searchDocumentToRecordItem(vol));
+    return vols.map(vol => monographVolumeToRecordItem(vol));
   });
 
   constructor(

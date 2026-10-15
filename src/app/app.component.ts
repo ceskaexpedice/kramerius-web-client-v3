@@ -8,6 +8,7 @@ import { ErrorDialogService } from './shared/services/error-dialog.service';
 import { UiStateService } from './shared/services/ui-state.service';
 import { LibraryContextService } from './shared/services/library-context.service';
 import { EnvironmentService } from './shared/services/environment.service';
+import { AppUpdateService } from './shared/services/app-update.service';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
   private accessibilityService = inject(AccessibilityService);
   private errorDialogService = inject(ErrorDialogService);
   private uiState = inject(UiStateService);
+  private appUpdate = inject(AppUpdateService);
 
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 
@@ -70,6 +72,9 @@ export class AppComponent implements OnInit {
     // promise rejection, so it never reaches the global ErrorHandler) — reload
     // once to pull the new chunk filenames.
     this.registerChunkErrorRecovery();
+
+    // Pick up a newly deployed version silently, on the next navigation.
+    this.appUpdate.start();
 
     // Initialize app through centralized loader service
     this.appLoader.appInit().catch(error => {

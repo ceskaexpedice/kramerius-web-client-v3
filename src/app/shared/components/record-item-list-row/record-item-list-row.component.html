@@ -103,6 +103,37 @@
 
 <td class="actions-cell">
 
+  @if (!adminModeService.adminMode()) {
+    <button class="button secondary rounded icon-button favorites-button"
+      [class.favorited]="isItemFavorited$ | async"
+      (click)="onToggleFavorites($event)"
+      [appCdkTooltip]="'add-to-favorites' | translate"
+      [attr.aria-label]="'add-to-favorites' | translate">
+      <i class="icon" [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
+    </button>
+
+    @if (itemFolderIds$ | async; as itemFolderIds) {
+      @if (itemFolderIds.length > 0) {
+        <button class="button secondary rounded icon-button remove-button"
+          (click)="onRemoveFromFolder($event, itemFolderIds)"
+          [appCdkTooltip]="'remove-from-my-library' | translate"
+          [attr.aria-label]="'remove-from-my-library' | translate">
+          <i class="icon icon-trash" aria-hidden="true"></i>
+        </button>
+      }
+    }
+
+    @if (favoritesPopupState.showPopup()) {
+      <div class="favorites-popup-wrapper" [class.positioned]="favoritesPopupState.popupPositioned()">
+        <app-favorites-popup [itemId]="record.pid" [itemName]="getDisplayTitle()"
+          [currentFolderId]="currentFolderId" [mode]="popupMode()"
+          [showRemoveButton]="!!currentFolderId"
+          (close)="favoritesPopupState.closePopup()">
+        </app-favorites-popup>
+      </div>
+    }
+  }
+
   @if (exportEnabled && record.count_page && record.count_page >= 1) {
     <button class="button primary icon-button" (click)="$event.stopPropagation(); downloadClicked.emit(record)" [attr.aria-label]="'download' | translate">
       <i class="icon icon-download"></i>

@@ -3,7 +3,7 @@
   [class.periodicalitem]="item?.model === 'periodicalitem'" [class.selection-mode]="adminModeService.adminMode()"
   [class.selected]="item && adminModeService.adminMode() && adminModeService.isSelected(item.id)"
   [class.with-badge]="shouldShowAccessibilityBadge()" [class.horizontal]="layout === 'horizontal'" [class.vertical]="layout === 'vertical'"
-  [class.variant-portrait]="variant === 'portrait'" [ngClass]="[item?.className || '', item?.model || '']"
+  [class.variant-portrait]="variant === 'portrait'" [class.date-below-title]="!!item?.dateBelowTitle" [class.in-folder]="!!currentFolderId" [ngClass]="[item?.className || '', item?.model || '']"
   [href]="loading || !item ? null : getDocumentUrl()" [attr.aria-label]="loading || !item ? null : getTitle()"
   (click)="!loading && item && onRecordClick($event)">
 
@@ -42,7 +42,7 @@
 
         @if (!adminModeService.adminMode() && (itemFolderIds$ | async); as itemFolderIds) {
         @if (itemFolderIds.length > 0) {
-        <button class="button secondary rounded icon-button favorites-button"
+        <button class="button secondary rounded icon-button favorites-button remove-button"
           (click)="onRemoveFromFolder($event, itemFolderIds)"
           [appCdkTooltip]="'remove-from-my-library' | translate"
           aria-label="{{'remove-from-my-library' | translate}}">
@@ -80,17 +80,20 @@
         <div class="title" [title]="getTitle()">{{ getTitle() }}</div>
         <ng-content select="[recordTitleSuffix]"></ng-content>
       </div>
+      @if (item.dateBelowTitle && item.date) {
+      <div class="record-item-card__year">{{ item.date }}</div>
+      }
       }
 
       <!-- SUBTITLE / AUTHORS -->
       @if (loading || !item) {
       <div class="skeleton skeleton-text subtitle-skeleton"></div>
       } @else {
-      <div class="subtitle" *ngIf="item && (getSubtitle() || (item.authors?.length || item.date))">
+      <div class="subtitle" *ngIf="item && (getSubtitle() || (item.authors?.length || (item.date && !item.dateBelowTitle)))">
         {{getSubtitle()}}
 
-        <span class="authors" *ngIf="item.authors?.length || item.date">
-          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date">{{ item.authors?.length ? ', ' : '' }}{{
+        <span class="authors" *ngIf="item.authors?.length || (item.date && !item.dateBelowTitle)">
+          {{ item.authors?.join(', ') }}<span class="date" *ngIf="item.date && !item.dateBelowTitle">{{ item.authors?.length ? ', ' : '' }}{{
             item.date }}</span>
         </span>
       </div>
@@ -142,6 +145,16 @@
         [attr.aria-label]="((isItemFavorited$ | async) ? 'remove-from-my-library' : 'add-to-favorites') | translate">
         <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
       </button>
+      @if (!adminModeService.adminMode() && (itemFolderIds$ | async); as itemFolderIds) {
+      @if (itemFolderIds.length > 0) {
+      <button class="button tertiary outlined rounded icon-button"
+        (click)="onRemoveFromFolder($event, itemFolderIds)"
+        [appCdkTooltip]="'remove-from-my-library' | translate"
+        aria-label="{{'remove-from-my-library' | translate}}">
+        <i class="icon-trash" aria-hidden="true"></i>
+      </button>
+      }
+      }
       <button class="button tertiary outlined rounded icon-button"
         (click)="onInfoClick($event)"
         aria-label="{{'info' | translate}}" [title]="'info' | translate">

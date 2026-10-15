@@ -209,7 +209,7 @@
 
     <!-- No results state -->
     @if (!(searchService.loading$ | async) && searchService.totalCount === 0 && searchService.submittedTerm) {
-      <app-no-results></app-no-results>
+      <app-no-results [term]="searchService.submittedTerm"></app-no-results>
     }
 
     <app-paginator [disabledPagination]="adminModeService.adminMode()" [page]="searchService.page"

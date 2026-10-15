@@ -160,3 +160,79 @@ describe('TtsService playback failure handling', () => {
   });
 
 });
+
+describe('TtsService reading a selected area', () => {
+  let service: TtsService;
+  let detailViewStub: { pages: { pid: string }[]; goToPage: jasmine.Spy };
+  let fetchBlocksForReading: jasmine.Spy;
+  let toastShow: jasmine.Spy;
+  const region = { box: [0, 0, 100, 100], imageWidth: 1000, imageHeight: 1000 };
+
+  function configure(blocks: { text: string }[]): void {
+    detailViewStub = {
+      pages: [{ pid: 'page-1' }, { pid: 'page-2' }],
+      goToPage: jasmine.createSpy('goToPage'),
+    };
+    fetchBlocksForReading = jasmine.createSpy('fetchBlocksForReading').and.returnValue(of(blocks));
+    toastShow = jasmine.createSpy('show');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        TtsService,
+        { provide: AltoService, useValue: { fetchBlocksForReading } },
+        { provide: AiApiService, useValue: {
+          textToSpeech: () => of('AAAA'),
+          detectLanguage: () => of('cs'),
+          translate: (t: string) => of(t),
+        } },
+        { provide: DetailViewService, useValue: detailViewStub },
+        { provide: IIIFViewerService, useValue: {
+          showTtsHighlight: () => {},
+          clearTtsHighlight: () => {},
+        } },
+        { provide: SettingsService, useValue: { settings: null } },
+        { provide: ToastService, useValue: { show: toastShow } },
+      ],
+    });
+    service = TestBed.inject(TtsService);
+    spyOn((service as any).audio as HTMLAudioElement, 'play').and.returnValue(Promise.resolve());
+  }
+
+  afterEach(() => service.stop());
+
+  it('asks for the blocks of the selected area', () => {
+    configure([{ text: 'selected' }]);
+    service.startReading('page-1', undefined, region);
+
+    expect(fetchBlocksForReading).toHaveBeenCalledWith('page-1', region);
+  });
+
+  it('reads the whole page when nothing is selected', () => {
+    configure([{ text: 'page' }]);
+    service.startReading('page-1');
+
+    expect(fetchBlocksForReading).toHaveBeenCalledWith('page-1', null);
+  });
+
+  it('stops after the area instead of turning to the next page', async () => {
+    configure([{ text: 'selected' }]);
+    service.startReading('page-1', undefined, region);
+    await new Promise(r => setTimeout(r, 0));
+
+    ((service as any).audio as HTMLAudioElement).dispatchEvent(new Event('ended'));
+
+    expect(service.isReading()).toBe(false);
+    expect(detailViewStub.goToPage).not.toHaveBeenCalled();
+  });
+
+  it('reports an empty area instead of moving on to the next page', () => {
+    configure([]);
+    service.startReading('page-1', undefined, region);
+
+    expect(service.isReading()).toBe(false);
+    expect(service.error()).toBe('ai.no-text-in-selection');
+    expect(toastShow).toHaveBeenCalledWith('ai.no-text-in-selection');
+    expect(detailViewStub.goToPage).not.toHaveBeenCalled();
+  });
+});

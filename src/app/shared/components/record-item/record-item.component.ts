@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, OnDestroy, signal, SimpleChanges } from '@angular/core';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -11,8 +11,6 @@ import { PopupPositioningService, PopupState } from '../../services/popup-positi
 import { AdminModeService } from '../../services';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { Observable, EMPTY, take, shareReplay } from 'rxjs';
-import { Store } from '@ngrx/store';
-import { selectUserOwnedFolders } from '../../../modules/saved-lists-page/state';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { RecordItem } from './record-item.model';
@@ -54,7 +52,7 @@ import { trimSnippetToHighlight } from '../../utils/highlight-snippet';
   // which mark the view dirty on their own.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RecordItemComponent implements OnInit, OnDestroy {
+export class RecordItemComponent implements OnChanges, OnDestroy {
 
   recordHandler = inject(RecordHandlerService);
   solrService = inject(SolrService);
@@ -63,7 +61,6 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   popupPositioning = inject(PopupPositioningService);
   public adminModeService = inject(AdminModeService);
   private savedListsService = inject(SavedListsService);
-  private store = inject(Store);
   private envService = inject(EnvironmentService);
   private translateService = inject(TranslateService);
 
@@ -102,12 +99,13 @@ export class RecordItemComponent implements OnInit, OnDestroy {
   // Observable to check if this item is in any folder
   isItemFavorited$: Observable<boolean> = EMPTY;
 
-  // IDs of every folder that currently contains this item. Drives the trash
-  // (remove) action: shown whenever the item is in at least one folder. When it
-  // is in exactly one folder we remove immediately; when it is in several we
-  // open the favorites popup in 'remove' mode so the user picks which to remove
-  // from. Derived from the mapping, so it works anywhere (not only the
-  // saved-lists page where currentFolderId is set).
+  // IDs of the user's OWN folders that currently contain this item. Drives the
+  // trash (remove) action: shown whenever the item is in at least one owned
+  // folder (followed/shared folders aren't editable, so an item only in those
+  // gets no trash). When it is in exactly one we remove immediately; when it is
+  // in several we open the favorites popup in 'remove' mode so the user picks
+  // which to remove from. Derived from the mapping, so it works anywhere (not
+  // only the saved-lists page where currentFolderId is set).
   itemFolderIds$: Observable<string[]> = EMPTY;
 
   // Opens the favorites popup in remove mode instead of the default add mode.
@@ -118,18 +116,27 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
   }
 
-  ngOnInit() {
-    // Initialize the observable once we have the item.
+  ngOnChanges(changes: SimpleChanges) {
+    // (Re)initialize the observables whenever the item's id changes. This can't
+    // be a one-shot ngOnInit: grids render skeleton cards (item = null) first and
+    // track by $index, so the same instance later receives the real item — with
+    // ngOnInit the heart/trash streams stayed EMPTY for every such card.
     //
     // shareReplay is what keeps result grids affordable: the template subscribes
     // to isItemFavorited$ six times (favourite button class, icon, and the same
     // pair again in the horizontal layout) and each subscription otherwise ran
     // its own store.select + a full scan of the folder mapping on every store
     // emission. At a 180-item page size that was ~1000 scans per emission.
+    if (!changes['item']) return;
+    const prevId = (changes['item'].previousValue as RecordItem | null | undefined)?.id;
+    if (!changes['item'].firstChange && prevId === this.item?.id) return;
+
+    this.isItemFavorited$ = EMPTY;
+    this.itemFolderIds$ = EMPTY;
     if (this.item?.id) {
       this.isItemFavorited$ = this.favoritesService.getFavoritedStatus(this.item!.id)
         .pipe(shareReplay({ bufferSize: 1, refCount: true }));
-      this.itemFolderIds$ = this.folderItemsService.getFolderIdsContainingItem(this.item!.id)
+      this.itemFolderIds$ = this.folderItemsService.getOwnedFolderIdsContainingItem(this.item!.id)
         .pipe(shareReplay({ bufferSize: 1, refCount: true }));
     }
   }
@@ -237,36 +244,28 @@ export class RecordItemComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
+    // folderIds are already limited to the user's own folders.
     if (!this.item || folderIds.length === 0) return;
 
-    // Only the user's OWN folders can have items removed; followed/shared folders
-    // aren't editable, so the single/multi decision must ignore them.
-    this.store.select(selectUserOwnedFolders).pipe(take(1)).subscribe(ownedFolders => {
-      const ownedFolderIds = new Set(ownedFolders.map(f => f.uuid));
-      const ownedContaining = folderIds.filter(id => ownedFolderIds.has(id));
-
-      if (ownedContaining.length === 0) return;
-
-      // In a single owned folder: remove right away (with the standard confirmation).
-      if (ownedContaining.length === 1) {
-        this.savedListsService.removeItemFromFolder(
-          ownedContaining[0],
-          this.item!.id,
-          this.item!.title,
-          () => {}
-        );
-        return;
-      }
-
-      // In several owned folders: open the popup in remove mode so the user picks
-      // which folders to remove the item from.
-      this.popupMode.set('remove');
-      this.favoritesService.handleFavoriteToggle(
-        this.router.url,
-        event,
-        this.favoritesPopupState
+    // In a single owned folder: remove right away (with the standard confirmation).
+    if (folderIds.length === 1) {
+      this.savedListsService.removeItemFromFolder(
+        folderIds[0],
+        this.item.id,
+        this.item.title,
+        () => {}
       );
-    });
+      return;
+    }
+
+    // In several owned folders: open the popup in remove mode so the user picks
+    // which folders to remove the item from.
+    this.popupMode.set('remove');
+    this.favoritesService.handleFavoriteToggle(
+      this.router.url,
+      event,
+      this.favoritesPopupState
+    );
   }
 
   onInfoClick(event: Event) {

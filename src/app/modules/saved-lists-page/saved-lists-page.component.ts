@@ -1,4 +1,6 @@
-import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
+import { Actions, ofType } from '@ngrx/effects';
+import { APP_ROUTES_ENUM } from '../../app.routes';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -70,6 +72,10 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   page$ = this.route.queryParams.pipe(map(p => Math.max(1, Number(p['page']) || 1)));
   pageSize$ = this.route.queryParams.pipe(map(p => Number(p['pageSize']) || 60));
 
+  // Submitted free-text query from the URL (not the live input), so the empty
+  // state names the term the results actually belong to.
+  submittedQuery$ = this.route.queryParams.pipe(map(p => String(p['query'] ?? '').trim()));
+
   // Active facet/range filters rendered as removable tags above the results,
   // mirroring the search-results page. Assigned in the constructor so the
   // filter service is available.
@@ -131,6 +137,12 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   savedBannerVisible = signal(false);
   private savedBannerTimer?: ReturnType<typeof setTimeout>;
   titleEditPopupState: PopupState;
+  newListPopupState: PopupState;
+  private actions$ = inject(Actions);
+  // Name of the list created from the "New list" popup, so only that create
+  // (not one from the favorites popup) navigates to the new folder.
+  private pendingListName: string | null = null;
+  private createListSubscription?: Subscription;
 
   private fqParamsSubscription?: Subscription;
   private searchInputSubscription?: Subscription;
@@ -155,6 +167,17 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private customSearchService: CustomSearchService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
+    this.newListPopupState = this.popupPositioningService.createPopupState();
+    this.createListSubscription = this.actions$.pipe(
+      ofType(FoldersActions.createFolderSuccess)
+    ).subscribe(({ folder }) => {
+      if (this.pendingListName !== null && folder.name === this.pendingListName) {
+        this.pendingListName = null;
+        this.router.navigate([`/${APP_ROUTES_ENUM.SAVED_LISTS}`, folder.uuid]);
+        this.store.dispatch(FoldersActions.selectFolder({ folder }));
+        this.store.dispatch(FoldersActions.loadFolderDetails({ uuid: folder.uuid }));
+      }
+    });
     // Drop the where-to-search filter from the tag row — it's already surfaced by
     // the dedicated toggle, so showing it as a removable tag too would be redundant.
     this.selectedTags$ = this.savedListsFilterService.selectedTags.pipe(
@@ -377,8 +400,33 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  startCreatingList(event: Event) {
+    this.popupPositioningService.showPopup(
+      this.newListPopupState,
+      {
+        triggerEvent: event,
+        popupWidth: 300,
+        popupHeight: 200,
+        preferredSide: 'center',
+        offsetY: 10
+      },
+      '.new-list-popup-wrapper'
+    );
+  }
+
+  onNewListClose() {
+    this.newListPopupState.closePopup();
+  }
+
+  onNewListSave(name: string) {
+    this.pendingListName = name;
+    this.store.dispatch(FoldersActions.createFolder({ folder: { name } }));
+    this.onNewListClose();
+  }
+
   ngOnDestroy() {
     this.popupPositioningService.cleanup();
+    this.createListSubscription?.unsubscribe();
     this.fqParamsSubscription?.unsubscribe();
     this.searchInputSubscription?.unsubscribe();
     this.searchQuerySubscription?.unsubscribe();

@@ -3,7 +3,8 @@
 
     @if (isLoggedIn$ | async) {
     <app-filter-sidebar>
-      <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"></app-saved-lists-filters>
+      <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"
+        (newListRequested)="startCreatingList($event)"></app-saved-lists-filters>
     </app-filter-sidebar>
     }
 
@@ -309,6 +310,13 @@
           }
         </ng-container>
 
+        <!-- Empty state: a search term or filter left the list with no matches -->
+        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async }; as empty) {
+          @if (!empty.loading && empty.count === 0 && (empty.query || empty.tags?.length)) {
+            <app-no-results [term]="empty.query"></app-no-results>
+          }
+        }
+
         <!-- Classic paginator over the combined titles+pages window, same as
              the search-results page. -->
         <app-paginator [page]="(page$ | async) ?? 1"
@@ -342,6 +350,15 @@
 <div class="title-edit-popup-wrapper" [class.positioned]="titleEditPopupState.popupPositioned()">
   <app-title-edit-popup [initialTitle]="currentEditingFolder()!.name" (close)="onTitleEditClose()"
     (save)="onTitleEditSave($event)">
+  </app-title-edit-popup>
+</div>
+}
+
+<!-- New List Popup -->
+@if (newListPopupState.showPopup()) {
+<div class="title-edit-popup-wrapper new-list-popup-wrapper" [class.positioned]="newListPopupState.popupPositioned()">
+  <app-title-edit-popup title="create-new-list--button" placeholder="create-new-list--placeholder"
+    (close)="onNewListClose()" (save)="onNewListSave($event)">
   </app-title-edit-popup>
 </div>
 }

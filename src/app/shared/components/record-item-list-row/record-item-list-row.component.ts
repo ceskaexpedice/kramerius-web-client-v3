@@ -1,7 +1,9 @@
-import {Component, inject, Input, Output, EventEmitter} from '@angular/core';
+import {Component, inject, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, signal} from '@angular/core';
 import { SearchDocument } from '../../../modules/models/search-document';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { Router } from '@angular/router';
+import { EMPTY, Observable, shareReplay } from 'rxjs';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { EnvironmentService } from '../../services/environment.service';
@@ -13,6 +15,12 @@ import { TableColumnConfig, ColumnRenderType } from '../../models/display-config
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import {ModelBadgeComponent} from '../model-badge/model-badge.component';
 import { ConfigService } from '../../../core/config';
+import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.component';
+import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
+import { FavoritesService } from '../../services/favorites.service';
+import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
+import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
+import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';
 
 @Component({
   selector: 'tr[app-record-item-list-row]',
@@ -26,6 +34,10 @@ import { ConfigService } from '../../../core/config';
     ThumbnailImageComponent,
     LanguageBadgeComponent,
     ModelBadgeComponent,
+    AsyncPipe,
+    NgClass,
+    FavoritesPopupComponent,
+    CdkTooltipDirective,
   ],
   templateUrl: './record-item-list-row.component.html',
   styleUrl: './record-item-list-row.component.scss',
@@ -37,19 +49,34 @@ import { ConfigService } from '../../../core/config';
     '(click)': 'onRowClick($event)'
   }
 })
-export class RecordItemListRowComponent {
+export class RecordItemListRowComponent implements OnChanges, OnDestroy {
 
   @Input() record: SearchDocument | null = null;
   @Input() url!: string;
   @Input() visibleColumns: TableColumnConfig[] = [];
   @Input() highlighted = false;
   @Input() loading = false;
+  @Input() currentFolderId?: string;
 
   @Output() downloadClicked = new EventEmitter<SearchDocument>();
 
   recordHandler = inject(RecordHandlerService);
   public adminModeService = inject(AdminModeService);
   private configService = inject(ConfigService);
+  private favoritesService = inject(FavoritesService);
+  private folderItemsService = inject(FolderItemsService);
+  private savedListsService = inject(SavedListsService);
+  private popupPositioning = inject(PopupPositioningService);
+  private router = inject(Router);
+
+  // Same heart / trash (my library) actions as the grid card. The heart opens
+  // the favorites popup in 'add' mode; the trash is shown for records in one of
+  // the user's own folders — one folder removes right away, several open the
+  // popup in 'remove' mode.
+  isItemFavorited$: Observable<boolean> = EMPTY;
+  itemFolderIds$: Observable<string[]> = EMPTY;
+  favoritesPopupState: PopupState = this.favoritesService.createPopupState();
+  popupMode = signal<'add' | 'remove'>('add');
 
   // Hide the export trigger entirely when the instance offers no export formats.
   exportEnabled = this.configService.isAnyExportFormatEnabled();
@@ -60,6 +87,49 @@ export class RecordItemListRowComponent {
 
   constructor(private envService: EnvironmentService) {
     this.krameriusBaseUrl = this.envService.getApiUrl('items');
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['record']) {
+      const pid = this.record?.pid;
+      this.isItemFavorited$ = pid
+        ? this.favoritesService.getFavoritedStatus(pid)
+            .pipe(shareReplay({ bufferSize: 1, refCount: true }))
+        : EMPTY;
+      this.itemFolderIds$ = pid
+        ? this.folderItemsService.getOwnedFolderIdsContainingItem(pid)
+            .pipe(shareReplay({ bufferSize: 1, refCount: true }))
+        : EMPTY;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.popupPositioning.cleanup();
+  }
+
+  onToggleFavorites(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.record) return;
+
+    this.popupMode.set('add');
+    this.favoritesService.handleFavoriteToggle(this.router.url, event, this.favoritesPopupState);
+  }
+
+  onRemoveFromFolder(event: Event, folderIds: string[]): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.record || folderIds.length === 0) return;
+
+    if (folderIds.length === 1) {
+      this.savedListsService.removeItemFromFolder(folderIds[0], this.record.pid, this.getDisplayTitle());
+      return;
+    }
+
+    this.popupMode.set('remove');
+    this.favoritesService.handleFavoriteToggle(this.router.url, event, this.favoritesPopupState);
   }
 
   getKrameriusBaseUrl(): string {

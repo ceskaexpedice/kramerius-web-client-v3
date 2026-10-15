@@ -5,7 +5,7 @@ import { APP_ROUTES_ENUM } from '../../app.routes';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import OpenSeadragon from 'openseadragon';
-import { AltoService, AltoTextBlock } from './alto.service';
+import { AltoService, AltoTextBlock, TextRegion } from './alto.service';
 import { CdkSourceService } from './cdk-source.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast.service';
@@ -241,6 +241,23 @@ export class IIIFViewerService {
 
   private selectedAreaSubject = new BehaviorSubject<OpenSeadragon.Rect | null>(null);
   public selectedArea$ = this.selectedAreaSubject.asObservable();
+
+  /**
+   * The currently selected area as a text region of the open page, or null when
+   * nothing is selected. AI actions (read aloud, translate, summarise) use it to
+   * work on the selection instead of the whole page.
+   */
+  getSelectedRegion(): TextRegion | null {
+    const rect = this.selectedAreaSubject.value;
+    const tiledImage = this.viewer?.world.getItemAt(0);
+    if (!rect || !tiledImage) return null;
+    const size = tiledImage.getContentSize();
+    return {
+      box: [rect.x, rect.y, rect.x + rect.width, rect.y + rect.height],
+      imageWidth: size.x,
+      imageHeight: size.y,
+    };
+  }
 
   // Clear selected area while staying in selection mode (allows re-drawing)
   clearSelectedArea(): void {

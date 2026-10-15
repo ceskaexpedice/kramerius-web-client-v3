@@ -2,6 +2,8 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { ConfigService } from '../../../core/config';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
+import { UserService } from '../../services/user.service';
+import { TtsService } from '../../services/tts.service';
 
 @Component({
     selector: 'app-selection-controls',
@@ -14,10 +16,15 @@ export class SelectionControls {
     @Output() text = new EventEmitter<void>();
     @Output() export = new EventEmitter<void>();
     @Output() share = new EventEmitter<void>();
+    @Output() read = new EventEmitter<void>();
+    @Output() translate = new EventEmitter<void>();
+    @Output() summarize = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
 
     private configService = inject(ConfigService);
     private detailViewService = inject(DetailViewService, { optional: true });
+    private userService = inject(UserService);
+    ttsService = inject(TtsService);
 
     // Selection control visibility getters
     get showText(): boolean {
@@ -42,6 +49,20 @@ export class SelectionControls {
         return this.configService.isSelectionControlEnabled('share');
     }
 
+    /**
+     * AI actions on the selected area — the same gates as the AI tab in the
+     * sidebar: the feature is on, the reader is logged in and the licence of the
+     * open page allows working with its text. Outside the detail view there is
+     * no page to act on, so the buttons stay hidden there.
+     */
+    get showAi(): boolean {
+        return !!this.detailViewService
+            && this.configService.isFeatureEnabled('ai')
+            && this.configService.isSelectionControlEnabled('ai')
+            && this.userService.isLoggedIn
+            && this.detailViewService.isActionAllowed('text');
+    }
+
     onCancel() {
         this.cancel.emit();
     }
@@ -56,5 +77,17 @@ export class SelectionControls {
 
     onShare() {
         this.share.emit();
+    }
+
+    onRead() {
+        this.read.emit();
+    }
+
+    onTranslate() {
+        this.translate.emit();
+    }
+
+    onSummarize() {
+        this.summarize.emit();
     }
 }

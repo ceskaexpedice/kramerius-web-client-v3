@@ -264,4 +264,51 @@ describe('AltoService OCR fallback', () => {
       expect(blocks!).toEqual([]);
     });
   });
+
+  describe('with a selected region', () => {
+    // Image is 2000x1000, ALTO 1000x500: the region box is scaled by half.
+    // [0,180,180,240] in image px → [0,90,90,120] in ALTO, covering only "Hello".
+    const region = { box: [0, 180, 180, 240], imageWidth: 2000, imageHeight: 1000 };
+
+    it('reads only the strings inside the region', () => {
+      let blocks: any[] | undefined;
+      service.fetchBlocksForReading('uuid:p1', region).subscribe(b => blocks = b);
+
+      http.expectOne('/items/uuid:p1/ocr/alto').flush(ALTO);
+
+      expect(blocks!.length).toBe(1);
+      expect(blocks![0].text.trim()).toBe('Hello');
+    });
+
+    it('yields no blocks for a region without ALTO instead of reading the whole page', () => {
+      let blocks: any[] | undefined;
+      service.fetchBlocksForReading('uuid:p1', region).subscribe(b => blocks = b);
+
+      http.expectOne('/items/uuid:p1/ocr/alto')
+        .flush('Not found', { status: 404, statusText: 'Not Found' });
+
+      http.expectNone('/items/uuid:p1/ocr/text');
+      expect(blocks!).toEqual([]);
+    });
+
+    it('fetchRegionText returns only the text inside the region, as plain text', () => {
+      let result: { text: string; html: string } | undefined;
+      service.fetchRegionText('uuid:p1', region).subscribe(r => result = r);
+
+      http.expectOne('/items/uuid:p1/ocr/alto').flush(ALTO);
+
+      expect(result).toEqual({ text: 'Hello', html: '' });
+    });
+
+    it('fetchRegionText is empty without ALTO', () => {
+      let result: { text: string; html: string } | undefined;
+      service.fetchRegionText('uuid:p1', region).subscribe(r => result = r);
+
+      http.expectOne('/items/uuid:p1/ocr/alto')
+        .flush('Not found', { status: 404, statusText: 'Not Found' });
+
+      http.expectNone('/items/uuid:p1/ocr/text');
+      expect(result).toEqual({ text: '', html: '' });
+    });
+  });
 });
