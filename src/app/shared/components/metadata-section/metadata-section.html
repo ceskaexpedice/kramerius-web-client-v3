@@ -280,6 +280,79 @@
   </div>
   }
 
+  <!-- Currently playing track of a sound recording (#205) -->
+  @if (activeTrack(); as track) {
+  <div class="article-card">
+    <div class="article-header">
+      <span class="label">{{ 'track--label' | translate }}</span>
+      <button class="toggle-btn" (click)="toggleTrack()"
+              [attr.aria-expanded]="trackExpanded()"
+              [attr.aria-label]="(trackExpanded() ? 'collapse--arialabel' : 'expand--arialabel') | translate">
+        <i [class]="trackExpanded() ? 'icon-minus-square' : 'icon-add-square'" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="article-title article-title--plain">{{ trackTitle }}</div>
+
+    @if (trackExpanded()) {
+    <div class="article-details">
+
+      @if (trackDuration) {
+        <app-metadata-section-item [label]="'track-list-table--duration' | translate" type="text"
+          [value]="trackDuration">
+        </app-metadata-section-item>
+      }
+
+      @if (trackData; as td) {
+        <!-- Authors with their roles (composer, conductor, performer, …) -->
+        @if (td.authors.length) {
+          <app-metadata-section-item [label]="'author' | translate" type="clickable-list"
+            [items]="td.authors" [displayFn]="getAuthorName" [itemSubtextFn]="getAuthorRoles"
+            [onItemClick]="clickedAuthor" [itemHref]="authorHref" [itemSuffixTpl]="authorIdentifiersTpl">
+          </app-metadata-section-item>
+        }
+
+        @if (td.dateStr) {
+          <app-metadata-section-item [label]="'date' | translate" type="text" [value]="td.dateStr">
+          </app-metadata-section-item>
+        }
+
+        @if (td.publishers.length) {
+          <app-metadata-section-item [label]="'publisher-data' | translate" type="list"
+            [items]="td.publishers" [displayFn]="getPublisherFullDetail">
+          </app-metadata-section-item>
+        }
+
+        @if (td.notes.length) {
+          <app-metadata-section-item [label]="'notes' | translate" type="list" [items]="getNotes(td.notes)">
+          </app-metadata-section-item>
+        }
+
+        @if (td.physicalDescriptions.length) {
+          <app-metadata-section-item [label]="'physical-description' | translate" type="list"
+            [items]="td.physicalDescriptions" [displayFn]="getPhysicalDescription">
+          </app-metadata-section-item>
+        }
+
+        @if (td.languages.length) {
+          <app-metadata-section-item [label]="'languages' | translate" type="clickable-list"
+            [items]="td.languages" translateNamespace="language" [onItemClick]="clickedLanguage"
+            [itemHref]="languageHref">
+          </app-metadata-section-item>
+        }
+
+        @if (td.keywords.length) {
+          <app-metadata-section-item [label]="'keywords' | translate" type="clickable-list"
+            [items]="td.keywords" [onItemClick]="clickedKeyword" [itemHref]="keywordHref">
+          </app-metadata-section-item>
+        }
+      }
+
+    </div>
+    }
+  </div>
+  }
+
   <!-- Volume (Ročník) - publication year links to the parent periodical volume.
        Follows the article so article details stay above the fold. -->
   <ng-template #volumeItemTpl let-item>

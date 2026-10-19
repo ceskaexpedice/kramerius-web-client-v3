@@ -164,6 +164,7 @@
   "playback-queue": "Playback queue",
   "playback-close": "Close player",
   "track-details": "Track details",
+  "track--label": "Track",
   "now-playing--header": "Now playing",
   "share-dialog--header": "Share",
   "folder-share-dialog--header": "Share list „{{name}}“",

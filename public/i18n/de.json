@@ -159,6 +159,7 @@
   "playback-queue": "Wiedergabeliste",
   "playback-close": "Player schließen",
   "track-details": "Titeldetails",
+  "track--label": "Titel",
   "now-playing--header": "Aktuelle Wiedergabe",
   "share-dialog--header": "Teilen",
   "folder-share-dialog--header": "Liste „{{name}}“ teilen",

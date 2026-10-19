@@ -238,6 +238,13 @@
     }
 
     .article-title {
+      // Track card heading (#205): not a link, so plain text in the heading size.
+      &--plain {
+        font-size: var(--font-size-large);
+        font-weight: 600;
+        color: var(--color-text-base);
+      }
+
       // Deliberate exception to the shared metadata-link treatment (#194):
       // this is the article card's heading, not a metadata value, so it keeps
       // its prominent color and reveals the underline on hover.

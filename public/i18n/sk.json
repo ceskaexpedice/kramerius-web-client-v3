@@ -156,6 +156,7 @@
   "playback-queue": "Zoznam prehrávania",
   "playback-close": "Zavrieť prehrávač",
   "track-details": "Detail stopy",
+  "track--label": "Skladba",
   "now-playing--header": "Práve sa prehráva",
   "share-dialog--header": "Zdieľať",
   "folder-share-dialog--header": "Zdieľať zoznam „{{name}}“",

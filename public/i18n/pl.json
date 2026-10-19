@@ -156,6 +156,7 @@
   "playback-queue": "Kolejka odtwarzania",
   "playback-close": "Zamknij odtwarzacz",
   "track-details": "Szczegóły utworu",
+  "track--label": "Utwór",
   "now-playing--header": "Aktualnie odtwarzane",
   "share-dialog--header": "Udostępnij",
   "folder-share-dialog--header": "Udostępnij listę „{{name}}“",

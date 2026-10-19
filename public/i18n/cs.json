@@ -159,6 +159,7 @@
   "playback-queue": "Fronta přehrávání",
   "playback-close": "Zavřít přehrávač",
   "track-details": "Detail stopy",
+  "track--label": "Skladba",
   "now-playing--header": "Právě hraje",
   "share-dialog--header": "Sdílet",
   "folder-share-dialog--header": "Sdílet seznam „{{name}}“",

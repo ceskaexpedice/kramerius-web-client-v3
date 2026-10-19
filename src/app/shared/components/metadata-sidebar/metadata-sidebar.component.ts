@@ -16,6 +16,7 @@ import { UiStateService } from "../../services/ui-state.service";
 import { ConfigService } from '../../../core/config';
 import { AiActionsComponent } from './ai-actions/ai-actions.component';
 import { AiPanelService } from '../../services/ai-panel.service';
+import { SoundTrackModel } from '../../../modules/models/sound-track.model';
 
 @Component({
   selector: 'app-metadata-sidebar',
@@ -28,6 +29,8 @@ export class MetadataSidebarComponent {
   @Input() mode: 'floating' | 'docked' = 'floating';
   @Input() tools: { search: boolean; export: boolean; description: boolean; ai?: boolean } = { search: true, export: true, description: false };
   @Input() customDescription = false;
+  // Currently playing track — sound recordings show its details in the description (#205).
+  @Input() track: SoundTrackModel | null = null;
 
   @Output() close = new EventEmitter<void>();
 
