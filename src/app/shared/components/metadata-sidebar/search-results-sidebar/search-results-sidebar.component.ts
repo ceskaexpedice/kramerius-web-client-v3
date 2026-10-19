@@ -145,7 +145,27 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
         // SearchDocument uses 'pid', Metadata uses 'uuid'
         const currentPid = (currentDoc as any)?.pid || (currentDoc as any)?.uuid;
         if (!currentPid) return -1;
-        return this.results.findIndex(r => r.pid === currentPid);
+        const index = this.results.findIndex(r => r.pid === currentPid);
+        if (index !== -1) return index;
+
+        // The current document may be a descendant of a search result (e.g. a volume or issue
+        // opened from a periodical found in search) — anchor navigation to its nearest ancestor in results.
+        for (const ancestorPid of this.getAncestorPids(currentDoc)) {
+            const ancestorIndex = this.results.findIndex(r => r.pid === ancestorPid);
+            if (ancestorIndex !== -1) return ancestorIndex;
+        }
+        return -1;
+    }
+
+    // Ancestor pids ordered from the nearest parent up to the root
+    private getAncestorPids(doc: SearchDocument | Metadata | null | undefined): string[] {
+        const ownPidPath: string = (doc as any)?.ownPidPath || '';
+        const pids = ownPidPath ? ownPidPath.split('/').slice(0, -1).reverse() : [];
+        const ownParentPid: string | undefined = (doc as any)?.ownParentPid;
+        const rootPid: string | undefined = (doc as any)?.rootPid;
+        if (ownParentPid && !pids.includes(ownParentPid)) pids.unshift(ownParentPid);
+        if (rootPid && !pids.includes(rootPid)) pids.push(rootPid);
+        return pids;
     }
 
     private navigateToItem(item: SearchDocument, event: MouseEvent | null = null) {
