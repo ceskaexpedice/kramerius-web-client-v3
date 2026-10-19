@@ -310,6 +310,9 @@
               @if (!isDragging && !!hasSelection) {
                 <app-selection-mode-info>
                 </app-selection-mode-info>
+              } @else if (!isDragging && !hasSelection) {
+                <app-selection-mode-info variant="hint">
+                </app-selection-mode-info>
               }
             }
           }
