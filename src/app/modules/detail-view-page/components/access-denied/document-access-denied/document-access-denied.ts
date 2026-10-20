@@ -21,6 +21,7 @@ import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
 import { APP_ROUTES_ENUM } from '../../../../../app.routes';
 import { CdkSourceService } from '../../../../../shared/services/cdk-source.service';
+import { DocumentInfoService } from '../../../../../shared/services/document-info.service';
 
 
 interface FaqAnswer {
@@ -62,6 +63,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private dialog = inject(MatDialog);
   private cdkSource = inject(CdkSourceService);
   private destroyRef = inject(DestroyRef);
+  protected documentInfoService = inject(DocumentInfoService);
 
   constructor() {
     // Reload HTML content when language changes. FAQ items are rebuilt too:

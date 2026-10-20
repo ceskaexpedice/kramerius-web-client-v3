@@ -70,5 +70,7 @@
   "access-denied.other.faq.q6": "Ich habe das Gefühl, dass das Dokument online verfügbar sein sollte. Was nun?",
   "access-denied.other.faq.a6": "Sie können sich an die Bibliothek wenden und sie darauf hinweisen – sie prüft, ob das Dokument anderweitig zugänglich gemacht werden kann.",
   "access-denied.other.faq.q7": "Wie unterscheidet sich „Lesesaal“ von „DNNT – online“?",
-  "access-denied.other.faq.a7": "Lesesaal – das Dokument ist geschützt und nur im Lesesaal lesbar. DNNT – ein vergriffenes Werk, das nach der Anmeldung online und im Lesesaal lesbar ist."
+  "access-denied.other.faq.a7": "Lesesaal – das Dokument ist geschützt und nur im Lesesaal lesbar. DNNT – ein vergriffenes Werk, das nach der Anmeldung online und im Lesesaal lesbar ist.",
+  "access-denied.lock-unavailable": "Dieses Dokument ist über eine Sperrlizenz zugänglich, aber alle Sperren werden derzeit von anderen Lesern genutzt. Bitte versuchen Sie es später erneut.",
+  "access-denied.lock-retry": "Erneut versuchen"
 }

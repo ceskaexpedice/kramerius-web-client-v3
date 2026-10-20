@@ -70,5 +70,7 @@
     "access-denied.other.faq.q6": "I feel that the document should be available online. What about it?",
     "access-denied.other.faq.a6": "You can contact the library and alert them – they will verify if it is possible to make the document available otherwise.",
     "access-denied.other.faq.q7": "How does \"Study room\" differ from \"DNNT – online\"?",
-    "access-denied.other.faq.a7": "Study room – the document is protected and available for reading only in the study room. DNNT – document unavailable on the market and readable online after login and in the study room."
+    "access-denied.other.faq.a7": "Study room – the document is protected and available for reading only in the study room. DNNT – document unavailable on the market and readable online after login and in the study room.",
+    "access-denied.lock-unavailable": "This document is available under a lock license, but all locks are currently in use by other readers. Please try again later.",
+    "access-denied.lock-retry": "Try again"
 }

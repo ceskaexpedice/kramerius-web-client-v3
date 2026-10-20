@@ -64,5 +64,7 @@
     "access-denied.other.faq.q6": "Mam wrażenie, że dokument powinien być dostępny online. Co z tym zrobić?",
     "access-denied.other.faq.a6": "Możesz skontaktować się z biblioteką i zgłosić to – sprawdzi ona, czy możliwe jest udostępnienie dokumentu w inny sposób.",
     "access-denied.other.faq.q7": "Czym różni się „Czytelnia” od „DNNT – online”?",
-    "access-denied.other.faq.a7": "Czytelnia – dokument jest chroniony i dostępny do czytania tylko w czytelni. DNNT – dokument niedostępny na rynku i możliwy do odczytania online po zalogowaniu oraz w czytelni."
+    "access-denied.other.faq.a7": "Czytelnia – dokument jest chroniony i dostępny do czytania tylko w czytelni. DNNT – dokument niedostępny na rynku i możliwy do odczytania online po zalogowaniu oraz w czytelni.",
+    "access-denied.lock-unavailable": "Dokument jest dostępny na podstawie licencji z blokadą, ale wszystkie blokady są obecnie wykorzystywane przez innych czytelników. Spróbuj ponownie później.",
+    "access-denied.lock-retry": "Spróbuj ponownie"
 }

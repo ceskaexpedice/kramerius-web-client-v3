@@ -15,6 +15,17 @@
           }
         </p>
 
+        <!-- The reader may open the document under a lock license, but every
+             lock slot is taken by other readers right now. -->
+        @if (documentInfoService.isLockUnavailable()) {
+          <div class="lock-unavailable" role="status">
+            <p>{{ 'access-denied.lock-unavailable' | translate }}</p>
+            <button type="button" class="button tertiary outlined" (click)="documentInfoService.retryLock()">
+              {{ 'access-denied.lock-retry' | translate }}
+            </button>
+          </div>
+        }
+
         <!-- Display viewing instructions from config HTML. The instruction pages are
              sentence fragments continuing this lead-in, so it is shown with them. -->
         @if (instructionHtml) {
