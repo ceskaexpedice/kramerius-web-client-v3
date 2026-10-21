@@ -36,6 +36,9 @@ import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 
+/** Tile edge OpenSeadragon requests from the IIIF server; see enlargeTiles. */
+const IIIF_TILE_SIZE = 512;
+
 @Component({
   selector: 'app-iiif-viewer',
   imports: [
@@ -586,17 +589,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // concurrency spreads it out without dropping any tile. This is the knob
       // to reach for when proxy load is the problem: prefer it over coarsening
       // minPixelRatio below, which pays for fewer requests with image quality.
+      // The request count itself is set by the tile size (see enlargeTiles).
       imageLoaderLimit: 6,
       // Caps the pyramid level OSD targets: highestLevel is clamped by
       // log2(zeroRatio / minPixelRatio), so raising this picks a coarser level.
       // Kept at OpenSeadragon's default. It was raised to 1.0 to cut proxy
       // round-trips, but that drops the finest pyramid level the viewport can
       // actually use, which is what made pages look soft at typical laptop
-      // resolutions (issue #183) — zooming only partly recovers it. The saving
-      // was small: a page at fit-to-screen needs on the order of ten tiles
-      // either way, and one level down removes only a handful. Use
-      // imageLoaderLimit above to bound proxy load instead; it costs no
-      // quality. Note that tiles are fetched via AJAX and are HTTP-cached, so
+      // resolutions (issue #183) — zooming only partly recovers it. To cut
+      // requests, enlarge tiles (enlargeTiles) and bound concurrency with
+      // imageLoaderLimit above; neither costs quality. Note that tiles are fetched via AJAX and are HTTP-cached, so
       // measuring this needs a page not yet visited in the session.
       minPixelRatio: 0.5,
       gestureSettingsMouse: {
@@ -933,6 +935,32 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // the full resolution, OSD only tiles a fraction of the image.
     if (infoJson.sizes && infoJson.tiles) {
       delete infoJson.sizes;
+    }
+
+    this.enlargeTiles(infoJson);
+  }
+
+  /**
+   * Raise the tile size OpenSeadragon requests to IIIF_TILE_SIZE.
+   *
+   * Servers advertise 256px tiles, so a typical page (~1.5×2 kpx) at
+   * fit-to-screen costs ~80 requests across the pyramid, each paying the CDK
+   * proxy's per-request overhead. The same pixels in 512px tiles take ~25.
+   * Only the request grid changes — levels, scale factors and quality do not.
+   *
+   * Skipped for level0 servers: they serve only their precomputed tiles, so a
+   * region off that grid would fail.
+   */
+  private enlargeTiles(infoJson: any): void {
+    if (!Array.isArray(infoJson.tiles)) return;
+
+    const profile = Array.isArray(infoJson.profile) ? infoJson.profile[0] : infoJson.profile;
+    if (typeof profile === 'string' && /level0/.test(profile)) return;
+
+    for (const tile of infoJson.tiles) {
+      if ((tile.width ?? 0) >= IIIF_TILE_SIZE) continue;
+      tile.width = IIIF_TILE_SIZE;
+      tile.height = IIIF_TILE_SIZE;
     }
   }
 

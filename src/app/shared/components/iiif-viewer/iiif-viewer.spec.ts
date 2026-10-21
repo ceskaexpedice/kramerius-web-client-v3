@@ -305,3 +305,68 @@ describe('IIIFViewer bb crop links', () => {
   });
 
 });
+
+/**
+ * Tile requests each pay the CDK proxy's per-request overhead, and servers
+ * advertise 256px tiles — a 1448×2180 page at fit-to-screen cost ~80 requests.
+ * processInfoJson enlarges the advertised tile so the same pixels arrive in far
+ * fewer requests, but only where the server can serve arbitrary regions.
+ */
+describe('IIIFViewer.processInfoJson tile size', () => {
+  const INFO_URL = 'https://api.test/search/iiif/mzk/uuid:page/info.json';
+
+  function process(infoJson: any): any {
+    const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
+    (component as any).processInfoJson(infoJson, INFO_URL);
+    return infoJson;
+  }
+
+  function v3Info(profile: any, extra: any = {}): any {
+    return {
+      '@context': 'http://iiif.io/api/image/3/context.json',
+      id: 'http://imageserver_backend/page',
+      type: 'ImageService3',
+      protocol: 'http://iiif.io/api/image',
+      profile,
+      width: 1448,
+      height: 2180,
+      tiles: [{ width: 256, height: 256, scaleFactors: [1, 2, 4, 8, 16] }],
+      ...extra,
+    };
+  }
+
+  it('enlarges the advertised tile on a level2 server, keeping its scale factors', () => {
+    const info = process(v3Info('level2'));
+    expect(info.tiles).toEqual([{ width: 512, height: 512, scaleFactors: [1, 2, 4, 8, 16] }]);
+  });
+
+  it('enlarges every tile entry when the server lists several', () => {
+    const info = process(v3Info('level1', {
+      tiles: [
+        { width: 256, scaleFactors: [1, 2] },
+        { width: 128, scaleFactors: [4, 8] },
+      ],
+    }));
+    expect(info.tiles.map((t: any) => [t.width, t.height])).toEqual([[512, 512], [512, 512]]);
+  });
+
+  it('enlarges tiles on an IIIF 2 level2 profile given as an array', () => {
+    const info = process(v3Info(['http://iiif.io/api/image/2/level2.json', { supports: ['sizeByW'] }]));
+    expect(info.tiles[0].width).toBe(512);
+  });
+
+  it('leaves a tile already at least the target size alone', () => {
+    const info = process(v3Info('level2', { tiles: [{ width: 2048, height: 2048, scaleFactors: [1, 2] }] }));
+    expect(info.tiles[0].width).toBe(2048);
+  });
+
+  it('leaves tiles alone on a level0 server, which can only serve its precomputed tiles', () => {
+    const info = process(v3Info('level0'));
+    expect(info.tiles[0].width).toBe(256);
+  });
+
+  it('leaves tiles alone on an IIIF 2 level0 profile', () => {
+    const info = process(v3Info(['http://iiif.io/api/image/2/level0.json']));
+    expect(info.tiles[0].width).toBe(256);
+  });
+});
