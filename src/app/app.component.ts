@@ -9,6 +9,9 @@ import { UiStateService } from './shared/services/ui-state.service';
 import { LibraryContextService } from './shared/services/library-context.service';
 import { EnvironmentService } from './shared/services/environment.service';
 import { AppUpdateService } from './shared/services/app-update.service';
+import { LockService } from './shared/services/lock.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { LockIdleDialogComponent } from './shared/dialogs/lock-idle-dialog/lock-idle-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +30,9 @@ export class AppComponent implements OnInit {
   private errorDialogService = inject(ErrorDialogService);
   private uiState = inject(UiStateService);
   private appUpdate = inject(AppUpdateService);
+  private lockService = inject(LockService);
+  private dialog = inject(MatDialog);
+  private lockIdleDialog: MatDialogRef<LockIdleDialogComponent> | null = null;
 
   showPlaybackBar = computed(() => !!this.soundService.getCurrentTrack());
 
@@ -38,6 +44,28 @@ export class AppComponent implements OnInit {
         document.body.classList.remove('header-hidden');
       } else {
         document.body.classList.add('header-hidden');
+      }
+    });
+
+    // Idle reader holding a lock license: warn over the countdown, close the
+    // warning once they are back (any input) or the lock is gone.
+    effect(() => {
+      const counting = this.lockService.idleCountdown() !== null;
+      if (counting && !this.lockIdleDialog) {
+        this.lockIdleDialog = this.dialog.open(LockIdleDialogComponent, {
+          autoFocus: 'dialog',
+          // Fixed, so the dialog does not resize as the countdown loses a digit.
+          width: '520px',
+          maxWidth: 'calc(100vw - 32px)',
+          panelClass: 'simple-dialog-panel'
+        });
+        this.lockIdleDialog.afterClosed().subscribe(() => {
+          this.lockIdleDialog = null;
+          // Dismissed by Esc or the backdrop: the reader is plainly there.
+          this.lockService.markActive();
+        });
+      } else if (!counting && this.lockIdleDialog) {
+        this.lockIdleDialog.close();
       }
     });
   }

@@ -346,9 +346,13 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     const configured = this.configService.getLocalizedLabel('license', type, lang);
     const base = this.configService.getLocalizedLabel('license', type, lang, true);
     const variantInPlay = configured !== type && configured !== base;
-    return variantInPlay
-      ? configured
-      : this.translate.instant(`access-denied.license-${type}`);
+    if (variantInPlay) {
+      return configured;
+    }
+    // `other` is the fallback for licenses the config does not know; it has no
+    // label of its own and reads as the generic "restricted access".
+    const key = type === 'other' ? 'default' : type;
+    return this.translate.instant(`access-denied.license-${key}`);
   }
 
   getFaqTitle(): string {

@@ -25,6 +25,7 @@ Konfigurace knihovny leží přímo v adresáři `public/local-config/`. Kód kn
   "features": {},
   "ui": {},
   "export": {},
+  "locks": {},
   "viewer": {},
   "search": {},
   "pages": [],
@@ -214,6 +215,45 @@ Když některé pole chybí a celý blok `features` **není** v configu, použij
 | Pole | Povinné | Popis | Výchozí |
 |---|---|---|---|
 | `cookiebar` | ne | Zda zobrazit cookie lištu při první návštěvě. | `true` |
+
+---
+
+## `locks` — zámkové licence
+
+Dokument pod zámkovou licencí může současně číst jen omezený počet čtenářů. Klient si zámek vyžádá sám, když ho `items/{pid}/info` nabídne v `accessibleLocks`, a průběžně ho obnovuje. Aby nečinný čtenář neblokoval místo dalším, po `idleTimeoutSec` bez jakéhokoli vstupu (myš, klávesnice, scroll, dotyk) se zámek uvolní. Posledních `warningSec` sekund běží dialog s odpočtem a tlačítkem „Pokračovat ve čtení“. Čas ve skryté záložce se počítá jako nečinnost.
+
+```json
+"locks": {
+  "idleTimeoutSec": 600,
+  "warningSec": 60
+}
+```
+
+| Pole | Povinné | Popis | Výchozí |
+|---|---|---|---|
+| `idleTimeoutSec` | ne | Po kolika sekundách nečinnosti se zámek uvolní pro dalšího čtenáře. | `600` |
+| `warningSec` | ne | Kolik sekund před uvolněním se zobrazí dialog s odpočtem. Má být menší než `idleTimeoutSec`. | `60` |
+
+Chybějící blok nebo pole se doplní výchozí hodnotou. Pokud je zapnutý interní přepínač knihoven (`features.librarySwitch`), platí `locks` ze základního `config-main.json` i pro přepnutou knihovnu.
+
+### Chování klienta
+
+- **Žádná licence není natvrdo v kódu.** Zámkovou licencí je každá, kterou backend vrátí v `accessibleLocks` (např. `kkvhb_zamek`). Když jich nabídne víc, klient je zkouší postupně, dokud nějaký zámek nezíská. Vlastní název a texty licence se nastavují v `config-licenses.json` jako u ostatních licencí; jinak se zobrazí obecné „Omezený přístup“.
+- **Obnovování.** Zámek se obnovuje každou polovinu `refreshInterval`, který vrací backend.
+- **Uvolnění.** Zámek se uvolní při odchodu z dokumentu (i přímo na jiný dokument), při zavření nebo opuštění záložky a po nečinnosti. Když je dokument otevřený ve více záložkách téže session, uvolní se až po zavření poslední z nich. Po návratu tlačítkem Zpět (stránka obnovená z cache prohlížeče) se zámek získá znovu.
+- **Obsazeno.** Když jsou všechna místa obsazená (409), zobrazí se místo dokumentu hláška s tlačítkem „Zkusit znovu“. Po uvolnění pro nečinnost se zobrazí hláška s tlačítkem „Znovu získat přístup“; automaticky se zámek znovu nezíská.
+
+### Vztah k nastavení backendu
+
+Samotné parametry zámku se nastavují v administraci Krameria u každé zámkové licence zvlášť, ne v klientovi:
+
+| Parametr backendu | Význam |
+|---|---|
+| `refreshInterval` | Do kolika sekund od posledního obnovení zámek vyprší, pokud ho klient neobnoví. |
+| `maxInterval` | Maximální životnost jednoho zámku od vytvoření (v odpovědi jako `maxTime`). Po vypršení backend při dalším obnovení vytvoří nový zámek, pokud je volné místo, takže aktivní čtenář pokračuje bez přerušení. |
+| `maxReaders` | Kolik čtenářů může mít zámek současně; nad limit backend vrací 409. |
+
+`idleTimeoutSec` má smysl jen tehdy, když je kratší než `maxInterval` licence. Jinak zámek dřív obnoví backend a uvolnění pro nečinnost nikdy nenastane.
 
 ---
 

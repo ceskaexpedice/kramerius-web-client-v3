@@ -4,6 +4,7 @@ import { provideHttpClientTesting, HttpTestingController } from '@angular/common
 import { LockService } from './lock.service';
 import { EnvironmentService } from './environment.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ConfigService } from '../../core/config/config.service';
 import { AccessibleLock, LockItem } from '../models/document-info';
 
 const API = 'https://k7.example/search/api/client/v7.0/';
@@ -28,19 +29,35 @@ describe('LockService', () => {
   let http: HttpTestingController;
 
   beforeEach(() => {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('kramerius-lock-holders:'))
+      .forEach(k => localStorage.removeItem(k));
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: EnvironmentService, useValue: { getApiUrl: (p = '') => API + p } },
-        { provide: AuthService, useValue: { getAccessToken: () => 'token' } }
+        { provide: AuthService, useValue: { getAccessToken: () => 'token' } },
+        { provide: ConfigService, useValue: { locks: { idleTimeoutSec: 300, warningSec: 60 } } }
       ]
     });
     service = TestBed.inject(LockService);
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    service.release();
+    http.match(() => true).forEach(r => r.flush(null));
+    http.verify();
+  });
+
+  /** Acquires LOCK and answers every refresh within `ms` of fake time. */
+  function holdFor(ms: number, step = 1_000): void {
+    for (let t = 0; t < ms; t += step) {
+      tick(step);
+      http.match(`${API}locks/${LOCK.hash}/refresh`).forEach(r => r.flush(ITEM));
+    }
+  }
 
   it('acquires a lock through locks/{hash}/refresh', () => {
     let acquired: boolean | undefined;
@@ -96,4 +113,99 @@ describe('LockService', () => {
     // No refresh is left scheduled after release.
     tick(60_000);
   }));
+
+  describe('idle reader', () => {
+    // The idle watch is a timer, so the lock is taken inside each fakeAsync test.
+    function acquireLock(): void {
+      service.acquire(LOCK).subscribe();
+      http.expectOne(`${API}locks/${LOCK.hash}/refresh`).flush(ITEM);
+    }
+
+    it('counts down over the last warningSec, then releases the lock', fakeAsync(() => {
+      acquireLock();
+      const lost: AccessibleLock[] = [];
+      service.lost$.subscribe(l => lost.push(l));
+
+      holdFor(239_000);
+      expect(service.idleCountdown()).toBeNull();
+
+      holdFor(2_000);
+      expect(service.idleCountdown()).toBe(59);
+
+      holdFor(59_000);
+      expect(service.held()).toBeNull();
+      expect(service.idleReleased()).toEqual(LOCK);
+      expect(service.idleCountdown()).toBeNull();
+      expect(lost).toEqual([LOCK]);
+      expect(http.expectOne(`${API}locks/${LOCK.hash}`).request.method).toBe('DELETE');
+    }));
+
+    it('keeps the lock while the reader is active', fakeAsync(() => {
+      acquireLock();
+      holdFor(250_000);
+      expect(service.idleCountdown()).not.toBeNull();
+
+      document.dispatchEvent(new Event('keydown'));
+      expect(service.idleCountdown()).toBeNull();
+
+      holdFor(200_000);
+      expect(service.isHeld(LOCK.hash)).toBeTrue();
+      expect(service.idleReleased()).toBeNull();
+      service.release();
+      http.expectOne(`${API}locks/${LOCK.hash}`).flush(null);
+    }));
+  });
+
+  describe('several tabs of one session', () => {
+    it('does not release the server lock while another tab still uses it', fakeAsync(() => {
+      localStorage.setItem(`kramerius-lock-holders:${LOCK.hash}`, JSON.stringify({ otherTab: Date.now() }));
+      service.acquire(LOCK).subscribe();
+      http.expectOne(`${API}locks/${LOCK.hash}/refresh`).flush(ITEM);
+
+      service.release();
+      http.expectNone(`${API}locks/${LOCK.hash}`);
+      expect(service.held()).toBeNull();
+      expect(JSON.parse(localStorage.getItem(`kramerius-lock-holders:${LOCK.hash}`)!)).toEqual({ otherTab: jasmine.any(Number) });
+    }));
+
+    it('ignores a tab that stopped refreshing', fakeAsync(() => {
+      localStorage.setItem(`kramerius-lock-holders:${LOCK.hash}`, JSON.stringify({ deadTab: Date.now() - 120_000 }));
+      service.acquire(LOCK).subscribe();
+      http.expectOne(`${API}locks/${LOCK.hash}/refresh`).flush(ITEM);
+
+      service.release();
+      expect(http.expectOne(`${API}locks/${LOCK.hash}`).request.method).toBe('DELETE');
+      expect(localStorage.getItem(`kramerius-lock-holders:${LOCK.hash}`)).toBeNull();
+    }));
+  });
+
+  describe('leaving the page', () => {
+    it('releases the lock with a keepalive DELETE when the tab closes', () => {
+      const fetchSpy = spyOn(window, 'fetch').and.resolveTo(new Response(null));
+      service.acquire(LOCK).subscribe();
+      http.expectOne(`${API}locks/${LOCK.hash}/refresh`).flush(ITEM);
+
+      window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: false }));
+
+      expect(fetchSpy).toHaveBeenCalledOnceWith(`${API}locks/${LOCK.hash}`, jasmine.objectContaining({
+        method: 'DELETE',
+        keepalive: true,
+        headers: { Authorization: 'Bearer token' }
+      }));
+      expect(service.held()).toBeNull();
+    });
+
+    it('reports the lock lost when the page comes back from the bfcache', () => {
+      spyOn(window, 'fetch').and.resolveTo(new Response(null));
+      const lost: AccessibleLock[] = [];
+      service.lost$.subscribe(l => lost.push(l));
+      service.acquire(LOCK).subscribe();
+      http.expectOne(`${API}locks/${LOCK.hash}/refresh`).flush(ITEM);
+
+      window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+
+      expect(lost).toEqual([LOCK]);
+    });
+  });
 });

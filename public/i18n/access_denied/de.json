@@ -72,5 +72,7 @@
   "access-denied.other.faq.q7": "Wie unterscheidet sich „Lesesaal“ von „DNNT – online“?",
   "access-denied.other.faq.a7": "Lesesaal – das Dokument ist geschützt und nur im Lesesaal lesbar. DNNT – ein vergriffenes Werk, das nach der Anmeldung online und im Lesesaal lesbar ist.",
   "access-denied.lock-unavailable": "Dieses Dokument ist über eine Sperrlizenz zugänglich, aber alle Sperren werden derzeit von anderen Lesern genutzt. Bitte versuchen Sie es später erneut.",
-  "access-denied.lock-retry": "Erneut versuchen"
+  "access-denied.lock-retry": "Erneut versuchen",
+  "access-denied.lock-idle-released": "Der Zugang zu diesem Dokument wurde wegen Inaktivität für andere Leser freigegeben.",
+  "access-denied.lock-reacquire": "Zugang erneut anfordern"
 }

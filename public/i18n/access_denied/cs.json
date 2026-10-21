@@ -72,5 +72,7 @@
     "access-denied.other.faq.q7": "Jak se liší „Studovna“ a „DNNT – online“?",
     "access-denied.other.faq.a7": "Studovna – dokument je chráněný a dostupný pro čtení pouze ve studovně. DNNT – dokument nedostupný na trhu a čitelný online po přihlášení a ve studovně.",
     "access-denied.lock-unavailable": "Dokument je přístupný na základě zámkové licence, ale všechny zámky právě využívají jiní čtenáři. Zkuste to prosím později.",
-    "access-denied.lock-retry": "Zkusit znovu"
+    "access-denied.lock-retry": "Zkusit znovu",
+    "access-denied.lock-idle-released": "Přístup k dokumentu byl kvůli nečinnosti uvolněn pro další čtenáře.",
+    "access-denied.lock-reacquire": "Znovu získat přístup"
 }

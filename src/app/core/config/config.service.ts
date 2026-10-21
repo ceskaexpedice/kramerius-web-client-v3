@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import {
   AppConfiguration,
   FeaturesConfig,
+  LocksConfig,
   ViewerConfig,
   ViewerControlsConfig,
   SelectionControlsConfig,
@@ -229,7 +230,8 @@ export class ConfigService {
     }
 
     const fallback = await this.buildRegistryFallbackConfig(selectedCode);
-    this.applyResolvedConfig(fallback, selectedCode, true);
+    // Client behaviour (not library branding) still follows the base config.
+    this.applyResolvedConfig({ ...fallback, locks: baseConfig.locks }, selectedCode, true);
   }
 
   /**
@@ -379,7 +381,8 @@ export class ConfigService {
       homeSections: loaded.homeSections ?? DEFAULT_HOME_SECTIONS,
       homepageTitle: loaded.homepageTitle,
       homepageSubtitle: loaded.homepageSubtitle,
-      footer: loaded.footer ?? DEFAULT_CONFIG.footer
+      footer: loaded.footer ?? DEFAULT_CONFIG.footer,
+      locks: { ...DEFAULT_CONFIG.locks, ...loaded.locks }
     };
   }
 
@@ -412,6 +415,11 @@ export class ConfigService {
   // Integrations config accessors
   get integrations(): IntegrationsConfig | undefined {
     return this.getConfig().integrations;
+  }
+
+  // Lock license idle-timeout accessors
+  get locks(): LocksConfig {
+    return this.getConfig().locks;
   }
 
   // Feature flags accessors
