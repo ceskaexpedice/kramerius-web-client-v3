@@ -1,9 +1,15 @@
 @use "_z-index.scss" as z;
 
 .years-timeline {
+  // Proportional scale of the whole timeline (1 = original size)
+  --timeline-scale: 0.9;
+  // Scale of year text and icons (1 = original size); kept separate so the text can be
+  // smaller relative to the boxes
+  --timeline-text-scale: 0.8;
+
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: calc(2rem * var(--timeline-scale));
   width: 100%;
   container-type: inline-size;
 }
@@ -11,11 +17,12 @@
 .year-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: calc(1rem * var(--timeline-scale));
   width: 100%;
 
   // Use container query to respond to actual available width, not viewport
-  @container (max-width: 950px) {
+  // (950px * timeline scale — container queries cannot use custom properties)
+  @container (max-width: 855px) {
     flex-wrap: wrap;
   }
 }
@@ -35,14 +42,14 @@
     content: '';
     position: absolute;
     top: 50%;
-    left: -0.5rem;
-    right: -0.5rem;
+    left: calc(-0.5rem * var(--timeline-scale));
+    right: calc(-0.5rem * var(--timeline-scale));
     height: 1px;
     background-color: var(--color-border-additional);
     z-index: z.$timeline-background;
   }
 
-  @container (max-width: 950px) {
+  @container (max-width: 855px) {
     flex: 0 0 auto;
   }
 
@@ -53,14 +60,14 @@
   .year-item {
     position: relative;
     z-index: z.$timeline-items;
-    font-size: var(--font-size-large);
+    font-size: calc(var(--font-size-large) * var(--timeline-text-scale));
     font-weight: var(--font-weight-semi-bold);
-    padding: var(--spacing-x2);
+    padding: calc(var(--spacing-x2) * var(--timeline-scale));
     background-color: var(--color-bg-base);
     border: 1px solid var(--color-border-additional);
     color: var(--color-text-dark);
     border-radius: 4px;
-    width: 80px;
+    width: calc(80px * var(--timeline-scale));
 
     &.with-icon {
       font-weight: normal;
@@ -75,15 +82,15 @@
       gap: 2px;
       justify-content: center;
       align-items: center;
-      font-size: calc(17px * var(--accessibility-text-scale));
+      font-size: calc(17px * var(--accessibility-text-scale) * var(--timeline-text-scale));
     }
   }
 
   .year-item--wrapper {
-    padding: 2px 8px;
+    padding: calc(2px * var(--timeline-scale)) calc(8px * var(--timeline-scale));
     border-radius: 2px;
     align-items: center;
-    line-height: var(--line-height-3);
+    line-height: calc(var(--line-height-3) * var(--timeline-scale));
     width: 100%;
     text-align: center;
   }
@@ -127,8 +134,8 @@
 .range-years-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: calc(1rem * var(--timeline-scale));
+  margin-bottom: calc(2rem * var(--timeline-scale));
   position: relative;
   width: 100%;
 }
@@ -145,9 +152,9 @@
   }
 
   .range-year-label {
-    font-size: var(--font-size-large);
+    font-size: calc(var(--font-size-large) * var(--timeline-text-scale));
     font-weight: var(--font-weight-semi-bold);
-    padding: var(--spacing-x2);
+    padding: calc(var(--spacing-x2) * var(--timeline-scale));
     border-radius: 4px;
     background-color: var(--color-bg-base);
     border: 1px solid var(--color-border-additional);
@@ -177,10 +184,10 @@
 
 .year-item--dots {
   position: absolute;
-  bottom: 8px;
+  bottom: calc(8px * var(--timeline-scale));
   left: 50%;
   transform: translateX(-50%);
-  font-size: calc(10px * var(--accessibility-text-scale, 1));
+  font-size: calc(10px * var(--accessibility-text-scale, 1) * var(--timeline-scale));
   line-height: 1;
   letter-spacing: 1px;
   pointer-events: none;
