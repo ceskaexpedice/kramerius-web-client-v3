@@ -154,7 +154,8 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   }
 
   isAccessDenied(document: any): boolean {
-    return !this.recordHandler.isRecordPublic(document.licences)
+    return this.documentInfoService.isLockUnavailable()
+      || !this.recordHandler.isRecordPublic(document.licences)
       && !this.documentInfoService.canAccessDocument()
       && !this.userService.hasAnyLicense(document.licences);
   }

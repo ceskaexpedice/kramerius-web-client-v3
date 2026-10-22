@@ -138,7 +138,7 @@ Podrobnosti viz [`docs/guide.md`](docs/guide.md#načítání-konfigurace-z-api-v
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.34 .
+docker build -t trinera/cdk-client:3.0.35 .
 ```
 
 ### Build & push (multiplatformní) image na Docker Hub
@@ -146,7 +146,7 @@ docker build -t trinera/cdk-client:3.0.34 .
 ```shell
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.34 \
+  -t trinera/cdk-client:3.0.35 \
   --push .
 ```
 
@@ -154,7 +154,7 @@ docker buildx build \
 
 ```shell
 docker run -p 1234:80 \
-  trinera/cdk-client:3.0.34
+  trinera/cdk-client:3.0.35
 ```
 
 Otevřít v prohlížeči:
@@ -171,7 +171,7 @@ adresáře:
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.34
+  trinera/cdk-client:3.0.35
 ```
 
 ## Spuštění pomocí Docker Compose
@@ -181,7 +181,7 @@ Vytvořte soubor `docker-compose.yml`:
 ```yaml
 services:
   cdk-client:
-    image: trinera/cdk-client:3.0.34
+    image: trinera/cdk-client:3.0.35
     ports:
       - "1234:80"
     environment:

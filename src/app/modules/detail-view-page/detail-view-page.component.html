@@ -230,8 +230,9 @@
           <!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
 
           <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && !recordHandler.isRecordPublic(document.licences) &&
-          !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)) {
+          @if (checkState === 'LOADED' && (documentInfoService.isLockUnavailable() ||
+          (!recordHandler.isRecordPublic(document.licences) &&
+          !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)))) {
             <app-document-access-denied [metadata]="document">
             </app-document-access-denied>
           } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
@@ -309,6 +310,9 @@
               @let hasSelection = iiifViewerService.selectedArea$ | async;
               @if (!isDragging && !!hasSelection) {
                 <app-selection-mode-info>
+                </app-selection-mode-info>
+              } @else if (!isDragging && !hasSelection) {
+                <app-selection-mode-info variant="hint">
                 </app-selection-mode-info>
               }
             }

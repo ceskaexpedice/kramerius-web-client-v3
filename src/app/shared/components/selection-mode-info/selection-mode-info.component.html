@@ -1,4 +1,15 @@
-@if (showTip()) {
+@if (variant() === 'hint') {
+  <div class="selection-mode-info">
+    <div class="selection-mode-info--header">
+      <span>{{ 'select-area-drag' | translate }}</span>
+      <div class="selection-mode-info--actions">
+        <button class="button primary sm btn-cancel" (click)="onCancel()">
+          {{ 'cancel' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+} @else if (showTip()) {
   <div class="selection-mode-info has-selection">
     <div class="selection-mode-info--header">
       <span>{{ 'selection-edit-or-cancel' | translate }}</span>

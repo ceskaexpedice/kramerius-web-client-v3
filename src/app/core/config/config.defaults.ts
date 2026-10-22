@@ -30,6 +30,10 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   ui: {
     cookiebar: true
   },
+  locks: {
+    idleTimeoutSec: 600,
+    warningSec: 60
+  },
   export: {
     print: true,
     jpeg: true,

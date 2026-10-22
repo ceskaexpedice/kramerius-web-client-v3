@@ -14,13 +14,14 @@
         <div class="paginator-top--actions">
 
           <button class="button tertiary outlined"
-                  [disabled]="searchService.page <= 1 && results.indexOf(results[0]) === getCurrentItemIndex()"
+                  [disabled]="getCurrentItemIndex() === -1 || (searchService.page <= 1 && getCurrentItemIndex() === 0)"
                   (click)="onPreviousResult($event)" [title]="'previous' | translate">
             <i class="icon-arrow-left-1"></i>
             {{ 'previous-search-button--label' | translate }}
           </button>
 
           <button class="button tertiary outlined" (click)="onNextResult($event)"
+                  [disabled]="getCurrentItemIndex() === -1"
                   [title]="'next' | translate">
             {{ 'next-search-button--label' | translate }}
             <i class="icon-arrow-right-1"></i>

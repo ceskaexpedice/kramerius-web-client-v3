@@ -189,6 +189,8 @@ export class DetailViewService {
     this._articlePagePid.set(null);
     this._pageAccessMap.set(new Map());
     this._isDocumentAccessDenied.set(false);
+    // Leaving the document frees its lock slot for the next reader.
+    this.documentInfoService.reset();
     this.pdfService.clearPdfData();
     this.store.dispatch(clearDocumentDetail());
     // Clear the CDK member-library source so the next document can't inherit the
@@ -858,6 +860,10 @@ export class DetailViewService {
     if (articlePagePid) {
       // Non-PDF article: load info for the foster-child page that is displayed
       this.documentInfoService.loadPageInfo(articlePagePid);
+    } else if (this.isPdf && this.document?.uuid) {
+      // PDF document: its pages are virtual `{uuid}_{n}` children with no
+      // `items/…/info` of their own (404) — the PDF and its access live on the document.
+      this.documentInfoService.loadPageInfo(this.document.uuid);
     } else if (currentPage && currentPage.model === DocumentTypeEnum.page) {
       // Page-based document - load page info
       this.documentInfoService.loadPageInfo(currentPage.pid);

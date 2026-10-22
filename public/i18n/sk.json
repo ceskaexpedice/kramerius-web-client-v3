@@ -156,6 +156,7 @@
   "playback-queue": "Zoznam prehrávania",
   "playback-close": "Zavrieť prehrávač",
   "track-details": "Detail stopy",
+  "track--label": "Skladba",
   "now-playing--header": "Práve sa prehráva",
   "share-dialog--header": "Zdieľať",
   "folder-share-dialog--header": "Zdieľať zoznam „{{name}}“",
@@ -861,5 +862,8 @@
   "map-series--close": "Zavrieť",
   "map-series--view-documents": "Dokumenty",
   "map-series--change-series": "Zmeniť mapové dielo",
-  "map-series--filter-series": "Hľadať mapové dielo"
+  "map-series--filter-series": "Hľadať mapové dielo",
+  "lock-idle-dialog--header": "Ste tu ešte?",
+  "lock-idle-dialog--message": "Pre nečinnosť uvoľníme prístup k dokumentu ďalšiemu čitateľovi o {{seconds}}.",
+  "lock-idle-dialog--continue": "Pokračovať v čítaní"
 }

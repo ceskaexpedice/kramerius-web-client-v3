@@ -203,7 +203,7 @@
 
   <ng-container right-sidebar>
     <ng-container *ngIf="detailViewService.document$ | async as document">
-      <app-metadata-sidebar [metadata]="document" mode="floating"
+      <app-metadata-sidebar [metadata]="document" mode="floating" [track]="soundService.currentTrack"
         [tools]="{search: true, export: true, description: true, ai: true}">
       </app-metadata-sidebar>
     </ng-container>
@@ -241,7 +241,7 @@
       @switch (mobileActivePanel()) {
         @case ('description') {
           <!-- Panel header already shows the title, so hide the section's own. -->
-          <app-metadata-section [showTitle]="false" [metadata]="document"
+          <app-metadata-section [showTitle]="false" [metadata]="document" [track]="soundService.currentTrack"
                                 [uuid]="detailViewService.document?.uuid || document.uuid || ''">
           </app-metadata-section>
         }

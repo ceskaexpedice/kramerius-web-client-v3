@@ -21,6 +21,7 @@ import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
 import { APP_ROUTES_ENUM } from '../../../../../app.routes';
 import { CdkSourceService } from '../../../../../shared/services/cdk-source.service';
+import { DocumentInfoService } from '../../../../../shared/services/document-info.service';
 
 
 interface FaqAnswer {
@@ -62,6 +63,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private dialog = inject(MatDialog);
   private cdkSource = inject(CdkSourceService);
   private destroyRef = inject(DestroyRef);
+  protected documentInfoService = inject(DocumentInfoService);
 
   constructor() {
     // Reload HTML content when language changes. FAQ items are rebuilt too:
@@ -344,9 +346,13 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     const configured = this.configService.getLocalizedLabel('license', type, lang);
     const base = this.configService.getLocalizedLabel('license', type, lang, true);
     const variantInPlay = configured !== type && configured !== base;
-    return variantInPlay
-      ? configured
-      : this.translate.instant(`access-denied.license-${type}`);
+    if (variantInPlay) {
+      return configured;
+    }
+    // `other` is the fallback for licenses the config does not know; it has no
+    // label of its own and reads as the generic "restricted access".
+    const key = type === 'other' ? 'default' : type;
+    return this.translate.instant(`access-denied.license-${key}`);
   }
 
   getFaqTitle(): string {

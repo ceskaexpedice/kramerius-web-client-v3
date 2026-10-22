@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, computed, ChangeDetectorRef, signal, DestroyRef, effect, untracked } from '@angular/core';
 import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
@@ -41,6 +41,7 @@ import { AppTranslationService } from '../../translation/app-translation.service
 import { SettingsService } from '../../../modules/settings/settings.service';
 import { getLanguageFallbackChain } from '../../translation/translation-fallback-chain';
 import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/language-utils';
+import { SoundTrackModel } from '../../../modules/models/sound-track.model';
 
 @Component({
   selector: 'app-metadata-section',
@@ -92,6 +93,28 @@ export class MetadataSection implements OnInit, OnChanges {
 
   toggleArticle() {
     this.articleExpanded.update(v => !v);
+  }
+
+  // Currently playing track of a sound recording (#205). The player is global, so
+  // the card is shown only for a track belonging to the displayed recording.
+  private _track = signal<SoundTrackModel | null>(null);
+  @Input() set track(value: SoundTrackModel | null | undefined) {
+    this._track.set(value ?? null);
+  }
+
+  readonly activeTrack = computed(() => {
+    const track = this._track();
+    const rootPid = this._solrData()?.rootPid;
+    return track && rootPid && track['root.pid'] === rootPid ? track : null;
+  }, { equal: (a, b) => a?.pid === b?.pid });
+
+  private _trackData = signal<Metadata | null>(null);
+  get trackData() { return this._trackData(); }
+
+  trackExpanded = signal(true);
+
+  toggleTrack() {
+    this.trackExpanded.update(v => !v);
   }
 
   // Computed isPublic that reacts to both data changes AND user license changes
@@ -292,6 +315,11 @@ export class MetadataSection implements OnInit, OnChanges {
       if (this.collectionsMode || this.hostOwnsCdkSource) return;
       const selected = this.selectedCdkCollection();
       this.cdkSource.setCode(this.isCdk() ? (selected || null) : null);
+    });
+
+    effect(() => {
+      const pid = this.activeTrack()?.pid ?? null;
+      untracked(() => this.loadTrackMods(pid));
     });
   }
 
@@ -574,6 +602,47 @@ export class MetadataSection implements OnInit, OnChanges {
     } else {
       this._articleData.set(null);
     }
+  }
+
+  private async loadTrackMods(pid: string | null) {
+    this._trackData.set(null);
+    if (!pid) return;
+    try {
+      const mods = await this.modsParser.getMods(pid, 'full', this.effectiveLibraryCode());
+      // Ignore a late response for a track that is no longer playing.
+      if (this.activeTrack()?.pid === pid) {
+        this._trackData.set(mods);
+        this.cdr.markForCheck();
+      }
+    } catch (error) {
+      console.warn('MetadataSection: failed to load track MODS for', pid, error);
+    }
+  }
+
+  /** Track name: MODS partName (older records), else title + subtitle, else the Solr title. */
+  get trackTitle(): string {
+    const title = this.trackData?.titles.find(t => !t.type) ?? this.trackData?.titles[0];
+    if (title?.partName) return title.partName;
+    const main = title?.mainTitle().trim();
+    if (main) return title!.subTitle ? `${main}: ${title!.subTitle}` : main;
+    return this.activeTrack()?.['title.search'] ?? '';
+  }
+
+  get trackDuration(): string {
+    const seconds = this.activeTrack()?.['track.length'];
+    if (!seconds) return '';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  /** MARC relator codes (cmp, cnd, prf, …) spelled out, e.g. "Skladateľ, Dirigent". */
+  getAuthorRoles = (author: Author): string => {
+    return (author.roles ?? []).map(code => {
+      const key = `role.${code}`;
+      const label = this.translate.instant(key);
+      return label && label !== key ? label : code;
+    }).join(', ');
   }
 
   private isObject(v: any): boolean {

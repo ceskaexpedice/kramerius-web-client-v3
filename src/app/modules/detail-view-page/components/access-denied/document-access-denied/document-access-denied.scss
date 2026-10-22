@@ -17,3 +17,18 @@
 .license-link {
   display: inline;
 }
+
+.lock-unavailable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--spacing-x3);
+  row-gap: var(--spacing-x2);
+
+  // Beats the paragraph spacing of `.access-denied-description p`, whose bottom
+  // margin would lift the text off the button's centre line.
+  .access-denied-description & p {
+    margin: 0;
+    font-weight: var(--font-weight-semi-bold);
+  }
+}

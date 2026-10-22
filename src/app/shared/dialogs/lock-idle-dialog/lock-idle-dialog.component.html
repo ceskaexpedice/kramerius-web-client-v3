@@ -1,0 +1,22 @@
+<div class="generic-dialog-container">
+  <h2>
+    {{ 'lock-idle-dialog--header' | translate }}
+    <button class="button link tertiary icon-button close-button" (click)="onContinue()"
+            [attr.aria-label]="'lock-idle-dialog--continue' | translate">
+      <i class="icon-close"></i>
+    </button>
+  </h2>
+
+  <div class="dialog-body">
+    <div class="content">
+      <!-- The countdown and its unit are set in bold; Angular's sanitizer keeps the <strong>. -->
+      <p [innerHTML]="'lock-idle-dialog--message' | translate: { seconds: '<strong>' + (lockService.idleCountdown() ?? 0) + ' s</strong>' }"></p>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="button primary" (click)="onContinue()">
+      {{ 'lock-idle-dialog--continue' | translate }}
+    </button>
+  </div>
+</div>

@@ -156,6 +156,7 @@
   "playback-queue": "Kolejka odtwarzania",
   "playback-close": "Zamknij odtwarzacz",
   "track-details": "Szczegóły utworu",
+  "track--label": "Utwór",
   "now-playing--header": "Aktualnie odtwarzane",
   "share-dialog--header": "Udostępnij",
   "folder-share-dialog--header": "Udostępnij listę „{{name}}“",
@@ -860,5 +861,8 @@
   "map-series--close": "Zamknij",
   "map-series--view-documents": "Dokumenty",
   "map-series--change-series": "Zmień dzieło kartograficzne",
-  "map-series--filter-series": "Szukaj dzieła kartograficznego"
+  "map-series--filter-series": "Szukaj dzieła kartograficznego",
+  "lock-idle-dialog--header": "Czy nadal tu jesteś?",
+  "lock-idle-dialog--message": "Z powodu braku aktywności dostęp do dokumentu zostanie za {{seconds}} przekazany kolejnemu czytelnikowi.",
+  "lock-idle-dialog--continue": "Czytaj dalej"
 }

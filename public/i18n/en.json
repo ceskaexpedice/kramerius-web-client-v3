@@ -164,6 +164,7 @@
   "playback-queue": "Playback queue",
   "playback-close": "Close player",
   "track-details": "Track details",
+  "track--label": "Track",
   "now-playing--header": "Now playing",
   "share-dialog--header": "Share",
   "folder-share-dialog--header": "Share list „{{name}}“",
@@ -870,5 +871,8 @@
   "map-series--close": "Close",
   "map-series--view-documents": "Documents",
   "map-series--change-series": "Change map series",
-  "map-series--filter-series": "Search map series"
+  "map-series--filter-series": "Search map series",
+  "lock-idle-dialog--header": "Are you still there?",
+  "lock-idle-dialog--message": "Due to inactivity, access to this document will be released to the next reader in {{seconds}}.",
+  "lock-idle-dialog--continue": "Continue reading"
 }

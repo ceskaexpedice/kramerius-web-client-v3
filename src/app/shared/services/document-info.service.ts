@@ -1,8 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SolrService } from '../../core/solr/solr.service';
 import { DocumentInfo } from '../models/document-info';
 import { UserService } from './user.service';
-import { delay } from 'rxjs';
+import { LockService } from './lock.service';
+import { concatMap, delay, first, from, map, Observable, of, switchMap } from 'rxjs';
 import { getOpenLicenses } from '../../core/solr/solr-misc';
 
 export type DocumentInfoState = 'INITIAL' | 'LOADING' | 'LOADED' | 'ERROR' | 'CLEARED';
@@ -17,6 +19,10 @@ export type DocumentInfoState = 'INITIAL' | 'LOADING' | 'LOADED' | 'ERROR' | 'CL
 export class DocumentInfoService {
     private solrService = inject(SolrService);
     private userService = inject(UserService);
+    private lockService = inject(LockService);
+
+    /** The pid whose info is on display, so a lost lock can re-check it. */
+    private currentPid: string | null = null;
 
     // Signal to store the current page info
     private _currentPageInfo = signal<DocumentInfo | null>(null);
@@ -36,6 +42,16 @@ export class DocumentInfoService {
     private _error = signal<string | null>(null);
     public readonly error = this._error.asReadonly();
 
+    constructor() {
+        // A lock that lapsed or was taken over no longer covers the page on screen;
+        // re-reading its info flips the view to access denied (or re-acquires).
+        this.lockService.lost$.pipe(takeUntilDestroyed()).subscribe(() => {
+            if (this.currentPid) {
+                this.loadPageInfo(this.currentPid);
+            }
+        });
+    }
+
     /**
      * Loads page info for the given page UUID
      * @param pageUuid - The UUID of the page to load info for
@@ -46,12 +62,16 @@ export class DocumentInfoService {
             return;
         }
 
+        this.currentPid = pageUuid;
         this._isLoading.set(true);
         this._state.set('LOADING');
         this._error.set(null);
 
         this.solrService.getPageInfo(pageUuid)
-            .pipe(delay(0))
+            .pipe(
+                switchMap(info => this.withLock(pageUuid, info)),
+                delay(0)
+            )
             .subscribe({
                 next: (pageInfo: DocumentInfo) => {
                     this._currentPageInfo.set(pageInfo);
@@ -70,6 +90,64 @@ export class DocumentInfoService {
     }
 
     /**
+     * Takes a lock `info` offers when the page is not otherwise served, and returns
+     * the info as it reads once the lock is held — `providedByLicenses` then names the
+     * lock license. Stays in the LOADING state meanwhile, so access denied does not
+     * flash up before the lock arrives.
+     *
+     * Nothing here is tied to a particular license: the backend lists under
+     * `accessibleLocks` every lock license the reader may use for the page. They are
+     * tried in order until one is free; one is enough to open the page. When all are
+     * taken by other readers (409), the info is returned as is and
+     * `LockService.unavailable` tells the access denied screen why.
+     */
+    private withLock(pageUuid: string, info: DocumentInfo): Observable<DocumentInfo> {
+        const locks = info.accessibleLocks ?? [];
+
+        // The reader moved on to something the held lock does not cover (another
+        // document, without a full teardown of the detail view): free the slot.
+        const held = this.lockService.held();
+        if (held
+            && !info.providedByLicenses?.includes(held.lock.right.license)
+            && !locks.some(l => l.hash === held.lock.hash)) {
+            this.lockService.release();
+        }
+
+        // Released for idleness, yet still served under it: the release has not
+        // reached the server yet, or another tab of the session still holds the
+        // lock. This tab stays released all the same.
+        const idleReleased = this.lockService.idleReleased();
+        if (idleReleased && info.providedByLicenses?.includes(idleReleased.right.license)) {
+            return of(info);
+        }
+
+        if (!locks.length || info.providedByLicenses?.length) {
+            // Served without a lock: neither a busy nor an idle-released lock applies
+            // to this page. Moving on to it is input, too, so a later locked page may
+            // take the lock again.
+            this.lockService.clearUnavailable();
+            this.lockService.clearIdleReleased();
+            return of(info);
+        }
+
+        // Already held, yet the page is not served under it: re-reading would only
+        // repeat this answer, so leave the page denied. A lock released because the
+        // reader went idle stays released until they ask for it again (`retryLock`).
+        if (locks.some(l => this.lockService.isHeld(l.hash) || this.lockService.idleReleased()?.hash === l.hash)) {
+            return of(info);
+        }
+
+        return from(locks).pipe(
+            concatMap(lock => this.lockService.acquire(lock)),
+            first(acquired => acquired, false),
+            switchMap(acquired => acquired
+                ? this.solrService.getPageInfo(pageUuid)
+                : of(info)),
+            map(result => result ?? info)
+        );
+    }
+
+    /**
      * Clears the current page info
      */
     clearPageInfo(): void {
@@ -83,6 +161,9 @@ export class DocumentInfoService {
      * Resets the service to initial state
      */
     reset(): void {
+        this.currentPid = null;
+        this.lockService.release();
+        this.lockService.clearIdleReleased();
         this._currentPageInfo.set(null);
         this._error.set(null);
         this._isLoading.set(false);
@@ -157,6 +238,11 @@ export class DocumentInfoService {
             return true;
         }
 
+        // A lock license is granted by holding the lock, not by the user's profile.
+        if (this.lockService.holdsLicense(info.providedByLicenses)) {
+            return true;
+        }
+
         return this.userService.hasAnyLicense(info.providedByLicenses);
     }
 
@@ -169,6 +255,11 @@ export class DocumentInfoService {
      * @returns true if user can access the document, false otherwise
      */
     canAccessDocument(documentLicences?: string[]): boolean {
+        // A lock license is used through the lock itself: without it (busy, or
+        // released for idleness) the profile license does not open the document.
+        if (this.isLockUnavailable()) {
+            return false;
+        }
         if (documentLicences && documentLicences.length > 0) {
             const openLicenses = getOpenLicenses();
             const publicLicenses = openLicenses.length > 0 ? openLicenses : ['public'];
@@ -180,6 +271,34 @@ export class DocumentInfoService {
             }
         }
         return this.userHasRequiredLicense();
+    }
+
+    /**
+     * Why the page cannot be opened under its lock license, or null when the lock
+     * is not in the way: `busy` — other readers hold every slot (409); `idle` — it
+     * was released because the reader went idle.
+     */
+    lockBlockReason(): 'busy' | 'idle' | null {
+        if (this.lockService.idleReleased()) return 'idle';
+        if (this.lockService.unavailable()) return 'busy';
+        return null;
+    }
+
+    /**
+     * Whether the page can only be opened with a lock the reader does not hold.
+     * Overrides the profile-license check: holding a lock license in the profile
+     * does not serve the page without the lock itself.
+     */
+    isLockUnavailable(): boolean {
+        return this.lockBlockReason() !== null;
+    }
+
+    /** Asks again for the lock of the page on display, after a 409 or an idle release. */
+    retryLock(): void {
+        this.lockService.clearIdleReleased();
+        if (this.currentPid) {
+            this.loadPageInfo(this.currentPid);
+        }
     }
 
     /**

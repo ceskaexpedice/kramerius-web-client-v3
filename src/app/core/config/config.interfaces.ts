@@ -321,6 +321,13 @@ export interface HomepageSectionConfig {
 // fallback chain (e.g. sk → cs → en).
 export type FooterConfig = LocalizedContent;
 
+// Exclusive-reader locks (lock licenses): a reader idle for `idleTimeoutSec` is
+// warned for the last `warningSec` and then loses the lock to the next reader.
+export interface LocksConfig {
+  idleTimeoutSec: number;
+  warningSec: number;
+}
+
 // Root configuration interface
 export interface AppConfiguration {
   app: AppConfig;
@@ -338,4 +345,5 @@ export interface AppConfiguration {
   homepageTitle?: LocalizedLabel;
   homepageSubtitle?: LocalizedLabel;
   footer?: FooterConfig;
+  locks: LocksConfig;
 }

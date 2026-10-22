@@ -159,6 +159,7 @@
   "playback-queue": "Wiedergabeliste",
   "playback-close": "Player schließen",
   "track-details": "Titeldetails",
+  "track--label": "Titel",
   "now-playing--header": "Aktuelle Wiedergabe",
   "share-dialog--header": "Teilen",
   "folder-share-dialog--header": "Liste „{{name}}“ teilen",
@@ -862,5 +863,8 @@
   "map-series--close": "Schließen",
   "map-series--view-documents": "Dokumente",
   "map-series--change-series": "Kartenwerk wechseln",
-  "map-series--filter-series": "Kartenwerk suchen"
+  "map-series--filter-series": "Kartenwerk suchen",
+  "lock-idle-dialog--header": "Sind Sie noch da?",
+  "lock-idle-dialog--message": "Wegen Inaktivität wird der Zugang zu diesem Dokument in {{seconds}} für den nächsten Leser freigegeben.",
+  "lock-idle-dialog--continue": "Weiterlesen"
 }
