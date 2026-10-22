@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { escapeHtml } from '../../../../../shared/utils/escape-html';
 import { linkifyText } from '../../../../../shared/utils/linkify';
 import { normalizeForComparison } from '../../../../../shared/utils/normalize-text';
-import { APP_ROUTES_ENUM } from '../../../../../app.routes';
+import { resolveLoginLinks } from '../../../../../shared/utils/resolve-login-links';
 import { CdkSourceService } from '../../../../../shared/services/cdk-source.service';
 import { DocumentInfoService } from '../../../../../shared/services/document-info.service';
 
@@ -207,26 +207,9 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     this.cdr.markForCheck();
   }
 
-  /**
-   * The login links inside the config HTML are copied from the legacy
-   * digitalniknihovna.cz portal: they point at `.../mzk/terms?redirect_path=${PATH}`,
-   * where `${PATH}` is a placeholder the portal used to substitute server-side.
-   * In this app that path 404s and the placeholder is never resolved, so rewrite
-   * both to the app's own terms route with the current location as the returnUrl.
-   */
+  /** Login links in the config HTML return the reader to this document after login. */
   private resolveLoginLinks(html: string): string {
-    if (!html) return html;
-
-    const returnUrl = encodeURIComponent(this.router.url);
-    const target = `/${APP_ROUTES_ENUM.PAGES}/terms?returnUrl=${returnUrl}`;
-
-    // Match both the relative (`/mzk/terms?...`) and absolute
-    // (`https://www.digitalniknihovna.cz/mzk/terms?...`) forms, with the
-    // literal `${PATH}` placeholder still in place.
-    return html.replace(
-      /(?:https?:\/\/[^/"']*)?\/mzk\/terms\?redirect_path=\$\{PATH\}/g,
-      target
-    );
+    return resolveLoginLinks(html, this.router.url);
   }
 
   detectAllLicenseTypes(): void {
@@ -388,7 +371,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     );
 
     if (url) {
-      const content = await this.configService.loadHtmlContent(url);
+      const content = this.resolveLoginLinks(await this.configService.loadHtmlContent(url));
       if (content) {
         this.dialog.open(LicenseInfoDialogComponent, {
           data: { title: this.licenseLabel(type), content, raw: true },

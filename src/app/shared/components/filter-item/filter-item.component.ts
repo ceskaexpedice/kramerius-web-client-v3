@@ -12,6 +12,8 @@ import { ConfigService } from '../../../core/config/config.service';
 import { AppTranslationService } from '../../translation/app-translation.service';
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
+import { resolveLoginLinks } from '../../utils/resolve-login-links';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-filter-item',
@@ -34,6 +36,7 @@ export class FilterItemComponent {
   private configService = inject(ConfigService);
   private translationService = inject(AppTranslationService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   @Input() label!: string;
   @Input() facetKey?: string; // Used to determine translation source
@@ -85,7 +88,8 @@ export class FilterItemComponent {
       return;
     }
 
-    const content = await this.configService.loadHtmlContent(url);
+    // A login link in the license text returns the reader to these results after login.
+    const content = resolveLoginLinks(await this.configService.loadHtmlContent(url), this.router.url);
     const title = this.configService.getLocalizedLabel('license', this.label, lang);
 
     this.dialog.open(LicenseInfoDialogComponent, {

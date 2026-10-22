@@ -33,6 +33,7 @@ import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
 import { groupLocationsByInstitution } from '../../utils/group-locations';
+import { resolveLoginLinks } from '../../utils/resolve-login-links';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -1185,7 +1186,8 @@ export class MetadataSection implements OnInit, OnChanges {
     const url = this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
     if (!url) return;
 
-    const content = await this.configService.loadHtmlContent(url);
+    // A login link in the license text returns the reader to this document after login.
+    const content = resolveLoginLinks(await this.configService.loadHtmlContent(url), this.router.url);
     const title = this.configService.getLocalizedLabel('license', license, lang);
 
     this.dialog.open(LicenseInfoDialogComponent, {
