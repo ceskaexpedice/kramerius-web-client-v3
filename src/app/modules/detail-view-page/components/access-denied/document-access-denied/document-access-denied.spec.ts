@@ -216,6 +216,16 @@ describe('DocumentAccessDenied license filtering and instructions', () => {
     expect(component.uniqueLicenseTypes).not.toContain('covid');
   });
 
+  it('lists a license only once when the document carries it repeatedly', () => {
+    // A CDK record can repeat a license (one per source library); listed twice it both
+    // duplicates the label and flips the lead-in to the plural "pod licencemi".
+    const { component } = makeComponent({ documentLicenses: ['dnnto', 'onsite', 'dnnto', 'onsite'] });
+
+    component.detectAllLicenseTypes();
+
+    expect(component.uniqueLicenseTypes).toEqual(['dnnto', 'onsite']);
+  });
+
   it('falls back to "other" when every license of the document is undefined in config', () => {
     const { component } = makeComponent({ documentLicenses: ['covid'] });
 

@@ -1,6 +1,7 @@
 {
-    "access-denied.title": "Nie masz dostępu do tego dokumentu",
+    "access-denied.title": "Obecnie nie masz dostępu do tego dokumentu",
     "access-denied.document-available-under": "Dokument jest dostępny na licencji",
+    "access-denied.document-available-under-plural": "Dokument jest dostępny na licencjach",
     "access-denied.license-dnnto": "Utwory niedostępne w handlu",
     "access-denied.license-dnntt": "Utwory niedostępne w handlu - czytelnia",
     "access-denied.license-onsite": "Utwory niepubliczne / Czytelnia",

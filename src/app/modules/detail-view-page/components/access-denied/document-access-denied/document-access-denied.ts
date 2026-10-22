@@ -150,7 +150,8 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   private configuredLicenses(licenses: string[]): string[] {
     const order = this.configService.getLicenseOrder();
     const configured = new Set(this.configService.licenses.map(l => l.id));
-    return licenses
+    // A CDK record can carry the same license more than once (one per source library).
+    return [...new Set(licenses)]
       .filter(license => configured.has(license))
       .sort((a, b) => order.indexOf(a) - order.indexOf(b));
   }

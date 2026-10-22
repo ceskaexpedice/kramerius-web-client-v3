@@ -1,6 +1,7 @@
 {
-    "access-denied.title": "You do not have access to this document",
+    "access-denied.title": "You do not have access to this document now",
     "access-denied.document-available-under": "Document is available under license",
+    "access-denied.document-available-under-plural": "Document is available under licenses",
     "access-denied.license-dnnto": "Out-of-commerce works",
     "access-denied.license-dnntt": "Out-of-commerce works - study room",
     "access-denied.license-onsite": "Non-public works / Study room",

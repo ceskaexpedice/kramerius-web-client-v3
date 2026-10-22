@@ -8,7 +8,9 @@
 
       <div class="access-denied-description">
         <p>
-          <span>{{ 'access-denied.document-available-under' | translate }}: </span>
+          <span>{{ (uniqueLicenseTypes.length > 1
+            ? 'access-denied.document-available-under-plural'
+            : 'access-denied.document-available-under') | translate }}: </span>
           @for (type of uniqueLicenseTypes; track type; let last = $last) {
           <a href="#" class="license-link" (click)="$event.preventDefault(); openLicenseDialog(type)">{{
             licenseLabel(type) }}</a>@if (!last) {<span>, </span>}
