@@ -23,11 +23,41 @@ app-mobile-nav-bar {
   left: 0;
   right: 0;
   z-index: 100;
+  // Same timing as the app header slide in styles.scss.
+  transition: transform 0.3s ease-in-out;
+
+  // Hidden together with the header while the list scrolls down.
+  &.mobile-nav-bar--hidden {
+    transform: translateY(calc(100% + var(--playback-bar-height, 0px)));
+    pointer-events: none;
+  }
 }
 
 :host:has(app-mobile-nav-bar) {
   .page-container {
     height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - 60px);
+  }
+}
+
+// The global header-hidden rule (styles.scss) collapses the toolbar by its
+// desktop height of 57px; on phones it is 50px, so the sticky scope tabs and
+// tags would be pulled 7px under the viewport top.
+@include m.respond(mobile-sm) {
+  :host-context(body.header-hidden) .page-content__filters {
+    margin-bottom: -50px !important;
+  }
+}
+
+// Header and bottom bar are both out of view: the results take the full height.
+:host:has(app-mobile-nav-bar.mobile-nav-bar--hidden) {
+  .page-container {
+    height: calc(100vh - var(--playback-bar-height, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-mobile-nav-bar {
+    transition: none;
   }
 }
 

@@ -123,6 +123,8 @@
 <!-- Mobile navigation bar -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
+    [class.mobile-nav-bar--hidden]="mobileNavHidden()"
+    [attr.inert]="mobileNavHidden() ? '' : null"
     [items]="mobileNavItems"
     [activeId]="mobileActiveTab"
     (activeIdChange)="onMobileNavChange($event)">

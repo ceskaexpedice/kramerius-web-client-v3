@@ -40,10 +40,13 @@
 
                 <!-- Show normal controls when not in admin mode or not in SearchResults -->
                 <ng-container *ngIf="!adminModeService.adminMode()">
-                  <app-toolbar-controls
+                  <!-- Phones: actions collapse into the "more" menu (as on the
+                       periodical page) so the title keeps its width, and Info
+                       lives there instead of in a floating button. -->
+                  <app-toolbar-controls [mobileMenuMode]="breakpointService.isMobile()"
                                         [showFavorites]="true"
                                         [favoritesActive]="(parent()?.uuid ? (favoritesHelper.getFavoritedStatus(parent()!.uuid) | async) : false) ?? false"
-                                        [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                                        [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
                                         (infoClicked)="openRecordInfo()"
                                         (favoritesClicked)="onFavoritesClicked($event)"
                                         (shareClicked)="recordHandler.openShareDialog(parent() || null)"
@@ -126,7 +129,7 @@
 
         </div>
 
-        @if (!showMetadataSidebar()) {
+        @if (!showMetadataSidebar() && !breakpointService.isMobile()) {
           <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
             <i class="icon-info-full"></i>
           </button>

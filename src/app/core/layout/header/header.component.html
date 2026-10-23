@@ -92,6 +92,7 @@
 
       @if (!isLoggedIn() || isMobileSearchOpen) {
         <button class="icon-button" [class.mobile-search-close]="isMobileSearchOpen"
+          [class.settings-btn--collapsible]="!isMobileSearchOpen"
           [attr.aria-label]="(isMobileSearchOpen ? 'header.aria.close-search' : 'settings') | translate"
           [appCdkTooltip]="(isMobileSearchOpen ? 'header.aria.close-search' : 'settings') | translate"
           [tooltipPosition]="'bottom'" (click)="isMobileSearchOpen ? closeMobileSearch() : openSettings()">
@@ -120,6 +121,13 @@
         class="cursor-pointer">{{'collections' | translate}}</a>
       @for (page of navPages; track page.id) {
       <a [routerLink]="getPageLink(page)" class="cursor-pointer">{{ getPageLabel(page) }}</a>
+      }
+      <!-- On the narrowest phones the header settings button moves here so
+           the action row fits without pushing the hamburger off-screen. -->
+      @if (!isLoggedIn()) {
+        <button type="button" class="mobile-menu__settings" (click)="closeMobileMenu(); openSettings()">
+          {{ 'settings' | translate }}
+        </button>
       }
       <app-user-info></app-user-info>
     </div>

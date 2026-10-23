@@ -18,6 +18,13 @@
   .page-content__wrapper {
     flex: 1;
     min-width: 0;
+
+    // Phones: room below the last card for the floating filter button (40px,
+    // 12px above the content edge) so its favourite / info buttons can scroll
+    // clear of it.
+    @include m.respond(mobile-sm) {
+      padding-bottom: calc(40px + var(--spacing-x3) * 2);
+    }
   }
 }
 

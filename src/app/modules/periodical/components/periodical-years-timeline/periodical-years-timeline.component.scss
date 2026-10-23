@@ -14,6 +14,20 @@
   container-type: inline-size;
 }
 
+// One decade: small range label above its row (or 5 × 2 grid on narrow widths)
+.decade {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-x2) * var(--timeline-scale));
+}
+
+.decade-label {
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-semi-bold);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-tertiary);
+}
+
 .year-row {
   display: flex;
   align-items: center;
@@ -140,14 +154,14 @@
       transform: none;
     }
 
+    // Muted so a decade with a single volume does not read as a full row
     .year-item {
-      //background-color: var(--color-bg-disabled, #f5f5f5);
-      //border-color: var(--color-border-disabled, #e0e0e0);
+      border-style: dashed;
       color: var(--color-tertiary);
     }
 
     .year-item--wrapper {
-      background-color: var(--color-bg-light);
+      background-color: transparent;
     }
   }
 }

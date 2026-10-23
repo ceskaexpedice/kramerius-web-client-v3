@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, effect, computed } from '@angular/core';
+import { inject, Injectable, signal, effect, computed, untracked } from '@angular/core';
 import { getTerminalLicenses } from '../../../core/solr/solr-misc';
 import { Page } from '../../../shared/models/page.model';
 import { Store } from '@ngrx/store';
@@ -125,12 +125,22 @@ export class DetailViewService {
       }
     });
 
-    // Initialize sidebar state based on device type if not already set by user interaction
-    if (!this.breakpointService.isMobile()) {
-      this.uiStateService.setMetadataSidebarState(true);
-    } else {
-      this.uiStateService.setMetadataSidebarState(false);
-    }
+    // Initialize sidebar state: open only where it sits beside the content. On
+    // phones and portrait tablets it floats over the grid / page image, so it
+    // starts collapsed behind the floating info button.
+    let sidebarOverlays = this.breakpointService.rightSidebarOverlaysContent();
+    this.uiStateService.setMetadataSidebarState(!sidebarOverlays);
+
+    // Crossing the overlay threshold (e.g. rotating a tablet) re-applies the
+    // default; within one band the user's own toggle is left alone.
+    effect(() => {
+      const overlays = this.breakpointService.rightSidebarOverlaysContent();
+      if (overlays === sidebarOverlays) {
+        return;
+      }
+      sidebarOverlays = overlays;
+      untracked(() => this.uiStateService.setMetadataSidebarState(!overlays));
+    });
 
     // Listen to pages changes and update the signal automatically
     this.pages$.pipe(takeUntil(this.destroy$)).subscribe(pages => {

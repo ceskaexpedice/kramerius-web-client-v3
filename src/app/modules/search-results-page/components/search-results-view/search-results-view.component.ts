@@ -23,6 +23,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { WhereToSearchToggleComponent } from '../where-to-search-toggle/where-to-search-toggle.component';
 import { customDefinedFacetsEnum } from '../../const/facets';
+import { ScrollHideHeaderDirective } from '../../../../shared/directives/scroll-hide-header.directive';
 
 @Component({
   selector: 'app-search-results-view',
@@ -45,6 +46,7 @@ import { customDefinedFacetsEnum } from '../../const/facets';
     SkeletonListPipe,
     TranslatePipe,
     WhereToSearchToggleComponent,
+    ScrollHideHeaderDirective,
   ],
   templateUrl: './search-results-view.component.html',
   styleUrl: './search-results-view.component.scss',

@@ -196,6 +196,36 @@
       gap: var(--spacing-x4);
       font-size: var(--font-size-small);
     }
+
+    &__settings {
+      display: none;
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // Narrowest phones: logo + search + favourites + settings + language + menu
+  // overflow ~360px, so settings moves into the hamburger menu.
+  @include m.respond(mobile-xs) {
+    gap: var(--spacing-x2);
+
+    .settings-btn--collapsible {
+      display: none;
+    }
+
+    .mobile-menu__settings {
+      display: inline-flex;
+    }
   }
 
   // Show hamburger menu earlier than full mobile layout

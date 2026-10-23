@@ -76,6 +76,8 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
   currentHeight = 50;
   isExpanded = false;
 
+  private focusOrigin: HTMLElement | null = null;
+
   private startY = 0;
   private startHeight = 0;
 
@@ -91,10 +93,12 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
       if (open) {
         this.currentHeight = this.initialHeight;
         this.isExpanded = this.initialHeight > 70;
+        this.captureFocusOrigin();
         // Delay one frame so the panel renders off-screen first, then slides up
         requestAnimationFrame(() => {
           this.isRendered = true;
           this.cd.detectChanges();
+          this.focusPanel();
         });
       } else if (this.peek) {
         // Peek mode: collapse back to the resting peek instead of dismissing.
@@ -127,6 +131,7 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
       // Peek mode never fully dismisses — just return to the resting peek.
       this.isExpanded = false;
       this.isOpen.set(false);
+      this.restoreFocus();
       this.closed.emit();
       return;
     }
@@ -147,8 +152,45 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
       this.isClosing = false;
       this.isExpanded = false;
       this.isOpen.set(false);
+      this.restoreFocus();
       this.closed.emit();
     }, 300);
+  }
+
+  /**
+   * Remembers what had focus before the sheet opened so it can be restored on
+   * close. Ignored when focus is already inside the sheet (re-open from peek).
+   */
+  private captureFocusOrigin(): void {
+    const active = document.activeElement as HTMLElement | null;
+    if (active && active !== document.body && !this.hostRef.nativeElement.contains(active)) {
+      this.focusOrigin = active;
+    }
+  }
+
+  /**
+   * Moves focus onto the sheet container itself rather than its first tabbable
+   * child. Auto-capturing the first tabbable (cdkTrapFocusAutoCapture) landed on
+   * search inputs such as "Hľadať na stránkach", which pops the on-screen
+   * keyboard over the sheet the moment it opens. The container is still inside
+   * the focus trap, so screen readers and Tab start from the dialog.
+   */
+  private focusPanel(): void {
+    const panel = this.hostRef.nativeElement.querySelector('.slide-up-panel') as HTMLElement | null;
+    if (panel && !panel.contains(document.activeElement)) {
+      panel.focus({ preventScroll: true });
+    }
+  }
+
+  /** Returns focus to the opener, but only if the sheet still holds it. */
+  private restoreFocus(): void {
+    const origin = this.focusOrigin;
+    this.focusOrigin = null;
+    const active = document.activeElement;
+    const focusLeftSheet = active && active !== document.body && !this.hostRef.nativeElement.contains(active);
+    if (origin?.isConnected && !focusLeftSheet) {
+      origin.focus({ preventScroll: true });
+    }
   }
 
   onBackdropClick() {

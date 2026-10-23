@@ -25,6 +25,7 @@ import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper'
 import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {NoResultsComponent} from '../../shared/components/no-results/no-results.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
@@ -66,6 +67,7 @@ export class MonographVolumesPageComponent implements OnInit {
   adminModeService = inject(AdminModeService);
   recordHandler = inject(RecordHandlerService);
   private uiStateService = inject(UiStateService);
+  public breakpointService = inject(BreakpointService);
   public monographVolumesService = inject(MonographVolumesService);
 
   // Signals from store

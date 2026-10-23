@@ -1,7 +1,7 @@
-import { Directive, ElementRef, OnDestroy, OnInit, NgZone, inject } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit, NgZone, effect, inject, input, untracked } from '@angular/core';
 import { UiStateService } from '../services/ui-state.service';
 import { Subscription, fromEvent, merge } from 'rxjs';
-import { distinctUntilChanged, filter, map, throttleTime } from 'rxjs/operators';
+import { filter, map, throttleTime } from 'rxjs/operators';
 
 @Directive({
     selector: '[appScrollHideHeader]',
@@ -13,6 +13,16 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
     private zone = inject(NgZone);
     private scrollSub: Subscription | null = null;
 
+    /**
+     * Optional on/off switch. A bare `appScrollHideHeader` attribute keeps the
+     * original always-on behaviour; bind `false` to pin the header (e.g. only
+     * hide it on phones, where vertical space is scarce).
+     */
+    readonly enabled = input(true, {
+        alias: 'appScrollHideHeader',
+        transform: (value: boolean | '') => value !== false,
+    });
+
     private lastScrollTop = 0;
     private lastDirection: boolean | null = null;
     private cooldownUntil = 0;
@@ -23,6 +33,17 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
     // Must exceed the CSS transition duration (300ms)
     private readonly COOLDOWN_MS = 400;
     private readonly DIRECTION_THRESHOLD = 40;
+
+    constructor() {
+        // Switched off while hidden (e.g. rotated from phone to tablet): bring
+        // the header back instead of leaving it stranded off-screen.
+        effect(() => {
+            if (!this.enabled()) {
+                this.lastDirection = true;
+                untracked(() => this.uiState.setHeaderVisibility(true));
+            }
+        });
+    }
 
     ngOnInit() {
         this.zone.runOutsideAngular(() => {
@@ -36,6 +57,7 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
             this.scrollSub = merge(elScroll$, windowScroll$).pipe(
                 throttleTime(60, undefined, { leading: false, trailing: true }),
                 filter(() => Date.now() >= this.cooldownUntil),
+                filter(() => this.enabled()),
                 map(() => {
                     const elTop = el.scrollTop;
                     const winTop = window.scrollY || 0;
@@ -69,7 +91,9 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
 
                     return goingUp;
                 }),
-                distinctUntilChanged()
+                // Dedupe against lastDirection rather than distinctUntilChanged(),
+                // so the disable effect can reset it.
+                filter(shouldShow => shouldShow !== this.lastDirection)
             ).subscribe((shouldShow) => {
                 this.lastDirection = shouldShow;
                 this.cooldownUntil = Date.now() + this.COOLDOWN_MS;

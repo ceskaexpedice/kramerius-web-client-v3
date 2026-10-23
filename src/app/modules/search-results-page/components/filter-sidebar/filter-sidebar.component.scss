@@ -97,6 +97,17 @@
   }
 }
 
+// Phones: the button rides along with the scroll-hidden chrome (header, bottom
+// nav bar). While the list scrolls down it would otherwise sit on top of the
+// cards' favourite / info buttons; scrolling up brings it back.
+@include respond(mobile-sm) {
+  :host-context(body.header-hidden) .sidebar-toggle-btn {
+    opacity: 0;
+    transform: translateY(var(--spacing-x4));
+    pointer-events: none;
+  }
+}
+
 /* Sidebar close button */
 .sidebar-close-btn {
   position: absolute;
