@@ -200,14 +200,19 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Only Mode B renders a peeking panel that overlaps the page bottom. Mode A shows a
+   * (non-fixed) nav bar, and with no metadata / in admin mode no panel renders.
+   */
+  get isPeekPanelShown(): boolean {
+    return !!this.periodical.metadata && !this.adminModeService.adminMode() && !this.hasMobileTabs;
+  }
+
+  /**
    * Extra bottom offset for the filter-sidebar toggle button so it clears the
    * peeking slide-up panel (Mode B). The button's own base bottom acts as the gap.
    */
   get filterToggleBottomOffset(): number {
-    // Only Mode B renders a peeking panel that overlaps the toggle. Mode A shows a
-    // (non-fixed) nav bar, and with no metadata / in admin mode no panel renders.
-    const peekPanelShown = !!this.periodical.metadata && !this.adminModeService.adminMode() && !this.hasMobileTabs;
-    if (!peekPanelShown) {
+    if (!this.isPeekPanelShown) {
       return 0;
     }
     // Target the button's bottom just above the peek band's top edge

@@ -6,7 +6,8 @@
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-    <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode">
+    <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode"
+      [class.page-content--peek-panel]="breakpointService.isMobile() && isPeekPanelShown">
 
       <h1 class="visually-hidden">{{ periodical.metadata?.mainTitle || (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 

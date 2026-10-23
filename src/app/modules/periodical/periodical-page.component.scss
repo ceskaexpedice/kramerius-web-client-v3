@@ -117,6 +117,18 @@
       padding-bottom: calc(var(--spacing-x3) + 56px);
     }
   }
+
+  // Collapsed peek band of the slide-up panel (56px, --slide-up-peek-height) also covers
+  // the bottom of the content; when a year is selected it sits on top of the date bar.
+  .page-content--peek-panel {
+    .page-content__main {
+      padding-bottom: calc(var(--spacing-x3) + 56px);
+    }
+
+    &:has(.mobile-date-bar) .page-content__main {
+      padding-bottom: calc(var(--spacing-x3) + 56px + 56px);
+    }
+  }
 }
 
 .no-results-message {

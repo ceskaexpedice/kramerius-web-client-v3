@@ -20,10 +20,13 @@
   gap: calc(1rem * var(--timeline-scale));
   width: 100%;
 
-  // Use container query to respond to actual available width, not viewport
-  // (950px * timeline scale — container queries cannot use custom properties)
+  // When a whole decade no longer fits on one line, lay it out as a 5 × 2 grid instead of
+  // free wrapping (which left e.g. 9 + 1 or 4 + 4 + 2 rows). Container query responds to the
+  // actual available width, not viewport (950px * timeline scale — container queries cannot
+  // use custom properties)
   @container (max-width: 855px) {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -47,10 +50,6 @@
     height: 1px;
     background-color: var(--color-border-additional);
     z-index: z.$timeline-background;
-  }
-
-  @container (max-width: 855px) {
-    flex: 0 0 auto;
   }
 
   &:hover {
@@ -93,6 +92,28 @@
     line-height: calc(var(--line-height-3) * var(--timeline-scale));
     width: 100%;
     text-align: center;
+    // Flex centering keeps the year centred even if it overflows a narrow cell
+    display: flex;
+    justify-content: center;
+  }
+
+  // Placed after .year-item and .year-item--wrapper so the overrides win
+  @container (max-width: 855px) {
+    // Connecting line makes no sense once the decade is split into grid rows
+    &::before {
+      display: none;
+    }
+
+    // Grid cells are narrow (~60px on phones) — trim horizontal padding so the year (and icon)
+    // fits inside the highlighted wrapper
+    .year-item {
+      width: 100%;
+      padding-inline: var(--spacing-x05);
+    }
+
+    .year-item--wrapper {
+      padding-inline: var(--spacing-x05);
+    }
   }
 
   &.placeholder .year-item--wrapper {
