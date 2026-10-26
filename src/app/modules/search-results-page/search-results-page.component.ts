@@ -54,7 +54,9 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   // Mobile nav bar
   mobileNavItems: MobileNavItem[] = [
-    { id: 'all', label: 'tab-all', icon: 'icon-element-3' },
+    // "Results", not "All": the scope tabs above the list already start with
+    // an "All" option, and two different "All"s on one screen read as one.
+    { id: 'all', label: 'results', icon: 'icon-element-3' },
     { id: 'map', label: 'tab-maps', icon: 'icon-location' },
   ];
 

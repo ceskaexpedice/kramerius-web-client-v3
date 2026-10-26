@@ -101,6 +101,10 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   // toggled by a clean tap on the viewer (see ViewerTapToggleDirective), then
   // hidden again when a slide-up panel opens.
   mobileNavVisible = signal(false);
+  // Immersive mode gives no hint that a tap reveals the bar, so each newly
+  // opened document shows it briefly and then tucks it away.
+  private static readonly MOBILE_NAV_PEEK_MS = 3000;
+  private mobileNavPeekTimer: ReturnType<typeof setTimeout> | null = null;
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
   private static readonly NAV_HEIGHT_ANIM_MS = 250;
@@ -229,6 +233,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       })
     );
 
+    this.subscriptions.push(
+      this.detailViewService.document$.pipe(
+        filter(doc => !!doc?.uuid),
+        distinctUntilChanged((prev, curr) => prev?.uuid === curr?.uuid)
+      ).subscribe(() => this.peekMobileNav())
+    );
+
     // Load music tracks so the records (track list) view can be shown for sound recordings.
     // The recordings selector emits a new array on every store change, so dedupe by pid set
     // to avoid re-dispatching loadMusic (and re-firing the track API) multiple times.
@@ -266,6 +277,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnDestroy(): void {
+    this.cancelMobileNavPeek();
     if (this.navHeightRaf !== null) {
       cancelAnimationFrame(this.navHeightRaf);
     }
@@ -343,6 +355,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onMobileNavChange(id: string) {
+    this.cancelMobileNavPeek();
     if (this.mobileActivePanel() === id && this.mobileSlideUpOpen()) {
       // Tapping the same tab closes the panel
       this.mobileSlideUpOpen.set(false);
@@ -371,7 +384,27 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   /** Toggle the immersive mobile nav bar on a clean tap on the viewer. */
   onViewerCleanTap(): void {
+    // The reader took over: their tap decides, the pending auto-hide doesn't.
+    this.cancelMobileNavPeek();
     this.mobileNavVisible.update(v => !v);
+  }
+
+  /** Show the immersive bar for a moment so readers learn it exists. */
+  private peekMobileNav(): void {
+    if (!this.breakpointService.isMobile() || this.mobileSlideUpOpen()) return;
+    this.cancelMobileNavPeek();
+    this.mobileNavVisible.set(true);
+    this.mobileNavPeekTimer = setTimeout(() => {
+      this.mobileNavPeekTimer = null;
+      this.mobileNavVisible.set(false);
+    }, DetailViewPageComponent.MOBILE_NAV_PEEK_MS);
+  }
+
+  private cancelMobileNavPeek(): void {
+    if (this.mobileNavPeekTimer !== null) {
+      clearTimeout(this.mobileNavPeekTimer);
+      this.mobileNavPeekTimer = null;
+    }
   }
 
   /**

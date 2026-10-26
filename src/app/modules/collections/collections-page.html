@@ -69,7 +69,10 @@
 
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
               <ng-container *ngIf="!adminModeService.adminMode()">
+                <!-- Phones: actions collapse into the "more" menu (as on the
+                     periodical and monograph pages) so they don't overlap the title. -->
                 <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
+                  [mobileMenuMode]="breakpointService.isMobile()"
                   [showQuote]="true" [showInfo]="false" [showSelect]="true"
                   (shareClicked)="recordHandler.openShareDialog(metadata || null)"
                   (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
@@ -92,10 +95,11 @@
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="rightSidebarVisible()"
-        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0"
-        appScrollHideHeader>
+        [class.wrapper--no-top-padding]="((collectionsService.selectedTags | async) || []).length > 0">
 
-        <div class="page-content__main">
+        <!-- The main column is the scroll container (not the wrapper), so the
+             header scroll-hide listens here; phones only, like search results. -->
+        <div class="page-content__main" [appScrollHideHeader]="breakpointService.isMobile()">
           <!-- Sticky Tags Bar -->
           <div class="page-content__sticky-tags" *ngIf="((collectionsService.selectedTags | async) || []).length > 0">
             <app-selected-tags [items]="(collectionsService.selectedTags | async) || []" [showClearAll]="((collectionsService.selectedTags | async) || []).length > 1"

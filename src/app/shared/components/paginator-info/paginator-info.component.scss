@@ -29,3 +29,20 @@
   }
 
 }
+
+// Phones: the bare range ("1-60/410 745") is self-explanatory next to the
+// result list; the "Výsledky:" label wrapped it onto a second line and squeezed
+// the sort select off-screen. Kept for screen readers.
+@include m.respond(mobile-sm) {
+  .pagination-info__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

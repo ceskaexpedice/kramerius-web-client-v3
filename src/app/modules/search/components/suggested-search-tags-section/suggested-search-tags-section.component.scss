@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 .tags-row {
   display: flex;
   justify-content: center;
@@ -13,5 +15,8 @@
     line-height: var(--line-height-xs);
     color: var(--color-text-secondary);
     cursor: pointer;
+
+    // 26px tall chips; grow the hit area into the 8px row gap, no further.
+    @include m.touch-target(0px, 34px);
   }
 }

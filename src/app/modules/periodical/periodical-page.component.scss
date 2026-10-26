@@ -87,9 +87,24 @@
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border-light);
 
+  // Same timing as the toolbar collapse in styles.scss.
+  transition: top 0.3s ease-in-out;
+
   // Keep sort pinned to the right whether or not the view toggle is present
   app-results-sort {
     margin-left: auto;
+  }
+
+  // While scrolled with the header hidden the action toolbar above collapses;
+  // pinned at the toolbar height this bar would leave an empty band on top.
+  :host-context(body.header-hidden) & {
+    top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-subtoolbar {
+    transition: none;
   }
 }
 
@@ -109,25 +124,17 @@
   border-top: 1px solid var(--color-border-light);
 }
 
-// Keep scrollable content clear of the fixed bottom bar on mobile,
-// but only when the bar is actually rendered (a year is selected).
+// Keep scrollable content clear of the floating filter button on mobile (40px),
+// so the last row of years / issues can be scrolled out from under it. It rests
+// 12px from the bottom, or 12px above the 48px date bar when a year is open
+// (see filterToggleBottomOffset).
 @include mixins.respond(mobile-sm) {
-  .page-content:has(.mobile-date-bar) {
-    .page-content__main {
-      padding-bottom: calc(var(--spacing-x3) + 56px);
-    }
+  .page-content__main {
+    padding-bottom: calc(12px + 40px + var(--spacing-x3));
   }
 
-  // Collapsed peek band of the slide-up panel (56px, --slide-up-peek-height) also covers
-  // the bottom of the content; when a year is selected it sits on top of the date bar.
-  .page-content--peek-panel {
-    .page-content__main {
-      padding-bottom: calc(var(--spacing-x3) + 56px);
-    }
-
-    &:has(.mobile-date-bar) .page-content__main {
-      padding-bottom: calc(var(--spacing-x3) + 56px + 56px);
-    }
+  .page-content:has(.mobile-date-bar) .page-content__main {
+    padding-bottom: calc(48px + 12px + 40px + var(--spacing-x3));
   }
 }
 

@@ -40,7 +40,8 @@
     }
   </div>
 
-  <div class="page-size" *ngIf="showPageSizeOptions">
+  <!-- Hidden on phones: rarely used there, and the page size is also in Settings. -->
+  <div class="page-size" *ngIf="showPageSizeOptions && !breakpointService.isMobile()">
     {{'paginator-page-size' | translate}}:
 
     <app-select [disabled]="disabledPageSize" [options]="pageSizeOptions" [value]="pageSize"

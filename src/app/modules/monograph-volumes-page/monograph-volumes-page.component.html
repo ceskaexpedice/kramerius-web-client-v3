@@ -77,7 +77,7 @@
            paginator at the bottom; the metadata sidebar stays fixed beside it. -->
       <div class="content-with-sidebar">
 
-        <div class="page-content__wrapper">
+        <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()">
 
           <!-- Error State -->
           @if (error() && !loading()) {

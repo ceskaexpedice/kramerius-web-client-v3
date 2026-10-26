@@ -23,6 +23,20 @@
 .collection-toolbar-right {
   align-self: stretch;
   gap: var(--spacing-x3);
+
+  // Phones: let the controls shrink (the sort select ellipsizes) so they share
+  // the row with the title instead of sliding underneath it.
+  @include mixins.respond(mobile-sm) {
+    min-width: 0;
+
+    > .flex {
+      min-width: 0;
+    }
+
+    app-results-sort {
+      min-width: 96px;
+    }
+  }
 }
 
 // Same tab strip as the reader and the map series view. The slot chain is
@@ -137,6 +151,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--spacing-x4);
+
+  // Phones: 12px side inset like the toolbar and the other result pages, and
+  // room below the last card for the floating filter button.
+  @include mixins.respond(mobile-sm) {
+    padding: var(--spacing-x3) var(--spacing-x3) calc(40px + var(--spacing-x3) * 2);
+  }
 }
 
 

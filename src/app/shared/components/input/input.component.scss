@@ -1,4 +1,5 @@
 @use "_z-index.scss" as z;
+@use "mixins" as m;
 
 .input-field {
   position: relative;
@@ -223,8 +224,14 @@ input::placeholder {
     font-size: var(--font-size-base);
     width: 24px;
     height: 24px;
+    // 24px icons (Aa, mic, clear) are too small for a finger; 36px wide hit
+    // areas fit the touch gap below without overlapping a neighbour.
+    @include m.touch-target(36px, 44px);
   }
 
+  @media (pointer: coarse) {
+    gap: var(--spacing-x3);
+  }
 }
 
 .mic-active {

@@ -1,12 +1,13 @@
 <div class="months-calendar-container" *ngIf="shouldShowCalendars()" (mousedown)="onCalendarClick($event)">
-  <div class="month-calendar" *ngFor="let month of months; let i = index"
+  @for (i of displayedMonths(); track i) {
+  <div class="month-calendar"
     [class.month-placeholder]="!isMonthVisible(i)">
     <div class="month-header">
       <h3>{{ monthNames[i] | translate }}</h3>
     </div>
 
     <!-- Show calendar if month is visible -->
-    <mat-calendar *ngIf="isMonthVisible(i)" class="custom-label" [dateClass]="dateClass" [startAt]="getMonthDate(i)"
+    <mat-calendar *ngIf="isMonthVisible(i)" class="custom-label" [dateClass]="dateClass" [dateFilter]="hasIssueOnDate" [startAt]="getMonthDate(i)"
       [startView]="'month'" [minDate]="getMonthMinDate(i)" [maxDate]="getMonthMaxDate(i)"
       (selectedChange)="onDateSelected($event)">
     </mat-calendar>
@@ -21,6 +22,7 @@
       </div>
     </div>
   </div>
+  }
 </div>
 
 @if (issuesPopupState.showPopup()) {

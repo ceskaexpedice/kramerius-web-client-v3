@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -29,6 +31,9 @@ label {
   color: var(--color-text-light);
   display: flex;
   gap: var(--spacing-x2);
+
+  // Taller hit area only: neighbours sit 4px apart, so widening would overlap.
+  @include m.touch-target(0px, 44px);
 
   &.active {
     background-color: var(--color-bg-base);

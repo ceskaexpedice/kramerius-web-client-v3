@@ -37,11 +37,9 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
 
   // Mobile right-panel state (bottom nav bar + slide-up panel).
+  private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
   private static readonly MOBILE_DATE_BAR_HEIGHT = 48;
-  // Height of the collapsed peek band (mirrors --slide-up-peek-height), used to
-  // lift the filter toggle button clear of the peeking panel.
-  private static readonly MOBILE_PEEK_BAND_HEIGHT = 56;
-  // Gap between the peek band's top edge and the lifted toggle button.
+  // Gap between a bottom bar's top edge and the floating filter button.
   private static readonly FILTER_TOGGLE_GAP = 12;
   public hasSearchResults = signal(false);
   public mobileActivePanel = signal<string>('');
@@ -169,6 +167,12 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   openRecordInfo() {
+    // Phones without the bottom nav bar open the description sheet from the
+    // toolbar "more" menu; elsewhere Info toggles the floating sidebar.
+    if (this.breakpointService.isMobile() && !this.hasMobileTabs) {
+      this.mobileSlideUpOpen.set(true);
+      return;
+    }
     this.toggleMetadataSidebar();
   }
 
@@ -194,32 +198,22 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return this.hasSearchResults();
   }
 
-  /** Peek sits above the fixed date bar when a year is selected. */
-  get mobilePeekOffset(): number {
-    return this.periodical.selectedYear() ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0;
-  }
-
   /**
-   * Only Mode B renders a peeking panel that overlaps the page bottom. Mode A shows a
-   * (non-fixed) nav bar, and with no metadata / in admin mode no panel renders.
-   */
-  get isPeekPanelShown(): boolean {
-    return !!this.periodical.metadata && !this.adminModeService.adminMode() && !this.hasMobileTabs;
-  }
-
-  /**
-   * Extra bottom offset for the filter-sidebar toggle button so it clears the
-   * peeking slide-up panel (Mode B). The button's own base bottom acts as the gap.
+   * Lifts the floating filter button above whichever fixed bar sits at the
+   * bottom on phones (nav bar in Mode A, year date bar when a year is open);
+   * without one it rests at its default 12px.
    */
   get filterToggleBottomOffset(): number {
-    if (!this.isPeekPanelShown) {
+    if (!this.breakpointService.isMobile()) {
       return 0;
     }
-    // Target the button's bottom just above the peek band's top edge
-    // (band spans [peekOffset, peekOffset + bandHeight]) with a small gap.
-    return this.mobilePeekOffset
-      + PeriodicalPageComponent.MOBILE_PEEK_BAND_HEIGHT
-      + PeriodicalPageComponent.FILTER_TOGGLE_GAP;
+    const bar = Math.max(
+      this.hasMobileTabs && this.periodical.metadata && !this.adminModeService.adminMode()
+        ? PeriodicalPageComponent.MOBILE_NAV_BAR_HEIGHT : 0,
+      this.periodical.selectedYear() && !this.adminModeService.adminMode()
+        ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0,
+    );
+    return bar > 0 ? bar + PeriodicalPageComponent.FILTER_TOGGLE_GAP : 0;
   }
 
   getMobilePanelTitle(): string {

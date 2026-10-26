@@ -2,12 +2,11 @@
   <div class="page-container__inner">
 
     <app-filter-sidebar [isDisabled]="adminModeService.adminMode()"
-      [toggleButtonBottomOffset]="breakpointService.isMobile() ? filterToggleBottomOffset : 0">
+      [toggleButtonBottomOffset]="filterToggleBottomOffset">
       <app-periodical-filters></app-periodical-filters>
     </app-filter-sidebar>
 
-    <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode"
-      [class.page-content--peek-panel]="breakpointService.isMobile() && isPeekPanelShown">
+    <div class="page-content" role="main" *ngIf="periodical.viewMode() as mode">
 
       <h1 class="visually-hidden">{{ periodical.metadata?.mainTitle || (periodical.document$ | async)?.['root.title'] || '' }}</h1>
 
@@ -70,7 +69,7 @@
                   <app-toolbar-controls [showViewToggle]="false" [mobileMenuMode]="true"
                     [showFavorites]="true"
                     [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
-                    [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                    [showShare]="true" [showQuote]="true" [showInfo]="!hasMobileTabs" [showSelect]="true"
                     (infoClicked)="openRecordInfo()"
                     (favoritesClicked)="onFavoritesClicked($event)"
                     (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
@@ -127,9 +126,11 @@
 
       <!-- Content rendering based on view mode -->
       <div class="page-content__wrapper" [class.page-content__wrapper--with-sidebar]="showMetadataSidebar()"
-        [class.wrapper--no-top-padding]="((periodical.selectedTags | async) || []).length > 0" appScrollHideHeader>
+        [class.wrapper--no-top-padding]="((periodical.selectedTags | async) || []).length > 0">
 
-        <div class="page-content__main">
+        <!-- The main column is the scroll container (not the wrapper), so the
+             header scroll-hide listens here; phones only, like search results. -->
+        <div class="page-content__main" [appScrollHideHeader]="breakpointService.isMobile()">
 
           <!-- Sticky Tags Bar -->
           <div class="page-content__sticky-tags" *ngIf="((periodical.selectedTags | async) || []).length > 0">
@@ -213,7 +214,8 @@
         </div>
       }
 
-      <!-- Mobile right-panel: bottom nav bar (Mode A) or peekable panel (Mode B) -->
+      <!-- Mobile right-panel: bottom nav bar (Mode A) or a description sheet opened
+           from the toolbar "more" menu > Info (Mode B) -->
       @if (breakpointService.isMobile() && periodical.metadata && !adminModeService.adminMode()) {
         @if (hasMobileTabs) {
           <!-- Mode A: 2+ tabs → bottom nav bar + slide-up panel -->
@@ -246,15 +248,15 @@
             }
           </app-slide-up-panel>
         } @else {
-          <!-- Mode B: description only → peekable panel (handle + title visible) -->
+          <!-- Mode B: description only → sheet opened from the toolbar menu. It used
+               to rest as a permanent peek band that repeated the toolbar title and
+               cost 56px of list height. -->
           <app-slide-up-panel
-            [peek]="true"
-            [peekOffset]="mobilePeekOffset"
             [title]="periodical.metadata.mainTitle || ''"
             [(isOpen)]="mobileSlideUpOpen"
             [initialHeight]="60"
             [maxHeight]="90">
-            <!-- Peek header already shows the title, so metadata-section hides its own
+            <!-- Sheet header already shows the title, so metadata-section hides its own
                  title (the go-to-parent link still renders below it). -->
             <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
                                   [uuid]="periodical.metadata.uuid || ''"

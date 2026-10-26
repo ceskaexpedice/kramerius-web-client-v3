@@ -2,7 +2,10 @@
   <h1 class="visually-hidden">{{ 'results' | translate }}</h1>
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false">
+    <!-- Phones: lift the filter button 12px above the 60px bottom nav bar; when
+         the bar scrolls away the button follows it down to the default 12px. -->
+    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false"
+      [toggleButtonBottomOffset]="breakpointService.isMobile() && !mobileNavHidden() ? 72 : 0">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 

@@ -1,4 +1,5 @@
 @use "_z-index.scss" as z;
+@use "mixins" as m;
 
 // Component-specific styles only
 // Common layout styles moved to /public/styles/_page-layout.scss
@@ -23,6 +24,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-x3);
+
+  // Phones: one 8px rhythm from the toolbar down to the first card (cards
+  // are 8px apart too).
+  @include m.respond(mobile-sm) {
+    gap: var(--spacing-x2);
+  }
 }
 
 .facet-filter-column {

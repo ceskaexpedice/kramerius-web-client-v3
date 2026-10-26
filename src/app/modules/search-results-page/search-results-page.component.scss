@@ -13,6 +13,45 @@
 
 :host ::ng-deep .action-toolbar--tabs-visible .action-toolbar {
   padding-left: 0;
+
+  // The All/Maps view tabs that sit flush left are hidden on phones (see
+  // .view-tabs below), so the result range would otherwise touch the screen edge.
+  @include m.respond(mobile-sm) {
+    padding-left: var(--spacing-x3);
+  }
+}
+
+// Phones: tighter gaps so range, view toggle, download and sort fit one row.
+@include m.respond(mobile-sm) {
+  // The left slot only holds the All/Maps view tabs, hidden on phones; without
+  // this it still claims half the row (flex: 1) and squeezes the right slot.
+  :host ::ng-deep .page-content__filters.action-toolbar--tabs-visible .action-toolbar .toolbar-left {
+    flex: 0 0 auto;
+  }
+
+  .page-content__filters [right],
+  .page-content__filters [right] > .flex {
+    min-width: 0;
+  }
+
+  // Shrinks to an ellipsis, but never below a readable stub.
+  app-results-sort {
+    min-width: 96px;
+  }
+
+  // Fill the row: the range sits at the left content edge (12px, in line with
+  // the cards) and the controls at the right one, instead of centring as a block.
+  .page-content__filters [right] {
+    flex: 1 1 auto;
+  }
+
+  .page-content__filters [right] > .flex {
+    gap: var(--spacing-x2);
+
+    app-paginator-info {
+      margin-right: auto;
+    }
+  }
 }
 
 // Stack above the global mini-player instead of hiding underneath it; 0px when
@@ -36,15 +75,6 @@ app-mobile-nav-bar {
 :host:has(app-mobile-nav-bar) {
   .page-container {
     height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - 60px);
-  }
-}
-
-// The global header-hidden rule (styles.scss) collapses the toolbar by its
-// desktop height of 57px; on phones it is 50px, so the sticky scope tabs and
-// tags would be pulled 7px under the viewport top.
-@include m.respond(mobile-sm) {
-  :host-context(body.header-hidden) .page-content__filters {
-    margin-bottom: -50px !important;
   }
 }
 

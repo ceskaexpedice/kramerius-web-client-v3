@@ -44,6 +44,25 @@
   }
 }
 
+// Enlarges the tappable area of a small control on touch devices without
+// changing how it looks: an invisible ::after box centred on the control,
+// at least $width x $height. Hosts must not use ::after for anything else.
+@mixin touch-target($width: 44px, $height: 44px) {
+  @media (pointer: coarse) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, #{$width});
+      height: max(100%, #{$height});
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 @mixin floating-sidebar($width: var(--metadata-sidebar-width)) {
   flex: 0 0 $width;
   width: $width;

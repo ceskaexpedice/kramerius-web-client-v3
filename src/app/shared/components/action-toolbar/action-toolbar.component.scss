@@ -36,6 +36,9 @@
     justify-content: flex-end;
     margin-left: auto;
     gap: var(--spacing-x2);
+    // Let the slot shrink below its content so a long control (e.g. the sort
+    // select) can ellipsize instead of pushing past the viewport edge.
+    min-width: 0;
   }
 }
 

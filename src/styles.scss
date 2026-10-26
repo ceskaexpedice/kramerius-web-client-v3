@@ -97,6 +97,12 @@ body.header-hidden {
 body.header-hidden .page-content__filters {
   transform: translateY(-100%);
   margin-bottom: -57px !important;
+
+  // Phones (mobile-sm): the toolbar is 50px tall, so collapsing it by the
+  // desktop 57px pulled the sticky scope tabs / tags 7px under the screen top.
+  @media (max-width: 603px) {
+    margin-bottom: -50px !important;
+  }
 }
 
 // Popups positioned by PopupPositioningService are placed by JS one tick after

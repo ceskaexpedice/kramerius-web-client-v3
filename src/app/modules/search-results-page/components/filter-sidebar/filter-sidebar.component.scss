@@ -59,8 +59,9 @@
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
   position: fixed;
-  // Sit at the normal 12px, unless a peeking slide-up panel needs the button
-  // lifted above it (host sets --filter-toggle-bottom-offset to the target bottom).
+  // Sit at the normal 12px, unless a fixed bottom bar on the page needs the
+  // button lifted above it (host sets --filter-toggle-bottom-offset, via the
+  // toggleButtonBottomOffset input, to the target bottom).
   // The global mini-player is fixed to the same viewport bottom, so its height
   // is added on top of whichever of the two wins (GitHub issue #172).
   bottom: calc(max(12px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px));
@@ -78,10 +79,6 @@
   justify-content: center;
   transition: all 0.3s ease;
 
-  @include respond(mobile-sm) {
-    bottom: calc(max(72px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px));
-  }
-
   &.left {
     left: 12px;
     right: auto;
@@ -94,17 +91,6 @@
 
   i {
     font-size: var(--font-size-xlarge);
-  }
-}
-
-// Phones: the button rides along with the scroll-hidden chrome (header, bottom
-// nav bar). While the list scrolls down it would otherwise sit on top of the
-// cards' favourite / info buttons; scrolling up brings it back.
-@include respond(mobile-sm) {
-  :host-context(body.header-hidden) .sidebar-toggle-btn {
-    opacity: 0;
-    transform: translateY(var(--spacing-x4));
-    pointer-events: none;
   }
 }
 
