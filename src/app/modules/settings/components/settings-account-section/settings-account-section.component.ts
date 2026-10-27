@@ -39,8 +39,8 @@ export class SettingsAccountSectionComponent {
 
     this.dialog.open(AuthDataDialogComponent, {
       data: {userJson: JSON.stringify(payload, null, 2)},
-      width: '60vw',
-      maxHeight: '90vh',
+      width: 'calc(60vw / var(--ui-zoom, 1))',
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))',
       panelClass: 'simple-dialog-panel',
     });
   }

@@ -242,7 +242,7 @@ export class RecordHandlerService {
   private dialogSizing() {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     return {
-      width: isMobileOrTablet ? '100vw' : '60vw',
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(60vw / var(--ui-zoom, 1))',
       panelClass: isMobileOrTablet ? undefined : 'simple-dialog-panel',
     };
   }

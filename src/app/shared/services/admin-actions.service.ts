@@ -91,10 +91,10 @@ export class AdminActionsService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
 
     const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '80vw',
-      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
-      height: isMobileOrTablet ? '100vh' : '85vh',
-      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(80vw / var(--ui-zoom, 1))',
+      maxWidth: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : '1000px',
+      height: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : 'calc(85vh / var(--ui-zoom, 1))',
+      maxHeight: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: dialogData,
       disableClose: false
@@ -129,10 +129,10 @@ export class AdminActionsService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
 
     const dialogRef: MatDialogRef<EditSelectedDialogComponent> = this.dialog.open(EditSelectedDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '80vw',
-      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
-      height: isMobileOrTablet ? '100vh' : '85vh',
-      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(80vw / var(--ui-zoom, 1))',
+      maxWidth: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : '1000px',
+      height: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : 'calc(85vh / var(--ui-zoom, 1))',
+      maxHeight: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: dialogData,
       disableClose: false
@@ -183,10 +183,10 @@ export class AdminActionsService {
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
 
     const dialogRef: MatDialogRef<ExportSelectedDialogComponent> = this.dialog.open(ExportSelectedDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '80vw',
-      maxWidth: isMobileOrTablet ? '100vw' : '1000px',
-      height: isMobileOrTablet ? '100vh' : '80vh',
-      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(80vw / var(--ui-zoom, 1))',
+      maxWidth: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : '1000px',
+      height: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : 'calc(80vh / var(--ui-zoom, 1))',
+      maxHeight: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: dialogData,
       disableClose: false
@@ -465,7 +465,7 @@ export class AdminActionsService {
     if (this.dontShowAgainService.shouldShowDialog(dialogKey)) {
       this.dialog.open(ActionSuccessDialogComponent, {
         width: '400px',
-        maxWidth: '100vw',
+        maxWidth: 'calc(100vw / var(--ui-zoom, 1))',
         disableClose: false,
         data: { variant } satisfies ActionDialogData,
       });

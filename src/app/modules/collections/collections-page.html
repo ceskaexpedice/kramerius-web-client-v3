@@ -54,7 +54,7 @@
             <!-- Sheet index view, offered only for collections that are map series. -->
             @if (isMapSeries) {
               <div class="view-tabs">
-                <button class="view-tabs__tab active" type="button">
+                <button class="view-tabs__tab active" type="button" aria-current="page">
                   <i class="icon-grid-6" aria-hidden="true"></i>
                   {{ 'map-series--view-documents' | translate }}
                 </button>
@@ -73,7 +73,8 @@
                      periodical and monograph pages) so they don't overlap the title. -->
                 <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
                   [mobileMenuMode]="breakpointService.isMobile()"
-                  [showQuote]="true" [showInfo]="false" [showSelect]="true"
+                  [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
+                  (infoClicked)="onInfoClicked()"
                   (shareClicked)="recordHandler.openShareDialog(metadata || null)"
                   (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
                   (selectClicked)="adminModeService.toggle()">
@@ -85,6 +86,12 @@
               </ng-container>
 
               <app-admin-selection-count></app-admin-selection-count>
+
+              @if (!breakpointService.isMobile()) {
+                <app-panel-toggle-button [open]="rightSidebarVisible()"
+                                         (toggle)="rightSidebarVisible() ? hideRightSidebar() : showRightSidebar()">
+                </app-panel-toggle-button>
+              }
 
             </div>
 
@@ -177,19 +184,21 @@
 
         </div>
 
-        @if (!rightSidebarVisible()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="showRightSidebar()"
-          [attr.aria-label]="'show-info' | translate">
-          <i class="icon-info-full" aria-hidden="true"></i>
-        </button>
-        }
 
-        <!-- Right Sidebar -->
-        @if (collectionsService.detail$ | async; as metadata) {
+        <!-- Right Sidebar (phones get the slide-up sheet below instead) -->
+        @if (!breakpointService.isMobile() && (collectionsService.detail$ | async); as metadata) {
         <div class="page-content__sidebar-right"
           [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
           [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
-          [class.collapsed]="!rightSidebarVisible()">
+          [class.collapsed]="!rightSidebarVisible()"
+          [id]="metadataPanelId"
+          role="complementary"
+          [attr.aria-label]="'metadata-panel--label' | translate"
+          [attr.inert]="rightSidebarVisible() ? null : ''"
+            (keydown.escape)="breakpointService.rightSidebarOverlaysContent() && rightSidebarVisible() && hideRightSidebar()">
+          @if (rightSidebarVisible() && sidebarPositionMode === 'relative' && !breakpointService.rightSidebarOverlaysContent()) {
+            <app-panel-resize-handle [controls]="metadataPanelId"></app-panel-resize-handle>
+          }
           <app-metadata-sidebar [metadata]="metadata" mode="floating"
             [tools]="{search: true, export: false, description: true}" [customDescription]="true"
             (close)="hideRightSidebar()">
@@ -207,9 +216,27 @@
     </div>
   </div>
 
+  <!-- Phones: description sheet opened from the toolbar "more" menu > Info. -->
+  @if (breakpointService.isMobile()) {
+    @if (collectionsService.detail$ | async; as metadata) {
+      <app-slide-up-panel
+        [title]="metadata.mainTitle || ''"
+        [(isOpen)]="mobileInfoOpen"
+        [initialHeight]="60"
+        [maxHeight]="90">
+        <app-metadata-section [uuid]="metadata.uuid" [metadata]="metadata" [showTitle]="false"
+          [collectionsMode]="true" (cdkCollectionChange)="collectionsService.setCdkSource($event)">
+        </app-metadata-section>
+      </app-slide-up-panel>
+    }
+  }
+
   <!-- The toolbar tabs collapse on phones; keep the switch reachable here. -->
   @if (isMapSeries && breakpointService.isMobile()) {
     <app-mobile-nav-bar
+      [class.mobile-nav-bar--hidden]="mobileNavHidden()"
+      [attr.inert]="mobileNavHidden() ? '' : null"
+      ariaLabel="view-switch--label"
       [items]="mobileNavItems"
       [activeId]="'documents'"
       (activeIdChange)="onMobileNavChange($event)">

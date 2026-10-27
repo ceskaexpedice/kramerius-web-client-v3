@@ -1,8 +1,8 @@
 <!-- Sidebar toggle button for mobile/tablet -->
 <button *ngIf="!hideToggleButton && !breakpointService.sidebarVisible() && !breakpointService.isVisible()"
   class="sidebar-toggle-btn" [class.left]="toggleButtonPosition === 'left'"
-  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'open-filters' | translate">
-  <i [class]="toggleButtonIcon"></i>
+  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="openLabelKey | translate">
+  <i [class]="toggleButtonIcon" aria-hidden="true"></i>
 </button>
 
 <!-- Capture projected content into a template -->
@@ -25,7 +25,11 @@
 <div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop"
   (click)="onBackdropClick()"></div>
 
+<!-- Overlay mode: a closed (off-screen) panel is [inert] so Tab never lands in
+     it, and Escape closes the open one. -->
 <div class="filter-sidebar" role="complementary" [attr.aria-label]="'search-filters' | translate"
+  [attr.inert]="isOverlay() && !breakpointService.isVisible() ? '' : null"
+  (keydown.escape)="onOverlayEscape($event)"
   [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
   [class.overlay--paired-close]="hideMobileTitle"
   [class.disabled]="isDisabled" [class.dimmed]="dimmed">
@@ -37,8 +41,8 @@
        (GitHub issue #177). -->
   <button *ngIf="isOverlay() && breakpointService.isVisible() && !hideMobileTitle"
     class="sidebar-close-btn"
-    (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'close-filters' | translate">
-    <i class="icon-close"></i>
+    (click)="breakpointService.toggleSidebar()" [attr.aria-label]="closeLabelKey | translate">
+    <i class="icon-close" aria-hidden="true"></i>
   </button>
 
   <!-- Scrollable content area -->

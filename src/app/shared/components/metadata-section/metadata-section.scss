@@ -75,6 +75,33 @@
     }
   }
 
+  // -webkit-line-clamp only counts inline lines of the clamped box itself, so
+  // the heading (and its link wrapper) flow inline inside the clamp wrapper.
+  .title-clamp {
+    h2, .title-link {
+      display: inline;
+    }
+  }
+
+  // Short facts (date, document type, accessibility) share one row.
+  .metadata-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--spacing-x3) var(--spacing-x4);
+  }
+
+  // Sub-labels inside a group (licence, donators, cartographic data) match the
+  // field labels of app-metadata-section-item.
+  .metadata-sublabel {
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-semi-bold);
+    font-size: var(--font-size-xsmall);
+    line-height: var(--line-height-1);
+    letter-spacing: 0.01em;
+    margin: 0 0 var(--spacing-x0-5);
+    font-family: var(--font-family-body);
+  }
+
   .titles--container {
     margin: var(--spacing-x1) 0;
   }
@@ -110,9 +137,9 @@
     margin-top: var(--spacing-x2);
 
     &--label {
-      color: var(--color-text-secondary);
+      color: var(--color-text-tertiary);
       font-weight: var(--font-weight-semi-bold);
-      font-size: var(--font-size-small);
+      font-size: var(--font-size-xsmall);
       line-height: var(--line-height-1);
       margin: 0 0 var(--spacing-x0-5);
       font-family: var(--font-family-body);
@@ -160,15 +187,6 @@
   }
 
   .cartographic-data {
-    h3 {
-      color: var(--color-text-secondary);
-      font-weight: var(--font-weight-semi-bold);
-      font-size: var(--font-size-small);
-      line-height: var(--line-height-1);
-      margin: 0 0 var(--spacing-x0-5);
-      font-family: var(--font-family-body);
-    }
-
     ul {
       list-style: none;
       margin: 0;
@@ -292,12 +310,6 @@
             word-break: break-word;
             min-width: 0;
           }
-
-          i.icon-copy {
-            cursor: pointer;
-            color: var(--color-icon-tertiary-default);
-            flex-shrink: 0;
-          }
         }
       }
     }
@@ -312,8 +324,6 @@
     gap: var(--spacing-x1);
 
     &__title {
-      font-size: var(--font-size-small);
-      font-weight: var(--font-weight-semi-bold);
       margin: 0;
     }
 
@@ -363,8 +373,6 @@
     gap: var(--spacing-x1);
 
     &__title {
-      font-size: var(--font-size-small);
-      font-weight: var(--font-weight-semi-bold);
       margin: 0;
     }
 
@@ -417,4 +425,12 @@
   max-width: 40px;
   object-fit: contain;
   flex-shrink: 0;
+}
+
+// Source selector leads the panel; a rule separates it from the document facts.
+.metadata-source {
+  display: block;
+  padding-bottom: var(--spacing-x4);
+  margin-bottom: var(--spacing-x4);
+  border-bottom: 1px solid var(--color-border-light);
 }

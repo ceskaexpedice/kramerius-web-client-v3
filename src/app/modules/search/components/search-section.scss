@@ -10,7 +10,7 @@
     font-family: var(--font-family-body);
     font-size: var(--font-size-xlarge);
     font-weight: var(--font-weight-semi-bold);
-    line-height: var(--line-height-4);
+    line-height: 1.3;
     margin: 0;
   }
 
@@ -29,8 +29,19 @@
       transition: all 0.3s ease-in-out;
     }
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       gap: 12px;
+
+      .text {
+        max-width: 400px;
+        opacity: 1;
+      }
+    }
+
+    // No hover on touch screens: show the label instead of a bare arrow.
+    @media (hover: none) {
+      gap: 8px;
 
       .text {
         max-width: 400px;

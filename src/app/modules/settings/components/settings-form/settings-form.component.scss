@@ -1,7 +1,7 @@
 :host {
   display: block;
   padding: 24px;
-  max-height: 80vh;
+  max-height: calc(80vh / var(--ui-zoom, 1));
   overflow: auto;
   background-color: var(--color-bg-base);
   color: var(--color-text-light);

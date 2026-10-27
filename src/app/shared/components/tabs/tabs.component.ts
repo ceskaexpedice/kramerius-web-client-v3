@@ -1,7 +1,9 @@
-import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ContentChildren, ElementRef, EventEmitter, Input, Output, QueryList, signal, OnChanges, SimpleChanges, ViewChildren } from '@angular/core';
 import { TabItemComponent } from './tab-item.component';
 import { NgTemplateOutlet } from '@angular/common';
 import { CdkTooltipDirective } from '../../directives';
+
+let nextTabsId = 0;
 
 @Component({
   selector: 'app-tabs',
@@ -16,6 +18,38 @@ export class TabsComponent implements OnChanges {
 
   @Input() noPadding = false;
   @Input() headerBackground: 'transparent' | 'base' | 'light' = 'transparent';
+  /** 'default' renders icon + label inline (or icon only); 'stacked' renders a small label under the icon. */
+  @Input() variant: 'default' | 'stacked' = 'default';
+  /** Accessible name of the tablist. */
+  @Input() ariaLabel = '';
+
+  @ViewChildren('tabButton') tabButtons!: QueryList<ElementRef<HTMLButtonElement>>;
+
+  private readonly uid = `app-tabs-${nextTabsId++}`;
+  readonly panelId = `${this.uid}-panel`;
+
+  tabId(index: number): string {
+    return `${this.uid}-tab-${index}`;
+  }
+
+  /** WAI-ARIA tabs pattern: arrows move between tabs (automatic activation), Home/End jump to the ends. */
+  onTablistKeydown(event: KeyboardEvent): void {
+    const count = this.tabs().length;
+    if (!count) return;
+    let next: number | null = null;
+    const current = this.activeTabIndex();
+    switch (event.key) {
+      case 'ArrowRight': next = (current + 1) % count; break;
+      case 'ArrowLeft': next = (current - 1 + count) % count; break;
+      case 'Home': next = 0; break;
+      case 'End': next = count - 1; break;
+    }
+    if (next === null) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectTab(next);
+    this.tabButtons.get(next)?.nativeElement.focus();
+  }
 
   @ContentChildren(TabItemComponent) tabQueryList!: QueryList<TabItemComponent>;
   tabs = signal<TabItemComponent[]>([]);

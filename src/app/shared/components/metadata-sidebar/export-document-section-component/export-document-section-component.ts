@@ -408,9 +408,9 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
         title: titleKey,
         maxSelectionCount: this.appConfig.pdfMaxRange()
       },
-      width: '90vw',
+      width: 'calc(90vw / var(--ui-zoom, 1))',
       maxWidth: '1200px',
-      maxHeight: '90vh'
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))'
     });
 
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {
@@ -432,7 +432,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(EmailExportDialogComponent, {
       data: { pid, exportType },
       width: '560px',
-      maxWidth: '90vw',
+      maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
     });
 
     dialogRef.afterClosed().subscribe((result: string) => {
@@ -477,7 +477,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
         messageKey: 'login-prompt-message-export',
       },
       width: '560px',
-      maxWidth: '90vw',
+      maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
     });
 
     dialogRef.afterClosed().subscribe(result => {

@@ -10,8 +10,14 @@
         role="radio"
         [attr.aria-checked]="activeViewValue === option.value"
         [class.active]="activeViewValue === option.value"
+        [class.view-toggle--icon-only]="viewToggleIconOnly"
+        [attr.aria-label]="viewToggleIconOnly ? (option.label | translate) : null"
+        [appCdkTooltip]="viewToggleIconOnly ? (option.label | translate) : ''"
         (click)="onToggle(option)">
-        <i class="{{ option.icon }}" aria-hidden="true"></i> {{ option.label | translate }}
+        <i class="{{ option.icon }}" aria-hidden="true"></i>
+        @if (!viewToggleIconOnly) {
+          {{ option.label | translate }}
+        }
       </button>
     </div>
   </ng-container>
@@ -36,8 +42,9 @@
       [attr.aria-label]="(action.tooltip | translate) || action.label"
       (click)="onActionClick(action, $event)"
     >
-      <i [class]="action.icon"></i>
+      <i [class]="action.icon" aria-hidden="true"></i>
     </button>
   }
+
 
 </div>

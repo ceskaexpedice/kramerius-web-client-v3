@@ -3,6 +3,7 @@ import { Language } from '../../translation/lang-picker/language';
 import { ClickOutsideDirective } from '../../directives/click-outside';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import { uiZoom } from '../../utils/ui-zoom';
 
 interface DropdownMeasurements {
   trigger: DOMRect;
@@ -115,12 +116,16 @@ export class LanguageSelectComponent implements OnDestroy {
     const declaredWidth = parseFloat(declared.getPropertyValue('--lang-dropdown-width')) || 0;
     const declaredHeight = parseFloat(declared.getPropertyValue('--lang-dropdown-max-height')) || 0;
 
+    // Everything in CSS px (offset sizes and the bound styles are CSS px; rects
+    // and the window size are visual px under the desktop UI zoom).
+    const zoom = uiZoom();
+    const r = el.getBoundingClientRect();
     return {
-      trigger: el.getBoundingClientRect(),
+      trigger: new DOMRect(r.left / zoom, r.top / zoom, (r.right - r.left) / zoom, (r.bottom - r.top) / zoom),
       dropdownWidth: dropdown?.offsetWidth || declaredWidth,
       dropdownHeight: dropdown?.offsetHeight || declaredHeight,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth / zoom,
+      viewportHeight: window.innerHeight / zoom,
     };
   }
 

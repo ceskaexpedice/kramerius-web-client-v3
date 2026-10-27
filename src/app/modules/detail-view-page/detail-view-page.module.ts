@@ -1,3 +1,5 @@
+import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
+import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import { NgModule } from '@angular/core';
 import { DetailViewPageComponent } from './detail-view-page.component';
 import { RouterModule, Routes } from '@angular/router';
@@ -66,6 +68,8 @@ const routes: Routes = [
   ],
 	imports: [
 		RouterModule.forChild(routes),
+    PanelToggleButtonComponent,
+    PanelResizeHandleComponent,
 		MatDatepickerModule,
 		MatNativeDateModule,
 		NgIf,

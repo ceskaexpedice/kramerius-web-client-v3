@@ -32,6 +32,12 @@
     max-width: 100%;
   }
 
+  // Without a center slot the right side takes only what its controls need,
+  // leaving the rest to the (often long) title instead of a 50/50 split.
+  &:not(:has(.toolbar-center)) .toolbar-right {
+    flex: 0 1 auto;
+  }
+
   .toolbar-right {
     justify-content: flex-end;
     margin-left: auto;

@@ -29,7 +29,7 @@
 
               <app-toolbar-header
                 [showBackButton]="true"
-                [title]="(parent()?.mainTitle + '(' + volumeItems().length + ')') || ''"
+                [title]="parent()?.mainTitle ? parent()!.mainTitle + ' (' + volumeItems().length + ')' : ''"
                 (goBack)="recordHandler.goBackClicked(null)">
               </app-toolbar-header>
             </div>
@@ -61,6 +61,11 @@
                 </ng-container>
 
                 <app-admin-selection-count></app-admin-selection-count>
+
+                @if (!breakpointService.isMobile()) {
+                  <app-panel-toggle-button [open]="showMetadataSidebar()" (toggle)="toggleMetadataSidebar()">
+                  </app-panel-toggle-button>
+                }
 
               </div>
 
@@ -129,18 +134,21 @@
 
         </div>
 
-        @if (!showMetadataSidebar() && !breakpointService.isMobile()) {
-          <button class="floating-sidebar-toggle button icon-button primary rounded" (click)="toggleMetadataSidebar()">
-            <i class="icon-info-full"></i>
-          </button>
-        }
 
-        <!-- Right Sidebar -->
-        <ng-container *ngIf="parent()">
+        <!-- Right Sidebar (phones get the slide-up sheet below instead) -->
+        <ng-container *ngIf="parent() && !breakpointService.isMobile()">
           <div class="page-content__sidebar-right"
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
             [class.page-content__sidebar-right--relative]="sidebarPositionMode === 'relative'"
-            [class.collapsed]="!showMetadataSidebar()">
+            [class.collapsed]="!showMetadataSidebar()"
+            [id]="metadataPanelId"
+            role="complementary"
+            [attr.aria-label]="'metadata-panel--label' | translate"
+            [attr.inert]="showMetadataSidebar() ? null : ''"
+            (keydown.escape)="breakpointService.rightSidebarOverlaysContent() && showMetadataSidebar() && toggleMetadataSidebar()">
+            @if (showMetadataSidebar() && sidebarPositionMode === 'relative' && !breakpointService.rightSidebarOverlaysContent()) {
+              <app-panel-resize-handle [controls]="metadataPanelId"></app-panel-resize-handle>
+            }
             <app-metadata-sidebar [metadata]="parent() || null" mode="floating"
               [tools]="{search: false, export: false, description: true}" [customDescription]="true"
               (close)="toggleMetadataSidebar()">
@@ -165,3 +173,18 @@
 
   </div>
 </div>
+
+<!-- Phones: description sheet opened from the toolbar "more" menu > Info. -->
+@if (breakpointService.isMobile() && parent()) {
+  <app-slide-up-panel
+    [title]="parent()?.mainTitle || ''"
+    [(isOpen)]="mobileInfoOpen"
+    [initialHeight]="60"
+    [maxHeight]="90">
+    <app-metadata-section [uuid]="parent()?.uuid || ''"
+      [metadata]="parent() || null" [showTitle]="false"
+      [hostOwnsCdkSource]="true"
+      (cdkCollectionChange)="monographVolumesService.setCdkSource($event)">
+    </app-metadata-section>
+  </app-slide-up-panel>
+}

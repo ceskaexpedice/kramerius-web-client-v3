@@ -1,7 +1,9 @@
-<section class="metadata-section--item">
+<!-- A field is a labelled group, not a heading: headings are reserved for the
+     panel's section groups so heading navigation stays meaningful. -->
+<section class="metadata-section--item" role="group" [attr.aria-labelledby]="labelId">
 
   <div class="metadata-section--item-header">
-    <h3 class="metadata-section--item-label">{{ label | translate }}</h3>
+    <div class="metadata-section--item-label" [class.sr-only]="hideLabel" [id]="labelId">{{ label | translate }}</div>
     @if (headerActionLabel) {
       <button class="button tertiary outlined xs with-icon header-action-btn"
         (click)="handleHeaderAction($event)">
@@ -10,22 +12,28 @@
     }
   </div>
 
-  <app-collapsible-content [collapsible]="collapsible" [contentKey]="items?.length ?? value">
+  <app-collapsible-content [collapsible]="lineClamp" [contentKey]="items?.length ?? value"
+                           moreLabel="metadata--show-full-text" lessLabel="metadata--show-less">
 
     <!-- Text type: simple paragraph -->
     @if (type === 'text' && value) {
-      <p>{{ value | translate }}</p>
+      <p class="metadata-section--item-value" [class.with-copy]="copyable">
+        <span>{{ translateValues ? (value | translate) : value }}</span>
+        @if (copyable) {
+          <app-copy-button [value]="value" [label]="label | translate"></app-copy-button>
+        }
+      </p>
     }
 
     <!-- List type: non-clickable vertical list -->
     @if (type === 'list') {
       <ul [class.with-bullets]="bulletsVisible">
-        @for (item of items; track $index) {
+        @for (item of listItems; track $index) {
           <li>
             @if (itemTpl) {
               <ng-container *ngTemplateOutlet="itemTpl; context: { $implicit: item }"></ng-container>
             } @else {
-              @if (disableTranslate) {
+              @if (disableTranslate || !translateValues) {
                 {{ getDisplayText(item) }}
               } @else if (translateNamespace) {
                 {{ getDisplayText(item) | namespacedTranslate:translateNamespace }}
@@ -36,6 +44,13 @@
           </li>
         }
       </ul>
+      @if (listClamped) {
+        <button type="button" class="list-toggle" [attr.aria-expanded]="listExpanded"
+                (click)="listExpanded = !listExpanded">
+          {{ listExpanded ? ('metadata--show-less' | translate) : ('metadata--show-all-items' | translate: { count: items?.length }) }}
+          <i class="icon-arrow-down-1" [class.list-toggle__icon--open]="listExpanded" aria-hidden="true"></i>
+        </button>
+      }
     }
 
     <!-- Clickable list type: vertical list of link-styled items -->
@@ -106,13 +121,20 @@
 
     <!-- Key-value type: display object properties as key-value pairs -->
     @if (type === 'key-value') {
-      <ul [class.with-bullets]="bulletsVisible">
+      <!-- Identifier rows: key | value | copy, aligned in a grid. -->
+      <dl class="key-value-grid" [class.key-value-grid--copyable]="copyable">
         @for (key of getKeys(); track key) {
-          <li>
-            <strong [class.uppercase]="listKeyUppercase">{{ key }}:</strong> {{ getKeyValue(key) | translate }}
-          </li>
+          <div class="key-value-grid__row">
+            <dt>{{ formatKey(key) }}</dt>
+            <dd>{{ translateValues ? (getKeyValue(key) | translate) : getKeyValue(key) }}</dd>
+            @if (copyable && getKeyValue(key)) {
+              <dd class="key-value-grid__action">
+                <app-copy-button [value]="'' + getKeyValue(key)" [label]="formatKey(key)"></app-copy-button>
+              </dd>
+            }
+          </div>
         }
-      </ul>
+      </dl>
     }
 
     <ng-content select="[metadata-section-item-content]"></ng-content>

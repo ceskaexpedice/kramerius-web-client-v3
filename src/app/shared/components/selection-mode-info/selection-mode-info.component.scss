@@ -14,7 +14,7 @@
 
   // On mobile, widen to use most of the viewport (leaving small side margins).
   @media (max-width: 603px) {
-    width: calc(100vw - var(--spacing-x8));
+    width: calc(calc(100vw / var(--ui-zoom, 1)) - var(--spacing-x8));
     max-width: 420px;
   }
 }

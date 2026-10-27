@@ -22,6 +22,8 @@ export class AdvancedSearchFilterGroupComponent implements OnInit {
   @Input() filters: AdvancedFilterDefinition[] = [];
   @Input() operator: SolrOperators = SolrOperators.and;
   @Input() groupIndex: number = 0;
+  /** Number of groups in the dialog; a lone group needs no "Group 1" caption on phones. */
+  @Input() groupCount = 1;
 
   @Output() filtersChange = new EventEmitter<AdvancedFilterDefinition[]>();
   @Output() operatorChange = new EventEmitter<SolrOperators>();

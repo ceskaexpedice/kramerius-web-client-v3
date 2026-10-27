@@ -32,6 +32,8 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   private searchTimeout?: any;
 
   @Input() class = '';
+  /** Accessible name of what the select controls (e.g. "Sort by"); the current value is appended. */
+  @Input() ariaLabel = '';
   @Input() size: 'sm' | 'base' = 'base';
   @Input() theme: 'light' | 'base' = 'base';
   @Input() options: T[] = [];

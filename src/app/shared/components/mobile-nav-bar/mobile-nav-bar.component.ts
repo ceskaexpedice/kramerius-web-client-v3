@@ -18,6 +18,8 @@ export interface MobileNavItem {
 export class MobileNavBarComponent {
     @Input() items: MobileNavItem[] = [];
     @Input() activeId: string = '';
+    /** Translation key of the nav landmark's accessible name. */
+    @Input() ariaLabel = '';
     @Output() activeIdChange = new EventEmitter<string>();
 
     selectTab(id: string) {

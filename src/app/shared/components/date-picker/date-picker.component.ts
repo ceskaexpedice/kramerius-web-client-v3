@@ -26,6 +26,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { uiZoom } from '../../utils/ui-zoom';
 
 export interface DatePickerOutput {
   dateFrom: Date;
@@ -323,8 +324,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       }
     }
 
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
+    // Computed in visual px (rects, viewport); style lengths are CSS px.
+    const zoom = uiZoom();
+    popup.style.top = `${top / zoom}px`;
+    popup.style.left = `${left / zoom}px`;
   }
 
   private updateFromInitialValues() {

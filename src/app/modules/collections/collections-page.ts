@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
+import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
+import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { AdminModeService } from '../../shared/services';
 import { CollectionsService } from '../../shared/services/collections.service';
@@ -35,6 +36,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   private uiStateService = inject(UiStateService);
   private mapSeriesService = inject(MapSeriesService);
   public breakpointService = inject(BreakpointService);
+  readonly metadataPanelId = METADATA_PANEL_ID;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -43,6 +45,8 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   isDescriptionExpanded = false;
   isDescriptionTruncated = false;
   rightSidebarVisible = this.uiStateService.metadataSidebarOpen;
+  /** The bottom view switch slides away with the header while the list scrolls down. */
+  readonly mobileNavHidden = computed(() => this.breakpointService.isMobile() && !this.uiStateService.headerVisible());
   sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   private destroy$ = new Subject<void>();
@@ -201,5 +205,16 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
   hideRightSidebar() {
     this.uiStateService.setMetadataSidebarState(false);
+  }
+
+  /** Phones: the description opens as a slide-up sheet (no floating panel there). */
+  mobileInfoOpen = signal(false);
+
+  onInfoClicked() {
+    if (this.breakpointService.isMobile()) {
+      this.mobileInfoOpen.set(true);
+      return;
+    }
+    this.rightSidebarVisible() ? this.hideRightSidebar() : this.showRightSidebar();
   }
 }

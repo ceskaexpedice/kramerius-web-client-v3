@@ -1,16 +1,32 @@
-<div class="tabs-header" [class.bg-base]="headerBackground === 'base'" [class.bg-light]="headerBackground === 'light'">
+<div class="tabs-header" role="tablist"
+     [class.bg-base]="headerBackground === 'base'" [class.bg-light]="headerBackground === 'light'"
+     [class.stacked]="variant === 'stacked'"
+     [attr.aria-label]="ariaLabel || null"
+     (keydown)="onTablistKeydown($event)">
   @for (tab of tabs(); track tab; let i = $index) {
     <button
+      #tabButton
+      type="button"
+      role="tab"
       class="tab-button"
+      [id]="tabId(i)"
+      [attr.aria-selected]="i === activeTabIndex()"
+      [attr.aria-controls]="panelId"
+      [attr.aria-label]="tab.onlyIcon && variant !== 'stacked' ? tab.label : null"
+      [attr.tabindex]="i === activeTabIndex() ? 0 : -1"
       [class.active]="i === activeTabIndex()"
-      [class.only-icon]="tab.onlyIcon"
-      [appCdkTooltip]="tab.tooltip"
+      [class.only-icon]="tab.onlyIcon && variant !== 'stacked'"
+      [appCdkTooltip]="tab.onlyIcon && variant !== 'stacked' ? tab.tooltip : ''"
       (click)="selectTab(i)">
       @if (tab.icon) {
-        <i [class]="tab.icon"></i>
+        <i [class]="tab.icon" aria-hidden="true"></i>
       }
-      @if (!tab.onlyIcon) {
-        {{ tab.label }}
+      @if (!tab.onlyIcon || variant === 'stacked') {
+        <span class="tab-button__label">{{ tab.label }}</span>
+      }
+      @if (tab.badge != null && tab.badge !== '') {
+        <span class="tab-button__badge" aria-hidden="true">{{ tab.badge }}</span>
+        <span class="sr-only">({{ tab.badge }})</span>
       }
     </button>
   }
@@ -22,7 +38,8 @@
 
 @if (tabs().length) {
 
-  <div class="tabs-content" [class.no-padding]="noPadding">
+  <div class="tabs-content" [class.no-padding]="noPadding"
+       role="tabpanel" [id]="panelId" [attr.aria-labelledby]="tabId(activeTabIndex())" tabindex="0">
     <ng-container
       *ngTemplateOutlet="tabs()[activeTabIndex()]?.content || null">
     </ng-container>

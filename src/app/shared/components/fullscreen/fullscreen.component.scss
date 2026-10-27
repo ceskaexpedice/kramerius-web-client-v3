@@ -10,10 +10,10 @@
   &:-webkit-full-screen,
   &:-moz-full-screen,
   &:-ms-fullscreen {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: 100vw !important;
-    max-height: 100vh !important;
+    width: calc(100vw / var(--ui-zoom, 1)) !important;
+    height: calc(100vh / var(--ui-zoom, 1)) !important;
+    max-width: calc(100vw / var(--ui-zoom, 1)) !important;
+    max-height: calc(100vh / var(--ui-zoom, 1)) !important;
     background: var(--color-bg-base);
   }
 }
@@ -22,10 +22,10 @@
 .fullscreen-container:-webkit-full-screen .fullscreen-content,
 .fullscreen-container:-moz-full-screen .fullscreen-content,
 .fullscreen-container:-ms-fullscreen .fullscreen-content {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+  width: calc(100vw / var(--ui-zoom, 1)) !important;
+  height: calc(100vh / var(--ui-zoom, 1)) !important;
+  max-width: calc(100vw / var(--ui-zoom, 1)) !important;
+  max-height: calc(100vh / var(--ui-zoom, 1)) !important;
 }
 
 // Force ALL descendants to inherit fullscreen sizing
@@ -33,8 +33,8 @@
 .fullscreen-container:-webkit-full-screen *,
 .fullscreen-container:-moz-full-screen *,
 .fullscreen-container:-ms-fullscreen * {
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+  max-width: calc(100vw / var(--ui-zoom, 1)) !important;
+  max-height: calc(100vh / var(--ui-zoom, 1)) !important;
 }
 
 .fullscreen-close-button {
@@ -54,12 +54,12 @@
   inset: 0;
   // dvh tracks Safari's collapsing toolbars; vh is the fallback for older
   // WebKit, where it is the only supported unit.
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  max-width: 100vw;
-  max-height: 100vh;
-  max-height: 100dvh;
+  width: calc(100vw / var(--ui-zoom, 1));
+  height: calc(100vh / var(--ui-zoom, 1));
+  height: calc(100dvh / var(--ui-zoom, 1));
+  max-width: calc(100vw / var(--ui-zoom, 1));
+  max-height: calc(100vh / var(--ui-zoom, 1));
+  max-height: calc(100dvh / var(--ui-zoom, 1));
   background: var(--color-bg-base);
   z-index: z.$fullscreen-fallback;
   // Respect the notch/home indicator so controls stay tappable.

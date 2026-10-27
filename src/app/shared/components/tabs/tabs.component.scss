@@ -56,6 +56,31 @@
       }
     }
 
+    &:focus-visible {
+      outline: 2px solid var(--color-border-primary-default);
+      outline-offset: -2px;
+    }
+
+    &:hover:not(.active) {
+      color: var(--color-text-secondary);
+    }
+
+    .tab-button__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      margin-left: 4px;
+      border-radius: 9px;
+      font-size: var(--font-size-xxsmall);
+      font-weight: 600;
+      line-height: 1;
+      background: var(--color-bg-light);
+      color: var(--color-text-secondary);
+    }
+
     &.active {
       color: var(--color-text-btn-secondary-default);
 
@@ -72,6 +97,50 @@
   }
 }
 
+// Stacked: a 20px glyph with a short caption underneath. Keeps the compact
+// footprint of icon-only tabs but stays self-describing (no tooltip needed).
+.tabs-header.stacked {
+  padding-inline: var(--spacing-x1);
+}
+
+.tabs-header.stacked .tab-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--spacing-x2) var(--spacing-x1);
+  min-height: 52px;
+  min-width: 0;
+
+  i {
+    font-size: var(--font-size-xlarge);
+    line-height: 1;
+  }
+
+  .tab-button__label {
+    font-size: var(--font-size-xxsmall);
+    line-height: 1.2;
+    font-weight: 500;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tab-button__badge {
+    position: absolute;
+    top: 3px;
+    left: calc(50% + 4px);
+    margin-left: 0;
+    background: color-mix(in srgb, var(--color-primary) 14%, var(--color-bg-base));
+    color: var(--color-primary);
+  }
+
+  &.active .tab-button__label {
+    font-weight: 600;
+  }
+}
+
 .tabs-content {
   flex: 1;
   overflow-y: auto;
@@ -80,5 +149,10 @@
 
   &.no-padding {
     padding: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: -2px;
   }
 }

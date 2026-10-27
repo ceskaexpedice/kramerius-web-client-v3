@@ -17,6 +17,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DetailPageItemComponent } from '../detail-page-item/detail-page-item.component';
 import { DetailViewService } from '../../services/detail-view.service';
 import { Page } from '../../../../shared/models/page.model';
+import { uiZoom } from '../../../../shared/utils/ui-zoom';
 
 @Component({
   selector: 'app-detail-pages-grid',
@@ -117,7 +118,8 @@ export class DetailPagesGridComponent implements AfterViewInit, OnDestroy {
 
   private measureRowHeight(): void {
     const row = this.gridMeasure?.nativeElement.querySelector('.page--grid__row') as HTMLElement | null;
-    const height = row?.getBoundingClientRect().height;
+    // Virtual-scroll item sizes are CSS px; the rect is visual px under UI zoom.
+    const height = row ? row.getBoundingClientRect().height / uiZoom() : 0;
     if (!height) return;
 
     const next = Math.round(height + DetailPagesGridComponent.GAP);

@@ -24,7 +24,8 @@
 
 .slide-up-panel {
   position: fixed;
-  bottom: 0;
+  // A host can dock its sheets above a fixed bar (e.g. the reader's bottom nav).
+  bottom: var(--slide-up-panel-bottom-offset, 0px);
   left: 0;
   right: 0;
   width: 100%;
@@ -34,7 +35,7 @@
   border-radius: var(--spacing-x3) var(--spacing-x3) 0 0;
   box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
   z-index: $slide-up-panel;
-  transform: translateY(100%);
+  transform: translateY(calc(100% + var(--slide-up-panel-bottom-offset, 0px)));
   transition: transform 0.3s ease-out;
 
   // The container takes programmatic focus on open (see focusPanel()); a ring
@@ -110,9 +111,20 @@
   margin: 0;
   font-size: var(--font-size-large);
   font-weight: 600;
+  // Document titles can be long: two lines, then ellipsis.
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .slide-up-panel__close {
+  flex-shrink: 0;
+  min-width: 40px;
+  min-height: 40px;
+  margin: -4px -8px 0 0;
+  border-radius: var(--spacing-x1);
   padding: 0;
   border: none;
   background: none;
@@ -126,7 +138,8 @@
 
 // Content
 .slide-up-panel__content {
-  padding: var(--spacing-x3) var(--spacing-x3) var(--spacing-x5) var(--spacing-x3);
+  // Bottom padding clears the iPhone home indicator / gesture bar.
+  padding: var(--spacing-x3) var(--spacing-x3) calc(var(--spacing-x5) + env(safe-area-inset-bottom, 0px)) var(--spacing-x3);
   grid-row: 3;
   overflow-y: auto;
   min-height: 0;
@@ -138,7 +151,7 @@
   // then dead space that just shortens that scroll area, so drop it and let the
   // sidebar's content reach the sheet's edges (GitHub issue #177).
   &--flush {
-    padding: 0;
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
   }
 }
 

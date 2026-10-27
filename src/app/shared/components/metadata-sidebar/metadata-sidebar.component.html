@@ -12,61 +12,64 @@
       }
     </ng-template>
 
-    <!-- Footer Template -->
+    <!-- Footer: only while an AI result is on screen. Showing/hiding the panel
+         itself is done by the toolbar toggle, so the panel spends no height on it. -->
     <ng-template #footerContent>
+      @if (aiPanelService.panelVisible() && (aiPanelService.contentType() === 'translation' || aiPanelService.contentType() === 'summary')) {
       <div class="metadata-sidebar--footer">
-
-        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'translation') {
-          <button class="button primary sm with-icon" (click)="aiPanelService.close()">
+        @if (aiPanelService.contentType() === 'translation') {
+          <button type="button" class="button primary sm with-icon" (click)="aiPanelService.close()">
             {{ 'ai.cancel-translation' | translate }}
             <i class="icon-close" aria-hidden="true"></i>
           </button>
         }
-        @if (aiPanelService.panelVisible() && aiPanelService.contentType() === 'summary') {
-          <button class="button primary with-icon" (click)="aiPanelService.close()">
+        @if (aiPanelService.contentType() === 'summary') {
+          <button type="button" class="button primary sm with-icon" (click)="aiPanelService.close()">
             {{ 'ai.cancel-summary' | translate }}
             <i class="icon-close" aria-hidden="true"></i>
           </button>
         }
-
-        <button class="button outlined tertiary sm with-icon" (click)="closeMetadataSidebar()">
-          {{ 'hide--metadata-sidebar' | translate}}
-          <i class="icon-sidebar-bottom" aria-hidden="true"></i>
-        </button>
       </div>
+      }
     </ng-template>
 
-    <!-- Check if we should use tabs: (Search Available AND Results > 0) OR Export Available OR AI Available -->
+    <!-- Tabs when there is more than the description to show -->
     @if ((tools.search && (searchResult.count || 0) > 0) || (tools.export && configService.isAnyExportFormatEnabled()) || (tools.ai && configService.isFeatureEnabled('ai'))) {
-    <app-tabs (tabChanged)="onTabChanged($event)" [initialTab]="uiStateService.metadataSidebarActiveTab() || undefined">
+    <app-tabs variant="stacked" [ariaLabel]="'metadata-panel--tabs' | translate"
+              (tabChanged)="onTabChanged($event)" [initialTab]="uiStateService.metadataSidebarActiveTab() || undefined">
 
-      @if (tools.description) {
-      <app-tab-item [id]="'description'" [label]="'description' | translate" [icon]="'icon-textalign-justifycenter'" [onlyIcon]="true"
-        [tooltip]="'description' | translate">
-        <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
-      </app-tab-item>
-      }
-
-      @if (tools.export && configService.isAnyExportFormatEnabled()) {
-      <app-tab-item [id]="'export'" [label]="'export' | translate" [icon]="'icon-frame-download'" [onlyIcon]="true"
-        [tooltip]="'export' | translate">
-        <app-export-document-section-component
-          [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
-      </app-tab-item>
-      }
-
-      @if (tools.ai && configService.isFeatureEnabled('ai')) {
-        <app-tab-item [id]="'ai'" [label]="'ai' | translate" [icon]="'icon-magic'" [onlyIcon]="true"
-                      [tooltip]="'ai' | translate">
-          <app-ai-actions></app-ai-actions>
-        </app-tab-item>
-      }
-
-      @if (tools.search && (searchResult.count || 0) > 0) {
-      <app-tab-item [id]="'search'" [label]="'search' | translate" [icon]="'icon-receipt-search'" [onlyIcon]="true"
-        [tooltip]="'search' | translate">
-        <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
-      </app-tab-item>
+      @for (tab of panelTabs; track tab.id) {
+        @switch (tab.id) {
+          @case ('description') {
+            @if (tools.description) {
+            <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
+              <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
+            </app-tab-item>
+            }
+          }
+          @case ('export') {
+            @if (tools.export && configService.isAnyExportFormatEnabled()) {
+            <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
+              <app-export-document-section-component
+                [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
+            </app-tab-item>
+            }
+          }
+          @case ('ai') {
+            @if (tools.ai && configService.isFeatureEnabled('ai')) {
+            <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
+              <app-ai-actions></app-ai-actions>
+            </app-tab-item>
+            }
+          }
+          @case ('search') {
+            @if (tools.search && (searchResult.count || 0) > 0) {
+            <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
+              <app-search-results-sidebar [currentDocument]="metadata"></app-search-results-sidebar>
+            </app-tab-item>
+            }
+          }
+        }
       }
 
       <div tab-common-down>
@@ -77,7 +80,8 @@
     } @else {
     <!-- Simple View (No Tabs) -->
     <div class="metadata-sidebar__content">
-      <div class="metadata-sidebar__scroll">
+      <div class="metadata-sidebar__scroll" tabindex="0" role="region"
+           [attr.aria-label]="'description' | translate">
         <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
       </div>
       <ng-container *ngTemplateOutlet="footerContent"></ng-container>

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ElementRef, HostBinding } from '@angular/core';
+import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, distinctUntilChanged } from 'rxjs/operators';
@@ -50,12 +51,12 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   // on phones. Its items mirror the right metadata sidebar's tabs, plus one for
   // the left records/images panel (mirrors detail-view's "pages"). Issue #172.
   mobileNavItemsBase: MobileNavItem[] = [
-    { id: 'description', label: 'description', icon: 'icon-note' },
-    { id: 'records', label: 'sound-records--toggle', icon: 'icon-simcard-2' },
+    { id: 'description', label: PANEL_TABS.description.label, icon: PANEL_TABS.description.icon },
+    { id: 'records', label: 'sound-records--toggle', icon: PANEL_TABS.pages.icon },
   ];
-  mobileExportNavItem: MobileNavItem = { id: 'export', label: 'export', icon: 'icon-download' };
-  mobileAiNavItem: MobileNavItem = { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' };
-  mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
+  mobileExportNavItem: MobileNavItem = { id: 'export', label: PANEL_TABS.export.label, icon: PANEL_TABS.export.icon };
+  mobileAiNavItem: MobileNavItem = { id: 'ai', label: PANEL_TABS.ai.label, icon: PANEL_TABS.ai.icon };
+  mobileSearchNavItem: MobileNavItem = { id: 'results', label: PANEL_TABS.search.label, icon: PANEL_TABS.search.icon };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
   mobileSlideUpOpen = signal(false);
@@ -70,6 +71,13 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   mobileNavShown = computed(() => !this.isImmersiveMode() || this.mobileNavVisible());
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
+
+  /** Section sheets (this page's and the records sheet) dock above the visible bottom nav. */
+  @HostBinding('style.--slide-up-panel-bottom-offset')
+  get slideUpBottomOffset() {
+    return this.breakpointService.isMobile() && this.mobileNavShown()
+      ? `calc(${MusicPageComponent.MOBILE_NAV_BAR_HEIGHT}px + var(--playback-bar-height, 0px))` : null;
+  }
   private static readonly NAV_HEIGHT_ANIM_MS = 250;
   private navHeightRaf: number | null = null;
   private navHeightCurrent = 0;
@@ -221,8 +229,9 @@ export class MusicPageComponent implements OnInit, OnDestroy {
       this.mobileActivePanel.set(id);
       this.mobileSlideUpOpen.set(true);
     }
-    // Opening a panel takes over the screen: hide the immersive nav bar.
-    this.mobileNavVisible.set(false);
+    // Keep the nav up while a section is open: it is the section switcher and
+    // the sheets dock above it (same as the detail view).
+    this.mobileNavVisible.set(true);
   }
 
   onMobileSlideUpClosed() {

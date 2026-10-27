@@ -9,10 +9,33 @@
 
 <div class="data" *ngIf="data">
 
+  <!-- ===== Source (CDK aggregator, document has cdk.collection): which library's
+       copy is shown. It decides the scans, licence and holdings, so it leads. -->
+  <ng-template #cdkSourceLogoTpl let-code>
+    @if (cdkSourceLogo(code); as logoUrl) {
+      <img class="cdk-source-logo" [src]="logoUrl" [alt]="cdkSourceLabel(code)"
+           loading="lazy" (error)="$any($event.target).style.display = 'none'" />
+    }
+  </ng-template>
+  <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0" class="metadata-source"
+    [label]="'cdk.collection' | translate">
+    <div metadata-section-item-content class="cdk-source-select">
+      <app-select
+        [options]="cdkSourceOptions()" [size]="'sm'"
+        [value]="selectedCdkCollection()"
+        [displayFn]="cdkSourceLabel"
+        [optionPrefixTpl]="cdkSourceLogoTpl"
+        [theme]="'base'"
+        (valueChange)="onCdkCollectionChange($event)">
+      </app-select>
+    </div>
+  </app-metadata-section-item>
+
+  <!-- ===== Hero: what the document is, at a glance ===== -->
   <!-- Parent-navigation links.
        Rendered at the very top so that when the title is shown in a host header
        (e.g. mobile slide-up panel with showTitle=false) the link sits directly
-       under it, ahead of the CDK selector and metadata. -->
+       under it (below the source selector), ahead of the metadata. -->
   @if (!showTitle) {
     @if (isMonographUnitDoc() && monographHref(); as href) {
     <a class="go-to-parent" [href]="href"
@@ -30,27 +53,6 @@
     }
   }
 
-  <!-- CDK source selector (only on CDK aggregator when document has cdk.collection) -->
-  <ng-template #cdkSourceLogoTpl let-code>
-    @if (cdkSourceLogo(code); as logoUrl) {
-      <img class="cdk-source-logo" [src]="logoUrl" [alt]="cdkSourceLabel(code)"
-           loading="lazy" (error)="$any($event.target).style.display = 'none'" />
-    }
-  </ng-template>
-  <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0"
-    [label]="'cdk.collection' | translate">
-    <div metadata-section-item-content class="cdk-source-select">
-      <app-select
-        [options]="cdkSourceOptions()" [size]="'sm'"
-        [value]="selectedCdkCollection()"
-        [displayFn]="cdkSourceLabel"
-        [optionPrefixTpl]="cdkSourceLogoTpl"
-        [theme]="'base'"
-        (valueChange)="onCdkCollectionChange($event)">
-      </app-select>
-    </div>
-  </app-metadata-section-item>
-
   <!-- Alternative titles (mods:titleInfo type="alternative"): hidden on first
        render, revealed by this toggle. Rendered directly under the title —
        either the one below, or the host's own header when showTitle is false. -->
@@ -61,13 +63,13 @@
                 class="button primary md link no-padding with-icon alternative-titles--toggle"
                 (click)="toggleAlternativeTitles()"
                 [attr.aria-expanded]="alternativeTitlesExpanded()">
-          {{ (alternativeTitlesExpanded() ? 'less' : 'more') | translate }}
+          {{ 'alternative-titles' | translate }}
           <i class="icon-arrow-up-1" [class.rotated]="!alternativeTitlesExpanded()" aria-hidden="true"></i>
         </button>
 
         @if (alternativeTitlesExpanded()) {
           <div class="alternative-titles">
-            <h3 class="alternative-titles--label">{{ 'alternative-titles' | translate }}</h3>
+            <div class="alternative-titles--label sr-only">{{ 'alternative-titles' | translate }}</div>
             <ul class="alternative-titles--list" [class.with-bullets]="alternativeTitles.length > 1">
               @for (title of alternativeTitles; track title) {
                 <li>{{ title }}</li>
@@ -88,16 +90,21 @@
   <!-- Title -->
   @if (showTitle) {
   <section *ngIf="data.mainTitle || hasValidTitles">
-    @if (isPeriodicalChild() && periodicalHref(); as href) {
-      <a class="title-link"
-         [href]="href"
-         [appCdkTooltip]="'go-to-volume--tooltip' | translate"
-         [tooltipPosition]="'bottom'"
-         (click)="handleLinkNav($event, clickedTitle.bind(this))"
-         (keydown.enter)="clickedTitle()"><h2 class="clickable-title">{{ localizedMainTitle }}</h2></a>
-    } @else {
-      <h2>{{ localizedMainTitle }}</h2>
-    }
+    <!-- Very long titles (old prints) are clamped to 4 lines with a "more"
+         toggle so the facts below stay in view; screen readers get it all. -->
+    <app-collapsible-content class="title-clamp" [collapsible]="true" [maxLines]="4" [contentKey]="localizedMainTitle"
+                             moreLabel="title--show-full" lessLabel="title--show-less">
+      @if (isPeriodicalChild() && periodicalHref(); as href) {
+        <a class="title-link"
+           [href]="href"
+           [appCdkTooltip]="'go-to-volume--tooltip' | translate"
+           [tooltipPosition]="'bottom'"
+           (click)="handleLinkNav($event, clickedTitle.bind(this))"
+           (keydown.enter)="clickedTitle()"><h2 class="clickable-title">{{ localizedMainTitle }}</h2></a>
+      } @else {
+        <h2>{{ localizedMainTitle }}</h2>
+      }
+    </app-collapsible-content>
     <app-collapsible-content *ngIf="localizedTitles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="localizedTitles.length">
       <div class="titles--container" *ngFor="let title of localizedTitles">
@@ -132,18 +139,6 @@
     }
   }
 
-  <!-- ISSN (standalone, right under title) -->
-  <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [value]="getIssn()!">
-  </app-metadata-section-item>
-
-  <!-- ISBN (standalone) -->
-  <app-metadata-section-item *ngIf="getIsbn()" [label]="'ISBN' | translate" type="text" [value]="getIsbn()!">
-  </app-metadata-section-item>
-
-  <!-- ISMN (standalone, kept alongside ISBN rather than in the identifier list) -->
-  <app-metadata-section-item *ngIf="getIsmn()" [label]="'ISMN' | translate" type="text" [value]="getIsmn()!">
-  </app-metadata-section-item>
-
   <!-- Authors -->
   <app-metadata-section-item *ngIf="data.authors.length" [label]="'authors' | translate"
     type="clickable-list" [items]="data.authors" [displayFn]="getAuthorName" [onItemClick]="clickedAuthor"
@@ -154,80 +149,32 @@
     [itemSuffixTpl]="authorIdentifiersTpl">
   </app-metadata-section-item>
 
-  <!-- Document Type — informational chip, not a search entry point (#194) -->
-  @if (data.model) {
-    <app-metadata-section-item [label]="'model' | translate">
-      <div metadata-section-item-content>
-        <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount"></app-model-badge>
-      </div>
-    </app-metadata-section-item>
-  }
-
-  <!-- Accessibility — hidden for public documents under a watermarked license (see showAccessibility) -->
-  @if (showAccessibility()) {
-    <app-metadata-section-item [label]="'accessibility' | translate">
-      <div class="flex flex--gap-x2" metadata-section-item-content>
-        <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-      </div>
-    </app-metadata-section-item>
-  }
-
-  @if (providedByLicenses().length > 0) {
-    <section class="provided-licenses">
-      <h3 class="provided-licenses__title">{{ 'provided-under-license' | translate }}</h3>
-      @for (license of providedByLicenses(); track license) {
-        <div class="provided-licenses__item">
-          @if (hasLicenseInfo(license)) {
-            <button type="button" class="provided-licenses__link provided-licenses__info"
-                    (click)="openLicenseInfo(license, $event)">
-              {{ license | translate }}
-            </button>
-          } @else if (getProvidedByLicenseUrl(license); as url) {
-            <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">
-              {{ license | translate }}
-            </a>
-          } @else {
-            <span class="provided-licenses__text">{{ license | translate }}</span>
-          }
-          @if (getProvidedByLicenseImage(license); as imgSrc) {
-            @if (getProvidedByLicenseUrl(license); as url) {
-              <a [href]="url" target="_blank" rel="noopener noreferrer">
-                <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
-              </a>
-            } @else {
-              <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
-            }
-          }
-
-<!--          <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>-->
-
-        </div>
-      }
-    </section>
-  }
-
-  <!-- Donators -->
-  @if ((data.donators || []).length) {
-  <div class="donators">
-    <h3 class="donators__title">{{ 'donators--title' | translate }}</h3>
-    <div class="donators__logos">
-    @for (donator of data.donators; track donator) {
-      @if (getDonatorImage(donator); as imgSrc) {
-        @if (getDonatorUrl(donator); as url) {
-          <a [href]="url" target="_blank" rel="noopener noreferrer">
-            <img [src]="imgSrc" [alt]="donator" class="donator-logo"
-                 (error)="onDonatorImageError($event, donator)" />
-          </a>
-        } @else {
-          <img [src]="imgSrc" [alt]="donator" class="donator-logo"
-               (error)="onDonatorImageError($event, donator)" />
-        }
-      }
+  <!-- Type + accessibility side by side: two short chips need not cost two rows. -->
+  <div class="metadata-facts">
+    @if (data.dateStr) {
+      <app-metadata-section-item [label]="'publication-date' | translate" type="text" [value]="data.dateStr"></app-metadata-section-item>
     }
-    </div>
-  </div>
-  }
+    <!-- Document Type — informational chip, not a search entry point (#194) -->
+    @if (data.model) {
+      <app-metadata-section-item [label]="'model' | translate">
+        <div metadata-section-item-content>
+          <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount"></app-model-badge>
+        </div>
+      </app-metadata-section-item>
+    }
 
+    <!-- Accessibility — hidden for public documents under a watermarked license (see showAccessibility) -->
+    @if (showAccessibility()) {
+      <app-metadata-section-item [label]="'accessibility' | translate">
+        <div class="flex flex--gap-x2" metadata-section-item-content>
+          <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
+        </div>
+      </app-metadata-section-item>
+    }
+
+  </div>
+
+  <!-- ===== Context of the current part (article, track, volume, issue) ===== -->
   @if (articleData) {
   <div class="article-card">
     <div class="article-header">
@@ -262,7 +209,7 @@
           <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
             {{ articleData.identifiers['doi'] }}
           </a>
-          <i class="icon-copy" aria-hidden="true"></i>
+          <app-copy-button [value]="articleData.identifiers['doi']" label="DOI"></app-copy-button>
         </div>
       </div>
 
@@ -435,101 +382,188 @@
   </div>
   }
 
-  <!-- Publishers -->
-  <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
-    [collapsible]="true" [items]="data.publishers" [displayFn]="getPublisherFullDetail">
-  </app-metadata-section-item>
-
-  <!-- Genres -->
-  <app-metadata-section-item *ngIf="data.genres.length" [label]="'genres' | translate" type="clickable-list"
-    [items]="data.genres" [onItemClick]="clickedGenre" [itemHref]="genreHref">
-  </app-metadata-section-item>
-
-  <!-- Geographic names -->
-  <app-metadata-section-item *ngIf="data.geonames.length" [label]="'geonames' | translate" type="clickable-list"
-    [items]="data.geonames" [disableTranslate]="true" [onItemClick]="clickedGeoName" [itemHref]="geoNameHref">
-  </app-metadata-section-item>
-
-  <!-- Collections — "Ve sbírce" per Figma; standard link treatment (#194) -->
-  @if (data.inCollections.length) {
-    <app-metadata-section-item [label]="'in-collections--label' | translate" type="clickable-list"
-      [items]="data.inCollections" [disableTranslate]="true" [displayFn]="getCollectionName"
-      [onItemClick]="clickedCollection" [itemHref]="collectionHref">
+  <!-- ===== Grouped details: each group has an h3 disclosure heading; empty groups hide themselves ===== -->
+  <app-metadata-group key="publication" title="metadata-group--publication">
+    <!-- Publishers -->
+    <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
+      [collapsible]="true" [items]="data.publishers" [displayFn]="getPublisherFullDetail">
     </app-metadata-section-item>
-  }
 
-  <!-- Languages -->
-  <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
-    [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage" [itemHref]="languageHref">
-  </app-metadata-section-item>
+    <!-- Languages -->
+    <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
+      [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage" [itemHref]="languageHref">
+    </app-metadata-section-item>
 
-  <!-- Locations -->
-  <app-metadata-section-item *ngIf="locations().length" [label]="'locations' | translate" type="clickable-list"
-    [collapsible]="true" [items]="locations()" [displayFn]="getLocationLabel" [itemSubtextFn]="getLocationSubtext"
-    [disableTranslate]="true" [onItemClick]="clickedLocation" [itemHref]="locationHref">
-  </app-metadata-section-item>
+    <!-- Physical Description -->
+    <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
+      type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
+    </app-metadata-section-item>
 
-  <!-- Keywords -->
-  <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [collapsible]="true"
-    type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword" [itemHref]="keywordHref">
-  </app-metadata-section-item>
+    <!-- Cartographic Data -->
+    <section class="cartographic-data" *ngIf="data.cartographicData.length" role="group" aria-labelledby="cartographic-data-label">
+      <div class="metadata-sublabel" id="cartographic-data-label">{{ 'cartographic-data' | translate }}</div>
+      <ul [class.with-bullets]="data.cartographicData.length > 1">
+        <li *ngFor="let cart of data.cartographicData">
+          <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
+          <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
+        </li>
+      </ul>
+    </section>
 
-  <!-- Physical Description -->
-  <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
-    type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
-  </app-metadata-section-item>
+  </app-metadata-group>
 
-  <!-- Abstracts -->
-  <app-metadata-section-item *ngIf="localizedAbstracts.length" [label]="'abstract' | translate" type="list"
-    [collapsible]="true" [items]="localizedAbstracts">
-  </app-metadata-section-item>
+  <app-metadata-group key="access" title="metadata-group--access">
+    @if (providedByLicenses().length > 0) {
+      <section class="provided-licenses" role="group" aria-labelledby="provided-licenses-label">
+        <div class="provided-licenses__title metadata-sublabel" id="provided-licenses-label">{{ 'provided-under-license' | translate }}</div>
+        @for (license of providedByLicenses(); track license) {
+          <div class="provided-licenses__item">
+            @if (hasLicenseInfo(license)) {
+              <button type="button" class="provided-licenses__link provided-licenses__info"
+                      (click)="openLicenseInfo(license, $event)">
+                {{ license | translate }}
+              </button>
+            } @else if (getProvidedByLicenseUrl(license); as url) {
+              <a [href]="url" target="_blank" rel="noopener noreferrer" class="provided-licenses__link">
+                {{ license | translate }}
+              </a>
+            } @else {
+              <span class="provided-licenses__text">{{ license | translate }}</span>
+            }
+            @if (getProvidedByLicenseImage(license); as imgSrc) {
+              @if (getProvidedByLicenseUrl(license); as url) {
+                <a [href]="url" target="_blank" rel="noopener noreferrer">
+                  <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
+                </a>
+              } @else {
+                <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
+              }
+            }
 
-  <!-- Subject Names (Personal) -->
-  <app-metadata-section-item *ngIf="data.subjectNamesPersonal.length" [label]="'subject-names-personal' | translate"
-    type="clickable-list" [items]="data.subjectNamesPersonal" [displayFn]="getAuthorName"
-    [onItemClick]="clickedSubjectNamePersonal" [itemHref]="subjectNamePersonalHref">
-  </app-metadata-section-item>
+  <!--          <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>-->
 
-  <!-- Subject Names (Corporate) -->
-  <app-metadata-section-item *ngIf="data.subjectNamesCorporate.length" [label]="'subject-names-corporate' | translate"
-    type="clickable-list" [items]="data.subjectNamesCorporate" [displayFn]="getAuthorName"
-    [onItemClick]="clickedSubjectNameCorporate" [itemHref]="subjectNameCorporateHref">
-  </app-metadata-section-item>
+          </div>
+        }
+      </section>
+    }
 
-  <!-- Subject Temporals -->
-  <app-metadata-section-item *ngIf="data.subjectTemporals.length" [label]="'subject-temporals' | translate"
-    type="clickable-list" [items]="data.subjectTemporals" [onItemClick]="clickedSubjectTemporal"
-    [itemHref]="subjectTemporalHref">
-  </app-metadata-section-item>
+    <!-- Donators -->
+    @if ((data.donators || []).length) {
+    <div class="donators" role="group" aria-labelledby="donators-label">
+      <div class="donators__title metadata-sublabel" id="donators-label">{{ 'donators--title' | translate }}</div>
+      <div class="donators__logos">
+      @for (donator of data.donators; track donator) {
+        @if (getDonatorImage(donator); as imgSrc) {
+          @if (getDonatorUrl(donator); as url) {
+            <a [href]="url" target="_blank" rel="noopener noreferrer">
+              <img [src]="imgSrc" [alt]="donator" class="donator-logo"
+                   (error)="onDonatorImageError($event, donator)" />
+            </a>
+          } @else {
+            <img [src]="imgSrc" [alt]="donator" class="donator-logo"
+                 (error)="onDonatorImageError($event, donator)" />
+          }
+        }
+      }
+      </div>
+    </div>
+    }
 
-  <app-metadata-section-item *ngIf="data.contents.length" [label]="'content' | translate" [collapsible]="true"
-    type="list" [items]="data.contents">
-  </app-metadata-section-item>
+  </app-metadata-group>
 
-  <!-- Cartographic Data -->
-  <section class="cartographic-data" *ngIf="data.cartographicData.length">
-    <h3>{{ 'cartographic-data' | translate }}</h3>
-    <ul [class.with-bullets]="data.cartographicData.length > 1">
-      <li *ngFor="let cart of data.cartographicData">
-        <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
-        <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
-      </li>
-    </ul>
-  </section>
+  <app-metadata-group key="subject" title="metadata-group--subject">
+    <!-- Genres -->
+    <app-metadata-section-item *ngIf="data.genres.length" [label]="'genres' | translate" type="clickable-list"
+      [items]="data.genres" [onItemClick]="clickedGenre" [itemHref]="genreHref">
+    </app-metadata-section-item>
 
-  <!-- Other Identifiers (excluding ISBN) -->
-  <app-metadata-section-item *ngIf="hasNonIsbnIdentifiers()" [label]="'identifiers' | translate"
-    [listKeyUppercase]="true" type="key-value" [keyValuePairs]="getIdentifiersWithoutIsbn()">
-  </app-metadata-section-item>
+    <!-- Keywords -->
+    <app-metadata-section-item *ngIf="data.keywords.length" [label]="'keywords' | translate" [collapsible]="true"
+      type="clickable-list" [items]="data.keywords" [onItemClick]="clickedKeyword" [itemHref]="keywordHref">
+    </app-metadata-section-item>
 
-  <!-- Notes -->
-  <app-metadata-section-item *ngIf="data.notes.length && data.model !== 'collection'" [label]="'notes' | translate" [collapsible]="true">
-    <!-- A single note reads as a plain paragraph: no bullet, no indent. Bullets
-         only earn their place once there are several notes to separate. -->
-    <ul metadata-section-item-content [class.with-bullets]="getNotes(data.notes).length > 1">
-      <li *ngFor="let note of getNotes(data.notes)" [innerHTML]="note | safeHtml"></li>
-    </ul>
-  </app-metadata-section-item>
+    <!-- Geographic names -->
+    <app-metadata-section-item *ngIf="data.geonames.length" [label]="'geonames' | translate" type="clickable-list"
+      [items]="data.geonames" [disableTranslate]="true" [onItemClick]="clickedGeoName" [itemHref]="geoNameHref">
+    </app-metadata-section-item>
+
+    <!-- Subject Names (Personal) -->
+    <app-metadata-section-item *ngIf="data.subjectNamesPersonal.length" [label]="'subject-names-personal' | translate"
+      type="clickable-list" [items]="data.subjectNamesPersonal" [displayFn]="getAuthorName"
+      [onItemClick]="clickedSubjectNamePersonal" [itemHref]="subjectNamePersonalHref">
+    </app-metadata-section-item>
+
+    <!-- Subject Names (Corporate) -->
+    <app-metadata-section-item *ngIf="data.subjectNamesCorporate.length" [label]="'subject-names-corporate' | translate"
+      type="clickable-list" [items]="data.subjectNamesCorporate" [displayFn]="getAuthorName"
+      [onItemClick]="clickedSubjectNameCorporate" [itemHref]="subjectNameCorporateHref">
+    </app-metadata-section-item>
+
+    <!-- Subject Temporals -->
+    <app-metadata-section-item *ngIf="data.subjectTemporals.length" [label]="'subject-temporals' | translate"
+      type="clickable-list" [items]="data.subjectTemporals" [onItemClick]="clickedSubjectTemporal"
+      [itemHref]="subjectTemporalHref">
+    </app-metadata-section-item>
+
+    <!-- Abstracts -->
+    <app-metadata-section-item *ngIf="localizedAbstracts.length" [label]="'abstract' | translate" type="list"
+      [collapsible]="true" [items]="localizedAbstracts">
+    </app-metadata-section-item>
+
+    <app-metadata-section-item *ngIf="data.contents.length" [label]="'content' | translate" [collapsible]="true"
+      type="list" [items]="data.contents">
+    </app-metadata-section-item>
+
+    <!-- Collections — "Ve sbírce" per Figma; standard link treatment (#194) -->
+    @if (data.inCollections.length) {
+      <app-metadata-section-item [label]="'in-collections--label' | translate" type="clickable-list"
+        [items]="data.inCollections" [disableTranslate]="true" [displayFn]="getCollectionName"
+        [onItemClick]="clickedCollection" [itemHref]="collectionHref">
+      </app-metadata-section-item>
+    }
+
+  </app-metadata-group>
+
+  <app-metadata-group key="holdings" title="metadata-group--holdings">
+    <!-- Locations -->
+    <app-metadata-section-item *ngIf="locations().length" [label]="'locations' | translate" type="clickable-list"
+      [collapsible]="true" [items]="locations()" [displayFn]="getLocationLabel" [itemSubtextFn]="getLocationSubtext"
+      [disableTranslate]="true" [onItemClick]="clickedLocation" [itemHref]="locationHref">
+    </app-metadata-section-item>
+
+  </app-metadata-group>
+
+  <app-metadata-group key="identifiers" title="identifiers">
+    <!-- ISSN (standalone, right under title) -->
+    <app-metadata-section-item *ngIf="getIssn()" [label]="'ISSN' | translate" type="text" [copyable]="true" [value]="getIssn()!">
+    </app-metadata-section-item>
+
+    <!-- ISBN (standalone) -->
+    <app-metadata-section-item *ngIf="getIsbn()" [label]="'ISBN' | translate" type="text" [copyable]="true" [value]="getIsbn()!">
+    </app-metadata-section-item>
+
+    <!-- ISMN (standalone, kept alongside ISBN rather than in the identifier list) -->
+    <app-metadata-section-item *ngIf="getIsmn()" [label]="'ISMN' | translate" type="text" [copyable]="true" [value]="getIsmn()!">
+    </app-metadata-section-item>
+
+    <!-- Other Identifiers (excluding ISBN) -->
+    <app-metadata-section-item *ngIf="hasNonIsbnIdentifiers()" [label]="'identifiers--other' | translate"
+      [listKeyUppercase]="true" type="key-value" [copyable]="true" [keyValuePairs]="getIdentifiersWithoutIsbn()">
+    </app-metadata-section-item>
+
+  </app-metadata-group>
+
+  <app-metadata-group key="notes" title="notes">
+    <!-- Notes -->
+    <!-- A list item, so several notes clamp by whole entries ("Show all (N)")
+         instead of a line clamp that cut a note in half. Bullets only appear once
+         there are several notes (see bulletsVisible). -->
+    <ng-template #noteTpl let-note><span [innerHTML]="note | safeHtml"></span></ng-template>
+    <app-metadata-section-item *ngIf="data.notes.length && data.model !== 'collection'" [label]="'notes' | translate" [hideLabel]="true"
+      [collapsible]="true" type="list" [items]="getNotes(data.notes)" [itemTpl]="noteTpl">
+    </app-metadata-section-item>
+
+  </app-metadata-group>
 
   @if (canShowRawMetadata()) {
     <div class="metadata--actions">

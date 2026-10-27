@@ -27,6 +27,9 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
   @Input() dimmed = false;
   @Input() toggleButtonPosition: 'left' | 'right' = 'right';
   @Input() toggleButtonIcon: string = 'icon-filter';
+  /** Translation keys of the open/close buttons' accessible names (default: filters). */
+  @Input() openLabelKey = 'open-filters';
+  @Input() closeLabelKey = 'close-filters';
   @Input() hideToggleButton = false;
   /**
    * Translation key for the mobile slide-up header. Defaults to "Filtry", which
@@ -79,6 +82,14 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
 
   // Backdrop click handler
   onBackdropClick() {
+    this.closeSidebar();
+  }
+
+  /** Escape closes the tablet overlay, unless an open popup inside it consumes the key first. */
+  onOverlayEscape(event: Event) {
+    if (!this.isOverlay() || !this.breakpointService.isVisible() || event.defaultPrevented) return;
+    const target = event.target as Element | null;
+    if (target?.closest('[role="listbox"], [role="menu"], [aria-expanded="true"]')) return;
     this.closeSidebar();
   }
 }

@@ -210,9 +210,20 @@
 
     </div>
 
-    <!-- No results state -->
-    @if (!(searchService.loading$ | async) && searchService.totalCount === 0 && searchService.submittedTerm) {
-      <app-no-results [term]="searchService.submittedTerm"></app-no-results>
+    <!-- Error / no results state. Filter-only searches (no term) get the empty
+         state too, so a facet combination with no hits never renders a blank page. -->
+    @if (!(searchService.loading$ | async)) {
+      @if (searchError()) {
+        <div class="search-error" role="alert">
+          <h2 class="search-error__title">{{ 'search-error--title' | translate }}</h2>
+          <p class="search-error__message">{{ 'search-error--message' | translate }}</p>
+          <button type="button" class="button primary sm" (click)="searchService.reloadCurrentSearch()">
+            {{ 'search-error--retry' | translate }}
+          </button>
+        </div>
+      } @else if (searchService.totalCount === 0 && (searchService.submittedTerm || hasSearched())) {
+        <app-no-results [term]="searchService.submittedTerm"></app-no-results>
+      }
     }
 
     <app-paginator [disabledPagination]="adminModeService.adminMode()" [page]="searchService.page"

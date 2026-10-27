@@ -10,6 +10,7 @@ import { InputComponent } from '../../components/input/input.component';
 import { ImagePreviewService } from '../../services/image-preview.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { BreakpointService } from '../../services/breakpoint.service';
+import { uiZoom } from '../../utils/ui-zoom';
 
 export interface PageSelectionDialogData {
     pages: Page[];
@@ -358,7 +359,8 @@ export class PageSelectionDialogComponent implements AfterViewInit, OnDestroy {
         }
 
         const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
-        const height = row.getBoundingClientRect().height;
+        // Virtual-scroll item sizes are CSS px; the rect is visual px under UI zoom.
+        const height = row.getBoundingClientRect().height / uiZoom();
         const next = Math.round(height + gap);
         if (next > 0 && next !== this.rowHeight()) {
             this.rowHeight.set(next);

@@ -3,7 +3,7 @@
     .license-info-dialog-container {
         width: 80%;
         max-width: 800px;
-        max-height: 80vh;
+        max-height: calc(80vh / var(--ui-zoom, 1));
 
         .content {
             padding: 0 var(--spacing-x6) var(--spacing-x6) var(--spacing-x6);

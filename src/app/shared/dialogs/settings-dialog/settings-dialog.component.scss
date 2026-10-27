@@ -2,7 +2,7 @@
 
 :host {
   padding: 24px 20px 12px 20px;
-  height: 80vh;
+  height: calc(80vh / var(--ui-zoom, 1));
   overflow: hidden;
   background-color: var(--color-bg-base);
   border-radius: 16px;

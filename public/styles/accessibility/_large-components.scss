@@ -334,8 +334,8 @@
     --accessibility-large-spacing: 1.3;
 
     .mat-dialog-container {
-      max-width: 95vw;
-      max-height: 95vh;
+      max-width: calc(95vw / var(--ui-zoom, 1));
+      max-height: calc(95vh / var(--ui-zoom, 1));
       padding: calc(24px * var(--accessibility-large-spacing));
     }
 

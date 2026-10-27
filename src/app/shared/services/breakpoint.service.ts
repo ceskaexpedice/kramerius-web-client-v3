@@ -92,13 +92,13 @@ export class BreakpointService {
 
   /**
    * True when the floating right metadata sidebar can no longer sit beside the
-   * content and floats over it instead. Mirrors the `(max-width: 900px)` rule in
-   * the periodical, monograph-volumes and collections page styles - keep the two
-   * in sync. In this band an open sidebar hides grid columns or part of the page
+   * content and floats over it instead. Mirrors the `(max-width: 1279px)` rule in
+   * the periodical, monograph-volumes and collections page styles and the overlay
+   * mode of detail-layout - keep them in sync. In this band an open sidebar hides grid columns or part of the page
    * image, so it must start collapsed.
    */
   rightSidebarOverlaysContent = toSignal(
-    this.breakpointObserver.observe('(max-width: 900px)').pipe(map(result => result.matches)),
+    this.breakpointObserver.observe('(max-width: 1279px)').pipe(map(result => result.matches)),
     { initialValue: false }
   );
 

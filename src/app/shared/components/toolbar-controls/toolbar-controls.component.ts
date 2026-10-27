@@ -49,6 +49,8 @@ export class ToolbarControlsComponent implements OnChanges {
   @Input() showViewToggle = false;
   @Input() viewToggleOptions: ViewToggleOption[] = [];
   @Input() activeViewValue: string | null = null;
+  /** Compact toolbars: view toggle shows icons only (label moves to aria-label/tooltip). */
+  @Input() viewToggleIconOnly = false;
 
   // New configuration-based approach
   @Input() actions: ToolbarAction[] = [];

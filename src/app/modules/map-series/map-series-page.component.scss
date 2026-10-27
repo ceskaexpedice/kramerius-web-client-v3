@@ -9,7 +9,7 @@
 // collapse to zero and leave the map with nothing to draw into. Size the page
 // against the viewport instead, the way the other full-height views do.
 .app-map-series {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px));
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -130,7 +130,7 @@ app-action-toolbar {
   // the window.
   ::ng-deep .options-container {
     min-width: 560px;
-    max-width: 90vw;
+    max-width: calc(90vw / var(--ui-zoom, 1));
 
     // min-width wins over max-width, so on a phone the panel would run off the
     // screen. The dropdown is anchored to the trigger, which already sits ~50px

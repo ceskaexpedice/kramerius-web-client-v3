@@ -59,7 +59,7 @@
   // screen (issue #162). --cdk-overlay-max-height is set by the CDK from the
   // connected position's available space; the vh value is the fallback for
   // when it is absent.
-  max-height: var(--cdk-overlay-max-height, 60vh);
+  max-height: var(--cdk-overlay-max-height, calc(60vh / var(--ui-zoom, 1)));
   // overflow-y auto (not clip) keeps the rounded corners clipping item hovers
   // while allowing the list to scroll.
   overflow-y: auto;
@@ -103,6 +103,9 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    // Fixed slot so labels line up even when an item has no glyph
+    // (e.g. a choice list where only the selected item shows a tick).
+    width: 1.25em;
   }
 }
 

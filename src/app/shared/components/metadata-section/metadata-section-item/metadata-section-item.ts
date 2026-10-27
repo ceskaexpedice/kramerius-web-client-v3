@@ -6,15 +6,42 @@ import { NamespacedTranslatePipe } from '../../../pipes/namespaced-translate.pip
 
 export type MetadataItemType = 'text' | 'list' | 'clickable-list' | 'badge' | 'key-value';
 
+import { CopyButtonComponent } from '../../copy-button/copy-button.component';
+
 @Component({
   selector: 'app-metadata-section-item',
-  imports: [NgTemplateOutlet, TranslatePipe, NamespacedTranslatePipe, CollapsibleContent],
+  imports: [NgTemplateOutlet, TranslatePipe, NamespacedTranslatePipe, CollapsibleContent, CopyButtonComponent],
   templateUrl: './metadata-section-item.html',
   styleUrl: './metadata-section-item.scss'
 })
 export class MetadataSectionItem {
 
   @Input() label: string = '';
+  /** Keep the label for assistive tech only (e.g. it repeats the group heading). */
+  @Input() hideLabel = false;
+  /** Show a copy-to-clipboard button next to text / key-value values (identifiers). */
+  @Input() copyable = false;
+  /**
+   * Run text, list and key-value values through the translate pipe. Off by
+   * default: these are bibliographic data, and a value that happens to equal a
+   * translation key must not be silently replaced.
+   */
+  @Input() translateValues = false;
+
+  private static readonly KEY_LABELS: Record<string, string> = {
+    urnnbn: 'URN:NBN', ccnb: 'ČNB', oclc: 'OCLC', doi: 'DOI', bcbt: 'BCBT', uuid: 'UUID',
+    issn: 'ISSN', isbn: 'ISBN', ismn: 'ISMN', sysno: 'SYSNO',
+  };
+
+  /** Human label of an identifier key: "urnnbn" → "URN:NBN". */
+  formatKey(key: string): string {
+    const known = MetadataSectionItem.KEY_LABELS[key.toLowerCase()];
+    if (known) return known;
+    return this.listKeyUppercase ? key.toUpperCase() : key;
+  }
+
+  private static nextId = 0;
+  readonly labelId = `metadata-item-label-${MetadataSectionItem.nextId++}`;
   @Input() type: MetadataItemType = 'text';
   @Input() value?: string;
   @Input() items?: any[];
@@ -58,6 +85,34 @@ export class MetadataSectionItem {
   @Input() headerActionClick?: () => void;
 
   expanded = false;
+
+  /** Collapsible plain lists show this many whole entries before "Show all (N)". */
+  static readonly LIST_PREVIEW = 3;
+  listExpanded = false;
+
+  /**
+   * A collapsible plain list is clamped by entries, not lines: a line clamp
+   * cut the third note in half and its "more" did not say how much was hidden.
+   */
+  get listClamped(): boolean {
+    return this.collapsible && this.type === 'list'
+      && (this.items?.length ?? 0) > MetadataSectionItem.LIST_PREVIEW;
+  }
+
+  get listItems(): any[] {
+    if (!this.items) return [];
+    return this.listClamped && !this.listExpanded
+      ? this.items.slice(0, MetadataSectionItem.LIST_PREVIEW)
+      : this.items;
+  }
+
+  /**
+   * Line clamping (collapsible-content) for text and short lists (e.g. one long
+   * abstract); lists with more entries than the preview clamp by entries instead.
+   */
+  get lineClamp(): boolean {
+    return this.collapsible && !this.listClamped;
+  }
 
   /**
    * Bullets are only drawn once a section holds more than one value — a lone

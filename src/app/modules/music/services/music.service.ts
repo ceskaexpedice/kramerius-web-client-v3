@@ -157,7 +157,7 @@ export class MusicService {
     }
 
     this.dialog.open(PlaybackStopDialogComponent, {
-      width: '60vw',
+      width: 'calc(60vw / var(--ui-zoom, 1))',
       panelClass: 'simple-dialog-panel'
     })
       .afterClosed().subscribe({

@@ -1,4 +1,6 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
+import { Component, computed, HostBinding, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
 import { PeriodicalService } from '../../shared/services/periodical.service';
@@ -38,15 +40,22 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
 
   // Mobile right-panel state (bottom nav bar + slide-up panel).
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
-  private static readonly MOBILE_DATE_BAR_HEIGHT = 48;
   // Gap between a bottom bar's top edge and the floating filter button.
   private static readonly FILTER_TOGGLE_GAP = 12;
   public hasSearchResults = signal(false);
   public mobileActivePanel = signal<string>('');
   public mobileSlideUpOpen = signal(false);
 
+  /**
+   * Phones and small tablets (≤853px): title + "more" menu in the toolbar, view
+   * toggle / year / sort in a sub-toolbar. The full desktop row (title, year,
+   * view toggle, four actions, sort, panel toggle) overlaps itself there.
+   */
+  public compactToolbar = computed(() => this.breakpointService.isMobile() || !this.breakpointService.sidebarVisible());
+
   private subscriptions: Subscription[] = [];
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
+  readonly metadataPanelId = METADATA_PANEL_ID;
   sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   // Favorites popup helper
@@ -181,9 +190,9 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   private mobileNavItemsBase: MobileNavItem[] = [
-    { id: 'description', label: 'description', icon: 'icon-note' },
+    { id: 'description', label: PANEL_TABS.description.label, icon: PANEL_TABS.description.icon },
   ];
-  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
+  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: PANEL_TABS.search.label, icon: PANEL_TABS.search.icon };
 
   get mobileNavItems(): MobileNavItem[] {
     const items = [...this.mobileNavItemsBase];
@@ -199,20 +208,35 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifts the floating filter button above whichever fixed bar sits at the
-   * bottom on phones (nav bar in Mode A, year date bar when a year is open);
+   * The bottom nav bar slides away together with the header while the list
+   * scrolls down (same as search results) and returns on scroll up. It stays
+   * while a section sheet is open, since it switches the sheet's sections.
+   */
+  readonly mobileNavHidden = computed(() =>
+    this.breakpointService.isMobile() && !this.uiStateService.headerVisible() && !this.mobileSlideUpOpen());
+
+  /** Height of the visible fixed bottom nav bar on phones (Mode A), else 0. */
+  private get mobileNavBarHeight(): number {
+    return this.breakpointService.isMobile() && this.hasMobileTabs && this.periodical.metadata
+      && !this.adminModeService.adminMode() && !this.mobileNavHidden()
+      ? PeriodicalPageComponent.MOBILE_NAV_BAR_HEIGHT : 0;
+  }
+
+  /** The section sheets dock above the bottom nav bar (if any). */
+  @HostBinding('style.--slide-up-panel-bottom-offset')
+  get slideUpBottomOffset(): string {
+    return `calc(${this.mobileNavBarHeight}px + var(--playback-bar-height, 0px))`;
+  }
+
+  /**
+   * Lifts the floating filter button above the nav bar on phones (Mode A);
    * without one it rests at its default 12px.
    */
   get filterToggleBottomOffset(): number {
     if (!this.breakpointService.isMobile()) {
       return 0;
     }
-    const bar = Math.max(
-      this.hasMobileTabs && this.periodical.metadata && !this.adminModeService.adminMode()
-        ? PeriodicalPageComponent.MOBILE_NAV_BAR_HEIGHT : 0,
-      this.periodical.selectedYear() && !this.adminModeService.adminMode()
-        ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0,
-    );
+    const bar = this.mobileNavBarHeight;
     return bar > 0 ? bar + PeriodicalPageComponent.FILTER_TOGGLE_GAP : 0;
   }
 

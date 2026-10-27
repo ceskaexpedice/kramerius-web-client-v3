@@ -1,4 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { selectLastSearchPayload, selectSearchResultsError } from '../../state/search.selectors';
 import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { SearchService } from '../../../../shared/services/search.service';
 import { PageSearchService } from '../../../../shared/services/page-search.service';
@@ -65,6 +67,11 @@ export class SearchResultsViewComponent {
   advancedSearchService = inject(AdvancedSearchService);
   adminModeService = inject(AdminModeService);
   breakpointService = inject(BreakpointService);
+  private store = inject(Store);
+  /** Last results request failed: show an error with retry instead of a blank page. */
+  searchError = this.store.selectSignal(selectSearchResultsError);
+  private lastSearchPayload = this.store.selectSignal(selectLastSearchPayload);
+  hasSearched = () => this.lastSearchPayload() !== null;
 
   protected readonly ViewOptions = AppResultsViewType;
 

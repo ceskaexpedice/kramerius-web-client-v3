@@ -44,6 +44,9 @@ import { getLanguageFallbackChain } from '../../translation/translation-fallback
 import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/language-utils';
 import { SoundTrackModel } from '../../../modules/models/sound-track.model';
 
+import { MetadataGroupComponent } from './metadata-group/metadata-group.component';
+import { CopyButtonComponent } from '../copy-button/copy-button.component';
+
 @Component({
   selector: 'app-metadata-section',
   imports: [
@@ -58,7 +61,9 @@ import { SoundTrackModel } from '../../../modules/models/sound-track.model';
     RouterLink,
     SelectComponent,
     SafeHtmlPipe,
-    CdkTooltipDirective
+    CdkTooltipDirective,
+    MetadataGroupComponent,
+    CopyButtonComponent
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -1129,7 +1134,7 @@ export class MetadataSection implements OnInit, OnChanges {
       restoreFocus: false,
       maxWidth: '1205px',
       width: '90%',
-      maxHeight: '90vh'
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))'
     });
   }
 
@@ -1145,7 +1150,7 @@ export class MetadataSection implements OnInit, OnChanges {
       restoreFocus: false,
       maxWidth: '600px',
       width: '40%',
-      maxHeight: '90vh'
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))'
     });
   }
 

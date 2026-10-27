@@ -26,6 +26,62 @@ body {
   scroll-behavior: auto !important;
 }
 
+// Desktop UI density: the interface is laid out 10% smaller on desktop-sized,
+// mouse-driven screens, exactly like setting the browser zoom to 90%. Phones and
+// tablets (touch) keep 100%. Viewport units are written as
+// `calc(100dvh / var(--ui-zoom, 1))` across the app so full-height layouts still
+// reach the screen edge, and JS that mixes getBoundingClientRect() with style
+// lengths converts via shared/utils/ui-zoom.ts.
+:root {
+  --ui-zoom: 1;
+
+  @media (min-width: 1052px) and (hover: hover) and (pointer: fine) {
+    --ui-zoom: 0.9;
+  }
+}
+
+// Engines without standardized CSS zoom (see verifyUiZoom in ui-zoom.ts) and
+// browsers without zoom support at all render at 100%.
+:root.ui-zoom-off {
+  --ui-zoom: 1;
+}
+
+@supports not (zoom: 1) {
+  :root {
+    --ui-zoom: 1 !important;
+  }
+}
+
+html {
+  zoom: var(--ui-zoom);
+}
+
+// Canvas / map / document engines measure their element with offsetWidth (CSS
+// px) but read pointer positions in visual px, so under the UI zoom their
+// pan/zoom/selection drift by 10%. Their hosts undo the zoom: inside them CSS
+// px equal screen px again, exactly as at 100%.
+.openseadragon-container,
+.georeference-viewer__canvas,
+.app-map-canvas,
+.epub-container,
+ngx-extended-pdf-viewer,
+google-map {
+  zoom: calc(1 / var(--ui-zoom, 1));
+}
+
+// Angular CDK places connected overlays (tooltips, menus) from visual-px rects
+// but writes CSS-px styles, so under the UI zoom they drift towards the top-left
+// and clamp against a viewport 10% too narrow. The positioned box runs at zoom 1
+// so CDK's numbers are exact; the overlay content gets the UI zoom back so it
+// looks like the rest of the page. Centred dialogs need nothing: flex centring.
+.cdk-overlay-connected-position-bounding-box {
+  zoom: calc(1 / var(--ui-zoom, 1));
+
+  .cdk-overlay-pane > * {
+    zoom: var(--ui-zoom, 1);
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -80,6 +136,17 @@ app-header {
   will-change: transform;
   position: relative;
   z-index: 1000;
+}
+
+body.reader-immersive {
+  app-header {
+    transform: translateY(-100%);
+    margin-bottom: calc(-1 * var(--header-height));
+  }
+
+  .detail-layout {
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
+  }
 }
 
 body.header-hidden {
@@ -166,3 +233,7 @@ body.header-hidden .page-content__filters {
   display: inline-block;
   transform: rotate(90deg);
 }
+// While the metadata panel is being resized, follow the pointer without the
+// 0.3s width transition (component styles can't target body, so it lives here).
+body.is-resizing-panel { cursor: col-resize; user-select: none; }
+body.is-resizing-panel :is(.detail-layout--sidebar-right, .page-content__sidebar-right) { transition: none; }

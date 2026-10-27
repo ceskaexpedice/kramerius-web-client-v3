@@ -3,7 +3,7 @@
 :host {
   display: block;
   padding: 0 var(--search-page-padding);
-  min-height: calc(100dvh - var(--header-height) - var(--playback-bar-height, 0px));
+  min-height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px));
 
   app-search-hero {
     display: block;

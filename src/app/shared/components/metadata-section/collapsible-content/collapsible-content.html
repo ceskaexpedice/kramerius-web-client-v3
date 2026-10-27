@@ -11,7 +11,7 @@
     <button class="button primary md link no-padding with-icon"
             (click)="toggleCollapse()"
             [attr.aria-expanded]="!isCollapsed">
-      {{ (isCollapsed ? 'more' : 'less') | translate }}
+      {{ (isCollapsed ? moreLabel : lessLabel) | translate }}
 
       <i class="icon-arrow-up-1" [class.rotated]="isCollapsed" aria-hidden="true"></i>
     </button>

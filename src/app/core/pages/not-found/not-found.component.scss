@@ -4,8 +4,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 200px);
+  min-height: calc(calc(100dvh / var(--ui-zoom, 1)) - 200px);
   padding: 2rem;
+  // The decorative images hang past their box; never let them scroll the page sideways.
+  overflow-x: clip;
+
+  @media (max-width: 600px) {
+    padding: var(--spacing-x4);
+  }
 }
 
 .not-found-container {
@@ -17,7 +23,8 @@
 
   @media (max-width: 900px) {
     flex-direction: column;
-    gap: 1.5rem;
+    // Room for the book image hanging 50px below its box.
+    gap: calc(1.5rem + 50px);
     text-align: center;
   }
 }
@@ -25,8 +32,8 @@
 .image-container {
   flex: 0 0 auto;
   position: relative;
-  width: 320px;
-  height: 350px;
+  width: min(320px, 100% - 25px);
+  aspect-ratio: 320 / 350;
 }
 
 .book-image {
@@ -57,6 +64,12 @@
   font-size: var(--font-size-5xlarge);
   color: var(--color-text-base);
   margin-bottom: var(--spacing-x6);
+
+  @media (max-width: 900px) {
+    font-size: var(--font-size-3xlarge);
+    line-height: var(--line-height-4);
+    margin-bottom: var(--spacing-x4);
+  }
 }
 
 .description {

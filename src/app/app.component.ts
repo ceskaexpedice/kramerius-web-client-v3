@@ -39,6 +39,14 @@ export class AppComponent implements OnInit {
   playbackBarHeight = computed(() => this.showPlaybackBar() ? 'var(--playback-bar-height-value)' : '0px');
 
   constructor() {
+    // Immersive reading on phones (document detail): hide the global header and
+    // take it out of the tab order / a11y tree while it is off-screen.
+    effect(() => {
+      const immersive = this.uiState.immersive();
+      document.body.classList.toggle('reader-immersive', immersive);
+      document.querySelector('app-header')?.toggleAttribute('inert', immersive);
+    });
+
     effect(() => {
       if (this.uiState.headerVisible()) {
         document.body.classList.remove('header-hidden');
@@ -56,7 +64,7 @@ export class AppComponent implements OnInit {
           autoFocus: 'dialog',
           // Fixed, so the dialog does not resize as the countdown loses a digit.
           width: '520px',
-          maxWidth: 'calc(100vw - 32px)',
+          maxWidth: 'calc(calc(100vw / var(--ui-zoom, 1)) - 32px)',
           panelClass: 'simple-dialog-panel'
         });
         this.lockIdleDialog.afterClosed().subscribe(() => {

@@ -107,6 +107,14 @@
   align-items: center;
   justify-content: center;
   z-index: $filter-sidebar-close;
+  // 44px hit area on touch screens (the mixin would reset position: absolute).
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+    }
+  }
   // The global `button` rule sets padding: 12px 16px, which fights the fixed
   // 24x24 box and pushes the glyph off-centre. Zero it so the icon sits in the
   // middle and the button keeps the footprint the reserved inset assumes.

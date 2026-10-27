@@ -1,7 +1,7 @@
 <app-detail-layout
   [showBottomToolbar]="false"
   [constrainBottomToolbar]="true"
-  [showRightSidebar]="true"
+  [showRightSidebar]="!breakpointService.isMobile()"
   [hideFilterToggle]="breakpointService.isMobile()"
   [hideLeftSidebarMobileTitle]="true"
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
@@ -94,6 +94,12 @@
               (quoteClicked)="recordHandler.openCitationDialog(document)"
               (actionClicked)="onToolbarAction($event, mobileViewerControls)">
             </app-toolbar-controls>
+
+            @if (!breakpointService.isMobile()) {
+              <app-panel-toggle-button [open]="detailViewService.metadataSidebarVisible"
+                                       (toggle)="detailViewService.toggleMetadataSidebar()">
+              </app-panel-toggle-button>
+            }
           </div>
         </div>
 
@@ -190,12 +196,6 @@
           <app-ai-content-panel></app-ai-content-panel>
         }
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument() && !breakpointService.isMobile()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded"
-          (click)="detailViewService.showMetadataSidebar()">
-          <i class="icon-info-full"></i>
-        </button>
-        }
 
       </div>
     </ng-container>
@@ -224,6 +224,8 @@
   <app-mobile-nav-bar
     [class.mobile-nav-bar--immersive]="isImmersiveMode()"
     [class.mobile-nav-bar--hidden]="!mobileNavShown()"
+    [attr.inert]="mobileNavShown() ? null : ''"
+    ariaLabel="metadata-panel--tabs"
     [items]="mobileNavItems"
     [activeId]="mobileActivePanel()"
     (activeIdChange)="onMobileNavChange($event)">

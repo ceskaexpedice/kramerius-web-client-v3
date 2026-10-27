@@ -1,4 +1,8 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
+import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
+import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
+import { Component, OnInit, inject, computed, signal } from '@angular/core';
+import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
 import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -39,6 +43,8 @@ import {SearchDocument} from '../models/search-document';
   standalone: true,
   imports: [
     CommonModule,
+    PanelToggleButtonComponent,
+    PanelResizeHandleComponent,
     RecordItemComponent,
     TranslatePipe,
     MetadataSidebarComponent,
@@ -54,6 +60,7 @@ import {SearchDocument} from '../models/search-document';
     SkeletonListPipe,
     NoResultsComponent,
     ScrollHideHeaderDirective,
+    SlideUpPanelComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -70,6 +77,7 @@ export class MonographVolumesPageComponent implements OnInit {
   recordHandler = inject(RecordHandlerService);
   private uiStateService = inject(UiStateService);
   public breakpointService = inject(BreakpointService);
+  readonly metadataPanelId = METADATA_PANEL_ID;
   public monographVolumesService = inject(MonographVolumesService);
 
   // Signals from store
@@ -99,7 +107,14 @@ export class MonographVolumesPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  /** Phones: the description opens as a slide-up sheet (no floating panel there). */
+  mobileInfoOpen = signal(false);
+
   openRecordInfo() {
+    if (this.breakpointService.isMobile()) {
+      this.mobileInfoOpen.set(true);
+      return;
+    }
     this.toggleMetadataSidebar();
   }
 

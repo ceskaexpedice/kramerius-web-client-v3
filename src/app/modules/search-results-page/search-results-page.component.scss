@@ -74,14 +74,14 @@ app-mobile-nav-bar {
 
 :host:has(app-mobile-nav-bar) {
   .page-container {
-    height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - 60px);
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 60px));
   }
 }
 
 // Header and bottom bar are both out of view: the results take the full height.
 :host:has(app-mobile-nav-bar.mobile-nav-bar--hidden) {
   .page-container {
-    height: calc(100vh - var(--playback-bar-height, 0px));
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px));
   }
 }
 

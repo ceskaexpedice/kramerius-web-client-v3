@@ -1,9 +1,10 @@
-<nav class="mobile-nav-bar">
+<nav class="mobile-nav-bar" [attr.aria-label]="ariaLabel ? (ariaLabel | translate) : null">
     @for (item of items; track item.id) {
-        <button class="mobile-nav-bar__tab"
+        <button type="button" class="mobile-nav-bar__tab"
             [class.active]="item.id === activeId"
+            [attr.aria-current]="item.id === activeId ? 'true' : null"
             (click)="selectTab(item.id)">
-            <span class="mobile-nav-bar__icon-wrapper">
+            <span class="mobile-nav-bar__icon-wrapper" aria-hidden="true">
                 <i [ngClass]="item.icon"></i>
             </span>
             <span class="mobile-nav-bar__label">{{ item.label | translate }}</span>

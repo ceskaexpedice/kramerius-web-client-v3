@@ -54,6 +54,12 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
   /** Maximum height in vh when dragging */
   @Input() maxHeight = 90;
 
+  /**
+   * Optional snap heights (vh). When set, a released drag settles on the
+   * nearest one instead of the default two stops (initialHeight / maxHeight).
+   */
+  @Input() snapPoints: number[] | null = null;
+
   /** Whether to show the backdrop overlay */
   @Input() showBackdrop = true;
 
@@ -287,6 +293,14 @@ export class SlideUpPanelComponent implements AfterViewInit, OnDestroy {
     // Dismiss if dragged below minimum threshold
     if (this.currentHeight <= this.minHeight) {
       this.close();
+      return;
+    }
+
+    if (this.snapPoints?.length) {
+      const target = this.snapPoints.reduce((best, p) =>
+        Math.abs(p - this.currentHeight) < Math.abs(best - this.currentHeight) ? p : best, this.snapPoints[0]);
+      this.currentHeight = target;
+      this.isExpanded = target > 70;
       return;
     }
 

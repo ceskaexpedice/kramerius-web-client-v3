@@ -34,11 +34,12 @@ export class SheetCloseButtonComponent {
 
   /**
    * Shown whenever the sidebar is a dismissible layer: the portrait slide-up,
-   * or the landscape overlay. On roomy viewports the sidebar is docked and
-   * needs no close control here.
+   * the landscape-phone overlay, or the tablet overlay (sidebar not docked).
+   * On roomy viewports the sidebar is docked and needs no close control here.
    */
   protected visible = computed(() =>
     this.breakpointService.isMobile() || this.breakpointService.isShortViewport()
+    || !this.breakpointService.sidebarVisible()
   );
 
   close(): void {

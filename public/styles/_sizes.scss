@@ -27,7 +27,8 @@
   --license-bar-height: 38px;
   --playback-bar-height-value: 68px; // AUD-1: Soundbar-pinned dle navrhu
   --info-banner-height: 55px;
-  --metadata-sidebar-width: 285px;
+  // Grows with the viewport (300–400px); a user-dragged width overrides it (UiStateService).
+  --metadata-sidebar-width: clamp(300px, calc(22vw / var(--ui-zoom, 1)), 400px);
 
   --spacing-x05: 2px;
   --spacing-x1: 4px;

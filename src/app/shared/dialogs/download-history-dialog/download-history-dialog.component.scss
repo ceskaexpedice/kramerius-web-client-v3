@@ -1,6 +1,6 @@
 .download-history {
   width: 100%;
-  height: 80vh;
+  height: calc(80vh / var(--ui-zoom, 1));
 
   .dialog-body .content {
     flex: 1;

@@ -27,7 +27,7 @@
 
     <div right class="flex flex--align-center toolbar-right-content">
       <div class="view-tabs">
-        <button class="view-tabs__tab"
+        <button type="button" class="view-tabs__tab"
                 (click)="goToCollectionView()">
           <i class="icon-grid-6" aria-hidden="true"></i>
           {{ 'map-series--view-documents' | translate }}
@@ -111,6 +111,7 @@
   <!-- The toolbar tabs collapse on phones; keep the switch reachable here. -->
   @if (breakpointService.isMobile()) {
     <app-mobile-nav-bar
+      ariaLabel="view-switch--label"
       [items]="mobileNavItems"
       [activeId]="'map'"
       (activeIdChange)="onMobileNavChange($event)">

@@ -209,14 +209,6 @@ app-iiif-viewer {
   }
 }
 
-.floating-sidebar-toggle {
-  position: fixed;
-  right: var(--spacing-x3);
-  bottom: var(--spacing-x3);
-  transition: all 0.2s ease;
-  z-index: 1000;
-}
-
 .favorites-popup-wrapper {
   position: fixed;
   z-index: 1000;
@@ -244,7 +236,9 @@ app-mobile-nav-bar {
   bottom: var(--playback-bar-height, 0px);
   left: 0;
   right: 0;
-  z-index: 100;
+  // Above the sheet backdrops (800): the nav stays usable while a section sheet
+  // is open (sheets dock above it via --slide-up-panel-bottom-offset).
+  z-index: 850;
 }
 
 // Immersive nav bar (images mode): slide down out of view when hidden, so a

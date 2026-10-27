@@ -4,12 +4,12 @@
 // Shared layout styles for full-height pages with sidebar and content areas
 
 .page-container {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
   transition: height 0.3s ease-in-out;
 
   body.header-hidden & {
-    height: calc(100vh - var(--playback-bar-height, 0px));
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px));
   }
 
   /* Responsive layout adjustments */

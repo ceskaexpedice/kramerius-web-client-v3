@@ -31,8 +31,9 @@
   // Ensure sidebar pushes content by default (relative positioning in flex)
   position: relative;
 
-  // On very small screens, float over content instead of pushing it
-  @media (max-width: 900px) {
+  // Below desktop (1280px) float over content instead of squeezing it —
+  // same breakpoint as the document detail panel (detail-layout).
+  @media (max-width: 1279px) {
     &,
     &--relative {
       position: absolute;
@@ -41,6 +42,8 @@
       bottom: 0;
       height: auto;
       z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      border: 1px solid var(--color-border-light);
       margin: var(--spacing-x3);
     }
   }
@@ -61,16 +64,6 @@
   app-favorites-popup {
     display: block;
   }
-}
-
-.floating-sidebar-toggle {
-  position: absolute;
-  bottom: var(--spacing-x3);
-  right: var(--spacing-x3);
-  width: 40px;
-  height: 40px;
-  z-index: 50;
-  box-shadow: var(--shadow-elevated);
 }
 
 // Mobile sub-toolbar: view toggle (left) + sort (right), below the action toolbar.
@@ -95,10 +88,29 @@
     margin-left: auto;
   }
 
+  .mobile-subtoolbar__year {
+    margin-left: auto;
+
+    + app-results-sort {
+      margin-left: auto;
+    }
+  }
+
   // While scrolled with the header hidden the action toolbar above collapses;
   // pinned at the toolbar height this bar would leave an empty band on top.
   :host-context(body.header-hidden) & {
     top: 0;
+  }
+
+  // Without a year to page through (years overview, search) the bar only holds
+  // view + sort, which nobody needs mid-scroll: it leaves with the header.
+  &.mobile-subtoolbar--collapsible {
+    transition: top 0.3s ease-in-out, transform 0.3s ease-in-out, margin-top 0.3s ease-in-out;
+
+    :host-context(body.header-hidden) & {
+      transform: translateY(-100%);
+      margin-top: -49px;
+    }
   }
 }
 
@@ -108,34 +120,38 @@
   }
 }
 
-// Mobile bottom bar: year date-navigator, pinned to the bottom of the screen.
-// Only rendered on mobile via *isMobile()* guard in the template.
-.mobile-date-bar {
+// Bottom nav bar (Mode A): fixed like on the detail page and above the sheet
+// backdrop (800), so sections switch without closing the open sheet first.
+app-mobile-nav-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-x2) var(--spacing-x3);
-  background-color: var(--color-bg-base);
-  border-top: 1px solid var(--color-border-light);
+  bottom: var(--playback-bar-height, 0px);
+  z-index: 850;
+  // Same timing as the app header slide in styles.scss.
+  transition: transform 0.3s ease-in-out;
+
+  // Hidden together with the header while the list scrolls down.
+  &.mobile-nav-bar--hidden {
+    transform: translateY(calc(100% + var(--playback-bar-height, 0px)));
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
+
 
 // Keep scrollable content clear of the floating filter button on mobile (40px),
 // so the last row of years / issues can be scrolled out from under it. It rests
-// 12px from the bottom, or 12px above the 48px date bar when a year is open
+// 12px from the bottom, or 12px above the nav bar when there is one
 // (see filterToggleBottomOffset).
 @include mixins.respond(mobile-sm) {
   .page-content__main {
-    padding-bottom: calc(12px + 40px + var(--spacing-x3));
+    padding-bottom: calc(var(--slide-up-panel-bottom-offset, 0px) + 12px + 40px + var(--spacing-x3));
   }
 
-  .page-content:has(.mobile-date-bar) .page-content__main {
-    padding-bottom: calc(48px + 12px + 40px + var(--spacing-x3));
-  }
 }
 
 .no-results-message {

@@ -124,7 +124,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/test-styles.scss"
             ],
             "scripts": [],
             "stylePreprocessorOptions": {

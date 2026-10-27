@@ -1,0 +1,43 @@
+:host {
+  position: absolute;
+  // Starts below the tab strip so it never covers the first tab.
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  z-index: 5;
+}
+
+.panel-resize-handle {
+  width: 100%;
+  height: 100%;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  outline: none;
+
+  &__grip {
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+    background: var(--color-border-light);
+    // Faintly visible at rest so the panel edge reads as draggable (touch
+    // laptops have no hover to discover it).
+    opacity: 0.6;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+  }
+
+  &:hover &__grip,
+  &:focus-visible &__grip {
+    opacity: 1;
+    background: var(--color-border-primary-default);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: -2px;
+    border-radius: 4px;
+  }
+}

@@ -127,7 +127,7 @@ export class DetailViewService {
 
     // Initialize sidebar state: open only where it sits beside the content. On
     // phones and portrait tablets it floats over the grid / page image, so it
-    // starts collapsed behind the floating info button.
+    // starts collapsed behind the toolbar panel toggle.
     let sidebarOverlays = this.breakpointService.rightSidebarOverlaysContent();
     this.uiStateService.setMetadataSidebarState(!sidebarOverlays);
 

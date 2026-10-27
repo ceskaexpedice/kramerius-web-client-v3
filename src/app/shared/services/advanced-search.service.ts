@@ -320,10 +320,10 @@ export class AdvancedSearchService {
       await import('../dialogs/advanced-search-dialog/advanced-search-dialog.component');
 
     const dialogRef = this.dialog.open(AdvancedSearchDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '90vw',
-      height: isMobileOrTablet ? '100vh' : '90vh',
-      maxWidth: isMobileOrTablet ? '100vw' : undefined,
-      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(90vw / var(--ui-zoom, 1))',
+      height: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : 'calc(90vh / var(--ui-zoom, 1))',
+      maxWidth: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : undefined,
+      maxHeight: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       autoFocus: false,
       ariaLabelledBy: 'advanced-search-dialog-title',

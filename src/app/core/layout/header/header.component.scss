@@ -178,7 +178,10 @@
     transform: scaleY(0);
     transform-origin: top right;
     opacity: 0;
-    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    // visibility (delayed until the collapse finishes) takes the closed menu's
+    // links out of the tab order and the accessibility tree.
+    visibility: hidden;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out, visibility 0s linear 0.2s;
     z-index: 1000;
     box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
     border-radius: var(--spacing-x2);
@@ -187,6 +190,8 @@
     &.open {
       transform: scaleY(1);
       opacity: 1;
+      visibility: visible;
+      transition-delay: 0s;
     }
 
     &__content {
@@ -275,12 +280,16 @@
       z-index: 999;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease-in-out;
+      // Hidden overlay must not be reachable with Tab either.
+      visibility: hidden;
+      transition: opacity 0.2s ease-in-out, visibility 0s linear 0.2s;
       gap: var(--spacing-x2);
 
       &.mobile-search-active {
         opacity: 1;
         pointer-events: all;
+        visibility: visible;
+        transition-delay: 0s;
       }
 
       .desktop-btn {

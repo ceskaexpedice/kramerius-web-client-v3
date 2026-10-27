@@ -366,7 +366,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // so it never offers a "don't show again" option.
     const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
     const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
-      width: isMobileOrTablet ? '90vw' : '60vw',
+      width: isMobileOrTablet ? 'calc(90vw / var(--ui-zoom, 1))' : 'calc(60vw / var(--ui-zoom, 1))',
       panelClass: 'simple-dialog-panel',
       disableClose: false,
     });
@@ -403,6 +403,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleMobileSearch() {
     this.isMobileSearchOpen = !this.isMobileSearchOpen;
+    if (this.isMobileSearchOpen) {
+      // Opening the search is a request to type: put the caret in the field.
+      setTimeout(() => document.querySelector<HTMLInputElement>('.search-bar.mobile-search-active input')?.focus());
+    }
   }
 
   closeMobileSearch() {

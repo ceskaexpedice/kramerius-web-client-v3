@@ -310,10 +310,18 @@
           }
         </ng-container>
 
-        <!-- Empty state: a search term or filter left the list with no matches -->
-        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async }; as empty) {
+        <!-- Empty states: a search term or filter left the list with no matches,
+             or the list itself has nothing in it yet. -->
+        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async, folder: activeFolder | async }; as empty) {
           @if (!empty.loading && empty.count === 0 && (empty.query || empty.tags?.length)) {
             <app-no-results [term]="empty.query"></app-no-results>
+          } @else if (!empty.loading && empty.count === 0 && empty.folder) {
+            <div class="saved-list-empty" role="status">
+              <i class="icon-heart saved-list-empty__icon" aria-hidden="true"></i>
+              <h2 class="saved-list-empty__title">{{ 'saved-lists--empty-title' | translate }}</h2>
+              <p class="saved-list-empty__text">{{ 'saved-lists--empty-text' | translate }}</p>
+              <a class="button primary sm" routerLink="/">{{ 'saved-lists--empty-cta' | translate }}</a>
+            </div>
           }
         }
 

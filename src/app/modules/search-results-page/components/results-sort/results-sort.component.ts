@@ -1,5 +1,8 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {SelectComponent} from '../../../../shared/components/select/select.component';
+import {TranslatePipe} from '@ngx-translate/core';
+import {MenuComponent, MenuItem} from '../../../../shared/components/menu/menu.component';
+import {CdkTooltipDirective} from '../../../../shared/directives';
 import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 
 interface SortOption {
@@ -17,6 +20,9 @@ interface SortChangeEvent {
   selector: 'app-results-sort',
   imports: [
     SelectComponent,
+    TranslatePipe,
+    MenuComponent,
+    CdkTooltipDirective,
   ],
   templateUrl: './results-sort.component.html',
   styleUrl: './results-sort.component.scss'
@@ -25,6 +31,8 @@ export class ResultsSortComponent {
 
   @Input() selectedSort: SolrSortFields = SolrSortFields.relevance;
   @Input() selectedDirection: SolrSortDirections = SolrSortDirections.desc;
+  /** Compact toolbars (phones): an icon button opening a menu instead of the wide select. */
+  @Input() compact = false;
   @Output() sortChange: EventEmitter<SortChangeEvent> = new EventEmitter<SortChangeEvent>();
 
   sortOptions: SortOption[] = [
@@ -49,5 +57,22 @@ export class ResultsSortComponent {
   }
 
   sortOptionDisplayFn = (option: any) => option ? option.label : '';
+
+  /** Menu items for the compact mode; the active sort carries a tick. */
+  get menuItems(): MenuItem[] {
+    const selected = this.selectedSortOption;
+    return this.sortOptions.map(option => ({
+      id: `${option.value}|${option.direction}`,
+      label: option.label,
+      icon: option === selected ? 'tick-circle' : 'blank',
+    }));
+  }
+
+  onMenuSelect(item: MenuItem) {
+    const option = this.sortOptions.find(o => `${o.value}|${o.direction}` === item.id);
+    if (option) {
+      this.onSortChange(option);
+    }
+  }
 
 }

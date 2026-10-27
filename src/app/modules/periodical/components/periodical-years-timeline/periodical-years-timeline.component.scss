@@ -219,7 +219,9 @@
 
 .year-item--dots {
   position: absolute;
-  bottom: calc(8px * var(--timeline-scale));
+  // Sits in the tile's bottom padding, below the highlighted year, so the
+  // volume dots never overlap the digits.
+  bottom: calc(1px * var(--timeline-scale));
   left: 50%;
   transform: translateX(-50%);
   font-size: calc(10px * var(--accessibility-text-scale, 1) * var(--timeline-scale));

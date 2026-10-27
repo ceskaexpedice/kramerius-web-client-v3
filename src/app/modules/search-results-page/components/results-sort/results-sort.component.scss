@@ -16,3 +16,17 @@
     width: fit-content;
   }
 }
+
+.results-sort__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--spacing-x2);
+
+  i {
+    font-size: var(--font-size-large);
+  }
+}
