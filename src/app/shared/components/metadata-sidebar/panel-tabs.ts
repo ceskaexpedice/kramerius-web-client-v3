@@ -13,10 +13,10 @@ export interface PanelTabDef {
 }
 
 export const PANEL_TABS: Record<PanelTabId, PanelTabDef> = {
-  description: { id: 'description', label: 'description', icon: 'icon-note-text' },
+  description: { id: 'description', label: 'description', icon: 'icon-textalign-justifycenter' },
   pages: { id: 'pages', label: 'pages--tab', icon: 'icon-simcard-2' },
   export: { id: 'export', label: 'export', icon: 'icon-download' },
-  ai: { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' },
+  ai: { id: 'ai', label: 'ai.tab', icon: 'icon-magic' },
   search: { id: 'search', label: 'results', icon: 'icon-receipt-search' },
 };
 

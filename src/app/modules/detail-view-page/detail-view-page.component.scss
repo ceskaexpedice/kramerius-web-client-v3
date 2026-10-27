@@ -356,6 +356,16 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
   }
 }
 
+// Document title as the description sheet's caption: long titles get two
+// lines, then an ellipsis, as the sheet caption did before.
+.mobile-sheet-title--document {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
 .mobile-sheet-close {
   flex-shrink: 0;
   display: flex;
@@ -377,8 +387,27 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
   }
 }
 
+// Description: the header holds the document title, so it reads as the panel's
+// heading — no rule, and the parent link sits right under it. As in the former
+// sheet caption, the title is top-aligned and the 40px close button bleeds out
+// with negative margins, so the row is only as tall as the title.
+.mobile-sheet-header--document {
+  align-items: flex-start;
+  padding-bottom: 0;
+  border-bottom: none;
+
+  .mobile-sheet-close {
+    margin: -8px -8px -9px 0;
+  }
+}
+
 .mobile-sheet-body {
-  padding: 0 var(--spacing-x4) var(--spacing-x4);
+  // Room between the header's rule and the first item.
+  padding: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
+
+  &--document {
+    padding-top: var(--spacing-x1);
+  }
 }
 
 // Phone page pill above the bottom nav bar.

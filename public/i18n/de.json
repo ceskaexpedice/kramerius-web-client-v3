@@ -491,6 +491,7 @@
   "go-next-date-navigator--arialabel": "Im Datumsauswahlfeld vorwärtsgehen",
   "previous-issue--tooltip": "Vorherige Ausgabe",
   "next-issue--tooltip": "Nächste Ausgabe",
+  "neighbor-issues": "Vorherige und nächste Ausgabe",
   "search-results--tooltip": "Zurück zu den Suchergebnissen",
   "go-to-volume--tooltip": "Zur Zeitschrift",
   "go-to-monograph": "Zum Buchkonvolut",

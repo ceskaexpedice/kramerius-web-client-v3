@@ -142,8 +142,8 @@
                                   [issueTypeCode]="getIssueTypeCode(periodicalChildren, document.uuid)"
                                   [enableCalendarPopup]="detailViewService.canShowDateNavigator()"
                                   [periodicalChildren]="periodicalChildren"
-                                  [previousTooltip]="'previous-issue--tooltip' | translate"
-                                  [nextTooltip]="'next-issue--tooltip' | translate"
+                                  [previousTooltip]="issueTooltip('previous')"
+                                  [nextTooltip]="issueTooltip('next')"
                                   (goToPrevious)="detailViewService.goToPreviousPeriodicalIssue()"
                                   (goToNext)="detailViewService.goToNextPeriodicalIssue()"
                                   (dateSelected)="detailViewService.navigateToDate($event.pid, $event.year)">
@@ -399,8 +399,13 @@
       [initialHeight]="60"
       [maxHeight]="85"
       [snapPoints]="[40, 60, 85]">
-      <div class="mobile-sheet-header">
-        @if (mobileActiveNavItem; as item) {
+      <div class="mobile-sheet-header"
+           [class.mobile-sheet-header--document]="mobileActivePanel() === 'description'">
+        <!-- Description: the document title itself is the caption, on the close
+             button's row, so the section spends no extra row on a "Description" label. -->
+        @if (mobileActivePanel() === 'description') {
+          <h2 class="mobile-sheet-title mobile-sheet-title--document" id="mobile-sheet-title">{{ document.mainTitle }}</h2>
+        } @else if (mobileActiveNavItem; as item) {
           <h2 class="mobile-sheet-title" id="mobile-sheet-title">
             <i [class]="item.icon" aria-hidden="true"></i>
             <span>{{ item.label | translate }}</span>
@@ -413,10 +418,13 @@
         </button>
       </div>
 
-      <div class="mobile-sheet-body">
+      <div class="mobile-sheet-body"
+           [class.mobile-sheet-body--document]="mobileActivePanel() === 'description'">
         @switch (mobileActivePanel()) {
           @case ('description') {
-            <app-metadata-section [showTitle]="true" [metadata]="document"
+            <!-- The sheet header shows the title; parent link, alternative titles
+                 and the rest follow directly under it. -->
+            <app-metadata-section [showTitle]="false" [metadata]="document"
                                   [uuid]="detailViewService.document?.uuid || document.uuid || ''">
             </app-metadata-section>
           }

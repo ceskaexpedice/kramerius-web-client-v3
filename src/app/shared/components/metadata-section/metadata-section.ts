@@ -46,6 +46,7 @@ import { SoundTrackModel } from '../../../modules/models/sound-track.model';
 
 import { MetadataGroupComponent } from './metadata-group/metadata-group.component';
 import { CopyButtonComponent } from '../copy-button/copy-button.component';
+import { PeriodicalNeighborsComponent } from './periodical-neighbors/periodical-neighbors.component';
 
 @Component({
   selector: 'app-metadata-section',
@@ -63,7 +64,8 @@ import { CopyButtonComponent } from '../copy-button/copy-button.component';
     SafeHtmlPipe,
     CdkTooltipDirective,
     MetadataGroupComponent,
-    CopyButtonComponent
+    CopyButtonComponent,
+    PeriodicalNeighborsComponent
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -858,6 +860,11 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // True when this document is a child of a periodical hierarchy (volume/issue/supplement)
   // and clicking the title should navigate up to the periodical (volumes screen).
+  /** An issue of a periodical: the only level the previous/next issue block applies to (#200). */
+  isPeriodicalItem(): boolean {
+    return (this._solrData()?.model || this.data?.model) === DocumentTypeEnum.periodicalitem;
+  }
+
   isPeriodicalChild(): boolean {
     const sd = this._solrData();
     const rootModel = sd?.rootModel;

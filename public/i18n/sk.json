@@ -488,6 +488,7 @@
   "go-next-date-navigator--arialabel": "Ísť ďalej v rámci datepickera",
   "previous-issue--tooltip": "Predchádzajúce číslo",
   "next-issue--tooltip": "Nasledujúce číslo",
+  "neighbor-issues": "Predchádzajúce a nasledujúce číslo",
   "search-results--tooltip": "Späť na výsledky vyhľadávania",
   "go-to-volume--tooltip": "Prejsť na periodikum",
   "go-to-monograph": "Prejsť na zväzok kníh",

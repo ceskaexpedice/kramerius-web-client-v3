@@ -1,5 +1,5 @@
 <div class="months-calendar-container" *ngIf="shouldShowCalendars()" (mousedown)="onCalendarClick($event)">
-  @for (i of displayedMonths(); track i) {
+  @for (i of months; track i) {
   <div class="month-calendar"
     [class.month-placeholder]="!isMonthVisible(i)">
     <div class="month-header">

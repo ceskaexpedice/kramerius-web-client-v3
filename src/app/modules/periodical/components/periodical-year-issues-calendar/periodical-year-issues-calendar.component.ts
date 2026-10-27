@@ -87,27 +87,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
 
   months = Array.from({ length: 12 }, (_, i) => i);
 
-  /**
-   * Months that actually contain an issue of this year. A sparse volume (a few
-   * issues a year) otherwise renders twelve calendars of empty days, which on a
-   * phone is a long scroll to find five green cells. Falls back to all months
-   * while nothing is known yet, and in lazy mode where the map is incomplete.
-   */
-  displayedMonths = computed<number[]>(() => {
-    if (this.lazyLoadingEnabled()) {
-      return this.months;
-    }
-    const withIssues = new Set<number>();
-    for (const issues of this.issueMap().values()) {
-      const date = issues[0]?.startDate;
-      if (date && date.getFullYear() === this.yearSignal()) {
-        withIssues.add(date.getMonth());
-      }
-    }
-    return withIssues.size > 0 ? this.months.filter(m => withIssues.has(m)) : this.months;
-  });
-
-  private yearSignal = signal(0);
   monthNames = [
     'months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june',
     'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december',
@@ -133,7 +112,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['year'] && this.year) {
       this.yearNum = parseInt(this.year, 10);
-      this.yearSignal.set(this.yearNum);
       this.selectedDate = new Date(this.yearNum, 0, 1);
     }
   }

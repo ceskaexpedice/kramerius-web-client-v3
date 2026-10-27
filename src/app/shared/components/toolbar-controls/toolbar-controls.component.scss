@@ -87,12 +87,6 @@
 
 // Mobile menu mode
 .mobile-menu-trigger {
-  // On phones this is the only way to share, cite, favourite or open Info.
-  @media (pointer: coarse) {
-    width: 40px;
-    height: 40px;
-  }
-
   &.active {
     background: var(--color-primary-pressed);
   }

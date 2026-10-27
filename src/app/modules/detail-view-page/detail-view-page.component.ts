@@ -42,6 +42,7 @@ import { MusicService } from '../music/services/music.service';
 import { SoundService } from '../../shared/services/sound.service';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 
+import { PeriodicalNeighborsService } from '../../shared/services/periodical-neighbors.service';
 @Component({
   selector: 'app-detail-view-page',
   templateUrl: './detail-view-page.component.html',
@@ -78,6 +79,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   private configService = inject(ConfigService);
   public detailFullscreen = inject(DetailFullscreenService);
   public musicService = inject(MusicService);
+  private periodicalNeighbors = inject(PeriodicalNeighborsService);
   public soundService = inject(SoundService);
 
   /** Section sheets (this page's and the pages sheet) dock above the visible bottom nav. */
@@ -383,6 +385,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getMobilePanelTitle(): string {
+    if (this.mobileActivePanel() === 'description') {
+      return this.detailViewService.document?.mainTitle || '';
+    }
     const item = this.mobileActiveNavItem;
     return this.translate.instant(item ? item.label : 'metadata-panel--label');
   }
@@ -549,6 +554,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     const editorParams = new URLSearchParams({ uuid, host: DetailViewPageComponent.GEOREFERENCER_HOST });
     const returnTo = `${DetailViewPageComponent.GEOREFERENCER_URL}?${editorParams}`;
     return `${DetailViewPageComponent.GEOREFERENCER_LOGIN_URL}?${new URLSearchParams({ returnTo })}`;
+  }
+
+  /** "Previous issue: 14. 3. 1902 · Issue 11" — the bare label until the neighbour is known (#200). */
+  issueTooltip(direction: 'previous' | 'next'): string {
+    const label = this.translate.instant(`${direction}-issue--tooltip`);
+    const detail = this.periodicalNeighbors.describe(this.periodicalNeighbors.neighbors()[direction]);
+    return detail ? `${label}: ${detail}` : label;
   }
 
   getIssueTypeCode(children: any[], uuid: string): string | undefined {

@@ -10,33 +10,40 @@
 <div class="data" *ngIf="data">
 
   <!-- ===== Source (CDK aggregator, document has cdk.collection): which library's
-       copy is shown. It decides the scans, licence and holdings, so it leads. -->
+       copy is shown. It decides the scans, licence and holdings, so it leads the
+       panel; with the title in a host header (mobile sheet) it follows the
+       title's navigation instead, see below. -->
   <ng-template #cdkSourceLogoTpl let-code>
     @if (cdkSourceLogo(code); as logoUrl) {
       <img class="cdk-source-logo" [src]="logoUrl" [alt]="cdkSourceLabel(code)"
            loading="lazy" (error)="$any($event.target).style.display = 'none'" />
     }
   </ng-template>
-  <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0" class="metadata-source"
-    [label]="'cdk.collection' | translate">
-    <div metadata-section-item-content class="cdk-source-select">
-      <app-select
-        [options]="cdkSourceOptions()" [size]="'sm'"
-        [value]="selectedCdkCollection()"
-        [displayFn]="cdkSourceLabel"
-        [optionPrefixTpl]="cdkSourceLogoTpl"
-        [theme]="'base'"
-        (valueChange)="onCdkCollectionChange($event)">
-      </app-select>
-    </div>
-  </app-metadata-section-item>
+  <ng-template #cdkSourceTpl>
+    <app-metadata-section-item *ngIf="isCdk() && cdkCollections().length > 0" class="metadata-source"
+      [label]="'cdk.collection' | translate">
+      <div metadata-section-item-content class="cdk-source-select">
+        <app-select
+          [options]="cdkSourceOptions()" [size]="'sm'"
+          [value]="selectedCdkCollection()"
+          [displayFn]="cdkSourceLabel"
+          [optionPrefixTpl]="cdkSourceLogoTpl"
+          [theme]="'base'"
+          (valueChange)="onCdkCollectionChange($event)">
+        </app-select>
+      </div>
+    </app-metadata-section-item>
+  </ng-template>
+  @if (showTitle) {
+    <ng-container *ngTemplateOutlet="cdkSourceTpl"></ng-container>
+  }
 
   <!-- ===== Hero: what the document is, at a glance ===== -->
-  <!-- Parent-navigation links.
-       Rendered at the very top so that when the title is shown in a host header
-       (e.g. mobile slide-up panel with showTitle=false) the link sits directly
-       under it (below the source selector), ahead of the metadata. -->
+  <!-- Title in a host header (mobile sheet, showTitle=false): what belongs to the
+       title comes first, directly under that header — alternative titles, the
+       parent link and the previous/next issue — then the source selector. -->
   @if (!showTitle) {
+    <ng-container *ngTemplateOutlet="alternativeTitlesTpl"></ng-container>
     @if (isMonographUnitDoc() && monographHref(); as href) {
     <a class="go-to-parent" [href]="href"
        (click)="handleLinkNav($event, goToMonograph.bind(this))">
@@ -51,6 +58,10 @@
       <i class="icon-export-1" aria-hidden="true"></i>
     </a>
     }
+    @if (isPeriodicalItem()) {
+    <app-periodical-neighbors></app-periodical-neighbors>
+    }
+    <ng-container *ngTemplateOutlet="cdkSourceTpl"></ng-container>
   }
 
   <!-- Alternative titles (mods:titleInfo type="alternative"): hidden on first
@@ -80,12 +91,6 @@
       </div>
     }
   </ng-template>
-
-  <!-- No inline title (host header shows it): the alternative titles still
-       belong right below that header. -->
-  @if (!showTitle) {
-    <ng-container *ngTemplateOutlet="alternativeTitlesTpl"></ng-container>
-  }
 
   <!-- Title -->
   @if (showTitle) {
@@ -136,6 +141,9 @@
       <span>{{ 'go-to-periodical' | translate }}</span>
       <i class="icon-export-1" aria-hidden="true"></i>
     </a>
+    }
+    @if (isPeriodicalItem()) {
+    <app-periodical-neighbors></app-periodical-neighbors>
     }
   }
 
