@@ -38,6 +38,14 @@
     flex: 0 1 auto;
   }
 
+  // With a center slot the three equal thirds can be narrower than the right
+  // controls; they then spill left over the center (year arrows over the view
+  // toggle). Keep the right side at its content width and let the title give
+  // way instead; the center stays between them.
+  &:has(.toolbar-center) .toolbar-right {
+    min-width: max-content;
+  }
+
   .toolbar-right {
     justify-content: flex-end;
     margin-left: auto;

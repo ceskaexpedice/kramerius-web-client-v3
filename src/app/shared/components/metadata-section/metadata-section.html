@@ -524,19 +524,24 @@
       type="list" [items]="data.contents">
     </app-metadata-section-item>
 
-    <!-- Collections — "Ve sbírce" per Figma; standard link treatment (#194) -->
+  </app-metadata-group>
+
+  <!-- Collections are where the library filed the work, not what it is about, so
+       they get their own group; the group title names them, the label stays for
+       screen readers only. Standard link treatment (#194). -->
+  <app-metadata-group key="collections" title="metadata-group--collections">
     @if (data.inCollections.length) {
-      <app-metadata-section-item [label]="'in-collections--label' | translate" type="clickable-list"
+      <app-metadata-section-item [label]="'in-collections--label' | translate" [hideLabel]="true" type="clickable-list"
         [items]="data.inCollections" [disableTranslate]="true" [displayFn]="getCollectionName"
         [onItemClick]="clickedCollection" [itemHref]="collectionHref">
       </app-metadata-section-item>
     }
-
   </app-metadata-group>
 
   <app-metadata-group key="holdings" title="metadata-group--holdings">
     <!-- Locations -->
-    <app-metadata-section-item *ngIf="locations().length" [label]="'locations' | translate" type="clickable-list"
+    <!-- Sole field of the group: its label would repeat the group title, so screen readers only -->
+    <app-metadata-section-item *ngIf="locations().length" [label]="'locations' | translate" [hideLabel]="true" type="clickable-list"
       [collapsible]="true" [items]="locations()" [displayFn]="getLocationLabel" [itemSubtextFn]="getLocationSubtext"
       [disableTranslate]="true" [onItemClick]="clickedLocation" [itemHref]="locationHref">
     </app-metadata-section-item>

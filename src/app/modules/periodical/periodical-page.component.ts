@@ -1,5 +1,5 @@
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
-import { Component, computed, HostBinding, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, HostBinding, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
@@ -47,11 +47,35 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   public mobileSlideUpOpen = signal(false);
 
   /**
-   * Phones and small tablets (≤853px): title + "more" menu in the toolbar, view
-   * toggle / year / sort in a sub-toolbar. The full desktop row (title, year,
-   * view toggle, four actions, sort, panel toggle) overlaps itself there.
+   * Below this content width (CSS px, before the UI zoom, like the controls
+   * themselves) the full desktop row no longer fits: right controls ~570px,
+   * year ~140px centred, and the title keeps ~180px.
    */
-  public compactToolbar = computed(() => this.breakpointService.isMobile() || !this.breakpointService.sidebarVisible());
+  private static readonly FULL_TOOLBAR_MIN_WIDTH = 960;
+
+  private pageContent = viewChild('pageContent', { read: ElementRef });
+  private pageContentWidth = signal(Number.POSITIVE_INFINITY);
+
+  // The toolbar spans the content column, not the viewport, so a breakpoint
+  // alone misses e.g. a 1100px window minus the filter sidebar.
+  private observePageContentWidth = effect(onCleanup => {
+    const el: HTMLElement | undefined = this.pageContent()?.nativeElement;
+    if (!el) {
+      return;
+    }
+    const observer = new ResizeObserver(([entry]) => this.pageContentWidth.set(entry.contentRect.width));
+    observer.observe(el);
+    onCleanup(() => observer.disconnect());
+  });
+
+  /**
+   * Phones, small tablets (≤853px) and any content column too narrow for the
+   * full row: title + "more" menu in the toolbar, view toggle / year / sort in
+   * a sub-toolbar. The full desktop row overlaps itself there.
+   */
+  public compactToolbar = computed(() => this.breakpointService.isMobile()
+    || !this.breakpointService.sidebarVisible()
+    || this.pageContentWidth() < PeriodicalPageComponent.FULL_TOOLBAR_MIN_WIDTH);
 
   private subscriptions: Subscription[] = [];
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
