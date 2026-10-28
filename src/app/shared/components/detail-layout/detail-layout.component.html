@@ -22,11 +22,12 @@
 
     <section class="detail-layout--main" [attr.aria-label]="'document-content--arialabel' | translate">
 
-      <!-- Immersive reading on phones: the toolbar leaves with the app header and
-           the nav bar; a tap on the viewer brings all three back. -->
+      <!-- Phones: the toolbar leaves with the app header and the nav bar, in
+           immersive reading (a tap on the viewer brings them back) and while a
+           list scrolls down (music track list; scrolling up brings them back). -->
       <div class="detail-layout--action-toolbar"
-           [class.detail-layout--action-toolbar--hidden]="uiStateService.immersive()"
-           [attr.inert]="uiStateService.immersive() ? '' : null">
+           [class.detail-layout--action-toolbar--hidden]="toolbarHidden()"
+           [attr.inert]="toolbarHidden() ? '' : null">
         <div class="detail-layout--action-toolbar-inner">
           <ng-content select="[action-toolbar]"></ng-content>
         </div>

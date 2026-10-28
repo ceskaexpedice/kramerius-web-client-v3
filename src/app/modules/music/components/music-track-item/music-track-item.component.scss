@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 :host:not(:last-child) {
   border-bottom: 1px solid var(--color-border-light);
   transition: background 0.2s;
@@ -117,4 +119,12 @@ td {
 
 .icon-button.favorited {
   color: var(--color-primary);
+}
+
+// Phones, lists (folders): the cover already marks the row as a track; the
+// extra track icon only took width from the title.
+@include m.respond(mobile-sm) {
+  .title.folder-view > .icon {
+    display: none;
+  }
 }

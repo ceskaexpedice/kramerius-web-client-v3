@@ -62,4 +62,23 @@
       justify-content: flex-end;
     }
   }
+
+  // Touch (phones, small tablets): toolbar controls match the 40px header
+  // buttons instead of the 32px (28px for the view toggle) desktop size.
+  :host ::ng-deep .action-toolbar {
+    // The metadata panel toggle is its own component with a 32px size.
+    button.icon-button,
+    button.panel-toggle {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+    }
+
+    .toggle-group .toggle-btn {
+      min-width: 36px;
+      height: 36px;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }

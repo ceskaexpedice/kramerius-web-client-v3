@@ -5,11 +5,13 @@
         @if (bar.logo) {
           <img [src]="bar.logo" alt="">
         }
-        {{ getLocalizedText(bar) }}
+        <span class="license-bar--text">{{ getLocalizedText(bar) }}</span>
       </span>
 
       @if (userService.userSession) {
-        <span>{{ userService.getFormattedExpiration() }} · {{ userService.userSession.session.eduPersonUniqueId || '' }}</span>
+        <span class="license-bar--session">
+          {{ userService.getFormattedExpiration() }}<span class="license-bar--user"> · {{ userService.userSession.session.eduPersonUniqueId || '' }}</span>
+        </span>
       }
     </div>
   </div>

@@ -21,6 +21,8 @@ import { ConfigService } from '../../core/config';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
+import { AdminActionsService } from '../../shared/services/admin-actions.service';
+import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-music-page',
@@ -45,6 +47,8 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   public configService = inject(ConfigService);
   public translate = inject(TranslateService);
   public aiPanelService = inject(AiPanelService);
+  public adminActionsService = inject(AdminActionsService);
+  private uiStateService = inject(UiStateService);
   private hostRef = inject(ElementRef<HTMLElement>);
 
   // Mobile chrome: the bottom nav bar replaces the two floating sidebar toggles
@@ -67,8 +71,13 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   // auto-hidden bar would be unreachable there (GitHub issue #172).
   mobileNavVisible = signal(false);
   isImmersiveMode = computed(() => this.detailViewService.soundRecordingViewMode() === 'images');
-  /** The bar is always shown outside immersive mode; inside it, tap decides. */
-  mobileNavShown = computed(() => !this.isImmersiveMode() || this.mobileNavVisible());
+  /**
+   * Outside immersive mode the bar follows the header (it leaves with it while
+   * the track list scrolls down); inside it, tap decides.
+   */
+  mobileNavShown = computed(() => this.isImmersiveMode()
+    ? this.mobileNavVisible()
+    : this.uiStateService.headerVisible());
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
 

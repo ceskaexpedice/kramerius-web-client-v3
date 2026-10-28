@@ -161,6 +161,8 @@
   "track-details": "Detail stopy",
   "track--label": "Skladba",
   "now-playing--header": "Právě hraje",
+  "now-playing--open": "Otevřít přehrávač",
+  "up-next": "Dále v pořadí",
   "share-dialog--header": "Sdílet",
   "folder-share-dialog--header": "Sdílet seznam „{{name}}“",
   "folder-share-dialog--description": "Kdokoli s tímto odkazem uvidí obsah vašeho seznamu. Přihlášení uživatelé si ho mohou uložit do své knihovny nebo dál s ním pracovat.",

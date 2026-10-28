@@ -138,6 +138,12 @@ app-header {
   z-index: 1000;
 }
 
+// Header slid away by a scrolling list (music track list): the layout takes
+// its height, as in immersive reading below.
+body.header-hidden .detail-layout {
+  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
+}
+
 body.reader-immersive {
   app-header {
     transform: translateY(-100%);
@@ -232,6 +238,12 @@ body.header-hidden .page-content__filters {
 .icon-rotate-90 {
   display: inline-block;
   transform: rotate(90deg);
+}
+
+// The icon font hard-codes this glyph white (it was drawn for the blue
+// toolbar buttons), so it vanished in the white "more" menu on phones.
+.icon-quote-down:before {
+  color: inherit;
 }
 // While the metadata panel is being resized, follow the pointer without the
 // 0.3s width transition (component styles can't target body, so it lives here).

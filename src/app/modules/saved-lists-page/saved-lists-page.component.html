@@ -79,7 +79,6 @@
 
               @if (sortParams | async; as sort) {
               <app-results-sort [selectedSort]="sort.sortBy" [selectedDirection]="sort.sortDirection"
-                [compact]="breakpointService.isMobile()"
                 (sortChange)="onSortChange($event)">
               </app-results-sort>
               }

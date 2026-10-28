@@ -1,8 +1,24 @@
 @use "_z-index.scss" as z;
+@use "mixins" as m;
 
 .track-list-header {
   display: flex;
   margin-bottom: var(--spacing-x3);
+}
+
+.track-table-wrapper {
+  // Phones: scroll the table sideways inside its rounded frame.
+  @include m.respond(mobile-sm) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-radius: var(--spacing-x4);
+
+    .track-table {
+      width: max-content;
+      min-width: 100%;
+    }
+  }
 }
 
 .track-table {

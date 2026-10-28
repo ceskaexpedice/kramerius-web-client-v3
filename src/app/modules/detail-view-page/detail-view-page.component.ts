@@ -269,6 +269,15 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       ).subscribe(() => this.peekMobileNav())
     );
 
+    // Next documents on the reused page (the first one loads via loadDocument()).
+    this.subscriptions.push(
+      this.detailViewService.document$.pipe(
+        filter(doc => !!doc?.uuid),
+        distinctUntilChanged((prev, curr) => prev?.uuid === curr?.uuid),
+        skip(1)
+      ).subscribe(doc => this.detailViewService.syncPeriodicalChildren(doc))
+    );
+
     // Load music tracks so the records (track list) view can be shown for sound recordings.
     // The recordings selector emits a new array on every store change, so dedupe by pid set
     // to avoid re-dispatching loadMusic (and re-firing the track API) multiple times.

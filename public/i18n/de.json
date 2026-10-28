@@ -161,6 +161,8 @@
   "track-details": "Titeldetails",
   "track--label": "Titel",
   "now-playing--header": "Aktuelle Wiedergabe",
+  "now-playing--open": "Player öffnen",
+  "up-next": "Als Nächstes",
   "share-dialog--header": "Teilen",
   "folder-share-dialog--header": "Liste „{{name}}“ teilen",
   "folder-share-dialog--description": "Jeder mit diesem Link kann den Inhalt Ihrer Liste sehen. Angemeldete Nutzer können sie in ihrer Bibliothek speichern oder weiter damit arbeiten.",

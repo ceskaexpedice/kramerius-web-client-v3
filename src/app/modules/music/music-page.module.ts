@@ -1,3 +1,4 @@
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
 import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import {NgModule} from '@angular/core';
@@ -52,6 +53,7 @@ const routes: Routes = [
   ],
     imports: [
         RouterModule.forChild(routes),
+    ScrollHideHeaderDirective,
     PanelToggleButtonComponent,
     PanelResizeHandleComponent,
         DetailLayoutComponent,

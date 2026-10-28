@@ -46,6 +46,9 @@ export class DetailLayoutComponent {
   private breakpointService = inject(BreakpointService);
   protected uiStateService = inject(UiStateService);
 
+  protected toolbarHidden = computed(() =>
+    this.uiStateService.immersive() || !this.uiStateService.headerVisible());
+
   readonly rightSidebarId = METADATA_PANEL_ID;
 
   /**

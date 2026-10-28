@@ -68,7 +68,7 @@
         </div>
 
         <div right>
-          <div class="flex flex--align-center">
+          <div class="flex flex--align-center flex--gap-x2">
             <!-- Hidden viewer-controls instance: on compact viewports it supplies
                  the viewer actions merged into the toolbar's "more" menu (no
                  floating UI). Only meaningful in images mode - the records track
@@ -87,11 +87,12 @@
               [showQuote]="true"
               [actions]="showMobileViewerMenu ? mobileViewerControls.getMenuItems() : []"
               [mobileMenuMode]="breakpointService.isCompactViewer()"
-              [showInfo]="false" [showEdit]="true"
+              [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
               (infoClicked)="detailViewService.openRecordInfo()"
               (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)"
+              (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
               (actionClicked)="onToolbarAction($event, mobileViewerControls)">
             </app-toolbar-controls>
 
@@ -116,8 +117,11 @@
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
+        <!-- Phones, track list: scrolling down slides the header, the toolbar and
+             the nav bar away (as on search results); scrolling up restores them. -->
         <div class="detail-view--page--content--wrapper"
-             [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'">
+             [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'"
+             [appScrollHideHeader]="breakpointService.isMobile() && detailViewService.soundRecordingViewMode() === 'records'">
 
           @let checkState = documentInfoService.state();
           @let accessDenied = checkState === 'LOADED' && isAccessDenied(document);
@@ -222,7 +226,6 @@
      mirrors the right metadata sidebar's tabs (GitHub issue #172). -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
-    [class.mobile-nav-bar--immersive]="isImmersiveMode()"
     [class.mobile-nav-bar--hidden]="!mobileNavShown()"
     [attr.inert]="mobileNavShown() ? null : ''"
     ariaLabel="metadata-panel--tabs"

@@ -1,9 +1,10 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, inject} from '@angular/core';
 import {SelectComponent} from '../../../../shared/components/select/select.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {MenuComponent, MenuItem} from '../../../../shared/components/menu/menu.component';
 import {CdkTooltipDirective} from '../../../../shared/directives';
 import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {BreakpointService} from '../../../../shared/services/breakpoint.service';
 
 interface SortOption {
   label: string;
@@ -31,7 +32,7 @@ export class ResultsSortComponent {
 
   @Input() selectedSort: SolrSortFields = SolrSortFields.relevance;
   @Input() selectedDirection: SolrSortDirections = SolrSortDirections.desc;
-  /** Compact toolbars (phones): an icon button opening a menu instead of the wide select. */
+  /** Compact toolbars: an icon button opening a menu instead of the wide select. Always on phones. */
   @Input() compact = false;
   @Output() sortChange: EventEmitter<SortChangeEvent> = new EventEmitter<SortChangeEvent>();
 
@@ -57,6 +58,12 @@ export class ResultsSortComponent {
   }
 
   sortOptionDisplayFn = (option: any) => option ? option.label : '';
+
+  private breakpointService = inject(BreakpointService);
+
+  get isCompact(): boolean {
+    return this.compact || this.breakpointService.isMobile();
+  }
 
   /** Menu items for the compact mode; the active sort carries a tick. */
   get menuItems(): MenuItem[] {

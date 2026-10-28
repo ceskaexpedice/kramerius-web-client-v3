@@ -166,7 +166,9 @@
     @if (data.model) {
       <app-metadata-section-item [label]="'model' | translate">
         <div metadata-section-item-content>
-          <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount"></app-model-badge>
+          <!-- Short label (as on result cards) so long types such as sound
+               recordings fit the facts row beside date and accessibility. -->
+          <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount" [compact]="true"></app-model-badge>
         </div>
       </app-metadata-section-item>
     }

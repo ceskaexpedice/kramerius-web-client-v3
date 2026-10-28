@@ -83,11 +83,18 @@
     }
   }
 
-  // Short facts (date, document type, accessibility) share one row.
+  // Short facts (date, document type, accessibility) share one row. Each takes
+  // its content's width (the type chip uses its short label), so in a narrow
+  // panel a fact wraps to a new line instead of running into the next one, as
+  // it did in fixed 96px grid columns.
   .metadata-facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-x3) var(--spacing-x4);
+
+    > * {
+      flex: 1 0 auto;
+    }
   }
 
   // Sub-labels inside a group (licence, donators, cartographic data) match the

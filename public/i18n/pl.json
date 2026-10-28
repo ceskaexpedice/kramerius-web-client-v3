@@ -158,6 +158,8 @@
   "track-details": "Szczegóły utworu",
   "track--label": "Utwór",
   "now-playing--header": "Aktualnie odtwarzane",
+  "now-playing--open": "Otwórz odtwarzacz",
+  "up-next": "Następne w kolejce",
   "share-dialog--header": "Udostępnij",
   "folder-share-dialog--header": "Udostępnij listę „{{name}}“",
   "folder-share-dialog--description": "Każdy, kto ma ten link, zobaczy zawartość Twojej listy. Zalogowani użytkownicy mogą ją zapisać do swojej biblioteki lub dalej z nią pracować.",

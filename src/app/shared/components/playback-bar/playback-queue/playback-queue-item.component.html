@@ -2,6 +2,7 @@
   <div
     class="track"
     [class.current-track]="isCurrentTrack"
+    [class.track--compact]="compact"
   >
     <div class="thumb-wrapper" (click)="isCurrentTrack ? togglePlayPause() : play()"
          role="button" tabindex="0" [attr.aria-label]="track['title.search']"
@@ -28,11 +29,11 @@
     </div>
 
     <div class="actions">
-      <button class="icon-button rounded light" (click)="remove($event)"
+      <button class="icon-button" [ngClass]="compact ? 'transparent' : 'rounded light'" (click)="remove($event)"
               [attr.aria-label]="'delete' | translate">
         <i class="icon-trash" aria-hidden="true"></i>
       </button>
-      <button class="icon-button rounded light"
+      <button class="icon-button" [ngClass]="compact ? 'transparent' : 'rounded light'"
               [class.favorited]="isItemFavorited$ | async"
               [attr.aria-label]="((isItemFavorited$ | async) ? 'remove-from-favorites' : 'add-to-favorites') | translate"
               (click)="toggleFavorite($event)">

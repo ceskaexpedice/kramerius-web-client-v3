@@ -105,36 +105,303 @@
   }
 }
 
-// Mobile: the desktop row (cover + title + controls + timeline + volume +
-// queue + close) has no room to fit the close button on screen, so playback
-// could not be stopped at all. Drop the timeline and the volume slider and
-// let the info column shrink so play/queue/close stay reachable (issue #172).
-@include mixins.respond(mobile-sm) {
-  .playback-bar {
+// ---- Phones: mini player ---------------------------------------------------
+// Cover + title (opens the sheet) take the row; play, next and queue are
+// borderless 44px targets. Previous, seeking and closing live in the sheet.
+.playback-bar--mini {
+  gap: var(--spacing-x1);
+  padding: var(--spacing-x2) var(--spacing-x2) var(--spacing-x2) var(--spacing-x3);
+}
+
+.mini-progress {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border-light);
+
+  &__value {
+    display: block;
+    height: 100%;
+    background: var(--color-primary);
+  }
+}
+
+.mini-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x3);
+  padding: var(--spacing-x1) 0;
+  border: none;
+  background: none;
+  color: var(--color-text-base);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  .cover {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--spacing-x1);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title,
+  &__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__title {
+    font-weight: 500;
+    font-size: var(--font-size-small);
+    line-height: 1.3;
+  }
+
+  &__meta {
+    font-size: var(--font-size-xsmall);
+    color: var(--color-text-tertiary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: 2px;
+    border-radius: var(--spacing-x1);
+  }
+}
+
+.mini-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-base);
+  cursor: pointer;
+
+  i {
+    font-size: var(--font-size-large);
+  }
+
+  &--play {
+    width: 40px;
+    height: 40px;
+    margin: 0 var(--spacing-x1);
+    background: var(--color-primary);
+    color: var(--color-text-on-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: 2px;
+  }
+}
+
+// ---- Phones: "now playing" sheet ---------------------------------------------
+// Above the mini player (800) and below the CDK overlay layer (1000), where the
+// stop dialog and the favourites menu open.
+.player-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: z.$playback-bar + 1;
+  background: rgba(0, 0, 0, 0.4);
+  animation: player-sheet-fade 0.25s ease-out;
+}
+
+.player-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: z.$playback-bar + 2;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(90dvh / var(--ui-zoom, 1));
+  background: var(--color-bg-base);
+  border-radius: var(--spacing-x3) var(--spacing-x3) 0 0;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+  animation: player-sheet-in 0.3s ease-out;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--spacing-x2);
-    padding: var(--spacing-x2) var(--spacing-x3);
+    padding: var(--spacing-x3) var(--spacing-x3) var(--spacing-x2) var(--spacing-x4);
+  }
 
-    .left {
-      flex: 1 1 auto;
-    }
+  &__heading {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semi-bold);
+  }
 
-    .center {
-      flex-shrink: 0;
-    }
+  &__body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 var(--spacing-x4) calc(var(--spacing-x4) + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x4);
+  }
 
-    .right {
-      flex-shrink: 0;
-      gap: 4px;
+  &__track {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x4);
+  }
 
-      // Volume lives in its own component here, so the host is what must be
-      // hidden - the inner .volume class is out of reach from this stylesheet.
-      app-volume-control {
-        display: none;
-      }
+  &__cover {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    border-radius: var(--spacing-x2);
+    overflow: hidden;
+  }
+
+  &__info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-x1);
+  }
+
+  &__title {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-base);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semi-bold);
+    line-height: var(--line-height-2, 1.35);
+    text-align: left;
+    cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-text-link);
+      text-decoration: underline;
     }
   }
 
-  .timeline {
-    display: none;
+  &__meta {
+    margin: 0;
+    font-size: var(--font-size-small);
+    color: var(--color-text-tertiary);
+  }
+
+  &__timeline input[type='range'] {
+    display: block;
+    width: 100%;
+    // Taller hit area for a finger; the track itself stays 4px.
+    height: 24px;
+    background-size: 100% 4px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+  }
+
+  &__times {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xsmall);
+    color: var(--color-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-x8, 32px);
+  }
+
+  &__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--color-text-base);
+    cursor: pointer;
+
+    i {
+      font-size: var(--font-size-xlarge);
+    }
+
+    &--play {
+      width: 64px;
+      height: 64px;
+      background: var(--color-primary);
+      color: var(--color-text-on-color);
+
+      i {
+        font-size: var(--font-size-xxlarge);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-border-primary-default);
+      outline-offset: 2px;
+    }
+  }
+
+  &__queue {
+    border-top: 1px solid var(--color-border-light);
+    padding-top: var(--spacing-x3);
+  }
+
+  &__subheading {
+    margin: 0 0 var(--spacing-x1);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semi-bold);
+    color: var(--color-text-secondary);
+  }
+
+  &__stop {
+    align-self: center;
+    gap: var(--spacing-x2);
+  }
+}
+
+@keyframes player-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+@keyframes player-sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-sheet,
+  .player-sheet-backdrop {
+    animation: none;
   }
 }

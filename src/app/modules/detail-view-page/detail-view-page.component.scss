@@ -6,6 +6,12 @@
 
 .toolbar-right-content {
   gap: var(--spacing-x3);
+
+  // The panel toggle's divider sits 8px from the buttons before it, as on the
+  // periodical, collection, monograph and music toolbars.
+  > app-panel-toggle-button {
+    margin-left: calc(var(--spacing-x2) - var(--spacing-x3));
+  }
 }
 
 .view-tabs {
@@ -407,6 +413,12 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
 
   &--document {
     padding-top: var(--spacing-x1);
+
+    // The x1 top keeps "Go to periodical" right under the title. Without that
+    // link (a book) the source select leads and needs a section's distance.
+    ::ng-deep app-metadata-section .data > .metadata-source:first-child {
+      margin-top: var(--spacing-x3);
+    }
   }
 }
 

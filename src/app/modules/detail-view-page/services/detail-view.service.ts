@@ -574,6 +574,22 @@ export class DetailViewService {
     });
   }
 
+  /**
+   * The detail page is reused between documents, so loadDocument() (run once,
+   * on init) does not reload the volume's issues. An issue reached by a plain
+   * link (the neighbour block, search results) from another volume would keep
+   * the old volume's list: the date arrows and the neighbour block then find
+   * nothing. Load its volume unless the issue is already in the list.
+   */
+  syncPeriodicalChildren(doc: any) {
+    if (doc?.model !== DocumentTypeEnum.periodicalitem || !doc.uuid) return;
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      if (!children?.some(child => child.pid === doc.uuid)) {
+        this.loadPeriodicalChildren(doc);
+      }
+    });
+  }
+
   private loadPeriodicalChildren(doc: any) {
     if (doc?.rootModel === DocumentTypeEnum.periodical || doc?.model === DocumentTypeEnum.periodicalitem) {
 

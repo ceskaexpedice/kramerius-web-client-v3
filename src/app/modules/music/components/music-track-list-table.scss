@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 .index-col {
   width: 20px;
   text-align: center;
@@ -12,5 +14,36 @@
 
   button {
     padding: 9px;
+  }
+}
+
+// Phones: the table scrolls sideways (see .track-table-wrapper) rather than
+// squeezing the title into a one-word column. Titles wrap within a readable
+// width, the other columns keep to one line.
+@include m.respond(mobile-sm) {
+  .index-col {
+    width: 32px;
+    padding-left: var(--spacing-x3);
+    padding-right: var(--spacing-x1);
+  }
+
+  // A set width caps the column at it in a max-content table; titles wrap.
+  .title-col {
+    width: 220px;
+  }
+
+  // Lists (folders): cover, title and author share the cell, so it is wider.
+  .track-table--folder .title-col {
+    width: 260px;
+  }
+
+  .duration-col {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .actions-col {
+    width: auto;
+    white-space: nowrap;
   }
 }

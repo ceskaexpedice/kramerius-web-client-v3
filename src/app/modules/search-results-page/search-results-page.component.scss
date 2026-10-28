@@ -34,18 +34,20 @@
     min-width: 0;
   }
 
-  // Shrinks to an ellipsis, but never below a readable stub.
-  app-results-sort {
-    min-width: 96px;
-  }
-
   // Fill the row: the range sits at the left content edge (12px, in line with
   // the cards) and the controls at the right one, instead of centring as a block.
+  // width, not flex: the toolbar's own `flex` on .toolbar-right is more
+  // specific. The wide sort select used to stretch the row; the icon does not.
+  :host ::ng-deep .page-content__filters .action-toolbar .toolbar-right {
+    width: 100%;
+  }
+
   .page-content__filters [right] {
     flex: 1 1 auto;
   }
 
   .page-content__filters [right] > .flex {
+    flex: 1 1 auto;
     gap: var(--spacing-x2);
 
     app-paginator-info {

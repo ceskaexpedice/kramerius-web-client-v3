@@ -158,6 +158,8 @@
   "track-details": "Detail stopy",
   "track--label": "Skladba",
   "now-playing--header": "Práve sa prehráva",
+  "now-playing--open": "Otvoriť prehrávač",
+  "up-next": "Ďalej v poradí",
   "share-dialog--header": "Zdieľať",
   "folder-share-dialog--header": "Zdieľať zoznam „{{name}}“",
   "folder-share-dialog--description": "Ktokoľvek s týmto odkazom uvidí obsah vášho zoznamu. Prihlásení používatelia si ho môžu uložiť do svojej knižnice alebo s ním ďalej pracovať.",

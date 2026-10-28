@@ -11,6 +11,17 @@
   max-width: 460px !important;
 }
 
+// Phones (mobile-sm): one width for every dialog, the screen minus a 16px
+// gutter. Callers size dialogs for a desktop (40% / 50vw / 60vw / 600px):
+// on a phone that left the authors list ~150px wide or ran a 600px dialog off
+// the screen (max-width is lifted above). Full-screen dialogs keep their size.
+@media (max-width: 603px) {
+  .cdk-overlay-pane.mat-mdc-dialog-panel:not(.mobile-fullscreen-dialog) {
+    width: calc(calc(100vw / var(--ui-zoom, 1)) - 32px) !important;
+    max-width: calc(calc(100vw / var(--ui-zoom, 1)) - 32px) !important;
+  }
+}
+
 .mat-mdc-dialog-surface {
   display: block !important;
 }

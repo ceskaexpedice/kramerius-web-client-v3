@@ -166,6 +166,8 @@
   "track-details": "Track details",
   "track--label": "Track",
   "now-playing--header": "Now playing",
+  "now-playing--open": "Open player",
+  "up-next": "Up next",
   "share-dialog--header": "Share",
   "folder-share-dialog--header": "Share list „{{name}}“",
   "folder-share-dialog--description": "Anyone with this link can see the contents of your list. Signed-in users can save it to their library or keep working with it.",

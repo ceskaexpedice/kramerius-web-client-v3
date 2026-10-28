@@ -241,9 +241,9 @@ app-mobile-nav-bar {
   z-index: 850;
 }
 
-// Immersive nav bar (images mode): slide down out of view when hidden, so a
-// clean tap on the viewer brings it back. Respects motion prefs.
-app-mobile-nav-bar.mobile-nav-bar--immersive {
+// Slides down out of view when hidden: in images mode a clean tap on the
+// viewer brings it back, in the track list scrolling up does. Respects motion prefs.
+app-mobile-nav-bar {
   transition: transform 0.25s ease, opacity 0.25s ease;
   transform: translateY(0);
   opacity: 1;
@@ -256,7 +256,7 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  app-mobile-nav-bar.mobile-nav-bar--immersive {
+  app-mobile-nav-bar {
     transition: none;
   }
 }

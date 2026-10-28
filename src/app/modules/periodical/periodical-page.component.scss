@@ -88,6 +88,13 @@
     margin-left: auto;
   }
 
+  // Year arrows match the 40px touch controls beside them (sort, toolbar).
+  ::ng-deep app-date-navigator button.icon-button {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+  }
+
   .mobile-subtoolbar__year {
     margin-left: auto;
 
