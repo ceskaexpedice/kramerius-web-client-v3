@@ -66,6 +66,17 @@
     z-index: z.$timeline-background;
   }
 
+  // The line reaches into the gap on both sides to meet its neighbours; at the
+  // row's ends there is no neighbour, and the outward half overflowed the row
+  // by 0.5rem (7px at 90% scale), so the line stops at the item edge there.
+  &:first-child::before {
+    left: 0;
+  }
+
+  &:last-child::before {
+    right: 0;
+  }
+
   &:hover {
     transform: scale(1.1);
   }
