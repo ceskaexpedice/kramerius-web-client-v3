@@ -127,6 +127,7 @@
     // (the .md class it carries is 16px; .small would also pull in a padding
     // that overrides .no-padding).
     font-size: var(--font-size-small);
+    font-weight: 500;
     line-height: var(--line-height-1);
 
     i {

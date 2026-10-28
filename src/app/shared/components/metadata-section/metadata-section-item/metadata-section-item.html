@@ -5,7 +5,7 @@
   <div class="metadata-section--item-header">
     <div class="metadata-section--item-label" [class.sr-only]="hideLabel" [id]="labelId">{{ label | translate }}</div>
     @if (headerActionLabel) {
-      <button class="button tertiary outlined xs with-icon header-action-btn"
+      <button type="button" class="button primary link no-padding with-icon header-action-btn"
         (click)="handleHeaderAction($event)">
         {{ headerActionLabel }} <i class="icon-arrow-right-1" aria-hidden="true"></i>
       </button>
@@ -44,19 +44,13 @@
           </li>
         }
       </ul>
-      @if (listClamped) {
-        <button type="button" class="list-toggle" [attr.aria-expanded]="listExpanded"
-                (click)="listExpanded = !listExpanded">
-          {{ listExpanded ? ('metadata--show-less' | translate) : ('metadata--show-all-items' | translate: { count: items?.length }) }}
-          <i class="icon-arrow-down-1" [class.list-toggle__icon--open]="listExpanded" aria-hidden="true"></i>
-        </button>
-      }
+      <ng-container *ngTemplateOutlet="listToggleTpl"></ng-container>
     }
 
     <!-- Clickable list type: vertical list of link-styled items -->
     @if (type === 'clickable-list') {
       <ul class="clickable-list" [class.with-bullets]="bulletsVisible">
-        @for (item of visibleItems; track $index; let last = $last) {
+        @for (item of listItems; track $index) {
           <li
             [class.clickable]="isItemInteractive(item)"
             [attr.role]="isItemInteractive(item) && !getItemHref(item) ? 'button' : null"
@@ -97,10 +91,11 @@
             }
             @if (getItemSubtext(item); as subtext) {
               <span class="item-subtext" (click)="$event.stopPropagation()">{{ subtext }}</span>
-            }@if (last && hiddenCount > 0) {<span class="items-more-inline" role="button" tabindex="0" (click)="expanded = true; $event.stopPropagation()" (keydown.enter)="expanded = true; $event.stopPropagation()" (keydown.space)="$event.preventDefault(); expanded = true; $event.stopPropagation()"> + {{ hiddenCount }} {{ 'authors-more' | translate }}</span>}
+            }
           </li>
         }
       </ul>
+      <ng-container *ngTemplateOutlet="listToggleTpl"></ng-container>
     }
 
     <!-- Badge type: pill-styled clickable badge -->
@@ -142,3 +137,14 @@
   </app-collapsible-content>
 
 </section>
+
+<!-- "Show all (N)" / "Show less" under a list clamped by entries (plain and clickable). -->
+<ng-template #listToggleTpl>
+  @if (listClamped) {
+    <button type="button" class="list-toggle" [attr.aria-expanded]="listExpanded"
+            (click)="listExpanded = !listExpanded">
+      {{ listExpanded ? ('metadata--show-less' | translate) : ('metadata--show-all-items' | translate: { count: items?.length }) }}
+      <i class="icon-arrow-up-1" [class.rotated]="!listExpanded" aria-hidden="true"></i>
+    </button>
+  }
+</ng-template>

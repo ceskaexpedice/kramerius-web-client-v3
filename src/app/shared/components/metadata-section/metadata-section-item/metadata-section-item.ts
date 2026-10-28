@@ -80,29 +80,34 @@ export class MetadataSectionItem {
   @Input() itemSuffixTpl?: TemplateRef<{ $implicit: any }>;
   /** Optional custom renderer for each item of a `type="list"` list. */
   @Input() itemTpl?: TemplateRef<{ $implicit: any }>;
+  /** Entries shown before "Show all (N)"; overrides LIST_PREVIEW (e.g. authors). */
   @Input() maxItems?: number;
   @Input() headerActionLabel?: string;
   @Input() headerActionClick?: () => void;
 
-  expanded = false;
-
-  /** Collapsible plain lists show this many whole entries before "Show all (N)". */
+  /** Collapsible lists show this many whole entries before "Show all (N)". */
   static readonly LIST_PREVIEW = 3;
   listExpanded = false;
 
+  private get listPreview(): number | null {
+    if (this.type !== 'list' && this.type !== 'clickable-list') return null;
+    if (this.maxItems) return this.maxItems;
+    return this.collapsible ? MetadataSectionItem.LIST_PREVIEW : null;
+  }
+
   /**
-   * A collapsible plain list is clamped by entries, not lines: a line clamp
-   * cut the third note in half and its "more" did not say how much was hidden.
+   * Lists (plain and clickable) are clamped by entries, not lines: a line clamp
+   * cut the last entry in half and its "more" did not say how much was hidden.
    */
   get listClamped(): boolean {
-    return this.collapsible && this.type === 'list'
-      && (this.items?.length ?? 0) > MetadataSectionItem.LIST_PREVIEW;
+    const preview = this.listPreview;
+    return preview !== null && (this.items?.length ?? 0) > preview;
   }
 
   get listItems(): any[] {
     if (!this.items) return [];
     return this.listClamped && !this.listExpanded
-      ? this.items.slice(0, MetadataSectionItem.LIST_PREVIEW)
+      ? this.items.slice(0, this.listPreview!)
       : this.items;
   }
 
@@ -124,17 +129,6 @@ export class MetadataSectionItem {
     if (!this.showListBullets) return false;
     const count = this.type === 'key-value' ? this.getKeys().length : (this.items?.length ?? 0);
     return count > 1;
-  }
-
-  get visibleItems(): any[] {
-    if (!this.items) return [];
-    if (!this.maxItems || this.expanded) return this.items;
-    return this.items.slice(0, this.maxItems);
-  }
-
-  get hiddenCount(): number {
-    if (!this.items || !this.maxItems || this.expanded) return 0;
-    return Math.max(0, this.items.length - this.maxItems);
   }
 
   handleHeaderAction(event: Event): void {
