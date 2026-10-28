@@ -81,7 +81,8 @@
                 </app-toolbar-controls>
 
                 <app-results-sort [selectedSort]="collectionsService.sortBy"
-                  [selectedDirection]="collectionsService.sortDirection" (sortChange)="onSortChange($event)">
+                  [selectedDirection]="collectionsService.sortDirection"
+                  [compact]="breakpointService.isMobile()" (sortChange)="onSortChange($event)">
                 </app-results-sort>
               </ng-container>
 

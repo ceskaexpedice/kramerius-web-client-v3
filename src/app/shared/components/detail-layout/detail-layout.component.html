@@ -22,8 +22,14 @@
 
     <section class="detail-layout--main" [attr.aria-label]="'document-content--arialabel' | translate">
 
-      <div class="detail-layout--action-toolbar">
-        <ng-content select="[action-toolbar]"></ng-content>
+      <!-- Immersive reading on phones: the toolbar leaves with the app header and
+           the nav bar; a tap on the viewer brings all three back. -->
+      <div class="detail-layout--action-toolbar"
+           [class.detail-layout--action-toolbar--hidden]="uiStateService.immersive()"
+           [attr.inert]="uiStateService.immersive() ? '' : null">
+        <div class="detail-layout--action-toolbar-inner">
+          <ng-content select="[action-toolbar]"></ng-content>
+        </div>
       </div>
 
       <div class="detail-layout--main-content"

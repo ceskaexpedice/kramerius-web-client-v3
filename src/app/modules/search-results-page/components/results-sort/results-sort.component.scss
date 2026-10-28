@@ -30,3 +30,13 @@
     font-size: var(--font-size-large);
   }
 }
+
+// In a page toolbar the trigger matches the 32px icon buttons beside it.
+:host-context(.action-toolbar) .results-sort__trigger {
+  width: 32px;
+  height: 32px;
+
+  i {
+    font-size: var(--font-size-base);
+  }
+}

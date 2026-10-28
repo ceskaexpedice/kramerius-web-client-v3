@@ -85,7 +85,12 @@
   }
 }
 
-// Mobile menu mode
+// Mobile menu mode: the "more" menu closes the row it sits in (after the
+// sort, view toggle, ...), wherever the page placed it in the template.
+:host:has(.mobile-menu-trigger) {
+  order: 1;
+}
+
 .mobile-menu-trigger {
   &.active {
     background: var(--color-primary-pressed);

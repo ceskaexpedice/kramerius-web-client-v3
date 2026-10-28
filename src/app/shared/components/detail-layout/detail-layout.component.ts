@@ -44,7 +44,7 @@ export class DetailLayoutComponent {
 
   private detailViewService = inject(DetailViewService);
   private breakpointService = inject(BreakpointService);
-  private uiStateService = inject(UiStateService);
+  protected uiStateService = inject(UiStateService);
 
   readonly rightSidebarId = METADATA_PANEL_ID;
 

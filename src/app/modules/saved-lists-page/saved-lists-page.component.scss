@@ -80,10 +80,12 @@
     min-height: 0;
   }
 
-  &__search {
-    display: block;
-    margin-bottom: var(--spacing-x3);
-  }
+}
+
+// Top level: on phones the same search field renders in the filter sheet.
+.facet-filter-column__search {
+  display: block;
+  margin-bottom: var(--spacing-x3);
 }
 
 .export-sidebar {
@@ -180,6 +182,31 @@ h2 {
 
 app-record-export-panel {
   height: 100%;
+}
+
+// Phones: the banners scroll inside the wrapper; they span its full width.
+// An empty sticky tags row (no scope toggle, no tags) would stay pinned as a
+// 16px strip at the top once the header slides away, so it is dropped and the
+// wrapper keeps its own top padding instead.
+@include m.respond(mobile-sm) {
+  .page-content__wrapper {
+    > app-info-banner {
+      display: block;
+      margin: 0 calc(-1 * var(--spacing-x3));
+    }
+
+    &:not(:has(> .page-content__sticky-tags :is(app-toggle-button-group, app-selected-tags))) {
+      padding-top: var(--spacing-x3);
+
+      > .page-content__sticky-tags {
+        display: none;
+      }
+
+      > app-info-banner:first-child {
+        margin-top: calc(-1 * var(--spacing-x3));
+      }
+    }
+  }
 }
 
 // Phones: the 320/340px side panels would leave the list a sliver of width.

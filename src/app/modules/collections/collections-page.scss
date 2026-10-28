@@ -24,17 +24,13 @@
   align-self: stretch;
   gap: var(--spacing-x3);
 
-  // Phones: let the controls shrink (the sort select ellipsizes) so they share
-  // the row with the title instead of sliding underneath it.
+  // Phones: let the controls shrink so they share the row with the title
+  // instead of sliding underneath it (the sort is an icon menu there).
   @include mixins.respond(mobile-sm) {
     min-width: 0;
 
     > .flex {
       min-width: 0;
-    }
-
-    app-results-sort {
-      min-width: 96px;
     }
   }
 }

@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 .info-banner {
   display: flex;
   align-items: center;
@@ -80,5 +82,39 @@
     cursor: pointer;
 
     i { font-size: var(--font-size-large); }
+  }
+}
+
+// Phones: next to the text the actions leave it a one-word column. They drop
+// to their own row under the text and wrap; the close button stays in the
+// top-right corner.
+@include m.respond(mobile-sm) {
+  .info-banner {
+    position: relative;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: var(--spacing-x2);
+
+    &:has(.info-banner__close) .info-banner__text {
+      padding-right: var(--spacing-x6);
+    }
+
+    &__actions {
+      flex-basis: 100%;
+      flex-wrap: wrap;
+      margin-left: 0;
+      // Line up with the text, past the icon and the gap.
+      padding-left: calc(var(--font-size-xlarge) + var(--spacing-x3));
+
+      &:not(:has(button:not(.info-banner__close))) {
+        display: contents;
+      }
+    }
+
+    &__close {
+      position: absolute;
+      top: var(--spacing-x1);
+      right: var(--spacing-x1);
+    }
   }
 }
