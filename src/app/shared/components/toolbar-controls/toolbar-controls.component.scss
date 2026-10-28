@@ -91,11 +91,10 @@
   order: 1;
 }
 
-// Secondary action: outlined like the sort trigger beside it, so the title
-// (not the menu) stays the strongest element in the row.
+// Secondary action: borderless, so the title (not the menu) stays the
+// strongest element in the row; outlines are left to the global header.
 .mobile-menu-trigger {
   &.active {
-    border-color: var(--color-border-tertiary-pressed);
-    color: var(--color-text-btn-tertiary-pressed);
+    background: var(--color-bg-contrast);
   }
 }

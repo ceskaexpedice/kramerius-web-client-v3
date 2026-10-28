@@ -25,7 +25,7 @@
   @if (mobileMenuMode && mergedActions.length > 0) {
     <!-- Mobile: single "more" button with dropdown menu -->
     <app-menu [items]="menuItems" placement="bottom-end" [customTrigger]="true" (select)="onMenuItemSelected($event)">
-      <button menuTrigger class="icon-button outlined tertiary mobile-menu-trigger"
+      <button menuTrigger class="icon-button transparent mobile-menu-trigger"
         [attr.aria-label]="'more-actions--arialabel' | translate">
         <i class="icon-more-vertical" aria-hidden="true"></i>
       </button>
