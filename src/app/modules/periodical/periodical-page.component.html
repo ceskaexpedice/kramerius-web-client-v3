@@ -115,12 +115,13 @@
       </div>
 
       <!-- Compact sub-toolbar: view toggle (left) + year (centre) + sort (right).
-           On phones the toggle and sort are icon-only so the year fits between them. -->
+           On phones the toggle is icon-only only when the year sits between it and sort;
+           the years view has room for labels. -->
       @if (compactToolbar() && !adminModeService.adminMode()) {
         <div class="mobile-subtoolbar" [class.mobile-subtoolbar--collapsible]="!periodical.selectedYear()">
           @if (periodical.viewMode() !== ViewMode.SearchResults) {
             <app-toolbar-controls [showViewToggle]="true"
-              [viewToggleIconOnly]="breakpointService.isMobile()"
+              [viewToggleIconOnly]="breakpointService.isMobile() && !!periodical.selectedYear()"
               [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
               (viewChanged)="periodical.setView($event)">
             </app-toolbar-controls>
