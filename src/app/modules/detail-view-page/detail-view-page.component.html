@@ -221,7 +221,7 @@
       <app-fullscreen #contentFullscreen [showCloseButton]="!aiPanelService.panelVisible()"
                       (fullscreenChange)="detailFullscreen.setFullscreen($event)">
       <div class="detail-view--page--content--body" #contentBody
-           appViewerTapToggle (cleanTap)="onViewerCleanTap()"
+           appViewerTapToggle (cleanTap)="onViewerCleanTap()" (gestureStart)="onViewerGestureStart()"
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"
@@ -354,6 +354,28 @@
   <!--  </ng-container>-->
 
 </app-detail-layout>
+
+<!-- Tablet / narrow window: the pages sidebar is collapsed, so the page counter
+     and ‹ › float at the bottom of the viewer instead. -->
+@if (showTabletPagePill) {
+  <div class="mobile-page-pill tablet-page-pill">
+    <button type="button" class="mobile-page-pill__btn"
+            [attr.aria-label]="'go-to-previous-page' | translate"
+            [disabled]="detailViewService.currentPageIndex <= 0"
+            (click)="onTabletPagePill('prev')">
+      <i class="icon-arrow-left-3" aria-hidden="true"></i>
+    </button>
+    <span class="mobile-page-pill__count" role="status" aria-live="polite">
+      {{ detailViewService.currentPageIndex + 1 }} / {{ detailViewService.totalPages }}
+    </span>
+    <button type="button" class="mobile-page-pill__btn"
+            [attr.aria-label]="'go-to-next-page' | translate"
+            [disabled]="detailViewService.currentPageIndex >= detailViewService.totalPages - 1"
+            (click)="onTabletPagePill('next')">
+      <i class="icon-arrow-right-3" aria-hidden="true"></i>
+    </button>
+  </div>
+}
 
 <!-- Mobile navigation bar - immersive: hidden by default, tap viewer to toggle -->
 @if (breakpointService.isMobile()) {

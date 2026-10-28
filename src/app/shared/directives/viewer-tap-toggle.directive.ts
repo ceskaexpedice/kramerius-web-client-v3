@@ -23,6 +23,12 @@ import { BreakpointService } from '../services/breakpoint.service';
 export class ViewerTapToggleDirective implements OnInit, OnDestroy {
     /** Fires on a clean single tap, already re-entered into the Angular zone. */
     @Output() cleanTap = new EventEmitter<void>();
+    /**
+     * Fires once per press when it turns into a pan, a long press or a pinch
+     * (second pointer), i.e. the reader started working with the scan. Used to
+     * tuck the first-visit chrome away without a timer.
+     */
+    @Output() gestureStart = new EventEmitter<void>();
 
     private el = inject(ElementRef<HTMLElement>);
     private zone = inject(NgZone);
@@ -37,12 +43,16 @@ export class ViewerTapToggleDirective implements OnInit, OnDestroy {
     private tapStartTime = 0;
     private pendingTapToggle: ReturnType<typeof setTimeout> | null = null;
     private lastTapUpTime = 0;
+    private activePointers = 0;
+    private gestureReported = false;
 
     ngOnInit(): void {
         this.zone.runOutsideAngular(() => {
             const el = this.el.nativeElement as HTMLElement;
             el.addEventListener('pointerdown', this.onPointerDown, { capture: true });
             el.addEventListener('pointerup', this.onPointerUp, { capture: true });
+            el.addEventListener('pointermove', this.onPointerMove, { capture: true, passive: true });
+            el.addEventListener('pointercancel', this.onPointerCancel, { capture: true });
         });
     }
 
@@ -50,6 +60,8 @@ export class ViewerTapToggleDirective implements OnInit, OnDestroy {
         const el = this.el.nativeElement as HTMLElement;
         el.removeEventListener('pointerdown', this.onPointerDown, { capture: true } as EventListenerOptions);
         el.removeEventListener('pointerup', this.onPointerUp, { capture: true } as EventListenerOptions);
+        el.removeEventListener('pointermove', this.onPointerMove, { capture: true } as EventListenerOptions);
+        el.removeEventListener('pointercancel', this.onPointerCancel, { capture: true } as EventListenerOptions);
         if (this.pendingTapToggle !== null) {
             clearTimeout(this.pendingTapToggle);
             this.pendingTapToggle = null;
@@ -58,12 +70,39 @@ export class ViewerTapToggleDirective implements OnInit, OnDestroy {
 
     /** Record where a pointer press started, to discriminate tap from drag. */
     private onPointerDown = (event: PointerEvent): void => {
-        this.tapStartX = event.clientX;
-        this.tapStartY = event.clientY;
-        this.tapStartTime = event.timeStamp;
+        this.activePointers++;
+        if (this.activePointers === 1) {
+            this.gestureReported = false;
+            this.tapStartX = event.clientX;
+            this.tapStartY = event.clientY;
+            this.tapStartTime = event.timeStamp;
+        } else {
+            // Second finger down: a pinch.
+            this.reportGesture();
+        }
     };
 
+    /** A press only counts while a button/finger is down (hover moves are ignored). */
+    private onPointerMove = (event: PointerEvent): void => {
+        if (this.activePointers === 0 || this.gestureReported || event.buttons === 0) return;
+        if (Math.abs(event.clientX - this.tapStartX) > ViewerTapToggleDirective.TAP_MOVE_THRESHOLD ||
+            Math.abs(event.clientY - this.tapStartY) > ViewerTapToggleDirective.TAP_MOVE_THRESHOLD) {
+            this.reportGesture();
+        }
+    };
+
+    private onPointerCancel = (): void => {
+        this.activePointers = Math.max(0, this.activePointers - 1);
+    };
+
+    private reportGesture(): void {
+        if (this.gestureReported || !this.gestureStart.observed) return;
+        this.gestureReported = true;
+        this.zone.run(() => this.gestureStart.emit());
+    }
+
     private onPointerUp = (event: PointerEvent): void => {
+        this.activePointers = Math.max(0, this.activePointers - 1);
         if (!this.breakpointService.isMobile()) return;
 
         const movedX = Math.abs(event.clientX - this.tapStartX);

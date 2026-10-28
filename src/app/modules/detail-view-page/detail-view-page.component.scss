@@ -473,3 +473,17 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
     }
   }
 }
+
+// Tablet / narrow window variant: no bottom nav underneath, so it sits just
+// above the viewer's bottom edge. Touch targets grow to 44px for fingers.
+.tablet-page-pill {
+  bottom: calc(var(--spacing-x4) + env(safe-area-inset-bottom, 0px) + var(--playback-bar-height, 0px));
+
+  @media (pointer: coarse) {
+    .mobile-page-pill__btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+    }
+  }
+}

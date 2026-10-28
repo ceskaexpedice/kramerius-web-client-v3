@@ -53,9 +53,17 @@
     // class itself once it boots, so this is only about the pre-boot frame.
     (function () {
       try {
+        // Must match SettingsService.loadInitialSettings(): with no stored
+        // settings (or no stored theme) the app defaults to LIGHT, not to the
+        // OS preference. Only an explicit 'system' follows prefers-color-scheme.
+        // Falling back to the OS here made first-time visitors with a dark OS
+        // see a dark frame that flipped to light once Angular booted.
         var raw = localStorage.getItem('app-settings');
-        var theme = raw ? (JSON.parse(raw) || {}).theme : null;
-        if (theme !== 'light' && theme !== 'dark') {
+        var stored = raw ? (JSON.parse(raw) || {}).theme : null;
+        var theme = 'light';
+        if (stored === 'dark') {
+          theme = 'dark';
+        } else if (stored === 'system') {
           theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.classList.add(theme);
