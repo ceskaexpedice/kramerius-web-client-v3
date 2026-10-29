@@ -843,11 +843,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // Model shown in the document-type badge. For a unit of a multivolume monograph we
   // show the root monograph ("Knihy (n)") rather than the unit itself ("Díl").
+  // A part (periodical volume/issue, monograph unit…) is labelled by the work
+  // it belongs to — its rootModel — not by its own level.
   get badgeModel(): string {
-    if (this.isMonographUnitDoc()) {
-      return this._solrData()?.rootModel || this.data?.model || '';
-    }
-    return this.data?.model || '';
+    return this._solrData()?.rootModel || this.data?.model || '';
   }
 
   // Unit count passed to the badge so a multivolume root renders as "Knihy (n)".

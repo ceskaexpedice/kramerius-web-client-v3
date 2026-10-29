@@ -13,15 +13,17 @@
   <!-- A clickable title is a real interactive element (role + tabindex + keyboard),
        not just a pointer cursor: it navigates, so it has to be reachable by Tab
        and activatable by Enter/Space like the link it behaves as. -->
-  <h2 class="title"
-      [class.cursor-pointer]="titleClickable"
-      [attr.role]="titleClickable ? 'link' : null"
-      [attr.tabindex]="titleClickable ? 0 : null"
-      [appCdkTooltip]="titleClickable ? (titleTooltip || '') : ''"
-      [tooltipPosition]="'bottom'"
-      (click)="titleClicked()"
-      (keydown.enter)="titleClicked()"
-      (keydown.space)="onTitleSpace($event)">{{ title }}</h2>
+  @if (!hideTitle) {
+    <h2 class="title"
+        [class.cursor-pointer]="titleClickable"
+        [attr.role]="titleClickable ? 'link' : null"
+        [attr.tabindex]="titleClickable ? 0 : null"
+        [appCdkTooltip]="titleClickable ? (titleTooltip || '') : ''"
+        [tooltipPosition]="'bottom'"
+        (click)="titleClicked()"
+        (keydown.enter)="titleClicked()"
+        (keydown.space)="onTitleSpace($event)">{{ title }}</h2>
+  }
 
   <div class="header-actions">
     <ng-content></ng-content>

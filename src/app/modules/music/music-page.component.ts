@@ -54,9 +54,11 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   // Mobile chrome: the bottom nav bar replaces the two floating sidebar toggles
   // on phones. Its items mirror the right metadata sidebar's tabs, plus one for
   // the left records/images panel (mirrors detail-view's "pages"). Issue #172.
+  // Labelled "images": that panel is the page-image grid, the track list is the
+  // main content.
   mobileNavItemsBase: MobileNavItem[] = [
     { id: 'description', label: PANEL_TABS.description.label, icon: PANEL_TABS.description.icon },
-    { id: 'records', label: 'sound-records--toggle', icon: PANEL_TABS.pages.icon },
+    { id: 'records', label: 'images--toggle', icon: PANEL_TABS.pages.icon },
   ];
   mobileExportNavItem: MobileNavItem = { id: 'export', label: PANEL_TABS.export.label, icon: PANEL_TABS.export.icon };
   mobileAiNavItem: MobileNavItem = { id: 'ai', label: PANEL_TABS.ai.label, icon: PANEL_TABS.ai.icon };

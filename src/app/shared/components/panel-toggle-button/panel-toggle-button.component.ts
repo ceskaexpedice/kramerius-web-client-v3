@@ -16,7 +16,6 @@ import { METADATA_PANEL_ID } from '../detail-layout/metadata-panel-id';
     <span class="panel-toggle__divider" aria-hidden="true"></span>
     <button type="button"
             class="panel-toggle"
-            [class.panel-toggle--open]="open"
             [attr.aria-expanded]="open"
             [attr.aria-controls]="controls"
             [attr.aria-label]="(open ? 'metadata-panel--hide' : 'metadata-panel--show') | translate"
@@ -40,9 +39,9 @@ import { METADATA_PANEL_ID } from '../detail-layout/metadata-panel-id';
       background: var(--color-border-contrast);
     }
 
-    // Closed: neutral outlined (it is a view toggle, not one of the primary
-    // actions). Open: tinted primary — reads as "on" without looking like a
-    // fourth filled action button next to heart / share / quote.
+    // The default white outlined button used across the toolbars (as
+    // button.outlined.light); open/closed is conveyed by aria-expanded and the
+    // panel itself, not by a coloured state.
     .panel-toggle {
       display: flex;
       align-items: center;
@@ -51,9 +50,9 @@ import { METADATA_PANEL_ID } from '../detail-layout/metadata-panel-id';
       height: 32px;
       padding: 0;
       border-radius: var(--spacing-x2);
-      border: 1px solid var(--color-border-tertiary-default);
-      background: transparent;
-      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border-bright);
+      background: var(--color-secondary);
+      color: var(--color-text-btn-secondary-default);
       cursor: pointer;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
@@ -63,9 +62,13 @@ import { METADATA_PANEL_ID } from '../detail-layout/metadata-panel-id';
       }
 
       &:hover {
-        background: var(--color-bg-light);
-        border-color: var(--color-border-tertiary-hover);
-        color: var(--color-text-base);
+        border-color: var(--color-border-secondary-hover);
+        color: var(--color-text-btn-secondary-hover);
+      }
+
+      &:active {
+        border-color: var(--color-border-secondary-pressed);
+        color: var(--color-text-btn-secondary-pressed);
       }
 
       &:focus-visible {
@@ -77,16 +80,6 @@ import { METADATA_PANEL_ID } from '../detail-layout/metadata-panel-id';
       @media (pointer: coarse) {
         width: 40px;
         height: 40px;
-      }
-
-      &.panel-toggle--open {
-        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-
-        &:hover {
-          background: color-mix(in srgb, var(--color-primary) 20%, transparent);
-        }
       }
     }
   `,

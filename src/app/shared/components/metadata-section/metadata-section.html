@@ -157,32 +157,15 @@
     [itemSuffixTpl]="authorIdentifiersTpl">
   </app-metadata-section-item>
 
-  <!-- Type + accessibility side by side: two short chips need not cost two rows. -->
-  <div class="metadata-facts">
-    @if (data.dateStr) {
-      <app-metadata-section-item [label]="'publication-date' | translate" type="text" [value]="data.dateStr"></app-metadata-section-item>
-    }
-    <!-- Document Type — informational chip, not a search entry point (#194) -->
-    @if (data.model) {
-      <app-metadata-section-item [label]="'model' | translate">
-        <div metadata-section-item-content>
-          <!-- Short label (as on result cards) so long types such as sound
-               recordings fit the facts row beside date and accessibility. -->
-          <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount" [compact]="true"></app-model-badge>
-        </div>
-      </app-metadata-section-item>
-    }
-
-    <!-- Accessibility — hidden for public documents under a watermarked license (see showAccessibility) -->
-    @if (showAccessibility()) {
-      <app-metadata-section-item [label]="'accessibility' | translate">
-        <div class="flex flex--gap-x2" metadata-section-item-content>
-          <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
-        </div>
-      </app-metadata-section-item>
-    }
-
-  </div>
+  <!-- Document Type — informational chip, not a search entry point (#194).
+       A part (issue, volume, unit…) shows the work it belongs to (rootModel). -->
+  @if (badgeModel) {
+    <app-metadata-section-item [label]="'model' | translate">
+      <div metadata-section-item-content>
+        <app-model-badge [model]="$any(badgeModel)" [monographUnitCount]="badgeUnitCount" [compact]="true"></app-model-badge>
+      </div>
+    </app-metadata-section-item>
+  }
 
   <!-- ===== Context of the current part (article, track, volume, issue) ===== -->
   @if (articleData) {
@@ -393,36 +376,17 @@
   }
 
   <!-- ===== Grouped details: each group has an h3 disclosure heading; empty groups hide themselves ===== -->
-  <app-metadata-group key="publication" title="metadata-group--publication">
-    <!-- Publishers -->
-    <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
-      [collapsible]="true" [items]="data.publishers" [displayFn]="getPublisherFullDetail">
-    </app-metadata-section-item>
-
-    <!-- Languages -->
-    <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
-      [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage" [itemHref]="languageHref">
-    </app-metadata-section-item>
-
-    <!-- Physical Description -->
-    <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
-      type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
-    </app-metadata-section-item>
-
-    <!-- Cartographic Data -->
-    <section class="cartographic-data" *ngIf="data.cartographicData.length" role="group" aria-labelledby="cartographic-data-label">
-      <div class="metadata-sublabel" id="cartographic-data-label">{{ 'cartographic-data' | translate }}</div>
-      <ul [class.with-bullets]="data.cartographicData.length > 1">
-        <li *ngFor="let cart of data.cartographicData">
-          <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
-          <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
-        </li>
-      </ul>
-    </section>
-
-  </app-metadata-group>
-
+  <!-- Access first: the accessibility badge and the licences it comes from belong together. -->
   <app-metadata-group key="access" title="metadata-group--access">
+    <!-- Accessibility — hidden for public documents under a watermarked license (see showAccessibility) -->
+    @if (showAccessibility()) {
+      <app-metadata-section-item [label]="'accessibility' | translate">
+        <div class="flex flex--gap-x2" metadata-section-item-content>
+          <app-accessibility-badge [isLocked]="!isPublic" [licenses]="data.licences || []" [showText]="true"></app-accessibility-badge>
+        </div>
+      </app-metadata-section-item>
+    }
+
     @if (providedByLicenses().length > 0) {
       <section class="provided-licenses" role="group" aria-labelledby="provided-licenses-label">
         <div class="provided-licenses__title metadata-sublabel" id="provided-licenses-label">{{ 'provided-under-license' | translate }}</div>
@@ -478,6 +442,35 @@
       </div>
     </div>
     }
+
+  </app-metadata-group>
+
+  <app-metadata-group key="publication" title="metadata-group--publication">
+    <!-- Publishers -->
+    <app-metadata-section-item *ngIf="data.publishers.length" [label]="'publisher-data' | translate" type="list"
+      [collapsible]="true" [items]="data.publishers" [displayFn]="getPublisherFullDetail">
+    </app-metadata-section-item>
+
+    <!-- Languages -->
+    <app-metadata-section-item *ngIf="data.languages.length" [label]="'languages' | translate" type="clickable-list"
+      [items]="data.languages" translateNamespace="language" [onItemClick]="clickedLanguage" [itemHref]="languageHref">
+    </app-metadata-section-item>
+
+    <!-- Physical Description -->
+    <app-metadata-section-item *ngIf="data.physicalDescriptions.length" [label]="'physical-description' | translate" [collapsible]="true"
+      type="list" [items]="data.physicalDescriptions" [displayFn]="getPhysicalDescription">
+    </app-metadata-section-item>
+
+    <!-- Cartographic Data -->
+    <section class="cartographic-data" *ngIf="data.cartographicData.length" role="group" aria-labelledby="cartographic-data-label">
+      <div class="metadata-sublabel" id="cartographic-data-label">{{ 'cartographic-data' | translate }}</div>
+      <ul [class.with-bullets]="data.cartographicData.length > 1">
+        <li *ngFor="let cart of data.cartographicData">
+          <span *ngIf="cart.scale">{{ 'scale' | translate }}{{ cart.scale }}</span>
+          <span *ngIf="cart.coordinates">{{ 'coordinates' | translate }}{{ cart.coordinates }}</span>
+        </li>
+      </ul>
+    </section>
 
   </app-metadata-group>
 
