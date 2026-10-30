@@ -1,0 +1,11 @@
+<!-- Rendered into FixedPanelService.container while open. Non-modal: a labelled
+     region, no focus trap; the page chrome around it stays usable. -->
+<ng-template cdkPortal>
+  <!-- No header row: the title only names the region, and the close button
+       lives at the end of the action toolbar (app-action-toolbar). -->
+  <div class="fixed-panel" role="region" tabindex="-1" [attr.aria-label]="title || null">
+    <div class="fixed-panel__content" [class.fixed-panel__content--flush]="flush">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</ng-template>

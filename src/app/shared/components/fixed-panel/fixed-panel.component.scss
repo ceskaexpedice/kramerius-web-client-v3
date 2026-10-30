@@ -1,0 +1,57 @@
+@use "_z-index.scss" as *;
+
+:host {
+  display: contents;
+}
+
+// Fills the band between the page chrome; FixedPanelService publishes its bounds.
+.fixed-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--fixed-panel-top, 0px);
+  bottom: var(--fixed-panel-bottom, 0px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  background: var(--color-bg-base);
+  z-index: $fixed-panel;
+  animation: fixed-panel-enter 150ms ease-out;
+
+  // The container takes programmatic focus on open; a ring around the whole
+  // panel would only be noise.
+  &:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  // Replaces a panel closed in the same task (nav tab switch): no entrance.
+  &--swap {
+    animation: none;
+  }
+}
+
+// Content
+.fixed-panel__content {
+  padding: var(--spacing-x3);
+  // With no bottom bar below the panel, clear the iPhone home indicator.
+  padding-bottom: max(var(--spacing-x3), env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+
+  // Hosted sidebars bring their own padding and their own inner scroll area,
+  // so drop the outer gap (but still clear the home indicator).
+  &--flush {
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@keyframes fixed-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
