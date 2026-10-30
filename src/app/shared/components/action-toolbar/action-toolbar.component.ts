@@ -1,4 +1,4 @@
-import {Component, computed, inject, Input} from '@angular/core';
+import {Component, computed, inject, input, Input} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {FixedPanelEdgeDirective} from '../fixed-panel/fixed-panel-edge.directive';
 import {FixedPanelService} from '../fixed-panel/fixed-panel.service';
@@ -17,10 +17,13 @@ export class ActionToolbarComponent {
 
   @Input() hasCenterContent = false;
 
+  /** The open panel is closed by its own toggle in the toolbar, so no close button. */
+  readonly suppressPanelClose = input(false);
+
   protected readonly fixedPanel = inject(FixedPanelService);
   private readonly breakpointService = inject(BreakpointService);
 
   protected readonly showPanelClose = computed(() =>
-    this.breakpointService.isMobile() && this.fixedPanel.anyOpen());
+    this.breakpointService.isMobile() && this.fixedPanel.anyOpen() && !this.suppressPanelClose());
 
 }

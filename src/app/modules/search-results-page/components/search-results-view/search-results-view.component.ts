@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { selectLastSearchPayload, selectSearchResultsError } from '../../state/search.selectors';
 import { AsyncPipe, NgClass, NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
@@ -23,7 +24,11 @@ import { TabItemComponent } from '../../../../shared/components/tabs/tab-item.co
 import { SkeletonListPipe } from '../../../../shared/pipes/skeleton-list.pipe';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
-import { WhereToSearchToggleComponent } from '../where-to-search-toggle/where-to-search-toggle.component';
+import {
+  buildWhereToSearchOptions,
+  FacetItem,
+  WhereToSearchToggleComponent,
+} from '../where-to-search-toggle/where-to-search-toggle.component';
 import { customDefinedFacetsEnum } from '../../const/facets';
 import { ScrollHideHeaderDirective } from '../../../../shared/directives/scroll-hide-header.directive';
 
@@ -81,6 +86,22 @@ export class SearchResultsViewComponent {
     map(tags => tags.filter(t =>
       !t.startsWith(customDefinedFacetsEnum.whereToSearchModel + ':'))),
   );
+
+  private whereToSearchItems = toSignal(
+    this.searchService.getFacets().pipe(
+      map((facets: Record<string, FacetItem[]> | null | undefined): FacetItem[] =>
+        facets?.[customDefinedFacetsEnum.whereToSearchModel] ?? []),
+    ),
+    { initialValue: [] as FacetItem[] },
+  );
+
+  /**
+   * Phones split titles / articles / pages / attachments into tabs, unless the
+   * "where to search" toggle is shown: it already switches between those
+   * sections, so the results then list as stacked sections under it.
+   */
+  readonly showMobileTabs = computed(() =>
+    this.breakpointService.isMobile() && buildWhereToSearchOptions(this.whereToSearchItems()).length === 0);
 
   toRecordItem(doc: SearchDocument): RecordItem {
     return searchDocumentToRecordItem(doc);

@@ -200,5 +200,5 @@ app-mobile-nav-bar {
 
 // Room for the fixed bar so it never covers the last cards.
 :host:has(app-mobile-nav-bar) .page-container {
-  padding-bottom: 60px;
+  padding-bottom: calc(60px + var(--mobile-nav-safe-bottom, 0px));
 }

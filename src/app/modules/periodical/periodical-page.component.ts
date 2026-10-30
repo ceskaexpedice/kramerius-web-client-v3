@@ -253,7 +253,13 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   /** Toolbar "more" menu > Info, for when there is no nav bar to open the description. */
-  openMobileInfo(): void {
+  /** Info toggle (phones without the bottom nav): opens the description, or closes it. */
+  toggleMobileInfo(): void {
+    if (this.mobileSectionOpen()) {
+      this.mobileSectionOpen.set(false);
+      this.mobileActivePanel.set('');
+      return;
+    }
     this.breakpointService.manualToggle.set(false);
     this.mobileActivePanel.set('description');
     this.mobileSectionOpen.set(true);

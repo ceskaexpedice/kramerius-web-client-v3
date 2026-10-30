@@ -5,6 +5,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-x2) var(--spacing-x3);
+  padding-top: calc(var(--spacing-x2) + env(safe-area-inset-top, 0px));
   height: var(--header-height);
   gap: var(--spacing-x4);
   position: relative;

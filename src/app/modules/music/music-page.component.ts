@@ -262,7 +262,9 @@ export class MusicPageComponent implements OnInit, OnDestroy {
 
     const setVar = (px: number) => {
       this.navHeightCurrent = px;
-      layout.style.setProperty('--mobile-nav-bar-height', `${px}px`);
+      // The bar also pads itself by the bottom safe area; reserve that share too.
+      const safe = px / MusicPageComponent.MOBILE_NAV_BAR_HEIGHT;
+      layout.style.setProperty('--mobile-nav-bar-height', `calc(${px}px + ${safe} * var(--mobile-nav-safe-bottom, 0px))`);
     };
 
     if (this.navHeightRaf !== null) {

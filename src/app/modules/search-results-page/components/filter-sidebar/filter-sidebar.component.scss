@@ -64,7 +64,7 @@
   // toggleButtonBottomOffset input, to the target bottom).
   // The global mini-player is fixed to the same viewport bottom, so its height
   // is added on top of whichever of the two wins (GitHub issue #172).
-  bottom: calc(max(12px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px));
+  bottom: calc(max(12px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px) + var(--mobile-nav-safe-bottom, 0px));
   right: 12px;
   z-index: $filter-sidebar-backdrop;
   width: 40px;

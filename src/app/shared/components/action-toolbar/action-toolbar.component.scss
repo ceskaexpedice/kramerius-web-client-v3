@@ -90,3 +90,18 @@
     }
   }
 }
+
+// Phones: closes the open fixed panel. Tinted like the active bottom-nav tab so it
+// reads as the panel's own control, not one more neutral toolbar action.
+button.icon-button.action-toolbar__panel-close {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--color-primary) 24%, transparent);
+  }
+}

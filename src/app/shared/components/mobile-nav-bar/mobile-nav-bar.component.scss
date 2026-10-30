@@ -9,6 +9,10 @@
     background: var(--color-bg-base);
     border-top: 1px solid var(--color-border-light);
     width: 100%;
+    // Clear the home indicator / Safari toolbar (and the notch in landscape).
+    padding-bottom: var(--mobile-nav-safe-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 
     &__tab {
         flex: 1;

@@ -76,7 +76,7 @@ app-mobile-nav-bar {
 
 :host:has(app-mobile-nav-bar) {
   .page-container {
-    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 60px));
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 60px) - var(--mobile-nav-safe-bottom, 0px));
   }
 }
 

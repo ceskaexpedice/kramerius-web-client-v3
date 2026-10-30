@@ -50,11 +50,13 @@
 
   @include type-tokens(true);
 
-  --header-height: 56px;
+  // Includes the top safe area (status bar / notch) the header pads itself by,
+  // so every `100dvh - var(--header-height)` layout stays exact.
+  --header-height: calc(56px + env(safe-area-inset-top, 0px));
   --toolbar-height: 48px;
   --small-gap: 1px;
   --license-bar-height: 38px;
-  --playback-bar-height-value: 68px; // AUD-1: Soundbar-pinned dle navrhu
+  --playback-bar-height-value: calc(68px + env(safe-area-inset-bottom, 0px)); // AUD-1: Soundbar-pinned dle navrhu; + home indicator
   --info-banner-height: 55px;
   // Grows with the viewport (300–400px); a user-dragged width overrides it (UiStateService).
   --metadata-sidebar-width: clamp(300px, calc(22vw / var(--ui-zoom, 1)), 400px);

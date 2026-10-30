@@ -28,7 +28,10 @@
 
       <div class="page-content__filters">
         <!-- Action Toolbar -->
-        <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !compactToolbar()">
+        <!-- Without the bottom nav the description closes from its info toggle, so the
+             toolbar shows no close button for it (filters keep theirs). -->
+        <app-action-toolbar [hasCenterContent]="!!periodical.selectedYear() && !compactToolbar()"
+                            [suppressPanelClose]="!hasMobileNav && mobileSectionOpen()">
 
           <!-- The title links to the root periodical. On a volume/issue that is a real
                move up the hierarchy. On the root itself it only makes sense while a
@@ -67,11 +70,21 @@
                 @if (compactToolbar()) {
                   <!-- Phones and small tablets: actions collapse into the "more" menu; view
                        toggle, sort (and the year on tablets) move to the sub-toolbar below -->
+                  <!-- Phones without the bottom nav: the description has no tab, so it
+                       gets its own toggle next to the "more" menu (opens and closes it). -->
+                  @if (breakpointService.isMobile() && !hasMobileNav) {
+                    <button type="button" class="icon-button transparent periodical-info-toggle"
+                            [class.active]="mobileSectionOpen()"
+                            [attr.aria-label]="'toolbar.tooltip.info' | translate"
+                            [attr.aria-expanded]="mobileSectionOpen()"
+                            (click)="toggleMobileInfo()">
+                      <i class="icon-info" aria-hidden="true"></i>
+                    </button>
+                  }
                   <app-toolbar-controls [showViewToggle]="false" [mobileMenuMode]="true"
                     [showFavorites]="true"
                     [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
-                    [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile() && !hasMobileNav" [showSelect]="true"
-                    (infoClicked)="openMobileInfo()"
+                    [showShare]="true" [showQuote]="true" [showSelect]="true"
                     (favoritesClicked)="onFavoritesClicked($event)"
                     (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
                     (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
@@ -223,7 +236,7 @@
       </div>
 
       <!-- Mobile right-panel: bottom nav bar (only with 2+ sections; the description
-           alone opens from the toolbar "more" menu > Info) and the section panel
+           alone opens from the toolbar info toggle) and the section panel
            between the sub-toolbar and the nav. -->
       @if (breakpointService.isMobile() && periodical.metadata && !adminModeService.adminMode()) {
         @if (hasMobileNav) {
