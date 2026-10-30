@@ -177,9 +177,9 @@
 </div>
 }
 
-<!-- Mobile info bottom sheet -->
+<!-- Mobile info panel -->
 @if (item && infoSheetOpen()) {
-<app-slide-up-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
-  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()" [showTitle]="false"></app-metadata-section>
-</app-slide-up-panel>
+<app-fixed-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
+  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()"></app-metadata-section>
+</app-fixed-panel>
 }

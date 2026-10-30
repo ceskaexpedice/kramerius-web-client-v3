@@ -33,7 +33,7 @@ import { InlineLoaderComponent } from '../../shared/components/inline-loader/inl
 import { SkeletonListPipe } from '../../shared/pipes/skeleton-list.pipe';
 import { InfoBannerComponent } from '../../shared/components/info-banner/info-banner.component';
 import { CdkTooltipDirective } from '../../shared/directives/cdk-tooltip/cdk-tooltip.directive';
-import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 
 const routes: Routes = [
@@ -75,7 +75,7 @@ const routes: Routes = [
     SavedListsWhereToSearchToggleComponent,
     NgClass,
     NgTemplateOutlet,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
     ScrollHideHeaderDirective,
     ToolbarHeaderComponent,
     InputComponent,

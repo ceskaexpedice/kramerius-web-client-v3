@@ -33,8 +33,8 @@ class StubPageItemComponent {
  *
  * A 1000-page document used to render one `app-detail-page-item` per page —
  * ~10k DOM nodes and 1000 `<img>`s that every change-detection tick then swept.
- * That is what made the mobile slide-up panel stutter as it opened, since it
- * runs detectChanges() on each touchmove while the sidebar is still mounted.
+ * That made the old mobile slide-up panel stutter as it opened, since it ran
+ * detectChanges() on each touchmove while the sidebar was still mounted.
  *
  * The assertions below are about *count*, not pixels: only the rows near the
  * scroll position may exist in the DOM, no matter how long the document is.

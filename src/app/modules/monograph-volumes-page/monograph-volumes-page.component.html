@@ -176,15 +176,13 @@
 
 <!-- Phones: description sheet opened from the toolbar "more" menu > Info. -->
 @if (breakpointService.isMobile() && parent()) {
-  <app-slide-up-panel
+  <app-fixed-panel
     [title]="parent()?.mainTitle || ''"
-    [(isOpen)]="mobileInfoOpen"
-    [initialHeight]="60"
-    [maxHeight]="90">
+    [(isOpen)]="mobileInfoOpen">
     <app-metadata-section [uuid]="parent()?.uuid || ''"
-      [metadata]="parent() || null" [showTitle]="false"
+      [metadata]="parent() || null"
       [hostOwnsCdkSource]="true"
       (cdkCollectionChange)="monographVolumesService.setCdkSource($event)">
     </app-metadata-section>
-  </app-slide-up-panel>
+  </app-fixed-panel>
 }

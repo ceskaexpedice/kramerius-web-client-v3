@@ -47,6 +47,7 @@ import { SoundTrackModel } from '../../../modules/models/sound-track.model';
 import { MetadataGroupComponent } from './metadata-group/metadata-group.component';
 import { CopyButtonComponent } from '../copy-button/copy-button.component';
 import { PeriodicalNeighborsComponent } from './periodical-neighbors/periodical-neighbors.component';
+import { MetadataPairDirective } from './metadata-pair.directive';
 
 @Component({
   selector: 'app-metadata-section',
@@ -65,7 +66,8 @@ import { PeriodicalNeighborsComponent } from './periodical-neighbors/periodical-
     CdkTooltipDirective,
     MetadataGroupComponent,
     CopyButtonComponent,
-    PeriodicalNeighborsComponent
+    PeriodicalNeighborsComponent,
+    MetadataPairDirective
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'

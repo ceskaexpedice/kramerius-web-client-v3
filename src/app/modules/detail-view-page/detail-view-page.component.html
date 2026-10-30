@@ -381,6 +381,7 @@
 <!-- Mobile navigation bar - immersive: hidden by default, tap viewer to toggle -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
+    appFixedPanelEdge="bottom"
     class="mobile-nav-bar--immersive"
     [class.mobile-nav-bar--hidden]="!mobileNavVisible()"
     [attr.inert]="mobileNavVisible() ? null : ''"
@@ -411,43 +412,20 @@
     </div>
   }
 
-  <!-- Mobile section sheet. It docks above the bottom nav, which stays visible
-       and is the one section switcher; the header is only caption + close. -->
+  <!-- Mobile section panel. It fills the band between the toolbar and the bottom
+       nav, which stays visible and is the one section switcher; it closes from
+       the toolbar's X (app-action-toolbar), the active nav item or Escape. -->
   @if (detailViewService.document$ | async; as document) {
-    <app-slide-up-panel
+    <app-fixed-panel
       [title]="getMobilePanelTitle()"
-      [hideTitle]="true"
-      [(isOpen)]="mobileSlideUpOpen"
-      (closed)="onMobileSlideUpClosed()"
-      [initialHeight]="60"
-      [maxHeight]="85"
-      [snapPoints]="[40, 60, 85]">
-      <div class="mobile-sheet-header"
-           [class.mobile-sheet-header--document]="mobileActivePanel() === 'description'">
-        <!-- Description: the document title itself is the caption, on the close
-             button's row, so the section spends no extra row on a "Description" label. -->
-        @if (mobileActivePanel() === 'description') {
-          <h2 class="mobile-sheet-title mobile-sheet-title--document" id="mobile-sheet-title">{{ document.mainTitle }}</h2>
-        } @else if (mobileActiveNavItem; as item) {
-          <h2 class="mobile-sheet-title" id="mobile-sheet-title">
-            <i [class]="item.icon" aria-hidden="true"></i>
-            <span>{{ item.label | translate }}</span>
-          </h2>
-        }
-        <button type="button" class="mobile-sheet-close"
-                [attr.aria-label]="'close-dialog--arialabel' | translate"
-                (click)="mobileSlideUpOpen.set(false)">
-          <i class="icon-close" aria-hidden="true"></i>
-        </button>
-      </div>
-
-      <div class="mobile-sheet-body"
-           [class.mobile-sheet-body--document]="mobileActivePanel() === 'description'">
+      [flush]="true"
+      [(isOpen)]="mobileSectionOpen"
+      (closed)="onMobileSectionClosed()">
+      <div class="mobile-sheet-body">
         @switch (mobileActivePanel()) {
           @case ('description') {
-            <!-- The sheet header shows the title; parent link, alternative titles
-                 and the rest follow directly under it. -->
-            <app-metadata-section [showTitle]="false" [metadata]="document"
+            <!-- No panel header: the section shows the document title itself. -->
+            <app-metadata-section [metadata]="document"
                                   [uuid]="detailViewService.document?.uuid || document.uuid || ''">
             </app-metadata-section>
           }
@@ -465,7 +443,7 @@
           }
         }
       </div>
-    </app-slide-up-panel>
+    </app-fixed-panel>
   }
 }
 

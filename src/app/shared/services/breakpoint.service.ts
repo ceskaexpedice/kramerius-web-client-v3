@@ -73,7 +73,7 @@ export class BreakpointService {
    * True when viewer chrome must collapse into the toolbar "more" menu instead
    * of rendering as a tall floating column: either a narrow (mobile) viewport
    * or any short one, such as a landscape phone. Deliberately separate from
-   * isMobile(), which drives full mobile layout (nav bar, slide-up panels) and
+   * isMobile(), which drives full mobile layout (nav bar, fixed panels) and
    * must not switch on in landscape — that chrome costs vertical space, which
    * is precisely what is scarce there.
    */

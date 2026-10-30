@@ -236,8 +236,8 @@ app-mobile-nav-bar {
   bottom: var(--playback-bar-height, 0px);
   left: 0;
   right: 0;
-  // Above the sheet backdrops (800): the nav stays usable while a section sheet
-  // is open (sheets dock above it via --slide-up-panel-bottom-offset).
+  // Above the fixed panels (700): the nav is a panel edge and stays usable while
+  // a section panel is open (the panel ends at its top edge).
   z-index: 850;
 }
 

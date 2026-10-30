@@ -494,6 +494,8 @@
   "previous-issue--tooltip": "Vorherige Ausgabe",
   "next-issue--tooltip": "Nächste Ausgabe",
   "neighbor-issues": "Vorherige und nächste Ausgabe",
+  "neighbor-issues--first": "Erste Ausgabe",
+  "neighbor-issues--last": "Letzte Ausgabe",
   "search-results--tooltip": "Zurück zu den Suchergebnissen",
   "go-to-volume--tooltip": "Zur Zeitschrift",
   "go-to-monograph": "Zum Buchkonvolut",

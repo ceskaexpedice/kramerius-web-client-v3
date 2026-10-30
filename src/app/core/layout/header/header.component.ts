@@ -34,10 +34,12 @@ import { AppTranslationService } from '../../../shared/translation/app-translati
 import { PageConfig } from '../../config/config.interfaces';
 import { isViewerRoutePath } from '../../../shared/constants/viewer-routes';
 import { LocalizedPipe } from '../../../shared/pipes/localized.pipe';
+import { FixedPanelEdgeDirective } from '../../../shared/components/fixed-panel/fixed-panel-edge.directive';
 import { LocalizedLabel } from '../../config/config.interfaces';
 
 @Component({
   selector: 'app-header',
+  hostDirectives: [{ directive: FixedPanelEdgeDirective, inputs: ['appFixedPanelEdge'] }],
   templateUrl: './header.component.html',
   imports: [
     NgClass,

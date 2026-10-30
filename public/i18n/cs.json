@@ -494,6 +494,8 @@
   "previous-issue--tooltip": "Předchozí číslo",
   "next-issue--tooltip": "Následující číslo",
   "neighbor-issues": "Předchozí a následující číslo",
+  "neighbor-issues--first": "První číslo",
+  "neighbor-issues--last": "Poslední číslo",
   "search-results--tooltip": "Zpět na výsledky vyhledávání",
   "go-to-volume--tooltip": "Přejít na periodikum",
   "go-to-monograph": "Přejít na svazek knih",

@@ -2,7 +2,7 @@
   @if (breakpointService.isMobile()) {
   <!-- Phones: a mini player. Cover and title open the "now playing" sheet;
        only play and next stay in the bar. A 2px line shows the progress. -->
-  <div class="playback-bar playback-bar--mini">
+  <div class="playback-bar playback-bar--mini" appFixedPanelEdge="bottom">
     <div class="mini-progress" aria-hidden="true">
       <span class="mini-progress__value" [style.width.%]="soundService.getProgress() * 100"></span>
     </div>
@@ -39,7 +39,7 @@
     </button>
   </div>
   } @else {
-  <div class="playback-bar">
+  <div class="playback-bar" appFixedPanelEdge="bottom">
     <div class="left">
       <app-thumbnail-image
         class="cover"
@@ -109,9 +109,9 @@
   }
 }
 
-<!-- Phones: "now playing" sheet. Not app-slide-up-panel: that sits above the
-     CDK overlay layer, so the stop dialog and the favourites popup opened from
-     here would land underneath it. -->
+<!-- Phones: "now playing" sheet. A modal dialog of its own, not the non-modal
+     app-fixed-panel; it stays below the CDK overlay layer so the stop dialog
+     and the favourites popup opened from here land on top of it. -->
 @if (isPlayerOpen()) {
   <div class="player-sheet-backdrop" (click)="closePlayer()"></div>
   <section class="player-sheet" role="dialog" aria-modal="true" aria-labelledby="player-sheet-title"

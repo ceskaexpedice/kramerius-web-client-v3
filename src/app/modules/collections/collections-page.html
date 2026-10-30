@@ -220,15 +220,13 @@
   <!-- Phones: description sheet opened from the toolbar "more" menu > Info. -->
   @if (breakpointService.isMobile()) {
     @if (collectionsService.detail$ | async; as metadata) {
-      <app-slide-up-panel
+      <app-fixed-panel
         [title]="metadata.mainTitle || ''"
-        [(isOpen)]="mobileInfoOpen"
-        [initialHeight]="60"
-        [maxHeight]="90">
-        <app-metadata-section [uuid]="metadata.uuid" [metadata]="metadata" [showTitle]="false"
+        [(isOpen)]="mobileInfoOpen">
+        <app-metadata-section [uuid]="metadata.uuid" [metadata]="metadata"
           [collectionsMode]="true" (cdkCollectionChange)="collectionsService.setCdkSource($event)">
         </app-metadata-section>
-      </app-slide-up-panel>
+      </app-fixed-panel>
     }
   }
 

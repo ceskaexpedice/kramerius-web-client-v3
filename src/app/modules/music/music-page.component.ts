@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ElementRef, HostBinding } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ElementRef } from '@angular/core';
 import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -65,7 +65,7 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   mobileSearchNavItem: MobileNavItem = { id: 'results', label: PANEL_TABS.search.label, icon: PANEL_TABS.search.icon };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
-  mobileSlideUpOpen = signal(false);
+  mobileSectionOpen = signal(false);
 
   // Immersive mobile chrome, as on detail-view: the nav bar hides so the image
   // fills the screen and a clean tap on the viewer brings it back. Only in
@@ -77,18 +77,13 @@ export class MusicPageComponent implements OnInit, OnDestroy {
    * Outside immersive mode the bar follows the header (it leaves with it while
    * the track list scrolls down); inside it, tap decides.
    */
-  mobileNavShown = computed(() => this.isImmersiveMode()
-    ? this.mobileNavVisible()
-    : this.uiStateService.headerVisible());
+  mobileNavShown = computed(() => this.mobileSectionOpen() || this.breakpointService.manualToggle()
+    || (this.isImmersiveMode()
+      ? this.mobileNavVisible()
+      : this.uiStateService.headerVisible()));
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
 
-  /** Section sheets (this page's and the records sheet) dock above the visible bottom nav. */
-  @HostBinding('style.--slide-up-panel-bottom-offset')
-  get slideUpBottomOffset() {
-    return this.breakpointService.isMobile() && this.mobileNavShown()
-      ? `calc(${MusicPageComponent.MOBILE_NAV_BAR_HEIGHT}px + var(--playback-bar-height, 0px))` : null;
-  }
   private static readonly NAV_HEIGHT_ANIM_MS = 250;
   private navHeightRaf: number | null = null;
   private navHeightCurrent = 0;
@@ -115,9 +110,8 @@ export class MusicPageComponent implements OnInit, OnDestroy {
       this.animateMobileNavBarHeight(target);
     });
 
-    // The left panel can also be dismissed by its own drag handle or backdrop,
-    // which bypasses onMobileNavChange - clear the highlight so the nav bar
-    // doesn't keep showing "records" as active.
+    // The left panel can also be dismissed by its own close button or Escape,
+    // which bypasses onMobileNavChange - clear the highlight.
     effect(() => {
       if (!this.breakpointService.manualToggle() && this.mobileActivePanel() === 'records') {
         this.mobileActivePanel.set('');
@@ -223,30 +217,31 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   }
 
   onMobileNavChange(id: string) {
-    if (this.mobileActivePanel() === id && (this.mobileSlideUpOpen() || this.breakpointService.manualToggle())) {
+    if (this.mobileActivePanel() === id && (this.mobileSectionOpen() || this.breakpointService.manualToggle())) {
       // Tapping the active tab closes whichever panel it opened.
-      this.mobileSlideUpOpen.set(false);
+      this.mobileSectionOpen.set(false);
       this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set('');
       return;
     }
     if (id === 'records') {
-      // Records/images live in the left filter-sidebar, which brings its own slide-up.
-      this.mobileSlideUpOpen.set(false);
+      // Records/images live in the left filter-sidebar, which brings its own fixed panel.
+      this.mobileSectionOpen.set(false);
       this.mobileActivePanel.set(id);
       this.breakpointService.manualToggle.set(true);
     } else {
       this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set(id);
-      this.mobileSlideUpOpen.set(true);
+      this.mobileSectionOpen.set(true);
     }
     // Keep the nav up while a section is open: it is the section switcher and
-    // the sheets dock above it (same as the detail view).
+    // the panels end at its top edge (same as the detail view).
     this.mobileNavVisible.set(true);
   }
 
-  onMobileSlideUpClosed() {
-    this.mobileSlideUpOpen.set(false);
+  /** Section panel dismissed (its close button or Escape): no section active. */
+  onMobileSectionClosed() {
+    this.mobileSectionOpen.set(false);
     this.mobileActivePanel.set('');
   }
 

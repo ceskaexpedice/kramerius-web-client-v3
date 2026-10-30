@@ -2,22 +2,11 @@
   display: block;
 }
 
-// Matches the sub-labels of app-metadata-section-item.
-.periodical-neighbors__label {
-  color: var(--color-text-tertiary);
-  font-weight: var(--font-weight-semi-bold);
-  font-size: var(--font-size-xsmall);
-  line-height: var(--line-height-1);
-  letter-spacing: 0.01em;
-  margin: 0 0 var(--spacing-x1);
-  font-family: var(--font-family-body);
-}
-
 .periodical-neighbors__list {
   list-style: none;
   margin: 0;
   padding: 0;
-  // Previous and next side by side; each stays put when the other is missing.
+  // Previous and next side by side; a missing one shows as a placeholder.
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-x2);
@@ -25,10 +14,6 @@
   li {
     display: flex;
     min-width: 0;
-  }
-
-  li:has(.periodical-neighbors__link--next) {
-    grid-column: 2;
   }
 }
 
@@ -109,4 +94,24 @@
   font-size: var(--font-size-xsmall);
   font-weight: var(--font-weight-semi-bold);
   white-space: nowrap;
+}
+
+// First / last issue: the empty side of the pair. Same footprint as a card, but
+// a dashed edge and no arrow so it never reads as a control.
+.periodical-neighbors__missing {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: var(--spacing-x2);
+  border: 1px dashed var(--color-border-bright);
+  border-radius: var(--spacing-x2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
+
+  &--next {
+    justify-content: flex-end;
+    text-align: end;
+  }
 }

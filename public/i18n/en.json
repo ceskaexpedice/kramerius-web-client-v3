@@ -499,6 +499,8 @@
   "previous-issue--tooltip": "Previous issue",
   "next-issue--tooltip": "Next issue",
   "neighbor-issues": "Previous and next issue",
+  "neighbor-issues--first": "First issue",
+  "neighbor-issues--last": "Last issue",
   "search-results--tooltip": "Back to search results",
   "go-to-volume--tooltip": "Go to periodical",
   "go-to-monograph": "Go to book bundle",

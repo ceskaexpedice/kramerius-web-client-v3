@@ -1,23 +1,25 @@
 import { Component, HostBinding, Input, inject, computed, OnDestroy, OnInit, Renderer2, ElementRef } from '@angular/core';
-import { NgClass, NgIf, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SlideUpPanelComponent } from '../../../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../../../shared/components/fixed-panel/fixed-panel.component';
+import { FixedPanelService } from '../../../../shared/components/fixed-panel/fixed-panel.service';
 
 @Component({
   selector: 'app-filter-sidebar',
   imports: [
     NgClass,
-    NgIf,
     NgTemplateOutlet,
     TranslatePipe,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
 })
 export class FilterSidebarComponent implements OnInit, OnDestroy {
   protected breakpointService = inject(BreakpointService);
+  /** Phones: the floating toggle (z 800) would paint over an open fixed panel (z 700). */
+  protected fixedPanel = inject(FixedPanelService);
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
 

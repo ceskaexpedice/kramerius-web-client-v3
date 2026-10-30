@@ -1,5 +1,6 @@
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
 import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
+import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { AdminModeService } from '../../shared/services';
 import { CollectionsService } from '../../shared/services/collections.service';
@@ -37,6 +38,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   private mapSeriesService = inject(MapSeriesService);
   public breakpointService = inject(BreakpointService);
   readonly metadataPanelId = METADATA_PANEL_ID;
+  private fixedPanel = inject(FixedPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -46,7 +48,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   isDescriptionTruncated = false;
   rightSidebarVisible = this.uiStateService.metadataSidebarOpen;
   /** The bottom view switch slides away with the header while the list scrolls down. */
-  readonly mobileNavHidden = computed(() => this.breakpointService.isMobile() && !this.uiStateService.headerVisible());
+  readonly mobileNavHidden = computed(() => this.breakpointService.isMobile() && (!this.uiStateService.headerVisible() || this.fixedPanel.anyOpen()));
   sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   private destroy$ = new Subject<void>();

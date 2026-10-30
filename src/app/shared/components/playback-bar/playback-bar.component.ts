@@ -11,12 +11,14 @@ import {MusicService} from '../../../modules/music/services/music.service';
 import {ThumbnailImageComponent} from '../thumbnail-image/thumbnail-image.component';
 import {BreakpointService} from '../../services/breakpoint.service';
 import {ToastService} from '../../services/toast.service';
+import {FixedPanelEdgeDirective} from '../fixed-panel/fixed-panel-edge.directive';
 import {SoundTrackModel} from '../../../modules/models/sound-track.model';
 
 @Component({
   selector: 'app-playback-bar',
   imports: [
     NgIf,
+    FixedPanelEdgeDirective,
     A11yModule,
     TimeFormatPipe,
     VolumeControlComponent,

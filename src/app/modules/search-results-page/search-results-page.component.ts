@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { SearchService } from '../../shared/services/search.service';
 import { AdvancedSearchService } from '../../shared/services/advanced-search.service';
 import { AppResultsViewType } from '../settings/settings.model';
@@ -47,6 +48,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   private exportService = inject(ExportService);
   public breakpointService = inject(BreakpointService);
   private uiState = inject(UiStateService);
+  private fixedPanel = inject(FixedPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -62,7 +64,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   // The bottom bar follows the app header: scrolling the list down hides both
   // (see appScrollHideHeader on the results wrapper), scrolling up restores them.
-  mobileNavHidden = computed(() => this.breakpointService.isMobile() && !this.uiState.headerVisible());
+  mobileNavHidden = computed(() => this.breakpointService.isMobile() && (!this.uiState.headerVisible() || this.fixedPanel.anyOpen()));
 
   get mobileActiveTab(): string {
     return this.view() === AppResultsViewType.map ? 'map' : 'all';

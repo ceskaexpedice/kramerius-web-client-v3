@@ -1,5 +1,5 @@
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
-import { Component, computed, effect, ElementRef, HostBinding, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
@@ -38,13 +38,13 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   private searchService = inject(SearchService);
   private translate = inject(TranslateService);
 
-  // Mobile right-panel state (bottom nav bar + slide-up panel).
+  // Mobile right-panel state (bottom nav bar + fixed panel).
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
   // Gap between a bottom bar's top edge and the floating filter button.
   private static readonly FILTER_TOGGLE_GAP = 12;
   public hasSearchResults = signal(false);
   public mobileActivePanel = signal<string>('');
-  public mobileSlideUpOpen = signal(false);
+  public mobileSectionOpen = signal(false);
 
   /**
    * Below this content width (CSS px, before the UI zoom, like the controls
@@ -129,14 +129,14 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Mobile: tabs appear in the bottom nav only when there are search results.
+    // Mobile: the "results" nav item appears only when there are search results.
     this.subscriptions.push(
       this.searchService.totalCount$.subscribe(count => {
         this.hasSearchResults.set((count || 0) > 0);
         if ((count || 0) === 0 && this.mobileActivePanel() === 'results') {
           // The results tab vanished — collapse it.
           this.mobileActivePanel.set('');
-          this.mobileSlideUpOpen.set(false);
+          this.mobileSectionOpen.set(false);
         }
       })
     );
@@ -199,16 +199,6 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return document?.uuid !== rootPid || mode === ViewMode.SearchResults;
   }
 
-  openRecordInfo() {
-    // Phones without the bottom nav bar open the description sheet from the
-    // toolbar "more" menu; elsewhere Info toggles the floating sidebar.
-    if (this.breakpointService.isMobile() && !this.hasMobileTabs) {
-      this.mobileSlideUpOpen.set(true);
-      return;
-    }
-    this.toggleMetadataSidebar();
-  }
-
   toggleMetadataSidebar() {
     this.uiStateService.toggleMetadataSidebar();
   }
@@ -226,35 +216,33 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return items;
   }
 
-  /** Mode A (nav bar) when there are 2+ tabs; Mode B (peek panel) otherwise. */
-  get hasMobileTabs(): boolean {
-    return this.hasSearchResults();
+  /**
+   * The bottom nav bar only switches sections, so it shows with 2+ of them
+   * (description + search results). With the description alone it would be a
+   * lone tab: the description opens from the toolbar "more" menu > Info instead.
+   */
+  get hasMobileNav(): boolean {
+    return this.mobileNavItems.length > 1;
   }
 
   /**
    * The bottom nav bar slides away together with the header while the list
    * scrolls down (same as search results) and returns on scroll up. It stays
-   * while a section sheet is open, since it switches the sheet's sections.
+   * while a section panel is open, since it switches the panel's sections.
    */
   readonly mobileNavHidden = computed(() =>
-    this.breakpointService.isMobile() && !this.uiStateService.headerVisible() && !this.mobileSlideUpOpen());
+    this.breakpointService.isMobile() && !this.uiStateService.headerVisible() && !this.mobileSectionOpen());
 
-  /** Height of the visible fixed bottom nav bar on phones (Mode A), else 0. */
+  /** Height of the visible fixed bottom nav bar on phones, else 0. */
   private get mobileNavBarHeight(): number {
-    return this.breakpointService.isMobile() && this.hasMobileTabs && this.periodical.metadata
-      && !this.adminModeService.adminMode() && !this.mobileNavHidden()
+    return this.breakpointService.isMobile() && this.periodical.metadata
+      && !this.adminModeService.adminMode() && this.hasMobileNav && !this.mobileNavHidden()
       ? PeriodicalPageComponent.MOBILE_NAV_BAR_HEIGHT : 0;
   }
 
-  /** The section sheets dock above the bottom nav bar (if any). */
-  @HostBinding('style.--slide-up-panel-bottom-offset')
-  get slideUpBottomOffset(): string {
-    return `calc(${this.mobileNavBarHeight}px + var(--playback-bar-height, 0px))`;
-  }
-
   /**
-   * Lifts the floating filter button above the nav bar on phones (Mode A);
-   * without one it rests at its default 12px.
+   * Lifts the floating filter button above the nav bar on phones; without one
+   * (admin mode, or scrolled away) it rests at its default 12px.
    */
   get filterToggleBottomOffset(): number {
     if (!this.breakpointService.isMobile()) {
@@ -264,9 +252,15 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return bar > 0 ? bar + PeriodicalPageComponent.FILTER_TOGGLE_GAP : 0;
   }
 
+  /** Toolbar "more" menu > Info, for when there is no nav bar to open the description. */
+  openMobileInfo(): void {
+    this.breakpointService.manualToggle.set(false);
+    this.mobileActivePanel.set('description');
+    this.mobileSectionOpen.set(true);
+  }
+
+  /** Accessible name of the section panel. */
   getMobilePanelTitle(): string {
-    // The description panel's header shows the document title (next to the close button),
-    // so the metadata-section inside hides its own title to avoid duplication.
     if (this.mobileActivePanel() === 'description') {
       return this.periodical.metadata?.mainTitle || '';
     }
@@ -275,17 +269,20 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   onMobileNavChange(id: string): void {
-    if (this.mobileActivePanel() === id && this.mobileSlideUpOpen()) {
-      this.mobileSlideUpOpen.set(false);
+    if (this.mobileActivePanel() === id && this.mobileSectionOpen()) {
+      this.mobileSectionOpen.set(false);
       this.mobileActivePanel.set('');
     } else {
+      // A section panel never stacks on top of the open filter panel.
+      this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set(id);
-      this.mobileSlideUpOpen.set(true);
+      this.mobileSectionOpen.set(true);
     }
   }
 
-  onMobileSlideUpClosed(): void {
-    this.mobileSlideUpOpen.set(false);
+  /** Section panel dismissed (its close button or Escape): no section active. */
+  onMobileSectionClosed(): void {
+    this.mobileSectionOpen.set(false);
     this.mobileActivePanel.set('');
   }
 

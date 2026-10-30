@@ -226,6 +226,7 @@
      mirrors the right metadata sidebar's tabs (GitHub issue #172). -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
+    appFixedPanelEdge="bottom"
     [class.mobile-nav-bar--hidden]="!mobileNavShown()"
     [attr.inert]="mobileNavShown() ? null : ''"
     ariaLabel="metadata-panel--tabs"
@@ -234,19 +235,16 @@
     (activeIdChange)="onMobileNavChange($event)">
   </app-mobile-nav-bar>
 
-  <!-- Mobile slide-up panels. "records" is absent on purpose: it opens the left
-       filter-sidebar, which renders its own slide-up. -->
+  <!-- Mobile section panels. "records" is absent on purpose: it opens the left
+       filter-sidebar, which renders its own fixed panel. -->
   @if (detailViewService.document$ | async; as document) {
-    <app-slide-up-panel
+    <app-fixed-panel
       [title]="getMobilePanelTitle()"
-      [(isOpen)]="mobileSlideUpOpen"
-      (closed)="onMobileSlideUpClosed()"
-      [initialHeight]="60"
-      [maxHeight]="90">
+      [(isOpen)]="mobileSectionOpen"
+      (closed)="onMobileSectionClosed()">
       @switch (mobileActivePanel()) {
         @case ('description') {
-          <!-- Panel header already shows the title, so hide the section's own. -->
-          <app-metadata-section [showTitle]="false" [metadata]="document" [track]="soundService.currentTrack"
+          <app-metadata-section [metadata]="document" [track]="soundService.currentTrack"
                                 [uuid]="detailViewService.document?.uuid || document.uuid || ''">
           </app-metadata-section>
         }
@@ -263,7 +261,7 @@
           </app-search-results-sidebar>
         }
       }
-    </app-slide-up-panel>
+    </app-fixed-panel>
   }
 }
 

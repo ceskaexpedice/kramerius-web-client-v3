@@ -42,7 +42,8 @@ import { InlineLoaderComponent } from '../../shared/components/inline-loader/inl
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
-import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
+import { FixedPanelEdgeDirective } from '../../shared/components/fixed-panel/fixed-panel-edge.directive';
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 
@@ -92,7 +93,8 @@ const routes: Routes = [
     ScrollHideHeaderDirective,
     FormatNumberPipe,
     MobileNavBarComponent,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
+    FixedPanelEdgeDirective,
     MetadataSection,
     SearchResultsSidebarComponent
   ],

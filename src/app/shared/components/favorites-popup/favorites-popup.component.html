@@ -4,7 +4,7 @@
      role="dialog" aria-modal="true"
      aria-labelledby="favorites-popup-title"
      cdkTrapFocus cdkTrapFocusAutoCapture
-     (keydown.escape)="onCancel()">
+     (keydown.escape)="$event.preventDefault(); onCancel()">
 
   <!-- Main Form State -->
   <div *ngIf="!showSuccess()" class="favorites-popup__content">

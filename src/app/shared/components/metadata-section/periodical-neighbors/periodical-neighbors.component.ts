@@ -16,19 +16,22 @@ import { PeriodicalNeighbor, PeriodicalNeighborsService } from '../../../service
   imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
   template: `
     @if (neighbors().previous || neighbors().next) {
-      <nav class="periodical-neighbors" [attr.aria-labelledby]="headingId">
-        <p class="periodical-neighbors__label" [id]="headingId">{{ 'neighbor-issues' | translate }}</p>
+      <nav class="periodical-neighbors" [attr.aria-label]="'neighbor-issues' | translate">
         <ul class="periodical-neighbors__list">
-          @if (neighbors().previous; as prev) {
-            <li>
+          <li>
+            @if (neighbors().previous; as prev) {
               <ng-container *ngTemplateOutlet="row; context: { $implicit: prev, dir: 'previous' }"></ng-container>
-            </li>
-          }
-          @if (neighbors().next; as next) {
-            <li>
+            } @else {
+              <ng-container *ngTemplateOutlet="missing; context: { dir: 'previous' }"></ng-container>
+            }
+          </li>
+          <li>
+            @if (neighbors().next; as next) {
               <ng-container *ngTemplateOutlet="row; context: { $implicit: next, dir: 'next' }"></ng-container>
-            </li>
-          }
+            } @else {
+              <ng-container *ngTemplateOutlet="missing; context: { dir: 'next' }"></ng-container>
+            }
+          </li>
         </ul>
       </nav>
     }
@@ -53,6 +56,14 @@ import { PeriodicalNeighbor, PeriodicalNeighborsService } from '../../../service
         </span>
       </a>
     </ng-template>
+
+    <!-- First or last issue: the missing side keeps the pair's shape as a quiet
+         placeholder that says why there is nothing there (plain text, no arrow). -->
+    <ng-template #missing let-dir="dir">
+      <span class="periodical-neighbors__missing" [class.periodical-neighbors__missing--next]="dir === 'next'">
+        {{ (dir === 'previous' ? 'neighbor-issues--first' : 'neighbor-issues--last') | translate }}
+      </span>
+    </ng-template>
   `,
   styleUrl: './periodical-neighbors.component.scss',
 })
@@ -60,8 +71,6 @@ export class PeriodicalNeighborsComponent {
   protected service = inject(PeriodicalNeighborsService);
   private libraryContext = inject(LibraryContextService);
 
-  private static nextId = 0;
-  protected readonly headingId = `periodical-neighbors-${PeriodicalNeighborsComponent.nextId++}`;
   protected readonly neighbors = this.service.neighbors;
 
   protected link(issue: PeriodicalNeighbor): any[] {

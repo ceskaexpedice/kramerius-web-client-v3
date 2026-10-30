@@ -7,6 +7,7 @@
 @use '../public/styles/accessibility/high-contrast';
 
 @use '../public/styles/highlight';
+@use '_z-index.scss' as z;
 
 // Base accessibility variables. These back the focus-visibility / high-contrast
 // rules; previously they lived in an _accessibility.scss partial that is not in
@@ -152,6 +153,24 @@ body.reader-immersive {
 
   .detail-layout {
     height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
+  }
+}
+
+// A mobile fixed panel is open: the page behind it must not scroll.
+body.fixed-panel-open {
+  overflow: hidden;
+
+  // Lift the toolbars the panel hangs below (or rather the stacking contexts
+  // holding them) over the panel container, so menus and calendars they open
+  // without the CDK overlay are not painted under the panel.
+  .detail-layout--action-toolbar,
+  .page-content__filters,
+  .app-map-series > app-action-toolbar {
+    z-index: z.$fixed-panel-toolbar;
+  }
+
+  .mobile-subtoolbar {
+    z-index: z.$fixed-panel-subtoolbar;
   }
 }
 

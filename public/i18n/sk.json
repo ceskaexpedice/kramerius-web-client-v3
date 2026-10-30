@@ -491,6 +491,8 @@
   "previous-issue--tooltip": "Predchádzajúce číslo",
   "next-issue--tooltip": "Nasledujúce číslo",
   "neighbor-issues": "Predchádzajúce a nasledujúce číslo",
+  "neighbor-issues--first": "Prvé číslo",
+  "neighbor-issues--last": "Posledné číslo",
   "search-results--tooltip": "Späť na výsledky vyhľadávania",
   "go-to-volume--tooltip": "Prejsť na periodikum",
   "go-to-monograph": "Prejsť na zväzok kníh",

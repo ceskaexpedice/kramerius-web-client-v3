@@ -1,4 +1,5 @@
 @use 'mixins' as m;
+@use "_z-index.scss" as *;
 
 .sidebar--container {
   height: 100%;
@@ -270,7 +271,7 @@ app-viewer-controls {
 
 .favorites-popup-wrapper {
   position: fixed;
-  z-index: 10;
+  z-index: $detail-favorites-popup;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -297,8 +298,8 @@ app-mobile-nav-bar {
   bottom: var(--playback-bar-height, 0px);
   left: 0;
   right: 0;
-  // Above the sheet backdrops (800): the nav stays usable while a section sheet
-  // is open (the sheets dock above it via --slide-up-panel-bottom-offset).
+  // Above the fixed panels (700): the nav is a panel edge and stays usable while
+  // a section panel is open (the panel ends at its top edge).
   z-index: 850;
 }
 
@@ -325,101 +326,8 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
 // component so it can be tweened; see animateMobileNavBarHeight(). It defaults
 // to 0 (viewer full height) via the calc() fallback in detail-layout.
 
-// ---- Mobile sheet header: section caption + close ----------------------
-.mobile-sheet-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-x2);
-  // The sheet runs in flush mode (no padding), so the header brings its own.
-  padding: 0 var(--spacing-x2) var(--spacing-x2) var(--spacing-x4);
-  background: var(--color-bg-base);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.mobile-sheet-title {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-x2);
-  min-width: 0;
-  margin: 0;
-  font-size: var(--font-size-large);
-  font-weight: 600;
-  color: var(--color-text-base);
-
-  i {
-    color: var(--color-primary);
-    font-size: var(--font-size-large);
-  }
-
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-// Document title as the description sheet's caption: long titles get two
-// lines, then an ellipsis, as the sheet caption did before.
-.mobile-sheet-title--document {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-
-.mobile-sheet-close {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: none;
-  border-radius: var(--spacing-x2);
-  background: none;
-  color: var(--color-icon-tertiary-default);
-  font-size: var(--font-size-xxlarge);
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-border-primary-default);
-    outline-offset: 0;
-  }
-}
-
-// Description: the header holds the document title, so it reads as the panel's
-// heading — no rule, and the parent link sits right under it. As in the former
-// sheet caption, the title is top-aligned and the 40px close button bleeds out
-// with negative margins, so the row is only as tall as the title.
-.mobile-sheet-header--document {
-  align-items: flex-start;
-  padding-bottom: 0;
-  border-bottom: none;
-
-  .mobile-sheet-close {
-    margin: -8px -8px -9px 0;
-  }
-}
-
 .mobile-sheet-body {
-  // Room between the header's rule and the first item.
-  padding: var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
-
-  &--document {
-    padding-top: var(--spacing-x1);
-
-    // The x1 top keeps "Go to periodical" right under the title. Without that
-    // link (a book) the source select leads and needs a section's distance.
-    ::ng-deep app-metadata-section .data > .metadata-source:first-child {
-      margin-top: var(--spacing-x3);
-    }
-  }
+  padding: var(--spacing-x4);
 }
 
 // Phone page pill above the bottom nav bar.

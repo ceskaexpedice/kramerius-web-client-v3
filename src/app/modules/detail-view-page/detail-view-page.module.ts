@@ -43,7 +43,8 @@ import { RestrictedPagesInfoDialogComponent } from '../../shared/dialogs/restric
 import { EpubViewerComponent } from '../../shared/components/epub-viewer/epub-viewer';
 import { EpubSidebarComponent } from '../../shared/components/epub-sidebar/epub-sidebar.component';
 import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
-import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
+import { FixedPanelEdgeDirective } from '../../shared/components/fixed-panel/fixed-panel-edge.directive';
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { ExportDocumentSectionComponent } from '../../shared/components/metadata-sidebar/export-document-section-component/export-document-section-component';
 import { SearchResultsSidebarComponent } from '../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
@@ -111,7 +112,8 @@ const routes: Routes = [
 		EpubViewerComponent,
 		EpubSidebarComponent,
 		MobileNavBarComponent,
-		SlideUpPanelComponent,
+		FixedPanelComponent,
+		FixedPanelEdgeDirective,
 		MetadataSection,
 		ExportDocumentSectionComponent,
 		SearchResultsSidebarComponent,

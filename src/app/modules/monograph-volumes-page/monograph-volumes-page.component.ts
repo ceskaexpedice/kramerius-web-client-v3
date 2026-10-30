@@ -2,7 +2,7 @@ import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle
 import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
 import { Component, OnInit, inject, computed, signal } from '@angular/core';
-import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -60,7 +60,7 @@ import {SearchDocument} from '../models/search-document';
     SkeletonListPipe,
     NoResultsComponent,
     ScrollHideHeaderDirective,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
   ],
   providers: [
     MonographVolumesService,

@@ -31,7 +31,7 @@ import { ButtonToggleComponent } from '../../shared/components/button-toggle/but
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
-import { SlideUpPanelComponent } from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 
 const routes: Routes = [
   {
@@ -47,7 +47,7 @@ const routes: Routes = [
     PanelResizeHandleComponent,
     TranslatePipe,
     MobileNavBarComponent,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
     FilterSidebarComponent,
     ActionToolbarComponent,
     NgForOf,

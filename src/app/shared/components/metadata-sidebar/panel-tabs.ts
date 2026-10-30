@@ -1,7 +1,7 @@
 /**
  * Single source of truth for the sections of the document information panel,
  * shared by the desktop side panel (app-metadata-sidebar tabs) and the mobile
- * bottom nav / slide-up sheet, so labels and icons never drift apart again.
+ * bottom nav / fixed panel, so labels and icons never drift apart again.
  */
 export type PanelTabId = 'description' | 'pages' | 'export' | 'ai' | 'search';
 

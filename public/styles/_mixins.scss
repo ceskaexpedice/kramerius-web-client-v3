@@ -70,10 +70,12 @@
   width: $width;
   min-width: $width;
   max-width: $width;
-  height: calc(100% - var(--spacing-x3) - var(--spacing-x3));
-  margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
-  border-radius: var(--spacing-x2);
-  background: var(--color-background-primary, #fff);
+  // Docked flush to the right edge like the left sidebar: no gaps, no rounding,
+  // a 1px rule on the inner edge.
+  height: 100%;
+  margin: 0;
+  border-left: 1px solid var(--color-border-light);
+  background: var(--color-bg-base);
   overflow: hidden;
   transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease, margin 0.3s ease;
   transform: translateX(0);

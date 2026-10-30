@@ -82,13 +82,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   private periodicalNeighbors = inject(PeriodicalNeighborsService);
   public soundService = inject(SoundService);
 
-  /** Section sheets (this page's and the pages sheet) dock above the visible bottom nav. */
-  @HostBinding('style.--slide-up-panel-bottom-offset')
-  get slideUpBottomOffset() {
-    return this.breakpointService.isMobile() && this.mobileNavVisible()
-      ? `calc(${DetailViewPageComponent.MOBILE_NAV_BAR_HEIGHT}px + var(--playback-bar-height, 0px))` : null;
-  }
-
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
 
@@ -106,13 +99,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   mobileAiNavItem: MobileNavItem = { id: 'ai', label: PANEL_TABS.ai.label, icon: PANEL_TABS.ai.icon };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
-  mobileSlideUpOpen = signal(false);
-  /** Set while the sheet closes because the user switched to the pages sheet. */
-  private switchingToPages = false;
+  mobileSectionOpen = signal(false);
+  /** A section panel or the pages panel is open; the nav bar must stay up then. */
+  readonly mobilePanelOpen = computed(() =>
+    this.mobileSectionOpen() || (this.mobileActivePanel() === 'pages' && this.breakpointService.manualToggle()));
 
   // Immersive mobile chrome: the bottom nav bar is hidden by default and
   // toggled by a clean tap on the viewer (see ViewerTapToggleDirective). While
-  // a section sheet is open it stays up, docked under the sheet.
+  // a section panel is open it stays up, docked under the panel.
   mobileNavVisible = signal(false);
   // Immersive mode gives no hint that a tap reveals the bar. Until the reader
   // has used the bar once (MOBILE_NAV_LEARNED_KEY), it stays up after a
@@ -156,11 +150,12 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
     // Immersive reading on phones: with the nav bar hidden, the global header
     // hides too (body.reader-immersive) so the scan gets the whole screen.
+    // An open panel keeps the chrome up (it docks between header and nav).
     effect(() => {
-      this.uiState.setImmersive(this.breakpointService.isMobile() && !this.mobileNavVisible());
+      this.uiState.setImmersive(this.breakpointService.isMobile() && !this.mobileNavVisible() && !this.mobilePanelOpen());
     });
 
-    // The pages sheet (left filter-sidebar slide-up) was closed: bring the nav back.
+    // The pages panel (left filter-sidebar) was closed: bring the nav back.
     effect(() => {
       const leftOpen = this.breakpointService.manualToggle();
       if (!leftOpen && untracked(() => this.mobileActivePanel() === 'pages')) {
@@ -392,7 +387,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  /** Mobile nav item of the open section (sheet header icon + caption). */
+  /** Mobile nav item of the open section (panel header icon + caption). */
   get mobileActiveNavItem(): MobileNavItem | null {
     return this.mobileNavItems.find(i => i.id === this.mobileActivePanel()) ?? null;
   }
@@ -406,8 +401,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   /**
-   * Bottom nav tap. The nav stays visible while a section sheet is open and is
-   * the only section switcher (the sheet header carries just the caption and
+   * Bottom nav tap. The nav stays visible while a section panel is open and is
+   * the only section switcher (the panel header carries just the caption and
    * close), so tapping another item swaps the content in place and tapping the
    * active one closes it.
    */
@@ -415,38 +410,32 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     this.cancelMobileNavPeek();
     this.markMobileNavLearned();
     const pagesOpen = this.breakpointService.manualToggle();
-    if (this.mobileActivePanel() === id && (this.mobileSlideUpOpen() || (id === 'pages' && pagesOpen))) {
+    if (this.mobileActivePanel() === id && (this.mobileSectionOpen() || (id === 'pages' && pagesOpen))) {
       if (id === 'pages') {
         this.breakpointService.manualToggle.set(false);
       } else {
-        this.mobileSlideUpOpen.set(false);
+        this.mobileSectionOpen.set(false);
       }
       this.mobileActivePanel.set('');
       return;
     }
     if (id === 'pages') {
-      // Pages uses the filter-sidebar slide-up. Coming from the open sheet this
-      // is a switch, not a close: onMobileSlideUpClosed must not reset state.
-      if (this.mobileSlideUpOpen()) {
-        this.switchingToPages = true;
-      }
-      this.mobileSlideUpOpen.set(false);
+      // Pages uses the filter-sidebar panel. Closing the section panel through
+      // its model emits no (closed), so the switch keeps the state set here.
+      this.mobileSectionOpen.set(false);
       this.mobileActivePanel.set(id);
       this.breakpointService.manualToggle.set(true);
     } else {
       this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set(id);
-      this.mobileSlideUpOpen.set(true);
+      this.mobileSectionOpen.set(true);
     }
     this.mobileNavVisible.set(true);
   }
 
-  onMobileSlideUpClosed() {
-    if (this.switchingToPages) {
-      this.switchingToPages = false;
-      return;
-    }
-    this.mobileSlideUpOpen.set(false);
+  /** Section panel dismissed (its close button or Escape): no section active. */
+  onMobileSectionClosed() {
+    this.mobileSectionOpen.set(false);
     this.mobileActivePanel.set('');
     this.mobileNavVisible.set(true);
   }
@@ -462,9 +451,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  /** Mobile page pill (‹ n / N ›) above the bottom nav. */
+  /** Mobile page pill (‹ n / N ›) above the bottom nav; hidden while a panel covers the viewer. */
   get showMobilePagePill(): boolean {
-    return this.breakpointService.isMobile() && this.mobileNavVisible() && !this.mobileSlideUpOpen()
+    return this.breakpointService.isMobile() && this.mobileNavVisible() && !this.mobilePanelOpen()
       && this.detailViewService.totalPages > 1;
   }
 
@@ -496,12 +485,13 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     // The reader took over: their tap decides, the pending auto-hide doesn't.
     this.cancelMobileNavPeek();
     this.markMobileNavLearned();
+    if (this.mobilePanelOpen()) return;
     this.mobileNavVisible.update(v => !v);
   }
 
   /** The reader started panning/zooming: the first-visit bar makes way for the scan. */
   onViewerGestureStart(): void {
-    if (!this.breakpointService.isMobile() || this.mobileSlideUpOpen() || !this.mobileNavVisible()) return;
+    if (!this.breakpointService.isMobile() || this.mobilePanelOpen() || !this.mobileNavVisible()) return;
     // Only the automatic peek yields to a gesture; a bar the reader opened stays.
     if (this.mobileNavPeekTimer === null && this.isMobileNavLearned()) return;
     this.cancelMobileNavPeek();
@@ -524,13 +514,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   /** Show the immersive bar for a moment so readers learn it exists. */
   private peekMobileNav(): void {
-    if (!this.breakpointService.isMobile() || this.mobileSlideUpOpen()) return;
+    if (!this.breakpointService.isMobile() || this.mobilePanelOpen()) return;
     this.cancelMobileNavPeek();
     this.mobileNavVisible.set(true);
     // First visits: no timer, the bar waits for the reader (see onViewerGestureStart).
     if (!this.isMobileNavLearned()) return;
     this.mobileNavPeekTimer = setTimeout(() => {
       this.mobileNavPeekTimer = null;
+      if (this.mobilePanelOpen()) return;
       this.mobileNavVisible.set(false);
     }, DetailViewPageComponent.MOBILE_NAV_PEEK_MS);
   }

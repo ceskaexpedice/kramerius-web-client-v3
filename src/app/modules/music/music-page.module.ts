@@ -32,7 +32,8 @@ import {MobileNavBarComponent} from '../../shared/components/mobile-nav-bar/mobi
 import {ViewerTapToggleDirective} from '../../shared/directives/viewer-tap-toggle.directive';
 import {AiContentPanelComponent} from '../../shared/components/ai-content-panel/ai-content-panel.component';
 import {AiActionsComponent} from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
-import {SlideUpPanelComponent} from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import {FixedPanelComponent} from '../../shared/components/fixed-panel/fixed-panel.component';
+import {FixedPanelEdgeDirective} from '../../shared/components/fixed-panel/fixed-panel-edge.directive';
 import {MetadataSection} from '../../shared/components/metadata-section/metadata-section';
 import {
   ExportDocumentSectionComponent
@@ -83,7 +84,8 @@ const routes: Routes = [
         ViewerTapToggleDirective,
         AiContentPanelComponent,
         AiActionsComponent,
-        SlideUpPanelComponent,
+        FixedPanelComponent,
+        FixedPanelEdgeDirective,
         MetadataSection,
         ExportDocumentSectionComponent,
         SearchResultsSidebarComponent,

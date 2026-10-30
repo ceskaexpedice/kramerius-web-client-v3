@@ -42,9 +42,8 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-      border: 1px solid var(--color-border-light);
-      margin: var(--spacing-x3);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+      margin: 0;
     }
   }
 }
@@ -127,8 +126,9 @@
   }
 }
 
-// Bottom nav bar (Mode A): fixed like on the detail page and above the sheet
-// backdrop (800), so sections switch without closing the open sheet first.
+// Bottom nav bar: fixed like on the detail page and above the fixed panels (700).
+// It is a panel edge and stays usable while a section panel is open (the panel
+// ends at its top edge), so sections switch without closing the panel first.
 app-mobile-nav-bar {
   position: fixed;
   left: 0;
@@ -152,11 +152,11 @@ app-mobile-nav-bar {
 
 // Keep scrollable content clear of the floating filter button on mobile (40px),
 // so the last row of years / issues can be scrolled out from under it. It rests
-// 12px from the bottom, or 12px above the nav bar when there is one
-// (see filterToggleBottomOffset).
+// 12px above the bottom nav bar (60px when shown, plus the playback bar when one
+// plays; see filterToggleBottomOffset).
 @include mixins.respond(mobile-sm) {
   .page-content__main {
-    padding-bottom: calc(var(--slide-up-panel-bottom-offset, 0px) + 12px + 40px + var(--spacing-x3));
+    padding-bottom: calc(var(--mobile-nav-space, 60px) + var(--playback-bar-height, 0px) + 12px + 40px + var(--spacing-x3));
   }
 
 }

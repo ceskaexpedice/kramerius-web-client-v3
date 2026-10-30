@@ -347,10 +347,10 @@
 
 <!-- Phones: switching lists lives behind the list name -->
 @if (breakpointService.isMobile() && (isLoggedIn$ | async)) {
-<app-slide-up-panel [title]="'my-saved-lists' | translate" [(isOpen)]="foldersSheetOpen">
+<app-fixed-panel [title]="'my-saved-lists' | translate" [(isOpen)]="foldersSheetOpen">
   <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"
     (newListRequested)="foldersSheetOpen.set(false); startCreatingList($event)"></app-saved-lists-filters>
-</app-slide-up-panel>
+</app-fixed-panel>
 }
 
 <ng-template #bannersTpl>

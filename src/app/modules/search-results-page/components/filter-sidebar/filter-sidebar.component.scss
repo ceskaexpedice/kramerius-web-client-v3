@@ -92,6 +92,11 @@
   i {
     font-size: var(--font-size-xlarge);
   }
+
+  // Phones: hidden while a fixed panel is open (kept in the DOM for focus return).
+  &--hidden {
+    display: none;
+  }
 }
 
 /* Sidebar close button */

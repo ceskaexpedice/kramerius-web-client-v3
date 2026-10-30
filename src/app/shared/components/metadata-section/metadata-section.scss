@@ -11,6 +11,24 @@
     gap: var(--spacing-x4);
   }
 
+  // Two short, related fields (volume + issue, accessibility + licence) share a
+  // row as two equal halves - on the same column line as the previous / next
+  // issue cards - only when each fits its half unwrapped; otherwise they stack
+  // (metadata-pair--stacked, toggled by MetadataPairDirective).
+  .metadata-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-x4) var(--spacing-x2);
+
+    > * {
+      min-width: 0;
+    }
+
+    &--stacked {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   h2 {
     font-size: var(--font-size-large);
     line-height: var(--line-height-3);

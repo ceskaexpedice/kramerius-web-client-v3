@@ -63,15 +63,15 @@
             <div class="flex flex--align-center flex--gap-x2">
 
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
-              <ng-container *ngIf="!adminModeService.adminMode()">
+              @if (!adminModeService.adminMode()) {
                 @if (compactToolbar()) {
                   <!-- Phones and small tablets: actions collapse into the "more" menu; view
                        toggle, sort (and the year on tablets) move to the sub-toolbar below -->
                   <app-toolbar-controls [showViewToggle]="false" [mobileMenuMode]="true"
                     [showFavorites]="true"
                     [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
-                    [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile() && !hasMobileTabs" [showSelect]="true"
-                    (infoClicked)="openRecordInfo()"
+                    [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile() && !hasMobileNav" [showSelect]="true"
+                    (infoClicked)="openMobileInfo()"
                     (favoritesClicked)="onFavoritesClicked($event)"
                     (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
                     (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
@@ -84,7 +84,7 @@
                       [favoritesActive]="(periodical.metadata?.uuid ? (favoritesHelper.getFavoritedStatus(periodical.metadata!.uuid) | async) : false) ?? false"
                       [showShare]="true" [showQuote]="true" [showInfo]="false" [showSelect]="true"
                       [viewToggleOptions]="viewToggleOptions()" [activeViewValue]="periodical.activeCalendarGridControl()"
-                      (viewChanged)="periodical.setView($event)" (infoClicked)="openRecordInfo()"
+                      (viewChanged)="periodical.setView($event)"
                       (favoritesClicked)="onFavoritesClicked($event)"
                       (shareClicked)="recordHandler.openShareDialog(periodical.metadata || null)"
                       (quoteClicked)="recordHandler.openCitationDialog(periodical.metadata || null)"
@@ -96,7 +96,7 @@
                     </app-results-sort>
                   </div>
                 }
-              </ng-container>
+              }
 
               @if (adminModeService.adminMode()) {
                 <app-admin-selection-count></app-admin-selection-count>
@@ -118,7 +118,7 @@
            On phones the toggle is icon-only only when the year sits between it and sort;
            the years view has room for labels. -->
       @if (compactToolbar() && !adminModeService.adminMode()) {
-        <div class="mobile-subtoolbar" [class.mobile-subtoolbar--collapsible]="!periodical.selectedYear()">
+        <div class="mobile-subtoolbar" appFixedPanelEdge="top" [class.mobile-subtoolbar--collapsible]="!periodical.selectedYear()">
           @if (periodical.viewMode() !== ViewMode.SearchResults) {
             <app-toolbar-controls [showViewToggle]="true"
               [viewToggleIconOnly]="breakpointService.isMobile() && !!periodical.selectedYear()"
@@ -145,7 +145,8 @@
 
         <!-- The main column is the scroll container (not the wrapper), so the
              header scroll-hide listens here; phones only, like search results. -->
-        <div class="page-content__main" [appScrollHideHeader]="breakpointService.isMobile()">
+        <div class="page-content__main" [appScrollHideHeader]="breakpointService.isMobile()"
+             [style.--mobile-nav-space.px]="hasMobileNav && !adminModeService.adminMode() ? 60 : 0">
 
           <!-- Sticky Tags Bar -->
           <div class="page-content__sticky-tags" *ngIf="((periodical.selectedTags | async) || []).length > 0">
@@ -191,7 +192,7 @@
         </div>
 
 
-        <!-- Right Sidebar (phones use the slide-up sheet below instead) -->
+        <!-- Right Sidebar (phones use the fixed panel below instead) -->
         @if (periodical.metadata && !breakpointService.isMobile()) {
           <div class="page-content__sidebar-right"
             [class.page-content__sidebar-right--absolute]="sidebarPositionMode === 'absolute'"
@@ -221,12 +222,13 @@
 
       </div>
 
-      <!-- Mobile right-panel: bottom nav bar (Mode A) or a description sheet opened
-           from the toolbar "more" menu > Info (Mode B) -->
+      <!-- Mobile right-panel: bottom nav bar (only with 2+ sections; the description
+           alone opens from the toolbar "more" menu > Info) and the section panel
+           between the sub-toolbar and the nav. -->
       @if (breakpointService.isMobile() && periodical.metadata && !adminModeService.adminMode()) {
-        @if (hasMobileTabs) {
-          <!-- Mode A: 2+ tabs → bottom nav bar + slide-up panel -->
+        @if (hasMobileNav) {
           <app-mobile-nav-bar
+            appFixedPanelEdge="bottom"
             [class.mobile-nav-bar--hidden]="mobileNavHidden()"
             [attr.inert]="mobileNavHidden() ? '' : null"
             [items]="mobileNavItems"
@@ -234,47 +236,26 @@
             [activeId]="mobileActivePanel()"
             (activeIdChange)="onMobileNavChange($event)">
           </app-mobile-nav-bar>
-
-          <app-slide-up-panel
-            [title]="getMobilePanelTitle()"
-            [(isOpen)]="mobileSlideUpOpen"
-            (closed)="onMobileSlideUpClosed()"
-            [initialHeight]="60"
-            [maxHeight]="90">
-            @switch (mobileActivePanel()) {
-              @case ('description') {
-                <!-- Panel header already shows the title, so hide metadata-section's own
-                     title (the go-to-parent link still renders below it). -->
-                <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
-                                      [uuid]="periodical.metadata.uuid || ''"
-                                      [collectionsMode]="true" [includeAllOption]="true"
-                                      (cdkCollectionChange)="periodical.setCdkSource($event)">
-                </app-metadata-section>
-              }
-              @case ('results') {
-                <app-search-results-sidebar [currentDocument]="periodical.metadata">
-                </app-search-results-sidebar>
-              }
-            }
-          </app-slide-up-panel>
-        } @else {
-          <!-- Mode B: description only → sheet opened from the toolbar menu. It used
-               to rest as a permanent peek band that repeated the toolbar title and
-               cost 56px of list height. -->
-          <app-slide-up-panel
-            [title]="periodical.metadata.mainTitle || ''"
-            [(isOpen)]="mobileSlideUpOpen"
-            [initialHeight]="60"
-            [maxHeight]="90">
-            <!-- Sheet header already shows the title, so metadata-section hides its own
-                 title (the go-to-parent link still renders below it). -->
-            <app-metadata-section [showTitle]="false" [metadata]="periodical.metadata"
-                                  [uuid]="periodical.metadata.uuid || ''"
-                                  [collectionsMode]="true" [includeAllOption]="true"
-                                  (cdkCollectionChange)="periodical.setCdkSource($event)">
-            </app-metadata-section>
-          </app-slide-up-panel>
         }
+
+        <app-fixed-panel
+          [title]="getMobilePanelTitle()"
+          [(isOpen)]="mobileSectionOpen"
+          (closed)="onMobileSectionClosed()">
+          @switch (mobileActivePanel()) {
+            @case ('description') {
+              <app-metadata-section [metadata]="periodical.metadata"
+                                    [uuid]="periodical.metadata.uuid || ''"
+                                    [collectionsMode]="true" [includeAllOption]="true"
+                                    (cdkCollectionChange)="periodical.setCdkSource($event)">
+              </app-metadata-section>
+            }
+            @case ('results') {
+              <app-search-results-sidebar [currentDocument]="periodical.metadata">
+              </app-search-results-sidebar>
+            }
+          }
+        </app-fixed-panel>
       }
 
     </div>

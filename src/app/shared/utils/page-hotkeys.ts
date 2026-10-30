@@ -12,7 +12,7 @@ const ARROW_OWNER_SELECTOR = [
   '.mat-mdc-menu-panel', '.cdk-overlay-container',
 ].join(', ');
 /** Panels whose content is scrolled with ↑/↓. */
-const PANEL_SELECTOR = 'app-metadata-sidebar, app-slide-up-panel, .detail-layout--sidebar-right';
+const PANEL_SELECTOR = 'app-metadata-sidebar, .fixed-panel, .detail-layout--sidebar-right';
 
 export function shouldIgnorePageHotkey(event: KeyboardEvent): boolean {
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {

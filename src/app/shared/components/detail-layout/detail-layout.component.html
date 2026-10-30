@@ -36,7 +36,7 @@
       <div class="detail-layout--main-content"
            [class.detail-layout--main-content--with-right-sidebar]="showRightSidebar"
            [class.detail-layout--main-content--overlay-right]="rightOverlay()"
-           [style.--sidebar-right-width]="showRightSidebar && !rightSidebarCollapsed && !rightOverlay() ? 'calc(var(--metadata-sidebar-width) + var(--spacing-x3) + 1px)' : '0px'">
+           [style.--sidebar-right-width]="showRightSidebar && !rightSidebarCollapsed && !rightOverlay() ? 'calc(var(--metadata-sidebar-width) + 1px)' : '0px'">
 
         <div class="detail-layout--license-bar-slot">
           <ng-content select="[license-bar]"></ng-content>

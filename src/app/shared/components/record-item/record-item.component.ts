@@ -20,7 +20,7 @@ import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
 import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
-import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../fixed-panel/fixed-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
@@ -38,7 +38,7 @@ import { trimSnippetToHighlight } from '../../utils/highlight-snippet';
     NgIf,
     ModelBadgeComponent,
     ThumbnailImageComponent,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
     MetadataSection,
     PluralizePipe,
     CdkTooltipDirective,

@@ -490,6 +490,8 @@
   "previous-issue--tooltip": "Poprzedni numer",
   "next-issue--tooltip": "Następny numer",
   "neighbor-issues": "Poprzedni i następny numer",
+  "neighbor-issues--first": "Pierwszy numer",
+  "neighbor-issues--last": "Ostatni numer",
   "search-results--tooltip": "Powrót do wyników wyszukiwania",
   "go-to-volume--tooltip": "Przejdź do periodyku",
   "go-to-monograph": "Przejdź do pakietu książek",
