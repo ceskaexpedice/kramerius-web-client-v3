@@ -151,12 +151,6 @@ app-header {
   z-index: 1000;
 }
 
-// Header slid away by a scrolling list (music track list): the layout takes
-// its height, as in immersive reading below.
-body.header-hidden .detail-layout {
-  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
-}
-
 body.reader-immersive {
   app-header {
     transform: translateY(-100%);
@@ -186,27 +180,37 @@ body.fixed-panel-open {
   }
 }
 
-body.header-hidden {
-  app-header {
-    transform: translateY(-100%);
-    margin-bottom: calc(-1 * var(--header-height));
+// Header and toolbars above a list that scrolls them away (ScrollHideHeaderDirective
+// marks them). The list already runs under them, so hiding is a pure transform:
+// no layout change, the content keeps moving with the finger. They all slide up
+// by the same distance, so bars marked to stay end at the screen top.
+.scroll-hide-chrome {
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
+}
+
+// Above the list content scrolling under them; zero specificity, so a bar's own
+// z-index (header, fixed-panel-open below) still wins.
+:where(.scroll-hide-chrome) {
+  z-index: z.$scroll-hide-chrome;
+}
+
+// Their page wrappers would clip them at the top of <main> while they slide.
+.scroll-hide-unclip {
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+}
+
+body.header-hidden .scroll-hide-chrome {
+  transform: translateY(calc(-1 * var(--scroll-hide-distance, 100%)));
 }
 
 .page-content__filters {
-  transition: transform 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
   will-change: transform;
-}
-
-body.header-hidden .page-content__filters {
-  transform: translateY(-100%);
-  margin-bottom: -57px !important;
-
-  // Phones (mobile-sm): the toolbar is 50px tall, so collapsing it by the
-  // desktop 57px pulled the sticky scope tabs / tags 7px under the screen top.
-  @media (max-width: 603px) {
-    margin-bottom: -50px !important;
-  }
 }
 
 // Popups positioned by PopupPositioningService are placed by JS one tick after

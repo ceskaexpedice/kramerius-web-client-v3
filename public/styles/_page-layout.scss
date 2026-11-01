@@ -6,11 +6,8 @@
 .page-container {
   height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
-  transition: height 0.3s ease-in-out;
-
-  body.header-hidden & {
-    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px));
-  }
+  // No change when a phone list slides the header away: the list runs under
+  // the header (ScrollHideHeaderDirective), so the page keeps its height.
 
   /* Responsive layout adjustments */
   @media (max-width: 853px) {
@@ -102,8 +99,16 @@
 
 .page-content__sticky-tags {
   position: sticky;
-  top: 0;
+  // Below the bars a phone list scrolls under (ScrollHideHeaderDirective sets
+  // the offset on the list; it follows the bars as they slide away and back).
+  top: var(--scroll-hide-sticky-top, 0px);
+  transition: top 0.3s ease-in-out;
   z-index: 100;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
   background: var(--color-bg-light);
   padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x2) 0;
   width: 100%;

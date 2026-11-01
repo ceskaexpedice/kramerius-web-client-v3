@@ -131,7 +131,7 @@
            On phones the toggle is icon-only only when the year sits between it and sort;
            the years view has room for labels. -->
       @if (compactToolbar() && !adminModeService.adminMode()) {
-        <div class="mobile-subtoolbar" appFixedPanelEdge="top" [class.mobile-subtoolbar--collapsible]="!periodical.selectedYear()">
+        <div class="mobile-subtoolbar" appFixedPanelEdge="top" [attr.data-scroll-hide-keep]="periodical.selectedYear() ? '' : null">
           @if (periodical.viewMode() !== ViewMode.SearchResults) {
             <app-toolbar-controls [showViewToggle]="true"
               [viewToggleIconOnly]="breakpointService.isMobile() && !!periodical.selectedYear()"

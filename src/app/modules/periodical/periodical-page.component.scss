@@ -79,9 +79,6 @@
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border-light);
 
-  // Same timing as the toolbar collapse in styles.scss.
-  transition: top 0.3s ease-in-out;
-
   // Keep sort pinned to the right whether or not the view toggle is present
   app-results-sort {
     margin-left: auto;
@@ -102,22 +99,11 @@
     }
   }
 
-  // While scrolled with the header hidden the action toolbar above collapses;
-  // pinned at the toolbar height this bar would leave an empty band on top.
-  :host-context(body.header-hidden) & {
-    top: 0;
-  }
-
-  // Without a year to page through (years overview, search) the bar only holds
-  // view + sort, which nobody needs mid-scroll: it leaves with the header.
-  &.mobile-subtoolbar--collapsible {
-    transition: top 0.3s ease-in-out, transform 0.3s ease-in-out, margin-top 0.3s ease-in-out;
-
-    :host-context(body.header-hidden) & {
-      transform: translateY(-100%);
-      margin-top: -49px;
-    }
-  }
+  // While the list scrolls down the header and the toolbars slide away
+  // (ScrollHideHeaderDirective). With a year to page through this bar stays
+  // and ends at the screen top (data-scroll-hide-keep); without one (years
+  // overview, search) it only holds view + sort, which nobody needs
+  // mid-scroll, so it leaves with the header.
 }
 
 @media (prefers-reduced-motion: reduce) {

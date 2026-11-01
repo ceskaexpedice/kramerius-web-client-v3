@@ -80,13 +80,6 @@ app-mobile-nav-bar {
   }
 }
 
-// Header and bottom bar are both out of view: the results take the full height.
-:host:has(app-mobile-nav-bar.mobile-nav-bar--hidden) {
-  .page-container {
-    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   app-mobile-nav-bar {
     transition: none;

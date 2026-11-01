@@ -23,10 +23,11 @@
     <section class="detail-layout--main" [attr.aria-label]="'document-content--arialabel' | translate">
 
       <!-- Phones: the toolbar leaves with the app header and the nav bar, in
-           immersive reading (a tap on the viewer brings them back) and while a
-           list scrolls down (music track list; scrolling up brings them back). -->
+           immersive reading (collapses; a tap on the viewer brings it back) and
+           while a list scrolls down (music track list: the list runs under it,
+           so it only slides away, see ScrollHideHeaderDirective). -->
       <div class="detail-layout--action-toolbar"
-           [class.detail-layout--action-toolbar--hidden]="toolbarHidden()"
+           [class.detail-layout--action-toolbar--hidden]="uiStateService.immersive()"
            [attr.inert]="toolbarHidden() ? '' : null">
         <div class="detail-layout--action-toolbar-inner">
           <ng-content select="[action-toolbar]"></ng-content>
